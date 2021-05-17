@@ -2,37 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ADF253833D2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C983835A5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242456AbhEQPCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59930 "EHLO mail.kernel.org"
+        id S242974AbhEQPXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:23:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241330AbhEQPAf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:00:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6815C619D4;
-        Mon, 17 May 2021 14:26:49 +0000 (UTC)
+        id S244289AbhEQPT6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:19:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C4F661C7D;
+        Mon, 17 May 2021 14:34:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261609;
-        bh=dy/HUqn33uyjwkK/I4/+L9Yi7udlXE/KlqDEKweD/Ec=;
+        s=korg; t=1621262041;
+        bh=LkVvnlMpr7KFNdLwKZl+wXiRnEoPowQuRK2r6K5N8X0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDg85qS2opYcOJ6SLSeCgEBGFYrebF2f6022eFtW7LumOP1jG9QMdaUhBw013AoFl
-         IvxaWcS0I5CYTU9ee/Lg443XhZZVweuwM6OItyrU5yOGl8gzh3xx/wr3IxDhhuxKZg
-         wwpn6pDRlbN2ak9fn4OSLCaeNpyX/Y3q+9wZKYXM=
+        b=ZAb+PwsVZXhiTyRZsl1C4RZKT7ZYY4bLK8OzTzvjqsR/I5hg3WvTaeUMXAAdQIkW3
+         0YW3mXuriG0jDQc0vxS4eT+Ke2SG/xdxhrRFk7towmGl2Ye8A5VjPWU+lLSks6M+aC
+         SncDS0XsdRqtPj5VdoeqLz0C7IxPm1d1mC2vsjf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 065/141] rtc: ds1307: Fix wday settings for rx8130
-Date:   Mon, 17 May 2021 16:01:57 +0200
-Message-Id: <20210517140244.957688030@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Tatashin <pasha.tatashin@soleen.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Dan Williams <dan.j.williams@intel.com>,
+        David Hildenbrand <david@redhat.com>,
+        David Rientjes <rientjes@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Ira Weiny <ira.weiny@intel.com>,
+        James Morris <jmorris@namei.org>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        John Hubbard <jhubbard@nvidia.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Mel Gorman <mgorman@suse.de>, Michal Hocko <mhocko@kernel.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Tyler Hicks <tyhicks@linux.microsoft.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 207/329] mm/gup: check for isolation errors
+Date:   Mon, 17 May 2021 16:01:58 +0200
+Message-Id: <20210517140309.126588576@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +60,153 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
+[ Upstream commit 6e7f34ebb8d25d71ce7f4580ba3cbfc10b895580 ]
 
-rx8130 wday specifies the bit position, not BCD.
+It is still possible that we pin movable CMA pages if there are
+isolation errors and cma_page_list stays empty when we check again.
 
-Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
+Check for isolation errors, and return success only when there are no
+isolation errors, and cma_page_list is empty after checking.
+
+Because isolation errors are transient, we retry indefinitely.
+
+Link: https://lkml.kernel.org/r/20210215161349.246722-5-pasha.tatashin@soleen.com
+Fixes: 9a4e9f3b2d73 ("mm: update get_user_pages_longterm to migrate pages allocated from CMA region")
+Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Dan Williams <dan.j.williams@intel.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Ira Weiny <ira.weiny@intel.com>
+Cc: James Morris <jmorris@namei.org>
+Cc: Jason Gunthorpe <jgg@ziepe.ca>
+Cc: John Hubbard <jhubbard@nvidia.com>
+Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Michal Hocko <mhocko@kernel.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Oscar Salvador <osalvador@suse.de>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Tyler Hicks <tyhicks@linux.microsoft.com>
+Cc: Vlastimil Babka <vbabka@suse.cz>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ mm/gup.c | 60 ++++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 34 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 1f7e8aefc1eb..99b93f56a2d5 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -265,7 +265,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
- 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
- 	t->tm_hour = bcd2bin(tmp);
--	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
-+	else
-+		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
- 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
- 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
- 	t->tm_mon = bcd2bin(tmp) - 1;
-@@ -312,7 +316,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
- 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
- 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
--	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
-+	else
-+		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
- 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
- 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+diff --git a/mm/gup.c b/mm/gup.c
+index 2d7a567b4056..0cdb93e98d00 100644
+--- a/mm/gup.c
++++ b/mm/gup.c
+@@ -1548,8 +1548,8 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
+ 					struct vm_area_struct **vmas,
+ 					unsigned int gup_flags)
+ {
+-	unsigned long i;
+-	bool drain_allow = true;
++	unsigned long i, isolation_error_count;
++	bool drain_allow;
+ 	LIST_HEAD(cma_page_list);
+ 	long ret = nr_pages;
+ 	struct page *prev_head, *head;
+@@ -1560,6 +1560,8 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
  
+ check_again:
+ 	prev_head = NULL;
++	isolation_error_count = 0;
++	drain_allow = true;
+ 	for (i = 0; i < nr_pages; i++) {
+ 		head = compound_head(pages[i]);
+ 		if (head == prev_head)
+@@ -1571,25 +1573,35 @@ check_again:
+ 		 * of the CMA zone if possible.
+ 		 */
+ 		if (is_migrate_cma_page(head)) {
+-			if (PageHuge(head))
+-				isolate_huge_page(head, &cma_page_list);
+-			else {
++			if (PageHuge(head)) {
++				if (!isolate_huge_page(head, &cma_page_list))
++					isolation_error_count++;
++			} else {
+ 				if (!PageLRU(head) && drain_allow) {
+ 					lru_add_drain_all();
+ 					drain_allow = false;
+ 				}
+ 
+-				if (!isolate_lru_page(head)) {
+-					list_add_tail(&head->lru, &cma_page_list);
+-					mod_node_page_state(page_pgdat(head),
+-							    NR_ISOLATED_ANON +
+-							    page_is_file_lru(head),
+-							    thp_nr_pages(head));
++				if (isolate_lru_page(head)) {
++					isolation_error_count++;
++					continue;
+ 				}
++				list_add_tail(&head->lru, &cma_page_list);
++				mod_node_page_state(page_pgdat(head),
++						    NR_ISOLATED_ANON +
++						    page_is_file_lru(head),
++						    thp_nr_pages(head));
+ 			}
+ 		}
+ 	}
+ 
++	/*
++	 * If list is empty, and no isolation errors, means that all pages are
++	 * in the correct zone.
++	 */
++	if (list_empty(&cma_page_list) && !isolation_error_count)
++		return ret;
++
+ 	if (!list_empty(&cma_page_list)) {
+ 		/*
+ 		 * drop the above get_user_pages reference.
+@@ -1609,23 +1621,19 @@ check_again:
+ 			return ret > 0 ? -ENOMEM : ret;
+ 		}
+ 
+-		/*
+-		 * We did migrate all the pages, Try to get the page references
+-		 * again migrating any new CMA pages which we failed to isolate
+-		 * earlier.
+-		 */
+-		ret = __get_user_pages_locked(mm, start, nr_pages,
+-						   pages, vmas, NULL,
+-						   gup_flags);
+-
+-		if (ret > 0) {
+-			nr_pages = ret;
+-			drain_allow = true;
+-			goto check_again;
+-		}
++		/* We unpinned pages before migration, pin them again */
++		ret = __get_user_pages_locked(mm, start, nr_pages, pages, vmas,
++					      NULL, gup_flags);
++		if (ret <= 0)
++			return ret;
++		nr_pages = ret;
+ 	}
+ 
+-	return ret;
++	/*
++	 * check again because pages were unpinned, and we also might have
++	 * had isolation errors and need more pages to migrate.
++	 */
++	goto check_again;
+ }
+ #else
+ static long check_and_migrate_cma_pages(struct mm_struct *mm,
 -- 
 2.30.2
 
