@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05318382660
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:11:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D6E438265F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:11:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235451AbhEQIMi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:12:38 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51997 "EHLO
+        id S235394AbhEQIMh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:12:37 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:33663 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234381AbhEQIMg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:12:36 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 8E47E45D;
-        Mon, 17 May 2021 04:11:19 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Mon, 17 May 2021 04:11:19 -0400
+        by vger.kernel.org with ESMTP id S235489AbhEQIMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:12:33 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 03635972;
+        Mon, 17 May 2021 04:11:16 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 17 May 2021 04:11:17 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=PRh3JI
-        3Of021FsaAHnXe1fuF0EIEQrbGOqiGMwDBMdA=; b=iItFkhaYkHzX9iy9P4Zup9
-        WHIgYJrthBqR39DaH1mpbfyAG3sSVvBES7gSUAMjiBPtcopdE++k3RG0rlBCMk/B
-        sNUpRSmNlno8J5CcWabLG7dgjgaUknKedjNYtTyrW3G5BI4qI3274AIePcZ+cnT/
-        6aHhJRZtNQhqqrwIvQEkTNmQPuhOUgh6T+UHKroYKOXvD13HTYoQiHbEBt1GnW13
-        Y0FNirCvBNqEsgk5/fy69oswKXaZq4lFAMJawy9esHdZQRu2raymhnLUgacYWy83
-        b0YSgYDlaSXqox3bqLr/jq6KxUDnMH1hoAMIFEx/J9tNdEdfG820DO+Q8aE6wA4Q
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=GG7syk
+        d4sZoqOUciEWU3GMyVfx38mohyJJXzpM2myq8=; b=shaPrKzf1gSOA6nExUv5hT
+        AMHYSOvMmFkPjS2dJ4IAe7W1BiWdwZ/eGUUhpCCU09v+82N3rOFQFb3rOaitRctx
+        WacFWi7kaqKKyk1D3TFp18X2GxLW647PFbVBRpGLE5z5dHNjTtwo5fT+tIjfwh+G
+        1UZL37YLs0oNdTJeqiiOuALQgzKUHKydqVIXaZzjMwmBycTBOX9iVZpg7EpFP8Yr
+        s3+eTrk5fBuyAsz2l1v5lzg3ypH9LIkIBpEJ+6sSQ57u/Y26KEmeOkbfgI54wzYO
+        ND+WDnT8NhBOeo1RA0o5OPajLY6ncHnTXHXQevZQYWzA7qd4SS4dpz/wKqiBuTOw
         ==
-X-ME-Sender: <xms:JyWiYO5xs2ml9sE7ftqPuSEKeBB4L4av1ngJe5UlyGGkX0L7Hm6Cuw>
-    <xme:JyWiYH5yIe0gVOH2tepL6RGQM0ZKLDhyXvKUasXijZD52lXJURL1BW8zqHlYJHu2Z
-    iXzbf22Y6qD2A>
+X-ME-Sender: <xms:JCWiYL6tWbHaVbyCffiRkVKPeXRT9Tgv7D8MctnBX9kJnDSFdMrsCg>
+    <xme:JCWiYA7KZUyqsyvFV_k1lO10l7H4FAQbSIAFf9ff1i7VPkfOMC4dDiOq8_PZ8KWUy
+    KXZjuHcmdbnPQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdduucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:JyWiYNdLo8v_RNWZ2trHVc6zkadR-ts699-UwRs7bkevItqexm82TQ>
-    <xmx:JyWiYLLgwQsHEVQiJ3_0aBw4qJ2m3bjzxPAIGiIum-KVwSK2zrmQ-A>
-    <xmx:JyWiYCJcyO3bdIMT7s4oUW3Xwlkah4dwWlA8S3tTUNCga-2dE-AkbA>
-    <xmx:JyWiYJULwkO2odKfVZXOCvpJy1fRQFBTDwvx5Bo3PtR27sOU_psub-n49bU>
+X-ME-Proxy: <xmx:JCWiYCf0J1tTqdZrrsrwjywL5vgymWsQdtl6iZMeFP3rJ7KohIUiRg>
+    <xmx:JCWiYMJqNeAluDeUZcy3c6alGdtjAUNzOAVFsszgP4ZYF6-iAEx3vg>
+    <xmx:JCWiYPKExFd-Q5jwAp7cbz1uPpazPUccsKokM2SZmqw7QRFa8-0hdw>
+    <xmx:JCWiYGV-rKDX-05L-T-N2in__0_o1GhaDnwrFl0_9zEz-XMrmFUidP0roDs>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 04:11:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Put fwnode in any case during ->probe()" failed to apply to 4.19-stable tree
+        Mon, 17 May 2021 04:11:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: typec: ucsi: Put fwnode in any case during ->probe()" failed to apply to 4.14-stable tree
 To:     andy.shevchenko@gmail.com, gregkh@linuxfoundation.org,
         heikki.krogerus@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 17 May 2021 10:11:06 +0200
-Message-ID: <1621239066200111@kroah.com>
+Message-ID: <162123906678186@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
