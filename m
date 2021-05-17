@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC3D73837C0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 380C8383658
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244348AbhEQPqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
+        id S238774AbhEQPb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344502AbhEQPow (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:44:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E594161D26;
-        Mon, 17 May 2021 14:43:24 +0000 (UTC)
+        id S243611AbhEQP1B (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:27:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A91F61CAF;
+        Mon, 17 May 2021 14:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262605;
-        bh=nrLbR1qS2oetQEG6q1ppywEyY3I4leNoq2ksalzIrvs=;
+        s=korg; t=1621262203;
+        bh=rT3wyvJlgHTyoEDQhF1w6rnDbcmpWsfqhSKDDCR+MFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nv4Cuf2PA4+zPhy81vCIHn4Z6OvDrmjC8fIzZl/yHJJJA/s53b5Mte8ZpNn502/SN
-         2Plv3+3VfPiXV/UPXDnFXCk09jUerLt1IF2dfxwyEViav6i2DSA6a+pYrOG64BkmDY
-         oM7+UgTCv5EOgrrqPlwUTADgdC93PPGSb7WxBjuQ=
+        b=J385JiVpy7q4e19cI0aSufETNlFAWzuz1yBYuN20Nay3p65MhtUVC+sltlkTKrLek
+         56W3Fztr4APGvUEdxDSN9PFA+jfQ2CdqPFipTsgfTbEOoShlE9PY+ayW9hnpm/7UaP
+         mZeumniK1P6k+KBgI4O5Lf1bK+Lx4RnZ6zn8wPS8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 223/289] iio: light: gp2ap002: Fix rumtime PM imbalance on error
-Date:   Mon, 17 May 2021 16:02:28 +0200
-Message-Id: <20210517140312.672769607@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        George Popescu <georgepope@android.com>,
+        Elena Petrova <lenaptr@google.com>,
+        Evgenii Stepanov <eugenis@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 238/329] kasan: fix unit tests with CONFIG_UBSAN_LOCAL_BOUNDS enabled
+Date:   Mon, 17 May 2021 16:02:29 +0200
+Message-Id: <20210517140310.167568236@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +45,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Peter Collingbourne <pcc@google.com>
 
-[ Upstream commit 8edb79af88efc6e49e735f9baf61d9f0748b881f ]
+commit f649dc0e0d7b509c75570ee403723660f5b72ec7 upstream.
 
-When devm_request_threaded_irq() fails, we should decrease the
-runtime PM counter to keep the counter balanced. But when
-iio_device_register() fails, we need not to decrease it because
-we have already decreased it before.
+These tests deliberately access these arrays out of bounds, which will
+cause the dynamic local bounds checks inserted by
+CONFIG_UBSAN_LOCAL_BOUNDS to fail and panic the kernel.  To avoid this
+problem, access the arrays via volatile pointers, which will prevent the
+compiler from being able to determine the array bounds.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 97d642e23037 ("iio: light: Add a driver for Sharp GP2AP002x00F")
-Link: https://lore.kernel.org/r/20210407034927.16882-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+These accesses use volatile pointers to char (char *volatile) rather than
+the more conventional pointers to volatile char (volatile char *) because
+we want to prevent the compiler from making inferences about the pointer
+itself (i.e.  its array bounds), not the data that it refers to.
+
+Link: https://lkml.kernel.org/r/20210507025915.1464056-1-pcc@google.com
+Link: https://linux-review.googlesource.com/id/I90b1713fbfa1bf68ff895aef099ea77b98a7c3b9
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Tested-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Peter Collingbourne <pcc@google.com>
+Cc: George Popescu <georgepope@android.com>
+Cc: Elena Petrova <lenaptr@google.com>
+Cc: Evgenii Stepanov <eugenis@google.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/gp2ap002.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ lib/test_kasan.c |   29 +++++++++++++++++++++++------
+ 1 file changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/iio/light/gp2ap002.c b/drivers/iio/light/gp2ap002.c
-index 7ba7aa59437c..040d8429a6e0 100644
---- a/drivers/iio/light/gp2ap002.c
-+++ b/drivers/iio/light/gp2ap002.c
-@@ -583,7 +583,7 @@ static int gp2ap002_probe(struct i2c_client *client,
- 					"gp2ap002", indio_dev);
- 	if (ret) {
- 		dev_err(dev, "unable to request IRQ\n");
--		goto out_disable_vio;
-+		goto out_put_pm;
- 	}
- 	gp2ap002->irq = client->irq;
+--- a/lib/test_kasan.c
++++ b/lib/test_kasan.c
+@@ -449,8 +449,20 @@ static char global_array[10];
  
-@@ -613,8 +613,9 @@ static int gp2ap002_probe(struct i2c_client *client,
+ static void kasan_global_oob(struct kunit *test)
+ {
+-	volatile int i = 3;
+-	char *p = &global_array[ARRAY_SIZE(global_array) + i];
++	/*
++	 * Deliberate out-of-bounds access. To prevent CONFIG_UBSAN_LOCAL_BOUNDS
++	 * from failing here and panicing the kernel, access the array via a
++	 * volatile pointer, which will prevent the compiler from being able to
++	 * determine the array bounds.
++	 *
++	 * This access uses a volatile pointer to char (char *volatile) rather
++	 * than the more conventional pointer to volatile char (volatile char *)
++	 * because we want to prevent the compiler from making inferences about
++	 * the pointer itself (i.e. its array bounds), not the data that it
++	 * refers to.
++	 */
++	char *volatile array = global_array;
++	char *p = &array[ARRAY_SIZE(global_array) + 3];
  
- 	return 0;
+ 	/* Only generic mode instruments globals. */
+ 	if (!IS_ENABLED(CONFIG_KASAN_GENERIC)) {
+@@ -479,8 +491,9 @@ static void ksize_unpoisons_memory(struc
+ static void kasan_stack_oob(struct kunit *test)
+ {
+ 	char stack_array[10];
+-	volatile int i = OOB_TAG_OFF;
+-	char *p = &stack_array[ARRAY_SIZE(stack_array) + i];
++	/* See comment in kasan_global_oob. */
++	char *volatile array = stack_array;
++	char *p = &array[ARRAY_SIZE(stack_array) + OOB_TAG_OFF];
  
--out_disable_pm:
-+out_put_pm:
- 	pm_runtime_put_noidle(dev);
-+out_disable_pm:
- 	pm_runtime_disable(dev);
- out_disable_vio:
- 	regulator_disable(gp2ap002->vio);
--- 
-2.30.2
-
+ 	if (!IS_ENABLED(CONFIG_KASAN_STACK)) {
+ 		kunit_info(test, "CONFIG_KASAN_STACK is not enabled");
+@@ -494,7 +507,9 @@ static void kasan_alloca_oob_left(struct
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array - 1;
++	/* See comment in kasan_global_oob. */
++	char *volatile array = alloca_array;
++	char *p = array - 1;
+ 
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	if (!IS_ENABLED(CONFIG_KASAN_GENERIC)) {
+@@ -514,7 +529,9 @@ static void kasan_alloca_oob_right(struc
+ {
+ 	volatile int i = 10;
+ 	char alloca_array[i];
+-	char *p = alloca_array + i;
++	/* See comment in kasan_global_oob. */
++	char *volatile array = alloca_array;
++	char *p = array + i;
+ 
+ 	/* Only generic mode instruments dynamic allocas. */
+ 	if (!IS_ENABLED(CONFIG_KASAN_GENERIC)) {
 
 
