@@ -2,84 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CD5C3822D6
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 04:42:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC113822E1
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 04:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232805AbhEQCn5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 22:43:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51514 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229661AbhEQCn4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 22:43:56 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DF72C061573
-        for <stable@vger.kernel.org>; Sun, 16 May 2021 19:42:41 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=83lZs4j5473YL7dKkE/N9Fxr8HnhbMpxrkQ6QOQrtj8=; b=eFTV/+uO92duVnstBU54YuDVw+
-        7NvK17J5YMjeiD2imbl9sCcp4h/SJsNDGzeJZkLWDdcVWaqln/9z6bV9kX350EaNUzqSibS5EGVI7
-        azPgniOC0bejgN85Ne14queeyKsB8UiCh/A/ukbWYlQ9ePvOHJD9iHt7BmnO14DZVSG2udR4Ag2s/
-        qJZY45gy/3MkEUd+b6EOefdsMhN/rWD3iC0NXyAPEG7Qok3rAaj5+hf6Baddleuscn1XHccF/K0bG
-        cdNiAPlupAhdojrmmwPNkyBodmLwx+6lrKp8Jtf22Or5M52uI5qyYEmDAGRfkSk6ecJ4YZ2Ej8cds
-        /DuyrcDQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1liTDC-00CULx-JB; Mon, 17 May 2021 02:42:33 +0000
-Date:   Mon, 17 May 2021 03:42:30 +0100
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Linus Torvalds <torvalds@linux-foundation.org>
-Cc:     stable <stable@vger.kernel.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matteo Croce <mcroce@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: Re: [PATCH] mm: fix struct page layout on 32-bit systems
-Message-ID: <YKHYFpyPcnwpetM5@casper.infradead.org>
-References: <20210516121844.2860628-1-willy@infradead.org>
- <CAHk-=wgTG0Bb30NzXX=3F=n-rHjVrQAHVzFFCxRKWTTu1QxABQ@mail.gmail.com>
- <YKFi1hIBGLIQOHgc@casper.infradead.org>
- <CAHk-=wihKAt+Wz6=nccQAXxi_VWFJpx4JwWTJSwT0UvUs1RtZw@mail.gmail.com>
- <YKFt4Njj5au/JEhT@casper.infradead.org>
- <CAHk-=wj6RAF5OFq3Pp725e0BFU2e0QnMCvhfF_3TBhk=UqN3Jw@mail.gmail.com>
+        id S233831AbhEQCvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 22:51:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51794 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229661AbhEQCvZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 16 May 2021 22:51:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5EBAB61185;
+        Mon, 17 May 2021 02:50:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621219809;
+        bh=X5ngr4Uil22+BzVfrBo4TeLtOT8gxEtRZ54sQyy4Mm0=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=cVpJuIfZ67ZtRqeV5waou19NoOp3QzFmmCi87p8kkGFQ7g1/Id2iFmXqUmPJkjO7X
+         Wx+DuUgPpwzBHGr438yjb/s9CPCYSaPxCSObPL9Ri+lc66kw1dhUzrtc+JPIapA/uE
+         BsGv4Tpbgym1cPaY6Rj8bF5ipPXgILPTDKTN2JGFcWUujBQbCKoudvq7yI5Tu4FOAS
+         13ry/UYgQGkPnawO6XpGe7HpEcYhVs+331fkXuDXVgOC5pv8ZtdLkKSiuV2gjeQm15
+         0AyAh6mgt5pA6HLfkmJ51ij0CIc9m1ObrhPNvu0XJGz3ZlFJzNj3vUXUKg9z5ebVtu
+         pH69lDz8c/yqw==
+Date:   Sun, 16 May 2021 22:50:08 -0400
+From:   Sasha Levin <sashal@kernel.org>
+To:     Lu Baolu <baolu.lu@linux.intel.com>
+Cc:     Wolfgang =?iso-8859-1?Q?M=FCller?= <wolf@oriole.systems>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Ashok Raj <ashok.raj@intel.com>, Joerg Roedel <jroedel@suse.de>
+Subject: Re: [PATCH 5.10 392/530] iommu/vt-d: Preset Access/Dirty bits for
+ IOVA over FL
+Message-ID: <YKHZ4AEUkXEqkFNW@sashalap>
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144832.660153884@linuxfoundation.org>
+ <20210515132855.4bn7ve2ozvdhpnj4@nabokov.fritz.box>
+ <5d9b2c1a-f2f4-a9db-a14b-b6a31da59f54@linux.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <CAHk-=wj6RAF5OFq3Pp725e0BFU2e0QnMCvhfF_3TBhk=UqN3Jw@mail.gmail.com>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5d9b2c1a-f2f4-a9db-a14b-b6a31da59f54@linux.intel.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 16, 2021 at 12:22:43PM -0700, Linus Torvalds wrote:
-> On Sun, May 16, 2021 at 12:09 PM Matthew Wilcox <willy@infradead.org> wrote:
-> >
-> > That was the other problem fixed by this patch -- on big-endian 32-bit
-> > platforms with 64-bit dma_addr_t (mips, ppc), a DMA address with bit 32 set
-> > inadvertently sets the PageTail bit.  So we need to store the low bits
-> > in the first word, even on big-endian platforms.
-> 
-> Ouch. And yes, that would have shot down the "dma page frame number" model too.
-> 
-> Oh how I wish PageTail was in "flags". Yes, our compound_head() thing
-> is "clever", but it's a pain,
-> 
-> That said, that union entry is "5 words", so the dma_addr_t thing
-> could easily just have had a dummy word at the beginning.
+On Mon, May 17, 2021 at 10:38:42AM +0800, Lu Baolu wrote:
+>Hi Wolfgang,
+>
+>On 5/15/21 9:28 PM, Wolfgang Müller wrote:
+>>Hi!
+>>
+>>First of all, apologies if this is the wrong place to post a problem
+>>report. I figured since I was going to reference a particular commit
+>>anyway I might as well reply to the patch series that (seemed to have)
+>>introduced the problem.
+>>
+>>>From: Lu Baolu <baolu.lu@linux.intel.com>
+>>>
+>>>[ Upstream commit a8ce9ebbecdfda3322bbcece6b3b25888217f8e3 ]
+>>>
+>>>The Access/Dirty bits in the first level page table entry will be set
+>>>whenever a page table entry was used for address translation or write
+>>>permission was successfully translated. This is always true when using
+>>>the first-level page table for kernel IOVA. Instead of wasting hardware
+>>>cycles to update the certain bits, it's better to set them up at the
+>>>beginning.
+>>
+>>This commit seems to trigger a kernel panic very early in boot for me in
+>>5.10.37 (36 is fine):
+>
+>It seems due to the back-ported patch:
+>
+>-	if (!sg) {
+>-		sg_res = nr_pages;
+>-		pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
+>+		if (domain->domain.type == IOMMU_DOMAIN_DMA) {
+>+			attr |= DMA_FL_PTE_ACCESS;
+>+			if (prot & DMA_PTE_WRITE)
+>+				attr |= DMA_FL_PTE_DIRTY;
+>+		}
+> 	}
+>
+>+	pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
+>
+>Greg, do you want me to rework this patch, or submit an incremental fix?
 
-Ah, if you just put one dummy word in front, then dma_addr_t overlaps with
-page->mapping, which used to be fine, but now we can map network queues
-to userspace, page->mapping has to be NULL.  So there's only two places to
-put dma_addr; either overlapping compound_head or overlapping pfmemalloc.
+Could you send a reworked patch please?
 
-I don't think PageTail is movable -- the issue is needing an atomic read
-of both PageTail _and_ the location of the head page.  Even if x86 has
-something, there are a lot of architectures that don't.
-
-While I've got you on the subject of compound_head ... have you had a look
-at the folio work?  It decreases the number of calls to compound_head()
-by about 25%, as well as shrinking the (compiled size) of the kernel and
-laying the groundwork for supporting things like 32kB anonymous pages
-and adaptive page sizes in the page cache.  Andrew's a bit nervous of
-it, probably because it's such a large change.
-
+-- 
+Thanks,
+Sasha
