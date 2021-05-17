@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42E233830D1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE856382ED6
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240163AbhEQObm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:31:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
+        id S238609AbhEQOLY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:11:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239942AbhEQO3j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:29:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C207261359;
-        Mon, 17 May 2021 14:14:48 +0000 (UTC)
+        id S233962AbhEQOJj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:09:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD3961360;
+        Mon, 17 May 2021 14:06:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260889;
-        bh=fxnDPLlPWYLf9/KzTkxHvikDC9lWN6ga0dBvtKr5d2I=;
+        s=korg; t=1621260418;
+        bh=61xpfLXqVEMo6Yjqybp3IC64fXwudK8TBjdPC8zIexw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CBFhnd8RhBww60Pa12QGhORrbn+UIZwHyNM5un5Wec+X1AuLtXufSbbMMwjVWf7gY
-         DR8FgXCMcv6abuYak+LW9Nf+Lq+NTK+DG6MDaQC8GQfEsNV3uVVqG7Hjni23aD60iV
-         ocEjyRyLOi8rNFE6Usb9CYl/hhPCFxay4aN0GIBo=
+        b=cWhuci3fkSKliD6ia6JxztImDrW8OYTvtENCTg8pHKhqRHt/CobbtHwq0NCz4nZbu
+         YdgLVJDc/hvfxNqjQBxWzrlkHY5m0ME1fL4hMzfREHK8vHnXSBTBPFJfwlvpsOJgIb
+         5BooeXX1qfB65om42EI8M52iz14Cj3ru/GKMjwxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 028/329] i2c: bail out early when RDWR parameters are wrong
+        stable@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>,
+        Miklos Szeredi <mszeredi@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 073/363] fuse: invalidate attrs when page writeback completes
 Date:   Mon, 17 May 2021 15:58:59 +0200
-Message-Id: <20210517140302.994346641@linuxfoundation.org>
+Message-Id: <20210517140305.058970098@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-[ Upstream commit 71581562ee36032d2d574a9b23ad4af6d6a64cf7 ]
+[ Upstream commit 3466958beb31a8e9d3a1441a34228ed088b84f3e ]
 
-The buggy parameters currently get caught later, but emit a noisy WARN.
-Userspace should not be able to trigger this, so add similar checks much
-earlier. Also avoids some unneeded code paths, of course. Apply kernel
-coding stlye to a comment while here.
+In fuse when a direct/write-through write happens we invalidate attrs
+because that might have updated mtime/ctime on server and cached
+mtime/ctime will be stale.
 
-Reported-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Tested-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
-Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+What about page writeback path.  Looks like we don't invalidate attrs
+there.  To be consistent, invalidate attrs in writeback path as well.  Only
+exception is when writeback_cache is enabled.  In that case we strust local
+mtime/ctime and there is no need to invalidate attrs.
+
+Recently users started experiencing failure of xfstests generic/080,
+geneirc/215 and generic/614 on virtiofs.  This happened only newer "stat"
+utility and not older one.  This patch fixes the issue.
+
+So what's the root cause of the issue.  Here is detailed explanation.
+
+generic/080 test does mmap write to a file, closes the file and then checks
+if mtime has been updated or not.  When file is closed, it leads to
+flushing of dirty pages (and that should update mtime/ctime on server).
+But we did not explicitly invalidate attrs after writeback finished.  Still
+generic/080 passed so far and reason being that we invalidated atime in
+fuse_readpages_end().  This is called in fuse_readahead() path and always
+seems to trigger before mmaped write.
+
+So after mmaped write when lstat() is called, it sees that atleast one of
+the fields being asked for is invalid (atime) and that results in
+generating GETATTR to server and mtime/ctime also get updated and test
+passes.
+
+But newer /usr/bin/stat seems to have moved to using statx() syscall now
+(instead of using lstat()).  And statx() allows it to query only ctime or
+mtime (and not rest of the basic stat fields).  That means when querying
+for mtime, fuse_update_get_attr() sees that mtime is not invalid (only
+atime is invalid).  So it does not generate a new GETATTR and fill stat
+with cached mtime/ctime.  And that means updated mtime is not seen by
+xfstest and tests start failing.
+
+Invalidating attrs after writeback completion should solve this problem in
+a generic manner.
+
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/i2c-dev.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ fs/fuse/file.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
-index 6ceb11cc4be1..6ef38a8ee95c 100644
---- a/drivers/i2c/i2c-dev.c
-+++ b/drivers/i2c/i2c-dev.c
-@@ -440,8 +440,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
- 				   sizeof(rdwr_arg)))
- 			return -EFAULT;
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index eff4abaa87da..6e6d1e599869 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -1776,8 +1776,17 @@ static void fuse_writepage_end(struct fuse_mount *fm, struct fuse_args *args,
+ 		container_of(args, typeof(*wpa), ia.ap.args);
+ 	struct inode *inode = wpa->inode;
+ 	struct fuse_inode *fi = get_fuse_inode(inode);
++	struct fuse_conn *fc = get_fuse_conn(inode);
  
--		/* Put an arbitrary limit on the number of messages that can
--		 * be sent at once */
-+		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
-+			return -EINVAL;
-+
-+		/*
-+		 * Put an arbitrary limit on the number of messages that can
-+		 * be sent at once
-+		 */
- 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
- 			return -EINVAL;
- 
+ 	mapping_set_error(inode->i_mapping, error);
++	/*
++	 * A writeback finished and this might have updated mtime/ctime on
++	 * server making local mtime/ctime stale.  Hence invalidate attrs.
++	 * Do this only if writeback_cache is not enabled.  If writeback_cache
++	 * is enabled, we trust local ctime/mtime.
++	 */
++	if (!fc->writeback_cache)
++		fuse_invalidate_attr(inode);
+ 	spin_lock(&fi->lock);
+ 	rb_erase(&wpa->writepages_entry, &fi->writepages);
+ 	while (wpa->next) {
 -- 
 2.30.2
 
