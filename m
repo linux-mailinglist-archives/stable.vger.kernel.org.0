@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF97383361
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D8C383343
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:55:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241446AbhEQO5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
+        id S240472AbhEQO4l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:56:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241785AbhEQOx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 070F4619A5;
-        Mon, 17 May 2021 14:24:24 +0000 (UTC)
+        id S242074AbhEQOyd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:54:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA81D61995;
+        Mon, 17 May 2021 14:24:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261465;
-        bh=uhJonWH3UFMxyXpuKpf7hxkAMmIAbWNq6vh6ZFFOgA8=;
+        s=korg; t=1621261476;
+        bh=odCksGUYP1kyBVF+vtiCul5iCe5NVU3L7LP8bGDgnOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xqlFs+RPrsCzb7MH0EtAn58IsCn6KV06s4L7L+Cyzk89K2lqFjktV0je2SAzNBNyO
-         tN98S4lbnOUJKlg7J6/GermvPGXyuzbsnK0QkhsMScYcToHHUglod7RbNatjWxmGbt
-         jh0S4EeZMa4ZTECmuJd9EgJtcnBWDtnzD+rfVFUg=
+        b=M4KT88ai78CV6LyTiP9LQ4T5nA/LMFV8vwqs9qD9aC9dA06JsCaG/tcTVHlbFavd/
+         wZSPVgzfJw1YI+ZoYuS97qs8WIc5EDz6IlltnPRaDFD+7Jjacf37YdYI58VyGOXf22
+         d/U48fHZKlS0rtWqHJWArDP7sEVoq6UpGQKpQ/6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 048/141] net: ethernet: mtk_eth_soc: fix RX VLAN offload
-Date:   Mon, 17 May 2021 16:01:40 +0200
-Message-Id: <20210517140244.385763260@linuxfoundation.org>
+Subject: [PATCH 5.4 049/141] bnxt_en: Add PCI IDs for Hyper-V VF devices.
+Date:   Mon, 17 May 2021 16:01:41 +0200
+Message-Id: <20210517140244.424317241@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -41,48 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
+[ Upstream commit 7fbf359bb2c19c824cbb1954020680824f6ee5a5 ]
 
-The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
-set. Fixes frames wrongly marked with VLAN tags.
+Support VF device IDs used by the Hyper-V hypervisor.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-[Ilya: fix commit message]
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index d01b3a1b40f4..7e3806fd70b2 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1315,7 +1315,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 588389697cf9..106f2b2ce17f 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -125,7 +125,10 @@ enum board_idx {
+ 	NETXTREME_E_VF,
+ 	NETXTREME_C_VF,
+ 	NETXTREME_S_VF,
++	NETXTREME_C_VF_HV,
++	NETXTREME_E_VF_HV,
+ 	NETXTREME_E_P5_VF,
++	NETXTREME_E_P5_VF_HV,
+ };
  
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
--		    RX_DMA_VID(trxd.rxd3))
-+		    (trxd.rxd2 & RX_DMA_VTAG))
- 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
- 					       RX_DMA_VID(trxd.rxd3));
- 		skb_record_rx_queue(skb, 0);
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 1e787f3577aa..1e9202b34d35 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -293,6 +293,7 @@
- #define RX_DMA_LSO		BIT(30)
- #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
- #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
-+#define RX_DMA_VTAG		BIT(15)
+ /* indexed by enum above */
+@@ -173,7 +176,10 @@ static const struct {
+ 	[NETXTREME_E_VF] = { "Broadcom NetXtreme-E Ethernet Virtual Function" },
+ 	[NETXTREME_C_VF] = { "Broadcom NetXtreme-C Ethernet Virtual Function" },
+ 	[NETXTREME_S_VF] = { "Broadcom NetXtreme-S Ethernet Virtual Function" },
++	[NETXTREME_C_VF_HV] = { "Broadcom NetXtreme-C Virtual Function for Hyper-V" },
++	[NETXTREME_E_VF_HV] = { "Broadcom NetXtreme-E Virtual Function for Hyper-V" },
+ 	[NETXTREME_E_P5_VF] = { "Broadcom BCM5750X NetXtreme-E Ethernet Virtual Function" },
++	[NETXTREME_E_P5_VF_HV] = { "Broadcom BCM5750X NetXtreme-E Virtual Function for Hyper-V" },
+ };
  
- /* QDMA descriptor rxd3 */
- #define RX_DMA_VID(_x)		((_x) & 0xfff)
+ static const struct pci_device_id bnxt_pci_tbl[] = {
+@@ -225,15 +231,25 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
+ 	{ PCI_VDEVICE(BROADCOM, 0xd804), .driver_data = BCM58804 },
+ #ifdef CONFIG_BNXT_SRIOV
+ 	{ PCI_VDEVICE(BROADCOM, 0x1606), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x1607), .driver_data = NETXTREME_E_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x1608), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1609), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16bd), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16c1), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16c2), .driver_data = NETXTREME_C_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c3), .driver_data = NETXTREME_C_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c4), .driver_data = NETXTREME_E_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c5), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16cb), .driver_data = NETXTREME_C_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16d3), .driver_data = NETXTREME_E_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16dc), .driver_data = NETXTREME_E_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16e1), .driver_data = NETXTREME_C_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16e5), .driver_data = NETXTREME_C_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16e6), .driver_data = NETXTREME_C_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1806), .driver_data = NETXTREME_E_P5_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1807), .driver_data = NETXTREME_E_P5_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x1808), .driver_data = NETXTREME_E_P5_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x1809), .driver_data = NETXTREME_E_P5_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd800), .driver_data = NETXTREME_S_VF },
+ #endif
+ 	{ 0 }
+@@ -263,7 +279,8 @@ static struct workqueue_struct *bnxt_pf_wq;
+ static bool bnxt_vf_pciid(enum board_idx idx)
+ {
+ 	return (idx == NETXTREME_C_VF || idx == NETXTREME_E_VF ||
+-		idx == NETXTREME_S_VF || idx == NETXTREME_E_P5_VF);
++		idx == NETXTREME_S_VF || idx == NETXTREME_C_VF_HV ||
++		idx == NETXTREME_E_VF_HV || idx == NETXTREME_E_P5_VF);
+ }
+ 
+ #define DB_CP_REARM_FLAGS	(DB_KEY_CP | DB_IDX_VALID)
 -- 
 2.30.2
 
