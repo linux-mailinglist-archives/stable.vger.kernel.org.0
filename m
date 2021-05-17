@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67D703837F3
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49F5E3837FC
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235795AbhEQPrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:47:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33864 "EHLO mail.kernel.org"
+        id S244477AbhEQPsL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:48:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344832AbhEQPpn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:45:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32AB7613B5;
-        Mon, 17 May 2021 14:44:01 +0000 (UTC)
+        id S1344964AbhEQPqJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8569961414;
+        Mon, 17 May 2021 14:44:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262641;
-        bh=QKOQY0rDLrRV2h/d3hQ+p73SyJPmWV9nPG9rkGfSOsc=;
+        s=korg; t=1621262646;
+        bh=w6+YZ+eJESBL3jv7+rZ7DnvjXZlrGoaCIJKmNMxqdtA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mzRjI2YBuY5QbW6QQ4G0+Ez7fUr/Y6iedWikCLujTtQa+pKwFyRyBbLZJCcJdlf5j
-         3ncI7iWc6HhtVqi8FXm1Qs8ioenU3US/3W/EUk0SMVERPw2PmFi2LflT1miaylmn4e
-         LcPa51GkF2wum82XZatedgWZAh2o5qnRc1rcYovg=
+        b=plR6AU3tBcFZV58ocMioqvOfHS9dkcJ9Sahif5XBCCu9COvVCVow56ioy5E3coPPI
+         59JEjcsuiKunLoGy2vyDSxUmRETVJb8B/sAs3pnTgHitg7YF80Ms2QN2wvvYxJjZt2
+         0F8wAw927tJ40Z6BJ6viSB9mSx8nwbr9aEr0j0Qc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
-        Phil Elwell <phil@raspberrypi.com>
-Subject: [PATCH 5.10 243/289] usb: dwc2: Fix gadget DMA unmap direction
-Date:   Mon, 17 May 2021 16:02:48 +0200
-Message-Id: <20210517140313.339040098@linuxfoundation.org>
+        stable@vger.kernel.org, Tianping Fang <tianping.fang@mediatek.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.10 244/289] usb: core: hub: fix race condition about TRSMRCY of resume
+Date:   Mon, 17 May 2021 16:02:49 +0200
+Message-Id: <20210517140313.367126955@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,67 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phil Elwell <phil@raspberrypi.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit 75a41ce46bae6cbe7d3bb2584eb844291d642874 upstream.
+commit 975f94c7d6c306b833628baa9aec3f79db1eb3a1 upstream.
 
-The dwc2 gadget support maps and unmaps DMA buffers as necessary. When
-mapping and unmapping it uses the direction of the endpoint to select
-the direction of the DMA transfer, but this fails for Control OUT
-transfers because the unmap occurs after the endpoint direction has
-been reversed for the status phase.
+This may happen if the port becomes resume status exactly
+when usb_port_resume() gets port status, it still need provide
+a TRSMCRY time before access the device.
 
-A possible solution would be to unmap the buffer before the direction
-is changed, but a safer, less invasive fix is to remember the buffer
-direction independently of the endpoint direction.
-
-Fixes: fe0b94abcdf6 ("usb: dwc2: gadget: manage ep0 state in software")
-Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Phil Elwell <phil@raspberrypi.com>
-Link: https://lore.kernel.org/r/20210506112200.2893922-1-phil@raspberrypi.com
+CC: <stable@vger.kernel.org>
+Reported-by: Tianping Fang <tianping.fang@mediatek.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20210512020738.52961-1-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc2/core.h   |    2 ++
- drivers/usb/dwc2/gadget.c |    3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/core/hub.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/dwc2/core.h
-+++ b/drivers/usb/dwc2/core.h
-@@ -112,6 +112,7 @@ struct dwc2_hsotg_req;
-  * @debugfs: File entry for debugfs file for this endpoint.
-  * @dir_in: Set to true if this endpoint is of the IN direction, which
-  *          means that it is sending data to the Host.
-+ * @map_dir: Set to the value of dir_in when the DMA buffer is mapped.
-  * @index: The index for the endpoint registers.
-  * @mc: Multi Count - number of transactions per microframe
-  * @interval: Interval for periodic endpoints, in frames or microframes.
-@@ -161,6 +162,7 @@ struct dwc2_hsotg_ep {
- 	unsigned short		fifo_index;
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3592,9 +3592,6 @@ int usb_port_resume(struct usb_device *u
+ 		 * sequence.
+ 		 */
+ 		status = hub_port_status(hub, port1, &portstatus, &portchange);
+-
+-		/* TRSMRCY = 10 msec */
+-		msleep(10);
+ 	}
  
- 	unsigned char           dir_in;
-+	unsigned char           map_dir;
- 	unsigned char           index;
- 	unsigned char           mc;
- 	u16                     interval;
---- a/drivers/usb/dwc2/gadget.c
-+++ b/drivers/usb/dwc2/gadget.c
-@@ -422,7 +422,7 @@ static void dwc2_hsotg_unmap_dma(struct
- {
- 	struct usb_request *req = &hs_req->req;
+  SuspendCleared:
+@@ -3609,6 +3606,9 @@ int usb_port_resume(struct usb_device *u
+ 				usb_clear_port_feature(hub->hdev, port1,
+ 						USB_PORT_FEAT_C_SUSPEND);
+ 		}
++
++		/* TRSMRCY = 10 msec */
++		msleep(10);
+ 	}
  
--	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->dir_in);
-+	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->map_dir);
- }
- 
- /*
-@@ -1242,6 +1242,7 @@ static int dwc2_hsotg_map_dma(struct dwc
- {
- 	int ret;
- 
-+	hs_ep->map_dir = hs_ep->dir_in;
- 	ret = usb_gadget_map_request(&hsotg->gadget, req, hs_ep->dir_in);
- 	if (ret)
- 		goto dma_error;
+ 	if (udev->persist_enabled)
 
 
