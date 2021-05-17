@@ -2,110 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E71E7382748
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:43:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 317AD382760
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235366AbhEQIo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:44:59 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45299 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230312AbhEQIo7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:44:59 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 0AAB69F6;
-        Mon, 17 May 2021 04:43:42 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 17 May 2021 04:43:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9B2vcI
-        5EUqaicVYhuVLRQjw+X73lXq28p+vIeQOSpj8=; b=C1GJMT2lrbVPpa5vWeb/sK
-        Cvo98TvRMejVpjTG6aSMkYyj+c9M30D3L2oqZMNun5Pv83cg8/blI6VngM/C7ev9
-        DNS6l/BIr+1iaPF705uUOtiTB4pvZAedikwtzKO1KZYu3heJuGTv0JEXhLi/vAML
-        DJxCPzKwO5hbVuMeboOYi2yRn7ZVK9wxcU8vCzSY8W4r8m5eW9ibjgWQqEgID9Fb
-        cz0s/lc/vUBrjdn6CcJnPmwD1NijMOZGHniKK8fJQUk5TtvjW5KnjZVQQ0djdZWs
-        K4dnwsUCKWjIA4Hxe/kCcXxjEh9pGp7wefXnwfIt2fPzcmbnm1PwdazbsG9Nczmw
-        ==
-X-ME-Sender: <xms:viyiYGz0U0YrVvCfAq5d6fpxL6-avF4HZJp8ihms1Zai8zRmIw9Fbg>
-    <xme:viyiYCQ23qIPJUU4rkWxLs9GN33Pin6UqgwyRhJiylj7NEmCJlpYx8nuSDrY9FIvZ
-    ZhsL9XnELRz_g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdejucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:viyiYIW90RWVjRgjX7iOoN2jsTgjo77f-ZOi0FOlM2-3oihu2GS2pw>
-    <xmx:viyiYMibEgyiVGG6xHfrX3qQQuC0ZnNw5H2R8OR07b7McAyW_GkjWA>
-    <xmx:viyiYIDIhSRwWHRQII1WJOyUCi7qp9xR93NKraJPsWX_LRkAoP1Gvg>
-    <xmx:viyiYLNlEQR8DbUef1lqubEhebMHrIVNt_jnE-96YOW_QGrijFaVhnV1AeA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 04:43:41 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: VMX: Do not advertise RDPID if ENABLE_RDTSCP control is" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com,
-        reijiw@google.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 10:43:40 +0200
-Message-ID: <162124102054144@kroah.com>
+        id S235721AbhEQIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:48:13 -0400
+Received: from mga06.intel.com ([134.134.136.31]:16515 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S235718AbhEQIsK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 04:48:10 -0400
+IronPort-SDR: mlm9sBOno+sxetPuwKyHpbKws5oJuF35GiUbHg93gbrMIciB73+8bIzA25acE84/vjAaCWtn4+
+ oTzscMDSASQQ==
+X-IronPort-AV: E=McAfee;i="6200,9189,9986"; a="261655878"
+X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
+   d="scan'208";a="261655878"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 01:46:54 -0700
+IronPort-SDR: qbnw3j/sMfnpND7O8/DvWfpGFo0sYfwtiNxOnebd0UPggG7Uuk+I075QNOhjLNc92YdaN8G6mb
+ hoXrMONyEjGg==
+X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
+   d="scan'208";a="438820736"
+Received: from cqi-mobl.ccr.corp.intel.com (HELO mwauld-desk1.intel.com) ([10.215.160.214])
+  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 01:46:50 -0700
+From:   Matthew Auld <matthew.auld@intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     dri-devel@lists.freedesktop.org,
+        Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/i915/gem: Pin the L-shape quirked object as unshrinkable
+Date:   Mon, 17 May 2021 09:46:40 +0100
+Message-Id: <20210517084640.18862-1-matthew.auld@intel.com>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+When instantiating a tiled object on an L-shaped memory machine, we mark
+the object as unshrinkable to prevent the shrinker from trying to swap
+out the pages. We have to do this as we do not know the swizzling on the
+individual pages, and so the data will be scrambled across swap out/in.
 
-thanks,
+Not only do we need to move the object off the shrinker list, we need to
+mark the object with shrink_pin so that the counter is consistent across
+calls to madvise.
 
-greg k-h
+v2: in the madvise ioctl we need to check if the object is currently
+shrinkable/purgeable, not if the object type supports shrinking
 
------------------- original commit in Linus's tree ------------------
+Fixes: 0175969e489a ("drm/i915/gem: Use shrinkable status for unknown swizzle quirks")
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3293
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3450
+Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Reviewed-by: Matthew Auld <matthew.auld@intel.com>
+Signed-off-by: Matthew Auld <matthew.auld@intel.com>
+Cc: <stable@vger.kernel.org> # v5.12+
+---
+ drivers/gpu/drm/i915/gem/i915_gem_pages.c |  2 ++
+ drivers/gpu/drm/i915/i915_gem.c           | 11 +++++------
+ 2 files changed, 7 insertions(+), 6 deletions(-)
 
-From 8aec21c04caa2000f91cf8822ae0811e4b0c3971 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 4 May 2021 10:17:20 -0700
-Subject: [PATCH] KVM: VMX: Do not advertise RDPID if ENABLE_RDTSCP control is
- unsupported
-
-Clear KVM's RDPID capability if the ENABLE_RDTSCP secondary exec control is
-unsupported.  Despite being enumerated in a separate CPUID flag, RDPID is
-bundled under the same VMCS control as RDTSCP and will #UD in VMX non-root
-if ENABLE_RDTSCP is not enabled.
-
-Fixes: 41cd02c6f7f6 ("kvm: x86: Expose RDPID in KVM_GET_SUPPORTED_CPUID")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210504171734.1434054-2-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Reiji Watanabe <reijiw@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index cbe0cdade38a..46573b862638 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7377,9 +7377,11 @@ static __init void vmx_set_cpu_caps(void)
- 	if (!cpu_has_vmx_xsaves())
- 		kvm_cpu_cap_clear(X86_FEATURE_XSAVES);
+diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+index aed8a37ccdc9..7361971c177d 100644
+--- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
+@@ -63,6 +63,8 @@ void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
+ 	    i915->quirks & QUIRK_PIN_SWIZZLED_PAGES) {
+ 		GEM_BUG_ON(i915_gem_object_has_tiling_quirk(obj));
+ 		i915_gem_object_set_tiling_quirk(obj);
++		GEM_BUG_ON(!list_empty(&obj->mm.link));
++		atomic_inc(&obj->mm.shrink_pin);
+ 		shrinkable = false;
+ 	}
  
--	/* CPUID 0x80000001 */
--	if (!cpu_has_vmx_rdtscp())
-+	/* CPUID 0x80000001 and 0x7 (RDPID) */
-+	if (!cpu_has_vmx_rdtscp()) {
- 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
-+		kvm_cpu_cap_clear(X86_FEATURE_RDPID);
-+	}
+diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
+index d0018c5f88bd..cffd7f4f87dc 100644
+--- a/drivers/gpu/drm/i915/i915_gem.c
++++ b/drivers/gpu/drm/i915/i915_gem.c
+@@ -1009,12 +1009,11 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
+ 		obj->mm.madv = args->madv;
  
- 	if (cpu_has_vmx_waitpkg())
- 		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
+ 	if (i915_gem_object_has_pages(obj)) {
+-		struct list_head *list;
++		unsigned long flags;
+ 
+-		if (i915_gem_object_is_shrinkable(obj)) {
+-			unsigned long flags;
+-
+-			spin_lock_irqsave(&i915->mm.obj_lock, flags);
++		spin_lock_irqsave(&i915->mm.obj_lock, flags);
++		if (!list_empty(&obj->mm.link)) {
++			struct list_head *list;
+ 
+ 			if (obj->mm.madv != I915_MADV_WILLNEED)
+ 				list = &i915->mm.purge_list;
+@@ -1022,8 +1021,8 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
+ 				list = &i915->mm.shrink_list;
+ 			list_move_tail(&obj->mm.link, list);
+ 
+-			spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+ 		}
++		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
+ 	}
+ 
+ 	/* if the object is no longer attached, discard its backing storage */
+-- 
+2.26.3
 
