@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B296383754
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 897803836E8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242947AbhEQPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
+        id S244718AbhEQPhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:37:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343541AbhEQPjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7BD261D0B;
-        Mon, 17 May 2021 14:41:29 +0000 (UTC)
+        id S1343676AbhEQPel (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:34:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 55B4261CDD;
+        Mon, 17 May 2021 14:39:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262490;
-        bh=d6rSoUnYLFYbSJaq57HcQ3fkkd2+SwgTFbxGW7T4YhU=;
+        s=korg; t=1621262367;
+        bh=AQQsHeO/eAhoPS2KIBtkrM+ms+deUAjdQFkOP7e1G+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0LVXAZUO13GrQ5NR39pdMu3S5rdMLcR7FlRBrxNdGtBWJO3ZQoefGAEkPwp/fOyKy
-         4RT5pK1hdCjpynbqOWPqS4oTIg2M56GI09SMb6fcOvFCTJFDk1SFxHHYN4BgQPgelm
-         BlYZLX7TtMYaguFw2X/VuuoBFdKJxfr+Y4Lfta0Q=
+        b=h71v7jxOEyYz/81h0/KGz6R9MB70YH4V2EyAChR0hPRusLO9Yy4uZf9GfhQPWiOX1
+         62VYziZ74KyVtuyZ3bSeIKd0UzNeodGFJXEV3b/TSw0NtqtR1/eD5xh9OKxPsmehld
+         HIu7/qCGno+9HtOgWrvRzcKJbG69Pe9k0eza/B0s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
+        Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 168/289] mm/migrate.c: fix potential indeterminate pte entry in migrate_vma_insert_page()
-Date:   Mon, 17 May 2021 16:01:33 +0200
-Message-Id: <20210517140310.779039880@linuxfoundation.org>
+Subject: [PATCH 5.10 169/289] ksm: fix potential missing rmap_item for stable_node
+Date:   Mon, 17 May 2021 16:01:34 +0200
+Message-Id: <20210517140310.809863002@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -48,45 +44,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 34f5e9b9d1990d286199084efa752530ee3d8297 ]
+[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
 
-If the zone device page does not belong to un-addressable device memory,
-the variable entry will be uninitialized and lead to indeterminate pte
-entry ultimately.  Fix this unexpected case and warn about it.
+When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
+cleared with head reserved.  So the following scenario might happen: For
+ksm page with rmap_item1:
 
-Link: https://lkml.kernel.org/r/20210325131524.48181-4-linmiaohe@huawei.com
-Fixes: df6ad69838fc ("mm/device-public-memory: device memory cache coherent with CPU")
+cmp_and_merge_page
+  stable_node->head = &migrate_nodes;
+  remove_rmap_item_from_tree, but head still equal to stable_node;
+  try_to_merge_with_ksm_page failed;
+  return;
+
+For the same ksm page with rmap_item2, stable node migration succeed this
+time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
+page with rmap_item1 again:
+
+cmp_and_merge_page
+ stable_node->head != &migrate_nodes && rmap_item->head == stable_node
+ return;
+
+We would miss the rmap_item for stable_node and might result in failed
+rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
+is removed from stable tree.
+
+Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
+Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
+Cc: Hugh Dickins <hughd@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/migrate.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ mm/ksm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 9d7ca1bd7f4b..7982256a5125 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2914,6 +2914,13 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
+diff --git a/mm/ksm.c b/mm/ksm.c
+index 0960750bb316..25b8362a4f89 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -794,6 +794,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
+ 		stable_node->rmap_hlist_len--;
  
- 			swp_entry = make_device_private_entry(page, vma->vm_flags & VM_WRITE);
- 			entry = swp_entry_to_pte(swp_entry);
-+		} else {
-+			/*
-+			 * For now we only support migrating to un-addressable
-+			 * device memory.
-+			 */
-+			pr_warn_once("Unsupported ZONE_DEVICE page type.\n");
-+			goto abort;
- 		}
- 	} else {
- 		entry = mk_pte(page, vma->vm_page_prot);
+ 		put_anon_vma(rmap_item->anon_vma);
++		rmap_item->head = NULL;
+ 		rmap_item->address &= PAGE_MASK;
+ 
+ 	} else if (rmap_item->address & UNSTABLE_FLAG) {
 -- 
 2.30.2
 
