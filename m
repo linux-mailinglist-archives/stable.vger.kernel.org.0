@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D03F338345B
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0903B3835EC
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242646AbhEQPHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:07:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45118 "EHLO mail.kernel.org"
+        id S237606AbhEQP0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:26:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241487AbhEQPFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:05:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 959C561C18;
-        Mon, 17 May 2021 14:28:54 +0000 (UTC)
+        id S243844AbhEQPYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:24:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 36FC9613EC;
+        Mon, 17 May 2021 14:35:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261735;
-        bh=OI7SHoj/96q6FNR/T7I7IjueoZjTzmwUd7kx/d4GQSs=;
+        s=korg; t=1621262140;
+        bh=InQ/DaQMQc5IC6GQp9VEPqpCpjRgNmmJMdj9NHRkRrI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSi8OLnq7NYWaW2M89XihETdrShW4S7oTCRoYPfXMvdZ/k/xKrfOAwhkRHheqNd2T
-         O691Od4McTkpa9EXwLpYbNwsE9dFlVV58HcajdQkezWdu9whYava2Fxtq7zlciOKWl
-         sr0S40r+h1BbgW6t/GxowYSBjV3OWQ7T6mpeQJ3k=
+        b=h/5hZU10mPvJxW3MrJYDoNBPqRtoylp/8sDu0IrLZFNxkRxZTAMzb1dK5/PNIBmwF
+         6xkoUCnsJ8srCwVLibr2FsckAPVXcdj0JjkSCPsXxoICVH5mT6x0BkH/QDZb6nYB7T
+         BSN6F4JhsffzSFyhspNBH+MWR4jZANIXnLza+2Uc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 083/141] ksm: fix potential missing rmap_item for stable_node
-Date:   Mon, 17 May 2021 16:02:15 +0200
-Message-Id: <20210517140245.570336284@linuxfoundation.org>
+Subject: [PATCH 5.11 225/329] i40e: Fix use-after-free in i40e_client_subtask()
+Date:   Mon, 17 May 2021 16:02:16 +0200
+Message-Id: <20210517140309.733473851@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
+[ Upstream commit 38318f23a7ef86a8b1862e5e8078c4de121960c3 ]
 
-When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
-cleared with head reserved.  So the following scenario might happen: For
-ksm page with rmap_item1:
+Currently the call to i40e_client_del_instance frees the object
+pf->cinst, however pf->cinst->lan_info is being accessed after
+the free. Fix this by adding the missing return.
 
-cmp_and_merge_page
-  stable_node->head = &migrate_nodes;
-  remove_rmap_item_from_tree, but head still equal to stable_node;
-  try_to_merge_with_ksm_page failed;
-  return;
-
-For the same ksm page with rmap_item2, stable node migration succeed this
-time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
-page with rmap_item1 again:
-
-cmp_and_merge_page
- stable_node->head != &migrate_nodes && rmap_item->head == stable_node
- return;
-
-We would miss the rmap_item for stable_node and might result in failed
-rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
-is removed from stable tree.
-
-Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
-Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Addresses-Coverity: ("Read from pointer after free")
+Fixes: 7b0b1a6d0ac9 ("i40e: Disable iWARP VSI PETCP_ENA flag on netdev down events")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/ksm.c | 1 +
+ drivers/net/ethernet/intel/i40e/i40e_client.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/mm/ksm.c b/mm/ksm.c
-index e486c54d921b..0bbae78aaaa0 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -793,6 +793,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
- 		stable_node->rmap_hlist_len--;
- 
- 		put_anon_vma(rmap_item->anon_vma);
-+		rmap_item->head = NULL;
- 		rmap_item->address &= PAGE_MASK;
- 
- 	} else if (rmap_item->address & UNSTABLE_FLAG) {
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
+index a2dba32383f6..32f3facbed1a 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_client.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
+@@ -375,6 +375,7 @@ void i40e_client_subtask(struct i40e_pf *pf)
+ 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
+ 					  &cdev->state);
+ 				i40e_client_del_instance(pf);
++				return;
+ 			}
+ 		}
+ 	}
 -- 
 2.30.2
 
