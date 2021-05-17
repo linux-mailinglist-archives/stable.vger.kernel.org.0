@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78D96383592
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D230F38359B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243343AbhEQPXP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:23:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56098 "EHLO mail.kernel.org"
+        id S242359AbhEQPXW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:23:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243975AbhEQPSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:18:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F042561C75;
-        Mon, 17 May 2021 14:33:43 +0000 (UTC)
+        id S244143AbhEQPTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:19:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6414F61C76;
+        Mon, 17 May 2021 14:33:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262024;
-        bh=QpapYVIA1Q0/mraNDCl2nt4lswKCm+T9mTRZIK/Xw6o=;
+        s=korg; t=1621262030;
+        bh=wANwn/r44ErjICI6BND58o0NYrEVFW5L9D4tm+uV7ME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0OaUnyxS31CCK5mW8dxnNCA0tQqhSv1/cgImIe3XhOBQuBofNXRaojpJklau6wBdu
-         R0tXY4lRu7ab4Dd++FQiJhGkVW/TiiJHRuVblW7JNilrpq0j/6rDHr/qbt4p2JBzK+
-         8u+7NjEbr5KKywY0ffxzA27WYhCkbL7nUH5D5umI=
+        b=0VCkmSa+CgD+OhuspA06xlSZokBM1oz4eI5dOqyOifsTxGbXjWDbmS7ZlliLY2CKe
+         +JHcgtwRquZUrfOpzrwuBpUahATElCsWOKNdqpLew18c/MTI3KI6vs7XKPhtzRvRpd
+         EUhZXgHGCeqIJzH5X4fQQKrLk+4FebcGikGLnKNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -46,9 +46,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vlastimil Babka <vbabka@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 205/329] mm/gup: check every subpage of a compound page during isolation
-Date:   Mon, 17 May 2021 16:01:56 +0200
-Message-Id: <20210517140309.050345724@linuxfoundation.org>
+Subject: [PATCH 5.11 206/329] mm/gup: return an error on migration failure
+Date:   Mon, 17 May 2021 16:01:57 +0200
+Message-Id: <20210517140309.089039294@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -62,29 +62,19 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-[ Upstream commit 83c02c23d0747a7bdcd71f99a538aacec94b146c ]
+[ Upstream commit f0f4463837da17a89d965dcbe4e411629dbcf308 ]
 
-When pages are isolated in check_and_migrate_movable_pages() we skip
-compound number of pages at a time.  However, as Jason noted, it is not
-necessary correct that pages[i] corresponds to the pages that we
-skipped.  This is because it is possible that the addresses in this
-range had split_huge_pmd()/split_huge_pud(), and these functions do not
-update the compound page metadata.
+When migration failure occurs, we still pin pages, which means that we
+may pin CMA movable pages which should never be the case.
 
-The problem can be reproduced if something like this occurs:
+Instead return an error without pinning pages when migration failure
+happens.
 
-1. User faulted huge pages.
-2. split_huge_pmd() was called for some reason
-3. User has unmapped some sub-pages in the range
-4. User tries to longterm pin the addresses.
+No need to retry migrating, because migrate_pages() already retries 10
+times.
 
-The resulting pages[i] might end-up having pages which are not compound
-size page aligned.
-
-Link: https://lkml.kernel.org/r/20210215161349.246722-3-pasha.tatashin@soleen.com
-Fixes: aa712399c1e8 ("mm/gup: speed up check_and_migrate_cma_pages() on huge page")
+Link: https://lkml.kernel.org/r/20210215161349.246722-4-pasha.tatashin@soleen.com
 Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
-Reported-by: Jason Gunthorpe <jgg@nvidia.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
 Cc: David Hildenbrand <david@redhat.com>
@@ -110,56 +100,54 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c | 19 +++++++------------
- 1 file changed, 7 insertions(+), 12 deletions(-)
+ mm/gup.c | 17 +++++++----------
+ 1 file changed, 7 insertions(+), 10 deletions(-)
 
 diff --git a/mm/gup.c b/mm/gup.c
-index e4c224cd9661..84d392886d85 100644
+index 84d392886d85..2d7a567b4056 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -1549,26 +1549,23 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
- 					unsigned int gup_flags)
+@@ -1550,7 +1550,6 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
  {
  	unsigned long i;
--	unsigned long step;
  	bool drain_allow = true;
- 	bool migrate_allow = true;
+-	bool migrate_allow = true;
  	LIST_HEAD(cma_page_list);
  	long ret = nr_pages;
-+	struct page *prev_head, *head;
- 	struct migration_target_control mtc = {
- 		.nid = NUMA_NO_NODE,
- 		.gfp_mask = GFP_USER | __GFP_MOVABLE | __GFP_NOWARN,
- 	};
+ 	struct page *prev_head, *head;
+@@ -1601,17 +1600,15 @@ check_again:
+ 			for (i = 0; i < nr_pages; i++)
+ 				put_page(pages[i]);
  
- check_again:
--	for (i = 0; i < nr_pages;) {
+-		if (migrate_pages(&cma_page_list, alloc_migration_target, NULL,
+-			(unsigned long)&mtc, MIGRATE_SYNC, MR_CONTIG_RANGE)) {
+-			/*
+-			 * some of the pages failed migration. Do get_user_pages
+-			 * without migration.
+-			 */
+-			migrate_allow = false;
 -
--		struct page *head = compound_head(pages[i]);
--
--		/*
--		 * gup may start from a tail page. Advance step by the left
--		 * part.
--		 */
--		step = compound_nr(head) - (pages[i] - head);
-+	prev_head = NULL;
-+	for (i = 0; i < nr_pages; i++) {
-+		head = compound_head(pages[i]);
-+		if (head == prev_head)
-+			continue;
-+		prev_head = head;
- 		/*
- 		 * If we get a page from the CMA zone, since we are going to
- 		 * be pinning these entries, we might as well move them out
-@@ -1592,8 +1589,6 @@ check_again:
- 				}
- 			}
++		ret = migrate_pages(&cma_page_list, alloc_migration_target,
++				    NULL, (unsigned long)&mtc, MIGRATE_SYNC,
++				    MR_CONTIG_RANGE);
++		if (ret) {
+ 			if (!list_empty(&cma_page_list))
+ 				putback_movable_pages(&cma_page_list);
++			return ret > 0 ? -ENOMEM : ret;
  		}
--
--		i += step;
- 	}
++
+ 		/*
+ 		 * We did migrate all the pages, Try to get the page references
+ 		 * again migrating any new CMA pages which we failed to isolate
+@@ -1621,7 +1618,7 @@ check_again:
+ 						   pages, vmas, NULL,
+ 						   gup_flags);
  
- 	if (!list_empty(&cma_page_list)) {
+-		if ((ret > 0) && migrate_allow) {
++		if (ret > 0) {
+ 			nr_pages = ret;
+ 			drain_allow = true;
+ 			goto check_again;
 -- 
 2.30.2
 
