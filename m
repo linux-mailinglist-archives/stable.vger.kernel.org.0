@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B39E383105
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4703F383108
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240119AbhEQOdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43352 "EHLO mail.kernel.org"
+        id S240290AbhEQOdq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:33:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240166AbhEQObm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:31:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D88E460724;
-        Mon, 17 May 2021 14:15:34 +0000 (UTC)
+        id S240170AbhEQObo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:31:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C28D613EB;
+        Mon, 17 May 2021 14:15:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260935;
-        bh=GsjwyJwei04lRhfVymzvcOdX0gTCiyKpcJFrSvFrcLw=;
+        s=korg; t=1621260939;
+        bh=kdX7mJYRpiW3a974hLhtcX8/+XKPNW8rnJbVxtLqfLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xcEiw4ZL4HCDAYjGdM2LRppwXWcKtpTcq5z3B/s93muCV7Nb3oFa8XD2aTiQL2cY6
-         /QpvnUcnavTvM8gVZAE2ftUIprj4vlYcpNDbBgAWw+snglHjXIzcB0LbR5T8LJtIKa
-         sez4n2EiRU3jKAyGfsYCdZ797UwXOV1RFaH5jEl4=
+        b=FbFGVFQlszPIOFDBtwNrmqDcyPcE8I6uywX3mNLbVAQDQE/d7xRC1MWTqEfS78mE5
+         3fW62lhm5JqHWKj6FE2meGw70DlBO3Q8BDxsiajsSkaNJHFMPmmzQAMJEmCSaCyVxU
+         HdMBV0ui5FMG1nCSoiS+MhKfdvsT3A+9NImabKhk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        David Ward <david.ward@gatech.edu>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 270/363] drm/amd/display: Initialize attribute for hdcp_srm sysfs file
-Date:   Mon, 17 May 2021 16:02:16 +0200
-Message-Id: <20210517140311.744101815@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.12 271/363] drm/i915: Avoid div-by-zero on gen2
+Date:   Mon, 17 May 2021 16:02:17 +0200
+Message-Id: <20210517140311.775282233@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ward <david.ward@gatech.edu>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit fe1c97d008f86f672f0e9265f180c22451ca3b9f upstream.
+commit 4819d16d91145966ce03818a95169df1fd56b299 upstream.
 
-It is stored in dynamically allocated memory, so sysfs_bin_attr_init() must
-be called to initialize it. (Note: "initialization" only sets the .attr.key
-member in this struct; it does not change the value of any other members.)
+Gen2 tiles are 2KiB in size so i915_gem_object_get_tile_row_size()
+can in fact return <4KiB, which leads to div-by-zero here.
+Avoid that.
 
-Otherwise, when CONFIG_DEBUG_LOCK_ALLOC=y this message appears during boot:
+Not sure i915_gem_object_get_tile_row_size() is entirely
+sane anyway since it doesn't account for the different tile
+layouts on i8xx/i915...
 
-    BUG: key ffff9248900cd148 has not been registered!
+I'm not able to hit this before commit 6846895fde05 ("drm/i915:
+Replace PIN_NONFAULT with calls to PIN_NOEVICT") and it looks
+like I also need to run recent version of Mesa. With those in
+place xonotic trips on this quite easily on my 85x.
 
-Fixes: 9037246bb2da ("drm/amd/display: Add sysfs interface for set/get srm")
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1586
-Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Signed-off-by: David Ward <david.ward@gatech.edu>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Reviewed-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210421153401.13847-2-ville.syrjala@linux.intel.com
+(cherry picked from commit ed52c62d386f764194e0184fdb905d5f24194cae)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/gem/i915_gem_mman.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
-@@ -644,6 +644,7 @@ struct hdcp_workqueue *hdcp_create_workq
+--- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
++++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
+@@ -189,7 +189,7 @@ compute_partial_view(const struct drm_i9
+ 	struct i915_ggtt_view view;
  
- 	/* File created at /sys/class/drm/card0/device/hdcp_srm*/
- 	hdcp_work[0].attr = data_attr;
-+	sysfs_bin_attr_init(&hdcp_work[0].attr);
+ 	if (i915_gem_object_is_tiled(obj))
+-		chunk = roundup(chunk, tile_row_pages(obj));
++		chunk = roundup(chunk, tile_row_pages(obj) ?: 1);
  
- 	if (sysfs_create_bin_file(&adev->dev->kobj, &hdcp_work[0].attr))
- 		DRM_WARN("Failed to create device file hdcp_srm");
+ 	view.type = I915_GGTT_VIEW_PARTIAL;
+ 	view.partial.offset = rounddown(page_offset, chunk);
 
 
