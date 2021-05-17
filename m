@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D73FB383466
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4605383471
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242908AbhEQPI0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:08:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46224 "EHLO mail.kernel.org"
+        id S241768AbhEQPI7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:08:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242023AbhEQPGZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:06:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DF2E61C1C;
-        Mon, 17 May 2021 14:29:03 +0000 (UTC)
+        id S242394AbhEQPGy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:06:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 02B7961C24;
+        Mon, 17 May 2021 14:29:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261743;
-        bh=VV7ARd4sADhy2SCdqI5J0ibwDpbU0nxrrWrcwu9aO+s=;
+        s=korg; t=1621261752;
+        bh=Y+SWSglp076Y+h3TizzZinyQt/cP+d5bvvUCU2vhjTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6gki0oEv4nQ/Boh+1pnf/IRYSfWL7mgsEUs6Y3o7uansmbqe2z5Z3fyVfqdNnvvK
-         J4LIrgt/LFUF7Jd3mzfOYCfiooceDKjxk2tQSXYf9wc5vgBUkGItZDotBPYtngzxqd
-         19oOIllu2ID7uh5CQ+UQkKjTawNr28jlFJsxu+Kc=
+        b=Y293pgkmzqG9t1dxDhazc2kBORZ3kVZdIf7dJPAC56rmSrUQ7s9cfQkf3xkRbMrrE
+         pN4LHgoh/8Ku5arZshaojv+D1XeFB1GCFOeIqnNTLHQfX/B/HzF251lSHqNAlfbD4/
+         6ZZ2OMnyxB69SnFOh4ASe2UDPCNkXZGuQPj8T1zE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheng Yongjun <zhengyongjun3@huawei.com>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
         Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 158/329] dma: idxd: use DEFINE_MUTEX() for mutex lock
-Date:   Mon, 17 May 2021 16:01:09 +0200
-Message-Id: <20210517140307.471371707@linuxfoundation.org>
+Subject: [PATCH 5.11 159/329] dmaengine: idxd: use ida for device instance enumeration
+Date:   Mon, 17 May 2021 16:01:10 +0200
+Message-Id: <20210517140307.516061233@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,43 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheng Yongjun <zhengyongjun3@huawei.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit e2fcd6e427c2fae92b366b24759f95d77b6f7bc7 ]
+[ Upstream commit f7f7739847bd68b3c3103fd1b50d943038bd14c7 ]
 
-mutex lock can be initialized automatically with DEFINE_MUTEX()
-rather than explicitly calling mutex_init().
+The idr is only used for an device id, never to lookup context from that
+id. Switch to plain ida.
 
-Signed-off-by: Zheng Yongjun <zhengyongjun3@huawei.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20201224132254.30961-1-zhengyongjun3@huawei.com
+Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
+Reported-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Link: https://lore.kernel.org/r/161852984730.2203940.15032482460902003819.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/init.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/idxd/init.c | 17 ++++++-----------
+ 1 file changed, 6 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index ababd059da6f..d223242a34f4 100644
+index d223242a34f4..6e97a9870ba8 100644
 --- a/drivers/dma/idxd/init.c
 +++ b/drivers/dma/idxd/init.c
-@@ -31,7 +31,7 @@ MODULE_AUTHOR("Intel Corporation");
+@@ -30,8 +30,7 @@ MODULE_AUTHOR("Intel Corporation");
+ 
  bool support_enqcmd;
  
- static struct idr idxd_idrs[IDXD_TYPE_MAX];
--static struct mutex idxd_idr_lock;
-+static DEFINE_MUTEX(idxd_idr_lock);
+-static struct idr idxd_idrs[IDXD_TYPE_MAX];
+-static DEFINE_MUTEX(idxd_idr_lock);
++static struct ida idxd_idas[IDXD_TYPE_MAX];
  
  static struct pci_device_id idxd_pci_tbl[] = {
  	/* DSA ver 1.0 platforms */
-@@ -543,7 +543,6 @@ static int __init idxd_init_module(void)
- 	else
+@@ -342,12 +341,10 @@ static int idxd_probe(struct idxd_device *idxd)
+ 
+ 	dev_dbg(dev, "IDXD interrupt setup complete.\n");
+ 
+-	mutex_lock(&idxd_idr_lock);
+-	idxd->id = idr_alloc(&idxd_idrs[idxd->type], idxd, 0, 0, GFP_KERNEL);
+-	mutex_unlock(&idxd_idr_lock);
++	idxd->id = ida_alloc(&idxd_idas[idxd->type], GFP_KERNEL);
+ 	if (idxd->id < 0) {
+ 		rc = -ENOMEM;
+-		goto err_idr_fail;
++		goto err_ida_fail;
+ 	}
+ 
+ 	idxd->major = idxd_cdev_get_major(idxd);
+@@ -355,7 +352,7 @@ static int idxd_probe(struct idxd_device *idxd)
+ 	dev_dbg(dev, "IDXD device %d probed successfully\n", idxd->id);
+ 	return 0;
+ 
+- err_idr_fail:
++ err_ida_fail:
+ 	idxd_mask_error_interrupts(idxd);
+ 	idxd_mask_msix_vectors(idxd);
+  err_setup:
+@@ -512,9 +509,7 @@ static void idxd_remove(struct pci_dev *pdev)
+ 	idxd_shutdown(pdev);
+ 	if (device_pasid_enabled(idxd))
+ 		idxd_disable_system_pasid(idxd);
+-	mutex_lock(&idxd_idr_lock);
+-	idr_remove(&idxd_idrs[idxd->type], idxd->id);
+-	mutex_unlock(&idxd_idr_lock);
++	ida_free(&idxd_idas[idxd->type], idxd->id);
+ }
+ 
+ static struct pci_driver idxd_pci_driver = {
+@@ -544,7 +539,7 @@ static int __init idxd_init_module(void)
  		support_enqcmd = true;
  
--	mutex_init(&idxd_idr_lock);
  	for (i = 0; i < IDXD_TYPE_MAX; i++)
- 		idr_init(&idxd_idrs[i]);
+-		idr_init(&idxd_idrs[i]);
++		ida_init(&idxd_idas[i]);
  
+ 	err = idxd_register_bus_type();
+ 	if (err < 0)
 -- 
 2.30.2
 
