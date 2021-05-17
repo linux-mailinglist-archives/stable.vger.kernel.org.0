@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 516E83836C4
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762323836CC
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243674AbhEQPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:35:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S243389AbhEQPgA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:36:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242565AbhEQPd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:33:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5020861415;
-        Mon, 17 May 2021 14:39:03 +0000 (UTC)
+        id S242863AbhEQPd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:33:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 883D661244;
+        Mon, 17 May 2021 14:39:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262343;
-        bh=yVwyEf0dGX85mtgJyza20L7Pt8ZAfEevevT1erKxPV4=;
+        s=korg; t=1621262348;
+        bh=zjz52N9srrotdxv3CTc1aPidvSlqo1NXbLmieSeg2dw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sSyFPAqyxYKsBObfQKAkO5NgeeLfzMNQuK7vTq9gdM39mI6IL9AyIvLlDmnYOlZuy
-         /K5vcC5+QBX0nCXwhiU6J1THYcopSr7Ku2LEy9/5q1B3tXTK6RASCX5lzEUux5p8HT
-         V4WLcMp6BQ/sYhlieHHIpAdpagPzPpbOg7DuAW94=
+        b=jBidUVXqc+fhCDRfdBCN9Hl3cMkF9EnD19Zt/vUF89lN6sM0Aw23qJsW20Fa9Wk86
+         HP/LRRO0sCfvwEAe8k1qBpGE5M9iAK3s/q+tJNVXdV1yhjnIMkm/dj1keL7YzhGFyl
+         VHRwjtGgPu+dnLCTvkpGEX/J/l2AmRMWqvAqytLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>, Will Deacon <will@kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ebru Akagunduz <ebru.akagunduz@gmail.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Rik van Riel <riel@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 165/289] arm64: entry: always set GIC_PRIO_PSR_I_SET during entry
-Date:   Mon, 17 May 2021 16:01:30 +0200
-Message-Id: <20210517140310.680365580@linuxfoundation.org>
+Subject: [PATCH 5.10 166/289] khugepaged: fix wrong result value for trace_mm_collapse_huge_page_isolate()
+Date:   Mon, 17 May 2021 16:01:31 +0200
+Message-Id: <20210517140310.711942416@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -42,217 +46,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 4d6a38da8e79e94cbd1344aa90876f0f805db705 ]
+[ Upstream commit 74e579bf231a337ab3786d59e64bc94f45ca7b3f ]
 
-Zenghui reports that booting a kernel with "irqchip.gicv3_pseudo_nmi=1"
-on the command line hits a warning during kernel entry, due to the way
-we manipulate the PMR.
+In writable and !referenced case, the result value should be
+SCAN_LACK_REFERENCED_PAGE for trace_mm_collapse_huge_page_isolate()
+instead of default 0 (SCAN_FAIL) here.
 
-Early in the entry sequence, we call lockdep_hardirqs_off() to inform
-lockdep that interrupts have been masked (as the HW sets DAIF wqhen
-entering an exception). Architecturally PMR_EL1 is not affected by
-exception entry, and we don't set GIC_PRIO_PSR_I_SET in the PMR early in
-the exception entry sequence, so early in exception entry the PMR can
-indicate that interrupts are unmasked even though they are masked by
-DAIF.
-
-If DEBUG_LOCKDEP is selected, lockdep_hardirqs_off() will check that
-interrupts are masked, before we set GIC_PRIO_PSR_I_SET in any of the
-exception entry paths, and hence lockdep_hardirqs_off() will WARN() that
-something is amiss.
-
-We can avoid this by consistently setting GIC_PRIO_PSR_I_SET during
-exception entry so that kernel code sees a consistent environment. We
-must also update local_daif_inherit() to undo this, as currently only
-touches DAIF. For other paths, local_daif_restore() will update both
-DAIF and the PMR. With this done, we can remove the existing special
-cases which set this later in the entry code.
-
-We always use (GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET) for consistency with
-local_daif_save(), as this will warn if it ever encounters
-(GIC_PRIO_IRQOFF | GIC_PRIO_PSR_I_SET), and never sets this itself. This
-matches the gic_prio_kentry_setup that we have to retain for
-ret_to_user.
-
-The original splat from Zenghui's report was:
-
-| DEBUG_LOCKS_WARN_ON(!irqs_disabled())
-| WARNING: CPU: 3 PID: 125 at kernel/locking/lockdep.c:4258 lockdep_hardirqs_off+0xd4/0xe8
-| Modules linked in:
-| CPU: 3 PID: 125 Comm: modprobe Tainted: G        W         5.12.0-rc8+ #463
-| Hardware name: QEMU KVM Virtual Machine, BIOS 0.0.0 02/06/2015
-| pstate: 604003c5 (nZCv DAIF +PAN -UAO -TCO BTYPE=--)
-| pc : lockdep_hardirqs_off+0xd4/0xe8
-| lr : lockdep_hardirqs_off+0xd4/0xe8
-| sp : ffff80002a39bad0
-| pmr_save: 000000e0
-| x29: ffff80002a39bad0 x28: ffff0000de214bc0
-| x27: ffff0000de1c0400 x26: 000000000049b328
-| x25: 0000000000406f30 x24: ffff0000de1c00a0
-| x23: 0000000020400005 x22: ffff8000105f747c
-| x21: 0000000096000044 x20: 0000000000498ef9
-| x19: ffff80002a39bc88 x18: ffffffffffffffff
-| x17: 0000000000000000 x16: ffff800011c61eb0
-| x15: ffff800011700a88 x14: 0720072007200720
-| x13: 0720072007200720 x12: 0720072007200720
-| x11: 0720072007200720 x10: 0720072007200720
-| x9 : ffff80002a39bad0 x8 : ffff80002a39bad0
-| x7 : ffff8000119f0800 x6 : c0000000ffff7fff
-| x5 : ffff8000119f07a8 x4 : 0000000000000001
-| x3 : 9bcdab23f2432800 x2 : ffff800011730538
-| x1 : 9bcdab23f2432800 x0 : 0000000000000000
-| Call trace:
-|  lockdep_hardirqs_off+0xd4/0xe8
-|  enter_from_kernel_mode.isra.5+0x7c/0xa8
-|  el1_abort+0x24/0x100
-|  el1_sync_handler+0x80/0xd0
-|  el1_sync+0x6c/0x100
-|  __arch_clear_user+0xc/0x90
-|  load_elf_binary+0x9fc/0x1450
-|  bprm_execve+0x404/0x880
-|  kernel_execve+0x180/0x188
-|  call_usermodehelper_exec_async+0xdc/0x158
-|  ret_from_fork+0x10/0x18
-
-Fixes: 23529049c684 ("arm64: entry: fix non-NMI user<->kernel transitions")
-Fixes: 7cd1ea1010ac ("arm64: entry: fix non-NMI kernel<->kernel transitions")
-Fixes: f0cd5ac1e4c5 ("arm64: entry: fix NMI {user, kernel}->kernel transitions")
-Fixes: 2a9b3e6ac69a ("arm64: entry: fix EL1 debug transitions")
-Link: https://lore.kernel.org/r/f4012761-026f-4e51-3a0c-7524e434e8b3@huawei.com
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Reported-by: Zenghui Yu <yuzenghui@huawei.com>
-Cc: Marc Zyngier <maz@kernel.org>
-Cc: Will Deacon <will@kernel.org>
-Acked-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210428111555.50880-1-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Link: https://lkml.kernel.org/r/20210306032947.35921-5-linmiaohe@huawei.com
+Fixes: 7d2eba0557c1 ("mm: add tracepoint for scanning pages")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Cc: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: Ebru Akagunduz <ebru.akagunduz@gmail.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Rik van Riel <riel@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/include/asm/daifflags.h |  3 +++
- arch/arm64/kernel/entry-common.c   | 17 -----------------
- arch/arm64/kernel/entry.S          | 15 ++-------------
- 3 files changed, 5 insertions(+), 30 deletions(-)
+ mm/khugepaged.c | 18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
-diff --git a/arch/arm64/include/asm/daifflags.h b/arch/arm64/include/asm/daifflags.h
-index 1c26d7baa67f..cfdde3a56805 100644
---- a/arch/arm64/include/asm/daifflags.h
-+++ b/arch/arm64/include/asm/daifflags.h
-@@ -131,6 +131,9 @@ static inline void local_daif_inherit(struct pt_regs *regs)
- 	if (interrupts_enabled(regs))
- 		trace_hardirqs_on();
- 
-+	if (system_uses_irq_prio_masking())
-+		gic_write_pmr(regs->pmr_save);
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index abab394c4206..a6238118ac4c 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -714,17 +714,17 @@ next:
+ 		if (pte_write(pteval))
+ 			writable = true;
+ 	}
+-	if (likely(writable)) {
+-		if (likely(referenced)) {
+-			result = SCAN_SUCCEED;
+-			trace_mm_collapse_huge_page_isolate(page, none_or_zero,
+-							    referenced, writable, result);
+-			return 1;
+-		}
+-	} else {
 +
- 	/*
- 	 * We can't use local_daif_restore(regs->pstate) here as
- 	 * system_has_prio_mask_debugging() won't restore the I bit if it can
-diff --git a/arch/arm64/kernel/entry-common.c b/arch/arm64/kernel/entry-common.c
-index 70e0a7591245..ec120ed18faf 100644
---- a/arch/arm64/kernel/entry-common.c
-+++ b/arch/arm64/kernel/entry-common.c
-@@ -178,14 +178,6 @@ static void noinstr el1_dbg(struct pt_regs *regs, unsigned long esr)
- {
- 	unsigned long far = read_sysreg(far_el1);
- 
--	/*
--	 * The CPU masked interrupts, and we are leaving them masked during
--	 * do_debug_exception(). Update PMR as if we had called
--	 * local_daif_mask().
--	 */
--	if (system_uses_irq_prio_masking())
--		gic_write_pmr(GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET);
++	if (unlikely(!writable)) {
+ 		result = SCAN_PAGE_RO;
++	} else if (unlikely(!referenced)) {
++		result = SCAN_LACK_REFERENCED_PAGE;
++	} else {
++		result = SCAN_SUCCEED;
++		trace_mm_collapse_huge_page_isolate(page, none_or_zero,
++						    referenced, writable, result);
++		return 1;
+ 	}
 -
- 	arm64_enter_el1_dbg(regs);
- 	do_debug_exception(far, esr, regs);
- 	arm64_exit_el1_dbg(regs);
-@@ -350,9 +342,6 @@ static void noinstr el0_dbg(struct pt_regs *regs, unsigned long esr)
- 	/* Only watchpoints write FAR_EL1, otherwise its UNKNOWN */
- 	unsigned long far = read_sysreg(far_el1);
- 
--	if (system_uses_irq_prio_masking())
--		gic_write_pmr(GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET);
--
- 	enter_from_user_mode();
- 	do_debug_exception(far, esr, regs);
- 	local_daif_restore(DAIF_PROCCTX_NOIRQ);
-@@ -360,9 +349,6 @@ static void noinstr el0_dbg(struct pt_regs *regs, unsigned long esr)
- 
- static void noinstr el0_svc(struct pt_regs *regs)
- {
--	if (system_uses_irq_prio_masking())
--		gic_write_pmr(GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET);
--
- 	enter_from_user_mode();
- 	do_el0_svc(regs);
- }
-@@ -437,9 +423,6 @@ static void noinstr el0_cp15(struct pt_regs *regs, unsigned long esr)
- 
- static void noinstr el0_svc_compat(struct pt_regs *regs)
- {
--	if (system_uses_irq_prio_masking())
--		gic_write_pmr(GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET);
--
- 	enter_from_user_mode();
- 	do_el0_svc_compat(regs);
- }
-diff --git a/arch/arm64/kernel/entry.S b/arch/arm64/kernel/entry.S
-index a9644da545c7..60d399123360 100644
---- a/arch/arm64/kernel/entry.S
-+++ b/arch/arm64/kernel/entry.S
-@@ -259,6 +259,8 @@ alternative_else_nop_endif
- alternative_if ARM64_HAS_IRQ_PRIO_MASKING
- 	mrs_s	x20, SYS_ICC_PMR_EL1
- 	str	x20, [sp, #S_PMR_SAVE]
-+	mov	x20, #GIC_PRIO_IRQON | GIC_PRIO_PSR_I_SET
-+	msr_s	SYS_ICC_PMR_EL1, x20
- alternative_else_nop_endif
- 
- 	/* Re-enable tag checking (TCO set on exception entry) */
-@@ -495,17 +497,7 @@ alternative_endif
- #endif
- 	.endm
- 
--	.macro	gic_prio_irq_setup, pmr:req, tmp:req
--#ifdef CONFIG_ARM64_PSEUDO_NMI
--	alternative_if ARM64_HAS_IRQ_PRIO_MASKING
--	orr	\tmp, \pmr, #GIC_PRIO_PSR_I_SET
--	msr_s	SYS_ICC_PMR_EL1, \tmp
--	alternative_else_nop_endif
--#endif
--	.endm
--
- 	.macro el1_interrupt_handler, handler:req
--	gic_prio_irq_setup pmr=x20, tmp=x1
- 	enable_da_f
- 
- 	mov	x0, sp
-@@ -533,7 +525,6 @@ alternative_else_nop_endif
- 	.endm
- 
- 	.macro el0_interrupt_handler, handler:req
--	gic_prio_irq_setup pmr=x20, tmp=x0
- 	user_exit_irqoff
- 	enable_da_f
- 
-@@ -719,7 +710,6 @@ SYM_CODE_END(el0_irq)
- SYM_CODE_START_LOCAL(el1_error)
- 	kernel_entry 1
- 	mrs	x1, esr_el1
--	gic_prio_kentry_setup tmp=x2
- 	enable_dbg
- 	mov	x0, sp
- 	bl	do_serror
-@@ -730,7 +720,6 @@ SYM_CODE_START_LOCAL(el0_error)
- 	kernel_entry 0
- el0_error_naked:
- 	mrs	x25, esr_el1
--	gic_prio_kentry_setup tmp=x2
- 	user_exit_irqoff
- 	enable_dbg
- 	mov	x0, sp
+ out:
+ 	release_pte_pages(pte, _pte, compound_pagelist);
+ 	trace_mm_collapse_huge_page_isolate(page, none_or_zero,
 -- 
 2.30.2
 
