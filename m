@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE7D6383372
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEAF5383374
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240247AbhEQO6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:58:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
+        id S241074AbhEQO6W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:58:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240818AbhEQOz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:55:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83981613D8;
-        Mon, 17 May 2021 14:25:05 +0000 (UTC)
+        id S241791AbhEQO4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:56:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D295619A2;
+        Mon, 17 May 2021 14:25:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261506;
-        bh=BmOhuDCWBLzQHymnRt/ytTMCtdRVbbIQJQLAJR27aVo=;
+        s=korg; t=1621261516;
+        bh=u/xNXHQeeuK5IA8QPMCNpd+Hs2XXTZxB9m4f+qzaEQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FKUaMRNF0OTCMq84MVPO+pcaH6QnUMJzKtK23vyS3C/i+XfiiunqUPXx7AVBnV3H5
-         hPzZHbRoM4bjaJtS4rKx8LjYv2olwb70FnzvyaZkHiISy82oyWP0/f8PwdIGWiwZPY
-         ZbE0fm5/UwiW2H5+CTJVpAmgR31L0AfjNoN1TaPQ=
+        b=sTuYVwYxuxbNZ/3VFePAJQHvVbuhyv0Z8qx/W/WY2U9Iy6Pl9361OS+OFaOOsABWD
+         mmyU7v10zYrl5L0GwilpwemA7MNoSI59Lzdo01ENAMaR2oT0d67iTZh4vh5EHFeFBj
+         HmTk2hF9OlYul8pKAY0aYvTfB+XYLVuqfx5juXoM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Kishon Vijay Abraham I <kishon@ti.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 123/329] f2fs: fix to update last i_size if fallocate partially succeeds
-Date:   Mon, 17 May 2021 16:00:34 +0200
-Message-Id: <20210517140306.270294002@linuxfoundation.org>
+Subject: [PATCH 5.11 124/329] PCI: endpoint: Make *_get_first_free_bar() take into account 64 bit BAR
+Date:   Mon, 17 May 2021 16:00:35 +0200
+Message-Id: <20210517140306.301456791@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,104 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 88f2cfc5fa90326edb569b4a81bb38ed4dcd3108 ]
+[ Upstream commit 959a48d0eac0321948c9f3d1707ba22c100e92d5 ]
 
-In the case of expanding pinned file, map.m_lblk and map.m_len
-will update in each round of section allocation, so in error
-path, last i_size will be calculated with wrong m_lblk and m_len,
-fix it.
+pci_epc_get_first_free_bar() uses only "reserved_bar" member in
+epc_features to get the first unreserved BAR. However if the reserved BAR
+is also a 64-bit BAR, then the next BAR shouldn't be returned (since 64-bit
+BAR uses two BARs).
 
-Fixes: f5a53edcf01e ("f2fs: support aligned pinned file")
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Make pci_epc_get_first_free_bar() take into account 64 bit BAR while
+returning the first free unreserved BAR.
+
+Link: https://lore.kernel.org/r/20210201195809.7342-3-kishon@ti.com
+Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/file.c | 22 +++++++++++-----------
- 1 file changed, 11 insertions(+), 11 deletions(-)
+ drivers/pci/endpoint/pci-epc-core.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 00e89f45ccde..42563d7c442d 100644
---- a/fs/f2fs/file.c
-+++ b/fs/f2fs/file.c
-@@ -1616,9 +1616,10 @@ static int expand_inode_data(struct inode *inode, loff_t offset,
- 	struct f2fs_map_blocks map = { .m_next_pgofs = NULL,
- 			.m_next_extent = NULL, .m_seg_type = NO_CHECK_TYPE,
- 			.m_may_create = true };
--	pgoff_t pg_end;
-+	pgoff_t pg_start, pg_end;
- 	loff_t new_size = i_size_read(inode);
- 	loff_t off_end;
-+	block_t expanded = 0;
- 	int err;
+diff --git a/drivers/pci/endpoint/pci-epc-core.c b/drivers/pci/endpoint/pci-epc-core.c
+index cadd3db0cbb0..25e57672e1a1 100644
+--- a/drivers/pci/endpoint/pci-epc-core.c
++++ b/drivers/pci/endpoint/pci-epc-core.c
+@@ -93,12 +93,20 @@ EXPORT_SYMBOL_GPL(pci_epc_get);
+ unsigned int pci_epc_get_first_free_bar(const struct pci_epc_features
+ 					*epc_features)
+ {
+-	int free_bar;
++	unsigned long free_bar;
  
- 	err = inode_newsize_ok(inode, (len + offset));
-@@ -1631,11 +1632,12 @@ static int expand_inode_data(struct inode *inode, loff_t offset,
+ 	if (!epc_features)
+ 		return 0;
  
- 	f2fs_balance_fs(sbi, true);
+-	free_bar = ffz(epc_features->reserved_bar);
++	/* Find if the reserved BAR is also a 64-bit BAR */
++	free_bar = epc_features->reserved_bar & epc_features->bar_fixed_64bit;
++
++	/* Set the adjacent bit if the reserved BAR is also a 64-bit BAR */
++	free_bar <<= 1;
++	free_bar |= epc_features->reserved_bar;
++
++	/* Now find the free BAR */
++	free_bar = ffz(free_bar);
+ 	if (free_bar > 5)
+ 		return 0;
  
-+	pg_start = ((unsigned long long)offset) >> PAGE_SHIFT;
- 	pg_end = ((unsigned long long)offset + len) >> PAGE_SHIFT;
- 	off_end = (offset + len) & (PAGE_SIZE - 1);
- 
--	map.m_lblk = ((unsigned long long)offset) >> PAGE_SHIFT;
--	map.m_len = pg_end - map.m_lblk;
-+	map.m_lblk = pg_start;
-+	map.m_len = pg_end - pg_start;
- 	if (off_end)
- 		map.m_len++;
- 
-@@ -1645,7 +1647,6 @@ static int expand_inode_data(struct inode *inode, loff_t offset,
- 	if (f2fs_is_pinned_file(inode)) {
- 		block_t sec_blks = BLKS_PER_SEC(sbi);
- 		block_t sec_len = roundup(map.m_len, sec_blks);
--		block_t done = 0;
- 
- 		map.m_len = sec_blks;
- next_alloc:
-@@ -1653,10 +1654,8 @@ next_alloc:
- 			GET_SEC_FROM_SEG(sbi, overprovision_segments(sbi)))) {
- 			down_write(&sbi->gc_lock);
- 			err = f2fs_gc(sbi, true, false, false, NULL_SEGNO);
--			if (err && err != -ENODATA && err != -EAGAIN) {
--				map.m_len = done;
-+			if (err && err != -ENODATA && err != -EAGAIN)
- 				goto out_err;
--			}
- 		}
- 
- 		down_write(&sbi->pin_sem);
-@@ -1670,24 +1669,25 @@ next_alloc:
- 
- 		up_write(&sbi->pin_sem);
- 
--		done += map.m_len;
-+		expanded += map.m_len;
- 		sec_len -= map.m_len;
- 		map.m_lblk += map.m_len;
- 		if (!err && sec_len)
- 			goto next_alloc;
- 
--		map.m_len = done;
-+		map.m_len = expanded;
- 	} else {
- 		err = f2fs_map_blocks(inode, &map, 1, F2FS_GET_BLOCK_PRE_AIO);
-+		expanded = map.m_len;
- 	}
- out_err:
- 	if (err) {
- 		pgoff_t last_off;
- 
--		if (!map.m_len)
-+		if (!expanded)
- 			return err;
- 
--		last_off = map.m_lblk + map.m_len - 1;
-+		last_off = pg_start + expanded - 1;
- 
- 		/* update new size to the failed position */
- 		new_size = (last_off == pg_end) ? offset + len :
 -- 
 2.30.2
 
