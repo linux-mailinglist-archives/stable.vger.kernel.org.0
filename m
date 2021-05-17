@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 05BB9383802
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F3A03836AA
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:34:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245172AbhEQPsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:48:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
+        id S242583AbhEQPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:35:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345058AbhEQPqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3788861D35;
-        Mon, 17 May 2021 14:44:23 +0000 (UTC)
+        id S244851AbhEQPcm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:32:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4345861CD2;
+        Mon, 17 May 2021 14:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262663;
-        bh=qx/PjOA/ZuU7CCjNcrmVLoFRUgUwwm36wgvT06uqZQk=;
+        s=korg; t=1621262330;
+        bh=KXTQBfakH0BrCa8TE9zTPkNFh6ESzzSdqNu5g8TZeeE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p5xrvXQb31rtmv3mGQIecJx7jp+CCQGFaVloMktITOfMwqP8mF6j2wN42mPdNOO/m
-         KvjKam5UG5qzFU683i2GX6WcgXx0O1uK2sbkQEWQbsnhg4/ZPnOGAVMy7TgHsnLlcD
-         vgiKrZpjGAxXggjGp5zDgAPQjQVX+uQy6xPbD3Yc=
+        b=NgeakkY0kxm3fmt7HQym+lFIdvI0i3pGEN89zqtP29BiBuPmvDn1ueWQtXgQgy23Y
+         0MUjL22eA9C7+qrbw+delED07KmJjoRaELUsdK768Rk1nV27Ch4DEFrd7gcRjRFUI2
+         VnaBLcc1iKJD5rlxmNnB2wP71VRIWTqVI1jcgHM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Svyatoslav Ryhel <clamor95@gmail.com>,
-        Andy Shevchenko <Andy.Shevchenko@gmail.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Dmitry Osipenko <digetx@gmail.com>,
-        Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Maxim Schwalm <maxim.schwalm@gmail.com>
-Subject: [PATCH 5.10 252/289] iio: gyro: mpu3050: Fix reported temperature value
+        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 266/329] hwmon: (occ) Fix poll rate limiting
 Date:   Mon, 17 May 2021 16:02:57 +0200
-Message-Id: <20210517140313.631285862@linuxfoundation.org>
+Message-Id: <20210517140311.111909708@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,59 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Osipenko <digetx@gmail.com>
+From: Eddie James <eajames@linux.ibm.com>
 
-commit f73c730774d88a14d7b60feee6d0e13570f99499 upstream.
+[ Upstream commit 5216dff22dc2bbbbe6f00335f9fd2879670e753b ]
 
-The raw temperature value is a 16-bit signed integer. The sign casting
-is missing in the code, which results in a wrong temperature reported
-by userspace tools, fix it.
+The poll rate limiter time was initialized at zero. This breaks the
+comparison in time_after if jiffies is large. Switch to storing the
+next update time rather than the previous time, and initialize the
+time when the device is probed.
 
-Cc: stable@vger.kernel.org
-Fixes: 3904b28efb2c ("iio: gyro: Add driver for the MPU-3050 gyroscope")
-Datasheet: https://www.cdiweb.com/datasheets/invensense/mpu-3000a.pdf
-Tested-by: Maxim Schwalm <maxim.schwalm@gmail.com> # Asus TF700T
-Tested-by: Svyatoslav Ryhel <clamor95@gmail.com> # Asus TF201
-Reported-by: Svyatoslav Ryhel <clamor95@gmail.com>
-Reviewed-by: Andy Shevchenko <Andy.Shevchenko@gmail.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
-Acked-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
-Link: https://lore.kernel.org/r/20210423020959.5023-1-digetx@gmail.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c10e753d43eb ("hwmon (occ): Add sensor types and versions")
+Signed-off-by: Eddie James <eajames@linux.ibm.com>
+Link: https://lore.kernel.org/r/20210429151336.18980-1-eajames@linux.ibm.com
+Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/gyro/mpu3050-core.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+ drivers/hwmon/occ/common.c | 5 +++--
+ drivers/hwmon/occ/common.h | 2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/gyro/mpu3050-core.c
-+++ b/drivers/iio/gyro/mpu3050-core.c
-@@ -271,7 +271,16 @@ static int mpu3050_read_raw(struct iio_d
- 	case IIO_CHAN_INFO_OFFSET:
- 		switch (chan->type) {
- 		case IIO_TEMP:
--			/* The temperature scaling is (x+23000)/280 Celsius */
-+			/*
-+			 * The temperature scaling is (x+23000)/280 Celsius
-+			 * for the "best fit straight line" temperature range
-+			 * of -30C..85C.  The 23000 includes room temperature
-+			 * offset of +35C, 280 is the precision scale and x is
-+			 * the 16-bit signed integer reported by hardware.
-+			 *
-+			 * Temperature value itself represents temperature of
-+			 * the sensor die.
-+			 */
- 			*val = 23000;
- 			return IIO_VAL_INT;
- 		default:
-@@ -328,7 +337,7 @@ static int mpu3050_read_raw(struct iio_d
- 				goto out_read_raw_unlock;
- 			}
+diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
+index 7a5e539b567b..580e63d7daa0 100644
+--- a/drivers/hwmon/occ/common.c
++++ b/drivers/hwmon/occ/common.c
+@@ -217,9 +217,9 @@ int occ_update_response(struct occ *occ)
+ 		return rc;
  
--			*val = be16_to_cpu(raw_val);
-+			*val = (s16)be16_to_cpu(raw_val);
- 			ret = IIO_VAL_INT;
+ 	/* limit the maximum rate of polling the OCC */
+-	if (time_after(jiffies, occ->last_update + OCC_UPDATE_FREQUENCY)) {
++	if (time_after(jiffies, occ->next_update)) {
+ 		rc = occ_poll(occ);
+-		occ->last_update = jiffies;
++		occ->next_update = jiffies + OCC_UPDATE_FREQUENCY;
+ 	} else {
+ 		rc = occ->last_error;
+ 	}
+@@ -1164,6 +1164,7 @@ int occ_setup(struct occ *occ, const char *name)
+ 		return rc;
+ 	}
  
- 			goto out_read_raw_unlock;
++	occ->next_update = jiffies + OCC_UPDATE_FREQUENCY;
+ 	occ_parse_poll_response(occ);
+ 
+ 	rc = occ_setup_sensor_attrs(occ);
+diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
+index 67e6968b8978..e6df719770e8 100644
+--- a/drivers/hwmon/occ/common.h
++++ b/drivers/hwmon/occ/common.h
+@@ -99,7 +99,7 @@ struct occ {
+ 	u8 poll_cmd_data;		/* to perform OCC poll command */
+ 	int (*send_cmd)(struct occ *occ, u8 *cmd);
+ 
+-	unsigned long last_update;
++	unsigned long next_update;
+ 	struct mutex lock;		/* lock OCC access */
+ 
+ 	struct device *hwmon;
+-- 
+2.30.2
+
 
 
