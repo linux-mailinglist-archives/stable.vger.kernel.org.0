@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17247382FA5
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:17:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A88382FA4
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:17:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238902AbhEQOSw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239148AbhEQOSw (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 10:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46662 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:46778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238876AbhEQOQr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238879AbhEQOQr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:16:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCFC361415;
-        Mon, 17 May 2021 14:09:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 005C66140E;
+        Mon, 17 May 2021 14:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260592;
-        bh=U4emeyNm6/ZLk4LQWXeu8xQ+maCMCoPMomqWE8L8/1o=;
+        s=korg; t=1621260594;
+        bh=4jPGcbGKhWMBX30tJbhPe+aFn+Lc5QNLRXkPjNCatYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x6ZM3bx+SDkv8zm/t790dEt+sjT/TX1N4Gw1nT14RMbYxGZcJnyGc92uvB6Ll3Fmw
-         4hKZSV9VKh7pNn0K12yCzb4atZ95uw5tVqlwLwDFLtVz7ZSJ/f4VrmX3KL3mwLMqiN
-         Mx/7pqL1V8OLwC2MfbuSWQAU+fUmlFsooXShgL/E=
+        b=fQj+Z5/dqCxUSEqIe5Htpw6AX5YUrKZlZlSVZt6Q5novYGMwXHquQyEdUnqZNQBl2
+         vnY4TRC+qa2UevI737ocPHLe5lJj9qSoLoh5lPNuDDRfO/gGSqj6zAi9RHgaL4lRw4
+         +0nLEAWVbP3EmDLa2WQGVEQeOUpoL5ltRJxY4B54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 152/363] NFSv4.2: Always flush out writes in nfs42_proc_fallocate()
-Date:   Mon, 17 May 2021 16:00:18 +0200
-Message-Id: <20210517140307.752253403@linuxfoundation.org>
+Subject: [PATCH 5.12 153/363] NFS: Deal correctly with attribute generation counter overflow
+Date:   Mon, 17 May 2021 16:00:19 +0200
+Message-Id: <20210517140307.790428909@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,74 +42,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 99f23783224355e7022ceea9b8d9f62c0fd01bd8 ]
+[ Upstream commit 9fdbfad1777cb4638f489eeb62d85432010c0031 ]
 
-Whether we're allocating or delallocating space, we should flush out the
-pending writes in order to avoid races with attribute updates.
+We need to use unsigned long subtraction and then convert to signed in
+order to deal correcly with C overflow rules.
 
-Fixes: 1e564d3dbd68 ("NFSv4.2: Fix a race in nfs42_proc_deallocate()")
+Fixes: f5062003465c ("NFS: Set an attribute barrier on all updates")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/nfs/inode.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 597005bc8a05..704a5246ccb5 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -90,7 +90,8 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
- static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
- 				loff_t offset, loff_t len)
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index a7fb076a5f44..7cfeee3eeef7 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -1662,10 +1662,10 @@ EXPORT_SYMBOL_GPL(_nfs_display_fhandle);
+  */
+ static int nfs_inode_attrs_need_update(const struct inode *inode, const struct nfs_fattr *fattr)
  {
--	struct nfs_server *server = NFS_SERVER(file_inode(filep));
-+	struct inode *inode = file_inode(filep);
-+	struct nfs_server *server = NFS_SERVER(inode);
- 	struct nfs4_exception exception = { };
- 	struct nfs_lock_context *lock;
- 	int err;
-@@ -99,9 +100,13 @@ static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
- 	if (IS_ERR(lock))
- 		return PTR_ERR(lock);
+-	const struct nfs_inode *nfsi = NFS_I(inode);
++	unsigned long attr_gencount = NFS_I(inode)->attr_gencount;
  
--	exception.inode = file_inode(filep);
-+	exception.inode = inode;
- 	exception.state = lock->open_context->state;
+-	return ((long)fattr->gencount - (long)nfsi->attr_gencount) > 0 ||
+-		((long)nfsi->attr_gencount - (long)nfs_read_attr_generation_counter() > 0);
++	return (long)(fattr->gencount - attr_gencount) > 0 ||
++	       (long)(attr_gencount - nfs_read_attr_generation_counter()) > 0;
+ }
  
-+	err = nfs_sync_inode(inode);
-+	if (err)
-+		goto out;
-+
- 	do {
- 		err = _nfs42_proc_fallocate(msg, filep, lock, offset, len);
- 		if (err == -ENOTSUPP) {
-@@ -110,7 +115,7 @@ static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ static int nfs_refresh_inode_locked(struct inode *inode, struct nfs_fattr *fattr)
+@@ -2094,7 +2094,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 			nfsi->attrtimeo_timestamp = now;
  		}
- 		err = nfs4_handle_exception(server, err, &exception);
- 	} while (exception.retry);
--
-+out:
- 	nfs_put_lock_context(lock);
- 	return err;
- }
-@@ -148,16 +153,13 @@ int nfs42_proc_deallocate(struct file *filep, loff_t offset, loff_t len)
- 		return -EOPNOTSUPP;
+ 		/* Set the barrier to be more recent than this fattr */
+-		if ((long)fattr->gencount - (long)nfsi->attr_gencount > 0)
++		if ((long)(fattr->gencount - nfsi->attr_gencount) > 0)
+ 			nfsi->attr_gencount = fattr->gencount;
+ 	}
  
- 	inode_lock(inode);
--	err = nfs_sync_inode(inode);
--	if (err)
--		goto out_unlock;
- 
- 	err = nfs42_proc_fallocate(&msg, filep, offset, len);
- 	if (err == 0)
- 		truncate_pagecache_range(inode, offset, (offset + len) -1);
- 	if (err == -EOPNOTSUPP)
- 		NFS_SERVER(inode)->caps &= ~NFS_CAP_DEALLOCATE;
--out_unlock:
-+
- 	inode_unlock(inode);
- 	return err;
- }
 -- 
 2.30.2
 
