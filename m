@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D4F3833C1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B2F6383595
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242194AbhEQPB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:01:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
+        id S243403AbhEQPXR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:23:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242551AbhEQO7y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:59:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8157460FDB;
-        Mon, 17 May 2021 14:26:33 +0000 (UTC)
+        id S243963AbhEQPSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:18:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 827A861C72;
+        Mon, 17 May 2021 14:33:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261594;
-        bh=k5C75qtX6axUQoPUFNu69OAcxdQJxSQiBnEDC1eZvvU=;
+        s=korg; t=1621262018;
+        bh=kyz1Z4j1fx7MLGJPzpfVnpMljw7rHnaU+HUC3GaINkM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kASheDvLRf0EVoZj/FlRJYG8QklVbHHJmjbpRxnZjV+JzytBesU+2nYirPqUwgBPK
-         geS9BaKAZxPutYOUW0yzME2bcBaUnxIwNR/RMMiC0k28FVgzCMCWtrXyDP7AHJ8Y/a
-         MYAXn2SArgMEjAXG7ygxPl3YQjY85e0yeq6WbIQk=
+        b=1Qka3AMwdOlx4iKO47+xMb0jDBPSNquzZfosc9SJspF40NWfyeKjrKydkn+eQJsAA
+         WxYouxCJSAu92lw3+mIRE3fXYgW26821UGs6DAufwiT4B4dAd7Kp2+kaps5BRU8njw
+         iYXsjQrVacJ5SvqgiVfa7w5LLdxYQHm1ufrrf2KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 063/141] rtc: fsl-ftm-alarm: add MODULE_TABLE()
+Subject: [PATCH 5.11 204/329] ksm: fix potential missing rmap_item for stable_node
 Date:   Mon, 17 May 2021 16:01:55 +0200
-Message-Id: <20210517140244.884444912@linuxfoundation.org>
+Message-Id: <20210517140309.012809493@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 7fcb86185978661c9188397d474f90364745b8d9 ]
+[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
 
-The module doesn't load automatically. Fix it by adding the missing
-MODULE_TABLE().
+When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
+cleared with head reserved.  So the following scenario might happen: For
+ksm page with rmap_item1:
 
-Fixes: 7b0b551dbc1e ("rtc: fsl-ftm-alarm: add FTM alarm driver")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210414084006.17933-1-michael@walle.cc
+cmp_and_merge_page
+  stable_node->head = &migrate_nodes;
+  remove_rmap_item_from_tree, but head still equal to stable_node;
+  try_to_merge_with_ksm_page failed;
+  return;
+
+For the same ksm page with rmap_item2, stable node migration succeed this
+time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
+page with rmap_item1 again:
+
+cmp_and_merge_page
+ stable_node->head != &migrate_nodes && rmap_item->head == stable_node
+ return;
+
+We would miss the rmap_item for stable_node and might result in failed
+rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
+is removed from stable tree.
+
+Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
+Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-fsl-ftm-alarm.c | 1 +
+ mm/ksm.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
-index 8df2075af9a2..835695bedaac 100644
---- a/drivers/rtc/rtc-fsl-ftm-alarm.c
-+++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
-@@ -316,6 +316,7 @@ static const struct of_device_id ftm_rtc_match[] = {
- 	{ .compatible = "fsl,lx2160a-ftm-alarm", },
- 	{ },
- };
-+MODULE_DEVICE_TABLE(of, ftm_rtc_match);
+diff --git a/mm/ksm.c b/mm/ksm.c
+index 9694ee2c71de..b32391ccf6d5 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -794,6 +794,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
+ 		stable_node->rmap_hlist_len--;
  
- static struct platform_driver ftm_rtc_driver = {
- 	.probe		= ftm_rtc_probe,
+ 		put_anon_vma(rmap_item->anon_vma);
++		rmap_item->head = NULL;
+ 		rmap_item->address &= PAGE_MASK;
+ 
+ 	} else if (rmap_item->address & UNSTABLE_FLAG) {
 -- 
 2.30.2
 
