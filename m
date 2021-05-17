@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DBA9382FC4
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:20:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CA5382FC6
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:20:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238952AbhEQOUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:20:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35958 "EHLO mail.kernel.org"
+        id S239511AbhEQOUe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:20:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35960 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239125AbhEQOSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239124AbhEQOSr (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:18:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D5A361412;
-        Mon, 17 May 2021 14:10:24 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA25B6142A;
+        Mon, 17 May 2021 14:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260625;
-        bh=bKNhFBveHdwDoNAtbTqIATiKOLJdAXj4bNeR3HmWwAc=;
+        s=korg; t=1621260627;
+        bh=CrSQS+7C5+I81F9vogZFamy9B0sf6+n2SJ40L+CYj70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xhNFhLM0K+9/KENNfY7VFSzHnQl6gJkOHFvggZxIykMAlFQEV0ri3qpEpcT3Sa5Tf
-         jzmi1Etvr9ITweq2xy3lLkWUdzraUigQRXyaJ1BrCBQZhksBEe7h4jNs7T79SApCgV
-         EPZ7Ad6z+I5A5G8YXXD0k0CITIZibJULF7Uqf+F0=
+        b=JJK44LfkdqH8LUgIbPA7bmFyaOyMEGGenCR9bwbuTPJLdENNd/3Qr3BU3nK9qMDAB
+         mxX6t4QpwKLvpkZEls41mlgDQzpXBlgTsPlKQmJyhvnhNN4VlGDNaj7Z43g6+xv/yN
+         3RJwZURc57oMaCtD/yq9YW4yOS09DX4Yg2J0F1zs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "J. Bruce Fields" <bfields@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 166/363] nfsd: ensure new clients break delegations
-Date:   Mon, 17 May 2021 16:00:32 +0200
-Message-Id: <20210517140308.215419946@linuxfoundation.org>
+Subject: [PATCH 5.12 167/363] rtc: fsl-ftm-alarm: add MODULE_TABLE()
+Date:   Mon, 17 May 2021 16:00:33 +0200
+Message-Id: <20210517140308.246107699@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,69 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: J. Bruce Fields <bfields@redhat.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 217fd6f625af591e2866bebb8cda778cf85bea2e ]
+[ Upstream commit 7fcb86185978661c9188397d474f90364745b8d9 ]
 
-If nfsd already has an open file that it plans to use for IO from
-another, it may not need to do another vfs open, but it still may need
-to break any delegations in case the existing opens are for another
-client.
+The module doesn't load automatically. Fix it by adding the missing
+MODULE_TABLE().
 
-Symptoms are that we may incorrectly fail to break a delegation on a
-write open from a different client, when the delegation-holding client
-already has a write open.
-
-Fixes: 28df3d1539de ("nfsd: clients don't need to break their own delegations")
-Signed-off-by: J. Bruce Fields <bfields@redhat.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 7b0b551dbc1e ("rtc: fsl-ftm-alarm: add FTM alarm driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210414084006.17933-1-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-fsl-ftm-alarm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 97447a64bad0..886e50ed07c2 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -4869,6 +4869,11 @@ static __be32 nfs4_get_vfs_file(struct svc_rqst *rqstp, struct nfs4_file *fp,
- 	if (nf)
- 		nfsd_file_put(nf);
+diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
+index 57cc09d0a806..c0df49fb978c 100644
+--- a/drivers/rtc/rtc-fsl-ftm-alarm.c
++++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
+@@ -310,6 +310,7 @@ static const struct of_device_id ftm_rtc_match[] = {
+ 	{ .compatible = "fsl,lx2160a-ftm-alarm", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, ftm_rtc_match);
  
-+	status = nfserrno(nfsd_open_break_lease(cur_fh->fh_dentry->d_inode,
-+								access));
-+	if (status)
-+		goto out_put_access;
-+
- 	status = nfsd4_truncate(rqstp, cur_fh, open);
- 	if (status)
- 		goto out_put_access;
-@@ -6849,11 +6854,20 @@ out:
- static __be32 nfsd_test_lock(struct svc_rqst *rqstp, struct svc_fh *fhp, struct file_lock *lock)
- {
- 	struct nfsd_file *nf;
--	__be32 err = nfsd_file_acquire(rqstp, fhp, NFSD_MAY_READ, &nf);
--	if (!err) {
--		err = nfserrno(vfs_test_lock(nf->nf_file, lock));
--		nfsd_file_put(nf);
--	}
-+	__be32 err;
-+
-+	err = nfsd_file_acquire(rqstp, fhp, NFSD_MAY_READ, &nf);
-+	if (err)
-+		return err;
-+	fh_lock(fhp); /* to block new leases till after test_lock: */
-+	err = nfserrno(nfsd_open_break_lease(fhp->fh_dentry->d_inode,
-+							NFSD_MAY_READ));
-+	if (err)
-+		goto out;
-+	err = nfserrno(vfs_test_lock(nf->nf_file, lock));
-+out:
-+	fh_unlock(fhp);
-+	nfsd_file_put(nf);
- 	return err;
- }
- 
+ static const struct acpi_device_id ftm_imx_acpi_ids[] = {
+ 	{"NXP0014",},
 -- 
 2.30.2
 
