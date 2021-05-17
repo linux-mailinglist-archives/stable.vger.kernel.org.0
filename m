@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9B62383842
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DFB638365C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244472AbhEQPvA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:51:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42410 "EHLO mail.kernel.org"
+        id S244542AbhEQPbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243444AbhEQPsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:48:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 036936195C;
-        Mon, 17 May 2021 14:44:51 +0000 (UTC)
+        id S244805AbhEQP2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:28:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C807461CA5;
+        Mon, 17 May 2021 14:37:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262692;
-        bh=zBHHWhLgllJGLTbzNhuSJSbIf2igLrVp3+rPxVwSzdA=;
+        s=korg; t=1621262232;
+        bh=f2dkVTFYo8l5vSyBOFZGqDhbF9aUxfTWN/s1ntZpyzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jjckKRFmdeyLLPtUlYNONCa+qi0A8TsOnwjeufZ2gWNStgQKHQ2Lt6woRjIw77PvC
-         cFKT3iu8RjjtWDKRiRFnSt023i7UUdCRl0sCxaqXh86bnOhECfbvSem6suIm2flX1K
-         sdR9BWemylRa4CNy/RqRgmgly/0hFPI7QEM8fdmc=
+        b=dXrXQit2MoB8d5ZgtkIZRUk0wS17vjGMRwwCza4O+iD/aJn81gzg/Kneuh1vwN9H1
+         ginffAktpwpgOe4eCjLkEa1TArnKbXQrwENXgn8kipMjWeuIUxwabsxIODMKc5h3ny
+         SA0DtYdaNjasgR4adrTiyCjqpskPpvZVF4ci3m8c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 230/289] kyber: fix out of bounds access when preempted
+        stable@vger.kernel.org, Wang Yugui <wangyugui@e16-tech.com>,
+        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.11 244/329] btrfs: fix deadlock when cloning inline extents and using qgroups
 Date:   Mon, 17 May 2021 16:02:35 +0200
-Message-Id: <20210517140312.914247339@linuxfoundation.org>
+Message-Id: <20210517140310.363274080@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,162 +40,229 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit efed9a3337e341bd0989161b97453b52567bc59d ]
+commit f9baa501b4fd6962257853d46ddffbc21f27e344 upstream.
 
-__blk_mq_sched_bio_merge() gets the ctx and hctx for the current CPU and
-passes the hctx to ->bio_merge(). kyber_bio_merge() then gets the ctx
-for the current CPU again and uses that to get the corresponding Kyber
-context in the passed hctx. However, the thread may be preempted between
-the two calls to blk_mq_get_ctx(), and the ctx returned the second time
-may no longer correspond to the passed hctx. This "works" accidentally
-most of the time, but it can cause us to read garbage if the second ctx
-came from an hctx with more ctx's than the first one (i.e., if
-ctx->index_hw[hctx->type] > hctx->nr_ctx).
+There are a few exceptional cases where cloning an inline extent needs to
+copy the inline extent data into a page of the destination inode.
 
-This manifested as this UBSAN array index out of bounds error reported
-by Jakub:
+When this happens, we end up starting a transaction while having a dirty
+page for the destination inode and while having the range locked in the
+destination's inode iotree too. Because when reserving metadata space
+for a transaction we may need to flush existing delalloc in case there is
+not enough free space, we have a mechanism in place to prevent a deadlock,
+which was introduced in commit 3d45f221ce627d ("btrfs: fix deadlock when
+cloning inline extent and low on free metadata space").
 
-UBSAN: array-index-out-of-bounds in ../kernel/locking/qspinlock.c:130:9
-index 13106 is out of range for type 'long unsigned int [128]'
-Call Trace:
- dump_stack+0xa4/0xe5
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds.cold.13+0x2a/0x34
- queued_spin_lock_slowpath+0x476/0x480
- do_raw_spin_lock+0x1c2/0x1d0
- kyber_bio_merge+0x112/0x180
- blk_mq_submit_bio+0x1f5/0x1100
- submit_bio_noacct+0x7b0/0x870
- submit_bio+0xc2/0x3a0
- btrfs_map_bio+0x4f0/0x9d0
- btrfs_submit_data_bio+0x24e/0x310
- submit_one_bio+0x7f/0xb0
- submit_extent_page+0xc4/0x440
- __extent_writepage_io+0x2b8/0x5e0
- __extent_writepage+0x28d/0x6e0
- extent_write_cache_pages+0x4d7/0x7a0
- extent_writepages+0xa2/0x110
- do_writepages+0x8f/0x180
- __writeback_single_inode+0x99/0x7f0
- writeback_sb_inodes+0x34e/0x790
- __writeback_inodes_wb+0x9e/0x120
- wb_writeback+0x4d2/0x660
- wb_workfn+0x64d/0xa10
- process_one_work+0x53a/0xa80
- worker_thread+0x69/0x5b0
- kthread+0x20b/0x240
- ret_from_fork+0x1f/0x30
+However when using qgroups, a transaction also reserves metadata qgroup
+space, which can also result in flushing delalloc in case there is not
+enough available space at the moment. When this happens we deadlock, since
+flushing delalloc requires locking the file range in the inode's iotree
+and the range was already locked at the very beginning of the clone
+operation, before attempting to start the transaction.
 
-Only Kyber uses the hctx, so fix it by passing the request_queue to
-->bio_merge() instead. BFQ and mq-deadline just use that, and Kyber can
-map the queues itself to avoid the mismatch.
+When this issue happens, stack traces like the following are reported:
 
-Fixes: a6088845c2bf ("block: kyber: make kyber more friendly with merging")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Link: https://lore.kernel.org/r/c7598605401a48d5cfeadebb678abd10af22b83f.1620691329.git.osandov@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  [72747.556262] task:kworker/u81:9   state:D stack:    0 pid:  225 ppid:     2 flags:0x00004000
+  [72747.556268] Workqueue: writeback wb_workfn (flush-btrfs-1142)
+  [72747.556271] Call Trace:
+  [72747.556273]  __schedule+0x296/0x760
+  [72747.556277]  schedule+0x3c/0xa0
+  [72747.556279]  io_schedule+0x12/0x40
+  [72747.556284]  __lock_page+0x13c/0x280
+  [72747.556287]  ? generic_file_readonly_mmap+0x70/0x70
+  [72747.556325]  extent_write_cache_pages+0x22a/0x440 [btrfs]
+  [72747.556331]  ? __set_page_dirty_nobuffers+0xe7/0x160
+  [72747.556358]  ? set_extent_buffer_dirty+0x5e/0x80 [btrfs]
+  [72747.556362]  ? update_group_capacity+0x25/0x210
+  [72747.556366]  ? cpumask_next_and+0x1a/0x20
+  [72747.556391]  extent_writepages+0x44/0xa0 [btrfs]
+  [72747.556394]  do_writepages+0x41/0xd0
+  [72747.556398]  __writeback_single_inode+0x39/0x2a0
+  [72747.556403]  writeback_sb_inodes+0x1ea/0x440
+  [72747.556407]  __writeback_inodes_wb+0x5f/0xc0
+  [72747.556410]  wb_writeback+0x235/0x2b0
+  [72747.556414]  ? get_nr_inodes+0x35/0x50
+  [72747.556417]  wb_workfn+0x354/0x490
+  [72747.556420]  ? newidle_balance+0x2c5/0x3e0
+  [72747.556424]  process_one_work+0x1aa/0x340
+  [72747.556426]  worker_thread+0x30/0x390
+  [72747.556429]  ? create_worker+0x1a0/0x1a0
+  [72747.556432]  kthread+0x116/0x130
+  [72747.556435]  ? kthread_park+0x80/0x80
+  [72747.556438]  ret_from_fork+0x1f/0x30
+
+  [72747.566958] Workqueue: btrfs-flush_delalloc btrfs_work_helper [btrfs]
+  [72747.566961] Call Trace:
+  [72747.566964]  __schedule+0x296/0x760
+  [72747.566968]  ? finish_wait+0x80/0x80
+  [72747.566970]  schedule+0x3c/0xa0
+  [72747.566995]  wait_extent_bit.constprop.68+0x13b/0x1c0 [btrfs]
+  [72747.566999]  ? finish_wait+0x80/0x80
+  [72747.567024]  lock_extent_bits+0x37/0x90 [btrfs]
+  [72747.567047]  btrfs_invalidatepage+0x299/0x2c0 [btrfs]
+  [72747.567051]  ? find_get_pages_range_tag+0x2cd/0x380
+  [72747.567076]  __extent_writepage+0x203/0x320 [btrfs]
+  [72747.567102]  extent_write_cache_pages+0x2bb/0x440 [btrfs]
+  [72747.567106]  ? update_load_avg+0x7e/0x5f0
+  [72747.567109]  ? enqueue_entity+0xf4/0x6f0
+  [72747.567134]  extent_writepages+0x44/0xa0 [btrfs]
+  [72747.567137]  ? enqueue_task_fair+0x93/0x6f0
+  [72747.567140]  do_writepages+0x41/0xd0
+  [72747.567144]  __filemap_fdatawrite_range+0xc7/0x100
+  [72747.567167]  btrfs_run_delalloc_work+0x17/0x40 [btrfs]
+  [72747.567195]  btrfs_work_helper+0xc2/0x300 [btrfs]
+  [72747.567200]  process_one_work+0x1aa/0x340
+  [72747.567202]  worker_thread+0x30/0x390
+  [72747.567205]  ? create_worker+0x1a0/0x1a0
+  [72747.567208]  kthread+0x116/0x130
+  [72747.567211]  ? kthread_park+0x80/0x80
+  [72747.567214]  ret_from_fork+0x1f/0x30
+
+  [72747.569686] task:fsstress        state:D stack:    0 pid:841421 ppid:841417 flags:0x00000000
+  [72747.569689] Call Trace:
+  [72747.569691]  __schedule+0x296/0x760
+  [72747.569694]  schedule+0x3c/0xa0
+  [72747.569721]  try_flush_qgroup+0x95/0x140 [btrfs]
+  [72747.569725]  ? finish_wait+0x80/0x80
+  [72747.569753]  btrfs_qgroup_reserve_data+0x34/0x50 [btrfs]
+  [72747.569781]  btrfs_check_data_free_space+0x5f/0xa0 [btrfs]
+  [72747.569804]  btrfs_buffered_write+0x1f7/0x7f0 [btrfs]
+  [72747.569810]  ? path_lookupat.isra.48+0x97/0x140
+  [72747.569833]  btrfs_file_write_iter+0x81/0x410 [btrfs]
+  [72747.569836]  ? __kmalloc+0x16a/0x2c0
+  [72747.569839]  do_iter_readv_writev+0x160/0x1c0
+  [72747.569843]  do_iter_write+0x80/0x1b0
+  [72747.569847]  vfs_writev+0x84/0x140
+  [72747.569869]  ? btrfs_file_llseek+0x38/0x270 [btrfs]
+  [72747.569873]  do_writev+0x65/0x100
+  [72747.569876]  do_syscall_64+0x33/0x40
+  [72747.569879]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+  [72747.569899] task:fsstress        state:D stack:    0 pid:841424 ppid:841417 flags:0x00004000
+  [72747.569903] Call Trace:
+  [72747.569906]  __schedule+0x296/0x760
+  [72747.569909]  schedule+0x3c/0xa0
+  [72747.569936]  try_flush_qgroup+0x95/0x140 [btrfs]
+  [72747.569940]  ? finish_wait+0x80/0x80
+  [72747.569967]  __btrfs_qgroup_reserve_meta+0x36/0x50 [btrfs]
+  [72747.569989]  start_transaction+0x279/0x580 [btrfs]
+  [72747.570014]  clone_copy_inline_extent+0x332/0x490 [btrfs]
+  [72747.570041]  btrfs_clone+0x5b7/0x7a0 [btrfs]
+  [72747.570068]  ? lock_extent_bits+0x64/0x90 [btrfs]
+  [72747.570095]  btrfs_clone_files+0xfc/0x150 [btrfs]
+  [72747.570122]  btrfs_remap_file_range+0x3d8/0x4a0 [btrfs]
+  [72747.570126]  do_clone_file_range+0xed/0x200
+  [72747.570131]  vfs_clone_file_range+0x37/0x110
+  [72747.570134]  ioctl_file_clone+0x7d/0xb0
+  [72747.570137]  do_vfs_ioctl+0x138/0x630
+  [72747.570140]  __x64_sys_ioctl+0x62/0xc0
+  [72747.570143]  do_syscall_64+0x33/0x40
+  [72747.570146]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
+
+So fix this by skipping the flush of delalloc for an inode that is
+flagged with BTRFS_INODE_NO_DELALLOC_FLUSH, meaning it is currently under
+such a special case of cloning an inline extent, when flushing delalloc
+during qgroup metadata reservation.
+
+The special cases for cloning inline extents were added in kernel 5.7 by
+by commit 05a5a7621ce66c ("Btrfs: implement full reflink support for
+inline extents"), while having qgroup metadata space reservation flushing
+delalloc when low on space was added in kernel 5.9 by commit
+c53e9653605dbf ("btrfs: qgroup: try to flush qgroup space when we get
+-EDQUOT"). So use a "Fixes:" tag for the later commit to ease stable
+kernel backports.
+
+Reported-by: Wang Yugui <wangyugui@e16-tech.com>
+Link: https://lore.kernel.org/linux-btrfs/20210421083137.31E3.409509F4@e16-tech.com/
+Fixes: c53e9653605dbf ("btrfs: qgroup: try to flush qgroup space when we get -EDQUOT")
+CC: stable@vger.kernel.org # 5.9+
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-iosched.c      | 3 +--
- block/blk-mq-sched.c     | 8 +++++---
- block/kyber-iosched.c    | 5 +++--
- block/mq-deadline.c      | 3 +--
- include/linux/elevator.h | 2 +-
- 5 files changed, 11 insertions(+), 10 deletions(-)
+ fs/btrfs/ctree.h  |    2 +-
+ fs/btrfs/inode.c  |    4 ++--
+ fs/btrfs/ioctl.c  |    2 +-
+ fs/btrfs/qgroup.c |    2 +-
+ fs/btrfs/send.c   |    4 ++--
+ 5 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 5720978e4d09..c91dca641eb4 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2210,10 +2210,9 @@ static void bfq_remove_request(struct request_queue *q,
+--- a/fs/btrfs/ctree.h
++++ b/fs/btrfs/ctree.h
+@@ -3104,7 +3104,7 @@ int btrfs_truncate_inode_items(struct bt
+ 			       struct btrfs_inode *inode, u64 new_size,
+ 			       u32 min_type);
  
+-int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
++int btrfs_start_delalloc_snapshot(struct btrfs_root *root, bool in_reclaim_context);
+ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
+ 			       bool in_reclaim_context);
+ int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9475,7 +9475,7 @@ out:
+ 	return ret;
  }
  
--static bool bfq_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool bfq_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
+-int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
++int btrfs_start_delalloc_snapshot(struct btrfs_root *root, bool in_reclaim_context)
  {
--	struct request_queue *q = hctx->queue;
- 	struct bfq_data *bfqd = q->elevator->elevator_data;
- 	struct request *free = NULL;
- 	/*
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index d1eafe2c045c..581be65a53c1 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -348,14 +348,16 @@ bool __blk_mq_sched_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
- 	struct elevator_queue *e = q->elevator;
--	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
--	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
-+	struct blk_mq_ctx *ctx;
-+	struct blk_mq_hw_ctx *hctx;
- 	bool ret = false;
- 	enum hctx_type type;
+ 	struct writeback_control wbc = {
+ 		.nr_to_write = LONG_MAX,
+@@ -9488,7 +9488,7 @@ int btrfs_start_delalloc_snapshot(struct
+ 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
+ 		return -EROFS;
  
- 	if (e && e->type->ops.bio_merge)
--		return e->type->ops.bio_merge(hctx, bio, nr_segs);
-+		return e->type->ops.bio_merge(q, bio, nr_segs);
+-	return start_delalloc_inodes(root, &wbc, true, false);
++	return start_delalloc_inodes(root, &wbc, true, in_reclaim_context);
+ }
  
-+	ctx = blk_mq_get_ctx(q);
-+	hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
- 	type = hctx->type;
- 	if (!(hctx->flags & BLK_MQ_F_SHOULD_MERGE) ||
- 	    list_empty_careful(&ctx->rq_lists[type]))
-diff --git a/block/kyber-iosched.c b/block/kyber-iosched.c
-index dc89199bc8c6..7f9ef773bf44 100644
---- a/block/kyber-iosched.c
-+++ b/block/kyber-iosched.c
-@@ -562,11 +562,12 @@ static void kyber_limit_depth(unsigned int op, struct blk_mq_alloc_data *data)
+ int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
+--- a/fs/btrfs/ioctl.c
++++ b/fs/btrfs/ioctl.c
+@@ -1042,7 +1042,7 @@ static noinline int btrfs_mksnapshot(con
+ 	 */
+ 	btrfs_drew_read_lock(&root->snapshot_lock);
+ 
+-	ret = btrfs_start_delalloc_snapshot(root);
++	ret = btrfs_start_delalloc_snapshot(root, false);
+ 	if (ret)
+ 		goto out;
+ 
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -3579,7 +3579,7 @@ static int try_flush_qgroup(struct btrfs
+ 		return 0;
  	}
- }
  
--static bool kyber_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool kyber_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
-+	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
-+	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
- 	struct kyber_hctx_data *khd = hctx->sched_data;
--	struct blk_mq_ctx *ctx = blk_mq_get_ctx(hctx->queue);
- 	struct kyber_ctx_queue *kcq = &khd->kcqs[ctx->index_hw[hctx->type]];
- 	unsigned int sched_domain = kyber_sched_domain(bio->bi_opf);
- 	struct list_head *rq_list = &kcq->rq_list[sched_domain];
-diff --git a/block/mq-deadline.c b/block/mq-deadline.c
-index 800ac902809b..2b9635d0dcba 100644
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -461,10 +461,9 @@ static int dd_request_merge(struct request_queue *q, struct request **rq,
- 	return ELEVATOR_NO_MERGE;
- }
+-	ret = btrfs_start_delalloc_snapshot(root);
++	ret = btrfs_start_delalloc_snapshot(root, true);
+ 	if (ret < 0)
+ 		goto out;
+ 	btrfs_wait_ordered_extents(root, U64_MAX, 0, (u64)-1);
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -7159,7 +7159,7 @@ static int flush_delalloc_roots(struct s
+ 	int i;
  
--static bool dd_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool dd_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
--	struct request_queue *q = hctx->queue;
- 	struct deadline_data *dd = q->elevator->elevator_data;
- 	struct request *free = NULL;
- 	bool ret;
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index bacc40a0bdf3..bc26b4e11f62 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -34,7 +34,7 @@ struct elevator_mq_ops {
- 	void (*depth_updated)(struct blk_mq_hw_ctx *);
+ 	if (root) {
+-		ret = btrfs_start_delalloc_snapshot(root);
++		ret = btrfs_start_delalloc_snapshot(root, false);
+ 		if (ret)
+ 			return ret;
+ 		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
+@@ -7167,7 +7167,7 @@ static int flush_delalloc_roots(struct s
  
- 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
--	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *, unsigned int);
-+	bool (*bio_merge)(struct request_queue *, struct bio *, unsigned int);
- 	int (*request_merge)(struct request_queue *q, struct request **, struct bio *);
- 	void (*request_merged)(struct request_queue *, struct request *, enum elv_merge);
- 	void (*requests_merged)(struct request_queue *, struct request *, struct request *);
--- 
-2.30.2
-
+ 	for (i = 0; i < sctx->clone_roots_cnt; i++) {
+ 		root = sctx->clone_roots[i].root;
+-		ret = btrfs_start_delalloc_snapshot(root);
++		ret = btrfs_start_delalloc_snapshot(root, false);
+ 		if (ret)
+ 			return ret;
+ 		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
 
 
