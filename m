@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7367E383341
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:55:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8506383144
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242465AbhEQO4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:56:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
+        id S239676AbhEQOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241986AbhEQOyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:54:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACF51619A9;
-        Mon, 17 May 2021 14:24:33 +0000 (UTC)
+        id S240273AbhEQOdn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:33:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6998A6191C;
+        Mon, 17 May 2021 14:16:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261474;
-        bh=9Y+5+dD6HCwmndVAudU9kiFO8fBTUHvYYZUyIyyt/Xg=;
+        s=korg; t=1621260976;
+        bh=cYITyM34fRkL0DDHNTO3gYgW71M19umtL2N33h6CW4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ItmN/yTgGoaA+gDkzUne6vAPJDuEcAyReYtoQw1vG0XiadAf9VCv7/KnLajAuo7/y
-         UcLe52R1jxMQL1mJCXT6lG1nZDCHfE2eurnD8/5L8NzfN5AXYjzWClkhWD3Qr1IvdV
-         wn2xDA7NKL4VPDJjP+13dFaa0YD3QJC5hHtl9z5k=
+        b=w5Mn+dRvsgqovD5fIqUG6wMhvxWJizTh3RoExjchYwiu5SqRShC0bosULOvqWFWhu
+         il2YczCcwAH87PN9rYLwXV3UFnCHVCBmQUQEzUTkZNC5U2K3QSOjTn4KzZAn71Z8pP
+         P6yEHAJAeIg0Tr1Hw1HyrMSJ+2X8ErqP1Dj1BO9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lai Jiangshan <laijs@linux.alibaba.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 006/289] KVM/VMX: Invoke NMI non-IST entry instead of IST entry
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 020/329] fs: dlm: flush swork on shutdown
 Date:   Mon, 17 May 2021 15:58:51 +0200
-Message-Id: <20210517140305.381591977@linuxfoundation.org>
+Message-Id: <20210517140302.730987387@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,144 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lai Jiangshan <laijs@linux.alibaba.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit a217a6593cec8b315d4c2f344bae33660b39b703 upstream.
+[ Upstream commit eec054b5a7cfe6d1f1598a323b05771ee99857b5 ]
 
-In VMX, the host NMI handler needs to be invoked after NMI VM-Exit.
-Before commit 1a5488ef0dcf6 ("KVM: VMX: Invoke NMI handler via indirect
-call instead of INTn"), this was done by INTn ("int $2"). But INTn
-microcode is relatively expensive, so the commit reworked NMI VM-Exit
-handling to invoke the kernel handler by function call.
+This patch fixes the flushing of send work before shutdown. The function
+cancel_work_sync() is not the right workqueue functionality to use here
+as it would cancel the work if the work queues itself. In cases of
+EAGAIN in send() for dlm message we need to be sure that everything is
+send out before. The function flush_work() will ensure that every send
+work is be done inclusive in EAGAIN cases.
 
-But this missed a detail. The NMI entry point for direct invocation is
-fetched from the IDT table and called on the kernel stack.  But on 64-bit
-the NMI entry installed in the IDT expects to be invoked on the IST stack.
-It relies on the "NMI executing" variable on the IST stack to work
-correctly, which is at a fixed position in the IST stack.  When the entry
-point is unexpectedly called on the kernel stack, the RSP-addressed "NMI
-executing" variable is obviously also on the kernel stack and is
-"uninitialized" and can cause the NMI entry code to run in the wrong way.
-
-Provide a non-ist entry point for VMX which shares the C-function with
-the regular NMI entry and invoke the new asm entry point instead.
-
-On 32-bit this just maps to the regular NMI entry point as 32-bit has no
-ISTs and is not affected.
-
-[ tglx: Made it independent for backporting, massaged changelog ]
-
-Fixes: 1a5488ef0dcf6 ("KVM: VMX: Invoke NMI handler via indirect call instead of INTn")
-Signed-off-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Lai Jiangshan <laijs@linux.alibaba.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87r1imi8i1.ffs@nanos.tec.linutronix.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/idtentry.h |   15 +++++++++++++++
- arch/x86/kernel/nmi.c           |   10 ++++++++++
- arch/x86/kvm/vmx/vmx.c          |   16 +++++++++-------
- 3 files changed, 34 insertions(+), 7 deletions(-)
+ fs/dlm/lowcomms.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/arch/x86/include/asm/idtentry.h
-+++ b/arch/x86/include/asm/idtentry.h
-@@ -588,6 +588,21 @@ DECLARE_IDTENTRY_RAW(X86_TRAP_MC,	exc_ma
- #endif
+diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
+index f827d0b3962a..5fe571e44b1a 100644
+--- a/fs/dlm/lowcomms.c
++++ b/fs/dlm/lowcomms.c
+@@ -709,10 +709,7 @@ static void shutdown_connection(struct connection *con)
+ {
+ 	int ret;
  
- /* NMI */
-+
-+#if defined(CONFIG_X86_64) && IS_ENABLED(CONFIG_KVM_INTEL)
-+/*
-+ * Special NOIST entry point for VMX which invokes this on the kernel
-+ * stack. asm_exc_nmi() requires an IST to work correctly vs. the NMI
-+ * 'executing' marker.
-+ *
-+ * On 32bit this just uses the regular NMI entry point because 32-bit does
-+ * not have ISTs.
-+ */
-+DECLARE_IDTENTRY(X86_TRAP_NMI,		exc_nmi_noist);
-+#else
-+#define asm_exc_nmi_noist		asm_exc_nmi
-+#endif
-+
- DECLARE_IDTENTRY_NMI(X86_TRAP_NMI,	exc_nmi);
- #ifdef CONFIG_XEN_PV
- DECLARE_IDTENTRY_RAW(X86_TRAP_NMI,	xenpv_exc_nmi);
---- a/arch/x86/kernel/nmi.c
-+++ b/arch/x86/kernel/nmi.c
-@@ -524,6 +524,16 @@ nmi_restart:
- 		mds_user_clear_cpu_buffers();
+-	if (cancel_work_sync(&con->swork)) {
+-		log_print("canceled swork for node %d", con->nodeid);
+-		clear_bit(CF_WRITE_PENDING, &con->flags);
+-	}
++	flush_work(&con->swork);
+ 
+ 	mutex_lock(&con->sock_mutex);
+ 	/* nothing to shutdown */
+-- 
+2.30.2
+
+
+
+inuxfoundation.org>
+---
+ arch/powerpc/lib/feature-fixups.c |   16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
+
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -299,8 +299,9 @@ void do_uaccess_flush_fixups(enum l1d_fl
+ 						: "unknown");
  }
  
-+#if defined(CONFIG_X86_64) && IS_ENABLED(CONFIG_KVM_INTEL)
-+DEFINE_IDTENTRY_RAW(exc_nmi_noist)
-+{
-+	exc_nmi(regs);
+-void do_entry_flush_fixups(enum l1d_flush_type types)
++static int __do_entry_flush_fixups(void *data)
+ {
++	enum l1d_flush_type types = *(enum l1d_flush_type *)data;
+ 	unsigned int instrs[3], *dest;
+ 	long *start, *end;
+ 	int i;
+@@ -369,6 +370,19 @@ void do_entry_flush_fixups(enum l1d_flus
+ 							: "ori type" :
+ 		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
+ 						: "unknown");
++
++	return 0;
 +}
-+#endif
-+#if IS_MODULE(CONFIG_KVM_INTEL)
-+EXPORT_SYMBOL_GPL(asm_exc_nmi_noist);
-+#endif
 +
- void stop_nmi(void)
- {
- 	ignore_nmis++;
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -36,6 +36,7 @@
- #include <asm/debugreg.h>
- #include <asm/desc.h>
- #include <asm/fpu/internal.h>
-+#include <asm/idtentry.h>
- #include <asm/io.h>
- #include <asm/irq_remapping.h>
- #include <asm/kexec.h>
-@@ -6354,18 +6355,17 @@ static void vmx_apicv_post_state_restore
- 
- void vmx_do_interrupt_nmi_irqoff(unsigned long entry);
- 
--static void handle_interrupt_nmi_irqoff(struct kvm_vcpu *vcpu, u32 intr_info)
-+static void handle_interrupt_nmi_irqoff(struct kvm_vcpu *vcpu,
-+					unsigned long entry)
- {
--	unsigned int vector = intr_info & INTR_INFO_VECTOR_MASK;
--	gate_desc *desc = (gate_desc *)host_idt_base + vector;
--
- 	kvm_before_interrupt(vcpu);
--	vmx_do_interrupt_nmi_irqoff(gate_offset(desc));
-+	vmx_do_interrupt_nmi_irqoff(entry);
- 	kvm_after_interrupt(vcpu);
++void do_entry_flush_fixups(enum l1d_flush_type types)
++{
++	/*
++	 * The call to the fallback flush can not be safely patched in/out while
++	 * other CPUs are executing it. So call __do_entry_flush_fixups() on one
++	 * CPU while all other CPUs spin in the stop machine core with interrupts
++	 * hard disabled.
++	 */
++	stop_machine(__do_entry_flush_fixups, &types, NULL);
  }
  
- static void handle_exception_nmi_irqoff(struct vcpu_vmx *vmx)
- {
-+	const unsigned long nmi_entry = (unsigned long)asm_exc_nmi_noist;
- 	u32 intr_info = vmx_get_intr_info(&vmx->vcpu);
- 
- 	/* if exit due to PF check for async PF */
-@@ -6376,18 +6376,20 @@ static void handle_exception_nmi_irqoff(
- 		kvm_machine_check();
- 	/* We need to handle NMIs before interrupts are enabled */
- 	else if (is_nmi(intr_info))
--		handle_interrupt_nmi_irqoff(&vmx->vcpu, intr_info);
-+		handle_interrupt_nmi_irqoff(&vmx->vcpu, nmi_entry);
- }
- 
- static void handle_external_interrupt_irqoff(struct kvm_vcpu *vcpu)
- {
- 	u32 intr_info = vmx_get_intr_info(vcpu);
-+	unsigned int vector = intr_info & INTR_INFO_VECTOR_MASK;
-+	gate_desc *desc = (gate_desc *)host_idt_base + vector;
- 
- 	if (WARN_ONCE(!is_external_intr(intr_info),
- 	    "KVM: unexpected VM-Exit interrupt info: 0x%x", intr_info))
- 		return;
- 
--	handle_interrupt_nmi_irqoff(vcpu, intr_info);
-+	handle_interrupt_nmi_irqoff(vcpu, gate_offset(desc));
- }
- 
- static void vmx_handle_exit_irqoff(struct kvm_vcpu *vcpu)
+ void do_rfi_flush_fixups(enum l1d_flush_type types)
 
 
