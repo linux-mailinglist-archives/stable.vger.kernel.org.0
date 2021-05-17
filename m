@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A2D63826D2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:23:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AD123826D3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:23:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235534AbhEQIYh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:24:37 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53013 "EHLO
+        id S235528AbhEQIYo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:24:44 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:45967 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231720AbhEQIYa (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Mon, 17 May 2021 04:24:30 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id C64276AB;
-        Mon, 17 May 2021 04:23:13 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 17 May 2021 04:23:14 -0400
+        by vger.kernel.org with ESMTP id S235591AbhEQIYj (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 17 May 2021 04:24:39 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 04EE0745;
+        Mon, 17 May 2021 04:23:21 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 17 May 2021 04:23:22 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ea/Ioe
-        ytNJr140ULmbDUwtDgHjlUz2HoIXrDvrsbLTY=; b=Ro7usvFV3BTDjSa0PgH41w
-        JGpynDyqIeRl33RLxolFV83YBmT2x28gS5oUyLpvVw/E2otgLIi2zKuX2RN1pSuy
-        OkqGj50vADvwIRofFv/GRi6Kmcbu0urQM8DmlPCrv2iLb9SNoav1EchMMoGURttm
-        EY5tAVPuI/8YJ6Ojhip4ETGwsnjCP/pnHUKJ1lVfkMcXlfkOcu3Fls9ABn0t6LZX
-        GaZ4cIUAT/vCcJfzJpiN6kGmyq9EhetlPbSvu6LukDE5dVWrkO/FW8G/RW7Nrzk9
-        Ntvk4Ox0uV/dmf8bkGiapulheSadsdOY/pAgtUOT1ysxlTiGqPzVrlvA1EFfnIBQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AWVdcC
+        oCKJzaCYV2gePsAL1EuyLSqA2kJXJu5fcEbWs=; b=XbYi9ri0hkohx8PT075F5l
+        EVLsdufo4KaprOIsHWbSZDfu16OP5/cZ7l8A7Yg9Jx7wSsfNnABFY9eA88gtmKSF
+        RaAMIiKhy0YUguF/FxP0BZjqExmZol0pkoc9IDSntny+N6AbsbKk4h15rHukT9cl
+        tZom2kdP8wEraD3Wkj/2kncPIAsDpMF56nidTRDmFZY4J3SbRfw1eQ+8jmf5Q89+
+        L1h6XR++Pps7kbtedwjtFuo4Sm75kqpBMOFCKOgtT75sMfD3wx9o4C1c92OgkFmG
+        kOk7PUjjJyZSczS8XAFtqMHRu03TwNOsWpQsFTSbfKHzzPl/GCOaYRvZf5cXPR1w
         ==
-X-ME-Sender: <xms:8CeiYO38q7I3GGBTHUBShZbufKhIgAln3A2Ftx1FrELNvBKkvE2caQ>
-    <xme:8CeiYBG76ZDugOJ5ehoSjeHpF40VPcmomjXv7noy0Hy_voe9R4ykRupa96pAsGVru
-    CvmKuJhtdwBRw>
+X-ME-Sender: <xms:-SeiYMEEn-t0dE0Kg3H50j7D0gsqDHzesmeMnoVmXU1sH5hL7SKoKg>
+    <xme:-SeiYFWI3Dgj-Bi6hb480PIueOzYjAmp3OHgf1D-TFogyAiqZEqfYfubppMXEysvL
+    4qPMbM9DVU5NQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdefucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:8CeiYG5EotrkaVYaZLkXKWeZScVw7SubALmfsHB-EqXj1iQFp9iWfg>
-    <xmx:8CeiYP1i3Z4xu_rPi44IqEhbUi6uRW_92r0BXSMqMXNtANR8rlpMsw>
-    <xmx:8CeiYBE4sm6wNc6s2d23lvCGpkwcqErLoPX6GdBrhVJbtGewqQJFIQ>
-    <xmx:8SeiYPPw7Ief6KKKf1CAmqex0nCy_Th7tHdZtNU31M8AjUJyB-d9dWGgRp0>
+X-ME-Proxy: <xmx:-SeiYGLCHrSjilMnqrQvWyC5SaifyZGqCaHr5EBky6XCzMUvh9ZjZw>
+    <xmx:-SeiYOE7-MaxtIp0ypniThdodxgkviEDyCa5YkynZK9rvlQccB4qow>
+    <xmx:-SeiYCVpLUv64rPfDuOVG5Joa45sLLledgU6EHJ-kmxS1xIDvXYGEg>
+    <xmx:-SeiYFeCDFXW5ZuMqzZqmXE8-OxPsJVDLx6aH_s-xE1o9HAQbMlWEuJio_4>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 04:23:12 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] iio: tsl2583: Fix division by a zero lux_val" failed to apply to 4.4-stable tree
+        Mon, 17 May 2021 04:23:20 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: tsl2583: Fix division by a zero lux_val" failed to apply to 4.9-stable tree
 To:     colin.king@canonical.com, Jonathan.Cameron@huawei.com,
         Stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 10:23:10 +0200
-Message-ID: <16212397902321@kroah.com>
+Date:   Mon, 17 May 2021 10:23:11 +0200
+Message-ID: <16212397917189@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
