@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2AF9383247
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBADD38325F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241071AbhEQOqr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:46:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56784 "EHLO mail.kernel.org"
+        id S240965AbhEQOrH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:47:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241309AbhEQOoX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:44:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4F5961961;
-        Mon, 17 May 2021 14:20:46 +0000 (UTC)
+        id S241519AbhEQOpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:45:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E0A761958;
+        Mon, 17 May 2021 14:20:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261247;
-        bh=diepQ4xIh+5/x+btqUtYJL380QapuwxQy0qfdc/3hc8=;
+        s=korg; t=1621261253;
+        bh=Eg/G/UjjFFu407dQzUK3rl62N3J47c9o9i1w6JqNAWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnA2VpXytr34pTA3prUQjfb3P2r+dLnQJvIjB93IQSX/5sJhYOcRFiz44ykQW1jnn
-         ByDXpZ1MobFLTblgIkW6msG0mwBMMrt49CQeOrCQepJ6+USovkeGKH3XKB+34u6AmX
-         Xsm7HZSbSG1C9a14Wun8Sv3NISGdyv0R8Ynz0ytY=
+        b=Q77TLo2e0gQ6o7p+eTenyPXc+m0xYmVXpEgLEQkQqSuPaXTJaD4y+Ot2SOegVHSKv
+         WTNEjvCnSPTMCWlxin98KDmPRu/+WVeZGT1cqEGFfS8ftBAoj2mL2bGi2AsBnTePrc
+         Z08YdIrcAZMCSUBr8manlxpNpmiHUs9wiJIXJszA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 024/141] pinctrl: samsung: use int for register masks in Exynos
-Date:   Mon, 17 May 2021 16:01:16 +0200
-Message-Id: <20210517140243.573378828@linuxfoundation.org>
+        stable@vger.kernel.org, David Bauer <mail@david-bauer.net>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 025/141] mt76: mt76x0: disable GTK offloading
+Date:   Mon, 17 May 2021 16:01:17 +0200
+Message-Id: <20210517140243.610370265@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -42,70 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: David Bauer <mail@david-bauer.net>
 
-[ Upstream commit fa0c10a5f3a49130dd11281aa27e7e1c8654abc7 ]
+[ Upstream commit 4b36cc6b390f18dbc59a45fb4141f90d7dfe2b23 ]
 
-The Special Function Registers on all Exynos SoC, including ARM64, are
-32-bit wide, so entire driver uses matching functions like readl() or
-writel().  On 64-bit ARM using unsigned long for register masks:
-1. makes little sense as immediately after bitwise operation it will be
-   cast to 32-bit value when calling writel(),
-2. is actually error-prone because it might promote other operands to
-   64-bit.
+When operating two VAP on a MT7610 with encryption (PSK2, SAE, OWE),
+only the first one to be created will transmit properly encrypteded
+frames.
 
-Addresses-Coverity: Unintentional integer overflow
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Link: https://lore.kernel.org/r/20210408195029.69974-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+All subsequently created VAPs will sent out frames with the payload left
+unencrypted, breaking multicast traffic (ICMP6 NDP) and potentially
+disclosing information to a third party.
+
+Disable GTK offloading and encrypt these frames in software to
+circumvent this issue. THis only seems to be necessary on MT7610 chips,
+as MT7612 is not affected from our testing.
+
+Signed-off-by: David Bauer <mail@david-bauer.net>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/samsung/pinctrl-exynos.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/net/wireless/mediatek/mt76/mt76x02_util.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
-index 84501c785473..1cf31fe2674d 100644
---- a/drivers/pinctrl/samsung/pinctrl-exynos.c
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -55,7 +55,7 @@ static void exynos_irq_mask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+index de0d6f21c621..075871f52bad 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
++++ b/drivers/net/wireless/mediatek/mt76/mt76x02_util.c
+@@ -450,6 +450,10 @@ int mt76x02_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
+ 	    !(key->flags & IEEE80211_KEY_FLAG_PAIRWISE))
+ 		return -EOPNOTSUPP;
  
- 	spin_lock_irqsave(&bank->slock, flags);
-@@ -83,7 +83,7 @@ static void exynos_irq_unmask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
++	/* MT76x0 GTK offloading does not work with more than one VIF */
++	if (is_mt76x0(dev) && !(key->flags & IEEE80211_KEY_FLAG_PAIRWISE))
++		return -EOPNOTSUPP;
++
+ 	msta = sta ? (struct mt76x02_sta *)sta->drv_priv : NULL;
+ 	wcid = msta ? &msta->wcid : &mvif->group_wcid;
  
- 	/*
-@@ -474,7 +474,7 @@ static void exynos_irq_eint0_15(struct irq_desc *desc)
- 	chained_irq_exit(chip, desc);
- }
- 
--static inline void exynos_irq_demux_eint(unsigned long pend,
-+static inline void exynos_irq_demux_eint(unsigned int pend,
- 						struct irq_domain *domain)
- {
- 	unsigned int irq;
-@@ -491,8 +491,8 @@ static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
- {
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct exynos_muxed_weint_data *eintd = irq_desc_get_handler_data(desc);
--	unsigned long pend;
--	unsigned long mask;
-+	unsigned int pend;
-+	unsigned int mask;
- 	int i;
- 
- 	chained_irq_enter(chip, desc);
 -- 
 2.30.2
 
