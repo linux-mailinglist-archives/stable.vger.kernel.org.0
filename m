@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B32038341A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 924B6383424
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241287AbhEQPF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:05:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
+        id S241712AbhEQPFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242531AbhEQPDu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:03:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 93E4861377;
-        Mon, 17 May 2021 14:27:59 +0000 (UTC)
+        id S242580AbhEQPD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:03:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22EB161A2D;
+        Mon, 17 May 2021 14:28:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261680;
-        bh=3IjUhckdqDInYS9wKOMOIf9azJ1uG6SRWO0KmbO6Dts=;
+        s=korg; t=1621261686;
+        bh=ouWKma5hiW3rzLKl5d4oGwHRPdUEefIsJAcZnNT3+QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i/az1CYaO6cCrU8jUnV2WUVoc9gGBQ33zZQshJeeEX3qWB51/A8Kh2vk3mxsb/cxV
-         PruR6lrzF/7oAeEMYzO4bNpF3DlREkKmPBq7FcUFppbgoRQiIXcfHbNkluPCwaaa/p
-         TS8Zlgq4x26/qEJsKrU9L1KYThfk2ftpjx7RRIRs=
+        b=CiHUuF3OD+NgK4ij5pBjElZYJ8i6ZSHgUoF8KfzUG0T9jloLW3Fo/QpTiPu/BuuMI
+         7n+Tz5al8CaaUhrdu4GJoIj6Q3tVr+pj3LXFaSWmS8kDOCld9nV8TRQekhjRbL5Him
+         fucjkE5jePy7UT6mwDuxuO6eC8SJih6Qf2ORaV6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Dion <Christopher.Dion@dell.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Guangqing Zhu <zhuguangqing83@gmail.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 149/329] SUNRPC: Handle major timeout in xprt_adjust_timeout()
-Date:   Mon, 17 May 2021 16:01:00 +0200
-Message-Id: <20210517140307.154245447@linuxfoundation.org>
+Subject: [PATCH 5.11 150/329] thermal/drivers/tsens: Fix missing put_device error
+Date:   Mon, 17 May 2021 16:01:01 +0200
+Message-Id: <20210517140307.185957821@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,59 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Dion <Christopher.Dion@dell.com>
+From: Guangqing Zhu <zhuguangqing83@gmail.com>
 
-[ Upstream commit 09252177d5f924f404551b4b4eded5daa7f04a3a ]
+[ Upstream commit f4136863e8899fa0554343201b78b9e197c78a78 ]
 
-Currently if a major timeout value is reached, but the minor value has
-not been reached, an ETIMEOUT will not be sent back to the caller.
-This can occur if the v4 server is not responding to requests and
-retrans is configured larger than the default of two.
+Fixes coccicheck error:
 
-For example, A TCP mount with a configured timeout value of 50 and a
-retransmission count of 3 to a v4 server which is not responding:
+drivers/thermal/qcom/tsens.c:759:4-10: ERROR: missing put_device; call
+of_find_device_by_node on line 715, but without a corresponding object
+release within this function.
 
-1. Initial value and increment set to 5s, maxval set to 20s, retries at 3
-2. Major timeout is set to 20s, minor timeout set to 5s initially
-3. xport_adjust_timeout() is called after 5s, retry with 10s timeout,
-   minor timeout is bumped to 10s
-4. And again after another 10s, 15s total time with minor timeout set
-   to 15s
-5. After 20s total time xport_adjust_timeout is called as major timeout is
-   reached, but skipped because the minor timeout is not reached
-       - After this time the cpu spins continually calling
-       	 xport_adjust_timeout() and returning 0 for 10 seconds.
-	 As seen on perf sched:
-   	 39243.913182 [0005]  mount.nfs[3794] 4607.938      0.017   9746.863
-6. This continues until the 15s minor timeout condition is reached (in
-   this case for 10 seconds). After which the ETIMEOUT is processed
-   back to the caller, the cpu spinning stops, and normal operations
-   continue
-
-Fixes: 7de62bc09fe6 ("SUNRPC dont update timeout value on connection reset")
-Signed-off-by: Chris Dion <Christopher.Dion@dell.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: a7ff82976122 ("drivers: thermal: tsens: Merge tsens-common.c into tsens.c")
+Signed-off-by: Guangqing Zhu <zhuguangqing83@gmail.com>
+Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210404125431.12208-1-zhuguangqing83@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/xprt.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/thermal/qcom/tsens.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 11ebe8a127b8..20fe31b1b776 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -698,9 +698,9 @@ int xprt_adjust_timeout(struct rpc_rqst *req)
- 	const struct rpc_timeout *to = req->rq_task->tk_client->cl_timeout;
- 	int status = 0;
- 
--	if (time_before(jiffies, req->rq_minortimeo))
--		return status;
- 	if (time_before(jiffies, req->rq_majortimeo)) {
-+		if (time_before(jiffies, req->rq_minortimeo))
-+			return status;
- 		if (to->to_exponential)
- 			req->rq_timeout <<= 1;
- 		else
+diff --git a/drivers/thermal/qcom/tsens.c b/drivers/thermal/qcom/tsens.c
+index d8ce3a687b80..3c4c0516e58a 100644
+--- a/drivers/thermal/qcom/tsens.c
++++ b/drivers/thermal/qcom/tsens.c
+@@ -755,8 +755,10 @@ int __init init_common(struct tsens_priv *priv)
+ 		for (i = VER_MAJOR; i <= VER_STEP; i++) {
+ 			priv->rf[i] = devm_regmap_field_alloc(dev, priv->srot_map,
+ 							      priv->fields[i]);
+-			if (IS_ERR(priv->rf[i]))
+-				return PTR_ERR(priv->rf[i]);
++			if (IS_ERR(priv->rf[i])) {
++				ret = PTR_ERR(priv->rf[i]);
++				goto err_put_device;
++			}
+ 		}
+ 		ret = regmap_field_read(priv->rf[VER_MINOR], &ver_minor);
+ 		if (ret)
 -- 
 2.30.2
 
