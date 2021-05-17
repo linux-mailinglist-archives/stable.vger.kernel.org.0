@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2644D383136
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D175383379
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237941AbhEQOf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:35:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
+        id S241741AbhEQO6h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:58:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238075AbhEQOcP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:32:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 369E961883;
-        Mon, 17 May 2021 14:16:01 +0000 (UTC)
+        id S241466AbhEQO4d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:56:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C0A20619A1;
+        Mon, 17 May 2021 14:25:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260961;
-        bh=G9rh/wjGe8KAlphEFiZxuD9BxwFSJwNa4pW7dZ3LJUE=;
+        s=korg; t=1621261521;
+        bh=wgvQslNOr1F/8lLug8UhFOeUi0yjiLj3rjoFMoLJVtg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PNIjXZK/h+iEEt2p0n1shKnGF1TbqjO5wzHT4Bz3SAAaRL40vyTkP/yefvuDL3k8g
-         jeN0wgIb+srKA8+I5ahcPc3HLhpdeifGnQFq8bRQyZLup0HWkzuw7QKgVSxLMg85YU
-         aS/HXzFc/1MG6fFeiyTByhavHFI5M/SJArP2T6L4=
+        b=IqHwGXhUftkNrg1iMrYG2Yhk9rbJ7dr9vqTbx9B1uTu08gXaloK+5lO87sRfQUWzD
+         l9Cuqs6LlYY9/KwGsdn7TxNT9tceP3AMRSqWbrPyn1cZ1sFGNAUrNfddgzmxsGOkJ4
+         LzAriG+44I8F2RP2CapEWN905sV5ewVPP5J3OyuM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 043/329] ASoC: Intel: bytcr_rt5640: Add quirk for the Chuwi Hi8 tablet
+Subject: [PATCH 5.10 029/289] net/sched: cls_flower: use ntohs for struct flow_dissector_key_ports
 Date:   Mon, 17 May 2021 15:59:14 +0200
-Message-Id: <20210517140303.496807559@linuxfoundation.org>
+Message-Id: <20210517140306.168184953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +40,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 875c40eadf6ac6644c0f71842a4f30dd9968d281 ]
+[ Upstream commit 6215afcb9a7e35cef334dc0ae7f998cc72c8465f ]
 
-The Chuwi Hi8 tablet is using an analog mic on IN1 and has its
-jack-detect connected to JD2_IN4N, instead of using the default
-IN3 for its internal mic and JD1_IN4P for jack-detect.
+A make W=1 build complains that:
 
-It also only has 1 speaker.
+net/sched/cls_flower.c:214:20: warning: cast from restricted __be16
+net/sched/cls_flower.c:214:20: warning: incorrect type in argument 1 (different base types)
+net/sched/cls_flower.c:214:20:    expected unsigned short [usertype] val
+net/sched/cls_flower.c:214:20:    got restricted __be16 [usertype] dst
 
-Add a quirk applying the correct settings for this configuration.
+This is because we use htons on struct flow_dissector_key_ports members
+src and dst, which are defined as __be16, so they are already in network
+byte order, not host. The byte swap function for the other direction
+should have been used.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210325221054.22714-1-hdegoede@redhat.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Because htons and ntohs do the same thing (either both swap, or none
+does), this change has no functional effect except to silence the
+warnings.
+
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/intel/boards/bytcr_rt5640.c | 17 +++++++++++++++++
- 1 file changed, 17 insertions(+)
+ net/sched/cls_flower.c | 36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
-diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
-index 07730ed7ab3c..d45f43290653 100644
---- a/sound/soc/intel/boards/bytcr_rt5640.c
-+++ b/sound/soc/intel/boards/bytcr_rt5640.c
-@@ -514,6 +514,23 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
- 					BYT_RT5640_SSP0_AIF1 |
- 					BYT_RT5640_MCLK_EN),
- 	},
-+	{
-+		/* Chuwi Hi8 (CWI509) */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-+			DMI_MATCH(DMI_BOARD_NAME, "BYT-PA03C"),
-+			DMI_MATCH(DMI_SYS_VENDOR, "ilife"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "S806"),
-+		},
-+		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
-+					BYT_RT5640_JD_SRC_JD2_IN4N |
-+					BYT_RT5640_OVCD_TH_2000UA |
-+					BYT_RT5640_OVCD_SF_0P75 |
-+					BYT_RT5640_MONO_SPEAKER |
-+					BYT_RT5640_DIFF_MIC |
-+					BYT_RT5640_SSP0_AIF1 |
-+					BYT_RT5640_MCLK_EN),
-+	},
- 	{
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Circuitco"),
+diff --git a/net/sched/cls_flower.c b/net/sched/cls_flower.c
+index 14316ba9b3b3..a5212a3f86e2 100644
+--- a/net/sched/cls_flower.c
++++ b/net/sched/cls_flower.c
+@@ -209,16 +209,16 @@ static bool fl_range_port_dst_cmp(struct cls_fl_filter *filter,
+ 				  struct fl_flow_key *key,
+ 				  struct fl_flow_key *mkey)
+ {
+-	__be16 min_mask, max_mask, min_val, max_val;
++	u16 min_mask, max_mask, min_val, max_val;
+ 
+-	min_mask = htons(filter->mask->key.tp_range.tp_min.dst);
+-	max_mask = htons(filter->mask->key.tp_range.tp_max.dst);
+-	min_val = htons(filter->key.tp_range.tp_min.dst);
+-	max_val = htons(filter->key.tp_range.tp_max.dst);
++	min_mask = ntohs(filter->mask->key.tp_range.tp_min.dst);
++	max_mask = ntohs(filter->mask->key.tp_range.tp_max.dst);
++	min_val = ntohs(filter->key.tp_range.tp_min.dst);
++	max_val = ntohs(filter->key.tp_range.tp_max.dst);
+ 
+ 	if (min_mask && max_mask) {
+-		if (htons(key->tp_range.tp.dst) < min_val ||
+-		    htons(key->tp_range.tp.dst) > max_val)
++		if (ntohs(key->tp_range.tp.dst) < min_val ||
++		    ntohs(key->tp_range.tp.dst) > max_val)
+ 			return false;
+ 
+ 		/* skb does not have min and max values */
+@@ -232,16 +232,16 @@ static bool fl_range_port_src_cmp(struct cls_fl_filter *filter,
+ 				  struct fl_flow_key *key,
+ 				  struct fl_flow_key *mkey)
+ {
+-	__be16 min_mask, max_mask, min_val, max_val;
++	u16 min_mask, max_mask, min_val, max_val;
+ 
+-	min_mask = htons(filter->mask->key.tp_range.tp_min.src);
+-	max_mask = htons(filter->mask->key.tp_range.tp_max.src);
+-	min_val = htons(filter->key.tp_range.tp_min.src);
+-	max_val = htons(filter->key.tp_range.tp_max.src);
++	min_mask = ntohs(filter->mask->key.tp_range.tp_min.src);
++	max_mask = ntohs(filter->mask->key.tp_range.tp_max.src);
++	min_val = ntohs(filter->key.tp_range.tp_min.src);
++	max_val = ntohs(filter->key.tp_range.tp_max.src);
+ 
+ 	if (min_mask && max_mask) {
+-		if (htons(key->tp_range.tp.src) < min_val ||
+-		    htons(key->tp_range.tp.src) > max_val)
++		if (ntohs(key->tp_range.tp.src) < min_val ||
++		    ntohs(key->tp_range.tp.src) > max_val)
+ 			return false;
+ 
+ 		/* skb does not have min and max values */
+@@ -779,16 +779,16 @@ static int fl_set_key_port_range(struct nlattr **tb, struct fl_flow_key *key,
+ 		       TCA_FLOWER_UNSPEC, sizeof(key->tp_range.tp_max.src));
+ 
+ 	if (mask->tp_range.tp_min.dst && mask->tp_range.tp_max.dst &&
+-	    htons(key->tp_range.tp_max.dst) <=
+-	    htons(key->tp_range.tp_min.dst)) {
++	    ntohs(key->tp_range.tp_max.dst) <=
++	    ntohs(key->tp_range.tp_min.dst)) {
+ 		NL_SET_ERR_MSG_ATTR(extack,
+ 				    tb[TCA_FLOWER_KEY_PORT_DST_MIN],
+ 				    "Invalid destination port range (min must be strictly smaller than max)");
+ 		return -EINVAL;
+ 	}
+ 	if (mask->tp_range.tp_min.src && mask->tp_range.tp_max.src &&
+-	    htons(key->tp_range.tp_max.src) <=
+-	    htons(key->tp_range.tp_min.src)) {
++	    ntohs(key->tp_range.tp_max.src) <=
++	    ntohs(key->tp_range.tp_min.src)) {
+ 		NL_SET_ERR_MSG_ATTR(extack,
+ 				    tb[TCA_FLOWER_KEY_PORT_SRC_MIN],
+ 				    "Invalid source port range (min must be strictly smaller than max)");
 -- 
 2.30.2
 
