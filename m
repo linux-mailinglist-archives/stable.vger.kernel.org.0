@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F61A38346E
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CC783835F3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241276AbhEQPIp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:08:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
+        id S241005AbhEQP0h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:26:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242348AbhEQPGn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:06:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0C0261C22;
-        Mon, 17 May 2021 14:29:07 +0000 (UTC)
+        id S245093AbhEQPYg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:24:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB96D61CA8;
+        Mon, 17 May 2021 14:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261748;
-        bh=US3hMeH1GUE/kdBn25UaP8ob5GTGD4xJWzzbbSmWuSQ=;
+        s=korg; t=1621262147;
+        bh=x6K84QG3HR9iITJc6J1QC6FonyXIiybpclJ9Qed+jzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kk0OTktpL54Y2LvA+gB8U+Vn9EmtXPP3RSPDaz23L4PO2YAf7aW/t1RGZ0+e5Jyfk
-         SpC17TlWm8tLW7v1RojgsIXv9DuilaVexLBYjZaPaUN5ISb7cj6ZqAEM5TT79cBZA8
-         bFUcev9LKB/0/6RglzUJNxT+ofL06YFVpduCnq8g=
+        b=DiDbsyWvG7sCKwR8/ylHhIIN1aX+erDQQRLAZacshssBvyd7J/Bmdb6z86BDkinmw
+         8+U7uv332TA5Odk+Qelb3H1Iz5yx16ncj8KfuI5af0drS6nWAOqVFrEj7NmnqKgShy
+         rm+lLcfGrxIb/ZSwdf/6hvitGJ99YzSPSUNt+0qo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 085/141] smc: disallow TCP_ULP in smc_setsockopt()
+        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 226/329] i40e: fix the restart auto-negotiation after FEC modified
 Date:   Mon, 17 May 2021 16:02:17 +0200
-Message-Id: <20210517140245.647272111@linuxfoundation.org>
+Message-Id: <20210517140309.767782482@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,53 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cong Wang <cong.wang@bytedance.com>
+From: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
 
-[ Upstream commit 8621436671f3a4bba5db57482e1ee604708bf1eb ]
+[ Upstream commit 61343e6da7810de81d6b826698946ae4f9070819 ]
 
-syzbot is able to setup kTLS on an SMC socket which coincidentally
-uses sk_user_data too. Later, kTLS treats it as psock so triggers a
-refcnt warning. The root cause is that smc_setsockopt() simply calls
-TCP setsockopt() which includes TCP_ULP. I do not think it makes
-sense to setup kTLS on top of SMC sockets, so we should just disallow
-this setup.
+When FEC mode was changed the link didn't know it because
+the link was not reset and new parameters were not negotiated.
+Set a flag 'I40E_AQ_PHY_ENABLE_ATOMIC_LINK' in 'abilities'
+to restart the link and make it run with the new settings.
 
-It is hard to find a commit to blame, but we can apply this patch
-since the beginning of TCP_ULP.
-
-Reported-and-tested-by: syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com
-Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
-Cc: John Fastabend <john.fastabend@gmail.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1d96340196f1 ("i40e: Add support FEC configuration for Fortville 25G")
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/af_smc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
-index dc09a72f8110..51986f7ead81 100644
---- a/net/smc/af_smc.c
-+++ b/net/smc/af_smc.c
-@@ -1709,6 +1709,9 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	struct smc_sock *smc;
- 	int val, rc;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 31d48a85cfaf..13554706c180 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -1409,7 +1409,8 @@ static int i40e_set_fec_cfg(struct net_device *netdev, u8 fec_cfg)
  
-+	if (level == SOL_TCP && optname == TCP_ULP)
-+		return -EOPNOTSUPP;
-+
- 	smc = smc_sk(sk);
- 
- 	/* generic setsockopts reaching us here always apply to the
-@@ -1730,7 +1733,6 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
- 	if (rc || smc->use_fallback)
- 		goto out;
- 	switch (optname) {
--	case TCP_ULP:
- 	case TCP_FASTOPEN:
- 	case TCP_FASTOPEN_CONNECT:
- 	case TCP_FASTOPEN_KEY:
+ 		memset(&config, 0, sizeof(config));
+ 		config.phy_type = abilities.phy_type;
+-		config.abilities = abilities.abilities;
++		config.abilities = abilities.abilities |
++				   I40E_AQ_PHY_ENABLE_ATOMIC_LINK;
+ 		config.phy_type_ext = abilities.phy_type_ext;
+ 		config.link_speed = abilities.link_speed;
+ 		config.eee_capability = abilities.eee_capability;
 -- 
 2.30.2
 
