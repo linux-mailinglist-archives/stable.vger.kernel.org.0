@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD92A383145
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E8BBC383152
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239696AbhEQOgH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:36:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43400 "EHLO mail.kernel.org"
+        id S240159AbhEQOgS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:36:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240277AbhEQOdo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:33:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 064AF613DB;
-        Mon, 17 May 2021 14:16:22 +0000 (UTC)
+        id S240402AbhEQOeM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:34:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F97613F8;
+        Mon, 17 May 2021 14:16:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260983;
-        bh=19YmnsizSpk4vLMejuMPFuHXHYYERN4tMKKZofyBhic=;
+        s=korg; t=1621261007;
+        bh=ln//Pg6dZHhKTER4ykJcOQPJKAQkkz386kNjhSNwFlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KKf6Y5LJGqGDCe9p+ayvCn8rBHGqZ3Ij7/HPA1VowAxOSHV8IaGvElmGhXR1hlw/H
-         UUagNChz2mzvhTUBq9GJuUb7bWIvbu1jUnCxxUxbhj5GglRInKGdqzVV6nFVnnfW33
-         uUoxPQp1226Yd9WcRvR+DTEQx+ZZGKZdBVdR0jnk=
+        b=R6JvZMp3CYa11AeAldhMQrTsWVt8QOPXRXChKy+3Olrve8SbRxHl3bCwQWN0azzkh
+         wUwnERz3uUqHTPb7fRxlRnd2mCklZ0KDBMuEY2/00mEhgbrtmaE3xvjYmkz1A9TaUt
+         hkhT78+3LgjwbNEAGocjmxIWn5eK39LbXfZekdVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Borislav Petkov <bp@alien8.de>,
-        Tom Lendacky <thomas.lendacky@amd.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 279/363] KVM: SVM: Move GHCB unmapping to fix RCU warning
-Date:   Mon, 17 May 2021 16:02:25 +0200
-Message-Id: <20210517140312.045000371@linuxfoundation.org>
+Subject: [PATCH 5.12 280/363] dax: Add an enum for specifying dax wakup mode
+Date:   Mon, 17 May 2021 16:02:26 +0200
+Message-Id: <20210517140312.075682084@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,80 +42,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-[ Upstream commit ce7ea0cfdc2e9ff31d12da31c3226deddb9644f5 ]
+[ Upstream commit 698ab77aebffe08b312fbcdddeb0e8bd08b78717 ]
 
-When an SEV-ES guest is running, the GHCB is unmapped as part of the
-vCPU run support. However, kvm_vcpu_unmap() triggers an RCU dereference
-warning with CONFIG_PROVE_LOCKING=y because the SRCU lock is released
-before invoking the vCPU run support.
+Dan mentioned that he is not very fond of passing around a boolean true/false
+to specify if only next waiter should be woken up or all waiters should be
+woken up. He instead prefers that we introduce an enum and make it very
+explicity at the callsite itself. Easier to read code.
 
-Move the GHCB unmapping into the prepare_guest_switch callback, which is
-invoked while still holding the SRCU lock, eliminating the RCU dereference
-warning.
+This patch should not introduce any change of behavior.
 
-Fixes: 291bd20d5d88 ("KVM: SVM: Add initial support for a VMGEXIT VMEXIT")
-Reported-by: Borislav Petkov <bp@alien8.de>
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Message-Id: <b2f9b79d15166f2c3e4375c0d9bc3268b7696455.1620332081.git.thomas.lendacky@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Suggested-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Link: https://lore.kernel.org/r/20210428190314.1865312-2-vgoyal@redhat.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/sev.c | 5 +----
- arch/x86/kvm/svm/svm.c | 3 +++
- arch/x86/kvm/svm/svm.h | 1 +
- 3 files changed, 5 insertions(+), 4 deletions(-)
+ fs/dax.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index ba56f677cc09..dbc6214d69de 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -1668,7 +1668,7 @@ static int sev_es_validate_vmgexit(struct vcpu_svm *svm)
- 	return -EINVAL;
+diff --git a/fs/dax.c b/fs/dax.c
+index b3d27fdc6775..5ecee51c44ee 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -144,6 +144,16 @@ struct wait_exceptional_entry_queue {
+ 	struct exceptional_entry_key key;
+ };
+ 
++/**
++ * enum dax_wake_mode: waitqueue wakeup behaviour
++ * @WAKE_ALL: wake all waiters in the waitqueue
++ * @WAKE_NEXT: wake only the first waiter in the waitqueue
++ */
++enum dax_wake_mode {
++	WAKE_ALL,
++	WAKE_NEXT,
++};
++
+ static wait_queue_head_t *dax_entry_waitqueue(struct xa_state *xas,
+ 		void *entry, struct exceptional_entry_key *key)
+ {
+@@ -182,7 +192,8 @@ static int wake_exceptional_entry_func(wait_queue_entry_t *wait,
+  * The important information it's conveying is whether the entry at
+  * this index used to be a PMD entry.
+  */
+-static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
++static void dax_wake_entry(struct xa_state *xas, void *entry,
++			   enum dax_wake_mode mode)
+ {
+ 	struct exceptional_entry_key key;
+ 	wait_queue_head_t *wq;
+@@ -196,7 +207,7 @@ static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
+ 	 * must be in the waitqueue and the following check will see them.
+ 	 */
+ 	if (waitqueue_active(wq))
+-		__wake_up(wq, TASK_NORMAL, wake_all ? 0 : 1, &key);
++		__wake_up(wq, TASK_NORMAL, mode == WAKE_ALL ? 0 : 1, &key);
  }
  
--static void pre_sev_es_run(struct vcpu_svm *svm)
-+void sev_es_unmap_ghcb(struct vcpu_svm *svm)
+ /*
+@@ -268,7 +279,7 @@ static void put_unlocked_entry(struct xa_state *xas, void *entry)
  {
- 	if (!svm->ghcb)
- 		return;
-@@ -1704,9 +1704,6 @@ void pre_sev_run(struct vcpu_svm *svm, int cpu)
- 	struct svm_cpu_data *sd = per_cpu(svm_data, cpu);
- 	int asid = sev_get_asid(svm->vcpu.kvm);
+ 	/* If we were the only waiter woken, wake the next one */
+ 	if (entry && !dax_is_conflict(entry))
+-		dax_wake_entry(xas, entry, false);
++		dax_wake_entry(xas, entry, WAKE_NEXT);
+ }
  
--	/* Perform any SEV-ES pre-run actions */
--	pre_sev_es_run(svm);
--
- 	/* Assign the asid allocated with this SEV guest */
- 	svm->asid = asid;
+ /*
+@@ -286,7 +297,7 @@ static void dax_unlock_entry(struct xa_state *xas, void *entry)
+ 	old = xas_store(xas, entry);
+ 	xas_unlock_irq(xas);
+ 	BUG_ON(!dax_is_locked(old));
+-	dax_wake_entry(xas, entry, false);
++	dax_wake_entry(xas, entry, WAKE_NEXT);
+ }
  
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index 276d3c728628..5364458cf60b 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1416,6 +1416,9 @@ static void svm_prepare_guest_switch(struct kvm_vcpu *vcpu)
- 	struct svm_cpu_data *sd = per_cpu(svm_data, vcpu->cpu);
- 	unsigned int i;
+ /*
+@@ -524,7 +535,7 @@ static void *grab_mapping_entry(struct xa_state *xas,
  
-+	if (sev_es_guest(vcpu->kvm))
-+		sev_es_unmap_ghcb(svm);
-+
- 	if (svm->guest_state_loaded)
- 		return;
+ 		dax_disassociate_entry(entry, mapping, false);
+ 		xas_store(xas, NULL);	/* undo the PMD join */
+-		dax_wake_entry(xas, entry, true);
++		dax_wake_entry(xas, entry, WAKE_ALL);
+ 		mapping->nrexceptional--;
+ 		entry = NULL;
+ 		xas_set(xas, index);
+@@ -937,7 +948,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
+ 	xas_lock_irq(xas);
+ 	xas_store(xas, entry);
+ 	xas_clear_mark(xas, PAGECACHE_TAG_DIRTY);
+-	dax_wake_entry(xas, entry, false);
++	dax_wake_entry(xas, entry, WAKE_NEXT);
  
-diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
-index 39e071fdab0c..98da0b91f273 100644
---- a/arch/x86/kvm/svm/svm.h
-+++ b/arch/x86/kvm/svm/svm.h
-@@ -571,6 +571,7 @@ void sev_es_init_vmcb(struct vcpu_svm *svm);
- void sev_es_create_vcpu(struct vcpu_svm *svm);
- void sev_vcpu_deliver_sipi_vector(struct kvm_vcpu *vcpu, u8 vector);
- void sev_es_prepare_guest_switch(struct vcpu_svm *svm, unsigned int cpu);
-+void sev_es_unmap_ghcb(struct vcpu_svm *svm);
- 
- /* vmenter.S */
- 
+ 	trace_dax_writeback_one(mapping->host, index, count);
+ 	return ret;
 -- 
 2.30.2
 
