@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 896063833F2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62E833833C4
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242590AbhEQPD6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:03:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S242257AbhEQPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:02:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242207AbhEQPB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E333E61396;
-        Mon, 17 May 2021 14:27:26 +0000 (UTC)
+        id S242558AbhEQO7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:59:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6364F61354;
+        Mon, 17 May 2021 14:26:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261647;
-        bh=/jP+cfFo5JlRNySFiT1j/3TcdknOoe2DYmu7MWOTPlg=;
+        s=korg; t=1621261598;
+        bh=Y8VaKQ/W1YLxBCnWLU7ZSSPoPp+ymXUucgo4S9fjp4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2U2zZ2c+avk7PTDRtcIBErroZ54gDxwBpf1f1T29R8duRblP3t2tTd4K9GhJNyfxN
-         xe7yP69x9g0C/ohG2CfgTiJeZYH+NxJ7mNsPG4InbUjPWncaXyZXzMEiPuTkpBxAyE
-         Go6EzaLDLcJhU1klxGeAWRS1/gyBJGUF9573R724=
+        b=GDLOxojm2oHbJ5GW/3v4LczrvnMIMmk5eX4sEJkFJ/DzHfmfQwOpnypCcteU0Bx5G
+         u+m5OKCnLVArFtRn8jcl9pQ3ZBX4uo0pndICp4/MWJtST6x+eJrL8ATkXgXoLXh4at
+         v/uvlPgfTSZYMa9VNFs6DCj3vLmcmtg0yoF3Iw7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org,
+        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 025/289] ALSA: rme9652: dont disable if not enabled
-Date:   Mon, 17 May 2021 15:59:10 +0200
-Message-Id: <20210517140306.027706740@linuxfoundation.org>
+Subject: [PATCH 5.10 038/289] ice: handle increasing Tx or Rx ring sizes
+Date:   Mon, 17 May 2021 15:59:23 +0200
+Message-Id: <20210517140306.484676207@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,72 +42,215 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
 
-[ Upstream commit f57a741874bb6995089020e97a1dcdf9b165dcbe ]
+[ Upstream commit 2ec5638559c13b923250eccf495d2a033fccb3e7 ]
 
-rme9652 wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+There is an issue when the Tx or Rx ring size increases using
+'ethtool -L ...' where the new rings don't get the correct ITR
+values because when we rebuild the VSI we don't know that some
+of the rings may be new.
 
-[    1.751595] snd_rme9652 0000:00:03.0: disabling already-disabled device
-[    1.751605] WARNING: CPU: 0 PID: 174 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.759968] Call Trace:
-[    1.760145]  snd_rme9652_card_free+0x76/0xa0 [snd_rme9652]
-[    1.760434]  release_card_device+0x4b/0x80 [snd]
-[    1.760679]  device_release+0x3b/0xa0
-[    1.760874]  kobject_put+0x94/0x1b0
-[    1.761059]  put_device+0x13/0x20
-[    1.761235]  snd_card_free+0x61/0x90 [snd]
-[    1.761454]  snd_rme9652_probe+0x3be/0x700 [snd_rme9652]
+Fix this by looking at the original number of rings and
+determining if the rings in ice_vsi_rebuild_set_coalesce()
+were not present in the original rings received in
+ice_vsi_rebuild_get_coalesce().
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-4-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Also change the code to return an error if we can't allocate
+memory for the coalesce data in ice_vsi_rebuild().
+
+Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/rme9652.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ice/ice_lib.c  | 123 ++++++++++++++++------
+ drivers/net/ethernet/intel/ice/ice_txrx.h |   2 +
+ 2 files changed, 92 insertions(+), 33 deletions(-)
 
-diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
-index 7ab10028d9fa..8def24673f35 100644
---- a/sound/pci/rme9652/rme9652.c
-+++ b/sound/pci/rme9652/rme9652.c
-@@ -1740,7 +1740,8 @@ static int snd_rme9652_free(struct snd_rme9652 *rme9652)
- 	if (rme9652->port)
- 		pci_release_regions(rme9652->pci);
- 
--	pci_disable_device(rme9652->pci);
-+	if (pci_is_enabled(rme9652->pci))
-+		pci_disable_device(rme9652->pci);
- 	return 0;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 170367eaa95a..e1384503dd4d 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -2684,38 +2684,46 @@ int ice_vsi_release(struct ice_vsi *vsi)
  }
  
+ /**
+- * ice_vsi_rebuild_update_coalesce - set coalesce for a q_vector
++ * ice_vsi_rebuild_update_coalesce_intrl - set interrupt rate limit for a q_vector
+  * @q_vector: pointer to q_vector which is being updated
+- * @coalesce: pointer to array of struct with stored coalesce
++ * @stored_intrl_setting: original INTRL setting
+  *
+  * Set coalesce param in q_vector and update these parameters in HW.
+  */
+ static void
+-ice_vsi_rebuild_update_coalesce(struct ice_q_vector *q_vector,
+-				struct ice_coalesce_stored *coalesce)
++ice_vsi_rebuild_update_coalesce_intrl(struct ice_q_vector *q_vector,
++				      u16 stored_intrl_setting)
+ {
+-	struct ice_ring_container *rx_rc = &q_vector->rx;
+-	struct ice_ring_container *tx_rc = &q_vector->tx;
+ 	struct ice_hw *hw = &q_vector->vsi->back->hw;
+ 
+-	tx_rc->itr_setting = coalesce->itr_tx;
+-	rx_rc->itr_setting = coalesce->itr_rx;
+-
+-	/* dynamic ITR values will be updated during Tx/Rx */
+-	if (!ITR_IS_DYNAMIC(tx_rc->itr_setting))
+-		wr32(hw, GLINT_ITR(tx_rc->itr_idx, q_vector->reg_idx),
+-		     ITR_REG_ALIGN(tx_rc->itr_setting) >>
+-		     ICE_ITR_GRAN_S);
+-	if (!ITR_IS_DYNAMIC(rx_rc->itr_setting))
+-		wr32(hw, GLINT_ITR(rx_rc->itr_idx, q_vector->reg_idx),
+-		     ITR_REG_ALIGN(rx_rc->itr_setting) >>
+-		     ICE_ITR_GRAN_S);
+-
+-	q_vector->intrl = coalesce->intrl;
++	q_vector->intrl = stored_intrl_setting;
+ 	wr32(hw, GLINT_RATE(q_vector->reg_idx),
+ 	     ice_intrl_usec_to_reg(q_vector->intrl, hw->intrl_gran));
+ }
+ 
++/**
++ * ice_vsi_rebuild_update_coalesce_itr - set coalesce for a q_vector
++ * @q_vector: pointer to q_vector which is being updated
++ * @rc: pointer to ring container
++ * @stored_itr_setting: original ITR setting
++ *
++ * Set coalesce param in q_vector and update these parameters in HW.
++ */
++static void
++ice_vsi_rebuild_update_coalesce_itr(struct ice_q_vector *q_vector,
++				    struct ice_ring_container *rc,
++				    u16 stored_itr_setting)
++{
++	struct ice_hw *hw = &q_vector->vsi->back->hw;
++
++	rc->itr_setting = stored_itr_setting;
++
++	/* dynamic ITR values will be updated during Tx/Rx */
++	if (!ITR_IS_DYNAMIC(rc->itr_setting))
++		wr32(hw, GLINT_ITR(rc->itr_idx, q_vector->reg_idx),
++		     ITR_REG_ALIGN(rc->itr_setting) >> ICE_ITR_GRAN_S);
++}
++
+ /**
+  * ice_vsi_rebuild_get_coalesce - get coalesce from all q_vectors
+  * @vsi: VSI connected with q_vectors
+@@ -2735,6 +2743,11 @@ ice_vsi_rebuild_get_coalesce(struct ice_vsi *vsi,
+ 		coalesce[i].itr_tx = q_vector->tx.itr_setting;
+ 		coalesce[i].itr_rx = q_vector->rx.itr_setting;
+ 		coalesce[i].intrl = q_vector->intrl;
++
++		if (i < vsi->num_txq)
++			coalesce[i].tx_valid = true;
++		if (i < vsi->num_rxq)
++			coalesce[i].rx_valid = true;
+ 	}
+ 
+ 	return vsi->num_q_vectors;
+@@ -2759,17 +2772,59 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
+ 	if ((size && !coalesce) || !vsi)
+ 		return;
+ 
+-	for (i = 0; i < size && i < vsi->num_q_vectors; i++)
+-		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
+-						&coalesce[i]);
+-
+-	/* number of q_vectors increased, so assume coalesce settings were
+-	 * changed globally (i.e. ethtool -C eth0 instead of per-queue) and use
+-	 * the previous settings from q_vector 0 for all of the new q_vectors
++	/* There are a couple of cases that have to be handled here:
++	 *   1. The case where the number of queue vectors stays the same, but
++	 *      the number of Tx or Rx rings changes (the first for loop)
++	 *   2. The case where the number of queue vectors increased (the
++	 *      second for loop)
+ 	 */
+-	for (; i < vsi->num_q_vectors; i++)
+-		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
+-						&coalesce[0]);
++	for (i = 0; i < size && i < vsi->num_q_vectors; i++) {
++		/* There are 2 cases to handle here and they are the same for
++		 * both Tx and Rx:
++		 *   if the entry was valid previously (coalesce[i].[tr]x_valid
++		 *   and the loop variable is less than the number of rings
++		 *   allocated, then write the previous values
++		 *
++		 *   if the entry was not valid previously, but the number of
++		 *   rings is less than are allocated (this means the number of
++		 *   rings increased from previously), then write out the
++		 *   values in the first element
++		 */
++		if (i < vsi->alloc_rxq && coalesce[i].rx_valid)
++			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++							    &vsi->q_vectors[i]->rx,
++							    coalesce[i].itr_rx);
++		else if (i < vsi->alloc_rxq)
++			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++							    &vsi->q_vectors[i]->rx,
++							    coalesce[0].itr_rx);
++
++		if (i < vsi->alloc_txq && coalesce[i].tx_valid)
++			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++							    &vsi->q_vectors[i]->tx,
++							    coalesce[i].itr_tx);
++		else if (i < vsi->alloc_txq)
++			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++							    &vsi->q_vectors[i]->tx,
++							    coalesce[0].itr_tx);
++
++		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
++						      coalesce[i].intrl);
++	}
++
++	/* the number of queue vectors increased so write whatever is in
++	 * the first element
++	 */
++	for (; i < vsi->num_q_vectors; i++) {
++		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++						    &vsi->q_vectors[i]->tx,
++						    coalesce[0].itr_tx);
++		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
++						    &vsi->q_vectors[i]->rx,
++						    coalesce[0].itr_rx);
++		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
++						      coalesce[0].intrl);
++	}
+ }
+ 
+ /**
+@@ -2798,9 +2853,11 @@ int ice_vsi_rebuild(struct ice_vsi *vsi, bool init_vsi)
+ 
+ 	coalesce = kcalloc(vsi->num_q_vectors,
+ 			   sizeof(struct ice_coalesce_stored), GFP_KERNEL);
+-	if (coalesce)
+-		prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi,
+-								  coalesce);
++	if (!coalesce)
++		return -ENOMEM;
++
++	prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi, coalesce);
++
+ 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
+ 	ice_vsi_free_q_vectors(vsi);
+ 
+diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
+index ff1a1cbd078e..eab7ceae926b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_txrx.h
++++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
+@@ -351,6 +351,8 @@ struct ice_coalesce_stored {
+ 	u16 itr_tx;
+ 	u16 itr_rx;
+ 	u8 intrl;
++	u8 tx_valid;
++	u8 rx_valid;
+ };
+ 
+ /* iterator for handling rings in ring container */
 -- 
 2.30.2
 
-
-
-  required:
-+        - resets
-+
-+  - if:
-+      properties:
-+        compatible:
-+          contains:
-+            enum:
-+              - renesas,vin-r8a7778
-+              - renesas,vin-r8a7779
-+              - renesas,rcar-gen2-vin
-+    then:
-+      required:
-+        - port
-+    else:
-+      required:
-+        - renesas,id
-+        - ports
- 
- additionalProperties: false
- 
 
 
