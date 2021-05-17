@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 52BFC38323D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97403383236
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240862AbhEQOqk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:46:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
+        id S240633AbhEQOqi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:46:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240673AbhEQOlZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:41:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C0DFB61411;
-        Mon, 17 May 2021 14:19:18 +0000 (UTC)
+        id S241053AbhEQOmK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:42:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7AA46141D;
+        Mon, 17 May 2021 14:19:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261159;
-        bh=fRKurCIjE3qmFmAHeK/5u0LBLUSpKJz0gOlppAgbgXQ=;
+        s=korg; t=1621261168;
+        bh=sKa9CEX1lzZvgoRkClCulu336SJril7h1CzcPDZPS4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q0MMUzh+E4hunopBINqhytObJjhA9fs+ja6S6N4+npCulcnqwlv5AApYHddFmKTep
-         6+PJkg3W7R3rE0RgB0MpTPEHodh78UI6Znrh/3BcR5T7kKGzTa7RpC4B4PmeqoDKQO
-         x+QZ8sh51VT3HDpYBLdNmNllMfg92ryHse5R5lb8=
+        b=n/V3pv0apu6ZmRyDna7W6y4wEG+feAOXSRY5CDgUhSiNkeEBmNerQOvTdrqWn0+Jl
+         WblPxERfSMfPKoYv4APXhNITAXkZ/loB6Vsoz338pDjh7jmoTHXVT0bN6cgej4fpud
+         lD3tGqtH602eD8jdJDgm2ZFfMhsDTRCwje40ksFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
         "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 081/329] sctp: Fix out-of-bounds warning in sctp_process_asconf_param()
-Date:   Mon, 17 May 2021 15:59:52 +0200
-Message-Id: <20210517140304.852759048@linuxfoundation.org>
+Subject: [PATCH 5.11 082/329] flow_dissector: Fix out-of-bounds warning in __skb_flow_bpf_to_target()
+Date:   Mon, 17 May 2021 15:59:53 +0200
+Message-Id: <20210517140304.893111454@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -45,11 +43,17 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit e5272ad4aab347dde5610c0aedb786219e3ff793 ]
+[ Upstream commit 1e3d976dbb23b3fce544752b434bdc32ce64aabc ]
 
 Fix the following out-of-bounds warning:
 
-net/sctp/sm_make_chunk.c:3150:4: warning: 'memcpy' offset [17, 28] from the object at 'addr' is out of the bounds of referenced subobject 'v4' with type 'struct sockaddr_in' at offset 0 [-Warray-bounds]
+net/core/flow_dissector.c:835:3: warning: 'memcpy' offset [33, 48] from the object at 'flow_keys' is out of the bounds of referenced subobject 'ipv6_src' with type '__u32[4]' {aka 'unsigned int[4]'} at offset 16 [-Warray-bounds]
+
+The problem is that the original code is trying to copy data into a
+couple of struct members adjacent to each other in a single call to
+memcpy().  So, the compiler legitimately complains about it. As these
+are just a couple of members, fix this by copying each one of them in
+separate calls to memcpy().
 
 This helps with the ongoing efforts to globally enable -Warray-bounds
 and get us closer to being able to tighten the FORTIFY_SOURCE routines
@@ -58,27 +62,29 @@ on memcpy().
 Link: https://github.com/KSPP/linux/issues/109
 Reported-by: kernel test robot <lkp@intel.com>
 Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/flow_dissector.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
-index f77484df097b..da4ce0947c3a 100644
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -3147,7 +3147,7 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
- 		 * primary.
- 		 */
- 		if (af->is_any(&addr))
--			memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
-+			memcpy(&addr, sctp_source(asconf), sizeof(addr));
+diff --git a/net/core/flow_dissector.c b/net/core/flow_dissector.c
+index 180be5102efc..aa997de1d44c 100644
+--- a/net/core/flow_dissector.c
++++ b/net/core/flow_dissector.c
+@@ -822,8 +822,10 @@ static void __skb_flow_bpf_to_target(const struct bpf_flow_keys *flow_keys,
+ 		key_addrs = skb_flow_dissector_target(flow_dissector,
+ 						      FLOW_DISSECTOR_KEY_IPV6_ADDRS,
+ 						      target_container);
+-		memcpy(&key_addrs->v6addrs, &flow_keys->ipv6_src,
+-		       sizeof(key_addrs->v6addrs));
++		memcpy(&key_addrs->v6addrs.src, &flow_keys->ipv6_src,
++		       sizeof(key_addrs->v6addrs.src));
++		memcpy(&key_addrs->v6addrs.dst, &flow_keys->ipv6_dst,
++		       sizeof(key_addrs->v6addrs.dst));
+ 		key_control->addr_type = FLOW_DISSECTOR_KEY_IPV6_ADDRS;
+ 	}
  
- 		if (security_sctp_bind_connect(asoc->ep->base.sk,
- 					       SCTP_PARAM_SET_PRIMARY,
 -- 
 2.30.2
 
