@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEC62383766
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9527938376B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238727AbhEQPnH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:43:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50372 "EHLO mail.kernel.org"
+        id S1343739AbhEQPnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245249AbhEQPlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:41:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E9361D0D;
-        Mon, 17 May 2021 14:41:53 +0000 (UTC)
+        id S244798AbhEQPlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:41:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48DF461D11;
+        Mon, 17 May 2021 14:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262514;
-        bh=pqssFOUIfO6hePtW8m+069C+9Bm1Ta8j//cyuQLZ8MM=;
+        s=korg; t=1621262520;
+        bh=GBwKL7ITMQsSdUmtVfW08aHGYf/Z0AEJCVTg6Jg6d1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WpRlIlxT5PeIM8BfuT1s9s0Pf9T3KFqJ6MAXvAaHZB8eLiFkzRPt07P3P3+MV93gn
-         eD/JMdl3BS5CTE4w6tkWUKlsOfKv1ipPkheE2FA8rU+NACEcOdkLA89hgipCGwt07O
-         1DZDr5PNHxlFCBzaCcy6WB0x+H/E/diTp2gfp5ns=
+        b=WUOJDH0hTO2rcdL/cfZ8ftVSgsPuTlc+coYZQaP559SBaTDzoxZdmphPnnTfb/XEi
+         CmEpM1ODHG+CbQuRA1WPsYVXcukOBmXTDYt1dlcZsA24cW5d76vehRZTXVcjFSbtYl
+         oBJYzTDIOkqawJkNk15RJBpXyOr7ed9LQBiBKJ3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Matthew Auld <matthew.auld@intel.com>,
-        Jani Nikula <jani.nikula@intel.com>
-Subject: [PATCH 5.11 311/329] drm/i915/gt: Fix a double free in gen8_preallocate_top_level_pdp
-Date:   Mon, 17 May 2021 16:03:42 +0200
-Message-Id: <20210517140312.610892516@linuxfoundation.org>
+        stable@vger.kernel.org, Stephen Boyd <swboyd@chromium.org>,
+        Kuogee Hsieh <khsieh@codeaurora.org>,
+        Rob Clark <robdclark@chromium.org>
+Subject: [PATCH 5.11 312/329] drm/msm/dp: check sink_count before update is_connected status
+Date:   Mon, 17 May 2021 16:03:43 +0200
+Message-Id: <20210517140312.643931968@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,42 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Kuogee Hsieh <khsieh@codeaurora.org>
 
-commit ea995218dddba171fecd05496c69617c5ef3c5b8 upstream.
+commit d9aa6571b28ba0022de1e48801ff03a1854c7ef2 upstream.
 
-Our code analyzer reported a double free bug.
+Link status is different from display connected status in the case
+of something like an Apple dongle where the type-c plug can be
+connected, and therefore the link is connected, but no sink is
+connected until an HDMI cable is plugged into the dongle.
+The sink_count of DPCD of dongle will increase to 1 once an HDMI
+cable is plugged into the dongle so that display connected status
+will become true. This checking also apply at pm_resume.
 
-In gen8_preallocate_top_level_pdp, pde and pde->pt.base are allocated
-via alloc_pd(vm) with one reference. If pin_pt_dma() failed, pde->pt.base
-is freed by i915_gem_object_put() with a reference dropped. Then free_pd
-calls free_px() defined in intel_ppgtt.c, which calls i915_gem_object_put()
-to put pde->pt.base again.
+Changes in v4:
+-- none
 
-As pde->pt.base is protected by refcount, so the second put will not free
-pde->pt.base actually. But, maybe it is better to remove the first put?
-
-Fixes: 82adf901138cc ("drm/i915/gt: Shrink i915_page_directory's slab bucket")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210426124340.4238-1-lyl2019@mail.ustc.edu.cn
-(cherry picked from commit ac69496fe65cca0611d5917b7d232730ff605bc7)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Fixes: 94e58e2d06e3 ("drm/msm/dp: reset dp controller only at boot up and pm_resume")
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
+Link: https://lore.kernel.org/r/1619048258-8717-2-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/gt/gen8_ppgtt.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/msm/dp/dp_display.c |   15 ++++++++-------
+ 1 file changed, 8 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-+++ b/drivers/gpu/drm/i915/gt/gen8_ppgtt.c
-@@ -631,7 +631,6 @@ static int gen8_preallocate_top_level_pd
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -595,10 +595,8 @@ static int dp_connect_pending_timeout(st
+ 	mutex_lock(&dp->event_mutex);
  
- 		err = pin_pt_dma(vm, pde->pt.base);
- 		if (err) {
--			i915_gem_object_put(pde->pt.base);
- 			free_pd(vm, pde);
- 			return err;
- 		}
+ 	state = dp->hpd_state;
+-	if (state == ST_CONNECT_PENDING) {
+-		dp_display_enable(dp, 0);
++	if (state == ST_CONNECT_PENDING)
+ 		dp->hpd_state = ST_CONNECTED;
+-	}
+ 
+ 	mutex_unlock(&dp->event_mutex);
+ 
+@@ -677,10 +675,8 @@ static int dp_disconnect_pending_timeout
+ 	mutex_lock(&dp->event_mutex);
+ 
+ 	state =  dp->hpd_state;
+-	if (state == ST_DISCONNECT_PENDING) {
+-		dp_display_disable(dp, 0);
++	if (state == ST_DISCONNECT_PENDING)
+ 		dp->hpd_state = ST_DISCONNECTED;
+-	}
+ 
+ 	mutex_unlock(&dp->event_mutex);
+ 
+@@ -1272,7 +1268,12 @@ static int dp_pm_resume(struct device *d
+ 
+ 	status = dp_catalog_link_is_connected(dp->catalog);
+ 
+-	if (status)
++	/*
++	 * can not declared display is connected unless
++	 * HDMI cable is plugged in and sink_count of
++	 * dongle become 1
++	 */
++	if (status && dp->link->sink_count)
+ 		dp->dp_display.is_connected = true;
+ 	else
+ 		dp->dp_display.is_connected = false;
 
 
