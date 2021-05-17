@@ -2,117 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9DDF38329F
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:50:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E93C2383138
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240032AbhEQOuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:50:11 -0400
-Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:44367 "EHLO
-        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240372AbhEQOre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 10:47:34 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailout.west.internal (Postfix) with ESMTP id CDFE8D73;
-        Mon, 17 May 2021 10:46:16 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Mon, 17 May 2021 10:46:17 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:content-transfer-encoding:in-reply-to; s=fm3; bh=7
-        AomO9JXrdrY5Ih8pwTBGgUCrP2fDKFQt8ByFGJboIw=; b=vWcu1QQ13t6CN5L8M
-        wzDYniNWTE3YSpKp/0sobqLNyRtK6G0Vwv3sifiYygPkcFB95H5Lke8RGQM4z/6n
-        42s25Z9eYYL4WxTy9tRoYjynovpVbgQyS3SeBv1XZD9vaBeLJ/nUR9xPyoczcXMP
-        3HKsEZp67uw9Njtg/8GJTS8uQJdsyy5/JacKeQegQdZyKQVec80LHXzIthxOPTE+
-        1HXgVZrm0FzDZyCIJOy5L46bl6FESN335Lezzv+sZOyROpDJ2nEkLinagdz11nms
-        cFoTgRiCHQ8CTZ32JZFR4gCIwI1ALLI2OT2Hlf5seotMZTfuLjhSB6J0pHg7Embz
-        HMSHg==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:in-reply-to:message-id:mime-version:references
-        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm2; bh=7AomO9JXrdrY5Ih8pwTBGgUCrP2fDKFQt8ByFGJbo
-        Iw=; b=drtKUgCoF/wRXn6tLqFNgJbrQxpz+g1kfPTZYuHjpjDS921U8up3wHiIm
-        qZkDck3tDB8SjAw1f1qeevo3yOTJ4m8oBJiMRUyKkNSvo/coVKfDdBXo/d+cu7YP
-        dwJ8cvyBi2OWPSVkSuMj/R3NidbH+8kSExXazpGA46zVQ0V4lf311tGS0tQ7wJaX
-        Sp3Vzk+XDDRNKTUAgPE67lGyVG0ilS3gnGYiX2qXT72zuqKnnaZqDnE9U8hbFzjI
-        kmuTG8/p3zRmo+C+AepF4kpMEBn72ThQEo99gdD25g19TGrizu2QBwERxbk68sDt
-        slcoRs26/QEZrrKOPfVWvz6kQuR7w==
-X-ME-Sender: <xms:t4GiYHZC1I1hxsZsvIqYmk2yVx3axOgct3nyKp2u49mOzASIxdCWBQ>
-    <xme:t4GiYGZs1PeenYyroaBvFinz_4kun_WHJlYUDc6iLhyy7fymCxhbsALY4DZFny5C_
-    2qRwNiEop0Mzg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgkeduucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvuffkfhggtggugfgjsehtke
-    ertddttdejnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucggtffrrghtthgvrhhnpeegieejuedvffeuvdfftdetfeeuhfekhefgueffjeevte
-    dtlefgueduffffteeftdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:t4GiYJ8jPrgBE8QrMnbOjoq1OGG0hX5JHNwtKcGfDxzv7toJoG9dww>
-    <xmx:t4GiYNpw7UO2IPXi2VDoy8ZLoM0GkpeHeHCMZy4CAsNdld95Rf0jRA>
-    <xmx:t4GiYCqtuJB-v9G2_t1ERt4OXD7HNQ_vcvI40nShdlVSFwNP6j-QNA>
-    <xmx:uIGiYPAqa0Uv_1mWsmC_A-jmdOT0YtqtAJPIXnJ5YcojAcyNLQw7og>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 10:46:15 -0400 (EDT)
-Date:   Mon, 17 May 2021 16:12:26 +0200
-From:   Greg KH <greg@kroah.com>
-To:     Jack Wang <jack.wang.usish@gmail.com>
-Cc:     Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>,
-        stable <stable@vger.kernel.org>, iommu@lists.linux-foundation.org
-Subject: Re: 5.10.37 won't boot on my system, but 5.10.36 with same config
- does
-Message-ID: <YKJ5ysGAuI32Jpn6@kroah.com>
-References: <e0e9ecf4-cfd7-b31a-29b0-ead4a6c0ee40@charleswright.co>
- <1621180418@msgid.manchmal.in-ulm.de>
- <YKI/D64ODBUEHO9M@kroah.com>
- <1621251453@msgid.manchmal.in-ulm.de>
- <1621251685@msgid.manchmal.in-ulm.de>
- <CA+res+RHyF22T-sGwCG5zA6EBrk_gWbnZETX_iAgdRdWaPLbfw@mail.gmail.com>
- <1621254246@msgid.manchmal.in-ulm.de>
- <CA+res+QRm3VyJSjMaKLYm=KY5+T5nX+6-QhOgrgBcP+d2Ganag@mail.gmail.com>
+        id S239202AbhEQOf7 convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Mon, 17 May 2021 10:35:59 -0400
+Received: from aposti.net ([89.234.176.197]:33348 "EHLO aposti.net"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239207AbhEQOcR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:32:17 -0400
+Date:   Mon, 17 May 2021 15:30:45 +0100
+From:   Paul Cercueil <paul@crapouillou.net>
+Subject: Re: [PATCH] drm/ingenic: Fix pixclock rate for 24-bit serial panels
+To:     Daniel Vetter <daniel@ffwll.ch>
+Cc:     David Airlie <airlied@linux.ie>, Sam Ravnborg <sam@ravnborg.org>,
+        od@zcrc.me, linux-mips@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Message-Id: <9N99TQ.6E5XN4XTCLTT1@crapouillou.net>
+In-Reply-To: <YKJsj+dDUshm/ZiT@phenom.ffwll.local>
+References: <20210323144008.166248-1-paul@crapouillou.net>
+        <6DP1TQ.W6B9JRRW1OY5@crapouillou.net> <YKJsj+dDUshm/ZiT@phenom.ffwll.local>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CA+res+QRm3VyJSjMaKLYm=KY5+T5nX+6-QhOgrgBcP+d2Ganag@mail.gmail.com>
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 17, 2021 at 02:45:01PM +0200, Jack Wang wrote:
-> Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de> 于2021年5月17日周一 下午2:25写道：
-> >
-> > Jack Wang wrote...
-> >
-> > > Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de> 于2021年5月17日周一 下午1:52写道：
-> > > >
-> > > > Christoph Biedl wrote...
-> > > >
-> > > > > Thanks for taking care, unfortunately no improvement with 5.10.38-rc1 here.
-> > > >
-> > > > So in case this is related to the .config, I'm attaching it. Hardware is,
-> > > > as said before, an old Thinkpad x200, vendor BIOS and no particular modifications.
-> > > > After disabling all vga/video/fbcon parameters I see the system suffers
-> > > > a kernel panic but unfortunately only the last 25 lines are visible.
-> > > > Possibly (typos are mine)
-> > > >
-> > > >     RIP: 0010:__domain_mapping+0xa7/0x3a0
-> > > >
-> > > > is a hint into the right direction?
-> > > This looks intel_iommu related, can you try boot with
-> > > "intel_iommu=off" in kernel parameter?
-> >
-> > Gotcha. System boots up fine then.
-> >
-> >     Christoph
-> So it's caused by this commit[1], and it should be fixed by latest
-> 5.10.38-rc1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git/log/?h=linux-5.10.y
-> [1]https://lore.kernel.org/stable/20210515132855.4bn7ve2ozvdhpnj4@nabokov.fritz.box/
+Hi Daniel,
 
-Hopefully the "real" 5.10.38-rc1 release that is out now should fix
-this.  If not, please let us know.
+Le lun., mai 17 2021 at 15:15:59 +0200, Daniel Vetter <daniel@ffwll.ch> 
+a �crit :
+> On Thu, May 13, 2021 at 01:29:30PM +0100, Paul Cercueil wrote:
+>>  Hi,
+>> 
+>>  Almost two months later,
+> 
+> Since you're committer it's expected that you go actively out to look 
+> for
+> review or trade with someone else who has some patches that need a 
+> quick
+> look. It will not happen automatically, this is on you.
 
-thanks,
+I maintain all drivers, platform code and DTS for Ingenic SoCs so I do 
+my part, just not in this subsystem.
 
-greg k-h
+> Also generally after 2 weeks the patch is lost and you need to ping 
+> it.
+
+OK. Then I guess I'll just include this one in a future patchset.
+
+> -Daniel
+
+Cheers,
+-Paul
+
+>> 
+>> 
+>>  Le mar., mars 23 2021 at 14:40:08 +0000, Paul Cercueil
+>>  <paul@crapouillou.net> a �crit :
+>>  > When using a 24-bit panel on a 8-bit serial bus, the pixel clock
+>>  > requested by the panel has to be multiplied by 3, since the 
+>> subpixels
+>>  > are shifted sequentially.
+>>  >
+>>  > The code (in ingenic_drm_encoder_atomic_check) already computed
+>>  > crtc_state->adjusted_mode->crtc_clock accordingly, but 
+>> clk_set_rate()
+>>  > used crtc_state->adjusted_mode->clock instead.
+>>  >
+>>  > Fixes: 28ab7d35b6e0 ("drm/ingenic: Properly compute timings when 
+>> using a
+>>  > 3x8-bit panel")
+>>  > Cc: stable@vger.kernel.org # v5.10
+>>  > Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+>> 
+>>  Can I get an ACK for my patch?
+>> 
+>>  Thanks!
+>>  -Paul
+>> 
+>>  > ---
+>>  >  drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 2 +-
+>>  >  1 file changed, 1 insertion(+), 1 deletion(-)
+>>  >
+>>  > diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+>>  > b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+>>  > index d60e1eefc9d1..cba68bf52ec5 100644
+>>  > --- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+>>  > +++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
+>>  > @@ -342,7 +342,7 @@ static void 
+>> ingenic_drm_crtc_atomic_flush(struct
+>>  > drm_crtc *crtc,
+>>  >  	if (priv->update_clk_rate) {
+>>  >  		mutex_lock(&priv->clk_mutex);
+>>  >  		clk_set_rate(priv->pix_clk,
+>>  > -			     crtc_state->adjusted_mode.clock * 1000);
+>>  > +			     crtc_state->adjusted_mode.crtc_clock * 1000);
+>>  >  		priv->update_clk_rate = false;
+>>  >  		mutex_unlock(&priv->clk_mutex);
+>>  >  	}
+>>  > --
+>>  > 2.30.2
+>>  >
+>> 
+>> 
+> 
+> --
+> Daniel Vetter
+> Software Engineer, Intel Corporation
+> http://blog.ffwll.ch
+
+
