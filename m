@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE2133835F2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64EA13833D1
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243886AbhEQP0f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:26:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S241566AbhEQPCa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:02:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245078AbhEQPYe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:24:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DB0161CA6;
-        Mon, 17 May 2021 14:35:44 +0000 (UTC)
+        id S241332AbhEQPAe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:00:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9284D619D2;
+        Mon, 17 May 2021 14:26:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262145;
-        bh=PyHuqQz0eNksafwwblkZC1GswweqceaQO5W9b2DiVyw=;
+        s=korg; t=1621261612;
+        bh=vCrC3Wl1kdxy967ft+K0SkQLfc37tQKnZBhmt/vm3hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qbekuWUcrIj1DrlGL2H0gmKUMLf+pkgqnkbTBX9ibQ1naOifZEfcWIAEUC5eig0EO
-         NQUYruXMa0FOsLiJLPWdFBoKLJUT5CYXMsWUDCAP2ccCm+2K7Ic+vJaU0kYY9G2Dqz
-         5u1rWKcpoUNoHsRwh1rzPXJKEZMhySekpL1dwwF4=
+        b=JCgAnF7kuWwLCKxCwJHMrX2fmyqoOGhcQsOB8rjkBqtTAtMyYDAS4QjWUmH28ztPp
+         XVgezemRokR94pAlok4+r/W85EZB/LwOaC2szDqiqUHtgzVatE1473a5dqzmBwS0to
+         c5bdbX//oVbRAwgm5NJiB7eOr84wrN2tov7Fg1t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 120/289] PCI: endpoint: Fix missing destroy_workqueue()
-Date:   Mon, 17 May 2021 16:00:45 +0200
-Message-Id: <20210517140309.200825396@linuxfoundation.org>
+Subject: [PATCH 5.11 135/329] f2fs: fix to avoid accessing invalid fio in f2fs_allocate_data_block()
+Date:   Mon, 17 May 2021 16:00:46 +0200
+Message-Id: <20210517140306.679437320@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit acaef7981a218813e3617edb9c01837808de063c ]
+[ Upstream commit 25ae837e61dee712b4b1df36602ebfe724b2a0b6 ]
 
-Add the missing destroy_workqueue() before return from
-pci_epf_test_init() in the error handling case and add
-destroy_workqueue() in pci_epf_test_exit().
+Callers may pass fio parameter with NULL value to f2fs_allocate_data_block(),
+so we should make sure accessing fio's field after fio's validation check.
 
-Link: https://lore.kernel.org/r/20210331084012.2091010-1-yangyingliang@huawei.com
-Fixes: 349e7a85b25fa ("PCI: endpoint: functions: Add an EP function to test PCI")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Fixes: f608c38c59c6 ("f2fs: clean up parameter of f2fs_allocate_data_block()")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/f2fs/segment.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index 5f6ce120a67a..d41570715dc7 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -922,6 +922,7 @@ static int __init pci_epf_test_init(void)
- 
- 	ret = pci_epf_register_driver(&test_driver);
- 	if (ret) {
-+		destroy_workqueue(kpcitest_workqueue);
- 		pr_err("Failed to register pci epf test driver --> %d\n", ret);
- 		return ret;
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index af765d60351f..b053e3c32e1f 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -3414,12 +3414,12 @@ void f2fs_allocate_data_block(struct f2fs_sb_info *sbi, struct page *page,
+ 		f2fs_inode_chksum_set(sbi, page);
  	}
-@@ -932,6 +933,8 @@ module_init(pci_epf_test_init);
  
- static void __exit pci_epf_test_exit(void)
- {
-+	if (kpcitest_workqueue)
-+		destroy_workqueue(kpcitest_workqueue);
- 	pci_epf_unregister_driver(&test_driver);
- }
- module_exit(pci_epf_test_exit);
+-	if (F2FS_IO_ALIGNED(sbi))
+-		fio->retry = false;
+-
+ 	if (fio) {
+ 		struct f2fs_bio_info *io;
+ 
++		if (F2FS_IO_ALIGNED(sbi))
++			fio->retry = false;
++
+ 		INIT_LIST_HEAD(&fio->list);
+ 		fio->in_list = true;
+ 		io = sbi->write_io[fio->type] + fio->temp;
 -- 
 2.30.2
 
