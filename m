@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 631DA38359A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E16438359F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242214AbhEQPXV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:23:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57498 "EHLO mail.kernel.org"
+        id S240279AbhEQPX0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:23:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244128AbhEQPTO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:19:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2790C61C74;
-        Mon, 17 May 2021 14:33:46 +0000 (UTC)
+        id S244200AbhEQPTi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:19:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8938661C7B;
+        Mon, 17 May 2021 14:33:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262026;
-        bh=YiazTUY/XltG9h2j4Zou6pVCu6UNXVIzbOeHZDEki7I=;
+        s=korg; t=1621262033;
+        bh=WQfgM7ZoBlcn0q0ZndU0b98p6G+CR1wQVtqSdzHtEnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zMrPLIrfJhGtzBMPiSXD2UtAh1x7h7yOoGrWTqU/PRdJhL5SZlZpRCQmXqllEn3rW
-         i6gLs5UhXckFfzEFYzQHR1G26zUf90qSD8B+eCq1bhxQRT7lLoxawzjf0Sdwb6EcY2
-         dVmNkMxByuu0trmA3u5Mmnd7kklCCyXTIi62H8bA=
+        b=GjsE13s5PJGYpcKA+rXKU271wkKKjXcKkNJ5a6JvT9cE2UaGFYB5gQPBcQokXWmDO
+         2u53GRVM0QDHjIw66E+MhhqKwUmeBVP5S8C9zyw2to2FTAt+4f3GkBjS4IxxG8LOQo
+         NfaI8UCHm3ncPiqf+vOqqI7b7dp64QNqlzbK8cQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 126/141] FDDI: defxx: Make MMIO the configuration default except for EISA
-Date:   Mon, 17 May 2021 16:02:58 +0200
-Message-Id: <20210517140247.062790661@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.4 127/141] MIPS: Reinstate platform `__div64_32 handler
+Date:   Mon, 17 May 2021 16:02:59 +0200
+Message-Id: <20210517140247.093678374@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -41,74 +42,159 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 193ced4a79599352d63cb8c9e2f0c6043106eb6a upstream.
+commit c49f71f60754acbff37505e1d16ca796bf8a8140 upstream.
 
-Recent versions of the PCI Express specification have deprecated support
-for I/O transactions and actually some PCIe host bridges, such as Power
-Systems Host Bridge 4 (PHB4), do not implement them.
+Our current MIPS platform `__div64_32' handler is inactive, because it
+is incorrectly only enabled for 64-bit configurations, for which generic
+`do_div' code does not call it anyway.
 
-The default kernel configuration choice for the defxx driver is the use
-of I/O ports rather than MMIO for PCI and EISA systems.  It may have
-made sense as a conservative backwards compatible choice back when MMIO
-operation support was added to the driver as a part of TURBOchannel bus
-support.  However nowadays this configuration choice makes the driver
-unusable with systems that do not implement I/O transactions for PCIe.
+The handler is not suitable for being called from there though as it
+only calculates 32 bits of the quotient under the assumption the 64-bit
+divident has been suitably reduced.  Code for such reduction used to be
+there, however it has been incorrectly removed with commit c21004cd5b4c
+("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."), which should
+have only updated an obsoleted constraint for an inline asm involving
+$hi and $lo register outputs, while possibly wiring the original MIPS
+variant of the `do_div' macro as `__div64_32' handler for the generic
+`do_div' implementation
 
-Make DEFXX_MMIO the configuration default then, except where configured
-for EISA.  This exception is because an EISA adapter can have its MMIO
-decoding disabled with ECU (EISA Configuration Utility) and therefore
-not available with the resource allocation infrastructure we implement,
-while port I/O is always readily available as it uses slot-specific
-addressing, directly mapped to the slot an option card has been placed
-in and handled with our EISA bus support core.  Conversely a kernel that
-supports modern systems which may not have I/O transactions implemented
-for PCIe will usually not be expected to handle legacy EISA systems.
+Correct the handler as follows then:
 
-The change of the default will make it easier for people, including but
-not limited to distribution packagers, to make a working choice for the
-driver.
+- Revert most of the commit referred, however retaining the current
+  formatting, except for the final two instructions of the inline asm
+  sequence, which the original commit missed.  Omit the original 64-bit
+  parts though.
 
-Update the option description accordingly and while at it replace the
-potentially ambiguous PIO acronym with IOP for "port I/O" vs "I/O ports"
-according to our nomenclature used elsewhere.
+- Rename the original `do_div' macro to `__div64_32'.  Use the combined
+  `x' constraint referring to the MD accumulator as a whole, replacing
+  the original individual `h' and `l' constraints used for $hi and $lo
+  registers respectively, of which `h' has been obsoleted with GCC 4.4.
+  Update surrounding code accordingly.
 
+  We have since removed support for GCC versions before 4.9, so no need
+  for a special arrangement here; GCC has supported the `x' constraint
+  since forever anyway, or at least going back to 1991.
+
+- Rename the `__base' local variable in `__div64_32' to `__radix' to
+  avoid a conflict with a local variable in `do_div'.
+
+- Actually enable this code for 32-bit rather than 64-bit configurations
+  by qualifying it with BITS_PER_LONG being 32 instead of 64.  Include
+  <asm/bitsperlong.h> for this macro rather than <linux/types.h> as we
+  don't need anything else.
+
+- Finally include <asm-generic/div64.h> last rather than first.
+
+This has passed correctness verification with test_div64 and reduced the
+module's average execution time down to 1.0668s and 0.2629s from 2.1529s
+and 0.5647s respectively for an R3400 CPU @40MHz and a 5Kc CPU @160MHz.
+For a reference 64-bit `do_div' code where we have the DDIVU instruction
+available to do the whole calculation right away averages at 0.0660s for
+the latter CPU.
+
+Fixes: c21004cd5b4c ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
+Reported-by: Huacai Chen <chenhuacai@kernel.org>
 Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e89a2cfb7d7b ("[TC] defxx: TURBOchannel support")
-Cc: stable@vger.kernel.org # v2.6.21+
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org # v2.6.30+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/fddi/Kconfig |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ arch/mips/include/asm/div64.h |   57 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
 
---- a/drivers/net/fddi/Kconfig
-+++ b/drivers/net/fddi/Kconfig
-@@ -40,17 +40,20 @@ config DEFXX
+--- a/arch/mips/include/asm/div64.h
++++ b/arch/mips/include/asm/div64.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2000, 2004  Maciej W. Rozycki
++ * Copyright (C) 2000, 2004, 2021  Maciej W. Rozycki
+  * Copyright (C) 2003, 07 Ralf Baechle (ralf@linux-mips.org)
+  *
+  * This file is subject to the terms and conditions of the GNU General Public
+@@ -9,25 +9,18 @@
+ #ifndef __ASM_DIV64_H
+ #define __ASM_DIV64_H
  
- config DEFXX_MMIO
- 	bool
--	prompt "Use MMIO instead of PIO" if PCI || EISA
-+	prompt "Use MMIO instead of IOP" if PCI || EISA
- 	depends on DEFXX
--	default n if PCI || EISA
-+	default n if EISA
- 	default y
- 	---help---
- 	  This instructs the driver to use EISA or PCI memory-mapped I/O
--	  (MMIO) as appropriate instead of programmed I/O ports (PIO).
-+	  (MMIO) as appropriate instead of programmed I/O ports (IOP).
- 	  Enabling this gives an improvement in processing time in parts
--	  of the driver, but it may cause problems with EISA (DEFEA)
--	  adapters.  TURBOchannel does not have the concept of I/O ports,
--	  so MMIO is always used for these (DEFTA) adapters.
-+	  of the driver, but it requires a memory window to be configured
-+	  for EISA (DEFEA) adapters that may not always be available.
-+	  Conversely some PCIe host bridges do not support IOP, so MMIO
-+	  may be required to access PCI (DEFPA) adapters on downstream PCI
-+	  buses with some systems.  TURBOchannel does not have the concept
-+	  of I/O ports, so MMIO is always used for these (DEFTA) adapters.
+-#include <asm-generic/div64.h>
+-
+-#if BITS_PER_LONG == 64
++#include <asm/bitsperlong.h>
  
- 	  If unsure, say N.
+-#include <linux/types.h>
++#if BITS_PER_LONG == 32
  
+ /*
+  * No traps on overflows for any of these...
+  */
+ 
+-#define __div64_32(n, base)						\
+-({									\
++#define do_div64_32(res, high, low, base) ({				\
+ 	unsigned long __cf, __tmp, __tmp2, __i;				\
+ 	unsigned long __quot32, __mod32;				\
+-	unsigned long __high, __low;					\
+-	unsigned long long __n;						\
+ 									\
+-	__high = *__n >> 32;						\
+-	__low = __n;							\
+ 	__asm__(							\
+ 	"	.set	push					\n"	\
+ 	"	.set	noat					\n"	\
+@@ -51,18 +44,50 @@
+ 	"	subu	%0, %0, %z6				\n"	\
+ 	"	addiu	%2, %2, 1				\n"	\
+ 	"3:							\n"	\
+-	"	bnez	%4, 0b\n\t"					\
+-	"	 srl	%5, %1, 0x1f\n\t"				\
++	"	bnez	%4, 0b					\n"	\
++	"	 srl	%5, %1, 0x1f				\n"	\
+ 	"	.set	pop"						\
+ 	: "=&r" (__mod32), "=&r" (__tmp),				\
+ 	  "=&r" (__quot32), "=&r" (__cf),				\
+ 	  "=&r" (__i), "=&r" (__tmp2)					\
+-	: "Jr" (base), "0" (__high), "1" (__low));			\
++	: "Jr" (base), "0" (high), "1" (low));				\
+ 									\
+-	(__n) = __quot32;						\
++	(res) = __quot32;						\
+ 	__mod32;							\
+ })
+ 
+-#endif /* BITS_PER_LONG == 64 */
++#define __div64_32(n, base) ({						\
++	unsigned long __upper, __low, __high, __radix;			\
++	unsigned long long __modquot;					\
++	unsigned long long __quot;					\
++	unsigned long long __div;					\
++	unsigned long __mod;						\
++									\
++	__div = (*n);							\
++	__radix = (base);						\
++									\
++	__high = __div >> 32;						\
++	__low = __div;							\
++	__upper = __high;						\
++									\
++	if (__high) {							\
++		__asm__("divu	$0, %z1, %z2"				\
++		: "=x" (__modquot)					\
++		: "Jr" (__high), "Jr" (__radix));			\
++		__upper = __modquot >> 32;				\
++		__high = __modquot;					\
++	}								\
++									\
++	__mod = do_div64_32(__low, __upper, __low, __radix);		\
++									\
++	__quot = __high;						\
++	__quot = __quot << 32 | __low;					\
++	(*n) = __quot;							\
++	__mod;								\
++})
++
++#endif /* BITS_PER_LONG == 32 */
++
++#include <asm-generic/div64.h>
+ 
+ #endif /* __ASM_DIV64_H */
 
 
