@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 30B45383750
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA42383751
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242896AbhEQPlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51388 "EHLO mail.kernel.org"
+        id S245648AbhEQPln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:41:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343498AbhEQPjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7480761D07;
-        Mon, 17 May 2021 14:41:23 +0000 (UTC)
+        id S1343528AbhEQPjj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:39:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C095661CFF;
+        Mon, 17 May 2021 14:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262483;
-        bh=4bwKlCN49OWtZp91b9z29gbuCBQT/kf3lofWdql7p9g=;
+        s=korg; t=1621262488;
+        bh=WunRfjUgmSekC9nRkUs4dFH3ggSHfyxtdwAgmpGxhu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xgZlSv4qR77zc8sL5vXAi5mv9Bef4HPruHk+yy9lU2TcD/1yAd36G2vuGX79h1/+s
-         ouKNDakFJT/faYHlQTAqs4RpgK+A+FTEXx2yGHsKwffRV6uCgZrr97mikC3mWrlNGL
-         UFC2tVPknorh05H3Rflz94mxS1md79kJbKfktI98=
+        b=PiF0IEY7Pzo+6a3DgdbrFx4Md5pkBgSfvMw/f5CpsjmYCQwu4dFbpSTw/En/Nylam
+         I1Fbb2NsaPtf7npitc/vH7zH0W7LUXrULeKjxJFQdB7EGbd/sUvoH0voprRWf5cKWU
+         CkKLuXmV/a3gYt06h56DiebP9A7ZNCNqwlHRbFRs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
         Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 275/329] f2fs: compress: fix to free compress page correctly
-Date:   Mon, 17 May 2021 16:03:06 +0200
-Message-Id: <20210517140311.415060523@linuxfoundation.org>
+Subject: [PATCH 5.11 276/329] f2fs: compress: fix race condition of overwrite vs truncate
+Date:   Mon, 17 May 2021 16:03:07 +0200
+Message-Id: <20210517140311.444802455@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -42,33 +42,144 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit a12cc5b423d4f36dc1a1ea3911e49cf9dff43898 ]
+[ Upstream commit a949dc5f2c5cfe0c910b664650f45371254c0744 ]
 
-In error path of f2fs_write_compressed_pages(), it needs to call
-f2fs_compress_free_page() to release temporary page.
+pos_fsstress testcase complains a panic as belew:
 
-Fixes: 5e6bbde95982 ("f2fs: introduce mempool for {,de}compress intermediate page allocation")
+------------[ cut here ]------------
+kernel BUG at fs/f2fs/compress.c:1082!
+invalid opcode: 0000 [#1] SMP PTI
+CPU: 4 PID: 2753477 Comm: kworker/u16:2 Tainted: G           OE     5.12.0-rc1-custom #1
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
+Workqueue: writeback wb_workfn (flush-252:16)
+RIP: 0010:prepare_compress_overwrite+0x4c0/0x760 [f2fs]
+Call Trace:
+ f2fs_prepare_compress_overwrite+0x5f/0x80 [f2fs]
+ f2fs_write_cache_pages+0x468/0x8a0 [f2fs]
+ f2fs_write_data_pages+0x2a4/0x2f0 [f2fs]
+ do_writepages+0x38/0xc0
+ __writeback_single_inode+0x44/0x2a0
+ writeback_sb_inodes+0x223/0x4d0
+ __writeback_inodes_wb+0x56/0xf0
+ wb_writeback+0x1dd/0x290
+ wb_workfn+0x309/0x500
+ process_one_work+0x220/0x3c0
+ worker_thread+0x53/0x420
+ kthread+0x12f/0x150
+ ret_from_fork+0x22/0x30
+
+The root cause is truncate() may race with overwrite as below,
+so that one reference count left in page can not guarantee the
+page attaching in mapping tree all the time, after truncation,
+later find_lock_page() may return NULL pointer.
+
+- prepare_compress_overwrite
+ - f2fs_pagecache_get_page
+ - unlock_page
+					- f2fs_setattr
+					 - truncate_setsize
+					  - truncate_inode_page
+					   - delete_from_page_cache
+ - find_lock_page
+
+Fix this by avoiding referencing updated page.
+
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/f2fs/compress.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/f2fs/compress.c | 35 ++++++++++++-----------------------
+ 1 file changed, 12 insertions(+), 23 deletions(-)
 
 diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
-index 7a774c9e4cb8..ac12adc17f5e 100644
+index ac12adc17f5e..8093d06116b4 100644
 --- a/fs/f2fs/compress.c
 +++ b/fs/f2fs/compress.c
-@@ -1343,7 +1343,8 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
- 	for (i = 0; i < cc->nr_cpages; i++) {
- 		if (!cc->cpages[i])
- 			continue;
--		f2fs_put_page(cc->cpages[i], 1);
-+		f2fs_compress_free_page(cc->cpages[i]);
-+		cc->cpages[i] = NULL;
+@@ -123,19 +123,6 @@ static void f2fs_unlock_rpages(struct compress_ctx *cc, int len)
+ 	f2fs_drop_rpages(cc, len, true);
+ }
+ 
+-static void f2fs_put_rpages_mapping(struct address_space *mapping,
+-				pgoff_t start, int len)
+-{
+-	int i;
+-
+-	for (i = 0; i < len; i++) {
+-		struct page *page = find_get_page(mapping, start + i);
+-
+-		put_page(page);
+-		put_page(page);
+-	}
+-}
+-
+ static void f2fs_put_rpages_wbc(struct compress_ctx *cc,
+ 		struct writeback_control *wbc, bool redirty, int unlock)
+ {
+@@ -1008,7 +995,7 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ 		}
+ 
+ 		if (PageUptodate(page))
+-			unlock_page(page);
++			f2fs_put_page(page, 1);
+ 		else
+ 			f2fs_compress_ctx_add_page(cc, page);
  	}
- out_put_cic:
- 	kmem_cache_free(cic_entry_slab, cic);
+@@ -1018,32 +1005,34 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ 
+ 		ret = f2fs_read_multi_pages(cc, &bio, cc->cluster_size,
+ 					&last_block_in_bio, false, true);
++		f2fs_put_rpages(cc);
+ 		f2fs_destroy_compress_ctx(cc);
+ 		if (ret)
+-			goto release_pages;
++			goto out;
+ 		if (bio)
+ 			f2fs_submit_bio(sbi, bio, DATA);
+ 
+ 		ret = f2fs_init_compress_ctx(cc);
+ 		if (ret)
+-			goto release_pages;
++			goto out;
+ 	}
+ 
+ 	for (i = 0; i < cc->cluster_size; i++) {
+ 		f2fs_bug_on(sbi, cc->rpages[i]);
+ 
+ 		page = find_lock_page(mapping, start_idx + i);
+-		f2fs_bug_on(sbi, !page);
++		if (!page) {
++			/* page can be truncated */
++			goto release_and_retry;
++		}
+ 
+ 		f2fs_wait_on_page_writeback(page, DATA, true, true);
+-
+ 		f2fs_compress_ctx_add_page(cc, page);
+-		f2fs_put_page(page, 0);
+ 
+ 		if (!PageUptodate(page)) {
++release_and_retry:
++			f2fs_put_rpages(cc);
+ 			f2fs_unlock_rpages(cc, i + 1);
+-			f2fs_put_rpages_mapping(mapping, start_idx,
+-					cc->cluster_size);
+ 			f2fs_destroy_compress_ctx(cc);
+ 			goto retry;
+ 		}
+@@ -1075,10 +1064,10 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ 	}
+ 
+ unlock_pages:
++	f2fs_put_rpages(cc);
+ 	f2fs_unlock_rpages(cc, i);
+-release_pages:
+-	f2fs_put_rpages_mapping(mapping, start_idx, i);
+ 	f2fs_destroy_compress_ctx(cc);
++out:
+ 	return ret;
+ }
+ 
 -- 
 2.30.2
 
