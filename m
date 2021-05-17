@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F3A03836AA
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FBCE383830
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242583AbhEQPfS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:35:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55428 "EHLO mail.kernel.org"
+        id S240846AbhEQPul (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:50:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244851AbhEQPcm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:32:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4345861CD2;
-        Mon, 17 May 2021 14:38:50 +0000 (UTC)
+        id S244030AbhEQPqZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FD3961959;
+        Mon, 17 May 2021 14:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262330;
-        bh=KXTQBfakH0BrCa8TE9zTPkNFh6ESzzSdqNu5g8TZeeE=;
+        s=korg; t=1621262665;
+        bh=5a0i6618Sf3aj//L1ZmO2dcxrnJP/ZYs+X1dx/dkXyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NgeakkY0kxm3fmt7HQym+lFIdvI0i3pGEN89zqtP29BiBuPmvDn1ueWQtXgQgy23Y
-         0MUjL22eA9C7+qrbw+delED07KmJjoRaELUsdK768Rk1nV27Ch4DEFrd7gcRjRFUI2
-         VnaBLcc1iKJD5rlxmNnB2wP71VRIWTqVI1jcgHM0=
+        b=LiYS8zUtsi5gj+CtAV2YIU2XpMDhLstAmeIwOpIVGkjzU3iKHLKQcckK7I8XV+RUX
+         C4jH+6Oz7fE7g54LpngMKsgSEBh7JZP9IIM2qgbMFZPyG9CehhjTGSJQoM3z6oWO9o
+         IP61veVswFkBlXS6PESX2x811JaDmg4HvnoCA7WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eddie James <eajames@linux.ibm.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 266/329] hwmon: (occ) Fix poll rate limiting
-Date:   Mon, 17 May 2021 16:02:57 +0200
-Message-Id: <20210517140311.111909708@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 253/289] iio: tsl2583: Fix division by a zero lux_val
+Date:   Mon, 17 May 2021 16:02:58 +0200
+Message-Id: <20210517140313.665186116@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eddie James <eajames@linux.ibm.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 5216dff22dc2bbbbe6f00335f9fd2879670e753b ]
+commit af0e1871d79cfbb91f732d2c6fa7558e45c31038 upstream.
 
-The poll rate limiter time was initialized at zero. This breaks the
-comparison in time_after if jiffies is large. Switch to storing the
-next update time rather than the previous time, and initialize the
-time when the device is probed.
+The lux_val returned from tsl2583_get_lux can potentially be zero,
+so check for this to avoid a division by zero and an overflowed
+gain_trim_val.
 
-Fixes: c10e753d43eb ("hwmon (occ): Add sensor types and versions")
-Signed-off-by: Eddie James <eajames@linux.ibm.com>
-Link: https://lore.kernel.org/r/20210429151336.18980-1-eajames@linux.ibm.com
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes clang scan-build warning:
+
+drivers/iio/light/tsl2583.c:345:40: warning: Either the
+condition 'lux_val<0' is redundant or there is division
+by zero at line 345. [zerodivcond]
+
+Fixes: ac4f6eee8fe8 ("staging: iio: TAOS tsl258x: Device driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/occ/common.c | 5 +++--
- drivers/hwmon/occ/common.h | 2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/iio/light/tsl2583.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/hwmon/occ/common.c b/drivers/hwmon/occ/common.c
-index 7a5e539b567b..580e63d7daa0 100644
---- a/drivers/hwmon/occ/common.c
-+++ b/drivers/hwmon/occ/common.c
-@@ -217,9 +217,9 @@ int occ_update_response(struct occ *occ)
- 		return rc;
- 
- 	/* limit the maximum rate of polling the OCC */
--	if (time_after(jiffies, occ->last_update + OCC_UPDATE_FREQUENCY)) {
-+	if (time_after(jiffies, occ->next_update)) {
- 		rc = occ_poll(occ);
--		occ->last_update = jiffies;
-+		occ->next_update = jiffies + OCC_UPDATE_FREQUENCY;
- 	} else {
- 		rc = occ->last_error;
- 	}
-@@ -1164,6 +1164,7 @@ int occ_setup(struct occ *occ, const char *name)
- 		return rc;
+--- a/drivers/iio/light/tsl2583.c
++++ b/drivers/iio/light/tsl2583.c
+@@ -341,6 +341,14 @@ static int tsl2583_als_calibrate(struct
+ 		return lux_val;
  	}
  
-+	occ->next_update = jiffies + OCC_UPDATE_FREQUENCY;
- 	occ_parse_poll_response(occ);
- 
- 	rc = occ_setup_sensor_attrs(occ);
-diff --git a/drivers/hwmon/occ/common.h b/drivers/hwmon/occ/common.h
-index 67e6968b8978..e6df719770e8 100644
---- a/drivers/hwmon/occ/common.h
-+++ b/drivers/hwmon/occ/common.h
-@@ -99,7 +99,7 @@ struct occ {
- 	u8 poll_cmd_data;		/* to perform OCC poll command */
- 	int (*send_cmd)(struct occ *occ, u8 *cmd);
- 
--	unsigned long last_update;
-+	unsigned long next_update;
- 	struct mutex lock;		/* lock OCC access */
- 
- 	struct device *hwmon;
--- 
-2.30.2
-
++	/* Avoid division by zero of lux_value later on */
++	if (lux_val == 0) {
++		dev_err(&chip->client->dev,
++			"%s: lux_val of 0 will produce out of range trim_value\n",
++			__func__);
++		return -ENODATA;
++	}
++
+ 	gain_trim_val = (unsigned int)(((chip->als_settings.als_cal_target)
+ 			* chip->als_settings.als_gain_trim) / lux_val);
+ 	if ((gain_trim_val < 250) || (gain_trim_val > 4000)) {
 
 
