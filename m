@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CB3B3837C5
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D239F38375A
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244416AbhEQPrB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:47:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35612 "EHLO mail.kernel.org"
+        id S1343742AbhEQPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344614AbhEQPpF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:45:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1EF461D2B;
-        Mon, 17 May 2021 14:43:33 +0000 (UTC)
+        id S1343954AbhEQPkD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:40:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75C4C61554;
+        Mon, 17 May 2021 14:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262614;
-        bh=MW3yIXAfcBoXXRXxaYwi0JgwfVDxofXfnrb2vjB8MxQ=;
+        s=korg; t=1621262498;
+        bh=nr3DIadgRhyKZCDLi1pOFobQNv/FUqmsYyPOqkzvbgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGXf8RH73uOlCCyruZBy/H4Vxy8usrUgx5WJdhe2jptaQnfzGx19b4c/J3CGuA945
-         1fPH4nSOmCN3JqpC1xYjOKtbTa9uh4hbZwoOuXWKW/HxsjMSIyIbHt5Nvw7iNhv5Nj
-         QHKcELSrgQAvxRdg/xD9wHRfimJOoglcGM2Ke9VE=
+        b=MUKF8GIg0wnDpTjrapE6+Yn3BmFR+Cz27YuKyAn3hcgsQr7yHaLJfpscvjTxBP81/
+         11zYA86f1tfCMHmk0mfmxdJjpuAIdeDKvRZ6EWhuVy81ZiWI1viQ8tD16/x93W1sFy
+         nDO/h0HMbqEUrRSPnG+v9HkrWzyDHNesJaoGpTzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.11 306/329] MIPS: Avoid handcoded DIVU in `__div64_32 altogether
-Date:   Mon, 17 May 2021 16:03:37 +0200
-Message-Id: <20210517140312.436493109@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.11 307/329] clocksource/drivers/timer-ti-dm: Prepare to handle dra7 timer wrap issue
+Date:   Mon, 17 May 2021 16:03:38 +0200
+Message-Id: <20210517140312.467782107@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -39,75 +39,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Tony Lindgren <tony@atomide.com>
 
-commit 25ab14cbe9d1b66fda44c71a2db7582a31b6f5cd upstream.
+commit 3efe7a878a11c13b5297057bfc1e5639ce1241ce upstream.
 
-Remove the inline asm with a DIVU instruction from `__div64_32' and use
-plain C code for the intended DIVMOD calculation instead.  GCC is smart
-enough to know that both the quotient and the remainder are calculated
-with single DIVU, so with ISAs up to R5 the same instruction is actually
-produced with overall similar code.
+There is a timer wrap issue on dra7 for the ARM architected timer.
+In a typical clock configuration the timer fails to wrap after 388 days.
 
-For R6 compiled code will work, but separate DIVU and MODU instructions
-will be produced, which are also interlocked, so scalar implementations
-will likely not perform as well as older ISAs with their asynchronous MD
-unit.  Likely still faster then the generic algorithm though.
+To work around the issue, we need to use timer-ti-dm timers instead.
 
-This removes a compilation error for R6 however where the original DIVU
-instruction is not supported anymore and the MDU accumulator registers
-have been removed and consequently GCC complains as to a constraint it
-cannot find a register for:
+Let's prepare for adding support for percpu timers by adding a common
+dmtimer_clkevt_init_common() and call it from dmtimer_clockevent_init().
+This patch makes no intentional functional changes.
 
-In file included from ./include/linux/math.h:5,
-                 from ./include/linux/kernel.h:13,
-                 from mm/page-writeback.c:15:
-./include/linux/math64.h: In function 'div_u64_rem':
-./arch/mips/include/asm/div64.h:76:17: error: inconsistent operand constraints in an 'asm'
-   76 |                 __asm__("divu   $0, %z1, %z2"                           \
-      |                 ^~~~~~~
-./include/asm-generic/div64.h:245:25: note: in expansion of macro '__div64_32'
-  245 |                 __rem = __div64_32(&(n), __base);       \
-      |                         ^~~~~~~~~~
-./include/linux/math64.h:91:22: note: in expansion of macro 'do_div'
-   91 |         *remainder = do_div(dividend, divisor);
-      |                      ^~~~~~
-
-This has passed correctness verification with test_div64 and reduced the
-module's average execution time down to 1.0404s from 1.0445s with R3400
-@40MHz.  The module's MIPS I machine code has also shrunk by 12 bytes or
-3 instructions.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210323074326.28302-2-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/include/asm/div64.h |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/clocksource/timer-ti-dm-systimer.c |   68 ++++++++++++++++++-----------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/arch/mips/include/asm/div64.h
-+++ b/arch/mips/include/asm/div64.h
-@@ -58,7 +58,6 @@
+--- a/drivers/clocksource/timer-ti-dm-systimer.c
++++ b/drivers/clocksource/timer-ti-dm-systimer.c
+@@ -530,17 +530,17 @@ static void omap_clockevent_unidle(struc
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
+ }
  
- #define __div64_32(n, base) ({						\
- 	unsigned long __upper, __low, __high, __radix;			\
--	unsigned long long __modquot;					\
- 	unsigned long long __quot;					\
- 	unsigned long long __div;					\
- 	unsigned long __mod;						\
-@@ -73,11 +72,8 @@
- 		__upper = __high;					\
- 		__high = 0;						\
- 	} else {							\
--		__asm__("divu	$0, %z1, %z2"				\
--		: "=x" (__modquot)					\
--		: "Jr" (__high), "Jr" (__radix));			\
--		__upper = __modquot >> 32;				\
--		__high = __modquot;					\
-+		__upper = __high % __radix;				\
-+		__high /= __radix;					\
- 	}								\
- 									\
- 	__mod = do_div64_32(__low, __upper, __low, __radix);		\
+-static int __init dmtimer_clockevent_init(struct device_node *np)
++static int __init dmtimer_clkevt_init_common(struct dmtimer_clockevent *clkevt,
++					     struct device_node *np,
++					     unsigned int features,
++					     const struct cpumask *cpumask,
++					     const char *name,
++					     int rating)
+ {
+-	struct dmtimer_clockevent *clkevt;
+ 	struct clock_event_device *dev;
+ 	struct dmtimer_systimer *t;
+ 	int error;
+ 
+-	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
+-	if (!clkevt)
+-		return -ENOMEM;
+-
+ 	t = &clkevt->t;
+ 	dev = &clkevt->dev;
+ 
+@@ -548,25 +548,23 @@ static int __init dmtimer_clockevent_ini
+ 	 * We mostly use cpuidle_coupled with ARM local timers for runtime,
+ 	 * so there's probably no use for CLOCK_EVT_FEAT_DYNIRQ here.
+ 	 */
+-	dev->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
+-	dev->rating = 300;
++	dev->features = features;
++	dev->rating = rating;
+ 	dev->set_next_event = dmtimer_set_next_event;
+ 	dev->set_state_shutdown = dmtimer_clockevent_shutdown;
+ 	dev->set_state_periodic = dmtimer_set_periodic;
+ 	dev->set_state_oneshot = dmtimer_clockevent_shutdown;
+ 	dev->set_state_oneshot_stopped = dmtimer_clockevent_shutdown;
+ 	dev->tick_resume = dmtimer_clockevent_shutdown;
+-	dev->cpumask = cpu_possible_mask;
++	dev->cpumask = cpumask;
+ 
+ 	dev->irq = irq_of_parse_and_map(np, 0);
+-	if (!dev->irq) {
+-		error = -ENXIO;
+-		goto err_out_free;
+-	}
++	if (!dev->irq)
++		return -ENXIO;
+ 
+ 	error = dmtimer_systimer_setup(np, &clkevt->t);
+ 	if (error)
+-		goto err_out_free;
++		return error;
+ 
+ 	clkevt->period = 0xffffffff - DIV_ROUND_CLOSEST(t->rate, HZ);
+ 
+@@ -578,32 +576,54 @@ static int __init dmtimer_clockevent_ini
+ 	writel_relaxed(OMAP_TIMER_CTRL_POSTED, t->base + t->ifctrl);
+ 
+ 	error = request_irq(dev->irq, dmtimer_clockevent_interrupt,
+-			    IRQF_TIMER, "clockevent", clkevt);
++			    IRQF_TIMER, name, clkevt);
+ 	if (error)
+ 		goto err_out_unmap;
+ 
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->irq_ena);
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
+ 
+-	pr_info("TI gptimer clockevent: %s%lu Hz at %pOF\n",
+-		of_find_property(np, "ti,timer-alwon", NULL) ?
++	pr_info("TI gptimer %s: %s%lu Hz at %pOF\n",
++		name, of_find_property(np, "ti,timer-alwon", NULL) ?
+ 		"always-on " : "", t->rate, np->parent);
+ 
+-	clockevents_config_and_register(dev, t->rate,
+-					3, /* Timer internal resynch latency */
++	return 0;
++
++err_out_unmap:
++	iounmap(t->base);
++
++	return error;
++}
++
++static int __init dmtimer_clockevent_init(struct device_node *np)
++{
++	struct dmtimer_clockevent *clkevt;
++	int error;
++
++	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
++	if (!clkevt)
++		return -ENOMEM;
++
++	error = dmtimer_clkevt_init_common(clkevt, np,
++					   CLOCK_EVT_FEAT_PERIODIC |
++					   CLOCK_EVT_FEAT_ONESHOT,
++					   cpu_possible_mask, "clockevent",
++					   300);
++	if (error)
++		goto err_out_free;
++
++	clockevents_config_and_register(&clkevt->dev, clkevt->t.rate,
++					3, /* Timer internal resync latency */
+ 					0xffffffff);
+ 
+ 	if (of_machine_is_compatible("ti,am33xx") ||
+ 	    of_machine_is_compatible("ti,am43")) {
+-		dev->suspend = omap_clockevent_idle;
+-		dev->resume = omap_clockevent_unidle;
++		clkevt->dev.suspend = omap_clockevent_idle;
++		clkevt->dev.resume = omap_clockevent_unidle;
+ 	}
+ 
+ 	return 0;
+ 
+-err_out_unmap:
+-	iounmap(t->base);
+-
+ err_out_free:
+ 	kfree(clkevt);
+ 
 
 
