@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD3B383395
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55429383192
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:42:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239458AbhEQPAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58730 "EHLO mail.kernel.org"
+        id S240172AbhEQOh3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:37:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241488AbhEQO6A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:58:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7BBE619AE;
-        Mon, 17 May 2021 14:25:49 +0000 (UTC)
+        id S240903AbhEQOfZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:35:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 550BC61929;
+        Mon, 17 May 2021 14:17:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261550;
-        bh=IjQ16PaiznQ+DmnopLdAcuaE4WZWyIOLV2kE1mYF6KM=;
+        s=korg; t=1621261031;
+        bh=0+9Xdgeq1Rpqm/DtwPbsBg2XLXCA4ICNfobY8GCq/VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i2ri3lGnvKVJDGhr0aMSu207HlhOQJH+DFcMBzlLiymxD5kiZ1fHl7dFnDozuYfq2
-         9xASu21KjU5309AMpHB+cFtnGaSJ4j/RbjhLHloPF1FpoLkbWJRTlXNz68Kgzq2Ds5
-         TP2QUGDaLV5izegv/pFbFS7bAWcLTSbN+sKvMpxw=
+        b=1FwRS5RH5H9A2QprOmqbV86j2AWb8OTmdAtvQekAeiwfW01ECKdFA3VD/Kw/DW15+
+         VBov7hGHKIL00MRHjkL3LknyM4KeziOb9O3FCCSurCw609SzJiDOKw3ZXMjCqK4cZI
+         knY9ENehVXp0MwVDY8HwMvJH6gB+xWZG9DTCYN9w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell Currey <ruscur@russell.cc>,
-        Daniel Axtens <dja@axtens.net>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 032/289] selftests/powerpc: Fix L1D flushing tests for Power10
+Subject: [PATCH 5.11 046/329] ASoC: rt5670: Add a quirk for the Dell Venue 10 Pro 5055
 Date:   Mon, 17 May 2021 15:59:17 +0200
-Message-Id: <20210517140306.274717721@linuxfoundation.org>
+Message-Id: <20210517140303.601586364@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell Currey <ruscur@russell.cc>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3a72c94ebfb1f171eba0715998010678a09ec796 ]
+[ Upstream commit 84cb0d5581b6a7bd5d96013f67e9f2eb0c7b4378 ]
 
-The rfi_flush and entry_flush selftests work by using the PM_LD_MISS_L1
-perf event to count L1D misses.  The value of this event has changed
-over time:
+Add a quirk with the jack-detect and dmic settings necessary to make
+jack-detect and the builtin mic work on Dell Venue 10 Pro 5055 tablets.
 
-- Power7 uses 0x400f0
-- Power8 and Power9 use both 0x400f0 and 0x3e054
-- Power10 uses only 0x3e054
-
-Rather than relying on raw values, configure perf to count L1D read
-misses in the most explicit way available.
-
-This fixes the selftests to work on systems without 0x400f0 as
-PM_LD_MISS_L1, and should change no behaviour for systems that the tests
-already worked on.
-
-The only potential downside is that referring to a specific perf event
-requires PMU support implemented in the kernel for that platform.
-
-Signed-off-by: Russell Currey <ruscur@russell.cc>
-Acked-by: Daniel Axtens <dja@axtens.net>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210223070227.2916871-1-ruscur@russell.cc
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210402140747.174716-5-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/powerpc/security/entry_flush.c | 2 +-
- tools/testing/selftests/powerpc/security/flush_utils.h | 4 ++++
- tools/testing/selftests/powerpc/security/rfi_flush.c   | 2 +-
- 3 files changed, 6 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt5670.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/tools/testing/selftests/powerpc/security/entry_flush.c b/tools/testing/selftests/powerpc/security/entry_flush.c
-index 78cf914fa321..68ce377b205e 100644
---- a/tools/testing/selftests/powerpc/security/entry_flush.c
-+++ b/tools/testing/selftests/powerpc/security/entry_flush.c
-@@ -53,7 +53,7 @@ int entry_flush_test(void)
- 
- 	entry_flush = entry_flush_orig;
- 
--	fd = perf_event_open_counter(PERF_TYPE_RAW, /* L1d miss */ 0x400f0, -1);
-+	fd = perf_event_open_counter(PERF_TYPE_HW_CACHE, PERF_L1D_READ_MISS_CONFIG, -1);
- 	FAIL_IF(fd < 0);
- 
- 	p = (char *)memalign(zero_size, CACHELINE_SIZE);
-diff --git a/tools/testing/selftests/powerpc/security/flush_utils.h b/tools/testing/selftests/powerpc/security/flush_utils.h
-index 07a5eb301466..7a3d60292916 100644
---- a/tools/testing/selftests/powerpc/security/flush_utils.h
-+++ b/tools/testing/selftests/powerpc/security/flush_utils.h
-@@ -9,6 +9,10 @@
- 
- #define CACHELINE_SIZE 128
- 
-+#define PERF_L1D_READ_MISS_CONFIG	((PERF_COUNT_HW_CACHE_L1D) | 		\
-+					(PERF_COUNT_HW_CACHE_OP_READ << 8) |	\
-+					(PERF_COUNT_HW_CACHE_RESULT_MISS << 16))
-+
- void syscall_loop(char *p, unsigned long iterations,
- 		  unsigned long zero_size);
- 
-diff --git a/tools/testing/selftests/powerpc/security/rfi_flush.c b/tools/testing/selftests/powerpc/security/rfi_flush.c
-index 7565fd786640..f73484a6470f 100644
---- a/tools/testing/selftests/powerpc/security/rfi_flush.c
-+++ b/tools/testing/selftests/powerpc/security/rfi_flush.c
-@@ -54,7 +54,7 @@ int rfi_flush_test(void)
- 
- 	rfi_flush = rfi_flush_orig;
- 
--	fd = perf_event_open_counter(PERF_TYPE_RAW, /* L1d miss */ 0x400f0, -1);
-+	fd = perf_event_open_counter(PERF_TYPE_HW_CACHE, PERF_L1D_READ_MISS_CONFIG, -1);
- 	FAIL_IF(fd < 0);
- 
- 	p = (char *)memalign(zero_size, CACHELINE_SIZE);
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index a0c8f58d729b..47ce074289ca 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -2908,6 +2908,18 @@ static const struct dmi_system_id dmi_platform_intel_quirks[] = {
+ 						 RT5670_GPIO1_IS_IRQ |
+ 						 RT5670_JD_MODE3),
+ 	},
++	{
++		.callback = rt5670_quirk_cb,
++		.ident = "Dell Venue 10 Pro 5055",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Venue 10 Pro 5055"),
++		},
++		.driver_data = (unsigned long *)(RT5670_DMIC_EN |
++						 RT5670_DMIC2_INR |
++						 RT5670_GPIO1_IS_IRQ |
++						 RT5670_JD_MODE1),
++	},
+ 	{
+ 		.callback = rt5670_quirk_cb,
+ 		.ident = "Aegex 10 tablet (RU2)",
 -- 
 2.30.2
 
