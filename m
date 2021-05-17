@@ -2,75 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4F5D3822F8
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 05:01:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFABD38232C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 05:50:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233996AbhEQDCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 23:02:35 -0400
-Received: from szxga05-in.huawei.com ([45.249.212.191]:3559 "EHLO
-        szxga05-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233809AbhEQDCf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 23:02:35 -0400
-Received: from dggems705-chm.china.huawei.com (unknown [172.30.72.59])
-        by szxga05-in.huawei.com (SkyGuard) with ESMTP id 4Fk3jk0HP8zmVvy;
-        Mon, 17 May 2021 10:58:34 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggems705-chm.china.huawei.com (10.3.19.182) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Mon, 17 May 2021 11:01:17 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Mon, 17 May 2021 11:01:17 +0800
-Subject: [linux-stable-rc CI] Test report for 5.4.120-rc1/arm64 and x86
-From:   Samuel Zou <zou_wei@huawei.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <8271104d-0569-014a-63fe-02881cd45ca2@huawei.com>
- <8fea2e56-517c-dad4-62cc-b3521c67f562@huawei.com>
- <a2421ee5-4454-61a2-b56f-38d1650b74f2@huawei.com>
-Message-ID: <01eeb70f-83a2-26ab-2355-7badd7743086@huawei.com>
-Date:   Mon, 17 May 2021 11:01:17 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S232372AbhEQDv1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 23:51:27 -0400
+Received: from mga06.intel.com ([134.134.136.31]:27592 "EHLO mga06.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229661AbhEQDv1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 16 May 2021 23:51:27 -0400
+IronPort-SDR: F13MYEXJuruYxAQQHkq3fIkpXjGGywpLBWgIu1ZRG73zS9uXy2RUX+8shXiJz4nTiufwXh2tx4
+ gO94HUuzoRMA==
+X-IronPort-AV: E=McAfee;i="6200,9189,9986"; a="261613206"
+X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
+   d="scan'208";a="261613206"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 16 May 2021 20:50:11 -0700
+IronPort-SDR: PsPjHXGapbhLOIluvi7jsUk7/tP/cHlCgbhzRctSmfzMIK0Kwv9/M2GuDbC+yXpQH9pCZ5Zuz/
+ ENhtzz7Ayg5A==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
+   d="scan'208";a="460079875"
+Received: from allen-box.sh.intel.com ([10.239.159.128])
+  by fmsmga004.fm.intel.com with ESMTP; 16 May 2021 20:50:09 -0700
+From:   Lu Baolu <baolu.lu@linux.intel.com>
+To:     sashal@kernel.org, gregkh@linuxfoundation.org
+Cc:     ashok.raj@intel.com, jroedel@suse.de, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Lu Baolu <baolu.lu@linux.intel.com>
+Subject: [REWORKED PATCH 1/1] iommu/vt-d: Preset Access/Dirty bits for IOVA over FL
+Date:   Mon, 17 May 2021 11:49:13 +0800
+Message-Id: <20210517034913.3432-1-baolu.lu@linux.intel.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <a2421ee5-4454-61a2-b56f-38d1650b74f2@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-8476Tested on arm64 and x86 for 5.4.120-rc1,
+[ Upstream commit a8ce9ebbecdfda3322bbcece6b3b25888217f8e3 ]
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.120-rc1
-Commit: 597e9eb189ad42b0e2d9125d720f45f51adeab09
-Compiler: gcc version 7.3.0 (GCC)
+The Access/Dirty bits in the first level page table entry will be set
+whenever a page table entry was used for address translation or write
+permission was successfully translated. This is always true when using
+the first-level page table for kernel IOVA. Instead of wasting hardware
+cycles to update the certain bits, it's better to set them up at the
+beginning.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8476
-passed: 8476
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Suggested-by: Ashok Raj <ashok.raj@intel.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20210115004202.953965-1-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/iommu/intel/iommu.c | 14 ++++++++++++--
+ include/linux/intel-iommu.h |  2 ++
+ 2 files changed, 14 insertions(+), 2 deletions(-)
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8476
-passed: 8476
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+[Note:
+- This is a reworked patch of
+  https://lore.kernel.org/stable/20210512144819.664462530@linuxfoundation.org/T/#m65267f0a0091c2fcbde097cea91089775908faad.
+- It aims to fix a reported issue of
+  https://bugzilla.kernel.org/show_bug.cgi?id=213077.
+- Please help to review and test.]
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 3295e5e162a4..33ffbcb53dec 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -1028,8 +1028,11 @@ static struct dma_pte *pfn_to_dma_pte(struct dmar_domain *domain,
+ 
+ 			domain_flush_cache(domain, tmp_page, VTD_PAGE_SIZE);
+ 			pteval = ((uint64_t)virt_to_dma_pfn(tmp_page) << VTD_PAGE_SHIFT) | DMA_PTE_READ | DMA_PTE_WRITE;
+-			if (domain_use_first_level(domain))
++			if (domain_use_first_level(domain)) {
+ 				pteval |= DMA_FL_PTE_XD | DMA_FL_PTE_US;
++				if (domain->domain.type == IOMMU_DOMAIN_DMA)
++					pteval |= DMA_FL_PTE_ACCESS;
++			}
+ 			if (cmpxchg64(&pte->val, 0ULL, pteval))
+ 				/* Someone else set it while we were thinking; use theirs. */
+ 				free_pgtable_page(tmp_page);
+@@ -2354,9 +2357,16 @@ static int __domain_mapping(struct dmar_domain *domain, unsigned long iov_pfn,
+ 		return -EINVAL;
+ 
+ 	attr = prot & (DMA_PTE_READ | DMA_PTE_WRITE | DMA_PTE_SNP);
+-	if (domain_use_first_level(domain))
++	if (domain_use_first_level(domain)) {
+ 		attr |= DMA_FL_PTE_PRESENT | DMA_FL_PTE_XD | DMA_FL_PTE_US;
+ 
++		if (domain->domain.type == IOMMU_DOMAIN_DMA) {
++			attr |= DMA_FL_PTE_ACCESS;
++			if (prot & DMA_PTE_WRITE)
++				attr |= DMA_FL_PTE_DIRTY;
++		}
++	}
++
+ 	if (!sg) {
+ 		sg_res = nr_pages;
+ 		pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
+diff --git a/include/linux/intel-iommu.h b/include/linux/intel-iommu.h
+index 94522685a0d9..ccaa057faf8c 100644
+--- a/include/linux/intel-iommu.h
++++ b/include/linux/intel-iommu.h
+@@ -42,6 +42,8 @@
+ 
+ #define DMA_FL_PTE_PRESENT	BIT_ULL(0)
+ #define DMA_FL_PTE_US		BIT_ULL(2)
++#define DMA_FL_PTE_ACCESS	BIT_ULL(5)
++#define DMA_FL_PTE_DIRTY	BIT_ULL(6)
+ #define DMA_FL_PTE_XD		BIT_ULL(63)
+ 
+ #define ADDR_WIDTH_5LEVEL	(57)
+-- 
+2.25.1
+
