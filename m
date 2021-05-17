@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A5B37383645
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C9F3837F9
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243726AbhEQPbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43806 "EHLO mail.kernel.org"
+        id S243531AbhEQPsK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:48:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244397AbhEQP1a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:27:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D57861CB2;
-        Mon, 17 May 2021 14:36:52 +0000 (UTC)
+        id S1344945AbhEQPqI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D165613BA;
+        Mon, 17 May 2021 14:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262212;
-        bh=xckrPE9ijmGqOHYuY5VzT7zgppInrLit0dYh3Mn99bs=;
+        s=korg; t=1621262643;
+        bh=56w+h4oJVB6yQrSykNlQqSFleJMF/VWNi+ezaiqIGJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DuJ8SZhBg27TgJB6HZ+UebYURbGz3P6KUJpNXTl1rjeVDF+7y9EwhmbKFV0SgxEty
-         lvwNN3Hs3feq7qUDCfhMXg/Xdv+KUTRLL1zpSGULnR1qrwtgeHTInMPgqZuR3OqP+A
-         dV6Duy//k7N5Z+kRqrhqrqNxnqhMtyT39gFAOF2E=
+        b=tkq3RPeGPENWBR5I6eFyg76Sn7xjpKtxl1JYE6KPgry5kNLXck90fc695BUuLB1Hy
+         lXmIu6SukQDMQ9sY8+N7Ev1y5BVuhebz6s4hhCuaVkpRkK/Otk667HgdcLNHUdH8Pu
+         jH0KrrcZFePaJ40NVWAqayBGoHVqBqNOIkGJ/ZrE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Dan Schatzberg <dschatzberg@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.11 240/329] blk-iocost: fix weight updates of inner active iocgs
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 226/289] usb: fotg210-hcd: Fix an error message
 Date:   Mon, 17 May 2021 16:02:31 +0200
-Message-Id: <20210517140310.233536871@linuxfoundation.org>
+Message-Id: <20210517140312.778815801@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit e9f4eee9a0023ba22db9560d4cc6ee63f933dae8 upstream.
+[ Upstream commit a60a34366e0d09ca002c966dd7c43a68c28b1f82 ]
 
-When the weight of an active iocg is updated, weight_updated() is called
-which in turn calls __propagate_weights() to update the active and inuse
-weights so that the effective hierarchical weights are update accordingly.
+'retval' is known to be -ENODEV here.
+This is a hard-coded default error code which is not useful in the error
+message. Moreover, another error message is printed at the end of the
+error handling path. The corresponding error code (-ENOMEM) is more
+informative.
 
-The current implementation is incorrect for inner active nodes. For an
-active leaf iocg, inuse can be any value between 1 and active and the
-difference represents how much the iocg is donating. When weight is updated,
-as long as inuse is clamped between 1 and the new weight, we're alright and
-this is what __propagate_weights() currently implements.
+So remove simplify the first error message.
 
-However, that's not how an active inner node's inuse is set. An inner node's
-inuse is solely determined by the ratio between the sums of inuse's and
-active's of its children - ie. they're results of propagating the leaves'
-active and inuse weights upwards. __propagate_weights() incorrectly applies
-the same clamping as for a leaf when an active inner node's weight is
-updated. Consider a hierarchy which looks like the following with saturating
-workloads in AA and BB.
+While at it, also remove the useless initialization of 'retval'.
 
-     R
-   /   \
-  A     B
-  |     |
- AA     BB
-
-1. For both A and B, active=100, inuse=100, hwa=0.5, hwi=0.5.
-
-2. echo 200 > A/io.weight
-
-3. __propagate_weights() update A's active to 200 and leave inuse at 100 as
-   it's already between 1 and the new active, making A:active=200,
-   A:inuse=100. As R's active_sum is updated along with A's active,
-   A:hwa=2/3, B:hwa=1/3. However, because the inuses didn't change, the
-   hwi's remain unchanged at 0.5.
-
-4. The weight of A is now twice that of B but AA and BB still have the same
-   hwi of 0.5 and thus are doing the same amount of IOs.
-
-Fix it by making __propgate_weights() always calculate the inuse of an
-active inner iocg based on the ratio of child_inuse_sum to child_active_sum.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Dan Schatzberg <dschatzberg@fb.com>
-Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
-Cc: stable@vger.kernel.org # v5.4+
-Link: https://lore.kernel.org/r/YJsxnLZV1MnBcqjj@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 7d50195f6c50 ("usb: host: Faraday fotg210-hcd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/94531bcff98e46d4f9c20183a90b7f47f699126c.1620333419.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/usb/host/fotg210-hcd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -1073,7 +1073,17 @@ static void __propagate_weights(struct i
+diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
+index 1d94fcfac2c2..bd958f059fe6 100644
+--- a/drivers/usb/host/fotg210-hcd.c
++++ b/drivers/usb/host/fotg210-hcd.c
+@@ -5568,7 +5568,7 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
+ 	struct usb_hcd *hcd;
+ 	struct resource *res;
+ 	int irq;
+-	int retval = -ENODEV;
++	int retval;
+ 	struct fotg210_hcd *fotg210;
  
- 	lockdep_assert_held(&ioc->lock);
- 
--	inuse = clamp_t(u32, inuse, 1, active);
-+	/*
-+	 * For an active leaf node, its inuse shouldn't be zero or exceed
-+	 * @active. An active internal node's inuse is solely determined by the
-+	 * inuse to active ratio of its children regardless of @inuse.
-+	 */
-+	if (list_empty(&iocg->active_list) && iocg->child_active_sum) {
-+		inuse = DIV64_U64_ROUND_UP(active * iocg->child_inuse_sum,
-+					   iocg->child_active_sum);
-+	} else {
-+		inuse = clamp_t(u32, inuse, 1, active);
-+	}
- 
- 	iocg->last_inuse = iocg->inuse;
- 	if (save)
-@@ -1090,7 +1100,7 @@ static void __propagate_weights(struct i
- 		/* update the level sums */
- 		parent->child_active_sum += (s32)(active - child->active);
- 		parent->child_inuse_sum += (s32)(inuse - child->inuse);
--		/* apply the udpates */
-+		/* apply the updates */
- 		child->active = active;
- 		child->inuse = inuse;
- 
+ 	if (usb_disabled())
+@@ -5588,7 +5588,7 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
+ 	hcd = usb_create_hcd(&fotg210_fotg210_hc_driver, dev,
+ 			dev_name(dev));
+ 	if (!hcd) {
+-		dev_err(dev, "failed to create hcd with err %d\n", retval);
++		dev_err(dev, "failed to create hcd\n");
+ 		retval = -ENOMEM;
+ 		goto fail_create_hcd;
+ 	}
+-- 
+2.30.2
+
 
 
