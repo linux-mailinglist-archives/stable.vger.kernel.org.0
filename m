@@ -2,114 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF466382C10
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 14:27:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6030382C48
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 14:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236990AbhEQM3A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 08:29:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41516 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231161AbhEQM3A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 08:29:00 -0400
-Received: from mail-qv1-xf2b.google.com (mail-qv1-xf2b.google.com [IPv6:2607:f8b0:4864:20::f2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EBA2C061573;
-        Mon, 17 May 2021 05:27:43 -0700 (PDT)
-Received: by mail-qv1-xf2b.google.com with SMTP id w9so2930092qvi.13;
-        Mon, 17 May 2021 05:27:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=RrMgSrZtTqdB/wlv0id/9NlOUPd01Z7kAGWKqnT2c2M=;
-        b=CctOlq+UkKn18QqKAOdc7VqJDwwJKN9HU/A5tTPZ0EUkYGQMbFanD0RNwVHW2f6R4E
-         7fGATCP3I/aegDtzmOBa5y7HYnBAOTRIl+10jhJuS7FOhQbBKJ3dZOOA6X3ITygKqzls
-         GYKmF56nNhO+08TdkpRANu9VXaTwgiFhOUXy8+b44TjtqJNCthTAiLbF/r709SBk+TTr
-         JFfUCWgDEX967xOAuQfbJGZ4in3xZj/3kE8Mf/9i0HFQ65dEhwLg/3wrcJKdfUh8FmVT
-         hxlDPhEvB3cXIZu0UWRwRNkFRYiWjfn70i3oucULeBS2i2/4Qn1sRdt3WfdmU+uTZ/f+
-         PWNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=RrMgSrZtTqdB/wlv0id/9NlOUPd01Z7kAGWKqnT2c2M=;
-        b=o0mOKwYepWVVpxPVVWFgoPaBZbfTrIsGxkrg/g/y8NEukfd3Sm3jGA8VJzzbc6BGXc
-         DYTumsMOoVyJSPRDVZvNZdluPAxmeUhbmqlK6g9pxDY15LbtCS0hqTYT5tWMN39Tu6nJ
-         BYUrkcagLw6weSS33nn7OKNnvBNq87qwrQti34z+LV6zqA5d45Yq5lzFrFjGluSXrkkk
-         CN+WNfro4jJMRgyUGtbLuj2omndjJWFNfK8DSAhsoo8q3A1CdJmq8pZPKF2ibuBJwYFG
-         N14jhdmq4u1qfh+XVAdPvWu9WDygAAgXa0cyhJYCunxYx3suvhyfd0XpnEuJIg8iNUqs
-         wxMQ==
-X-Gm-Message-State: AOAM530ciHkAjoKLfSTKclWUICNuAVLZx7SmAT7uS9qPJSoK8bcg04hf
-        VtHrez+i2bnO3WAg/URPHt44nRWh7r3NABm3
-X-Google-Smtp-Source: ABdhPJzM+6xSTMZ2jK4banMxGU90aLBTrZTJZYJp2Lr/pLBs4nDcAdGVJO5Aq8VNiSxT+2/N1fJnug==
-X-Received: by 2002:a05:6214:87:: with SMTP id n7mr16082560qvr.1.1621254462149;
-        Mon, 17 May 2021 05:27:42 -0700 (PDT)
-Received: from ?IPv6:2804:14c:125:811b::1003? ([2804:14c:125:811b::1003])
-        by smtp.gmail.com with ESMTPSA id 10sm10377983qka.23.2021.05.17.05.27.39
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 17 May 2021 05:27:41 -0700 (PDT)
-Subject: Re: [PATCH] video: hgafb: correctly handle card detect failure during
- probe
-To:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel-mentees@lists.linuxfoundation.org,
-        kernel test robot <oliver.sang@intel.com>,
-        stable <stable@vger.kernel.org>,
-        linux-nvidia@lists.surfsouth.com, dri-devel@lists.freedesktop.org,
-        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20210516192714.25823-1-mail@anirudhrb.com>
-From:   Igor Torrente <igormtorrente@gmail.com>
-Message-ID: <2b945eaa-4288-1601-3f1a-60f2ceaa1ea7@gmail.com>
-Date:   Mon, 17 May 2021 09:27:38 -0300
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S234804AbhEQMhh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 08:37:37 -0400
+Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:35395 "EHLO
+        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229734AbhEQMhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 08:37:37 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.west.internal (Postfix) with ESMTP id 9BB11A52;
+        Mon, 17 May 2021 08:36:18 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 May 2021 08:36:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7W8R6B
+        kE/G3ScYWtBYOZde3T8yx1om4c8hNwvKu4rq4=; b=cmHR5/Rx9h7qGccDVS+MCT
+        VldL2UlXZ7mq6agIh98xqi3aFonqU8ts68hT0QCart7kqrN2rR8AoYC3kAXwVVs5
+        cWgFA2+xnX2xRbv43QG4D2oImfANEP+SaLn9TDtoqgXzOZePSnNl2OYtNzbNHdaP
+        XuljJkJ6U0+80Ew5c8+FzKeA2Px3ScZMCsSHcFbOLn3Z76WRsInZ7jAtJnQbhb57
+        V1TA3MG8xM5p6/e7t6TBAHs8Pcz+0pDNC5T4sr4V+65+5oVES7PxHVG+HQ/8KELD
+        bnCs2gU/4WXyYmoroOVKtKvJIQEbS7JiE45MUf11GTfS/40KUNpigtB4CRJffeDg
+        ==
+X-ME-Sender: <xms:QWOiYAStXy6-b3EBEPesEGgiruMYN45jHzeBUYd08032xubKxL3kzw>
+    <xme:QWOiYNxe1PMOVDIB-pteY8IT7GREbqZdIdLsciIlt_eKc0xNuuNXlRqa9WLoxwMNN
+    lHd7Mtj-eumKw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgheehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:QWOiYN1j1tCTNDPUx2RMTQKgIA9icz9jVm-QrrM4Whp_Wjrgt72j6w>
+    <xmx:QWOiYEB_oIN47oPm9DE2Q8Pmrga7Jrre1Z2LT5FK24CVYu8CkQXCZg>
+    <xmx:QWOiYJhy7UhHk-3p5LCqbWTCJVxh7EHOpPvc7rEmEuWxK5BHZgULSg>
+    <xmx:QmOiYJYyUOa1ttzmK00QEdPZuGjAGRRO58aZzorZQSUF0qdwtP-JbLwM5j0>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 08:36:17 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/msm/dp: check sink_count before update is_connected" failed to apply to 5.10-stable tree
+To:     khsieh@codeaurora.org, robdclark@chromium.org, swboyd@chromium.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 May 2021 14:36:15 +0200
+Message-ID: <16212549754014@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210516192714.25823-1-mail@anirudhrb.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
 
-On 5/16/21 4:27 PM, Anirudh Rayabharam wrote:
-> The return value of hga_card_detect() is not properly handled causing
-> the probe to succeed even though hga_card_detect() failed. Since probe
-> succeeds, hgafb_open() can be called which will end up operating on an
-> unmapped hga_vram. This results in an out-of-bounds access as reported
-> by kernel test robot [1].
-> 
-> To fix this, correctly detect failure of hga_card_detect() by checking
-> for a non-zero error code.
-> 
-> [1]: https://lore.kernel.org/lkml/20210516150019.GB25903@xsang-OptiPlex-9020/
-> 
-> Reported-by: kernel test robot <oliver.sang@intel.com>
-> Fixes: dc13cac4862c ("video: hgafb: fix potential NULL pointer dereference")
-> Cc: stable <stable@vger.kernel.org>
-> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-> ---
->   drivers/video/fbdev/hgafb.c | 2 +-
->   1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
-> index cc8e62ae93f6..bd3d07aa4f0e 100644
-> --- a/drivers/video/fbdev/hgafb.c
-> +++ b/drivers/video/fbdev/hgafb.c
-> @@ -558,7 +558,7 @@ static int hgafb_probe(struct platform_device *pdev)
->   	int ret;
->   
->   	ret = hga_card_detect();
-> -	if (!ret)
-> +	if (ret)
->   		return ret;
->   
->   	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
-> 
+The patch below does not apply to the 5.10-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-In fact, this return isn't being properly handled. Thanks for fix it!
+thanks,
 
-Reviewed-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From d9aa6571b28ba0022de1e48801ff03a1854c7ef2 Mon Sep 17 00:00:00 2001
+From: Kuogee Hsieh <khsieh@codeaurora.org>
+Date: Wed, 21 Apr 2021 16:37:35 -0700
+Subject: [PATCH] drm/msm/dp: check sink_count before update is_connected
+ status
+
+Link status is different from display connected status in the case
+of something like an Apple dongle where the type-c plug can be
+connected, and therefore the link is connected, but no sink is
+connected until an HDMI cable is plugged into the dongle.
+The sink_count of DPCD of dongle will increase to 1 once an HDMI
+cable is plugged into the dongle so that display connected status
+will become true. This checking also apply at pm_resume.
+
+Changes in v4:
+-- none
+
+Fixes: 94e58e2d06e3 ("drm/msm/dp: reset dp controller only at boot up and pm_resume")
+Reported-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Tested-by: Stephen Boyd <swboyd@chromium.org>
+Signed-off-by: Kuogee Hsieh <khsieh@codeaurora.org>
+Fixes: 8ede2ecc3e5e ("drm/msm/dp: Add DP compliance tests on Snapdragon Chipsets")
+Link: https://lore.kernel.org/r/1619048258-8717-2-git-send-email-khsieh@codeaurora.org
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+
+diff --git a/drivers/gpu/drm/msm/dp/dp_display.c b/drivers/gpu/drm/msm/dp/dp_display.c
+index 5a39da6e1eaf..0ba71c7a8dd4 100644
+--- a/drivers/gpu/drm/msm/dp/dp_display.c
++++ b/drivers/gpu/drm/msm/dp/dp_display.c
+@@ -586,10 +586,8 @@ static int dp_connect_pending_timeout(struct dp_display_private *dp, u32 data)
+ 	mutex_lock(&dp->event_mutex);
+ 
+ 	state = dp->hpd_state;
+-	if (state == ST_CONNECT_PENDING) {
+-		dp_display_enable(dp, 0);
++	if (state == ST_CONNECT_PENDING)
+ 		dp->hpd_state = ST_CONNECTED;
+-	}
+ 
+ 	mutex_unlock(&dp->event_mutex);
+ 
+@@ -669,10 +667,8 @@ static int dp_disconnect_pending_timeout(struct dp_display_private *dp, u32 data
+ 	mutex_lock(&dp->event_mutex);
+ 
+ 	state =  dp->hpd_state;
+-	if (state == ST_DISCONNECT_PENDING) {
+-		dp_display_disable(dp, 0);
++	if (state == ST_DISCONNECT_PENDING)
+ 		dp->hpd_state = ST_DISCONNECTED;
+-	}
+ 
+ 	mutex_unlock(&dp->event_mutex);
+ 
+@@ -1272,7 +1268,12 @@ static int dp_pm_resume(struct device *dev)
+ 
+ 	status = dp_catalog_link_is_connected(dp->catalog);
+ 
+-	if (status)
++	/*
++	 * can not declared display is connected unless
++	 * HDMI cable is plugged in and sink_count of
++	 * dongle become 1
++	 */
++	if (status && dp->link->sink_count)
+ 		dp->dp_display.is_connected = true;
+ 	else
+ 		dp->dp_display.is_connected = false;
+
