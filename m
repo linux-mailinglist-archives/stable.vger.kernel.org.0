@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D0E99383867
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8358A383757
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343753AbhEQPwW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:52:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42556 "EHLO mail.kernel.org"
+        id S243252AbhEQPl4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:41:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345104AbhEQPuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:50:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2B3C61D4A;
-        Mon, 17 May 2021 14:45:40 +0000 (UTC)
+        id S1343929AbhEQPkB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:40:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F3BBF61D00;
+        Mon, 17 May 2021 14:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262741;
-        bh=kx7QYXjjS4CpwlcVb7ZZe38xdibpiJrpUzhTuRACDQU=;
+        s=korg; t=1621262492;
+        bh=J7/uHK0KGnWBQpkhBwvc/eTQATuU2zP7WnytlIQjRbc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O07/U1yN2NCNy6VpG8ipxbd1vQIIZ34jRSiOWaSwKZKShE6bOQKDr8LAwDnkE90SQ
-         r6g3eWMj5hzd+md77OIWGpDwj166qWTClaBdA676Furm0K+/EzXNxdvFXrN9dQogSu
-         We8ok8D/jmd+ol/uq5UEGqYORCqlEkKgKL6bHhy0=
+        b=ZW12P5bth7e8GtvAHVOO4AvEN8mClG1huVyyzYbJ93eha8reRirPRN6iQ/adYBqWD
+         wRCRjxmh+3Oh/YhdgfGzFZVh2CewJ5suPY8Ts5CpCfZETEnR233dlmI8rU8fI7EgOE
+         z4EynFXFsN+sXGyj3qXKxw+7aH1MgvMimk0Ve5Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>, Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.10 287/289] ext4: fix debug format string warning
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.11 301/329] KVM: VMX: Do not advertise RDPID if ENABLE_RDTSCP control is unsupported
 Date:   Mon, 17 May 2021 16:03:32 +0200
-Message-Id: <20210517140314.805701058@linuxfoundation.org>
+Message-Id: <20210517140312.278259976@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sean Christopherson <seanjc@google.com>
 
-commit fcdf3c34b7abdcbb49690c94c7fa6ce224dc9749 upstream.
+commit 8aec21c04caa2000f91cf8822ae0811e4b0c3971 upstream.
 
-Using no_printk() for jbd_debug() revealed two warnings:
+Clear KVM's RDPID capability if the ENABLE_RDTSCP secondary exec control is
+unsupported.  Despite being enumerated in a separate CPUID flag, RDPID is
+bundled under the same VMCS control as RDTSCP and will #UD in VMX non-root
+if ENABLE_RDTSCP is not enabled.
 
-fs/jbd2/recovery.c: In function 'fc_do_one_pass':
-fs/jbd2/recovery.c:256:30: error: format '%d' expects a matching 'int' argument [-Werror=format=]
-  256 |                 jbd_debug(3, "Processing fast commit blk with seq %d");
-      |                              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-fs/ext4/fast_commit.c: In function 'ext4_fc_replay_add_range':
-fs/ext4/fast_commit.c:1732:30: error: format '%d' expects argument of type 'int', but argument 2 has type 'long unsigned int' [-Werror=format=]
- 1732 |                 jbd_debug(1, "Converting from %d to %d %lld",
-
-The first one was added incorrectly, and was also missing a few newlines
-in debug output, and the second one happened when the type of an
-argument changed.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Fixes: d556435156b7 ("jbd2: avoid -Wempty-body warnings")
-Fixes: 6db074618969 ("ext4: use BIT() macro for BH_** state bits")
-Fixes: 5b849b5f96b4 ("jbd2: fast commit recovery path")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210409201211.1866633-1-arnd@kernel.org
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fixes: 41cd02c6f7f6 ("kvm: x86: Expose RDPID in KVM_GET_SUPPORTED_CPUID")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-2-seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Reiji Watanabe <reijiw@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |    2 +-
- fs/jbd2/recovery.c    |    5 ++---
- 2 files changed, 3 insertions(+), 4 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1694,7 +1694,7 @@ static int ext4_fc_replay_add_range(stru
- 		}
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7288,9 +7288,11 @@ static __init void vmx_set_cpu_caps(void
+ 	if (!cpu_has_vmx_xsaves())
+ 		kvm_cpu_cap_clear(X86_FEATURE_XSAVES);
  
- 		/* Range is mapped and needs a state change */
--		jbd_debug(1, "Converting from %d to %d %lld",
-+		jbd_debug(1, "Converting from %ld to %d %lld",
- 				map.m_flags & EXT4_MAP_UNWRITTEN,
- 			ext4_ext_is_unwritten(ex), map.m_pblk);
- 		ret = ext4_ext_replay_update_ex(inode, cur, map.m_len,
---- a/fs/jbd2/recovery.c
-+++ b/fs/jbd2/recovery.c
-@@ -245,15 +245,14 @@ static int fc_do_one_pass(journal_t *jou
- 		return 0;
+-	/* CPUID 0x80000001 */
+-	if (!cpu_has_vmx_rdtscp())
++	/* CPUID 0x80000001 and 0x7 (RDPID) */
++	if (!cpu_has_vmx_rdtscp()) {
+ 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
++		kvm_cpu_cap_clear(X86_FEATURE_RDPID);
++	}
  
- 	while (next_fc_block <= journal->j_fc_last) {
--		jbd_debug(3, "Fast commit replay: next block %ld",
-+		jbd_debug(3, "Fast commit replay: next block %ld\n",
- 			  next_fc_block);
- 		err = jread(&bh, journal, next_fc_block);
- 		if (err) {
--			jbd_debug(3, "Fast commit replay: read error");
-+			jbd_debug(3, "Fast commit replay: read error\n");
- 			break;
- 		}
- 
--		jbd_debug(3, "Processing fast commit blk with seq %d");
- 		err = journal->j_fc_replay_callback(journal, bh, pass,
- 					next_fc_block - journal->j_fc_first,
- 					expected_commit_id);
+ 	if (cpu_has_vmx_waitpkg())
+ 		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
 
 
