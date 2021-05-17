@@ -2,117 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 317AD382760
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19A8C38275B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235721AbhEQIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:48:13 -0400
-Received: from mga06.intel.com ([134.134.136.31]:16515 "EHLO mga06.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235718AbhEQIsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 04:48:10 -0400
-IronPort-SDR: mlm9sBOno+sxetPuwKyHpbKws5oJuF35GiUbHg93gbrMIciB73+8bIzA25acE84/vjAaCWtn4+
- oTzscMDSASQQ==
-X-IronPort-AV: E=McAfee;i="6200,9189,9986"; a="261655878"
-X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
-   d="scan'208";a="261655878"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 01:46:54 -0700
-IronPort-SDR: qbnw3j/sMfnpND7O8/DvWfpGFo0sYfwtiNxOnebd0UPggG7Uuk+I075QNOhjLNc92YdaN8G6mb
- hoXrMONyEjGg==
-X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
-   d="scan'208";a="438820736"
-Received: from cqi-mobl.ccr.corp.intel.com (HELO mwauld-desk1.intel.com) ([10.215.160.214])
-  by orsmga008-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 01:46:50 -0700
-From:   Matthew Auld <matthew.auld@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     dri-devel@lists.freedesktop.org,
-        Chris Wilson <chris@chris-wilson.co.uk>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
-Subject: [PATCH] drm/i915/gem: Pin the L-shape quirked object as unshrinkable
-Date:   Mon, 17 May 2021 09:46:40 +0100
-Message-Id: <20210517084640.18862-1-matthew.auld@intel.com>
-X-Mailer: git-send-email 2.26.3
+        id S235573AbhEQIsA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:48:00 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:51591 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235670AbhEQIsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:48:00 -0400
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailforward.west.internal (Postfix) with ESMTP id 2D0AE9FA;
+        Mon, 17 May 2021 04:46:44 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute1.internal (MEProxy); Mon, 17 May 2021 04:46:44 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=2Cgbah
+        X8tdECyYEt1IE9lXjase6kWCFVZ0m46JiJG4M=; b=wxjr7HCG7IjZWy6bQJj6RQ
+        XoIJgGF1eQDHPdSzxJqOlUAXtQKoUc5WTlDMSZRm0wCIcrzf96KGk8bRqdiGIZli
+        eYzUmW7/r7I2OXyJ/n2kchMu2Mv5f3WO3QR6faWLMTQ6nf0TBbc17N6F8NBvn2r3
+        WxLyt85TJ6x1W/5KaXkPxERBvXauc6PCLdsIJ/DjnrT+NKL6hlCYCmJLdTDI3VDE
+        6vNUFD2njSjkfhT9TUQ6VmlPmUbAe2FKAeJ4bJ2ycRWYTv6TIW1CkYBxioaKoXvA
+        CypUhScoo9xMJC0NeF4KKOP5vKVZb4Ib5nqIXK+7OAE27prlGlOQpgJhKTgDNucw
+        ==
+X-ME-Sender: <xms:cy2iYChdPtDlX14_A95rVXg-JaeO1XUsL1GzWDq3MkhPVFbU1kOkqg>
+    <xme:cy2iYDC2FYvImnZFeUnGn2Jtxhsxip0ZcaNZuc_9sGbB-wufWqX0wfKMdoGYXFeWW
+    wN8rERKdIiGaA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:cy2iYKEKjkXfmIcrMbJPVO9E5hA1kfYZUWtpkNez4vGVnvSTlMj61A>
+    <xmx:cy2iYLSYVuoGEtjeBQ3VzP0tM-XZYFJC-AS9qJf-qj6olnG9OeSxeA>
+    <xmx:cy2iYPyARK7Q25NM2j0IwsN0TahxRn8S5Yz3mscLKH7A3oWpNNESOw>
+    <xmx:cy2iYK8xKOj7Ly10fLHmwI3Xnse9PwZ2M5QmBA5x6JoJc8r_ktjuAA1wbko>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 04:46:43 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: SVM: Inject #UD on RDTSCP when it should be disabled in" failed to apply to 4.9-stable tree
+To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com,
+        reijiw@google.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 May 2021 10:46:41 +0200
+Message-ID: <162124120113287@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Wilson <chris@chris-wilson.co.uk>
 
-When instantiating a tiled object on an L-shaped memory machine, we mark
-the object as unshrinkable to prevent the shrinker from trying to swap
-out the pages. We have to do this as we do not know the swizzling on the
-individual pages, and so the data will be scrambled across swap out/in.
+The patch below does not apply to the 4.9-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-Not only do we need to move the object off the shrinker list, we need to
-mark the object with shrink_pin so that the counter is consistent across
-calls to madvise.
+thanks,
 
-v2: in the madvise ioctl we need to check if the object is currently
-shrinkable/purgeable, not if the object type supports shrinking
+greg k-h
 
-Fixes: 0175969e489a ("drm/i915/gem: Use shrinkable status for unknown swizzle quirks")
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/3293
-References: https://gitlab.freedesktop.org/drm/intel/-/issues/3450
-Reported-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Tested-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
-Reviewed-by: Matthew Auld <matthew.auld@intel.com>
-Signed-off-by: Matthew Auld <matthew.auld@intel.com>
-Cc: <stable@vger.kernel.org> # v5.12+
----
- drivers/gpu/drm/i915/gem/i915_gem_pages.c |  2 ++
- drivers/gpu/drm/i915/i915_gem.c           | 11 +++++------
- 2 files changed, 7 insertions(+), 6 deletions(-)
+------------------ original commit in Linus's tree ------------------
 
-diff --git a/drivers/gpu/drm/i915/gem/i915_gem_pages.c b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-index aed8a37ccdc9..7361971c177d 100644
---- a/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-+++ b/drivers/gpu/drm/i915/gem/i915_gem_pages.c
-@@ -63,6 +63,8 @@ void __i915_gem_object_set_pages(struct drm_i915_gem_object *obj,
- 	    i915->quirks & QUIRK_PIN_SWIZZLED_PAGES) {
- 		GEM_BUG_ON(i915_gem_object_has_tiling_quirk(obj));
- 		i915_gem_object_set_tiling_quirk(obj);
-+		GEM_BUG_ON(!list_empty(&obj->mm.link));
-+		atomic_inc(&obj->mm.shrink_pin);
- 		shrinkable = false;
+From 3b195ac9260235624b1c18f7bdaef184479c1d41 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 4 May 2021 10:17:22 -0700
+Subject: [PATCH] KVM: SVM: Inject #UD on RDTSCP when it should be disabled in
+ the guest
+
+Intercept RDTSCP to inject #UD if RDTSC is disabled in the guest.
+
+Note, SVM does not support intercepting RDPID.  Unlike VMX's
+ENABLE_RDTSCP control, RDTSCP interception does not apply to RDPID.  This
+is a benign virtualization hole as the host kernel (incorrectly) sets
+MSR_TSC_AUX if RDTSCP is supported, and KVM loads the guest's MSR_TSC_AUX
+into hardware if RDTSCP is supported in the host, i.e. KVM will not leak
+the host's MSR_TSC_AUX to the guest.
+
+But, when the kernel bug is fixed, KVM will start leaking the host's
+MSR_TSC_AUX if RDPID is supported in hardware, but RDTSCP isn't available
+for whatever reason.  This leak will be remedied in a future commit.
+
+Fixes: 46896c73c1a4 ("KVM: svm: add support for RDTSCP")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-4-seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Reiji Watanabe <reijiw@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index be5cf612ab1f..ebcb5849d69b 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -1100,7 +1100,9 @@ static u64 svm_write_l1_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
+ 	return svm->vmcb->control.tsc_offset;
+ }
+ 
+-static void svm_check_invpcid(struct vcpu_svm *svm)
++/* Evaluate instruction intercepts that depend on guest CPUID features. */
++static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
++					      struct vcpu_svm *svm)
+ {
+ 	/*
+ 	 * Intercept INVPCID if shadow paging is enabled to sync/free shadow
+@@ -1113,6 +1115,13 @@ static void svm_check_invpcid(struct vcpu_svm *svm)
+ 		else
+ 			svm_clr_intercept(svm, INTERCEPT_INVPCID);
+ 	}
++
++	if (kvm_cpu_cap_has(X86_FEATURE_RDTSCP)) {
++		if (guest_cpuid_has(vcpu, X86_FEATURE_RDTSCP))
++			svm_clr_intercept(svm, INTERCEPT_RDTSCP);
++		else
++			svm_set_intercept(svm, INTERCEPT_RDTSCP);
++	}
+ }
+ 
+ static void init_vmcb(struct kvm_vcpu *vcpu)
+@@ -1248,7 +1257,7 @@ static void init_vmcb(struct kvm_vcpu *vcpu)
+ 		svm_clr_intercept(svm, INTERCEPT_PAUSE);
  	}
  
-diff --git a/drivers/gpu/drm/i915/i915_gem.c b/drivers/gpu/drm/i915/i915_gem.c
-index d0018c5f88bd..cffd7f4f87dc 100644
---- a/drivers/gpu/drm/i915/i915_gem.c
-+++ b/drivers/gpu/drm/i915/i915_gem.c
-@@ -1009,12 +1009,11 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
- 		obj->mm.madv = args->madv;
+-	svm_check_invpcid(svm);
++	svm_recalc_instruction_intercepts(vcpu, svm);
  
- 	if (i915_gem_object_has_pages(obj)) {
--		struct list_head *list;
-+		unsigned long flags;
+ 	/*
+ 	 * If the host supports V_SPEC_CTRL then disable the interception
+@@ -3084,6 +3093,7 @@ static int (*const svm_exit_handlers[])(struct kvm_vcpu *vcpu) = {
+ 	[SVM_EXIT_STGI]				= stgi_interception,
+ 	[SVM_EXIT_CLGI]				= clgi_interception,
+ 	[SVM_EXIT_SKINIT]			= skinit_interception,
++	[SVM_EXIT_RDTSCP]			= kvm_handle_invalid_op,
+ 	[SVM_EXIT_WBINVD]                       = kvm_emulate_wbinvd,
+ 	[SVM_EXIT_MONITOR]			= kvm_emulate_monitor,
+ 	[SVM_EXIT_MWAIT]			= kvm_emulate_mwait,
+@@ -4007,8 +4017,7 @@ static void svm_vcpu_after_set_cpuid(struct kvm_vcpu *vcpu)
+ 	svm->nrips_enabled = kvm_cpu_cap_has(X86_FEATURE_NRIPS) &&
+ 			     guest_cpuid_has(vcpu, X86_FEATURE_NRIPS);
  
--		if (i915_gem_object_is_shrinkable(obj)) {
--			unsigned long flags;
--
--			spin_lock_irqsave(&i915->mm.obj_lock, flags);
-+		spin_lock_irqsave(&i915->mm.obj_lock, flags);
-+		if (!list_empty(&obj->mm.link)) {
-+			struct list_head *list;
+-	/* Check again if INVPCID interception if required */
+-	svm_check_invpcid(svm);
++	svm_recalc_instruction_intercepts(vcpu, svm);
  
- 			if (obj->mm.madv != I915_MADV_WILLNEED)
- 				list = &i915->mm.purge_list;
-@@ -1022,8 +1021,8 @@ i915_gem_madvise_ioctl(struct drm_device *dev, void *data,
- 				list = &i915->mm.shrink_list;
- 			list_move_tail(&obj->mm.link, list);
- 
--			spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
- 		}
-+		spin_unlock_irqrestore(&i915->mm.obj_lock, flags);
- 	}
- 
- 	/* if the object is no longer attached, discard its backing storage */
--- 
-2.26.3
+ 	/* For sev guests, the memory encryption bit is not reserved in CR3.  */
+ 	if (sev_guest(vcpu->kvm)) {
 
