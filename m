@@ -2,84 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26FE1382288
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 03:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD763822B7
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 04:27:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232564AbhEQBbe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 21:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38174 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229479AbhEQBbe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sun, 16 May 2021 21:31:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F1ED611BE;
-        Mon, 17 May 2021 01:30:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621215019;
-        bh=gHAmi2NHDTka4+Zc5zDL0ZgHOqdFezotAMp/Y6iLG0Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=D/fUFDAfNTgNx1wTUlZP9+Y/0Z/URWZUnXquRQ6GF6lM3L8jYjImPX34oza8xz082
-         lrdy5Aim1fxYC86l4EDM/y3pnkZ1VnwzBHbPlbtFMBYvWl/xMD5mE/0T9qvK6CAUBs
-         S8TilG0rhiPul1TCQUKO9iPD9m87N7PhTH94J6uCNK4mTYrggTajKM6V4Bf6cGIa4T
-         U5ixj4lKUC8y0XZmWqqLvhj6jDxDXk++kfXEjFt+LCWCA1tjgov20LtZSvFOtj+9Wt
-         WHKZ5O9/G4eMoVYj1Ru3ILkwY3UoC+N5xnuEd+NRnou/7NXOsufF6xM3tMi5P8rzKk
-         d2A7dewgCWZhw==
-Date:   Mon, 17 May 2021 09:30:11 +0800
-From:   Peter Chen <peter.chen@kernel.org>
-To:     Badhri Jagan Sridharan <badhri@google.com>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v1 1/4] usb: typec: tcpm: Fix up PR_SWAP when vsafe0v is
- signalled
-Message-ID: <20210517013011.GA27963@nchen>
-References: <20210515052613.3261340-1-badhri@google.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210515052613.3261340-1-badhri@google.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+        id S233165AbhEQC2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 22:28:23 -0400
+Received: from mail-ot1-f54.google.com ([209.85.210.54]:47079 "EHLO
+        mail-ot1-f54.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231338AbhEQC2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 22:28:22 -0400
+Received: by mail-ot1-f54.google.com with SMTP id d3-20020a9d29030000b029027e8019067fso4290310otb.13;
+        Sun, 16 May 2021 19:27:06 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:in-reply-to:references:subject:date
+         :message-id;
+        bh=HRhSOtyoD2H3bChxJeYA1Zs7pI2B7TRFxhzN1OhDfh4=;
+        b=KoOZlUWmkII1GPyB4a+hwWnGpSnH0PBtYVVDkUWH1w6+HFM8RuYLxjVpAiRV61wlhF
+         fcJKoYKj8x+oAd1exoZrStvKehXEzUMe2ojfwk8GY+J+nI1zGQJG+1NBeetrkXUonz4M
+         bTd/MAk2A5pusIA/nzO1yvYzMrrmUpS+KHgo2kWz/vh3U6xuq6A1K92NTjwryC0nHSO5
+         WxAJ4G2KClUncvcC/Cv6E5ckUnjBfwHKxCFC0z0Bk2JCXrdd1zpjs582s8cbgusqaRIM
+         1cTH5G2CgOAKkL4aljfw4A9s3mOyEIrN2tpwu9tj1qDG6NF6ro3JLufmWcfgaOwfM+6V
+         QNsQ==
+X-Gm-Message-State: AOAM530Bb6QF2QuFfELQqwG5GuoHg94Xuy4ngmNHCj8qxcjNEE27L4ei
+        z4hxYV2xPtI6CKuZq+t2GA==
+X-Google-Smtp-Source: ABdhPJzhJHWi3K/TD/sTbfPKhPEBkUKNywRBCOlgjhmr72tuU/7ZTn/bwbLuP4Y5rhUd6NEwR6M8oQ==
+X-Received: by 2002:a9d:6d88:: with SMTP id x8mr32737152otp.35.1621218426415;
+        Sun, 16 May 2021 19:27:06 -0700 (PDT)
+Received: from robh.at.kernel.org (24-155-109-49.dyn.grandenetworks.net. [24.155.109.49])
+        by smtp.gmail.com with ESMTPSA id y13sm2799202oon.32.2021.05.16.19.27.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 16 May 2021 19:27:05 -0700 (PDT)
+Received: (nullmailer pid 1315831 invoked by uid 1000);
+        Mon, 17 May 2021 02:27:03 -0000
+From:   Rob Herring <robh@kernel.org>
+To:     =?utf-8?b?TWljaGFsIFZva8OhxI0=?= <michal.vokac@ysoft.com>
+Cc:     NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>, linux-leds@vger.kernel.org,
+        Fabio Estevam <festevam@gmail.com>, devicetree@vger.kernel.org,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Pavel Machek <pavel@ucw.cz>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Rob Herring <robh+dt@kernel.org>
+In-Reply-To: <1621003477-11250-2-git-send-email-michal.vokac@ysoft.com>
+References: <1621003477-11250-1-git-send-email-michal.vokac@ysoft.com> <1621003477-11250-2-git-send-email-michal.vokac@ysoft.com>
+Subject: Re: [RFC 1/2] dt-bindings: leds: Add color as a required property for lp55xx controller
+Date:   Sun, 16 May 2021 21:27:03 -0500
+Message-Id: <1621218423.803658.1315830.nullmailer@robh.at.kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-05-14 22:26:10, Badhri Jagan Sridharan wrote:
-> During PR_SWAP, When TCPM is in PR_SWAP_SNK_SRC_SINK_OFF, vbus is
-> expected to reach VSAFE0V when source turns of vbus. Do not move
-
-%s/of/off
-
-Peter
-
-> to SNK_UNATTACHED state when this happens.
+On Fri, 14 May 2021 16:44:36 +0200, Michal Vokáč wrote:
+> Since addition of the multicolor LED framework in commit 92a81562e695
+> ("leds: lp55xx: Add multicolor framework support to lp55xx") the color
+> property becomes required even if the multicolor framework is not enabled
+> and used.
 > 
-> Fixes: 28b43d3d746b ("usb: typec: tcpm: Introduce vsafe0v for vbus")
-> Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
+> Fix the binding documentation to reflect the real state.
+> 
+> Fixes: 92a81562e695 ("leds: lp55xx: Add multicolor framework support to lp55xx")
+> Cc: <stable@vger.kernel.org>
+> Cc: Pavel Machek <pavel@ucw.cz>
+> Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+> Cc: linux-leds@vger.kernel.org
+> Signed-off-by: Michal Vokáč <michal.vokac@ysoft.com>
 > ---
->  drivers/usb/typec/tcpm/tcpm.c | 3 +++
->  1 file changed, 3 insertions(+)
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-> index c4fdc00a3bc8..b93c4c8d7b15 100644
-> --- a/drivers/usb/typec/tcpm/tcpm.c
-> +++ b/drivers/usb/typec/tcpm/tcpm.c
-> @@ -5114,6 +5114,9 @@ static void _tcpm_pd_vbus_vsafe0v(struct tcpm_port *port)
->  				tcpm_set_state(port, SNK_UNATTACHED, 0);
->  		}
->  		break;
-> +	case PR_SWAP_SNK_SRC_SINK_OFF:
-> +		/* Do nothing, vsafe0v is expected during transition */
-> +		break;
->  	default:
->  		if (port->pwr_role == TYPEC_SINK && port->auto_vbus_discharge_enabled)
->  			tcpm_set_state(port, SNK_UNATTACHED, 0);
-> -- 
-> 2.31.1.751.gd2f1c929bd-goog
+>  Documentation/devicetree/bindings/leds/leds-lp55xx.yaml | 10 ++++++++++
+>  1 file changed, 10 insertions(+)
 > 
 
--- 
+My bot found errors running 'make DT_CHECKER_FLAGS=-m dt_binding_check'
+on your patch (DT_CHECKER_FLAGS is new in v5.13):
 
-Thanks,
-Peter Chen
+yamllint warnings/errors:
+
+dtschema/dtc warnings/errors:
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/leds/leds-lp55xx.example.dt.yaml: led-controller@32: 'color' is a required property
+	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml
+/builds/robherring/linux-dt-review/Documentation/devicetree/bindings/leds/leds-lp55xx.example.dt.yaml: led-controller@33: 'color' is a required property
+	From schema: /builds/robherring/linux-dt-review/Documentation/devicetree/bindings/leds/leds-lp55xx.yaml
+
+See https://patchwork.ozlabs.org/patch/1478502
+
+This check can fail if there are any dependencies. The base for a patch
+series is generally the most recent rc1.
+
+If you already ran 'make dt_binding_check' and didn't see the above
+error(s), then make sure 'yamllint' is installed and dt-schema is up to
+date:
+
+pip3 install dtschema --upgrade
+
+Please check and re-submit.
 
