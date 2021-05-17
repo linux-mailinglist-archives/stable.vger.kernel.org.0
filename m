@@ -2,237 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3F003826CA
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:23:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A2D63826D2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:23:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235286AbhEQIYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:24:22 -0400
-Received: from muru.com ([72.249.23.125]:56528 "EHLO muru.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233689AbhEQIYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 04:24:22 -0400
-Received: from hillo.muru.com (localhost [127.0.0.1])
-        by muru.com (Postfix) with ESMTP id EB3F180BA;
-        Mon, 17 May 2021 08:23:09 +0000 (UTC)
-From:   Tony Lindgren <tony@atomide.com>
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org, linux-omap@vger.kernel.org,
-        Keerthy <j-keerthy@ti.com>, Tero Kristo <kristo@kernel.org>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [Backport for linux-5.10.y PATCH 2/2] clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940
-Date:   Mon, 17 May 2021 11:22:44 +0300
-Message-Id: <20210517082244.17447-2-tony@atomide.com>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517082244.17447-1-tony@atomide.com>
-References: <20210517082244.17447-1-tony@atomide.com>
+        id S235534AbhEQIYh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:24:37 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:53013 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231720AbhEQIYa (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Mon, 17 May 2021 04:24:30 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.west.internal (Postfix) with ESMTP id C64276AB;
+        Mon, 17 May 2021 04:23:13 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 17 May 2021 04:23:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ea/Ioe
+        ytNJr140ULmbDUwtDgHjlUz2HoIXrDvrsbLTY=; b=Ro7usvFV3BTDjSa0PgH41w
+        JGpynDyqIeRl33RLxolFV83YBmT2x28gS5oUyLpvVw/E2otgLIi2zKuX2RN1pSuy
+        OkqGj50vADvwIRofFv/GRi6Kmcbu0urQM8DmlPCrv2iLb9SNoav1EchMMoGURttm
+        EY5tAVPuI/8YJ6Ojhip4ETGwsnjCP/pnHUKJ1lVfkMcXlfkOcu3Fls9ABn0t6LZX
+        GaZ4cIUAT/vCcJfzJpiN6kGmyq9EhetlPbSvu6LukDE5dVWrkO/FW8G/RW7Nrzk9
+        Ntvk4Ox0uV/dmf8bkGiapulheSadsdOY/pAgtUOT1ysxlTiGqPzVrlvA1EFfnIBQ
+        ==
+X-ME-Sender: <xms:8CeiYO38q7I3GGBTHUBShZbufKhIgAln3A2Ftx1FrELNvBKkvE2caQ>
+    <xme:8CeiYBG76ZDugOJ5ehoSjeHpF40VPcmomjXv7noy0Hy_voe9R4ykRupa96pAsGVru
+    CvmKuJhtdwBRw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:8CeiYG5EotrkaVYaZLkXKWeZScVw7SubALmfsHB-EqXj1iQFp9iWfg>
+    <xmx:8CeiYP1i3Z4xu_rPi44IqEhbUi6uRW_92r0BXSMqMXNtANR8rlpMsw>
+    <xmx:8CeiYBE4sm6wNc6s2d23lvCGpkwcqErLoPX6GdBrhVJbtGewqQJFIQ>
+    <xmx:8SeiYPPw7Ief6KKKf1CAmqex0nCy_Th7tHdZtNU31M8AjUJyB-d9dWGgRp0>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 04:23:12 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] iio: tsl2583: Fix division by a zero lux_val" failed to apply to 4.4-stable tree
+To:     colin.king@canonical.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 May 2021 10:23:10 +0200
+Message-ID: <16212397902321@kroah.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Upstream commit 25de4ce5ed02994aea8bc111d133308f6fd62566 for stable
-linux-5.10.y. Depends on backported upstream commit
-3efe7a878a11c13b5297057bfc1e5639ce1241ce.
 
-There is a timer wrap issue on dra7 for the ARM architected timer.
-In a typical clock configuration the timer fails to wrap after 388 days.
+The patch below does not apply to the 4.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-To work around the issue, we need to use timer-ti-dm percpu timers instead.
+thanks,
 
-Let's configure dmtimer3 and 4 as percpu timers by default, and warn about
-the issue if the dtb is not configured properly.
+greg k-h
 
-Let's do this as a single patch so it can be backported to v5.8 and later
-kernels easily. Note that this patch depends on earlier timer-ti-dm
-systimer posted mode fixes, and a preparatory clockevent patch
-"clocksource/drivers/timer-ti-dm: Prepare to handle dra7 timer wrap issue".
+------------------ original commit in Linus's tree ------------------
 
-For more information, please see the errata for "AM572x Sitara Processors
-Silicon Revisions 1.1, 2.0":
+From af0e1871d79cfbb91f732d2c6fa7558e45c31038 Mon Sep 17 00:00:00 2001
+From: Colin Ian King <colin.king@canonical.com>
+Date: Fri, 7 May 2021 19:30:41 +0100
+Subject: [PATCH] iio: tsl2583: Fix division by a zero lux_val
 
-https://www.ti.com/lit/er/sprz429m/sprz429m.pdf
+The lux_val returned from tsl2583_get_lux can potentially be zero,
+so check for this to avoid a division by zero and an overflowed
+gain_trim_val.
 
-The concept is based on earlier reference patches done by Tero Kristo and
-Keerthy.
+Fixes clang scan-build warning:
 
-Cc: Keerthy <j-keerthy@ti.com>
-Cc: Tero Kristo <kristo@kernel.org>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210323074326.28302-3-tony@atomide.com
----
- arch/arm/boot/dts/dra7-l4.dtsi             |  4 +-
- arch/arm/boot/dts/dra7.dtsi                | 20 ++++++
- drivers/clocksource/timer-ti-dm-systimer.c | 76 ++++++++++++++++++++++
- include/linux/cpuhotplug.h                 |  1 +
- 4 files changed, 99 insertions(+), 2 deletions(-)
+drivers/iio/light/tsl2583.c:345:40: warning: Either the
+condition 'lux_val<0' is redundant or there is division
+by zero at line 345. [zerodivcond]
 
-diff --git a/arch/arm/boot/dts/dra7-l4.dtsi b/arch/arm/boot/dts/dra7-l4.dtsi
---- a/arch/arm/boot/dts/dra7-l4.dtsi
-+++ b/arch/arm/boot/dts/dra7-l4.dtsi
-@@ -1168,7 +1168,7 @@ timer2: timer@0 {
- 			};
- 		};
+Fixes: ac4f6eee8fe8 ("staging: iio: TAOS tsl258x: Device driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+
+diff --git a/drivers/iio/light/tsl2583.c b/drivers/iio/light/tsl2583.c
+index 0f787bfc88fc..c9d8f07a6fcd 100644
+--- a/drivers/iio/light/tsl2583.c
++++ b/drivers/iio/light/tsl2583.c
+@@ -341,6 +341,14 @@ static int tsl2583_als_calibrate(struct iio_dev *indio_dev)
+ 		return lux_val;
+ 	}
  
--		target-module@34000 {			/* 0x48034000, ap 7 46.0 */
-+		timer3_target: target-module@34000 {	/* 0x48034000, ap 7 46.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x34000 0x4>,
- 			      <0x34010 0x4>;
-@@ -1195,7 +1195,7 @@ timer3: timer@0 {
- 			};
- 		};
- 
--		target-module@36000 {			/* 0x48036000, ap 9 4e.0 */
-+		timer4_target: target-module@36000 {	/* 0x48036000, ap 9 4e.0 */
- 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
- 			reg = <0x36000 0x4>,
- 			      <0x36010 0x4>;
-diff --git a/arch/arm/boot/dts/dra7.dtsi b/arch/arm/boot/dts/dra7.dtsi
---- a/arch/arm/boot/dts/dra7.dtsi
-+++ b/arch/arm/boot/dts/dra7.dtsi
-@@ -46,6 +46,7 @@ aliases {
- 
- 	timer {
- 		compatible = "arm,armv7-timer";
-+		status = "disabled";	/* See ARM architected timer wrap erratum i940 */
- 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
-@@ -1090,3 +1091,22 @@ timer@0 {
- 		assigned-clock-parents = <&sys_32k_ck>;
- 	};
- };
-+
-+/* Local timers, see ARM architected timer wrap erratum i940 */
-+&timer3_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER3_CLKCTRL 24>;
-+		assigned-clock-parents = <&timer_sys_clk_div>;
-+	};
-+};
-+
-+&timer4_target {
-+	ti,no-reset-on-init;
-+	ti,no-idle;
-+	timer@0 {
-+		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER4_CLKCTRL 24>;
-+		assigned-clock-parents = <&timer_sys_clk_div>;
-+	};
-+};
-diff --git a/drivers/clocksource/timer-ti-dm-systimer.c b/drivers/clocksource/timer-ti-dm-systimer.c
---- a/drivers/clocksource/timer-ti-dm-systimer.c
-+++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -2,6 +2,7 @@
- #include <linux/clk.h>
- #include <linux/clocksource.h>
- #include <linux/clockchips.h>
-+#include <linux/cpuhotplug.h>
- #include <linux/interrupt.h>
- #include <linux/io.h>
- #include <linux/iopoll.h>
-@@ -630,6 +631,78 @@ static int __init dmtimer_clockevent_init(struct device_node *np)
- 	return error;
- }
- 
-+/* Dmtimer as percpu timer. See dra7 ARM architected timer wrap erratum i940 */
-+static DEFINE_PER_CPU(struct dmtimer_clockevent, dmtimer_percpu_timer);
-+
-+static int __init dmtimer_percpu_timer_init(struct device_node *np, int cpu)
-+{
-+	struct dmtimer_clockevent *clkevt;
-+	int error;
-+
-+	if (!cpu_possible(cpu))
-+		return -EINVAL;
-+
-+	if (!of_property_read_bool(np->parent, "ti,no-reset-on-init") ||
-+	    !of_property_read_bool(np->parent, "ti,no-idle"))
-+		pr_warn("Incomplete dtb for percpu dmtimer %pOF\n", np->parent);
-+
-+	clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+
-+	error = dmtimer_clkevt_init_common(clkevt, np, CLOCK_EVT_FEAT_ONESHOT,
-+					   cpumask_of(cpu), "percpu-dmtimer",
-+					   500);
-+	if (error)
-+		return error;
-+
-+	return 0;
-+}
-+
-+/* See TRM for timer internal resynch latency */
-+static int omap_dmtimer_starting_cpu(unsigned int cpu)
-+{
-+	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
-+	struct clock_event_device *dev = &clkevt->dev;
-+	struct dmtimer_systimer *t = &clkevt->t;
-+
-+	clockevents_config_and_register(dev, t->rate, 3, ULONG_MAX);
-+	irq_force_affinity(dev->irq, cpumask_of(cpu));
-+
-+	return 0;
-+}
-+
-+static int __init dmtimer_percpu_timer_startup(void)
-+{
-+	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, 0);
-+	struct dmtimer_systimer *t = &clkevt->t;
-+
-+	if (t->sysc) {
-+		cpuhp_setup_state(CPUHP_AP_TI_GP_TIMER_STARTING,
-+				  "clockevents/omap/gptimer:starting",
-+				  omap_dmtimer_starting_cpu, NULL);
++	/* Avoid division by zero of lux_value later on */
++	if (lux_val == 0) {
++		dev_err(&chip->client->dev,
++			"%s: lux_val of 0 will produce out of range trim_value\n",
++			__func__);
++		return -ENODATA;
 +	}
 +
-+	return 0;
-+}
-+subsys_initcall(dmtimer_percpu_timer_startup);
-+
-+static int __init dmtimer_percpu_quirk_init(struct device_node *np, u32 pa)
-+{
-+	struct device_node *arm_timer;
-+
-+	arm_timer = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
-+	if (of_device_is_available(arm_timer)) {
-+		pr_warn_once("ARM architected timer wrap issue i940 detected\n");
-+		return 0;
-+	}
-+
-+	if (pa == 0x48034000)		/* dra7 dmtimer3 */
-+		return dmtimer_percpu_timer_init(np, 0);
-+	else if (pa == 0x48036000)	/* dra7 dmtimer4 */
-+		return dmtimer_percpu_timer_init(np, 1);
-+
-+	return 0;
-+}
-+
- /* Clocksource */
- static struct dmtimer_clocksource *
- to_dmtimer_clocksource(struct clocksource *cs)
-@@ -763,6 +836,9 @@ static int __init dmtimer_systimer_init(struct device_node *np)
- 	if (clockevent == pa)
- 		return dmtimer_clockevent_init(np);
- 
-+	if (of_machine_is_compatible("ti,dra7"))
-+		return dmtimer_percpu_quirk_init(np, pa);
-+
- 	return 0;
- }
- 
-diff --git a/include/linux/cpuhotplug.h b/include/linux/cpuhotplug.h
---- a/include/linux/cpuhotplug.h
-+++ b/include/linux/cpuhotplug.h
-@@ -135,6 +135,7 @@ enum cpuhp_state {
- 	CPUHP_AP_RISCV_TIMER_STARTING,
- 	CPUHP_AP_CLINT_TIMER_STARTING,
- 	CPUHP_AP_CSKY_TIMER_STARTING,
-+	CPUHP_AP_TI_GP_TIMER_STARTING,
- 	CPUHP_AP_HYPERV_TIMER_STARTING,
- 	CPUHP_AP_KVM_STARTING,
- 	CPUHP_AP_KVM_ARM_VGIC_INIT_STARTING,
--- 
-2.31.1
+ 	gain_trim_val = (unsigned int)(((chip->als_settings.als_cal_target)
+ 			* chip->als_settings.als_gain_trim) / lux_val);
+ 	if ((gain_trim_val < 250) || (gain_trim_val > 4000)) {
+
