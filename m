@@ -2,90 +2,126 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BFA4383CE0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF713383CF9
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:10:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230345AbhEQTGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 15:06:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46468 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229535AbhEQTGN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:06:13 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F1209C061573;
-        Mon, 17 May 2021 12:04:56 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id e19so5632252pfv.3;
-        Mon, 17 May 2021 12:04:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=23T/zPHDGLwUftH2FzR+BfSGY+JTl3qxWkHUqyK7pLo=;
-        b=qDGD/GD3q00UtWyVlnUYNm2oON20zZdEN774Z4wC1I6vZryqiYhv3e3ZrcBQG2UNCa
-         Qn1sVvrNtxaGmN+Oyej7evSWIS4yky2zxmy24z93OopamUGn8Z/TLJ3Izal0EqmpSRCY
-         1cDAbElPJJ2aEwoFHY73p5mCT5tgLbfo+Dho917yKxjBjtY+ZPrO5b/ovuNHyGNwaI9/
-         Znn2d4I9GjRMCtsbzD4btQuDdt/43LwzFdozEaquvyH+c8N6x0dNzmnxddhcCYOn9USr
-         Vc9DQI3vfImSA75XBxCW9DmRldJ0vn8bbgI+m0TVPqVA/59iP9TMsM4GQILJN3jWRCC6
-         kPIQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=23T/zPHDGLwUftH2FzR+BfSGY+JTl3qxWkHUqyK7pLo=;
-        b=fUDt/XfH9DB73JnC6MMhJcZuf3vI8PE9bsYjTJX5Kr1DQz2ybDbd22Ah+2126fOWhe
-         lgfUbXvJsvloUT9auh6AFj7HPBONem8LFG8GnxB5v0G4MRH/xrXJdtlY0uzm0CjpZN1c
-         ZZ3i0CRV8vesnCVioH7LPqGZxmOQt7da68enpKzX38IDpB9ABozeZj3FUSc5BEwJw+Dg
-         LFq5hjXPYLtV2acud7+wFMY2iSsVWhC/eTQ4TxJeNcPdZ5a+gmVT0o3s5uqC0qQoG6Wa
-         RnBUsqP6Uxg4n3bKDDo7qzWG7Ei1VZXvNqusWHrUOQr8c76wVTnHBXgLba3Yvt0MMq/W
-         8e+A==
-X-Gm-Message-State: AOAM5329P3WeCqgBlWJKWe6B7ghUYcnLusarGw2neB5wedxmtSThBkgU
-        ibouk1UE5N6y0FBmrN1kydifnL4MnQlRdjyqqys=
-X-Google-Smtp-Source: ABdhPJzJqIkOonjQgB0QYY0DVRIxYp4Kbl/vKfNniAtRP/VwHg6H+bijd9831VBjO3IhDr+iGFMSNQ==
-X-Received: by 2002:a62:1b97:0:b029:24e:44e9:a8c1 with SMTP id b145-20020a621b970000b029024e44e9a8c1mr1043603pfb.19.1621278295829;
-        Mon, 17 May 2021 12:04:55 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id c24sm10356859pfi.32.2021.05.17.12.04.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 12:04:54 -0700 (PDT)
-Message-ID: <60a2be56.1c69fb81.782df.331b@mx.google.com>
-Date:   Mon, 17 May 2021 12:04:54 -0700 (PDT)
-X-Google-Original-Date: Mon, 17 May 2021 19:04:53 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-Subject: RE: [PATCH 5.11 000/329] 5.11.22-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S231652AbhEQTL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 15:11:58 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:3832 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231379AbhEQTL5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:11:57 -0400
+Received: from pps.filterd (m0098399.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ4EUF140018;
+        Mon, 17 May 2021 15:10:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=6hsvjsITPUCnrFWqTahbJoJfWrEF44ZPGCdggVB0zeM=;
+ b=AUvO04ReJBgvqkGfesc/EDb0CbFAdG5ReqwdkDYW/SAKdjaEX/yKsJXSt2Iv9bBK99ku
+ YM//N9YR0Q0C/ofwBVAJKcHrCwvTSGfWN3hOsu5v6mw/HHODuLvR/uViLGezqEhyJ/ra
+ xAo5OCgAs/QKFrmcSY+A7m8sSpCsRrbRQIK4p+0AwNpo/oExq+NyR7Gz1HTU19utlGIt
+ n28yUFjrWCByUAPtcC5xlMYxBMD2oouxo2TUuG1XptC31e5rOypVePfAXgKX7RRqnirl
+ hoh6jBMh10gYqUywpykoT9/IZvF6/GTqtGVbwulQUy+kaRbrqaj0JF2otqyVEwz37V/o Uw== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020wc-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 15:10:39 -0400
+Received: from m0098399.ppops.net (m0098399.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14HJ4moc144594;
+        Mon, 17 May 2021 15:10:39 -0400
+Received: from ppma04ams.nl.ibm.com (63.31.33a9.ip4.static.sl-reverse.com [169.51.49.99])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38kw8020v3-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 15:10:38 -0400
+Received: from pps.filterd (ppma04ams.nl.ibm.com [127.0.0.1])
+        by ppma04ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14HJ7DjI018412;
+        Mon, 17 May 2021 19:10:36 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma04ams.nl.ibm.com with ESMTP id 38j5x8925t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Mon, 17 May 2021 19:10:36 +0000
+Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14HJAXWr44958092
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 17 May 2021 19:10:33 GMT
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 2F0B14C044;
+        Mon, 17 May 2021 19:10:33 +0000 (GMT)
+Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 4B6DC4C046;
+        Mon, 17 May 2021 19:10:32 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.52.118])
+        by d06av22.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Mon, 17 May 2021 19:10:32 +0000 (GMT)
+Date:   Mon, 17 May 2021 21:10:30 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Tony Krowiak <akrowiak@linux.ibm.com>
+Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
+        borntraeger@de.ibm.com, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210517211030.368ca64b.pasic@linux.ibm.com>
+In-Reply-To: <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: ogxqyuyO29QcstH-3LxOv6LJZsUHq7Il
+X-Proofpoint-GUID: AqVjBD1le3CgxS63pCX2SHd9lt62aNha
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-17_08:2021-05-17,2021-05-17 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
+ adultscore=0 impostorscore=0 bulkscore=0 phishscore=0 mlxlogscore=999
+ suspectscore=0 clxscore=1015 mlxscore=0 priorityscore=1501 malwarescore=0
+ spamscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105170130
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 May 2021 15:58:31 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.11.22 release.
-> There are 329 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 19 May 2021 14:02:16 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.11.22-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.11.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+On Mon, 17 May 2021 09:37:42 -0400
+Tony Krowiak <akrowiak@linux.ibm.com> wrote:
 
-5.11.22-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+> >
+> > Because of this, I don't think the rest of your argument is valid.  
+> 
+> Okay, so your concern is that between the point in time the
+> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
+> priv.c and the point in time the handle_pqap() function
+> in vfio_ap_ops.c is called, the memory allocated for the
+> matrix_mdev containing the struct kvm_s390_module_hook
+> may get freed, thus rendering the function pointer invalid.
+> While not impossible, that seems extremely unlikely to
+> happen. Can you articulate a scenario where that could
+> even occur?
+
+Malicious userspace. We tend to do the pqap aqic just once
+in the guest right after the queue is detected. I do agree
+it ain't very likely to happen during normal operation. But why are
+you asking?
+
+I'm not sure I understood correctly what kind of a scenario are
+you asking for. PQAP AQIC and mdev remove are independent
+events originated in userspace, so AFAIK we may not assume
+that the execution of two won't overlap, nor are we allowed
+to make assumptions on how does the execution of these two
+overlap (except for the things we explicitly ensure -- e.g.
+some parts are made mutually exclusive using the matrix_dev->lock
+lock).
+
+Regards,
+Halil
 
