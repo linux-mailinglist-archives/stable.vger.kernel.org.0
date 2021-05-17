@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6C43831FA
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3B48383263
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239626AbhEQOnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:43:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55126 "EHLO mail.kernel.org"
+        id S240992AbhEQOrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:47:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240846AbhEQOlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:41:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F616141E;
-        Mon, 17 May 2021 14:19:25 +0000 (UTC)
+        id S241543AbhEQOpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:45:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C2876195E;
+        Mon, 17 May 2021 14:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261165;
-        bh=alxfMwCipGtJ6uHMVjZEJ2BScj4MmkJQdDjF0722YEo=;
+        s=korg; t=1621261262;
+        bh=jTskFk9t8JiN+mhOo9h7JKe36rqwAfypk0sdv6XmRts=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOlo6W2vj8qQgKPaIwHz32Tc8I6ppW0kGqIQAsIBvtooYfVi+rYYLWadf7Xkux28r
-         fJvxqLTdys1ae7T9fdImVgnhF77p7CkBYhYe0D05/tvbtpxVx1rdJcHZNu04ifAx7O
-         w9BW1nilOxE9Cu7695UOfJu4IRC7/gnf+j+/X0tY=
+        b=VOE9NjFLBWh9msy4ELWNWJYuWTJGhWEgrojhmv331H1Jx9RlR/JZzT+m4gD96U9k/
+         aNnZeU51Q8i5n/dJAqgYVX8vG1ZBW544hFF257fPMMAPrVrUrwHHp8cDXcM+DRuljJ
+         5wRI11ITEnEw2WrWNhul1H4dGhDYGID0TVcXvSWY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -30,9 +30,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Paul Menzel <pmenzel@molgen.mpg.de>,
         Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
         Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 073/329] Revert "iommu/amd: Fix performance counter initialization"
-Date:   Mon, 17 May 2021 15:59:44 +0200
-Message-Id: <20210517140304.558876909@linuxfoundation.org>
+Subject: [PATCH 5.11 074/329] iommu/amd: Remove performance counter pre-initialization test
+Date:   Mon, 17 May 2021 15:59:45 +0200
+Message-Id: <20210517140304.589785980@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -44,23 +44,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Menzel <pmenzel@molgen.mpg.de>
+From: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
 
-[ Upstream commit 715601e4e36903a653cd4294dfd3ed0019101991 ]
+[ Upstream commit 994d6608efe4a4c8834bdc5014c86f4bc6aceea6 ]
 
-This reverts commit 6778ff5b21bd8e78c8bd547fd66437cf2657fd9b.
+In early AMD desktop/mobile platforms (during 2013), when the IOMMU
+Performance Counter (PMC) support was first introduced in
+commit 30861ddc9cca ("perf/x86/amd: Add IOMMU Performance Counter
+resource management"), there was a HW bug where the counters could not
+be accessed. The result was reading of the counter always return zero.
 
-The original commit tries to address an issue, where PMC power-gating
-causing the IOMMU PMC pre-init test to fail on certain desktop/mobile
-platforms where the power-gating is normally enabled.
+At the time, the suggested workaround was to add a test logic prior
+to initializing the PMC feature to check if the counters can be programmed
+and read back the same value. This has been working fine until the more
+recent desktop/mobile platforms start enabling power gating for the PMC,
+which prevents access to the counters. This results in the PMC support
+being disabled unnecesarily.
 
-There have been several reports that the workaround still does not
-guarantee to work, and can add up to 100 ms (on the worst case)
-to the boot process on certain platforms such as the MSI B350M MORTAR
-with AMD Ryzen 3 2200G.
-
-Therefore, revert this commit as a prelude to removing the pre-init
-test.
+Unfortunatly, there is no documentation of since which generation
+of hardware the original PMC HW bug was fixed. Although, it was fixed
+soon after the first introduction of the PMC. Base on this, we assume
+that the buggy platforms are less likely to be in used, and it should
+be relatively safe to remove this legacy logic.
 
 Link: https://lore.kernel.org/linux-iommu/alpine.LNX.3.20.13.2006030935570.3181@monopod.intra.ispras.ru/
 Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=201753
@@ -68,99 +73,67 @@ Cc: Tj (Elloe Linux) <ml.linux@elloe.vision>
 Cc: Shuah Khan <skhan@linuxfoundation.org>
 Cc: Alexander Monakov <amonakov@ispras.ru>
 Cc: David Coe <david.coe@live.co.uk>
-Signed-off-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Cc: Paul Menzel <pmenzel@molgen.mpg.de>
 Signed-off-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
-Link: https://lore.kernel.org/r/20210409085848.3908-2-suravee.suthikulpanit@amd.com
+Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210409085848.3908-3-suravee.suthikulpanit@amd.com
 Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/init.c | 45 ++++++++++------------------------------
- 1 file changed, 11 insertions(+), 34 deletions(-)
+ drivers/iommu/amd/init.c | 24 +-----------------------
+ 1 file changed, 1 insertion(+), 23 deletions(-)
 
 diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index 9846b01a5214..3d417afb581b 100644
+index 3d417afb581b..735ad74e2c8f 100644
 --- a/drivers/iommu/amd/init.c
 +++ b/drivers/iommu/amd/init.c
-@@ -12,7 +12,6 @@
- #include <linux/acpi.h>
- #include <linux/list.h>
- #include <linux/bitmap.h>
--#include <linux/delay.h>
- #include <linux/slab.h>
- #include <linux/syscore_ops.h>
- #include <linux/interrupt.h>
-@@ -255,8 +254,6 @@ static enum iommu_init_state init_state = IOMMU_START_STATE;
- static int amd_iommu_enable_interrupts(void);
- static int __init iommu_go_to_state(enum iommu_init_state state);
- static void init_device_table_dma(void);
--static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
--				u8 fxn, u64 *value, bool is_write);
- 
- static bool amd_iommu_pre_enabled = true;
- 
-@@ -1715,11 +1712,13 @@ static int __init init_iommu_all(struct acpi_table_header *table)
+@@ -1712,33 +1712,16 @@ static int __init init_iommu_all(struct acpi_table_header *table)
  	return 0;
  }
  
--static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
-+static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
-+				u8 fxn, u64 *value, bool is_write);
-+
-+static void init_iommu_perf_ctr(struct amd_iommu *iommu)
+-static int iommu_pc_get_set_reg(struct amd_iommu *iommu, u8 bank, u8 cntr,
+-				u8 fxn, u64 *value, bool is_write);
+-
+ static void init_iommu_perf_ctr(struct amd_iommu *iommu)
  {
--	int retry;
++	u64 val;
  	struct pci_dev *pdev = iommu->dev;
--	u64 val = 0xabcd, val2 = 0, save_reg, save_src;
-+	u64 val = 0xabcd, val2 = 0, save_reg = 0;
+-	u64 val = 0xabcd, val2 = 0, save_reg = 0;
  
  	if (!iommu_feature(iommu, FEATURE_PC))
  		return;
-@@ -1727,39 +1726,17 @@ static void __init init_iommu_perf_ctr(struct amd_iommu *iommu)
+ 
  	amd_iommu_pc_present = true;
  
- 	/* save the value to restore, if writable */
--	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false) ||
--	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, false))
+-	/* save the value to restore, if writable */
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false))
 -		goto pc_false;
 -
--	/*
--	 * Disable power gating by programing the performance counter
--	 * source to 20 (i.e. counts the reads and writes from/to IOMMU
--	 * Reserved Register [MMIO Offset 1FF8h] that are ignored.),
--	 * which never get incremented during this init phase.
--	 * (Note: The event is also deprecated.)
--	 */
--	val = 20;
--	if (iommu_pc_get_set_reg(iommu, 0, 0, 8, &val, true))
-+	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, false))
- 		goto pc_false;
- 
- 	/* Check if the performance counters can be written to */
--	val = 0xabcd;
--	for (retry = 5; retry; retry--) {
--		if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true) ||
--		    iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false) ||
--		    val2)
--			break;
--
--		/* Wait about 20 msec for power gating to disable and retry. */
--		msleep(20);
--	}
+-	/* Check if the performance counters can be written to */
+-	if ((iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true)) ||
+-	    (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false)) ||
+-	    (val != val2))
+-		goto pc_false;
 -
 -	/* restore */
--	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true) ||
--	    iommu_pc_get_set_reg(iommu, 0, 0, 8, &save_src, true))
-+	if ((iommu_pc_get_set_reg(iommu, 0, 0, 0, &val, true)) ||
-+	    (iommu_pc_get_set_reg(iommu, 0, 0, 0, &val2, false)) ||
-+	    (val != val2))
- 		goto pc_false;
- 
--	if (val != val2)
-+	/* restore */
-+	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true))
- 		goto pc_false;
- 
+-	if (iommu_pc_get_set_reg(iommu, 0, 0, 0, &save_reg, true))
+-		goto pc_false;
+-
  	pci_info(pdev, "IOMMU performance counters supported\n");
+ 
+ 	val = readl(iommu->mmio_base + MMIO_CNTR_CONF_OFFSET);
+@@ -1746,11 +1729,6 @@ static void init_iommu_perf_ctr(struct amd_iommu *iommu)
+ 	iommu->max_counters = (u8) ((val >> 7) & 0xf);
+ 
+ 	return;
+-
+-pc_false:
+-	pci_err(pdev, "Unable to read/write to IOMMU perf counter.\n");
+-	amd_iommu_pc_present = false;
+-	return;
+ }
+ 
+ static ssize_t amd_iommu_show_cap(struct device *dev,
 -- 
 2.30.2
 
