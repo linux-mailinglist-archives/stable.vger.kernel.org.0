@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 664703831FB
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F92A383250
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238609AbhEQOnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:43:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S240766AbhEQOrA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:47:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240861AbhEQOlj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:41:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44C816142A;
-        Mon, 17 May 2021 14:19:23 +0000 (UTC)
+        id S241078AbhEQOmN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:42:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0680461953;
+        Mon, 17 May 2021 14:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261163;
-        bh=AQxX/n+P8aqB1XvXzyGAmJ074I3Y+VZUJRoiGK61W7w=;
+        s=korg; t=1621261172;
+        bh=kH82i5J5JigCj0Eidb3S+KlFSpJ1WLg6mTvHIXtIcJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IHky1+EJqtgmhppsAma+krmnlkHgf3tTFL4OWHGk6PBKfq8EALgW9FMWHinZsEUrc
-         Aek2uCV2R1fyRvx0Itx2hX01iDQOfiNl9q7S1hgDwue5v8CCvUL08fNykmzSSm3Uv0
-         9Fg8oTMJaMaVGV19LgTgwg0nKeMl9w4sz2l0/BJg=
+        b=pKu2GFZTxIRgYV7NnEdv3FAfHqBFjxnv0wx+r50xLvomhGPy50APov1JwxOeOQLnU
+         iMzhnLWL0h0CM42p85cxtvlquvviwlxK6Fnp1LjYTJXxJC4MxWB5gAERjNZt9pLfB9
+         007NClWH4q6tZRWf3twhQkcv5qnI2b4jjWj56C/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
-        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
-        Alain Michaud <alainm@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/141] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
-Date:   Mon, 17 May 2021 16:01:08 +0200
-Message-Id: <20210517140243.306297157@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Subject: [PATCH 5.4 017/141] Bluetooth: initialize skb_queue_head at l2cap_chan_create()
+Date:   Mon, 17 May 2021 16:01:09 +0200
+Message-Id: <20210517140243.343007756@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -44,55 +42,22 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
+[ Upstream commit be8597239379f0f53c9710dd6ab551bbf535bec6 ]
 
-Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
-However, there is a flag CONF_NOT_COMPLETE which is set when
-creating the l2cap_chan. It is suggested that the flag should be
-cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
-is called, l2cap_chan is not yet ready. Therefore, we must set this
-flag as the default.
+syzbot is hitting "INFO: trying to register non-static key." message [1],
+for "struct l2cap_chan"->tx_q.lock spinlock is not yet initialized when
+l2cap_chan_del() is called due to e.g. timeout.
 
-Example crash call trace:
-__dump_stack lib/dump_stack.c:15 [inline]
-dump_stack+0xc4/0x118 lib/dump_stack.c:56
-panic+0x1c6/0x38b kernel/panic.c:117
-__warn+0x170/0x1b9 kernel/panic.c:471
-warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
-debug_print_object+0x175/0x193 lib/debugobjects.c:260
-debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
-debug_timer_assert_init kernel/time/timer.c:629 [inline]
-debug_assert_init kernel/time/timer.c:677 [inline]
-del_timer+0x7c/0x179 kernel/time/timer.c:1034
-try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
-cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
-l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
-l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
-l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
-l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
-l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
-__sock_release+0xda/0x217 net/socket.c:580
-sock_close+0x1b/0x1f net/socket.c:1039
-__fput+0x322/0x55c fs/file_table.c:208
-____fput+0x17/0x19 fs/file_table.c:244
-task_work_run+0x19b/0x1d3 kernel/task_work.c:115
-exit_task_work include/linux/task_work.h:21 [inline]
-do_exit+0xe4c/0x204a kernel/exit.c:766
-do_group_exit+0x291/0x291 kernel/exit.c:891
-get_signal+0x749/0x1093 kernel/signal.c:2396
-do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
-exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
-prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
-syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
-int_ret_from_sys_call+0x25/0xa3
+Since "struct l2cap_chan"->lock mutex is initialized at l2cap_chan_create()
+immediately after "struct l2cap_chan" is allocated using kzalloc(), let's
+as well initialize "struct l2cap_chan"->{tx_q,srej_q}.lock spinlocks there.
 
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
-Reviewed-by: Alain Michaud <alainm@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
+[1] https://syzkaller.appspot.com/bug?extid=fadfba6a911f6bf71842
+
+Reported-and-tested-by: syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
@@ -100,19 +65,18 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+)
 
 diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 3499bace25ec..f5039700d927 100644
+index f5039700d927..959a16b13303 100644
 --- a/net/bluetooth/l2cap_core.c
 +++ b/net/bluetooth/l2cap_core.c
-@@ -515,7 +515,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
- 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
- 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
- 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
-+
- 	chan->conf_state = 0;
-+	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
+@@ -450,6 +450,8 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	if (!chan)
+ 		return NULL;
  
- 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
- }
++	skb_queue_head_init(&chan->tx_q);
++	skb_queue_head_init(&chan->srej_q);
+ 	mutex_init(&chan->lock);
+ 
+ 	/* Set default lock nesting level */
 -- 
 2.30.2
 
