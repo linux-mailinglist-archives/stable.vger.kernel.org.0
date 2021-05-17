@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E38DB3837F1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28529383672
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237642AbhEQPrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:47:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36778 "EHLO mail.kernel.org"
+        id S244865AbhEQPcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:32:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344815AbhEQPpl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:45:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F7CF613AE;
-        Mon, 17 May 2021 14:43:55 +0000 (UTC)
+        id S245709AbhEQPak (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:30:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE6A61CC2;
+        Mon, 17 May 2021 14:37:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262636;
-        bh=5JqOWewpSfjRjyDmUHVM+mU4K6QsgUlEZfEB6rZz/nc=;
+        s=korg; t=1621262278;
+        bh=ln//Pg6dZHhKTER4ykJcOQPJKAQkkz386kNjhSNwFlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I0bP5iP/ZTeAobbSlj8+ohiv+hkDaCS8+581YL0Nw311kSimCQJLsiw3lewtT33Ub
-         LTjCDkv1PlO3MtruiP6we2y7TVdj4eZUJnhEWnGbAry6J2hN10SN8VegJoKfWTjpm3
-         Rh9y5bcCIGJqYIVzoHJzO5VXqCKM4k9Mq74hm1eg=
+        b=BnWGN0S+co3vQlK7jcbfBViB97H4ZSsIraL8FnOR2+6u79fMs9AShRmkjn15Y0x0N
+         9RMIZmki/eP3IwGyCehPN6J/QZj3Vo7wYKrgdLsceq0eECEOj4fRoK02wPetnvx5bm
+         aWnRaF+jBHyF4Awdi9CWDO93kPgrU+7NA4PfkYj0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ferry Toth <ftoth@exalondelft.nl>
-Subject: [PATCH 5.10 241/289] usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield
+        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        Jan Kara <jack@suse.cz>,
+        Dan Williams <dan.j.williams@intel.com>,
+        Vivek Goyal <vgoyal@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 255/329] dax: Add an enum for specifying dax wakup mode
 Date:   Mon, 17 May 2021 16:02:46 +0200
-Message-Id: <20210517140313.275170593@linuxfoundation.org>
+Message-Id: <20210517140310.729934243@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,32 +42,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Vivek Goyal <vgoyal@redhat.com>
 
-commit 04357fafea9c7ed34525eb9680c760245c3bb958 upstream.
+[ Upstream commit 698ab77aebffe08b312fbcdddeb0e8bd08b78717 ]
 
-On Intel Merrifield LPM is causing host to reset port after a timeout.
-By disabling LPM entirely this is prevented.
+Dan mentioned that he is not very fond of passing around a boolean true/false
+to specify if only next waiter should be woken up or all waiters should be
+woken up. He instead prefers that we introduce an enum and make it very
+explicity at the callsite itself. Easier to read code.
 
-Fixes: 066c09593454 ("usb: dwc3: pci: Enable extcon driver for Intel Merrifield")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210425150947.5862-1-ftoth@exalondelft.nl
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This patch should not introduce any change of behavior.
+
+Reviewed-by: Greg Kurz <groug@kaod.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Suggested-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
+Link: https://lore.kernel.org/r/20210428190314.1865312-2-vgoyal@redhat.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/dax.c | 23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -120,6 +120,7 @@ static const struct property_entry dwc3_
- 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u3_susphy_quirk"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
-+	PROPERTY_ENTRY_BOOL("snps,usb2-gadget-lpm-disable"),
- 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
- 	{}
+diff --git a/fs/dax.c b/fs/dax.c
+index b3d27fdc6775..5ecee51c44ee 100644
+--- a/fs/dax.c
++++ b/fs/dax.c
+@@ -144,6 +144,16 @@ struct wait_exceptional_entry_queue {
+ 	struct exceptional_entry_key key;
  };
+ 
++/**
++ * enum dax_wake_mode: waitqueue wakeup behaviour
++ * @WAKE_ALL: wake all waiters in the waitqueue
++ * @WAKE_NEXT: wake only the first waiter in the waitqueue
++ */
++enum dax_wake_mode {
++	WAKE_ALL,
++	WAKE_NEXT,
++};
++
+ static wait_queue_head_t *dax_entry_waitqueue(struct xa_state *xas,
+ 		void *entry, struct exceptional_entry_key *key)
+ {
+@@ -182,7 +192,8 @@ static int wake_exceptional_entry_func(wait_queue_entry_t *wait,
+  * The important information it's conveying is whether the entry at
+  * this index used to be a PMD entry.
+  */
+-static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
++static void dax_wake_entry(struct xa_state *xas, void *entry,
++			   enum dax_wake_mode mode)
+ {
+ 	struct exceptional_entry_key key;
+ 	wait_queue_head_t *wq;
+@@ -196,7 +207,7 @@ static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
+ 	 * must be in the waitqueue and the following check will see them.
+ 	 */
+ 	if (waitqueue_active(wq))
+-		__wake_up(wq, TASK_NORMAL, wake_all ? 0 : 1, &key);
++		__wake_up(wq, TASK_NORMAL, mode == WAKE_ALL ? 0 : 1, &key);
+ }
+ 
+ /*
+@@ -268,7 +279,7 @@ static void put_unlocked_entry(struct xa_state *xas, void *entry)
+ {
+ 	/* If we were the only waiter woken, wake the next one */
+ 	if (entry && !dax_is_conflict(entry))
+-		dax_wake_entry(xas, entry, false);
++		dax_wake_entry(xas, entry, WAKE_NEXT);
+ }
+ 
+ /*
+@@ -286,7 +297,7 @@ static void dax_unlock_entry(struct xa_state *xas, void *entry)
+ 	old = xas_store(xas, entry);
+ 	xas_unlock_irq(xas);
+ 	BUG_ON(!dax_is_locked(old));
+-	dax_wake_entry(xas, entry, false);
++	dax_wake_entry(xas, entry, WAKE_NEXT);
+ }
+ 
+ /*
+@@ -524,7 +535,7 @@ static void *grab_mapping_entry(struct xa_state *xas,
+ 
+ 		dax_disassociate_entry(entry, mapping, false);
+ 		xas_store(xas, NULL);	/* undo the PMD join */
+-		dax_wake_entry(xas, entry, true);
++		dax_wake_entry(xas, entry, WAKE_ALL);
+ 		mapping->nrexceptional--;
+ 		entry = NULL;
+ 		xas_set(xas, index);
+@@ -937,7 +948,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
+ 	xas_lock_irq(xas);
+ 	xas_store(xas, entry);
+ 	xas_clear_mark(xas, PAGECACHE_TAG_DIRTY);
+-	dax_wake_entry(xas, entry, false);
++	dax_wake_entry(xas, entry, WAKE_NEXT);
+ 
+ 	trace_dax_writeback_one(mapping->host, index, count);
+ 	return ret;
+-- 
+2.30.2
+
 
 
