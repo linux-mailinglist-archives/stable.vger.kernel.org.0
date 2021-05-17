@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A66C5383217
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:45:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E08E838322F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238970AbhEQOqU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:46:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54266 "EHLO mail.kernel.org"
+        id S239137AbhEQOq1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:46:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54344 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241229AbhEQOnX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:43:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25C21613B9;
-        Mon, 17 May 2021 14:20:15 +0000 (UTC)
+        id S240502AbhEQOnY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:43:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0587613BA;
+        Mon, 17 May 2021 14:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261216;
-        bh=4fC5HsOTKcLEAtG19XwQO4teDrxBG44yjknxmcT/IcY=;
+        s=korg; t=1621261223;
+        bh=ad0xPnMx0C8ZjLx23sEnIjuqCSEcaTx75owKAoihxnY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=md0iSO58Ehko6nCA68m2dsy8YtSqLc+2aUIbA2kfF/dywY7fUQPeSbnaM2Ik1c5Rs
-         PlmQFrxGNQaRC8zALiDXb19bkwQMP1tLz4ZhXXwgdBmx3vqFlRQWSua93K4c+WQRbQ
-         9dVUKCUfy95mJJjwW/3UpnXKXO4YG3qXxLW8lLGo=
+        b=NRnRH93NN/dQY20RNF9VWN/wnLsRiVNzLsyrzc+9flPIpPOSnO0Z4IRAwWxeGN5/e
+         kUyNEV08rghyP6ZIx4eDAp9YfHaeWCoyP00VoE9A7Yy0kmZtZ6nYpn/OBrRC+lH+NQ
+         EOb9/f3cnxKWdu8Ic3GzOgu+qGJJRWMb8tW9qc5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.12 320/363] xhci: Fix giving back cancelled URBs even if halted endpoint cant reset
-Date:   Mon, 17 May 2021 16:03:06 +0200
-Message-Id: <20210517140313.421104428@linuxfoundation.org>
+Subject: [PATCH 5.12 321/363] xhci: Do not use GFP_KERNEL in (potentially) atomic context
+Date:   Mon, 17 May 2021 16:03:07 +0200
+Message-Id: <20210517140313.454804934@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -39,98 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 9b6a126ae58d9edfdde2d5f2e87f7615ea5e0155 upstream.
+commit dda32c00c9a0fa103b5d54ef72c477b7aa993679 upstream.
 
-Commit 9ebf30007858 ("xhci: Fix halted endpoint at stop endpoint command
-completion") in 5.12 changes how cancelled URBs are given back.
+'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
+submitted in interrupt context" (see comment related to 'usb_submit_urb()'
+in 'drivers/usb/core/urb.c')
 
-To cancel a URB xhci driver needs to stop the endpoint first.
-To clear a halted endpoint xhci driver needs to reset the endpoint.
+So this flag should be used in all the calling chain.
+Up to now, 'xhci_check_maxpacket()' which is only called from
+'xhci_urb_enqueue()', uses GFP_KERNEL.
 
-In rare cases when an endpoint halt (error) races with a endpoint stop we
-need to clear the reset before removing, and giving back the cancelled URB.
+Be safe and pass the mem_flags to this function as well.
 
-The above change in 5.12 takes care of this, but it also relies on the
-reset endpoint completion handler to give back the cancelled URBs.
-
-There are cases when driver refuses to queue reset endpoint commands,
-for example when a link suddenly goes to an inactive error state.
-In this case the cancelled URB is never given back.
-
-Fix this by giving back the URB in the stop endpoint if queuing a reset
-endpoint command fails.
-
-Fixes: 9ebf30007858 ("xhci: Fix halted endpoint at stop endpoint command completion")
-CC: <stable@vger.kernel.org> # 5.12
+Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512080816.866037-3-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c |   16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/usb/host/xhci.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -863,7 +863,7 @@ done:
- 	return ret;
- }
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1514,7 +1514,7 @@ static int xhci_configure_endpoint(struc
+  * we need to issue an evaluate context command and wait on it.
+  */
+ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
+-		unsigned int ep_index, struct urb *urb)
++		unsigned int ep_index, struct urb *urb, gfp_t mem_flags)
+ {
+ 	struct xhci_container_ctx *out_ctx;
+ 	struct xhci_input_control_ctx *ctrl_ctx;
+@@ -1545,7 +1545,7 @@ static int xhci_check_maxpacket(struct x
+ 		 * changes max packet sizes.
+ 		 */
  
--static void xhci_handle_halted_endpoint(struct xhci_hcd *xhci,
-+static int xhci_handle_halted_endpoint(struct xhci_hcd *xhci,
- 				struct xhci_virt_ep *ep, unsigned int stream_id,
- 				struct xhci_td *td,
- 				enum xhci_ep_reset_type reset_type)
-@@ -876,7 +876,7 @@ static void xhci_handle_halted_endpoint(
- 	 * Device will be reset soon to recover the link so don't do anything
- 	 */
- 	if (ep->vdev->flags & VDEV_PORT_ERROR)
--		return;
-+		return -ENODEV;
+-		command = xhci_alloc_command(xhci, true, GFP_KERNEL);
++		command = xhci_alloc_command(xhci, true, mem_flags);
+ 		if (!command)
+ 			return -ENOMEM;
  
- 	/* add td to cancelled list and let reset ep handler take care of it */
- 	if (reset_type == EP_HARD_RESET) {
-@@ -889,16 +889,18 @@ static void xhci_handle_halted_endpoint(
- 
- 	if (ep->ep_state & EP_HALTED) {
- 		xhci_dbg(xhci, "Reset ep command already pending\n");
--		return;
-+		return 0;
- 	}
- 
- 	err = xhci_reset_halted_ep(xhci, slot_id, ep->ep_index, reset_type);
- 	if (err)
--		return;
-+		return err;
- 
- 	ep->ep_state |= EP_HALTED;
- 
- 	xhci_ring_cmd_db(xhci);
-+
-+	return 0;
- }
- 
- /*
-@@ -1015,6 +1017,7 @@ static void xhci_handle_cmd_stop_ep(stru
- 	struct xhci_td *td = NULL;
- 	enum xhci_ep_reset_type reset_type;
- 	struct xhci_command *command;
-+	int err;
- 
- 	if (unlikely(TRB_TO_SUSPEND_PORT(le32_to_cpu(trb->generic.field[3])))) {
- 		if (!xhci->devs[slot_id])
-@@ -1059,7 +1062,10 @@ static void xhci_handle_cmd_stop_ep(stru
- 					td->status = -EPROTO;
- 			}
- 			/* reset ep, reset handler cleans up cancelled tds */
--			xhci_handle_halted_endpoint(xhci, ep, 0, td, reset_type);
-+			err = xhci_handle_halted_endpoint(xhci, ep, 0, td,
-+							  reset_type);
-+			if (err)
-+				break;
- 			xhci_stop_watchdog_timer_in_irq(xhci, ep);
- 			return;
- 		case EP_STATE_RUNNING:
+@@ -1639,7 +1639,7 @@ static int xhci_urb_enqueue(struct usb_h
+ 		 */
+ 		if (urb->dev->speed == USB_SPEED_FULL) {
+ 			ret = xhci_check_maxpacket(xhci, slot_id,
+-					ep_index, urb);
++					ep_index, urb, mem_flags);
+ 			if (ret < 0) {
+ 				xhci_urb_free_priv(urb_priv);
+ 				urb->hcpriv = NULL;
 
 
