@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72C283835FE
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D153833ED
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241631AbhEQP1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S241696AbhEQPDu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:03:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245168AbhEQPY6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:24:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2D7361C96;
-        Mon, 17 May 2021 14:35:57 +0000 (UTC)
+        id S242129AbhEQPBt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:01:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D012E61574;
+        Mon, 17 May 2021 14:27:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262158;
-        bh=sPOblJm98xVOOlqb9zUovcLgdc/ASxL/tDJssDeQBBY=;
+        s=korg; t=1621261634;
+        bh=IaKBN3H4Ai/UV1GFniA8BD9vIifwfvXqadIIz5KCweQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yHD5BcwMjHxbmCuYe6/r/wwv4qHZ7V0HOZMJdQShupnS0zu7Ka0vxXRCdVpFvvPPH
-         D2lznfq4113wd/7Djhzp/gAyxd1dcDwcppny6K4owN7V9ZEOoi70iwyV59EBOQRanN
-         Wos/i29KOQKJo/FRRP3GPDDSxFkWzMVeyrxrWfFA=
+        b=uS1NGeiJtFtHaukQKDU58k23ATKn0IAhJvAqiTAWzN009Jdzzubt6R1j8VL9r5QWN
+         k0JYsY8beqNxiOmYWxz+wr7mnsQGDoSqgMuLosePEP1Roh5LCwC9ZiUnUskKzdVOYE
+         EehZKNhXgQ63zi0wrmmut24EFhhLbfCnbdG/CuQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
         Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 123/289] SUNRPC: Move fault injection call sites
-Date:   Mon, 17 May 2021 16:00:48 +0200
-Message-Id: <20210517140309.303881237@linuxfoundation.org>
+Subject: [PATCH 5.11 138/329] NFS: Fix attribute bitmask in _nfs42_proc_fallocate()
+Date:   Mon, 17 May 2021 16:00:49 +0200
+Message-Id: <20210517140306.782501160@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chuck Lever <chuck.lever@oracle.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 7638e0bfaed1b653d3ca663e560e9ffb44bb1030 ]
+[ Upstream commit e99812e1382f0bfb6149393262bc70645c9f537a ]
 
-I've hit some crashes that occur in the xprt_rdma_inject_disconnect
-path. It appears that, for some provides, rdma_disconnect() can
-take so long that the transport can disconnect and release its
-hardware resources while rdma_disconnect() is still running,
-resulting in a UAF in the provider.
+We can't use nfs4_fattr_bitmap as a bitmask, because it hasn't been
+filtered to represent the attributes supported by the server. Instead,
+let's revert to using server->cache_consistency_bitmask after adding in
+the missing SPACE_USED attribute.
 
-The transport's fault injection method may depend on the stability
-of transport data structures. That means it needs to be invoked
-only from contexts that hold the transport write lock.
-
-Fixes: 4a0682583988 ("SUNRPC: Transport fault injection")
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 913eca1aea87 ("NFS: Fallocate should use the nfs4_fattr_bitmap")
 Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c               | 1 -
- net/sunrpc/xprt.c               | 6 ++++--
- net/sunrpc/xprtrdma/transport.c | 6 ++++--
- 3 files changed, 8 insertions(+), 5 deletions(-)
+ fs/nfs/nfs42proc.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index 3259120462ed..69d8843a26e0 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -1802,7 +1802,6 @@ call_allocate(struct rpc_task *task)
- 
- 	status = xprt->ops->buf_alloc(task);
- 	trace_rpc_buf_alloc(task, status);
--	xprt_inject_disconnect(xprt);
- 	if (status == 0)
- 		return;
- 	if (status != -ENOMEM) {
-diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
-index 57f09ea3ef2a..99d07513237e 100644
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1455,7 +1455,10 @@ bool xprt_prepare_transmit(struct rpc_task *task)
- 
- void xprt_end_transmit(struct rpc_task *task)
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index f3fd935620fc..1edce2d7ecef 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -46,11 +46,12 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
  {
--	xprt_release_write(task->tk_rqstp->rq_xprt, task);
-+	struct rpc_xprt	*xprt = task->tk_rqstp->rq_xprt;
-+
-+	xprt_inject_disconnect(xprt);
-+	xprt_release_write(xprt, task);
- }
+ 	struct inode *inode = file_inode(filep);
+ 	struct nfs_server *server = NFS_SERVER(inode);
++	u32 bitmask[3];
+ 	struct nfs42_falloc_args args = {
+ 		.falloc_fh	= NFS_FH(inode),
+ 		.falloc_offset	= offset,
+ 		.falloc_length	= len,
+-		.falloc_bitmask	= nfs4_fattr_bitmap,
++		.falloc_bitmask	= bitmask,
+ 	};
+ 	struct nfs42_falloc_res res = {
+ 		.falloc_server	= server,
+@@ -68,6 +69,10 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ 		return status;
+ 	}
  
- /**
-@@ -1857,7 +1860,6 @@ void xprt_release(struct rpc_task *task)
- 	spin_unlock(&xprt->transport_lock);
- 	if (req->rq_buffer)
- 		xprt->ops->buf_free(task);
--	xprt_inject_disconnect(xprt);
- 	xdr_free_bvec(&req->rq_rcv_buf);
- 	xdr_free_bvec(&req->rq_snd_buf);
- 	if (req->rq_cred != NULL)
-diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
-index 035060c05fd5..f93ff4282bf4 100644
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -262,8 +262,10 @@ xprt_rdma_connect_worker(struct work_struct *work)
-  * xprt_rdma_inject_disconnect - inject a connection fault
-  * @xprt: transport context
-  *
-- * If @xprt is connected, disconnect it to simulate spurious connection
-- * loss.
-+ * If @xprt is connected, disconnect it to simulate spurious
-+ * connection loss. Caller must hold @xprt's send lock to
-+ * ensure that data structures and hardware resources are
-+ * stable during the rdma_disconnect() call.
-  */
- static void
- xprt_rdma_inject_disconnect(struct rpc_xprt *xprt)
++	memcpy(bitmask, server->cache_consistency_bitmask, sizeof(bitmask));
++	if (server->attr_bitmask[1] & FATTR4_WORD1_SPACE_USED)
++		bitmask[1] |= FATTR4_WORD1_SPACE_USED;
++
+ 	res.falloc_fattr = nfs_alloc_fattr();
+ 	if (!res.falloc_fattr)
+ 		return -ENOMEM;
+@@ -75,7 +80,8 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ 	status = nfs4_call_sync(server->client, server, msg,
+ 				&args.seq_args, &res.seq_res, 0);
+ 	if (status == 0)
+-		status = nfs_post_op_update_inode(inode, res.falloc_fattr);
++		status = nfs_post_op_update_inode_force_wcc(inode,
++							    res.falloc_fattr);
+ 
+ 	kfree(res.falloc_fattr);
+ 	return status;
 -- 
 2.30.2
 
