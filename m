@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EF393832A0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:50:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE7B3832A5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240372AbhEQOuO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:50:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
+        id S239867AbhEQOuS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:50:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240509AbhEQOr7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:47:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD5B06196C;
-        Mon, 17 May 2021 14:22:04 +0000 (UTC)
+        id S240959AbhEQOsC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:48:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E931B61970;
+        Mon, 17 May 2021 14:22:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261325;
-        bh=bhkuDGn9CSoZ0F+cT7Z7/si1jIFFiEWhKkLCK9J1VPg=;
+        s=korg; t=1621261336;
+        bh=FcEvc5PoH4pw2nJbg/O4TvNBIRJdOnTrHryv7J8Bsek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tKpwbPJEp+GtquGN+NsxDBOmKmUBF4YSdAAR2zeFhcddwsDVRYurTlxQSd9tDTnY6
-         8YORp7AnVFNbVbbPRSqQQtU2w6EOgGss5x4WB03eXjDJfJVZn/4ZSiG3AXgnGzB03w
-         vknAMszHZK0BmpVZo5Mq9QVyTs87Kk8+AvlwuS1M=
+        b=UpThmrMYG3lTg2Kibv05JFSphane2umXox0KU6M05KbdYNBN59+/oXsZ9H+skRRPW
+         HXN/tbh/ReAl9NsRBSHgJ7z/YI8dT9YLm5wEbHflba1hFfpc/uGOaGjz5zhgWzOKdo
+         vB4dV5vgVX6ZUeseZr9NillDXW8Gy6gyre0u+iD8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xiaoyao Li <xiaoyao.li@intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.12 334/363] KVM: VMX: Disable preemption when probing user return MSRs
-Date:   Mon, 17 May 2021 16:03:20 +0200
-Message-Id: <20210517140313.896477790@linuxfoundation.org>
+        stable@vger.kernel.org,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matteo Croce <mcroce@linux.microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 335/363] mm: fix struct page layout on 32-bit systems
+Date:   Mon, 17 May 2021 16:03:21 +0200
+Message-Id: <20210517140313.936112313@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,82 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 5104d7ffcf24749939bea7fdb5378d186473f890 upstream.
+commit 9ddb3c14afba8bc5950ed297f02d4ae05ff35cd1 upstream.
 
-Disable preemption when probing a user return MSR via RDSMR/WRMSR.  If
-the MSR holds a different value per logical CPU, the WRMSR could corrupt
-the host's value if KVM is preempted between the RDMSR and WRMSR, and
-then rescheduled on a different CPU.
+32-bit architectures which expect 8-byte alignment for 8-byte integers and
+need 64-bit DMA addresses (arm, mips, ppc) had their struct page
+inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
+the alignment of the union to 8 bytes, which inserted a 4 byte gap between
+'flags' and the union.
 
-Opportunistically land the helper in common x86, SVM will use the helper
-in a future commit.
+Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
+This restores the alignment to that of an unsigned long.  We always
+store the low bits in the first word to prevent the PageTail bit from
+being inadvertently set on a big endian platform.  If that happened,
+get_user_pages_fast() racing against a page which was freed and
+reallocated to the page_pool could dereference a bogus compound_head(),
+which would be hard to trace back to this cause.
 
-Fixes: 4be534102624 ("KVM: VMX: Initialize vmx->guest_msrs[] right after allocation")
-Cc: stable@vger.kernel.org
-Cc: Xiaoyao Li <xiaoyao.li@intel.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210504171734.1434054-6-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
+Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/kvm_host.h |    1 +
- arch/x86/kvm/vmx/vmx.c          |    5 +----
- arch/x86/kvm/x86.c              |   16 ++++++++++++++++
- 3 files changed, 18 insertions(+), 4 deletions(-)
+ include/linux/mm_types.h |    4 ++--
+ include/net/page_pool.h  |   12 +++++++++++-
+ net/core/page_pool.c     |   12 +++++++-----
+ 3 files changed, 20 insertions(+), 8 deletions(-)
 
---- a/arch/x86/include/asm/kvm_host.h
-+++ b/arch/x86/include/asm/kvm_host.h
-@@ -1753,6 +1753,7 @@ int kvm_pv_send_ipi(struct kvm *kvm, uns
- 		    unsigned long icr, int op_64_bit);
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -97,10 +97,10 @@ struct page {
+ 		};
+ 		struct {	/* page_pool used by netstack */
+ 			/**
+-			 * @dma_addr: might require a 64-bit value even on
++			 * @dma_addr: might require a 64-bit value on
+ 			 * 32-bit architectures.
+ 			 */
+-			dma_addr_t dma_addr;
++			unsigned long dma_addr[2];
+ 		};
+ 		struct {	/* slab, slob and slub */
+ 			union {
+--- a/include/net/page_pool.h
++++ b/include/net/page_pool.h
+@@ -198,7 +198,17 @@ static inline void page_pool_recycle_dir
  
- void kvm_define_user_return_msr(unsigned index, u32 msr);
-+int kvm_probe_user_return_msr(u32 msr);
- int kvm_set_user_return_msr(unsigned index, u64 val, u64 mask);
- 
- u64 kvm_scale_tsc(struct kvm_vcpu *vcpu, u64 tsc);
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6914,12 +6914,9 @@ static int vmx_create_vcpu(struct kvm_vc
- 
- 	for (i = 0; i < ARRAY_SIZE(vmx_uret_msrs_list); ++i) {
- 		u32 index = vmx_uret_msrs_list[i];
--		u32 data_low, data_high;
- 		int j = vmx->nr_uret_msrs;
- 
--		if (rdmsr_safe(index, &data_low, &data_high) < 0)
--			continue;
--		if (wrmsr_safe(index, data_low, data_high) < 0)
-+		if (kvm_probe_user_return_msr(index))
- 			continue;
- 
- 		vmx->guest_uret_msrs[j].slot = i;
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -335,6 +335,22 @@ static void kvm_on_user_return(struct us
- 	}
- }
- 
-+int kvm_probe_user_return_msr(u32 msr)
-+{
-+	u64 val;
-+	int ret;
-+
-+	preempt_disable();
-+	ret = rdmsrl_safe(msr, &val);
-+	if (ret)
-+		goto out;
-+	ret = wrmsrl_safe(msr, val);
-+out:
-+	preempt_enable();
+ static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
+ {
+-	return page->dma_addr;
++	dma_addr_t ret = page->dma_addr[0];
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
 +	return ret;
 +}
-+EXPORT_SYMBOL_GPL(kvm_probe_user_return_msr);
 +
- void kvm_define_user_return_msr(unsigned slot, u32 msr)
++static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
++{
++	page->dma_addr[0] = addr;
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		page->dma_addr[1] = upper_32_bits(addr);
+ }
+ 
+ static inline bool is_page_pool_compiled_in(void)
+--- a/net/core/page_pool.c
++++ b/net/core/page_pool.c
+@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_devic
+ 					  struct page *page,
+ 					  unsigned int dma_sync_size)
  {
- 	BUG_ON(slot >= KVM_MAX_NR_USER_RETURN_MSRS);
++	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++
+ 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
+-	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
++	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
+ 					 pool->p.offset, dma_sync_size,
+ 					 pool->p.dma_dir);
+ }
+@@ -226,7 +228,7 @@ static struct page *__page_pool_alloc_pa
+ 		put_page(page);
+ 		return NULL;
+ 	}
+-	page->dma_addr = dma;
++	page_pool_set_dma_addr(page, dma);
+ 
+ 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
+ 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
+@@ -294,13 +296,13 @@ void page_pool_release_page(struct page_
+ 		 */
+ 		goto skip_dma_unmap;
+ 
+-	dma = page->dma_addr;
++	dma = page_pool_get_dma_addr(page);
+ 
+-	/* When page is unmapped, it cannot be returned our pool */
++	/* When page is unmapped, it cannot be returned to our pool */
+ 	dma_unmap_page_attrs(pool->p.dev, dma,
+ 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
+ 			     DMA_ATTR_SKIP_CPU_SYNC);
+-	page->dma_addr = 0;
++	page_pool_set_dma_addr(page, 0);
+ skip_dma_unmap:
+ 	/* This may be the last page returned, releasing the pool, so
+ 	 * it is not safe to reference pool afterwards.
 
 
