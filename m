@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE251383840
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FD4138371F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244266AbhEQPu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:50:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36360 "EHLO mail.kernel.org"
+        id S243494AbhEQPkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:40:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245377AbhEQPsZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:48:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 031376195D;
-        Mon, 17 May 2021 14:45:09 +0000 (UTC)
+        id S243596AbhEQPhX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:37:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D02A461CE3;
+        Mon, 17 May 2021 14:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262710;
-        bh=sR9RtU9rmIeaagdxWOfkIzp4CvBkwCckfDcFl20vvUA=;
+        s=korg; t=1621262429;
+        bh=xmN1MYSdYi49i6ZtdDHtYwHz/Wfa0/bsqh4+gW58MDM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1G8bd/P635cFCMzNgk7/wwcUBJtHwPuaUW/xIBId20ag+/on2Qj5LImu81kcfD1D6
-         oM8+tFOKJa/ch770mSR3v7RrXuVMIZX64Ux7euDsjBG+2BbrsxJ+WUgl971izPIX3j
-         0b9i1ZSM6N0g1+lZMBiSP4NWnYKnvpQk0mn9aVTk=
+        b=aGmDVv7nUZrNyRqHTxOIzyAleEB6630Pbfe5HUbRWFmZsOlJxI4Rzm8eyCiNp8eLi
+         vsmiZ/6/mtBfYfSkh/szW8wt1VQFXyx3STdKDA7nIo6jGMO51jixJz9bpZG1IATP6J
+         wNrhvbA0S5QKK7iffEbzIs8jMggu9u13fQIFIUrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "kernelci.org bot" <bot@kernelci.org>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 5.10 274/289] ARM: 9027/1: head.S: explicitly map DT even if it lives in the first physical section
-Date:   Mon, 17 May 2021 16:03:19 +0200
-Message-Id: <20210517140314.363696055@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.11 289/329] usb: typec: ucsi: Put fwnode in any case during ->probe()
+Date:   Mon, 17 May 2021 16:03:20 +0200
+Message-Id: <20210517140311.880388356@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-commit 10fce53c0ef8f6e79115c3d9e0d7ea1338c3fa37 upstream
+commit b9a0866a5bdf6a4643a52872ada6be6184c6f4f2 upstream.
 
-The early ATAGS/DT mapping code uses SECTION_SHIFT to mask low order
-bits of R2, and decides that no ATAGS/DTB were provided if the resulting
-value is 0x0.
+device_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-This means that on systems where DRAM starts at 0x0 (such as Raspberry
-Pi), no explicit mapping of the DT will be created if R2 points into the
-first 1 MB section of memory. This was not a problem before, because the
-decompressed kernel is loaded at the base of DRAM and mapped using
-sections as well, and so as long as the DT is referenced via a virtual
-address that uses the same translation (the linear map, in this case),
-things work fine.
-
-However, commit 7a1be318f579 ("9012/1: move device tree mapping out of
-linear region") changes this, and now the DT is referenced via a virtual
-address that is disjoint from the linear mapping of DRAM, and so we need
-the early code to create the DT mapping unconditionally.
-
-So let's create the early DT mapping for any value of R2 != 0x0.
-
-Reported-by: "kernelci.org bot" <bot@kernelci.org>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Fixes: c1b0bc2dabfa ("usb: typec: Add support for UCSI interface")
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210504222337.3151726-1-andy.shevchenko@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/kernel/head.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm/kernel/head.S
-+++ b/arch/arm/kernel/head.S
-@@ -274,10 +274,10 @@ __create_page_tables:
- 	 * We map 2 sections in case the ATAGs/DTB crosses a section boundary.
- 	 */
- 	mov	r0, r2, lsr #SECTION_SHIFT
--	movs	r0, r0, lsl #SECTION_SHIFT
-+	cmp	r2, #0
- 	ldrne	r3, =FDT_FIXED_BASE >> (SECTION_SHIFT - PMD_ORDER)
- 	addne	r3, r3, r4
--	orrne	r6, r7, r0
-+	orrne	r6, r7, r0, lsl #SECTION_SHIFT
- 	strne	r6, [r3], #1 << PMD_ORDER
- 	addne	r6, r6, #1 << SECTION_SHIFT
- 	strne	r6, [r3]
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -995,6 +995,7 @@ static const struct typec_operations ucs
+ 	.pr_set = ucsi_pr_swap
+ };
+ 
++/* Caller must call fwnode_handle_put() after use */
+ static struct fwnode_handle *ucsi_find_fwnode(struct ucsi_connector *con)
+ {
+ 	struct fwnode_handle *fwnode;
+@@ -1028,7 +1029,7 @@ static int ucsi_register_port(struct ucs
+ 	command |= UCSI_CONNECTOR_NUMBER(con->num);
+ 	ret = ucsi_send_command(ucsi, command, &con->cap, sizeof(con->cap));
+ 	if (ret < 0)
+-		goto out;
++		goto out_unlock;
+ 
+ 	if (con->cap.op_mode & UCSI_CONCAP_OPMODE_DRP)
+ 		cap->data = TYPEC_PORT_DRD;
+@@ -1124,6 +1125,8 @@ static int ucsi_register_port(struct ucs
+ 	trace_ucsi_register_port(con->num, &con->status);
+ 
+ out:
++	fwnode_handle_put(cap->fwnode);
++out_unlock:
+ 	mutex_unlock(&con->lock);
+ 	return ret;
+ }
 
 
