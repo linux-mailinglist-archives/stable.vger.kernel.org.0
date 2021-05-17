@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 923FD383448
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AD1438344C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242352AbhEQPGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47056 "EHLO mail.kernel.org"
+        id S239301AbhEQPHD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:07:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47750 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242787AbhEQPEm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:04:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EFED61585;
-        Mon, 17 May 2021 14:28:23 +0000 (UTC)
+        id S242845AbhEQPEz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:04:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C6561622;
+        Mon, 17 May 2021 14:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261704;
-        bh=oXOp+bGdugSKtD/RSmqGci0envmsKva3cXEibDMONN0=;
+        s=korg; t=1621261711;
+        bh=aTRJM9PX6GuayuMjXAlg4d6sNsLrbWdta4625LtSnns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VqXkWrpf5Fms4j6jxAV1tLiZ4HODKggjxTMpJCjPYWfBB07R3mA3cp2GOMznP9hsJ
-         0OXvbfkuj9zsvhPp/FsinMSvv5Yk8pN9W4P2JnxSOM25+D1asu4e50Wr7zXWkYU3cm
-         vkkU4BZ2oFYa0knjmNAr4zdT3aMmOqHBw0AAAXao=
+        b=D/eXaPp1hoXDZ3sVFiK900maeiuDoKPpBonCsBRzswO8DHN4oLtr4oDUWNbAkC3O6
+         i6w+ixhc3tkjXMM12bZxHxSR8isPalG9bPYx13Pt63hSK7wqTBxqPjjbbU1rgSiRlC
+         uTkxDVhy72mhabe8+tUK8t9dMNSYNs0sWN5F8apQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/289] iwlwifi: pcie: make cfg vs. trans_cfg more robust
-Date:   Mon, 17 May 2021 15:59:39 +0200
-Message-Id: <20210517140307.018412532@linuxfoundation.org>
+Subject: [PATCH 5.10 055/289] powerpc/mm: Add cond_resched() while removing hpte mappings
+Date:   Mon, 17 May 2021 15:59:40 +0200
+Message-Id: <20210517140307.056034393@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,112 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit 48a5494d6a4cb5812f0640d9515f1876ffc7a013 ]
+[ Upstream commit a5d6a3e73acbd619dd5b7b831762b755f9e2db80 ]
 
-If we (for example) have a trans_cfg entry in the PCI IDs table,
-but then don't find a full cfg entry for it in the info table,
-we fall through to the code that treats the PCI ID table entry
-as a full cfg entry. This obviously causes crashes later, e.g.
-when trying to build the firmware name string.
+While removing large number of mappings from hash page tables for
+large memory systems as soft-lockup is reported because of the time
+spent inside htap_remove_mapping() like one below:
 
-Avoid such crashes by using the low bit of the pointer as a tag
-for trans_cfg entries (automatically using a macro that checks
-the type when assigning) and then checking that before trying to
-use the data as a full entry - if it's just a partial entry at
-that point, fail.
+ watchdog: BUG: soft lockup - CPU#8 stuck for 23s!
+ <snip>
+ NIP plpar_hcall+0x38/0x58
+ LR  pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+  0x1fffffffffff000 (unreliable)
+  pSeries_lpar_hpte_removebolted+0x9c/0x230
+  hash__remove_section_mapping+0xec/0x1c0
+  remove_section_mapping+0x28/0x3c
+  arch_remove_memory+0xfc/0x150
+  devm_memremap_pages_release+0x180/0x2f0
+  devm_action_release+0x30/0x50
+  release_nodes+0x28c/0x300
+  device_release_driver_internal+0x16c/0x280
+  unbind_store+0x124/0x170
+  drv_attr_store+0x44/0x60
+  sysfs_kf_write+0x64/0x90
+  kernfs_fop_write+0x1b0/0x290
+  __vfs_write+0x3c/0x70
+  vfs_write+0xd4/0x270
+  ksys_write+0xdc/0x130
+  system_call+0x5c/0x70
 
-Since we're adding some macro magic, also check that the type is
-in fact either struct iwl_cfg_trans_params or struct iwl_cfg,
-failing compilation ("initializer element is not constant") if
-it isn't.
+Fix this by adding a cond_resched() to the loop in
+htap_remove_mapping() that issues hcall to remove hpte mapping. The
+call to cond_resched() is issued every HZ jiffies which should prevent
+the soft-lockup from being reported.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210330162204.6f69fe6e4128.I921d4ae20ef5276716baeeeda0b001cf25b9b968@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210404163148.321346-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 35 +++++++++++++++----
- 1 file changed, 28 insertions(+), 7 deletions(-)
+ arch/powerpc/mm/book3s64/hash_utils.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index 500fdb0b6c42..eeb70560b746 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -73,10 +73,20 @@
- #include "iwl-prph.h"
- #include "internal.h"
- 
-+#define TRANS_CFG_MARKER BIT(0)
-+#define _IS_A(cfg, _struct) __builtin_types_compatible_p(typeof(cfg),	\
-+							 struct _struct)
-+extern int _invalid_type;
-+#define _TRANS_CFG_MARKER(cfg)						\
-+	(__builtin_choose_expr(_IS_A(cfg, iwl_cfg_trans_params),	\
-+			       TRANS_CFG_MARKER,			\
-+	 __builtin_choose_expr(_IS_A(cfg, iwl_cfg), 0, _invalid_type)))
-+#define _ASSIGN_CFG(cfg) (_TRANS_CFG_MARKER(cfg) + (kernel_ulong_t)&(cfg))
-+
- #define IWL_PCI_DEVICE(dev, subdev, cfg) \
- 	.vendor = PCI_VENDOR_ID_INTEL,  .device = (dev), \
- 	.subvendor = PCI_ANY_ID, .subdevice = (subdev), \
--	.driver_data = (kernel_ulong_t)&(cfg)
-+	.driver_data = _ASSIGN_CFG(cfg)
- 
- /* Hardware specific file defines the PCI IDs table for that hardware module */
- static const struct pci_device_id iwl_hw_card_ids[] = {
-@@ -1018,20 +1028,23 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
- 
- static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 24702c0a92e0..0141d571476c 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -336,7 +336,7 @@ repeat:
+ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
+ 		      int psize, int ssize)
  {
--	const struct iwl_cfg_trans_params *trans =
--		(struct iwl_cfg_trans_params *)(ent->driver_data);
-+	const struct iwl_cfg_trans_params *trans;
- 	const struct iwl_cfg *cfg_7265d __maybe_unused = NULL;
- 	struct iwl_trans *iwl_trans;
- 	struct iwl_trans_pcie *trans_pcie;
- 	unsigned long flags;
- 	int i, ret;
-+	const struct iwl_cfg *cfg;
-+
-+	trans = (void *)(ent->driver_data & ~TRANS_CFG_MARKER);
-+
- 	/*
- 	 * This is needed for backwards compatibility with the old
- 	 * tables, so we don't need to change all the config structs
- 	 * at the same time.  The cfg is used to compare with the old
- 	 * full cfg structs.
- 	 */
--	const struct iwl_cfg *cfg = (struct iwl_cfg *)(ent->driver_data);
-+	cfg = (void *)(ent->driver_data & ~TRANS_CFG_MARKER);
+-	unsigned long vaddr;
++	unsigned long vaddr, time_limit;
+ 	unsigned int step, shift;
+ 	int rc;
+ 	int ret = 0;
+@@ -349,8 +349,19 @@ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
  
- 	/* make sure trans is the first element in iwl_cfg */
- 	BUILD_BUG_ON(offsetof(struct iwl_cfg, trans));
-@@ -1133,11 +1146,19 @@ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 
- #endif
- 	/*
--	 * If we didn't set the cfg yet, assume the trans is actually
--	 * a full cfg from the old tables.
-+	 * If we didn't set the cfg yet, the PCI ID table entry should have
-+	 * been a full config - if yes, use it, otherwise fail.
- 	 */
--	if (!iwl_trans->cfg)
-+	if (!iwl_trans->cfg) {
-+		if (ent->driver_data & TRANS_CFG_MARKER) {
-+			pr_err("No config found for PCI dev %04x/%04x, rev=0x%x, rfid=0x%x\n",
-+			       pdev->device, pdev->subsystem_device,
-+			       iwl_trans->hw_rev, iwl_trans->hw_rf_id);
-+			ret = -EINVAL;
-+			goto out_free_trans;
+ 	/* Unmap the full range specificied */
+ 	vaddr = ALIGN_DOWN(vstart, step);
++	time_limit = jiffies + HZ;
++
+ 	for (;vaddr < vend; vaddr += step) {
+ 		rc = mmu_hash_ops.hpte_removebolted(vaddr, psize, ssize);
++
++		/*
++		 * For large number of mappings introduce a cond_resched()
++		 * to prevent softlockup warnings.
++		 */
++		if (time_after(jiffies, time_limit)) {
++			cond_resched();
++			time_limit = jiffies + HZ;
 +		}
- 		iwl_trans->cfg = cfg;
-+	}
- 
- 	/* if we don't have a name yet, copy name from the old cfg */
- 	if (!iwl_trans->name)
+ 		if (rc == -ENOENT) {
+ 			ret = -ENOENT;
+ 			continue;
 -- 
 2.30.2
 
