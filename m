@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F759382F48
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:14:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26674382F4C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238727AbhEQOPB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:15:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46666 "EHLO mail.kernel.org"
+        id S234891AbhEQOPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236836AbhEQONA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:13:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31E0C61364;
-        Mon, 17 May 2021 14:08:25 +0000 (UTC)
+        id S238482AbhEQONB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:13:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E5AA61377;
+        Mon, 17 May 2021 14:08:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260505;
-        bh=UimeJS6hq2lUy+unWCGlr0f/LHC0pS+MIX4eyMbSJdc=;
+        s=korg; t=1621260507;
+        bh=UWpbrYskpnh6yjz5JX5jnlSxDsV2p+ybcsR7Fj3BBc8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yUyasCgWN7ySQmgN+ayV/H0mKKCBbWjyounxnjNlOwxru+g6mx4qhBj66jFYlGPho
-         cT+mOTPhQRNN60Z215CgtJF9lG53L4R3XsLXUvk5jISul+PASGhcompNpJdsPYbBw5
-         NobkI0lJcdAkNrtjkeaAmaJNjyhnUED+GP2KcFYM=
+        b=BzZ9wWXjZLDhMCuYtCaM0o/ZTlgJU+JWTbV4Z2KVaNiEJyJe/W4afRNuqH2YLAVeW
+         iNpRE4a2xGUd902MzvyyGyBfG+/Z2fbyd24B5kGn1BMO/Hr5fcz+LFu/F/Pr2YtQ+l
+         u0nqFw0RVVQlAGESv2NtmUYxb2pJRxseOTLLW6RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        stable@vger.kernel.org, Petr Machata <petrm@nvidia.com>,
+        Jiri Pirko <jiri@nvidia.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 112/363] net: ethernet: mtk_eth_soc: fix RX VLAN offload
-Date:   Mon, 17 May 2021 15:59:38 +0200
-Message-Id: <20210517140306.406951178@linuxfoundation.org>
+Subject: [PATCH 5.12 113/363] selftests: mlxsw: Increase the tolerance of backlog buildup
+Date:   Mon, 17 May 2021 15:59:39 +0200
+Message-Id: <20210517140306.440088319@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,48 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Petr Machata <petrm@nvidia.com>
 
-[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
+[ Upstream commit dda7f4fa55839baeb72ae040aeaf9ccf89d3e416 ]
 
-The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
-set. Fixes frames wrongly marked with VLAN tags.
+The intention behind this test is to make sure that qdisc limit is
+correctly projected to the HW. However, first, due to rounding in the
+qdisc, and then in the driver, the number cannot actually be accurate. And
+second, the approach to testing this is to oversubscribe the port with
+traffic generated on the same switch. The actual backlog size therefore
+fluctuates.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-[Ilya: fix commit message]
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+In practice, this test proved to be noisier than the rest, and spuriously
+fails every now and then. Increase the tolerance to 10 % to avoid these
+issues.
+
+Signed-off-by: Petr Machata <petrm@nvidia.com>
+Acked-by: Jiri Pirko <jiri@nvidia.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ tools/testing/selftests/drivers/net/mlxsw/sch_red_core.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 01d3ee4b5829..bcd5e7ae8482 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1319,7 +1319,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/tools/testing/selftests/drivers/net/mlxsw/sch_red_core.sh b/tools/testing/selftests/drivers/net/mlxsw/sch_red_core.sh
+index b0cb1aaffdda..33ddd01689be 100644
+--- a/tools/testing/selftests/drivers/net/mlxsw/sch_red_core.sh
++++ b/tools/testing/selftests/drivers/net/mlxsw/sch_red_core.sh
+@@ -507,8 +507,8 @@ do_red_test()
+ 	check_err $? "backlog $backlog / $limit Got $pct% marked packets, expected == 0."
+ 	local diff=$((limit - backlog))
+ 	pct=$((100 * diff / limit))
+-	((0 <= pct && pct <= 5))
+-	check_err $? "backlog $backlog / $limit expected <= 5% distance"
++	((0 <= pct && pct <= 10))
++	check_err $? "backlog $backlog / $limit expected <= 10% distance"
+ 	log_test "TC $((vlan - 10)): RED backlog > limit"
  
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
--		    RX_DMA_VID(trxd.rxd3))
-+		    (trxd.rxd2 & RX_DMA_VTAG))
- 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
- 					       RX_DMA_VID(trxd.rxd3));
- 		skb_record_rx_queue(skb, 0);
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index fd3cec8f06ba..c47272100615 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -296,6 +296,7 @@
- #define RX_DMA_LSO		BIT(30)
- #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
- #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
-+#define RX_DMA_VTAG		BIT(15)
- 
- /* QDMA descriptor rxd3 */
- #define RX_DMA_VID(_x)		((_x) & 0xfff)
+ 	stop_traffic
 -- 
 2.30.2
 
