@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DA51383261
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 854BC383265
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240874AbhEQOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54230 "EHLO mail.kernel.org"
+        id S240988AbhEQOrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:47:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241529AbhEQOpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:45:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B903161951;
-        Mon, 17 May 2021 14:20:57 +0000 (UTC)
+        id S241558AbhEQOpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:45:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 859C2613B0;
+        Mon, 17 May 2021 14:21:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261258;
-        bh=w1dN5sX4ZZCG3Slp7G3V4sFe3WQRgF+QCwDfjW+QruQ=;
+        s=korg; t=1621261267;
+        bh=3ryTMeDjAtUSDUejj0cVzdtYD63X9CEyOhQPZ6FCQ34=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KaD3ENl1RZT5demG2xEVIWsvA4SYaV/SZyn4fLOjbDiOK1ND8kH+mgim3iMQXsPgI
-         C5PqaCOSDv7JfsynMsi8Lp8pD+DE0vik/FM3Z6IuqKmR0g74pFWUeLU9LTpl44FeNO
-         9Me6i9xdhV23P42JKSgp5Vx4YhLrg6HrIYNXv7Ps=
+        b=RetrOTNwI4K9YvwAQ14HfTv96USkYD3AgZBcz/M7pr5IBtKwDsaCfL8thVkoijECK
+         DbeQA16Y7KERa9cmmW/LBzv37OyCFdUgNMgjGxv19acu69uwwgbkTXLVIJ4nN36Meb
+         GlmP/zColEUbU5sTu2ZRZ6TkWftccYQBfEE+1beA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>
-Subject: [PATCH 5.12 326/363] cdc-wdm: untangle a circular dependency between callback and softint
-Date:   Mon, 17 May 2021 16:03:12 +0200
-Message-Id: <20210517140313.627551546@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.12 327/363] alarmtimer: Check RTC features instead of ops
+Date:   Mon, 17 May 2021 16:03:13 +0200
+Message-Id: <20210517140313.662801818@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -38,105 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Neukum <oneukum@suse.com>
+From: Alexandre Belloni <alexandre.belloni@bootlin.com>
 
-commit 18abf874367456540846319574864e6ff32752e2 upstream.
+commit e09784a8a751e539dffc94d43bc917b0ac1e934a upstream.
 
-We have a cycle of callbacks scheduling works which submit
-URBs with those callbacks. This needs to be blocked, stopped
-and unblocked to untangle the circle.
+RTC drivers used to leave .set_alarm() NULL in order to signal the RTC
+device doesn't support alarms. The drivers are now clearing the
+RTC_FEATURE_ALARM bit for that purpose in order to keep the rtc_class_ops
+structure const. So now, .set_alarm() is set unconditionally and this
+possibly causes the alarmtimer code to select an RTC device that doesn't
+support alarms.
 
-Signed-off-by: Oliver Neukum <oneukum@suse.com>
-Link: https://lore.kernel.org/r/20210426092622.20433-1-oneukum@suse.com
-Cc: stable <stable@vger.kernel.org>
+Test RTC_FEATURE_ALARM instead of relying on ops->set_alarm to determine
+whether alarms are available.
+
+Fixes: 7ae41220ef58 ("rtc: introduce features bitfield")
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210511014516.563031-1-alexandre.belloni@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/class/cdc-wdm.c |   30 ++++++++++++++++++++++--------
- 1 file changed, 22 insertions(+), 8 deletions(-)
+ kernel/time/alarmtimer.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/class/cdc-wdm.c
-+++ b/drivers/usb/class/cdc-wdm.c
-@@ -321,12 +321,23 @@ exit:
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -92,7 +92,7 @@ static int alarmtimer_rtc_add_device(str
+ 	if (rtcdev)
+ 		return -EBUSY;
  
- }
- 
--static void kill_urbs(struct wdm_device *desc)
-+static void poison_urbs(struct wdm_device *desc)
- {
- 	/* the order here is essential */
--	usb_kill_urb(desc->command);
--	usb_kill_urb(desc->validity);
--	usb_kill_urb(desc->response);
-+	usb_poison_urb(desc->command);
-+	usb_poison_urb(desc->validity);
-+	usb_poison_urb(desc->response);
-+}
-+
-+static void unpoison_urbs(struct wdm_device *desc)
-+{
-+	/*
-+	 *  the order here is not essential
-+	 *  it is symmetrical just to be nice
-+	 */
-+	usb_unpoison_urb(desc->response);
-+	usb_unpoison_urb(desc->validity);
-+	usb_unpoison_urb(desc->command);
- }
- 
- static void free_urbs(struct wdm_device *desc)
-@@ -741,11 +752,12 @@ static int wdm_release(struct inode *ino
- 	if (!desc->count) {
- 		if (!test_bit(WDM_DISCONNECTING, &desc->flags)) {
- 			dev_dbg(&desc->intf->dev, "wdm_release: cleanup\n");
--			kill_urbs(desc);
-+			poison_urbs(desc);
- 			spin_lock_irq(&desc->iuspin);
- 			desc->resp_count = 0;
- 			spin_unlock_irq(&desc->iuspin);
- 			desc->manage_power(desc->intf, 0);
-+			unpoison_urbs(desc);
- 		} else {
- 			/* must avoid dev_printk here as desc->intf is invalid */
- 			pr_debug(KBUILD_MODNAME " %s: device gone - cleaning up\n", __func__);
-@@ -1037,9 +1049,9 @@ static void wdm_disconnect(struct usb_in
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
- 	mutex_lock(&desc->wlock);
-+	poison_urbs(desc);
- 	cancel_work_sync(&desc->rxwork);
- 	cancel_work_sync(&desc->service_outs_intr);
--	kill_urbs(desc);
- 	mutex_unlock(&desc->wlock);
- 	mutex_unlock(&desc->rlock);
- 
-@@ -1080,9 +1092,10 @@ static int wdm_suspend(struct usb_interf
- 		set_bit(WDM_SUSPENDING, &desc->flags);
- 		spin_unlock_irq(&desc->iuspin);
- 		/* callback submits work - order is essential */
--		kill_urbs(desc);
-+		poison_urbs(desc);
- 		cancel_work_sync(&desc->rxwork);
- 		cancel_work_sync(&desc->service_outs_intr);
-+		unpoison_urbs(desc);
- 	}
- 	if (!PMSG_IS_AUTO(message)) {
- 		mutex_unlock(&desc->wlock);
-@@ -1140,7 +1153,7 @@ static int wdm_pre_reset(struct usb_inte
- 	wake_up_all(&desc->wait);
- 	mutex_lock(&desc->rlock);
- 	mutex_lock(&desc->wlock);
--	kill_urbs(desc);
-+	poison_urbs(desc);
- 	cancel_work_sync(&desc->rxwork);
- 	cancel_work_sync(&desc->service_outs_intr);
- 	return 0;
-@@ -1151,6 +1164,7 @@ static int wdm_post_reset(struct usb_int
- 	struct wdm_device *desc = wdm_find_device(intf);
- 	int rv;
- 
-+	unpoison_urbs(desc);
- 	clear_bit(WDM_OVERFLOW, &desc->flags);
- 	clear_bit(WDM_RESETTING, &desc->flags);
- 	rv = recover_from_urb_loss(desc);
+-	if (!rtc->ops->set_alarm)
++	if (!test_bit(RTC_FEATURE_ALARM, rtc->features))
+ 		return -1;
+ 	if (!device_may_wakeup(rtc->dev.parent))
+ 		return -1;
 
 
