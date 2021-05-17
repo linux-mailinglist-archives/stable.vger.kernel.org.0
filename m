@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A9513833A8
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 410E03831DD
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241473AbhEQPBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:01:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60754 "EHLO mail.kernel.org"
+        id S240014AbhEQOla (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:41:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241858AbhEQO65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0CD6619C3;
-        Mon, 17 May 2021 14:26:15 +0000 (UTC)
+        id S241055AbhEQOjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:39:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF17961360;
+        Mon, 17 May 2021 14:18:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261576;
-        bh=Zcd1S4vxeX10IKWe/CKO9XrNSo6rG6ZGbE1nWcOAwoY=;
+        s=korg; t=1621261113;
+        bh=whOO/qEGOEz7yoV6ZAmhRiWRqssU/z4LEZFhx831jh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TtUugI2N+OKTliD2qt9Y18I1TLfdM44POJ312C2tsqLnex6vUwD6N4rvcHRqyUWoc
-         6xaIaVd713XrNPfvzTbrnS5VyqRen1sX1uOJk/cU6qguXbA7hCzpxL0mWCIM15UMLq
-         dMGDfqvRISogrAT9+QaY9AJwctAtv8hrGwx0mLGU=
+        b=k2eIrzAGF/uVsynyYpml9qiwgELG5xf1+whDI6Issq+LztFTdR85r+Tjxc8GLbiLE
+         ifF0PgV/tUxBht+Epmrz0SoxkNtHvSGCZor7tSmrvkCjKAZ89eDGttqNMogtBb5sbC
+         Ezr02tAslDbQun4JvTjHRvcWleoox8ZgpOlFAxk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Barry Song <song.bao.hua@hisilicon.com>,
-        Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Miao-chen Chou <mcchou@chromium.org>,
+        Daniel Winkler <danielwinkler@google.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/289] net: hns3: add handling for xmit skb with recursive fraglist
+Subject: [PATCH 5.11 049/329] Bluetooth: Do not set cur_adv_instance in adv param MGMT request
 Date:   Mon, 17 May 2021 15:59:20 +0200
-Message-Id: <20210517140306.374639629@linuxfoundation.org>
+Message-Id: <20210517140303.711455823@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,295 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Daniel Winkler <danielwinkler@google.com>
 
-[ Upstream commit d5d5e0193ee8f88efbbc7f1471087255657bc19a ]
+[ Upstream commit b6f1b79deabd32f89adbf24ef7b30f82d029808a ]
 
-Currently hns3 driver only handle the xmit skb with one level of
-fraglist skb, add handling for multi level by calling hns3_tx_bd_num()
-recursively when calculating bd num and calling hns3_fill_skb_to_desc()
-recursively when filling tx desc.
+We set hdev->cur_adv_instance in the adv param MGMT request to allow the
+callback to the hci param request to set the tx power to the correct
+instance. Now that the callbacks use the advertising handle from the hci
+request (as they should), this workaround is no longer necessary.
 
-When the skb has a fraglist level of 24, the skb is simply dropped and
-stats.max_recursion_level is added to record the error. Move the stat
-handling from hns3_nic_net_xmit() to hns3_nic_maybe_stop_tx() in order
-to handle different error stat and add the 'max_recursion_level' and
-'hw_limitation' stat.
+Furthermore, this change resolves a race condition that is more
+prevalent when using the extended advertising MGMT calls - if
+hdev->cur_adv_instance is set in the params request, then when the data
+request is called, we believe our new instance is already active. This
+treats it as an update and immediately schedules the instance with the
+controller, which has a potential race with the software rotation adv
+update. By not setting hdev->cur_adv_instance too early, the new
+instance is queued as it should be, to be used when the rotation comes
+around again.
 
-Note that the max recursive level as 24 is chose according to below:
-commit 48a1df65334b ("skbuff: return -EMSGSIZE in skb_to_sgvec to
-prevent overflow").
+This change is tested on harrison peak to confirm that it resolves the
+race condition on registration, and that there is no regression in
+single- and multi-advertising automated tests.
 
-And that we are not able to find a testcase to verify the recursive
-fraglist case, so Fixes tag is not provided.
-
-Reported-by: Barry Song <song.bao.hua@hisilicon.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Miao-chen Chou <mcchou@chromium.org>
+Signed-off-by: Daniel Winkler <danielwinkler@google.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/hisilicon/hns3/hns3_enet.c   | 115 +++++++++++-------
- .../net/ethernet/hisilicon/hns3/hns3_enet.h   |   2 +
- .../ethernet/hisilicon/hns3/hns3_ethtool.c    |   2 +
- 3 files changed, 78 insertions(+), 41 deletions(-)
+ net/bluetooth/mgmt.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 070bef303d18..051598341968 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -1192,23 +1192,21 @@ static unsigned int hns3_skb_bd_num(struct sk_buff *skb, unsigned int *bd_size,
- }
- 
- static unsigned int hns3_tx_bd_num(struct sk_buff *skb, unsigned int *bd_size,
--				   u8 max_non_tso_bd_num)
-+				   u8 max_non_tso_bd_num, unsigned int bd_num,
-+				   unsigned int recursion_level)
- {
-+#define HNS3_MAX_RECURSION_LEVEL	24
-+
- 	struct sk_buff *frag_skb;
--	unsigned int bd_num = 0;
- 
- 	/* If the total len is within the max bd limit */
--	if (likely(skb->len <= HNS3_MAX_BD_SIZE && !skb_has_frag_list(skb) &&
-+	if (likely(skb->len <= HNS3_MAX_BD_SIZE && !recursion_level &&
-+		   !skb_has_frag_list(skb) &&
- 		   skb_shinfo(skb)->nr_frags < max_non_tso_bd_num))
- 		return skb_shinfo(skb)->nr_frags + 1U;
- 
--	/* The below case will always be linearized, return
--	 * HNS3_MAX_BD_NUM_TSO + 1U to make sure it is linearized.
--	 */
--	if (unlikely(skb->len > HNS3_MAX_TSO_SIZE ||
--		     (!skb_is_gso(skb) && skb->len >
--		      HNS3_MAX_NON_TSO_SIZE(max_non_tso_bd_num))))
--		return HNS3_MAX_TSO_BD_NUM + 1U;
-+	if (unlikely(recursion_level >= HNS3_MAX_RECURSION_LEVEL))
-+		return UINT_MAX;
- 
- 	bd_num = hns3_skb_bd_num(skb, bd_size, bd_num);
- 
-@@ -1216,7 +1214,8 @@ static unsigned int hns3_tx_bd_num(struct sk_buff *skb, unsigned int *bd_size,
- 		return bd_num;
- 
- 	skb_walk_frags(skb, frag_skb) {
--		bd_num = hns3_skb_bd_num(frag_skb, bd_size, bd_num);
-+		bd_num = hns3_tx_bd_num(frag_skb, bd_size, max_non_tso_bd_num,
-+					bd_num, recursion_level + 1);
- 		if (bd_num > HNS3_MAX_TSO_BD_NUM)
- 			return bd_num;
- 	}
-@@ -1276,6 +1275,43 @@ void hns3_shinfo_pack(struct skb_shared_info *shinfo, __u32 *size)
- 		size[i] = skb_frag_size(&shinfo->frags[i]);
- }
- 
-+static int hns3_skb_linearize(struct hns3_enet_ring *ring,
-+			      struct sk_buff *skb,
-+			      u8 max_non_tso_bd_num,
-+			      unsigned int bd_num)
-+{
-+	/* 'bd_num == UINT_MAX' means the skb' fraglist has a
-+	 * recursion level of over HNS3_MAX_RECURSION_LEVEL.
-+	 */
-+	if (bd_num == UINT_MAX) {
-+		u64_stats_update_begin(&ring->syncp);
-+		ring->stats.over_max_recursion++;
-+		u64_stats_update_end(&ring->syncp);
-+		return -ENOMEM;
-+	}
-+
-+	/* The skb->len has exceeded the hw limitation, linearization
-+	 * will not help.
-+	 */
-+	if (skb->len > HNS3_MAX_TSO_SIZE ||
-+	    (!skb_is_gso(skb) && skb->len >
-+	     HNS3_MAX_NON_TSO_SIZE(max_non_tso_bd_num))) {
-+		u64_stats_update_begin(&ring->syncp);
-+		ring->stats.hw_limitation++;
-+		u64_stats_update_end(&ring->syncp);
-+		return -ENOMEM;
-+	}
-+
-+	if (__skb_linearize(skb)) {
-+		u64_stats_update_begin(&ring->syncp);
-+		ring->stats.sw_err_cnt++;
-+		u64_stats_update_end(&ring->syncp);
-+		return -ENOMEM;
-+	}
-+
-+	return 0;
-+}
-+
- static int hns3_nic_maybe_stop_tx(struct hns3_enet_ring *ring,
- 				  struct net_device *netdev,
- 				  struct sk_buff *skb)
-@@ -1285,7 +1321,7 @@ static int hns3_nic_maybe_stop_tx(struct hns3_enet_ring *ring,
- 	unsigned int bd_size[HNS3_MAX_TSO_BD_NUM + 1U];
- 	unsigned int bd_num;
- 
--	bd_num = hns3_tx_bd_num(skb, bd_size, max_non_tso_bd_num);
-+	bd_num = hns3_tx_bd_num(skb, bd_size, max_non_tso_bd_num, 0, 0);
- 	if (unlikely(bd_num > max_non_tso_bd_num)) {
- 		if (bd_num <= HNS3_MAX_TSO_BD_NUM && skb_is_gso(skb) &&
- 		    !hns3_skb_need_linearized(skb, bd_size, bd_num,
-@@ -1294,16 +1330,11 @@ static int hns3_nic_maybe_stop_tx(struct hns3_enet_ring *ring,
- 			goto out;
- 		}
- 
--		if (__skb_linearize(skb))
-+		if (hns3_skb_linearize(ring, skb, max_non_tso_bd_num,
-+				       bd_num))
- 			return -ENOMEM;
- 
- 		bd_num = hns3_tx_bd_count(skb->len);
--		if ((skb_is_gso(skb) && bd_num > HNS3_MAX_TSO_BD_NUM) ||
--		    (!skb_is_gso(skb) &&
--		     bd_num > max_non_tso_bd_num)) {
--			trace_hns3_over_max_bd(skb);
--			return -ENOMEM;
--		}
- 
- 		u64_stats_update_begin(&ring->syncp);
- 		ring->stats.tx_copy++;
-@@ -1327,6 +1358,10 @@ out:
- 		return bd_num;
+diff --git a/net/bluetooth/mgmt.c b/net/bluetooth/mgmt.c
+index fa0f7a4a1d2f..01e143c2bbc0 100644
+--- a/net/bluetooth/mgmt.c
++++ b/net/bluetooth/mgmt.c
+@@ -7768,7 +7768,6 @@ static int add_ext_adv_params(struct sock *sk, struct hci_dev *hdev,
+ 		goto unlock;
  	}
  
-+	u64_stats_update_begin(&ring->syncp);
-+	ring->stats.tx_busy++;
-+	u64_stats_update_end(&ring->syncp);
-+
- 	return -EBUSY;
- }
- 
-@@ -1374,6 +1409,7 @@ static int hns3_fill_skb_to_desc(struct hns3_enet_ring *ring,
- 				 struct sk_buff *skb, enum hns_desc_type type)
- {
- 	unsigned int size = skb_headlen(skb);
-+	struct sk_buff *frag_skb;
- 	int i, ret, bd_num = 0;
- 
- 	if (size) {
-@@ -1398,6 +1434,15 @@ static int hns3_fill_skb_to_desc(struct hns3_enet_ring *ring,
- 		bd_num += ret;
- 	}
- 
-+	skb_walk_frags(skb, frag_skb) {
-+		ret = hns3_fill_skb_to_desc(ring, frag_skb,
-+					    DESC_TYPE_FRAGLIST_SKB);
-+		if (unlikely(ret < 0))
-+			return ret;
-+
-+		bd_num += ret;
-+	}
-+
- 	return bd_num;
- }
- 
-@@ -1428,8 +1473,6 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	struct hns3_enet_ring *ring = &priv->ring[skb->queue_mapping];
- 	struct netdev_queue *dev_queue;
- 	int pre_ntu, next_to_use_head;
--	struct sk_buff *frag_skb;
--	int bd_num = 0;
- 	bool doorbell;
- 	int ret;
- 
-@@ -1445,15 +1488,8 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	ret = hns3_nic_maybe_stop_tx(ring, netdev, skb);
- 	if (unlikely(ret <= 0)) {
- 		if (ret == -EBUSY) {
--			u64_stats_update_begin(&ring->syncp);
--			ring->stats.tx_busy++;
--			u64_stats_update_end(&ring->syncp);
- 			hns3_tx_doorbell(ring, 0, true);
- 			return NETDEV_TX_BUSY;
--		} else if (ret == -ENOMEM) {
--			u64_stats_update_begin(&ring->syncp);
--			ring->stats.sw_err_cnt++;
--			u64_stats_update_end(&ring->syncp);
- 		}
- 
- 		hns3_rl_err(netdev, "xmit error: %d!\n", ret);
-@@ -1466,21 +1502,14 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	if (unlikely(ret < 0))
- 		goto fill_err;
- 
-+	/* 'ret < 0' means filling error, 'ret == 0' means skb->len is
-+	 * zero, which is unlikely, and 'ret > 0' means how many tx desc
-+	 * need to be notified to the hw.
-+	 */
- 	ret = hns3_fill_skb_to_desc(ring, skb, DESC_TYPE_SKB);
--	if (unlikely(ret < 0))
-+	if (unlikely(ret <= 0))
- 		goto fill_err;
- 
--	bd_num += ret;
--
--	skb_walk_frags(skb, frag_skb) {
--		ret = hns3_fill_skb_to_desc(ring, frag_skb,
--					    DESC_TYPE_FRAGLIST_SKB);
--		if (unlikely(ret < 0))
--			goto fill_err;
--
--		bd_num += ret;
--	}
--
- 	pre_ntu = ring->next_to_use ? (ring->next_to_use - 1) :
- 					(ring->desc_num - 1);
- 	ring->desc[pre_ntu].tx.bdtp_fe_sc_vld_ra_ri |=
-@@ -1491,7 +1520,7 @@ netdev_tx_t hns3_nic_net_xmit(struct sk_buff *skb, struct net_device *netdev)
- 	dev_queue = netdev_get_tx_queue(netdev, ring->queue_index);
- 	doorbell = __netdev_tx_sent_queue(dev_queue, skb->len,
- 					  netdev_xmit_more());
--	hns3_tx_doorbell(ring, bd_num, doorbell);
-+	hns3_tx_doorbell(ring, ret, doorbell);
- 
- 	return NETDEV_TX_OK;
- 
-@@ -1656,11 +1685,15 @@ static void hns3_nic_get_stats64(struct net_device *netdev,
- 			tx_drop += ring->stats.tx_l4_proto_err;
- 			tx_drop += ring->stats.tx_l2l3l4_err;
- 			tx_drop += ring->stats.tx_tso_err;
-+			tx_drop += ring->stats.over_max_recursion;
-+			tx_drop += ring->stats.hw_limitation;
- 			tx_errors += ring->stats.sw_err_cnt;
- 			tx_errors += ring->stats.tx_vlan_err;
- 			tx_errors += ring->stats.tx_l4_proto_err;
- 			tx_errors += ring->stats.tx_l2l3l4_err;
- 			tx_errors += ring->stats.tx_tso_err;
-+			tx_errors += ring->stats.over_max_recursion;
-+			tx_errors += ring->stats.hw_limitation;
- 		} while (u64_stats_fetch_retry_irq(&ring->syncp, start));
- 
- 		/* fetch the rx stats */
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-index 1c81dea0da1e..398686b15a82 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.h
-@@ -359,6 +359,8 @@ struct ring_stats {
- 			u64 tx_l4_proto_err;
- 			u64 tx_l2l3l4_err;
- 			u64 tx_tso_err;
-+			u64 over_max_recursion;
-+			u64 hw_limitation;
- 		};
- 		struct {
- 			u64 rx_pkts;
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-index 6b07b2771172..c0aa3be0cdfb 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_ethtool.c
-@@ -39,6 +39,8 @@ static const struct hns3_stats hns3_txq_stats[] = {
- 	HNS3_TQP_STAT("l4_proto_err", tx_l4_proto_err),
- 	HNS3_TQP_STAT("l2l3l4_err", tx_l2l3l4_err),
- 	HNS3_TQP_STAT("tso_err", tx_tso_err),
-+	HNS3_TQP_STAT("over_max_recursion", over_max_recursion),
-+	HNS3_TQP_STAT("hw_limitation", hw_limitation),
- };
- 
- #define HNS3_TXQ_STATS_COUNT ARRAY_SIZE(hns3_txq_stats)
+-	hdev->cur_adv_instance = cp->instance;
+ 	/* Submit request for advertising params if ext adv available */
+ 	if (ext_adv_capable(hdev)) {
+ 		hci_req_init(&req, hdev);
 -- 
 2.30.2
 
