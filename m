@@ -2,105 +2,73 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D2A53820FD
-	for <lists+stable@lfdr.de>; Sun, 16 May 2021 22:34:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1080838225F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 02:42:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231355AbhEPUfk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 16 May 2021 16:35:40 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:58196 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbhEPUfk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 16:35:40 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id C8A701C0B76; Sun, 16 May 2021 22:34:23 +0200 (CEST)
-Date:   Sun, 16 May 2021 22:34:23 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Quanyang Wang <quanyang.wang@windriver.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 264/530] spi: spi-zynqmp-gqspi: fix use-after-free
- in zynqmp_qspi_exec_op
-Message-ID: <20210516203423.GA11471@duo.ucw.cz>
-References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144828.501430855@linuxfoundation.org>
+        id S229632AbhEQAnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 16 May 2021 20:43:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53050 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229459AbhEQAnx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 16 May 2021 20:43:53 -0400
+Received: from mail-il1-x12d.google.com (mail-il1-x12d.google.com [IPv6:2607:f8b0:4864:20::12d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDF07C061573
+        for <stable@vger.kernel.org>; Sun, 16 May 2021 17:42:36 -0700 (PDT)
+Received: by mail-il1-x12d.google.com with SMTP id z1so4674643ils.0
+        for <stable@vger.kernel.org>; Sun, 16 May 2021 17:42:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=zUT0jGhblhx8FFFXO9g3iUrg2t8VnLs9CTg0TU8APOU=;
+        b=sGAlykYY8YMe4SVZVe/QDujeEkDywOWO62RK3wzSLwD1Mj1tO1FUv6fk+aBtRG2gbh
+         /7lUuen7U2K68BKJolLNZp9ASBYhII5CIK2ZeERsMg96779cNiI0af9nRh/B4e8YOHiv
+         3VrCqiS22r6SGwZ2NathCIQ75a90tbil8ZHeVuU8WLX3xbDVKOLs+gN4lprZeYZ00PZY
+         jULOyHdnwgsRdwIUw9sRdYzgqO7SjXos4BhtPP+6BhEvmFgMyVCfMT5CJPLz+TcOVmie
+         Vcbzp6PlUtK8oW7IugMhIZFqnwozx/nxITF36OlIOZYoWlG7qbklXB3J263JNm5a6LrX
+         0s1g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=zUT0jGhblhx8FFFXO9g3iUrg2t8VnLs9CTg0TU8APOU=;
+        b=MG9YqH3GUf82XnnktWgcGjPPjYLxcw6vDEtqbuNnqFdQ+d9t//CM68HMHOmfPj3fbH
+         IIrGhe1Eq/ZLACU8GhkvzO5X1U8y2JQgpqD5InmfQGY1lILm15Y7JDg5VBe5vDOKCuOx
+         /19t+fp9bq3kgA/xcft/EF22BbzoFNtBGakxBgBOcFLq3ma22UWw2Zi9hWLb04v4uMN6
+         EHGhriDNgw69B6QozhiT7zuAUPzBALx4jQMdN4JOoSxy7yiun8M4E/vZvGeyB0BPtB/H
+         djYNRi5ls2dWuiMkqKr8ceWut99yu+++EWAwj3wUcWRfrjdxoKfRDNXNoG/K/c4cmKwa
+         Dcyg==
+X-Gm-Message-State: AOAM530jW66jh62xzlGJHrk2vuXjt1Pdju+UrBzTjldaPF+rPuS0j97b
+        +WCUKmTOrceQs7k+6jywRsfE/y24rUu58fiqoag=
+X-Google-Smtp-Source: ABdhPJyOxkPdEKRMkp7Ahs7Jfnq1zgKBjkA7kIQiR8Z7a9MKgxx7JfOE89Xj4Eb3tomGR+g7Vru4V9eBc+1Mu5jUM24=
+X-Received: by 2002:a92:cccb:: with SMTP id u11mr46457518ilq.36.1621212156086;
+ Sun, 16 May 2021 17:42:36 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="2oS5YaxWCcQjTEyO"
-Content-Disposition: inline
-In-Reply-To: <20210512144828.501430855@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+Reply-To: zinahamza139@gmail.com
+Sender: criosbankgroup.ln@gmail.com
+Received: by 2002:a05:6638:10c:0:0:0:0 with HTTP; Sun, 16 May 2021 17:42:35
+ -0700 (PDT)
+From:   Zina Hamza <zinahamza139@gmail.com>
+Date:   Mon, 17 May 2021 00:42:35 +0000
+X-Google-Sender-Auth: KCYE8RJzGDwXTgt5rqbwfg-t-Sg
+Message-ID: <CAPHHahMLkg7jv6DpTNxmb4jBPMUg=fCSoEqJ5bgfo57zvSX+ow@mail.gmail.com>
+Subject: Hello,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
---2oS5YaxWCcQjTEyO
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> When handling op->addr, it is using the buffer "tmpbuf" which has been
-> freed. This will trigger a use-after-free KASAN warning. Let's use
-> temporary variables to store op->addr.val and op->cmd.opcode to fix
-> this issue.
-
-I believe this is "cure worse than a disassease".
-
-> +++ b/drivers/spi/spi-zynqmp-gqspi.c
-> @@ -926,8 +926,9 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
->  	struct zynqmp_qspi *xqspi =3D spi_controller_get_devdata
->  				    (mem->spi->master);
->  	int err =3D 0, i;
-> -	u8 *tmpbuf;
->  	u32 genfifoentry =3D 0;
-> +	u16 opcode =3D op->cmd.opcode;
-> +	u64 opaddr;
-> =20
->  	dev_dbg(xqspi->dev, "cmd:%#x mode:%d.%d.%d.%d\n",
->  		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
-> @@ -940,14 +941,8 @@ static int zynqmp_qspi_exec_op(struct spi_mem *mem,
->  	genfifoentry |=3D xqspi->genfifobus;
-> =20
->  	if (op->cmd.opcode) {
-> -		tmpbuf =3D kzalloc(op->cmd.nbytes, GFP_KERNEL | GFP_DMA);
-> -		if (!tmpbuf) {
-> -			mutex_unlock(&xqspi->op_lock);
-> -			return -ENOMEM;
-> -		}
-> -		tmpbuf[0] =3D op->cmd.opcode;
->  		reinit_completion(&xqspi->data_completion);
-> -		xqspi->txbuf =3D tmpbuf;
-> +		xqspi->txbuf =3D &opcode;
->  		xqspi->rxbuf =3D NULL;
->  		xqspi->bytes_to_transfer =3D op->cmd.nbytes;
->  		xqspi->bytes_to_receive =3D 0;
-
-So this replaces "op->cmd.nbytes" bytes big DMA buffer with 2 bytes on
-stack.
-
-First, if op->cmd.nbytes is > 2, DMA will overrun that buffer. That
-can't be healthy.
-
-Second, you really should not run DMA from on-stack buffers.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---2oS5YaxWCcQjTEyO
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYKGBzwAKCRAw5/Bqldv6
-8oRmAJ0QR2fc6gdv0wUf2oW8V3UMti2jEACeMUf6pCWcXdxiO3mwhajM0k6zdV8=
-=yrfb
------END PGP SIGNATURE-----
-
---2oS5YaxWCcQjTEyO--
+SGVsbG8sDQoNCkhvdyBhcmUgeW91IHRvZGF5PyBJIGZlZWwgbGlrZSBjb21tdW5pY2F0aW5nIHdp
+dGggeW91LCBteSBuYW1lIGlzIFppbmENCnNpbmdsZSBtYXJpdGFsIHN0YXR1cywgaSBhbSAyNSB5
+ZWFycyBvbGQuIEkgd2lsbCBzZW5kIG15IHBob3RvIGF0DQpsZWFzdCBmb3IgeW91IHRvIHNlZSB3
+aG8gaXMgd3JpdGluZyB0byB5b3UuIEkgd2lsbCBnaXZlIHlvdSBhIGZ1bGwNCmV4cGxhbmF0aW9u
+IGFib3V0IG15c2VsZiwgbXkgcmVhc29ucyBhbmQgcHVycG9zZXMgdG8gY29udGFjdCB5b3UuDQoN
+CkZlZWwgZnJlZSB0byB3cml0ZSBiYWNrIHRvIG1lLCBwbGVhc2UuDQoNClNpbmNlcmVseSwNCg0K
+WmluYQ0KLS0tLS0tLS0tLS0NCuS9oOWlve+8jA0KDQrkvaDku4rlpKnmgI7kuYjmoLfvvJ8g5oiR
+5oOz5ZKM5L2g5Lqk5rWB77yM5oiR55qE5ZCN5a2X5Y+rWmluYeWNlei6q+WpmuWnu++8jOaIkeS7
+iuW5tDI15bKB44CCIOaIkeWwhuiHs+WwkeWwhueFp+eJh+WPkemAgee7meaCqO+8jOS7peS6huin
+o+iwgeWcqOe7meaCqOWGmeS/oeOAgg0K5oiR5bCG5Li65oKo5o+Q5L6b5pyJ5YWz5oiR6Ieq5bex
+77yM5oiR5LiO5oKo6IGU57O755qE55CG55Sx5ZKM55uu55qE55qE5a6M5pW06K+05piO44CCDQoN
+Cuivt+maj+aXtue7meaIkeWbnuS/oeOAgg0KDQrnnJ/mjJrlnLDvvIwNCg0K6b2Q5aicDQo=
