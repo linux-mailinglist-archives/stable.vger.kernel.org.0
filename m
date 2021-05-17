@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 839CD3835B1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 17E483835B5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243001AbhEQPYD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:24:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55936 "EHLO mail.kernel.org"
+        id S239904AbhEQPYF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:24:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244425AbhEQPUj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:20:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90B7C6191D;
-        Mon, 17 May 2021 14:34:18 +0000 (UTC)
+        id S244437AbhEQPUm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:20:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E47261C7E;
+        Mon, 17 May 2021 14:34:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262059;
-        bh=VDx8O+U6Cb9HQVTvwF8B4BPQlbaXtvFBDUjVbfchoVM=;
+        s=korg; t=1621262067;
+        bh=LLZjLYlRqBjqvbBlt8iE3Am15HOU5rTowOSrL98+5TE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0qTf+6tkweQ9HAV8fsoD/LKgHZ+dCeHVh119PCdEiCmY8iVHAp1OLrmdufs/NSXuo
-         j3wBVU3otFG5Za/hLfAhi6zcaouN8xq2yTUh5XbV3TS5/25yVbczw1wsNDl3yX75qg
-         EKa+4gpIQeLYky3/oZ066OfaeIdEWO548qeLXz/M=
+        b=BkbzTwPzCMD3DiOpPjVNuvaHkX9zZwP2FEoY/Cha4eqnrim9mFw0yjkPld9n18VFN
+         SKopanVNTXjTGGHdNeaVwkyMUjUpwKjB6vBN8JDvNfYCc1751nxm3Bbd2IUXZPkE1I
+         Ec5C+43LkHz9G+yLxBb4PM+79T3+jB4Qbkxu/TMM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunlei He <heyunlei@hihonor.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 5.4 131/141] f2fs: fix error handling in f2fs_end_enable_verity()
-Date:   Mon, 17 May 2021 16:03:03 +0200
-Message-Id: <20210517140247.226544995@linuxfoundation.org>
+        Linus Walleij <linus.walleij@linaro.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 132/141] ARM: 9011/1: centralize phys-to-virt conversion of DT/ATAGS address
+Date:   Mon, 17 May 2021 16:03:04 +0200
+Message-Id: <20210517140247.266873360@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -40,135 +42,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 3c0315424f5e3d2a4113c7272367bee1e8e6a174 upstream.
+commit e9a2f8b599d0bc22a1b13e69527246ac39c697b4 upstream
 
-f2fs didn't properly clean up if verity failed to be enabled on a file:
+Before moving the DT mapping out of the linear region, let's prepare
+for this change by removing all the phys-to-virt translations of the
+__atags_pointer variable, and perform this translation only once at
+setup time.
 
-- It left verity metadata (pages past EOF) in the page cache, which
-  would be exposed to userspace if the file was later extended.
-
-- It didn't truncate the verity metadata at all (either from cache or
-  from disk) if an error occurred while setting the verity bit.
-
-Fix these bugs by adding a call to truncate_inode_pages() and ensuring
-that we truncate the verity metadata (both from cache and from disk) in
-all error paths.  Also rework the code to cleanly separate the success
-path from the error paths, which makes it much easier to understand.
-
-Finally, log a message if f2fs_truncate() fails, since it might
-otherwise fail silently.
-
-Reported-by: Yunlei He <heyunlei@hihonor.com>
-Fixes: 95ae251fe828 ("f2fs: add fs-verity support")
-Cc: <stable@vger.kernel.org> # v5.4+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Tested-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/verity.c |   79 ++++++++++++++++++++++++++++++++++++++-----------------
- 1 file changed, 56 insertions(+), 23 deletions(-)
+ arch/arm/include/asm/prom.h   |    4 ++--
+ arch/arm/kernel/atags.h       |    4 ++--
+ arch/arm/kernel/atags_parse.c |    6 +++---
+ arch/arm/kernel/devtree.c     |    6 +++---
+ arch/arm/kernel/setup.c       |   14 +++++++++-----
+ arch/arm/mm/mmu.c             |    4 ++--
+ 6 files changed, 21 insertions(+), 17 deletions(-)
 
---- a/fs/f2fs/verity.c
-+++ b/fs/f2fs/verity.c
-@@ -150,40 +150,73 @@ static int f2fs_end_enable_verity(struct
- 				  size_t desc_size, u64 merkle_tree_size)
+--- a/arch/arm/include/asm/prom.h
++++ b/arch/arm/include/asm/prom.h
+@@ -9,12 +9,12 @@
+ 
+ #ifdef CONFIG_OF
+ 
+-extern const struct machine_desc *setup_machine_fdt(unsigned int dt_phys);
++extern const struct machine_desc *setup_machine_fdt(void *dt_virt);
+ extern void __init arm_dt_init_cpu_maps(void);
+ 
+ #else /* CONFIG_OF */
+ 
+-static inline const struct machine_desc *setup_machine_fdt(unsigned int dt_phys)
++static inline const struct machine_desc *setup_machine_fdt(void *dt_virt)
  {
- 	struct inode *inode = file_inode(filp);
-+	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
- 	u64 desc_pos = f2fs_verity_metadata_pos(inode) + merkle_tree_size;
- 	struct fsverity_descriptor_location dloc = {
- 		.version = cpu_to_le32(1),
- 		.size = cpu_to_le32(desc_size),
- 		.pos = cpu_to_le64(desc_pos),
- 	};
--	int err = 0;
-+	int err = 0, err2 = 0;
+ 	return NULL;
+ }
+--- a/arch/arm/kernel/atags.h
++++ b/arch/arm/kernel/atags.h
+@@ -2,11 +2,11 @@
+ void convert_to_tag_list(struct tag *tags);
  
--	if (desc != NULL) {
--		/* Succeeded; write the verity descriptor. */
--		err = pagecache_write(inode, desc, desc_size, desc_pos);
--
--		/* Write all pages before clearing FI_VERITY_IN_PROGRESS. */
--		if (!err)
--			err = filemap_write_and_wait(inode->i_mapping);
--	}
--
--	/* If we failed, truncate anything we wrote past i_size. */
--	if (desc == NULL || err)
--		f2fs_truncate(inode);
-+	/*
-+	 * If an error already occurred (which fs/verity/ signals by passing
-+	 * desc == NULL), then only clean-up is needed.
-+	 */
-+	if (desc == NULL)
-+		goto cleanup;
-+
-+	/* Append the verity descriptor. */
-+	err = pagecache_write(inode, desc, desc_size, desc_pos);
-+	if (err)
-+		goto cleanup;
-+
-+	/*
-+	 * Write all pages (both data and verity metadata).  Note that this must
-+	 * happen before clearing FI_VERITY_IN_PROGRESS; otherwise pages beyond
-+	 * i_size won't be written properly.  For crash consistency, this also
-+	 * must happen before the verity inode flag gets persisted.
-+	 */
-+	err = filemap_write_and_wait(inode->i_mapping);
-+	if (err)
-+		goto cleanup;
-+
-+	/* Set the verity xattr. */
-+	err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
-+			    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
-+			    NULL, XATTR_CREATE);
-+	if (err)
-+		goto cleanup;
-+
-+	/* Finally, set the verity inode flag. */
-+	file_set_verity(inode);
-+	f2fs_set_inode_flags(inode);
-+	f2fs_mark_inode_dirty_sync(inode, true);
- 
- 	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-+	return 0;
- 
--	if (desc != NULL && !err) {
--		err = f2fs_setxattr(inode, F2FS_XATTR_INDEX_VERITY,
--				    F2FS_XATTR_NAME_VERITY, &dloc, sizeof(dloc),
--				    NULL, XATTR_CREATE);
--		if (!err) {
--			file_set_verity(inode);
--			f2fs_set_inode_flags(inode);
--			f2fs_mark_inode_dirty_sync(inode, true);
--		}
-+cleanup:
-+	/*
-+	 * Verity failed to be enabled, so clean up by truncating any verity
-+	 * metadata that was written beyond i_size (both from cache and from
-+	 * disk) and clearing FI_VERITY_IN_PROGRESS.
-+	 *
-+	 * Taking i_gc_rwsem[WRITE] is needed to stop f2fs garbage collection
-+	 * from re-instantiating cached pages we are truncating (since unlike
-+	 * normal file accesses, garbage collection isn't limited by i_size).
-+	 */
-+	down_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
-+	truncate_inode_pages(inode->i_mapping, inode->i_size);
-+	err2 = f2fs_truncate(inode);
-+	if (err2) {
-+		f2fs_err(sbi, "Truncating verity metadata failed (errno=%d)",
-+			 err2);
-+		set_sbi_flag(sbi, SBI_NEED_FSCK);
- 	}
--	return err;
-+	up_write(&F2FS_I(inode)->i_gc_rwsem[WRITE]);
-+	clear_inode_flag(inode, FI_VERITY_IN_PROGRESS);
-+	return err ?: err2;
+ #ifdef CONFIG_ATAGS
+-const struct machine_desc *setup_machine_tags(phys_addr_t __atags_pointer,
++const struct machine_desc *setup_machine_tags(void *__atags_vaddr,
+ 	unsigned int machine_nr);
+ #else
+ static inline const struct machine_desc * __init __noreturn
+-setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
++setup_machine_tags(void *__atags_vaddr, unsigned int machine_nr)
+ {
+ 	early_print("no ATAGS support: can't continue\n");
+ 	while (true);
+--- a/arch/arm/kernel/atags_parse.c
++++ b/arch/arm/kernel/atags_parse.c
+@@ -176,7 +176,7 @@ static void __init squash_mem_tags(struc
  }
  
- static int f2fs_get_verity_descriptor(struct inode *inode, void *buf,
+ const struct machine_desc * __init
+-setup_machine_tags(phys_addr_t __atags_pointer, unsigned int machine_nr)
++setup_machine_tags(void *atags_vaddr, unsigned int machine_nr)
+ {
+ 	struct tag *tags = (struct tag *)&default_tags;
+ 	const struct machine_desc *mdesc = NULL, *p;
+@@ -197,8 +197,8 @@ setup_machine_tags(phys_addr_t __atags_p
+ 	if (!mdesc)
+ 		return NULL;
+ 
+-	if (__atags_pointer)
+-		tags = phys_to_virt(__atags_pointer);
++	if (atags_vaddr)
++		tags = atags_vaddr;
+ 	else if (mdesc->atag_offset)
+ 		tags = (void *)(PAGE_OFFSET + mdesc->atag_offset);
+ 
+--- a/arch/arm/kernel/devtree.c
++++ b/arch/arm/kernel/devtree.c
+@@ -203,12 +203,12 @@ static const void * __init arch_get_next
+ 
+ /**
+  * setup_machine_fdt - Machine setup when an dtb was passed to the kernel
+- * @dt_phys: physical address of dt blob
++ * @dt_virt: virtual address of dt blob
+  *
+  * If a dtb was passed to the kernel in r2, then use it to choose the
+  * correct machine_desc and to setup the system.
+  */
+-const struct machine_desc * __init setup_machine_fdt(unsigned int dt_phys)
++const struct machine_desc * __init setup_machine_fdt(void *dt_virt)
+ {
+ 	const struct machine_desc *mdesc, *mdesc_best = NULL;
+ 
+@@ -221,7 +221,7 @@ const struct machine_desc * __init setup
+ 	mdesc_best = &__mach_desc_GENERIC_DT;
+ #endif
+ 
+-	if (!dt_phys || !early_init_dt_verify(phys_to_virt(dt_phys)))
++	if (!dt_virt || !early_init_dt_verify(dt_virt))
+ 		return NULL;
+ 
+ 	mdesc = of_flat_dt_match_machine(mdesc_best, arch_get_next_mach);
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -89,6 +89,7 @@ unsigned int cacheid __read_mostly;
+ EXPORT_SYMBOL(cacheid);
+ 
+ unsigned int __atags_pointer __initdata;
++void *atags_vaddr __initdata;
+ 
+ unsigned int system_rev;
+ EXPORT_SYMBOL(system_rev);
+@@ -1075,19 +1076,22 @@ void __init hyp_mode_check(void)
+ 
+ void __init setup_arch(char **cmdline_p)
+ {
+-	const struct machine_desc *mdesc;
++	const struct machine_desc *mdesc = NULL;
++
++	if (__atags_pointer)
++		atags_vaddr = phys_to_virt(__atags_pointer);
+ 
+ 	setup_processor();
+-	mdesc = setup_machine_fdt(__atags_pointer);
++	if (atags_vaddr)
++		mdesc = setup_machine_fdt(atags_vaddr);
+ 	if (!mdesc)
+-		mdesc = setup_machine_tags(__atags_pointer, __machine_arch_type);
++		mdesc = setup_machine_tags(atags_vaddr, __machine_arch_type);
+ 	if (!mdesc) {
+ 		early_print("\nError: invalid dtb and unrecognized/unsupported machine ID\n");
+ 		early_print("  r1=0x%08x, r2=0x%08x\n", __machine_arch_type,
+ 			    __atags_pointer);
+ 		if (__atags_pointer)
+-			early_print("  r2[]=%*ph\n", 16,
+-				    phys_to_virt(__atags_pointer));
++			early_print("  r2[]=%*ph\n", 16, atags_vaddr);
+ 		dump_machine_table();
+ 	}
+ 
+--- a/arch/arm/mm/mmu.c
++++ b/arch/arm/mm/mmu.c
+@@ -1512,7 +1512,7 @@ static void __init map_lowmem(void)
+ }
+ 
+ #ifdef CONFIG_ARM_PV_FIXUP
+-extern unsigned long __atags_pointer;
++extern void *atags_vaddr;
+ typedef void pgtables_remap(long long offset, unsigned long pgd, void *bdata);
+ pgtables_remap lpae_pgtables_remap_asm;
+ 
+@@ -1543,7 +1543,7 @@ static void __init early_paging_init(con
+ 	 */
+ 	lpae_pgtables_remap = (pgtables_remap *)(unsigned long)__pa(lpae_pgtables_remap_asm);
+ 	pa_pgd = __pa(swapper_pg_dir);
+-	boot_data = __va(__atags_pointer);
++	boot_data = atags_vaddr;
+ 	barrier();
+ 
+ 	pr_info("Switching physical address space to 0x%08llx\n",
 
 
