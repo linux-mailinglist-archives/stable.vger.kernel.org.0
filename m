@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F5E3837FC
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC69A38367E
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244477AbhEQPsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:48:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
+        id S244949AbhEQPdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:33:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344964AbhEQPqJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:46:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8569961414;
-        Mon, 17 May 2021 14:44:05 +0000 (UTC)
+        id S1343583AbhEQPbB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:31:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBA7E613F4;
+        Mon, 17 May 2021 14:38:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262646;
-        bh=w6+YZ+eJESBL3jv7+rZ7DnvjXZlrGoaCIJKmNMxqdtA=;
+        s=korg; t=1621262291;
+        bh=fngY5Z8pt3dkBwALJzRZGtAqNPMwfFVcNbPbxtMCDN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plR6AU3tBcFZV58ocMioqvOfHS9dkcJ9Sahif5XBCCu9COvVCVow56ioy5E3coPPI
-         59JEjcsuiKunLoGy2vyDSxUmRETVJb8B/sAs3pnTgHitg7YF80Ms2QN2wvvYxJjZt2
-         0F8wAw927tJ40Z6BJ6viSB9mSx8nwbr9aEr0j0Qc=
+        b=ybLBR8bdoxLjAmXfC2OKExo6h3MbOZgM1ihlUy+tcn/f0IBGE0H0nHw4dttl9WTEz
+         YXaC9A45GIG4NmwpMlP5x8Dn4Ci8cOCCq4sv95TMDg7JrfqCLTpew6YcymsJI+BMcW
+         06tvNQA22cywYm/D/H3WWqyffS0E+oMHbfJjEqYE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianping Fang <tianping.fang@mediatek.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 5.10 244/289] usb: core: hub: fix race condition about TRSMRCY of resume
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Juergen Gross <jgross@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 258/329] xen/unpopulated-alloc: fix error return code in fill_list()
 Date:   Mon, 17 May 2021 16:02:49 +0200
-Message-Id: <20210517140313.367126955@linuxfoundation.org>
+Message-Id: <20210517140310.835517390@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 975f94c7d6c306b833628baa9aec3f79db1eb3a1 upstream.
+[ Upstream commit dbc03e81586fc33e4945263fd6e09e22eb4b980f ]
 
-This may happen if the port becomes resume status exactly
-when usb_port_resume() gets port status, it still need provide
-a TRSMCRY time before access the device.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-CC: <stable@vger.kernel.org>
-Reported-by: Tianping Fang <tianping.fang@mediatek.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20210512020738.52961-1-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a4574f63edc6 ("mm/memremap_pages: convert to 'struct range'")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
+Link: https://lore.kernel.org/r/20210508021913.1727-1-thunder.leizhen@huawei.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/xen/unpopulated-alloc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3592,9 +3592,6 @@ int usb_port_resume(struct usb_device *u
- 		 * sequence.
- 		 */
- 		status = hub_port_status(hub, port1, &portstatus, &portchange);
--
--		/* TRSMRCY = 10 msec */
--		msleep(10);
+diff --git a/drivers/xen/unpopulated-alloc.c b/drivers/xen/unpopulated-alloc.c
+index e64e6befc63b..87e6b7db892f 100644
+--- a/drivers/xen/unpopulated-alloc.c
++++ b/drivers/xen/unpopulated-alloc.c
+@@ -39,8 +39,10 @@ static int fill_list(unsigned int nr_pages)
  	}
  
-  SuspendCleared:
-@@ -3609,6 +3606,9 @@ int usb_port_resume(struct usb_device *u
- 				usb_clear_port_feature(hub->hdev, port1,
- 						USB_PORT_FEAT_C_SUSPEND);
- 		}
-+
-+		/* TRSMRCY = 10 msec */
-+		msleep(10);
- 	}
+ 	pgmap = kzalloc(sizeof(*pgmap), GFP_KERNEL);
+-	if (!pgmap)
++	if (!pgmap) {
++		ret = -ENOMEM;
+ 		goto err_pgmap;
++	}
  
- 	if (udev->persist_enabled)
+ 	pgmap->type = MEMORY_DEVICE_GENERIC;
+ 	pgmap->range = (struct range) {
+-- 
+2.30.2
+
 
 
