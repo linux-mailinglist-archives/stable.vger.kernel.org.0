@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8671D383132
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F34B3832F8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238839AbhEQOfx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:35:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40160 "EHLO mail.kernel.org"
+        id S241216AbhEQOxC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:53:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240217AbhEQOcI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:32:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6698D613F2;
-        Mon, 17 May 2021 14:15:52 +0000 (UTC)
+        id S241668AbhEQOvB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:51:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 554FC61462;
+        Mon, 17 May 2021 14:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260952;
-        bh=M5+oJRYsV3pUQaiHvw5PgbCbW1aT7Sa7iR37zhCCqJY=;
+        s=korg; t=1621261401;
+        bh=7U2pa5aQ8jHn6bFbralFye6Xrx3YWuhNYV8Zd1PMuj8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jGGKwSXKWlkrCi84gEPuzsQVKHXR20118OcpV1jjWWWU4KNqSMvhGuFgWC8dsI2Zr
-         h/5ZkK7Rf2ih1szdLOYaD4zgXBpmJL1TF+WjvRYKqjIK7nq7drEizcv5Ty8Ycp+mAq
-         kjytUV1jzOq8wY6FIK0dQqM5utD2MzGgWBVeVi8U=
+        b=KtWCJwf0oSKxq6TTo14ZTK/B9advqV5RhORwOIo1tE1vWZooLfqH8mmsXA3V/FHUD
+         y+aLn/dp+x9TkalS8dW1XZ8oiTTPLciNHZmmW5DlobfdG9324XwFCpimG9p6mEPqFv
+         W3UMU0AlOlhpp9Yp4uiTokdcCRP2yqGkAGfvw0yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 018/329] fs: dlm: change allocation limits
-Date:   Mon, 17 May 2021 15:58:49 +0200
-Message-Id: <20210517140302.672693733@linuxfoundation.org>
+        stable@vger.kernel.org, Yu Zhang <yu.c.zhang@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 005/289] KVM: x86/mmu: Remove the defunct update_pte() paging hook
+Date:   Mon, 17 May 2021 15:58:50 +0200
+Message-Id: <20210517140305.340027792@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,178 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit c45674fbdda138814ca21138475219c96fa5aa1f ]
+commit c5e2184d1544f9e56140791eff1a351bea2e63b9 upstream.
 
-While running tcpkill I experienced invalid header length values while
-receiving to check that a node doesn't try to send a invalid dlm message
-we also check on applications minimum allocation limit. Also use
-DEFAULT_BUFFER_SIZE as maximum allocation limit. The define
-LOWCOMMS_MAX_TX_BUFFER_LEN is to calculate maximum buffer limits on
-application layer, future midcomms layer will subtract their needs from
-this define.
+Remove the update_pte() shadow paging logic, which was obsoleted by
+commit 4731d4c7a077 ("KVM: MMU: out of sync shadow core"), but never
+removed.  As pointed out by Yu, KVM never write protects leaf page
+tables for the purposes of shadow paging, and instead marks their
+associated shadow page as unsync so that the guest can write PTEs at
+will.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The update_pte() path, which predates the unsync logic, optimizes COW
+scenarios by refreshing leaf SPTEs when they are written, as opposed to
+zapping the SPTE, restarting the guest, and installing the new SPTE on
+the subsequent fault.  Since KVM no longer write-protects leaf page
+tables, update_pte() is unreachable and can be dropped.
+
+Reported-by: Yu Zhang <yu.c.zhang@intel.com>
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210115004051.4099250-1-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/lowcomms.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/x86/include/asm/kvm_host.h |    3 --
+ arch/x86/kvm/mmu/mmu.c          |   49 +---------------------------------------
+ arch/x86/kvm/x86.c              |    1 
+ 3 files changed, 2 insertions(+), 51 deletions(-)
 
-diff --git a/fs/dlm/lowcomms.c b/fs/dlm/lowcomms.c
-index 0f7fa23cccf0..f827d0b3962a 100644
---- a/fs/dlm/lowcomms.c
-+++ b/fs/dlm/lowcomms.c
-@@ -1375,9 +1375,11 @@ void *dlm_lowcomms_get_buffer(int nodeid, int len, gfp_t allocation, char **ppc)
- 	struct writequeue_entry *e;
- 	int offset = 0;
+--- a/arch/x86/include/asm/kvm_host.h
++++ b/arch/x86/include/asm/kvm_host.h
+@@ -358,8 +358,6 @@ struct kvm_mmu {
+ 	int (*sync_page)(struct kvm_vcpu *vcpu,
+ 			 struct kvm_mmu_page *sp);
+ 	void (*invlpg)(struct kvm_vcpu *vcpu, gva_t gva, hpa_t root_hpa);
+-	void (*update_pte)(struct kvm_vcpu *vcpu, struct kvm_mmu_page *sp,
+-			   u64 *spte, const void *pte);
+ 	hpa_t root_hpa;
+ 	gpa_t root_pgd;
+ 	union kvm_mmu_role mmu_role;
+@@ -1019,7 +1017,6 @@ struct kvm_arch {
+ struct kvm_vm_stat {
+ 	ulong mmu_shadow_zapped;
+ 	ulong mmu_pte_write;
+-	ulong mmu_pte_updated;
+ 	ulong mmu_pde_zapped;
+ 	ulong mmu_flooded;
+ 	ulong mmu_recycled;
+--- a/arch/x86/kvm/mmu/mmu.c
++++ b/arch/x86/kvm/mmu/mmu.c
+@@ -1715,13 +1715,6 @@ static int nonpaging_sync_page(struct kv
+ 	return 0;
+ }
  
--	if (len > LOWCOMMS_MAX_TX_BUFFER_LEN) {
--		BUILD_BUG_ON(PAGE_SIZE < LOWCOMMS_MAX_TX_BUFFER_LEN);
-+	if (len > DEFAULT_BUFFER_SIZE ||
-+	    len < sizeof(struct dlm_header)) {
-+		BUILD_BUG_ON(PAGE_SIZE < DEFAULT_BUFFER_SIZE);
- 		log_print("failed to allocate a buffer of size %d", len);
-+		WARN_ON(1);
- 		return NULL;
- 	}
+-static void nonpaging_update_pte(struct kvm_vcpu *vcpu,
+-				 struct kvm_mmu_page *sp, u64 *spte,
+-				 const void *pte)
+-{
+-	WARN_ON(1);
+-}
+-
+ #define KVM_PAGE_ARRAY_NR 16
  
--- 
-2.30.2
-
+ struct kvm_mmu_pages {
+@@ -3820,7 +3813,6 @@ static void nonpaging_init_context(struc
+ 	context->gva_to_gpa = nonpaging_gva_to_gpa;
+ 	context->sync_page = nonpaging_sync_page;
+ 	context->invlpg = NULL;
+-	context->update_pte = nonpaging_update_pte;
+ 	context->root_level = 0;
+ 	context->shadow_root_level = PT32E_ROOT_LEVEL;
+ 	context->direct_map = true;
+@@ -4402,7 +4394,6 @@ static void paging64_init_context_common
+ 	context->gva_to_gpa = paging64_gva_to_gpa;
+ 	context->sync_page = paging64_sync_page;
+ 	context->invlpg = paging64_invlpg;
+-	context->update_pte = paging64_update_pte;
+ 	context->shadow_root_level = level;
+ 	context->direct_map = false;
+ }
+@@ -4431,7 +4422,6 @@ static void paging32_init_context(struct
+ 	context->gva_to_gpa = paging32_gva_to_gpa;
+ 	context->sync_page = paging32_sync_page;
+ 	context->invlpg = paging32_invlpg;
+-	context->update_pte = paging32_update_pte;
+ 	context->shadow_root_level = PT32E_ROOT_LEVEL;
+ 	context->direct_map = false;
+ }
+@@ -4513,7 +4503,6 @@ static void init_kvm_tdp_mmu(struct kvm_
+ 	context->page_fault = kvm_tdp_page_fault;
+ 	context->sync_page = nonpaging_sync_page;
+ 	context->invlpg = NULL;
+-	context->update_pte = nonpaging_update_pte;
+ 	context->shadow_root_level = kvm_mmu_get_tdp_level(vcpu);
+ 	context->direct_map = true;
+ 	context->get_guest_pgd = get_cr3;
+@@ -4690,7 +4679,6 @@ void kvm_init_shadow_ept_mmu(struct kvm_
+ 	context->gva_to_gpa = ept_gva_to_gpa;
+ 	context->sync_page = ept_sync_page;
+ 	context->invlpg = ept_invlpg;
+-	context->update_pte = ept_update_pte;
+ 	context->root_level = level;
+ 	context->direct_map = false;
+ 	context->mmu_role.as_u64 = new_role.as_u64;
+@@ -4838,19 +4826,6 @@ void kvm_mmu_unload(struct kvm_vcpu *vcp
+ }
+ EXPORT_SYMBOL_GPL(kvm_mmu_unload);
+ 
+-static void mmu_pte_write_new_pte(struct kvm_vcpu *vcpu,
+-				  struct kvm_mmu_page *sp, u64 *spte,
+-				  const void *new)
+-{
+-	if (sp->role.level != PG_LEVEL_4K) {
+-		++vcpu->kvm->stat.mmu_pde_zapped;
+-		return;
+-        }
+-
+-	++vcpu->kvm->stat.mmu_pte_updated;
+-	vcpu->arch.mmu->update_pte(vcpu, sp, spte, new);
+-}
+-
+ static bool need_remote_flush(u64 old, u64 new)
+ {
+ 	if (!is_shadow_present_pte(old))
+@@ -4966,22 +4941,6 @@ static u64 *get_written_sptes(struct kvm
+ 	return spte;
+ }
+ 
+-/*
+- * Ignore various flags when determining if a SPTE can be immediately
+- * overwritten for the current MMU.
+- *  - level: explicitly checked in mmu_pte_write_new_pte(), and will never
+- *    match the current MMU role, as MMU's level tracks the root level.
+- *  - access: updated based on the new guest PTE
+- *  - quadrant: handled by get_written_sptes()
+- *  - invalid: always false (loop only walks valid shadow pages)
+- */
+-static const union kvm_mmu_page_role role_ign = {
+-	.level = 0xf,
+-	.access = 0x7,
+-	.quadrant = 0x3,
+-	.invalid = 0x1,
+-};
+-
+ static void kvm_mmu_pte_write(struct kvm_vcpu *vcpu, gpa_t gpa,
+ 			      const u8 *new, int bytes,
+ 			      struct kvm_page_track_notifier_node *node)
+@@ -5032,14 +4991,10 @@ static void kvm_mmu_pte_write(struct kvm
+ 
+ 		local_flush = true;
+ 		while (npte--) {
+-			u32 base_role = vcpu->arch.mmu->mmu_role.base.word;
+-
+ 			entry = *spte;
+ 			mmu_page_zap_pte(vcpu->kvm, sp, spte, NULL);
+-			if (gentry &&
+-			    !((sp->role.word ^ base_role) & ~role_ign.word) &&
+-			    rmap_can_add(vcpu))
+-				mmu_pte_write_new_pte(vcpu, sp, spte, &gentry);
++			if (gentry && sp->role.level != PG_LEVEL_4K)
++				++vcpu->kvm->stat.mmu_pde_zapped;
+ 			if (need_remote_flush(entry, *spte))
+ 				remote_flush = true;
+ 			++spte;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -233,7 +233,6 @@ struct kvm_stats_debugfs_item debugfs_en
+ 	VCPU_STAT("halt_poll_fail_ns", halt_poll_fail_ns),
+ 	VM_STAT("mmu_shadow_zapped", mmu_shadow_zapped),
+ 	VM_STAT("mmu_pte_write", mmu_pte_write),
+-	VM_STAT("mmu_pte_updated", mmu_pte_updated),
+ 	VM_STAT("mmu_pde_zapped", mmu_pde_zapped),
+ 	VM_STAT("mmu_flooded", mmu_flooded),
+ 	VM_STAT("mmu_recycled", mmu_recycled),
 
 
