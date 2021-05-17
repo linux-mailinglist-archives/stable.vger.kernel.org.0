@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DF6383275
+	by mail.lfdr.de (Postfix) with ESMTP id F07F3383279
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240494AbhEQOsB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:48:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37902 "EHLO mail.kernel.org"
+        id S241200AbhEQOsD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:48:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56784 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241774AbhEQOqB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S241782AbhEQOqB (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:46:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD9F061448;
-        Mon, 17 May 2021 14:21:19 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BA9161966;
+        Mon, 17 May 2021 14:21:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261280;
-        bh=Kt9kyEWJd9xaRMNQHUWBMtEao+CZbeSDxxLpH2azuwM=;
+        s=korg; t=1621261292;
+        bh=jSsfYsjOAK5vnwE44c3ptQAHVaPrn3/ES+jLwvO6c4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=soD9DfllXu2RsQK11meg+2tnd+Go3jV/5xX6DmE1NThAWBYXgQ/nyy7kQkRDexuXs
-         Scug8P3A3ZSILQ5RRo88e4CMFURXhU5+596hfupJ2JcQv9/+PdIedZPGEXenOznipF
-         nUROJMetTFDQE8v59SrjHLvGBbi768tQauPMA8Ak=
+        b=TzEZ3lUunYkD8cr7Cs3wRB7f9G+jUxii6/NDmireakQTpV1yEjjzWPQbynLcvyPvS
+         4VMze7+PRaW9FsU0ISS8WG1R7hk/2ya+fctBrEoOcZT2ZYPf4Q/R+IenVTWDRyxzjU
+         6A6OH4IqSEEh7zbU1yn6JjGL2/zG9rvlRLslNvcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Nick Desaulniers <ndesaulniers@google.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
         Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.10 001/289] KEYS: trusted: Fix memory leak on object td
-Date:   Mon, 17 May 2021 15:58:46 +0200
-Message-Id: <20210517140305.198832527@linuxfoundation.org>
+Subject: [PATCH 5.10 002/289] tpm: fix error return code in tpm2_get_cc_attrs_tbl()
+Date:   Mon, 17 May 2021 15:58:47 +0200
+Message-Id: <20210517140305.229967916@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,46 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 83a775d5f9bfda95b1c295f95a3a041a40c7f321 upstream.
+commit 1df83992d977355177810c2b711afc30546c81ce upstream.
 
-Two error return paths are neglecting to free allocated object td,
-causing a memory leak. Fix this by returning via the error return
-path that securely kfree's td.
-
-Fixes clang scan-build warning:
-security/keys/trusted-keys/trusted_tpm1.c:496:10: warning: Potential
-memory leak [unix.Malloc]
+If the total number of commands queried through TPM2_CAP_COMMANDS is
+different from that queried through TPM2_CC_GET_CAPABILITY, it indicates
+an unknown error. In this case, an appropriate error code -EFAULT should
+be returned. However, we currently do not explicitly assign this error
+code to 'rc'. As a result, 0 was incorrectly returned.
 
 Cc: stable@vger.kernel.org
-Fixes: 5df16caada3f ("KEYS: trusted: Fix incorrect handling of tpm_get_random()")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Fixes: 58472f5cd4f6("tpm: validate TPM 2.0 commands")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
 Reviewed-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- security/keys/trusted-keys/trusted_tpm1.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/char/tpm/tpm2-cmd.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/security/keys/trusted-keys/trusted_tpm1.c
-+++ b/security/keys/trusted-keys/trusted_tpm1.c
-@@ -500,10 +500,12 @@ static int tpm_seal(struct tpm_buf *tb,
+--- a/drivers/char/tpm/tpm2-cmd.c
++++ b/drivers/char/tpm/tpm2-cmd.c
+@@ -656,6 +656,7 @@ int tpm2_get_cc_attrs_tbl(struct tpm_chi
  
- 	ret = tpm_get_random(chip, td->nonceodd, TPM_NONCE_SIZE);
- 	if (ret < 0)
--		return ret;
-+		goto out;
- 
--	if (ret != TPM_NONCE_SIZE)
--		return -EIO;
-+	if (ret != TPM_NONCE_SIZE) {
-+		ret = -EIO;
-+		goto out;
-+	}
- 
- 	ordinal = htonl(TPM_ORD_SEAL);
- 	datsize = htonl(datalen);
+ 	if (nr_commands !=
+ 	    be32_to_cpup((__be32 *)&buf.data[TPM_HEADER_SIZE + 5])) {
++		rc = -EFAULT;
+ 		tpm_buf_destroy(&buf);
+ 		goto out;
+ 	}
 
 
