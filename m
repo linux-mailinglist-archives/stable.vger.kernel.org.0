@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F144338313F
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6FF5383386
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239409AbhEQOgB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:36:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
+        id S241980AbhEQO7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:59:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240263AbhEQOdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:33:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8518613E4;
-        Mon, 17 May 2021 14:16:09 +0000 (UTC)
+        id S241325AbhEQO5E (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:57:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F16C061481;
+        Mon, 17 May 2021 14:25:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260970;
-        bh=XzcXXdkzEslGnugXQKWokwVu9Bn4Fv+tKyTtdjt0MgQ=;
+        s=korg; t=1621261541;
+        bh=1Tj8L1ZaYES/mLH5ILY14A6ccbafPhdoBV0lV+yee9w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w5/zCoY/BTdx9ybXgjsGSE1tk/88b55E0cb81/JSkxFtqlTbHeGcT6k7i+IeWjNMw
-         DjN/J8qRKkWY0uC96GZqOyBu4Ua0JSmyRC4Gu2pCbG+e7QOZGNzb9ShADkhcJ34cFg
-         ZyK3V6o+2nnFi6M42MyMq9LDYkOHhTIuhdU4nFQU=
+        b=qvzEHcmrGd8kT2TyHtYkDBoNGwNcZ5dAJp6Xv4uX8R6+lB5NG32vGeGfVEK2CztXe
+         qjo9GnfH3nnd84x4BUfDC+9lYN9dH0c2GfhRCJoQTW/wSHbOpRPP0o/6z2K2XnPuWt
+         Zth4wsNXpohjNjAuY3kLCPeU8go05qeBLESqV/Wg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
+        syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com,
+        Alain Michaud <alainm@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
         Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 045/329] Bluetooth: btusb: Enable quirk boolean flag for Mediatek Chip.
+Subject: [PATCH 5.10 031/289] Bluetooth: check for zapped sk before connecting
 Date:   Mon, 17 May 2021 15:59:16 +0200
-Message-Id: <20210517140303.563807694@linuxfoundation.org>
+Message-Id: <20210517140306.239372880@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +44,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: mark-yw.chen <mark-yw.chen@mediatek.com>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit 27e554a4fcd84e499bf0a82122b8c4c3f1de38b6 ]
+[ Upstream commit 3af70b39fa2d415dc86c370e5b24ddb9fdacbd6f ]
 
-Adding support LE scatternet and WBS for Mediatek Chip
+There is a possibility of receiving a zapped sock on
+l2cap_sock_connect(). This could lead to interesting crashes, one
+such case is tearing down an already tore l2cap_sock as is happened
+with this call trace:
 
-Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+__dump_stack lib/dump_stack.c:15 [inline]
+dump_stack+0xc4/0x118 lib/dump_stack.c:56
+register_lock_class kernel/locking/lockdep.c:792 [inline]
+register_lock_class+0x239/0x6f6 kernel/locking/lockdep.c:742
+__lock_acquire+0x209/0x1e27 kernel/locking/lockdep.c:3105
+lock_acquire+0x29c/0x2fb kernel/locking/lockdep.c:3599
+__raw_spin_lock_bh include/linux/spinlock_api_smp.h:137 [inline]
+_raw_spin_lock_bh+0x38/0x47 kernel/locking/spinlock.c:175
+spin_lock_bh include/linux/spinlock.h:307 [inline]
+lock_sock_nested+0x44/0xfa net/core/sock.c:2518
+l2cap_sock_teardown_cb+0x88/0x2fb net/bluetooth/l2cap_sock.c:1345
+l2cap_chan_del+0xa3/0x383 net/bluetooth/l2cap_core.c:598
+l2cap_chan_close+0x537/0x5dd net/bluetooth/l2cap_core.c:756
+l2cap_chan_timeout+0x104/0x17e net/bluetooth/l2cap_core.c:429
+process_one_work+0x7e3/0xcb0 kernel/workqueue.c:2064
+worker_thread+0x5a5/0x773 kernel/workqueue.c:2196
+kthread+0x291/0x2a6 kernel/kthread.c:211
+ret_from_fork+0x4e/0x80 arch/x86/entry/entry_64.S:604
+
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reported-by: syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com
+Reviewed-by: Alain Michaud <alainm@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
 Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_sock.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index a4f834a50a98..3620981e8b1c 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -397,7 +397,9 @@ static const struct usb_device_id blacklist_table[] = {
+diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
+index f1b1edd0b697..c99d65ef13b1 100644
+--- a/net/bluetooth/l2cap_sock.c
++++ b/net/bluetooth/l2cap_sock.c
+@@ -179,9 +179,17 @@ static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
+ 	struct l2cap_chan *chan = l2cap_pi(sk)->chan;
+ 	struct sockaddr_l2 la;
+ 	int len, err = 0;
++	bool zapped;
  
- 	/* MediaTek Bluetooth devices */
- 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0e8d, 0xe0, 0x01, 0x01),
--	  .driver_info = BTUSB_MEDIATEK },
-+	  .driver_info = BTUSB_MEDIATEK |
-+			 BTUSB_WIDEBAND_SPEECH |
-+			 BTUSB_VALID_LE_STATES },
+ 	BT_DBG("sk %p", sk);
  
- 	/* Additional MediaTek MT7615E Bluetooth devices */
- 	{ USB_DEVICE(0x13d3, 0x3560), .driver_info = BTUSB_MEDIATEK},
++	lock_sock(sk);
++	zapped = sock_flag(sk, SOCK_ZAPPED);
++	release_sock(sk);
++
++	if (zapped)
++		return -EINVAL;
++
+ 	if (!addr || alen < offsetofend(struct sockaddr, sa_family) ||
+ 	    addr->sa_family != AF_BLUETOOTH)
+ 		return -EINVAL;
 -- 
 2.30.2
 
