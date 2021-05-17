@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 488213830DC
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D70E6382EDB
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238088AbhEQOcI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:32:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43788 "EHLO mail.kernel.org"
+        id S238227AbhEQOL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:11:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239999AbhEQO3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:29:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC495616E9;
-        Mon, 17 May 2021 14:15:01 +0000 (UTC)
+        id S237599AbhEQOJn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:09:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 450C76135B;
+        Mon, 17 May 2021 14:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260902;
-        bh=xiLMgV3JWHy1zcRe+lLh2fP2RJ6mVRo6FGGHrg0eZgg=;
+        s=korg; t=1621260424;
+        bh=Qb7qsexp+qXICa53WC80jdJIlYDjhRT3QoI9Uv6i9Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cRFEtghpBdNv1ALQF7XO/SrWNaSCtQQcUK5TOlzyrHNTVsTl0yL2pVRgjmMlfGEBE
-         U+yp/9JdrJF0n6DaJZmNY8+Lwu/XI3C7yBS0jxBiiCx65NxfS81tqzSdEjK0iv3ct7
-         MJhNkYk3fvbsZ3YeSBwj/Gk5t9UN9Cbjx28+3FPA=
+        b=fAmN0toOCCD5hwRk2h8YEFRlqpPQA61H59XDqq4W/wgNj+Jfc/GIyqZNpYrdWMOll
+         lSSuCioQHfXAb8wa8ISC936jOdoa3xD8rYtJGsfOYcalfXaqhtUsH7pN5HnZbOireS
+         B+BVWhwZgtGywlYC00yAFF4KAKkkLf5aEExWKHh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        Luca Coelho <luciano.coelho@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 031/329] ALSA: rme9652: dont disable if not enabled
+Subject: [PATCH 5.12 076/363] iwlwifi: pcie: make cfg vs. trans_cfg more robust
 Date:   Mon, 17 May 2021 15:59:02 +0200
-Message-Id: <20210517140303.097146494@linuxfoundation.org>
+Message-Id: <20210517140305.155903634@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit f57a741874bb6995089020e97a1dcdf9b165dcbe ]
+[ Upstream commit 48a5494d6a4cb5812f0640d9515f1876ffc7a013 ]
 
-rme9652 wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+If we (for example) have a trans_cfg entry in the PCI IDs table,
+but then don't find a full cfg entry for it in the info table,
+we fall through to the code that treats the PCI ID table entry
+as a full cfg entry. This obviously causes crashes later, e.g.
+when trying to build the firmware name string.
 
-[    1.751595] snd_rme9652 0000:00:03.0: disabling already-disabled device
-[    1.751605] WARNING: CPU: 0 PID: 174 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.759968] Call Trace:
-[    1.760145]  snd_rme9652_card_free+0x76/0xa0 [snd_rme9652]
-[    1.760434]  release_card_device+0x4b/0x80 [snd]
-[    1.760679]  device_release+0x3b/0xa0
-[    1.760874]  kobject_put+0x94/0x1b0
-[    1.761059]  put_device+0x13/0x20
-[    1.761235]  snd_card_free+0x61/0x90 [snd]
-[    1.761454]  snd_rme9652_probe+0x3be/0x700 [snd_rme9652]
+Avoid such crashes by using the low bit of the pointer as a tag
+for trans_cfg entries (automatically using a macro that checks
+the type when assigning) and then checking that before trying to
+use the data as a full entry - if it's just a partial entry at
+that point, fail.
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-4-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Since we're adding some macro magic, also check that the type is
+in fact either struct iwl_cfg_trans_params or struct iwl_cfg,
+failing compilation ("initializer element is not constant") if
+it isn't.
+
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Link: https://lore.kernel.org/r/iwlwifi.20210330162204.6f69fe6e4128.I921d4ae20ef5276716baeeeda0b001cf25b9b968@changeid
+Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/rme9652.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/intel/iwlwifi/pcie/drv.c | 35 +++++++++++++++----
+ 1 file changed, 28 insertions(+), 7 deletions(-)
 
-diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
-index 012fbec5e6a7..0f4ab86a29f6 100644
---- a/sound/pci/rme9652/rme9652.c
-+++ b/sound/pci/rme9652/rme9652.c
-@@ -1733,7 +1733,8 @@ static int snd_rme9652_free(struct snd_rme9652 *rme9652)
- 	if (rme9652->port)
- 		pci_release_regions(rme9652->pci);
+diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+index 558a0b2ef0fc..6f4db04ead4a 100644
+--- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
++++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
+@@ -17,10 +17,20 @@
+ #include "iwl-prph.h"
+ #include "internal.h"
  
--	pci_disable_device(rme9652->pci);
-+	if (pci_is_enabled(rme9652->pci))
-+		pci_disable_device(rme9652->pci);
- 	return 0;
- }
++#define TRANS_CFG_MARKER BIT(0)
++#define _IS_A(cfg, _struct) __builtin_types_compatible_p(typeof(cfg),	\
++							 struct _struct)
++extern int _invalid_type;
++#define _TRANS_CFG_MARKER(cfg)						\
++	(__builtin_choose_expr(_IS_A(cfg, iwl_cfg_trans_params),	\
++			       TRANS_CFG_MARKER,			\
++	 __builtin_choose_expr(_IS_A(cfg, iwl_cfg), 0, _invalid_type)))
++#define _ASSIGN_CFG(cfg) (_TRANS_CFG_MARKER(cfg) + (kernel_ulong_t)&(cfg))
++
+ #define IWL_PCI_DEVICE(dev, subdev, cfg) \
+ 	.vendor = PCI_VENDOR_ID_INTEL,  .device = (dev), \
+ 	.subvendor = PCI_ANY_ID, .subdevice = (subdev), \
+-	.driver_data = (kernel_ulong_t)&(cfg)
++	.driver_data = _ASSIGN_CFG(cfg)
  
+ /* Hardware specific file defines the PCI IDs table for that hardware module */
+ static const struct pci_device_id iwl_hw_card_ids[] = {
+@@ -1075,19 +1085,22 @@ static const struct iwl_dev_info iwl_dev_info_table[] = {
+ 
+ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ {
+-	const struct iwl_cfg_trans_params *trans =
+-		(struct iwl_cfg_trans_params *)(ent->driver_data);
++	const struct iwl_cfg_trans_params *trans;
+ 	const struct iwl_cfg *cfg_7265d __maybe_unused = NULL;
+ 	struct iwl_trans *iwl_trans;
+ 	struct iwl_trans_pcie *trans_pcie;
+ 	int i, ret;
++	const struct iwl_cfg *cfg;
++
++	trans = (void *)(ent->driver_data & ~TRANS_CFG_MARKER);
++
+ 	/*
+ 	 * This is needed for backwards compatibility with the old
+ 	 * tables, so we don't need to change all the config structs
+ 	 * at the same time.  The cfg is used to compare with the old
+ 	 * full cfg structs.
+ 	 */
+-	const struct iwl_cfg *cfg = (struct iwl_cfg *)(ent->driver_data);
++	cfg = (void *)(ent->driver_data & ~TRANS_CFG_MARKER);
+ 
+ 	/* make sure trans is the first element in iwl_cfg */
+ 	BUILD_BUG_ON(offsetof(struct iwl_cfg, trans));
+@@ -1202,11 +1215,19 @@ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 
+ #endif
+ 	/*
+-	 * If we didn't set the cfg yet, assume the trans is actually
+-	 * a full cfg from the old tables.
++	 * If we didn't set the cfg yet, the PCI ID table entry should have
++	 * been a full config - if yes, use it, otherwise fail.
+ 	 */
+-	if (!iwl_trans->cfg)
++	if (!iwl_trans->cfg) {
++		if (ent->driver_data & TRANS_CFG_MARKER) {
++			pr_err("No config found for PCI dev %04x/%04x, rev=0x%x, rfid=0x%x\n",
++			       pdev->device, pdev->subsystem_device,
++			       iwl_trans->hw_rev, iwl_trans->hw_rf_id);
++			ret = -EINVAL;
++			goto out_free_trans;
++		}
+ 		iwl_trans->cfg = cfg;
++	}
+ 
+ 	/* if we don't have a name yet, copy name from the old cfg */
+ 	if (!iwl_trans->name)
 -- 
 2.30.2
 
