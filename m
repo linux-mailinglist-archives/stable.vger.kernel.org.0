@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51A88383806
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 857AD3836B0
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238529AbhEQPsX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:48:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S242766AbhEQPfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:35:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345030AbhEQPqO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:46:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A22E46194C;
-        Mon, 17 May 2021 14:44:16 +0000 (UTC)
+        id S245030AbhEQPcl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:32:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 815C861CCF;
+        Mon, 17 May 2021 14:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262657;
-        bh=nLZfFLfIMSjb7iPWswJhagxZlOp3+CzraNRrZ9kLpAQ=;
+        s=korg; t=1621262322;
+        bh=KdTy1TiYv9e7OYbkg9jdokQ+1XM365McWiNQqDYQK30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gJnZJu9kX4I8oxOBT+citu45DlDm2gcqYv1cy+VMlwXNx0z7VNzvOUKooG+qaIzgA
-         hMGA39gkeX13U3ev24Hj4bdlMW34eYgKtNDdMSXQgODv2eAZ2Ft9rv15N9FsRjupvC
-         pYRIB74g7X6F6QkfcQZlMwFSql2xBnJsO5+TdO3M=
+        b=1SApqSk4RzAFTUyaL09sJg8ylkvPOrFkLD+RAxyQH8N75g76O0E4f25h8MwX0VWOH
+         38RRfxSEJ713Z2olv0N7GUsn4++clACEGB/yr3bS1QrDjOahb6u77CwV4hXcv5g8T2
+         X2ucrAtOx4ktPIPwwMvWIH/BX5ErNY1NeFOf7XvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Abhijeet Rao <abhijeet.rao@intel.com>,
-        "Nikunj A. Dadhania" <nikunj.dadhania@intel.com>,
-        Azhar Shaikh <azhar.shaikh@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 249/289] xhci-pci: Allow host runtime PM as default for Intel Alder Lake xHCI
-Date:   Mon, 17 May 2021 16:02:54 +0200
-Message-Id: <20210517140313.525241648@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandru Ardelean <aardelean@deviqon.com>,
+        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
+        Paul Cercueil <paul@crapouillou.net>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 264/329] iio: core: return ENODEV if ioctl is unknown
+Date:   Mon, 17 May 2021 16:02:55 +0200
+Message-Id: <20210517140311.043391406@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +43,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abhijeet Rao <abhijeet.rao@intel.com>
+From: Alexandru Ardelean <aardelean@deviqon.com>
 
-commit b813511135e8b84fa741afdfbab4937919100bef upstream.
+[ Upstream commit af0670b0bf1b116fd729b1b1011cf814bc34e12e ]
 
-In the same way as Intel Tiger Lake TCSS (Type-C Subsystem) the Alder Lake
-TCSS xHCI needs to be runtime suspended whenever possible to allow the
-TCSS hardware block to enter D3cold and thus save energy.
+When the ioctl() mechanism was introduced in IIO core to centralize the
+registration of all ioctls in one place via commit 8dedcc3eee3ac ("iio:
+core: centralize ioctl() calls to the main chardev"), the return code was
+changed from ENODEV to EINVAL, when the ioctl code isn't known.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Abhijeet Rao <abhijeet.rao@intel.com>
-Signed-off-by: Nikunj A. Dadhania <nikunj.dadhania@intel.com>
-Signed-off-by: Azhar Shaikh <azhar.shaikh@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512080816.866037-2-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This was done by accident.
+
+This change reverts back to the old behavior, where if the ioctl() code
+isn't known, ENODEV is returned (vs EINVAL).
+
+This was brought into perspective by this patch:
+  https://lore.kernel.org/linux-iio/20210428150815.136150-1-paul@crapouillou.net/
+
+Fixes: 8dedcc3eee3ac ("iio: core: centralize ioctl() calls to the main chardev")
+Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Reviewed-by: Nuno Sá <nuno.sa@analog.com>
+Tested-by: Paul Cercueil <paul@crapouillou.net>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/industrialio-core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -57,6 +57,7 @@
- #define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
- #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
- #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
-+#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
+diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
+index c2e4c267c36b..afba32b57814 100644
+--- a/drivers/iio/industrialio-core.c
++++ b/drivers/iio/industrialio-core.c
+@@ -1698,7 +1698,6 @@ static long iio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	if (!indio_dev->info)
+ 		goto out_unlock;
  
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
- #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
-@@ -243,7 +244,8 @@ static void xhci_pci_quirks(struct devic
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
- 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
--	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI))
-+	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
-+	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI))
- 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+-	ret = -EINVAL;
+ 	list_for_each_entry(h, &iio_dev_opaque->ioctl_handlers, entry) {
+ 		ret = h->ioctl(indio_dev, filp, cmd, arg);
+ 		if (ret != IIO_IOCTL_UNHANDLED)
+@@ -1706,7 +1705,7 @@ static long iio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	}
  
- 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
+ 	if (ret == IIO_IOCTL_UNHANDLED)
+-		ret = -EINVAL;
++		ret = -ENODEV;
+ 
+ out_unlock:
+ 	mutex_unlock(&indio_dev->info_exist_lock);
+-- 
+2.30.2
+
 
 
