@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 895A7383496
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADE6F3835FB
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241570AbhEQPKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45090 "EHLO mail.kernel.org"
+        id S244175AbhEQP1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:27:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240727AbhEQPHV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:07:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F8B561C2B;
-        Mon, 17 May 2021 14:29:29 +0000 (UTC)
+        id S245192AbhEQPZB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:25:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8CBD61C9D;
+        Mon, 17 May 2021 14:35:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261770;
-        bh=wVcakn7mHKuw1PyzgcHDERhc6YFHBHMztuKZm5QC01E=;
+        s=korg; t=1621262160;
+        bh=9/deoVy0/tN1by8qL0WOlNlc4En/IMSnzchfO2hrlYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z8lW9qF9YSFt4bauky91khHbj6knD4TfjAgBjoifAw0F7uhI2KIGBSmbdKUVkdSAc
-         mY5NgNN0MQQnQtQAq8v4Jx8P0q64H8FWBtfY2V6ZWFZpZMhRaVj0U9fV7wu7bKStgq
-         d5GcL1SMB9KpYlhqOGhrwLkNiO6cZBcJsPl5ndsk=
+        b=VZ2j8jKyrkb4Sh9BsXVpj14couFRlYp3g91RA4/eH5fL6+AA+yCH2WTnSRXQ5Zo0U
+         Ydy4WvkjpMivuIQcsgVWnmf8YXlkIhBDyIRk4S3GElBYgxU4vYawXPaiOgdj7T/mcK
+         di6No5W2ySyFhDYF0MK+63+tmuSyN7JuyGo2szDI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qais Yousef <qais.yousef@arm.com>,
-        Quentin Perret <qperret@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/141] sched: Fix out-of-bound access in uclamp
+        stable@vger.kernel.org, Shahab Vahedi <shahab@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 5.11 229/329] ARC: entry: fix off-by-one error in syscall number validation
 Date:   Mon, 17 May 2021 16:02:20 +0200
-Message-Id: <20210517140245.745700523@linuxfoundation.org>
+Message-Id: <20210517140309.861621685@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,49 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit 6d2f8909a5fabb73fe2a63918117943986c39b6c ]
+commit 3433adc8bd09fc9f29b8baddf33b4ecd1ecd2cdc upstream.
 
-Util-clamp places tasks in different buckets based on their clamp values
-for performance reasons. However, the size of buckets is currently
-computed using a rounding division, which can lead to an off-by-one
-error in some configurations.
+We have NR_syscall syscalls from [0 .. NR_syscall-1].
+However the check for invalid syscall number is "> NR_syscall" as
+opposed to >=. This off-by-one error erronesously allows "NR_syscall"
+to be treated as valid syscall causeing out-of-bounds access into
+syscall-call table ensuing a crash (holes within syscall table have a
+invalid-entry handler but this is beyond the array implementing the
+table).
 
-For instance, with 20 buckets, the bucket size will be 1024/20=51. A
-task with a clamp of 1024 will be mapped to bucket id 1024/51=20. Sadly,
-correct indexes are in range [0,19], hence leading to an out of bound
-memory access.
+This problem showed up on v5.6 kernel when testing glibc 2.33 (v5.10
+kernel capable, includng faccessat2 syscall 439). The v5.6 kernel has
+NR_syscalls=439 (0 to 438). Due to the bug, 439 passed by glibc was
+not handled as -ENOSYS but processed leading to a crash.
 
-Clamp the bucket id to fix the issue.
-
-Fixes: 69842cba9ace ("sched/uclamp: Add CPU's clamp buckets refcounting")
-Suggested-by: Qais Yousef <qais.yousef@arm.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Link: https://lkml.kernel.org/r/20210430151412.160913-1-qperret@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/48
+Reported-by: Shahab Vahedi <shahab@synopsys.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arc/kernel/entry.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/sched/core.c b/kernel/sched/core.c
-index 2ce61018e33b..a3e95d7779e1 100644
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -820,7 +820,7 @@ DEFINE_STATIC_KEY_FALSE(sched_uclamp_used);
+--- a/arch/arc/kernel/entry.S
++++ b/arch/arc/kernel/entry.S
+@@ -177,7 +177,7 @@ tracesys:
  
- static inline unsigned int uclamp_bucket_id(unsigned int clamp_value)
- {
--	return clamp_value / UCLAMP_BUCKET_DELTA;
-+	return min_t(unsigned int, clamp_value / UCLAMP_BUCKET_DELTA, UCLAMP_BUCKETS - 1);
- }
+ 	; Do the Sys Call as we normally would.
+ 	; Validate the Sys Call number
+-	cmp     r8,  NR_syscalls
++	cmp     r8,  NR_syscalls - 1
+ 	mov.hi  r0, -ENOSYS
+ 	bhi     tracesys_exit
  
- static inline unsigned int uclamp_bucket_base_value(unsigned int clamp_value)
--- 
-2.30.2
-
+@@ -255,7 +255,7 @@ ENTRY(EV_Trap)
+ 	;============ Normal syscall case
+ 
+ 	; syscall num shd not exceed the total system calls avail
+-	cmp     r8,  NR_syscalls
++	cmp     r8,  NR_syscalls - 1
+ 	mov.hi  r0, -ENOSYS
+ 	bhi     .Lret_from_system_call
+ 
 
 
