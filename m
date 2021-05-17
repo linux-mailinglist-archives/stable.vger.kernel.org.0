@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DF1BE38336E
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB27383397
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240735AbhEQO6T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:58:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48048 "EHLO mail.kernel.org"
+        id S239694AbhEQPAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:00:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240830AbhEQOz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:55:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD7BF61996;
-        Mon, 17 May 2021 14:25:09 +0000 (UTC)
+        id S240334AbhEQO6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:58:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F3E9619B1;
+        Mon, 17 May 2021 14:25:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261510;
-        bh=VUshgsG/2RrNZ38dN1n3YOr6lctXxWIjlFzdCAnZNaY=;
+        s=korg; t=1621261558;
+        bh=M99jlExbeeNqNrnCe9YF9Fksjjl/8jFrCYgKEFiBW5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AVEQvCsbGj/MEjuuf9CqIZ9cGg/81JjyXX2PuLDuM02G9ClDPrsLTPGKvH6QQCGee
-         gazfVm0x40RE8XaFeRVfbIfonZEoaAJ1E9TDENzNOvbdg3dEYJMUoPnqiSMaxfuO0G
-         xRqEEhufRmPOvlqm8hIJ92+YJNF+cFO++ua8MFHk=
+        b=A6AOVb6hbNkvbGKaCtAlTwEjfGgSpKJ/D4A9zIFgdkXOpD0KHfEVLJsvZCyF6LAWy
+         71Ocmh1++bPwPmcG0ii51oifevBe9JElEBxQmBbTJZTZIzqu2Cs/xymOBNJNTrLAWY
+         YgoePMAdCCBsUpLHkQNYvgR98N9lGd4xCjUS0AZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
+        Ray Jui <ray.jui@broadcom.com>, Marc Zyngier <maz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 118/329] remoteproc: qcom_q6v5_mss: Validate p_filesz in ELF loader
-Date:   Mon, 17 May 2021 16:00:29 +0200
-Message-Id: <20210517140306.097026674@linuxfoundation.org>
+Subject: [PATCH 5.11 119/329] PCI: iproc: Fix return value of iproc_msi_irq_domain_alloc()
+Date:   Mon, 17 May 2021 16:00:30 +0200
+Message-Id: <20210517140306.134059031@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -41,60 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bjorn Andersson <bjorn.andersson@linaro.org>
+From: Pali Rohár <pali@kernel.org>
 
-[ Upstream commit 3d2ee78906af5f08d499d6aa3aa504406fa38106 ]
+[ Upstream commit 1e83130f01b04c16579ed5a5e03d729bcffc4c5d ]
 
-Analog to the issue in the common mdt_loader code the MSS ELF loader
-does not validate that p_filesz bytes will fit in the memory region and
-that the loaded segments are not truncated. Fix this in the same way
-as proposed for the mdt_loader.
+IRQ domain alloc function should return zero on success. Non-zero value
+indicates failure.
 
-Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Fixes: 135b9e8d1cd8 ("remoteproc: qcom_q6v5_mss: Validate modem blob firmware size before load")
-Link: https://lore.kernel.org/r/20210312232002.3466791-1-bjorn.andersson@linaro.org
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210303142202.25780-1-pali@kernel.org
+Fixes: fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
+Signed-off-by: Pali Rohár <pali@kernel.org>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
+Acked-by: Ray Jui <ray.jui@broadcom.com>
+Acked-by: Marc Zyngier <maz@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/qcom_q6v5_mss.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/pci/controller/pcie-iproc-msi.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/remoteproc/qcom_q6v5_mss.c b/drivers/remoteproc/qcom_q6v5_mss.c
-index 66106ba25ba3..14e0ce5f18f5 100644
---- a/drivers/remoteproc/qcom_q6v5_mss.c
-+++ b/drivers/remoteproc/qcom_q6v5_mss.c
-@@ -1210,6 +1210,14 @@ static int q6v5_mpss_load(struct q6v5 *qproc)
- 			goto release_firmware;
- 		}
+diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
+index 908475d27e0e..eede4e8f3f75 100644
+--- a/drivers/pci/controller/pcie-iproc-msi.c
++++ b/drivers/pci/controller/pcie-iproc-msi.c
+@@ -271,7 +271,7 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
+ 				    NULL, NULL);
+ 	}
  
-+		if (phdr->p_filesz > phdr->p_memsz) {
-+			dev_err(qproc->dev,
-+				"refusing to load segment %d with p_filesz > p_memsz\n",
-+				i);
-+			ret = -EINVAL;
-+			goto release_firmware;
-+		}
-+
- 		ptr = memremap(qproc->mpss_phys + offset, phdr->p_memsz, MEMREMAP_WC);
- 		if (!ptr) {
- 			dev_err(qproc->dev,
-@@ -1241,6 +1249,16 @@ static int q6v5_mpss_load(struct q6v5 *qproc)
- 				goto release_firmware;
- 			}
+-	return hwirq;
++	return 0;
+ }
  
-+			if (seg_fw->size != phdr->p_filesz) {
-+				dev_err(qproc->dev,
-+					"failed to load segment %d from truncated file %s\n",
-+					i, fw_name);
-+				ret = -EINVAL;
-+				release_firmware(seg_fw);
-+				memunmap(ptr);
-+				goto release_firmware;
-+			}
-+
- 			release_firmware(seg_fw);
- 		}
- 
+ static void iproc_msi_irq_domain_free(struct irq_domain *domain,
 -- 
 2.30.2
 
