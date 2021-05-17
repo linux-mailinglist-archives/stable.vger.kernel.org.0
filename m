@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5EEC383726
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7886738372B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244683AbhEQPkg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:40:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39558 "EHLO mail.kernel.org"
+        id S244726AbhEQPkj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:40:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244908AbhEQPiR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:38:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E0C61CF8;
-        Mon, 17 May 2021 14:40:45 +0000 (UTC)
+        id S244510AbhEQPio (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:38:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6639D61CF9;
+        Mon, 17 May 2021 14:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262446;
-        bh=InQ/DaQMQc5IC6GQp9VEPqpCpjRgNmmJMdj9NHRkRrI=;
+        s=korg; t=1621262450;
+        bh=x6K84QG3HR9iITJc6J1QC6FonyXIiybpclJ9Qed+jzA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bl4oz8a/EEKfxOJdR+54wyVtaDmtiLG3x/mbuKKoW3hqGSeCbsPf15I5r2k5jTgqC
-         A+XdSsIYBhcdaA3KM56u9spjCCZWed6OhydlQf3zHILrtLNsP0PcMkyhia04r3qnoA
-         i0qL2knygqkElvkNacp6bRqV17s5VIkZwBdtc88k=
+        b=PIw7mVSuPRZ3ekS1NmN+eZCcLVVAwioVABnYjlmieeL0osCfg+8KCqj75Wf0+zdLs
+         uOWfzvCjzCo5N9lHOHCK0mRuPBfBNB4k7xSyJ9CF4SY6StlEuMKsqOzStTeWq8if61
+         VwTLJ6jGIFoh6o7KEzuRik9VcfpTUymBRLLOI29U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        stable@vger.kernel.org, Jaroslaw Gawin <jaroslawx.gawin@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Dave Switzer <david.switzer@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 189/289] i40e: Fix use-after-free in i40e_client_subtask()
-Date:   Mon, 17 May 2021 16:01:54 +0200
-Message-Id: <20210517140311.475914844@linuxfoundation.org>
+Subject: [PATCH 5.10 190/289] i40e: fix the restart auto-negotiation after FEC modified
+Date:   Mon, 17 May 2021 16:01:55 +0200
+Message-Id: <20210517140311.507682527@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,35 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunjian Wang <wangyunjian@huawei.com>
+From: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
 
-[ Upstream commit 38318f23a7ef86a8b1862e5e8078c4de121960c3 ]
+[ Upstream commit 61343e6da7810de81d6b826698946ae4f9070819 ]
 
-Currently the call to i40e_client_del_instance frees the object
-pf->cinst, however pf->cinst->lan_info is being accessed after
-the free. Fix this by adding the missing return.
+When FEC mode was changed the link didn't know it because
+the link was not reset and new parameters were not negotiated.
+Set a flag 'I40E_AQ_PHY_ENABLE_ATOMIC_LINK' in 'abilities'
+to restart the link and make it run with the new settings.
 
-Addresses-Coverity: ("Read from pointer after free")
-Fixes: 7b0b1a6d0ac9 ("i40e: Disable iWARP VSI PETCP_ENA flag on netdev down events")
-Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Fixes: 1d96340196f1 ("i40e: Add support FEC configuration for Fortville 25G")
+Signed-off-by: Jaroslaw Gawin <jaroslawx.gawin@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Dave Switzer <david.switzer@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_client.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/intel/i40e/i40e_ethtool.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_client.c b/drivers/net/ethernet/intel/i40e/i40e_client.c
-index a2dba32383f6..32f3facbed1a 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_client.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_client.c
-@@ -375,6 +375,7 @@ void i40e_client_subtask(struct i40e_pf *pf)
- 				clear_bit(__I40E_CLIENT_INSTANCE_OPENED,
- 					  &cdev->state);
- 				i40e_client_del_instance(pf);
-+				return;
- 			}
- 		}
- 	}
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+index 31d48a85cfaf..13554706c180 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_ethtool.c
+@@ -1409,7 +1409,8 @@ static int i40e_set_fec_cfg(struct net_device *netdev, u8 fec_cfg)
+ 
+ 		memset(&config, 0, sizeof(config));
+ 		config.phy_type = abilities.phy_type;
+-		config.abilities = abilities.abilities;
++		config.abilities = abilities.abilities |
++				   I40E_AQ_PHY_ENABLE_ATOMIC_LINK;
+ 		config.phy_type_ext = abilities.phy_type_ext;
+ 		config.link_speed = abilities.link_speed;
+ 		config.eee_capability = abilities.eee_capability;
 -- 
 2.30.2
 
