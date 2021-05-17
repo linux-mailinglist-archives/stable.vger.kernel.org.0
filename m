@@ -2,90 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D94F383A80
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 18:50:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDC86383A9B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 18:58:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238410AbhEQQvT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 12:51:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43514 "EHLO
+        id S236218AbhEQQ7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 12:59:32 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S239515AbhEQQvQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 12:51:16 -0400
-Received: from mail-pj1-x1032.google.com (mail-pj1-x1032.google.com [IPv6:2607:f8b0:4864:20::1032])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36472C0612F3;
-        Mon, 17 May 2021 09:37:17 -0700 (PDT)
-Received: by mail-pj1-x1032.google.com with SMTP id g6-20020a17090adac6b029015d1a9a6f1aso201567pjx.1;
-        Mon, 17 May 2021 09:37:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Ku3CeTnQSRaVc2X1/GF1fGNFdAKhq49AjgponOMKyJM=;
-        b=Yqc0/wJImvABIgC8VqFgCTvjU4ZTPZxZ7VTxDs8BIBr4JzW6N4SDUbAJN77IJwBMTU
-         ekOAYGgHImk9s5T3bw6W7d+gnv5ZIvbxIn1AEq8omiDpbz3t58EgTMC0nDzELhAYckH6
-         sdTnPpN/K8LILGmB5BgkdUyX3m9ABNbnrIpofY22x5BXbxUvaB2DuC67eLjo2GU4uo+M
-         2QEkBK/BBT44U7QH67nQA01348kfQL2FnAeKre5h2R3uM5+vSKiNLfrCy+mWu5SFCWXK
-         tN9skvYnin4L5p9JQwyBAJ6twfbi2VzINvuPukTMKQjaN7doKLlHe4OuyQoFDzfbt1FG
-         j3bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=Ku3CeTnQSRaVc2X1/GF1fGNFdAKhq49AjgponOMKyJM=;
-        b=qPtmr6hfuYh0aKb3NoJcQVyZmfF2pfhqQt3+HHvb/f3RORj1eYEU+IrDosLNWwpX0y
-         3LdfMmTtZjjifzeBdwNT8npo+iJY2v/OlM4nAVw4Mek+AQX52rSorKMBIeL/rIl3+ki7
-         lDz0+nDkGK9ptho/mhf7Adc0dJnM90bexxbN8hEdiIhifoBZaWRTR5I1w8qTLZq7z9UG
-         JmQ5n4eXaPbL6mqtF6dfVzOQtiYy0rLRWr5XeJ9GuYfCdfaxUDVrbPHQZ+R6cQK2VXzb
-         25h7B8TdHwS0RBQNApR8uYS4ukWzPsgSLTrPR4W406G9XzPHO0g/nMqVPngjVDGfLt8y
-         SCiQ==
-X-Gm-Message-State: AOAM532UAT70DwNwMAgYB3y9Sa30iO5lE8Bx1lLjO/ZPQIsgK6tKDx7r
-        gW8vbbpcCJUGK8jZDUF/CRr54LoBkCuicwvW
-X-Google-Smtp-Source: ABdhPJyR0akPL3Xy1IHIRGiXb5liXXG08IUodzhkOki7JgWAlaWTR8Qlim0CgsEG+g1GLrLrB0sPEw==
-X-Received: by 2002:a17:90a:dc82:: with SMTP id j2mr14063pjv.138.1621269436141;
-        Mon, 17 May 2021 09:37:16 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id 35sm2255422pgq.91.2021.05.17.09.37.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 09:37:15 -0700 (PDT)
-Message-ID: <60a29bbb.1c69fb81.f06d1.69a0@mx.google.com>
-Date:   Mon, 17 May 2021 09:37:15 -0700 (PDT)
-X-Google-Original-Date: Mon, 17 May 2021 16:37:14 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 000/289] 5.10.38-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        with ESMTP id S239927AbhEQQ7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 12:59:31 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5A8DC061756;
+        Mon, 17 May 2021 09:58:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=+5+7LJaWIzTfeOtF/JzDOM8+78UhbcEx6wP6BldceUY=; b=XpLhn3+UagTm7PTnJ9LvRCJ89A
+        FNMIq820S+wBvFTz05cdpWRYI41LReLo9oYOmer+NJiuSE7Ieh+EEb8duRYf92pBZFxef3K7/sCWi
+        WYn+rBpWuIYJWdsaM7XyrVMd02c1W/Qh2lS5vh7C9RVSRwXzcG6VVrFoGFAQxQ0Yw0a2KkxAAUJUy
+        csn/k4HjVGi7wtCB8JgRI7L037PP9WY29sdsMKUl+EaweEhQVTveefTJTGo4ctIkI/oJLbIs3ILab
+        FHk47CC05uNVTyHqSXbCx4odrr1TzxxiY3YPpOO/5g2ch/TVvntq1zSxtmpz2LjhI71/b3Vakr6yD
+        mNqEYnLQ==;
+Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1ligYd-00DDY8-Vv; Mon, 17 May 2021 16:57:37 +0000
+From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To:     stable@vger.kernel.org, linux-xfs@vger.kernel.org
+Cc:     Christoph Hellwig <hch@lst.de>, Jan Stancek <jstancek@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>,
+        Matthew Wilcox <willy@infradead.org>
+Subject: [PATCH 4.19] iomap: fix sub-page uptodate handling
+Date:   Mon, 17 May 2021 17:57:24 +0100
+Message-Id: <20210517165724.3150255-1-willy@infradead.org>
+X-Mailer: git-send-email 2.30.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 May 2021 15:58:45 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.38 release.
-> There are 289 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 19 May 2021 14:02:24 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.38-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+From: Christoph Hellwig <hch@lst.de>
 
-5.10.38-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream
+
+bio completions can race when a page spans more than one file system
+block.  Add a spinlock to synchronize marking the page uptodate.
+
+Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ fs/iomap.c            | 34 ++++++++++++++++++++++++----------
+ include/linux/iomap.h |  1 +
+ 2 files changed, 25 insertions(+), 10 deletions(-)
+
+diff --git a/fs/iomap.c b/fs/iomap.c
+index 03edf62633dc..ac7b2152c3ad 100644
+--- a/fs/iomap.c
++++ b/fs/iomap.c
+@@ -116,6 +116,7 @@ iomap_page_create(struct inode *inode, struct page *page)
+ 	iop = kmalloc(sizeof(*iop), GFP_NOFS | __GFP_NOFAIL);
+ 	atomic_set(&iop->read_count, 0);
+ 	atomic_set(&iop->write_count, 0);
++	spin_lock_init(&iop->uptodate_lock);
+ 	bitmap_zero(iop->uptodate, PAGE_SIZE / SECTOR_SIZE);
+ 
+ 	/*
+@@ -204,25 +205,38 @@ iomap_adjust_read_range(struct inode *inode, struct iomap_page *iop,
+ }
+ 
+ static void
+-iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
++iomap_iop_set_range_uptodate(struct page *page, unsigned off, unsigned len)
+ {
+ 	struct iomap_page *iop = to_iomap_page(page);
+ 	struct inode *inode = page->mapping->host;
+ 	unsigned first = off >> inode->i_blkbits;
+ 	unsigned last = (off + len - 1) >> inode->i_blkbits;
+-	unsigned int i;
+ 	bool uptodate = true;
++	unsigned long flags;
++	unsigned int i;
+ 
+-	if (iop) {
+-		for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+-			if (i >= first && i <= last)
+-				set_bit(i, iop->uptodate);
+-			else if (!test_bit(i, iop->uptodate))
+-				uptodate = false;
+-		}
++	spin_lock_irqsave(&iop->uptodate_lock, flags);
++	for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
++		if (i >= first && i <= last)
++			set_bit(i, iop->uptodate);
++		else if (!test_bit(i, iop->uptodate))
++			uptodate = false;
+ 	}
+ 
+-	if (uptodate && !PageError(page))
++	if (uptodate)
++		SetPageUptodate(page);
++	spin_unlock_irqrestore(&iop->uptodate_lock, flags);
++}
++
++static void
++iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
++{
++	if (PageError(page))
++		return;
++
++	if (page_has_private(page))
++		iomap_iop_set_range_uptodate(page, off, len);
++	else
+ 		SetPageUptodate(page);
+ }
+ 
+diff --git a/include/linux/iomap.h b/include/linux/iomap.h
+index 3555d54bf79a..e93ecacb5eaf 100644
+--- a/include/linux/iomap.h
++++ b/include/linux/iomap.h
+@@ -108,6 +108,7 @@ struct iomap_ops {
+ struct iomap_page {
+ 	atomic_t		read_count;
+ 	atomic_t		write_count;
++	spinlock_t		uptodate_lock;
+ 	DECLARE_BITMAP(uptodate, PAGE_SIZE / 512);
+ };
+ 
+-- 
+2.30.2
 
