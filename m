@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB0353830CB
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FE343830B8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239313AbhEQObF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41298 "EHLO mail.kernel.org"
+        id S239625AbhEQOaU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:30:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239550AbhEQO3A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:29:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C3D6616EB;
-        Mon, 17 May 2021 14:14:39 +0000 (UTC)
+        id S230292AbhEQO2S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:28:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 347A761624;
+        Mon, 17 May 2021 14:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260880;
-        bh=NSsqVeWI/aMWf9NH32tBVF3Q4W4cpI/mjD7psRtOA+Y=;
+        s=korg; t=1621260858;
+        bh=e6rbGkevxH80htg2S1pnTYsN/VIFVvqRPI21soQ99II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FF5qLBPspfSrAMEe+ZtnOm0Ui/eBIWgyYGoSuOzAh4Bf7NWsDQVoVvedGTbnPCNz/
-         t/cwWv9mBxRnr6lQRPJPpGmbzj8J8xZu0rPSmqlNSiHeKg9OagHBsx7MbyBTOpz6PW
-         ej8+X1o3q3y+jotCMP9joBa3kA8HQH6+cK30wloo=
+        b=uRGmWrk/tBFoqPkyzJRJQqUUwYgiqvgtB+JA4Am21fwdZtu9BwILVr+wzFm5QyTfZ
+         /TCv9QCbypvwRaN0aMIkQljQw6Y58X9G87TOOlV1hYncoeCv1DOCgtOIX4URlQuOor
+         iWQ+LVGXQwuRmRWtrzgMz340oBFXhn4DqEG4NgeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Isaev <isaev@synopsys.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.12 250/363] ARC: mm: Use max_high_pfn as a HIGHMEM zone border
-Date:   Mon, 17 May 2021 16:01:56 +0200
-Message-Id: <20210517140311.046932754@linuxfoundation.org>
+        stable@vger.kernel.org, Jouni Roivas <jouni.roivas@tuxera.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 254/363] hfsplus: prevent corruption in shrinking truncate
+Date:   Mon, 17 May 2021 16:02:00 +0200
+Message-Id: <20210517140311.187943962@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,56 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Isaev <isaev@synopsys.com>
+From: Jouni Roivas <jouni.roivas@tuxera.com>
 
-commit 1d5e4640e5df15252398c1b621f6bd432f2d7f17 upstream.
+commit c3187cf32216313fb316084efac4dab3a8459b1d upstream.
 
-Commit 4af22ded0ecf ("arc: fix memory initialization for systems
-with two memory banks") fixed highmem, but for the PAE case it causes
-bug messages:
+I believe there are some issues introduced by commit 31651c607151
+("hfsplus: avoid deadlock on file truncation")
 
-| BUG: Bad page state in process swapper  pfn:80000
-| page:(ptrval) refcount:0 mapcount:1 mapping:00000000 index:0x0 pfn:0x80000 flags: 0x0()
-| raw: 00000000 00000100 00000122 00000000 00000000 00000000 00000000 00000000
-| raw: 00000000
-| page dumped because: nonzero mapcount
-| Modules linked in:
-| CPU: 0 PID: 0 Comm: swapper Not tainted 5.12.0-rc5-00003-g1e43c377a79f #1
+HFS+ has extent records which always contains 8 extents.  In case the
+first extent record in catalog file gets full, new ones are allocated from
+extents overflow file.
 
-This is because the fix expects highmem to be always less than
-lowmem and uses min_low_pfn as an upper zone border for highmem.
+In case shrinking truncate happens to middle of an extent record which
+locates in extents overflow file, the logic in hfsplus_file_truncate() was
+changed so that call to hfs_brec_remove() is not guarded any more.
 
-max_high_pfn should be ok for both highmem and highmem+PAE cases.
+Right action would be just freeing the extents that exceed the new size
+inside extent record by calling hfsplus_free_extents(), and then check if
+the whole extent record should be removed.  However since the guard
+(blk_cnt > start) is now after the call to hfs_brec_remove(), this has
+unfortunate effect that the last matching extent record is removed
+unconditionally.
 
-Fixes: 4af22ded0ecf ("arc: fix memory initialization for systems with two memory banks")
-Signed-off-by: Vladimir Isaev <isaev@synopsys.com>
-Cc: Mike Rapoport <rppt@linux.ibm.com>
-Cc: stable@vger.kernel.org  #5.8 onwards
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+To reproduce this issue, create a file which has at least 10 extents, and
+then perform shrinking truncate into middle of the last extent record, so
+that the number of remaining extents is not under or divisible by 8.  This
+causes the last extent record (8 extents) to be removed totally instead of
+truncating into middle of it.  Thus this causes corruption, and lost data.
+
+Fix for this is simply checking if the new truncated end is below the
+start of this extent record, making it safe to remove the full extent
+record.  However call to hfs_brec_remove() can't be moved to it's previous
+place since we're dropping ->tree_lock and it can cause a race condition
+and the cached info being invalidated possibly corrupting the node data.
+
+Another issue is related to this one.  When entering into the block
+(blk_cnt > start) we are not holding the ->tree_lock.  We break out from
+the loop not holding the lock, but hfs_find_exit() does unlock it.  Not
+sure if it's possible for someone else to take the lock under our feet,
+but it can cause hard to debug errors and premature unlocking.  Even if
+there's no real risk of it, the locking should still always be kept in
+balance.  Thus taking the lock now just before the check.
+
+Link: https://lkml.kernel.org/r/20210429165139.3082828-1-jouni.roivas@tuxera.com
+Fixes: 31651c607151f ("hfsplus: avoid deadlock on file truncation")
+Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
+Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
+Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/mm/init.c |   11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ fs/hfsplus/extents.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/arc/mm/init.c
-+++ b/arch/arc/mm/init.c
-@@ -157,7 +157,16 @@ void __init setup_arch_memory(void)
- 	min_high_pfn = PFN_DOWN(high_mem_start);
- 	max_high_pfn = PFN_DOWN(high_mem_start + high_mem_sz);
+--- a/fs/hfsplus/extents.c
++++ b/fs/hfsplus/extents.c
+@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode
+ 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
+ 		if (res)
+ 			break;
+-		hfs_brec_remove(&fd);
  
--	max_zone_pfn[ZONE_HIGHMEM] = min_low_pfn;
-+	/*
-+	 * max_high_pfn should be ok here for both HIGHMEM and HIGHMEM+PAE.
-+	 * For HIGHMEM without PAE max_high_pfn should be less than
-+	 * min_low_pfn to guarantee that these two regions don't overlap.
-+	 * For PAE case highmem is greater than lowmem, so it is natural
-+	 * to use max_high_pfn.
-+	 *
-+	 * In both cases, holes should be handled by pfn_valid().
-+	 */
-+	max_zone_pfn[ZONE_HIGHMEM] = max_high_pfn;
- 
- 	high_memory = (void *)(min_high_pfn << PAGE_SHIFT);
+-		mutex_unlock(&fd.tree->tree_lock);
+ 		start = hip->cached_start;
++		if (blk_cnt <= start)
++			hfs_brec_remove(&fd);
++		mutex_unlock(&fd.tree->tree_lock);
+ 		hfsplus_free_extents(sb, hip->cached_extents,
+ 				     alloc_cnt - start, alloc_cnt - blk_cnt);
+ 		hfsplus_dump_extent(hip->cached_extents);
++		mutex_lock(&fd.tree->tree_lock);
+ 		if (blk_cnt > start) {
+ 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
+ 			break;
+@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode
+ 		alloc_cnt = start;
+ 		hip->cached_start = hip->cached_blocks = 0;
+ 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
+-		mutex_lock(&fd.tree->tree_lock);
+ 	}
+ 	hfs_find_exit(&fd);
  
 
 
