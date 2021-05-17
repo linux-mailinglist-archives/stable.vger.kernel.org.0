@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021A2382E98
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:08:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F94E382E9B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238186AbhEQOJf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:09:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59664 "EHLO mail.kernel.org"
+        id S236460AbhEQOJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:09:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237783AbhEQOHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:07:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F13B261355;
-        Mon, 17 May 2021 14:06:02 +0000 (UTC)
+        id S238081AbhEQOHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:07:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2989E61364;
+        Mon, 17 May 2021 14:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260363;
-        bh=bmLQThdMvJ2I/cHj3QpqostU/B37Qhc6cji/YV9j8dw=;
+        s=korg; t=1621260365;
+        bh=vwUpeB1vgOiMO5h7q4PTSqXlj01aCiDWEzW9M/4srSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mfYfPC0FSm9IlOLx+wnPEzkKJ9w92oTxarw6FkokV2e0Bf8REhIBmp7m/Uvd4OhBN
-         8WzSpwQbWi2JjX79EWYO21BcX7SuSRAiE3wpPFg9zJXJSBYg5arnO4XoAuo3YkCWOC
-         W0I7u5erY6v2yxFZy4uKCnU9wmK69HC5V9bcQed4=
+        b=Xa+Au7Wg89zUg2UphuszR0UL7v587EDajirGfvNGOLwDIHc34bsH5Sxs5w5XRoU8x
+         t0xow091D+Bx1TQRN2TbqwxnLRahBho2QwZvAKBAWQawqdu3zHeoeMPVo0zvOnboC4
+         DV4G9klWaAbCufZLJIrVmnmlQILSofzJH7jG2IOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 047/363] ice: handle increasing Tx or Rx ring sizes
-Date:   Mon, 17 May 2021 15:58:33 +0200
-Message-Id: <20210517140304.195962283@linuxfoundation.org>
+Subject: [PATCH 5.12 048/363] Bluetooth: btusb: Enable quirk boolean flag for Mediatek Chip.
+Date:   Mon, 17 May 2021 15:58:34 +0200
+Message-Id: <20210517140304.230981606@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,213 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
+From: mark-yw.chen <mark-yw.chen@mediatek.com>
 
-[ Upstream commit 2ec5638559c13b923250eccf495d2a033fccb3e7 ]
+[ Upstream commit 27e554a4fcd84e499bf0a82122b8c4c3f1de38b6 ]
 
-There is an issue when the Tx or Rx ring size increases using
-'ethtool -L ...' where the new rings don't get the correct ITR
-values because when we rebuild the VSI we don't know that some
-of the rings may be new.
+Adding support LE scatternet and WBS for Mediatek Chip
 
-Fix this by looking at the original number of rings and
-determining if the rings in ice_vsi_rebuild_set_coalesce()
-were not present in the original rings received in
-ice_vsi_rebuild_get_coalesce().
-
-Also change the code to return an error if we can't allocate
-memory for the coalesce data in ice_vsi_rebuild().
-
-Signed-off-by: Paul M Stillwell Jr <paul.m.stillwell.jr@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_lib.c  | 123 ++++++++++++++++------
- drivers/net/ethernet/intel/ice/ice_txrx.h |   2 +
- 2 files changed, 92 insertions(+), 33 deletions(-)
+ drivers/bluetooth/btusb.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
-index d13c7fc8fb0a..195d122c9cb2 100644
---- a/drivers/net/ethernet/intel/ice/ice_lib.c
-+++ b/drivers/net/ethernet/intel/ice/ice_lib.c
-@@ -2818,38 +2818,46 @@ int ice_vsi_release(struct ice_vsi *vsi)
- }
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index 5cbfbd948f67..4a901508e48e 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -399,7 +399,9 @@ static const struct usb_device_id blacklist_table[] = {
  
- /**
-- * ice_vsi_rebuild_update_coalesce - set coalesce for a q_vector
-+ * ice_vsi_rebuild_update_coalesce_intrl - set interrupt rate limit for a q_vector
-  * @q_vector: pointer to q_vector which is being updated
-- * @coalesce: pointer to array of struct with stored coalesce
-+ * @stored_intrl_setting: original INTRL setting
-  *
-  * Set coalesce param in q_vector and update these parameters in HW.
-  */
- static void
--ice_vsi_rebuild_update_coalesce(struct ice_q_vector *q_vector,
--				struct ice_coalesce_stored *coalesce)
-+ice_vsi_rebuild_update_coalesce_intrl(struct ice_q_vector *q_vector,
-+				      u16 stored_intrl_setting)
- {
--	struct ice_ring_container *rx_rc = &q_vector->rx;
--	struct ice_ring_container *tx_rc = &q_vector->tx;
- 	struct ice_hw *hw = &q_vector->vsi->back->hw;
+ 	/* MediaTek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0e8d, 0xe0, 0x01, 0x01),
+-	  .driver_info = BTUSB_MEDIATEK },
++	  .driver_info = BTUSB_MEDIATEK |
++			 BTUSB_WIDEBAND_SPEECH |
++			 BTUSB_VALID_LE_STATES },
  
--	tx_rc->itr_setting = coalesce->itr_tx;
--	rx_rc->itr_setting = coalesce->itr_rx;
--
--	/* dynamic ITR values will be updated during Tx/Rx */
--	if (!ITR_IS_DYNAMIC(tx_rc->itr_setting))
--		wr32(hw, GLINT_ITR(tx_rc->itr_idx, q_vector->reg_idx),
--		     ITR_REG_ALIGN(tx_rc->itr_setting) >>
--		     ICE_ITR_GRAN_S);
--	if (!ITR_IS_DYNAMIC(rx_rc->itr_setting))
--		wr32(hw, GLINT_ITR(rx_rc->itr_idx, q_vector->reg_idx),
--		     ITR_REG_ALIGN(rx_rc->itr_setting) >>
--		     ICE_ITR_GRAN_S);
--
--	q_vector->intrl = coalesce->intrl;
-+	q_vector->intrl = stored_intrl_setting;
- 	wr32(hw, GLINT_RATE(q_vector->reg_idx),
- 	     ice_intrl_usec_to_reg(q_vector->intrl, hw->intrl_gran));
- }
- 
-+/**
-+ * ice_vsi_rebuild_update_coalesce_itr - set coalesce for a q_vector
-+ * @q_vector: pointer to q_vector which is being updated
-+ * @rc: pointer to ring container
-+ * @stored_itr_setting: original ITR setting
-+ *
-+ * Set coalesce param in q_vector and update these parameters in HW.
-+ */
-+static void
-+ice_vsi_rebuild_update_coalesce_itr(struct ice_q_vector *q_vector,
-+				    struct ice_ring_container *rc,
-+				    u16 stored_itr_setting)
-+{
-+	struct ice_hw *hw = &q_vector->vsi->back->hw;
-+
-+	rc->itr_setting = stored_itr_setting;
-+
-+	/* dynamic ITR values will be updated during Tx/Rx */
-+	if (!ITR_IS_DYNAMIC(rc->itr_setting))
-+		wr32(hw, GLINT_ITR(rc->itr_idx, q_vector->reg_idx),
-+		     ITR_REG_ALIGN(rc->itr_setting) >> ICE_ITR_GRAN_S);
-+}
-+
- /**
-  * ice_vsi_rebuild_get_coalesce - get coalesce from all q_vectors
-  * @vsi: VSI connected with q_vectors
-@@ -2869,6 +2877,11 @@ ice_vsi_rebuild_get_coalesce(struct ice_vsi *vsi,
- 		coalesce[i].itr_tx = q_vector->tx.itr_setting;
- 		coalesce[i].itr_rx = q_vector->rx.itr_setting;
- 		coalesce[i].intrl = q_vector->intrl;
-+
-+		if (i < vsi->num_txq)
-+			coalesce[i].tx_valid = true;
-+		if (i < vsi->num_rxq)
-+			coalesce[i].rx_valid = true;
- 	}
- 
- 	return vsi->num_q_vectors;
-@@ -2893,17 +2906,59 @@ ice_vsi_rebuild_set_coalesce(struct ice_vsi *vsi,
- 	if ((size && !coalesce) || !vsi)
- 		return;
- 
--	for (i = 0; i < size && i < vsi->num_q_vectors; i++)
--		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
--						&coalesce[i]);
--
--	/* number of q_vectors increased, so assume coalesce settings were
--	 * changed globally (i.e. ethtool -C eth0 instead of per-queue) and use
--	 * the previous settings from q_vector 0 for all of the new q_vectors
-+	/* There are a couple of cases that have to be handled here:
-+	 *   1. The case where the number of queue vectors stays the same, but
-+	 *      the number of Tx or Rx rings changes (the first for loop)
-+	 *   2. The case where the number of queue vectors increased (the
-+	 *      second for loop)
- 	 */
--	for (; i < vsi->num_q_vectors; i++)
--		ice_vsi_rebuild_update_coalesce(vsi->q_vectors[i],
--						&coalesce[0]);
-+	for (i = 0; i < size && i < vsi->num_q_vectors; i++) {
-+		/* There are 2 cases to handle here and they are the same for
-+		 * both Tx and Rx:
-+		 *   if the entry was valid previously (coalesce[i].[tr]x_valid
-+		 *   and the loop variable is less than the number of rings
-+		 *   allocated, then write the previous values
-+		 *
-+		 *   if the entry was not valid previously, but the number of
-+		 *   rings is less than are allocated (this means the number of
-+		 *   rings increased from previously), then write out the
-+		 *   values in the first element
-+		 */
-+		if (i < vsi->alloc_rxq && coalesce[i].rx_valid)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->rx,
-+							    coalesce[i].itr_rx);
-+		else if (i < vsi->alloc_rxq)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->rx,
-+							    coalesce[0].itr_rx);
-+
-+		if (i < vsi->alloc_txq && coalesce[i].tx_valid)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->tx,
-+							    coalesce[i].itr_tx);
-+		else if (i < vsi->alloc_txq)
-+			ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+							    &vsi->q_vectors[i]->tx,
-+							    coalesce[0].itr_tx);
-+
-+		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
-+						      coalesce[i].intrl);
-+	}
-+
-+	/* the number of queue vectors increased so write whatever is in
-+	 * the first element
-+	 */
-+	for (; i < vsi->num_q_vectors; i++) {
-+		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+						    &vsi->q_vectors[i]->tx,
-+						    coalesce[0].itr_tx);
-+		ice_vsi_rebuild_update_coalesce_itr(vsi->q_vectors[i],
-+						    &vsi->q_vectors[i]->rx,
-+						    coalesce[0].itr_rx);
-+		ice_vsi_rebuild_update_coalesce_intrl(vsi->q_vectors[i],
-+						      coalesce[0].intrl);
-+	}
- }
- 
- /**
-@@ -2932,9 +2987,11 @@ int ice_vsi_rebuild(struct ice_vsi *vsi, bool init_vsi)
- 
- 	coalesce = kcalloc(vsi->num_q_vectors,
- 			   sizeof(struct ice_coalesce_stored), GFP_KERNEL);
--	if (coalesce)
--		prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi,
--								  coalesce);
-+	if (!coalesce)
-+		return -ENOMEM;
-+
-+	prev_num_q_vectors = ice_vsi_rebuild_get_coalesce(vsi, coalesce);
-+
- 	ice_rm_vsi_lan_cfg(vsi->port_info, vsi->idx);
- 	ice_vsi_free_q_vectors(vsi);
- 
-diff --git a/drivers/net/ethernet/intel/ice/ice_txrx.h b/drivers/net/ethernet/intel/ice/ice_txrx.h
-index 5dab77504fa5..672a7ff0ee36 100644
---- a/drivers/net/ethernet/intel/ice/ice_txrx.h
-+++ b/drivers/net/ethernet/intel/ice/ice_txrx.h
-@@ -351,6 +351,8 @@ struct ice_coalesce_stored {
- 	u16 itr_tx;
- 	u16 itr_rx;
- 	u8 intrl;
-+	u8 tx_valid;
-+	u8 rx_valid;
- };
- 
- /* iterator for handling rings in ring container */
+ 	/* Additional MediaTek MT7615E Bluetooth devices */
+ 	{ USB_DEVICE(0x13d3, 0x3560), .driver_info = BTUSB_MEDIATEK},
 -- 
 2.30.2
 
