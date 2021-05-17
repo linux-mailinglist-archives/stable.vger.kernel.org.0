@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6AE6383505
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:14:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2303383506
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:14:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241393AbhEQPPh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242298AbhEQPPh (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 11:15:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41010 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:36098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242494AbhEQPLf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:11:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F3AF61876;
-        Mon, 17 May 2021 14:31:05 +0000 (UTC)
+        id S243191AbhEQPMI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:12:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D35D61C40;
+        Mon, 17 May 2021 14:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261866;
-        bh=NUTveeO8K0bmPe5fcBuUXsxOCvDXFMHlPCWl3/R4p3o=;
+        s=korg; t=1621261873;
+        bh=5YzyWYRhm0aOk+NuJQDoS5xVXka7TGu7/s+Gfq0o8zc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHCqxoS2XCS0gYGf7Q+IxBAIhbRCeZDhVVQNnf/DkpR+Bx3iNKmbBRa96QYCpKTgY
-         8wXoSYlTcstgprmjAbHGDRvEwaPBvZAih2eCM5tVv7/VL3PnMV7bBe4hyiwyB8+On1
-         37K8UMj9MENWVefSrvtB7QLVl7kjH9wfawKn9crQ=
+        b=K5/Gxnd0TiZuwywJT96qaQLIfiwaLqqGodT4L4dWzAbB9j9wWZi04nf7w8IWPWmWv
+         fExvdQw8C5pSuDjWSDmRFLWXPQ9NX95cJ4zJT1D24hzYkE3uuMJGUifQmrEiVpnwe8
+         WqO9kIqWHzxJxvnTa8zdTICro2mZybO9gpAO427U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 102/141] mm/hugetlb: fix F_SEAL_FUTURE_WRITE
-Date:   Mon, 17 May 2021 16:02:34 +0200
-Message-Id: <20210517140246.214457854@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 103/141] drm/radeon/dpm: Disable sclk switching on Oland when two 4K 60Hz monitors are connected
+Date:   Mon, 17 May 2021 16:02:35 +0200
+Message-Id: <20210517140246.245891521@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -43,150 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit 22247efd822e6d263f3c8bd327f3f769aea9b1d9 upstream.
+commit 227545b9a08c68778ddd89428f99c351fc9315ac upstream.
 
-Patch series "mm/hugetlb: Fix issues on file sealing and fork", v2.
+Screen flickers rapidly when two 4K 60Hz monitors are in use. This issue
+doesn't happen when one monitor is 4K 60Hz (pixelclock 594MHz) and
+another one is 4K 30Hz (pixelclock 297MHz).
 
-Hugh reported issue with F_SEAL_FUTURE_WRITE not applied correctly to
-hugetlbfs, which I can easily verify using the memfd_test program, which
-seems that the program is hardly run with hugetlbfs pages (as by default
-shmem).
+The issue is gone after setting "power_dpm_force_performance_level" to
+"high". Following the indication, we found that the issue occurs when
+sclk is too low.
 
-Meanwhile I found another probably even more severe issue on that hugetlb
-fork won't wr-protect child cow pages, so child can potentially write to
-parent private pages.  Patch 2 addresses that.
+So resolve the issue by disabling sclk switching when there are two
+monitors requires high pixelclock (> 297MHz).
 
-After this series applied, "memfd_test hugetlbfs" should start to pass.
-
-This patch (of 2):
-
-F_SEAL_FUTURE_WRITE is missing for hugetlb starting from the first day.
-There is a test program for that and it fails constantly.
-
-$ ./memfd_test hugetlbfs
-memfd-hugetlb: CREATE
-memfd-hugetlb: BASIC
-memfd-hugetlb: SEAL-WRITE
-memfd-hugetlb: SEAL-FUTURE-WRITE
-mmap() didn't fail as expected
-Aborted (core dumped)
-
-I think it's probably because no one is really running the hugetlbfs test.
-
-Fix it by checking FUTURE_WRITE also in hugetlbfs_file_mmap() as what we
-do in shmem_mmap().  Generalize a helper for that.
-
-Link: https://lkml.kernel.org/r/20210503234356.9097-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20210503234356.9097-2-peterx@redhat.com
-Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+v2:
+ - Only apply the fix to Oland.
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/hugetlbfs/inode.c |    5 +++++
- include/linux/mm.h   |   32 ++++++++++++++++++++++++++++++++
- mm/shmem.c           |   22 ++++------------------
- 3 files changed, 41 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/radeon/radeon.h    |    1 +
+ drivers/gpu/drm/radeon/radeon_pm.c |    8 ++++++++
+ drivers/gpu/drm/radeon/si_dpm.c    |    3 +++
+ 3 files changed, 12 insertions(+)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -135,6 +135,7 @@ static void huge_pagevec_release(struct
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file_inode(file);
-+	struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
- 	loff_t len, vma_len;
- 	int ret;
- 	struct hstate *h = hstate_file(file);
-@@ -150,6 +151,10 @@ static int hugetlbfs_file_mmap(struct fi
- 	vma->vm_flags |= VM_HUGETLB | VM_DONTEXPAND;
- 	vma->vm_ops = &hugetlb_vm_ops;
+--- a/drivers/gpu/drm/radeon/radeon.h
++++ b/drivers/gpu/drm/radeon/radeon.h
+@@ -1554,6 +1554,7 @@ struct radeon_dpm {
+ 	void                    *priv;
+ 	u32			new_active_crtcs;
+ 	int			new_active_crtc_count;
++	int			high_pixelclock_count;
+ 	u32			current_active_crtcs;
+ 	int			current_active_crtc_count;
+ 	bool single_display;
+--- a/drivers/gpu/drm/radeon/radeon_pm.c
++++ b/drivers/gpu/drm/radeon/radeon_pm.c
+@@ -1720,6 +1720,7 @@ static void radeon_pm_compute_clocks_dpm
+ 	struct drm_device *ddev = rdev->ddev;
+ 	struct drm_crtc *crtc;
+ 	struct radeon_crtc *radeon_crtc;
++	struct radeon_connector *radeon_connector;
  
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
+ 	if (!rdev->pm.dpm_enabled)
+ 		return;
+@@ -1729,6 +1730,7 @@ static void radeon_pm_compute_clocks_dpm
+ 	/* update active crtc counts */
+ 	rdev->pm.dpm.new_active_crtcs = 0;
+ 	rdev->pm.dpm.new_active_crtc_count = 0;
++	rdev->pm.dpm.high_pixelclock_count = 0;
+ 	if (rdev->num_crtc && rdev->mode_info.mode_config_initialized) {
+ 		list_for_each_entry(crtc,
+ 				    &ddev->mode_config.crtc_list, head) {
+@@ -1736,6 +1738,12 @@ static void radeon_pm_compute_clocks_dpm
+ 			if (crtc->enabled) {
+ 				rdev->pm.dpm.new_active_crtcs |= (1 << radeon_crtc->crtc_id);
+ 				rdev->pm.dpm.new_active_crtc_count++;
++				if (!radeon_crtc->connector)
++					continue;
 +
- 	/*
- 	 * page based offset in vm_pgoff could be sufficiently large to
- 	 * overflow a loff_t when converted to byte offset.  This can
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -2925,5 +2925,37 @@ static inline int pages_identical(struct
- 	return !memcmp_pages(page1, page2);
- }
++				radeon_connector = to_radeon_connector(radeon_crtc->connector);
++				if (radeon_connector->pixelclock_for_modeset > 297000)
++					rdev->pm.dpm.high_pixelclock_count++;
+ 			}
+ 		}
+ 	}
+--- a/drivers/gpu/drm/radeon/si_dpm.c
++++ b/drivers/gpu/drm/radeon/si_dpm.c
+@@ -3002,6 +3002,9 @@ static void si_apply_state_adjust_rules(
+ 		    (rdev->pdev->device == 0x6605)) {
+ 			max_sclk = 75000;
+ 		}
++
++		if (rdev->pm.dpm.high_pixelclock_count > 1)
++			disable_sclk_switching = true;
+ 	}
  
-+/**
-+ * seal_check_future_write - Check for F_SEAL_FUTURE_WRITE flag and handle it
-+ * @seals: the seals to check
-+ * @vma: the vma to operate on
-+ *
-+ * Check whether F_SEAL_FUTURE_WRITE is set; if so, do proper check/handling on
-+ * the vma flags.  Return 0 if check pass, or <0 for errors.
-+ */
-+static inline int seal_check_future_write(int seals, struct vm_area_struct *vma)
-+{
-+	if (seals & F_SEAL_FUTURE_WRITE) {
-+		/*
-+		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
-+		 * "future write" seal active.
-+		 */
-+		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
-+			return -EPERM;
-+
-+		/*
-+		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
-+		 * MAP_SHARED and read-only, take care to not allow mprotect to
-+		 * revert protections on such mappings. Do this only for shared
-+		 * mappings. For private mappings, don't need to mask
-+		 * VM_MAYWRITE as we still want them to be COW-writable.
-+		 */
-+		if (vma->vm_flags & VM_SHARED)
-+			vma->vm_flags &= ~(VM_MAYWRITE);
-+	}
-+
-+	return 0;
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2208,25 +2208,11 @@ out_nomem:
- static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct shmem_inode_info *info = SHMEM_I(file_inode(file));
-+	int ret;
- 
--	if (info->seals & F_SEAL_FUTURE_WRITE) {
--		/*
--		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
--		 * "future write" seal active.
--		 */
--		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
--			return -EPERM;
--
--		/*
--		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
--		 * MAP_SHARED and read-only, take care to not allow mprotect to
--		 * revert protections on such mappings. Do this only for shared
--		 * mappings. For private mappings, don't need to mask
--		 * VM_MAYWRITE as we still want them to be COW-writable.
--		 */
--		if (vma->vm_flags & VM_SHARED)
--			vma->vm_flags &= ~(VM_MAYWRITE);
--	}
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
- 
- 	file_accessed(file);
- 	vma->vm_ops = &shmem_vm_ops;
+ 	if (rps->vce_active) {
 
 
