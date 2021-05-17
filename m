@@ -2,81 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2693E382FBD
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FBB8382E1D
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237235AbhEQOU3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:20:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49306 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234797AbhEQORh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:17:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49191611EE;
-        Mon, 17 May 2021 14:10:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260609;
-        bh=lOlsJjgaOPtDTbYmbKCrNFRFhoILXqDGkvLtaB4IIV4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A7VKn02FGEGsFe7bVOnCNolfBjWf54hXhU6OPN3A8Rny4EPmSDP/R+SWm8tIfCGUL
-         MkKl8NLk42MtBZ9sHlmDJ3XToTIkRN/MFzlLwkoRKe8Nqeb+NPUWOHh2C/A/rKgA62
-         tVBtwZv2z0LvMKVixFbIM6n3ULoah0fKOGd6mlqg=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 159/363] NFSv4.2 fix handling of sr_eof in SEEKs reply
-Date:   Mon, 17 May 2021 16:00:25 +0200
-Message-Id: <20210517140307.981336756@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
-References: <20210517140302.508966430@linuxfoundation.org>
-User-Agent: quilt/0.66
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+        id S237606AbhEQOCo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:02:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34688 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237574AbhEQOCn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 10:02:43 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2ACE7C061573;
+        Mon, 17 May 2021 07:01:27 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so3765502pjv.1;
+        Mon, 17 May 2021 07:01:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references;
+        bh=/2GPjTLQ/YR+wnuKsns5/Hi1QLal2y1jDQCRlyJhbRk=;
+        b=m78vKY4Ils3Zka2LHxaL7/u8+Ux75+b2P5JcA51NnA/mOemelC6vljDXQ+wiyyhvCj
+         JcjTebx//vYgWfEddx+4wvQUX1l7NeyFbhAH3MOb85xrYr/KeMFbUGJY7jhAj3QsUWqa
+         Z6idJdQmlCCZ11B9YyUIFVhbybDaPahq0a8NVz/nVkumfpLeikq53mrI198nC7ujuGCT
+         Cogu7jTwppj9IZ3sh48PkLyHT+42fOsBnPkjyLMzJmam9bpe9gqLeEqpZ1l08W//h4XJ
+         4UAwQtoURr7VZfMLg2KuYO2WNphH7/SD7nw9RoaemRDr4C21vW2+X2i7LfF1/mWAclO7
+         qSRg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references;
+        bh=/2GPjTLQ/YR+wnuKsns5/Hi1QLal2y1jDQCRlyJhbRk=;
+        b=k6G5HSWZBpeFC3c5o5B8zeDl5S9l3gVnt7spPcyYBMgnbAkksYo43tYzdc2fnfxdn5
+         wRWW+CAEacRwk9GDLNlU2E4TLNwk4A3bCz9pCQF6rgjL+25Wm6oWyOl0QxlE2xBO18jX
+         TvTEXwTuhneyEjEh3IFvUNVe/2+G9vZr8u9KXCaGOJ4OB9pM2sxys25V1p8zDIOmf4u1
+         sM9lSf17x8jZJKbSS5bR3hhXJ5uu3eLxqC8UZhNaTRY37YMx5AtoGH9t+h/cbX3trrA+
+         Avusii+NSLMbM0jDNcmI9X6kABaGQzVNyEbu+kX2bZa5rx86cv67nvHDCnpmEK+zfscG
+         hwJg==
+X-Gm-Message-State: AOAM5333rs8yO9h5ZkTyvepiYM9dfvDFTLP6LYe+80fNK6oOUMY3S9JU
+        XrY4ToHGgCk78aouwiUBmW0fMRnO/tM=
+X-Google-Smtp-Source: ABdhPJwaT9yOEYd0kc9RCcyNp41kW9zpGoSd03Lqy76hsnwtT1jmF+q8DlO5M2OCw0rdT+rzvYgcMA==
+X-Received: by 2002:a17:90a:4a0e:: with SMTP id e14mr58581pjh.209.1621260086511;
+        Mon, 17 May 2021 07:01:26 -0700 (PDT)
+Received: from localhost.localdomain ([203.205.141.61])
+        by smtp.googlemail.com with ESMTPSA id k10sm3074229pfu.175.2021.05.17.07.01.23
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 May 2021 07:01:26 -0700 (PDT)
+From:   Wanpeng Li <kernellwp@gmail.com>
+X-Google-Original-From: Wanpeng Li <wanpengli@tencent.com>
+To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
+Cc:     Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Jim Mattson <jmattson@google.com>,
+        Joerg Roedel <joro@8bytes.org>, stable@vger.kernel.org
+Subject: [PATCH v3 3/5] KVM: X86: Fix vCPU preempted state from guest's point of view
+Date:   Mon, 17 May 2021 07:00:26 -0700
+Message-Id: <1621260028-6467-3-git-send-email-wanpengli@tencent.com>
+X-Mailer: git-send-email 2.7.4
+In-Reply-To: <1621260028-6467-1-git-send-email-wanpengli@tencent.com>
+References: <1621260028-6467-1-git-send-email-wanpengli@tencent.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 73f5c88f521a630ea1628beb9c2d48a2e777a419 ]
+Commit 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's
+CPUID) avoids to access pv tlb shootdown host side logic when this pv feature
+is not exposed to guest, however, kvm_steal_time.preempted not only leveraged
+by pv tlb shootdown logic but also mitigate the lock holder preemption issue.
+From guest's point of view, vCPU is always preempted since we lose the reset
+of kvm_steal_time.preempted before vmentry if pv tlb shootdown feature is not
+exposed. This patch fixes it by clearing kvm_steal_time.preempted before
+vmentry.
 
-Currently the client ignores the value of the sr_eof of the SEEK
-operation. According to the spec, if the server didn't find the
-requested extent and reached the end of the file, the server
-would return sr_eof=true. In case the request for DATA and no
-data was found (ie in the middle of the hole), then the lseek
-expects that ENXIO would be returned.
-
-Fixes: 1c6dcbe5ceff8 ("NFS: Implement SEEK")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's CPUID)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
 ---
- fs/nfs/nfs42proc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+v1 -> v2:
+ * add curly braces
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 704a5246ccb5..8d64eb953347 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -667,7 +667,10 @@ static loff_t _nfs42_proc_llseek(struct file *filep,
- 	if (status)
- 		return status;
+ arch/x86/kvm/x86.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index dfb7c320581f..bed7b5348c0e 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3105,6 +3105,8 @@ static void record_steal_time(struct kvm_vcpu *vcpu)
+ 				       st->preempted & KVM_VCPU_FLUSH_TLB);
+ 		if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
+ 			kvm_vcpu_flush_tlb_guest(vcpu);
++	} else {
++		st->preempted = 0;
+ 	}
  
--	return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
-+	if (whence == SEEK_DATA && res.sr_eof)
-+		return -NFS4ERR_NXIO;
-+	else
-+		return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
- }
- 
- loff_t nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
+ 	vcpu->arch.st.preempted = 0;
 -- 
-2.30.2
-
-
+2.25.1
 
