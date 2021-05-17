@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24D7F383748
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F7AD383860
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243789AbhEQPlN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:41:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50648 "EHLO mail.kernel.org"
+        id S1343724AbhEQPwR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:52:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245521AbhEQPjL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:39:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18DCC61CFE;
-        Mon, 17 May 2021 14:41:16 +0000 (UTC)
+        id S1345105AbhEQPuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:50:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B48C2613B0;
+        Mon, 17 May 2021 14:45:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262477;
-        bh=TZev9StsWgHu4WF6G+FIHP5tmHQKm6mneARLeqjVLIw=;
+        s=korg; t=1621262739;
+        bh=eFLFcCVjj/Juat7SVA7Sv9+IO9Wv0EhmVYpN/GkN9u4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nOeHgcV8V21IpkGmfnbLRSpVSv7eBcUL8OUR3+/utnSKK7uOWXqxr7slowoIgxji
-         x8arsj1ebdcs9cSPOkIvbelRRTg8Nqjkq9ncrjPKD0ItgzjTlGAxzoVXkVPg4IwkIy
-         d4EJwg4se7YFn3CYzbPwNjksqYp+78sWQUMugE7I=
+        b=xqUWHg0GNe89hJ2RWT/fkAERF0uoRweX72wZSJz+a5k72rHb9eH/ZV5g+YtfhkDN/
+         RL/dOXXTnQQAd88qnESWk28n515BmfmgYVSoWqnIE6CnWr1k60uCxcdlewuGFemWmz
+         mH/V7gNfTxVFNiuex6kFaUgUhzIWrMPA18hTXkxk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Jim Mattson <jmattson@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 299/329] KVM: x86: Move RDPID emulation intercept to its own enum
-Date:   Mon, 17 May 2021 16:03:30 +0200
-Message-Id: <20210517140312.207282886@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Enderborg <peter.enderborg@sony.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.10 286/289] debugfs: Make debugfs_allow RO after init
+Date:   Mon, 17 May 2021 16:03:31 +0200
+Message-Id: <20210517140314.774159493@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 2183de4161b90bd3851ccd3910c87b2c9adfc6ed upstream.
+commit 312723a0b34d6d110aa4427a982536bb36ab8471 upstream.
 
-Add a dedicated intercept enum for RDPID instead of piggybacking RDTSCP.
-Unlike VMX's ENABLE_RDTSCP, RDPID is not bound to SVM's RDTSCP intercept.
+Since debugfs_allow is only set at boot time during __init, make it
+read-only after being set.
 
-Fixes: fb6d4d340e05 ("KVM: x86: emulate RDPID")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210504171734.1434054-5-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Fixes: a24c6f7bc923 ("debugfs: Add access restriction option")
+Cc: Peter Enderborg <peter.enderborg@sony.com>
+Reviewed-by: Peter Enderborg <peter.enderborg@sony.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20210405213959.3079432-1-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/emulate.c     |    2 +-
- arch/x86/kvm/kvm_emulate.h |    1 +
- arch/x86/kvm/vmx/vmx.c     |    3 ++-
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ fs/debugfs/inode.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/x86/kvm/emulate.c
-+++ b/arch/x86/kvm/emulate.c
-@@ -4502,7 +4502,7 @@ static const struct opcode group8[] = {
-  * from the register case of group9.
-  */
- static const struct gprefix pfx_0f_c7_7 = {
--	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdtscp),
-+	N, N, N, II(DstMem | ModRM | Op3264 | EmulateOnUD, em_rdpid, rdpid),
- };
+--- a/fs/debugfs/inode.c
++++ b/fs/debugfs/inode.c
+@@ -35,7 +35,7 @@
+ static struct vfsmount *debugfs_mount;
+ static int debugfs_mount_count;
+ static bool debugfs_registered;
+-static unsigned int debugfs_allow = DEFAULT_DEBUGFS_ALLOW_BITS;
++static unsigned int debugfs_allow __ro_after_init = DEFAULT_DEBUGFS_ALLOW_BITS;
  
- 
---- a/arch/x86/kvm/kvm_emulate.h
-+++ b/arch/x86/kvm/kvm_emulate.h
-@@ -468,6 +468,7 @@ enum x86_intercept {
- 	x86_intercept_clgi,
- 	x86_intercept_skinit,
- 	x86_intercept_rdtscp,
-+	x86_intercept_rdpid,
- 	x86_intercept_icebp,
- 	x86_intercept_wbinvd,
- 	x86_intercept_monitor,
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -7346,8 +7346,9 @@ static int vmx_check_intercept(struct kv
- 	/*
- 	 * RDPID causes #UD if disabled through secondary execution controls.
- 	 * Because it is marked as EmulateOnUD, we need to intercept it here.
-+	 * Note, RDPID is hidden behind ENABLE_RDTSCP.
- 	 */
--	case x86_intercept_rdtscp:
-+	case x86_intercept_rdpid:
- 		if (!nested_cpu_has2(vmcs12, SECONDARY_EXEC_ENABLE_RDTSCP)) {
- 			exception->vector = UD_VECTOR;
- 			exception->error_code_valid = false;
+ /*
+  * Don't allow access attributes to be changed whilst the kernel is locked down
 
 
