@@ -2,31 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB5293837CF
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B0083837D2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243804AbhEQPrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S244475AbhEQPrK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 11:47:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344596AbhEQPpE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:45:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 211A161D27;
-        Mon, 17 May 2021 14:43:26 +0000 (UTC)
+        id S1344611AbhEQPpF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:45:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7735961D2C;
+        Mon, 17 May 2021 14:43:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262607;
-        bh=sW30hGEOgzmyPBbhJjZzCybDxuhJUkoIUlbPobGMwLg=;
+        s=korg; t=1621262611;
+        bh=e6rbGkevxH80htg2S1pnTYsN/VIFVvqRPI21soQ99II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d31C16XiaEN6kXY9sxl16PxwZb/Q39evpv2cIh45P6bbXlHlNAbPtqEJyB7eH/+6t
-         72nGV/bMzWtIxyZtDVorBiQhcw/OlScbb2rbun0XLHk0EhNdZskE1hUDhdLKG8c7Xk
-         2mEm4vkJc7QATliJlikoF7A6CuLU4/dPXiFbCsa4=
+        b=MUDf3EmRXmdxhGWlCf5oNsOGY51B1LcUyy4SrtMpv1sgitT4cCsGb43n8CYL+mtp2
+         lNdjYsxLkZR7s4oicRIc5GU5p5mpP6so9RGowTjgeaEAiAXcLj6FjQ8ezlt1OBU1hl
+         LJ10kTRbEN6komoHtaRtSRAaJum41R6Bl6KaK8bw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 198/289] powerpc/64s: Fix crashes when toggling entry flush barrier
-Date:   Mon, 17 May 2021 16:02:03 +0200
-Message-Id: <20210517140311.777220456@linuxfoundation.org>
+        stable@vger.kernel.org, Jouni Roivas <jouni.roivas@tuxera.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 199/289] hfsplus: prevent corruption in shrinking truncate
+Date:   Mon, 17 May 2021 16:02:04 +0200
+Message-Id: <20210517140311.817424574@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -38,70 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jouni Roivas <jouni.roivas@tuxera.com>
 
-commit aec86b052df6541cc97c5fca44e5934cbea4963b upstream.
+commit c3187cf32216313fb316084efac4dab3a8459b1d upstream.
 
-The entry flush mitigation can be enabled/disabled at runtime via a
-debugfs file (entry_flush), which causes the kernel to patch itself to
-enable/disable the relevant mitigations.
+I believe there are some issues introduced by commit 31651c607151
+("hfsplus: avoid deadlock on file truncation")
 
-However depending on which mitigation we're using, it may not be safe to
-do that patching while other CPUs are active. For example the following
-crash:
+HFS+ has extent records which always contains 8 extents.  In case the
+first extent record in catalog file gets full, new ones are allocated from
+extents overflow file.
 
-  sleeper[15639]: segfault (11) at c000000000004c20 nip c000000000004c20 lr c000000000004c20
+In case shrinking truncate happens to middle of an extent record which
+locates in extents overflow file, the logic in hfsplus_file_truncate() was
+changed so that call to hfs_brec_remove() is not guarded any more.
 
-Shows that we returned to userspace with a corrupted LR that points into
-the kernel, due to executing the partially patched call to the fallback
-entry flush (ie. we missed the LR restore).
+Right action would be just freeing the extents that exceed the new size
+inside extent record by calling hfsplus_free_extents(), and then check if
+the whole extent record should be removed.  However since the guard
+(blk_cnt > start) is now after the call to hfs_brec_remove(), this has
+unfortunate effect that the last matching extent record is removed
+unconditionally.
 
-Fix it by doing the patching under stop machine. The CPUs that aren't
-doing the patching will be spinning in the core of the stop machine
-logic. That is currently sufficient for our purposes, because none of
-the patching we do is to that code or anywhere in the vicinity.
+To reproduce this issue, create a file which has at least 10 extents, and
+then perform shrinking truncate into middle of the last extent record, so
+that the number of remaining extents is not under or divisible by 8.  This
+causes the last extent record (8 extents) to be removed totally instead of
+truncating into middle of it.  Thus this causes corruption, and lost data.
 
-Fixes: f79643787e0a ("powerpc/64s: flush L1D on kernel entry")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210506044959.1298123-2-mpe@ellerman.id.au
+Fix for this is simply checking if the new truncated end is below the
+start of this extent record, making it safe to remove the full extent
+record.  However call to hfs_brec_remove() can't be moved to it's previous
+place since we're dropping ->tree_lock and it can cause a race condition
+and the cached info being invalidated possibly corrupting the node data.
+
+Another issue is related to this one.  When entering into the block
+(blk_cnt > start) we are not holding the ->tree_lock.  We break out from
+the loop not holding the lock, but hfs_find_exit() does unlock it.  Not
+sure if it's possible for someone else to take the lock under our feet,
+but it can cause hard to debug errors and premature unlocking.  Even if
+there's no real risk of it, the locking should still always be kept in
+balance.  Thus taking the lock now just before the check.
+
+Link: https://lkml.kernel.org/r/20210429165139.3082828-1-jouni.roivas@tuxera.com
+Fixes: 31651c607151f ("hfsplus: avoid deadlock on file truncation")
+Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
+Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
+Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/lib/feature-fixups.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ fs/hfsplus/extents.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -299,8 +299,9 @@ void do_uaccess_flush_fixups(enum l1d_fl
- 						: "unknown");
- }
+--- a/fs/hfsplus/extents.c
++++ b/fs/hfsplus/extents.c
+@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode
+ 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
+ 		if (res)
+ 			break;
+-		hfs_brec_remove(&fd);
  
--void do_entry_flush_fixups(enum l1d_flush_type types)
-+static int __do_entry_flush_fixups(void *data)
- {
-+	enum l1d_flush_type types = *(enum l1d_flush_type *)data;
- 	unsigned int instrs[3], *dest;
- 	long *start, *end;
- 	int i;
-@@ -369,6 +370,19 @@ void do_entry_flush_fixups(enum l1d_flus
- 							: "ori type" :
- 		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
- 						: "unknown");
-+
-+	return 0;
-+}
-+
-+void do_entry_flush_fixups(enum l1d_flush_type types)
-+{
-+	/*
-+	 * The call to the fallback flush can not be safely patched in/out while
-+	 * other CPUs are executing it. So call __do_entry_flush_fixups() on one
-+	 * CPU while all other CPUs spin in the stop machine core with interrupts
-+	 * hard disabled.
-+	 */
-+	stop_machine(__do_entry_flush_fixups, &types, NULL);
- }
+-		mutex_unlock(&fd.tree->tree_lock);
+ 		start = hip->cached_start;
++		if (blk_cnt <= start)
++			hfs_brec_remove(&fd);
++		mutex_unlock(&fd.tree->tree_lock);
+ 		hfsplus_free_extents(sb, hip->cached_extents,
+ 				     alloc_cnt - start, alloc_cnt - blk_cnt);
+ 		hfsplus_dump_extent(hip->cached_extents);
++		mutex_lock(&fd.tree->tree_lock);
+ 		if (blk_cnt > start) {
+ 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
+ 			break;
+@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode
+ 		alloc_cnt = start;
+ 		hip->cached_start = hip->cached_blocks = 0;
+ 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
+-		mutex_lock(&fd.tree->tree_lock);
+ 	}
+ 	hfs_find_exit(&fd);
  
- void do_rfi_flush_fixups(enum l1d_flush_type types)
 
 
