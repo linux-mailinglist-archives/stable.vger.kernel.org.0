@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 101E6383862
+	by mail.lfdr.de (Postfix) with ESMTP id A2655383864
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343792AbhEQPwT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S1343750AbhEQPwT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 11:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45528 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345117AbhEQPuQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S1345119AbhEQPuQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 11:50:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7248961D4D;
-        Mon, 17 May 2021 14:45:47 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A94261D4B;
+        Mon, 17 May 2021 14:45:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262747;
-        bh=0XE+QnL3JHPR+TgN9Ik6jfg9PYkegZ2Y/++OLng3eos=;
+        s=korg; t=1621262750;
+        bh=WQfgM7ZoBlcn0q0ZndU0b98p6G+CR1wQVtqSdzHtEnI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ASZNghtaYN/nZ4J3MxmjAUWAtxILEKYwLi21kBE1QNYc4C1TJwt2QdAf2LYXU++fI
-         RIqC0Fg13/H0ov0rzDmQ7vx0KKmqsVwlH2h1RUciJwkflWExrUIpUfuEhdDFl/Mg6D
-         U7DRyK2ywAbkAGnTfVJds9zxkpW+EVdkUoMXlYKE=
+        b=ncaw+3wI+ioDYDKm7sbCP7Y7W7e972jd5alyWIxBkJlr8HDAJY76r5l8W9jWmBjQ0
+         0ASM+CAKnYw6iVnrt1qPKXnp1S5kjY6Zj5F6vow7SLziIZQO7NRonsZSrzoKE0ao9A
+         8PRq6mHyiylrhKpZzDQBpL5J17M6HKX8Nad85wEs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Jesper Dangaard Brouer <brouer@redhat.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        Matteo Croce <mcroce@linux.microsoft.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 265/289] mm: fix struct page layout on 32-bit systems
-Date:   Mon, 17 May 2021 16:03:10 +0200
-Message-Id: <20210517140314.070650269@linuxfoundation.org>
+        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
+        "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Subject: [PATCH 5.10 266/289] MIPS: Reinstate platform `__div64_32 handler
+Date:   Mon, 17 May 2021 16:03:11 +0200
+Message-Id: <20210517140314.103283035@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -45,116 +40,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Wilcox (Oracle) <willy@infradead.org>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 9ddb3c14afba8bc5950ed297f02d4ae05ff35cd1 upstream.
+commit c49f71f60754acbff37505e1d16ca796bf8a8140 upstream.
 
-32-bit architectures which expect 8-byte alignment for 8-byte integers and
-need 64-bit DMA addresses (arm, mips, ppc) had their struct page
-inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
-the alignment of the union to 8 bytes, which inserted a 4 byte gap between
-'flags' and the union.
+Our current MIPS platform `__div64_32' handler is inactive, because it
+is incorrectly only enabled for 64-bit configurations, for which generic
+`do_div' code does not call it anyway.
 
-Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
-This restores the alignment to that of an unsigned long.  We always
-store the low bits in the first word to prevent the PageTail bit from
-being inadvertently set on a big endian platform.  If that happened,
-get_user_pages_fast() racing against a page which was freed and
-reallocated to the page_pool could dereference a bogus compound_head(),
-which would be hard to trace back to this cause.
+The handler is not suitable for being called from there though as it
+only calculates 32 bits of the quotient under the assumption the 64-bit
+divident has been suitably reduced.  Code for such reduction used to be
+there, however it has been incorrectly removed with commit c21004cd5b4c
+("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."), which should
+have only updated an obsoleted constraint for an inline asm involving
+$hi and $lo register outputs, while possibly wiring the original MIPS
+variant of the `do_div' macro as `__div64_32' handler for the generic
+`do_div' implementation
 
-Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
-Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Acked-by: Vlastimil Babka <vbabka@suse.cz>
-Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Correct the handler as follows then:
+
+- Revert most of the commit referred, however retaining the current
+  formatting, except for the final two instructions of the inline asm
+  sequence, which the original commit missed.  Omit the original 64-bit
+  parts though.
+
+- Rename the original `do_div' macro to `__div64_32'.  Use the combined
+  `x' constraint referring to the MD accumulator as a whole, replacing
+  the original individual `h' and `l' constraints used for $hi and $lo
+  registers respectively, of which `h' has been obsoleted with GCC 4.4.
+  Update surrounding code accordingly.
+
+  We have since removed support for GCC versions before 4.9, so no need
+  for a special arrangement here; GCC has supported the `x' constraint
+  since forever anyway, or at least going back to 1991.
+
+- Rename the `__base' local variable in `__div64_32' to `__radix' to
+  avoid a conflict with a local variable in `do_div'.
+
+- Actually enable this code for 32-bit rather than 64-bit configurations
+  by qualifying it with BITS_PER_LONG being 32 instead of 64.  Include
+  <asm/bitsperlong.h> for this macro rather than <linux/types.h> as we
+  don't need anything else.
+
+- Finally include <asm-generic/div64.h> last rather than first.
+
+This has passed correctness verification with test_div64 and reduced the
+module's average execution time down to 1.0668s and 0.2629s from 2.1529s
+and 0.5647s respectively for an R3400 CPU @40MHz and a 5Kc CPU @160MHz.
+For a reference 64-bit `do_div' code where we have the DDIVU instruction
+available to do the whole calculation right away averages at 0.0660s for
+the latter CPU.
+
+Fixes: c21004cd5b4c ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
+Reported-by: Huacai Chen <chenhuacai@kernel.org>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Cc: stable@vger.kernel.org # v2.6.30+
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/mm_types.h |    4 ++--
- include/net/page_pool.h  |   12 +++++++++++-
- net/core/page_pool.c     |   12 +++++++-----
- 3 files changed, 20 insertions(+), 8 deletions(-)
+ arch/mips/include/asm/div64.h |   57 ++++++++++++++++++++++++++++++------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
 
---- a/include/linux/mm_types.h
-+++ b/include/linux/mm_types.h
-@@ -97,10 +97,10 @@ struct page {
- 		};
- 		struct {	/* page_pool used by netstack */
- 			/**
--			 * @dma_addr: might require a 64-bit value even on
-+			 * @dma_addr: might require a 64-bit value on
- 			 * 32-bit architectures.
- 			 */
--			dma_addr_t dma_addr;
-+			unsigned long dma_addr[2];
- 		};
- 		struct {	/* slab, slob and slub */
- 			union {
---- a/include/net/page_pool.h
-+++ b/include/net/page_pool.h
-@@ -191,7 +191,17 @@ static inline void page_pool_recycle_dir
+--- a/arch/mips/include/asm/div64.h
++++ b/arch/mips/include/asm/div64.h
+@@ -1,5 +1,5 @@
+ /*
+- * Copyright (C) 2000, 2004  Maciej W. Rozycki
++ * Copyright (C) 2000, 2004, 2021  Maciej W. Rozycki
+  * Copyright (C) 2003, 07 Ralf Baechle (ralf@linux-mips.org)
+  *
+  * This file is subject to the terms and conditions of the GNU General Public
+@@ -9,25 +9,18 @@
+ #ifndef __ASM_DIV64_H
+ #define __ASM_DIV64_H
  
- static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
- {
--	return page->dma_addr;
-+	dma_addr_t ret = page->dma_addr[0];
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
-+	return ret;
-+}
+-#include <asm-generic/div64.h>
+-
+-#if BITS_PER_LONG == 64
++#include <asm/bitsperlong.h>
+ 
+-#include <linux/types.h>
++#if BITS_PER_LONG == 32
+ 
+ /*
+  * No traps on overflows for any of these...
+  */
+ 
+-#define __div64_32(n, base)						\
+-({									\
++#define do_div64_32(res, high, low, base) ({				\
+ 	unsigned long __cf, __tmp, __tmp2, __i;				\
+ 	unsigned long __quot32, __mod32;				\
+-	unsigned long __high, __low;					\
+-	unsigned long long __n;						\
+ 									\
+-	__high = *__n >> 32;						\
+-	__low = __n;							\
+ 	__asm__(							\
+ 	"	.set	push					\n"	\
+ 	"	.set	noat					\n"	\
+@@ -51,18 +44,50 @@
+ 	"	subu	%0, %0, %z6				\n"	\
+ 	"	addiu	%2, %2, 1				\n"	\
+ 	"3:							\n"	\
+-	"	bnez	%4, 0b\n\t"					\
+-	"	 srl	%5, %1, 0x1f\n\t"				\
++	"	bnez	%4, 0b					\n"	\
++	"	 srl	%5, %1, 0x1f				\n"	\
+ 	"	.set	pop"						\
+ 	: "=&r" (__mod32), "=&r" (__tmp),				\
+ 	  "=&r" (__quot32), "=&r" (__cf),				\
+ 	  "=&r" (__i), "=&r" (__tmp2)					\
+-	: "Jr" (base), "0" (__high), "1" (__low));			\
++	: "Jr" (base), "0" (high), "1" (low));				\
+ 									\
+-	(__n) = __quot32;						\
++	(res) = __quot32;						\
+ 	__mod32;							\
+ })
+ 
+-#endif /* BITS_PER_LONG == 64 */
++#define __div64_32(n, base) ({						\
++	unsigned long __upper, __low, __high, __radix;			\
++	unsigned long long __modquot;					\
++	unsigned long long __quot;					\
++	unsigned long long __div;					\
++	unsigned long __mod;						\
++									\
++	__div = (*n);							\
++	__radix = (base);						\
++									\
++	__high = __div >> 32;						\
++	__low = __div;							\
++	__upper = __high;						\
++									\
++	if (__high) {							\
++		__asm__("divu	$0, %z1, %z2"				\
++		: "=x" (__modquot)					\
++		: "Jr" (__high), "Jr" (__radix));			\
++		__upper = __modquot >> 32;				\
++		__high = __modquot;					\
++	}								\
++									\
++	__mod = do_div64_32(__low, __upper, __low, __radix);		\
++									\
++	__quot = __high;						\
++	__quot = __quot << 32 | __low;					\
++	(*n) = __quot;							\
++	__mod;								\
++})
 +
-+static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
-+{
-+	page->dma_addr[0] = addr;
-+	if (sizeof(dma_addr_t) > sizeof(unsigned long))
-+		page->dma_addr[1] = upper_32_bits(addr);
- }
- 
- static inline bool is_page_pool_compiled_in(void)
---- a/net/core/page_pool.c
-+++ b/net/core/page_pool.c
-@@ -172,8 +172,10 @@ static void page_pool_dma_sync_for_devic
- 					  struct page *page,
- 					  unsigned int dma_sync_size)
- {
-+	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++#endif /* BITS_PER_LONG == 32 */
 +
- 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
--	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
-+	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
- 					 pool->p.offset, dma_sync_size,
- 					 pool->p.dma_dir);
- }
-@@ -224,7 +226,7 @@ static struct page *__page_pool_alloc_pa
- 		put_page(page);
- 		return NULL;
- 	}
--	page->dma_addr = dma;
-+	page_pool_set_dma_addr(page, dma);
++#include <asm-generic/div64.h>
  
- 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
- 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
-@@ -292,13 +294,13 @@ void page_pool_release_page(struct page_
- 		 */
- 		goto skip_dma_unmap;
- 
--	dma = page->dma_addr;
-+	dma = page_pool_get_dma_addr(page);
- 
--	/* When page is unmapped, it cannot be returned our pool */
-+	/* When page is unmapped, it cannot be returned to our pool */
- 	dma_unmap_page_attrs(pool->p.dev, dma,
- 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
- 			     DMA_ATTR_SKIP_CPU_SYNC);
--	page->dma_addr = 0;
-+	page_pool_set_dma_addr(page, 0);
- skip_dma_unmap:
- 	/* This may be the last page returned, releasing the pool, so
- 	 * it is not safe to reference pool afterwards.
+ #endif /* __ASM_DIV64_H */
 
 
