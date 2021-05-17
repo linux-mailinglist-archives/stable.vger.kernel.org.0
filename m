@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B8FD3835B8
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 974033835BF
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243687AbhEQPYI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:24:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57662 "EHLO mail.kernel.org"
+        id S243817AbhEQPYT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:24:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244550AbhEQPVT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:21:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA95161C86;
-        Mon, 17 May 2021 14:34:31 +0000 (UTC)
+        id S244663AbhEQPVd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:21:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58AFA61C85;
+        Mon, 17 May 2021 14:34:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262072;
-        bh=u/xNXHQeeuK5IA8QPMCNpd+Hs2XXTZxB9m4f+qzaEQY=;
+        s=korg; t=1621262078;
+        bh=8cOlcoMsdMiJoZFh719ykItWET96pM5IcG2M/aFbXJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ojTj14stzycAEB2jRouiyBgjDd36moANPVw6iqnfjo3TNOml9FpLLY9Col8FknNH
-         uyFSxT5HZu+rxIETG49wtXjsdoaSJar9xiUg23xBpRLx1zdgqUCnyCOOp4d9gnCr65
-         hpGXdquiy/e/wZz4zKhQlkv2z4A0EAMOHzHIYXD8=
+        b=ZHsl+IIq1qxRv8Wse3bjZa9jGNlQo8LY123nKBICcJ3ReAyY8NdS6tTLfvCowaGPd
+         EJvxh+2svCx4zxMA9uGwvFtxX+ql6QV0yBmx8bpOPbQPIP5xpCmKqJWDTIHPwEp3UK
+         Gqf44/SxvdeWZwg9LQF5yGeLgAKiAXgFTEJUXIFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 107/289] PCI: endpoint: Make *_get_first_free_bar() take into account 64 bit BAR
-Date:   Mon, 17 May 2021 16:00:32 +0200
-Message-Id: <20210517140308.776324066@linuxfoundation.org>
+Subject: [PATCH 5.10 108/289] PCI: endpoint: Add helper API to get the next unreserved BAR
+Date:   Mon, 17 May 2021 16:00:33 +0200
+Message-Id: <20210517140308.807469605@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -43,51 +43,92 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kishon Vijay Abraham I <kishon@ti.com>
 
-[ Upstream commit 959a48d0eac0321948c9f3d1707ba22c100e92d5 ]
+[ Upstream commit fa8fef0e104a23efe568b835d9e7e188d1d97610 ]
 
-pci_epc_get_first_free_bar() uses only "reserved_bar" member in
-epc_features to get the first unreserved BAR. However if the reserved BAR
-is also a 64-bit BAR, then the next BAR shouldn't be returned (since 64-bit
-BAR uses two BARs).
+Add an API to get the next unreserved BAR starting from a given BAR number
+that can be used by the endpoint function.
 
-Make pci_epc_get_first_free_bar() take into account 64 bit BAR while
-returning the first free unreserved BAR.
-
-Link: https://lore.kernel.org/r/20210201195809.7342-3-kishon@ti.com
+Link: https://lore.kernel.org/r/20210201195809.7342-4-kishon@ti.com
 Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
 Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/pci-epc-core.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/pci/endpoint/pci-epc-core.c | 26 ++++++++++++++++++++++----
+ include/linux/pci-epc.h             |  2 ++
+ 2 files changed, 24 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/pci/endpoint/pci-epc-core.c b/drivers/pci/endpoint/pci-epc-core.c
-index cadd3db0cbb0..25e57672e1a1 100644
+index 25e57672e1a1..1afe5d9afb0d 100644
 --- a/drivers/pci/endpoint/pci-epc-core.c
 +++ b/drivers/pci/endpoint/pci-epc-core.c
-@@ -93,12 +93,20 @@ EXPORT_SYMBOL_GPL(pci_epc_get);
+@@ -87,17 +87,36 @@ EXPORT_SYMBOL_GPL(pci_epc_get);
+  * pci_epc_get_first_free_bar() - helper to get first unreserved BAR
+  * @epc_features: pci_epc_features structure that holds the reserved bar bitmap
+  *
+- * Invoke to get the first unreserved BAR that can be used for endpoint
++ * Invoke to get the first unreserved BAR that can be used by the endpoint
+  * function. For any incorrect value in reserved_bar return '0'.
+  */
  unsigned int pci_epc_get_first_free_bar(const struct pci_epc_features
  					*epc_features)
++{
++	return pci_epc_get_next_free_bar(epc_features, BAR_0);
++}
++EXPORT_SYMBOL_GPL(pci_epc_get_first_free_bar);
++
++/**
++ * pci_epc_get_next_free_bar() - helper to get unreserved BAR starting from @bar
++ * @epc_features: pci_epc_features structure that holds the reserved bar bitmap
++ * @bar: the starting BAR number from where unreserved BAR should be searched
++ *
++ * Invoke to get the next unreserved BAR starting from @bar that can be used
++ * for endpoint function. For any incorrect value in reserved_bar return '0'.
++ */
++unsigned int pci_epc_get_next_free_bar(const struct pci_epc_features
++				       *epc_features, enum pci_barno bar)
  {
--	int free_bar;
-+	unsigned long free_bar;
+ 	unsigned long free_bar;
  
  	if (!epc_features)
  		return 0;
  
--	free_bar = ffz(epc_features->reserved_bar);
-+	/* Find if the reserved BAR is also a 64-bit BAR */
-+	free_bar = epc_features->reserved_bar & epc_features->bar_fixed_64bit;
++	/* If 'bar - 1' is a 64-bit BAR, move to the next BAR */
++	if ((epc_features->bar_fixed_64bit << 1) & 1 << bar)
++		bar++;
 +
-+	/* Set the adjacent bit if the reserved BAR is also a 64-bit BAR */
-+	free_bar <<= 1;
-+	free_bar |= epc_features->reserved_bar;
-+
-+	/* Now find the free BAR */
-+	free_bar = ffz(free_bar);
+ 	/* Find if the reserved BAR is also a 64-bit BAR */
+ 	free_bar = epc_features->reserved_bar & epc_features->bar_fixed_64bit;
+ 
+@@ -105,14 +124,13 @@ unsigned int pci_epc_get_first_free_bar(const struct pci_epc_features
+ 	free_bar <<= 1;
+ 	free_bar |= epc_features->reserved_bar;
+ 
+-	/* Now find the free BAR */
+-	free_bar = ffz(free_bar);
++	free_bar = find_next_zero_bit(&free_bar, 6, bar);
  	if (free_bar > 5)
  		return 0;
+ 
+ 	return free_bar;
+ }
+-EXPORT_SYMBOL_GPL(pci_epc_get_first_free_bar);
++EXPORT_SYMBOL_GPL(pci_epc_get_next_free_bar);
+ 
+ /**
+  * pci_epc_get_features() - get the features supported by EPC
+diff --git a/include/linux/pci-epc.h b/include/linux/pci-epc.h
+index cc66bec8be90..cfe9b427e6b7 100644
+--- a/include/linux/pci-epc.h
++++ b/include/linux/pci-epc.h
+@@ -203,6 +203,8 @@ const struct pci_epc_features *pci_epc_get_features(struct pci_epc *epc,
+ 						    u8 func_no);
+ unsigned int pci_epc_get_first_free_bar(const struct pci_epc_features
+ 					*epc_features);
++unsigned int pci_epc_get_next_free_bar(const struct pci_epc_features
++				       *epc_features, enum pci_barno bar);
+ struct pci_epc *pci_epc_get(const char *epc_name);
+ void pci_epc_put(struct pci_epc *epc);
  
 -- 
 2.30.2
