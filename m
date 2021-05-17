@@ -2,98 +2,149 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E915383412
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E528383654
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240518AbhEQPFW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:05:22 -0400
-Received: from mail-oi1-f182.google.com ([209.85.167.182]:35740 "EHLO
-        mail-oi1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242483AbhEQPCn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 11:02:43 -0400
-Received: by mail-oi1-f182.google.com with SMTP id v22so6752929oic.2;
-        Mon, 17 May 2021 08:01:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=Wwp1lADG0O4ybcf+aZxFjCEd/2sWMhI3vZ4lEWKa5o8=;
-        b=c0ZVEx+p43Pw4+RdbSwqKxJTcE9ClZOMbO3+pkI54uL0Q//o4Q3E0yqknq5vnjPdnD
-         egZNOtcTtPSHUnO45iiSQk4QAymAqkObgOpOu61ncRK80uSrdIZe0oV1bFCOizqfGsRd
-         UHowJeVS8/mXGHyf9nVckSpjHLJx4BkSMoSkhEWKRO8Ci3LnH7RPDi4KeRdt/lcWjaBr
-         OYpdOYGdo7asP31i2rh/87KMfguLMOPMgD+lQqupf9l96IpgK9fz3LTiAuO8F0wPRwB2
-         A5WNPiBlDDP2D15CepkETDLZAXSXhPw54sNWSAtfjqxLQ7VprPcQk2seEWFZb1BaewJJ
-         750A==
-X-Gm-Message-State: AOAM533Ed4ktxuF61TR2l7L711lqfrqN1lr2wdESOB+SrzsrjD0Nveo9
-        gbT/gef8tC5/c8lB/ezic0QmQp4MQEYzZl78AiA=
-X-Google-Smtp-Source: ABdhPJx+qvqH9oHalBbXzgcQAFus6QvTqi08L99jPCG1ATRBrUbLBs/6bVT0SnufG+9VMm+E0EYYL3aofAMJXkvqqTY=
-X-Received: by 2002:aca:380a:: with SMTP id f10mr183028oia.157.1621263686629;
- Mon, 17 May 2021 08:01:26 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210512210413.1982933-1-luzmaximilian@gmail.com>
-In-Reply-To: <20210512210413.1982933-1-luzmaximilian@gmail.com>
-From:   "Rafael J. Wysocki" <rafael@kernel.org>
-Date:   Mon, 17 May 2021 17:01:15 +0200
-Message-ID: <CAJZ5v0j=_GuzgXdGj8R-MMAGDkgMx-tP1JwQ1kxb+dWyEi8DCQ@mail.gmail.com>
-Subject: Re: [PATCH] serial: 8250_dw: Add device HID for new AMD UART controller
-To:     Maximilian Luz <luzmaximilian@gmail.com>
+        id S244487AbhEQPbX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S244803AbhEQP2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:28:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 064C461CAD;
+        Mon, 17 May 2021 14:37:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621262234;
+        bh=DcO3+0Pl6VbfrAtsgA9uT+SOD7nA8ur+05IvMxODMaI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=RNChhgWnHXCOhHTQBw8FpnUVBOCRNL/XAd2aCC7RyEm1yWL0DvWK9sm8YsX3r+u6i
+         E3jR8I1FwWuVA4CCANLellt3ML6FQ/Mx1gZnwn/zjrMOKy1w87hv9j/+3Yxg0vvniB
+         7iHMX1E/t4SsXIY8GBmnyXegZ9GTCUQmvLOGXKII=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        "Rafael J. Wysocki" <rjw@rjwysocki.net>,
-        Len Brown <lenb@kernel.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        ACPI Devel Maling List <linux-acpi@vger.kernel.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        linux-serial@vger.kernel.org, Stable <stable@vger.kernel.org>,
-        Sachi King <nakato@nakato.io>
-Content-Type: text/plain; charset="UTF-8"
+        stable@vger.kernel.org, Yi Zhuang <zhuangyi1@huawei.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 113/289] f2fs: Fix a hungtask problem in atomic write
+Date:   Mon, 17 May 2021 16:00:38 +0200
+Message-Id: <20210517140308.975893246@linuxfoundation.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
+User-Agent: quilt/0.66
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 13, 2021 at 12:25 AM Maximilian Luz <luzmaximilian@gmail.com> wrote:
->
-> Add device HID AMDI0022 to the AMD UART controller driver match table
-> and create a platform device for it. This controller can be found on
-> Microsoft Surface Laptop 4 devices and seems similar enough that we can
-> just copy the existing AMDI0020 entries.
->
-> Cc: <stable@vger.kernel.org> # 5.10+
-> Tested-by: Sachi King <nakato@nakato.io>
-> Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+From: Yi Zhuang <zhuangyi1@huawei.com>
 
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[ Upstream commit be1ee45d51384161681ecf21085a42d316ae25f7 ]
 
-or please let me know if this needs to go in through ACPI (I'm
-assuming that it doesn't).
+In the cache writing process, if it is an atomic file, increase the page
+count of F2FS_WB_CP_DATA, otherwise increase the page count of
+F2FS_WB_DATA.
 
-> ---
->  drivers/acpi/acpi_apd.c           | 1 +
->  drivers/tty/serial/8250/8250_dw.c | 1 +
->  2 files changed, 2 insertions(+)
->
-> diff --git a/drivers/acpi/acpi_apd.c b/drivers/acpi/acpi_apd.c
-> index 0ec5b3f69112..6e02448d15d9 100644
-> --- a/drivers/acpi/acpi_apd.c
-> +++ b/drivers/acpi/acpi_apd.c
-> @@ -226,6 +226,7 @@ static const struct acpi_device_id acpi_apd_device_ids[] = {
->         { "AMDI0010", APD_ADDR(wt_i2c_desc) },
->         { "AMD0020", APD_ADDR(cz_uart_desc) },
->         { "AMDI0020", APD_ADDR(cz_uart_desc) },
-> +       { "AMDI0022", APD_ADDR(cz_uart_desc) },
->         { "AMD0030", },
->         { "AMD0040", APD_ADDR(fch_misc_desc)},
->         { "HYGO0010", APD_ADDR(wt_i2c_desc) },
-> diff --git a/drivers/tty/serial/8250/8250_dw.c b/drivers/tty/serial/8250/8250_dw.c
-> index 9e204f9b799a..a3a0154da567 100644
-> --- a/drivers/tty/serial/8250/8250_dw.c
-> +++ b/drivers/tty/serial/8250/8250_dw.c
-> @@ -714,6 +714,7 @@ static const struct acpi_device_id dw8250_acpi_match[] = {
->         { "APMC0D08", 0},
->         { "AMD0020", 0 },
->         { "AMDI0020", 0 },
-> +       { "AMDI0022", 0 },
->         { "BRCM2032", 0 },
->         { "HISI0031", 0 },
->         { },
-> --
+When you step into the hook branch due to insufficient memory in
+f2fs_write_begin, f2fs_drop_inmem_pages_all will be called to traverse
+all atomic inodes and clear the FI_ATOMIC_FILE mark of all atomic files.
+
+In f2fs_drop_inmem_pages，first acquire the inmem_lock , revoke all the
+inmem_pages, and then clear the FI_ATOMIC_FILE mark. Before this mark is
+cleared, other threads may hold inmem_lock to add inmem_pages to the inode
+that has just been emptied inmem_pages, and increase the page count of
+F2FS_WB_CP_DATA.
+
+When the IO returns, it is found that the FI_ATOMIC_FILE flag is cleared
+by f2fs_drop_inmem_pages_all, and f2fs_is_atomic_file returns false,which
+causes the page count of F2FS_WB_DATA to be decremented. The page count of
+F2FS_WB_CP_DATA cannot be cleared. Finally, hungtask is triggered in
+f2fs_wait_on_all_pages because get_pages will never return zero.
+
+process A:				process B:
+f2fs_drop_inmem_pages_all
+->f2fs_drop_inmem_pages of inode#1
+    ->mutex_lock(&fi->inmem_lock)
+    ->__revoke_inmem_pages of inode#1	f2fs_ioc_commit_atomic_write
+    ->mutex_unlock(&fi->inmem_lock)	->f2fs_commit_inmem_pages of inode#1
+					->mutex_lock(&fi->inmem_lock)
+					->__f2fs_commit_inmem_pages
+					    ->f2fs_do_write_data_page
+					        ->f2fs_outplace_write_data
+					            ->do_write_page
+					                ->f2fs_submit_page_write
+					                    ->inc_page_count(sbi, F2FS_WB_CP_DATA )
+					->mutex_unlock(&fi->inmem_lock)
+    ->spin_lock(&sbi->inode_lock[ATOMIC_FILE]);
+    ->clear_inode_flag(inode, FI_ATOMIC_FILE)
+    ->spin_unlock(&sbi->inode_lock[ATOMIC_FILE])
+					f2fs_write_end_io
+					->dec_page_count(sbi, F2FS_WB_DATA );
+
+We can fix the problem by putting the action of clearing the FI_ATOMIC_FILE
+mark into the inmem_lock lock. This operation can ensure that no one will
+submit the inmem pages before the FI_ATOMIC_FILE mark is cleared, so that
+there will be no atomic writes waiting for writeback.
+
+Fixes: 57864ae5ce3a ("f2fs: limit # of inmemory pages")
+Signed-off-by: Yi Zhuang <zhuangyi1@huawei.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ fs/f2fs/segment.c | 30 +++++++++++++++++-------------
+ 1 file changed, 17 insertions(+), 13 deletions(-)
+
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index ddfc3daebe9b..1c264fd5a0dd 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -327,23 +327,27 @@ void f2fs_drop_inmem_pages(struct inode *inode)
+ 	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+ 	struct f2fs_inode_info *fi = F2FS_I(inode);
+ 
+-	while (!list_empty(&fi->inmem_pages)) {
++	do {
+ 		mutex_lock(&fi->inmem_lock);
++		if (list_empty(&fi->inmem_pages)) {
++			fi->i_gc_failures[GC_FAILURE_ATOMIC] = 0;
++
++			spin_lock(&sbi->inode_lock[ATOMIC_FILE]);
++			if (!list_empty(&fi->inmem_ilist))
++				list_del_init(&fi->inmem_ilist);
++			if (f2fs_is_atomic_file(inode)) {
++				clear_inode_flag(inode, FI_ATOMIC_FILE);
++				sbi->atomic_files--;
++			}
++			spin_unlock(&sbi->inode_lock[ATOMIC_FILE]);
++
++			mutex_unlock(&fi->inmem_lock);
++			break;
++		}
+ 		__revoke_inmem_pages(inode, &fi->inmem_pages,
+ 						true, false, true);
+ 		mutex_unlock(&fi->inmem_lock);
+-	}
+-
+-	fi->i_gc_failures[GC_FAILURE_ATOMIC] = 0;
+-
+-	spin_lock(&sbi->inode_lock[ATOMIC_FILE]);
+-	if (!list_empty(&fi->inmem_ilist))
+-		list_del_init(&fi->inmem_ilist);
+-	if (f2fs_is_atomic_file(inode)) {
+-		clear_inode_flag(inode, FI_ATOMIC_FILE);
+-		sbi->atomic_files--;
+-	}
+-	spin_unlock(&sbi->inode_lock[ATOMIC_FILE]);
++	} while (1);
+ }
+ 
+ void f2fs_drop_inmem_page(struct inode *inode, struct page *page)
+-- 
+2.30.2
+
+
+
