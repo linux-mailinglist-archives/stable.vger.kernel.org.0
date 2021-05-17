@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21901382F09
+	by mail.lfdr.de (Postfix) with ESMTP id 6B8A3382F0A
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:12:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238388AbhEQOMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:12:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
+        id S238455AbhEQOMz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:12:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238209AbhEQOLN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:11:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A2B8613AA;
-        Mon, 17 May 2021 14:07:26 +0000 (UTC)
+        id S238570AbhEQOLQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:11:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61CDB613BD;
+        Mon, 17 May 2021 14:07:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260446;
-        bh=9wFV1yLqUD2lVj7naTAbKoTxesfC7PP0RjjNEj9qpS4=;
+        s=korg; t=1621260448;
+        bh=krCIKtZo6P7jGrPBiaStvZ2n8tEKtJJdDsSUq2CkYcg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RcXKOxGO5o0Y5KCEYNJJXID/cS0DNlLwhrfLPBIEm18D0p7hO+SdYOPFeoJecnHc+
-         i+6T/r4RxttP1pi0U1b0/s9JW5BS7kq1uukZ+cxJbQDMNf9X6HfdSjMjTrsUfqZb7U
-         ID+UCdcnbKNmbjQyz6IUagde4Hc88uoNojgHpbA4=
+        b=Q8IGsrufCi+aoNC/nYK5VfZBi3Pd8HuuajRqwNSJlsIQZL/R9PDJ6yST+OSvLf5Ix
+         MFfyeC+xOwr/4Nz+1mLoT5iG4h90lKNcZKltWq59fpZvXyqjvNShgsm6BX4e+GPia2
+         1lTvKpEj/qCF3ZV7nQKMb2PsMHsIMgZ0gCEfzefw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
+        stable@vger.kernel.org, Mihai Moldovan <ionic@ionic.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 085/363] selftests: Set CC to clang in lib.mk if LLVM is set
-Date:   Mon, 17 May 2021 15:59:11 +0200
-Message-Id: <20210517140305.475694098@linuxfoundation.org>
+Subject: [PATCH 5.12 086/363] kconfig: nconf: stop endless search loops
+Date:   Mon, 17 May 2021 15:59:12 +0200
+Message-Id: <20210517140305.510627953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,40 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Mihai Moldovan <ionic@ionic.de>
 
-[ Upstream commit 26e6dd1072763cd5696b75994c03982dde952ad9 ]
+[ Upstream commit 8c94b430b9f6213dec84e309bb480a71778c4213 ]
 
-selftests/bpf/Makefile includes lib.mk. With the following command
-  make -j60 LLVM=1 LLVM_IAS=1  <=== compile kernel
-  make -j60 -C tools/testing/selftests/bpf LLVM=1 LLVM_IAS=1 V=1
-some files are still compiled with gcc. This patch
-fixed lib.mk issue which sets CC to gcc in all cases.
+If the user selects the very first entry in a page and performs a
+search-up operation, or selects the very last entry in a page and
+performs a search-down operation that will not succeed (e.g., via
+[/]asdfzzz[Up Arrow]), nconf will never terminate searching the page.
 
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210413153413.3027426-1-yhs@fb.com
+The reason is that in this case, the starting point will be set to -1
+or n, which is then translated into (n - 1) (i.e., the last entry of
+the page) or 0 (i.e., the first entry of the page) and finally the
+search begins. This continues to work fine until the index reaches 0 or
+(n - 1), at which point it will be decremented to -1 or incremented to
+n, but not checked against the starting point right away. Instead, it's
+wrapped around to the bottom or top again, after which the starting
+point check occurs... and naturally fails.
+
+My original implementation added another check for -1 before wrapping
+the running index variable around, but Masahiro Yamada pointed out that
+the actual issue is that the comparison point (starting point) exceeds
+bounds (i.e., the [0,n-1] interval) in the first place and that,
+instead, the starting point should be fixed.
+
+This has the welcome side-effect of also fixing the case where the
+starting point was n while searching down, which also lead to an
+infinite loop.
+
+OTOH, this code is now essentially all his work.
+
+Amazingly, nobody seems to have been hit by this for 11 years - or at
+the very least nobody bothered to debug and fix this.
+
+Signed-off-by: Mihai Moldovan <ionic@ionic.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 4 ++++
- 1 file changed, 4 insertions(+)
+ scripts/kconfig/nconf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index be17462fe146..0af84ad48aa7 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -1,6 +1,10 @@
- # This mimics the top-level Makefile. We do it explicitly here so that this
- # Makefile can operate with or without the kbuild infrastructure.
-+ifneq ($(LLVM),)
-+CC := clang
-+else
- CC := $(CROSS_COMPILE)gcc
-+endif
+diff --git a/scripts/kconfig/nconf.c b/scripts/kconfig/nconf.c
+index e0f965529166..af814b39b876 100644
+--- a/scripts/kconfig/nconf.c
++++ b/scripts/kconfig/nconf.c
+@@ -504,8 +504,8 @@ static int get_mext_match(const char *match_str, match_f flag)
+ 	else if (flag == FIND_NEXT_MATCH_UP)
+ 		--match_start;
  
- ifeq (0,$(MAKELEVEL))
-     ifeq ($(OUTPUT),)
++	match_start = (match_start + items_num) % items_num;
+ 	index = match_start;
+-	index = (index + items_num) % items_num;
+ 	while (true) {
+ 		char *str = k_menu_items[index].str;
+ 		if (strcasestr(str, match_str) != NULL)
 -- 
 2.30.2
 
