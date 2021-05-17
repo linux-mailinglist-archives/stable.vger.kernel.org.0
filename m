@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87B0C38371D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE251383840
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237731AbhEQPkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36986 "EHLO mail.kernel.org"
+        id S244266AbhEQPu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244425AbhEQPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:36:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C40561940;
-        Mon, 17 May 2021 14:40:24 +0000 (UTC)
+        id S245377AbhEQPsZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:48:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 031376195D;
+        Mon, 17 May 2021 14:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262424;
-        bh=g3stNPFKA7ajHmbZMgJ4CldHGj3eVLlZJ3PVChcCdzI=;
+        s=korg; t=1621262710;
+        bh=sR9RtU9rmIeaagdxWOfkIzp4CvBkwCckfDcFl20vvUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FBcT591tZdq05Xq8QxpYUSwA2V3BFMUHd9qMcbwfReyW10jrnqZUpC93DUMgKsElu
-         qXEpXBFzqiRh9QonqwsJpQe478h1tscYlyEdym62DRri0KfbiqDvdzZJ/q0Vdkppp5
-         s9NvLS8+Knt/kCbb+9DAS2rzujGDc2WTIYLqbTXw=
+        b=1G8bd/P635cFCMzNgk7/wwcUBJtHwPuaUW/xIBId20ag+/on2Qj5LImu81kcfD1D6
+         oM8+tFOKJa/ch770mSR3v7RrXuVMIZX64Ux7euDsjBG+2BbrsxJ+WUgl971izPIX3j
+         0b9i1ZSM6N0g1+lZMBiSP4NWnYKnvpQk0mn9aVTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Jack Pham <jackp@codeaurora.org>,
-        Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Subject: [PATCH 5.11 288/329] usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4
+        "kernelci.org bot" <bot@kernelci.org>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.10 274/289] ARM: 9027/1: head.S: explicitly map DT even if it lives in the first physical section
 Date:   Mon, 17 May 2021 16:03:19 +0200
-Message-Id: <20210517140311.847518762@linuxfoundation.org>
+Message-Id: <20210517140314.363696055@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,165 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Pham <jackp@codeaurora.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 1f4642b72be79757f050924a9b9673b6a02034bc upstream.
+commit 10fce53c0ef8f6e79115c3d9e0d7ea1338c3fa37 upstream
 
-commit 4dbc6a4ef06d ("usb: typec: ucsi: save power data objects
-in PD mode") introduced retrieval of the PDOs when connected to a
-PD-capable source. But only the first 4 PDOs are received since
-that is the maximum number that can be fetched at a time given the
-MESSAGE_IN length limitation (16 bytes). However, as per the PD spec
-a connected source may advertise up to a maximum of 7 PDOs.
+The early ATAGS/DT mapping code uses SECTION_SHIFT to mask low order
+bits of R2, and decides that no ATAGS/DTB were provided if the resulting
+value is 0x0.
 
-If such a source is connected it's possible the PPM could have
-negotiated a power contract with one of the PDOs at index greater
-than 4, and would be reflected in the request data object's (RDO)
-object position field. This would result in an out-of-bounds access
-when the rdo_index() is used to index into the src_pdos array in
-ucsi_psy_get_voltage_now().
+This means that on systems where DRAM starts at 0x0 (such as Raspberry
+Pi), no explicit mapping of the DT will be created if R2 points into the
+first 1 MB section of memory. This was not a problem before, because the
+decompressed kernel is loaded at the base of DRAM and mapped using
+sections as well, and so as long as the DT is referenced via a virtual
+address that uses the same translation (the linear map, in this case),
+things work fine.
 
-With the help of the UBSAN -fsanitize=array-bounds checker enabled
-this exact issue is revealed when connecting to a PD source adapter
-that advertise 5 PDOs and the PPM enters a contract having selected
-the 5th one.
+However, commit 7a1be318f579 ("9012/1: move device tree mapping out of
+linear region") changes this, and now the DT is referenced via a virtual
+address that is disjoint from the linear mapping of DRAM, and so we need
+the early code to create the DT mapping unconditionally.
 
-[  151.545106][   T70] Unexpected kernel BRK exception at EL1
-[  151.545112][   T70] Internal error: BRK handler: f2005512 [#1] PREEMPT SMP
-...
-[  151.545499][   T70] pc : ucsi_psy_get_prop+0x208/0x20c
-[  151.545507][   T70] lr : power_supply_show_property+0xc0/0x328
-...
-[  151.545542][   T70] Call trace:
-[  151.545544][   T70]  ucsi_psy_get_prop+0x208/0x20c
-[  151.545546][   T70]  power_supply_uevent+0x1a4/0x2f0
-[  151.545550][   T70]  dev_uevent+0x200/0x384
-[  151.545555][   T70]  kobject_uevent_env+0x1d4/0x7e8
-[  151.545557][   T70]  power_supply_changed_work+0x174/0x31c
-[  151.545562][   T70]  process_one_work+0x244/0x6f0
-[  151.545564][   T70]  worker_thread+0x3e0/0xa64
+So let's create the early DT mapping for any value of R2 != 0x0.
 
-We can resolve this by instead retrieving and storing up to the
-maximum of 7 PDOs in the con->src_pdos array. This would involve
-two calls to the GET_PDOS command.
-
-Fixes: 992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
-Fixes: 4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
-Cc: stable@vger.kernel.org
-Reported-and-tested-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503074611.30973-1-jackp@codeaurora.org
+Reported-by: "kernelci.org bot" <bot@kernelci.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |   41 ++++++++++++++++++++++++++++++++---------
- drivers/usb/typec/ucsi/ucsi.h |    6 ++++--
- 2 files changed, 36 insertions(+), 11 deletions(-)
+ arch/arm/kernel/head.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -495,7 +495,8 @@ static void ucsi_unregister_altmodes(str
- 	}
- }
- 
--static void ucsi_get_pdos(struct ucsi_connector *con, int is_partner)
-+static int ucsi_get_pdos(struct ucsi_connector *con, int is_partner,
-+			 u32 *pdos, int offset, int num_pdos)
- {
- 	struct ucsi *ucsi = con->ucsi;
- 	u64 command;
-@@ -503,17 +504,39 @@ static void ucsi_get_pdos(struct ucsi_co
- 
- 	command = UCSI_COMMAND(UCSI_GET_PDOS) | UCSI_CONNECTOR_NUMBER(con->num);
- 	command |= UCSI_GET_PDOS_PARTNER_PDO(is_partner);
--	command |= UCSI_GET_PDOS_NUM_PDOS(UCSI_MAX_PDOS - 1);
-+	command |= UCSI_GET_PDOS_PDO_OFFSET(offset);
-+	command |= UCSI_GET_PDOS_NUM_PDOS(num_pdos - 1);
- 	command |= UCSI_GET_PDOS_SRC_PDOS;
--	ret = ucsi_send_command(ucsi, command, con->src_pdos,
--			       sizeof(con->src_pdos));
--	if (ret < 0) {
-+	ret = ucsi_send_command(ucsi, command, pdos + offset,
-+				num_pdos * sizeof(u32));
-+	if (ret < 0)
- 		dev_err(ucsi->dev, "UCSI_GET_PDOS failed (%d)\n", ret);
-+	if (ret == 0 && offset == 0)
-+		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
-+
-+	return ret;
-+}
-+
-+static void ucsi_get_src_pdos(struct ucsi_connector *con, int is_partner)
-+{
-+	int ret;
-+
-+	/* UCSI max payload means only getting at most 4 PDOs at a time */
-+	ret = ucsi_get_pdos(con, 1, con->src_pdos, 0, UCSI_MAX_PDOS);
-+	if (ret < 0)
- 		return;
--	}
-+
- 	con->num_pdos = ret / sizeof(u32); /* number of bytes to 32-bit PDOs */
--	if (ret == 0)
--		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
-+	if (con->num_pdos < UCSI_MAX_PDOS)
-+		return;
-+
-+	/* get the remaining PDOs, if any */
-+	ret = ucsi_get_pdos(con, 1, con->src_pdos, UCSI_MAX_PDOS,
-+			    PDO_MAX_OBJECTS - UCSI_MAX_PDOS);
-+	if (ret < 0)
-+		return;
-+
-+	con->num_pdos += ret / sizeof(u32);
- }
- 
- static void ucsi_pwr_opmode_change(struct ucsi_connector *con)
-@@ -522,7 +545,7 @@ static void ucsi_pwr_opmode_change(struc
- 	case UCSI_CONSTAT_PWR_OPMODE_PD:
- 		con->rdo = con->status.request_data_obj;
- 		typec_set_pwr_opmode(con->port, TYPEC_PWR_MODE_PD);
--		ucsi_get_pdos(con, 1);
-+		ucsi_get_src_pdos(con, 1);
- 		break;
- 	case UCSI_CONSTAT_PWR_OPMODE_TYPEC1_5:
- 		con->rdo = 0;
---- a/drivers/usb/typec/ucsi/ucsi.h
-+++ b/drivers/usb/typec/ucsi/ucsi.h
-@@ -8,6 +8,7 @@
- #include <linux/power_supply.h>
- #include <linux/types.h>
- #include <linux/usb/typec.h>
-+#include <linux/usb/pd.h>
- 
- /* -------------------------------------------------------------------------- */
- 
-@@ -133,7 +134,9 @@ void ucsi_connector_change(struct ucsi *
- 
- /* GET_PDOS command bits */
- #define UCSI_GET_PDOS_PARTNER_PDO(_r_)		((u64)(_r_) << 23)
-+#define UCSI_GET_PDOS_PDO_OFFSET(_r_)		((u64)(_r_) << 24)
- #define UCSI_GET_PDOS_NUM_PDOS(_r_)		((u64)(_r_) << 32)
-+#define UCSI_MAX_PDOS				(4)
- #define UCSI_GET_PDOS_SRC_PDOS			((u64)1 << 34)
- 
- /* -------------------------------------------------------------------------- */
-@@ -301,7 +304,6 @@ struct ucsi {
- 
- #define UCSI_MAX_SVID		5
- #define UCSI_MAX_ALTMODES	(UCSI_MAX_SVID * 6)
--#define UCSI_MAX_PDOS		(4)
- 
- #define UCSI_TYPEC_VSAFE5V	5000
- #define UCSI_TYPEC_1_5_CURRENT	1500
-@@ -329,7 +331,7 @@ struct ucsi_connector {
- 	struct power_supply *psy;
- 	struct power_supply_desc psy_desc;
- 	u32 rdo;
--	u32 src_pdos[UCSI_MAX_PDOS];
-+	u32 src_pdos[PDO_MAX_OBJECTS];
- 	int num_pdos;
- };
- 
+--- a/arch/arm/kernel/head.S
++++ b/arch/arm/kernel/head.S
+@@ -274,10 +274,10 @@ __create_page_tables:
+ 	 * We map 2 sections in case the ATAGs/DTB crosses a section boundary.
+ 	 */
+ 	mov	r0, r2, lsr #SECTION_SHIFT
+-	movs	r0, r0, lsl #SECTION_SHIFT
++	cmp	r2, #0
+ 	ldrne	r3, =FDT_FIXED_BASE >> (SECTION_SHIFT - PMD_ORDER)
+ 	addne	r3, r3, r4
+-	orrne	r6, r7, r0
++	orrne	r6, r7, r0, lsl #SECTION_SHIFT
+ 	strne	r6, [r3], #1 << PMD_ORDER
+ 	addne	r6, r6, #1 << SECTION_SHIFT
+ 	strne	r6, [r3]
 
 
