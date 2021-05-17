@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E39E9383063
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5943C382E9C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:08:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239564AbhEQO0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:26:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49340 "EHLO mail.kernel.org"
+        id S238200AbhEQOJl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:09:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239637AbhEQOYj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:24:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 07D91613C3;
-        Mon, 17 May 2021 14:12:59 +0000 (UTC)
+        id S238083AbhEQOHh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:07:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CDB66128E;
+        Mon, 17 May 2021 14:06:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260780;
-        bh=F0wwMLFZkfjf8sQf792pUgIM9/L+mtzINs5RBxdQOxI=;
+        s=korg; t=1621260367;
+        bh=mKkjTfBgYYQuYW9XJMVZqW5OfGH+RE/LXevOvmxnd4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X9MTgtBm9lRX3oJmGtL9kUcpGGRMp1xty+eilbbAov1iuonqsVfgxjuLVD9bt+HCe
-         Uww+teAzreV2C/ERSiERDFbPPY2HkBDWV/MGafWyEGO3pdX12KEUAvNUSWAum9GxIK
-         noCqWbBXtYCWqpXNEDARHTnrV997elc7Ft1cs7+E=
+        b=fYrzvpHdHbnIjUYjxYgnV8FifZ6tXueo3J/eWraj0jorJBO1cydIrI2A2iiiJusJa
+         /wz9cHna8gXNacLrQ+CpXFr9FZf1+S2U5vZUWbzyHvyp11Qk6m4O4SXfLhpKda7ef1
+         karUH0XOIGtVZpUBMGimzNssGVtGkiSVmYIDB9wM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 003/329] tpm, tpm_tis: Extend locality handling to TPM2 in tpm_tis_gen_interrupt()
-Date:   Mon, 17 May 2021 15:58:34 +0200
-Message-Id: <20210517140302.154148301@linuxfoundation.org>
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 049/363] ASoC: rt5670: Add a quirk for the Dell Venue 10 Pro 5055
+Date:   Mon, 17 May 2021 15:58:35 +0200
+Message-Id: <20210517140304.265476505@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit e630af7dfb450d1c00c30077314acf33032ff9e4 upstream.
+[ Upstream commit 84cb0d5581b6a7bd5d96013f67e9f2eb0c7b4378 ]
 
-The earlier fix (linked) only partially fixed the locality handling bug
-in tpm_tis_gen_interrupt(), i.e. only for TPM 1.x.
+Add a quirk with the jack-detect and dmic settings necessary to make
+jack-detect and the builtin mic work on Dell Venue 10 Pro 5055 tablets.
 
-Extend the locality handling to cover TPM2.
-
-Cc: Hans de Goede <hdegoede@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/linux-integrity/20210220125534.20707-1-jarkko@kernel.org/
-Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-Reported-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
-Tested-by: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210402140747.174716-5-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   10 ++++------
- 1 file changed, 4 insertions(+), 6 deletions(-)
+ sound/soc/codecs/rt5670.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -709,16 +709,14 @@ static int tpm_tis_gen_interrupt(struct
- 	cap_t cap;
- 	int ret;
- 
--	/* TPM 2.0 */
--	if (chip->flags & TPM_CHIP_FLAG_TPM2)
--		return tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
--
--	/* TPM 1.2 */
- 	ret = request_locality(chip, 0);
- 	if (ret < 0)
- 		return ret;
- 
--	ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc, 0);
-+	if (chip->flags & TPM_CHIP_FLAG_TPM2)
-+		ret = tpm2_get_tpm_pt(chip, 0x100, &cap2, desc);
-+	else
-+		ret = tpm1_getcap(chip, TPM_CAP_PROP_TIS_TIMEOUT, &cap, desc, 0);
- 
- 	release_locality(chip, 0);
- 
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index 4063aac2a443..dd69d874bad2 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -2980,6 +2980,18 @@ static const struct dmi_system_id dmi_platform_intel_quirks[] = {
+ 						 RT5670_GPIO1_IS_IRQ |
+ 						 RT5670_JD_MODE3),
+ 	},
++	{
++		.callback = rt5670_quirk_cb,
++		.ident = "Dell Venue 10 Pro 5055",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Venue 10 Pro 5055"),
++		},
++		.driver_data = (unsigned long *)(RT5670_DMIC_EN |
++						 RT5670_DMIC2_INR |
++						 RT5670_GPIO1_IS_IRQ |
++						 RT5670_JD_MODE1),
++	},
+ 	{
+ 		.callback = rt5670_quirk_cb,
+ 		.ident = "Aegex 10 tablet (RU2)",
+-- 
+2.30.2
+
 
 
