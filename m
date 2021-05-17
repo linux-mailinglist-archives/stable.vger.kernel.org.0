@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2773F3835AE
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 025663833F3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243035AbhEQPYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:24:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55796 "EHLO mail.kernel.org"
+        id S242593AbhEQPD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:03:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244419AbhEQPUf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:20:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25EC56191C;
-        Mon, 17 May 2021 14:34:14 +0000 (UTC)
+        id S242179AbhEQPB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:01:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3821E60FE9;
+        Mon, 17 May 2021 14:27:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262054;
-        bh=u0cuOepqDr5lz0DiSS8gKOWHOLaJIYMmmSUixmLFq8A=;
+        s=korg; t=1621261638;
+        bh=rSZaz4r9YN81N5jfCrcTwbkMhDQERcc+u3Q9FHKcthU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rBf6Z6pzubNecGqZrmOWh+6f/LWv6dUaAtrBVmMWIxs5vrGhChpBO2SYrsiIIeyq1
-         JgHXlfirzz0aXqZtOuMrfAwRae41biTkezFCuw1p8lKbcmw+P9bS+YvFgzSdxFV0fT
-         dS16QMzxoMUxDzVoXJxuTPZuiZwZUBDUIAV7kUmE=
+        b=E5FQmPHUIogqw2wN8FsNq+zceT2MQQcEkVbG/qjnB2Q++QXEEFmMoav8M5EoOcWY+
+         S7YTfm5/zJzDAevGDshx241wUHOTBnwEmYc+UoiBOhVLTv9R+VkfPXi78DCNAY+2+x
+         eQItR0L7SYViNfXaiQVJCTQxMvChrCnTkkdUd7j4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nucca Chen <nuccachen@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, Hao Chen <chenhao288@hisilicon.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@mellanox.com>, Jiri Pirko <jiri@resnulli.us>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 209/329] net: fix nla_strcmp to handle more then one trailing null character
-Date:   Mon, 17 May 2021 16:02:00 +0200
-Message-Id: <20210517140309.205916341@linuxfoundation.org>
+Subject: [PATCH 5.4 069/141] net: hns3: fix for vxlan gpe tx checksum bug
+Date:   Mon, 17 May 2021 16:02:01 +0200
+Message-Id: <20210517140245.096950394@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,47 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Hao Chen <chenhao288@hisilicon.com>
 
-[ Upstream commit 2c16db6c92b0ee4aa61e88366df82169e83c3f7e ]
+[ Upstream commit 905416f18fe74bdd4de91bf94ef5a790a36e4b99 ]
 
-Android userspace has been using TCA_KIND with a char[IFNAMESIZ]
-many-null-terminated buffer containing the string 'bpf'.
+When skb->ip_summed is CHECKSUM_PARTIAL, for non-tunnel udp packet,
+which has a dest port as the IANA assigned, the hardware is expected
+to do the checksum offload, but the hardware whose version is below
+V3 will not do the checksum offload when udp dest port is 4790.
 
-This works on 4.19 and ceases to work on 5.10.
+So fixes it by doing the checksum in software for this case.
 
-I'm not entirely sure what fixes tag to use, but I think the issue
-was likely introduced in the below mentioned 5.4 commit.
-
-Reported-by: Nucca Chen <nuccachen@google.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Fixes: 62794fc4fbf5 ("net_sched: add max len check for TCA_KIND")
-Change-Id: I66dc281f165a2858fc29a44869a270a2d698a82b
+Fixes: 76ad4f0ee747 ("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Signed-off-by: Hao Chen <chenhao288@hisilicon.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/nlattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/lib/nlattr.c b/lib/nlattr.c
-index 5b6116e81f9f..1d051ef66afe 100644
---- a/lib/nlattr.c
-+++ b/lib/nlattr.c
-@@ -828,7 +828,7 @@ int nla_strcmp(const struct nlattr *nla, const char *str)
- 	int attrlen = nla_len(nla);
- 	int d;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 6b43cbf4f909..3dd3b8047968 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -796,7 +796,7 @@ static int hns3_get_l4_protocol(struct sk_buff *skb, u8 *ol4_proto,
+  * and it is udp packet, which has a dest port as the IANA assigned.
+  * the hardware is expected to do the checksum offload, but the
+  * hardware will not do the checksum offload when udp dest port is
+- * 4789 or 6081.
++ * 4789, 4790 or 6081.
+  */
+ static bool hns3_tunnel_csum_bug(struct sk_buff *skb)
+ {
+@@ -806,7 +806,8 @@ static bool hns3_tunnel_csum_bug(struct sk_buff *skb)
  
--	if (attrlen > 0 && buf[attrlen - 1] == '\0')
-+	while (attrlen > 0 && buf[attrlen - 1] == '\0')
- 		attrlen--;
+ 	if (!(!skb->encapsulation &&
+ 	      (l4.udp->dest == htons(IANA_VXLAN_UDP_PORT) ||
+-	      l4.udp->dest == htons(GENEVE_UDP_PORT))))
++	      l4.udp->dest == htons(GENEVE_UDP_PORT) ||
++	      l4.udp->dest == htons(4790))))
+ 		return false;
  
- 	d = attrlen - len;
+ 	skb_checksum_help(skb);
 -- 
 2.30.2
 
