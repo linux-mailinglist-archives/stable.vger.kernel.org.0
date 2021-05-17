@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F257C38333B
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B604138335D
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241964AbhEQO4Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:56:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
+        id S241269AbhEQO5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48080 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241781AbhEQOx5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:53:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A85EB6199F;
-        Mon, 17 May 2021 14:24:20 +0000 (UTC)
+        id S241816AbhEQOyA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:54:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A96F6198F;
+        Mon, 17 May 2021 14:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261461;
-        bh=P2EqQavx1rP6XcL6iz3KrATM+pJWU8gQ3J8eYh0pZXE=;
+        s=korg; t=1621261469;
+        bh=n23vyoyY+gKlx/w3UMxPfQISjm+xt6MJeyPjorIPpaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2uoqyDWqeyuJbOcT37JGUNFHTgxrsGxvLEax/ZGjZqQYBUYVdCkE0mu97Qh7cxGUp
-         sbLq7PpzS7QnD3ZZbbkOpfgRgywRDENzsPswWGhBrWrfuT3DGmm7bCksDYdIN0xAoe
-         SXhnYV2jN2C1qMDuHv+kBDBGxwhF8/5ea1rYmspY=
+        b=HIgh/upGbyPFXOAeYnSpREUkM7/QW8d5MoNemKXlM1pJs6hxA4JXFCZ1/oO0jUNBi
+         YhGQTnZv6gN8Rbaef20I1c3JsbXFp9RZ6EI1BraDyBy4UZr/Tnlfl1bcu4zxQxJnzc
+         +8K78j5ohv5Jcabe6XJj3OckLax6d1mZtlpb9Exg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>
-Subject: [PATCH 5.12 348/363] clk: exynos7: Mark aclk_fsys1_200 as critical
-Date:   Mon, 17 May 2021 16:03:34 +0200
-Message-Id: <20210517140314.365669187@linuxfoundation.org>
+        Enric Balletbo i Serra <enric.balletbo@collabora.com>,
+        Hsin-Yi Wang <hsinyi@chromium.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>
+Subject: [PATCH 5.12 349/363] soc: mediatek: pm-domains: Add a meaningful power domain name
+Date:   Mon, 17 May 2021 16:03:35 +0200
+Message-Id: <20210517140314.396762237@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,47 +41,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Enric Balletbo i Serra <enric.balletbo@collabora.com>
 
-commit 34138a59b92c1a30649a18ec442d2e61f3bc34dd upstream.
+commit 022b02b4505ecea5eda02b18683531e49f7d8eb7 upstream.
 
-This clock must be always enabled to allow access to any registers in
-fsys1 CMU. Until proper solution based on runtime PM is applied
-(similar to what was done for Exynos5433), mark that clock as critical
-so it won't be disabled.
+Add the power domains names to the power domain struct so we
+have meaningful name for every power domain. This also removes the
+following debugfs error message.
 
-It was observed on Samsung Galaxy S6 device (based on Exynos7420), where
-UFS module is probed before pmic used to power that device.
-In this case defer probe was happening and that clock was disabled by
-UFS driver, causing whole boot to hang on next CMU access.
+  [    2.242068] debugfs: Directory 'power-domain' with parent 'pm_genpd' already present!
+  [    2.249949] debugfs: Directory 'power-domain' with parent 'pm_genpd' already present!
+  [    2.257784] debugfs: Directory 'power-domain' with parent 'pm_genpd' already present!
+  ...
 
-Fixes: 753195a749a6 ("clk: samsung: exynos7: Correct CMU_FSYS1 clocks names")
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/linux-clk/20201024154346.9589-1-pawel.mikolaj.chmiel@gmail.com
-[s.nawrocki: Added comment in the code]
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Fixes: 59b644b01cf4 ("soc: mediatek: Add MediaTek SCPSYS power domains")
+Signed-off-by: Enric Balletbo i Serra <enric.balletbo@collabora.com>
+Reviewed-by: Hsin-Yi Wang <hsinyi@chromium.org>
+Link: https://lore.kernel.org/r/20210225175000.824661-1-enric.balletbo@collabora.com
+Signed-off-by: Matthias Brugger <matthias.bgg@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/samsung/clk-exynos7.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/soc/mediatek/mt8173-pm-domains.h |   10 ++++++++++
+ drivers/soc/mediatek/mtk-pm-domains.c    |    6 +++++-
+ drivers/soc/mediatek/mtk-pm-domains.h    |    2 ++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/clk/samsung/clk-exynos7.c
-+++ b/drivers/clk/samsung/clk-exynos7.c
-@@ -537,8 +537,13 @@ static const struct samsung_gate_clock t
- 	GATE(CLK_ACLK_FSYS0_200, "aclk_fsys0_200", "dout_aclk_fsys0_200",
- 		ENABLE_ACLK_TOP13, 28, CLK_SET_RATE_PARENT |
- 		CLK_IS_CRITICAL, 0),
-+	/*
-+	 * This clock is required for the CMU_FSYS1 registers access, keep it
-+	 * enabled permanently until proper runtime PM support is added.
-+	 */
- 	GATE(CLK_ACLK_FSYS1_200, "aclk_fsys1_200", "dout_aclk_fsys1_200",
--		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT, 0),
-+		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT |
-+		CLK_IS_CRITICAL, 0),
+--- a/drivers/soc/mediatek/mt8173-pm-domains.h
++++ b/drivers/soc/mediatek/mt8173-pm-domains.h
+@@ -12,24 +12,28 @@
  
- 	GATE(CLK_SCLK_PHY_FSYS1_26M, "sclk_phy_fsys1_26m",
- 		"dout_sclk_phy_fsys1_26m", ENABLE_SCLK_TOP1_FSYS11,
+ static const struct scpsys_domain_data scpsys_domain_data_mt8173[] = {
+ 	[MT8173_POWER_DOMAIN_VDEC] = {
++		.name = "vdec",
+ 		.sta_mask = PWR_STATUS_VDEC,
+ 		.ctl_offs = SPM_VDE_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(12, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_VENC] = {
++		.name = "venc",
+ 		.sta_mask = PWR_STATUS_VENC,
+ 		.ctl_offs = SPM_VEN_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(15, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_ISP] = {
++		.name = "isp",
+ 		.sta_mask = PWR_STATUS_ISP,
+ 		.ctl_offs = SPM_ISP_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(13, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_MM] = {
++		.name = "mm",
+ 		.sta_mask = PWR_STATUS_DISP,
+ 		.ctl_offs = SPM_DIS_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+@@ -40,18 +44,21 @@ static const struct scpsys_domain_data s
+ 		},
+ 	},
+ 	[MT8173_POWER_DOMAIN_VENC_LT] = {
++		.name = "venc_lt",
+ 		.sta_mask = PWR_STATUS_VENC_LT,
+ 		.ctl_offs = SPM_VEN2_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(15, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_AUDIO] = {
++		.name = "audio",
+ 		.sta_mask = PWR_STATUS_AUDIO,
+ 		.ctl_offs = SPM_AUDIO_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(15, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_USB] = {
++		.name = "usb",
+ 		.sta_mask = PWR_STATUS_USB,
+ 		.ctl_offs = SPM_USB_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+@@ -59,18 +66,21 @@ static const struct scpsys_domain_data s
+ 		.caps = MTK_SCPD_ACTIVE_WAKEUP,
+ 	},
+ 	[MT8173_POWER_DOMAIN_MFG_ASYNC] = {
++		.name = "mfg_async",
+ 		.sta_mask = PWR_STATUS_MFG_ASYNC,
+ 		.ctl_offs = SPM_MFG_ASYNC_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = 0,
+ 	},
+ 	[MT8173_POWER_DOMAIN_MFG_2D] = {
++		.name = "mfg_2d",
+ 		.sta_mask = PWR_STATUS_MFG_2D,
+ 		.ctl_offs = SPM_MFG_2D_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(11, 8),
+ 		.sram_pdn_ack_bits = GENMASK(13, 12),
+ 	},
+ 	[MT8173_POWER_DOMAIN_MFG] = {
++		.name = "mfg",
+ 		.sta_mask = PWR_STATUS_MFG,
+ 		.ctl_offs = SPM_MFG_PWR_CON,
+ 		.sram_pdn_bits = GENMASK(13, 8),
+--- a/drivers/soc/mediatek/mtk-pm-domains.c
++++ b/drivers/soc/mediatek/mtk-pm-domains.c
+@@ -438,7 +438,11 @@ generic_pm_domain *scpsys_add_one_domain
+ 		goto err_unprepare_subsys_clocks;
+ 	}
+ 
+-	pd->genpd.name = node->name;
++	if (!pd->data->name)
++		pd->genpd.name = node->name;
++	else
++		pd->genpd.name = pd->data->name;
++
+ 	pd->genpd.power_off = scpsys_power_off;
+ 	pd->genpd.power_on = scpsys_power_on;
+ 
+--- a/drivers/soc/mediatek/mtk-pm-domains.h
++++ b/drivers/soc/mediatek/mtk-pm-domains.h
+@@ -76,6 +76,7 @@ struct scpsys_bus_prot_data {
+ 
+ /**
+  * struct scpsys_domain_data - scp domain data for power on/off flow
++ * @name: The name of the power domain.
+  * @sta_mask: The mask for power on/off status bit.
+  * @ctl_offs: The offset for main power control register.
+  * @sram_pdn_bits: The mask for sram power control bits.
+@@ -85,6 +86,7 @@ struct scpsys_bus_prot_data {
+  * @bp_smi: bus protection for smi subsystem
+  */
+ struct scpsys_domain_data {
++	const char *name;
+ 	u32 sta_mask;
+ 	int ctl_offs;
+ 	u32 sram_pdn_bits;
 
 
