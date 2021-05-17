@@ -2,32 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D179B382F4B
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:14:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 749ED382F4D
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:14:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236585AbhEQOPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:15:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46782 "EHLO mail.kernel.org"
+        id S236556AbhEQOPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:15:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238489AbhEQONB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:13:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC47B61370;
-        Mon, 17 May 2021 14:08:31 +0000 (UTC)
+        id S238533AbhEQONK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:13:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E56AA61396;
+        Mon, 17 May 2021 14:08:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260512;
-        bh=hZyy5BCMkH/J58QIAmFGTtFRImIMQp19z3NPYHyeXYg=;
+        s=korg; t=1621260514;
+        bh=yIQfe4DWt3YvVoGHxLkOPrftl9QKP/9VnDR/P/JOzBQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x6UfZQDi0ilc4vYN1lIE8Txz5/eLTn+L2nrAGT85bLsF5r1s10WlomfzitYxqbPRq
-         xRhA9wKEl2ntsnXtwhJL29WKRqqbLmX1UaOKk2PnKOmL+3XiN79to51Xly2koouRn/
-         NyI1rBDoHUhq3AF+PItSg5EDb7SvvSA4OFZt/RpY=
+        b=qN7aIjqlqv+fnoviviJUy8pCbygQl8vnBMGPndWudzABx7EdlbIrdLJ2P+uM32zY0
+         ozLdT7pF/D7nZ58K7Gq5j5sY7mswWZ8eM3c9Ss1MuIWZxIv+NacYPsGU+8O0QIpYtq
+         d4mTwrND5qeICQ+SCrJj4my/dhQ7c5uwmtktNbVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        stable@vger.kernel.org,
+        Vasundhara Volam <vasundhara-v.volam@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Edwin Peer <edwin.peer@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 115/363] kbuild: generate Module.symvers only when vmlinux exists
-Date:   Mon, 17 May 2021 15:59:41 +0200
-Message-Id: <20210517140306.512473726@linuxfoundation.org>
+Subject: [PATCH 5.12 116/363] bnxt_en: Add PCI IDs for Hyper-V VF devices.
+Date:   Mon, 17 May 2021 15:59:42 +0200
+Message-Id: <20210517140306.548800098@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -39,142 +44,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 69bc8d386aebbd91a6bb44b6d33f77c8dfa9ed8c ]
+[ Upstream commit 7fbf359bb2c19c824cbb1954020680824f6ee5a5 ]
 
-The external module build shows the following warning if Module.symvers
-is missing in the kernel tree.
+Support VF device IDs used by the Hyper-V hypervisor.
 
-  WARNING: Symbol version dump "Module.symvers" is missing.
-           Modules may not have dependencies or modversions.
-
-I think this is an important heads-up because the resulting modules may
-not work as expected. This happens when you did not build the entire
-kernel tree, for example, you might have prepared the minimal setups
-for external modules by 'make defconfig && make modules_preapre'.
-
-A problem is that 'make modules' creates Module.symvers even without
-vmlinux. In this case, that warning is suppressed since Module.symvers
-already exists in spite of its incomplete content.
-
-The incomplete (i.e. invalid) Module.symvers should not be created.
-
-This commit changes the second pass of modpost to dump symbols into
-modules-only.symvers. The final Module.symvers is created by
-concatenating vmlinux.symvers and modules-only.symvers if both exist.
-
-Module.symvers is supposed to collect symbols from both vmlinux and
-modules. It might be a bit confusing, and I am not quite sure if it
-is an official interface, but presumably it is difficult to rename it
-because some tools (e.g. kmod) parse it.
-
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Reviewed-by: Vasundhara Volam <vasundhara-v.volam@broadcom.com>
+Reviewed-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .gitignore               |  1 +
- Documentation/dontdiff   |  1 +
- Makefile                 |  2 +-
- scripts/Makefile.modpost | 15 ++++++++++++++-
- scripts/mod/modpost.c    | 15 +--------------
- 5 files changed, 18 insertions(+), 16 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
-diff --git a/.gitignore b/.gitignore
-index 3af66272d6f1..127012c1f717 100644
---- a/.gitignore
-+++ b/.gitignore
-@@ -57,6 +57,7 @@ modules.order
- /tags
- /TAGS
- /linux
-+/modules-only.symvers
- /vmlinux
- /vmlinux.32
- /vmlinux.symvers
-diff --git a/Documentation/dontdiff b/Documentation/dontdiff
-index e361fc95ca29..82e3eee7363b 100644
---- a/Documentation/dontdiff
-+++ b/Documentation/dontdiff
-@@ -178,6 +178,7 @@ mktables
- mktree
- mkutf8data
- modpost
-+modules-only.symvers
- modules.builtin
- modules.builtin.modinfo
- modules.nsdeps
-diff --git a/Makefile b/Makefile
-index 0b1852621615..7503ffef6424 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1513,7 +1513,7 @@ endif # CONFIG_MODULES
- # make distclean Remove editor backup files, patch leftover files and the like
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index 73239d3eaca1..cf4249d59383 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -122,7 +122,10 @@ enum board_idx {
+ 	NETXTREME_E_VF,
+ 	NETXTREME_C_VF,
+ 	NETXTREME_S_VF,
++	NETXTREME_C_VF_HV,
++	NETXTREME_E_VF_HV,
+ 	NETXTREME_E_P5_VF,
++	NETXTREME_E_P5_VF_HV,
+ };
  
- # Directories & files removed with 'make clean'
--CLEAN_FILES += include/ksym vmlinux.symvers \
-+CLEAN_FILES += include/ksym vmlinux.symvers modules-only.symvers \
- 	       modules.builtin modules.builtin.modinfo modules.nsdeps \
- 	       compile_commands.json .thinlto-cache
+ /* indexed by enum above */
+@@ -170,7 +173,10 @@ static const struct {
+ 	[NETXTREME_E_VF] = { "Broadcom NetXtreme-E Ethernet Virtual Function" },
+ 	[NETXTREME_C_VF] = { "Broadcom NetXtreme-C Ethernet Virtual Function" },
+ 	[NETXTREME_S_VF] = { "Broadcom NetXtreme-S Ethernet Virtual Function" },
++	[NETXTREME_C_VF_HV] = { "Broadcom NetXtreme-C Virtual Function for Hyper-V" },
++	[NETXTREME_E_VF_HV] = { "Broadcom NetXtreme-E Virtual Function for Hyper-V" },
+ 	[NETXTREME_E_P5_VF] = { "Broadcom BCM5750X NetXtreme-E Ethernet Virtual Function" },
++	[NETXTREME_E_P5_VF_HV] = { "Broadcom BCM5750X NetXtreme-E Virtual Function for Hyper-V" },
+ };
  
-diff --git a/scripts/Makefile.modpost b/scripts/Makefile.modpost
-index 066beffca09a..4ca5579af4e4 100644
---- a/scripts/Makefile.modpost
-+++ b/scripts/Makefile.modpost
-@@ -68,7 +68,20 @@ else
- ifeq ($(KBUILD_EXTMOD),)
- 
- input-symdump := vmlinux.symvers
--output-symdump := Module.symvers
-+output-symdump := modules-only.symvers
-+
-+quiet_cmd_cat = GEN     $@
-+      cmd_cat = cat $(real-prereqs) > $@
-+
-+ifneq ($(wildcard vmlinux.symvers),)
-+
-+__modpost: Module.symvers
-+Module.symvers: vmlinux.symvers modules-only.symvers FORCE
-+	$(call if_changed,cat)
-+
-+targets += Module.symvers
-+
-+endif
- 
- else
- 
-diff --git a/scripts/mod/modpost.c b/scripts/mod/modpost.c
-index 24725e50c7b4..10c3fba26f03 100644
---- a/scripts/mod/modpost.c
-+++ b/scripts/mod/modpost.c
-@@ -2423,19 +2423,6 @@ fail:
- 	fatal("parse error in symbol dump file\n");
+ static const struct pci_device_id bnxt_pci_tbl[] = {
+@@ -222,15 +228,25 @@ static const struct pci_device_id bnxt_pci_tbl[] = {
+ 	{ PCI_VDEVICE(BROADCOM, 0xd804), .driver_data = BCM58804 },
+ #ifdef CONFIG_BNXT_SRIOV
+ 	{ PCI_VDEVICE(BROADCOM, 0x1606), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x1607), .driver_data = NETXTREME_E_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x1608), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1609), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16bd), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16c1), .driver_data = NETXTREME_E_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16c2), .driver_data = NETXTREME_C_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c3), .driver_data = NETXTREME_C_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c4), .driver_data = NETXTREME_E_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x16c5), .driver_data = NETXTREME_E_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16cb), .driver_data = NETXTREME_C_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16d3), .driver_data = NETXTREME_E_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16dc), .driver_data = NETXTREME_E_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16e1), .driver_data = NETXTREME_C_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x16e5), .driver_data = NETXTREME_C_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x16e6), .driver_data = NETXTREME_C_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1806), .driver_data = NETXTREME_E_P5_VF },
+ 	{ PCI_VDEVICE(BROADCOM, 0x1807), .driver_data = NETXTREME_E_P5_VF },
++	{ PCI_VDEVICE(BROADCOM, 0x1808), .driver_data = NETXTREME_E_P5_VF_HV },
++	{ PCI_VDEVICE(BROADCOM, 0x1809), .driver_data = NETXTREME_E_P5_VF_HV },
+ 	{ PCI_VDEVICE(BROADCOM, 0xd800), .driver_data = NETXTREME_S_VF },
+ #endif
+ 	{ 0 }
+@@ -265,7 +281,8 @@ static struct workqueue_struct *bnxt_pf_wq;
+ static bool bnxt_vf_pciid(enum board_idx idx)
+ {
+ 	return (idx == NETXTREME_C_VF || idx == NETXTREME_E_VF ||
+-		idx == NETXTREME_S_VF || idx == NETXTREME_E_P5_VF);
++		idx == NETXTREME_S_VF || idx == NETXTREME_C_VF_HV ||
++		idx == NETXTREME_E_VF_HV || idx == NETXTREME_E_P5_VF);
  }
  
--/* For normal builds always dump all symbols.
-- * For external modules only dump symbols
-- * that are not read from kernel Module.symvers.
-- **/
--static int dump_sym(struct symbol *sym)
--{
--	if (!external_module)
--		return 1;
--	if (sym->module->from_dump)
--		return 0;
--	return 1;
--}
--
- static void write_dump(const char *fname)
- {
- 	struct buffer buf = { };
-@@ -2446,7 +2433,7 @@ static void write_dump(const char *fname)
- 	for (n = 0; n < SYMBOL_HASH_SIZE ; n++) {
- 		symbol = symbolhash[n];
- 		while (symbol) {
--			if (dump_sym(symbol)) {
-+			if (!symbol->module->from_dump) {
- 				namespace = symbol->namespace;
- 				buf_printf(&buf, "0x%08x\t%s\t%s\t%s\t%s\n",
- 					   symbol->crc, symbol->name,
+ #define DB_CP_REARM_FLAGS	(DB_KEY_CP | DB_IDX_VALID)
 -- 
 2.30.2
 
