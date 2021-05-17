@@ -2,126 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12806383D2C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:21:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03CC4383D3E
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:25:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233523AbhEQTWu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 15:22:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50126 "EHLO
+        id S232775AbhEQT1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 15:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51128 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233131AbhEQTWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:22:41 -0400
-Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9C7DC061573
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 12:21:23 -0700 (PDT)
-Received: by mail-yb1-xb49.google.com with SMTP id g191-20020a25dbc80000b02904f84b30d8baso10554358ybf.13
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 12:21:23 -0700 (PDT)
+        with ESMTP id S232773AbhEQT1M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:27:12 -0400
+Received: from mail-lj1-x22f.google.com (mail-lj1-x22f.google.com [IPv6:2a00:1450:4864:20::22f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76719C061573;
+        Mon, 17 May 2021 12:25:55 -0700 (PDT)
+Received: by mail-lj1-x22f.google.com with SMTP id v6so8634399ljj.5;
+        Mon, 17 May 2021 12:25:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:in-reply-to:message-id:mime-version:references:subject:from:to
-         :cc;
-        bh=79DMjSxiP2F1AeRPgnsBg/R7gF79NxIe5NFXbthP6VI=;
-        b=MFAW2KY9zPq61R1HXjxZWc7oA7t20+c367OWkGm31d5kdUS65UbfPlI6yNMVqyuMnO
-         JZ/Vq2/nO8r1udNp4pIQN4xkD0zaqijcJtZggsgvVawgrwK73nPXhcQonCueCyT7rqG+
-         zJSnYj9QSKyYqzJsFP+hMArHnsBmMLBh506d8o3j9OBwIXpjGjN6ZnmI/tSfdMkzB+/G
-         ikBY/kmZ6Yxiyt60OygzXJrhamDOrdsIttQ3bSUIIB1/Ny/2+2wbSjIPrlwMJB/y4WvF
-         0JKJvYJpISCzuWkd4eVYF8QeEZ5ECCwOqFulXspVklIFV7/dAFP4rxgx8QA7l0y+xG09
-         7uuw==
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=uu1FDu9fGs5Pi33teMn7ZfwLLr8waPYX+ZIqVV1QiCg=;
+        b=PiBFvUPgqtVxl+xiMFNQSDCJqXcn9ed/tGhQZAcCdjWqlWxcsk9F1jb9q0xb2uK/BO
+         +1eQ88vsT6/wNIc1aCCzgStt/IdYhkIxH52juEeTLIfeZcHuSAi6Vk1tkPIznQ7qJiNf
+         7v9y4ti3ZBjYHgaxgPtmYQ/Vk4MfrjzBP0E8i3nfAYWU/xJc5dTwQ9lCSpqzRCkFY8z7
+         GfCd0DylNIzGzD5/IT+TRrhZr+9WnmJcgf1dXM8l30/t4HnBfvYykrtaMMZ+ZV8LRpCU
+         ykKQnkM1+xti/4GAtS+dqjCTmPS8sy1b+T1ilMOVvv74+9c8B67Hr1P0y8EySdjgcojs
+         GOZA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:in-reply-to:message-id:mime-version
-         :references:subject:from:to:cc;
-        bh=79DMjSxiP2F1AeRPgnsBg/R7gF79NxIe5NFXbthP6VI=;
-        b=EmNnokvyuUbckeFzYJC6nDkLyQJ2dAfsgS0YujcuVZWBZIP6bMTnV94APIQYAPQbM9
-         GLvOSTWhimGN7DPjkuJu3UxwQXo3xrcfywlCssEXATTkYTEzyY2a1lbmNJr7lfcWsCM1
-         FwiPQzi77HDxeqYqyqpj8H+pMkKx420kcAM4tqTkWdowg3xb0U6NFyfd3JU8nFwYwrFh
-         EtN5t8buR1vWvT3iug6EsUcf8Vt1Ql7hR2ecw5mzSvU79VI8Z2zn84vZzz5BPTmlKdD1
-         7bjSCgn/sgqsObEagW+QQk5zxe2vqgRqYGnfZVQoShcJ9J3S4npua4l2rkQYPaHR2xs5
-         7wzA==
-X-Gm-Message-State: AOAM532A+m/Y7QDU/IsjVpKtYrO/bOl8aNcaj8iza9dSDAyIMygGSubp
-        iVSwoOlJTAnRujxEmolKKyb/O7z07j4=
-X-Google-Smtp-Source: ABdhPJweE4HBhuxz8PmhtWA0Hdo6sKmybMPGmOK564AHaorko3PoYnyRUB1tLJ3hTruPY1fVS9NogOY6Lv4=
-X-Received: from badhri.mtv.corp.google.com ([2620:15c:211:201:b562:7011:fe35:1c9e])
- (user=badhri job=sendgmr) by 2002:a25:d8d6:: with SMTP id p205mr1919757ybg.485.1621279283104;
- Mon, 17 May 2021 12:21:23 -0700 (PDT)
-Date:   Mon, 17 May 2021 12:21:12 -0700
-In-Reply-To: <20210517192112.40934-1-badhri@google.com>
-Message-Id: <20210517192112.40934-4-badhri@google.com>
-Mime-Version: 1.0
-References: <20210517192112.40934-1-badhri@google.com>
-X-Mailer: git-send-email 2.31.1.751.gd2f1c929bd-goog
-Subject: [PATCH v2 4/4] usb: typec: tcpci: Implement callback for apply_rc
-From:   Badhri Jagan Sridharan <badhri@google.com>
-To:     Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Kyle Tso <kyletso@google.com>, stable@vger.kernel.org,
-        Badhri Jagan Sridharan <badhri@google.com>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=uu1FDu9fGs5Pi33teMn7ZfwLLr8waPYX+ZIqVV1QiCg=;
+        b=eZKkwqLBLI4H8hKffyBCwrXsA7e2X7cSsSGnUuWWl0ar+OdDs53RimGgejkdhQzE1m
+         E6Vmc9DfwGNOqcbHgjE3nZ/9tDqUTsnt28VdFwolr/cQwdgOeS1jEBrSrcpjP3JaemhU
+         riHcufbidzVmtx+PaLhYTsb6A1+cj/aWIyz8NpJQGfmZgN7VfJifXS44Rm1zqGOFIZ8O
+         e7HfYgjGVeTAMKk6GGNYHg7+OXqIrSDFBzpxlx49t1ej16Y69OPAkK/+ULlciz/aV4b3
+         QmjZjAFeZ5LUDallrpRtcbj4G22qIdpRbP0x7zBce44Tzh5qyGjSmtAtJY8/oL0BtHAF
+         n7gQ==
+X-Gm-Message-State: AOAM531xZcF5MjUR3pHeJ12hSQsKYTAiGD3R/dvQN3ifknw51+siJCfA
+        xyX9LBKjNFOaHJaEg7+DQ9l95HhDTuY=
+X-Google-Smtp-Source: ABdhPJxp2QOGsnmEnlQRU/ADYLvdAILbnamoueNzhGdqbJERogp1LTDuu652SO6NNTeAAagYkgj7ig==
+X-Received: by 2002:a2e:b8c9:: with SMTP id s9mr760554ljp.422.1621279553536;
+        Mon, 17 May 2021 12:25:53 -0700 (PDT)
+Received: from [10.17.0.15] ([37.58.58.229])
+        by smtp.gmail.com with ESMTPSA id t24sm1632410lfk.198.2021.05.17.12.25.52
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 May 2021 12:25:53 -0700 (PDT)
+Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
+To:     Thomas Gleixner <tglx@linutronix.de>,
+        "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        David Laight <David.Laight@aculab.com>
+Cc:     "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+References: <87a6otfblh.ffs@nanos.tec.linutronix.de>
+From:   Maximilian Luz <luzmaximilian@gmail.com>
+Message-ID: <b509418f-9fff-ab27-b460-ecbe6fdea09a@gmail.com>
+Date:   Mon, 17 May 2021 21:25:51 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
+MIME-Version: 1.0
+In-Reply-To: <87a6otfblh.ffs@nanos.tec.linutronix.de>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-APPLY RC is defined as ROLE_CONTROL.CC1 != ROLE_CONTROL.CC2 and
-POWER_CONTROL.AutodischargeDisconnect is 0. When ROLE_CONTROL.CC1 ==
-ROLE_CONTROL.CC2, set the other CC to OPEN.
+On 5/17/21 8:40 PM, Thomas Gleixner wrote:
+> Max,
+> 
+> On Sat, May 15 2021 at 00:47, Maximilian Luz wrote:
+>> I believe the theory was that, while the PIC is advertised in ACPI, it
+>> might be expected to not be used and only present for some legacy reason
+>> (therefore untested and buggy). Which I believe led to the question
+>> whether we shouldn't prefer IOAPIC on systems like that in general. So I
+>> guess it comes down to how you define "systems like that". By Tomas'
+>> comment, I guess it should be possible to implement this as "systems
+>> that should prefer IOAPIC over legacy PIC" quirk.
+>>
+>> I guess all modern machines should have an IOAPIC, so it might also be
+>> preferable to expand that definition, maybe over time and with enough
+>> testing.
+> 
+> I just double checked and we actually can boot just fine without the
+> PIC even when it is advertised, but disfunctional.
+> 
+> Can you please add "apic=verbose" to the kernel command line and provide
+> full dmesg output for a kernel w/o your patch and one with your patch
+> applied?
 
-Fixes: f321a02caebd ("usb: typec: tcpm: Implement enabling Auto Discharge disconnect support")
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
-Changes since V1:
-- Added Reviewed-by: Guenter Roeck <linux@roeck-us.net>
----
- drivers/usb/typec/tcpm/tcpci.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+I don't actually own an affected device, but I'm sure Sachi can provide
+you with that.
 
-diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-index 25b480752266..34b5095cc84f 100644
---- a/drivers/usb/typec/tcpm/tcpci.c
-+++ b/drivers/usb/typec/tcpm/tcpci.c
-@@ -115,6 +115,32 @@ static int tcpci_set_cc(struct tcpc_dev *tcpc, enum typec_cc_status cc)
- 	return 0;
- }
- 
-+int tcpci_apply_rc(struct tcpc_dev *tcpc, enum typec_cc_status cc, enum typec_cc_polarity polarity)
-+{
-+	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
-+	unsigned int reg;
-+	int ret;
-+
-+	ret = regmap_read(tcpci->regmap, TCPC_ROLE_CTRL, &reg);
-+	if (ret < 0)
-+		return ret;
-+
-+	/*
-+	 * APPLY_RC state is when ROLE_CONTROL.CC1 != ROLE_CONTROL.CC2 and vbus autodischarge on
-+	 * disconnect is disabled. Bail out when ROLE_CONTROL.CC1 != ROLE_CONTROL.CC2.
-+	 */
-+	if (((reg & (TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT)) >>
-+	     TCPC_ROLE_CTRL_CC2_SHIFT) !=
-+	    ((reg & (TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT)) >>
-+	     TCPC_ROLE_CTRL_CC1_SHIFT))
-+		return 0;
-+
-+	return regmap_update_bits(tcpci->regmap, TCPC_ROLE_CTRL, polarity == TYPEC_POLARITY_CC1 ?
-+				  TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT :
-+				  TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT,
-+				  TCPC_ROLE_CTRL_CC_OPEN);
-+}
-+
- static int tcpci_start_toggling(struct tcpc_dev *tcpc,
- 				enum typec_port_type port_type,
- 				enum typec_cc_status cc)
-@@ -728,6 +754,7 @@ struct tcpci *tcpci_register_port(struct device *dev, struct tcpci_data *data)
- 	tcpci->tcpc.get_vbus = tcpci_get_vbus;
- 	tcpci->tcpc.set_vbus = tcpci_set_vbus;
- 	tcpci->tcpc.set_cc = tcpci_set_cc;
-+	tcpci->tcpc.apply_rc = tcpci_apply_rc;
- 	tcpci->tcpc.get_cc = tcpci_get_cc;
- 	tcpci->tcpc.set_polarity = tcpci_set_polarity;
- 	tcpci->tcpc.set_vconn = tcpci_set_vconn;
--- 
-2.31.1.751.gd2f1c929bd-goog
+As far as we can tell, due to the NULL PIC being chosen nr_legacy_irqs()
+returns 0. That in turn causes mp_check_pin_attr() to return false
+because is_level and active_low don't seem to match the expected values.
+That check is essentially ignored if nr_legacy_irqs() returns a high
+enough value. I guess that might also be a firmware bug here? Not sure
+where the expected values come from.
 
+Due to this, mp_map_pin_to_irq() fails with -EBUSY which causes
+acpi_register_gsi() to fail. That fails in acpi_dev_get_irqresource(),
+which causes the IRQ resource to be marked as disabled.
+
+Down the line, this then causes platform_get_irq() to return -EINVAL,
+because the IRQ we're trying to get has the IORESOURCE_DISABLED bit set.
+
+Sachi can probably walk you through this a bit better as she's the one
+who tracked this down. See also [1, 2] and following comments.
+
+Regards,
+Max
+
+[1]: https://github.com/linux-surface/linux-surface/issues/425#issuecomment-835309201
+[2]: https://github.com/linux-surface/linux-surface/issues/425#issuecomment-835261784
