@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFA86383760
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25CFD383653
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343646AbhEQPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:42:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
+        id S244471AbhEQPbW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344051AbhEQPkN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:40:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CE4C6194B;
-        Mon, 17 May 2021 14:41:51 +0000 (UTC)
+        id S244795AbhEQP2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:28:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DB7161CB5;
+        Mon, 17 May 2021 14:37:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262512;
-        bh=gOuhFINJlzt8XFWTVxxmGAwRNy6+ka+gZ1gF4QnJRm8=;
+        s=korg; t=1621262236;
+        bh=a4yamCC8qnVv/cSRaTHuXgN9RNgwx+1LS01fGTGFiGo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i9dgcqYFKwEItJoyiInUYAtF26Ym+v2fqUk9A9U1MR4ASKHdSWsp2PDSX+hItwORh
-         6SzRXJ6M7lD6XEn2I/igXNYqoic8jlTQ5nYVfjIgc2C6mifPlUzIvhj4+1SukaE/U2
-         EYI/9ixfSlBl44mnCy+xgvftsgV28WgkvTrKVdBM=
+        b=0m2EEqrSB1AyDLSjIyQD/4+sjs0QbQE4rmXw/5J8ddk9yxm34w/kPrqg9bBOhqy5k
+         wqGfNQiFfGLUgSLyVaEvIw4+fGT6x45i+QHBzKhL9UFFIgiztiOhy6qdtCigj2GbQX
+         gL4SvWa1Bj6etmZd3AqBfbXEaf83lkL/GcNlX4iU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
-        Dan Schatzberg <dschatzberg@fb.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.10 204/289] blk-iocost: fix weight updates of inner active iocgs
-Date:   Mon, 17 May 2021 16:02:09 +0200
-Message-Id: <20210517140311.978383361@linuxfoundation.org>
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Alexey Dobriyan <adobriyan@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Greg Kroah-Hartman <gregkh@google.com>
+Subject: [PATCH 5.11 219/329] fs/proc/generic.c: fix incorrect pde_is_permanent check
+Date:   Mon, 17 May 2021 16:02:10 +0200
+Message-Id: <20210517140309.542228047@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,90 +44,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tejun Heo <tj@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-commit e9f4eee9a0023ba22db9560d4cc6ee63f933dae8 upstream.
+[ Upstream commit f4bf74d82915708208bc9d0c9bd3f769f56bfbec ]
 
-When the weight of an active iocg is updated, weight_updated() is called
-which in turn calls __propagate_weights() to update the active and inuse
-weights so that the effective hierarchical weights are update accordingly.
+Currently the pde_is_permanent() check is being run on root multiple times
+rather than on the next proc directory entry.  This looks like a
+copy-paste error.  Fix this by replacing root with next.
 
-The current implementation is incorrect for inner active nodes. For an
-active leaf iocg, inuse can be any value between 1 and active and the
-difference represents how much the iocg is donating. When weight is updated,
-as long as inuse is clamped between 1 and the new weight, we're alright and
-this is what __propagate_weights() currently implements.
-
-However, that's not how an active inner node's inuse is set. An inner node's
-inuse is solely determined by the ratio between the sums of inuse's and
-active's of its children - ie. they're results of propagating the leaves'
-active and inuse weights upwards. __propagate_weights() incorrectly applies
-the same clamping as for a leaf when an active inner node's weight is
-updated. Consider a hierarchy which looks like the following with saturating
-workloads in AA and BB.
-
-     R
-   /   \
-  A     B
-  |     |
- AA     BB
-
-1. For both A and B, active=100, inuse=100, hwa=0.5, hwi=0.5.
-
-2. echo 200 > A/io.weight
-
-3. __propagate_weights() update A's active to 200 and leave inuse at 100 as
-   it's already between 1 and the new active, making A:active=200,
-   A:inuse=100. As R's active_sum is updated along with A's active,
-   A:hwa=2/3, B:hwa=1/3. However, because the inuses didn't change, the
-   hwi's remain unchanged at 0.5.
-
-4. The weight of A is now twice that of B but AA and BB still have the same
-   hwi of 0.5 and thus are doing the same amount of IOs.
-
-Fix it by making __propgate_weights() always calculate the inuse of an
-active inner iocg based on the ratio of child_inuse_sum to child_active_sum.
-
-Signed-off-by: Tejun Heo <tj@kernel.org>
-Reported-by: Dan Schatzberg <dschatzberg@fb.com>
-Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
-Cc: stable@vger.kernel.org # v5.4+
-Link: https://lore.kernel.org/r/YJsxnLZV1MnBcqjj@slm.duckdns.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Addresses-Coverity: ("Copy-paste error")
+Link: https://lkml.kernel.org/r/20210318122633.14222-1-colin.king@canonical.com
+Fixes: d919b33dafb3 ("proc: faster open/read/close with "permanent" files")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Reviewed-by: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ fs/proc/generic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -1023,7 +1023,17 @@ static void __propagate_weights(struct i
- 
- 	lockdep_assert_held(&ioc->lock);
- 
--	inuse = clamp_t(u32, inuse, 1, active);
-+	/*
-+	 * For an active leaf node, its inuse shouldn't be zero or exceed
-+	 * @active. An active internal node's inuse is solely determined by the
-+	 * inuse to active ratio of its children regardless of @inuse.
-+	 */
-+	if (list_empty(&iocg->active_list) && iocg->child_active_sum) {
-+		inuse = DIV64_U64_ROUND_UP(active * iocg->child_inuse_sum,
-+					   iocg->child_active_sum);
-+	} else {
-+		inuse = clamp_t(u32, inuse, 1, active);
-+	}
- 
- 	iocg->last_inuse = iocg->inuse;
- 	if (save)
-@@ -1040,7 +1050,7 @@ static void __propagate_weights(struct i
- 		/* update the level sums */
- 		parent->child_active_sum += (s32)(active - child->active);
- 		parent->child_inuse_sum += (s32)(inuse - child->inuse);
--		/* apply the udpates */
-+		/* apply the updates */
- 		child->active = active;
- 		child->inuse = inuse;
- 
+diff --git a/fs/proc/generic.c b/fs/proc/generic.c
+index 6c0a05f55d6b..09e4d8a499a3 100644
+--- a/fs/proc/generic.c
++++ b/fs/proc/generic.c
+@@ -754,7 +754,7 @@ int remove_proc_subtree(const char *name, struct proc_dir_entry *parent)
+ 	while (1) {
+ 		next = pde_subdir_first(de);
+ 		if (next) {
+-			if (unlikely(pde_is_permanent(root))) {
++			if (unlikely(pde_is_permanent(next))) {
+ 				write_unlock(&proc_subdir_lock);
+ 				WARN(1, "removing permanent /proc entry '%s/%s'",
+ 					next->parent->name, next->name);
+-- 
+2.30.2
+
 
 
