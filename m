@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 58293383036
+	by mail.lfdr.de (Postfix) with ESMTP id C4F2D383037
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237712AbhEQOZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237714AbhEQOZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 10:25:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36020 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:35964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239232AbhEQOW1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:22:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 400EF6145D;
-        Mon, 17 May 2021 14:12:03 +0000 (UTC)
+        id S239271AbhEQOWe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:22:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 700FF61242;
+        Mon, 17 May 2021 14:12:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260723;
-        bh=Jr74mpcAFGs90GVsKiJjiazXqFTEMwCXJ3RvrPOOb8o=;
+        s=korg; t=1621260725;
+        bh=ggzgiK2KK9osGXto5Yoydw2qtqMmS2X5cvTtKI0/8Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pA9Am9ELzaUQ3spJaHQc2WuxofPxSmoUIIi5kazAgWc9bmZnW0hz0JoIV+qzNv+Dr
-         ZfnTLd1hPDXFoNqMX/AterOaBkfXOGLxt8H8ooVVEq8edUW2sNNerAkiAc2n9Lh9h5
-         95YhdPFC+EK2TacCwnMiCSAExDsVgejbrGJgyNfI=
+        b=a/11dgDfnk9H9W1RBYL1bRTkVFJnZkXCK1EjCNJffhiP3Ai887falhsg538Bmc3y4
+         KHLVQAkLmWqyzLXf3d4K02hccR131PcQlkGqvgtMU+Qk8bVZp9nG7EdBSSV82AzPHj
+         Aem7RUNwbKClezABPMOK7g6eP/T7HKKUOVigbGHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
+        stable@vger.kernel.org, Sandipan Das <sandipan@linux.ibm.com>,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 210/363] xsk: Fix for xp_aligned_validate_desc() when len == chunk_size
-Date:   Mon, 17 May 2021 16:01:16 +0200
-Message-Id: <20210517140309.680699318@linuxfoundation.org>
+Subject: [PATCH 5.12 211/363] powerpc/powernv/memtrace: Fix dcache flushing
+Date:   Mon, 17 May 2021 16:01:17 +0200
+Message-Id: <20210517140309.711008455@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,51 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+From: Sandipan Das <sandipan@linux.ibm.com>
 
-[ Upstream commit ac31565c21937eee9117e43c9cd34f557f6f1cb8 ]
+[ Upstream commit b910fcbada9721c21f1d59ab59e07e8e354c23cc ]
 
-When desc->len is equal to chunk_size, it is legal. But when the
-xp_aligned_validate_desc() got chunk_end from desc->addr + desc->len
-pointing to the next chunk during the check, it caused the check to
-fail.
+Trace memory is cleared and the corresponding dcache lines
+are flushed after allocation. However, this should not be
+done using the PFN. This adds the missing conversion to
+virtual address.
 
-This problem was first introduced in bbff2f321a86 ("xsk: new descriptor
-addressing scheme"). Later in 2b43470add8c ("xsk: Introduce AF_XDP buffer
-allocation API") this piece of code was moved into the new function called
-xp_aligned_validate_desc(). This function was then moved into xsk_queue.h
-via 26062b185eee ("xsk: Explicitly inline functions and move definitions").
-
-Fixes: bbff2f321a86 ("xsk: new descriptor addressing scheme")
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Link: https://lore.kernel.org/bpf/20210428094424.54435-1-xuanzhuo@linux.alibaba.com
+Fixes: 2ac02e5ecec0 ("powerpc/mm: Remove dcache flush from memory remove.")
+Signed-off-by: Sandipan Das <sandipan@linux.ibm.com>
+Reviewed-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210501160254.1179831-1-sandipan@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xdp/xsk_queue.h | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ arch/powerpc/platforms/powernv/memtrace.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
-index 2823b7c3302d..40f359bf2044 100644
---- a/net/xdp/xsk_queue.h
-+++ b/net/xdp/xsk_queue.h
-@@ -128,13 +128,12 @@ static inline bool xskq_cons_read_addr_unchecked(struct xsk_queue *q, u64 *addr)
- static inline bool xp_aligned_validate_desc(struct xsk_buff_pool *pool,
- 					    struct xdp_desc *desc)
- {
--	u64 chunk, chunk_end;
-+	u64 chunk;
- 
--	chunk = xp_aligned_extract_addr(pool, desc->addr);
--	chunk_end = xp_aligned_extract_addr(pool, desc->addr + desc->len);
--	if (chunk != chunk_end)
-+	if (desc->len > pool->chunk_size)
- 		return false;
- 
-+	chunk = xp_aligned_extract_addr(pool, desc->addr);
- 	if (chunk >= pool->addrs_cnt)
- 		return false;
+diff --git a/arch/powerpc/platforms/powernv/memtrace.c b/arch/powerpc/platforms/powernv/memtrace.c
+index 019669eb21d2..4ab7c3ef5826 100644
+--- a/arch/powerpc/platforms/powernv/memtrace.c
++++ b/arch/powerpc/platforms/powernv/memtrace.c
+@@ -88,8 +88,8 @@ static void memtrace_clear_range(unsigned long start_pfn,
+ 	 * Before we go ahead and use this range as cache inhibited range
+ 	 * flush the cache.
+ 	 */
+-	flush_dcache_range_chunked(PFN_PHYS(start_pfn),
+-				   PFN_PHYS(start_pfn + nr_pages),
++	flush_dcache_range_chunked((unsigned long)pfn_to_kaddr(start_pfn),
++				   (unsigned long)pfn_to_kaddr(start_pfn + nr_pages),
+ 				   FLUSH_CHUNK_SIZE);
+ }
  
 -- 
 2.30.2
