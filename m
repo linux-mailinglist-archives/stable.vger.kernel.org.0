@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3C5383621
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFA86383760
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244353AbhEQP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:28:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
+        id S1343646AbhEQPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:42:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243909AbhEQP0g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:26:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 73B1F6192C;
-        Mon, 17 May 2021 14:36:30 +0000 (UTC)
+        id S1344051AbhEQPkN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:40:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CE4C6194B;
+        Mon, 17 May 2021 14:41:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262190;
-        bh=efgKcpnarIBExQX5AS5UKcQeZ+O4dUiiz2LxL/khdlQ=;
+        s=korg; t=1621262512;
+        bh=gOuhFINJlzt8XFWTVxxmGAwRNy6+ka+gZ1gF4QnJRm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+TYvDn/LVNq58eXAv/fvAOKd3favA/wW9kMShE3kASd7KDs8SvUqZNQRiklAkJSI
-         wz14xcxoxoF0AqgfkNRy0IvxpBp00dfcooZd8Omu1rJdBGplBeUxAIdcbN90m02RU9
-         rIg+xNU4NUEfhwjBjwUQ1NdRt2xnqya3dmqSh7+4=
+        b=i9dgcqYFKwEItJoyiInUYAtF26Ym+v2fqUk9A9U1MR4ASKHdSWsp2PDSX+hItwORh
+         6SzRXJ6M7lD6XEn2I/igXNYqoic8jlTQ5nYVfjIgc2C6mifPlUzIvhj4+1SukaE/U2
+         EYI/9ixfSlBl44mnCy+xgvftsgV28WgkvTrKVdBM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 218/329] net: ipa: fix inter-EE IRQ register definitions
+        stable@vger.kernel.org, Tejun Heo <tj@kernel.org>,
+        Dan Schatzberg <dschatzberg@fb.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.10 204/289] blk-iocost: fix weight updates of inner active iocgs
 Date:   Mon, 17 May 2021 16:02:09 +0200
-Message-Id: <20210517140309.502120779@linuxfoundation.org>
+Message-Id: <20210517140311.978383361@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Tejun Heo <tj@kernel.org>
 
-[ Upstream commit 6a780f51f87b430cc69ebf4e859e7e9be720b283 ]
+commit e9f4eee9a0023ba22db9560d4cc6ee63f933dae8 upstream.
 
-In gsi_irq_setup(), two registers are written with the intention of
-disabling inter-EE channel and event IRQs.
+When the weight of an active iocg is updated, weight_updated() is called
+which in turn calls __propagate_weights() to update the active and inuse
+weights so that the effective hierarchical weights are update accordingly.
 
-But the wrong registers are used (and defined); the ones used are
-read-only registers that indicate whether the interrupt condition is
-present.
+The current implementation is incorrect for inner active nodes. For an
+active leaf iocg, inuse can be any value between 1 and active and the
+difference represents how much the iocg is donating. When weight is updated,
+as long as inuse is clamped between 1 and the new weight, we're alright and
+this is what __propagate_weights() currently implements.
 
-Define the mask registers instead of the status registers, and use
-them to disable the inter-EE interrupt types.
+However, that's not how an active inner node's inuse is set. An inner node's
+inuse is solely determined by the ratio between the sums of inuse's and
+active's of its children - ie. they're results of propagating the leaves'
+active and inuse weights upwards. __propagate_weights() incorrectly applies
+the same clamping as for a leaf when an active inner node's weight is
+updated. Consider a hierarchy which looks like the following with saturating
+workloads in AA and BB.
 
-Fixes: 46f748ccaf01 ("net: ipa: explicitly disallow inter-EE interrupts")
-Signed-off-by: Alex Elder <elder@linaro.org>
-Link: https://lore.kernel.org/r/20210505223636.232527-1-elder@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+     R
+   /   \
+  A     B
+  |     |
+ AA     BB
+
+1. For both A and B, active=100, inuse=100, hwa=0.5, hwi=0.5.
+
+2. echo 200 > A/io.weight
+
+3. __propagate_weights() update A's active to 200 and leave inuse at 100 as
+   it's already between 1 and the new active, making A:active=200,
+   A:inuse=100. As R's active_sum is updated along with A's active,
+   A:hwa=2/3, B:hwa=1/3. However, because the inuses didn't change, the
+   hwi's remain unchanged at 0.5.
+
+4. The weight of A is now twice that of B but AA and BB still have the same
+   hwi of 0.5 and thus are doing the same amount of IOs.
+
+Fix it by making __propgate_weights() always calculate the inuse of an
+active inner iocg based on the ratio of child_inuse_sum to child_active_sum.
+
+Signed-off-by: Tejun Heo <tj@kernel.org>
+Reported-by: Dan Schatzberg <dschatzberg@fb.com>
+Fixes: 7caa47151ab2 ("blkcg: implement blk-iocost")
+Cc: stable@vger.kernel.org # v5.4+
+Link: https://lore.kernel.org/r/YJsxnLZV1MnBcqjj@slm.duckdns.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ipa/gsi.c     |  4 ++--
- drivers/net/ipa/gsi_reg.h | 18 +++++++++---------
- 2 files changed, 11 insertions(+), 11 deletions(-)
+ block/blk-iocost.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
-index febfac75dd6a..537853b9301b 100644
---- a/drivers/net/ipa/gsi.c
-+++ b/drivers/net/ipa/gsi.c
-@@ -205,8 +205,8 @@ static void gsi_irq_setup(struct gsi *gsi)
- 	iowrite32(0, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_MSK_OFFSET);
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -1023,7 +1023,17 @@ static void __propagate_weights(struct i
  
- 	/* The inter-EE registers are in the non-adjusted address range */
--	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_CH_IRQ_OFFSET);
--	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_EV_CH_IRQ_OFFSET);
-+	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_CH_IRQ_MSK_OFFSET);
-+	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_EV_CH_IRQ_MSK_OFFSET);
+ 	lockdep_assert_held(&ioc->lock);
  
- 	iowrite32(0, gsi->virt + GSI_CNTXT_GSI_IRQ_EN_OFFSET);
- }
-diff --git a/drivers/net/ipa/gsi_reg.h b/drivers/net/ipa/gsi_reg.h
-index 1622d8cf8dea..48ef04afab79 100644
---- a/drivers/net/ipa/gsi_reg.h
-+++ b/drivers/net/ipa/gsi_reg.h
-@@ -53,15 +53,15 @@
- #define GSI_EE_REG_ADJUST			0x0000d000	/* IPA v4.5+ */
+-	inuse = clamp_t(u32, inuse, 1, active);
++	/*
++	 * For an active leaf node, its inuse shouldn't be zero or exceed
++	 * @active. An active internal node's inuse is solely determined by the
++	 * inuse to active ratio of its children regardless of @inuse.
++	 */
++	if (list_empty(&iocg->active_list) && iocg->child_active_sum) {
++		inuse = DIV64_U64_ROUND_UP(active * iocg->child_inuse_sum,
++					   iocg->child_active_sum);
++	} else {
++		inuse = clamp_t(u32, inuse, 1, active);
++	}
  
- /* The two inter-EE IRQ register offsets are relative to gsi->virt_raw */
--#define GSI_INTER_EE_SRC_CH_IRQ_OFFSET \
--			GSI_INTER_EE_N_SRC_CH_IRQ_OFFSET(GSI_EE_AP)
--#define GSI_INTER_EE_N_SRC_CH_IRQ_OFFSET(ee) \
--			(0x0000c018 + 0x1000 * (ee))
--
--#define GSI_INTER_EE_SRC_EV_CH_IRQ_OFFSET \
--			GSI_INTER_EE_N_SRC_EV_CH_IRQ_OFFSET(GSI_EE_AP)
--#define GSI_INTER_EE_N_SRC_EV_CH_IRQ_OFFSET(ee) \
--			(0x0000c01c + 0x1000 * (ee))
-+#define GSI_INTER_EE_SRC_CH_IRQ_MSK_OFFSET \
-+			GSI_INTER_EE_N_SRC_CH_IRQ_MSK_OFFSET(GSI_EE_AP)
-+#define GSI_INTER_EE_N_SRC_CH_IRQ_MSK_OFFSET(ee) \
-+			(0x0000c020 + 0x1000 * (ee))
-+
-+#define GSI_INTER_EE_SRC_EV_CH_IRQ_MSK_OFFSET \
-+			GSI_INTER_EE_N_SRC_EV_CH_IRQ_MSK_OFFSET(GSI_EE_AP)
-+#define GSI_INTER_EE_N_SRC_EV_CH_IRQ_MSK_OFFSET(ee) \
-+			(0x0000c024 + 0x1000 * (ee))
+ 	iocg->last_inuse = iocg->inuse;
+ 	if (save)
+@@ -1040,7 +1050,7 @@ static void __propagate_weights(struct i
+ 		/* update the level sums */
+ 		parent->child_active_sum += (s32)(active - child->active);
+ 		parent->child_inuse_sum += (s32)(inuse - child->inuse);
+-		/* apply the udpates */
++		/* apply the updates */
+ 		child->active = active;
+ 		child->inuse = inuse;
  
- /* All other register offsets are relative to gsi->virt */
- #define GSI_CH_C_CNTXT_0_OFFSET(ch) \
--- 
-2.30.2
-
 
 
