@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E7B9383665
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F9583837DD
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242887AbhEQPby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
+        id S244552AbhEQPrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36524 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245497AbhEQP3u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:29:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03AE7613F5;
-        Mon, 17 May 2021 14:37:37 +0000 (UTC)
+        id S1344727AbhEQPpd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:45:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB9C61D32;
+        Mon, 17 May 2021 14:43:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262258;
-        bh=2ZG0b9EVKtAyzoHzd47jQfWhZOI9s3h/S+m0CpotFg4=;
+        s=korg; t=1621262629;
+        bh=AEQj4I1aVizMTYGK+X8TePKWxM0aNgV4kof9vlZOQcM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ao4riwsHDtJizCzo3beXqJMkN75fANOOW+APbpsnpgWg8XWTn0QRD7HLr+NMzDyi1
-         Iey2l6gT7eCNiHpVPBWh83pkCdsTB4yjLqinD+U/iPT89cC7dZEqpFXrtykbUnQd4K
-         kxJoqs9i7HBaU5X0hrFDnsv7FOsKyw1DMgrS12rM=
+        b=QsqdwUR829OwL6nfzWHwo6rlf+ArU4CSjHEhOoWUb4By9SXKvnifaUT3lbtF/B4Ql
+         ExRuM3dgIrCHV93YCtQZpwTrwXe/CilKwwumAvltJOmBIw7MaTVyPHBmbBLOdUm4X5
+         sdj8/dQCMk82kuXQvTDt2XP96/ZmrrgnM0xVFtzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 251/329] KVM: LAPIC: Accurately guarantee busy wait for timer to expire when using hv_timer
-Date:   Mon, 17 May 2021 16:02:42 +0200
-Message-Id: <20210517140310.597532327@linuxfoundation.org>
+        stable@vger.kernel.org, Yanhui Ma <yama@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        kashyap.desai@broadcom.com, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 238/289] blk-mq: plug request for shared sbitmap
+Date:   Mon, 17 May 2021 16:02:43 +0200
+Message-Id: <20210517140313.182514840@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit d981dd15498b188636ec5a7d8ad485e650f63d8d ]
+[ Upstream commit 03f26d8f11403295de445b6e4e0e57ac57755791 ]
 
-Commit ee66e453db13d (KVM: lapic: Busy wait for timer to expire when
-using hv_timer) tries to set ktime->expired_tscdeadline by checking
-ktime->hv_timer_in_use since lapic timer oneshot/periodic modes which
-are emulated by vmx preemption timer also get advanced, they leverage
-the same vmx preemption timer logic with tsc-deadline mode. However,
-ktime->hv_timer_in_use is cleared before apic_timer_expired() handling,
-let's delay this clearing in preemption-disabled region.
+In case of shared sbitmap, request won't be held in plug list any more
+sine commit 32bc15afed04 ("blk-mq: Facilitate a shared sbitmap per
+tagset"), this way makes request merge from flush plug list & batching
+submission not possible, so cause performance regression.
 
-Fixes: ee66e453db13d ("KVM: lapic: Busy wait for timer to expire when using hv_timer")
-Reviewed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Message-Id: <1619608082-4187-1-git-send-email-wanpengli@tencent.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Yanhui reports performance regression when running sequential IO
+test(libaio, 16 jobs, 8 depth for each job) in VM, and the VM disk
+is emulated with image stored on xfs/megaraid_sas.
+
+Fix the issue by recovering original behavior to allow to hold request
+in plug list.
+
+Cc: Yanhui Ma <yama@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: kashyap.desai@broadcom.com
+Fixes: 32bc15afed04 ("blk-mq: Facilitate a shared sbitmap per tagset")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210514022052.1047665-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/lapic.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-mq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
-index 570fa298083c..70eb00f4317f 100644
---- a/arch/x86/kvm/lapic.c
-+++ b/arch/x86/kvm/lapic.c
-@@ -1908,8 +1908,8 @@ void kvm_lapic_expired_hv_timer(struct kvm_vcpu *vcpu)
- 	if (!apic->lapic_timer.hv_timer_in_use)
- 		goto out;
- 	WARN_ON(rcuwait_active(&vcpu->wait));
--	cancel_hv_timer(apic);
- 	apic_timer_expired(apic, false);
-+	cancel_hv_timer(apic);
- 
- 	if (apic_lvtt_period(apic) && apic->lapic_timer.period) {
- 		advance_periodic_target_expiration(apic);
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 2a1eff60c797..4cd623a7383c 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2203,8 +2203,9 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
+ 		/* Bypass scheduler for flush requests */
+ 		blk_insert_flush(rq);
+ 		blk_mq_run_hw_queue(data.hctx, true);
+-	} else if (plug && (q->nr_hw_queues == 1 || q->mq_ops->commit_rqs ||
+-				!blk_queue_nonrot(q))) {
++	} else if (plug && (q->nr_hw_queues == 1 ||
++		   blk_mq_is_sbitmap_shared(rq->mq_hctx->flags) ||
++		   q->mq_ops->commit_rqs || !blk_queue_nonrot(q))) {
+ 		/*
+ 		 * Use plugging if we have a ->commit_rqs() hook as well, as
+ 		 * we know the driver uses bd->last in a smart fashion.
 -- 
 2.30.2
 
