@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CFB3835D2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 510583835D5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240337AbhEQPZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:25:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40800 "EHLO mail.kernel.org"
+        id S241871AbhEQPZd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:25:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244861AbhEQPWR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:22:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E2D2161040;
-        Mon, 17 May 2021 14:34:53 +0000 (UTC)
+        id S244908AbhEQPWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:22:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6010B61184;
+        Mon, 17 May 2021 14:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262094;
-        bh=tAekEOvL2wP0X/tfz0scn9Z3VWzIT3iXFUdUORNX87s=;
+        s=korg; t=1621262100;
+        bh=Qgn+L276j7442lfdt7hixqH803Ov03RlB7eUgvAOmuY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vN/aeVNhkVW5qlIHNYYuU9+ng2MHc9GYQR2VWnwR7Hpzy8AfAM6e6Zz5Y9lZjIEms
-         x/45ao6VbT0M99WtcGKF9nq1U1DFd+Su4/fGZJoGtZRAWmahWIG/8cFqY+2DOj5sl9
-         sekyu7PDBrbYsV1udRk36nO2yEtcpxrMWQxcIIso=
+        b=NVEjmKkudVU3ynTkBJsU8uV4jJc/KfLy1OrRSTkjoKWY1tWCPhscoHDUlOr4Mc94/
+         7Uo8ApI0NOXFAXmpFv2eQEgjdInfTbVM5B59JZXfjeGfreefQ8kJ2+S2bBfWIzrA9y
+         3o6NmifVVtIcGMS3Sci6jfKitXnlVTBdMI2cpHFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sriram Dash <dash.sriram@gmail.com>,
-        Shradha Todi <shradha.t@samsung.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Pankaj Dubey <pankaj.dubey@samsung.com>,
-        Kishon Vijay Abraham I <kishon@ti.com>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 110/289] PCI: endpoint: Fix NULL pointer dereference for ->get_features()
-Date:   Mon, 17 May 2021 16:00:35 +0200
-Message-Id: <20210517140308.881082071@linuxfoundation.org>
+Subject: [PATCH 5.10 111/289] f2fs: fix to avoid touching checkpointed data in get_victim()
+Date:   Mon, 17 May 2021 16:00:36 +0200
+Message-Id: <20210517140308.912931484@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -43,75 +40,197 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shradha Todi <shradha.t@samsung.com>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 6613bc2301ba291a1c5a90e1dc24cf3edf223c03 ]
+[ Upstream commit 61461fc921b756ae16e64243f72af2bfc2e620db ]
 
-get_features ops of pci_epc_ops may return NULL, causing NULL pointer
-dereference in pci_epf_test_alloc_space function. Let us add a check for
-pci_epc_feature pointer in pci_epf_test_bind before we access it to avoid
-any such NULL pointer dereference and return -ENOTSUPP in case
-pci_epc_feature is not found.
+In CP disabling mode, there are two issues when using LFS or SSR | AT_SSR
+mode to select victim:
 
-When the patch is not applied and EPC features is not implemented in the
-platform driver, we see the following dump due to kernel NULL pointer
-dereference.
+1. LFS is set to find source section during GC, the victim should have
+no checkpointed data, since after GC, section could not be set free for
+reuse.
 
-Call trace:
- pci_epf_test_bind+0xf4/0x388
- pci_epf_bind+0x3c/0x80
- pci_epc_epf_link+0xa8/0xcc
- configfs_symlink+0x1a4/0x48c
- vfs_symlink+0x104/0x184
- do_symlinkat+0x80/0xd4
- __arm64_sys_symlinkat+0x1c/0x24
- el0_svc_common.constprop.3+0xb8/0x170
- el0_svc_handler+0x70/0x88
- el0_svc+0x8/0x640
-Code: d2800581 b9403ab9 f9404ebb 8b394f60 (f9400400)
----[ end trace a438e3c5a24f9df0 ]---
+Previously, we only check valid chpt blocks in current segment rather
+than section, fix it.
 
-Link: https://lore.kernel.org/r/20210324101609.79278-1-shradha.t@samsung.com
-Fixes: 2c04c5b8eef79 ("PCI: pci-epf-test: Use pci_epc_get_features() to get EPC features")
-Signed-off-by: Sriram Dash <dash.sriram@gmail.com>
-Signed-off-by: Shradha Todi <shradha.t@samsung.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Pankaj Dubey <pankaj.dubey@samsung.com>
-Reviewed-by: Kishon Vijay Abraham I <kishon@ti.com>
+2. SSR | AT_SSR are set to find target segment for writes which can be
+fully filled by checkpointed and newly written blocks, we should never
+select such segment, otherwise it can cause panic or data corruption
+during allocation, potential case is described as below:
+
+ a) target segment has 'n' (n < 512) ckpt valid blocks
+ b) GC migrates 'n' valid blocks to other segment (segment is still
+    in dirty list)
+ c) GC migrates '512 - n' blocks to target segment (segment has 'n'
+    cp_vblocks and '512 - n' vblocks)
+ d) If GC selects target segment via {AT,}SSR allocator, however there
+    is no free space in targe segment.
+
+Fixes: 4354994f097d ("f2fs: checkpoint disabling")
+Fixes: 093749e296e2 ("f2fs: support age threshold based garbage collection")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 17 ++++++++++-------
- 1 file changed, 10 insertions(+), 7 deletions(-)
+ fs/f2fs/f2fs.h    |  1 +
+ fs/f2fs/gc.c      | 28 ++++++++++++++++++++--------
+ fs/f2fs/segment.c | 36 +++++++++++++++++++++---------------
+ fs/f2fs/segment.h | 14 +++++++++++++-
+ 4 files changed, 55 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index 7a1f3abfde48..5f6ce120a67a 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -830,15 +830,18 @@ static int pci_epf_test_bind(struct pci_epf *epf)
- 		return -EINVAL;
- 
- 	epc_features = pci_epc_get_features(epc, epf->func_no);
--	if (epc_features) {
--		linkup_notifier = epc_features->linkup_notifier;
--		core_init_notifier = epc_features->core_init_notifier;
--		test_reg_bar = pci_epc_get_first_free_bar(epc_features);
--		if (test_reg_bar < 0)
--			return -EINVAL;
--		pci_epf_configure_bar(epf, epc_features);
-+	if (!epc_features) {
-+		dev_err(&epf->dev, "epc_features not implemented\n");
-+		return -EOPNOTSUPP;
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index c2973a1dead6..036d2a3a2f41 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3282,6 +3282,7 @@ block_t f2fs_get_unusable_blocks(struct f2fs_sb_info *sbi);
+ int f2fs_disable_cp_again(struct f2fs_sb_info *sbi, block_t unusable);
+ void f2fs_release_discard_addrs(struct f2fs_sb_info *sbi);
+ int f2fs_npages_for_summary_flush(struct f2fs_sb_info *sbi, bool for_ra);
++bool f2fs_segment_has_free_slot(struct f2fs_sb_info *sbi, int segno);
+ void f2fs_init_inmem_curseg(struct f2fs_sb_info *sbi);
+ void f2fs_save_inmem_curseg(struct f2fs_sb_info *sbi);
+ void f2fs_restore_inmem_curseg(struct f2fs_sb_info *sbi);
+diff --git a/fs/f2fs/gc.c b/fs/f2fs/gc.c
+index e4e8c7257454..9b38cef4d50f 100644
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -392,10 +392,6 @@ static void add_victim_entry(struct f2fs_sb_info *sbi,
+ 		if (p->gc_mode == GC_AT &&
+ 			get_valid_blocks(sbi, segno, true) == 0)
+ 			return;
+-
+-		if (p->alloc_mode == AT_SSR &&
+-			get_seg_entry(sbi, segno)->ckpt_valid_blocks == 0)
+-			return;
  	}
  
-+	linkup_notifier = epc_features->linkup_notifier;
-+	core_init_notifier = epc_features->core_init_notifier;
-+	test_reg_bar = pci_epc_get_first_free_bar(epc_features);
-+	if (test_reg_bar < 0)
-+		return -EINVAL;
-+	pci_epf_configure_bar(epf, epc_features);
+ 	for (i = 0; i < sbi->segs_per_sec; i++)
+@@ -728,11 +724,27 @@ retry:
+ 
+ 		if (sec_usage_check(sbi, secno))
+ 			goto next;
 +
- 	epf_test->test_reg_bar = test_reg_bar;
- 	epf_test->epc_features = epc_features;
+ 		/* Don't touch checkpointed data */
+-		if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED) &&
+-					get_ckpt_valid_blocks(sbi, segno) &&
+-					p.alloc_mode == LFS))
+-			goto next;
++		if (unlikely(is_sbi_flag_set(sbi, SBI_CP_DISABLED))) {
++			if (p.alloc_mode == LFS) {
++				/*
++				 * LFS is set to find source section during GC.
++				 * The victim should have no checkpointed data.
++				 */
++				if (get_ckpt_valid_blocks(sbi, segno, true))
++					goto next;
++			} else {
++				/*
++				 * SSR | AT_SSR are set to find target segment
++				 * for writes which can be full by checkpointed
++				 * and newly written blocks.
++				 */
++				if (!f2fs_segment_has_free_slot(sbi, segno))
++					goto next;
++			}
++		}
++
+ 		if (gc_type == BG_GC && test_bit(secno, dirty_i->victim_secmap))
+ 			goto next;
+ 
+diff --git a/fs/f2fs/segment.c b/fs/f2fs/segment.c
+index d696d4713333..661b891aa1ca 100644
+--- a/fs/f2fs/segment.c
++++ b/fs/f2fs/segment.c
+@@ -871,7 +871,7 @@ static void locate_dirty_segment(struct f2fs_sb_info *sbi, unsigned int segno)
+ 	mutex_lock(&dirty_i->seglist_lock);
+ 
+ 	valid_blocks = get_valid_blocks(sbi, segno, false);
+-	ckpt_valid_blocks = get_ckpt_valid_blocks(sbi, segno);
++	ckpt_valid_blocks = get_ckpt_valid_blocks(sbi, segno, false);
+ 
+ 	if (valid_blocks == 0 && (!is_sbi_flag_set(sbi, SBI_CP_DISABLED) ||
+ 		ckpt_valid_blocks == usable_blocks)) {
+@@ -956,7 +956,7 @@ static unsigned int get_free_segment(struct f2fs_sb_info *sbi)
+ 	for_each_set_bit(segno, dirty_i->dirty_segmap[DIRTY], MAIN_SEGS(sbi)) {
+ 		if (get_valid_blocks(sbi, segno, false))
+ 			continue;
+-		if (get_ckpt_valid_blocks(sbi, segno))
++		if (get_ckpt_valid_blocks(sbi, segno, false))
+ 			continue;
+ 		mutex_unlock(&dirty_i->seglist_lock);
+ 		return segno;
+@@ -2646,6 +2646,23 @@ static void __refresh_next_blkoff(struct f2fs_sb_info *sbi,
+ 		seg->next_blkoff++;
+ }
+ 
++bool f2fs_segment_has_free_slot(struct f2fs_sb_info *sbi, int segno)
++{
++	struct seg_entry *se = get_seg_entry(sbi, segno);
++	int entries = SIT_VBLOCK_MAP_SIZE / sizeof(unsigned long);
++	unsigned long *target_map = SIT_I(sbi)->tmp_map;
++	unsigned long *ckpt_map = (unsigned long *)se->ckpt_valid_map;
++	unsigned long *cur_map = (unsigned long *)se->cur_valid_map;
++	int i, pos;
++
++	for (i = 0; i < entries; i++)
++		target_map[i] = ckpt_map[i] | cur_map[i];
++
++	pos = __find_rev_next_zero_bit(target_map, sbi->blocks_per_seg, 0);
++
++	return pos < sbi->blocks_per_seg;
++}
++
+ /*
+  * This function always allocates a used segment(from dirty seglist) by SSR
+  * manner, so it should recover the existing segment information of valid blocks
+@@ -2916,19 +2933,8 @@ static void __allocate_new_segment(struct f2fs_sb_info *sbi, int type,
+ 		get_valid_blocks(sbi, curseg->segno, new_sec))
+ 		goto alloc;
+ 
+-	if (new_sec) {
+-		unsigned int segno = START_SEGNO(curseg->segno);
+-		int i;
+-
+-		for (i = 0; i < sbi->segs_per_sec; i++, segno++) {
+-			if (get_ckpt_valid_blocks(sbi, segno))
+-				goto alloc;
+-		}
+-	} else {
+-		if (!get_ckpt_valid_blocks(sbi, curseg->segno))
+-			return;
+-	}
+-
++	if (!get_ckpt_valid_blocks(sbi, curseg->segno, new_sec))
++		return;
+ alloc:
+ 	old_segno = curseg->segno;
+ 	SIT_I(sbi)->s_ops->allocate_segment(sbi, type, true);
+diff --git a/fs/f2fs/segment.h b/fs/f2fs/segment.h
+index 229814b4f4a6..1bf33fc27b8f 100644
+--- a/fs/f2fs/segment.h
++++ b/fs/f2fs/segment.h
+@@ -361,8 +361,20 @@ static inline unsigned int get_valid_blocks(struct f2fs_sb_info *sbi,
+ }
+ 
+ static inline unsigned int get_ckpt_valid_blocks(struct f2fs_sb_info *sbi,
+-				unsigned int segno)
++				unsigned int segno, bool use_section)
+ {
++	if (use_section && __is_large_section(sbi)) {
++		unsigned int start_segno = START_SEGNO(segno);
++		unsigned int blocks = 0;
++		int i;
++
++		for (i = 0; i < sbi->segs_per_sec; i++, start_segno++) {
++			struct seg_entry *se = get_seg_entry(sbi, start_segno);
++
++			blocks += se->ckpt_valid_blocks;
++		}
++		return blocks;
++	}
+ 	return get_seg_entry(sbi, segno)->ckpt_valid_blocks;
+ }
  
 -- 
 2.30.2
