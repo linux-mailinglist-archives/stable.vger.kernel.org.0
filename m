@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57E58382E89
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:07:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C0E0382E8B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:07:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238129AbhEQOIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:08:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
+        id S238138AbhEQOIW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:08:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238011AbhEQOHI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:07:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16FDA6135B;
-        Mon, 17 May 2021 14:05:51 +0000 (UTC)
+        id S238019AbhEQOHL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:07:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DCE46135C;
+        Mon, 17 May 2021 14:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260352;
-        bh=JAmVOxDyKUgdrJmFBjGYGYUz7eU8KCpUfdYmctsoKJI=;
+        s=korg; t=1621260354;
+        bh=DOfZvo4CKUnUhyiFQqb2bJV2N7uJhWIYyvNwVyHWo/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmPfKklQX9ZzWxQ4/f68QANao05AD2pBieGkGafFVZkk2JDmv3I2kVDcNEpEmqxVf
-         A3gtZN1+pvZdbSmvP4vBjl0n2jc62YRac0rx6XsjbV2PshRZu+VRjwxNRBCrr3whwE
-         VpU/7KJD3kQme4bWxB4nfxeREqilkGtTCuh1FZZY=
+        b=k9pzuuAY5u+Ei0X4pyTchYt/rMG3MtIrw8mNt8IFdYExoVbobd7a6cAGltZZWwF5l
+         35gph8exDPS1++7q41SAouL5L30rziRSmAgftrSvtE0fg5iULkfltnznuPqJY+id7E
+         ck1JhrRk3VkvZbyK527m09nhXWFpYzoAPSYv9Tlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 043/363] ip6_vti: proper dev_{hold|put} in ndo_[un]init methods
-Date:   Mon, 17 May 2021 15:58:29 +0200
-Message-Id: <20210517140304.062009281@linuxfoundation.org>
+Subject: [PATCH 5.12 044/363] can: dev: can_free_echo_skb(): dont crash the kernel if can_priv::echo_skb is accessed out of bounds
+Date:   Mon, 17 May 2021 15:58:30 +0200
+Message-Id: <20210517140304.093695566@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,96 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 40cb881b5aaa0b69a7d93dec8440d5c62dae299f ]
+[ Upstream commit 4168d079aa41498639b2c64b4583375bcdf360d9 ]
 
-After adopting CONFIG_PCPU_DEV_REFCNT=n option, syzbot was able to trigger
-a warning [1]
+A out of bounds access to "struct can_priv::echo_skb" leads to a
+kernel crash. Better print a sensible warning message instead and try
+to recover.
 
-Issue here is that:
+This patch is similar to:
 
-- all dev_put() should be paired with a corresponding prior dev_hold().
+| e7a6994d043a ("can: dev: __can_get_echo_skb(): Don't crash the kernel
+|               if can_priv::echo_skb is accessed out of bounds")
 
-- A driver doing a dev_put() in its ndo_uninit() MUST also
-  do a dev_hold() in its ndo_init(), only when ndo_init()
-  is returning 0.
-
-Otherwise, register_netdevice() would call ndo_uninit()
-in its error path and release a refcount too soon.
-
-Therefore, we need to move dev_hold() call from
-vti6_tnl_create2() to vti6_dev_init_gen()
-
-[1]
-WARNING: CPU: 0 PID: 15951 at lib/refcount.c:31 refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Modules linked in:
-CPU: 0 PID: 15951 Comm: syz-executor.3 Not tainted 5.12.0-rc4-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-RIP: 0010:refcount_warn_saturate+0xbf/0x1e0 lib/refcount.c:31
-Code: 1d 6a 5a e8 09 31 ff 89 de e8 8d 1a ab fd 84 db 75 e0 e8 d4 13 ab fd 48 c7 c7 a0 e1 c1 89 c6 05 4a 5a e8 09 01 e8 2e 36 fb 04 <0f> 0b eb c4 e8 b8 13 ab fd 0f b6 1d 39 5a e8 09 31 ff 89 de e8 58
-RSP: 0018:ffffc90001eaef28 EFLAGS: 00010282
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000040000 RSI: ffffffff815c51f5 RDI: fffff520003d5dd7
-RBP: 0000000000000004 R08: 0000000000000000 R09: 0000000000000000
-R10: ffffffff815bdf8e R11: 0000000000000000 R12: ffff88801bb1c568
-R13: ffff88801f69e800 R14: 00000000ffffffff R15: ffff888050889d40
-FS:  00007fc79314e700(0000) GS:ffff8880b9c00000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f1c1ff47108 CR3: 0000000020fd5000 CR4: 00000000001506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- __refcount_dec include/linux/refcount.h:344 [inline]
- refcount_dec include/linux/refcount.h:359 [inline]
- dev_put include/linux/netdevice.h:4135 [inline]
- vti6_dev_uninit+0x31a/0x360 net/ipv6/ip6_vti.c:297
- register_netdevice+0xadf/0x1500 net/core/dev.c:10308
- vti6_tnl_create2+0x1b5/0x400 net/ipv6/ip6_vti.c:190
- vti6_newlink+0x9d/0xd0 net/ipv6/ip6_vti.c:1020
- __rtnl_newlink+0x1062/0x1710 net/core/rtnetlink.c:3443
- rtnl_newlink+0x64/0xa0 net/core/rtnetlink.c:3491
- rtnetlink_rcv_msg+0x44e/0xad0 net/core/rtnetlink.c:5553
- netlink_rcv_skb+0x153/0x420 net/netlink/af_netlink.c:2502
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x331/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmmsg+0x195/0x470 net/socket.c:2490
- __do_sys_sendmmsg net/socket.c:2519 [inline]
- __se_sys_sendmmsg net/socket.c:2516 [inline]
- __x64_sys_sendmmsg+0x99/0x100 net/socket.c:2516
-
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210319142700.305648-2-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_vti.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/can/dev/skb.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/ip6_vti.c b/net/ipv6/ip6_vti.c
-index e0cc32e45880..932b15b13053 100644
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -193,7 +193,6 @@ static int vti6_tnl_create2(struct net_device *dev)
+diff --git a/drivers/net/can/dev/skb.c b/drivers/net/can/dev/skb.c
+index 6a64fe410987..c3508109263e 100644
+--- a/drivers/net/can/dev/skb.c
++++ b/drivers/net/can/dev/skb.c
+@@ -151,7 +151,11 @@ void can_free_echo_skb(struct net_device *dev, unsigned int idx)
+ {
+ 	struct can_priv *priv = netdev_priv(dev);
  
- 	strcpy(t->parms.name, dev->name);
+-	BUG_ON(idx >= priv->echo_skb_max);
++	if (idx >= priv->echo_skb_max) {
++		netdev_err(dev, "%s: BUG! Trying to access can_priv::echo_skb out of bounds (%u/max %u)\n",
++			   __func__, idx, priv->echo_skb_max);
++		return;
++	}
  
--	dev_hold(dev);
- 	vti6_tnl_link(ip6n, t);
- 
- 	return 0;
-@@ -934,6 +933,7 @@ static inline int vti6_dev_init_gen(struct net_device *dev)
- 	dev->tstats = netdev_alloc_pcpu_stats(struct pcpu_sw_netstats);
- 	if (!dev->tstats)
- 		return -ENOMEM;
-+	dev_hold(dev);
- 	return 0;
- }
- 
+ 	if (priv->echo_skb[idx]) {
+ 		dev_kfree_skb_any(priv->echo_skb[idx]);
 -- 
 2.30.2
 
