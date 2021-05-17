@@ -2,33 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BF2382EF3
+	by mail.lfdr.de (Postfix) with ESMTP id C3FB4382EF4
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:12:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238325AbhEQOLy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:11:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58828 "EHLO mail.kernel.org"
+        id S238327AbhEQOL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:11:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238324AbhEQOKA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238332AbhEQOKA (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:10:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6AF6613AF;
-        Mon, 17 May 2021 14:07:08 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2B8B6135D;
+        Mon, 17 May 2021 14:07:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260429;
-        bh=pstObWc4s3VCMIBz08bVRP4wjecVlqHtlaHyx1NNe24=;
+        s=korg; t=1621260431;
+        bh=g5rjZow19rjXfHtHPbJrpvnBwn2fXdgvXzqfHYq1wWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQhZrIHLW7LMajjB9xmuCLXIMzJJ6C00LZdF7RFtn6MHDrMfNdiO9vLSRgJqX/q3Q
-         Mxl8AYqnRL/edY2hFHwN1omfd2eSHSm8FkKoPgS1nUR4Kyd+CNVXhSfZGUEGKGLjEv
-         qN72VkZo17N7Xl6B4YA2X8TO7F9r4kCIJoZ2ift4=
+        b=mckI40kKhxlXfMDwDXViCK6f7W56m9EuvohCtE1HCITlCR8vGwSrjBTmOStxyWkJk
+         DYlCbbhrZgQuo9Vezy0ibd3a9J6KZddyYmM5jEDVivLoW1YDZCFJXGWlVXnvYVOb0s
+         TOz1GeToYvjUBuIorEDjaPO8cAFD4h1ilafuytMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Luca Coelho <luciano.coelho@intel.com>,
+        stable@vger.kernel.org,
+        "Aneesh Kumar K.V" <aneesh.kumar@linux.ibm.com>,
+        Vaibhav Jain <vaibhav@linux.ibm.com>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 078/363] iwlwifi: trans/pcie: defer transport initialisation
-Date:   Mon, 17 May 2021 15:59:04 +0200
-Message-Id: <20210517140305.233424135@linuxfoundation.org>
+Subject: [PATCH 5.12 079/363] powerpc/mm: Add cond_resched() while removing hpte mappings
+Date:   Mon, 17 May 2021 15:59:05 +0200
+Message-Id: <20210517140305.269966775@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,219 +43,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Vaibhav Jain <vaibhav@linux.ibm.com>
 
-[ Upstream commit d12455fdbfe9430affd88bfbfee51777356667a0 ]
+[ Upstream commit a5d6a3e73acbd619dd5b7b831762b755f9e2db80 ]
 
-In a few PCIe devices we may have to swap out the configuration
-after we allocate/initialise some parts of the device because
-we only know the correct one after reading some registers. This
-causes some things such as the byte-count table allocations to
-be incorrect, since the configuration is swapped for one with a
-bigger queue size.
+While removing large number of mappings from hash page tables for
+large memory systems as soft-lockup is reported because of the time
+spent inside htap_remove_mapping() like one below:
 
-Fix this by initialising most of the transport much later, only
-after the configuration has finally been determined.
+ watchdog: BUG: soft lockup - CPU#8 stuck for 23s!
+ <snip>
+ NIP plpar_hcall+0x38/0x58
+ LR  pSeries_lpar_hpte_invalidate+0x68/0xb0
+ Call Trace:
+  0x1fffffffffff000 (unreliable)
+  pSeries_lpar_hpte_removebolted+0x9c/0x230
+  hash__remove_section_mapping+0xec/0x1c0
+  remove_section_mapping+0x28/0x3c
+  arch_remove_memory+0xfc/0x150
+  devm_memremap_pages_release+0x180/0x2f0
+  devm_action_release+0x30/0x50
+  release_nodes+0x28c/0x300
+  device_release_driver_internal+0x16c/0x280
+  unbind_store+0x124/0x170
+  drv_attr_store+0x44/0x60
+  sysfs_kf_write+0x64/0x90
+  kernfs_fop_write+0x1b0/0x290
+  __vfs_write+0x3c/0x70
+  vfs_write+0xd4/0x270
+  ksys_write+0xdc/0x130
+  system_call+0x5c/0x70
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
-Link: https://lore.kernel.org/r/iwlwifi.20210411132130.8f5db97db1e4.Ic622da559b586a04ca536a0ec49ed5ecf03a9354@changeid
-Signed-off-by: Luca Coelho <luciano.coelho@intel.com>
+Fix this by adding a cond_resched() to the loop in
+htap_remove_mapping() that issues hcall to remove hpte mapping. The
+call to cond_resched() is issued every HZ jiffies which should prevent
+the soft-lockup from being reported.
+
+Suggested-by: Aneesh Kumar K.V <aneesh.kumar@linux.ibm.com>
+Signed-off-by: Vaibhav Jain <vaibhav@linux.ibm.com>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210404163148.321346-1-vaibhav@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/wireless/intel/iwlwifi/iwl-trans.c    | 91 +++++++++++--------
- .../net/wireless/intel/iwlwifi/iwl-trans.h    |  1 +
- drivers/net/wireless/intel/iwlwifi/pcie/drv.c |  4 +
- 3 files changed, 57 insertions(+), 39 deletions(-)
+ arch/powerpc/mm/book3s64/hash_utils.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-trans.c b/drivers/net/wireless/intel/iwlwifi/iwl-trans.c
-index 60e0db4a5e20..9236f9106826 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-trans.c
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-trans.c
-@@ -2,7 +2,7 @@
- /*
-  * Copyright (C) 2015 Intel Mobile Communications GmbH
-  * Copyright (C) 2016-2017 Intel Deutschland GmbH
-- * Copyright (C) 2019-2020 Intel Corporation
-+ * Copyright (C) 2019-2021 Intel Corporation
-  */
- #include <linux/kernel.h>
- #include <linux/bsearch.h>
-@@ -21,7 +21,6 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 				  const struct iwl_cfg_trans_params *cfg_trans)
+diff --git a/arch/powerpc/mm/book3s64/hash_utils.c b/arch/powerpc/mm/book3s64/hash_utils.c
+index 7719995323c3..12de1906e97b 100644
+--- a/arch/powerpc/mm/book3s64/hash_utils.c
++++ b/arch/powerpc/mm/book3s64/hash_utils.c
+@@ -338,7 +338,7 @@ repeat:
+ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
+ 		      int psize, int ssize)
  {
- 	struct iwl_trans *trans;
--	int txcmd_size, txcmd_align;
- #ifdef CONFIG_LOCKDEP
- 	static struct lock_class_key __key;
- #endif
-@@ -31,10 +30,40 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 		return NULL;
+-	unsigned long vaddr;
++	unsigned long vaddr, time_limit;
+ 	unsigned int step, shift;
+ 	int rc;
+ 	int ret = 0;
+@@ -351,8 +351,19 @@ int htab_remove_mapping(unsigned long vstart, unsigned long vend,
  
- 	trans->trans_cfg = cfg_trans;
--	if (!cfg_trans->gen2) {
+ 	/* Unmap the full range specificied */
+ 	vaddr = ALIGN_DOWN(vstart, step);
++	time_limit = jiffies + HZ;
 +
-+#ifdef CONFIG_LOCKDEP
-+	lockdep_init_map(&trans->sync_cmd_lockdep_map, "sync_cmd_lockdep_map",
-+			 &__key, 0);
-+#endif
+ 	for (;vaddr < vend; vaddr += step) {
+ 		rc = mmu_hash_ops.hpte_removebolted(vaddr, psize, ssize);
 +
-+	trans->dev = dev;
-+	trans->ops = ops;
-+	trans->num_rx_queues = 1;
-+
-+	WARN_ON(!ops->wait_txq_empty && !ops->wait_tx_queues_empty);
-+
-+	if (trans->trans_cfg->use_tfh) {
-+		trans->txqs.tfd.addr_size = 64;
-+		trans->txqs.tfd.max_tbs = IWL_TFH_NUM_TBS;
-+		trans->txqs.tfd.size = sizeof(struct iwl_tfh_tfd);
-+	} else {
-+		trans->txqs.tfd.addr_size = 36;
-+		trans->txqs.tfd.max_tbs = IWL_NUM_OF_TBS;
-+		trans->txqs.tfd.size = sizeof(struct iwl_tfd);
-+	}
-+	trans->max_skb_frags = IWL_TRANS_MAX_FRAGS(trans);
-+
-+	return trans;
-+}
-+
-+int iwl_trans_init(struct iwl_trans *trans)
-+{
-+	int txcmd_size, txcmd_align;
-+
-+	if (!trans->trans_cfg->gen2) {
- 		txcmd_size = sizeof(struct iwl_tx_cmd);
- 		txcmd_align = sizeof(void *);
--	} else if (cfg_trans->device_family < IWL_DEVICE_FAMILY_AX210) {
-+	} else if (trans->trans_cfg->device_family < IWL_DEVICE_FAMILY_AX210) {
- 		txcmd_size = sizeof(struct iwl_tx_cmd_gen2);
- 		txcmd_align = 64;
- 	} else {
-@@ -46,17 +75,8 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 	txcmd_size += 36; /* biggest possible 802.11 header */
- 
- 	/* Ensure device TX cmd cannot reach/cross a page boundary in gen2 */
--	if (WARN_ON(cfg_trans->gen2 && txcmd_size >= txcmd_align))
--		return ERR_PTR(-EINVAL);
--
--#ifdef CONFIG_LOCKDEP
--	lockdep_init_map(&trans->sync_cmd_lockdep_map, "sync_cmd_lockdep_map",
--			 &__key, 0);
--#endif
--
--	trans->dev = dev;
--	trans->ops = ops;
--	trans->num_rx_queues = 1;
-+	if (WARN_ON(trans->trans_cfg->gen2 && txcmd_size >= txcmd_align))
-+		return -EINVAL;
- 
- 	if (trans->trans_cfg->device_family >= IWL_DEVICE_FAMILY_AX210)
- 		trans->txqs.bc_tbl_size = sizeof(struct iwl_gen3_bc_tbl);
-@@ -68,23 +88,16 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 	 * allocate here.
- 	 */
- 	if (trans->trans_cfg->gen2) {
--		trans->txqs.bc_pool = dmam_pool_create("iwlwifi:bc", dev,
-+		trans->txqs.bc_pool = dmam_pool_create("iwlwifi:bc", trans->dev,
- 						       trans->txqs.bc_tbl_size,
- 						       256, 0);
- 		if (!trans->txqs.bc_pool)
--			return NULL;
-+			return -ENOMEM;
- 	}
- 
--	if (trans->trans_cfg->use_tfh) {
--		trans->txqs.tfd.addr_size = 64;
--		trans->txqs.tfd.max_tbs = IWL_TFH_NUM_TBS;
--		trans->txqs.tfd.size = sizeof(struct iwl_tfh_tfd);
--	} else {
--		trans->txqs.tfd.addr_size = 36;
--		trans->txqs.tfd.max_tbs = IWL_NUM_OF_TBS;
--		trans->txqs.tfd.size = sizeof(struct iwl_tfd);
--	}
--	trans->max_skb_frags = IWL_TRANS_MAX_FRAGS(trans);
-+	/* Some things must not change even if the config does */
-+	WARN_ON(trans->txqs.tfd.addr_size !=
-+		(trans->trans_cfg->use_tfh ? 64 : 36));
- 
- 	snprintf(trans->dev_cmd_pool_name, sizeof(trans->dev_cmd_pool_name),
- 		 "iwl_cmd_pool:%s", dev_name(trans->dev));
-@@ -93,35 +106,35 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 				  txcmd_size, txcmd_align,
- 				  SLAB_HWCACHE_ALIGN, NULL);
- 	if (!trans->dev_cmd_pool)
--		return NULL;
--
--	WARN_ON(!ops->wait_txq_empty && !ops->wait_tx_queues_empty);
-+		return -ENOMEM;
- 
- 	trans->txqs.tso_hdr_page = alloc_percpu(struct iwl_tso_hdr_page);
- 	if (!trans->txqs.tso_hdr_page) {
- 		kmem_cache_destroy(trans->dev_cmd_pool);
--		return NULL;
-+		return -ENOMEM;
- 	}
- 
- 	/* Initialize the wait queue for commands */
- 	init_waitqueue_head(&trans->wait_command_queue);
- 
--	return trans;
-+	return 0;
- }
- 
- void iwl_trans_free(struct iwl_trans *trans)
- {
- 	int i;
- 
--	for_each_possible_cpu(i) {
--		struct iwl_tso_hdr_page *p =
--			per_cpu_ptr(trans->txqs.tso_hdr_page, i);
-+	if (trans->txqs.tso_hdr_page) {
-+		for_each_possible_cpu(i) {
-+			struct iwl_tso_hdr_page *p =
-+				per_cpu_ptr(trans->txqs.tso_hdr_page, i);
- 
--		if (p->page)
--			__free_page(p->page);
--	}
-+			if (p && p->page)
-+				__free_page(p->page);
++		/*
++		 * For large number of mappings introduce a cond_resched()
++		 * to prevent softlockup warnings.
++		 */
++		if (time_after(jiffies, time_limit)) {
++			cond_resched();
++			time_limit = jiffies + HZ;
 +		}
- 
--	free_percpu(trans->txqs.tso_hdr_page);
-+		free_percpu(trans->txqs.tso_hdr_page);
-+	}
- 
- 	kmem_cache_destroy(trans->dev_cmd_pool);
- }
-diff --git a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
-index 4a5822c1be13..3e0df6fbb642 100644
---- a/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
-+++ b/drivers/net/wireless/intel/iwlwifi/iwl-trans.h
-@@ -1438,6 +1438,7 @@ struct iwl_trans *iwl_trans_alloc(unsigned int priv_size,
- 			  struct device *dev,
- 			  const struct iwl_trans_ops *ops,
- 			  const struct iwl_cfg_trans_params *cfg_trans);
-+int iwl_trans_init(struct iwl_trans *trans);
- void iwl_trans_free(struct iwl_trans *trans);
- 
- /*****************************************************
-diff --git a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-index 6f4db04ead4a..66faf7914bd8 100644
---- a/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-+++ b/drivers/net/wireless/intel/iwlwifi/pcie/drv.c
-@@ -1243,6 +1243,10 @@ static int iwl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		trans_pcie->num_rx_bufs = RX_QUEUE_SIZE;
- 	}
- 
-+	ret = iwl_trans_init(iwl_trans);
-+	if (ret)
-+		goto out_free_trans;
-+
- 	pci_set_drvdata(pdev, iwl_trans);
- 	iwl_trans->drv = iwl_drv_start(iwl_trans);
- 
+ 		if (rc == -ENOENT) {
+ 			ret = -ENOENT;
+ 			continue;
 -- 
 2.30.2
 
