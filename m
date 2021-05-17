@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D63323837B8
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41C7E383617
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244427AbhEQPqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52062 "EHLO mail.kernel.org"
+        id S244621AbhEQP2M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:28:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243746AbhEQPoB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:44:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 056A36135D;
-        Mon, 17 May 2021 14:43:03 +0000 (UTC)
+        id S243503AbhEQP0L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:26:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EEDB61926;
+        Mon, 17 May 2021 14:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262584;
-        bh=zvP5z3xHUUP8GpW6ufPFOYxcKv8Sv1SSyqT4M5368b8=;
+        s=korg; t=1621262180;
+        bh=EAfkBS4b60opCiLOVlnBupkfa4IP9sMSU+ZZMIUm5Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=npm/zE1wONcONbeAjSV9wQlNQnjiCIMlcliFskEDxgOwrNd5BPspXdCtAcUs5KRfh
-         jtE74VAE/Esegq7+U/IWp79vAeHlaYQ3dVOcoyKgsirI3r6sKiHkjhDpHalfSr2qPP
-         aM0IoNqexBsZ2ieLZuKURMzXbQc/mAE43KDb7W6I=
+        b=xVlZe1LTRXMlmAakNhHbe713MM+X3ZIEqyf0wPMqyaKnl77zH8ZSyotz08u7VI/iL
+         1SZemeNtbUB0YOfNQzdHMdNjWaid+YrG4He9g6SnJ9H9CmTTFbelh/Jvo/z/TxlS3z
+         MXP+ZvrP8Izj5l87gDW3MwBoYkFDghheqcBdQcbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Williams <dan.j.williams@intel.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 219/289] xen/unpopulated-alloc: consolidate pgmap manipulation
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.11 233/329] powerpc/64s: Fix crashes when toggling stf barrier
 Date:   Mon, 17 May 2021 16:02:24 +0200
-Message-Id: <20210517140312.516794815@linuxfoundation.org>
+Message-Id: <20210517140309.993358897@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,69 +38,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Williams <dan.j.williams@intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 3a250629d7325f27b278dad1aaf44eab00090e76 ]
+commit 8ec7791bae1327b1c279c5cd6e929c3b12daaf0a upstream.
 
-Cleanup fill_list() to keep all the pgmap manipulations in a single
-location of the function.  Update the exit unwind path accordingly.
+The STF (store-to-load forwarding) barrier mitigation can be
+enabled/disabled at runtime via a debugfs file (stf_barrier), which
+causes the kernel to patch itself to enable/disable the relevant
+mitigations.
 
-Link: http://lore.kernel.org/r/6186fa28-d123-12db-6171-a75cb6e615a5@oracle.com
-Link: https://lkml.kernel.org/r/160272253442.3136502.16683842453317773487.stgit@dwillia2-desk3.amr.corp.intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Reported-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Cc: Juergen Gross <jgross@suse.com>
-Cc: Stefano Stabellini <sstabellini@kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+However depending on which mitigation we're using, it may not be safe to
+do that patching while other CPUs are active. For example the following
+crash:
+
+  User access of kernel address (c00000003fff5af0) - exploit attempt? (uid: 0)
+  segfault (11) at c00000003fff5af0 nip 7fff8ad12198 lr 7fff8ad121f8 code 1
+  code: 40820128 e93c00d0 e9290058 7c292840 40810058 38600000 4bfd9a81 e8410018
+  code: 2c030006 41810154 3860ffb6 e9210098 <e94d8ff0> 7d295279 39400000 40820a3c
+
+Shows that we returned to userspace without restoring the user r13
+value, due to executing the partially patched STF exit code.
+
+Fix it by doing the patching under stop machine. The CPUs that aren't
+doing the patching will be spinning in the core of the stop machine
+logic. That is currently sufficient for our purposes, because none of
+the patching we do is to that code or anywhere in the vicinity.
+
+Fixes: a048a07d7f45 ("powerpc/64s: Add support for a store forwarding barrier at kernel entry/exit")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210506044959.1298123-1-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/unpopulated-alloc.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ arch/powerpc/lib/feature-fixups.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/xen/unpopulated-alloc.c b/drivers/xen/unpopulated-alloc.c
-index 7762c1bb23cb..e64e6befc63b 100644
---- a/drivers/xen/unpopulated-alloc.c
-+++ b/drivers/xen/unpopulated-alloc.c
-@@ -27,11 +27,6 @@ static int fill_list(unsigned int nr_pages)
- 	if (!res)
- 		return -ENOMEM;
- 
--	pgmap = kzalloc(sizeof(*pgmap), GFP_KERNEL);
--	if (!pgmap)
--		goto err_pgmap;
--
--	pgmap->type = MEMORY_DEVICE_GENERIC;
- 	res->name = "Xen scratch";
- 	res->flags = IORESOURCE_MEM | IORESOURCE_BUSY;
- 
-@@ -43,6 +38,11 @@ static int fill_list(unsigned int nr_pages)
- 		goto err_resource;
- 	}
- 
-+	pgmap = kzalloc(sizeof(*pgmap), GFP_KERNEL);
-+	if (!pgmap)
-+		goto err_pgmap;
-+
-+	pgmap->type = MEMORY_DEVICE_GENERIC;
- 	pgmap->range = (struct range) {
- 		.start = res->start,
- 		.end = res->end,
-@@ -92,10 +92,10 @@ static int fill_list(unsigned int nr_pages)
- 	return 0;
- 
- err_memremap:
--	release_resource(res);
--err_resource:
- 	kfree(pgmap);
- err_pgmap:
-+	release_resource(res);
-+err_resource:
- 	kfree(res);
- 	return ret;
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -14,6 +14,7 @@
+ #include <linux/string.h>
+ #include <linux/init.h>
+ #include <linux/sched/mm.h>
++#include <linux/stop_machine.h>
+ #include <asm/cputable.h>
+ #include <asm/code-patching.h>
+ #include <asm/page.h>
+@@ -227,11 +228,25 @@ static void do_stf_exit_barrier_fixups(e
+ 		                                           : "unknown");
  }
--- 
-2.30.2
-
+ 
++static int __do_stf_barrier_fixups(void *data)
++{
++	enum stf_barrier_type *types = data;
++
++	do_stf_entry_barrier_fixups(*types);
++	do_stf_exit_barrier_fixups(*types);
++
++	return 0;
++}
+ 
+ void do_stf_barrier_fixups(enum stf_barrier_type types)
+ {
+-	do_stf_entry_barrier_fixups(types);
+-	do_stf_exit_barrier_fixups(types);
++	/*
++	 * The call to the fallback entry flush, and the fallback/sync-ori exit
++	 * flush can not be safely patched in/out while other CPUs are executing
++	 * them. So call __do_stf_barrier_fixups() on one CPU while all other CPUs
++	 * spin in the stop machine core with interrupts hard disabled.
++	 */
++	stop_machine(__do_stf_barrier_fixups, &types, NULL);
+ }
+ 
+ void do_uaccess_flush_fixups(enum l1d_flush_type types)
 
 
