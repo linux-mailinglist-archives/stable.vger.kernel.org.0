@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00FBE3836A2
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:34:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51A88383806
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243594AbhEQPfF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:35:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
+        id S238529AbhEQPsX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:48:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244632AbhEQPcP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:32:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E737761CC9;
-        Mon, 17 May 2021 14:38:34 +0000 (UTC)
+        id S1345030AbhEQPqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A22E46194C;
+        Mon, 17 May 2021 14:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262315;
-        bh=mzsU1CQrvZHJ0e7CBcbD0RS4Hng9O4NgK9FM1TEF3rk=;
+        s=korg; t=1621262657;
+        bh=nLZfFLfIMSjb7iPWswJhagxZlOp3+CzraNRrZ9kLpAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OnXaNlNvuEZS8IPvWVpWvbYVhy6vn8tK5IK94hMrv1Wrxt2WQNbFX0c6CsPKV00qs
-         jpUgk4rx6dnRVEQ+pYFE0unIfEL/ZbDn+Mgcn7ldq/9t4ZIVf5hWhA0B3D5DCdxcDK
-         WdDtrgDDDQZpDoX/jnTscNZvdWr5+TwX0nfr31jo=
+        b=gJnZJu9kX4I8oxOBT+citu45DlDm2gcqYv1cy+VMlwXNx0z7VNzvOUKooG+qaIzgA
+         hMGA39gkeX13U3ev24Hj4bdlMW34eYgKtNDdMSXQgODv2eAZ2Ft9rv15N9FsRjupvC
+         pYRIB74g7X6F6QkfcQZlMwFSql2xBnJsO5+TdO3M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Deutschmann <whissi@gentoo.org>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 263/329] iio: hid-sensors: select IIO_TRIGGERED_BUFFER under HID_SENSOR_IIO_TRIGGER
+        stable@vger.kernel.org, Abhijeet Rao <abhijeet.rao@intel.com>,
+        "Nikunj A. Dadhania" <nikunj.dadhania@intel.com>,
+        Azhar Shaikh <azhar.shaikh@intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 249/289] xhci-pci: Allow host runtime PM as default for Intel Alder Lake xHCI
 Date:   Mon, 17 May 2021 16:02:54 +0200
-Message-Id: <20210517140311.008447141@linuxfoundation.org>
+Message-Id: <20210517140313.525241648@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,173 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <aardelean@deviqon.com>
+From: Abhijeet Rao <abhijeet.rao@intel.com>
 
-[ Upstream commit 7061803522ee7876df1ca18cdd1e1551f761352d ]
+commit b813511135e8b84fa741afdfbab4937919100bef upstream.
 
-During commit 067fda1c065ff ("iio: hid-sensors: move triggered buffer
-setup into hid_sensor_setup_trigger"), the
-iio_triggered_buffer_{setup,cleanup}() functions got moved under the
-hid-sensor-trigger module.
+In the same way as Intel Tiger Lake TCSS (Type-C Subsystem) the Alder Lake
+TCSS xHCI needs to be runtime suspended whenever possible to allow the
+TCSS hardware block to enter D3cold and thus save energy.
 
-The above change works fine, if any of the sensors get built. However, when
-only the common hid-sensor-trigger module gets built (and none of the
-drivers), then the IIO_TRIGGERED_BUFFER symbol isn't selected/enforced.
-
-Previously, each driver would enforce/select the IIO_TRIGGERED_BUFFER
-symbol. With this change the HID_SENSOR_IIO_TRIGGER (for the
-hid-sensor-trigger module) will enforce that IIO_TRIGGERED_BUFFER gets
-selected.
-
-All HID sensor drivers select the HID_SENSOR_IIO_TRIGGER symbol. So, this
-change removes the IIO_TRIGGERED_BUFFER enforcement from each driver.
-
-Fixes: 067fda1c065ff ("iio: hid-sensors: move triggered buffer setup into hid_sensor_setup_trigger")
-Reported-by: Thomas Deutschmann <whissi@gentoo.org>
-Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Link: https://lore.kernel.org/r/20210414084955.260117-1-aardelean@deviqon.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Abhijeet Rao <abhijeet.rao@intel.com>
+Signed-off-by: Nikunj A. Dadhania <nikunj.dadhania@intel.com>
+Signed-off-by: Azhar Shaikh <azhar.shaikh@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-2-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/accel/Kconfig              | 1 -
- drivers/iio/common/hid-sensors/Kconfig | 1 +
- drivers/iio/gyro/Kconfig               | 1 -
- drivers/iio/humidity/Kconfig           | 1 -
- drivers/iio/light/Kconfig              | 2 --
- drivers/iio/magnetometer/Kconfig       | 1 -
- drivers/iio/orientation/Kconfig        | 2 --
- drivers/iio/pressure/Kconfig           | 1 -
- drivers/iio/temperature/Kconfig        | 1 -
- 9 files changed, 1 insertion(+), 10 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/iio/accel/Kconfig b/drivers/iio/accel/Kconfig
-index 2e0c62c39155..8acf277b8b25 100644
---- a/drivers/iio/accel/Kconfig
-+++ b/drivers/iio/accel/Kconfig
-@@ -211,7 +211,6 @@ config DMARD10
- config HID_SENSOR_ACCEL_3D
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID Accelerometers 3D"
-diff --git a/drivers/iio/common/hid-sensors/Kconfig b/drivers/iio/common/hid-sensors/Kconfig
-index 24d492567336..2a3dd3b907be 100644
---- a/drivers/iio/common/hid-sensors/Kconfig
-+++ b/drivers/iio/common/hid-sensors/Kconfig
-@@ -19,6 +19,7 @@ config HID_SENSOR_IIO_TRIGGER
- 	tristate "Common module (trigger) for all HID Sensor IIO drivers"
- 	depends on HID_SENSOR_HUB && HID_SENSOR_IIO_COMMON && IIO_BUFFER
- 	select IIO_TRIGGER
-+	select IIO_TRIGGERED_BUFFER
- 	help
- 	  Say yes here to build trigger support for HID sensors.
- 	  Triggers will be send if all requested attributes were read.
-diff --git a/drivers/iio/gyro/Kconfig b/drivers/iio/gyro/Kconfig
-index 5824f2edf975..20b5ac7ab66a 100644
---- a/drivers/iio/gyro/Kconfig
-+++ b/drivers/iio/gyro/Kconfig
-@@ -111,7 +111,6 @@ config FXAS21002C_SPI
- config HID_SENSOR_GYRO_3D
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID Gyroscope 3D"
-diff --git a/drivers/iio/humidity/Kconfig b/drivers/iio/humidity/Kconfig
-index 6549fcf6db69..2de5494e7c22 100644
---- a/drivers/iio/humidity/Kconfig
-+++ b/drivers/iio/humidity/Kconfig
-@@ -52,7 +52,6 @@ config HID_SENSOR_HUMIDITY
- 	tristate "HID Environmental humidity sensor"
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	help
-diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
-index 33ad4dd0b5c7..917f9becf9c7 100644
---- a/drivers/iio/light/Kconfig
-+++ b/drivers/iio/light/Kconfig
-@@ -256,7 +256,6 @@ config ISL29125
- config HID_SENSOR_ALS
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID ALS"
-@@ -270,7 +269,6 @@ config HID_SENSOR_ALS
- config HID_SENSOR_PROX
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID PROX"
-diff --git a/drivers/iio/magnetometer/Kconfig b/drivers/iio/magnetometer/Kconfig
-index 1697a8c03506..7e9489a35571 100644
---- a/drivers/iio/magnetometer/Kconfig
-+++ b/drivers/iio/magnetometer/Kconfig
-@@ -95,7 +95,6 @@ config MAG3110
- config HID_SENSOR_MAGNETOMETER_3D
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID Magenetometer 3D"
-diff --git a/drivers/iio/orientation/Kconfig b/drivers/iio/orientation/Kconfig
-index a505583cc2fd..396cbbb867f4 100644
---- a/drivers/iio/orientation/Kconfig
-+++ b/drivers/iio/orientation/Kconfig
-@@ -9,7 +9,6 @@ menu "Inclinometer sensors"
- config HID_SENSOR_INCLINOMETER_3D
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID Inclinometer 3D"
-@@ -20,7 +19,6 @@ config HID_SENSOR_INCLINOMETER_3D
- config HID_SENSOR_DEVICE_ROTATION
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID Device Rotation"
-diff --git a/drivers/iio/pressure/Kconfig b/drivers/iio/pressure/Kconfig
-index 689b978db4f9..fc0d3cfca418 100644
---- a/drivers/iio/pressure/Kconfig
-+++ b/drivers/iio/pressure/Kconfig
-@@ -79,7 +79,6 @@ config DPS310
- config HID_SENSOR_PRESS
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	tristate "HID PRESS"
-diff --git a/drivers/iio/temperature/Kconfig b/drivers/iio/temperature/Kconfig
-index f1f2a1499c9e..4df60082c1fa 100644
---- a/drivers/iio/temperature/Kconfig
-+++ b/drivers/iio/temperature/Kconfig
-@@ -45,7 +45,6 @@ config HID_SENSOR_TEMP
- 	tristate "HID Environmental temperature sensor"
- 	depends on HID_SENSOR_HUB
- 	select IIO_BUFFER
--	select IIO_TRIGGERED_BUFFER
- 	select HID_SENSOR_IIO_COMMON
- 	select HID_SENSOR_IIO_TRIGGER
- 	help
--- 
-2.30.2
-
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -57,6 +57,7 @@
+ #define PCI_DEVICE_ID_INTEL_CML_XHCI			0xa3af
+ #define PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI		0x9a13
+ #define PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI		0x1138
++#define PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI		0x461e
+ 
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_4			0x43b9
+ #define PCI_DEVICE_ID_AMD_PROMONTORYA_3			0x43ba
+@@ -243,7 +244,8 @@ static void xhci_pci_quirks(struct devic
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TITAN_RIDGE_DD_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_ICE_LAKE_XHCI ||
+ 	     pdev->device == PCI_DEVICE_ID_INTEL_TIGER_LAKE_XHCI ||
+-	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI))
++	     pdev->device == PCI_DEVICE_ID_INTEL_MAPLE_RIDGE_XHCI ||
++	     pdev->device == PCI_DEVICE_ID_INTEL_ALDER_LAKE_XHCI))
+ 		xhci->quirks |= XHCI_DEFAULT_PM_RUNTIME_ALLOW;
+ 
+ 	if (pdev->vendor == PCI_VENDOR_ID_ETRON &&
 
 
