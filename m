@@ -2,158 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BEBCB383B86
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 19:43:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A42DE383BD8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 20:03:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243077AbhEQRoZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 13:44:25 -0400
-Received: from mail-mw2nam12on2042.outbound.protection.outlook.com ([40.107.244.42]:28256
-        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S239397AbhEQRoM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 13:44:12 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=N/FZ9Iebe7im6s5Jpueae24SPgx6sLA/JfW+zaA5yAhjkUhvWQKNXk2U0oGKXif1v1GUyoKndW/Mco+4pXkf4rLMkfPnuqq1hR4D+zQ8F8w14+QYFuhWnDU2+k/TrWwyXo7fhVt2CcdgF/heGZBjtmXX0tDF/bywWfA7XhJonPPi2/C1kPAp4EG9og4Z1mTLfgsqz5jb8Wgzl/TwUxFPLBBJiHJ7QeKlyzKO9rg47KkRh1b0NJ7sQCM4WfrHV+kjHyHT8hLjZhUln4rJS6IY7t0YoukivCcOLjMiAaRGRzC4gGGLYBcdtKfMLu3fWRjwG31seGfUniY5MK/bbDPUlg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OZwQfBM999Vu6CYDZXgscS/dLTuF8XYAMpAaviyyIRQ=;
- b=HJianIUVjBGWteGGnWGBaA+mnWpXkyGVlqCuNMPdPU9ooOQ3HyyYJ168cguyxzsCZKnTMrb0ubqCugdvxLK7wAbVyqyS8CPfLikcZ/aTmFYBcX8GRbJtwu2EIQQpELCQNStHVKHL9xU22NsivZUg0hAC/O130DycFGzkhKrxFk9u8upIqh6bxFYa1/48AMBpKxRAaP3cjJ/jQeNdjDv7OzRA2RyYAy5sRq7mIzfTRvIdId/yIyFr670yP6gT1cHkKwwI5fd1aBs8UldVoxHLu3pleVK5jLlNiIJQaji6+X555Gc6Te8Y18BWIButjRX4QTNq9pqm+H03o2/1RLAGSA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=OZwQfBM999Vu6CYDZXgscS/dLTuF8XYAMpAaviyyIRQ=;
- b=MxYPpyLPxgZBiE8to5ogp00RRVG6MTwzktUU5J11zuFDZsv1oBOeCTEoBYnW1Moxye+ljDS3wRFUXDgMIDvK5ywhuOFUdYJT0ZZ+s79u4Y79+1h/24PVm0a3CrlIb1cOLdK7EsaRG8NBHvfjR7stwrymVNctLzZSRTrvt6/cuD8=
-Authentication-Results: vger.kernel.org; dkim=none (message not signed)
- header.d=none;vger.kernel.org; dmarc=none action=none header.from=amd.com;
-Received: from DM5PR12MB1355.namprd12.prod.outlook.com (2603:10b6:3:6e::7) by
- DM5PR12MB1835.namprd12.prod.outlook.com (2603:10b6:3:10c::9) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4129.28; Mon, 17 May 2021 17:42:54 +0000
-Received: from DM5PR12MB1355.namprd12.prod.outlook.com
- ([fe80::b914:4704:ad6f:aba9]) by DM5PR12MB1355.namprd12.prod.outlook.com
- ([fe80::b914:4704:ad6f:aba9%12]) with mapi id 15.20.4129.031; Mon, 17 May
- 2021 17:42:54 +0000
-From:   Tom Lendacky <thomas.lendacky@amd.com>
-To:     linux-kernel@vger.kernel.org, x86@kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Joerg Roedel <jroedel@suse.de>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jim Mattson <jmattson@google.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Vitaly Kuznetsov <vkuznets@redhat.com>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Brijesh Singh <brijesh.singh@amd.com>, stable@vger.kernel.org
-Subject: [PATCH v2 2/2] x86/sev-es: Invalidate the GHCB after completing VMGEXIT
-Date:   Mon, 17 May 2021 12:42:33 -0500
-Message-Id: <5a8130462e4f0057ee1184509cd056eedd78742b.1621273353.git.thomas.lendacky@amd.com>
-X-Mailer: git-send-email 2.31.0
-In-Reply-To: <8c07662ec17d3d82e5c53841a1d9e766d3bdbab6.1621273353.git.thomas.lendacky@amd.com>
-References: <8c07662ec17d3d82e5c53841a1d9e766d3bdbab6.1621273353.git.thomas.lendacky@amd.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [165.204.77.1]
-X-ClientProxiedBy: SN6PR16CA0059.namprd16.prod.outlook.com
- (2603:10b6:805:ca::36) To DM5PR12MB1355.namprd12.prod.outlook.com
- (2603:10b6:3:6e::7)
+        id S236792AbhEQSEl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 14:04:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60858 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236683AbhEQSEk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 14:04:40 -0400
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4D62C061573
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 11:03:23 -0700 (PDT)
+Received: by mail-pj1-x102d.google.com with SMTP id t11so4140646pjm.0
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 11:03:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=d+RbHa5VSR3B5WWhHiOevyuRhThfTTAB186MdYQewkI=;
+        b=IzBd6G1mURXIBqoG4CIYJBhQ8k+oGIWNcotisilAs7g8kGPSFZTW6jK09qIYhmEBqp
+         VWuc9AUBcJgIWlxV0/bnQ+QqdW9qmoV9632JCxrzAkdttKhIV4qMAPZ7rc1HpjzS/PsV
+         rAZ5PZuSNeopV1AhZd/fmT79YNP0882t+UG5JUYPQxDevB74i7yfUvLY1ZxCp45RBbpF
+         Z1RCq7KSR+IOQU+lDjBSuNnvJXL6kry59WpwD0UaXNeFhlQcuPYwwqOu9wyxmNBxLDA1
+         l7jcdshxEZXbGLoOwNR4ZFNxu/8sgB+6Jx5zr3PtzokiGJySN5MPk/UQqAssBzjzf1uF
+         B8yA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=d+RbHa5VSR3B5WWhHiOevyuRhThfTTAB186MdYQewkI=;
+        b=SzF48fDFxLKB6soOmBC6JkvLbiQ4x3U3dQ/LTRiNog9JD8xIFD+8EcnObNbDkMVq+v
+         5+Zt+XOYPyttzbol57UqutXNZ0YWohKKUWhj6Gn1Iyn4U0N4ZXhx2HS35v2G/98l/02J
+         lLGoRAKaOoroZV8MDSeFUaP7XK9pd/HEsUexteN6EgJTU4EhJAhot+0nqvZnhp2RWH5A
+         abtV6Ww6xAn0DNq+mPpsht3ne4cAfuPfBbrvGTtxiyIhT72E6BBaquV6llVynkzkyrg+
+         tDtz7xcWz6cZ6D7Lxj7zrd+RwKxugldSfRVTzd7MQI1he5dx2dAe+VurJ4j0qM+gqPNu
+         IyNQ==
+X-Gm-Message-State: AOAM5337GjxUFiQijhjce8ROGRiFWHqH6Ld7VXnHicHmS5PkFqegGaTw
+        dQajLgTgG6hQ7l+qT4nthdqG1WXYMYpLJYMr
+X-Google-Smtp-Source: ABdhPJyDYhxcLPaTb8yKtzithx2NISh0yith47d8siyOTNhoFaNYezVNaDSOcQMBxsiaCoGTAxJ+bQ==
+X-Received: by 2002:a17:902:229:b029:ef:6107:188d with SMTP id 38-20020a1709020229b02900ef6107188dmr1303199plc.41.1621274603249;
+        Mon, 17 May 2021 11:03:23 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id b15sm10394656pfi.100.2021.05.17.11.03.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 May 2021 11:03:22 -0700 (PDT)
+Message-ID: <60a2afea.1c69fb81.2f1ae.2fd2@mx.google.com>
+Date:   Mon, 17 May 2021 11:03:22 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from tlendack-t1.amd.com (165.204.77.1) by SN6PR16CA0059.namprd16.prod.outlook.com (2603:10b6:805:ca::36) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend Transport; Mon, 17 May 2021 17:42:53 +0000
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 96fd550a-31b5-48d9-d709-08d9195b3317
-X-MS-TrafficTypeDiagnostic: DM5PR12MB1835:
-X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM5PR12MB18350D6494F84A5EE7D55A2CEC2D9@DM5PR12MB1835.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:6790;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: FtN6xhIDGb5FNM1927DnwNxJveueoh4wZ+L8I/fKjMmeqYw1ZBE2PUtvKOI2Wldsz0Ar6WgIRJrTWgMVI6mNmoEaHEZ5rI2DAFiZqnD2VNihFt1pevVv+AFzAiSMRHVcB3Ii9/9mkpQKkQFNAzYmHxmcmUsDki9wpEcSD42Bgd9RJXNmYiQqVPLB8v6y9CHbit+UMmdiuacUOmWyqQYkAW0bwK7lKumcD9kXphvUZzjEKdj/GyLDblxmFTzmTVqQXzJvEX8Re1dXblYu6qajW6zytbj7pv5IaQi+ODS8t7r44bh9EzHkU38Pb7LAEdIcka68A2K4vw902cKOM+zIonvfzj4oWQ85umM01L2JnM8C65PSWDZTu4tS5+3gFG5SEIdmaiIx2b3oB8palZExmQOZIU0ioniCwXOFQU1RfR9NQJUMw06fN1t0zj+9Xs7OpKVLSiSF+RdLAonhUZGKW03Y7iKjhCLrZL2iCM/wI1ToA/jPegDKUCmIyeBKSBAY8oNPPHIKXezH4ONwVBd9e7zrS25ueKKq0mcZKc+arFoncmyglt+uBN4rTPQIGBwJcnM7tEX2yFIbByDNbrmsY03xov3d5AzFVrOiShZaYfEI7Flpmydc8pK9wTgsPDte/+NCU7Rk+UEKH/Bhz0bS8A==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM5PR12MB1355.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(376002)(366004)(346002)(39860400002)(396003)(5660300002)(316002)(186003)(2616005)(956004)(6666004)(478600001)(16526019)(54906003)(86362001)(4326008)(7696005)(38100700002)(7416002)(38350700002)(8676002)(83380400001)(8936002)(6486002)(26005)(36756003)(2906002)(66556008)(52116002)(66476007)(66946007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?wRtw/7+/vaIWXzKLrjCdLZWUg5CPT6KrcvVBwHBrDEWVVIrFxju4goZHQ5MT?=
- =?us-ascii?Q?I7jz9n5tHaikJtV5hbiBP1lTxwa73S+SYFtiD7YE2+RwljZ65v1aVOwSrpXw?=
- =?us-ascii?Q?ISq+kkiAwPbqIiwc9094wH1u9aA/tiFe7qRPQkXvqSMM7q64gQG6xHw3R+5J?=
- =?us-ascii?Q?cFnhIf5zJ+zpX1nPv5WlHP96fySQOY3e4fO7GV1QMXUaqy7p4xTBuOb4mLZJ?=
- =?us-ascii?Q?OPQnQU2MofF2AVPaKSFEaqHeMnjrteEcj+tGvEFHxdmfwmwx759KOwoBaTAp?=
- =?us-ascii?Q?zUsb5VhHvNpGz2eSP4lDIatAv8MI3yUqGPoAJWbHUVdWUPGJbrfxk4E8Rgu4?=
- =?us-ascii?Q?6sJsbyQKod7a3z0zp5+a87A/43Hdx3o92CS+FC6sg6GASuU5iK5VamtpswAF?=
- =?us-ascii?Q?J3N6tgRkWKxonW7j6g6+6VZ5EHsW+T0dXxQve0KMlAXREppBzJTwb3I0V4Nz?=
- =?us-ascii?Q?0BF+b/Sh8GtOEI32tpx1RoJqlXm0IVD+aOOU9CdT6gmyzuaR9qg+Kxa6+4Jv?=
- =?us-ascii?Q?9BQp+7oQM3y6BZJWvwhuTbx7WIYPQr6kXrynvuya6XdnOLenI8PrIhw8DPB/?=
- =?us-ascii?Q?McuX0QSON/xKM4NxPNKfeOpX0OhTZ0EYhzHNS9aozPKIkikc3jF73LN9nstF?=
- =?us-ascii?Q?tAkDTHvV3RrSfu/1HyGiwUVjNEFYkfubNnPohL30h5kEVyLoHUlVQWaNq4s1?=
- =?us-ascii?Q?pUNrxFyw3RcpkqWgnid/UMH3To6RwGkNoOpmk+rdfGNaSi86cFMp8CDiT/VL?=
- =?us-ascii?Q?xRZBnFMbaK46/PTjVEx0axfScPec2tFQCAnZf/90WkzhnVc77NTO2NvXwSMg?=
- =?us-ascii?Q?VVdMouFHSAA5plRFmBwH1vx17i2P4PiF7dpUYgQxRtBPSbl7neq5b3YY+PYt?=
- =?us-ascii?Q?fV+O/Y1KtF8TmG8+h+B+NiK5eMervuswRu5P6Xd65wtMBRCZOzvFrgyIvZG5?=
- =?us-ascii?Q?Ne7/dyiL83rynL9oAXOPbWysJUXW1aO2cZvGOhVagSJtELoz0xrRDOxRdZTI?=
- =?us-ascii?Q?oR1299MVOmvDFVhAw3g0ClPS0YjqyuHNw5f4TWoJ2hcAkGO9c54bv+gUCJHw?=
- =?us-ascii?Q?0+nhFOwHdqIyi2+roxoAGQtMRLrHYa+2NYQ9mZr7jJsDNZEj+tF5DoPuO0uZ?=
- =?us-ascii?Q?BuxFY1TcNY19IFi/iYJthKNL36Ps8buyhTcQl77e2iBhdEOWqpO5S7M69rNl?=
- =?us-ascii?Q?YPNL6lopkANh1tVZnekeTPk8fknW4w4FIEK61Iub2Dzwdsz0AxS6rZsRX00w?=
- =?us-ascii?Q?SnK8fwhcuSs1z1wPn+OvKu930VABzbxwl014pb7JLQtgv/Eibsp+rnQEfgWu?=
- =?us-ascii?Q?Vkf726SLBMp+xZTkICdrmIss?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 96fd550a-31b5-48d9-d709-08d9195b3317
-X-MS-Exchange-CrossTenant-AuthSource: DM5PR12MB1355.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 May 2021 17:42:54.1123
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: zq5X+1UtdIqhphNE+NiMxxkYCpb8m2IFe9GxIPVAgvZquxJF8e8V/0IfUHWoJgyjwFy6YvBNOZIvQa5qtaKgcQ==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR12MB1835
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.37-277-g938ce446b555
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.10.y baseline: 133 runs,
+ 1 regressions (v5.10.37-277-g938ce446b555)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Since the VMGEXIT instruction can be issued from userspace, invalidate
-the GHCB after performing VMGEXIT processing in the kernel.
+stable-rc/linux-5.10.y baseline: 133 runs, 1 regressions (v5.10.37-277-g938=
+ce446b555)
 
-Invalidation is only required after userspace is available, so call
-vc_ghcb_invalidate() from sev_es_put_ghcb(). Update vc_ghcb_invalidate()
-to additionally clear the GHCB exit code, so that a value of 0 is always
-present outside VMGEXIT processing in the kernel.
+Regressions Summary
+-------------------
 
-Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
----
- arch/x86/kernel/sev-shared.c | 1 +
- arch/x86/kernel/sev.c        | 5 +++++
- 2 files changed, 6 insertions(+)
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-diff --git a/arch/x86/kernel/sev-shared.c b/arch/x86/kernel/sev-shared.c
-index 6ec8b3bfd76e..9f90f460a28c 100644
---- a/arch/x86/kernel/sev-shared.c
-+++ b/arch/x86/kernel/sev-shared.c
-@@ -63,6 +63,7 @@ static bool sev_es_negotiate_protocol(void)
- 
- static __always_inline void vc_ghcb_invalidate(struct ghcb *ghcb)
- {
-+	ghcb->save.sw_exit_code = 0;
- 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
- }
- 
-diff --git a/arch/x86/kernel/sev.c b/arch/x86/kernel/sev.c
-index 45e212675811..4fa111becc93 100644
---- a/arch/x86/kernel/sev.c
-+++ b/arch/x86/kernel/sev.c
-@@ -457,6 +457,11 @@ static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
- 		data->backup_ghcb_active = false;
- 		state->ghcb = NULL;
- 	} else {
-+		/*
-+		 * Invalidate the GHCB so a VMGEXIT instruction issued
-+		 * from userspace won't appear to be valid.
-+		 */
-+		vc_ghcb_invalidate(ghcb);
- 		data->ghcb_active = false;
- 	}
- }
--- 
-2.31.0
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.37-277-g938ce446b555/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.37-277-g938ce446b555
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      938ce446b5557c4bf15350d99c9866bbbaa74e20 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60a27e6afdac167b3eb3afb6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.3=
+7-277-g938ce446b555/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.3=
+7-277-g938ce446b555/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60a27e6afdac167b3eb3a=
+fb7
+        new failure (last pass: v5.10.37-240-gb8f335cf282d) =
+
+ =20
