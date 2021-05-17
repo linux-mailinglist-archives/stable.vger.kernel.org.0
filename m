@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C05C33831CF
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 89E693831C4
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239999AbhEQOlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58372 "EHLO mail.kernel.org"
+        id S238189AbhEQOkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240462AbhEQOiM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:38:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1620A611EE;
-        Mon, 17 May 2021 14:18:01 +0000 (UTC)
+        id S240488AbhEQOiO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:38:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BC666140B;
+        Mon, 17 May 2021 14:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261082;
-        bh=4f5ImuLCx27GIWpCDz8Y4TtSbqGDF6WydHXlpM/QCWQ=;
+        s=korg; t=1621261089;
+        bh=6p5kt912GqOkhx27Te3YBlB+nBGbDz2/PEVVoviKVfk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VeYKcOhZNRONGJJGpGNSaS731DbgBZ+h5eeTjNqXl6p6eL3qw+YkWAzDey3jKWCi1
-         NygLvFDociixr/0jHKdECJBUWF5LmCZcHMZ4rURjhwpfnJSG6TL5cMC32SHiOZNMUF
-         EPUJp4ue3D46JFem1KJwTdYponF3BwQZ6TAs/MxI=
+        b=uwnWz2nTrPGTAxkDoMVmYGVkRvMt0vwAQsvCdsTQvD2NXD5BOwKdyO8vf9I3CQhNl
+         y/u+QMR/yTZN4DfjRKndCh70EmpwEO1K4x4SHyGeSYcDCjZrO0WqJni2wQycIXAv7O
+         ldGzfQPt5tT8fN50Ujyk0pl2wYz6OTpViOxanJWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        "Gautham R. Shenoy" <ego@linux.vnet.ibm.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Mel Gorman <mgorman@techsingularity.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 303/363] sched/fair: Fix clearing of has_idle_cores flag in select_idle_cpu()
-Date:   Mon, 17 May 2021 16:02:49 +0200
-Message-Id: <20210517140312.840169767@linuxfoundation.org>
+        stable@vger.kernel.org, Sun Ke <sunke32@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 304/363] nbd: Fix NULL pointer in flush_workqueue
+Date:   Mon, 17 May 2021 16:02:50 +0200
+Message-Id: <20210517140312.876716158@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -44,48 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
+From: Sun Ke <sunke32@huawei.com>
 
-[ Upstream commit 02dbb7246c5bbbbe1607ebdc546ba5c454a664b1 ]
+[ Upstream commit 79ebe9110fa458d58f1fceb078e2068d7ad37390 ]
 
-In commit:
+Open /dev/nbdX first, the config_refs will be 1 and
+the pointers in nbd_device are still null. Disconnect
+/dev/nbdX, then reference a null recv_workq. The
+protection by config_refs in nbd_genl_disconnect is useless.
 
-  9fe1f127b913 ("sched/fair: Merge select_idle_core/cpu()")
+[  656.366194] BUG: kernel NULL pointer dereference, address: 0000000000000020
+[  656.368943] #PF: supervisor write access in kernel mode
+[  656.369844] #PF: error_code(0x0002) - not-present page
+[  656.370717] PGD 10cc87067 P4D 10cc87067 PUD 1074b4067 PMD 0
+[  656.371693] Oops: 0002 [#1] SMP
+[  656.372242] CPU: 5 PID: 7977 Comm: nbd-client Not tainted 5.11.0-rc5-00040-g76c057c84d28 #1
+[  656.373661] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
+[  656.375904] RIP: 0010:mutex_lock+0x29/0x60
+[  656.376627] Code: 00 0f 1f 44 00 00 55 48 89 fd 48 83 05 6f d7 fe 08 01 e8 7a c3 ff ff 48 83 05 6a d7 fe 08 01 31 c0 65 48 8b 14 25 00 6d 01 00 <f0> 48 0f b1 55 d
+[  656.378934] RSP: 0018:ffffc900005eb9b0 EFLAGS: 00010246
+[  656.379350] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+[  656.379915] RDX: ffff888104cf2600 RSI: ffffffffaae8f452 RDI: 0000000000000020
+[  656.380473] RBP: 0000000000000020 R08: 0000000000000000 R09: ffff88813bd6b318
+[  656.381039] R10: 00000000000000c7 R11: fefefefefefefeff R12: ffff888102710b40
+[  656.381599] R13: ffffc900005eb9e0 R14: ffffffffb2930680 R15: ffff88810770ef00
+[  656.382166] FS:  00007fdf117ebb40(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
+[  656.382806] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  656.383261] CR2: 0000000000000020 CR3: 0000000100c84000 CR4: 00000000000006e0
+[  656.383819] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  656.384370] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  656.384927] Call Trace:
+[  656.385111]  flush_workqueue+0x92/0x6c0
+[  656.385395]  nbd_disconnect_and_put+0x81/0xd0
+[  656.385716]  nbd_genl_disconnect+0x125/0x2a0
+[  656.386034]  genl_family_rcv_msg_doit.isra.0+0x102/0x1b0
+[  656.386422]  genl_rcv_msg+0xfc/0x2b0
+[  656.386685]  ? nbd_ioctl+0x490/0x490
+[  656.386954]  ? genl_family_rcv_msg_doit.isra.0+0x1b0/0x1b0
+[  656.387354]  netlink_rcv_skb+0x62/0x180
+[  656.387638]  genl_rcv+0x34/0x60
+[  656.387874]  netlink_unicast+0x26d/0x590
+[  656.388162]  netlink_sendmsg+0x398/0x6c0
+[  656.388451]  ? netlink_rcv_skb+0x180/0x180
+[  656.388750]  ____sys_sendmsg+0x1da/0x320
+[  656.389038]  ? ____sys_recvmsg+0x130/0x220
+[  656.389334]  ___sys_sendmsg+0x8e/0xf0
+[  656.389605]  ? ___sys_recvmsg+0xa2/0xf0
+[  656.389889]  ? handle_mm_fault+0x1671/0x21d0
+[  656.390201]  __sys_sendmsg+0x6d/0xe0
+[  656.390464]  __x64_sys_sendmsg+0x23/0x30
+[  656.390751]  do_syscall_64+0x45/0x70
+[  656.391017]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-in select_idle_cpu(), we check if an idle core is present in the LLC
-of the target CPU via the flag "has_idle_cores". We look for the idle
-core in select_idle_cores(). If select_idle_cores() isn't able to find
-an idle core/CPU, we need to unset the has_idle_cores flag in the LLC
-of the target to prevent other CPUs from going down this route.
+To fix it, just add if (nbd->recv_workq) to nbd_disconnect_and_put().
 
-However, the current code is unsetting it in the LLC of the current
-CPU instead of the target CPU. This patch fixes this issue.
-
-Fixes: 9fe1f127b913 ("sched/fair: Merge select_idle_core/cpu()")
-Signed-off-by: Gautham R. Shenoy <ego@linux.vnet.ibm.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Acked-by: Mel Gorman <mgorman@techsingularity.net>
-Link: https://lore.kernel.org/r/1620746169-13996-1-git-send-email-ego@linux.vnet.ibm.com
+Fixes: e9e006f5fcf2 ("nbd: fix max number of supported devs")
+Signed-off-by: Sun Ke <sunke32@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20210512114331.1233964-2-sunke32@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/block/nbd.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index edcabae5c658..a073a839cd06 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -6212,7 +6212,7 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, bool
- 	}
- 
- 	if (has_idle_core)
--		set_idle_cores(this, false);
-+		set_idle_cores(target, false);
- 
- 	if (sched_feat(SIS_PROP) && !has_idle_core) {
- 		time = cpu_clock(this) - time;
+diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
+index 4ff71b579cfc..974da561b8e5 100644
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1980,7 +1980,8 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
+ 	 * config ref and try to destroy the workqueue from inside the work
+ 	 * queue.
+ 	 */
+-	flush_workqueue(nbd->recv_workq);
++	if (nbd->recv_workq)
++		flush_workqueue(nbd->recv_workq);
+ 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
+ 			       &nbd->config->runtime_flags))
+ 		nbd_config_put(nbd);
 -- 
 2.30.2
 
