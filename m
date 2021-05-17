@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857AD3836B0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:34:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43197383804
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242766AbhEQPfV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:35:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S245333AbhEQPsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:48:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245030AbhEQPcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 815C861CCF;
-        Mon, 17 May 2021 14:38:41 +0000 (UTC)
+        id S1345033AbhEQPqO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCB2961952;
+        Mon, 17 May 2021 14:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262322;
-        bh=KdTy1TiYv9e7OYbkg9jdokQ+1XM365McWiNQqDYQK30=;
+        s=korg; t=1621262659;
+        bh=cePfU9NcGXdJAeLEHSy5JpFozNTh5JcfXlp8E8gVRK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1SApqSk4RzAFTUyaL09sJg8ylkvPOrFkLD+RAxyQH8N75g76O0E4f25h8MwX0VWOH
-         38RRfxSEJ713Z2olv0N7GUsn4++clACEGB/yr3bS1QrDjOahb6u77CwV4hXcv5g8T2
-         X2ucrAtOx4ktPIPwwMvWIH/BX5ErNY1NeFOf7XvU=
+        b=EpztEv9X8OyGFomXs+bLnb3m4QCG0cmDu222n+4udUf1pJwz0RzPKvDVl2uTt29WH
+         bMCZg8IokGKifvyFg1s0oTTbk/qh51txrU8beB/3rKn36KPevkGGqdoLhAAfKOqq9+
+         ZDy+I3s/uwpfaeCvSzRpDimv40kGZYH0P0Ki58EQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandru Ardelean <aardelean@deviqon.com>,
-        =?UTF-8?q?Nuno=20S=C3=A1?= <nuno.sa@analog.com>,
-        Paul Cercueil <paul@crapouillou.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 264/329] iio: core: return ENODEV if ioctl is unknown
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 250/289] xhci: Do not use GFP_KERNEL in (potentially) atomic context
 Date:   Mon, 17 May 2021 16:02:55 +0200
-Message-Id: <20210517140311.043391406@linuxfoundation.org>
+Message-Id: <20210517140313.564179487@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,57 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <aardelean@deviqon.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit af0670b0bf1b116fd729b1b1011cf814bc34e12e ]
+commit dda32c00c9a0fa103b5d54ef72c477b7aa993679 upstream.
 
-When the ioctl() mechanism was introduced in IIO core to centralize the
-registration of all ioctls in one place via commit 8dedcc3eee3ac ("iio:
-core: centralize ioctl() calls to the main chardev"), the return code was
-changed from ENODEV to EINVAL, when the ioctl code isn't known.
+'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
+submitted in interrupt context" (see comment related to 'usb_submit_urb()'
+in 'drivers/usb/core/urb.c')
 
-This was done by accident.
+So this flag should be used in all the calling chain.
+Up to now, 'xhci_check_maxpacket()' which is only called from
+'xhci_urb_enqueue()', uses GFP_KERNEL.
 
-This change reverts back to the old behavior, where if the ioctl() code
-isn't known, ENODEV is returned (vs EINVAL).
+Be safe and pass the mem_flags to this function as well.
 
-This was brought into perspective by this patch:
-  https://lore.kernel.org/linux-iio/20210428150815.136150-1-paul@crapouillou.net/
-
-Fixes: 8dedcc3eee3ac ("iio: core: centralize ioctl() calls to the main chardev")
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Reviewed-by: Nuno Sá <nuno.sa@analog.com>
-Tested-by: Paul Cercueil <paul@crapouillou.net>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/host/xhci.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/iio/industrialio-core.c b/drivers/iio/industrialio-core.c
-index c2e4c267c36b..afba32b57814 100644
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1698,7 +1698,6 @@ static long iio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 	if (!indio_dev->info)
- 		goto out_unlock;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1397,7 +1397,7 @@ static int xhci_configure_endpoint(struc
+  * we need to issue an evaluate context command and wait on it.
+  */
+ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
+-		unsigned int ep_index, struct urb *urb)
++		unsigned int ep_index, struct urb *urb, gfp_t mem_flags)
+ {
+ 	struct xhci_container_ctx *out_ctx;
+ 	struct xhci_input_control_ctx *ctrl_ctx;
+@@ -1428,7 +1428,7 @@ static int xhci_check_maxpacket(struct x
+ 		 * changes max packet sizes.
+ 		 */
  
--	ret = -EINVAL;
- 	list_for_each_entry(h, &iio_dev_opaque->ioctl_handlers, entry) {
- 		ret = h->ioctl(indio_dev, filp, cmd, arg);
- 		if (ret != IIO_IOCTL_UNHANDLED)
-@@ -1706,7 +1705,7 @@ static long iio_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
- 	}
+-		command = xhci_alloc_command(xhci, true, GFP_KERNEL);
++		command = xhci_alloc_command(xhci, true, mem_flags);
+ 		if (!command)
+ 			return -ENOMEM;
  
- 	if (ret == IIO_IOCTL_UNHANDLED)
--		ret = -EINVAL;
-+		ret = -ENODEV;
- 
- out_unlock:
- 	mutex_unlock(&indio_dev->info_exist_lock);
--- 
-2.30.2
-
+@@ -1524,7 +1524,7 @@ static int xhci_urb_enqueue(struct usb_h
+ 		 */
+ 		if (urb->dev->speed == USB_SPEED_FULL) {
+ 			ret = xhci_check_maxpacket(xhci, slot_id,
+-					ep_index, urb);
++					ep_index, urb, mem_flags);
+ 			if (ret < 0) {
+ 				xhci_urb_free_priv(urb_priv);
+ 				urb->hcpriv = NULL;
 
 
