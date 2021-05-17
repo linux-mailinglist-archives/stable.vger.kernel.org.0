@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59674383863
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A8538377A
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:45:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343837AbhEQPwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45526 "EHLO mail.kernel.org"
+        id S243778AbhEQPoC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:44:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345116AbhEQPuQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:50:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 458F06143F;
-        Mon, 17 May 2021 14:45:45 +0000 (UTC)
+        id S243751AbhEQPmB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:42:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3941761412;
+        Mon, 17 May 2021 14:42:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262745;
-        bh=TpbOr6elZi+PPwNfI3J7bCp2pEpHJnlhWoG5yRXdSxU=;
+        s=korg; t=1621262540;
+        bh=FcEvc5PoH4pw2nJbg/O4TvNBIRJdOnTrHryv7J8Bsek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIEsOJ6nZxbNnrNwZEdnl7iaR629gL/7qdXNm70gzlJEUct57pPA6O5yKMksHJLaz
-         Ief6Uq+hbRlx9tAOTW7uKnEiLJstRzxN8yTbH2d+6mDMvMYwHUF21xrYlAc3L6HWpz
-         DTnXoPEUovmZq2JLaee0fVjjWjeRUlNf+sr1MpDg=
+        b=FQNI+8RrCRlKB8wUhKCG0QcIeEjyEc74GG5WzJKsKGLG9OuWw1byKM18sppF9VnR1
+         ijVU/MwXUHpuznQP6X5rL7VvqFWWlWn3rgQ8dpTtuExq7JGMzpcJhxrnNQgE2xDoLo
+         5LU4EAugFwLl3ms2K864LocpFayN9wXWc8yERCRU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 289/289] ASoC: rsnd: check all BUSIF status when error
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Jesper Dangaard Brouer <brouer@redhat.com>,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Matteo Croce <mcroce@linux.microsoft.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 303/329] mm: fix struct page layout on 32-bit systems
 Date:   Mon, 17 May 2021 16:03:34 +0200
-Message-Id: <20210517140314.875434789@linuxfoundation.org>
+Message-Id: <20210517140312.343115841@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +45,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit a4856e15e58b54977f1c0c0299309ad4d1f13365 upstream.
+commit 9ddb3c14afba8bc5950ed297f02d4ae05ff35cd1 upstream.
 
-commit 66c705d07d784 ("SoC: rsnd: add interrupt support for SSI BUSIF
-buffer") adds __rsnd_ssi_interrupt() checks for BUSIF status,
-but is using "break" at for loop.
-This means it is not checking all status. Let's check all BUSIF status.
+32-bit architectures which expect 8-byte alignment for 8-byte integers and
+need 64-bit DMA addresses (arm, mips, ppc) had their struct page
+inadvertently expanded in 2019.  When the dma_addr_t was added, it forced
+the alignment of the union to 8 bytes, which inserted a 4 byte gap between
+'flags' and the union.
 
-Fixes: commit 66c705d07d784 ("SoC: rsnd: add interrupt support for SSI BUSIF buffer")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/874kgh1jsw.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fix this by storing the dma_addr_t in one or two adjacent unsigned longs.
+This restores the alignment to that of an unsigned long.  We always
+store the low bits in the first word to prevent the PageTail bit from
+being inadvertently set on a big endian platform.  If that happened,
+get_user_pages_fast() racing against a page which was freed and
+reallocated to the page_pool could dereference a bogus compound_head(),
+which would be hard to trace back to this cause.
+
+Link: https://lkml.kernel.org/r/20210510153211.1504886-1-willy@infradead.org
+Fixes: c25fff7171be ("mm: add dma_addr_t to struct page")
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
+Acked-by: Vlastimil Babka <vbabka@suse.cz>
+Tested-by: Matteo Croce <mcroce@linux.microsoft.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sh/rcar/ssi.c |    2 --
- 1 file changed, 2 deletions(-)
+ include/linux/mm_types.h |    4 ++--
+ include/net/page_pool.h  |   12 +++++++++++-
+ net/core/page_pool.c     |   12 +++++++-----
+ 3 files changed, 20 insertions(+), 8 deletions(-)
 
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -797,7 +797,6 @@ static void __rsnd_ssi_interrupt(struct
- 						       SSI_SYS_STATUS(i * 2),
- 						       0xf << (id * 4));
- 					stop = true;
--					break;
- 				}
- 			}
- 			break;
-@@ -815,7 +814,6 @@ static void __rsnd_ssi_interrupt(struct
- 						SSI_SYS_STATUS((i * 2) + 1),
- 						0xf << 4);
- 					stop = true;
--					break;
- 				}
- 			}
- 			break;
+--- a/include/linux/mm_types.h
++++ b/include/linux/mm_types.h
+@@ -97,10 +97,10 @@ struct page {
+ 		};
+ 		struct {	/* page_pool used by netstack */
+ 			/**
+-			 * @dma_addr: might require a 64-bit value even on
++			 * @dma_addr: might require a 64-bit value on
+ 			 * 32-bit architectures.
+ 			 */
+-			dma_addr_t dma_addr;
++			unsigned long dma_addr[2];
+ 		};
+ 		struct {	/* slab, slob and slub */
+ 			union {
+--- a/include/net/page_pool.h
++++ b/include/net/page_pool.h
+@@ -198,7 +198,17 @@ static inline void page_pool_recycle_dir
+ 
+ static inline dma_addr_t page_pool_get_dma_addr(struct page *page)
+ {
+-	return page->dma_addr;
++	dma_addr_t ret = page->dma_addr[0];
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		ret |= (dma_addr_t)page->dma_addr[1] << 16 << 16;
++	return ret;
++}
++
++static inline void page_pool_set_dma_addr(struct page *page, dma_addr_t addr)
++{
++	page->dma_addr[0] = addr;
++	if (sizeof(dma_addr_t) > sizeof(unsigned long))
++		page->dma_addr[1] = upper_32_bits(addr);
+ }
+ 
+ static inline bool is_page_pool_compiled_in(void)
+--- a/net/core/page_pool.c
++++ b/net/core/page_pool.c
+@@ -174,8 +174,10 @@ static void page_pool_dma_sync_for_devic
+ 					  struct page *page,
+ 					  unsigned int dma_sync_size)
+ {
++	dma_addr_t dma_addr = page_pool_get_dma_addr(page);
++
+ 	dma_sync_size = min(dma_sync_size, pool->p.max_len);
+-	dma_sync_single_range_for_device(pool->p.dev, page->dma_addr,
++	dma_sync_single_range_for_device(pool->p.dev, dma_addr,
+ 					 pool->p.offset, dma_sync_size,
+ 					 pool->p.dma_dir);
+ }
+@@ -226,7 +228,7 @@ static struct page *__page_pool_alloc_pa
+ 		put_page(page);
+ 		return NULL;
+ 	}
+-	page->dma_addr = dma;
++	page_pool_set_dma_addr(page, dma);
+ 
+ 	if (pool->p.flags & PP_FLAG_DMA_SYNC_DEV)
+ 		page_pool_dma_sync_for_device(pool, page, pool->p.max_len);
+@@ -294,13 +296,13 @@ void page_pool_release_page(struct page_
+ 		 */
+ 		goto skip_dma_unmap;
+ 
+-	dma = page->dma_addr;
++	dma = page_pool_get_dma_addr(page);
+ 
+-	/* When page is unmapped, it cannot be returned our pool */
++	/* When page is unmapped, it cannot be returned to our pool */
+ 	dma_unmap_page_attrs(pool->p.dev, dma,
+ 			     PAGE_SIZE << pool->p.order, pool->p.dma_dir,
+ 			     DMA_ATTR_SKIP_CPU_SYNC);
+-	page->dma_addr = 0;
++	page_pool_set_dma_addr(page, 0);
+ skip_dma_unmap:
+ 	/* This may be the last page returned, releasing the pool, so
+ 	 * it is not safe to reference pool afterwards.
 
 
