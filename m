@@ -2,123 +2,166 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D295238275C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:46:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 822C2382764
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:47:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235643AbhEQIsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:48:09 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231334AbhEQIsI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:48:08 -0400
-Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A79C06174A
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:46:52 -0700 (PDT)
-Received: by mail-wr1-x42f.google.com with SMTP id i17so5448354wrq.11
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:46:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=IgAtpP4C42Jpn6aKz2gV4v3gKQwjgJ+HgC0dgeMRD1c=;
-        b=uajCC0Ebo8Blxm2wh0QYcJBamX4RuhCCoVg3VCJfHbv6I7qBmqI+JXSonkCbtmV3Kl
-         PZq3/Z1FpmhMWvAGIYOpsNrPsWhyGamfFOLWi8cP/HKGpo/ffQu5mgvFlUAMLpzSA2GB
-         OSPsdWHL8ki9fzR2vya7EkNFMJMKVLyI5y6nVeHgFiO2Vwr6m6z2Wpr5SVt3Suw/aYdb
-         8IJz6KE5W4l+Ie7IjE2F4N1epS9YGpMSq0itwOcpSbAHlBZCzGNf8nplG8XR8joHkm7k
-         FoI8ELJ/mb2YSsRNmqG6FkBG5IvtGSPmKN8b2OGHQJnTvuIfliE4ZbC5QxG5hhEoJpsz
-         Lv0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=IgAtpP4C42Jpn6aKz2gV4v3gKQwjgJ+HgC0dgeMRD1c=;
-        b=CvLJ4dVZ5AxxvNGiwynWdKiJxkcSaJwtP2znfkQpmWpAra4hQhwA4hUXaDu9UaDcfN
-         /DKoCx4Pk1B5vgI4M7ZhWRaupbBEHKx0WpLuzxVXFTFmwArZZyVXPc5HyBfXBc+3+Epe
-         wFHjVZ4b2xxsiJx2LI13FRUAZkgjwFzDy0qfCGkeMAQPlAu1prHDiDy7pdRU7PLqPe0q
-         DI5OpkTYAKy7sJbK3ncvQ1pXa8u/MeysUix2uO0Ya2iVo2xVcuehstAYMz4Q4FZ0ouJU
-         MEBj0UVG2Fb2Dy8GsZv0bzJuOuqNAbxzw+796Uo/3DQCoo+h/ZFGMDx00pb39puMYyxb
-         5xOg==
-X-Gm-Message-State: AOAM533aS7yXtVyjljes0P+rGEqcZzY+VO5AyFiXN1p/JV5vaKhOvim5
-        8wIrjqCWC6SdOR7nRtFazlsyKBnnq9C5q3Fg
-X-Google-Smtp-Source: ABdhPJxbQWH0NruvXyA4qYlWgdE4BXN8N0wrN1exubtTlt6z0Q3rO9xWKVEb/vBUmkb+GYTX9W2Q5w==
-X-Received: by 2002:a5d:6d85:: with SMTP id l5mr71256571wrs.22.1621241211237;
-        Mon, 17 May 2021 01:46:51 -0700 (PDT)
-Received: from [192.168.86.34] (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
-        by smtp.googlemail.com with ESMTPSA id r5sm15847622wmh.23.2021.05.17.01.46.50
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 17 May 2021 01:46:50 -0700 (PDT)
-Subject: Re: [PATCH 5.10 160/530] arm64: dts: qcom: db845c: fix correct
- powerdown pin for WSA881x
-To:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, bgolaszewski@baylibre.com,
-        linus.walleij@linaro.org
-References: <20210512144819.664462530@linuxfoundation.org>
- <20210512144825.099918971@linuxfoundation.org> <20210515081814.GA30461@amd>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Message-ID: <55d58470-f606-8c75-1f00-a2eb09314081@linaro.org>
-Date:   Mon, 17 May 2021 09:46:49 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
- Thunderbird/60.8.0
+        id S235735AbhEQIsV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:48:21 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44225 "EHLO
+        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235730AbhEQIsU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:48:20 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.west.internal (Postfix) with ESMTP id 317AD9FA;
+        Mon, 17 May 2021 04:47:04 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Mon, 17 May 2021 04:47:04 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=zSRxo7
+        zgaM38BZ6JpenQXup84U4vjXOMZAG8Z1DRvqI=; b=I9umbVLBtL/5rVGLBB73Js
+        5tyoAfIawLw75wVcHUDRcLRCJbqCzy0ZZPvWvLMYwqVdP4066Qd3Bk38YAd7T1rA
+        nzl0IPcVPurEk8GsDNSo77alcfKwTQW0NMDa2pnaUvAMKlI9l2G5J520Bc2PZtxe
+        ndkHd31woWxtpllvW/uARdoHypiuSeAO9rMFwrx8ht+umClTWsR+0MDPPFiSFg0A
+        qCmW5bGSSUVIpVUHArhMpcspwIK4z+mOQ2qXV0tCls9kQY9FYi3SGgSNJik4Uc4x
+        +W2e6flXzULYhbKX+8QnGBuuu/OcgBHIuUVEvHOHsUHPJ9k3VHxUVV8/kkWBVljQ
+        ==
+X-ME-Sender: <xms:hy2iYJoa4lTVcYhkeWc1mknsl9Gox8r9pGs89utAo_KObss_TUkrrg>
+    <xme:hy2iYLrLGaKwjGGGWd1FWcb_PaQGoALMrWwm8qQBCfRewj_8U0jpuRavxAuw40G1T
+    8NonzKxNORDPQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:hy2iYGMy3URlH2b8ZjBJXlXngC_rUiBZNqwXE5V-3vNWBW3QKm5ldg>
+    <xmx:hy2iYE7Smp-aeLjo2J4wItMiwiz9kHL4IJ0NicQINOt0zwrf_qB7zg>
+    <xmx:hy2iYI5jCc4XXvJAasGUroKmjmHhbBvWyUZQ0DJIHr-USCP6OI8RhA>
+    <xmx:hy2iYNgYazBUqlUyDTv0RgN6ukSAbphl2swyqQ6OirJIX4IZlKj2fk8GMDY>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 04:47:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: SVM: Probe and load MSR_TSC_AUX regardless of RDTSCP" failed to apply to 5.12-stable tree
+To:     seanjc@google.com, pbonzini@redhat.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 17 May 2021 10:47:02 +0200
+Message-ID: <162124122226112@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <20210515081814.GA30461@amd>
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-+ Adding Linus W and Bartosz to CC.
 
-On 15/05/2021 09:18, Pavel Machek wrote:
-> Hi!
-> 
->> From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
->>
->> [ Upstream commit c561740e7cfefaf3003a256f3a0cd9f8a069137c ]
->>
->> WSA881x powerdown pin is connected to GPIO1 not gpio2, so correct this.
->> This was working so far due to a shift bug in gpio driver, however
->> once that is fixed this will stop working, so fix this!
-> 
-> I don't see the correspoing update to the driver this talks about.
-> 
-> Do we have corresponding driver in 5.10 and was it fixed to match?
+The patch below does not apply to the 5.12-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-This corresponding gpio driver patch was submitted along with the 
-original fix, however it looks like it was not picked up yet.
+thanks,
 
-https://www.spinics.net/lists/linux-gpio/msg59264.html
+greg k-h
 
-Bartosz/Linus W, Do you want me to resend this?
+------------------ original commit in Linus's tree ------------------
 
---srini
+From 0caa0a77c2f6fcd0830cdcd018db1af98fe35e28 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 4 May 2021 10:17:25 -0700
+Subject: [PATCH] KVM: SVM: Probe and load MSR_TSC_AUX regardless of RDTSCP
+ support in host
 
-> 
-> Best regards,
-> 									Pavel
-> 
->> +++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
->> @@ -1015,7 +1015,7 @@
->>   		left_spkr: wsa8810-left{
->>   			compatible = "sdw10217201000";
->>   			reg = <0 1>;
->> -			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
->> +			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
->>   			#thermal-sensor-cells = <0>;
->>   			sound-name-prefix = "SpkrLeft";
->>   			#sound-dai-cells = <0>;
->> @@ -1023,7 +1023,7 @@
->>   
->>   		right_spkr: wsa8810-right{
->>   			compatible = "sdw10217201000";
->> -			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
->> +			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
->>   			reg = <0 2>;
->>   			#thermal-sensor-cells = <0>;
->>   			sound-name-prefix = "SpkrRight";
-> 
+Probe MSR_TSC_AUX whether or not RDTSCP is supported in the host, and
+if probing succeeds, load the guest's MSR_TSC_AUX into hardware prior to
+VMRUN.  Because SVM doesn't support interception of RDPID, RDPID cannot
+be disallowed in the guest (without resorting to binary translation).
+Leaving the host's MSR_TSC_AUX in hardware would leak the host's value to
+the guest if RDTSCP is not supported.
+
+Note, there is also a kernel bug that prevents leaking the host's value.
+The host kernel initializes MSR_TSC_AUX if and only if RDTSCP is
+supported, even though the vDSO usage consumes MSR_TSC_AUX via RDPID.
+I.e. if RDTSCP is not supported, there is no host value to leak.  But,
+if/when the host kernel bug is fixed, KVM would start leaking MSR_TSC_AUX
+in the case where hardware supports RDPID but RDTSCP is unavailable for
+whatever reason.
+
+Probing MSR_TSC_AUX will also allow consolidating the probe and define
+logic in common x86, and will make it simpler to condition the existence
+of MSR_TSX_AUX (from the guest's perspective) on RDTSCP *or* RDPID.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-7-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index ebcb5849d69b..13e4dd128177 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -212,7 +212,7 @@ DEFINE_PER_CPU(struct svm_cpu_data *, svm_data);
+  * RDTSCP and RDPID are not used in the kernel, specifically to allow KVM to
+  * defer the restoration of TSC_AUX until the CPU returns to userspace.
+  */
+-#define TSC_AUX_URET_SLOT	0
++static int tsc_aux_uret_slot __read_mostly = -1;
+ 
+ static const u32 msrpm_ranges[] = {0, 0xc0000000, 0xc0010000};
+ 
+@@ -959,8 +959,10 @@ static __init int svm_hardware_setup(void)
+ 		kvm_tsc_scaling_ratio_frac_bits = 32;
+ 	}
+ 
+-	if (boot_cpu_has(X86_FEATURE_RDTSCP))
+-		kvm_define_user_return_msr(TSC_AUX_URET_SLOT, MSR_TSC_AUX);
++	if (!kvm_probe_user_return_msr(MSR_TSC_AUX)) {
++		tsc_aux_uret_slot = 0;
++		kvm_define_user_return_msr(tsc_aux_uret_slot, MSR_TSC_AUX);
++	}
+ 
+ 	/* Check for pause filtering support */
+ 	if (!boot_cpu_has(X86_FEATURE_PAUSEFILTER)) {
+@@ -1454,8 +1456,8 @@ static void svm_prepare_guest_switch(struct kvm_vcpu *vcpu)
+ 		}
+ 	}
+ 
+-	if (static_cpu_has(X86_FEATURE_RDTSCP))
+-		kvm_set_user_return_msr(TSC_AUX_URET_SLOT, svm->tsc_aux, -1ull);
++	if (likely(tsc_aux_uret_slot >= 0))
++		kvm_set_user_return_msr(tsc_aux_uret_slot, svm->tsc_aux, -1ull);
+ 
+ 	svm->guest_state_loaded = true;
+ }
+@@ -2664,7 +2666,7 @@ static int svm_get_msr(struct kvm_vcpu *vcpu, struct msr_data *msr_info)
+ 			msr_info->data |= (u64)svm->sysenter_esp_hi << 32;
+ 		break;
+ 	case MSR_TSC_AUX:
+-		if (!boot_cpu_has(X86_FEATURE_RDTSCP))
++		if (tsc_aux_uret_slot < 0)
+ 			return 1;
+ 		if (!msr_info->host_initiated &&
+ 		    !guest_cpuid_has(vcpu, X86_FEATURE_RDTSCP))
+@@ -2885,7 +2887,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		svm->sysenter_esp_hi = guest_cpuid_is_intel(vcpu) ? (data >> 32) : 0;
+ 		break;
+ 	case MSR_TSC_AUX:
+-		if (!boot_cpu_has(X86_FEATURE_RDTSCP))
++		if (tsc_aux_uret_slot < 0)
+ 			return 1;
+ 
+ 		if (!msr->host_initiated &&
+@@ -2908,7 +2910,7 @@ static int svm_set_msr(struct kvm_vcpu *vcpu, struct msr_data *msr)
+ 		 * guest via direct_access_msrs, and switch it via user return.
+ 		 */
+ 		preempt_disable();
+-		r = kvm_set_user_return_msr(TSC_AUX_URET_SLOT, data, -1ull);
++		r = kvm_set_user_return_msr(tsc_aux_uret_slot, data, -1ull);
+ 		preempt_enable();
+ 		if (r)
+ 			return 1;
+
