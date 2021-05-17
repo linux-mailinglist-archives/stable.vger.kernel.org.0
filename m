@@ -2,100 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC946382590
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 09:42:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A73FA3825AE
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 09:48:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232151AbhEQHoE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 03:44:04 -0400
-Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:33421 "EHLO
-        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231887AbhEQHn6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 03:43:58 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailnew.west.internal (Postfix) with ESMTP id 4AF39934;
-        Mon, 17 May 2021 03:42:29 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Mon, 17 May 2021 03:42:30 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=AVi3YZJc4XkbkDo5VHVbsQ0vX1G
-        myxr1eYlRIuWmfs0=; b=oLR/oZnUNT2kjTsElOEfRqFWHUWTjqnRM+fKRnLxAbg
-        uGNNXHu4VUJlpeZP0dD/iD4fHXSgT2tol8LirXIo4I/jrslVpNX+DXooBqCAFM3v
-        LYd/c4dn59JFDBcdqTgC2igfRw9bldKvv9JArPBnCylPNniJfNylGl1um49tI7ye
-        ntE3jsk2+om5aMF0BXXXZiqpET++oFGb73a8Y3vFYbwIA+esioDz5jAKZDNQPHnM
-        diCHixj+geDp2DwUap45qoBPW+rBPr6TsFgKt0txvFS49EDJ38gfOH18J2fmHRjd
-        +OhHSMKTMkwrULMC9a2nD6ToaIzfe+XIog8D9LZw+/A==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AVi3YZ
-        Jc4XkbkDo5VHVbsQ0vX1Gmyxr1eYlRIuWmfs0=; b=HUmR1C1hEAuZEfv98s+euy
-        tcTCls5bIweqh9qyWG0lWgllmdNgpWpa2/l92AJuSLgZamqanBt1GohnvX7efIAK
-        4eWQ4+F1YK7fjI8BFDOxnssg/RIcgcMIjCbAyw4sOfBCs6BWjHmnkIOVOfn16+YL
-        RcCT+fDSif09z8DQCU6lCK38YNUKBWqd2P6be4v1v8hwxnnoCvyh+LFrLGRIZmGe
-        reV+W40tVCW8CP7y2sJbjlW6FVG0EI4EdSZlCNtYbodGkPHQxSZv575SfCL75j5X
-        5nG6E6U1ltA+Dfo/1GVh1hlTz6Xlb2UZYfvH1PYJsoXBVllNBnXDEmTo2SuQZ9HA
-        ==
-X-ME-Sender: <xms:ZB6iYNEHZi1UlfrghVis3SttCBbg66MjPAQbQHxcwlM4DqajtSD78A>
-    <xme:ZB6iYCU2GbraCvk5tZFzCMgvxw_llFDwbT6cTjFK7ppZ8AaJbwTwrG-eE11FVNVRg
-    VpMadmlGKLSEA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeigedguddvfecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
-    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
-    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
-    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
-    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
-    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:ZB6iYPKj3drYqaOz3k5THZCtvSOJ9WZ7GL77KpeGyLhTwTMSZ8Mv1Q>
-    <xmx:ZB6iYDGmpZW7lWkts0-LDbc8vjbX7Q3CpKssclMtbdZ8tHznccunWw>
-    <xmx:ZB6iYDWNR3qNuurz33RdAbZ5IaMDvAktDG3Pz5AqonEYDOXnolx8Pw>
-    <xmx:ZB6iYGOrE4vUUGct57EgCQQeIPMmGI8GThXbwAY4vpFX-iNUpSCL6hAMRXA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 03:42:27 -0400 (EDT)
-Date:   Mon, 17 May 2021 09:42:26 +0200
-From:   Greg KH <greg@kroah.com>
-To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Cc:     stable@vger.kernel.org, linux-xfs@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        Jan Stancek <jstancek@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        "Darrick J . Wong" <darrick.wong@oracle.com>
-Subject: Re: [PATCH 5.4] iomap: fix sub-page uptodate handling
-Message-ID: <YKIeYkw1YjkT4hth@kroah.com>
-References: <20210516150328.2881778-1-willy@infradead.org>
+        id S235430AbhEQHtV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 03:49:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:40042 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232040AbhEQHtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 03:49:20 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621237684;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=foA59rqz8+k7mEgWv3w8jRXhDTqGIHMTsdgHdn6Ncc8=;
+        b=Pjv5yGtxHw0DHBUbuotv5I5ImLZiLfL2IuMPNu7+aWW1Vg1HZCVIKUJMc15DUoyNhi6hZt
+        juRowiaUyY7qAYTjFAEvq2hOj6c3mgS3b5exlkIr6FDVEue5iLwPe5jfABhscDcS0/m/Dk
+        /vt9iLIa0XErQXdfL57wPY+i9bLPdpU=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-523-Zcrz2wQnPxq1YmIQLduuqA-1; Mon, 17 May 2021 03:48:02 -0400
+X-MC-Unique: Zcrz2wQnPxq1YmIQLduuqA-1
+Received: by mail-wr1-f70.google.com with SMTP id u20-20020a0560001614b02901115c8f2d89so3394919wrb.3
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 00:48:02 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:subject:from:to:cc:date:in-reply-to
+         :references:user-agent:mime-version:content-transfer-encoding;
+        bh=foA59rqz8+k7mEgWv3w8jRXhDTqGIHMTsdgHdn6Ncc8=;
+        b=fSs1QK89pX7I+MLPO2WmisTeuOH+aokmwNCeSgYuwQFImWV4hT1JJbgCSMLe9HDXkI
+         Q9TRCpwsDATE0fvfcKvtNlZ5IFAwlm1XS3WFQ3hksh5qUw5Ei13n846HagVitGUZOcoL
+         o3XCMtTSKl3c6euBbJWoyRDQvVV2KsePenaO1R/rxN3x64H1/r11rRQ3S4LyTaSZG29/
+         f4eg3mARfVbYtrDki5Zr63uk1v4a4qllQVmn81vIIzCr0E7OWpgaENovb5SnOe1XVP5F
+         yOC9Sa44ihQ8PzrleaIF/BBiJhvr0QQ8uNxyoKDavZnsQarI1sNx4CThiuenNbQY5oEC
+         zEdw==
+X-Gm-Message-State: AOAM532Lr233a1u2DF8gIIsvj+JS2M13oqZyK45wOtQmMg57vgAzNS6p
+        n4CqeWVZWlMZalIaZbyXbCExV1yBC53z2jp4HqLK9DWc7HEflNMbuihS123NqDByWkyZSAK2tHO
+        yXRfLcM6q5ebLjszQ
+X-Received: by 2002:a05:600c:19cb:: with SMTP id u11mr18532615wmq.185.1621237681115;
+        Mon, 17 May 2021 00:48:01 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJw47pDwBEJD8phNQLjWppTJlyepMn/Rpiw2X1KSg2WbyqaFZMxzBQgT4ZiTKoa+0CGiulFMyA==
+X-Received: by 2002:a05:600c:19cb:: with SMTP id u11mr18532597wmq.185.1621237680907;
+        Mon, 17 May 2021 00:48:00 -0700 (PDT)
+Received: from gerbillo.redhat.com (146-241-245-104.dyn.eolo.it. [146.241.245.104])
+        by smtp.gmail.com with ESMTPSA id t7sm9832910wrs.87.2021.05.17.00.48.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 17 May 2021 00:48:00 -0700 (PDT)
+Message-ID: <12cfe9e36292a94b8492c0747f0d9ce1e781ae20.camel@redhat.com>
+Subject: Re: [PATCH 5.10 380/530] udp: never accept GSO_FRAGLIST packets
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Willem de Bruijn <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Date:   Mon, 17 May 2021 09:47:59 +0200
+In-Reply-To: <20210517065716.GA15967@amd>
+References: <20210512144819.664462530@linuxfoundation.org>
+         <20210512144832.263718249@linuxfoundation.org> <20210515083717.GD30461@amd>
+         <2e1ffc55aedb5d10eacce34cb7a5809138528d03.camel@redhat.com>
+         <20210517065716.GA15967@amd>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.5 (3.36.5-2.fc32) 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210516150328.2881778-1-willy@infradead.org>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 16, 2021 at 04:03:28PM +0100, Matthew Wilcox (Oracle) wrote:
-> From: Christoph Hellwig <hch@lst.de>
+On Mon, 2021-05-17 at 08:57 +0200, Pavel Machek wrote:
+> From: Paolo Abeni <pabeni@redhat.com>
+> > > > 
+> > > > [ Upstream commit 78352f73dc5047f3f744764cc45912498c52f3c9 ]
+> > > > 
+> > > > Currently the UDP protocol delivers GSO_FRAGLIST packets to
+> > > > the sockets without the expected segmentation.
+> > > > 
+> > > > This change addresses the issue introducing and maintaining
+> > > > a couple of new fields to explicitly accept SKB_GSO_UDP_L4
+> > > > or GSO_FRAGLIST packets. Additionally updates  udp_unexpected_gso()
+> > > > accordingly.
+> > > > 
+> > > > UDP sockets enabling UDP_GRO stil keep accept_udp_fraglist
+> > > > zeroed.
+> > > 
+> > > What is going on here? accept_udp_fraglist variable is read-only.
+> > 
+> > Thank you for checking this!
+> > 
+> > The 'accept_udp_fraglist' field is implicitly initilized to zero at UDP
+> > socket allocation time (done by sk_alloc).
+> > 
+> > So this patch effectively force segmentation of SKB_GSO_FRAGLIST
+> > packets via the udp_unexpected_gso() helper.
+> > 
+> > We introduce the above field instead of unconditionally
+> > segmenting SKB_GSO_FRAGLIST, because the next patch will use it (to
+> > avoid unneeded segmentation for performance's sake for UDP tunnel), as
+> > you noted.
 > 
-> commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream
-> 
-> bio completions can race when a page spans more than one file system
-> block.  Add a spinlock to synchronize marking the page uptodate.
-> 
-> Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
-> Reported-by: Jan Stancek <jstancek@redhat.com>
-> Signed-off-by: Christoph Hellwig <hch@lst.de>
-> Reviewed-by: Dave Chinner <dchinner@redhat.com>
-> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-> ---
->  fs/iomap/buffered-io.c | 34 ++++++++++++++++++++++++----------
->  include/linux/iomap.h  |  1 +
->  2 files changed, 25 insertions(+), 10 deletions(-)
+> Ok, but there's no follow up patch queued for 5.10...? Do we still
+> need it there?
 
-No s-o-b from you as you did the backport?  :(
+Patch d18931a92a0b5feddd8a39d097b90ae2867db02f is a performance
+improvement, I think not worthy/suitable for stable.
 
-Anyway, what about a 4.19.y version?
+For 5.10 78352f73dc5047f3f744764cc45912498c52f3c9 should be enough.
 
-thanks,
+Thanks!
 
-greg k-h
+Paolo
+
