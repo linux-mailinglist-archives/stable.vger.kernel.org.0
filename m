@@ -2,38 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 427FD383678
+	by mail.lfdr.de (Postfix) with ESMTP id 8C46E383679
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245062AbhEQPcv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:32:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
+        id S244682AbhEQPcy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:32:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245711AbhEQPak (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S245710AbhEQPak (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 11:30:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 827B261CC6;
-        Mon, 17 May 2021 14:37:55 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BDEA61CC8;
+        Mon, 17 May 2021 14:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262276;
-        bh=LZCEnm9NB9U9B4/KYQpKAs87+dvRddvV2u9Natqp5cg=;
+        s=korg; t=1621262280;
+        bh=yb2t9n9d73ncxUe8UzTCxpoOQfoZZe3tejDhEVDgH2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qffwrYGvMqTmcoeLm56H/G5i8FoXtg2oQnfihIY/OJkWmrk9ANXgFl4/lZynZlY9f
-         ZmvU7rjZwQr6WA8tyH/0g3A78OMo6MfQVdV9AEkXqb/Sl/JuB+LpVXFQUNq2tN/j3y
-         Ig1AdAsBmrvqPRzkjpecN/9yWT8E1PShJk8Of4j8=
+        b=XT1JdDgo9VFrP37EYtcOyXlfW1MKLEJl9AyHcNjqO6VS3+hp1IMwGz8eXuaao2TN1
+         DHL7BekvmCLhtZ9ZQoKPBsl7Lm34QJZ9dA3u+u1Z2TIhbG/f7HeiFO/dZqKxmaAoSx
+         jHCR2PRJJmo4P6mBJUJmKk8mpos1FD8mcuH7eSoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Sverdlin <alexander.sverdlin@nokia.com>,
-        syzbot+bbe538efd1046586f587@syzkaller.appspotmail.com,
-        Michal Tesar <mtesar@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Anup Patel <anup.patel@wdc.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/289] sctp: do asoc update earlier in sctp_sf_do_dupcook_a
-Date:   Mon, 17 May 2021 16:01:16 +0200
-Message-Id: <20210517140310.229724665@linuxfoundation.org>
+Subject: [PATCH 5.10 152/289] RISC-V: Fix error code returned by riscv_hartid_to_cpuid()
+Date:   Mon, 17 May 2021 16:01:17 +0200
+Message-Id: <20210517140310.263298172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -45,94 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Anup Patel <anup.patel@wdc.com>
 
-[ Upstream commit 35b4f24415c854cd718ccdf38dbea6297f010aae ]
+[ Upstream commit 533b4f3a789d49574e7ae0f6ececed153f651f97 ]
 
-There's a panic that occurs in a few of envs, the call trace is as below:
+We should return a negative error code upon failure in
+riscv_hartid_to_cpuid() instead of NR_CPUS. This is also
+aligned with all uses of riscv_hartid_to_cpuid() which
+expect negative error code upon failure.
 
-  [] general protection fault, ... 0x29acd70f1000a: 0000 [#1] SMP PTI
-  [] RIP: 0010:sctp_ulpevent_notify_peer_addr_change+0x4b/0x1fa [sctp]
-  []  sctp_assoc_control_transport+0x1b9/0x210 [sctp]
-  []  sctp_do_8_2_transport_strike.isra.16+0x15c/0x220 [sctp]
-  []  sctp_cmd_interpreter.isra.21+0x1231/0x1a10 [sctp]
-  []  sctp_do_sm+0xc3/0x2a0 [sctp]
-  []  sctp_generate_timeout_event+0x81/0xf0 [sctp]
-
-This is caused by a transport use-after-free issue. When processing a
-duplicate COOKIE-ECHO chunk in sctp_sf_do_dupcook_a(), both COOKIE-ACK
-and SHUTDOWN chunks are allocated with the transort from the new asoc.
-However, later in the sideeffect machine, the old asoc is used to send
-them out and old asoc's shutdown_last_sent_to is set to the transport
-that SHUTDOWN chunk attached to in sctp_cmd_setup_t2(), which actually
-belongs to the new asoc. After the new_asoc is freed and the old asoc
-T2 timeout, the old asoc's shutdown_last_sent_to that is already freed
-would be accessed in sctp_sf_t2_timer_expire().
-
-Thanks Alexander and Jere for helping dig into this issue.
-
-To fix it, this patch is to do the asoc update first, then allocate
-the COOKIE-ACK and SHUTDOWN chunks with the 'updated' old asoc. This
-would make more sense, as a chunk from an asoc shouldn't be sent out
-with another asoc. We had fixed quite a few issues caused by this.
-
-Fixes: 145cb2f7177d ("sctp: Fix bundling of SHUTDOWN with COOKIE-ACK")
-Reported-by: Alexander Sverdlin <alexander.sverdlin@nokia.com>
-Reported-by: syzbot+bbe538efd1046586f587@syzkaller.appspotmail.com
-Reported-by: Michal Tesar <mtesar@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6825c7a80f18 ("RISC-V: Add logical CPU indexing for RISC-V")
+Fixes: f99fb607fb2b ("RISC-V: Use Linux logical CPU number instead of hartid")
+Signed-off-by: Anup Patel <anup.patel@wdc.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 25 ++++++++++++++++++++-----
- 1 file changed, 20 insertions(+), 5 deletions(-)
+ arch/riscv/kernel/smp.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index c669f8bd1eab..d4d268b8b8aa 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1841,20 +1841,35 @@ static enum sctp_disposition sctp_sf_do_dupcook_a(
- 			SCTP_TO(SCTP_EVENT_TIMEOUT_T4_RTO));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_PURGE_ASCONF_QUEUE, SCTP_NULL());
+diff --git a/arch/riscv/kernel/smp.c b/arch/riscv/kernel/smp.c
+index ea028d9e0d24..d44567490d91 100644
+--- a/arch/riscv/kernel/smp.c
++++ b/arch/riscv/kernel/smp.c
+@@ -54,7 +54,7 @@ int riscv_hartid_to_cpuid(int hartid)
+ 			return i;
  
--	repl = sctp_make_cookie_ack(new_asoc, chunk);
-+	/* Update the content of current association. */
-+	if (sctp_assoc_update((struct sctp_association *)asoc, new_asoc)) {
-+		struct sctp_chunk *abort;
-+
-+		abort = sctp_make_abort(asoc, NULL, sizeof(struct sctp_errhdr));
-+		if (abort) {
-+			sctp_init_cause(abort, SCTP_ERROR_RSRC_LOW, 0);
-+			sctp_add_cmd_sf(commands, SCTP_CMD_REPLY, SCTP_CHUNK(abort));
-+		}
-+		sctp_add_cmd_sf(commands, SCTP_CMD_SET_SK_ERR, SCTP_ERROR(ECONNABORTED));
-+		sctp_add_cmd_sf(commands, SCTP_CMD_ASSOC_FAILED,
-+				SCTP_PERR(SCTP_ERROR_RSRC_LOW));
-+		SCTP_INC_STATS(net, SCTP_MIB_ABORTEDS);
-+		SCTP_DEC_STATS(net, SCTP_MIB_CURRESTAB);
-+		goto nomem;
-+	}
-+
-+	repl = sctp_make_cookie_ack(asoc, chunk);
- 	if (!repl)
- 		goto nomem;
+ 	pr_err("Couldn't find cpu id for hartid [%d]\n", hartid);
+-	return i;
++	return -ENOENT;
+ }
  
- 	/* Report association restart to upper layer. */
- 	ev = sctp_ulpevent_make_assoc_change(asoc, 0, SCTP_RESTART, 0,
--					     new_asoc->c.sinit_num_ostreams,
--					     new_asoc->c.sinit_max_instreams,
-+					     asoc->c.sinit_num_ostreams,
-+					     asoc->c.sinit_max_instreams,
- 					     NULL, GFP_ATOMIC);
- 	if (!ev)
- 		goto nomem_ev;
- 
--	/* Update the content of current association. */
--	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_EVENT_ULP, SCTP_ULPEVENT(ev));
- 	if ((sctp_state(asoc, SHUTDOWN_PENDING) ||
- 	     sctp_state(asoc, SHUTDOWN_SENT)) &&
+ void riscv_cpuid_to_hartid_mask(const struct cpumask *in, struct cpumask *out)
 -- 
 2.30.2
 
