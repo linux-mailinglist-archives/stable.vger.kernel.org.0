@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ECEB7382E71
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:06:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1A57382E7A
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:06:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238073AbhEQOHc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:07:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58176 "EHLO mail.kernel.org"
+        id S238089AbhEQOHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:07:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237761AbhEQOGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:06:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B569F61363;
-        Mon, 17 May 2021 14:05:16 +0000 (UTC)
+        id S237788AbhEQOGw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:06:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEC6C613B6;
+        Mon, 17 May 2021 14:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260317;
-        bh=HS5KKzXcUkZuwr0eiOh+4/NUtuZFRUCQyebMYWR6Fck=;
+        s=korg; t=1621260319;
+        bh=rK0r5Ef8i/Z9uL9O4pNrJSPaZ3ToAPS5p62LI0Lwyp4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EehLEkqeRdiEsjzpCeqYy7uLPQkQDJ6U07/8V06q86TxYa9EloaW06uiVVC+XCh7S
-         nJ5/Jqejj6WDpwwfViSuRxyk+c9IAdRcVIN0n6z0g9CGzrUyW+PezX2cBgv0aShtol
-         N4mNhvrbh3XWBegLF7Z233iaBar464/LRjJ+1XCw=
+        b=t+n5J5brcSMBZYFTibpZnOqICBNy7o2A4tssyYlCSou/s0gKG1kMnalg4l4NyrNAX
+         R19RZeDL0o4WGN9QrUIQLgda4rLTU7unmcMKEXALN3yvQu9RsP+nApOsKVIMmEDX8c
+         wYvlk7NLgSpEoY8RR26nbYjIy8g1E+TjJ2EieMCU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Anand Jain <anand.jain@oracle.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 005/363] btrfs: fix unmountable seed device after fstrim
-Date:   Mon, 17 May 2021 15:57:51 +0200
-Message-Id: <20210517140302.709997037@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.12 006/363] KVM: SVM: Make sure GHCB is mapped before updating
+Date:   Mon, 17 May 2021 15:57:52 +0200
+Message-Id: <20210517140302.746031602@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,104 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anand Jain <anand.jain@oracle.com>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 5e753a817b2d5991dfe8a801b7b1e8e79a1c5a20 upstream.
+commit a3ba26ecfb569f4aa3f867e80c02aa65f20aadad upstream.
 
-The following test case reproduces an issue of wrongly freeing in-use
-blocks on the readonly seed device when fstrim is called on the rw sprout
-device. As shown below.
+Access to the GHCB is mainly in the VMGEXIT path and it is known that the
+GHCB will be mapped. But there are two paths where it is possible the GHCB
+might not be mapped.
 
-Create a seed device and add a sprout device to it:
+The sev_vcpu_deliver_sipi_vector() routine will update the GHCB to inform
+the caller of the AP Reset Hold NAE event that a SIPI has been delivered.
+However, if a SIPI is performed without a corresponding AP Reset Hold,
+then the GHCB might not be mapped (depending on the previous VMEXIT),
+which will result in a NULL pointer dereference.
 
-  $ mkfs.btrfs -fq -dsingle -msingle /dev/loop0
-  $ btrfstune -S 1 /dev/loop0
-  $ mount /dev/loop0 /btrfs
-  $ btrfs dev add -f /dev/loop1 /btrfs
-  BTRFS info (device loop0): relocating block group 290455552 flags system
-  BTRFS info (device loop0): relocating block group 1048576 flags system
-  BTRFS info (device loop0): disk added /dev/loop1
-  $ umount /btrfs
+The svm_complete_emulated_msr() routine will update the GHCB to inform
+the caller of a RDMSR/WRMSR operation about any errors. While it is likely
+that the GHCB will be mapped in this situation, add a safe guard
+in this path to be certain a NULL pointer dereference is not encountered.
 
-Mount the sprout device and run fstrim:
-
-  $ mount /dev/loop1 /btrfs
-  $ fstrim /btrfs
-  $ umount /btrfs
-
-Now try to mount the seed device, and it fails:
-
-  $ mount /dev/loop0 /btrfs
-  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.
-
-Block 5292032 is missing on the readonly seed device:
-
- $ dmesg -kt | tail
- <snip>
- BTRFS error (device loop0): bad tree block start, want 5292032 have 0
- BTRFS warning (device loop0): couldn't read-tree root
- BTRFS error (device loop0): open_ctree failed
-
->From the dump-tree of the seed device (taken before the fstrim). Block
-5292032 belonged to the block group starting at 5242880:
-
-  $ btrfs inspect dump-tree -e /dev/loop0 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 3 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16169 itemsize 24
-  	block group used 114688 chunk_objectid 256 flags METADATA
-  <snip>
-
->From the dump-tree of the sprout device (taken before the fstrim).
-fstrim used block-group 5242880 to find the related free space to free:
-
-  $ btrfs inspect dump-tree -e /dev/loop1 | grep -A1 BLOCK_GROUP
-  <snip>
-  item 1 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16226 itemsize 24
-  	block group used 32768 chunk_objectid 256 flags METADATA
-  <snip>
-
-BPF kernel tracing the fstrim command finds the missing block 5292032
-within the range of the discarded blocks as below:
-
-  kprobe:btrfs_discard_extent {
-  	printf("freeing start %llu end %llu num_bytes %llu:\n",
-  		arg1, arg1+arg2, arg2);
-  }
-
-  freeing start 5259264 end 5406720 num_bytes 147456
-  <snip>
-
-Fix this by avoiding the discard command to the readonly seed device.
-
-Reported-by: Chris Murphy <lists@colorremedies.com>
-CC: stable@vger.kernel.org # 4.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: f1c6366e3043 ("KVM: SVM: Add required changes to support intercepts under SEV-ES")
+Fixes: 647daca25d24 ("KVM: SVM: Add support for booting APs in an SEV-ES guest")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: stable@vger.kernel.org
+Message-Id: <a5d3ebb600a91170fc88599d5a575452b3e31036.1617979121.git.thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent-tree.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ arch/x86/kvm/svm/sev.c |    3 +++
+ arch/x86/kvm/svm/svm.c |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/btrfs/extent-tree.c
-+++ b/fs/btrfs/extent-tree.c
-@@ -1340,12 +1340,16 @@ int btrfs_discard_extent(struct btrfs_fs
- 		stripe = bbio->stripes;
- 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
- 			u64 bytes;
-+			struct btrfs_device *device = stripe->dev;
- 
--			if (!stripe->dev->bdev) {
-+			if (!device->bdev) {
- 				ASSERT(btrfs_test_opt(fs_info, DEGRADED));
- 				continue;
- 			}
- 
-+			if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
-+				continue;
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -2106,5 +2106,8 @@ void sev_vcpu_deliver_sipi_vector(struct
+ 	 * the guest will set the CS and RIP. Set SW_EXIT_INFO_2 to a
+ 	 * non-zero value.
+ 	 */
++	if (!svm->ghcb)
++		return;
 +
- 			ret = do_discard_extent(stripe, &bytes);
- 			if (!ret) {
- 				discarded_bytes += bytes;
+ 	ghcb_set_sw_exit_info_2(svm->ghcb, 1);
+ }
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2811,7 +2811,7 @@ static int svm_get_msr(struct kvm_vcpu *
+ static int svm_complete_emulated_msr(struct kvm_vcpu *vcpu, int err)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+-	if (!sev_es_guest(svm->vcpu.kvm) || !err)
++	if (!err || !sev_es_guest(vcpu->kvm) || WARN_ON_ONCE(!svm->ghcb))
+ 		return kvm_complete_insn_gp(&svm->vcpu, err);
+ 
+ 	ghcb_set_sw_exit_info_1(svm->ghcb, 1);
 
 
