@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF62E38346F
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB401383454
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241611AbhEQPI5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:08:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47776 "EHLO mail.kernel.org"
+        id S242546AbhEQPHO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:07:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242863AbhEQPE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:04:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3E7B61624;
-        Mon, 17 May 2021 14:28:34 +0000 (UTC)
+        id S243019AbhEQPFN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:05:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC7B61352;
+        Mon, 17 May 2021 14:28:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261715;
-        bh=6sevLBjQRawxKCUul0smE+K6rL/V3rBWtnuTo9KgPbY=;
+        s=korg; t=1621261722;
+        bh=dMaOqTSdh0dUbtJHZVhX6tLdO6Bp8U5x9eQR4swSXPc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=owL0CkwwA4zhx983Wu7ucnXJkuBiKY+whxLaw4YIcwfBlOeXG5AVkAhYsBAyj5G17
-         XP/GpbZt/xI7IQZbPWN1gdnlKhxcO8aZJgGcDcluM1iu7pQ3xDSFZ+QGxacapyHe2U
-         z8+GQVoEJLg8Nk/bW2ONMxFwOE/QAe/oK+59o/Y0=
+        b=d0XKgkMnwAS4bKZbTeEC9tEKzCOJXwpUzk0aCvXiFwQFZIqNESg2TUe6ZxsEN90em
+         PedsxGZkgllpLI1Invv9ACm/HVK2OYzrSsig4HE9t3/Xxxh7sM2a1HeKOEtJSa+ybV
+         W8tvcOInZE4SvWeIZHhAsDHWjADl8Q3rRqCQ0l3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
         Dave Jiang <dave.jiang@intel.com>,
+        Dan Williams <dan.j.williams@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 154/329] dmaengine: idxd: Fix potential null dereference on pointer status
-Date:   Mon, 17 May 2021 16:01:05 +0200
-Message-Id: <20210517140307.319486387@linuxfoundation.org>
+Subject: [PATCH 5.11 155/329] dmaengine: idxd: fix dma device lifetime
+Date:   Mon, 17 May 2021 16:01:06 +0200
+Message-Id: <20210517140307.352819176@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,42 +41,241 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 28ac8e03c43dfc6a703aa420d18222540b801120 ]
+[ Upstream commit 397862855619271296e46d10f7dfa7bafe71eb81 ]
 
-There are calls to idxd_cmd_exec that pass a null status pointer however
-a recent commit has added an assignment to *status that can end up
-with a null pointer dereference.  The function expects a null status
-pointer sometimes as there is a later assignment to *status where
-status is first null checked.  Fix the issue by null checking status
-before making the assignment.
+The devm managed lifetime is incompatible with 'struct device' objects that
+resides in idxd context. This is one of the series that clean up the idxd
+driver 'struct device' lifetime. Remove embedding of dma_device and dma_chan
+in idxd since it's not the only interface that idxd will use. The freeing of
+the dma_device will be managed by the ->release() function.
 
-Addresses-Coverity: ("Explicit null dereferenced")
-Fixes: 89e3becd8f82 ("dmaengine: idxd: check device state before issue command")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/20210415110654.1941580-1-colin.king@canonical.com
+Reported-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
+Signed-off-by: Dave Jiang <dave.jiang@intel.com>
+Reviewed-by: Dan Williams <dan.j.williams@intel.com>
+Link: https://lore.kernel.org/r/161852983001.2203940.14817017492384561719.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/dma/idxd/device.c |  2 -
+ drivers/dma/idxd/dma.c    | 77 ++++++++++++++++++++++++++++++++-------
+ drivers/dma/idxd/idxd.h   | 18 +++++++--
+ 3 files changed, 79 insertions(+), 18 deletions(-)
 
 diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 31c819544a22..78d2dc5e9bd8 100644
+index 78d2dc5e9bd8..d255bb016c4d 100644
 --- a/drivers/dma/idxd/device.c
 +++ b/drivers/dma/idxd/device.c
-@@ -451,7 +451,8 @@ static void idxd_cmd_exec(struct idxd_device *idxd, int cmd_code, u32 operand,
- 
- 	if (idxd_device_is_halted(idxd)) {
- 		dev_warn(&idxd->pdev->dev, "Device is HALTED!\n");
--		*status = IDXD_CMDSTS_HW_ERR;
-+		if (status)
-+			*status = IDXD_CMDSTS_HW_ERR;
- 		return;
+@@ -186,8 +186,6 @@ int idxd_wq_alloc_resources(struct idxd_wq *wq)
+ 		desc->id = i;
+ 		desc->wq = wq;
+ 		desc->cpu = -1;
+-		dma_async_tx_descriptor_init(&desc->txd, &wq->dma_chan);
+-		desc->txd.tx_submit = idxd_dma_tx_submit;
  	}
  
+ 	return 0;
+diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
+index a15e50126434..77439b645044 100644
+--- a/drivers/dma/idxd/dma.c
++++ b/drivers/dma/idxd/dma.c
+@@ -14,7 +14,10 @@
+ 
+ static inline struct idxd_wq *to_idxd_wq(struct dma_chan *c)
+ {
+-	return container_of(c, struct idxd_wq, dma_chan);
++	struct idxd_dma_chan *idxd_chan;
++
++	idxd_chan = container_of(c, struct idxd_dma_chan, chan);
++	return idxd_chan->wq;
+ }
+ 
+ void idxd_dma_complete_txd(struct idxd_desc *desc,
+@@ -135,7 +138,7 @@ static void idxd_dma_issue_pending(struct dma_chan *dma_chan)
+ {
+ }
+ 
+-dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
++static dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
+ {
+ 	struct dma_chan *c = tx->chan;
+ 	struct idxd_wq *wq = to_idxd_wq(c);
+@@ -156,14 +159,25 @@ dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
+ 
+ static void idxd_dma_release(struct dma_device *device)
+ {
++	struct idxd_dma_dev *idxd_dma = container_of(device, struct idxd_dma_dev, dma);
++
++	kfree(idxd_dma);
+ }
+ 
+ int idxd_register_dma_device(struct idxd_device *idxd)
+ {
+-	struct dma_device *dma = &idxd->dma_dev;
++	struct idxd_dma_dev *idxd_dma;
++	struct dma_device *dma;
++	struct device *dev = &idxd->pdev->dev;
++	int rc;
+ 
++	idxd_dma = kzalloc_node(sizeof(*idxd_dma), GFP_KERNEL, dev_to_node(dev));
++	if (!idxd_dma)
++		return -ENOMEM;
++
++	dma = &idxd_dma->dma;
+ 	INIT_LIST_HEAD(&dma->channels);
+-	dma->dev = &idxd->pdev->dev;
++	dma->dev = dev;
+ 
+ 	dma_cap_set(DMA_PRIVATE, dma->cap_mask);
+ 	dma_cap_set(DMA_COMPLETION_NO_ORDER, dma->cap_mask);
+@@ -179,35 +193,72 @@ int idxd_register_dma_device(struct idxd_device *idxd)
+ 	dma->device_alloc_chan_resources = idxd_dma_alloc_chan_resources;
+ 	dma->device_free_chan_resources = idxd_dma_free_chan_resources;
+ 
+-	return dma_async_device_register(&idxd->dma_dev);
++	rc = dma_async_device_register(dma);
++	if (rc < 0) {
++		kfree(idxd_dma);
++		return rc;
++	}
++
++	idxd_dma->idxd = idxd;
++	/*
++	 * This pointer is protected by the refs taken by the dma_chan. It will remain valid
++	 * as long as there are outstanding channels.
++	 */
++	idxd->idxd_dma = idxd_dma;
++	return 0;
+ }
+ 
+ void idxd_unregister_dma_device(struct idxd_device *idxd)
+ {
+-	dma_async_device_unregister(&idxd->dma_dev);
++	dma_async_device_unregister(&idxd->idxd_dma->dma);
+ }
+ 
+ int idxd_register_dma_channel(struct idxd_wq *wq)
+ {
+ 	struct idxd_device *idxd = wq->idxd;
+-	struct dma_device *dma = &idxd->dma_dev;
+-	struct dma_chan *chan = &wq->dma_chan;
+-	int rc;
++	struct dma_device *dma = &idxd->idxd_dma->dma;
++	struct device *dev = &idxd->pdev->dev;
++	struct idxd_dma_chan *idxd_chan;
++	struct dma_chan *chan;
++	int rc, i;
++
++	idxd_chan = kzalloc_node(sizeof(*idxd_chan), GFP_KERNEL, dev_to_node(dev));
++	if (!idxd_chan)
++		return -ENOMEM;
+ 
+-	memset(&wq->dma_chan, 0, sizeof(struct dma_chan));
++	chan = &idxd_chan->chan;
+ 	chan->device = dma;
+ 	list_add_tail(&chan->device_node, &dma->channels);
++
++	for (i = 0; i < wq->num_descs; i++) {
++		struct idxd_desc *desc = wq->descs[i];
++
++		dma_async_tx_descriptor_init(&desc->txd, chan);
++		desc->txd.tx_submit = idxd_dma_tx_submit;
++	}
++
+ 	rc = dma_async_device_channel_register(dma, chan);
+-	if (rc < 0)
++	if (rc < 0) {
++		kfree(idxd_chan);
+ 		return rc;
++	}
++
++	wq->idxd_chan = idxd_chan;
++	idxd_chan->wq = wq;
++	get_device(&wq->conf_dev);
+ 
+ 	return 0;
+ }
+ 
+ void idxd_unregister_dma_channel(struct idxd_wq *wq)
+ {
+-	struct dma_chan *chan = &wq->dma_chan;
++	struct idxd_dma_chan *idxd_chan = wq->idxd_chan;
++	struct dma_chan *chan = &idxd_chan->chan;
++	struct idxd_dma_dev *idxd_dma = wq->idxd->idxd_dma;
+ 
+-	dma_async_device_channel_unregister(&wq->idxd->dma_dev, chan);
++	dma_async_device_channel_unregister(&idxd_dma->dma, chan);
+ 	list_del(&chan->device_node);
++	kfree(wq->idxd_chan);
++	wq->idxd_chan = NULL;
++	put_device(&wq->conf_dev);
+ }
+diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
+index 76014c14f473..80e534680c9a 100644
+--- a/drivers/dma/idxd/idxd.h
++++ b/drivers/dma/idxd/idxd.h
+@@ -14,6 +14,9 @@
+ 
+ extern struct kmem_cache *idxd_desc_pool;
+ 
++struct idxd_device;
++struct idxd_wq;
++
+ #define IDXD_REG_TIMEOUT	50
+ #define IDXD_DRAIN_TIMEOUT	5000
+ 
+@@ -96,6 +99,11 @@ enum idxd_complete_type {
+ 	IDXD_COMPLETE_DEV_FAIL,
+ };
+ 
++struct idxd_dma_chan {
++	struct dma_chan chan;
++	struct idxd_wq *wq;
++};
++
+ struct idxd_wq {
+ 	void __iomem *portal;
+ 	struct device conf_dev;
+@@ -125,7 +133,7 @@ struct idxd_wq {
+ 	int compls_size;
+ 	struct idxd_desc **descs;
+ 	struct sbitmap_queue sbq;
+-	struct dma_chan dma_chan;
++	struct idxd_dma_chan *idxd_chan;
+ 	char name[WQ_NAME_SIZE + 1];
+ 	u64 max_xfer_bytes;
+ 	u32 max_batch_size;
+@@ -162,6 +170,11 @@ enum idxd_device_flag {
+ 	IDXD_FLAG_PASID_ENABLED,
+ };
+ 
++struct idxd_dma_dev {
++	struct idxd_device *idxd;
++	struct dma_device dma;
++};
++
+ struct idxd_device {
+ 	enum idxd_type type;
+ 	struct device conf_dev;
+@@ -210,7 +223,7 @@ struct idxd_device {
+ 	int num_wq_irqs;
+ 	struct idxd_irq_entry *irq_entries;
+ 
+-	struct dma_device dma_dev;
++	struct idxd_dma_dev *idxd_dma;
+ 	struct workqueue_struct *wq;
+ 	struct work_struct work;
+ };
+@@ -363,7 +376,6 @@ void idxd_unregister_dma_channel(struct idxd_wq *wq);
+ void idxd_parse_completion_status(u8 status, enum dmaengine_tx_result *res);
+ void idxd_dma_complete_txd(struct idxd_desc *desc,
+ 			   enum idxd_complete_type comp_type);
+-dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx);
+ 
+ /* cdev */
+ int idxd_cdev_register(void);
 -- 
 2.30.2
 
