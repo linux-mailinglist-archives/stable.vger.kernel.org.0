@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2ADBB383662
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A50D3837DB
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243620AbhEQPbw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
+        id S244568AbhEQPrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245442AbhEQP30 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:29:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A1A0961CBD;
-        Mon, 17 May 2021 14:37:33 +0000 (UTC)
+        id S1344714AbhEQPpb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:45:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 98D5561D31;
+        Mon, 17 May 2021 14:43:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262254;
-        bh=WmuVAwAtjafgC3wQ4Rh/jk6ByBy3UhvsymwyiPIaXGg=;
+        s=korg; t=1621262625;
+        bh=QXHIcgxXCMsYEp8HK4WnUJS8HGDDPdqg5mi9M4eJkqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F7rimTqLBZZ4maYLQTAUnZ4hn0pCBYcVNyOGjaHQG95DVyM9Sz5tiYIuq9orBu1i3
-         BPvBspaDDreridYnb9KUHrb26EjOqYhRP/dwJQlGVoPQE+F1DTqRG612xQH52Nhl+S
-         RxQLusWe4SkYVEa7diohWVgPB9jbi7Evpl7abLDw=
+        b=oTBCFBtZkd/+TcELDEXbkvDWKoP4HEgoGoXyyvjzB6oqXtiCnV5tTnrG0zrAafV/W
+         wyDtvOowr3ASn6n715p1V+IZ/9eg3JgIcj3B52CcD3Lu/6m5L5yO6CLg4ROzZ9xOOC
+         LuLD1bq6MDYnjJyXaWyYJhuTV8LydD02muaKba4w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 250/329] drm/msm: fix LLC not being enabled for mmu500 targets
+Subject: [PATCH 5.10 236/289] f2fs: compress: fix to assign cc.cluster_idx correctly
 Date:   Mon, 17 May 2021 16:02:41 +0200
-Message-Id: <20210517140310.567824645@linuxfoundation.org>
+Message-Id: <20210517140313.119972534@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Marek <jonathan@marek.ca>
+From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit 4b95d371fb001185af84d177e69a23d55bd0167a ]
+[ Upstream commit 8bfbfb0ddd706b1ce2e89259ecc45f192c0ec2bf ]
 
-mmu500 targets don't have a "cx_mem" region, set llc_mmio to NULL in that
-case to avoid the IS_ERR() condition in a6xx_llc_activate().
+In f2fs_destroy_compress_ctx(), after f2fs_destroy_compress_ctx(),
+cc.cluster_idx will be cleared w/ NULL_CLUSTER, f2fs_cluster_blocks()
+may check wrong cluster metadata, fix it.
 
-Fixes: 3d247123b5a1 ("drm/msm/a6xx: Add support for using system cache on MMU500 based targets")
-Signed-off-by: Jonathan Marek <jonathan@marek.ca>
-Link: https://lore.kernel.org/r/20210424014927.1661-1-jonathan@marek.ca
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Fixes: 4c8ff7095bef ("f2fs: support data compression")
+Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ fs/f2fs/compress.c | 17 +++++++++--------
+ fs/f2fs/data.c     |  6 +++---
+ fs/f2fs/f2fs.h     |  2 +-
+ 3 files changed, 13 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index b6e8ff2782da..50ddc5834cab 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1152,10 +1152,6 @@ static void a6xx_llc_slices_init(struct platform_device *pdev,
+diff --git a/fs/f2fs/compress.c b/fs/f2fs/compress.c
+index 58eb5eefe268..f94b13075ea4 100644
+--- a/fs/f2fs/compress.c
++++ b/fs/f2fs/compress.c
+@@ -151,13 +151,14 @@ int f2fs_init_compress_ctx(struct compress_ctx *cc)
+ 	return cc->rpages ? 0 : -ENOMEM;
+ }
+ 
+-void f2fs_destroy_compress_ctx(struct compress_ctx *cc)
++void f2fs_destroy_compress_ctx(struct compress_ctx *cc, bool reuse)
  {
- 	struct device_node *phandle;
+ 	page_array_free(cc->inode, cc->rpages, cc->cluster_size);
+ 	cc->rpages = NULL;
+ 	cc->nr_rpages = 0;
+ 	cc->nr_cpages = 0;
+-	cc->cluster_idx = NULL_CLUSTER;
++	if (!reuse)
++		cc->cluster_idx = NULL_CLUSTER;
+ }
  
--	a6xx_gpu->llc_mmio = msm_ioremap(pdev, "cx_mem", "gpu_cx");
--	if (IS_ERR(a6xx_gpu->llc_mmio))
--		return;
--
- 	/*
- 	 * There is a different programming path for targets with an mmu500
- 	 * attached, so detect if that is the case
-@@ -1165,6 +1161,11 @@ static void a6xx_llc_slices_init(struct platform_device *pdev,
- 		of_device_is_compatible(phandle, "arm,mmu-500"));
- 	of_node_put(phandle);
+ void f2fs_compress_ctx_add_page(struct compress_ctx *cc, struct page *page)
+@@ -984,7 +985,7 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ 		ret = f2fs_read_multi_pages(cc, &bio, cc->cluster_size,
+ 					&last_block_in_bio, false, true);
+ 		f2fs_put_rpages(cc);
+-		f2fs_destroy_compress_ctx(cc);
++		f2fs_destroy_compress_ctx(cc, true);
+ 		if (ret)
+ 			goto out;
+ 		if (bio)
+@@ -1011,7 +1012,7 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ release_and_retry:
+ 			f2fs_put_rpages(cc);
+ 			f2fs_unlock_rpages(cc, i + 1);
+-			f2fs_destroy_compress_ctx(cc);
++			f2fs_destroy_compress_ctx(cc, true);
+ 			goto retry;
+ 		}
+ 	}
+@@ -1044,7 +1045,7 @@ static int prepare_compress_overwrite(struct compress_ctx *cc,
+ unlock_pages:
+ 	f2fs_put_rpages(cc);
+ 	f2fs_unlock_rpages(cc, i);
+-	f2fs_destroy_compress_ctx(cc);
++	f2fs_destroy_compress_ctx(cc, true);
+ out:
+ 	return ret;
+ }
+@@ -1080,7 +1081,7 @@ bool f2fs_compress_write_end(struct inode *inode, void *fsdata,
+ 		set_cluster_dirty(&cc);
  
-+	if (a6xx_gpu->have_mmu500)
-+		a6xx_gpu->llc_mmio = NULL;
-+	else
-+		a6xx_gpu->llc_mmio = msm_ioremap(pdev, "cx_mem", "gpu_cx");
-+
- 	a6xx_gpu->llc_slice = llcc_slice_getd(LLCC_GPU);
- 	a6xx_gpu->htw_llc_slice = llcc_slice_getd(LLCC_GPUHTW);
+ 	f2fs_put_rpages_wbc(&cc, NULL, false, 1);
+-	f2fs_destroy_compress_ctx(&cc);
++	f2fs_destroy_compress_ctx(&cc, false);
  
+ 	return first_index;
+ }
+@@ -1299,7 +1300,7 @@ static int f2fs_write_compressed_pages(struct compress_ctx *cc,
+ 	f2fs_put_rpages(cc);
+ 	page_array_free(cc->inode, cc->cpages, cc->nr_cpages);
+ 	cc->cpages = NULL;
+-	f2fs_destroy_compress_ctx(cc);
++	f2fs_destroy_compress_ctx(cc, false);
+ 	return 0;
+ 
+ out_destroy_crypt:
+@@ -1461,7 +1462,7 @@ int f2fs_write_multi_pages(struct compress_ctx *cc,
+ 	err = f2fs_write_raw_pages(cc, submitted, wbc, io_type);
+ 	f2fs_put_rpages_wbc(cc, wbc, false, 0);
+ destroy_out:
+-	f2fs_destroy_compress_ctx(cc);
++	f2fs_destroy_compress_ctx(cc, false);
+ 	return err;
+ }
+ 
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 901bd1d963ee..bdc0f3b2d7ab 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -2419,7 +2419,7 @@ static int f2fs_mpage_readpages(struct inode *inode,
+ 							max_nr_pages,
+ 							&last_block_in_bio,
+ 							rac != NULL, false);
+-				f2fs_destroy_compress_ctx(&cc);
++				f2fs_destroy_compress_ctx(&cc, false);
+ 				if (ret)
+ 					goto set_error_page;
+ 			}
+@@ -2464,7 +2464,7 @@ static int f2fs_mpage_readpages(struct inode *inode,
+ 							max_nr_pages,
+ 							&last_block_in_bio,
+ 							rac != NULL, false);
+-				f2fs_destroy_compress_ctx(&cc);
++				f2fs_destroy_compress_ctx(&cc, false);
+ 			}
+ 		}
+ #endif
+@@ -3168,7 +3168,7 @@ static int f2fs_write_cache_pages(struct address_space *mapping,
+ 		}
+ 	}
+ 	if (f2fs_compressed_file(inode))
+-		f2fs_destroy_compress_ctx(&cc);
++		f2fs_destroy_compress_ctx(&cc, false);
+ #endif
+ 	if (retry) {
+ 		index = 0;
+diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
+index 036d2a3a2f41..69a390c6064c 100644
+--- a/fs/f2fs/f2fs.h
++++ b/fs/f2fs/f2fs.h
+@@ -3856,7 +3856,7 @@ void f2fs_free_dic(struct decompress_io_ctx *dic);
+ void f2fs_decompress_end_io(struct page **rpages,
+ 			unsigned int cluster_size, bool err, bool verity);
+ int f2fs_init_compress_ctx(struct compress_ctx *cc);
+-void f2fs_destroy_compress_ctx(struct compress_ctx *cc);
++void f2fs_destroy_compress_ctx(struct compress_ctx *cc, bool reuse);
+ void f2fs_init_compress_info(struct f2fs_sb_info *sbi);
+ int f2fs_init_page_array_cache(struct f2fs_sb_info *sbi);
+ void f2fs_destroy_page_array_cache(struct f2fs_sb_info *sbi);
 -- 
 2.30.2
 
