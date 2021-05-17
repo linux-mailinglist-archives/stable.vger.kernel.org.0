@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 743AC3833AD
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1BF35383102
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241225AbhEQPBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:01:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32850 "EHLO mail.kernel.org"
+        id S237985AbhEQOdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241962AbhEQO7F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:59:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFB9B619C6;
-        Mon, 17 May 2021 14:26:26 +0000 (UTC)
+        id S236504AbhEQObk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:31:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CB196186A;
+        Mon, 17 May 2021 14:15:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261587;
-        bh=12x5PIXfBeEvut5Zn2rLhzSuwywtSimHMDMBn61Q4Fo=;
+        s=korg; t=1621260928;
+        bh=oDdmwiAs4OkF35TIcoVtoX+ScytIn7uyrYIh5qLdz2w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PqjgmK7aeQem15BTJ2x5FE7pYnC74urGQ97I4Rd1LIzfNGbYQPsJQqURaiZo05GlL
-         iF0HcQqIGIko86TfFoXNra2He5KqWfuv4Nsz64EZX5PIGSC8IROaI+W5BBsoybgazr
-         tT+E1UZ2Smv8OxjGR6Do4p1PnS7X7fzN3DApFMi0=
+        b=lPez/X75jb8TqMxtM1H4F2d+aRtIOrRBWDNmyxxJOcrgjhSD31aVO3nadz/ynqPiF
+         k3HhRnNdI4/LpcwbWWTAkX2e/gOoK0CyvwKPGnQkOYzSn0Qa5DoewBuGwAY9IxkAet
+         3uKiD72L8C2klICtGAx3cKgJseQafIaGtE9RzYFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 062/141] NFSv4.2 fix handling of sr_eof in SEEKs reply
-Date:   Mon, 17 May 2021 16:01:54 +0200
-Message-Id: <20210517140244.853295972@linuxfoundation.org>
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.12 251/363] sh: Remove unused variable
+Date:   Mon, 17 May 2021 16:01:57 +0200
+Message-Id: <20210517140311.078763547@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 73f5c88f521a630ea1628beb9c2d48a2e777a419 ]
+commit 0d3ae948741ac6d80e39ab27b45297367ee477de upstream.
 
-Currently the client ignores the value of the sr_eof of the SEEK
-operation. According to the spec, if the server didn't find the
-requested extent and reached the end of the file, the server
-would return sr_eof=true. In case the request for DATA and no
-data was found (ie in the middle of the hole), then the lseek
-expects that ENXIO would be returned.
+Removes this annoying warning:
 
-Fixes: 1c6dcbe5ceff8 ("NFS: Implement SEEK")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+arch/sh/kernel/traps.c: In function ‘nmi_trap_handler’:
+arch/sh/kernel/traps.c:183:15: warning: unused variable ‘cpu’ [-Wunused-variable]
+  183 |  unsigned int cpu = smp_processor_id();
+
+Fixes: fe3f1d5d7cd3 ("sh: Get rid of nmi_count()")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210414170517.1205430-1-eric.dumazet@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs42proc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/sh/kernel/traps.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 5c84e5b8c0d6..6b7c926824ae 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -500,7 +500,10 @@ static loff_t _nfs42_proc_llseek(struct file *filep,
- 	if (status)
- 		return status;
+--- a/arch/sh/kernel/traps.c
++++ b/arch/sh/kernel/traps.c
+@@ -180,7 +180,6 @@ static inline void arch_ftrace_nmi_exit(
  
--	return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
-+	if (whence == SEEK_DATA && res.sr_eof)
-+		return -NFS4ERR_NXIO;
-+	else
-+		return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
- }
+ BUILD_TRAP_HANDLER(nmi)
+ {
+-	unsigned int cpu = smp_processor_id();
+ 	TRAP_HANDLER_DECL;
  
- loff_t nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
--- 
-2.30.2
-
+ 	arch_ftrace_nmi_enter();
 
 
