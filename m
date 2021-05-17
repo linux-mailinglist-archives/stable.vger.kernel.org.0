@@ -2,236 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC4A8383CFC
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:10:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5022E383D16
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 21:18:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231379AbhEQTMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 15:12:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
+        id S232483AbhEQTTs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 15:19:48 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbhEQTMO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:12:14 -0400
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E181C061573
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 12:10:57 -0700 (PDT)
-Received: by mail-pl1-x62f.google.com with SMTP id p6so3704676plr.11
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 12:10:57 -0700 (PDT)
+        with ESMTP id S232517AbhEQTTp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 15:19:45 -0400
+Received: from mail-lf1-x12a.google.com (mail-lf1-x12a.google.com [IPv6:2a00:1450:4864:20::12a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDD34C061573;
+        Mon, 17 May 2021 12:18:24 -0700 (PDT)
+Received: by mail-lf1-x12a.google.com with SMTP id j10so10407936lfb.12;
+        Mon, 17 May 2021 12:18:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=JGBLiP6+tUnJmjpIz0IA0ADGqhR9RSgYbbg+iD/ySl0=;
-        b=aDZ+QCAAJbIXtakNuxfUPpVAFBfoE9djdtnGyLrBj4MYovAhU33LFfaTTt0LASE5JO
-         Pg2+Zj0pCLDw70O1AAVe9Kzd4XjwEUwWA1f46lKAAmCIkzZSeSo0cjygFgAVHrHbx6te
-         8OhBJRBO76yj5xNlB6q0eZjyweBhRqCA9g+1R9eb0C3QVF7svR96kKBuq1zWJk4liTsj
-         fY//I2JG0jL5+XWYQP+4bcZ+pQZV0wepw92C6KzuAf0/3Pmv7Y/avf3VrhIRoUvdN7KI
-         qf7s+TqHnkIIV5y457aeQtukA/7qbQYap+UdiKhC528WrytinLUhAcZ1ng2NdNedJzgx
-         TXgw==
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7BU0ow4QR93mOB74FmJ4kFwJgWXgNPCN3wgoS7EpDVg=;
+        b=VHB5JqmkcVWB42P5/6IQUPbsTgEhLAj+tpXRJrXIfQWzJ01MJA26rN9sr0AtYsdP7k
+         JxLYIGh5aPbTbFQXZ+uUjTkxkKfCPotg4mU7nfMaXvV0p2nYw/MMReHdEuVJKGndusty
+         NO9KvOWLfKfq1Y7UW8mUjfgw6A+yP0LV5Aws6Ty7LePGhtilU0gx5pVhUODGFFdDPeqE
+         ITtrq0CjjIxM66bjMy3/i5MvJ6So5A1XQIakybLDK2ytE6HYa9kEfNM17c/aUqr85LaE
+         o8lqlT0tzSfSdZSfsGJLKQnlCFOFyzagoPAHbj479aF/CMV+hyqtmol3o6RtgMonyzYi
+         rBYA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=JGBLiP6+tUnJmjpIz0IA0ADGqhR9RSgYbbg+iD/ySl0=;
-        b=EGhvAV+vYYKVLdydxMX6vtr35r+yIh5MghdC2wy8a1cboo3bT5eObg1CR3AIcSYpXg
-         o/kr2hz16/1y1qFSmpiSMA4vRB3AsOdfce4Tlgwku20H44E3QlB7QCflRPMaaTGNZFc4
-         nuVOkmT1c3iY1IPkgl0VrHOqh0NQU8NDO2/E0uW4GmCBiJPsaAvsfmfEqV1aBmD8J+zO
-         E3RCFMthE4tOE6xiNkO4XxXyt6Arp6kCQ7uZj2aOJNqGmw0UhC3Cz/VdSmRrL3UOiAUM
-         3AhtHgBzPP3ORMdLr/tlmAEl3IMGQjOOyc7qGj3uIt8R8y2g7ZkBTjr6TFZyfGRomBOK
-         oEdQ==
-X-Gm-Message-State: AOAM5305yUXanja+ciXWljZh6uDyciisXt3rpAwA3sGRiQGyfbkOl/0j
-        eaB/Bf7/zlkdzE7JvFk2iiccWlWDXA8q/PnH
-X-Google-Smtp-Source: ABdhPJwYDQAXrKig9x+sgwbMgZCfYEd/VCKAJRbaOLNdqQJ+90/IVNde1wAXyfa6mXOL9mNeTfk3Ag==
-X-Received: by 2002:a17:902:f20c:b029:f0:af3d:c5d8 with SMTP id m12-20020a170902f20cb02900f0af3dc5d8mr1379496plc.23.1621278656577;
-        Mon, 17 May 2021 12:10:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s16sm11223548pga.5.2021.05.17.12.10.55
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=7BU0ow4QR93mOB74FmJ4kFwJgWXgNPCN3wgoS7EpDVg=;
+        b=G+892r92pF0XVQmSryV7BrsKFYIHBpg/dvwwvuUlD/lHVQ+12ywFXKO8NjOtrfkAw4
+         twyWU0o+xTUfZ24MYr5cH3b0NQwm+2fby56jQmT22NPGt2JnHeCOavjYWDzBvIgzoFAO
+         iwNlm+fxS96QkA/89CLuyyLrEHHnGU6sbDYq4h/WLg79ACxBnelWJXw69HxWwLDrGrtW
+         LtJkvRWQlQPvchtlitcNa03JWWbmnE2IRD9TXB0Fxatd9KzB4uaAJUX7L3TgW0P3e+cB
+         iWZVhg85OnO4dTK41nmKYWiQpxBRvJq6gMMJKnJPhH6hOm99Fjhyblhi7BYh6sMdBRxh
+         zb7g==
+X-Gm-Message-State: AOAM532OZ7rJwhTJqDHnssD148Y0iuJV34ti/yYWsWuJXFkYS4YuTDHZ
+        knBkwtAuP/zmwu1NkbDFyVs=
+X-Google-Smtp-Source: ABdhPJxfJ5AnQ0NtLlstk6v0EMuNUrDW4o3QNS5RnVAO91gR4wfH20CQNbXTGvla4RxqSeO4zaogGw==
+X-Received: by 2002:a05:6512:3090:: with SMTP id z16mr910138lfd.402.1621279103243;
+        Mon, 17 May 2021 12:18:23 -0700 (PDT)
+Received: from localhost.localdomain ([94.103.227.227])
+        by smtp.gmail.com with ESMTPSA id 8sm3017947ljj.138.2021.05.17.12.18.22
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 12:10:56 -0700 (PDT)
-Message-ID: <60a2bfc0.1c69fb81.636e8.5eb4@mx.google.com>
-Date:   Mon, 17 May 2021 12:10:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 17 May 2021 12:18:22 -0700 (PDT)
+From:   Pavel Skripkin <paskripkin@gmail.com>
+To:     royale@zerezo.com, mchehab@kernel.org, lamarque@gmail.com
+Cc:     linux-usb@vger.kernel.org, linux-media@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Pavel Skripkin <paskripkin@gmail.com>, stable@vger.kernel.org,
+        syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com
+Subject: [PATCH] media: zr364xx: fix memory leak in zr364xx_start_readpipe
+Date:   Mon, 17 May 2021 22:18:14 +0300
+Message-Id: <20210517191814.1761-1-paskripkin@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.232-301-ge5a8731df5a7
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 94 runs,
- 4 regressions (v4.14.232-301-ge5a8731df5a7)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 94 runs, 4 regressions (v4.14.232-301-ge5a87=
-31df5a7)
+syzbot reported memory leak in zr364xx driver.
+The problem was in non-freed urb in case of
+usb_submit_urb() fail.
 
-Regressions Summary
--------------------
+backtrace:
+  [<ffffffff82baedf6>] kmalloc include/linux/slab.h:561 [inline]
+  [<ffffffff82baedf6>] usb_alloc_urb+0x66/0xe0 drivers/usb/core/urb.c:74
+  [<ffffffff82f7cce8>] zr364xx_start_readpipe+0x78/0x130 drivers/media/usb/zr364xx/zr364xx.c:1022
+  [<ffffffff84251dfc>] zr364xx_board_init drivers/media/usb/zr364xx/zr364xx.c:1383 [inline]
+  [<ffffffff84251dfc>] zr364xx_probe+0x6a3/0x851 drivers/media/usb/zr364xx/zr364xx.c:1516
+  [<ffffffff82bb6507>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+  [<ffffffff826018a9>] really_probe+0x159/0x500 drivers/base/dd.c:576
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+Fixes: ccbf035ae5de ("V4L/DVB (12278): zr364xx: implement V4L2_CAP_STREAMING")
+Cc: stable@vger.kernel.org
+Reported-by: syzbot+af4fa391ef18efdd5f69@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+---
+ drivers/media/usb/zr364xx/zr364xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+diff --git a/drivers/media/usb/zr364xx/zr364xx.c b/drivers/media/usb/zr364xx/zr364xx.c
+index 1ef611e08323..538a330046ec 100644
+--- a/drivers/media/usb/zr364xx/zr364xx.c
++++ b/drivers/media/usb/zr364xx/zr364xx.c
+@@ -1032,6 +1032,7 @@ static int zr364xx_start_readpipe(struct zr364xx_camera *cam)
+ 	DBG("submitting URB %p\n", pipe_info->stream_urb);
+ 	retval = usb_submit_urb(pipe_info->stream_urb, GFP_KERNEL);
+ 	if (retval) {
++		usb_free_urb(pipe_info->stream_urb);
+ 		printk(KERN_ERR KBUILD_MODNAME ": start read pipe failed\n");
+ 		return retval;
+ 	}
+-- 
+2.31.1
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.232-301-ge5a8731df5a7/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.232-301-ge5a8731df5a7
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      e5a8731df5a7c7e09507706470738f30702e0f85 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a28ec62a35ee3dd4b3afac
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a28ec62a35ee3dd4b3a=
-fad
-        failing since 77 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a28a60524fcc2033b3afd8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a28a60524fcc2033b3a=
-fd9
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a28a51524fcc2033b3afbd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a28a51524fcc2033b3a=
-fbe
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a28a41c40eaf89ccb3af97
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-ge5a8731df5a7/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a28a41c40eaf89ccb3a=
-f98
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
