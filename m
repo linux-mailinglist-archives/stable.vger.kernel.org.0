@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 142B7383368
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2644D383136
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238633AbhEQO6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51142 "EHLO mail.kernel.org"
+        id S237941AbhEQOf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:35:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241039AbhEQO4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:56:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15B3161474;
-        Mon, 17 May 2021 14:25:11 +0000 (UTC)
+        id S238075AbhEQOcP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:32:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 369E961883;
+        Mon, 17 May 2021 14:16:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261512;
-        bh=Q7GsfxgLu5IRzYcfD4p0g4gAFfBtZx/hFLn1I5CeNYk=;
+        s=korg; t=1621260961;
+        bh=G9rh/wjGe8KAlphEFiZxuD9BxwFSJwNa4pW7dZ3LJUE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xp2cdBVZSDLBW8iMfrX/ie2QpT5fyLP1aib3+5aMyHw0WwpLwElHTSWuXhwjiS7fO
-         CjNSr8k7xvX9QYt65gPmhG8MoYK4zx5vAwOnOD2vOYZ6XrPnoHokddNJZIsm5wHWIr
-         mO1aeTDdhYJSsfq5/27h1rqbBK1V8Zyg9dcsVj4M=
+        b=PNIjXZK/h+iEEt2p0n1shKnGF1TbqjO5wzHT4Bz3SAAaRL40vyTkP/yefvuDL3k8g
+         jeN0wgIb+srKA8+I5ahcPc3HLhpdeifGnQFq8bRQyZLup0HWkzuw7QKgVSxLMg85YU
+         aS/HXzFc/1MG6fFeiyTByhavHFI5M/SJArP2T6L4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
-Subject: [PATCH 5.10 028/289] Bluetooth: initialize skb_queue_head at l2cap_chan_create()
-Date:   Mon, 17 May 2021 15:59:13 +0200
-Message-Id: <20210517140306.133220008@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 043/329] ASoC: Intel: bytcr_rt5640: Add quirk for the Chuwi Hi8 tablet
+Date:   Mon, 17 May 2021 15:59:14 +0200
+Message-Id: <20210517140303.496807559@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,41 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit be8597239379f0f53c9710dd6ab551bbf535bec6 ]
+[ Upstream commit 875c40eadf6ac6644c0f71842a4f30dd9968d281 ]
 
-syzbot is hitting "INFO: trying to register non-static key." message [1],
-for "struct l2cap_chan"->tx_q.lock spinlock is not yet initialized when
-l2cap_chan_del() is called due to e.g. timeout.
+The Chuwi Hi8 tablet is using an analog mic on IN1 and has its
+jack-detect connected to JD2_IN4N, instead of using the default
+IN3 for its internal mic and JD1_IN4P for jack-detect.
 
-Since "struct l2cap_chan"->lock mutex is initialized at l2cap_chan_create()
-immediately after "struct l2cap_chan" is allocated using kzalloc(), let's
-as well initialize "struct l2cap_chan"->{tx_q,srej_q}.lock spinlocks there.
+It also only has 1 speaker.
 
-[1] https://syzkaller.appspot.com/bug?extid=fadfba6a911f6bf71842
+Add a quirk applying the correct settings for this configuration.
 
-Reported-and-tested-by: syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210325221054.22714-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/soc/intel/boards/bytcr_rt5640.c | 17 +++++++++++++++++
+ 1 file changed, 17 insertions(+)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index 3e18cddfbcc5..cdc386337173 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -451,6 +451,8 @@ struct l2cap_chan *l2cap_chan_create(void)
- 	if (!chan)
- 		return NULL;
- 
-+	skb_queue_head_init(&chan->tx_q);
-+	skb_queue_head_init(&chan->srej_q);
- 	mutex_init(&chan->lock);
- 
- 	/* Set default lock nesting level */
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 07730ed7ab3c..d45f43290653 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -514,6 +514,23 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{
++		/* Chuwi Hi8 (CWI509) */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_BOARD_NAME, "BYT-PA03C"),
++			DMI_MATCH(DMI_SYS_VENDOR, "ilife"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "S806"),
++		},
++		.driver_data = (void *)(BYT_RT5640_IN1_MAP |
++					BYT_RT5640_JD_SRC_JD2_IN4N |
++					BYT_RT5640_OVCD_TH_2000UA |
++					BYT_RT5640_OVCD_SF_0P75 |
++					BYT_RT5640_MONO_SPEAKER |
++					BYT_RT5640_DIFF_MIC |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Circuitco"),
 -- 
 2.30.2
 
