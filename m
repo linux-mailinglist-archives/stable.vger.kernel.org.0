@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 113A0383085
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:29:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0908382EAD
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239252AbhEQO2U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:28:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53884 "EHLO mail.kernel.org"
+        id S238102AbhEQOKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:10:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58902 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239434AbhEQO0S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:26:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D7BB961364;
-        Mon, 17 May 2021 14:13:36 +0000 (UTC)
+        id S238111AbhEQOIA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:08:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B8F61209;
+        Mon, 17 May 2021 14:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260817;
-        bh=6ddgKla64uBEGApX7ZIEwioGFErlQV89OSB8CcnYl/o=;
+        s=korg; t=1621260387;
+        bh=RYJFBR3GQ8Xd0J8jaYkkYHAiFJ08CpgfGIi/7L2F32k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PEYtFn8Ygg1of9xe5E6ClRjo2mchZJDCnLLL7sfGlXCDQ0mLNu8t1QXs14yoQrd4u
-         Z5e86SevaZOo76B4engz6Jc/5Fhqyw6TQ4/RfJ+0cYIdEb9Su7BN9W0vlyrWdSkrhd
-         vrnUEf4PeO2Z3NwwES3ZvfAYkoAK7ZzHBlI6WaWQ=
+        b=bU8KAOstkD/qU4FYifL+T1CNHqQRomZhJ3M+t9NoiB4KFIt3zZtMnvmdjoidjvOp2
+         EyWlyXg2+3UHwQ8kGwq1i0yja3LdWx/DDf16T7SdRX8TwVFfmc6meHtDkrtzuxrYUv
+         4beSGoW72vS+gkWPF5IK/4DK9r3rrUUZbrXu5L8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
-        Venkatesh Srinivas <venkateshs@chromium.org>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 5.11 011/329] kvm: Cap halt polling at kvm->max_halt_poll_ns
-Date:   Mon, 17 May 2021 15:58:42 +0200
-Message-Id: <20210517140302.431230811@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 057/363] mac80211: clear the beacons CRC after channel switch
+Date:   Mon, 17 May 2021 15:58:43 +0200
+Message-Id: <20210517140304.545648898@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +41,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Matlack <dmatlack@google.com>
+From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
 
-commit 258785ef08b323bddd844b4926a32c2b2045a1b0 upstream.
+[ Upstream commit d6843d1ee283137723b4a8c76244607ce6db1951 ]
 
-When growing halt-polling, there is no check that the poll time exceeds
-the per-VM limit. It's possible for vcpu->halt_poll_ns to grow past
-kvm->max_halt_poll_ns and stay there until a halt which takes longer
-than kvm->halt_poll_ns.
+After channel switch, we should consider any beacon with a
+CSA IE as a new switch. If the CSA IE is a leftover from
+before the switch that the AP forgot to remove, we'll get
+a CSA-to-Self.
 
-Signed-off-by: David Matlack <dmatlack@google.com>
-Signed-off-by: Venkatesh Srinivas <venkateshs@chromium.org>
-Message-Id: <20210506152442.4010298-1-venkateshs@chromium.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This caused issues in iwlwifi where the firmware saw a beacon
+with a CSA-to-Self with mode = 1 on the new channel after a
+switch. The firmware considered this a new switch and closed
+its queues. Since the beacon didn't change between before and
+after the switch, we wouldn't handle it (the CRC is the same)
+and we wouldn't let the firmware open its queues again or
+disconnect if the CSA IE stays for too long.
+
+Clear the CRC valid state after we switch to make sure that
+we handle the beacon and handle the CSA IE as required.
+
+Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+Link: https://lore.kernel.org/r/20210408143124.b9e68aa98304.I465afb55ca2c7d59f7bf610c6046a1fd732b4c28@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mac80211/mlme.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2734,8 +2734,8 @@ static void grow_halt_poll_ns(struct kvm
- 	if (val < grow_start)
- 		val = grow_start;
+diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
+index 96f487fc0071..4a8f1b8ce768 100644
+--- a/net/mac80211/mlme.c
++++ b/net/mac80211/mlme.c
+@@ -1295,6 +1295,11 @@ static void ieee80211_chswitch_post_beacon(struct ieee80211_sub_if_data *sdata)
  
--	if (val > halt_poll_ns)
--		val = halt_poll_ns;
-+	if (val > vcpu->kvm->max_halt_poll_ns)
-+		val = vcpu->kvm->max_halt_poll_ns;
+ 	sdata->vif.csa_active = false;
+ 	ifmgd->csa_waiting_bcn = false;
++	/*
++	 * If the CSA IE is still present on the beacon after the switch,
++	 * we need to consider it as a new CSA (possibly to self).
++	 */
++	ifmgd->beacon_crc_valid = false;
  
- 	vcpu->halt_poll_ns = val;
- out:
+ 	ret = drv_post_channel_switch(sdata);
+ 	if (ret) {
+-- 
+2.30.2
+
 
 
