@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02374382FF1
+	by mail.lfdr.de (Postfix) with ESMTP id 9857A382FF3
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:21:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239226AbhEQOW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36010 "EHLO mail.kernel.org"
+        id S239255AbhEQOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:22:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239509AbhEQOU0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:20:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2452761455;
-        Mon, 17 May 2021 14:11:14 +0000 (UTC)
+        id S239510AbhEQOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:20:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EC4661440;
+        Mon, 17 May 2021 14:11:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260675;
-        bh=IMKZyleuFGmRRVNp8ON8GyL0KpAK5SyJQrMhhsCbPgk=;
+        s=korg; t=1621260677;
+        bh=JcwCjE5vdzX03akLgR47m9JznA7dJwpchvmlYgixaBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKCvnigXpL43rpfcKyWD6hdRQqKwU1eso3pJpnXuxwxsUb9/46HZeOly3eoZUmTYs
-         Ta7Jlf5ry+b5M0GAdslg5/cB5FTtuOCFUBTonSIKkVfPbzwqwj13nV/qv9nR6c8HZ/
-         +R36Zsm2rd2BKP7vMSrcwU5MR6KEXDerNkZwqiiE=
+        b=0bjN82eudoPxrbW9xw2TdaB7jdlqs2G4NhurfBAIr/FN4/QPepPgfr16Vg34zhfR3
+         jzsc8H0yBo/qbeNO9fN2Q7fSe+r4IpJmrXTfvAxT+V7N/zaCQ3WU0Fbye8ps8ADe3c
+         U0OR+VP3lcWTtmH35WfcknjWFTiRG9b8AZheIKyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daejun Park <daejun7.park@samsung.com>,
-        Can Guo <cang@codeaurora.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 190/363] scsi: ufs: core: Narrow down fast path in system suspend path
-Date:   Mon, 17 May 2021 16:00:56 +0200
-Message-Id: <20210517140309.018177965@linuxfoundation.org>
+Subject: [PATCH 5.12 191/363] rtc: ds1307: Fix wday settings for rx8130
+Date:   Mon, 17 May 2021 16:00:57 +0200
+Message-Id: <20210517140309.048038565@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,43 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Can Guo <cang@codeaurora.org>
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-[ Upstream commit ce4f62f9dd8cf43ac044045ed598a0b80ef33890 ]
+[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
 
-If spm_lvl is set to 0 or 1, when system suspend kicks start and HBA is
-runtime active, system suspend may just bail without doing anything (the
-fast path), leaving other contexts still running, e.g., clock gating and
-clock scaling. When system resume kicks start, concurrency can happen
-between ufshcd_resume() and these contexts, leading to various stability
-issues.
+rx8130 wday specifies the bit position, not BCD.
 
-Add a check against HBA's runtime state and allowing fast path only if HBA
-is runtime suspended, otherwise let system suspend go ahead call
-ufshcd_suspend(). This will guarantee that these contexts are stopped by
-either runtime suspend or system suspend.
-
-Link: https://lore.kernel.org/r/1619408921-30426-4-git-send-email-cang@codeaurora.org
-Fixes: 0b257734344a ("scsi: ufs: optimize system suspend handling")
-Reviewed-by: Daejun Park <daejun7.park@samsung.com>
-Signed-off-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 4631a609b0e3..0c71a159d08f 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8984,6 +8984,7 @@ int ufshcd_system_suspend(struct ufs_hba *hba)
- 	     hba->curr_dev_pwr_mode) &&
- 	    (ufs_get_pm_lvl_to_link_pwr_state(hba->spm_lvl) ==
- 	     hba->uic_link_state) &&
-+	     pm_runtime_suspended(hba->dev) &&
- 	     !hba->dev_info.b_rpm_dev_flush_capable)
- 		goto out;
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index cd8e438bc9c4..8752620d8e34 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -296,7 +296,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
+ 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
+ 	t->tm_hour = bcd2bin(tmp);
+-	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
++	else
++		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
+ 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
+ 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
+ 	t->tm_mon = bcd2bin(tmp) - 1;
+@@ -343,7 +347,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
+ 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
+ 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
+-	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
++	else
++		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
+ 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+ 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
  
 -- 
 2.30.2
