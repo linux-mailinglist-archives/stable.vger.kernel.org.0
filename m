@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 697BC3836EC
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0649A3836F6
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245090AbhEQPh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:37:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37994 "EHLO mail.kernel.org"
+        id S245226AbhEQPiI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:38:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243296AbhEQPfa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:35:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E4D261CE8;
-        Mon, 17 May 2021 14:39:48 +0000 (UTC)
+        id S242941AbhEQPgG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:36:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE39F61CEB;
+        Mon, 17 May 2021 14:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262389;
-        bh=MBOQYnE2mOI5zp9tE0zlOseQc4zBVgAXWE1oPuGi4DU=;
+        s=korg; t=1621262396;
+        bh=5JqOWewpSfjRjyDmUHVM+mU4K6QsgUlEZfEB6rZz/nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naz4a9dfShmDbhMByPGqr2NROoJUELZRR4E0GpndFounC+GR2I9dxZ8GUxYUet29v
-         Tf/dvEu+k1Ro9H5Y/Ap7FotKQ2RsWmUYdeaxen3oI67KMOjuI6+KTAFRBHygvLrbup
-         mK/tdBou1y1f0LKCBHwuDfmMJi0KVC5WBAU2SqCc=
+        b=h6iczzP87kpfnMZTq/tL9OU8iCKwXMEv5P4rObWjJiA/cIn1AgUFnm02NdNEZav1m
+         cAj4A9gMiTJafWRQ8RTJEO/xKCKzFh+TtfnEn2NP5hooH6gI808pvb5mMir3bFO5Gx
+         6gXfWFgcE5ya3+pGEpHT/VCvrSQeK22DYtwT7xXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Hamer <marcel@solidxs.se>
-Subject: [PATCH 5.11 281/329] usb: dwc3: omap: improve extcon initialization
-Date:   Mon, 17 May 2021 16:03:12 +0200
-Message-Id: <20210517140311.611750179@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Ferry Toth <ftoth@exalondelft.nl>
+Subject: [PATCH 5.11 282/329] usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield
+Date:   Mon, 17 May 2021 16:03:13 +0200
+Message-Id: <20210517140311.642150134@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -38,44 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Hamer <marcel@solidxs.se>
+From: Ferry Toth <ftoth@exalondelft.nl>
 
-commit e17b02d4970913233d543c79c9c66e72cac05bdd upstream.
+commit 04357fafea9c7ed34525eb9680c760245c3bb958 upstream.
 
-When extcon is used in combination with dwc3, it is assumed that the dwc3
-registers are untouched and as such are only configured if VBUS is valid
-or ID is tied to ground.
+On Intel Merrifield LPM is causing host to reset port after a timeout.
+By disabling LPM entirely this is prevented.
 
-In case VBUS is not valid or ID is floating, the registers are not
-configured as such during driver initialization, causing a wrong
-default state during boot.
-
-If the registers are not in a default state, because they are for
-instance touched by a boot loader, this can cause for a kernel error.
-
-Signed-off-by: Marcel Hamer <marcel@solidxs.se>
-Link: https://lore.kernel.org/r/20210427122118.1948340-1-marcel@solidxs.se
+Fixes: 066c09593454 ("usb: dwc3: pci: Enable extcon driver for Intel Merrifield")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
 Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210425150947.5862-1-ftoth@exalondelft.nl
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-omap.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/dwc3/dwc3-pci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/dwc3/dwc3-omap.c
-+++ b/drivers/usb/dwc3/dwc3-omap.c
-@@ -437,8 +437,13 @@ static int dwc3_omap_extcon_register(str
- 
- 		if (extcon_get_state(edev, EXTCON_USB) == true)
- 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_VALID);
-+		else
-+			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_OFF);
-+
- 		if (extcon_get_state(edev, EXTCON_USB_HOST) == true)
- 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_GROUND);
-+		else
-+			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_FLOAT);
- 
- 		omap->edev = edev;
- 	}
+--- a/drivers/usb/dwc3/dwc3-pci.c
++++ b/drivers/usb/dwc3/dwc3-pci.c
+@@ -120,6 +120,7 @@ static const struct property_entry dwc3_
+ 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
+ 	PROPERTY_ENTRY_BOOL("snps,dis_u3_susphy_quirk"),
+ 	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
++	PROPERTY_ENTRY_BOOL("snps,usb2-gadget-lpm-disable"),
+ 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
+ 	{}
+ };
 
 
