@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 254E4383728
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CDCCF383857
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244715AbhEQPki (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:40:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40236 "EHLO mail.kernel.org"
+        id S244991AbhEQPvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:51:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244523AbhEQPip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:38:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED60761944;
-        Mon, 17 May 2021 14:40:56 +0000 (UTC)
+        id S1343988AbhEQPtp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:49:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA71261960;
+        Mon, 17 May 2021 14:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262457;
-        bh=5a0i6618Sf3aj//L1ZmO2dcxrnJP/ZYs+X1dx/dkXyE=;
+        s=korg; t=1621262726;
+        bh=P2EqQavx1rP6XcL6iz3KrATM+pJWU8gQ3J8eYh0pZXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1E9GHEH4FrZDLERe0EfCz5YLTZMuVfYzHK7qxhUxKydz7CLApxxZsEN/tiS3OFvQ
-         16YtAIkVI7IhjEShvvzZAyALvNd72ibL9EeZTmPb1dgxdA8n4Sc2rQNl/fM+IIUsTm
-         PsdyXt4+ieb7NBMFXxNiylz6QlSY7MzUaw+9URyM=
+        b=o3rI/VZULBRI2jM4q092RdV3HIQ1wJkuDivh+rZFTP03tngelUR1/+dnfpfHyIIOc
+         HezEaAhnyKY7O4jLIM5GFWPsowtn+mqYH2DyHNIr+Thio6wTjz5tq8fIBR01XoaOSk
+         k2sqbF4BMFIzZCjSITos6wstnU576gSQvysySB40=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.11 295/329] iio: tsl2583: Fix division by a zero lux_val
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 5.10 281/289] clk: exynos7: Mark aclk_fsys1_200 as critical
 Date:   Mon, 17 May 2021 16:03:26 +0200
-Message-Id: <20210517140312.084526034@linuxfoundation.org>
+Message-Id: <20210517140314.601214583@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-commit af0e1871d79cfbb91f732d2c6fa7558e45c31038 upstream.
+commit 34138a59b92c1a30649a18ec442d2e61f3bc34dd upstream.
 
-The lux_val returned from tsl2583_get_lux can potentially be zero,
-so check for this to avoid a division by zero and an overflowed
-gain_trim_val.
+This clock must be always enabled to allow access to any registers in
+fsys1 CMU. Until proper solution based on runtime PM is applied
+(similar to what was done for Exynos5433), mark that clock as critical
+so it won't be disabled.
 
-Fixes clang scan-build warning:
+It was observed on Samsung Galaxy S6 device (based on Exynos7420), where
+UFS module is probed before pmic used to power that device.
+In this case defer probe was happening and that clock was disabled by
+UFS driver, causing whole boot to hang on next CMU access.
 
-drivers/iio/light/tsl2583.c:345:40: warning: Either the
-condition 'lux_val<0' is redundant or there is division
-by zero at line 345. [zerodivcond]
-
-Fixes: ac4f6eee8fe8 ("staging: iio: TAOS tsl258x: Device driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: 753195a749a6 ("clk: samsung: exynos7: Correct CMU_FSYS1 clocks names")
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/linux-clk/20201024154346.9589-1-pawel.mikolaj.chmiel@gmail.com
+[s.nawrocki: Added comment in the code]
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/tsl2583.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/clk/samsung/clk-exynos7.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/light/tsl2583.c
-+++ b/drivers/iio/light/tsl2583.c
-@@ -341,6 +341,14 @@ static int tsl2583_als_calibrate(struct
- 		return lux_val;
- 	}
+--- a/drivers/clk/samsung/clk-exynos7.c
++++ b/drivers/clk/samsung/clk-exynos7.c
+@@ -537,8 +537,13 @@ static const struct samsung_gate_clock t
+ 	GATE(CLK_ACLK_FSYS0_200, "aclk_fsys0_200", "dout_aclk_fsys0_200",
+ 		ENABLE_ACLK_TOP13, 28, CLK_SET_RATE_PARENT |
+ 		CLK_IS_CRITICAL, 0),
++	/*
++	 * This clock is required for the CMU_FSYS1 registers access, keep it
++	 * enabled permanently until proper runtime PM support is added.
++	 */
+ 	GATE(CLK_ACLK_FSYS1_200, "aclk_fsys1_200", "dout_aclk_fsys1_200",
+-		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT, 0),
++		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT |
++		CLK_IS_CRITICAL, 0),
  
-+	/* Avoid division by zero of lux_value later on */
-+	if (lux_val == 0) {
-+		dev_err(&chip->client->dev,
-+			"%s: lux_val of 0 will produce out of range trim_value\n",
-+			__func__);
-+		return -ENODATA;
-+	}
-+
- 	gain_trim_val = (unsigned int)(((chip->als_settings.als_cal_target)
- 			* chip->als_settings.als_gain_trim) / lux_val);
- 	if ((gain_trim_val < 250) || (gain_trim_val > 4000)) {
+ 	GATE(CLK_SCLK_PHY_FSYS1_26M, "sclk_phy_fsys1_26m",
+ 		"dout_sclk_phy_fsys1_26m", ENABLE_SCLK_TOP1_FSYS11,
 
 
