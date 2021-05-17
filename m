@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DFB638365C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71ADD383837
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244542AbhEQPbf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
+        id S243029AbhEQPuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244805AbhEQP2j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:28:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C807461CA5;
-        Mon, 17 May 2021 14:37:11 +0000 (UTC)
+        id S238665AbhEQPsM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:48:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E726195F;
+        Mon, 17 May 2021 14:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262232;
-        bh=f2dkVTFYo8l5vSyBOFZGqDhbF9aUxfTWN/s1ntZpyzI=;
+        s=korg; t=1621262694;
+        bh=dSeimuMNwy4dEfaRkwYJgjL4hWZ68GofmWOEemw/olg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dXrXQit2MoB8d5ZgtkIZRUk0wS17vjGMRwwCza4O+iD/aJn81gzg/Kneuh1vwN9H1
-         ginffAktpwpgOe4eCjLkEa1TArnKbXQrwENXgn8kipMjWeuIUxwabsxIODMKc5h3ny
-         SA0DtYdaNjasgR4adrTiyCjqpskPpvZVF4ci3m8c=
+        b=T26CrKGMnWoV6XSNpXazz3okaXUvxjAPnTAqClsTxOm58Uj2HT/XkXfeaWtz3KC1W
+         4rgvxlM3M3EPlcFM3Vmxl62wr1u6yr+behOMuk9L/Ky47FlG3hjzXOzlhDrzRUGy+R
+         /45sJojohilceAY2zYecRB/lKuVyyTDIKtWEk2Nc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wang Yugui <wangyugui@e16-tech.com>,
-        Qu Wenruo <wqu@suse.com>, Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.11 244/329] btrfs: fix deadlock when cloning inline extents and using qgroups
-Date:   Mon, 17 May 2021 16:02:35 +0200
-Message-Id: <20210517140310.363274080@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Damien Le Moal <damien.lemoal@wdc.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 231/289] nvmet: add lba to sect conversion helpers
+Date:   Mon, 17 May 2021 16:02:36 +0200
+Message-Id: <20210517140312.946121942@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,229 +41,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-commit f9baa501b4fd6962257853d46ddffbc21f27e344 upstream.
+[ Upstream commit 193fcf371f9e3705c14a0bf1d4bfc44af0f7c124 ]
 
-There are a few exceptional cases where cloning an inline extent needs to
-copy the inline extent data into a page of the destination inode.
+In this preparation patch, we add helpers to convert lbas to sectors &
+sectors to lba. This is needed to eliminate code duplication in the ZBD
+backend.
 
-When this happens, we end up starting a transaction while having a dirty
-page for the destination inode and while having the range locked in the
-destination's inode iotree too. Because when reserving metadata space
-for a transaction we may need to flush existing delalloc in case there is
-not enough free space, we have a mechanism in place to prevent a deadlock,
-which was introduced in commit 3d45f221ce627d ("btrfs: fix deadlock when
-cloning inline extent and low on free metadata space").
+Use these helpers in the block device backend.
 
-However when using qgroups, a transaction also reserves metadata qgroup
-space, which can also result in flushing delalloc in case there is not
-enough available space at the moment. When this happens we deadlock, since
-flushing delalloc requires locking the file range in the inode's iotree
-and the range was already locked at the very beginning of the clone
-operation, before attempting to start the transaction.
-
-When this issue happens, stack traces like the following are reported:
-
-  [72747.556262] task:kworker/u81:9   state:D stack:    0 pid:  225 ppid:     2 flags:0x00004000
-  [72747.556268] Workqueue: writeback wb_workfn (flush-btrfs-1142)
-  [72747.556271] Call Trace:
-  [72747.556273]  __schedule+0x296/0x760
-  [72747.556277]  schedule+0x3c/0xa0
-  [72747.556279]  io_schedule+0x12/0x40
-  [72747.556284]  __lock_page+0x13c/0x280
-  [72747.556287]  ? generic_file_readonly_mmap+0x70/0x70
-  [72747.556325]  extent_write_cache_pages+0x22a/0x440 [btrfs]
-  [72747.556331]  ? __set_page_dirty_nobuffers+0xe7/0x160
-  [72747.556358]  ? set_extent_buffer_dirty+0x5e/0x80 [btrfs]
-  [72747.556362]  ? update_group_capacity+0x25/0x210
-  [72747.556366]  ? cpumask_next_and+0x1a/0x20
-  [72747.556391]  extent_writepages+0x44/0xa0 [btrfs]
-  [72747.556394]  do_writepages+0x41/0xd0
-  [72747.556398]  __writeback_single_inode+0x39/0x2a0
-  [72747.556403]  writeback_sb_inodes+0x1ea/0x440
-  [72747.556407]  __writeback_inodes_wb+0x5f/0xc0
-  [72747.556410]  wb_writeback+0x235/0x2b0
-  [72747.556414]  ? get_nr_inodes+0x35/0x50
-  [72747.556417]  wb_workfn+0x354/0x490
-  [72747.556420]  ? newidle_balance+0x2c5/0x3e0
-  [72747.556424]  process_one_work+0x1aa/0x340
-  [72747.556426]  worker_thread+0x30/0x390
-  [72747.556429]  ? create_worker+0x1a0/0x1a0
-  [72747.556432]  kthread+0x116/0x130
-  [72747.556435]  ? kthread_park+0x80/0x80
-  [72747.556438]  ret_from_fork+0x1f/0x30
-
-  [72747.566958] Workqueue: btrfs-flush_delalloc btrfs_work_helper [btrfs]
-  [72747.566961] Call Trace:
-  [72747.566964]  __schedule+0x296/0x760
-  [72747.566968]  ? finish_wait+0x80/0x80
-  [72747.566970]  schedule+0x3c/0xa0
-  [72747.566995]  wait_extent_bit.constprop.68+0x13b/0x1c0 [btrfs]
-  [72747.566999]  ? finish_wait+0x80/0x80
-  [72747.567024]  lock_extent_bits+0x37/0x90 [btrfs]
-  [72747.567047]  btrfs_invalidatepage+0x299/0x2c0 [btrfs]
-  [72747.567051]  ? find_get_pages_range_tag+0x2cd/0x380
-  [72747.567076]  __extent_writepage+0x203/0x320 [btrfs]
-  [72747.567102]  extent_write_cache_pages+0x2bb/0x440 [btrfs]
-  [72747.567106]  ? update_load_avg+0x7e/0x5f0
-  [72747.567109]  ? enqueue_entity+0xf4/0x6f0
-  [72747.567134]  extent_writepages+0x44/0xa0 [btrfs]
-  [72747.567137]  ? enqueue_task_fair+0x93/0x6f0
-  [72747.567140]  do_writepages+0x41/0xd0
-  [72747.567144]  __filemap_fdatawrite_range+0xc7/0x100
-  [72747.567167]  btrfs_run_delalloc_work+0x17/0x40 [btrfs]
-  [72747.567195]  btrfs_work_helper+0xc2/0x300 [btrfs]
-  [72747.567200]  process_one_work+0x1aa/0x340
-  [72747.567202]  worker_thread+0x30/0x390
-  [72747.567205]  ? create_worker+0x1a0/0x1a0
-  [72747.567208]  kthread+0x116/0x130
-  [72747.567211]  ? kthread_park+0x80/0x80
-  [72747.567214]  ret_from_fork+0x1f/0x30
-
-  [72747.569686] task:fsstress        state:D stack:    0 pid:841421 ppid:841417 flags:0x00000000
-  [72747.569689] Call Trace:
-  [72747.569691]  __schedule+0x296/0x760
-  [72747.569694]  schedule+0x3c/0xa0
-  [72747.569721]  try_flush_qgroup+0x95/0x140 [btrfs]
-  [72747.569725]  ? finish_wait+0x80/0x80
-  [72747.569753]  btrfs_qgroup_reserve_data+0x34/0x50 [btrfs]
-  [72747.569781]  btrfs_check_data_free_space+0x5f/0xa0 [btrfs]
-  [72747.569804]  btrfs_buffered_write+0x1f7/0x7f0 [btrfs]
-  [72747.569810]  ? path_lookupat.isra.48+0x97/0x140
-  [72747.569833]  btrfs_file_write_iter+0x81/0x410 [btrfs]
-  [72747.569836]  ? __kmalloc+0x16a/0x2c0
-  [72747.569839]  do_iter_readv_writev+0x160/0x1c0
-  [72747.569843]  do_iter_write+0x80/0x1b0
-  [72747.569847]  vfs_writev+0x84/0x140
-  [72747.569869]  ? btrfs_file_llseek+0x38/0x270 [btrfs]
-  [72747.569873]  do_writev+0x65/0x100
-  [72747.569876]  do_syscall_64+0x33/0x40
-  [72747.569879]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-  [72747.569899] task:fsstress        state:D stack:    0 pid:841424 ppid:841417 flags:0x00004000
-  [72747.569903] Call Trace:
-  [72747.569906]  __schedule+0x296/0x760
-  [72747.569909]  schedule+0x3c/0xa0
-  [72747.569936]  try_flush_qgroup+0x95/0x140 [btrfs]
-  [72747.569940]  ? finish_wait+0x80/0x80
-  [72747.569967]  __btrfs_qgroup_reserve_meta+0x36/0x50 [btrfs]
-  [72747.569989]  start_transaction+0x279/0x580 [btrfs]
-  [72747.570014]  clone_copy_inline_extent+0x332/0x490 [btrfs]
-  [72747.570041]  btrfs_clone+0x5b7/0x7a0 [btrfs]
-  [72747.570068]  ? lock_extent_bits+0x64/0x90 [btrfs]
-  [72747.570095]  btrfs_clone_files+0xfc/0x150 [btrfs]
-  [72747.570122]  btrfs_remap_file_range+0x3d8/0x4a0 [btrfs]
-  [72747.570126]  do_clone_file_range+0xed/0x200
-  [72747.570131]  vfs_clone_file_range+0x37/0x110
-  [72747.570134]  ioctl_file_clone+0x7d/0xb0
-  [72747.570137]  do_vfs_ioctl+0x138/0x630
-  [72747.570140]  __x64_sys_ioctl+0x62/0xc0
-  [72747.570143]  do_syscall_64+0x33/0x40
-  [72747.570146]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-So fix this by skipping the flush of delalloc for an inode that is
-flagged with BTRFS_INODE_NO_DELALLOC_FLUSH, meaning it is currently under
-such a special case of cloning an inline extent, when flushing delalloc
-during qgroup metadata reservation.
-
-The special cases for cloning inline extents were added in kernel 5.7 by
-by commit 05a5a7621ce66c ("Btrfs: implement full reflink support for
-inline extents"), while having qgroup metadata space reservation flushing
-delalloc when low on space was added in kernel 5.9 by commit
-c53e9653605dbf ("btrfs: qgroup: try to flush qgroup space when we get
--EDQUOT"). So use a "Fixes:" tag for the later commit to ease stable
-kernel backports.
-
-Reported-by: Wang Yugui <wangyugui@e16-tech.com>
-Link: https://lore.kernel.org/linux-btrfs/20210421083137.31E3.409509F4@e16-tech.com/
-Fixes: c53e9653605dbf ("btrfs: qgroup: try to flush qgroup space when we get -EDQUOT")
-CC: stable@vger.kernel.org # 5.9+
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Damien Le Moal <damien.lemoal@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/ctree.h  |    2 +-
- fs/btrfs/inode.c  |    4 ++--
- fs/btrfs/ioctl.c  |    2 +-
- fs/btrfs/qgroup.c |    2 +-
- fs/btrfs/send.c   |    4 ++--
- 5 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/nvme/target/io-cmd-bdev.c |  8 +++-----
+ drivers/nvme/target/nvmet.h       | 10 ++++++++++
+ 2 files changed, 13 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/ctree.h
-+++ b/fs/btrfs/ctree.h
-@@ -3104,7 +3104,7 @@ int btrfs_truncate_inode_items(struct bt
- 			       struct btrfs_inode *inode, u64 new_size,
- 			       u32 min_type);
+diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
+index 125dde3f410e..23095bdfce06 100644
+--- a/drivers/nvme/target/io-cmd-bdev.c
++++ b/drivers/nvme/target/io-cmd-bdev.c
+@@ -256,8 +256,7 @@ static void nvmet_bdev_execute_rw(struct nvmet_req *req)
+ 	if (is_pci_p2pdma_page(sg_page(req->sg)))
+ 		op |= REQ_NOMERGE;
  
--int btrfs_start_delalloc_snapshot(struct btrfs_root *root);
-+int btrfs_start_delalloc_snapshot(struct btrfs_root *root, bool in_reclaim_context);
- int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
- 			       bool in_reclaim_context);
- int btrfs_set_extent_delalloc(struct btrfs_inode *inode, u64 start, u64 end,
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -9475,7 +9475,7 @@ out:
- 	return ret;
+-	sector = le64_to_cpu(req->cmd->rw.slba);
+-	sector <<= (req->ns->blksize_shift - 9);
++	sector = nvmet_lba_to_sect(req->ns, req->cmd->rw.slba);
+ 
+ 	if (req->transfer_len <= NVMET_MAX_INLINE_DATA_LEN) {
+ 		bio = &req->b.inline_bio;
+@@ -345,7 +344,7 @@ static u16 nvmet_bdev_discard_range(struct nvmet_req *req,
+ 	int ret;
+ 
+ 	ret = __blkdev_issue_discard(ns->bdev,
+-			le64_to_cpu(range->slba) << (ns->blksize_shift - 9),
++			nvmet_lba_to_sect(ns, range->slba),
+ 			le32_to_cpu(range->nlb) << (ns->blksize_shift - 9),
+ 			GFP_KERNEL, 0, bio);
+ 	if (ret && ret != -EOPNOTSUPP) {
+@@ -414,8 +413,7 @@ static void nvmet_bdev_execute_write_zeroes(struct nvmet_req *req)
+ 	if (!nvmet_check_transfer_len(req, 0))
+ 		return;
+ 
+-	sector = le64_to_cpu(write_zeroes->slba) <<
+-		(req->ns->blksize_shift - 9);
++	sector = nvmet_lba_to_sect(req->ns, write_zeroes->slba);
+ 	nr_sector = (((sector_t)le16_to_cpu(write_zeroes->length) + 1) <<
+ 		(req->ns->blksize_shift - 9));
+ 
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index 559a15ccc322..c585f4152535 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -601,4 +601,14 @@ static inline bool nvmet_ns_has_pi(struct nvmet_ns *ns)
+ 	return ns->pi_type && ns->metadata_size == sizeof(struct t10_pi_tuple);
  }
  
--int btrfs_start_delalloc_snapshot(struct btrfs_root *root)
-+int btrfs_start_delalloc_snapshot(struct btrfs_root *root, bool in_reclaim_context)
- {
- 	struct writeback_control wbc = {
- 		.nr_to_write = LONG_MAX,
-@@ -9488,7 +9488,7 @@ int btrfs_start_delalloc_snapshot(struct
- 	if (test_bit(BTRFS_FS_STATE_ERROR, &fs_info->fs_state))
- 		return -EROFS;
- 
--	return start_delalloc_inodes(root, &wbc, true, false);
-+	return start_delalloc_inodes(root, &wbc, true, in_reclaim_context);
- }
- 
- int btrfs_start_delalloc_roots(struct btrfs_fs_info *fs_info, u64 nr,
---- a/fs/btrfs/ioctl.c
-+++ b/fs/btrfs/ioctl.c
-@@ -1042,7 +1042,7 @@ static noinline int btrfs_mksnapshot(con
- 	 */
- 	btrfs_drew_read_lock(&root->snapshot_lock);
- 
--	ret = btrfs_start_delalloc_snapshot(root);
-+	ret = btrfs_start_delalloc_snapshot(root, false);
- 	if (ret)
- 		goto out;
- 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -3579,7 +3579,7 @@ static int try_flush_qgroup(struct btrfs
- 		return 0;
- 	}
- 
--	ret = btrfs_start_delalloc_snapshot(root);
-+	ret = btrfs_start_delalloc_snapshot(root, true);
- 	if (ret < 0)
- 		goto out;
- 	btrfs_wait_ordered_extents(root, U64_MAX, 0, (u64)-1);
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -7159,7 +7159,7 @@ static int flush_delalloc_roots(struct s
- 	int i;
- 
- 	if (root) {
--		ret = btrfs_start_delalloc_snapshot(root);
-+		ret = btrfs_start_delalloc_snapshot(root, false);
- 		if (ret)
- 			return ret;
- 		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
-@@ -7167,7 +7167,7 @@ static int flush_delalloc_roots(struct s
- 
- 	for (i = 0; i < sctx->clone_roots_cnt; i++) {
- 		root = sctx->clone_roots[i].root;
--		ret = btrfs_start_delalloc_snapshot(root);
-+		ret = btrfs_start_delalloc_snapshot(root, false);
- 		if (ret)
- 			return ret;
- 		btrfs_wait_ordered_extents(root, U64_MAX, 0, U64_MAX);
++static inline __le64 nvmet_sect_to_lba(struct nvmet_ns *ns, sector_t sect)
++{
++	return cpu_to_le64(sect >> (ns->blksize_shift - SECTOR_SHIFT));
++}
++
++static inline sector_t nvmet_lba_to_sect(struct nvmet_ns *ns, __le64 lba)
++{
++	return le64_to_cpu(lba) << (ns->blksize_shift - SECTOR_SHIFT);
++}
++
+ #endif /* _NVMET_H */
+-- 
+2.30.2
+
 
 
