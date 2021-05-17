@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1ABFE38335A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A37CF383370
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240832AbhEQO5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49854 "EHLO mail.kernel.org"
+        id S240998AbhEQO6U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:58:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242312AbhEQOzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:55:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9982E613CD;
-        Mon, 17 May 2021 14:24:54 +0000 (UTC)
+        id S240805AbhEQOz6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:55:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D748613CA;
+        Mon, 17 May 2021 14:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261495;
-        bh=Jrv9Yp2QvwLMgW8cv6Bp0zXQBBKYoSWxv5Rz4fxudts=;
+        s=korg; t=1621261503;
+        bh=MKbHdrxlVlg84FsPPbi76ooDslfq00CRAxo5JmELh0g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RudhLZo3Fl5GKoUwpuhbKeDf7x9aPO98ARUGd5A67xtcG1nKQ4SU54XzrMUPiWETR
-         /Mowx7vYNOrDJqwuaCSO0Lh7QEBaGbbwyIFewNMX4E/69MqGDxyU8+c09Zgd8KvMDh
-         gJ0AbqGmZTDwtBpMjGHG+kboG0vgue6A9w7w/mgg=
+        b=TPGMg/K9EoHA5eK3bhu8rEh1oOIykirYZkATabw2HOhMpF9xZyAh3BnB28GPunDrH
+         IgUwb6O7NUB2tqao0ZvCwnlKjj6Hrd5B3Uo4X9bahGLiphuMgAqGqUhPkqZ0GwxL9F
+         17U9nzJaP575XAdapMp2MJAq/U0T7vVMcz/2oHTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, TOTE Robot <oslab@tsinghua.edu.cn>,
-        Jia-Ju Bai <baijiaju1990@gmail.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 052/141] thermal: thermal_of: Fix error return code of thermal_of_populate_bind_params()
-Date:   Mon, 17 May 2021 16:01:44 +0200
-Message-Id: <20210517140244.519069398@linuxfoundation.org>
+Subject: [PATCH 5.4 053/141] f2fs: fix a redundant call to f2fs_balance_fs if an error occurs
+Date:   Mon, 17 May 2021 16:01:45 +0200
+Message-Id: <20210517140244.551424036@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -41,50 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 45c7eaeb29d67224db4ba935deb575586a1fda09 ]
+[ Upstream commit 28e18ee636ba28532dbe425540af06245a0bbecb ]
 
-When kcalloc() returns NULL to __tcbp or of_count_phandle_with_args()
-returns zero or -ENOENT to count, no error return code of
-thermal_of_populate_bind_params() is assigned.
-To fix these bugs, ret is assigned with -ENOMEM and -ENOENT in these
-cases, respectively.
+The  uninitialized variable dn.node_changed does not get set when a
+call to f2fs_get_node_page fails.  This uninitialized value gets used
+in the call to f2fs_balance_fs() that may or not may not balances
+dirty node and dentry pages depending on the uninitialized state of
+the variable. Fix this by only calling f2fs_balance_fs if err is
+not set.
 
-Fixes: a92bab8919e3 ("of: thermal: Allow multiple devices to share cooling map")
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210310122423.3266-1-baijiaju1990@gmail.com
+Thanks to Jaegeuk Kim for suggesting an appropriate fix.
+
+Addresses-Coverity: ("Uninitialized scalar variable")
+Fixes: 2a3407607028 ("f2fs: call f2fs_balance_fs only when node was changed")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Chao Yu <yuchao0@huawei.com>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/of-thermal.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ fs/f2fs/inline.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/of-thermal.c b/drivers/thermal/of-thermal.c
-index dc5093be553e..68d0c181ec7b 100644
---- a/drivers/thermal/of-thermal.c
-+++ b/drivers/thermal/of-thermal.c
-@@ -712,14 +712,17 @@ static int thermal_of_populate_bind_params(struct device_node *np,
+diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
+index cbd17e4ff920..c6bd669f4b4e 100644
+--- a/fs/f2fs/inline.c
++++ b/fs/f2fs/inline.c
+@@ -216,7 +216,8 @@ out:
  
- 	count = of_count_phandle_with_args(np, "cooling-device",
- 					   "#cooling-cells");
--	if (!count) {
-+	if (count <= 0) {
- 		pr_err("Add a cooling_device property with at least one device\n");
-+		ret = -ENOENT;
- 		goto end;
- 	}
+ 	f2fs_put_page(page, 1);
  
- 	__tcbp = kcalloc(count, sizeof(*__tcbp), GFP_KERNEL);
--	if (!__tcbp)
-+	if (!__tcbp) {
-+		ret = -ENOMEM;
- 		goto end;
-+	}
+-	f2fs_balance_fs(sbi, dn.node_changed);
++	if (!err)
++		f2fs_balance_fs(sbi, dn.node_changed);
  
- 	for (i = 0; i < count; i++) {
- 		ret = of_parse_phandle_with_args(np, "cooling-device",
+ 	return err;
+ }
 -- 
 2.30.2
 
