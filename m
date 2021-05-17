@@ -2,60 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2439A382B36
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 13:36:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 617B1382B4C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 13:39:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236751AbhEQLiD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 07:38:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38882 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236689AbhEQLiC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 07:38:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1A2C6105A;
-        Mon, 17 May 2021 11:36:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621251406;
-        bh=jBBC2lYE+Ko5wTWydi62ipgYkpdt1uB8K+AzeNp9n9s=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cV9JMd9XlXoXqwYMd5M3uFAJ9J2mNh/wRTl7pfGZYX/2KxrBXmx99wfbVsTkA5uTz
-         p++uO9YVmlk8P8Tq25PmaObuEEOBsQ50M6fiBiwV3AHk/1pAucYvBK/xSeiYCdGNKE
-         L6krwByXaTS4grmMb7vOtjaPrt7qQPQSbRX3dUKc=
-Date:   Mon, 17 May 2021 13:36:44 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Florian Fainelli <f.fainelli@gmail.com>
-Cc:     stable@vger.kernel.org, Jonathan Corbet <corbet@lwn.net>,
-        Russell King <linux@armlinux.org.uk>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Mike Rapoport <rppt@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Joe Perches <joe@perches.com>,
-        Max Filippov <jcmvbkbc@gmail.com>,
-        Tian Tao <tiantao6@hisilicon.com>,
-        "open list:DOCUMENTATION" <linux-doc@vger.kernel.org>,
-        open list <linux-kernel@vger.kernel.org>,
-        "moderated list:ARM PORT" <linux-arm-kernel@lists.infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH stable 5.10 v2 0/4] ARM FDT relocation backports
-Message-ID: <YKJVTD4Cwe+7WoO+@kroah.com>
-References: <20210510132111.1690943-1-f.fainelli@gmail.com>
+        id S236811AbhEQLjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 07:39:53 -0400
+Received: from manchmal.in-ulm.de ([217.10.9.201]:54616 "EHLO
+        manchmal.in-ulm.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S236785AbhEQLjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 07:39:53 -0400
+Date:   Mon, 17 May 2021 13:38:34 +0200
+From:   Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org
+Subject: Re: 5.10.37 won't boot on my system, but 5.10.36 with same config
+ does
+Message-ID: <1621251453@msgid.manchmal.in-ulm.de>
+References: <e0e9ecf4-cfd7-b31a-29b0-ead4a6c0ee40@charleswright.co>
+ <1621180418@msgid.manchmal.in-ulm.de>
+ <YKI/D64ODBUEHO9M@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="J4XPiPrVK1ev6Sgr"
 Content-Disposition: inline
-In-Reply-To: <20210510132111.1690943-1-f.fainelli@gmail.com>
+In-Reply-To: <YKI/D64ODBUEHO9M@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 10, 2021 at 06:21:07AM -0700, Florian Fainelli wrote:
-> Hi Greg, Sasha,
-> 
-> These patches were not marked with a Fixes: tag but they do fix booting
-> ARM 32-bit platforms that have specific FDT placement and would cause
-> boot failures like these:
 
-All now queued up, thanks!
+--J4XPiPrVK1ev6Sgr
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-greg k-h
+Greg KH wrote...
+
+> Hopefully now fixed in the stable queue, I'll push out new -rc releases
+> today for people to test.
+
+Thanks for taking care, unfortunately no improvement with 5.10.38-rc1 here.
+
+    Christoph
+
+--J4XPiPrVK1ev6Sgr
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEWXMI+726A12MfJXdxCxY61kUkv0FAmCiVbYACgkQxCxY61kU
+kv2smhAAmfKyCeeaObBs/F7thAoETcMiUOfExtfi8AfknYFcvkOUFrB9CrcVAfkN
+aqXZA83d2Yg5P1ypA8iJTTffbqKpgUQBN3wiCUtV5xqHOf8JzUiUMM+ZNbFQgool
+8R3xBoG/WEAeSjfMVjc19ZqoS9Ak81ii6Yn542UFuv6VRSHflYfGIVabJp7oQ+DW
+Pz6CLvmiAWWNefoAmYBmWACILPRVXiuSevQct4kMes8izPFMnHkNBlvHmROCNFwS
+i8M6r2uy3tCkjxnM+ZQnpe4c/27cG7wcLfOY1EjmdV71K4AST9qh1bMoyEHKNOrY
+vDoL8Zre56v7gLJc9L7G4ds/AdG9cr6IfJu5evHBVhU+pQsfqA0NwFm56x2w5T1V
+YKJPjV0IMJFqpV3Tc6/44ofr9jm+Vfe0ll1DifWsjdIr+GKvgrJ1PmKdZmo5OWZc
+8yj4sU8lXLFpRx+ryurGkkn0l6NlM3E2Z0anIY7bkAnMWyvs1if4NknUJ1ivi5gF
+7tbMnW9eSa/aGnidcGTHVF8Wl6sY6vDk5opqt2QcsJ86R8E5S1bUb369o5BTvVQ/
+Zwx6aC1ZMvd6DccdTeumpr/U3XlrtUBdBQiv9qJZ3Xmoc2w7atkb1qzpUMAjzM8J
+JmXsY9/RYrZ/8REw1va+pNcD7WYt8JFJPk4wz+wP/egZ1mVes98=
+=a1qY
+-----END PGP SIGNATURE-----
+
+--J4XPiPrVK1ev6Sgr--
