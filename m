@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20639383845
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 67DB638364D
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244703AbhEQPvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34740 "EHLO mail.kernel.org"
+        id S244447AbhEQPbP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54302 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238526AbhEQPsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:48:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B6461437;
-        Mon, 17 May 2021 14:44:47 +0000 (UTC)
+        id S244620AbhEQP2M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:28:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BAA96192B;
+        Mon, 17 May 2021 14:37:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262688;
-        bh=Vg1h4/8J8wvPIdZl8ejo0BKFj8ednOpcj2Dpo2elCtc=;
+        s=korg; t=1621262223;
+        bh=CwzVLBOwKRg26UVtCessCg/6EUEGMoygoRyT+GpjEis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rxeOy7MGiH8Bvc11Lp3BqMBTIKBnQ7340kFwIvgoCwnH1zXXpZYUYTbBFcr5iZTqU
-         L4vaG+SvlBpe0N9YF7ma3MD/56MheoHFChFDtOWJFxXA1dyc9W57zC3lxUb2gGnRMb
-         5EYi2KNIZrF96qCwE6d+ZaOX8mPqNq3iacS07rNY=
+        b=gJ7X9Iu4+uiXII/nDQRkg5x/MybbsNIjLQC0cgQ4mJ8QxGh4JLla5fS5JV7q9MHL3
+         HaX0/HrBk4BWQw/LV4k0H+5Qz3V54M4600MUSmM3W8WctHmAfQwLBvAFREeRjc3lFs
+         xixiTm0a6QzuPlXWFiN3ROiAH1RnSQC50kiU29L0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 228/289] usb: musb: Fix an error message
+        stable@vger.kernel.org, Peter Collingbourne <pcc@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Catalin Marinas <catalin.marinas@arm.com>
+Subject: [PATCH 5.11 242/329] arm64: mte: initialize RGSR_EL1.SEED in __cpu_setup
 Date:   Mon, 17 May 2021 16:02:33 +0200
-Message-Id: <20210517140312.838938208@linuxfoundation.org>
+Message-Id: <20210517140310.297246516@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Peter Collingbourne <pcc@google.com>
 
-[ Upstream commit d9ff1096a840dddea3d5cfa2149ff7da9f499fb2 ]
+commit 37a8024d265564eba680575df6421f19db21dfce upstream.
 
-'ret' is known to be 0 here.
-Initialize 'ret' with the expected error code before using it.
+A valid implementation choice for the ChooseRandomNonExcludedTag()
+pseudocode function used by IRG is to behave in the same way as with
+GCR_EL1.RRND=0. This would mean that RGSR_EL1.SEED is used as an LFSR
+which must have a non-zero value in order for IRG to properly produce
+pseudorandom numbers. However, RGSR_EL1 is reset to an UNKNOWN value
+on soft reset and thus may reset to 0. Therefore we must initialize
+RGSR_EL1.SEED to a non-zero value in order to ensure that IRG behaves
+as expected.
 
-Fixes: 0990366bab3c ("usb: musb: Add support for MediaTek musb controller")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/69f514dc7134e3c917cad208e73cc650cb9e2bd6.1620159879.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Peter Collingbourne <pcc@google.com>
+Fixes: 3b714d24ef17 ("arm64: mte: CPU feature detection and initial sysreg configuration")
+Cc: <stable@vger.kernel.org> # 5.10
+Link: https://linux-review.googlesource.com/id/I2b089b6c7d6f17ee37e2f0db7df5ad5bcc04526c
+Acked-by: Mark Rutland <mark.rutland@arm.com>
+Link: https://lore.kernel.org/r/20210507185905.1745402-1-pcc@google.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/musb/mediatek.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/mm/proc.S |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/usb/musb/mediatek.c b/drivers/usb/musb/mediatek.c
-index eebeadd26946..6b92d037d8fc 100644
---- a/drivers/usb/musb/mediatek.c
-+++ b/drivers/usb/musb/mediatek.c
-@@ -518,8 +518,8 @@ static int mtk_musb_probe(struct platform_device *pdev)
+--- a/arch/arm64/mm/proc.S
++++ b/arch/arm64/mm/proc.S
+@@ -454,6 +454,18 @@ SYM_FUNC_START(__cpu_setup)
+ 	mov	x10, #(SYS_GCR_EL1_RRND | SYS_GCR_EL1_EXCL_MASK)
+ 	msr_s	SYS_GCR_EL1, x10
  
- 	glue->xceiv = devm_usb_get_phy(dev, USB_PHY_TYPE_USB2);
- 	if (IS_ERR(glue->xceiv)) {
--		dev_err(dev, "fail to getting usb-phy %d\n", ret);
- 		ret = PTR_ERR(glue->xceiv);
-+		dev_err(dev, "fail to getting usb-phy %d\n", ret);
- 		goto err_unregister_usb_phy;
- 	}
- 
--- 
-2.30.2
-
++	/*
++	 * If GCR_EL1.RRND=1 is implemented the same way as RRND=0, then
++	 * RGSR_EL1.SEED must be non-zero for IRG to produce
++	 * pseudorandom numbers. As RGSR_EL1 is UNKNOWN out of reset, we
++	 * must initialize it.
++	 */
++	mrs	x10, CNTVCT_EL0
++	ands	x10, x10, #SYS_RGSR_EL1_SEED_MASK
++	csinc	x10, x10, xzr, ne
++	lsl	x10, x10, #SYS_RGSR_EL1_SEED_SHIFT
++	msr_s	SYS_RGSR_EL1, x10
++
+ 	/* clear any pending tag check faults in TFSR*_EL1 */
+ 	msr_s	SYS_TFSR_EL1, xzr
+ 	msr_s	SYS_TFSRE0_EL1, xzr
 
 
