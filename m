@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C88D638302D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7465338302E
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239841AbhEQOZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:25:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35732 "EHLO mail.kernel.org"
+        id S235684AbhEQOZM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:25:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239193AbhEQOWS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:22:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1390610A0;
-        Mon, 17 May 2021 14:11:47 +0000 (UTC)
+        id S239204AbhEQOWT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:22:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 226AD610CB;
+        Mon, 17 May 2021 14:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260708;
-        bh=wRIMUKf8f9czpJ2k7bhptKZpLNn6+LmfvKRAV48OawA=;
+        s=korg; t=1621260710;
+        bh=LSyJ0nUKHPe0cCFG6u5p6HPaHIU32sXINdzx/z6TiW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vpm1sQ/DnANcPtXlmawCRMxaiP4XUX56NSoYOD7RzNfBzffBBw0/7df7C4HytRpfx
-         0DM/r9EG1Bq1q12BblBEREFUl+hnGeSutlECAvqjSw8EFcbJBqRHQVy1VQRy2sw2q9
-         GcAxKQK5VEO0UVBbMWSR65JQjH0kzeRuIsfvCtpU=
+        b=HIo1fx/NOQGYLdp+1efMTv6mg6OCUIfi7yz6Cdo7756Y/Hdevas+GS5mXOSk+Cmm9
+         gU67yIwdbfR7jWvBhG/DBITHFYJ9lT68WhpzxDC/Y3h+VQKdPxbM5WNCo31kq6w896
+         0ZwCn8LU+WPWZlJ6BqxDsrxVV+Pcd8DgAU1pmKX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Guoqing Jiang <guoqing.jiang@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Gioh Kim <gi-oh.kim@ionos.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Jim Quinlan <jim2101024@gmail.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 204/363] block/rnbd-clt: Check the return value of the function rtrs_clt_query
-Date:   Mon, 17 May 2021 16:01:10 +0200
-Message-Id: <20210517140309.479153706@linuxfoundation.org>
+Subject: [PATCH 5.12 205/363] ata: ahci_brcm: Fix use of BCM7216 reset controller
+Date:   Mon, 17 May 2021 16:01:11 +0200
+Message-Id: <20210517140309.508923897@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,55 +42,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+From: Jim Quinlan <jim2101024@gmail.com>
 
-[ Upstream commit 1056ad829ec43f9b705b507c2093b05e2088b0b7 ]
+[ Upstream commit e8d6f9e56187c101b325e8d18f1d4032420d08ff ]
 
-In case none of the paths are in connected state, the function
-rtrs_clt_query returns an error. In such a case, error out since the
-values in the rtrs_attrs structure would be garbage.
+This driver may use one of two resets controllers.  Keep them in separate
+variables to keep things simple.  The reset controller "rescal" is shared
+between the AHCI driver and the PCIe driver for the BrcmSTB 7216 chip.  Use
+devm_reset_control_get_optional_shared() to handle this sharing.
 
-Fixes: f7a7a5c228d45 ("block/rnbd: client: main functionality")
-Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Reviewed-by: Guoqing Jiang <guoqing.jiang@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Link: https://lore.kernel.org/r/20210428061359.206794-4-gi-oh.kim@ionos.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+[bhelgaas: add Jens' ack from v5 posting]
+Fixes: 272ecd60a636 ("ata: ahci_brcm: BCM7216 reset is self de-asserting")
+Fixes: c345ec6a50e9 ("ata: ahci_brcm: Support BCM7216 reset controller name")
+Link: https://lore.kernel.org/r/20210430152156.21162-3-jim2101024@gmail.com
+Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Acked-by: Jens Axboe <axboe@kernel.dk>
+Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rnbd/rnbd-clt.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/ata/ahci_brcm.c | 46 ++++++++++++++++++++---------------------
+ 1 file changed, 23 insertions(+), 23 deletions(-)
 
-diff --git a/drivers/block/rnbd/rnbd-clt.c b/drivers/block/rnbd/rnbd-clt.c
-index 45a470076652..5ab7319ff2ea 100644
---- a/drivers/block/rnbd/rnbd-clt.c
-+++ b/drivers/block/rnbd/rnbd-clt.c
-@@ -693,7 +693,11 @@ static void remap_devs(struct rnbd_clt_session *sess)
- 		return;
- 	}
+diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
+index 5b32df5d33ad..6e9c5ade4c2e 100644
+--- a/drivers/ata/ahci_brcm.c
++++ b/drivers/ata/ahci_brcm.c
+@@ -86,7 +86,8 @@ struct brcm_ahci_priv {
+ 	u32 port_mask;
+ 	u32 quirks;
+ 	enum brcm_ahci_version version;
+-	struct reset_control *rcdev;
++	struct reset_control *rcdev_rescal;
++	struct reset_control *rcdev_ahci;
+ };
  
--	rtrs_clt_query(sess->rtrs, &attrs);
-+	err = rtrs_clt_query(sess->rtrs, &attrs);
-+	if (err) {
-+		pr_err("rtrs_clt_query(\"%s\"): %d\n", sess->sessname, err);
-+		return;
+ static inline u32 brcm_sata_readreg(void __iomem *addr)
+@@ -352,8 +353,8 @@ static int brcm_ahci_suspend(struct device *dev)
+ 	else
+ 		ret = 0;
+ 
+-	if (priv->version != BRCM_SATA_BCM7216)
+-		reset_control_assert(priv->rcdev);
++	reset_control_assert(priv->rcdev_ahci);
++	reset_control_rearm(priv->rcdev_rescal);
+ 
+ 	return ret;
+ }
+@@ -365,10 +366,10 @@ static int __maybe_unused brcm_ahci_resume(struct device *dev)
+ 	struct brcm_ahci_priv *priv = hpriv->plat_data;
+ 	int ret = 0;
+ 
+-	if (priv->version == BRCM_SATA_BCM7216)
+-		ret = reset_control_reset(priv->rcdev);
+-	else
+-		ret = reset_control_deassert(priv->rcdev);
++	ret = reset_control_deassert(priv->rcdev_ahci);
++	if (ret)
++		return ret;
++	ret = reset_control_reset(priv->rcdev_rescal);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -434,7 +435,6 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ {
+ 	const struct of_device_id *of_id;
+ 	struct device *dev = &pdev->dev;
+-	const char *reset_name = NULL;
+ 	struct brcm_ahci_priv *priv;
+ 	struct ahci_host_priv *hpriv;
+ 	struct resource *res;
+@@ -456,15 +456,15 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 	if (IS_ERR(priv->top_ctrl))
+ 		return PTR_ERR(priv->top_ctrl);
+ 
+-	/* Reset is optional depending on platform and named differently */
+-	if (priv->version == BRCM_SATA_BCM7216)
+-		reset_name = "rescal";
+-	else
+-		reset_name = "ahci";
+-
+-	priv->rcdev = devm_reset_control_get_optional(&pdev->dev, reset_name);
+-	if (IS_ERR(priv->rcdev))
+-		return PTR_ERR(priv->rcdev);
++	if (priv->version == BRCM_SATA_BCM7216) {
++		priv->rcdev_rescal = devm_reset_control_get_optional_shared(
++			&pdev->dev, "rescal");
++		if (IS_ERR(priv->rcdev_rescal))
++			return PTR_ERR(priv->rcdev_rescal);
 +	}
- 	mutex_lock(&sess->lock);
- 	sess->max_io_size = attrs.max_io_size;
++	priv->rcdev_ahci = devm_reset_control_get_optional(&pdev->dev, "ahci");
++	if (IS_ERR(priv->rcdev_ahci))
++		return PTR_ERR(priv->rcdev_ahci);
  
-@@ -1234,7 +1238,11 @@ find_and_get_or_create_sess(const char *sessname,
- 		err = PTR_ERR(sess->rtrs);
- 		goto wake_up_and_put;
+ 	hpriv = ahci_platform_get_resources(pdev, 0);
+ 	if (IS_ERR(hpriv))
+@@ -485,10 +485,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ 		break;
  	}
--	rtrs_clt_query(sess->rtrs, &attrs);
-+
-+	err = rtrs_clt_query(sess->rtrs, &attrs);
-+	if (err)
-+		goto close_rtrs;
-+
- 	sess->max_io_size = attrs.max_io_size;
- 	sess->queue_depth = attrs.queue_depth;
+ 
+-	if (priv->version == BRCM_SATA_BCM7216)
+-		ret = reset_control_reset(priv->rcdev);
+-	else
+-		ret = reset_control_deassert(priv->rcdev);
++	ret = reset_control_reset(priv->rcdev_rescal);
++	if (ret)
++		return ret;
++	ret = reset_control_deassert(priv->rcdev_ahci);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -539,8 +539,8 @@ out_disable_regulators:
+ out_disable_clks:
+ 	ahci_platform_disable_clks(hpriv);
+ out_reset:
+-	if (priv->version != BRCM_SATA_BCM7216)
+-		reset_control_assert(priv->rcdev);
++	reset_control_assert(priv->rcdev_ahci);
++	reset_control_rearm(priv->rcdev_rescal);
+ 	return ret;
+ }
  
 -- 
 2.30.2
