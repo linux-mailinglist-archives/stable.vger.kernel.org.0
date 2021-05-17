@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 50A93383642
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C514383644
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343594AbhEQPbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42054 "EHLO mail.kernel.org"
+        id S243716AbhEQPbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244167AbhEQP1D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:27:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B12561CB0;
-        Mon, 17 May 2021 14:36:45 +0000 (UTC)
+        id S244363AbhEQP10 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:27:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 013CC61CA9;
+        Mon, 17 May 2021 14:36:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262206;
-        bh=Hmw3CIFDIDbNxdLnSdHk2KZoBVcFKLlRlIZAYVGR+z0=;
+        s=korg; t=1621262210;
+        bh=9PKFT18dg3h1Ek+OQYRoxbOwHE+ndndJZOnlamMHxmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENXL3zXXV7+09FHpqKsDGB90MoXN7PqXRw48e3x2FluW1PfAc6drDkSlATUqg4CGY
-         O3ja0SX8sMFHC7h7NX8CpjC7oQcZ+u4vOrYf0lafZqcU3BSy5PcFPinnM1w6BdnQEj
-         g/Antz3mBtmgQrHChyr0lHjNB7YeMa8DwMOjCC3Y=
+        b=d75ohmvwrasTHirHb57JmsVDSTJ2gvAZHwnCi6FhrUnSjI2rEJhcnuC2JfIcjw1Y/
+         YYoLv9hVGeAG7m0rAh96HeTPJDSVeC5NaBl6aOZ2ih+vmVPAMoYKFw6T1HUo7BWJqX
+         C9Cue7BL3uerlPaOL+iP9NEepHALpvOJWrLiuV2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Uwe=20Kleine-K=C3=B6nig?= 
+        <u.kleine-koenig@pengutronix.de>,
+        Thierry Reding <thierry.reding@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 133/289] SUNRPC: fix ternary sign expansion bug in tracing
-Date:   Mon, 17 May 2021 16:00:58 +0200
-Message-Id: <20210517140309.647060942@linuxfoundation.org>
+Subject: [PATCH 5.10 134/289] pwm: atmel: Fix duty cycle calculation in .get_state()
+Date:   Mon, 17 May 2021 16:00:59 +0200
+Message-Id: <20210517140309.678277020@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,40 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
 
-[ Upstream commit cb579086536f6564f5846f89808ec394ef8b8621 ]
+[ Upstream commit 453e8b3d8e36ddcb283b3d1698864a03ea45599a ]
 
-This code is supposed to pass negative "err" values for tracing but it
-passes positive values instead.  The problem is that the
-trace_svcsock_tcp_send() function takes a long but "err" is an int and
-"sent" is a u32.  The negative is first type promoted to u32 so it
-becomes a high positive then it is promoted to long and it stays
-positive.
+The CDTY register contains the number of inactive cycles. .apply() does
+this correctly, however .get_state() got this wrong.
 
-Fix this by casting "err" directly to long.
-
-Fixes: 998024dee197 ("SUNRPC: Add more svcsock tracepoints")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Fixes: 651b510a74d4 ("pwm: atmel: Implement .get_state()")
+Signed-off-by: Uwe Kleine-König <u.kleine-koenig@pengutronix.de>
+Signed-off-by: Thierry Reding <thierry.reding@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/svcsock.c | 2 +-
+ drivers/pwm/pwm-atmel.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index fa7b7ae2c2c5..eba1714bf09a 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1176,7 +1176,7 @@ static int svc_tcp_sendto(struct svc_rqst *rqstp)
- 		goto out_notconn;
- 	err = svc_tcp_sendmsg(svsk->sk_sock, &msg, xdr, marker, &sent);
- 	xdr_free_bvec(xdr);
--	trace_svcsock_tcp_send(xprt, err < 0 ? err : sent);
-+	trace_svcsock_tcp_send(xprt, err < 0 ? (long)err : sent);
- 	if (err < 0 || sent != (xdr->len + sizeof(marker)))
- 		goto out_close;
- 	mutex_unlock(&xprt->xpt_mutex);
+diff --git a/drivers/pwm/pwm-atmel.c b/drivers/pwm/pwm-atmel.c
+index 6161e7e3e9ac..d7cb0dfa25a5 100644
+--- a/drivers/pwm/pwm-atmel.c
++++ b/drivers/pwm/pwm-atmel.c
+@@ -319,7 +319,7 @@ static void atmel_pwm_get_state(struct pwm_chip *chip, struct pwm_device *pwm,
+ 
+ 		cdty = atmel_pwm_ch_readl(atmel_pwm, pwm->hwpwm,
+ 					  atmel_pwm->data->regs.duty);
+-		tmp = (u64)cdty * NSEC_PER_SEC;
++		tmp = (u64)(cprd - cdty) * NSEC_PER_SEC;
+ 		tmp <<= pres;
+ 		state->duty_cycle = DIV64_U64_ROUND_UP(tmp, rate);
+ 
 -- 
 2.30.2
 
