@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D51AB3837CA
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8902C3837B2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243272AbhEQPrH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:47:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
+        id S244286AbhEQPqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:46:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52066 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344246AbhEQPnq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:43:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5336061D22;
-        Mon, 17 May 2021 14:42:55 +0000 (UTC)
+        id S243745AbhEQPoB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:44:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A180B6194F;
+        Mon, 17 May 2021 14:42:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262575;
-        bh=ElAI1XIwd537DNiT1qmQQpEfJEPAdz4B6MeTU+xLgvc=;
+        s=korg; t=1621262580;
+        bh=Y1Fi/8EmZWG4KsmdkBqPpUUPzppWQTtjsGwFkKKu/P0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nwvrk+/C4VGdge4UpFLOCDRMuq1g2zeNDe1SRze84IUDG9f9UPQRKgE0gjqG1kmh8
-         lR2gOsB3Q4VIfXjz2fymqqB90SteGa9hIZtotqDPGAByjeM+mrm0pv3J8kLzLe5wge
-         8HPCvFZox398V6Ba8EUVCfWEQXAId4g4P8VRS3yA=
+        b=Z6dQeKkOyUHuS8eyAnCA/ch+DtUMliloNMkx05wOlvVjksZBwHnOPEZgkLO6oAuTA
+         NL4q11+sTNqiZbYdBUoY4s6Lyq0vtye15U8bGwQ5gFHib4QC7IQ3OAHz7/xNiHoEoD
+         sqeve6+eB4/hz4N/7jvtJ52cfXbf4I604UlChygA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
+        stable@vger.kernel.org, Sergio Lopez <slp@redhat.com>,
         Jan Kara <jack@suse.cz>,
         Dan Williams <dan.j.williams@intel.com>,
         Vivek Goyal <vgoyal@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 217/289] dax: Add a wakeup mode parameter to put_unlocked_entry()
-Date:   Mon, 17 May 2021 16:02:22 +0200
-Message-Id: <20210517140312.438159234@linuxfoundation.org>
+Subject: [PATCH 5.10 218/289] dax: Wake up all waiters after invalidating dax entry
+Date:   Mon, 17 May 2021 16:02:23 +0200
+Message-Id: <20210517140312.481170746@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -44,80 +44,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vivek Goyal <vgoyal@redhat.com>
 
-[ Upstream commit 4c3d043d271d4d629aa2328796cdfc96b37d3b3c ]
+[ Upstream commit 237388320deffde7c2d65ed8fc9eef670dc979b3 ]
 
-As of now put_unlocked_entry() always wakes up next waiter. In next
-patches we want to wake up all waiters at one callsite. Hence, add a
-parameter to the function.
+I am seeing missed wakeups which ultimately lead to a deadlock when I am
+using virtiofs with DAX enabled and running "make -j". I had to mount
+virtiofs as rootfs and also reduce to dax window size to 256M to reproduce
+the problem consistently.
 
-This patch does not introduce any change of behavior.
+So here is the problem. put_unlocked_entry() wakes up waiters only
+if entry is not null as well as !dax_is_conflict(entry). But if I
+call multiple instances of invalidate_inode_pages2() in parallel,
+then I can run into a situation where there are waiters on
+this index but nobody will wake these waiters.
 
-Reviewed-by: Greg Kurz <groug@kaod.org>
+invalidate_inode_pages2()
+  invalidate_inode_pages2_range()
+    invalidate_exceptional_entry2()
+      dax_invalidate_mapping_entry_sync()
+        __dax_invalidate_entry() {
+                xas_lock_irq(&xas);
+                entry = get_unlocked_entry(&xas, 0);
+                ...
+                ...
+                dax_disassociate_entry(entry, mapping, trunc);
+                xas_store(&xas, NULL);
+                ...
+                ...
+                put_unlocked_entry(&xas, entry);
+                xas_unlock_irq(&xas);
+        }
+
+Say a fault in in progress and it has locked entry at offset say "0x1c".
+Now say three instances of invalidate_inode_pages2() are in progress
+(A, B, C) and they all try to invalidate entry at offset "0x1c". Given
+dax entry is locked, all tree instances A, B, C will wait in wait queue.
+
+When dax fault finishes, say A is woken up. It will store NULL entry
+at index "0x1c" and wake up B. When B comes along it will find "entry=0"
+at page offset 0x1c and it will call put_unlocked_entry(&xas, 0). And
+this means put_unlocked_entry() will not wake up next waiter, given
+the current code. And that means C continues to wait and is not woken
+up.
+
+This patch fixes the issue by waking up all waiters when a dax entry
+has been invalidated. This seems to fix the deadlock I am facing
+and I can make forward progress.
+
+Reported-by: Sergio Lopez <slp@redhat.com>
+Fixes: ac401cc78242 ("dax: New fault locking")
 Reviewed-by: Jan Kara <jack@suse.cz>
 Suggested-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Link: https://lore.kernel.org/r/20210428190314.1865312-3-vgoyal@redhat.com
+Link: https://lore.kernel.org/r/20210428190314.1865312-4-vgoyal@redhat.com
 Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dax.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/dax.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/fs/dax.c b/fs/dax.c
-index 5ecee51c44ee..56eb1c759ca5 100644
+index 56eb1c759ca5..df5485b4bddf 100644
 --- a/fs/dax.c
 +++ b/fs/dax.c
-@@ -275,11 +275,11 @@ static void wait_entry_unlocked(struct xa_state *xas, void *entry)
- 	finish_wait(wq, &ewait.wait);
- }
- 
--static void put_unlocked_entry(struct xa_state *xas, void *entry)
-+static void put_unlocked_entry(struct xa_state *xas, void *entry,
-+			       enum dax_wake_mode mode)
- {
--	/* If we were the only waiter woken, wake the next one */
- 	if (entry && !dax_is_conflict(entry))
--		dax_wake_entry(xas, entry, WAKE_NEXT);
-+		dax_wake_entry(xas, entry, mode);
- }
- 
- /*
-@@ -633,7 +633,7 @@ struct page *dax_layout_busy_page_range(struct address_space *mapping,
- 			entry = get_unlocked_entry(&xas, 0);
- 		if (entry)
- 			page = dax_busy_page(entry);
--		put_unlocked_entry(&xas, entry);
-+		put_unlocked_entry(&xas, entry, WAKE_NEXT);
- 		if (page)
- 			break;
- 		if (++scanned % XA_CHECK_SCHED)
 @@ -675,7 +675,7 @@ static int __dax_invalidate_entry(struct address_space *mapping,
  	mapping->nrexceptional--;
  	ret = 1;
  out:
--	put_unlocked_entry(&xas, entry);
-+	put_unlocked_entry(&xas, entry, WAKE_NEXT);
+-	put_unlocked_entry(&xas, entry, WAKE_NEXT);
++	put_unlocked_entry(&xas, entry, WAKE_ALL);
  	xas_unlock_irq(&xas);
  	return ret;
  }
-@@ -954,7 +954,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
- 	return ret;
- 
-  put_unlocked:
--	put_unlocked_entry(xas, entry);
-+	put_unlocked_entry(xas, entry, WAKE_NEXT);
- 	return ret;
- }
- 
-@@ -1695,7 +1695,7 @@ dax_insert_pfn_mkwrite(struct vm_fault *vmf, pfn_t pfn, unsigned int order)
- 	/* Did we race with someone splitting entry or so? */
- 	if (!entry || dax_is_conflict(entry) ||
- 	    (order == 0 && !dax_is_pte_entry(entry))) {
--		put_unlocked_entry(&xas, entry);
-+		put_unlocked_entry(&xas, entry, WAKE_NEXT);
- 		xas_unlock_irq(&xas);
- 		trace_dax_insert_pfn_mkwrite_no_entry(mapping->host, vmf,
- 						      VM_FAULT_NOPAGE);
 -- 
 2.30.2
 
