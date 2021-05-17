@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FF9B3835EB
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D03F338345B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243516AbhEQP0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:26:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40630 "EHLO mail.kernel.org"
+        id S242646AbhEQPHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243682AbhEQPYL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:24:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8122661C9A;
-        Mon, 17 May 2021 14:35:35 +0000 (UTC)
+        id S241487AbhEQPFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:05:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 959C561C18;
+        Mon, 17 May 2021 14:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262136;
-        bh=D6fmC4gZpD8AbyvGF5N25mGb+CJw0maURT2579qM7zA=;
+        s=korg; t=1621261735;
+        bh=OI7SHoj/96q6FNR/T7I7IjueoZjTzmwUd7kx/d4GQSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DjOzEt6gxdqWYZ89bihmbaC1rzkLJ6cMs7NusqArH+K6sa7xHBMMqnJGigdHBhs7V
-         MiI8OFH/R7jqn7QgNtm/sx3IgXa17m27eoMHejKXzrIiATkt8i5GPRCUyta4yfjHFz
-         jtx29VMKNQ5ytzhx6pyOSM9lssv9bhWwSJmE/n2c=
+        b=sSi8OLnq7NYWaW2M89XihETdrShW4S7oTCRoYPfXMvdZ/k/xKrfOAwhkRHheqNd2T
+         O691Od4McTkpa9EXwLpYbNwsE9dFlVV58HcajdQkezWdu9whYava2Fxtq7zlciOKWl
+         sr0S40r+h1BbgW6t/GxowYSBjV3OWQ7T6mpeQJ3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Hugh Dickins <hughd@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 224/329] i40e: fix broken XDP support
+Subject: [PATCH 5.4 083/141] ksm: fix potential missing rmap_item for stable_node
 Date:   Mon, 17 May 2021 16:02:15 +0200
-Message-Id: <20210517140309.698128290@linuxfoundation.org>
+Message-Id: <20210517140245.570336284@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,75 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit ae4393dfd472b194c90d75d2123105fb5ed59b04 ]
+[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
 
-Commit 12738ac4754e ("i40e: Fix sparse errors in i40e_txrx.c") broke
-XDP support in the i40e driver. That commit was fixing a sparse error
-in the code by introducing a new variable xdp_res instead of
-overloading this into the skb pointer. The problem is that the code
-later uses the skb pointer in if statements and these where not
-extended to also test for the new xdp_res variable. Fix this by adding
-the correct tests for xdp_res in these places.
+When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
+cleared with head reserved.  So the following scenario might happen: For
+ksm page with rmap_item1:
 
-The skb pointer was used to store the result of the XDP program by
-overloading the results in the error pointer
-ERR_PTR(-result). Therefore, the allocation failure test that used to
-only test for !skb now need to be extended to also consider !xdp_res.
+cmp_and_merge_page
+  stable_node->head = &migrate_nodes;
+  remove_rmap_item_from_tree, but head still equal to stable_node;
+  try_to_merge_with_ksm_page failed;
+  return;
 
-i40e_cleanup_headers() had a check that based on the skb value being
-an error pointer, i.e. a result from the XDP program != XDP_PASS, and
-if so start to process a new packet immediately, instead of populating
-skb fields and sending the skb to the stack. This check is not needed
-anymore, since we have added an explicit test for xdp_res being set
-and if so just do continue to pick the next packet from the NIC.
+For the same ksm page with rmap_item2, stable node migration succeed this
+time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
+page with rmap_item1 again:
 
-Fixes: 12738ac4754e ("i40e: Fix sparse errors in i40e_txrx.c")
-Acked-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Tested-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Reviewed-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+cmp_and_merge_page
+ stable_node->head != &migrate_nodes && rmap_item->head == stable_node
+ return;
+
+We would miss the rmap_item for stable_node and might result in failed
+rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
+is removed from stable tree.
+
+Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
+Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Hugh Dickins <hughd@google.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_txrx.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ mm/ksm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_txrx.c b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-index 92ce835bc79e..c779512f44f4 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_txrx.c
-@@ -1821,10 +1821,6 @@ static bool i40e_cleanup_headers(struct i40e_ring *rx_ring, struct sk_buff *skb,
- 				 union i40e_rx_desc *rx_desc)
+diff --git a/mm/ksm.c b/mm/ksm.c
+index e486c54d921b..0bbae78aaaa0 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -793,6 +793,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
+ 		stable_node->rmap_hlist_len--;
  
- {
--	/* XDP packets use error pointer so abort at this point */
--	if (IS_ERR(skb))
--		return true;
--
- 	/* ERR_MASK will only have valid bits if EOP set, and
- 	 * what we are doing here is actually checking
- 	 * I40E_RX_DESC_ERROR_RXE_SHIFT, since it is the zeroth bit in
-@@ -2437,7 +2433,7 @@ static int i40e_clean_rx_irq(struct i40e_ring *rx_ring, int budget)
- 		}
+ 		put_anon_vma(rmap_item->anon_vma);
++		rmap_item->head = NULL;
+ 		rmap_item->address &= PAGE_MASK;
  
- 		/* exit if we failed to retrieve a buffer */
--		if (!skb) {
-+		if (!xdp_res && !skb) {
- 			rx_ring->rx_stats.alloc_buff_failed++;
- 			rx_buffer->pagecnt_bias++;
- 			break;
-@@ -2449,7 +2445,7 @@ static int i40e_clean_rx_irq(struct i40e_ring *rx_ring, int budget)
- 		if (i40e_is_non_eop(rx_ring, rx_desc, skb))
- 			continue;
- 
--		if (i40e_cleanup_headers(rx_ring, skb, rx_desc)) {
-+		if (xdp_res || i40e_cleanup_headers(rx_ring, skb, rx_desc)) {
- 			skb = NULL;
- 			continue;
- 		}
+ 	} else if (rmap_item->address & UNSTABLE_FLAG) {
 -- 
 2.30.2
 
