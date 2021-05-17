@@ -2,34 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6785338361D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1B0F3837BD
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244664AbhEQP2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:28:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40870 "EHLO mail.kernel.org"
+        id S244251AbhEQPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:46:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238961AbhEQP0W (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:26:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC1D06192E;
-        Mon, 17 May 2021 14:36:23 +0000 (UTC)
+        id S1344301AbhEQPoP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:44:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4FBD61406;
+        Mon, 17 May 2021 14:43:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262184;
-        bh=sW30hGEOgzmyPBbhJjZzCybDxuhJUkoIUlbPobGMwLg=;
+        s=korg; t=1621262595;
+        bh=fBCwBoQIBu1Z/Im+ck+WQ9ZRSffBq64U6W6k0+CiYPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ad4mEgRFaO53UPOiPWcyFoR8k+iekrXjt69JVYZpVw6nyX6M/6DPCK0Kt3G+DctfA
-         Md15iBe/kEA+XUESX8rD2zUNkwCUfA8xX7clgt+hpWTac+/FeDraaqByTpPnsMEIZ+
-         azjktan/OMsDIKdCgIxHFh9F42z7QGRxJlNiPjv4=
+        b=mThKyBUQFBjv60FKsTXXCDn+c/Eno/+iS7uvHYCXTGpLDmZ2hwCUcI2hzYYPNPYRO
+         m80+7jc7M58EEuLwQIu7GhKm/mYRnJexnheVwapZ5WeKrFJ4rERdLGX8QRXmebrwXA
+         W9K5tqNnyStePm1bNVODnNOIygCpoL+niPfRmgVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.11 234/329] powerpc/64s: Fix crashes when toggling entry flush barrier
-Date:   Mon, 17 May 2021 16:02:25 +0200
-Message-Id: <20210517140310.034043680@linuxfoundation.org>
+        stable@vger.kernel.org, "Justin M. Forbes" <jforbes@redhat.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ian Rogers <irogers@google.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Michael Petlan <mpetlan@redhat.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 221/289] perf tools: Fix dynamic libbpf link
+Date:   Mon, 17 May 2021 16:02:26 +0200
+Message-Id: <20210517140312.594711262@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,70 +47,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Jiri Olsa <jolsa@kernel.org>
 
-commit aec86b052df6541cc97c5fca44e5934cbea4963b upstream.
+[ Upstream commit ad1237c30d975535a669746496cbed136aa5a045 ]
 
-The entry flush mitigation can be enabled/disabled at runtime via a
-debugfs file (entry_flush), which causes the kernel to patch itself to
-enable/disable the relevant mitigations.
+Justin reported broken build with LIBBPF_DYNAMIC=1.
 
-However depending on which mitigation we're using, it may not be safe to
-do that patching while other CPUs are active. For example the following
-crash:
+When linking libbpf dynamically we need to use perf's
+hashmap object, because it's not exported in libbpf.so
+(only in libbpf.a).
 
-  sleeper[15639]: segfault (11) at c000000000004c20 nip c000000000004c20 lr c000000000004c20
+Following build is now passing:
 
-Shows that we returned to userspace with a corrupted LR that points into
-the kernel, due to executing the partially patched call to the fallback
-entry flush (ie. we missed the LR restore).
+  $ make LIBBPF_DYNAMIC=1
+    BUILD:   Doing 'make -j8' parallel build
+    ...
+  $ ldd perf | grep libbpf
+        libbpf.so.0 => /lib64/libbpf.so.0 (0x00007fa7630db000)
 
-Fix it by doing the patching under stop machine. The CPUs that aren't
-doing the patching will be spinning in the core of the stop machine
-logic. That is currently sufficient for our purposes, because none of
-the patching we do is to that code or anywhere in the vicinity.
-
-Fixes: f79643787e0a ("powerpc/64s: flush L1D on kernel entry")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210506044959.1298123-2-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eee19501926d ("perf tools: Grab a copy of libbpf's hashmap")
+Reported-by: Justin M. Forbes <jforbes@redhat.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Ian Rogers <irogers@google.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Michael Petlan <mpetlan@redhat.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Link: http://lore.kernel.org/lkml/20210508205020.617984-1-jolsa@kernel.org
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/feature-fixups.c |   16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ tools/perf/Makefile.config | 1 +
+ tools/perf/util/Build      | 7 +++++++
+ 2 files changed, 8 insertions(+)
 
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -299,8 +299,9 @@ void do_uaccess_flush_fixups(enum l1d_fl
- 						: "unknown");
- }
+diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
+index ce8516e4de34..2abbd75fbf2e 100644
+--- a/tools/perf/Makefile.config
++++ b/tools/perf/Makefile.config
+@@ -530,6 +530,7 @@ ifndef NO_LIBELF
+       ifdef LIBBPF_DYNAMIC
+         ifeq ($(feature-libbpf), 1)
+           EXTLIBS += -lbpf
++          $(call detected,CONFIG_LIBBPF_DYNAMIC)
+         else
+           dummy := $(error Error: No libbpf devel library found, please install libbpf-devel);
+         endif
+diff --git a/tools/perf/util/Build b/tools/perf/util/Build
+index e2563d0154eb..0cf27354aa45 100644
+--- a/tools/perf/util/Build
++++ b/tools/perf/util/Build
+@@ -140,7 +140,14 @@ perf-$(CONFIG_LIBELF) += symbol-elf.o
+ perf-$(CONFIG_LIBELF) += probe-file.o
+ perf-$(CONFIG_LIBELF) += probe-event.o
  
--void do_entry_flush_fixups(enum l1d_flush_type types)
-+static int __do_entry_flush_fixups(void *data)
- {
-+	enum l1d_flush_type types = *(enum l1d_flush_type *)data;
- 	unsigned int instrs[3], *dest;
- 	long *start, *end;
- 	int i;
-@@ -369,6 +370,19 @@ void do_entry_flush_fixups(enum l1d_flus
- 							: "ori type" :
- 		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
- 						: "unknown");
++ifdef CONFIG_LIBBPF_DYNAMIC
++  hashmap := 1
++endif
+ ifndef CONFIG_LIBBPF
++  hashmap := 1
++endif
 +
-+	return 0;
-+}
-+
-+void do_entry_flush_fixups(enum l1d_flush_type types)
-+{
-+	/*
-+	 * The call to the fallback flush can not be safely patched in/out while
-+	 * other CPUs are executing it. So call __do_entry_flush_fixups() on one
-+	 * CPU while all other CPUs spin in the stop machine core with interrupts
-+	 * hard disabled.
-+	 */
-+	stop_machine(__do_entry_flush_fixups, &types, NULL);
- }
++ifdef hashmap
+ perf-y += hashmap.o
+ endif
  
- void do_rfi_flush_fixups(enum l1d_flush_type types)
+-- 
+2.30.2
+
 
 
