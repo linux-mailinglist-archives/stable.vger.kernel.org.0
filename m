@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79DED383273
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 858963831E3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240568AbhEQOsA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:48:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56944 "EHLO mail.kernel.org"
+        id S240909AbhEQOlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241778AbhEQOqB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:46:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BF7761969;
-        Mon, 17 May 2021 14:21:26 +0000 (UTC)
+        id S241106AbhEQOjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 788186193F;
+        Mon, 17 May 2021 14:18:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261286;
-        bh=o3/ZAjkkuWo4B9wry/uwTx5jHoWQJAhKZCEDHSXHC7E=;
+        s=korg; t=1621261119;
+        bh=M8RgQpG2b4ai5zpHDappdZ5NZAFlHdCK45JXNfJIUtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sizJsx/bjkGP7vMH1cND9xnmealEGWTTxmYAgfyFyiAumVjX2QL4QeVM1VSJ5gYyL
-         tzsTeWukedwKpFZ5Aixf2+WAwzFMeNbIgtFgSgeUZlJxkXy4RHKiO7XhJuMdqwhyrN
-         DerQkX1EOTklptb1sToCqayUInbwunqZtF9g+Pkw=
+        b=lpWpsQYFnqS3FqYqFFYoMND0dNqQZhnaf+rrbex/QOnCMx1wug3W8bCH7IdWIb4lB
+         yPtG1TWTUtEWWl13E7wczfpa6++/0lZ2LUKfwvbopEh1EAXEzgyItWATS84njrVJcX
+         iK/y8A0462T1pCA3bhdOExZNEACruu3acSzGRWCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ferry Toth <ftoth@exalondelft.nl>
-Subject: [PATCH 5.12 309/363] usb: dwc3: pci: Enable usb2-gadget-lpm-disable for Intel Merrifield
-Date:   Mon, 17 May 2021 16:02:55 +0200
-Message-Id: <20210517140313.047985453@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.12 310/363] usb: xhci: Increase timeout for HC halt
+Date:   Mon, 17 May 2021 16:02:56 +0200
+Message-Id: <20210517140313.077768224@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,32 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ferry Toth <ftoth@exalondelft.nl>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit 04357fafea9c7ed34525eb9680c760245c3bb958 upstream.
+commit ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 upstream.
 
-On Intel Merrifield LPM is causing host to reset port after a timeout.
-By disabling LPM entirely this is prevented.
+On some devices (specifically the SC8180x based Surface Pro X with
+QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
+the xhci-hcd driver at some point later does not exhibit this behavior.
+To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
+issue.
 
-Fixes: 066c09593454 ("usb: dwc3: pci: Enable extcon driver for Intel Merrifield")
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210425150947.5862-1-ftoth@exalondelft.nl
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-pci.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-ext-caps.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-pci.c
-+++ b/drivers/usb/dwc3/dwc3-pci.c
-@@ -123,6 +123,7 @@ static const struct property_entry dwc3_
- 	PROPERTY_ENTRY_STRING("linux,extcon-name", "mrfld_bcove_pwrsrc"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u3_susphy_quirk"),
- 	PROPERTY_ENTRY_BOOL("snps,dis_u2_susphy_quirk"),
-+	PROPERTY_ENTRY_BOOL("snps,usb2-gadget-lpm-disable"),
- 	PROPERTY_ENTRY_BOOL("linux,sysdev_is_parent"),
- 	{}
- };
+--- a/drivers/usb/host/xhci-ext-caps.h
++++ b/drivers/usb/host/xhci-ext-caps.h
+@@ -7,8 +7,9 @@
+  * Author: Sarah Sharp
+  * Some code borrowed from the Linux EHCI driver.
+  */
+-/* Up to 16 ms to halt an HC */
+-#define XHCI_MAX_HALT_USEC	(16*1000)
++
++/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
++#define XHCI_MAX_HALT_USEC	(32 * 1000)
+ /* HC not running - set to 1 when run/stop bit is cleared. */
+ #define XHCI_STS_HALT		(1<<0)
+ 
 
 
