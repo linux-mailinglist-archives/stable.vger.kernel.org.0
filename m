@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF4FA383659
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F4B3837C6
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243231AbhEQPb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52290 "EHLO mail.kernel.org"
+        id S243761AbhEQPrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:47:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244213AbhEQP1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:27:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6B2461CB1;
-        Mon, 17 May 2021 14:36:47 +0000 (UTC)
+        id S1344641AbhEQPpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:45:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F24161D2E;
+        Mon, 17 May 2021 14:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262208;
-        bh=w1aeMm/kiwVrQe6PqJGVYcg9a6t6R3ZxK/2ZEZIDo5U=;
+        s=korg; t=1621262618;
+        bh=mzsU1CQrvZHJ0e7CBcbD0RS4Hng9O4NgK9FM1TEF3rk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=STomcj7ZRpD/80Kf8Yhbg9P2FIFftEVu3xb58k5bbliKnNa16pGCfucF/MwOW6HKp
-         QWOkF2HkLTJbLlxNy1d+yqwMzTyOf5jtXd+xWAewSXEMYeL+z4zkb2w51I8kaQomeo
-         m0g6lrIuRV34KO5douxQRd+sy2WqPv/otZDRziXY=
+        b=RgiBSoVkCJ4G2L+nTfwXw3APZD932BTZ4KCXDEra8RtNAaakxs6pjR9WNkBsnK4ex
+         wcMQmjJQ6/VKuWQqALU+UCliTCPZD8Dt4F+9jMwgheGs/Ln4ujnV8mRTtCiCGsGNO/
+         cBbXCgziTfSBF+loQpAH4095ij/Bzt8tN0Yd2I5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 239/329] mm/hugetlb: fix F_SEAL_FUTURE_WRITE
+        stable@vger.kernel.org, Thomas Deutschmann <whissi@gentoo.org>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Alexandru Ardelean <aardelean@deviqon.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 225/289] iio: hid-sensors: select IIO_TRIGGERED_BUFFER under HID_SENSOR_IIO_TRIGGER
 Date:   Mon, 17 May 2021 16:02:30 +0200
-Message-Id: <20210517140310.201000694@linuxfoundation.org>
+Message-Id: <20210517140312.740260599@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,150 +42,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Alexandru Ardelean <aardelean@deviqon.com>
 
-commit 22247efd822e6d263f3c8bd327f3f769aea9b1d9 upstream.
+[ Upstream commit 7061803522ee7876df1ca18cdd1e1551f761352d ]
 
-Patch series "mm/hugetlb: Fix issues on file sealing and fork", v2.
+During commit 067fda1c065ff ("iio: hid-sensors: move triggered buffer
+setup into hid_sensor_setup_trigger"), the
+iio_triggered_buffer_{setup,cleanup}() functions got moved under the
+hid-sensor-trigger module.
 
-Hugh reported issue with F_SEAL_FUTURE_WRITE not applied correctly to
-hugetlbfs, which I can easily verify using the memfd_test program, which
-seems that the program is hardly run with hugetlbfs pages (as by default
-shmem).
+The above change works fine, if any of the sensors get built. However, when
+only the common hid-sensor-trigger module gets built (and none of the
+drivers), then the IIO_TRIGGERED_BUFFER symbol isn't selected/enforced.
 
-Meanwhile I found another probably even more severe issue on that hugetlb
-fork won't wr-protect child cow pages, so child can potentially write to
-parent private pages.  Patch 2 addresses that.
+Previously, each driver would enforce/select the IIO_TRIGGERED_BUFFER
+symbol. With this change the HID_SENSOR_IIO_TRIGGER (for the
+hid-sensor-trigger module) will enforce that IIO_TRIGGERED_BUFFER gets
+selected.
 
-After this series applied, "memfd_test hugetlbfs" should start to pass.
+All HID sensor drivers select the HID_SENSOR_IIO_TRIGGER symbol. So, this
+change removes the IIO_TRIGGERED_BUFFER enforcement from each driver.
 
-This patch (of 2):
-
-F_SEAL_FUTURE_WRITE is missing for hugetlb starting from the first day.
-There is a test program for that and it fails constantly.
-
-$ ./memfd_test hugetlbfs
-memfd-hugetlb: CREATE
-memfd-hugetlb: BASIC
-memfd-hugetlb: SEAL-WRITE
-memfd-hugetlb: SEAL-FUTURE-WRITE
-mmap() didn't fail as expected
-Aborted (core dumped)
-
-I think it's probably because no one is really running the hugetlbfs test.
-
-Fix it by checking FUTURE_WRITE also in hugetlbfs_file_mmap() as what we
-do in shmem_mmap().  Generalize a helper for that.
-
-Link: https://lkml.kernel.org/r/20210503234356.9097-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20210503234356.9097-2-peterx@redhat.com
-Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 067fda1c065ff ("iio: hid-sensors: move triggered buffer setup into hid_sensor_setup_trigger")
+Reported-by: Thomas Deutschmann <whissi@gentoo.org>
+Cc: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Acked-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Link: https://lore.kernel.org/r/20210414084955.260117-1-aardelean@deviqon.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c |    5 +++++
- include/linux/mm.h   |   32 ++++++++++++++++++++++++++++++++
- mm/shmem.c           |   22 ++++------------------
- 3 files changed, 41 insertions(+), 18 deletions(-)
+ drivers/iio/accel/Kconfig              | 1 -
+ drivers/iio/common/hid-sensors/Kconfig | 1 +
+ drivers/iio/gyro/Kconfig               | 1 -
+ drivers/iio/humidity/Kconfig           | 1 -
+ drivers/iio/light/Kconfig              | 2 --
+ drivers/iio/magnetometer/Kconfig       | 1 -
+ drivers/iio/orientation/Kconfig        | 2 --
+ drivers/iio/pressure/Kconfig           | 1 -
+ drivers/iio/temperature/Kconfig        | 1 -
+ 9 files changed, 1 insertion(+), 10 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -131,6 +131,7 @@ static void huge_pagevec_release(struct
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file_inode(file);
-+	struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
- 	loff_t len, vma_len;
- 	int ret;
- 	struct hstate *h = hstate_file(file);
-@@ -146,6 +147,10 @@ static int hugetlbfs_file_mmap(struct fi
- 	vma->vm_flags |= VM_HUGETLB | VM_DONTEXPAND;
- 	vma->vm_ops = &hugetlb_vm_ops;
- 
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * page based offset in vm_pgoff could be sufficiently large to
- 	 * overflow a loff_t when converted to byte offset.  This can
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3191,5 +3191,37 @@ unsigned long wp_shared_mapping_range(st
- 
- extern int sysctl_nr_trim_pages;
- 
-+/**
-+ * seal_check_future_write - Check for F_SEAL_FUTURE_WRITE flag and handle it
-+ * @seals: the seals to check
-+ * @vma: the vma to operate on
-+ *
-+ * Check whether F_SEAL_FUTURE_WRITE is set; if so, do proper check/handling on
-+ * the vma flags.  Return 0 if check pass, or <0 for errors.
-+ */
-+static inline int seal_check_future_write(int seals, struct vm_area_struct *vma)
-+{
-+	if (seals & F_SEAL_FUTURE_WRITE) {
-+		/*
-+		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
-+		 * "future write" seal active.
-+		 */
-+		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
-+			return -EPERM;
-+
-+		/*
-+		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
-+		 * MAP_SHARED and read-only, take care to not allow mprotect to
-+		 * revert protections on such mappings. Do this only for shared
-+		 * mappings. For private mappings, don't need to mask
-+		 * VM_MAYWRITE as we still want them to be COW-writable.
-+		 */
-+		if (vma->vm_flags & VM_SHARED)
-+			vma->vm_flags &= ~(VM_MAYWRITE);
-+	}
-+
-+	return 0;
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2256,25 +2256,11 @@ out_nomem:
- static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct shmem_inode_info *info = SHMEM_I(file_inode(file));
-+	int ret;
- 
--	if (info->seals & F_SEAL_FUTURE_WRITE) {
--		/*
--		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
--		 * "future write" seal active.
--		 */
--		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
--			return -EPERM;
--
--		/*
--		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
--		 * MAP_SHARED and read-only, take care to not allow mprotect to
--		 * revert protections on such mappings. Do this only for shared
--		 * mappings. For private mappings, don't need to mask
--		 * VM_MAYWRITE as we still want them to be COW-writable.
--		 */
--		if (vma->vm_flags & VM_SHARED)
--			vma->vm_flags &= ~(VM_MAYWRITE);
--	}
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
- 
- 	/* arm64 - allow memory tagging on RAM-based files */
- 	vma->vm_flags |= VM_MTE_ALLOWED;
+diff --git a/drivers/iio/accel/Kconfig b/drivers/iio/accel/Kconfig
+index 2e0c62c39155..8acf277b8b25 100644
+--- a/drivers/iio/accel/Kconfig
++++ b/drivers/iio/accel/Kconfig
+@@ -211,7 +211,6 @@ config DMARD10
+ config HID_SENSOR_ACCEL_3D
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID Accelerometers 3D"
+diff --git a/drivers/iio/common/hid-sensors/Kconfig b/drivers/iio/common/hid-sensors/Kconfig
+index 24d492567336..2a3dd3b907be 100644
+--- a/drivers/iio/common/hid-sensors/Kconfig
++++ b/drivers/iio/common/hid-sensors/Kconfig
+@@ -19,6 +19,7 @@ config HID_SENSOR_IIO_TRIGGER
+ 	tristate "Common module (trigger) for all HID Sensor IIO drivers"
+ 	depends on HID_SENSOR_HUB && HID_SENSOR_IIO_COMMON && IIO_BUFFER
+ 	select IIO_TRIGGER
++	select IIO_TRIGGERED_BUFFER
+ 	help
+ 	  Say yes here to build trigger support for HID sensors.
+ 	  Triggers will be send if all requested attributes were read.
+diff --git a/drivers/iio/gyro/Kconfig b/drivers/iio/gyro/Kconfig
+index 5824f2edf975..20b5ac7ab66a 100644
+--- a/drivers/iio/gyro/Kconfig
++++ b/drivers/iio/gyro/Kconfig
+@@ -111,7 +111,6 @@ config FXAS21002C_SPI
+ config HID_SENSOR_GYRO_3D
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID Gyroscope 3D"
+diff --git a/drivers/iio/humidity/Kconfig b/drivers/iio/humidity/Kconfig
+index 6549fcf6db69..2de5494e7c22 100644
+--- a/drivers/iio/humidity/Kconfig
++++ b/drivers/iio/humidity/Kconfig
+@@ -52,7 +52,6 @@ config HID_SENSOR_HUMIDITY
+ 	tristate "HID Environmental humidity sensor"
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	help
+diff --git a/drivers/iio/light/Kconfig b/drivers/iio/light/Kconfig
+index 33ad4dd0b5c7..917f9becf9c7 100644
+--- a/drivers/iio/light/Kconfig
++++ b/drivers/iio/light/Kconfig
+@@ -256,7 +256,6 @@ config ISL29125
+ config HID_SENSOR_ALS
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID ALS"
+@@ -270,7 +269,6 @@ config HID_SENSOR_ALS
+ config HID_SENSOR_PROX
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID PROX"
+diff --git a/drivers/iio/magnetometer/Kconfig b/drivers/iio/magnetometer/Kconfig
+index 1697a8c03506..7e9489a35571 100644
+--- a/drivers/iio/magnetometer/Kconfig
++++ b/drivers/iio/magnetometer/Kconfig
+@@ -95,7 +95,6 @@ config MAG3110
+ config HID_SENSOR_MAGNETOMETER_3D
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID Magenetometer 3D"
+diff --git a/drivers/iio/orientation/Kconfig b/drivers/iio/orientation/Kconfig
+index a505583cc2fd..396cbbb867f4 100644
+--- a/drivers/iio/orientation/Kconfig
++++ b/drivers/iio/orientation/Kconfig
+@@ -9,7 +9,6 @@ menu "Inclinometer sensors"
+ config HID_SENSOR_INCLINOMETER_3D
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID Inclinometer 3D"
+@@ -20,7 +19,6 @@ config HID_SENSOR_INCLINOMETER_3D
+ config HID_SENSOR_DEVICE_ROTATION
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID Device Rotation"
+diff --git a/drivers/iio/pressure/Kconfig b/drivers/iio/pressure/Kconfig
+index 689b978db4f9..fc0d3cfca418 100644
+--- a/drivers/iio/pressure/Kconfig
++++ b/drivers/iio/pressure/Kconfig
+@@ -79,7 +79,6 @@ config DPS310
+ config HID_SENSOR_PRESS
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	tristate "HID PRESS"
+diff --git a/drivers/iio/temperature/Kconfig b/drivers/iio/temperature/Kconfig
+index f1f2a1499c9e..4df60082c1fa 100644
+--- a/drivers/iio/temperature/Kconfig
++++ b/drivers/iio/temperature/Kconfig
+@@ -45,7 +45,6 @@ config HID_SENSOR_TEMP
+ 	tristate "HID Environmental temperature sensor"
+ 	depends on HID_SENSOR_HUB
+ 	select IIO_BUFFER
+-	select IIO_TRIGGERED_BUFFER
+ 	select HID_SENSOR_IIO_COMMON
+ 	select HID_SENSOR_IIO_TRIGGER
+ 	help
+-- 
+2.30.2
+
 
 
