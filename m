@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9857A382FF3
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 909C6382FF5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239255AbhEQOWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
+        id S235676AbhEQOWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:22:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239510AbhEQOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238829AbhEQOU1 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:20:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EC4661440;
-        Mon, 17 May 2021 14:11:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 774DA61453;
+        Mon, 17 May 2021 14:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260677;
-        bh=JcwCjE5vdzX03akLgR47m9JznA7dJwpchvmlYgixaBA=;
+        s=korg; t=1621260679;
+        bh=9JLHXc2pG/i5a1fkGbuikExIJXBcBSB3/Pq0AxWji3A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0bjN82eudoPxrbW9xw2TdaB7jdlqs2G4NhurfBAIr/FN4/QPepPgfr16Vg34zhfR3
-         jzsc8H0yBo/qbeNO9fN2Q7fSe+r4IpJmrXTfvAxT+V7N/zaCQ3WU0Fbye8ps8ADe3c
-         U0OR+VP3lcWTtmH35WfcknjWFTiRG9b8AZheIKyk=
+        b=14zxkNGA/c2uHasTsb0JC2rhk/ZVXDPA8REHEG+HZFpXgbmsBSb8cPhXvWOUUo4qo
+         zOnIv/gEqB/MSfug7ni1S+YfNVbkfKyqfCxlbUpjd83CAzEhjEpkLhYbQ2o8/fV3Ia
+         QB594Cc2bdVIUZ9sjDOa+1/yuUKSJe6rWg/aAGe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        stable@vger.kernel.org, Yufeng Mo <moyufeng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 191/363] rtc: ds1307: Fix wday settings for rx8130
-Date:   Mon, 17 May 2021 16:00:57 +0200
-Message-Id: <20210517140309.048038565@linuxfoundation.org>
+Subject: [PATCH 5.12 192/363] net: hns3: fix incorrect configuration for igu_egu_hw_err
+Date:   Mon, 17 May 2021 16:00:58 +0200
+Message-Id: <20210517140309.080564572@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -41,51 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+From: Yufeng Mo <moyufeng@huawei.com>
 
-[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
+[ Upstream commit 2867298dd49ee84214b8721521dc7a5a6382520c ]
 
-rx8130 wday specifies the bit position, not BCD.
+According to the UM, the type and enable status of igu_egu_hw_err
+should be configured separately. Currently, the type field is
+incorrect when disable this error. So fix it by configuring these
+two fields separately.
 
-Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
+Fixes: bf1faf9415dd ("net: hns3: Add enable and process hw errors from IGU, EGU and NCSI")
+Signed-off-by: Yufeng Mo <moyufeng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c | 3 ++-
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index cd8e438bc9c4..8752620d8e34 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -296,7 +296,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
- 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
- 	t->tm_hour = bcd2bin(tmp);
--	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
-+	else
-+		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
- 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
- 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
- 	t->tm_mon = bcd2bin(tmp) - 1;
-@@ -343,7 +347,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
- 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
- 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
--	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
-+	else
-+		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
- 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
- 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+index 0ca7f1b984bf..78d3eb142df8 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.c
+@@ -753,8 +753,9 @@ static int hclge_config_igu_egu_hw_err_int(struct hclge_dev *hdev, bool en)
  
+ 	/* configure IGU,EGU error interrupts */
+ 	hclge_cmd_setup_basic_desc(&desc, HCLGE_IGU_COMMON_INT_EN, false);
++	desc.data[0] = cpu_to_le32(HCLGE_IGU_ERR_INT_TYPE);
+ 	if (en)
+-		desc.data[0] = cpu_to_le32(HCLGE_IGU_ERR_INT_EN);
++		desc.data[0] |= cpu_to_le32(HCLGE_IGU_ERR_INT_EN);
+ 
+ 	desc.data[1] = cpu_to_le32(HCLGE_IGU_ERR_INT_EN_MASK);
+ 
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+index 608fe26fc3fe..d647f3c84134 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_err.h
+@@ -32,7 +32,8 @@
+ #define HCLGE_TQP_ECC_ERR_INT_EN_MASK	0x0FFF
+ #define HCLGE_MSIX_SRAM_ECC_ERR_INT_EN_MASK	0x0F000000
+ #define HCLGE_MSIX_SRAM_ECC_ERR_INT_EN	0x0F000000
+-#define HCLGE_IGU_ERR_INT_EN	0x0000066F
++#define HCLGE_IGU_ERR_INT_EN	0x0000000F
++#define HCLGE_IGU_ERR_INT_TYPE	0x00000660
+ #define HCLGE_IGU_ERR_INT_EN_MASK	0x000F
+ #define HCLGE_IGU_TNL_ERR_INT_EN    0x0002AABF
+ #define HCLGE_IGU_TNL_ERR_INT_EN_MASK  0x003F
 -- 
 2.30.2
 
