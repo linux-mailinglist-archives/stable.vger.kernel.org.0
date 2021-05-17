@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE3D3836EB
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A802B3836F2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244850AbhEQPhZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:37:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42232 "EHLO mail.kernel.org"
+        id S245179AbhEQPiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243219AbhEQPf1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:35:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7D1061CE6;
-        Mon, 17 May 2021 14:39:46 +0000 (UTC)
+        id S243734AbhEQPf6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:35:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F7E561CEA;
+        Mon, 17 May 2021 14:39:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262387;
-        bh=bHYA8Dfl/fBT+THpRKXg/JP2T5wRvL428Kuetier2Xk=;
+        s=korg; t=1621262394;
+        bh=MwOCbBcfvlb0ciXm2Mc6pB0nprG2EIV1HA5/KJiix2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vhWuHMr7R/zZ0322CcCc/qRcgvOznpyxNCDexG7EAy8m5BCiXutv1c5oOHS60Pzvr
-         iEPdEpw1FLN9kQSaqYxLg7B17R+tavamJ2Etjb3AWkifgLXFAGIa/TqS3FOpQ4pTJy
-         lwxeGKAGa+UTZ4/AGMWzKwphC6FHU22AcHpEo/wU=
+        b=AjoMjzz4Nghy2rjfcmyJoKPPR7sLgiTNMat3+JXXLQDv4K3azNSIQ21UdRAS4mUKE
+         Vbm193/scZlSZUZ4k/3Y+UGLFUPKz910xtSQcUX21qJ2JdqOs/6sAe1c7hen/vWEzH
+         3HGD2lRXBtxJCYw+Xuxw223s5o1pk+hCFC2xoe/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 177/289] netfilter: nftables: Fix a memleak from userdata error path in new objects
-Date:   Mon, 17 May 2021 16:01:42 +0200
-Message-Id: <20210517140311.075308368@linuxfoundation.org>
+Subject: [PATCH 5.10 178/289] can: mcp251xfd: mcp251xfd_probe(): add missing can_rx_offload_del() in error path
+Date:   Mon, 17 May 2021 16:01:43 +0200
+Message-Id: <20210517140311.110782258@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -39,35 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 85dfd816fabfc16e71786eda0a33a7046688b5b0 ]
+[ Upstream commit 4376ea42db8bfcac2bc3a30bba93917244a8c2d4 ]
 
-Release object name if userdata allocation fails.
+This patch adds the missing can_rx_offload_del(), that must be called
+if mcp251xfd_register() fails.
 
-Fixes: b131c96496b3 ("netfilter: nf_tables: add userdata support for nft_object")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 55e5b97f003e ("can: mcp25xxfd: add driver for Microchip MCP25xxFD SPI CAN")
+Link: https://lore.kernel.org/r/20210504091838.1109047-1-mkl@pengutronix.de
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_tables_api.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nf_tables_api.c b/net/netfilter/nf_tables_api.c
-index 2e76935db2c8..7bf7bfa0c7d9 100644
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -6015,9 +6015,9 @@ err_obj_ht:
- 	INIT_LIST_HEAD(&obj->list);
- 	return err;
- err_trans:
--	kfree(obj->key.name);
--err_userdata:
- 	kfree(obj->udata);
-+err_userdata:
-+	kfree(obj->key.name);
- err_strdup:
- 	if (obj->ops->destroy)
- 		obj->ops->destroy(&ctx, obj);
+diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
+index 096d818c167e..68ff931993c2 100644
+--- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
++++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-core.c
+@@ -2870,10 +2870,12 @@ static int mcp251xfd_probe(struct spi_device *spi)
+ 
+ 	err = mcp251xfd_register(priv);
+ 	if (err)
+-		goto out_free_candev;
++		goto out_can_rx_offload_del;
+ 
+ 	return 0;
+ 
++ out_can_rx_offload_del:
++	can_rx_offload_del(&priv->offload);
+  out_free_candev:
+ 	spi->max_speed_hz = priv->spi_max_speed_hz_orig;
+ 
 -- 
 2.30.2
 
