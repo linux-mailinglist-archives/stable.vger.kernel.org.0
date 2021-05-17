@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E2D938310C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79A3D383357
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240309AbhEQOdw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:33:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43850 "EHLO mail.kernel.org"
+        id S240647AbhEQO5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235741AbhEQObv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C36B1613ED;
-        Mon, 17 May 2021 14:15:45 +0000 (UTC)
+        id S242266AbhEQOyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:54:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C054619B7;
+        Mon, 17 May 2021 14:24:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260946;
-        bh=0WFPPBJ9mm4YAuImocx6Z48TEVG4TPd96yLMMVLY/Gg=;
+        s=korg; t=1621261490;
+        bh=F+pne/Hjxiv7x9JXuhGkN38R9E5g7VxohpNgBfzPr/A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgQxJMWyDfu3r+deCgfpV0ipgacgmnaQGcrbePIixA/mTC917peBV8yelH5vcDior
-         WQIw4vGlMJDrbw63fjkTdX14Fqu48EYrr+3H3LbwnlhkhiM5kA+ER28ZvZFGL634DS
-         vG4jVUVU5OscYzwLT3fNy14Lz1FsKNoBtc8/dbdY=
+        b=X6tWkbyZaXTnOnuRSXjnLtvGdq9A7OUJXhlc4i8VU7yXfhLrqrL/g2HLZsmUyzQO9
+         5SHFwNL5XH/b3KCnpQzXQYRUAj9o+7i2f7vYvSBGgyzT9wzgjyHFYrDA7E1ipYE/o3
+         0rPsjZPMwu8CruHW22SP4gZt0ZUFK2FOkZ1LBc2Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guangbin Huang <huangguangbin2@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 040/329] net: hns3: remediate a potential overflow risk of bd_num_list
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 026/289] ALSA: bebob: enable to deliver MIDI messages for multiple ports
 Date:   Mon, 17 May 2021 15:59:11 +0200
-Message-Id: <20210517140303.401899315@linuxfoundation.org>
+Message-Id: <20210517140306.066512020@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guangbin Huang <huangguangbin2@huawei.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit a2ee6fd28a190588e142ad8ea9d40069cd3c9f98 ]
+[ Upstream commit d2b6f15bc18ac8fbce25398290774c21f5b2cd44 ]
 
-The array size of bd_num_list is a fixed value, it may have potential
-overflow risk when array size of hclge_dfx_bd_offset_list is greater
-than that fixed value. So modify bd_num_list as a pointer and allocate
-memory for it according to array size of hclge_dfx_bd_offset_list.
+Current implementation of bebob driver doesn't correctly handle the case
+that the device has multiple MIDI ports. The cause is the number of MIDI
+conformant data channels is passed to AM824 data block processing layer.
 
-Signed-off-by: Guangbin Huang <huangguangbin2@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This commit fixes the bug.
+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210321032831.340278-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../hisilicon/hns3/hns3pf/hclge_main.c        | 27 ++++++++++++++-----
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ sound/firewire/bebob/bebob_stream.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-index 67764d930435..1c13cf34ae9f 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_main.c
-@@ -11284,7 +11284,6 @@ static int hclge_get_64_bit_regs(struct hclge_dev *hdev, u32 regs_num,
- #define REG_LEN_PER_LINE	(REG_NUM_PER_LINE * sizeof(u32))
- #define REG_SEPARATOR_LINE	1
- #define REG_NUM_REMAIN_MASK	3
--#define BD_LIST_MAX_NUM		30
- 
- int hclge_query_bd_num_cmd_send(struct hclge_dev *hdev, struct hclge_desc *desc)
+diff --git a/sound/firewire/bebob/bebob_stream.c b/sound/firewire/bebob/bebob_stream.c
+index bbae04793c50..c18017e0a3d9 100644
+--- a/sound/firewire/bebob/bebob_stream.c
++++ b/sound/firewire/bebob/bebob_stream.c
+@@ -517,20 +517,22 @@ int snd_bebob_stream_init_duplex(struct snd_bebob *bebob)
+ static int keep_resources(struct snd_bebob *bebob, struct amdtp_stream *stream,
+ 			  unsigned int rate, unsigned int index)
  {
-@@ -11378,15 +11377,19 @@ static int hclge_get_dfx_reg_len(struct hclge_dev *hdev, int *len)
- {
- 	u32 dfx_reg_type_num = ARRAY_SIZE(hclge_dfx_bd_offset_list);
- 	int data_len_per_desc, bd_num, i;
--	int bd_num_list[BD_LIST_MAX_NUM];
-+	int *bd_num_list;
- 	u32 data_len;
- 	int ret;
+-	struct snd_bebob_stream_formation *formation;
++	unsigned int pcm_channels;
++	unsigned int midi_ports;
+ 	struct cmp_connection *conn;
+ 	int err;
  
-+	bd_num_list = kcalloc(dfx_reg_type_num, sizeof(int), GFP_KERNEL);
-+	if (!bd_num_list)
-+		return -ENOMEM;
-+
- 	ret = hclge_get_dfx_reg_bd_num(hdev, bd_num_list, dfx_reg_type_num);
- 	if (ret) {
- 		dev_err(&hdev->pdev->dev,
- 			"Get dfx reg bd num fail, status is %d.\n", ret);
--		return ret;
-+		goto out;
+ 	if (stream == &bebob->tx_stream) {
+-		formation = bebob->tx_stream_formations + index;
++		pcm_channels = bebob->tx_stream_formations[index].pcm;
++		midi_ports = bebob->midi_input_ports;
+ 		conn = &bebob->out_conn;
+ 	} else {
+-		formation = bebob->rx_stream_formations + index;
++		pcm_channels = bebob->rx_stream_formations[index].pcm;
++		midi_ports = bebob->midi_output_ports;
+ 		conn = &bebob->in_conn;
  	}
  
- 	data_len_per_desc = sizeof_field(struct hclge_desc, data);
-@@ -11397,6 +11400,8 @@ static int hclge_get_dfx_reg_len(struct hclge_dev *hdev, int *len)
- 		*len += (data_len / REG_LEN_PER_LINE + 1) * REG_LEN_PER_LINE;
- 	}
- 
-+out:
-+	kfree(bd_num_list);
- 	return ret;
- }
- 
-@@ -11404,16 +11409,20 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
- {
- 	u32 dfx_reg_type_num = ARRAY_SIZE(hclge_dfx_bd_offset_list);
- 	int bd_num, bd_num_max, buf_len, i;
--	int bd_num_list[BD_LIST_MAX_NUM];
- 	struct hclge_desc *desc_src;
-+	int *bd_num_list;
- 	u32 *reg = data;
- 	int ret;
- 
-+	bd_num_list = kcalloc(dfx_reg_type_num, sizeof(int), GFP_KERNEL);
-+	if (!bd_num_list)
-+		return -ENOMEM;
-+
- 	ret = hclge_get_dfx_reg_bd_num(hdev, bd_num_list, dfx_reg_type_num);
- 	if (ret) {
- 		dev_err(&hdev->pdev->dev,
- 			"Get dfx reg bd num fail, status is %d.\n", ret);
--		return ret;
-+		goto out;
- 	}
- 
- 	bd_num_max = bd_num_list[0];
-@@ -11422,8 +11431,10 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
- 
- 	buf_len = sizeof(*desc_src) * bd_num_max;
- 	desc_src = kzalloc(buf_len, GFP_KERNEL);
--	if (!desc_src)
--		return -ENOMEM;
-+	if (!desc_src) {
-+		ret = -ENOMEM;
-+		goto out;
-+	}
- 
- 	for (i = 0; i < dfx_reg_type_num; i++) {
- 		bd_num = bd_num_list[i];
-@@ -11439,6 +11450,8 @@ static int hclge_get_dfx_reg(struct hclge_dev *hdev, void *data)
- 	}
- 
- 	kfree(desc_src);
-+out:
-+	kfree(bd_num_list);
- 	return ret;
- }
+-	err = amdtp_am824_set_parameters(stream, rate, formation->pcm,
+-					 formation->midi, false);
++	err = amdtp_am824_set_parameters(stream, rate, pcm_channels, midi_ports, false);
+ 	if (err < 0)
+ 		return err;
  
 -- 
 2.30.2
