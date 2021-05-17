@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE856382ED6
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EAF323830D5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238609AbhEQOLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
+        id S240183AbhEQObu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:31:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233962AbhEQOJj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:09:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD3961360;
-        Mon, 17 May 2021 14:06:57 +0000 (UTC)
+        id S239958AbhEQO3m (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:29:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ADE96162A;
+        Mon, 17 May 2021 14:14:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260418;
-        bh=61xpfLXqVEMo6Yjqybp3IC64fXwudK8TBjdPC8zIexw=;
+        s=korg; t=1621260893;
+        bh=1fgGe6EVea6dgSAsAZvzBziRCktDtmZTRV18UlD/8CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cWhuci3fkSKliD6ia6JxztImDrW8OYTvtENCTg8pHKhqRHt/CobbtHwq0NCz4nZbu
-         YdgLVJDc/hvfxNqjQBxWzrlkHY5m0ME1fL4hMzfREHK8vHnXSBTBPFJfwlvpsOJgIb
-         5BooeXX1qfB65om42EI8M52iz14Cj3ru/GKMjwxc=
+        b=vUpnTKMy1tCoaGUL88kkXuawcBIKiXmuOwWbd9a5M1G7wMX9i106F7a4ReSGqPvDQ
+         3PeNy26mWH0SFeROekiVCxDqrnmdzMDz70tDw5aOKbdWQOAOAS+W4QBjty3ygWkTvj
+         vGG18UJoNXYWAT+xC52oVFxqoJiknx9nbwnOYKRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vivek Goyal <vgoyal@redhat.com>,
-        Miklos Szeredi <mszeredi@redhat.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 073/363] fuse: invalidate attrs when page writeback completes
-Date:   Mon, 17 May 2021 15:58:59 +0200
-Message-Id: <20210517140305.058970098@linuxfoundation.org>
+Subject: [PATCH 5.11 029/329] ALSA: hdsp: dont disable if not enabled
+Date:   Mon, 17 May 2021 15:59:00 +0200
+Message-Id: <20210517140303.024556910@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
-References: <20210517140302.508966430@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 3466958beb31a8e9d3a1441a34228ed088b84f3e ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-In fuse when a direct/write-through write happens we invalidate attrs
-because that might have updated mtime/ctime on server and cached
-mtime/ctime will be stale.
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-What about page writeback path.  Looks like we don't invalidate attrs
-there.  To be consistent, invalidate attrs in writeback path as well.  Only
-exception is when writeback_cache is enabled.  In that case we strust local
-mtime/ctime and there is no need to invalidate attrs.
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
 
-Recently users started experiencing failure of xfstests generic/080,
-geneirc/215 and generic/614 on virtiofs.  This happened only newer "stat"
-utility and not older one.  This patch fixes the issue.
-
-So what's the root cause of the issue.  Here is detailed explanation.
-
-generic/080 test does mmap write to a file, closes the file and then checks
-if mtime has been updated or not.  When file is closed, it leads to
-flushing of dirty pages (and that should update mtime/ctime on server).
-But we did not explicitly invalidate attrs after writeback finished.  Still
-generic/080 passed so far and reason being that we invalidated atime in
-fuse_readpages_end().  This is called in fuse_readahead() path and always
-seems to trigger before mmaped write.
-
-So after mmaped write when lstat() is called, it sees that atleast one of
-the fields being asked for is invalid (atime) and that results in
-generating GETATTR to server and mtime/ctime also get updated and test
-passes.
-
-But newer /usr/bin/stat seems to have moved to using statx() syscall now
-(instead of using lstat()).  And statx() allows it to query only ctime or
-mtime (and not rest of the basic stat fields).  That means when querying
-for mtime, fuse_update_get_attr() sees that mtime is not invalid (only
-atime is invalid).  So it does not generate a new GETATTR and fill stat
-with cached mtime/ctime.  And that means updated mtime is not seen by
-xfstest and tests start failing.
-
-Invalidating attrs after writeback completion should solve this problem in
-a generic manner.
-
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fuse/file.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index eff4abaa87da..6e6d1e599869 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1776,8 +1776,17 @@ static void fuse_writepage_end(struct fuse_mount *fm, struct fuse_args *args,
- 		container_of(args, typeof(*wpa), ia.ap.args);
- 	struct inode *inode = wpa->inode;
- 	struct fuse_inode *fi = get_fuse_inode(inode);
-+	struct fuse_conn *fc = get_fuse_conn(inode);
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index cea53a878c36..4aee30db034d 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5321,7 +5321,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
- 	mapping_set_error(inode->i_mapping, error);
-+	/*
-+	 * A writeback finished and this might have updated mtime/ctime on
-+	 * server making local mtime/ctime stale.  Hence invalidate attrs.
-+	 * Do this only if writeback_cache is not enabled.  If writeback_cache
-+	 * is enabled, we trust local ctime/mtime.
-+	 */
-+	if (!fc->writeback_cache)
-+		fuse_invalidate_attr(inode);
- 	spin_lock(&fi->lock);
- 	rb_erase(&wpa->writepages_entry, &fi->writepages);
- 	while (wpa->next) {
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
