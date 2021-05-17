@@ -2,81 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62BBC38254B
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 09:27:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC946382590
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 09:42:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235271AbhEQH3K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 03:29:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55634 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229755AbhEQH3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 03:29:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A72EB61007;
-        Mon, 17 May 2021 07:27:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621236471;
-        bh=wm9rTBwxrFjpfeBtExDxSI5AqdoTtDawv0VDGnK3Cls=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Dp0CsjluWTYDyAVHwdGd3zJAFHX/7UYPtXvyJzs+zgkImMOhuLxcjpFk8Nn44MtlF
-         uS+NeE3BIft0xPbitTD2nk5RtmvHcrC0hUV7jHv74AoX7ENwV90sUtX2L15k5ThJ/K
-         AJBnmemRZymb96KYM4Z2+YN/jf78z6ocd3abIiI4=
-Date:   Mon, 17 May 2021 09:27:49 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Lu Baolu <baolu.lu@linux.intel.com>
-Cc:     sashal@kernel.org, ashok.raj@intel.com, jroedel@suse.de,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [REWORKED PATCH 1/1] iommu/vt-d: Preset Access/Dirty bits for
- IOVA over FL
-Message-ID: <YKIa9dczRk0v9Y2N@kroah.com>
-References: <20210517034913.3432-1-baolu.lu@linux.intel.com>
- <YKIWS0lFKTcZ9094@kroah.com>
- <726aede1-3d9f-6666-b31d-9db8e4301a0c@linux.intel.com>
+        id S232151AbhEQHoE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 03:44:04 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:33421 "EHLO
+        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231887AbhEQHn6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 03:43:58 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.west.internal (Postfix) with ESMTP id 4AF39934;
+        Mon, 17 May 2021 03:42:29 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Mon, 17 May 2021 03:42:30 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=AVi3YZJc4XkbkDo5VHVbsQ0vX1G
+        myxr1eYlRIuWmfs0=; b=oLR/oZnUNT2kjTsElOEfRqFWHUWTjqnRM+fKRnLxAbg
+        uGNNXHu4VUJlpeZP0dD/iD4fHXSgT2tol8LirXIo4I/jrslVpNX+DXooBqCAFM3v
+        LYd/c4dn59JFDBcdqTgC2igfRw9bldKvv9JArPBnCylPNniJfNylGl1um49tI7ye
+        ntE3jsk2+om5aMF0BXXXZiqpET++oFGb73a8Y3vFYbwIA+esioDz5jAKZDNQPHnM
+        diCHixj+geDp2DwUap45qoBPW+rBPr6TsFgKt0txvFS49EDJ38gfOH18J2fmHRjd
+        +OhHSMKTMkwrULMC9a2nD6ToaIzfe+XIog8D9LZw+/A==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=AVi3YZ
+        Jc4XkbkDo5VHVbsQ0vX1Gmyxr1eYlRIuWmfs0=; b=HUmR1C1hEAuZEfv98s+euy
+        tcTCls5bIweqh9qyWG0lWgllmdNgpWpa2/l92AJuSLgZamqanBt1GohnvX7efIAK
+        4eWQ4+F1YK7fjI8BFDOxnssg/RIcgcMIjCbAyw4sOfBCs6BWjHmnkIOVOfn16+YL
+        RcCT+fDSif09z8DQCU6lCK38YNUKBWqd2P6be4v1v8hwxnnoCvyh+LFrLGRIZmGe
+        reV+W40tVCW8CP7y2sJbjlW6FVG0EI4EdSZlCNtYbodGkPHQxSZv575SfCL75j5X
+        5nG6E6U1ltA+Dfo/1GVh1hlTz6Xlb2UZYfvH1PYJsoXBVllNBnXDEmTo2SuQZ9HA
+        ==
+X-ME-Sender: <xms:ZB6iYNEHZi1UlfrghVis3SttCBbg66MjPAQbQHxcwlM4DqajtSD78A>
+    <xme:ZB6iYCU2GbraCvk5tZFzCMgvxw_llFDwbT6cTjFK7ppZ8AaJbwTwrG-eE11FVNVRg
+    VpMadmlGKLSEA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeigedguddvfecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
+    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecukfhppeek
+    fedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrg
+    hilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:ZB6iYPKj3drYqaOz3k5THZCtvSOJ9WZ7GL77KpeGyLhTwTMSZ8Mv1Q>
+    <xmx:ZB6iYDGmpZW7lWkts0-LDbc8vjbX7Q3CpKssclMtbdZ8tHznccunWw>
+    <xmx:ZB6iYDWNR3qNuurz33RdAbZ5IaMDvAktDG3Pz5AqonEYDOXnolx8Pw>
+    <xmx:ZB6iYGOrE4vUUGct57EgCQQeIPMmGI8GThXbwAY4vpFX-iNUpSCL6hAMRXA>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 03:42:27 -0400 (EDT)
+Date:   Mon, 17 May 2021 09:42:26 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     stable@vger.kernel.org, linux-xfs@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Jan Stancek <jstancek@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH 5.4] iomap: fix sub-page uptodate handling
+Message-ID: <YKIeYkw1YjkT4hth@kroah.com>
+References: <20210516150328.2881778-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <726aede1-3d9f-6666-b31d-9db8e4301a0c@linux.intel.com>
+In-Reply-To: <20210516150328.2881778-1-willy@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 17, 2021 at 03:17:53PM +0800, Lu Baolu wrote:
-> Hi Greg,
+On Sun, May 16, 2021 at 04:03:28PM +0100, Matthew Wilcox (Oracle) wrote:
+> From: Christoph Hellwig <hch@lst.de>
 > 
-> On 5/17/21 3:07 PM, Greg KH wrote:
-> > On Mon, May 17, 2021 at 11:49:13AM +0800, Lu Baolu wrote:
-> > > [ Upstream commit a8ce9ebbecdfda3322bbcece6b3b25888217f8e3 ]
-> > > 
-> > > The Access/Dirty bits in the first level page table entry will be set
-> > > whenever a page table entry was used for address translation or write
-> > > permission was successfully translated. This is always true when using
-> > > the first-level page table for kernel IOVA. Instead of wasting hardware
-> > > cycles to update the certain bits, it's better to set them up at the
-> > > beginning.
-> > > 
-> > > Suggested-by: Ashok Raj <ashok.raj@intel.com>
-> > > Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-> > > Link: https://lore.kernel.org/r/20210115004202.953965-1-baolu.lu@linux.intel.com
-> > > Signed-off-by: Joerg Roedel <jroedel@suse.de>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > ---
-> > >   drivers/iommu/intel/iommu.c | 14 ++++++++++++--
-> > >   include/linux/intel-iommu.h |  2 ++
-> > >   2 files changed, 14 insertions(+), 2 deletions(-)
-> > > 
-> > > [Note:
-> > > - This is a reworked patch of
-> > >    https://lore.kernel.org/stable/20210512144819.664462530@linuxfoundation.org/T/#m65267f0a0091c2fcbde097cea91089775908faad.
-> > > - It aims to fix a reported issue of
-> > >    https://bugzilla.kernel.org/show_bug.cgi?id=213077.
-> > > - Please help to review and test.]
-> > 
-> > What stable tree(s) is this supposed to be for?
+> commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream
 > 
-> It's for 5.10.37.
+> bio completions can race when a page spans more than one file system
+> block.  Add a spinlock to synchronize marking the page uptodate.
+> 
+> Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
+> Reported-by: Jan Stancek <jstancek@redhat.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Dave Chinner <dchinner@redhat.com>
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> ---
+>  fs/iomap/buffered-io.c | 34 ++++++++++++++++++++++++----------
+>  include/linux/iomap.h  |  1 +
+>  2 files changed, 25 insertions(+), 10 deletions(-)
 
-But the above commit is already in 5.10.y.  And what about 5.11 and
-5.12, were those backports incorrect?
+No s-o-b from you as you did the backport?  :(
 
-confused,
+Anyway, what about a 4.19.y version?
+
+thanks,
 
 greg k-h
