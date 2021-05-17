@@ -2,156 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D799382761
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:47:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D295238275C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:46:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235725AbhEQIsN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:48:13 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:44861 "EHLO
-        wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230312AbhEQIsL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:48:11 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id 3160AA04;
-        Mon, 17 May 2021 04:46:55 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 17 May 2021 04:46:55 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=lyBmUw
-        y+9HYfaxOjcGvL4U8EBTGPTeWQd+0ssFWoheE=; b=ZzsOoeuoaXHFSEOJxlZSdt
-        0JxjWXINP+E5HEuhATMOtvDoWKio0dfJcVpUtKvoaXg4/lMnNijws2AV6Hs8Gh7C
-        NsbtCvQXoLUbtCRMq+g9DTtzLc6zarTzrLyvhJ56rHZP7O4EWdiuR12IXMxUOs/A
-        dJqOF5FMnH4/hR2xWaJHGD3eW/sR1Bye2WGjyUVjgb8vcTXL9lX1w85WE3b5Vay8
-        TqY1gpUKKkwP2wfznRS4nDtpKKfDI/TMycq/5rPAAafp+FmzMNholseQd570lfyk
-        lZeW5QDJSUP2TrKJzNKmzQ2XWWaCTn6FTGxJzaUpQGB1vjgX/Cuj/FOdsN9zVThg
-        ==
-X-ME-Sender: <xms:fi2iYK2JtvxDYCsxksB4he-QMa9BfeRmi6NA1zcEN4Z4JKri74y79w>
-    <xme:fi2iYNEo3NJsW4kGPhFFBDzL9hQprrnd0vJmkutMca9ZEegoPjrWO5CsIEZfZ0gmU
-    u3twnZLz_8ybA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:fi2iYC5_dWqy37yay4ayYupgZocgCTiLdMDl1R1kGn2LMk5EieIzNw>
-    <xmx:fi2iYL3mlUu9PDV673sQvT6Eoh0o2K72DfywBNfoWrnBNV52o_EJDQ>
-    <xmx:fi2iYNHQoLSGenI_9Zshf0pUJ1hqC558HrDO0rgr2zMtFQ0bMa7nBg>
-    <xmx:fi2iYCTHbOTm_NAaGeqcN8p4DL8cZxXubM8wz2guyQzYejTeoDYxEfx3gl4>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 04:46:54 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: SVM: Inject #UD on RDTSCP when it should be disabled in" failed to apply to 5.4-stable tree
-To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com,
-        reijiw@google.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 10:46:43 +0200
-Message-ID: <1621241203137182@kroah.com>
+        id S235643AbhEQIsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:48:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47492 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231334AbhEQIsI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:48:08 -0400
+Received: from mail-wr1-x42f.google.com (mail-wr1-x42f.google.com [IPv6:2a00:1450:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79A79C06174A
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:46:52 -0700 (PDT)
+Received: by mail-wr1-x42f.google.com with SMTP id i17so5448354wrq.11
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:46:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=IgAtpP4C42Jpn6aKz2gV4v3gKQwjgJ+HgC0dgeMRD1c=;
+        b=uajCC0Ebo8Blxm2wh0QYcJBamX4RuhCCoVg3VCJfHbv6I7qBmqI+JXSonkCbtmV3Kl
+         PZq3/Z1FpmhMWvAGIYOpsNrPsWhyGamfFOLWi8cP/HKGpo/ffQu5mgvFlUAMLpzSA2GB
+         OSPsdWHL8ki9fzR2vya7EkNFMJMKVLyI5y6nVeHgFiO2Vwr6m6z2Wpr5SVt3Suw/aYdb
+         8IJz6KE5W4l+Ie7IjE2F4N1epS9YGpMSq0itwOcpSbAHlBZCzGNf8nplG8XR8joHkm7k
+         FoI8ELJ/mb2YSsRNmqG6FkBG5IvtGSPmKN8b2OGHQJnTvuIfliE4ZbC5QxG5hhEoJpsz
+         Lv0w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=IgAtpP4C42Jpn6aKz2gV4v3gKQwjgJ+HgC0dgeMRD1c=;
+        b=CvLJ4dVZ5AxxvNGiwynWdKiJxkcSaJwtP2znfkQpmWpAra4hQhwA4hUXaDu9UaDcfN
+         /DKoCx4Pk1B5vgI4M7ZhWRaupbBEHKx0WpLuzxVXFTFmwArZZyVXPc5HyBfXBc+3+Epe
+         wFHjVZ4b2xxsiJx2LI13FRUAZkgjwFzDy0qfCGkeMAQPlAu1prHDiDy7pdRU7PLqPe0q
+         DI5OpkTYAKy7sJbK3ncvQ1pXa8u/MeysUix2uO0Ya2iVo2xVcuehstAYMz4Q4FZ0ouJU
+         MEBj0UVG2Fb2Dy8GsZv0bzJuOuqNAbxzw+796Uo/3DQCoo+h/ZFGMDx00pb39puMYyxb
+         5xOg==
+X-Gm-Message-State: AOAM533aS7yXtVyjljes0P+rGEqcZzY+VO5AyFiXN1p/JV5vaKhOvim5
+        8wIrjqCWC6SdOR7nRtFazlsyKBnnq9C5q3Fg
+X-Google-Smtp-Source: ABdhPJxbQWH0NruvXyA4qYlWgdE4BXN8N0wrN1exubtTlt6z0Q3rO9xWKVEb/vBUmkb+GYTX9W2Q5w==
+X-Received: by 2002:a5d:6d85:: with SMTP id l5mr71256571wrs.22.1621241211237;
+        Mon, 17 May 2021 01:46:51 -0700 (PDT)
+Received: from [192.168.86.34] (cpc86377-aztw32-2-0-cust226.18-1.cable.virginm.net. [92.233.226.227])
+        by smtp.googlemail.com with ESMTPSA id r5sm15847622wmh.23.2021.05.17.01.46.50
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Mon, 17 May 2021 01:46:50 -0700 (PDT)
+Subject: Re: [PATCH 5.10 160/530] arm64: dts: qcom: db845c: fix correct
+ powerdown pin for WSA881x
+To:     Pavel Machek <pavel@denx.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, bgolaszewski@baylibre.com,
+        linus.walleij@linaro.org
+References: <20210512144819.664462530@linuxfoundation.org>
+ <20210512144825.099918971@linuxfoundation.org> <20210515081814.GA30461@amd>
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Message-ID: <55d58470-f606-8c75-1f00-a2eb09314081@linaro.org>
+Date:   Mon, 17 May 2021 09:46:49 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101
+ Thunderbird/60.8.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210515081814.GA30461@amd>
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
++ Adding Linus W and Bartosz to CC.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+On 15/05/2021 09:18, Pavel Machek wrote:
+> Hi!
+> 
+>> From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+>>
+>> [ Upstream commit c561740e7cfefaf3003a256f3a0cd9f8a069137c ]
+>>
+>> WSA881x powerdown pin is connected to GPIO1 not gpio2, so correct this.
+>> This was working so far due to a shift bug in gpio driver, however
+>> once that is fixed this will stop working, so fix this!
+> 
+> I don't see the correspoing update to the driver this talks about.
+> 
+> Do we have corresponding driver in 5.10 and was it fixed to match?
 
-thanks,
+This corresponding gpio driver patch was submitted along with the 
+original fix, however it looks like it was not picked up yet.
 
-greg k-h
+https://www.spinics.net/lists/linux-gpio/msg59264.html
 
------------------- original commit in Linus's tree ------------------
+Bartosz/Linus W, Do you want me to resend this?
 
-From 3b195ac9260235624b1c18f7bdaef184479c1d41 Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Tue, 4 May 2021 10:17:22 -0700
-Subject: [PATCH] KVM: SVM: Inject #UD on RDTSCP when it should be disabled in
- the guest
+--srini
 
-Intercept RDTSCP to inject #UD if RDTSC is disabled in the guest.
-
-Note, SVM does not support intercepting RDPID.  Unlike VMX's
-ENABLE_RDTSCP control, RDTSCP interception does not apply to RDPID.  This
-is a benign virtualization hole as the host kernel (incorrectly) sets
-MSR_TSC_AUX if RDTSCP is supported, and KVM loads the guest's MSR_TSC_AUX
-into hardware if RDTSCP is supported in the host, i.e. KVM will not leak
-the host's MSR_TSC_AUX to the guest.
-
-But, when the kernel bug is fixed, KVM will start leaking the host's
-MSR_TSC_AUX if RDPID is supported in hardware, but RDTSCP isn't available
-for whatever reason.  This leak will be remedied in a future commit.
-
-Fixes: 46896c73c1a4 ("KVM: svm: add support for RDTSCP")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210504171734.1434054-4-seanjc@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Reiji Watanabe <reijiw@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index be5cf612ab1f..ebcb5849d69b 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -1100,7 +1100,9 @@ static u64 svm_write_l1_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
- 	return svm->vmcb->control.tsc_offset;
- }
- 
--static void svm_check_invpcid(struct vcpu_svm *svm)
-+/* Evaluate instruction intercepts that depend on guest CPUID features. */
-+static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
-+					      struct vcpu_svm *svm)
- {
- 	/*
- 	 * Intercept INVPCID if shadow paging is enabled to sync/free shadow
-@@ -1113,6 +1115,13 @@ static void svm_check_invpcid(struct vcpu_svm *svm)
- 		else
- 			svm_clr_intercept(svm, INTERCEPT_INVPCID);
- 	}
-+
-+	if (kvm_cpu_cap_has(X86_FEATURE_RDTSCP)) {
-+		if (guest_cpuid_has(vcpu, X86_FEATURE_RDTSCP))
-+			svm_clr_intercept(svm, INTERCEPT_RDTSCP);
-+		else
-+			svm_set_intercept(svm, INTERCEPT_RDTSCP);
-+	}
- }
- 
- static void init_vmcb(struct kvm_vcpu *vcpu)
-@@ -1248,7 +1257,7 @@ static void init_vmcb(struct kvm_vcpu *vcpu)
- 		svm_clr_intercept(svm, INTERCEPT_PAUSE);
- 	}
- 
--	svm_check_invpcid(svm);
-+	svm_recalc_instruction_intercepts(vcpu, svm);
- 
- 	/*
- 	 * If the host supports V_SPEC_CTRL then disable the interception
-@@ -3084,6 +3093,7 @@ static int (*const svm_exit_handlers[])(struct kvm_vcpu *vcpu) = {
- 	[SVM_EXIT_STGI]				= stgi_interception,
- 	[SVM_EXIT_CLGI]				= clgi_interception,
- 	[SVM_EXIT_SKINIT]			= skinit_interception,
-+	[SVM_EXIT_RDTSCP]			= kvm_handle_invalid_op,
- 	[SVM_EXIT_WBINVD]                       = kvm_emulate_wbinvd,
- 	[SVM_EXIT_MONITOR]			= kvm_emulate_monitor,
- 	[SVM_EXIT_MWAIT]			= kvm_emulate_mwait,
-@@ -4007,8 +4017,7 @@ static void svm_vcpu_after_set_cpuid(struct kvm_vcpu *vcpu)
- 	svm->nrips_enabled = kvm_cpu_cap_has(X86_FEATURE_NRIPS) &&
- 			     guest_cpuid_has(vcpu, X86_FEATURE_NRIPS);
- 
--	/* Check again if INVPCID interception if required */
--	svm_check_invpcid(svm);
-+	svm_recalc_instruction_intercepts(vcpu, svm);
- 
- 	/* For sev guests, the memory encryption bit is not reserved in CR3.  */
- 	if (sev_guest(vcpu->kvm)) {
-
+> 
+> Best regards,
+> 									Pavel
+> 
+>> +++ b/arch/arm64/boot/dts/qcom/sdm845-db845c.dts
+>> @@ -1015,7 +1015,7 @@
+>>   		left_spkr: wsa8810-left{
+>>   			compatible = "sdw10217201000";
+>>   			reg = <0 1>;
+>> -			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
+>> +			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
+>>   			#thermal-sensor-cells = <0>;
+>>   			sound-name-prefix = "SpkrLeft";
+>>   			#sound-dai-cells = <0>;
+>> @@ -1023,7 +1023,7 @@
+>>   
+>>   		right_spkr: wsa8810-right{
+>>   			compatible = "sdw10217201000";
+>> -			powerdown-gpios = <&wcdgpio 2 GPIO_ACTIVE_HIGH>;
+>> +			powerdown-gpios = <&wcdgpio 1 GPIO_ACTIVE_HIGH>;
+>>   			reg = <0 2>;
+>>   			#thermal-sensor-cells = <0>;
+>>   			sound-name-prefix = "SpkrRight";
+> 
