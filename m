@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D573383142
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 652013830E3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239675AbhEQOgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43198 "EHLO mail.kernel.org"
+        id S237502AbhEQOcM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:32:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240264AbhEQOdl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:33:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F626191D;
-        Mon, 17 May 2021 14:16:11 +0000 (UTC)
+        id S239997AbhEQO3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:29:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE7A7611ED;
+        Mon, 17 May 2021 14:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260972;
-        bh=EAfkBS4b60opCiLOVlnBupkfa4IP9sMSU+ZZMIUm5Rw=;
+        s=korg; t=1621260900;
+        bh=pnKSpHyz9pQmxPkhijylRsJgz8hvUcVRIQ3sz0mB/KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xBsEARLuxr5fnzrtqgf49C3Cfp2rKDNBz6u7gzkSFyaC5aWzDxyVoF+V+SujDO3KM
-         iyYGb3JzTslK1Y5Ks4HfHHVMG7ZU9m5vfQhqaYLmLU0PjtcAMnfyJJfnvighiA54Xi
-         BoY97ENOkIi6qdV1FGA/Lk81lj2fdrRvwteTkjpg=
+        b=ePOtFEGyoDUHqOWrqAplyR+cvsM2ekRaqkIzLL+F47VkCGw2nxxBW+dSp2vkJoLJr
+         3v6hErZin0UTRsfznlkaj3GlFGiwumLRI4p7oPfzyQ0ZOB3RQhWhgW9Z1IN6zxm02S
+         ELxeUu9bqgou9FrekNFqXgNsZlFMJ4E2DNhHRpww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.12 252/363] powerpc/64s: Fix crashes when toggling stf barrier
-Date:   Mon, 17 May 2021 16:01:58 +0200
-Message-Id: <20210517140311.112554612@linuxfoundation.org>
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.12 263/363] arm64: Fix race condition on PG_dcache_clean in __sync_icache_dcache()
+Date:   Mon, 17 May 2021 16:02:09 +0200
+Message-Id: <20210517140311.497540449@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -38,78 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-commit 8ec7791bae1327b1c279c5cd6e929c3b12daaf0a upstream.
+commit 588a513d34257fdde95a9f0df0202e31998e85c6 upstream.
 
-The STF (store-to-load forwarding) barrier mitigation can be
-enabled/disabled at runtime via a debugfs file (stf_barrier), which
-causes the kernel to patch itself to enable/disable the relevant
-mitigations.
+To ensure that instructions are observable in a new mapping, the arm64
+set_pte_at() implementation cleans the D-cache and invalidates the
+I-cache to the PoU. As an optimisation, this is only done on executable
+mappings and the PG_dcache_clean page flag is set to avoid future cache
+maintenance on the same page.
 
-However depending on which mitigation we're using, it may not be safe to
-do that patching while other CPUs are active. For example the following
-crash:
+When two different processes map the same page (e.g. private executable
+file or shared mapping) there's a potential race on checking and setting
+PG_dcache_clean via set_pte_at() -> __sync_icache_dcache(). While on the
+fault paths the page is locked (PG_locked), mprotect() does not take the
+page lock. The result is that one process may see the PG_dcache_clean
+flag set but the I/D cache maintenance not yet performed.
 
-  User access of kernel address (c00000003fff5af0) - exploit attempt? (uid: 0)
-  segfault (11) at c00000003fff5af0 nip 7fff8ad12198 lr 7fff8ad121f8 code 1
-  code: 40820128 e93c00d0 e9290058 7c292840 40810058 38600000 4bfd9a81 e8410018
-  code: 2c030006 41810154 3860ffb6 e9210098 <e94d8ff0> 7d295279 39400000 40820a3c
+Avoid test_and_set_bit(PG_dcache_clean) in favour of separate test_bit()
+and set_bit(). In the rare event of a race, the cache maintenance is
+done twice.
 
-Shows that we returned to userspace without restoring the user r13
-value, due to executing the partially patched STF exit code.
-
-Fix it by doing the patching under stop machine. The CPUs that aren't
-doing the patching will be spinning in the core of the stop machine
-logic. That is currently sufficient for our purposes, because none of
-the patching we do is to that code or anywhere in the vicinity.
-
-Fixes: a048a07d7f45 ("powerpc/64s: Add support for a store forwarding barrier at kernel entry/exit")
-Cc: stable@vger.kernel.org # v4.17+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210506044959.1298123-1-mpe@ellerman.id.au
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <stable@vger.kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210514095001.13236-1-catalin.marinas@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/lib/feature-fixups.c |   19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+ arch/arm64/mm/flush.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -14,6 +14,7 @@
- #include <linux/string.h>
- #include <linux/init.h>
- #include <linux/sched/mm.h>
-+#include <linux/stop_machine.h>
- #include <asm/cputable.h>
- #include <asm/code-patching.h>
- #include <asm/page.h>
-@@ -227,11 +228,25 @@ static void do_stf_exit_barrier_fixups(e
- 		                                           : "unknown");
- }
- 
-+static int __do_stf_barrier_fixups(void *data)
-+{
-+	enum stf_barrier_type *types = data;
-+
-+	do_stf_entry_barrier_fixups(*types);
-+	do_stf_exit_barrier_fixups(*types);
-+
-+	return 0;
-+}
- 
- void do_stf_barrier_fixups(enum stf_barrier_type types)
+--- a/arch/arm64/mm/flush.c
++++ b/arch/arm64/mm/flush.c
+@@ -55,8 +55,10 @@ void __sync_icache_dcache(pte_t pte)
  {
--	do_stf_entry_barrier_fixups(types);
--	do_stf_exit_barrier_fixups(types);
-+	/*
-+	 * The call to the fallback entry flush, and the fallback/sync-ori exit
-+	 * flush can not be safely patched in/out while other CPUs are executing
-+	 * them. So call __do_stf_barrier_fixups() on one CPU while all other CPUs
-+	 * spin in the stop machine core with interrupts hard disabled.
-+	 */
-+	stop_machine(__do_stf_barrier_fixups, &types, NULL);
- }
+ 	struct page *page = pte_page(pte);
  
- void do_uaccess_flush_fixups(enum l1d_flush_type types)
+-	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
++	if (!test_bit(PG_dcache_clean, &page->flags)) {
+ 		sync_icache_aliases(page_address(page), page_size(page));
++		set_bit(PG_dcache_clean, &page->flags);
++	}
+ }
+ EXPORT_SYMBOL_GPL(__sync_icache_dcache);
+ 
 
 
