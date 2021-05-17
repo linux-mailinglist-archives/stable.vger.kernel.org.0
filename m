@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9EFE383053
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24A2838305B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239373AbhEQO0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:26:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53296 "EHLO mail.kernel.org"
+        id S239315AbhEQO0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:26:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239474AbhEQOYN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:24:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9FAD613D4;
-        Mon, 17 May 2021 14:12:46 +0000 (UTC)
+        id S239549AbhEQOYX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:24:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 806B6613D8;
+        Mon, 17 May 2021 14:12:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260767;
-        bh=RvNHMWk8FKXAfuOXE3N+itMZ9dDeA8M5RzPPH6T/qYg=;
+        s=korg; t=1621260774;
+        bh=78lOjUkP4NZDr4zyoU7dXRmggRszU0d7vbXK+8DvjTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L5jG4tr1DgxBt98hsSEqM7mpGUXMsZ/M1CA99Q2BEuvB4TOcRgdnhiqCEsnzl0/Hb
-         vA5CwD/OeTKZWG66VevaAEoMPAPnYg0gZUoX0HO56FbXtHndoqLnDD0Ff3fgKVwTml
-         JbjxU5tbTP1xNKppy69ptksgd7rO4Fb2yGzSxCOo=
+        b=aPSAFdmo520nabiAnk92IXZAfO+wOq3+2WQzCTAqraKHsf0PBRmQ7f5zIl1oEbF5b
+         0qche3/cVC04GsDTrX8n9XxqJHs+7w01b2CQYMPGCjNGOUhXev4KFJIqNQyyZoRitI
+         +Iv/ijiVisQ0dGQYWuIvppprMJLXzmjIjipG28ic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Frieder Schrempf <frieder.schrempf@kontron.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 232/363] can: mcp251x: fix resume from sleep before interface was brought up
-Date:   Mon, 17 May 2021 16:01:38 +0200
-Message-Id: <20210517140310.424366930@linuxfoundation.org>
+Subject: [PATCH 5.12 233/363] can: m_can: m_can_tx_work_queue(): fix tx_skb race condition
+Date:   Mon, 17 May 2021 16:01:39 +0200
+Message-Id: <20210517140310.456885137@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,117 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frieder Schrempf <frieder.schrempf@kontron.de>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 03c427147b2d3e503af258711af4fc792b89b0af ]
+[ Upstream commit e04b2cfe61072c7966e1a5fb73dd1feb30c206ed ]
 
-Since 8ce8c0abcba3 the driver queues work via priv->restart_work when
-resuming after suspend, even when the interface was not previously
-enabled. This causes a null dereference error as the workqueue is only
-allocated and initialized in mcp251x_open().
+The m_can_start_xmit() function checks if the cdev->tx_skb is NULL and
+returns with NETDEV_TX_BUSY in case tx_sbk is not NULL.
 
-To fix this we move the workqueue init to mcp251x_can_probe() as there
-is no reason to do it later and repeat it whenever mcp251x_open() is
-called.
+There is a race condition in the m_can_tx_work_queue(), where first
+the skb is send to the driver and then the case tx_sbk is set to NULL.
+A TX complete IRQ might come in between and wake the queue, which
+results in tx_skb not being cleared yet.
 
-Fixes: 8ce8c0abcba3 ("can: mcp251x: only reset hardware as required")
-Link: https://lore.kernel.org/r/17d5d714-b468-482f-f37a-482e3d6df84e@kontron.de
-Signed-off-by: Frieder Schrempf <frieder.schrempf@kontron.de>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-[mkl: fix error handling in mcp251x_stop()]
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Tested-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251x.c | 35 ++++++++++++++++++-----------------
- 1 file changed, 18 insertions(+), 17 deletions(-)
+ drivers/net/can/m_can/m_can.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/mcp251x.c b/drivers/net/can/spi/mcp251x.c
-index a57da43680d8..bd7d0251be10 100644
---- a/drivers/net/can/spi/mcp251x.c
-+++ b/drivers/net/can/spi/mcp251x.c
-@@ -956,8 +956,6 @@ static int mcp251x_stop(struct net_device *net)
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index 0c8d36bc668c..f71127229caf 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1455,6 +1455,8 @@ static netdev_tx_t m_can_tx_handler(struct m_can_classdev *cdev)
+ 	int i;
+ 	int putidx;
  
- 	priv->force_quit = 1;
- 	free_irq(spi->irq, priv);
--	destroy_workqueue(priv->wq);
--	priv->wq = NULL;
- 
- 	mutex_lock(&priv->mcp_lock);
- 
-@@ -1224,24 +1222,15 @@ static int mcp251x_open(struct net_device *net)
- 		goto out_close;
- 	}
- 
--	priv->wq = alloc_workqueue("mcp251x_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM,
--				   0);
--	if (!priv->wq) {
--		ret = -ENOMEM;
--		goto out_clean;
--	}
--	INIT_WORK(&priv->tx_work, mcp251x_tx_work_handler);
--	INIT_WORK(&priv->restart_work, mcp251x_restart_work_handler);
--
- 	ret = mcp251x_hw_wake(spi);
- 	if (ret)
--		goto out_free_wq;
-+		goto out_free_irq;
- 	ret = mcp251x_setup(net, spi);
- 	if (ret)
--		goto out_free_wq;
-+		goto out_free_irq;
- 	ret = mcp251x_set_normal_mode(spi);
- 	if (ret)
--		goto out_free_wq;
-+		goto out_free_irq;
- 
- 	can_led_event(net, CAN_LED_EVENT_OPEN);
- 
-@@ -1250,9 +1239,7 @@ static int mcp251x_open(struct net_device *net)
- 
- 	return 0;
- 
--out_free_wq:
--	destroy_workqueue(priv->wq);
--out_clean:
-+out_free_irq:
- 	free_irq(spi->irq, priv);
- 	mcp251x_hw_sleep(spi);
- out_close:
-@@ -1373,6 +1360,15 @@ static int mcp251x_can_probe(struct spi_device *spi)
- 	if (ret)
- 		goto out_clk;
- 
-+	priv->wq = alloc_workqueue("mcp251x_wq", WQ_FREEZABLE | WQ_MEM_RECLAIM,
-+				   0);
-+	if (!priv->wq) {
-+		ret = -ENOMEM;
-+		goto out_clk;
-+	}
-+	INIT_WORK(&priv->tx_work, mcp251x_tx_work_handler);
-+	INIT_WORK(&priv->restart_work, mcp251x_restart_work_handler);
++	cdev->tx_skb = NULL;
 +
- 	priv->spi = spi;
- 	mutex_init(&priv->mcp_lock);
+ 	/* Generate ID field for TX buffer Element */
+ 	/* Common to all supported M_CAN versions */
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+@@ -1571,7 +1573,6 @@ static void m_can_tx_work_queue(struct work_struct *ws)
+ 						   tx_work);
  
-@@ -1417,6 +1413,8 @@ static int mcp251x_can_probe(struct spi_device *spi)
- 	return 0;
+ 	m_can_tx_handler(cdev);
+-	cdev->tx_skb = NULL;
+ }
  
- error_probe:
-+	destroy_workqueue(priv->wq);
-+	priv->wq = NULL;
- 	mcp251x_power_enable(priv->power, 0);
- 
- out_clk:
-@@ -1438,6 +1436,9 @@ static int mcp251x_can_remove(struct spi_device *spi)
- 
- 	mcp251x_power_enable(priv->power, 0);
- 
-+	destroy_workqueue(priv->wq);
-+	priv->wq = NULL;
-+
- 	clk_disable_unprepare(priv->clk);
- 
- 	free_candev(net);
+ static netdev_tx_t m_can_start_xmit(struct sk_buff *skb,
 -- 
 2.30.2
 
