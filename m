@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E98AC38348F
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70B173835F8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243638AbhEQPKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
+        id S244087AbhEQP0n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:26:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242440AbhEQPG6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:06:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F2861C1A;
-        Mon, 17 May 2021 14:29:22 +0000 (UTC)
+        id S245102AbhEQPYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83AD261C95;
+        Mon, 17 May 2021 14:35:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261763;
-        bh=gIik3LMwVlaSZYEiZ1NwSDYhkCjkG9S+J7u9h0qpwK8=;
+        s=korg; t=1621262156;
+        bh=9Pck8uEsAuHLM+Qc0nQL61vL9H2IKMCi+aB92EwLo40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OliPp8eXNpLEwb2ICn12PLwMYJcOuAw8QoD46XY1UyZaQ48UEpad3JjMEt3YW+gTr
-         Jd2ym7aUFcugSJmLldqGNDjVBXw/Us19rZpcMXFbkYj6pzrQHdEi3tl9CyDLvLyJ7q
-         EfQE4HaI8mLujvZhi77c9Twf6G+kR4hAB4kCal/k=
+        b=eI11HfufFZz3rbPUAG+ZKlhfVZow0l+RcHFbc+Os4v/EBH+ARVCUgFz+yzQFwEIzj
+         xMgNoIbKfJ2M9u3V0DNe4S4Ge9eT4du46ra1C4SHdYGUNaHrsIQdAdB97OScMQjUfX
+         ijHBXpy4ux5atqIMGQEfJ4rXk4BQIyAeo9wdnBaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 087/141] can: m_can: m_can_tx_work_queue(): fix tx_skb race condition
+Subject: [PATCH 5.11 228/329] mptcp: fix splat when closing unaccepted socket
 Date:   Mon, 17 May 2021 16:02:19 +0200
-Message-Id: <20210517140245.715713873@linuxfoundation.org>
+Message-Id: <20210517140309.831036661@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +42,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit e04b2cfe61072c7966e1a5fb73dd1feb30c206ed ]
+[ Upstream commit 578c18eff1627d6a911f08f4cf351eca41fdcc7d ]
 
-The m_can_start_xmit() function checks if the cdev->tx_skb is NULL and
-returns with NETDEV_TX_BUSY in case tx_sbk is not NULL.
+If userspace exits before calling accept() on a listener that had at least
+one new connection ready, we get:
 
-There is a race condition in the m_can_tx_work_queue(), where first
-the skb is send to the driver and then the case tx_sbk is set to NULL.
-A TX complete IRQ might come in between and wake the queue, which
-results in tx_skb not being cleared yet.
+   Attempt to release TCP socket in state 8
 
-Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
-Tested-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+This happens because the mptcp socket gets cloned when the TCP connection
+is ready, but the socket is never exposed to userspace.
+
+The client additionally sends a DATA_FIN, which brings connection into
+CLOSE_WAIT state.  This in turn prevents the orphan+state reset fixup
+in mptcp_sock_destruct() from doing its job.
+
+Fixes: 3721b9b64676b ("mptcp: Track received DATA_FIN sequence number and add related helpers")
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/185
+Tested-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Link: https://lore.kernel.org/r/20210507001638.225468-1-mathew.j.martineau@linux.intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/m_can/m_can.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/mptcp/subflow.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
-index b2224113987c..de275ccb4fd0 100644
---- a/drivers/net/can/m_can/m_can.c
-+++ b/drivers/net/can/m_can/m_can.c
-@@ -1418,6 +1418,8 @@ static netdev_tx_t m_can_tx_handler(struct m_can_classdev *cdev)
- 	int i;
- 	int putidx;
- 
-+	cdev->tx_skb = NULL;
-+
- 	/* Generate ID field for TX buffer Element */
- 	/* Common to all supported M_CAN versions */
- 	if (cf->can_id & CAN_EFF_FLAG) {
-@@ -1534,7 +1536,6 @@ static void m_can_tx_work_queue(struct work_struct *ws)
- 						tx_work);
- 
- 	m_can_tx_handler(cdev);
--	cdev->tx_skb = NULL;
- }
- 
- static netdev_tx_t m_can_start_xmit(struct sk_buff *skb,
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index f97f29df4505..371a114f3a5f 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -479,8 +479,7 @@ static void mptcp_sock_destruct(struct sock *sk)
+ 	 * ESTABLISHED state and will not have the SOCK_DEAD flag.
+ 	 * Both result in warnings from inet_sock_destruct.
+ 	 */
+-
+-	if (sk->sk_state == TCP_ESTABLISHED) {
++	if ((1 << sk->sk_state) & (TCPF_ESTABLISHED | TCPF_CLOSE_WAIT)) {
+ 		sk->sk_state = TCP_CLOSE;
+ 		WARN_ON_ONCE(sk->sk_socket);
+ 		sock_orphan(sk);
 -- 
 2.30.2
 
