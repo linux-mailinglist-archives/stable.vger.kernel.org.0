@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C57E3826DA
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:24:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97E683826E3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:25:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235505AbhEQIZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 04:25:42 -0400
-Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:34831 "EHLO
+        id S232909AbhEQI0U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:26:20 -0400
+Received: from wforward1-smtp.messagingengine.com ([64.147.123.30]:43303 "EHLO
         wforward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232261AbhEQIZl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:25:41 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.west.internal (Postfix) with ESMTP id 870C59E4;
-        Mon, 17 May 2021 04:24:25 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Mon, 17 May 2021 04:24:25 -0400
+        by vger.kernel.org with ESMTP id S235647AbhEQI0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:26:17 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.west.internal (Postfix) with ESMTP id 999CE9E6;
+        Mon, 17 May 2021 04:25:01 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute4.internal (MEProxy); Mon, 17 May 2021 04:25:01 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vcK0rx
-        ZBnzixNAuT37aWp3zmTvQuyx9KJCusBu+DiP0=; b=fjcKmdlhBhkHyK5ZY1HTQC
-        qU8UF469QO8qBntXvCXfRkIFxybt6fPOeSb+wG6pISqQVOFQlCw90U58iTVV7PfS
-        VmvlLjp5aI75u9E62ZKRbOb+eO3LtXEOo7zzCdpmV4gx87Lu/f6/4/FKhv614SrO
-        qS5nYXToPNQG6NilfySzuEJH7PuTHuOJ7q5M6hOwB6RcFIIFs+HKHMCsBLEX/f9/
-        6d3bAvJHqbz2hEanMHfxJpo8QfZiFZvr2uEEQIxxUmusL4UIJXF6HboUDuzHdyEt
-        S2XIS/p9ELL5CAnI4ZJe2MYlWmIAbMo2n8ysTc1V4dfIWfyxYGbFihfZjCupcyPQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=X/UDB3
+        RjLC77k8H0yDeXSfY43i8bFvwvFa/hRWWvErY=; b=InLOtB9tvQgDAROmiIIkFR
+        N5Xly3VoM3CH4rXoAIXGLlDY+hROnzbPDW3lakMSbLuIZ9e62uVIDULOymG1y87s
+        KxPtkUKmjuePUdlyFcuHkehwB+w1FDdBJ/uXEXFoabpa+XMgOfB6lnBbuxFNrpKy
+        NTkhEOpENp9QLjpMUNcx79CUEBGfs/Pd/MIQkjPcji1iI1PlcF1J4ZEsTDSoOu/N
+        bYZB2nwDC51CB3fhgGcB3Iqv/aZT77YdWJDcflu6Aq3JDqzIbXWNwd8Ll8wKaupy
+        76wZq9UX+7NXHkqQ8kttRkDAplYUbDmYTRRyDsyryzOqELzxPGmabMt/0yGBHf3A
         ==
-X-ME-Sender: <xms:OSiiYI8PHREYXR9fu8mR7FMZ-InCIV32TnLAO8ueEl0Ot7YWq7b-eg>
-    <xme:OSiiYAs2JAdBOEgybeGeena9o3SE0UV7DDZQNTCw9fTCnu9LZVx2h7tsptTwsqr4r
-    1BZxq1luXAOHg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdefucetufdoteggodetrfdotf
+X-ME-Sender: <xms:XSiiYAA-kFQR0O-ji9heGCg2Nqk0vEObYi4TyC45Y7fHi48xxdmGwQ>
+    <xme:XSiiYCiCFAmF-tzf466mq91390-XO85Rouum80AOQgb6hL8OBmDA_OZkPKbsaSBao
+    obD0iZUynjevg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgtdegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepgeegkeeludekgeeglefhfefgveejgfeiudfhhfetle
-    euheeliedtudegueetudeinecuffhomhgrihhnpehgnhhurdhorhhgpdhkvghrnhgvlhdr
-    ohhrghenucfkphepkeefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedune
-    curfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:OSiiYOA8feZNc6yRJUmCcToqasVyOmBhZ9H4W-G_7qhukWKXXUz0kg>
-    <xmx:OSiiYIeXZ0sbM_bBu5dOG8bhl07DYrB7EpH4myBx6yPxump9Du8VWA>
-    <xmx:OSiiYNOS9iuKpNCAr2g4xxZBj8RwYclfsGMkmhiSgPqm125nQVZxpw>
-    <xmx:OSiiYL1sUerQn2U1Vt54FjrVkh1Ew0YhsUFGSUoVuqqqtMPusnm5UuTkUsc>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:XSiiYDmz6-4OlIcgSfHZgVXZk2yLuVjafr396Tq2gf3sUCLOiUtSSA>
+    <xmx:XSiiYGzxz2g_ANs8uT3j-sDTIfoyx8Q-hDfWc0twSFpSOiw-HsuOJg>
+    <xmx:XSiiYFSXROdqd0zmZy1Mes6OWaRZWLIdvHtUnHpyhDhbshJxyHCJbw>
+    <xmx:XSiiYAe7wzHY_pOKVJRrUgp7qT3fZJdN3Ut_CxuEIlAGEAaIf3tiex9_upA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 04:24:24 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] staging: rtl8723bs: avoid bogus gcc warning" failed to apply to 5.10-stable tree
-To:     arnd@arndb.de, gregkh@linuxfoundation.org, stable@vger.kernel.org
+        Mon, 17 May 2021 04:25:00 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] KVM: x86: Emulate RDPID only if RDTSCP is supported" failed to apply to 4.4-stable tree
+To:     seanjc@google.com, jmattson@google.com, pbonzini@redhat.com,
+        reijiw@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 10:24:13 +0200
-Message-ID: <1621239853232163@kroah.com>
+Date:   Mon, 17 May 2021 10:24:59 +0200
+Message-ID: <162123989923182@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,195 +71,40 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 14b6cff54edaca5740068e9ed070152727ed7718 Mon Sep 17 00:00:00 2001
-From: Arnd Bergmann <arnd@arndb.de>
-Date: Thu, 22 Apr 2021 17:26:19 +0200
-Subject: [PATCH] staging: rtl8723bs: avoid bogus gcc warning
+From 85d0011264da24be08ae907d7f29983a597ca9b1 Mon Sep 17 00:00:00 2001
+From: Sean Christopherson <seanjc@google.com>
+Date: Tue, 4 May 2021 10:17:21 -0700
+Subject: [PATCH] KVM: x86: Emulate RDPID only if RDTSCP is supported
 
-gcc gets confused by some of the type casts and produces an
-apparently senseless warning about an out-of-bound memcpy to
-an unrelated array in the same structure:
+Do not advertise emulation support for RDPID if RDTSCP is unsupported.
+RDPID emulation subtly relies on MSR_TSC_AUX to exist in hardware, as
+both vmx_get_msr() and svm_get_msr() will return an error if the MSR is
+unsupported, i.e. ctxt->ops->get_msr() will fail and the emulator will
+inject a #UD.
 
-drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c: In function 'rtw_cfg80211_ap_set_encryption':
-cc1: error: writing 8 bytes into a region of size 0 [-Werror=stringop-overflow=]
-In file included from drivers/staging/rtl8723bs/include/drv_types.h:32,
-                 from drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c:10:
-drivers/staging/rtl8723bs/include/rtw_security.h:98:15: note: at offset [184, 4264] into destination object 'dot11AuthAlgrthm' of size 4
-   98 |         u32   dot11AuthAlgrthm;         /*  802.11 auth, could be open, shared, 8021x and authswitch */
-      |               ^~~~~~~~~~~~~~~~
-cc1: error: writing 8 bytes into a region of size 0 [-Werror=stringop-overflow=]
-drivers/staging/rtl8723bs/include/rtw_security.h:98:15: note: at offset [264, 4344] into destination object 'dot11AuthAlgrthm' of size 4
+Note, RDPID emulation also relies on RDTSCP being enabled in the guest,
+but this is a KVM bug and will eventually be fixed.
 
-This is a known gcc bug, and the patch here is only a workaround,
-but the approach of using a temporary variable to hold a pointer
-to the key also improves readability in addition to avoiding the
-warning, so overall this should still help.
+Fixes: fb6d4d340e05 ("KVM: x86: emulate RDPID")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-3-seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Reiji Watanabe <reijiw@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=99673
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210422152648.2891996-1-arnd@kernel.org
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-index c1dac6eec59f..a6d731e959a2 100644
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_cfg80211.c
-@@ -527,6 +527,9 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
- 	struct security_priv *psecuritypriv =  &(padapter->securitypriv);
- 	struct sta_priv *pstapriv = &padapter->stapriv;
-+	char *grpkey = padapter->securitypriv.dot118021XGrpKey[param->u.crypt.idx].skey;
-+	char *txkey = padapter->securitypriv.dot118021XGrptxmickey[param->u.crypt.idx].skey;
-+	char *rxkey = padapter->securitypriv.dot118021XGrprxmickey[param->u.crypt.idx].skey;
- 
- 	param->u.crypt.err = 0;
- 	param->u.crypt.alg[IEEE_CRYPT_ALG_NAME_LEN - 1] = '\0';
-@@ -609,7 +612,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 		{
- 			if (strcmp(param->u.crypt.alg, "WEP") == 0)
- 			{
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 				psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
- 				if (param->u.crypt.key_len == 13)
-@@ -622,12 +625,12 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 			{
- 				psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
- 
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 				/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
- 				/* set mic key */
--				memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
--				memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
-+				memcpy(txkey, &(param->u.crypt.key[16]), 8);
-+				memcpy(rxkey, &(param->u.crypt.key[24]), 8);
- 
- 				psecuritypriv->busetkipkey = true;
- 
-@@ -636,7 +639,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 			{
- 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
- 
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 			}
- 			else
- 			{
-@@ -713,7 +716,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 			{
- 				if (strcmp(param->u.crypt.alg, "WEP") == 0)
- 				{
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 					psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
- 					if (param->u.crypt.key_len == 13)
-@@ -725,12 +728,12 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 				{
- 					psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
- 
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 					/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
- 					/* set mic key */
--					memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
--					memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
-+					memcpy(txkey, &(param->u.crypt.key[16]), 8);
-+					memcpy(rxkey, &(param->u.crypt.key[24]), 8);
- 
- 					psecuritypriv->busetkipkey = true;
- 
-@@ -739,7 +742,7 @@ static int rtw_cfg80211_ap_set_encryption(struct net_device *dev, struct ieee_pa
- 				{
- 					psecuritypriv->dot118021XGrpPrivacy = _AES_;
- 
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 				}
- 				else
- 				{
-diff --git a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-index e98e5388d5c7..5088c3731b6d 100644
---- a/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-+++ b/drivers/staging/rtl8723bs/os_dep/ioctl_linux.c
-@@ -2963,6 +2963,9 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 	struct mlme_priv *pmlmepriv = &padapter->mlmepriv;
- 	struct security_priv *psecuritypriv = &(padapter->securitypriv);
- 	struct sta_priv *pstapriv = &padapter->stapriv;
-+	char *txkey = padapter->securitypriv.dot118021XGrptxmickey[param->u.crypt.idx].skey;
-+	char *rxkey = padapter->securitypriv.dot118021XGrprxmickey[param->u.crypt.idx].skey;
-+	char *grpkey = psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey;
- 
- 	param->u.crypt.err = 0;
- 	param->u.crypt.alg[IEEE_CRYPT_ALG_NAME_LEN - 1] = '\0';
-@@ -3064,7 +3067,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 	if (!psta && check_fwstate(pmlmepriv, WIFI_AP_STATE)) { /*  group key */
- 		if (param->u.crypt.set_tx == 1) {
- 			if (strcmp(param->u.crypt.alg, "WEP") == 0) {
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 				psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
- 				if (param->u.crypt.key_len == 13)
-@@ -3073,11 +3076,11 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 			} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
- 				psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
- 
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 				/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
- 				/* set mic key */
--				memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
-+				memcpy(txkey, &(param->u.crypt.key[16]), 8);
- 				memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
- 
- 				psecuritypriv->busetkipkey = true;
-@@ -3086,7 +3089,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 			else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
- 				psecuritypriv->dot118021XGrpPrivacy = _AES_;
- 
--				memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+				memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 			} else {
- 				psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
- 			}
-@@ -3142,7 +3145,7 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 
- 			} else { /* group key??? */
- 				if (strcmp(param->u.crypt.alg, "WEP") == 0) {
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 					psecuritypriv->dot118021XGrpPrivacy = _WEP40_;
- 					if (param->u.crypt.key_len == 13)
-@@ -3150,19 +3153,19 @@ static int rtw_set_encryption(struct net_device *dev, struct ieee_param *param,
- 				} else if (strcmp(param->u.crypt.alg, "TKIP") == 0) {
- 					psecuritypriv->dot118021XGrpPrivacy = _TKIP_;
- 
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 
- 					/* DEBUG_ERR("set key length :param->u.crypt.key_len =%d\n", param->u.crypt.key_len); */
- 					/* set mic key */
--					memcpy(psecuritypriv->dot118021XGrptxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[16]), 8);
--					memcpy(psecuritypriv->dot118021XGrprxmickey[param->u.crypt.idx].skey, &(param->u.crypt.key[24]), 8);
-+					memcpy(txkey, &(param->u.crypt.key[16]), 8);
-+					memcpy(rxkey, &(param->u.crypt.key[24]), 8);
- 
- 					psecuritypriv->busetkipkey = true;
- 
- 				} else if (strcmp(param->u.crypt.alg, "CCMP") == 0) {
- 					psecuritypriv->dot118021XGrpPrivacy = _AES_;
- 
--					memcpy(psecuritypriv->dot118021XGrpKey[param->u.crypt.idx].skey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
-+					memcpy(grpkey, param->u.crypt.key, (param->u.crypt.key_len > 16 ? 16 : param->u.crypt.key_len));
- 				} else {
- 					psecuritypriv->dot118021XGrpPrivacy = _NO_PRIVACY_;
- 				}
+diff --git a/arch/x86/kvm/cpuid.c b/arch/x86/kvm/cpuid.c
+index 19606a341888..c0e8c5e92189 100644
+--- a/arch/x86/kvm/cpuid.c
++++ b/arch/x86/kvm/cpuid.c
+@@ -637,7 +637,8 @@ static int __do_cpuid_func_emulated(struct kvm_cpuid_array *array, u32 func)
+ 	case 7:
+ 		entry->flags |= KVM_CPUID_FLAG_SIGNIFCANT_INDEX;
+ 		entry->eax = 0;
+-		entry->ecx = F(RDPID);
++		if (kvm_cpu_cap_has(X86_FEATURE_RDTSCP))
++			entry->ecx = F(RDPID);
+ 		++array->nent;
+ 	default:
+ 		break;
 
