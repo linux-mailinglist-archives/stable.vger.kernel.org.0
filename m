@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C090E383423
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54774383426
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241670AbhEQPFf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:05:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45104 "EHLO mail.kernel.org"
+        id S241749AbhEQPFi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:05:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242577AbhEQPD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:03:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA7FE61A2B;
-        Mon, 17 May 2021 14:28:03 +0000 (UTC)
+        id S242583AbhEQPD6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:03:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8513E61A36;
+        Mon, 17 May 2021 14:28:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261684;
-        bh=bRufFi4yxcRajT08WOtdGkPoar8Kt/DNJeEJkVcyAag=;
+        s=korg; t=1621261691;
+        bh=Od8mqaHbDMNP+qvydvXCn6RWZXbN2zPX6QAUaqVVZqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i8lIusEi0UByO0EWhg4rh1Kk6IZo4FTc/6OwMNJ2qQIPTa3aEyLRS4izszyx8iLAQ
-         BWXgwKPXGgmHPm/jBMGwNDDn74BD8iAHy0ZhQMbhIl550M+StKoJAQhkD+EQ4zZr9c
-         fGO4b6imiGTlptJu/00nAh7TncEBEGuZyHMwYgtg=
+        b=gjS+cqaqilYrW442noTV/NIYZdBBBX2fVyfJnxnl9zTlrt2npHH1hkFoK8M06G2k2
+         2DTFaOm74lR180+z8eDS9B+dOCYvZ6Ie8cR5Lu0LEyotAF2JZa7sHSTHZzBawA5xkV
+         ZWuYrCvvFXnw55Vf3S4RE0+HfOfV/rRmUmMQf4yo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Phil Sutter <phil@nwl.cc>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 076/141] sctp: fix a SCTP_MIB_CURRESTAB leak in sctp_sf_do_dupcook_b
-Date:   Mon, 17 May 2021 16:02:08 +0200
-Message-Id: <20210517140245.346565263@linuxfoundation.org>
+Subject: [PATCH 5.4 077/141] netfilter: xt_SECMARK: add new revision to fix structure layout
+Date:   Mon, 17 May 2021 16:02:09 +0200
+Message-Id: <20210517140245.382169432@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -42,50 +40,171 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit f282df0391267fb2b263da1cc3233aa6fb81defc ]
+[ Upstream commit c7d13358b6a2f49f81a34aa323a2d0878a0532a2 ]
 
-Normally SCTP_MIB_CURRESTAB is always incremented once asoc enter into
-ESTABLISHED from the state < ESTABLISHED and decremented when the asoc
-is being deleted.
+This extension breaks when trying to delete rules, add a new revision to
+fix this.
 
-However, in sctp_sf_do_dupcook_b(), the asoc's state can be changed to
-ESTABLISHED from the state >= ESTABLISHED where it shouldn't increment
-SCTP_MIB_CURRESTAB. Otherwise, one asoc may increment MIB_CURRESTAB
-multiple times but only decrement once at the end.
-
-I was able to reproduce it by using scapy to do the 4-way shakehands,
-after that I replayed the COOKIE-ECHO chunk with 'peer_vtag' field
-changed to different values, and SCTP_MIB_CURRESTAB was incremented
-multiple times and never went back to 0 even when the asoc was freed.
-
-This patch is to fix it by only incrementing SCTP_MIB_CURRESTAB when
-the state < ESTABLISHED in sctp_sf_do_dupcook_b().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 5e6874cdb8de ("[SECMARK]: Add xtables SECMARK target")
+Signed-off-by: Phil Sutter <phil@nwl.cc>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ include/uapi/linux/netfilter/xt_SECMARK.h |  6 ++
+ net/netfilter/xt_SECMARK.c                | 88 ++++++++++++++++++-----
+ 2 files changed, 75 insertions(+), 19 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 72e4eaffacdb..82a202d71a31 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1933,7 +1933,8 @@ static enum sctp_disposition sctp_sf_do_dupcook_b(
- 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
- 			SCTP_STATE(SCTP_STATE_ESTABLISHED));
--	SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
-+	if (asoc->state < SCTP_STATE_ESTABLISHED)
-+		SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
- 	sctp_add_cmd_sf(commands, SCTP_CMD_HB_TIMERS_START, SCTP_NULL());
+diff --git a/include/uapi/linux/netfilter/xt_SECMARK.h b/include/uapi/linux/netfilter/xt_SECMARK.h
+index 1f2a708413f5..beb2cadba8a9 100644
+--- a/include/uapi/linux/netfilter/xt_SECMARK.h
++++ b/include/uapi/linux/netfilter/xt_SECMARK.h
+@@ -20,4 +20,10 @@ struct xt_secmark_target_info {
+ 	char secctx[SECMARK_SECCTX_MAX];
+ };
  
- 	repl = sctp_make_cookie_ack(new_asoc, chunk);
++struct xt_secmark_target_info_v1 {
++	__u8 mode;
++	char secctx[SECMARK_SECCTX_MAX];
++	__u32 secid;
++};
++
+ #endif /*_XT_SECMARK_H_target */
+diff --git a/net/netfilter/xt_SECMARK.c b/net/netfilter/xt_SECMARK.c
+index 2317721f3ecb..ea7aeea19b3b 100644
+--- a/net/netfilter/xt_SECMARK.c
++++ b/net/netfilter/xt_SECMARK.c
+@@ -26,10 +26,9 @@ MODULE_ALIAS("ip6t_SECMARK");
+ static u8 mode;
+ 
+ static unsigned int
+-secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
++secmark_tg(struct sk_buff *skb, const struct xt_secmark_target_info_v1 *info)
+ {
+ 	u32 secmark = 0;
+-	const struct xt_secmark_target_info *info = par->targinfo;
+ 
+ 	switch (mode) {
+ 	case SECMARK_MODE_SEL:
+@@ -43,7 +42,7 @@ secmark_tg(struct sk_buff *skb, const struct xt_action_param *par)
+ 	return XT_CONTINUE;
+ }
+ 
+-static int checkentry_lsm(struct xt_secmark_target_info *info)
++static int checkentry_lsm(struct xt_secmark_target_info_v1 *info)
+ {
+ 	int err;
+ 
+@@ -75,15 +74,15 @@ static int checkentry_lsm(struct xt_secmark_target_info *info)
+ 	return 0;
+ }
+ 
+-static int secmark_tg_check(const struct xt_tgchk_param *par)
++static int
++secmark_tg_check(const char *table, struct xt_secmark_target_info_v1 *info)
+ {
+-	struct xt_secmark_target_info *info = par->targinfo;
+ 	int err;
+ 
+-	if (strcmp(par->table, "mangle") != 0 &&
+-	    strcmp(par->table, "security") != 0) {
++	if (strcmp(table, "mangle") != 0 &&
++	    strcmp(table, "security") != 0) {
+ 		pr_info_ratelimited("only valid in \'mangle\' or \'security\' table, not \'%s\'\n",
+-				    par->table);
++				    table);
+ 		return -EINVAL;
+ 	}
+ 
+@@ -118,25 +117,76 @@ static void secmark_tg_destroy(const struct xt_tgdtor_param *par)
+ 	}
+ }
+ 
+-static struct xt_target secmark_tg_reg __read_mostly = {
+-	.name       = "SECMARK",
+-	.revision   = 0,
+-	.family     = NFPROTO_UNSPEC,
+-	.checkentry = secmark_tg_check,
+-	.destroy    = secmark_tg_destroy,
+-	.target     = secmark_tg,
+-	.targetsize = sizeof(struct xt_secmark_target_info),
+-	.me         = THIS_MODULE,
++static int secmark_tg_check_v0(const struct xt_tgchk_param *par)
++{
++	struct xt_secmark_target_info *info = par->targinfo;
++	struct xt_secmark_target_info_v1 newinfo = {
++		.mode	= info->mode,
++	};
++	int ret;
++
++	memcpy(newinfo.secctx, info->secctx, SECMARK_SECCTX_MAX);
++
++	ret = secmark_tg_check(par->table, &newinfo);
++	info->secid = newinfo.secid;
++
++	return ret;
++}
++
++static unsigned int
++secmark_tg_v0(struct sk_buff *skb, const struct xt_action_param *par)
++{
++	const struct xt_secmark_target_info *info = par->targinfo;
++	struct xt_secmark_target_info_v1 newinfo = {
++		.secid	= info->secid,
++	};
++
++	return secmark_tg(skb, &newinfo);
++}
++
++static int secmark_tg_check_v1(const struct xt_tgchk_param *par)
++{
++	return secmark_tg_check(par->table, par->targinfo);
++}
++
++static unsigned int
++secmark_tg_v1(struct sk_buff *skb, const struct xt_action_param *par)
++{
++	return secmark_tg(skb, par->targinfo);
++}
++
++static struct xt_target secmark_tg_reg[] __read_mostly = {
++	{
++		.name		= "SECMARK",
++		.revision	= 0,
++		.family		= NFPROTO_UNSPEC,
++		.checkentry	= secmark_tg_check_v0,
++		.destroy	= secmark_tg_destroy,
++		.target		= secmark_tg_v0,
++		.targetsize	= sizeof(struct xt_secmark_target_info),
++		.me		= THIS_MODULE,
++	},
++	{
++		.name		= "SECMARK",
++		.revision	= 1,
++		.family		= NFPROTO_UNSPEC,
++		.checkentry	= secmark_tg_check_v1,
++		.destroy	= secmark_tg_destroy,
++		.target		= secmark_tg_v1,
++		.targetsize	= sizeof(struct xt_secmark_target_info_v1),
++		.usersize	= offsetof(struct xt_secmark_target_info_v1, secid),
++		.me		= THIS_MODULE,
++	},
+ };
+ 
+ static int __init secmark_tg_init(void)
+ {
+-	return xt_register_target(&secmark_tg_reg);
++	return xt_register_targets(secmark_tg_reg, ARRAY_SIZE(secmark_tg_reg));
+ }
+ 
+ static void __exit secmark_tg_exit(void)
+ {
+-	xt_unregister_target(&secmark_tg_reg);
++	xt_unregister_targets(secmark_tg_reg, ARRAY_SIZE(secmark_tg_reg));
+ }
+ 
+ module_init(secmark_tg_init);
 -- 
 2.30.2
 
