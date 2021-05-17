@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A32038319D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:42:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D8AD3831A5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:42:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240476AbhEQOiN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:38:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37180 "EHLO mail.kernel.org"
+        id S241046AbhEQOi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:38:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239787AbhEQOgK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:36:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 392D661400;
-        Mon, 17 May 2021 14:17:22 +0000 (UTC)
+        id S239931AbhEQOgO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:36:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE4C661931;
+        Mon, 17 May 2021 14:17:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261042;
-        bh=UjetDdYejfHgEMYKnR3t2MROfFQNuE5wB0JAExRcj4g=;
+        s=korg; t=1621261049;
+        bh=ORIEIAuVkV+ADSqQE7UO46WkdVMw4FbH6xBYEFtThK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHOCuVnVDuDjpREfkx83soymCHc8BtZNcEa0sKdPC5IMHcabjU8P4hIMgtPnl5d+4
-         Ob2YvVFeDQRr2/gSTXqAzCnxuvmHNqII98TSgHBIFpO1OYGLr6iwp1GbKCSUQZ0ayH
-         3zNU1fOlKxght1w8xJInZRQEb/lBeabVkEmdU+co=
+        b=OcvNpPYIr4EdaqN0sljLbzoLgLN9W/RsGcAen7QHpKpnysTIvDa6aDheHyHE4pinp
+         FBwuVtugzSaWliHwu+mR8fzKlkT6+afix6wjXoCfTwEfu/KEh08m4LMuTqrVBphlTQ
+         oT1YNNEjpgo7A+2MpDWGpryNUGyUzTL8SqrfKt4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Omar Sandoval <osandov@fb.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 296/363] kyber: fix out of bounds access when preempted
-Date:   Mon, 17 May 2021 16:02:42 +0200
-Message-Id: <20210517140312.607705774@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 297/363] nvmet: fix inline bio check for bdev-ns
+Date:   Mon, 17 May 2021 16:02:43 +0200
+Message-Id: <20210517140312.647231788@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,160 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Omar Sandoval <osandov@fb.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit efed9a3337e341bd0989161b97453b52567bc59d ]
+[ Upstream commit 608a969046e6e0567d05a166be66c77d2dd8220b ]
 
-__blk_mq_sched_bio_merge() gets the ctx and hctx for the current CPU and
-passes the hctx to ->bio_merge(). kyber_bio_merge() then gets the ctx
-for the current CPU again and uses that to get the corresponding Kyber
-context in the passed hctx. However, the thread may be preempted between
-the two calls to blk_mq_get_ctx(), and the ctx returned the second time
-may no longer correspond to the passed hctx. This "works" accidentally
-most of the time, but it can cause us to read garbage if the second ctx
-came from an hctx with more ctx's than the first one (i.e., if
-ctx->index_hw[hctx->type] > hctx->nr_ctx).
+When handling rw commands, for inline bio case we only consider
+transfer size. This works well when req->sg_cnt fits into the
+req->inline_bvec, but it will result in the warning in
+__bio_add_page() when req->sg_cnt > NVMET_MAX_INLINE_BVEC.
 
-This manifested as this UBSAN array index out of bounds error reported
-by Jakub:
+Consider an I/O size 32768 and first page is not aligned to the page
+boundary, then I/O is split in following manner :-
 
-UBSAN: array-index-out-of-bounds in ../kernel/locking/qspinlock.c:130:9
-index 13106 is out of range for type 'long unsigned int [128]'
-Call Trace:
- dump_stack+0xa4/0xe5
- ubsan_epilogue+0x5/0x40
- __ubsan_handle_out_of_bounds.cold.13+0x2a/0x34
- queued_spin_lock_slowpath+0x476/0x480
- do_raw_spin_lock+0x1c2/0x1d0
- kyber_bio_merge+0x112/0x180
- blk_mq_submit_bio+0x1f5/0x1100
- submit_bio_noacct+0x7b0/0x870
- submit_bio+0xc2/0x3a0
- btrfs_map_bio+0x4f0/0x9d0
- btrfs_submit_data_bio+0x24e/0x310
- submit_one_bio+0x7f/0xb0
- submit_extent_page+0xc4/0x440
- __extent_writepage_io+0x2b8/0x5e0
- __extent_writepage+0x28d/0x6e0
- extent_write_cache_pages+0x4d7/0x7a0
- extent_writepages+0xa2/0x110
- do_writepages+0x8f/0x180
- __writeback_single_inode+0x99/0x7f0
- writeback_sb_inodes+0x34e/0x790
- __writeback_inodes_wb+0x9e/0x120
- wb_writeback+0x4d2/0x660
- wb_workfn+0x64d/0xa10
- process_one_work+0x53a/0xa80
- worker_thread+0x69/0x5b0
- kthread+0x20b/0x240
- ret_from_fork+0x1f/0x30
+[ 2206.256140] nvmet: sg->length 3440 sg->offset 656
+[ 2206.256144] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256148] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256152] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256155] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256159] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256163] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256166] nvmet: sg->length 4096 sg->offset 0
+[ 2206.256170] nvmet: sg->length 656 sg->offset 0
 
-Only Kyber uses the hctx, so fix it by passing the request_queue to
-->bio_merge() instead. BFQ and mq-deadline just use that, and Kyber can
-map the queues itself to avoid the mismatch.
+Now the req->transfer_size == NVMET_MAX_INLINE_DATA_LEN i.e. 32768, but
+the req->sg_cnt is (9) > NVMET_MAX_INLINE_BIOVEC which is (8).
+This will result in the following warning message :-
 
-Fixes: a6088845c2bf ("block: kyber: make kyber more friendly with merging")
-Reported-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Omar Sandoval <osandov@fb.com>
-Link: https://lore.kernel.org/r/c7598605401a48d5cfeadebb678abd10af22b83f.1620691329.git.osandov@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+nvmet_bdev_execute_rw()
+	bio_add_page()
+		__bio_add_page()
+			WARN_ON_ONCE(bio_full(bio, len));
+
+This scenario is very hard to reproduce on the nvme-loop transport only
+with rw commands issued with the passthru IOCTL interface from the host
+application and the data buffer is allocated with the malloc() and not
+the posix_memalign().
+
+Fixes: 73383adfad24 ("nvmet: don't split large I/Os unconditionally")
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-iosched.c      | 3 +--
- block/blk-mq-sched.c     | 8 +++++---
- block/kyber-iosched.c    | 5 +++--
- block/mq-deadline.c      | 3 +--
- include/linux/elevator.h | 2 +-
- 5 files changed, 11 insertions(+), 10 deletions(-)
+ drivers/nvme/target/io-cmd-bdev.c | 2 +-
+ drivers/nvme/target/nvmet.h       | 6 ++++++
+ 2 files changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 20ba5db0f61c..bc319931d2b3 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -2263,10 +2263,9 @@ static void bfq_remove_request(struct request_queue *q,
+diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
+index 9a8b3726a37c..429263ca9b97 100644
+--- a/drivers/nvme/target/io-cmd-bdev.c
++++ b/drivers/nvme/target/io-cmd-bdev.c
+@@ -258,7 +258,7 @@ static void nvmet_bdev_execute_rw(struct nvmet_req *req)
  
+ 	sector = nvmet_lba_to_sect(req->ns, req->cmd->rw.slba);
+ 
+-	if (req->transfer_len <= NVMET_MAX_INLINE_DATA_LEN) {
++	if (nvmet_use_inline_bvec(req)) {
+ 		bio = &req->b.inline_bio;
+ 		bio_init(bio, req->inline_bvec, ARRAY_SIZE(req->inline_bvec));
+ 	} else {
+diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
+index 4b84edb49f22..5aad34b106dc 100644
+--- a/drivers/nvme/target/nvmet.h
++++ b/drivers/nvme/target/nvmet.h
+@@ -614,4 +614,10 @@ static inline sector_t nvmet_lba_to_sect(struct nvmet_ns *ns, __le64 lba)
+ 	return le64_to_cpu(lba) << (ns->blksize_shift - SECTOR_SHIFT);
  }
  
--static bool bfq_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool bfq_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
--	struct request_queue *q = hctx->queue;
- 	struct bfq_data *bfqd = q->elevator->elevator_data;
- 	struct request *free = NULL;
- 	/*
-diff --git a/block/blk-mq-sched.c b/block/blk-mq-sched.c
-index e1e997af89a0..fdeb9773b55c 100644
---- a/block/blk-mq-sched.c
-+++ b/block/blk-mq-sched.c
-@@ -348,14 +348,16 @@ bool __blk_mq_sched_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
- 	struct elevator_queue *e = q->elevator;
--	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
--	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
-+	struct blk_mq_ctx *ctx;
-+	struct blk_mq_hw_ctx *hctx;
- 	bool ret = false;
- 	enum hctx_type type;
- 
- 	if (e && e->type->ops.bio_merge)
--		return e->type->ops.bio_merge(hctx, bio, nr_segs);
-+		return e->type->ops.bio_merge(q, bio, nr_segs);
- 
-+	ctx = blk_mq_get_ctx(q);
-+	hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
- 	type = hctx->type;
- 	if (!(hctx->flags & BLK_MQ_F_SHOULD_MERGE) ||
- 	    list_empty_careful(&ctx->rq_lists[type]))
-diff --git a/block/kyber-iosched.c b/block/kyber-iosched.c
-index 33d34d69cade..79b69d7046d6 100644
---- a/block/kyber-iosched.c
-+++ b/block/kyber-iosched.c
-@@ -560,11 +560,12 @@ static void kyber_limit_depth(unsigned int op, struct blk_mq_alloc_data *data)
- 	}
- }
- 
--static bool kyber_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool kyber_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
-+	struct blk_mq_ctx *ctx = blk_mq_get_ctx(q);
-+	struct blk_mq_hw_ctx *hctx = blk_mq_map_queue(q, bio->bi_opf, ctx);
- 	struct kyber_hctx_data *khd = hctx->sched_data;
--	struct blk_mq_ctx *ctx = blk_mq_get_ctx(hctx->queue);
- 	struct kyber_ctx_queue *kcq = &khd->kcqs[ctx->index_hw[hctx->type]];
- 	unsigned int sched_domain = kyber_sched_domain(bio->bi_opf);
- 	struct list_head *rq_list = &kcq->rq_list[sched_domain];
-diff --git a/block/mq-deadline.c b/block/mq-deadline.c
-index f3631a287466..3aabcd2a7893 100644
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -461,10 +461,9 @@ static int dd_request_merge(struct request_queue *q, struct request **rq,
- 	return ELEVATOR_NO_MERGE;
- }
- 
--static bool dd_bio_merge(struct blk_mq_hw_ctx *hctx, struct bio *bio,
-+static bool dd_bio_merge(struct request_queue *q, struct bio *bio,
- 		unsigned int nr_segs)
- {
--	struct request_queue *q = hctx->queue;
- 	struct deadline_data *dd = q->elevator->elevator_data;
- 	struct request *free = NULL;
- 	bool ret;
-diff --git a/include/linux/elevator.h b/include/linux/elevator.h
-index 1fe8e105b83b..dcb2f9022c1d 100644
---- a/include/linux/elevator.h
-+++ b/include/linux/elevator.h
-@@ -34,7 +34,7 @@ struct elevator_mq_ops {
- 	void (*depth_updated)(struct blk_mq_hw_ctx *);
- 
- 	bool (*allow_merge)(struct request_queue *, struct request *, struct bio *);
--	bool (*bio_merge)(struct blk_mq_hw_ctx *, struct bio *, unsigned int);
-+	bool (*bio_merge)(struct request_queue *, struct bio *, unsigned int);
- 	int (*request_merge)(struct request_queue *q, struct request **, struct bio *);
- 	void (*request_merged)(struct request_queue *, struct request *, enum elv_merge);
- 	void (*requests_merged)(struct request_queue *, struct request *, struct request *);
++static inline bool nvmet_use_inline_bvec(struct nvmet_req *req)
++{
++	return req->transfer_len <= NVMET_MAX_INLINE_DATA_LEN &&
++	       req->sg_cnt <= NVMET_MAX_INLINE_BIOVEC;
++}
++
+ #endif /* _NVMET_H */
 -- 
 2.30.2
 
