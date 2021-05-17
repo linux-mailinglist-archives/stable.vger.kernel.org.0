@@ -2,236 +2,177 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2019E386D95
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 01:12:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F585386DA7
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 01:27:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237185AbhEQXNz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 19:13:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46102 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236996AbhEQXNy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 19:13:54 -0400
-Received: from mail-pl1-x62d.google.com (mail-pl1-x62d.google.com [IPv6:2607:f8b0:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD157C061573
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 16:12:37 -0700 (PDT)
-Received: by mail-pl1-x62d.google.com with SMTP id n3so4018704plf.7
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 16:12:37 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=52hpgrg4ZmlkCv4smthZ2SgUXeoLfJpjb5ReoBRYNj0=;
-        b=htKiSEajWZjBiXbBdhzu8DR6q/gVPVOKO99KvIX78IbWC3O+ZMWqfiLGROdn5ZMgwZ
-         JNsyQSW/tw03kfpPwH5FU057NduzjqcR+jZl7PUFG4ODKHX4/uEAq4KdYTZhbX0FEbGT
-         iSaMTLwfK72PK80JIIPETW66XwLww6QowNNvbKPjjMs4TNZZmnxIqRw0iZD2MpOyr6kY
-         3gm/LEP41o+/RM03y0Dbwc+fcsy+oCgtOW2zao50kG4xJIH+RpkulRD/5AI9P64v3jeL
-         nf3UD1eAVazXH/TSrsoO2ngZF7L9j2IyLN1aAhcKtZXgBcMJZ4ZIV2yWubyR1Cv6kd4J
-         QDLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=52hpgrg4ZmlkCv4smthZ2SgUXeoLfJpjb5ReoBRYNj0=;
-        b=ZIJ36wkgKLczKbTIKxkClwBi/bqcDeHdQ73FOSc4FEGXeseLwSQ9k4wliAZBoZxI7/
-         HUfG26yenoga4x5/qEtw/ShTOgycdp1zltkB27IZ72n80Ns3YbjcoMqfdlWwZ5IvWadv
-         8UM3qYlwYEJ0J45W8YyZ6VH5kK4mfQyLNcRhudByTCsjxSOuBpRMgbMY/AKd+xWPc1KE
-         jsep9eLuCU4xEw7xqy28rTYe9COl0q6KZ/KVnR2cNBkkxtF+H3yaZlVIfC77s7qaiQFS
-         BRct/O9wEW9fvN5CzVqixCHyAwAjiOJBWoDx2VKUgCESJNrKqTmb22kkx9Sn6vtif8zw
-         5JNA==
-X-Gm-Message-State: AOAM531quDH3sDT6p/IA4uyyFID6t/jtVqSEW7iAI1/mK0jzU6iNZ0+V
-        KhtjdQm1nBizWoy34Q9xepmzDyqeK8e4iIAr
-X-Google-Smtp-Source: ABdhPJzl+kuISrOW/uXullXYc7G1aqiLk8dxe4k8p93hjBn8W7dBNZvA8RhaWd48ZZEDLei1dj4TVA==
-X-Received: by 2002:a17:90a:1588:: with SMTP id m8mr1650105pja.226.1621293157096;
-        Mon, 17 May 2021 16:12:37 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x133sm10929822pfc.19.2021.05.17.16.12.36
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 16:12:36 -0700 (PDT)
-Message-ID: <60a2f864.1c69fb81.f274f.532f@mx.google.com>
-Date:   Mon, 17 May 2021 16:12:36 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S243398AbhEQX2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 19:28:22 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:55934 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240516AbhEQX2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 19:28:21 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1621294023;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=o1uB9QtPenPr6TAPimIlnSz22cHSphlYyyuDv8n5vns=;
+        b=KV6xNF9bc6gkFF0B1a4EINc469/fWs0giQRDPreaShpNYlaXQ0aQu3KdHMPvk1rNVQR/sV
+        3X1kntSeHo6D60eXm1UjnNyy4t39FcQXtC/gBoichXv5cm0PFWlJQfcescyBM+1n5Nk1DF
+        8+6vSVpxrsjATDvS0j1peHqqOnJh2ZSmJFiqBwQDdRvl0LGaaICalIAk1eP1QAdOhnRGNW
+        oV9LrwSw+tT2O5e/xo9mPow0otSp1P5mrV35MYqCpxnyGgZtJOTw1lBNBryJDMbyFDjXVP
+        Zs43P6qYPS1zXRDN8vVO+pqu2I+pPk+owmVJ+dKb/TVqdIon0GI6k9+Fz9i1sw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1621294023;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=o1uB9QtPenPr6TAPimIlnSz22cHSphlYyyuDv8n5vns=;
+        b=L/VKAsznb/XEYy/QPeQygiKB4CfM+Ver5HYSHu2BBW0Z+Xzr5hYm1J9ewwU68Gtlp2ctrd
+        PSvj76yg2n8m2lAA==
+To:     Maximilian Luz <luzmaximilian@gmail.com>
+Cc:     "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        David Laight <David.Laight@aculab.com>,
+        "x86\@kernel.org" <x86@kernel.org>,
+        "linux-kernel\@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
+In-Reply-To: <b509418f-9fff-ab27-b460-ecbe6fdea09a@gmail.com>
+References: <87a6otfblh.ffs@nanos.tec.linutronix.de> <b509418f-9fff-ab27-b460-ecbe6fdea09a@gmail.com>
+Date:   Tue, 18 May 2021 01:27:02 +0200
+Message-ID: <87lf8ddjqx.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.232-301-gf41744cb6730
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 99 runs,
- 4 regressions (v4.14.232-301-gf41744cb6730)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 99 runs, 4 regressions (v4.14.232-301-gf4174=
-4cb6730)
+On Mon, May 17 2021 at 21:25, Maximilian Luz wrote:
+> On 5/17/21 8:40 PM, Thomas Gleixner wrote:
+>> Can you please add "apic=verbose" to the kernel command line and provide
+>> full dmesg output for a kernel w/o your patch and one with your patch
+>> applied?
+>
+> I don't actually own an affected device, but I'm sure Sachi can provide
+> you with that.
 
-Regressions Summary
--------------------
+Ok.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+> As far as we can tell, due to the NULL PIC being chosen nr_legacy_irqs()
+> returns 0. That in turn causes mp_check_pin_attr() to return false
+> because is_level and active_low don't seem to match the expected
+> values.
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+Ok.
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+> That check is essentially ignored if nr_legacy_irqs() returns a high
+> enough value.
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
+Close enough.
 
+> I guess that might also be a firmware bug here? Not sure where the
+> expected values come from.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.232-301-gf41744cb6730/plan/baseline/
+They come from the interrupt override ACPI table and if not supplied
+then irq 0-15 is preset with default values, which are type=edge and
+polarity=high, i.e.  the opposite of what the failing driver wants.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.232-301-gf41744cb6730
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      f41744cb673004450114cf9b68c21417cccfdb02 =
+The ACPI table lacks an override entry for IRQ7. I looked at one of the
+dmesg files in that github thread and that has overrides:
 
+[    0.111674] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+[    0.111681] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+[    0.111688] ACPI: IRQ0 used by override.
+[    0.111692] ACPI: IRQ9 used by override.
 
+IRQ7 should have a corresponding entry as IRQ9 has:
 
-Test Regressions
----------------- =
+https://github.com/linux-surface/acpidumps/blob/4da0148744164cea0c924dab92f45842fde03177/surface_laptop_4_amd/apic.dsl#L178
 
+          Subtable Type : 02 [Interrupt Source Override]
+                 Length : 0A
+                    Bus : 00
+                 Source : 07
+              Interrupt : 00000007
+  Flags (decoded below) : 000F
+               Polarity : 3
+           Trigger Mode : 3
 
+> Sachi can probably walk you through this a bit better as she's the one
+> who tracked this down. See also [1, 2] and following comments.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-meson-gxm-q200       | arm64 | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+Impressive detective work!
 
+Sachi, can you please try the hack below to confirm the above?
 
-  Details:     https://kernelci.org/test/plan/id/60a2c87b83011d1518b3afa4
+It's not meant to be a solution, but it's the most trivial way to
+validate this.
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+I'm pretty sure that Windows on Surface does not care about the PIC at
+all. Whether that's on purpose to safe power or just because Windows
+ignores the PIC completely by now does not matter at all. No idea how
+that repeated poking on the PIC makes it come alive either and TBH, I
+don't care too much about it simply because Linux is able to cope with a
+missing PIC as long as the ACPI tables are correct.
 
+I'm way too tired to think about a proper solution for that problem and
+I noticed another related issue in that dmesg output:
 
+[    0.272448] Failed to register legacy timer interrupt
 
-  * baseline.login: https://kernelci.org/test/case/id/60a2c87b83011d1518b3a=
-fa5
-        failing since 77 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
+It's not a problem which causes failures, but it's related to the
+missing PIC.
 
- =
+Needs some more thoughts with brain awake...
 
+Thanks,
 
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2c3ef19fbeb250ab3afbd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2c3ef19fbeb250ab3a=
-fbe
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2c3d2d25c2b098eb3afc0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+        tglx
+---
+--- a/arch/x86/kernel/acpi/boot.c
++++ b/arch/x86/kernel/acpi/boot.c
+@@ -21,6 +21,7 @@
+ #include <linux/efi-bgrt.h>
+ #include <linux/serial_core.h>
+ #include <linux/pgtable.h>
++#include <linux/dmi.h>
+ 
+ #include <asm/e820/api.h>
+ #include <asm/irqdomain.h>
+@@ -1155,6 +1156,17 @@ static void __init mp_config_acpi_legacy
+ 	}
+ }
+ 
++static const struct dmi_system_id surface_quirk[] __initconst = {
++	{
++		.ident = "Microsoft Surface Laptop 4 (AMD)",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Microsoft Corporation"),
++			DMI_MATCH(DMI_PRODUCT_SKU, "Surface_Laptop_4_1952:1953")
++		},
++	},
++	{}
++};
++
+ /*
+  * Parse IOAPIC related entries in MADT
+  * returns 0 on success, < 0 on error
+@@ -1212,6 +1224,11 @@ static int __init acpi_parse_madt_ioapic
+ 		acpi_sci_ioapic_setup(acpi_gbl_FADT.sci_interrupt, 0, 0,
+ 				      acpi_gbl_FADT.sci_interrupt);
+ 
++	if (dmi_check_system(surface_quirk)) {
++		pr_warn("Surface hack: Override irq 7\n");
++		mp_override_legacy_irq(7, 3, 3, 7);
++	}
++
+ 	/* Fill in identity legacy mappings where no override */
+ 	mp_config_acpi_legacy_irqs();
+ 
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2c3d2d25c2b098eb3a=
-fc1
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2c3c25074f07c7fb3afb8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.232=
--301-gf41744cb6730/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2c3c25074f07c7fb3a=
-fb9
-        failing since 184 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
