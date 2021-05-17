@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CC443835DE
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32C9B3833F8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242724AbhEQPZm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:25:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42054 "EHLO mail.kernel.org"
+        id S242074AbhEQPEG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:04:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238673AbhEQPXB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:23:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B5DA61CA3;
-        Mon, 17 May 2021 14:35:15 +0000 (UTC)
+        id S242316AbhEQPCF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:02:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A089613DA;
+        Mon, 17 May 2021 14:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262116;
-        bh=iHKtszs9IIlWoFV7+AuVDwDxIjB0taP5A/9EBFJd1V4=;
+        s=korg; t=1621261649;
+        bh=sTwzPeClyOa9IXBldekAE6JKwS8NzU11Q/taM+LKRio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VsPevmkleIfsgmA56NkZjQPVhQe2yoRIRJvbKU/q/gDAzihAEO6dLMdFqH2yLSRtH
-         bLVQvJTpJo43qpAstziB3OAjBM8/Yg6zB9yOui0haFkp3+mtCuThfwnOWVewTaDI93
-         bviaDUNG8akH0Z8SrOqncjJYkZrbyAvrgsx3Fv14=
+        b=LZj9ZrxV6BRReHVxBCgysp0NXf0T1W491lWdNPsao1/FwDD/dJPlDc0yF3lmcSZ4+
+         gbFUlbCBVZpqgg/yry0HzcYXxJZKg1Kd5nMYRHhG8Pt3Rig+Zy5TLFfaqSMsVB/NR6
+         QZkhmbD+Wi/PFrfK/ZbHCC/guGqd49EYSc8uWO2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Govindarajulu Varadarajan <gvaradar@cisco.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 192/329] ethernet:enic: Fix a use after free bug in enic_hard_start_xmit
+Subject: [PATCH 5.4 051/141] ASoC: rt286: Make RT286_SET_GPIO_* readable and writable
 Date:   Mon, 17 May 2021 16:01:43 +0200
-Message-Id: <20210517140308.624680293@linuxfoundation.org>
+Message-Id: <20210517140244.488036997@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,67 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit 643001b47adc844ae33510c4bb93c236667008a3 ]
+[ Upstream commit cd8499d5c03ba260e3191e90236d0e5f6b147563 ]
 
-In enic_hard_start_xmit, it calls enic_queue_wq_skb(). Inside
-enic_queue_wq_skb, if some error happens, the skb will be freed
-by dev_kfree_skb(skb). But the freed skb is still used in
-skb_tx_timestamp(skb).
+The GPIO configuration cannot be applied if the registers are inaccessible.
+This prevented the headset mic from working on the Dell XPS 13 9343.
 
-My patch makes enic_queue_wq_skb() return error and goto spin_unlock()
-incase of error. The solution is provided by Govind.
-See https://lkml.org/lkml/2021/4/30/961.
-
-Fixes: fb7516d42478e ("enic: add sw timestamp support")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Acked-by: Govindarajulu Varadarajan <gvaradar@cisco.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=114171
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Link: https://lore.kernel.org/r/20210418134658.4333-5-david.ward@gatech.edu
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cisco/enic/enic_main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt286.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
-index fb269d587b74..548d8095c0a7 100644
---- a/drivers/net/ethernet/cisco/enic/enic_main.c
-+++ b/drivers/net/ethernet/cisco/enic/enic_main.c
-@@ -768,7 +768,7 @@ static inline int enic_queue_wq_skb_encap(struct enic *enic, struct vnic_wq *wq,
- 	return err;
- }
- 
--static inline void enic_queue_wq_skb(struct enic *enic,
-+static inline int enic_queue_wq_skb(struct enic *enic,
- 	struct vnic_wq *wq, struct sk_buff *skb)
- {
- 	unsigned int mss = skb_shinfo(skb)->gso_size;
-@@ -814,6 +814,7 @@ static inline void enic_queue_wq_skb(struct enic *enic,
- 		wq->to_use = buf->next;
- 		dev_kfree_skb(skb);
- 	}
-+	return err;
- }
- 
- /* netif_tx_lock held, process context with BHs disabled, or BH */
-@@ -857,7 +858,8 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
- 		return NETDEV_TX_BUSY;
- 	}
- 
--	enic_queue_wq_skb(enic, wq, skb);
-+	if (enic_queue_wq_skb(enic, wq, skb))
-+		goto error;
- 
- 	if (vnic_wq_desc_avail(wq) < MAX_SKB_FRAGS + ENIC_DESC_MAX_SPLITS)
- 		netif_tx_stop_queue(txq);
-@@ -865,6 +867,7 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
- 	if (!netdev_xmit_more() || netif_xmit_stopped(txq))
- 		vnic_wq_doorbell(wq);
- 
-+error:
- 	spin_unlock(&enic->wq_lock[txq_map]);
- 
- 	return NETDEV_TX_OK;
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index 03e3e0aa25a2..d8ab8af2c786 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -171,6 +171,9 @@ static bool rt286_readable_register(struct device *dev, unsigned int reg)
+ 	case RT286_PROC_COEF:
+ 	case RT286_SET_AMP_GAIN_ADC_IN1:
+ 	case RT286_SET_AMP_GAIN_ADC_IN2:
++	case RT286_SET_GPIO_MASK:
++	case RT286_SET_GPIO_DIRECTION:
++	case RT286_SET_GPIO_DATA:
+ 	case RT286_SET_POWER(RT286_DAC_OUT1):
+ 	case RT286_SET_POWER(RT286_DAC_OUT2):
+ 	case RT286_SET_POWER(RT286_ADC_IN1):
 -- 
 2.30.2
 
