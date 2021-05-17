@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE0438375E
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F3C5383621
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1344124AbhEQPmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:42:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52294 "EHLO mail.kernel.org"
+        id S244353AbhEQP2k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:28:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344012AbhEQPkL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:40:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35ABB61D0C;
-        Mon, 17 May 2021 14:41:47 +0000 (UTC)
+        id S243909AbhEQP0g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:26:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 73B1F6192C;
+        Mon, 17 May 2021 14:36:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262507;
-        bh=lBmajCjIQ/09p1KgMeI9jgaURLMVarkzR9C9MZGAk2o=;
+        s=korg; t=1621262190;
+        bh=efgKcpnarIBExQX5AS5UKcQeZ+O4dUiiz2LxL/khdlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EK53ExbEcqPlvw8PwBNUtTr2A9c7zhOlfxfrH7zFRmPaPZ4sPHUtF7eErZ+/9BsBy
-         rZT9IJ7Vnp/Bt122ffjDtyfC61vM7Lf8RIk4G/65mh6HOmeYd+dyd1wrXymlOx0rPs
-         l4WcVD9/rDC+fHMKMzkAFzEUziRPoUmVFkj33bOg=
+        b=l+TYvDn/LVNq58eXAv/fvAOKd3favA/wW9kMShE3kASd7KDs8SvUqZNQRiklAkJSI
+         wz14xcxoxoF0AqgfkNRy0IvxpBp00dfcooZd8Omu1rJdBGplBeUxAIdcbN90m02RU9
+         rIg+xNU4NUEfhwjBjwUQ1NdRt2xnqya3dmqSh7+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Xu <peterx@redhat.com>,
-        Hugh Dickins <hughd@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 203/289] mm/hugetlb: fix F_SEAL_FUTURE_WRITE
-Date:   Mon, 17 May 2021 16:02:08 +0200
-Message-Id: <20210517140311.947246302@linuxfoundation.org>
+        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 218/329] net: ipa: fix inter-EE IRQ register definitions
+Date:   Mon, 17 May 2021 16:02:09 +0200
+Message-Id: <20210517140309.502120779@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,150 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Alex Elder <elder@linaro.org>
 
-commit 22247efd822e6d263f3c8bd327f3f769aea9b1d9 upstream.
+[ Upstream commit 6a780f51f87b430cc69ebf4e859e7e9be720b283 ]
 
-Patch series "mm/hugetlb: Fix issues on file sealing and fork", v2.
+In gsi_irq_setup(), two registers are written with the intention of
+disabling inter-EE channel and event IRQs.
 
-Hugh reported issue with F_SEAL_FUTURE_WRITE not applied correctly to
-hugetlbfs, which I can easily verify using the memfd_test program, which
-seems that the program is hardly run with hugetlbfs pages (as by default
-shmem).
+But the wrong registers are used (and defined); the ones used are
+read-only registers that indicate whether the interrupt condition is
+present.
 
-Meanwhile I found another probably even more severe issue on that hugetlb
-fork won't wr-protect child cow pages, so child can potentially write to
-parent private pages.  Patch 2 addresses that.
+Define the mask registers instead of the status registers, and use
+them to disable the inter-EE interrupt types.
 
-After this series applied, "memfd_test hugetlbfs" should start to pass.
-
-This patch (of 2):
-
-F_SEAL_FUTURE_WRITE is missing for hugetlb starting from the first day.
-There is a test program for that and it fails constantly.
-
-$ ./memfd_test hugetlbfs
-memfd-hugetlb: CREATE
-memfd-hugetlb: BASIC
-memfd-hugetlb: SEAL-WRITE
-memfd-hugetlb: SEAL-FUTURE-WRITE
-mmap() didn't fail as expected
-Aborted (core dumped)
-
-I think it's probably because no one is really running the hugetlbfs test.
-
-Fix it by checking FUTURE_WRITE also in hugetlbfs_file_mmap() as what we
-do in shmem_mmap().  Generalize a helper for that.
-
-Link: https://lkml.kernel.org/r/20210503234356.9097-1-peterx@redhat.com
-Link: https://lkml.kernel.org/r/20210503234356.9097-2-peterx@redhat.com
-Fixes: ab3948f58ff84 ("mm/memfd: add an F_SEAL_FUTURE_WRITE seal to memfd")
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Joel Fernandes (Google) <joel@joelfernandes.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 46f748ccaf01 ("net: ipa: explicitly disallow inter-EE interrupts")
+Signed-off-by: Alex Elder <elder@linaro.org>
+Link: https://lore.kernel.org/r/20210505223636.232527-1-elder@linaro.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hugetlbfs/inode.c |    5 +++++
- include/linux/mm.h   |   32 ++++++++++++++++++++++++++++++++
- mm/shmem.c           |   22 ++++------------------
- 3 files changed, 41 insertions(+), 18 deletions(-)
+ drivers/net/ipa/gsi.c     |  4 ++--
+ drivers/net/ipa/gsi_reg.h | 18 +++++++++---------
+ 2 files changed, 11 insertions(+), 11 deletions(-)
 
---- a/fs/hugetlbfs/inode.c
-+++ b/fs/hugetlbfs/inode.c
-@@ -131,6 +131,7 @@ static void huge_pagevec_release(struct
- static int hugetlbfs_file_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct inode *inode = file_inode(file);
-+	struct hugetlbfs_inode_info *info = HUGETLBFS_I(inode);
- 	loff_t len, vma_len;
- 	int ret;
- 	struct hstate *h = hstate_file(file);
-@@ -146,6 +147,10 @@ static int hugetlbfs_file_mmap(struct fi
- 	vma->vm_flags |= VM_HUGETLB | VM_DONTEXPAND;
- 	vma->vm_ops = &hugetlb_vm_ops;
+diff --git a/drivers/net/ipa/gsi.c b/drivers/net/ipa/gsi.c
+index febfac75dd6a..537853b9301b 100644
+--- a/drivers/net/ipa/gsi.c
++++ b/drivers/net/ipa/gsi.c
+@@ -205,8 +205,8 @@ static void gsi_irq_setup(struct gsi *gsi)
+ 	iowrite32(0, gsi->virt + GSI_CNTXT_SRC_IEOB_IRQ_MSK_OFFSET);
  
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
-+
- 	/*
- 	 * page based offset in vm_pgoff could be sufficiently large to
- 	 * overflow a loff_t when converted to byte offset.  This can
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -3178,5 +3178,37 @@ unsigned long wp_shared_mapping_range(st
+ 	/* The inter-EE registers are in the non-adjusted address range */
+-	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_CH_IRQ_OFFSET);
+-	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_EV_CH_IRQ_OFFSET);
++	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_CH_IRQ_MSK_OFFSET);
++	iowrite32(0, gsi->virt_raw + GSI_INTER_EE_SRC_EV_CH_IRQ_MSK_OFFSET);
  
- extern int sysctl_nr_trim_pages;
+ 	iowrite32(0, gsi->virt + GSI_CNTXT_GSI_IRQ_EN_OFFSET);
+ }
+diff --git a/drivers/net/ipa/gsi_reg.h b/drivers/net/ipa/gsi_reg.h
+index 1622d8cf8dea..48ef04afab79 100644
+--- a/drivers/net/ipa/gsi_reg.h
++++ b/drivers/net/ipa/gsi_reg.h
+@@ -53,15 +53,15 @@
+ #define GSI_EE_REG_ADJUST			0x0000d000	/* IPA v4.5+ */
  
-+/**
-+ * seal_check_future_write - Check for F_SEAL_FUTURE_WRITE flag and handle it
-+ * @seals: the seals to check
-+ * @vma: the vma to operate on
-+ *
-+ * Check whether F_SEAL_FUTURE_WRITE is set; if so, do proper check/handling on
-+ * the vma flags.  Return 0 if check pass, or <0 for errors.
-+ */
-+static inline int seal_check_future_write(int seals, struct vm_area_struct *vma)
-+{
-+	if (seals & F_SEAL_FUTURE_WRITE) {
-+		/*
-+		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
-+		 * "future write" seal active.
-+		 */
-+		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
-+			return -EPERM;
-+
-+		/*
-+		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
-+		 * MAP_SHARED and read-only, take care to not allow mprotect to
-+		 * revert protections on such mappings. Do this only for shared
-+		 * mappings. For private mappings, don't need to mask
-+		 * VM_MAYWRITE as we still want them to be COW-writable.
-+		 */
-+		if (vma->vm_flags & VM_SHARED)
-+			vma->vm_flags &= ~(VM_MAYWRITE);
-+	}
-+
-+	return 0;
-+}
-+
- #endif /* __KERNEL__ */
- #endif /* _LINUX_MM_H */
---- a/mm/shmem.c
-+++ b/mm/shmem.c
-@@ -2256,25 +2256,11 @@ out_nomem:
- static int shmem_mmap(struct file *file, struct vm_area_struct *vma)
- {
- 	struct shmem_inode_info *info = SHMEM_I(file_inode(file));
-+	int ret;
- 
--	if (info->seals & F_SEAL_FUTURE_WRITE) {
--		/*
--		 * New PROT_WRITE and MAP_SHARED mmaps are not allowed when
--		 * "future write" seal active.
--		 */
--		if ((vma->vm_flags & VM_SHARED) && (vma->vm_flags & VM_WRITE))
--			return -EPERM;
+ /* The two inter-EE IRQ register offsets are relative to gsi->virt_raw */
+-#define GSI_INTER_EE_SRC_CH_IRQ_OFFSET \
+-			GSI_INTER_EE_N_SRC_CH_IRQ_OFFSET(GSI_EE_AP)
+-#define GSI_INTER_EE_N_SRC_CH_IRQ_OFFSET(ee) \
+-			(0x0000c018 + 0x1000 * (ee))
 -
--		/*
--		 * Since an F_SEAL_FUTURE_WRITE sealed memfd can be mapped as
--		 * MAP_SHARED and read-only, take care to not allow mprotect to
--		 * revert protections on such mappings. Do this only for shared
--		 * mappings. For private mappings, don't need to mask
--		 * VM_MAYWRITE as we still want them to be COW-writable.
--		 */
--		if (vma->vm_flags & VM_SHARED)
--			vma->vm_flags &= ~(VM_MAYWRITE);
--	}
-+	ret = seal_check_future_write(info->seals, vma);
-+	if (ret)
-+		return ret;
+-#define GSI_INTER_EE_SRC_EV_CH_IRQ_OFFSET \
+-			GSI_INTER_EE_N_SRC_EV_CH_IRQ_OFFSET(GSI_EE_AP)
+-#define GSI_INTER_EE_N_SRC_EV_CH_IRQ_OFFSET(ee) \
+-			(0x0000c01c + 0x1000 * (ee))
++#define GSI_INTER_EE_SRC_CH_IRQ_MSK_OFFSET \
++			GSI_INTER_EE_N_SRC_CH_IRQ_MSK_OFFSET(GSI_EE_AP)
++#define GSI_INTER_EE_N_SRC_CH_IRQ_MSK_OFFSET(ee) \
++			(0x0000c020 + 0x1000 * (ee))
++
++#define GSI_INTER_EE_SRC_EV_CH_IRQ_MSK_OFFSET \
++			GSI_INTER_EE_N_SRC_EV_CH_IRQ_MSK_OFFSET(GSI_EE_AP)
++#define GSI_INTER_EE_N_SRC_EV_CH_IRQ_MSK_OFFSET(ee) \
++			(0x0000c024 + 0x1000 * (ee))
  
- 	/* arm64 - allow memory tagging on RAM-based files */
- 	vma->vm_flags |= VM_MTE_ALLOWED;
+ /* All other register offsets are relative to gsi->virt */
+ #define GSI_CH_C_CNTXT_0_OFFSET(ch) \
+-- 
+2.30.2
+
 
 
