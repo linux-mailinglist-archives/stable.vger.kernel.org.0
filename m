@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 28529383672
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0D2C3837F2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244865AbhEQPcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55330 "EHLO mail.kernel.org"
+        id S235762AbhEQPrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245709AbhEQPak (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:30:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE6A61CC2;
-        Mon, 17 May 2021 14:37:57 +0000 (UTC)
+        id S1344818AbhEQPpm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:45:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ABA4B613B9;
+        Mon, 17 May 2021 14:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262278;
-        bh=ln//Pg6dZHhKTER4ykJcOQPJKAQkkz386kNjhSNwFlU=;
+        s=korg; t=1621262638;
+        bh=M8RgQpG2b4ai5zpHDappdZ5NZAFlHdCK45JXNfJIUtw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BnWGN0S+co3vQlK7jcbfBViB97H4ZSsIraL8FnOR2+6u79fMs9AShRmkjn15Y0x0N
-         9RMIZmki/eP3IwGyCehPN6J/QZj3Vo7wYKrgdLsceq0eECEOj4fRoK02wPetnvx5bm
-         aWnRaF+jBHyF4Awdi9CWDO93kPgrU+7NA4PfkYj0=
+        b=tq3OfvC/bkt6KoChSvez5TUSprKUZzBCgcjP8c9vhanjAdjSN+2FaiHTVrSFnIhj9
+         Ll37ka9RSaH7yWlxRIsn8B9ad9OO6bKe6vpscN+FxDgnUlpMurekdfbcPyS0SX96Wo
+         kOIFQwqU9QIV5ewVNEnnhAZ2O0N68wQra723vV9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Greg Kurz <groug@kaod.org>,
-        Jan Kara <jack@suse.cz>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Vivek Goyal <vgoyal@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 255/329] dax: Add an enum for specifying dax wakup mode
-Date:   Mon, 17 May 2021 16:02:46 +0200
-Message-Id: <20210517140310.729934243@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 242/289] usb: xhci: Increase timeout for HC halt
+Date:   Mon, 17 May 2021 16:02:47 +0200
+Message-Id: <20210517140313.306092975@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,106 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vivek Goyal <vgoyal@redhat.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 698ab77aebffe08b312fbcdddeb0e8bd08b78717 ]
+commit ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 upstream.
 
-Dan mentioned that he is not very fond of passing around a boolean true/false
-to specify if only next waiter should be woken up or all waiters should be
-woken up. He instead prefers that we introduce an enum and make it very
-explicity at the callsite itself. Easier to read code.
+On some devices (specifically the SC8180x based Surface Pro X with
+QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
+the xhci-hcd driver at some point later does not exhibit this behavior.
+To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
+issue.
 
-This patch should not introduce any change of behavior.
-
-Reviewed-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Suggested-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Vivek Goyal <vgoyal@redhat.com>
-Link: https://lore.kernel.org/r/20210428190314.1865312-2-vgoyal@redhat.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dax.c | 23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ drivers/usb/host/xhci-ext-caps.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dax.c b/fs/dax.c
-index b3d27fdc6775..5ecee51c44ee 100644
---- a/fs/dax.c
-+++ b/fs/dax.c
-@@ -144,6 +144,16 @@ struct wait_exceptional_entry_queue {
- 	struct exceptional_entry_key key;
- };
- 
-+/**
-+ * enum dax_wake_mode: waitqueue wakeup behaviour
-+ * @WAKE_ALL: wake all waiters in the waitqueue
-+ * @WAKE_NEXT: wake only the first waiter in the waitqueue
-+ */
-+enum dax_wake_mode {
-+	WAKE_ALL,
-+	WAKE_NEXT,
-+};
-+
- static wait_queue_head_t *dax_entry_waitqueue(struct xa_state *xas,
- 		void *entry, struct exceptional_entry_key *key)
- {
-@@ -182,7 +192,8 @@ static int wake_exceptional_entry_func(wait_queue_entry_t *wait,
-  * The important information it's conveying is whether the entry at
-  * this index used to be a PMD entry.
+--- a/drivers/usb/host/xhci-ext-caps.h
++++ b/drivers/usb/host/xhci-ext-caps.h
+@@ -7,8 +7,9 @@
+  * Author: Sarah Sharp
+  * Some code borrowed from the Linux EHCI driver.
   */
--static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
-+static void dax_wake_entry(struct xa_state *xas, void *entry,
-+			   enum dax_wake_mode mode)
- {
- 	struct exceptional_entry_key key;
- 	wait_queue_head_t *wq;
-@@ -196,7 +207,7 @@ static void dax_wake_entry(struct xa_state *xas, void *entry, bool wake_all)
- 	 * must be in the waitqueue and the following check will see them.
- 	 */
- 	if (waitqueue_active(wq))
--		__wake_up(wq, TASK_NORMAL, wake_all ? 0 : 1, &key);
-+		__wake_up(wq, TASK_NORMAL, mode == WAKE_ALL ? 0 : 1, &key);
- }
+-/* Up to 16 ms to halt an HC */
+-#define XHCI_MAX_HALT_USEC	(16*1000)
++
++/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
++#define XHCI_MAX_HALT_USEC	(32 * 1000)
+ /* HC not running - set to 1 when run/stop bit is cleared. */
+ #define XHCI_STS_HALT		(1<<0)
  
- /*
-@@ -268,7 +279,7 @@ static void put_unlocked_entry(struct xa_state *xas, void *entry)
- {
- 	/* If we were the only waiter woken, wake the next one */
- 	if (entry && !dax_is_conflict(entry))
--		dax_wake_entry(xas, entry, false);
-+		dax_wake_entry(xas, entry, WAKE_NEXT);
- }
- 
- /*
-@@ -286,7 +297,7 @@ static void dax_unlock_entry(struct xa_state *xas, void *entry)
- 	old = xas_store(xas, entry);
- 	xas_unlock_irq(xas);
- 	BUG_ON(!dax_is_locked(old));
--	dax_wake_entry(xas, entry, false);
-+	dax_wake_entry(xas, entry, WAKE_NEXT);
- }
- 
- /*
-@@ -524,7 +535,7 @@ static void *grab_mapping_entry(struct xa_state *xas,
- 
- 		dax_disassociate_entry(entry, mapping, false);
- 		xas_store(xas, NULL);	/* undo the PMD join */
--		dax_wake_entry(xas, entry, true);
-+		dax_wake_entry(xas, entry, WAKE_ALL);
- 		mapping->nrexceptional--;
- 		entry = NULL;
- 		xas_set(xas, index);
-@@ -937,7 +948,7 @@ static int dax_writeback_one(struct xa_state *xas, struct dax_device *dax_dev,
- 	xas_lock_irq(xas);
- 	xas_store(xas, entry);
- 	xas_clear_mark(xas, PAGECACHE_TAG_DIRTY);
--	dax_wake_entry(xas, entry, false);
-+	dax_wake_entry(xas, entry, WAKE_NEXT);
- 
- 	trace_dax_writeback_one(mapping->host, index, count);
- 	return ret;
--- 
-2.30.2
-
 
 
