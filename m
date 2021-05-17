@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 43989383549
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A58723833CB
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241846AbhEQPRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39776 "EHLO mail.kernel.org"
+        id S239591AbhEQPCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243914AbhEQPPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 885C161C5C;
-        Mon, 17 May 2021 14:32:22 +0000 (UTC)
+        id S235286AbhEQPAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:00:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A0D3619E6;
+        Mon, 17 May 2021 14:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261943;
-        bh=LSyJ0nUKHPe0cCFG6u5p6HPaHIU32sXINdzx/z6TiW0=;
+        s=korg; t=1621261607;
+        bh=Y70RnH11d1XJD+3iLneAnjF4aLY0S1a2wNl5ugiGzqw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ed7NQ3MRJT6ZGNlflCjzvBZdhY0dGSTwlAsP9wUW6eyY6YOj5wquFfuie5Zdo4sUP
-         kD/wj/Sf8n7437Z7RQOEYzYb7xAZEc9bTIbBQwtt/eZ9mijfAKxCf+A/tqOgDufU58
-         PQhc7qrcSbFPBqwD4OrdOmeWqMLuggxAgG7BWZC8=
+        b=QKX0cvzaJMndVjZZVTBN/uzzB2dCogERwtZ5FJBzjFABaWfvSu6dV/Gcumc6vsDRj
+         RiMQD33DpuDDJOvrgKb2MoFzAQ9DhPfVaYroc7VEqzKb15wHpstox/CvOhLwgXopGJ
+         P7w/tN5Og7YPb2j8+cuN2+t1PRRC9YvFfiBh4qaI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Quinlan <jim2101024@gmail.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 190/329] ata: ahci_brcm: Fix use of BCM7216 reset controller
-Date:   Mon, 17 May 2021 16:01:41 +0200
-Message-Id: <20210517140308.555375498@linuxfoundation.org>
+Subject: [PATCH 5.4 050/141] ia64: module: fix symbolizer crash on fdescr
+Date:   Mon, 17 May 2021 16:01:42 +0200
+Message-Id: <20210517140244.456062575@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,127 +41,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Quinlan <jim2101024@gmail.com>
+From: Sergei Trofimovich <slyfox@gentoo.org>
 
-[ Upstream commit e8d6f9e56187c101b325e8d18f1d4032420d08ff ]
+[ Upstream commit 99e729bd40fb3272fa4b0140839d5e957b58588a ]
 
-This driver may use one of two resets controllers.  Keep them in separate
-variables to keep things simple.  The reset controller "rescal" is shared
-between the AHCI driver and the PCIe driver for the BrcmSTB 7216 chip.  Use
-devm_reset_control_get_optional_shared() to handle this sharing.
+Noticed failure as a crash on ia64 when tried to symbolize all backtraces
+collected by page_owner=on:
 
-[bhelgaas: add Jens' ack from v5 posting]
-Fixes: 272ecd60a636 ("ata: ahci_brcm: BCM7216 reset is self de-asserting")
-Fixes: c345ec6a50e9 ("ata: ahci_brcm: Support BCM7216 reset controller name")
-Link: https://lore.kernel.org/r/20210430152156.21162-3-jim2101024@gmail.com
-Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Jens Axboe <axboe@kernel.dk>
-Acked-by: Florian Fainelli <f.fainelli@gmail.com>
+    $ cat /sys/kernel/debug/page_owner
+    <oops>
+
+    CPU: 1 PID: 2074 Comm: cat Not tainted 5.12.0-rc4 #226
+    Hardware name: hp server rx3600, BIOS 04.03 04/08/2008
+    ip is at dereference_module_function_descriptor+0x41/0x100
+
+Crash happens at dereference_module_function_descriptor() due to
+use-after-free when dereferencing ".opd" section header.
+
+All section headers are already freed after module is laoded successfully.
+
+To keep symbolizer working the change stores ".opd" address and size after
+module is relocated to a new place and before section headers are
+discarded.
+
+To make similar errors less obscure module_finalize() now zeroes out all
+variables relevant to module loading only.
+
+Link: https://lkml.kernel.org/r/20210403074803.3309096-1-slyfox@gentoo.org
+Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci_brcm.c | 46 ++++++++++++++++++++---------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ arch/ia64/include/asm/module.h |  6 +++++-
+ arch/ia64/kernel/module.c      | 29 +++++++++++++++++++++++++----
+ 2 files changed, 30 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
-index 5b32df5d33ad..6e9c5ade4c2e 100644
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -86,7 +86,8 @@ struct brcm_ahci_priv {
- 	u32 port_mask;
- 	u32 quirks;
- 	enum brcm_ahci_version version;
--	struct reset_control *rcdev;
-+	struct reset_control *rcdev_rescal;
-+	struct reset_control *rcdev_ahci;
+diff --git a/arch/ia64/include/asm/module.h b/arch/ia64/include/asm/module.h
+index f319144260ce..9fbf32e6e881 100644
+--- a/arch/ia64/include/asm/module.h
++++ b/arch/ia64/include/asm/module.h
+@@ -14,16 +14,20 @@
+ struct elf64_shdr;			/* forward declration */
+ 
+ struct mod_arch_specific {
++	/* Used only at module load time. */
+ 	struct elf64_shdr *core_plt;	/* core PLT section */
+ 	struct elf64_shdr *init_plt;	/* init PLT section */
+ 	struct elf64_shdr *got;		/* global offset table */
+ 	struct elf64_shdr *opd;		/* official procedure descriptors */
+ 	struct elf64_shdr *unwind;	/* unwind-table section */
+ 	unsigned long gp;		/* global-pointer for module */
++	unsigned int next_got_entry;	/* index of next available got entry */
+ 
++	/* Used at module run and cleanup time. */
+ 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
+ 	void *init_unw_table;		/* init unwind-table cookie returned by unwinder */
+-	unsigned int next_got_entry;	/* index of next available got entry */
++	void *opd_addr;			/* symbolize uses .opd to get to actual function */
++	unsigned long opd_size;
  };
  
- static inline u32 brcm_sata_readreg(void __iomem *addr)
-@@ -352,8 +353,8 @@ static int brcm_ahci_suspend(struct device *dev)
- 	else
- 		ret = 0;
- 
--	if (priv->version != BRCM_SATA_BCM7216)
--		reset_control_assert(priv->rcdev);
-+	reset_control_assert(priv->rcdev_ahci);
-+	reset_control_rearm(priv->rcdev_rescal);
- 
- 	return ret;
- }
-@@ -365,10 +366,10 @@ static int __maybe_unused brcm_ahci_resume(struct device *dev)
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
- 	int ret = 0;
- 
--	if (priv->version == BRCM_SATA_BCM7216)
--		ret = reset_control_reset(priv->rcdev);
--	else
--		ret = reset_control_deassert(priv->rcdev);
-+	ret = reset_control_deassert(priv->rcdev_ahci);
-+	if (ret)
-+		return ret;
-+	ret = reset_control_reset(priv->rcdev_rescal);
- 	if (ret)
- 		return ret;
- 
-@@ -434,7 +435,6 @@ static int brcm_ahci_probe(struct platform_device *pdev)
+ #define MODULE_PROC_FAMILY	"ia64"
+diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
+index 1a42ba885188..ee693c8cec49 100644
+--- a/arch/ia64/kernel/module.c
++++ b/arch/ia64/kernel/module.c
+@@ -905,9 +905,31 @@ register_unwind_table (struct module *mod)
+ int
+ module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mod)
  {
- 	const struct of_device_id *of_id;
- 	struct device *dev = &pdev->dev;
--	const char *reset_name = NULL;
- 	struct brcm_ahci_priv *priv;
- 	struct ahci_host_priv *hpriv;
- 	struct resource *res;
-@@ -456,15 +456,15 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->top_ctrl))
- 		return PTR_ERR(priv->top_ctrl);
- 
--	/* Reset is optional depending on platform and named differently */
--	if (priv->version == BRCM_SATA_BCM7216)
--		reset_name = "rescal";
--	else
--		reset_name = "ahci";
--
--	priv->rcdev = devm_reset_control_get_optional(&pdev->dev, reset_name);
--	if (IS_ERR(priv->rcdev))
--		return PTR_ERR(priv->rcdev);
-+	if (priv->version == BRCM_SATA_BCM7216) {
-+		priv->rcdev_rescal = devm_reset_control_get_optional_shared(
-+			&pdev->dev, "rescal");
-+		if (IS_ERR(priv->rcdev_rescal))
-+			return PTR_ERR(priv->rcdev_rescal);
-+	}
-+	priv->rcdev_ahci = devm_reset_control_get_optional(&pdev->dev, "ahci");
-+	if (IS_ERR(priv->rcdev_ahci))
-+		return PTR_ERR(priv->rcdev_ahci);
- 
- 	hpriv = ahci_platform_get_resources(pdev, 0);
- 	if (IS_ERR(hpriv))
-@@ -485,10 +485,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 		break;
- 	}
- 
--	if (priv->version == BRCM_SATA_BCM7216)
--		ret = reset_control_reset(priv->rcdev);
--	else
--		ret = reset_control_deassert(priv->rcdev);
-+	ret = reset_control_reset(priv->rcdev_rescal);
-+	if (ret)
-+		return ret;
-+	ret = reset_control_deassert(priv->rcdev_ahci);
- 	if (ret)
- 		return ret;
- 
-@@ -539,8 +539,8 @@ out_disable_regulators:
- out_disable_clks:
- 	ahci_platform_disable_clks(hpriv);
- out_reset:
--	if (priv->version != BRCM_SATA_BCM7216)
--		reset_control_assert(priv->rcdev);
-+	reset_control_assert(priv->rcdev_ahci);
-+	reset_control_rearm(priv->rcdev_rescal);
- 	return ret;
++	struct mod_arch_specific *mas = &mod->arch;
++
+ 	DEBUGP("%s: init: entry=%p\n", __func__, mod->init);
+-	if (mod->arch.unwind)
++	if (mas->unwind)
+ 		register_unwind_table(mod);
++
++	/*
++	 * ".opd" was already relocated to the final destination. Store
++	 * it's address for use in symbolizer.
++	 */
++	mas->opd_addr = (void *)mas->opd->sh_addr;
++	mas->opd_size = mas->opd->sh_size;
++
++	/*
++	 * Module relocation was already done at this point. Section
++	 * headers are about to be deleted. Wipe out load-time context.
++	 */
++	mas->core_plt = NULL;
++	mas->init_plt = NULL;
++	mas->got = NULL;
++	mas->opd = NULL;
++	mas->unwind = NULL;
++	mas->gp = 0;
++	mas->next_got_entry = 0;
++
+ 	return 0;
  }
  
+@@ -926,10 +948,9 @@ module_arch_cleanup (struct module *mod)
+ 
+ void *dereference_module_function_descriptor(struct module *mod, void *ptr)
+ {
+-	Elf64_Shdr *opd = mod->arch.opd;
++	struct mod_arch_specific *mas = &mod->arch;
+ 
+-	if (ptr < (void *)opd->sh_addr ||
+-			ptr >= (void *)(opd->sh_addr + opd->sh_size))
++	if (ptr < mas->opd_addr || ptr >= mas->opd_addr + mas->opd_size)
+ 		return ptr;
+ 
+ 	return dereference_function_descriptor(ptr);
 -- 
 2.30.2
 
