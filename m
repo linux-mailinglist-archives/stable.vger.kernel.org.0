@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB27383397
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3368383356
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239694AbhEQPAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58816 "EHLO mail.kernel.org"
+        id S240598AbhEQO5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:57:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49488 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240334AbhEQO6C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:58:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F3E9619B1;
-        Mon, 17 May 2021 14:25:58 +0000 (UTC)
+        id S242261AbhEQOyw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:54:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FF97619B9;
+        Mon, 17 May 2021 14:24:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261558;
-        bh=M99jlExbeeNqNrnCe9YF9Fksjjl/8jFrCYgKEFiBW5A=;
+        s=korg; t=1621261488;
+        bh=Bd27FTLLPS9PaoiW4XggeiQQjUdXygHDGB8ss44Di7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=A6AOVb6hbNkvbGKaCtAlTwEjfGgSpKJ/D4A9zIFgdkXOpD0KHfEVLJsvZCyF6LAWy
-         71Ocmh1++bPwPmcG0ii51oifevBe9JElEBxQmBbTJZTZIzqu2Cs/xymOBNJNTrLAWY
-         YgoePMAdCCBsUpLHkQNYvgR98N9lGd4xCjUS0AZk=
+        b=N4Q3XbJ3SJ1R2tCaGd40SazK05mhewSuzhK7fRzFjg/yysqx1zvtwozgRGfFyfpIW
+         qIHL5diioyeCUADOjaWKS88ebIrDz5uBmfFX/VD3fb8umiZnKH383JtFpJvoqs+iqZ
+         tUfIqz0Ed0XpXOIy6RFSNZMzudsYvHU+BjLQwDsY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        =?UTF-8?q?Krzysztof=20Wilczy=C5=84ski?= <kw@linux.com>,
-        Ray Jui <ray.jui@broadcom.com>, Marc Zyngier <maz@kernel.org>,
+        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
+        Wang Nan <wangnan0@huawei.com>, Will Deacon <will@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 119/329] PCI: iproc: Fix return value of iproc_msi_irq_domain_alloc()
-Date:   Mon, 17 May 2021 16:00:30 +0200
-Message-Id: <20210517140306.134059031@linuxfoundation.org>
+Subject: [PATCH 5.11 121/329] ARM: 9064/1: hw_breakpoint: Do not directly check the events overflow_handler hook
+Date:   Mon, 17 May 2021 16:00:32 +0200
+Message-Id: <20210517140306.206625365@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -43,38 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pali Rohár <pali@kernel.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 1e83130f01b04c16579ed5a5e03d729bcffc4c5d ]
+[ Upstream commit a506bd5756290821a4314f502b4bafc2afcf5260 ]
 
-IRQ domain alloc function should return zero on success. Non-zero value
-indicates failure.
+The commit 1879445dfa7b ("perf/core: Set event's default
+::overflow_handler()") set a default event->overflow_handler in
+perf_event_alloc(), and replace the check event->overflow_handler with
+is_default_overflow_handler(), but one is missing.
 
-Link: https://lore.kernel.org/r/20210303142202.25780-1-pali@kernel.org
-Fixes: fc54bae28818 ("PCI: iproc: Allow allocation of multiple MSIs")
-Signed-off-by: Pali Rohár <pali@kernel.org>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Reviewed-by: Krzysztof Wilczyński <kw@linux.com>
-Acked-by: Ray Jui <ray.jui@broadcom.com>
-Acked-by: Marc Zyngier <maz@kernel.org>
+Currently, the bp->overflow_handler can not be NULL. As a result,
+enable_single_step() is always not invoked.
+
+Comments from Zhen Lei:
+
+ https://patchwork.kernel.org/project/linux-arm-kernel/patch/20210207105934.2001-1-thunder.leizhen@huawei.com/
+
+Fixes: 1879445dfa7b ("perf/core: Set event's default ::overflow_handler()")
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Cc: Wang Nan <wangnan0@huawei.com>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pcie-iproc-msi.c | 2 +-
+ arch/arm/kernel/hw_breakpoint.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pcie-iproc-msi.c b/drivers/pci/controller/pcie-iproc-msi.c
-index 908475d27e0e..eede4e8f3f75 100644
---- a/drivers/pci/controller/pcie-iproc-msi.c
-+++ b/drivers/pci/controller/pcie-iproc-msi.c
-@@ -271,7 +271,7 @@ static int iproc_msi_irq_domain_alloc(struct irq_domain *domain,
- 				    NULL, NULL);
- 	}
- 
--	return hwirq;
-+	return 0;
- }
- 
- static void iproc_msi_irq_domain_free(struct irq_domain *domain,
+diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
+index 08660ae9dcbc..b1423fb130ea 100644
+--- a/arch/arm/kernel/hw_breakpoint.c
++++ b/arch/arm/kernel/hw_breakpoint.c
+@@ -886,7 +886,7 @@ static void breakpoint_handler(unsigned long unknown, struct pt_regs *regs)
+ 			info->trigger = addr;
+ 			pr_debug("breakpoint fired: address = 0x%x\n", addr);
+ 			perf_bp_event(bp, regs);
+-			if (!bp->overflow_handler)
++			if (is_default_overflow_handler(bp))
+ 				enable_single_step(bp, addr);
+ 			goto unlock;
+ 		}
 -- 
 2.30.2
 
