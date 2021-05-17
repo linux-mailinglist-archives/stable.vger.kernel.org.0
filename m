@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4075E383064
+	by mail.lfdr.de (Postfix) with ESMTP id 89A53383065
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239415AbhEQO0q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:26:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54856 "EHLO mail.kernel.org"
+        id S239440AbhEQO0t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:26:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239709AbhEQOYn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:24:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67DAE61481;
-        Mon, 17 May 2021 14:13:04 +0000 (UTC)
+        id S239752AbhEQOYq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:24:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C280361492;
+        Mon, 17 May 2021 14:13:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260784;
-        bh=7xF696LXr3hj3CzUc54YkDy9CBiMSi/sfyJM0364i7U=;
+        s=korg; t=1621260789;
+        bh=tOjdbv3reowCEeF77LzsZV2jZhw3zHhG610IDc5p/VQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NE55eNifmouQ3BxnU23lvLGsxBaywYQMpFZZLlgdikfSrPnxBBd5I8APwjUAMJkmv
-         e2Bzd6HiPCDkxprrlbL3NKzlbeaqo9aDfa5nZckvPh0K9I9DyoD37bHVP5kLrKIX+/
-         Kdi9Ud3CwPQjZ0aqQkkewPvAmhrrgSi0ARx1vG6M=
+        b=0bxZctW9sdMZ/oKEufE7f+SG27ScivoCTjPVTekb1Epjt4bGiawsxdUfErQ8+Vdid
+         qO9ya7n+a78NzNhaBI5vUXUBF2kxZVO65wWFc+K8BBAIRjt2xhBHkaIpfy2hQYR+8S
+         1162FCIRM4A57cp0Y5PZw2Un5h1ysOGjx2b4njeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lino Sanfilippo <LinoSanfilippo@gmx.de>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Jarkko Sakkinen <jarkko@kernel.org>
-Subject: [PATCH 5.11 004/329] tpm, tpm_tis: Reserve locality in tpm_tis_resume()
-Date:   Mon, 17 May 2021 15:58:35 +0200
-Message-Id: <20210517140302.187859947@linuxfoundation.org>
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.11 005/329] KVM: SVM: Make sure GHCB is mapped before updating
+Date:   Mon, 17 May 2021 15:58:36 +0200
+Message-Id: <20210517140302.218719849@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,47 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 8a2d296aaebadd68d9c1f6908667df1d1c84c051 upstream.
+commit a3ba26ecfb569f4aa3f867e80c02aa65f20aadad upstream.
 
-Reserve locality in tpm_tis_resume(), as it could be unsert after waking
-up from a sleep state.
+Access to the GHCB is mainly in the VMGEXIT path and it is known that the
+GHCB will be mapped. But there are two paths where it is possible the GHCB
+might not be mapped.
 
+The sev_vcpu_deliver_sipi_vector() routine will update the GHCB to inform
+the caller of the AP Reset Hold NAE event that a SIPI has been delivered.
+However, if a SIPI is performed without a corresponding AP Reset Hold,
+then the GHCB might not be mapped (depending on the previous VMEXIT),
+which will result in a NULL pointer dereference.
+
+The svm_complete_emulated_msr() routine will update the GHCB to inform
+the caller of a RDMSR/WRMSR operation about any errors. While it is likely
+that the GHCB will be mapped in this situation, add a safe guard
+in this path to be certain a NULL pointer dereference is not encountered.
+
+Fixes: f1c6366e3043 ("KVM: SVM: Add required changes to support intercepts under SEV-ES")
+Fixes: 647daca25d24 ("KVM: SVM: Add support for booting APs in an SEV-ES guest")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
 Cc: stable@vger.kernel.org
-Cc: Lino Sanfilippo <LinoSanfilippo@gmx.de>
-Reported-by: Hans de Goede <hdegoede@redhat.com>
-Fixes: a3fbfae82b4c ("tpm: take TPM chip power gating out of tpm_transmit()")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+Message-Id: <a5d3ebb600a91170fc88599d5a575452b3e31036.1617979121.git.thomas.lendacky@amd.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/char/tpm/tpm_tis_core.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm/sev.c |    3 +++
+ arch/x86/kvm/svm/svm.c |    2 +-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/char/tpm/tpm_tis_core.c
-+++ b/drivers/char/tpm/tpm_tis_core.c
-@@ -1125,12 +1125,20 @@ int tpm_tis_resume(struct device *dev)
- 	if (ret)
- 		return ret;
- 
--	/* TPM 1.2 requires self-test on resume. This function actually returns
-+	/*
-+	 * TPM 1.2 requires self-test on resume. This function actually returns
- 	 * an error code but for unknown reason it isn't handled.
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -2062,5 +2062,8 @@ void sev_vcpu_deliver_sipi_vector(struct
+ 	 * the guest will set the CS and RIP. Set SW_EXIT_INFO_2 to a
+ 	 * non-zero value.
  	 */
--	if (!(chip->flags & TPM_CHIP_FLAG_TPM2))
-+	if (!(chip->flags & TPM_CHIP_FLAG_TPM2)) {
-+		ret = request_locality(chip, 0);
-+		if (ret < 0)
-+			return ret;
++	if (!svm->ghcb)
++		return;
 +
- 		tpm1_do_selftest(chip);
- 
-+		release_locality(chip, 0);
-+	}
-+
- 	return 0;
+ 	ghcb_set_sw_exit_info_2(svm->ghcb, 1);
  }
- EXPORT_SYMBOL_GPL(tpm_tis_resume);
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -2724,7 +2724,7 @@ static int svm_get_msr(struct kvm_vcpu *
+ static int svm_complete_emulated_msr(struct kvm_vcpu *vcpu, int err)
+ {
+ 	struct vcpu_svm *svm = to_svm(vcpu);
+-	if (!sev_es_guest(svm->vcpu.kvm) || !err)
++	if (!err || !sev_es_guest(vcpu->kvm) || WARN_ON_ONCE(!svm->ghcb))
+ 		return kvm_complete_insn_gp(&svm->vcpu, err);
+ 
+ 	ghcb_set_sw_exit_info_1(svm->ghcb, 1);
 
 
