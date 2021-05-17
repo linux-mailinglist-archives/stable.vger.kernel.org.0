@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1111B3830C9
+	by mail.lfdr.de (Postfix) with ESMTP id 7DDA33830CA
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239079AbhEQObB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53812 "EHLO mail.kernel.org"
+        id S239674AbhEQObE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:31:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40160 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239209AbhEQO2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:28:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F10B613DD;
-        Mon, 17 May 2021 14:14:22 +0000 (UTC)
+        id S239109AbhEQO2j (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:28:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EA4D961629;
+        Mon, 17 May 2021 14:14:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260863;
-        bh=YtWrpDksy16CNvy7ZUAIzG9IVLdgDnmTWjRg9TIdu1A=;
+        s=korg; t=1621260867;
+        bh=jirZkGEe5wWgnF+tmpHDzHT+ftUUibXCIsygCdyUXZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZdM+qFFdPDtMMCWY5XeTfBAGoh0ymgK+ClIOKVDhQmMeBF/sH/QC299NMIirREz0C
-         Ono6QMIvZPuDMKtEyYsfRZLFwXx8BYUzq8jYwa7lasIGl4F4EMUO72vpcIkOE7hPJ2
-         osfThFEXlUdEFCECHcOS2bxMeGngWjzZmg0VxC6g=
+        b=JbukH8U2Vy5Gm1BgZuwa6v/uIxUYlW1rCb51iX3S3lNtJsNSO3vDP1wzPepYuFEGH
+         BmbziLpOgYDeKfxvFgYAO4YPreJwelni+DCgABfqDoDMqaQuptZQ/WJ07Lo7BiE0so
+         gSqrBKGMfuLah8r4z1EZsZJlWFiP/pa+qtFS1aH0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
-        syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com,
-        syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Axel Rasmussen <axelrasmussen@google.com>,
+        Hugh Dickins <hughd@google.com>, Peter Xu <peterx@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 255/363] squashfs: fix divide error in calculate_skip()
-Date:   Mon, 17 May 2021 16:02:01 +0200
-Message-Id: <20210517140311.219791555@linuxfoundation.org>
+Subject: [PATCH 5.12 256/363] userfaultfd: release page in error path to avoid BUG_ON
+Date:   Mon, 17 May 2021 16:02:02 +0200
+Message-Id: <20210517140311.257482045@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,53 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Axel Rasmussen <axelrasmussen@google.com>
 
-commit d6e621de1fceb3b098ebf435ef7ea91ec4838a1a upstream.
+commit 7ed9d238c7dbb1fdb63ad96a6184985151b0171c upstream.
 
-Sysbot has reported a "divide error" which has been identified as being
-caused by a corrupted file_size value within the file inode.  This value
-has been corrupted to a much larger value than expected.
+Consider the following sequence of events:
 
-Calculate_skip() is passed i_size_read(inode) >> msblk->block_log.  Due to
-the file_size value corruption this overflows the int argument/variable in
-that function, leading to the divide error.
+1. Userspace issues a UFFD ioctl, which ends up calling into
+   shmem_mfill_atomic_pte(). We successfully account the blocks, we
+   shmem_alloc_page(), but then the copy_from_user() fails. We return
+   -ENOENT. We don't release the page we allocated.
+2. Our caller detects this error code, tries the copy_from_user() after
+   dropping the mmap_lock, and retries, calling back into
+   shmem_mfill_atomic_pte().
+3. Meanwhile, let's say another process filled up the tmpfs being used.
+4. So shmem_mfill_atomic_pte() fails to account blocks this time, and
+   immediately returns - without releasing the page.
 
-This patch changes the function to use u64.  This will accommodate any
-unexpectedly large values due to corruption.
+This triggers a BUG_ON in our caller, which asserts that the page
+should always be consumed, unless -ENOENT is returned.
 
-The value returned from calculate_skip() is clamped to be never more than
-SQUASHFS_CACHED_BLKS - 1, or 7.  So file_size corruption does not lead to
-an unexpectedly large return result here.
+To fix this, detect if we have such a "dangling" page when accounting
+fails, and if so, release it before returning.
 
-Link: https://lkml.kernel.org/r/20210507152618.9447-1-phillip@squashfs.org.uk
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Reported-by: <syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com>
-Reported-by: <syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com>
+Link: https://lkml.kernel.org/r/20210428230858.348400-1-axelrasmussen@google.com
+Fixes: cb658a453b93 ("userfaultfd: shmem: avoid leaking blocks and used blocks in UFFDIO_COPY")
+Signed-off-by: Axel Rasmussen <axelrasmussen@google.com>
+Reported-by: Hugh Dickins <hughd@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Peter Xu <peterx@redhat.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/file.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ mm/shmem.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/fs/squashfs/file.c
-+++ b/fs/squashfs/file.c
-@@ -211,11 +211,11 @@ failure:
-  * If the skip factor is limited in this way then the file will use multiple
-  * slots.
-  */
--static inline int calculate_skip(int blocks)
-+static inline int calculate_skip(u64 blocks)
- {
--	int skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
-+	u64 skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
- 		 * SQUASHFS_META_INDEXES);
--	return min(SQUASHFS_CACHED_BLKS - 1, skip + 1);
-+	return min((u64) SQUASHFS_CACHED_BLKS - 1, skip + 1);
- }
+--- a/mm/shmem.c
++++ b/mm/shmem.c
+@@ -2375,8 +2375,18 @@ static int shmem_mfill_atomic_pte(struct
+ 	pgoff_t offset, max_off;
  
+ 	ret = -ENOMEM;
+-	if (!shmem_inode_acct_block(inode, 1))
++	if (!shmem_inode_acct_block(inode, 1)) {
++		/*
++		 * We may have got a page, returned -ENOENT triggering a retry,
++		 * and now we find ourselves with -ENOMEM. Release the page, to
++		 * avoid a BUG_ON in our caller.
++		 */
++		if (unlikely(*pagep)) {
++			put_page(*pagep);
++			*pagep = NULL;
++		}
+ 		goto out;
++	}
  
+ 	if (!*pagep) {
+ 		page = shmem_alloc_page(gfp, info, pgoff);
 
 
