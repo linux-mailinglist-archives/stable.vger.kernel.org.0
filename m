@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1E1D3830C1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DB87382F39
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:13:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237793AbhEQOab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:30:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55002 "EHLO mail.kernel.org"
+        id S238376AbhEQOOz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:14:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239720AbhEQO2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:28:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B13561601;
-        Mon, 17 May 2021 14:14:33 +0000 (UTC)
+        id S238410AbhEQOMz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:12:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 39200613DD;
+        Mon, 17 May 2021 14:08:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260873;
-        bh=kEnxKvRvXtsSjAMGQKobqwfi53MrIc8FrAhY6aWVDy8=;
+        s=korg; t=1621260494;
+        bh=z1JhGDeB17MKFB/MhzFJ7kYoweVrYHPn4TnLDlE7ItE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cLk8/YWdo8TxLJXM1JHjh2TheuurmkkUzn3L8zpYXEWaNGDnB3X1XdEFLkDIUmYJt
-         IG1TdqX4l83abWEl15J1vsZOBsggcKtBRyv/0AzMudqzA1LPmgwnlucsEsvJl4XdwE
-         UzjbP/vWWBmqJ99rZ1rVSkioqpm4/AujoJ+EQS+A=
+        b=mC1nK1HEmvrDE+QC+9OnfvBGmcVA6XBdHXdE1KlRWXmdM906hD0H/3xDjxF1nE3R0
+         X63dNswiykJvV/SdDZVgKZzXnXSlaIRTGbMepu5hVxjVoMhmkgWAdY8pbdMtFLrvoD
+         CJJreQxZPXaGd7uF81hJA49cDim+77n8GB3+NE2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 025/329] net: stmmac: Set FIFO sizes for ipq806x
-Date:   Mon, 17 May 2021 15:58:56 +0200
-Message-Id: <20210517140302.901899015@linuxfoundation.org>
+        stable@vger.kernel.org, Ryder Lee <ryder.lee@mediatek.com>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 071/363] mt76: mt7915: add wifi subsystem reset
+Date:   Mon, 17 May 2021 15:58:57 +0200
+Message-Id: <20210517140304.995348082@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,42 +39,175 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan McDowell <noodles@earth.li>
+From: Ryder Lee <ryder.lee@mediatek.com>
 
-[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
+[ Upstream commit e07419a7dca97dd9bddfe5d099380857c19535f3 ]
 
-Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
-started using the TX FIFO size to verify what counts as a valid MTU
-request for the stmmac driver.  This is unset for the ipq806x variant.
-Looking at older patches for this it seems the RX + TXs buffers can be
-up to 8k, so set appropriately.
+Reset wifi subsystem when MCU is already running.
+Fixes firmware download failure after soft reboot on systems where the PCIe
+reset could not be performed properly.
 
-(I sent this as an RFC patch in June last year, but received no replies.
-I've been running with this on my hardware (a MikroTik RB3011) since
-then with larger MTUs to support both the internal qca8k switch and
-VLANs with no problems. Without the patch it's impossible to set the
-larger MTU required to support this.)
-
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Ryder Lee <ryder.lee@mediatek.com>
+Co-developed-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ .../net/wireless/mediatek/mt76/mt7915/init.c  | 58 ++++++++++++++++++-
+ .../net/wireless/mediatek/mt76/mt7915/mcu.c   | 15 +----
+ .../net/wireless/mediatek/mt76/mt7915/regs.h  | 13 +++++
+ 3 files changed, 70 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index bf3250e0e59c..749585fe6fc9 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -352,6 +352,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 	plat_dat->bsp_priv = gmac;
- 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
- 	plat_dat->multicast_filter_bins = 0;
-+	plat_dat->tx_fifo_size = 8192;
-+	plat_dat->rx_fifo_size = 8192;
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/init.c b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+index 894016fdcf07..c7d4268d860a 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/init.c
+@@ -4,6 +4,7 @@
+ #include <linux/etherdevice.h>
+ #include "mt7915.h"
+ #include "mac.h"
++#include "mcu.h"
+ #include "eeprom.h"
  
- 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
- 	if (err)
+ #define CCK_RATE(_idx, _rate) {						\
+@@ -283,9 +284,50 @@ static void mt7915_init_work(struct work_struct *work)
+ 	mt7915_register_ext_phy(dev);
+ }
+ 
++static void mt7915_wfsys_reset(struct mt7915_dev *dev)
++{
++	u32 val = MT_TOP_PWR_KEY | MT_TOP_PWR_SW_PWR_ON | MT_TOP_PWR_PWR_ON;
++	u32 reg = mt7915_reg_map_l1(dev, MT_TOP_MISC);
++
++#define MT_MCU_DUMMY_RANDOM	GENMASK(15, 0)
++#define MT_MCU_DUMMY_DEFAULT	GENMASK(31, 16)
++
++	mt76_wr(dev, MT_MCU_WFDMA0_DUMMY_CR, MT_MCU_DUMMY_RANDOM);
++
++	/* change to software control */
++	val |= MT_TOP_PWR_SW_RST;
++	mt76_wr(dev, MT_TOP_PWR_CTRL, val);
++
++	/* reset wfsys */
++	val &= ~MT_TOP_PWR_SW_RST;
++	mt76_wr(dev, MT_TOP_PWR_CTRL, val);
++
++	/* release wfsys then mcu re-excutes romcode */
++	val |= MT_TOP_PWR_SW_RST;
++	mt76_wr(dev, MT_TOP_PWR_CTRL, val);
++
++	/* switch to hw control */
++	val &= ~MT_TOP_PWR_SW_RST;
++	val |= MT_TOP_PWR_HW_CTRL;
++	mt76_wr(dev, MT_TOP_PWR_CTRL, val);
++
++	/* check whether mcu resets to default */
++	if (!mt76_poll_msec(dev, MT_MCU_WFDMA0_DUMMY_CR, MT_MCU_DUMMY_DEFAULT,
++			    MT_MCU_DUMMY_DEFAULT, 1000)) {
++		dev_err(dev->mt76.dev, "wifi subsystem reset failure\n");
++		return;
++	}
++
++	/* wfsys reset won't clear host registers */
++	mt76_clear(dev, reg, MT_TOP_MISC_FW_STATE);
++
++	msleep(100);
++}
++
+ static int mt7915_init_hardware(struct mt7915_dev *dev)
+ {
+ 	int ret, idx;
++	u32 val;
+ 
+ 	mt76_wr(dev, MT_INT_SOURCE_CSR, ~0);
+ 
+@@ -295,6 +337,12 @@ static int mt7915_init_hardware(struct mt7915_dev *dev)
+ 
+ 	dev->dbdc_support = !!(mt7915_l1_rr(dev, MT_HW_BOUND) & BIT(5));
+ 
++	val = mt76_rr(dev, mt7915_reg_map_l1(dev, MT_TOP_MISC));
++
++	/* If MCU was already running, it is likely in a bad state */
++	if (FIELD_GET(MT_TOP_MISC_FW_STATE, val) > FW_STATE_FW_DOWNLOAD)
++		mt7915_wfsys_reset(dev);
++
+ 	ret = mt7915_dma_init(dev);
+ 	if (ret)
+ 		return ret;
+@@ -308,8 +356,14 @@ static int mt7915_init_hardware(struct mt7915_dev *dev)
+ 	mt76_wr(dev, MT_SWDEF_MODE, MT_SWDEF_NORMAL_MODE);
+ 
+ 	ret = mt7915_mcu_init(dev);
+-	if (ret)
+-		return ret;
++	if (ret) {
++		/* Reset and try again */
++		mt7915_wfsys_reset(dev);
++
++		ret = mt7915_mcu_init(dev);
++		if (ret)
++			return ret;
++	}
+ 
+ 	ret = mt7915_eeprom_init(dev);
+ 	if (ret < 0)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+index c747349a4c13..f069a5a03e14 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/mcu.c
+@@ -2764,21 +2764,8 @@ out:
+ 
+ static int mt7915_load_firmware(struct mt7915_dev *dev)
+ {
++	u32 reg = mt7915_reg_map_l1(dev, MT_TOP_MISC);
+ 	int ret;
+-	u32 val, reg = mt7915_reg_map_l1(dev, MT_TOP_MISC);
+-
+-	val = FIELD_PREP(MT_TOP_MISC_FW_STATE, FW_STATE_FW_DOWNLOAD);
+-
+-	if (!mt76_poll_msec(dev, reg, MT_TOP_MISC_FW_STATE, val, 1000)) {
+-		/* restart firmware once */
+-		__mt76_mcu_restart(&dev->mt76);
+-		if (!mt76_poll_msec(dev, reg, MT_TOP_MISC_FW_STATE,
+-				    val, 1000)) {
+-			dev_err(dev->mt76.dev,
+-				"Firmware is not ready for download\n");
+-			return -EIO;
+-		}
+-	}
+ 
+ 	ret = mt7915_load_patch(dev);
+ 	if (ret)
+diff --git a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
+index ed0c9a24bb53..dfb8880657bf 100644
+--- a/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
++++ b/drivers/net/wireless/mediatek/mt76/mt7915/regs.h
+@@ -4,6 +4,11 @@
+ #ifndef __MT7915_REGS_H
+ #define __MT7915_REGS_H
+ 
++/* MCU WFDMA0 */
++#define MT_MCU_WFDMA0_BASE		0x2000
++#define MT_MCU_WFDMA0(ofs)		(MT_MCU_WFDMA0_BASE + (ofs))
++#define MT_MCU_WFDMA0_DUMMY_CR		MT_MCU_WFDMA0(0x120)
++
+ /* MCU WFDMA1 */
+ #define MT_MCU_WFDMA1_BASE		0x3000
+ #define MT_MCU_WFDMA1(ofs)		(MT_MCU_WFDMA1_BASE + (ofs))
+@@ -396,6 +401,14 @@
+ #define MT_WFDMA1_PCIE1_BUSY_ENA_TX_FIFO1	BIT(1)
+ #define MT_WFDMA1_PCIE1_BUSY_ENA_RX_FIFO	BIT(2)
+ 
++#define MT_TOP_RGU_BASE				0xf0000
++#define MT_TOP_PWR_CTRL				(MT_TOP_RGU_BASE + (0x0))
++#define MT_TOP_PWR_KEY				(0x5746 << 16)
++#define MT_TOP_PWR_SW_RST			BIT(0)
++#define MT_TOP_PWR_SW_PWR_ON			GENMASK(3, 2)
++#define MT_TOP_PWR_HW_CTRL			BIT(4)
++#define MT_TOP_PWR_PWR_ON			BIT(7)
++
+ #define MT_INFRA_CFG_BASE		0xf1000
+ #define MT_INFRA(ofs)			(MT_INFRA_CFG_BASE + (ofs))
+ 
 -- 
 2.30.2
 
