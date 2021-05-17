@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 379AF38374D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B6F3C383753
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343603AbhEQPlf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:41:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51344 "EHLO mail.kernel.org"
+        id S242014AbhEQPlo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:41:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51390 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245740AbhEQPjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:39:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DD8061D05;
-        Mon, 17 May 2021 14:41:21 +0000 (UTC)
+        id S1343505AbhEQPjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7769F61D08;
+        Mon, 17 May 2021 14:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262481;
-        bh=9zsl9zDHEx/+/pebn0qQBMX6T086vh3OQ34q2z/vCks=;
+        s=korg; t=1621262486;
+        bh=gxL1L//z6b9d6GjSM5DnSz+KVH2AMz/1RnwTpGD62qI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e2vqvHuSM0cStQRupsy5tZVFOzdvuPgYYD4ZQrTQas5Nyxdub9LrT8YHK5rRVOe/V
-         qgNTdZfo8M/p2XWaRd9XD/P2bYYRd8oPZVIsceiFM8gMhi0tDNrIZLBNlSpwc31epV
-         NjZJRB7cZppjxUBbXqHwlvdtE+dVBFz4FlVAL/eY=
+        b=Y43TAqJNesD1gYphODm+aOZG4gd9ON7RY5q1VRlYyDIxpQU2JBtomxMhBlxu+wX6f
+         TZCtsAFSgyY90U9+s69psDmxdSiX0KjXRnAt+QPFZy9PNCkUvWuwrwS9neqigaX9tR
+         NIT3TVY9JcHoCwNrZjJsDTGz7HccbS3C8PTRDkgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -46,9 +46,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Vlastimil Babka <vbabka@suse.cz>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 171/289] mm/gup: return an error on migration failure
-Date:   Mon, 17 May 2021 16:01:36 +0200
-Message-Id: <20210517140310.874758677@linuxfoundation.org>
+Subject: [PATCH 5.10 172/289] mm/gup: check for isolation errors
+Date:   Mon, 17 May 2021 16:01:37 +0200
+Message-Id: <20210517140310.911473206@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -62,18 +62,18 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Tatashin <pasha.tatashin@soleen.com>
 
-[ Upstream commit f0f4463837da17a89d965dcbe4e411629dbcf308 ]
+[ Upstream commit 6e7f34ebb8d25d71ce7f4580ba3cbfc10b895580 ]
 
-When migration failure occurs, we still pin pages, which means that we
-may pin CMA movable pages which should never be the case.
+It is still possible that we pin movable CMA pages if there are
+isolation errors and cma_page_list stays empty when we check again.
 
-Instead return an error without pinning pages when migration failure
-happens.
+Check for isolation errors, and return success only when there are no
+isolation errors, and cma_page_list is empty after checking.
 
-No need to retry migrating, because migrate_pages() already retries 10
-times.
+Because isolation errors are transient, we retry indefinitely.
 
-Link: https://lkml.kernel.org/r/20210215161349.246722-4-pasha.tatashin@soleen.com
+Link: https://lkml.kernel.org/r/20210215161349.246722-5-pasha.tatashin@soleen.com
+Fixes: 9a4e9f3b2d73 ("mm: update get_user_pages_longterm to migrate pages allocated from CMA region")
 Signed-off-by: Pavel Tatashin <pasha.tatashin@soleen.com>
 Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
 Cc: Dan Williams <dan.j.williams@intel.com>
@@ -100,54 +100,113 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/gup.c | 17 +++++++----------
- 1 file changed, 7 insertions(+), 10 deletions(-)
+ mm/gup.c | 60 ++++++++++++++++++++++++++++++++------------------------
+ 1 file changed, 34 insertions(+), 26 deletions(-)
 
 diff --git a/mm/gup.c b/mm/gup.c
-index e10807c4c46b..0fa8d88eb7ba 100644
+index 0fa8d88eb7ba..c2826f3afe72 100644
 --- a/mm/gup.c
 +++ b/mm/gup.c
-@@ -1563,7 +1563,6 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
+@@ -1561,8 +1561,8 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
+ 					struct vm_area_struct **vmas,
+ 					unsigned int gup_flags)
  {
- 	unsigned long i;
- 	bool drain_allow = true;
--	bool migrate_allow = true;
+-	unsigned long i;
+-	bool drain_allow = true;
++	unsigned long i, isolation_error_count;
++	bool drain_allow;
  	LIST_HEAD(cma_page_list);
  	long ret = nr_pages;
  	struct page *prev_head, *head;
-@@ -1614,17 +1613,15 @@ check_again:
- 			for (i = 0; i < nr_pages; i++)
- 				put_page(pages[i]);
+@@ -1573,6 +1573,8 @@ static long check_and_migrate_cma_pages(struct mm_struct *mm,
  
--		if (migrate_pages(&cma_page_list, alloc_migration_target, NULL,
--			(unsigned long)&mtc, MIGRATE_SYNC, MR_CONTIG_RANGE)) {
--			/*
--			 * some of the pages failed migration. Do get_user_pages
--			 * without migration.
--			 */
--			migrate_allow = false;
--
-+		ret = migrate_pages(&cma_page_list, alloc_migration_target,
-+				    NULL, (unsigned long)&mtc, MIGRATE_SYNC,
-+				    MR_CONTIG_RANGE);
-+		if (ret) {
- 			if (!list_empty(&cma_page_list))
- 				putback_movable_pages(&cma_page_list);
-+			return ret > 0 ? -ENOMEM : ret;
+ check_again:
+ 	prev_head = NULL;
++	isolation_error_count = 0;
++	drain_allow = true;
+ 	for (i = 0; i < nr_pages; i++) {
+ 		head = compound_head(pages[i]);
+ 		if (head == prev_head)
+@@ -1584,25 +1586,35 @@ check_again:
+ 		 * of the CMA zone if possible.
+ 		 */
+ 		if (is_migrate_cma_page(head)) {
+-			if (PageHuge(head))
+-				isolate_huge_page(head, &cma_page_list);
+-			else {
++			if (PageHuge(head)) {
++				if (!isolate_huge_page(head, &cma_page_list))
++					isolation_error_count++;
++			} else {
+ 				if (!PageLRU(head) && drain_allow) {
+ 					lru_add_drain_all();
+ 					drain_allow = false;
+ 				}
+ 
+-				if (!isolate_lru_page(head)) {
+-					list_add_tail(&head->lru, &cma_page_list);
+-					mod_node_page_state(page_pgdat(head),
+-							    NR_ISOLATED_ANON +
+-							    page_is_file_lru(head),
+-							    thp_nr_pages(head));
++				if (isolate_lru_page(head)) {
++					isolation_error_count++;
++					continue;
+ 				}
++				list_add_tail(&head->lru, &cma_page_list);
++				mod_node_page_state(page_pgdat(head),
++						    NR_ISOLATED_ANON +
++						    page_is_file_lru(head),
++						    thp_nr_pages(head));
+ 			}
  		}
-+
- 		/*
- 		 * We did migrate all the pages, Try to get the page references
- 		 * again migrating any new CMA pages which we failed to isolate
-@@ -1634,7 +1631,7 @@ check_again:
- 						   pages, vmas, NULL,
- 						   gup_flags);
+ 	}
  
--		if ((ret > 0) && migrate_allow) {
-+		if (ret > 0) {
- 			nr_pages = ret;
- 			drain_allow = true;
- 			goto check_again;
++	/*
++	 * If list is empty, and no isolation errors, means that all pages are
++	 * in the correct zone.
++	 */
++	if (list_empty(&cma_page_list) && !isolation_error_count)
++		return ret;
++
+ 	if (!list_empty(&cma_page_list)) {
+ 		/*
+ 		 * drop the above get_user_pages reference.
+@@ -1622,23 +1634,19 @@ check_again:
+ 			return ret > 0 ? -ENOMEM : ret;
+ 		}
+ 
+-		/*
+-		 * We did migrate all the pages, Try to get the page references
+-		 * again migrating any new CMA pages which we failed to isolate
+-		 * earlier.
+-		 */
+-		ret = __get_user_pages_locked(mm, start, nr_pages,
+-						   pages, vmas, NULL,
+-						   gup_flags);
+-
+-		if (ret > 0) {
+-			nr_pages = ret;
+-			drain_allow = true;
+-			goto check_again;
+-		}
++		/* We unpinned pages before migration, pin them again */
++		ret = __get_user_pages_locked(mm, start, nr_pages, pages, vmas,
++					      NULL, gup_flags);
++		if (ret <= 0)
++			return ret;
++		nr_pages = ret;
+ 	}
+ 
+-	return ret;
++	/*
++	 * check again because pages were unpinned, and we also might have
++	 * had isolation errors and need more pages to migrate.
++	 */
++	goto check_again;
+ }
+ #else
+ static long check_and_migrate_cma_pages(struct mm_struct *mm,
 -- 
 2.30.2
 
