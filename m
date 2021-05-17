@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83472383601
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7467938349A
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244344AbhEQP1V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:27:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39294 "EHLO mail.kernel.org"
+        id S241849AbhEQPKx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:10:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240194AbhEQPZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:25:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A09861404;
-        Mon, 17 May 2021 14:36:04 +0000 (UTC)
+        id S242671AbhEQPHb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:07:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 521CC61C32;
+        Mon, 17 May 2021 14:29:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262164;
-        bh=ayrtXFfexLm21Ax+2aCcvnfelywZrTIyJQle+XrJDzA=;
+        s=korg; t=1621261778;
+        bh=kGkwcmCov/BGefEols7G/UcCoJdp4LSm2dN1c0Il968=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJJ0iHbu/p5CoO9j0QjOBp/mHvSoWX3U0+lrz6NGNDccOhOGyKs4lWN79NJ/HDmNJ
-         8HbIqurnJLh/DRjwMrotHyU89k9DSrkCOBT6yDf4xckDI4T16kwC+aSr07EZLyJudi
-         Ij2izVoZQLMHiinfTu+JnFBjvftNyhu5MSSF1tc0=
+        b=ITJA2pGRDTgbE5Fxy3uD3MrI2uwDWwaLfjjGUuPVf0P3ciq96+wwWItQS2Foi7uB4
+         /UcvrOHTDjCCTPks4JK3k3GR/ZkjUNa/t3CsgwcB31cwf5CtXpYlmpIFdqOG2qfC0M
+         wGcF0AVOiUkD4YANk2UouveK8gkKH9dsteFr/X3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Isaev <isaev@synopsys.com>,
-        kernel test robot <lkp@intel.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 5.11 230/329] ARC: mm: PAE: use 40-bit physical page mask
+        stable@vger.kernel.org, Odin Ugedal <odin@uged.al>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/141] sched/fair: Fix unfairness caused by missing load decay
 Date:   Mon, 17 May 2021 16:02:21 +0200
-Message-Id: <20210517140309.893135731@linuxfoundation.org>
+Message-Id: <20210517140245.775652452@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,133 +41,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Isaev <isaev@synopsys.com>
+From: Odin Ugedal <odin@uged.al>
 
-commit c5f756d8c6265ebb1736a7787231f010a3b782e5 upstream.
+[ Upstream commit 0258bdfaff5bd13c4d2383150b7097aecd6b6d82 ]
 
-32-bit PAGE_MASK can not be used as a mask for physical addresses
-when PAE is enabled. PAGE_MASK_PHYS must be used for physical
-addresses instead of PAGE_MASK.
+This fixes an issue where old load on a cfs_rq is not properly decayed,
+resulting in strange behavior where fairness can decrease drastically.
+Real workloads with equally weighted control groups have ended up
+getting a respective 99% and 1%(!!) of cpu time.
 
-Without this, init gets SIGSEGV if pte_modify was called:
+When an idle task is attached to a cfs_rq by attaching a pid to a cgroup,
+the old load of the task is attached to the new cfs_rq and sched_entity by
+attach_entity_cfs_rq. If the task is then moved to another cpu (and
+therefore cfs_rq) before being enqueued/woken up, the load will be moved
+to cfs_rq->removed from the sched_entity. Such a move will happen when
+enforcing a cpuset on the task (eg. via a cgroup) that force it to move.
 
-| potentially unexpected fatal signal 11.
-| Path: /bin/busybox
-| CPU: 0 PID: 1 Comm: init Not tainted 5.12.0-rc5-00003-g1e43c377a79f-dirty
-| Insn could not be fetched
-|     @No matching VMA found
-|  ECR: 0x00040000 EFA: 0x00000000 ERET: 0x00000000
-| STAT: 0x80080082 [IE U     ]   BTA: 0x00000000
-|  SP: 0x5f9ffe44  FP: 0x00000000 BLK: 0xaf3d4
-| LPS: 0x000d093e LPE: 0x000d0950 LPC: 0x00000000
-| r00: 0x00000002 r01: 0x5f9fff14 r02: 0x5f9fff20
-| ...
-| Kernel panic - not syncing: Attempted to kill init! exitcode=0x0000000b
+The load will however not be removed from the task_group itself, making
+it look like there is a constant load on that cfs_rq. This causes the
+vruntime of tasks on other sibling cfs_rq's to increase faster than they
+are supposed to; causing severe fairness issues. If no other task is
+started on the given cfs_rq, and due to the cpuset it would not happen,
+this load would never be properly unloaded. With this patch the load
+will be properly removed inside update_blocked_averages. This also
+applies to tasks moved to the fair scheduling class and moved to another
+cpu, and this path will also fix that. For fork, the entity is queued
+right away, so this problem does not affect that.
 
-Signed-off-by: Vladimir Isaev <isaev@synopsys.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This applies to cases where the new process is the first in the cfs_rq,
+issue introduced 3d30544f0212 ("sched/fair: Apply more PELT fixes"), and
+when there has previously been load on the cgroup but the cgroup was
+removed from the leaflist due to having null PELT load, indroduced
+in 039ae8bcf7a5 ("sched/fair: Fix O(nr_cgroups) in the load balancing
+path").
+
+For a simple cgroup hierarchy (as seen below) with two equally weighted
+groups, that in theory should get 50/50 of cpu time each, it often leads
+to a load of 60/40 or 70/30.
+
+parent/
+  cg-1/
+    cpu.weight: 100
+    cpuset.cpus: 1
+  cg-2/
+    cpu.weight: 100
+    cpuset.cpus: 1
+
+If the hierarchy is deeper (as seen below), while keeping cg-1 and cg-2
+equally weighted, they should still get a 50/50 balance of cpu time.
+This however sometimes results in a balance of 10/90 or 1/99(!!) between
+the task groups.
+
+$ ps u -C stress
+USER         PID %CPU %MEM    VSZ   RSS TTY      STAT START   TIME COMMAND
+root       18568  1.1  0.0   3684   100 pts/12   R+   13:36   0:00 stress --cpu 1
+root       18580 99.3  0.0   3684   100 pts/12   R+   13:36   0:09 stress --cpu 1
+
+parent/
+  cg-1/
+    cpu.weight: 100
+    sub-group/
+      cpu.weight: 1
+      cpuset.cpus: 1
+  cg-2/
+    cpu.weight: 100
+    sub-group/
+      cpu.weight: 10000
+      cpuset.cpus: 1
+
+This can be reproduced by attaching an idle process to a cgroup and
+moving it to a given cpuset before it wakes up. The issue is evident in
+many (if not most) container runtimes, and has been reproduced
+with both crun and runc (and therefore docker and all its "derivatives"),
+and with both cgroup v1 and v2.
+
+Fixes: 3d30544f0212 ("sched/fair: Apply more PELT fixes")
+Fixes: 039ae8bcf7a5 ("sched/fair: Fix O(nr_cgroups) in the load balancing path")
+Signed-off-by: Odin Ugedal <odin@uged.al>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lkml.kernel.org/r/20210501141950.23622-2-odin@uged.al
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/include/asm/page.h      |   12 ++++++++++++
- arch/arc/include/asm/pgtable.h   |   12 +++---------
- arch/arc/include/uapi/asm/page.h |    1 -
- arch/arc/mm/ioremap.c            |    5 +++--
- arch/arc/mm/tlb.c                |    2 +-
- 5 files changed, 19 insertions(+), 13 deletions(-)
+ kernel/sched/fair.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/arch/arc/include/asm/page.h
-+++ b/arch/arc/include/asm/page.h
-@@ -7,6 +7,18 @@
- 
- #include <uapi/asm/page.h>
- 
-+#ifdef CONFIG_ARC_HAS_PAE40
-+
-+#define MAX_POSSIBLE_PHYSMEM_BITS	40
-+#define PAGE_MASK_PHYS			(0xff00000000ull | PAGE_MASK)
-+
-+#else /* CONFIG_ARC_HAS_PAE40 */
-+
-+#define MAX_POSSIBLE_PHYSMEM_BITS	32
-+#define PAGE_MASK_PHYS			PAGE_MASK
-+
-+#endif /* CONFIG_ARC_HAS_PAE40 */
-+
- #ifndef __ASSEMBLY__
- 
- #define clear_page(paddr)		memset((paddr), 0, PAGE_SIZE)
---- a/arch/arc/include/asm/pgtable.h
-+++ b/arch/arc/include/asm/pgtable.h
-@@ -107,8 +107,8 @@
- #define ___DEF (_PAGE_PRESENT | _PAGE_CACHEABLE)
- 
- /* Set of bits not changed in pte_modify */
--#define _PAGE_CHG_MASK	(PAGE_MASK | _PAGE_ACCESSED | _PAGE_DIRTY | _PAGE_SPECIAL)
--
-+#define _PAGE_CHG_MASK	(PAGE_MASK_PHYS | _PAGE_ACCESSED | _PAGE_DIRTY | \
-+							   _PAGE_SPECIAL)
- /* More Abbrevaited helpers */
- #define PAGE_U_NONE     __pgprot(___DEF)
- #define PAGE_U_R        __pgprot(___DEF | _PAGE_READ)
-@@ -132,13 +132,7 @@
- #define PTE_BITS_IN_PD0		(_PAGE_GLOBAL | _PAGE_PRESENT | _PAGE_HW_SZ)
- #define PTE_BITS_RWX		(_PAGE_EXECUTE | _PAGE_WRITE | _PAGE_READ)
- 
--#ifdef CONFIG_ARC_HAS_PAE40
--#define PTE_BITS_NON_RWX_IN_PD1	(0xff00000000 | PAGE_MASK | _PAGE_CACHEABLE)
--#define MAX_POSSIBLE_PHYSMEM_BITS 40
--#else
--#define PTE_BITS_NON_RWX_IN_PD1	(PAGE_MASK | _PAGE_CACHEABLE)
--#define MAX_POSSIBLE_PHYSMEM_BITS 32
--#endif
-+#define PTE_BITS_NON_RWX_IN_PD1	(PAGE_MASK_PHYS | _PAGE_CACHEABLE)
- 
- /**************************************************************************
-  * Mapping of vm_flags (Generic VM) to PTE flags (arch specific)
---- a/arch/arc/include/uapi/asm/page.h
-+++ b/arch/arc/include/uapi/asm/page.h
-@@ -33,5 +33,4 @@
- 
- #define PAGE_MASK	(~(PAGE_SIZE-1))
- 
--
- #endif /* _UAPI__ASM_ARC_PAGE_H */
---- a/arch/arc/mm/ioremap.c
-+++ b/arch/arc/mm/ioremap.c
-@@ -53,9 +53,10 @@ EXPORT_SYMBOL(ioremap);
- void __iomem *ioremap_prot(phys_addr_t paddr, unsigned long size,
- 			   unsigned long flags)
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 93ab546b6e16..092aa5e47251 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -10146,16 +10146,22 @@ static void propagate_entity_cfs_rq(struct sched_entity *se)
  {
-+	unsigned int off;
- 	unsigned long vaddr;
- 	struct vm_struct *area;
--	phys_addr_t off, end;
-+	phys_addr_t end;
- 	pgprot_t prot = __pgprot(flags);
+ 	struct cfs_rq *cfs_rq;
  
- 	/* Don't allow wraparound, zero size */
-@@ -72,7 +73,7 @@ void __iomem *ioremap_prot(phys_addr_t p
++	list_add_leaf_cfs_rq(cfs_rq_of(se));
++
+ 	/* Start to propagate at parent */
+ 	se = se->parent;
  
- 	/* Mappings have to be page-aligned */
- 	off = paddr & ~PAGE_MASK;
--	paddr &= PAGE_MASK;
-+	paddr &= PAGE_MASK_PHYS;
- 	size = PAGE_ALIGN(end + 1) - paddr;
+ 	for_each_sched_entity(se) {
+ 		cfs_rq = cfs_rq_of(se);
  
- 	/*
---- a/arch/arc/mm/tlb.c
-+++ b/arch/arc/mm/tlb.c
-@@ -576,7 +576,7 @@ void update_mmu_cache(struct vm_area_str
- 		      pte_t *ptep)
- {
- 	unsigned long vaddr = vaddr_unaligned & PAGE_MASK;
--	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK;
-+	phys_addr_t paddr = pte_val(*ptep) & PAGE_MASK_PHYS;
- 	struct page *page = pfn_to_page(pte_pfn(*ptep));
+-		if (cfs_rq_throttled(cfs_rq))
+-			break;
++		if (!cfs_rq_throttled(cfs_rq)){
++			update_load_avg(cfs_rq, se, UPDATE_TG);
++			list_add_leaf_cfs_rq(cfs_rq);
++			continue;
++		}
  
- 	create_tlb(vma, vaddr, ptep);
+-		update_load_avg(cfs_rq, se, UPDATE_TG);
++		if (list_add_leaf_cfs_rq(cfs_rq))
++			break;
+ 	}
+ }
+ #else
+-- 
+2.30.2
+
 
 
