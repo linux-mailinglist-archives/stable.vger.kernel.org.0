@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FD538377D
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:45:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33FAC383777
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:45:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243767AbhEQPoC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:44:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51450 "EHLO mail.kernel.org"
+        id S243689AbhEQPn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:43:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245447AbhEQPll (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:41:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 652D261942;
-        Mon, 17 May 2021 14:42:11 +0000 (UTC)
+        id S243156AbhEQPlz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:41:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD7E461411;
+        Mon, 17 May 2021 14:42:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262531;
-        bh=72K3lhGXCDwiFZ+MFFJn9q3H4xG5EiJWGeQbmCGojNg=;
+        s=korg; t=1621262536;
+        bh=AiU/BgLvW2ctw3w72amgEsbBuG1O1PL/JwBVyj4teM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FruGgemeGd+F1ISfmkCWGTTyMhTKNqqpSugb4qzq0Hp0LKxT7iAJeUjsHgGn9k9jq
-         +/El1bwzYdAmwL26qXzvfm9rqdQMUYXJrQR2p+7I6MybPO0i5pxgoQZPOVkF686aDQ
-         IKWnwEyDmnhXtZ7AOJQmxrtiQgM/jTV9ZIceqkJk=
+        b=Sibph7BD4qtpu/oxGDjy8ZSdBeyC0p6IFWPDUEZIE962zO7JwCqFQ3wFrpI5J/sGv
+         5PmjFh57CCgf2WOlUfgt3N12c3qR4oWfoICLVuNI7kP1sTclkFw1GZP1l/KVBbSx23
+         Vg8vcO0q+ZFKujO5u6BS/5u8yV714FtxwmWoubt0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
+        David Ward <david.ward@gatech.edu>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 208/289] drm/radeon/dpm: Disable sclk switching on Oland when two 4K 60Hz monitors are connected
-Date:   Mon, 17 May 2021 16:02:13 +0200
-Message-Id: <20210517140312.119995984@linuxfoundation.org>
+Subject: [PATCH 5.10 209/289] drm/amd/display: Initialize attribute for hdcp_srm sysfs file
+Date:   Mon, 17 May 2021 16:02:14 +0200
+Message-Id: <20210517140312.157955632@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,85 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: David Ward <david.ward@gatech.edu>
 
-commit 227545b9a08c68778ddd89428f99c351fc9315ac upstream.
+commit fe1c97d008f86f672f0e9265f180c22451ca3b9f upstream.
 
-Screen flickers rapidly when two 4K 60Hz monitors are in use. This issue
-doesn't happen when one monitor is 4K 60Hz (pixelclock 594MHz) and
-another one is 4K 30Hz (pixelclock 297MHz).
+It is stored in dynamically allocated memory, so sysfs_bin_attr_init() must
+be called to initialize it. (Note: "initialization" only sets the .attr.key
+member in this struct; it does not change the value of any other members.)
 
-The issue is gone after setting "power_dpm_force_performance_level" to
-"high". Following the indication, we found that the issue occurs when
-sclk is too low.
+Otherwise, when CONFIG_DEBUG_LOCK_ALLOC=y this message appears during boot:
 
-So resolve the issue by disabling sclk switching when there are two
-monitors requires high pixelclock (> 297MHz).
+    BUG: key ffff9248900cd148 has not been registered!
 
-v2:
- - Only apply the fix to Oland.
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Fixes: 9037246bb2da ("drm/amd/display: Add sysfs interface for set/get srm")
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/1586
+Reported-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Signed-off-by: David Ward <david.ward@gatech.edu>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/radeon/radeon.h    |    1 +
- drivers/gpu/drm/radeon/radeon_pm.c |    8 ++++++++
- drivers/gpu/drm/radeon/si_dpm.c    |    3 +++
- 3 files changed, 12 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/radeon/radeon.h
-+++ b/drivers/gpu/drm/radeon/radeon.h
-@@ -1559,6 +1559,7 @@ struct radeon_dpm {
- 	void                    *priv;
- 	u32			new_active_crtcs;
- 	int			new_active_crtc_count;
-+	int			high_pixelclock_count;
- 	u32			current_active_crtcs;
- 	int			current_active_crtc_count;
- 	bool single_display;
---- a/drivers/gpu/drm/radeon/radeon_pm.c
-+++ b/drivers/gpu/drm/radeon/radeon_pm.c
-@@ -1747,6 +1747,7 @@ static void radeon_pm_compute_clocks_dpm
- 	struct drm_device *ddev = rdev->ddev;
- 	struct drm_crtc *crtc;
- 	struct radeon_crtc *radeon_crtc;
-+	struct radeon_connector *radeon_connector;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_hdcp.c
+@@ -643,6 +643,7 @@ struct hdcp_workqueue *hdcp_create_workq
  
- 	if (!rdev->pm.dpm_enabled)
- 		return;
-@@ -1756,6 +1757,7 @@ static void radeon_pm_compute_clocks_dpm
- 	/* update active crtc counts */
- 	rdev->pm.dpm.new_active_crtcs = 0;
- 	rdev->pm.dpm.new_active_crtc_count = 0;
-+	rdev->pm.dpm.high_pixelclock_count = 0;
- 	if (rdev->num_crtc && rdev->mode_info.mode_config_initialized) {
- 		list_for_each_entry(crtc,
- 				    &ddev->mode_config.crtc_list, head) {
-@@ -1763,6 +1765,12 @@ static void radeon_pm_compute_clocks_dpm
- 			if (crtc->enabled) {
- 				rdev->pm.dpm.new_active_crtcs |= (1 << radeon_crtc->crtc_id);
- 				rdev->pm.dpm.new_active_crtc_count++;
-+				if (!radeon_crtc->connector)
-+					continue;
-+
-+				radeon_connector = to_radeon_connector(radeon_crtc->connector);
-+				if (radeon_connector->pixelclock_for_modeset > 297000)
-+					rdev->pm.dpm.high_pixelclock_count++;
- 			}
- 		}
- 	}
---- a/drivers/gpu/drm/radeon/si_dpm.c
-+++ b/drivers/gpu/drm/radeon/si_dpm.c
-@@ -2982,6 +2982,9 @@ static void si_apply_state_adjust_rules(
- 		    (rdev->pdev->device == 0x6605)) {
- 			max_sclk = 75000;
- 		}
-+
-+		if (rdev->pm.dpm.high_pixelclock_count > 1)
-+			disable_sclk_switching = true;
- 	}
+ 	/* File created at /sys/class/drm/card0/device/hdcp_srm*/
+ 	hdcp_work[0].attr = data_attr;
++	sysfs_bin_attr_init(&hdcp_work[0].attr);
  
- 	if (rps->vce_active) {
+ 	if (sysfs_create_bin_file(&adev->dev->kobj, &hdcp_work[0].attr))
+ 		DRM_WARN("Failed to create device file hdcp_srm");
 
 
