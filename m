@@ -2,149 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DA61382B86
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 13:54:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DB0D382BB2
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 14:02:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236853AbhEQLzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 07:55:20 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:41731 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229772AbhEQLzT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 07:55:19 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.west.internal (Postfix) with ESMTP id B1429968;
-        Mon, 17 May 2021 07:54:02 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Mon, 17 May 2021 07:54:02 -0400
+        id S236909AbhEQMDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 08:03:20 -0400
+Received: from wout4-smtp.messagingengine.com ([64.147.123.20]:43879 "EHLO
+        wout4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S236859AbhEQMDT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 08:03:19 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailout.west.internal (Postfix) with ESMTP id 1FF613D2;
+        Mon, 17 May 2021 08:02:02 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 17 May 2021 08:02:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=bLxPG3CJWwLArGcePs+mN6rzuCq
+        6IKcukCRG1uEEn84=; b=LWpW4KwL0h0PMDTIENAY8Ly2FKcnyH7eSS9vpqNPE4a
+        vdtdOPxRQ5ChpvqmEuT/XXWb9urM6yXx4ON4HigDPKWoHWizuJAtFTLMjh+cFLXB
+        3AnA16I7O0EFfPdM7jSohgI58IAu11oyQMRXu7GfXNeOIDYoIhsd0zsJfWIG9kcj
+        Jgggd4sjJKf81vy/dL1nSfraicQe/wDC5kmNfyuOGvSh8gmj+jCw01pPI3H6jtF4
+        jcIWeqkbCwY0Ec71+7LeMQwTjWkpURIr4beV5BhdYGsnSoG79Fh+DBP5oOok46Ja
+        N5zpkXolR3ksu3KDy5UXW5nTNFaP+i3dYe9Bf+pcDLQ==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=/XMM1m
-        PiCbC82tiin+BXuoR2FUsBn6L4L75UczWULG8=; b=QLDF9S3wmUMvDIG08rkP4I
-        1kLlcipBvWNydx8X9jJttNioPOYR8Wtv915VA21sq8J2BSPols3cdTeGdHqMpmHI
-        N9ZEbFUw+MOZ24e5eN3ayhzYY8zJz4fHwDaxlxwtwuq00iSvxtJriNXlQCrtsorf
-        o5Qy7jxupO8XYGEF3T5ZYUmlIobkuLuAHRoxEf6rbveGt+wJu3poSiTNe2Ems0L3
-        8RFpakzacTZA0BTTlXlRYkL/WltXi3r0VTIHQvOCmsYlYCdNlCwEvQN1JwUCzSOc
-        v7VJjHQaKqHAAsoqT6+lveC8pvMI7TxhiOuQSVU5TGzY9obDLaHaXTSvJIjE2/Qg
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=bLxPG3
+        CJWwLArGcePs+mN6rzuCq6IKcukCRG1uEEn84=; b=cYhisNu2E7ESVb9Lnr3afQ
+        5mm+2y21+ARpqUy86zTBdi7MrQwAtON3dCJUXmZ822spHTlb/Clwv1KTqP6eECoM
+        HaGenzKa/hPjBSdGK12Lymr2ZPvHopqf1prVrHMUcrn38hOX1vzpL64O5mxi+nub
+        /fv6rVcm1F4E+wOtx8OKvqVCkF+wRxok59L4QIbSvUXD/gwDXL4cs9297SdMDHvw
+        7yglC+jcXYWP9O91w/1fepJ2b/hhNm2oVOM56ZtGrI6u2B+VEU2dYwkOtSXhiRbI
+        vZ8vFv8aIQGWBFQiTwIpOqHgxqLUMeEPuHmp+i1o0dQ7GCIG7ehOVoXVexLY82Fg
         ==
-X-ME-Sender: <xms:WlmiYMpl2ZDnTD0FxDzqA366tORCsdespMNHLEkIeGlY6jq0AaHufA>
-    <xme:WlmiYCrvMUj3NsP2tUbEEY48DXla1MLMX10c5FFa3DKxHsFmoOZ2-d677DzKHxPxK
-    WiRYTVfe5hzmw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedggeejucetufdoteggodetrfdotf
+X-ME-Sender: <xms:OFuiYNYbNIO4tErvCSeLkw6idFfHqZap-qsq3jos1ByffVyhU1UVPQ>
+    <xme:OFuiYEY6cDPUIeFtg8Eo1yZJ26fFNNYlF2zut63ID6ToJpPIX119J8ZSkbZJENDMk
+    R46xfd0Zu7Qsw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedggeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:WlmiYBPpOng7yOhJ-O74M3XzEleeI8oyRMrOu372D-RAg-W4qORW6w>
-    <xmx:WlmiYD6747qW_-DIPYpFPvEidmL7yR76UDnFnRuweCeBxmn2Vt7THA>
-    <xmx:WlmiYL4xnMp_kOz45_NlPkthpXhPVt0RCyiQHJl2oKnwQa74BuIEfg>
-    <xmx:WlmiYIj1ZrskCldjMqOrHIVuL0IrJo-sIeSzgAfrxfl56K9mg6d7fYjZtNA>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:OFuiYP8LDB8zPklwfZ-F4hJ-ZX44MfHn5gda20foPBy6rGXV1CL8Hw>
+    <xmx:OFuiYLqh34DDj_wmt9i9fON5QAGhgoWg0CwnZ1gYPIZj2MV_1YFexA>
+    <xmx:OFuiYIq8QGqHQhrtXsA0_GSlTROVGSd0CbidnHFNeF1rK8CxGt-oPg>
+    <xmx:OVuiYNCFfGiAqDvbwWlCUcJ5-Gf22tsTHjs1OHQI69Z7RSZA8NFsWw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 07:54:01 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: x86: Prevent deadlock against tk_core.seq" failed to apply to 5.4-stable tree
-To:     tglx@linutronix.de, pbonzini@redhat.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 13:53:48 +0200
-Message-ID: <1621252428140194@kroah.com>
+        Mon, 17 May 2021 08:02:00 -0400 (EDT)
+Date:   Mon, 17 May 2021 14:01:58 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Nicolas Schier <nicolas@fjasle.eu>
+Cc:     stable@vger.kernel.org, Finn Behrens <me@kloenk.de>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH v2 1/2] tweewide: Fix most Shebang lines
+Message-ID: <YKJbNp40eI+rHWZX@kroah.com>
+References: <20210511185817.2695437-1-nicolas@fjasle.eu>
+ <20210511185817.2695437-2-nicolas@fjasle.eu>
+ <YJvC2W9QTpc9JBp1@kroah.com>
+ <YJ2GDOt48sjlMFtD@lillesand.fjasle.eu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YJ2GDOt48sjlMFtD@lillesand.fjasle.eu>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Thu, May 13, 2021 at 10:03:24PM +0200, Nicolas Schier wrote:
+> On Wed, May 12, 2021 at 01:58PM +0000, Greg KH wrote:
+> > On Tue, May 11, 2021 at 08:58:16PM +0200, Nicolas Schier wrote:
+> > > From: Finn Behrens <me@kloenk.de>
+> > > 
+> > > commit c25ce589dca10d64dde139ae093abc258a32869c upstream.
+> > > 
+> > > Change every shebang which does not need an argument to use /usr/bin/env.
+> > > This is needed as not every distro has everything under /usr/bin,
+> > > sometimes not even bash.
+> > > 
+> > > Signed-off-by: Finn Behrens <me@kloenk.de>
+> > > Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+> > > [nicolas@fjasle.eu: ported to v4.9, updated contexts, adapt for old
+> > >  scripts]
+> > 
+> > What about 4.14, 4.19, 5.4, and 5.10?  We can't add patches only to one
+> > stable tree and not all of the newer ones as well.
+> 
+> Hi Greg,
+> 
+> yes, that makes sense obviously, I did not have that in mind.  If there 
+> is a chance for acceptance, I will gladly provide the patches for the 
+> newer stable tree as well.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+It makes sense to do this here, to enable building these older kernels
+on newer systems.
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 3f804f6d201ca93adf4c3df04d1bfd152c1129d6 Mon Sep 17 00:00:00 2001
-From: Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 6 May 2021 15:21:37 +0200
-Subject: [PATCH] KVM: x86: Prevent deadlock against tk_core.seq
-
-syzbot reported a possible deadlock in pvclock_gtod_notify():
-
-CPU 0  		  	   	    	    CPU 1
-write_seqcount_begin(&tk_core.seq);
-  pvclock_gtod_notify()			    spin_lock(&pool->lock);
-    queue_work(..., &pvclock_gtod_work)	    ktime_get()
-     spin_lock(&pool->lock);		      do {
-     						seq = read_seqcount_begin(tk_core.seq)
-						...
-				              } while (read_seqcount_retry(&tk_core.seq, seq);
-
-While this is unlikely to happen, it's possible.
-
-Delegate queue_work() to irq_work() which postpones it until the
-tk_core.seq write held region is left and interrupts are reenabled.
-
-Fixes: 16e8d74d2da9 ("KVM: x86: notifier for clocksource changes")
-Reported-by: syzbot+6beae4000559d41d80f8@syzkaller.appspotmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Message-Id: <87h7jgm1zy.ffs@nanos.tec.linutronix.de>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 259139a145cb..5bd550eaf683 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -8094,6 +8094,18 @@ static void pvclock_gtod_update_fn(struct work_struct *work)
- 
- static DECLARE_WORK(pvclock_gtod_work, pvclock_gtod_update_fn);
- 
-+/*
-+ * Indirection to move queue_work() out of the tk_core.seq write held
-+ * region to prevent possible deadlocks against time accessors which
-+ * are invoked with work related locks held.
-+ */
-+static void pvclock_irq_work_fn(struct irq_work *w)
-+{
-+	queue_work(system_long_wq, &pvclock_gtod_work);
-+}
-+
-+static DEFINE_IRQ_WORK(pvclock_irq_work, pvclock_irq_work_fn);
-+
- /*
-  * Notification about pvclock gtod data update.
-  */
-@@ -8105,13 +8117,14 @@ static int pvclock_gtod_notify(struct notifier_block *nb, unsigned long unused,
- 
- 	update_pvclock_gtod(tk);
- 
--	/* disable master clock if host does not trust, or does not
--	 * use, TSC based clocksource.
-+	/*
-+	 * Disable master clock if host does not trust, or does not use,
-+	 * TSC based clocksource. Delegate queue_work() to irq_work as
-+	 * this is invoked with tk_core.seq write held.
- 	 */
- 	if (!gtod_is_based_on_tsc(gtod->clock.vclock_mode) &&
- 	    atomic_read(&kvm_guest_has_master_clock) != 0)
--		queue_work(system_long_wq, &pvclock_gtod_work);
--
-+		irq_work_queue(&pvclock_irq_work);
- 	return 0;
- }
- 
-@@ -8224,6 +8237,7 @@ void kvm_arch_exit(void)
- 	cpuhp_remove_state_nocalls(CPUHP_AP_X86_KVM_CLK_ONLINE);
- #ifdef CONFIG_X86_64
- 	pvclock_gtod_unregister_notifier(&pvclock_gtod_notifier);
-+	irq_work_sync(&pvclock_irq_work);
- 	cancel_work_sync(&pvclock_gtod_work);
- #endif
- 	kvm_x86_ops.hardware_enable = NULL;
-
