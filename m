@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7363830B1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 685D0382EB8
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238673AbhEQOaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:30:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53016 "EHLO mail.kernel.org"
+        id S236148AbhEQOKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238969AbhEQO2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:28:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C1F613DC;
-        Mon, 17 May 2021 14:14:01 +0000 (UTC)
+        id S237936AbhEQOIW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:08:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0435561166;
+        Mon, 17 May 2021 14:06:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260841;
-        bh=uvsdfGNEu6fT7UN+VgqEadQGzd7+VAPyiU9OSLHDgc0=;
+        s=korg; t=1621260398;
+        bh=9Kcx4XtQrnFyLt5b/3Ak8oh6NqeambCh577bpAwJDWs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYOCJHotYz+VJUWgkiag+rnCVABEEy+wbfj62EkqwuvHwneGEeAjcT+mOaP52O8Fz
-         pMVsFEXg8sR/wiUSQQpvHfNVQxplSNxjG0dvJb0miaTbQjM1kJkLInYUV28+1woK9s
-         QCK9tlW6Q7vpy3lUunxJFxKzfEfSbxtr7kmMBGgk=
+        b=lOgrxywV5Z7BxNmS7RP+Toy5XFqRg4/JrIpDo0WW4sEvqzBtZg+Wrv/R+gpPC/2C0
+         UOI4Nk+XbI52bjPqlHCoih+FohKQT7OBAJElKCS4nZO5579DUa+WiHg6gKaa7QR5eh
+         eundLaj3t3oaDc+hxXkrn02p5mwjvR/j+OpMmqQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Po-Hao Huang <phhuang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 016/329] fs: dlm: add errno handling to check callback
-Date:   Mon, 17 May 2021 15:58:47 +0200
-Message-Id: <20210517140302.596874207@linuxfoundation.org>
+Subject: [PATCH 5.12 062/363] rtw88: 8822c: add LC calibration for RTL8822C
+Date:   Mon, 17 May 2021 15:58:48 +0200
+Message-Id: <20210517140304.703067708@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
+References: <20210517140302.508966430@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,72 +41,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Po-Hao Huang <phhuang@realtek.com>
 
-[ Upstream commit 8aa9540b49e0833feba75dbf4f45babadd0ed215 ]
+[ Upstream commit 7ae7784ec2a812c07d2ca91a6538ef2470154fb6 ]
 
-This allows to return individual errno values for the config attribute
-check callback instead of returning invalid argument only.
+Fix power tracking issue by replacing unnecessary IQ calibration
+with LC calibration.
+When thermal difference exceeds limitation, let RF circuit adjsut
+its characteristic to fit in current environment.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Po-Hao Huang <phhuang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210319054218.3319-6-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/config.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ drivers/net/wireless/realtek/rtw88/main.h     |  2 ++
+ drivers/net/wireless/realtek/rtw88/phy.c      | 14 ++++++++++
+ drivers/net/wireless/realtek/rtw88/phy.h      |  1 +
+ drivers/net/wireless/realtek/rtw88/reg.h      |  5 ++++
+ drivers/net/wireless/realtek/rtw88/rtw8822c.c | 27 +++++++++++++++++--
+ 5 files changed, 47 insertions(+), 2 deletions(-)
 
-diff --git a/fs/dlm/config.c b/fs/dlm/config.c
-index 582bffa09a66..8439610c266a 100644
---- a/fs/dlm/config.c
-+++ b/fs/dlm/config.c
-@@ -125,7 +125,7 @@ static ssize_t cluster_cluster_name_store(struct config_item *item,
- CONFIGFS_ATTR(cluster_, cluster_name);
+diff --git a/drivers/net/wireless/realtek/rtw88/main.h b/drivers/net/wireless/realtek/rtw88/main.h
+index 35afea91fd29..92b9cf1f9525 100644
+--- a/drivers/net/wireless/realtek/rtw88/main.h
++++ b/drivers/net/wireless/realtek/rtw88/main.h
+@@ -1166,6 +1166,7 @@ struct rtw_chip_info {
+ 	bool en_dis_dpd;
+ 	u16 dpd_ratemask;
+ 	u8 iqk_threshold;
++	u8 lck_threshold;
+ 	const struct rtw_pwr_track_tbl *pwr_track_tbl;
  
- static ssize_t cluster_set(struct dlm_cluster *cl, unsigned int *cl_field,
--			   int *info_field, bool (*check_cb)(unsigned int x),
-+			   int *info_field, int (*check_cb)(unsigned int x),
- 			   const char *buf, size_t len)
- {
- 	unsigned int x;
-@@ -137,8 +137,11 @@ static ssize_t cluster_set(struct dlm_cluster *cl, unsigned int *cl_field,
- 	if (rc)
- 		return rc;
+ 	u8 bfer_su_max_num;
+@@ -1534,6 +1535,7 @@ struct rtw_dm_info {
+ 	u32 rrsr_mask_min;
+ 	u8 thermal_avg[RTW_RF_PATH_MAX];
+ 	u8 thermal_meter_k;
++	u8 thermal_meter_lck;
+ 	s8 delta_power_index[RTW_RF_PATH_MAX];
+ 	s8 delta_power_index_last[RTW_RF_PATH_MAX];
+ 	u8 default_ofdm_index;
+diff --git a/drivers/net/wireless/realtek/rtw88/phy.c b/drivers/net/wireless/realtek/rtw88/phy.c
+index 0b3da5bef703..21e77fcfa4d5 100644
+--- a/drivers/net/wireless/realtek/rtw88/phy.c
++++ b/drivers/net/wireless/realtek/rtw88/phy.c
+@@ -2220,6 +2220,20 @@ s8 rtw_phy_pwrtrack_get_pwridx(struct rtw_dev *rtwdev,
+ }
+ EXPORT_SYMBOL(rtw_phy_pwrtrack_get_pwridx);
  
--	if (check_cb && check_cb(x))
--		return -EINVAL;
-+	if (check_cb) {
-+		rc = check_cb(x);
-+		if (rc)
-+			return rc;
++bool rtw_phy_pwrtrack_need_lck(struct rtw_dev *rtwdev)
++{
++	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
++	u8 delta_lck;
++
++	delta_lck = abs(dm_info->thermal_avg[0] - dm_info->thermal_meter_lck);
++	if (delta_lck >= rtwdev->chip->lck_threshold) {
++		dm_info->thermal_meter_lck = dm_info->thermal_avg[0];
++		return true;
 +	}
- 
- 	*cl_field = x;
- 	*info_field = x;
-@@ -161,14 +164,20 @@ static ssize_t cluster_##name##_show(struct config_item *item, char *buf)     \
- }                                                                             \
- CONFIGFS_ATTR(cluster_, name);
- 
--static bool dlm_check_zero(unsigned int x)
-+static int dlm_check_zero(unsigned int x)
- {
--	return !x;
-+	if (!x)
-+		return -EINVAL;
++	return false;
++}
++EXPORT_SYMBOL(rtw_phy_pwrtrack_need_lck);
 +
-+	return 0;
+ bool rtw_phy_pwrtrack_need_iqk(struct rtw_dev *rtwdev)
+ {
+ 	struct rtw_dm_info *dm_info = &rtwdev->dm_info;
+diff --git a/drivers/net/wireless/realtek/rtw88/phy.h b/drivers/net/wireless/realtek/rtw88/phy.h
+index a4fcfb878550..a0742a69446d 100644
+--- a/drivers/net/wireless/realtek/rtw88/phy.h
++++ b/drivers/net/wireless/realtek/rtw88/phy.h
+@@ -55,6 +55,7 @@ u8 rtw_phy_pwrtrack_get_delta(struct rtw_dev *rtwdev, u8 path);
+ s8 rtw_phy_pwrtrack_get_pwridx(struct rtw_dev *rtwdev,
+ 			       struct rtw_swing_table *swing_table,
+ 			       u8 tbl_path, u8 therm_path, u8 delta);
++bool rtw_phy_pwrtrack_need_lck(struct rtw_dev *rtwdev);
+ bool rtw_phy_pwrtrack_need_iqk(struct rtw_dev *rtwdev);
+ void rtw_phy_config_swing_table(struct rtw_dev *rtwdev,
+ 				struct rtw_swing_table *swing_table);
+diff --git a/drivers/net/wireless/realtek/rtw88/reg.h b/drivers/net/wireless/realtek/rtw88/reg.h
+index ea518aa78552..819af34dac34 100644
+--- a/drivers/net/wireless/realtek/rtw88/reg.h
++++ b/drivers/net/wireless/realtek/rtw88/reg.h
+@@ -652,8 +652,13 @@
+ #define RF_TXATANK	0x64
+ #define RF_TRXIQ	0x66
+ #define RF_RXIQGEN	0x8d
++#define RF_SYN_PFD	0xb0
+ #define RF_XTALX2	0xb8
++#define RF_SYN_CTRL	0xbb
+ #define RF_MALSEL	0xbe
++#define RF_SYN_AAC	0xc9
++#define RF_AAC_CTRL	0xca
++#define RF_FAST_LCK	0xcc
+ #define RF_RCKD		0xde
+ #define RF_TXADBG	0xde
+ #define RF_LUTDBG	0xdf
+diff --git a/drivers/net/wireless/realtek/rtw88/rtw8822c.c b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
+index dd560c28abb2..448922cb2e63 100644
+--- a/drivers/net/wireless/realtek/rtw88/rtw8822c.c
++++ b/drivers/net/wireless/realtek/rtw88/rtw8822c.c
+@@ -1126,6 +1126,7 @@ static void rtw8822c_pwrtrack_init(struct rtw_dev *rtwdev)
+ 
+ 	dm_info->pwr_trk_triggered = false;
+ 	dm_info->thermal_meter_k = rtwdev->efuse.thermal_meter_k;
++	dm_info->thermal_meter_lck = rtwdev->efuse.thermal_meter_k;
  }
  
--static bool dlm_check_buffer_size(unsigned int x)
-+static int dlm_check_buffer_size(unsigned int x)
- {
--	return (x < DEFAULT_BUFFER_SIZE);
-+	if (x < DEFAULT_BUFFER_SIZE)
-+		return -EINVAL;
-+
-+	return 0;
+ static void rtw8822c_phy_set_param(struct rtw_dev *rtwdev)
+@@ -2108,6 +2109,26 @@ static void rtw8822c_false_alarm_statistics(struct rtw_dev *rtwdev)
+ 	rtw_write32_set(rtwdev, REG_RX_BREAK, BIT_COM_RX_GCK_EN);
  }
  
- CLUSTER_ATTR(tcp_port, dlm_check_zero);
++static void rtw8822c_do_lck(struct rtw_dev *rtwdev)
++{
++	u32 val;
++
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_SYN_CTRL, RFREG_MASK, 0x80010);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_SYN_PFD, RFREG_MASK, 0x1F0FA);
++	fsleep(1);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_AAC_CTRL, RFREG_MASK, 0x80000);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_SYN_AAC, RFREG_MASK, 0x80001);
++	read_poll_timeout(rtw_read_rf, val, val != 0x1, 1000, 100000,
++			  true, rtwdev, RF_PATH_A, RF_AAC_CTRL, 0x1000);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_SYN_PFD, RFREG_MASK, 0x1F0F8);
++	rtw_write_rf(rtwdev, RF_PATH_B, RF_SYN_CTRL, RFREG_MASK, 0x80010);
++
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_FAST_LCK, RFREG_MASK, 0x0f000);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_FAST_LCK, RFREG_MASK, 0x4f000);
++	fsleep(1);
++	rtw_write_rf(rtwdev, RF_PATH_A, RF_FAST_LCK, RFREG_MASK, 0x0f000);
++}
++
+ static void rtw8822c_do_iqk(struct rtw_dev *rtwdev)
+ {
+ 	struct rtw_iqk_para para = {0};
+@@ -3538,11 +3559,12 @@ static void __rtw8822c_pwr_track(struct rtw_dev *rtwdev)
+ 
+ 	rtw_phy_config_swing_table(rtwdev, &swing_table);
+ 
++	if (rtw_phy_pwrtrack_need_lck(rtwdev))
++		rtw8822c_do_lck(rtwdev);
++
+ 	for (i = 0; i < rtwdev->hal.rf_path_num; i++)
+ 		rtw8822c_pwr_track_path(rtwdev, &swing_table, i);
+ 
+-	if (rtw_phy_pwrtrack_need_iqk(rtwdev))
+-		rtw8822c_do_iqk(rtwdev);
+ }
+ 
+ static void rtw8822c_pwr_track(struct rtw_dev *rtwdev)
+@@ -4351,6 +4373,7 @@ struct rtw_chip_info rtw8822c_hw_spec = {
+ 	.dpd_ratemask = DIS_DPD_RATEALL,
+ 	.pwr_track_tbl = &rtw8822c_rtw_pwr_track_tbl,
+ 	.iqk_threshold = 8,
++	.lck_threshold = 8,
+ 	.bfer_su_max_num = 2,
+ 	.bfer_mu_max_num = 1,
+ 	.rx_ldpc = true,
 -- 
 2.30.2
 
