@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D934383843
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF15383650
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244640AbhEQPvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35078 "EHLO mail.kernel.org"
+        id S244462AbhEQPbR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243418AbhEQPsK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:48:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE1A86195A;
-        Mon, 17 May 2021 14:44:49 +0000 (UTC)
+        id S243767AbhEQP2Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:28:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7433961933;
+        Mon, 17 May 2021 14:37:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262690;
-        bh=vjRzk8bYKbakThoVaMc//KZ4NHSVmY1DMv1cBk4aWCk=;
+        s=korg; t=1621262227;
+        bh=pnKSpHyz9pQmxPkhijylRsJgz8hvUcVRIQ3sz0mB/KM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BHtHn7PfvJ+MJnkSjCUcPrVCH2zJ+fyo0fFck0LDMeNN2sGs/VG7YnHpcSRxePug
-         4awH5m70hkGWWoeSdZw6V6emSpwJxD2zAO4Dald2RC8XBYNeFx+wWUKbEAK1bAitzI
-         wzqHDK4FH7Fk0bgED3dxyFWwlSdj1czoAt//3tMc=
+        b=Nsh5MdNf9RogIClfpoip5VbljMEXQDw4oa/VQSF+qvtbpzyHmKGM1NocFx5aPEo8E
+         BwTad2+KkJAclFiqs5HXvlEaTzO9XigW5IWdR9Yv4M2Q1Gd3NVq84tK9iynHxjmem9
+         BnqAf4yP5V+mXa2vSqNArjZSiEa/qA1oaCFMBcVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 229/289] ACPI: scan: Fix a memory leak in an error handling path
+        stable@vger.kernel.org, Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Steven Price <steven.price@arm.com>
+Subject: [PATCH 5.11 243/329] arm64: Fix race condition on PG_dcache_clean in __sync_icache_dcache()
 Date:   Mon, 17 May 2021 16:02:34 +0200
-Message-Id: <20210517140312.872162859@linuxfoundation.org>
+Message-Id: <20210517140310.330312747@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Catalin Marinas <catalin.marinas@arm.com>
 
-[ Upstream commit 0c8bd174f0fc131bc9dfab35cd8784f59045da87 ]
+commit 588a513d34257fdde95a9f0df0202e31998e85c6 upstream.
 
-If 'acpi_device_set_name()' fails, we must free
-'acpi_device_bus_id->bus_id' or there is a (potential) memory leak.
+To ensure that instructions are observable in a new mapping, the arm64
+set_pte_at() implementation cleans the D-cache and invalidates the
+I-cache to the PoU. As an optimisation, this is only done on executable
+mappings and the PG_dcache_clean page flag is set to avoid future cache
+maintenance on the same page.
 
-Fixes: eb50aaf960e3 ("ACPI: scan: Use unique number for instance_no")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When two different processes map the same page (e.g. private executable
+file or shared mapping) there's a potential race on checking and setting
+PG_dcache_clean via set_pte_at() -> __sync_icache_dcache(). While on the
+fault paths the page is locked (PG_locked), mprotect() does not take the
+page lock. The result is that one process may see the PG_dcache_clean
+flag set but the I/D cache maintenance not yet performed.
+
+Avoid test_and_set_bit(PG_dcache_clean) in favour of separate test_bit()
+and set_bit(). In the rare event of a race, the cache maintenance is
+done twice.
+
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: <stable@vger.kernel.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: Steven Price <steven.price@arm.com>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Acked-by: Will Deacon <will@kernel.org>
+Link: https://lore.kernel.org/r/20210514095001.13236-1-catalin.marinas@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/mm/flush.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index b47f14ac75ae..de0533bd4e08 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -705,6 +705,7 @@ int acpi_device_add(struct acpi_device *device,
+--- a/arch/arm64/mm/flush.c
++++ b/arch/arm64/mm/flush.c
+@@ -55,8 +55,10 @@ void __sync_icache_dcache(pte_t pte)
+ {
+ 	struct page *page = pte_page(pte);
  
- 		result = acpi_device_set_name(device, acpi_device_bus_id);
- 		if (result) {
-+			kfree_const(acpi_device_bus_id->bus_id);
- 			kfree(acpi_device_bus_id);
- 			goto err_unlock;
- 		}
--- 
-2.30.2
-
+-	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
++	if (!test_bit(PG_dcache_clean, &page->flags)) {
+ 		sync_icache_aliases(page_address(page), page_size(page));
++		set_bit(PG_dcache_clean, &page->flags);
++	}
+ }
+ EXPORT_SYMBOL_GPL(__sync_icache_dcache);
+ 
 
 
