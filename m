@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 542C6383627
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3EE03837CC
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244868AbhEQP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:28:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
+        id S244099AbhEQPrI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:47:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55058 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243751AbhEQP0e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:26:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 415A561C98;
-        Mon, 17 May 2021 14:36:28 +0000 (UTC)
+        id S1344487AbhEQPon (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:44:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90B4A61D21;
+        Mon, 17 May 2021 14:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262188;
-        bh=e6rbGkevxH80htg2S1pnTYsN/VIFVvqRPI21soQ99II=;
+        s=korg; t=1621262601;
+        bh=EDO3RclybQGy3YqOroCi95bJy+M1XUMA544bAQr6lAQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K62xMHFf1YCR+CSL680fmgEnDB9WYrUTESimKWOPqwdZYMZoRH4dSBXdp4p6ddR8h
-         wQB3GjmT4gBlgESSZsJx7X7mcQmQa+yfJKluybQVT8fWFPzzqXUUcxxsaA/lHmlAzd
-         5Trb2z58tb6VC3PwJTF8NmViPAFLRVYl5H1P6gi4=
+        b=rIeUHEGDGTFLC3H+EiOjP7Y3RB2hlinjdw/3xrjX7Hg1I4j3XICrFT+VBMu1FrwmS
+         tkFrs80HggaI566Ngv7XWe28c6MDrtb7r3DAF8lsD5Alkmsy5wyN5Ovj1kHgpOZDuO
+         MdmMtBt1ATD6dnh8OiFaCSgYnTd38p7o4RhM7gyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Roivas <jouni.roivas@tuxera.com>,
-        Anton Altaparmakov <anton@tuxera.com>,
-        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
-        Viacheslav Dubeyko <slava@dubeyko.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.11 235/329] hfsplus: prevent corruption in shrinking truncate
-Date:   Mon, 17 May 2021 16:02:26 +0200
-Message-Id: <20210517140310.065784644@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Chen <peter.chen@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 222/289] usb: dwc3: gadget: Free gadget structure only after freeing endpoints
+Date:   Mon, 17 May 2021 16:02:27 +0200
+Message-Id: <20210517140312.626006320@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,89 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jouni Roivas <jouni.roivas@tuxera.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit c3187cf32216313fb316084efac4dab3a8459b1d upstream.
+[ Upstream commit bb9c74a5bd1462499fe5ccb1e3c5ac40dcfa9139 ]
 
-I believe there are some issues introduced by commit 31651c607151
-("hfsplus: avoid deadlock on file truncation")
+As part of commit e81a7018d93a ("usb: dwc3: allocate gadget structure
+dynamically") the dwc3_gadget_release() was added which will free
+the dwc->gadget structure upon the device's removal when
+usb_del_gadget_udc() is called in dwc3_gadget_exit().
 
-HFS+ has extent records which always contains 8 extents.  In case the
-first extent record in catalog file gets full, new ones are allocated from
-extents overflow file.
+However, simply freeing the gadget results a dangling pointer
+situation: the endpoints created in dwc3_gadget_init_endpoints()
+have their dep->endpoint.ep_list members chained off the list_head
+anchored at dwc->gadget->ep_list.  Thus when dwc->gadget is freed,
+the first dwc3_ep in the list now has a dangling prev pointer and
+likewise for the next pointer of the dwc3_ep at the tail of the list.
+The dwc3_gadget_free_endpoints() that follows will result in a
+use-after-free when it calls list_del().
 
-In case shrinking truncate happens to middle of an extent record which
-locates in extents overflow file, the logic in hfsplus_file_truncate() was
-changed so that call to hfs_brec_remove() is not guarded any more.
+This was caught by enabling KASAN and performing a driver unbind.
+The recent commit 568262bf5492 ("usb: dwc3: core: Add shutdown
+callback for dwc3") also exposes this as a panic during shutdown.
 
-Right action would be just freeing the extents that exceed the new size
-inside extent record by calling hfsplus_free_extents(), and then check if
-the whole extent record should be removed.  However since the guard
-(blk_cnt > start) is now after the call to hfs_brec_remove(), this has
-unfortunate effect that the last matching extent record is removed
-unconditionally.
+There are a few possibilities to fix this.  One could be to perform
+a list_del() of the gadget->ep_list itself which removes it from
+the rest of the dwc3_ep chain.
 
-To reproduce this issue, create a file which has at least 10 extents, and
-then perform shrinking truncate into middle of the last extent record, so
-that the number of remaining extents is not under or divisible by 8.  This
-causes the last extent record (8 extents) to be removed totally instead of
-truncating into middle of it.  Thus this causes corruption, and lost data.
+Another approach is what this patch does, by splitting up the
+usb_del_gadget_udc() call into its separate "del" and "put"
+components.  This allows dwc3_gadget_free_endpoints() to be
+called before the gadget is finally freed with usb_put_gadget().
 
-Fix for this is simply checking if the new truncated end is below the
-start of this extent record, making it safe to remove the full extent
-record.  However call to hfs_brec_remove() can't be moved to it's previous
-place since we're dropping ->tree_lock and it can cause a race condition
-and the cached info being invalidated possibly corrupting the node data.
-
-Another issue is related to this one.  When entering into the block
-(blk_cnt > start) we are not holding the ->tree_lock.  We break out from
-the loop not holding the lock, but hfs_find_exit() does unlock it.  Not
-sure if it's possible for someone else to take the lock under our feet,
-but it can cause hard to debug errors and premature unlocking.  Even if
-there's no real risk of it, the locking should still always be kept in
-balance.  Thus taking the lock now just before the check.
-
-Link: https://lkml.kernel.org/r/20210429165139.3082828-1-jouni.roivas@tuxera.com
-Fixes: 31651c607151f ("hfsplus: avoid deadlock on file truncation")
-Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
-Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
-Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
-Cc: Viacheslav Dubeyko <slava@dubeyko.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: e81a7018d93a ("usb: dwc3: allocate gadget structure dynamically")
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210501093558.7375-1-jackp@codeaurora.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/hfsplus/extents.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/usb/dwc3/gadget.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/hfsplus/extents.c
-+++ b/fs/hfsplus/extents.c
-@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode
- 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
- 		if (res)
- 			break;
--		hfs_brec_remove(&fd);
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 84d1487e9f06..dab9b5fd15a9 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -3948,8 +3948,9 @@ int dwc3_gadget_init(struct dwc3 *dwc)
  
--		mutex_unlock(&fd.tree->tree_lock);
- 		start = hip->cached_start;
-+		if (blk_cnt <= start)
-+			hfs_brec_remove(&fd);
-+		mutex_unlock(&fd.tree->tree_lock);
- 		hfsplus_free_extents(sb, hip->cached_extents,
- 				     alloc_cnt - start, alloc_cnt - blk_cnt);
- 		hfsplus_dump_extent(hip->cached_extents);
-+		mutex_lock(&fd.tree->tree_lock);
- 		if (blk_cnt > start) {
- 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
- 			break;
-@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode
- 		alloc_cnt = start;
- 		hip->cached_start = hip->cached_blocks = 0;
- 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
--		mutex_lock(&fd.tree->tree_lock);
- 	}
- 	hfs_find_exit(&fd);
- 
+ void dwc3_gadget_exit(struct dwc3 *dwc)
+ {
+-	usb_del_gadget_udc(dwc->gadget);
++	usb_del_gadget(dwc->gadget);
+ 	dwc3_gadget_free_endpoints(dwc);
++	usb_put_gadget(dwc->gadget);
+ 	dma_free_coherent(dwc->sysdev, DWC3_BOUNCE_SIZE, dwc->bounce,
+ 			  dwc->bounce_addr);
+ 	kfree(dwc->setup_buf);
+-- 
+2.30.2
+
 
 
