@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4953836CE
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B296383754
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241498AbhEQPgG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:36:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39260 "EHLO mail.kernel.org"
+        id S242947AbhEQPlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:41:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243370AbhEQPeG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:34:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D41C61CD5;
-        Mon, 17 May 2021 14:39:11 +0000 (UTC)
+        id S1343541AbhEQPjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:39:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C7BD261D0B;
+        Mon, 17 May 2021 14:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262352;
-        bh=zlwl3RE4NCCA1eFtQw8KakoyzJR5WJUgQ+CVONCrWpc=;
+        s=korg; t=1621262490;
+        bh=d6rSoUnYLFYbSJaq57HcQ3fkkd2+SwgTFbxGW7T4YhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YOSqNB6iAF5Lwhuv8gweiMESDoav7y2ZvWAfEEJJKWz92pK51IzzOYnV+4zf9Ooao
-         N/SJfnbf8PMn6tdNnxJcYDAKVmnI3qBgjb4MbHi6AB1f77R8fZTOwT/nkqJ1OWRthM
-         +Spu+qrZnZLXDhlr67mDA9shQ6hs0W/bmMvXPOJo=
+        b=0LVXAZUO13GrQ5NR39pdMu3S5rdMLcR7FlRBrxNdGtBWJO3ZQoefGAEkPwp/fOyKy
+         4RT5pK1hdCjpynbqOWPqS4oTIg2M56GI09SMb6fcOvFCTJFDk1SFxHHYN4BgQPgelm
+         BlYZLX7TtMYaguFw2X/VuuoBFdKJxfr+Y4Lfta0Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+        David Hildenbrand <david@redhat.com>,
+        Alistair Popple <apopple@nvidia.com>,
+        Jerome Glisse <jglisse@redhat.com>,
+        Rafael Aquini <aquini@redhat.com>,
+        Yang Shi <shy828301@gmail.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 167/289] mm/hugeltb: handle the error case in hugetlb_fix_reserve_counts()
-Date:   Mon, 17 May 2021 16:01:32 +0200
-Message-Id: <20210517140310.748965962@linuxfoundation.org>
+Subject: [PATCH 5.10 168/289] mm/migrate.c: fix potential indeterminate pte entry in migrate_vma_insert_page()
+Date:   Mon, 17 May 2021 16:01:33 +0200
+Message-Id: <20210517140310.779039880@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -45,53 +48,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit da56388c4397878a65b74f7fe97760f5aa7d316b ]
+[ Upstream commit 34f5e9b9d1990d286199084efa752530ee3d8297 ]
 
-A rare out of memory error would prevent removal of the reserve map region
-for a page.  hugetlb_fix_reserve_counts() handles this rare case to avoid
-dangling with incorrect counts.  Unfortunately, hugepage_subpool_get_pages
-and hugetlb_acct_memory could possibly fail too.  We should correctly
-handle these cases.
+If the zone device page does not belong to un-addressable device memory,
+the variable entry will be uninitialized and lead to indeterminate pte
+entry ultimately.  Fix this unexpected case and warn about it.
 
-Link: https://lkml.kernel.org/r/20210410072348.20437-5-linmiaohe@huawei.com
-Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+Link: https://lkml.kernel.org/r/20210325131524.48181-4-linmiaohe@huawei.com
+Fixes: df6ad69838fc ("mm/device-public-memory: device memory cache coherent with CPU")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: David Hildenbrand <david@redhat.com>
+Cc: Alistair Popple <apopple@nvidia.com>
+Cc: Jerome Glisse <jglisse@redhat.com>
+Cc: Rafael Aquini <aquini@redhat.com>
+Cc: Yang Shi <shy828301@gmail.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mm/migrate.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 573f1a0183be..900851a4f914 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -745,13 +745,20 @@ void hugetlb_fix_reserve_counts(struct inode *inode)
- {
- 	struct hugepage_subpool *spool = subpool_inode(inode);
- 	long rsv_adjust;
-+	bool reserved = false;
+diff --git a/mm/migrate.c b/mm/migrate.c
+index 9d7ca1bd7f4b..7982256a5125 100644
+--- a/mm/migrate.c
++++ b/mm/migrate.c
+@@ -2914,6 +2914,13 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
  
- 	rsv_adjust = hugepage_subpool_get_pages(spool, 1);
--	if (rsv_adjust) {
-+	if (rsv_adjust > 0) {
- 		struct hstate *h = hstate_inode(inode);
- 
--		hugetlb_acct_memory(h, 1);
-+		if (!hugetlb_acct_memory(h, 1))
-+			reserved = true;
-+	} else if (!rsv_adjust) {
-+		reserved = true;
- 	}
-+
-+	if (!reserved)
-+		pr_warn("hugetlb: Huge Page Reserved count may go negative.\n");
- }
- 
- /*
+ 			swp_entry = make_device_private_entry(page, vma->vm_flags & VM_WRITE);
+ 			entry = swp_entry_to_pte(swp_entry);
++		} else {
++			/*
++			 * For now we only support migrating to un-addressable
++			 * device memory.
++			 */
++			pr_warn_once("Unsupported ZONE_DEVICE page type.\n");
++			goto abort;
+ 		}
+ 	} else {
+ 		entry = mk_pte(page, vma->vm_page_prot);
 -- 
 2.30.2
 
