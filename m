@@ -2,103 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A30663825E0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 09:52:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D470238262B
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 10:02:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234344AbhEQHxY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 03:53:24 -0400
-Received: from mga04.intel.com ([192.55.52.120]:9143 "EHLO mga04.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229755AbhEQHxX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 03:53:23 -0400
-IronPort-SDR: Myar4+xNKHXjO5hTvAxfotLwVnogwRQjWXdGcX7aEqHhKRRhiJkeGxAQQVpFlTQzViE9A0IShj
- OZCf0pweUzzg==
-X-IronPort-AV: E=McAfee;i="6200,9189,9986"; a="198453743"
-X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
-   d="scan'208";a="198453743"
-Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 May 2021 00:52:07 -0700
-IronPort-SDR: rd21XUZcwHIbvmiOSea5rvnjWierU/LWoSiQ3oORaaOmyAIa2WowbgOIqQrWXlo2U6YudJplIL
- yhh50sy9U1iQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.82,306,1613462400"; 
-   d="scan'208";a="460213344"
-Received: from allen-box.sh.intel.com (HELO [10.239.159.128]) ([10.239.159.128])
-  by fmsmga004.fm.intel.com with ESMTP; 17 May 2021 00:52:04 -0700
-Cc:     baolu.lu@linux.intel.com, sashal@kernel.org, ashok.raj@intel.com,
-        jroedel@suse.de, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [REWORKED PATCH 1/1] iommu/vt-d: Preset Access/Dirty bits for
- IOVA over FL
-To:     Greg KH <gregkh@linuxfoundation.org>
-References: <20210517034913.3432-1-baolu.lu@linux.intel.com>
- <YKIWS0lFKTcZ9094@kroah.com>
- <726aede1-3d9f-6666-b31d-9db8e4301a0c@linux.intel.com>
- <YKIa9dczRk0v9Y2N@kroah.com>
-From:   Lu Baolu <baolu.lu@linux.intel.com>
-Message-ID: <cfe7a99c-a5b1-3c27-f44f-101ecdb84f12@linux.intel.com>
-Date:   Mon, 17 May 2021 15:51:13 +0800
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S229755AbhEQIEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 04:04:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37278 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229736AbhEQIEA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 04:04:00 -0400
+Received: from mail-qv1-xf36.google.com (mail-qv1-xf36.google.com [IPv6:2607:f8b0:4864:20::f36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00B26C061573
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:02:43 -0700 (PDT)
+Received: by mail-qv1-xf36.google.com with SMTP id u1so2640357qvg.11
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 01:02:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to
+         :content-transfer-encoding;
+        bh=+6wmCoDl5tetIoVEIyG2ePdqtZoufPaWFh8arwbUhqg=;
+        b=Da7hC0DyEvtOYMfDNMguZc/U+5TnKHAigK45m0c+q0Hy44TP1zoRK9BBTyVEbMUq3x
+         eGFCxCiKTkZ59UKj2L/Ox87MQ0lXMnhgoVf9Hh2hJMxx5MwfMxdjq1FMfXkb4tfMqE1f
+         zNqhb5UVoOlg1g54PU2ELEPTRFIX02o5ARiXmMF6vm2HnfOZH4ElVpyni4Wmh7p+VFze
+         GDIxLx1rBgDu/P77HXu/YMxLtt+SjdWYQly5yiylghVHGkx4rUCQ5249ivxKOq3LfsIY
+         Aq/CKdEnJFs9AC1ZUzdLCxQbh6qKWc/NwJiYw/OKLcxsmY3TRZtcFLh1E01Sf+HyWcJv
+         9ixQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to:content-transfer-encoding;
+        bh=+6wmCoDl5tetIoVEIyG2ePdqtZoufPaWFh8arwbUhqg=;
+        b=Qm3xB+YkNDnCUb+hZ6R5lN304zOA0we/Orb6Z0qIqMr3O5Ceee30AqhidcDReG4/Xd
+         8QgTRTBG8Tg1O0kwqTnop/i5bQJlzTEnGM9LpYOydyqoKcn2sKtRSf+G+K+BJikvVxex
+         g27WgB1B/1VrzmNeH+BZfCY9qr+ibRDMNsw/44HSyScB8/c09ADbLAJyqi9TemiEzqr1
+         ATr65NBD0YfpD/KJ2kTRfPTqvWDtzRP6i0Em4XjsVAbQ4x/Zub+Z9gwoJ0V6vE4MIB0I
+         +PM9gX5/zo6zAp/zECGi1IicAqh74T8ALENThXamx/zkroHyqy88DbYTeNXc/oDPdmdB
+         8RxA==
+X-Gm-Message-State: AOAM532zBwGVBBiiV7/+IDXGFcpdET3Wbj2uUUvcmj1pHA6+PDx6ZuHd
+        55eJ2VnJI8U2JhWJQviBFuFZBEyGxHZ5qLM8vvE=
+X-Google-Smtp-Source: ABdhPJwobhOIDpM4vVaKuqAWrhekc2nGHpK+Fx/7jNo+4wJHBxv4Lxq7o28TdlydKe0ZWacS+qGUasZ7W8xQkI7HWJo=
+X-Received: by 2002:a05:6214:126f:: with SMTP id r15mr24637012qvv.35.1621238563142;
+ Mon, 17 May 2021 01:02:43 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <YKIa9dczRk0v9Y2N@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Reply-To: mrmohammedmashab@gmail.com
+Sender: astafashraf407@gmail.com
+Received: by 2002:a0c:f601:0:0:0:0:0 with HTTP; Mon, 17 May 2021 01:02:42
+ -0700 (PDT)
+From:   Mr Mohammed Mashab <mrmohammedmasha@gmail.com>
+Date:   Mon, 17 May 2021 10:02:42 +0200
+X-Google-Sender-Auth: ZPY6us-FPKwRvGcBcrKVwnPpw4Q
+Message-ID: <CAJYB=s7kcbmT+eZaa9cwzWZXfSO1Q2nFBdqrNjgcHZS89sn2Vw@mail.gmail.com>
+Subject: Von: Mr.Mohammed,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Guten Tag,
 
-On 5/17/21 3:27 PM, Greg KH wrote:
-> On Mon, May 17, 2021 at 03:17:53PM +0800, Lu Baolu wrote:
->> Hi Greg,
->>
->> On 5/17/21 3:07 PM, Greg KH wrote:
->>> On Mon, May 17, 2021 at 11:49:13AM +0800, Lu Baolu wrote:
->>>> [ Upstream commit a8ce9ebbecdfda3322bbcece6b3b25888217f8e3 ]
->>>>
->>>> The Access/Dirty bits in the first level page table entry will be set
->>>> whenever a page table entry was used for address translation or write
->>>> permission was successfully translated. This is always true when using
->>>> the first-level page table for kernel IOVA. Instead of wasting hardware
->>>> cycles to update the certain bits, it's better to set them up at the
->>>> beginning.
->>>>
->>>> Suggested-by: Ashok Raj <ashok.raj@intel.com>
->>>> Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
->>>> Link: https://lore.kernel.org/r/20210115004202.953965-1-baolu.lu@linux.intel.com
->>>> Signed-off-by: Joerg Roedel <jroedel@suse.de>
->>>> Signed-off-by: Sasha Levin <sashal@kernel.org>
->>>> ---
->>>>    drivers/iommu/intel/iommu.c | 14 ++++++++++++--
->>>>    include/linux/intel-iommu.h |  2 ++
->>>>    2 files changed, 14 insertions(+), 2 deletions(-)
->>>>
->>>> [Note:
->>>> - This is a reworked patch of
->>>>     https://lore.kernel.org/stable/20210512144819.664462530@linuxfoundation.org/T/#m65267f0a0091c2fcbde097cea91089775908faad.
->>>> - It aims to fix a reported issue of
->>>>     https://bugzilla.kernel.org/show_bug.cgi?id=213077.
->>>> - Please help to review and test.]
->>>
->>> What stable tree(s) is this supposed to be for?
->>
->> It's for 5.10.37.
-> 
-> But the above commit is already in 5.10.y.  And what about 5.11 and
-> 5.12, were those backports incorrect?
+Ich bin Mr. Mohammed Mashab, Account Manager einer Investmentbank hier
+in Burkina Faso. In meinem Unternehmen wird seit langem ein
+Kontoprojekt von einem Kunden unserer Bank er=C3=B6ffnet. Ich habe die
+M=C3=B6glichkeit, den verbleibenden Fonds (15,8 Millionen US-Dollar) zu
+=C3=BCbertragen. F=C3=BCnfzehn Millionen Achthunderttausend US-Dollar.
 
-Above commit is now only in v5.10.37. Other 5.10.y are not impacted.
+Ich m=C3=B6chte diese Mittel anlegen und unserer Bank diese Vereinbarung
+vorlegen. Diese wird im Rahmen einer legitimen Vereinbarung
+ausgef=C3=BChrt, die uns vor Gesetzesverst=C3=B6=C3=9Fen sch=C3=BCtzt. Wir =
+teilen den
+Fonds zu 40% f=C3=BCr Sie, zu 50% f=C3=BCr mich und zu 10%, um eine Basis f=
+=C3=BCr
+arme Kinder in Ihrem Land zu schaffen. Wenn Sie wirklich an meinem
+Vorschlag interessiert sind, erhalten Sie weitere Informationen zur
+=C3=9Cberweisung.
 
-5.11 and 5.12 both have correct backports.
-
-> 
-> confused,
-> 
-> greg k-h
-> 
-
-Best regards,
-baolu
+Dein,
+Mr. Mohammed Mashab.
