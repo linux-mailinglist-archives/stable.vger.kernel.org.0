@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76BD7382EB5
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:10:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B7363830B1
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238384AbhEQOKO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:10:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60562 "EHLO mail.kernel.org"
+        id S238673AbhEQOaQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:30:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238130AbhEQOIT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:08:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDC6760724;
-        Mon, 17 May 2021 14:06:35 +0000 (UTC)
+        id S238969AbhEQO2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:28:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27C1F613DC;
+        Mon, 17 May 2021 14:14:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260396;
-        bh=B+EMqvSUBUldqZ6ClL7veoudJmVUUSPY1yhJymXxLwk=;
+        s=korg; t=1621260841;
+        bh=uvsdfGNEu6fT7UN+VgqEadQGzd7+VAPyiU9OSLHDgc0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hv0rbfPhlHAXI2XZs3WQv/tlCpElvf2TCfAtUIcXVwH3K5zJZ9rlD9EeHTwY0GBKN
-         Aj2Rd8u1kC02MO1kGFN3IT3dYSiXH4K79q7uu7FQ/IQngzhCswEJRnbqFqeap+1xqw
-         trGAbzpfCT9QQa2TryvR2FzgZKBm+OVo3scqN/t0=
+        b=sYOCJHotYz+VJUWgkiag+rnCVABEEy+wbfj62EkqwuvHwneGEeAjcT+mOaP52O8Fz
+         pMVsFEXg8sR/wiUSQQpvHfNVQxplSNxjG0dvJb0miaTbQjM1kJkLInYUV28+1woK9s
+         QCK9tlW6Q7vpy3lUunxJFxKzfEfSbxtr7kmMBGgk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 061/363] pinctrl: samsung: use int for register masks in Exynos
+Subject: [PATCH 5.11 016/329] fs: dlm: add errno handling to check callback
 Date:   Mon, 17 May 2021 15:58:47 +0200
-Message-Id: <20210517140304.673334066@linuxfoundation.org>
+Message-Id: <20210517140302.596874207@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
-References: <20210517140302.508966430@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit fa0c10a5f3a49130dd11281aa27e7e1c8654abc7 ]
+[ Upstream commit 8aa9540b49e0833feba75dbf4f45babadd0ed215 ]
 
-The Special Function Registers on all Exynos SoC, including ARM64, are
-32-bit wide, so entire driver uses matching functions like readl() or
-writel().  On 64-bit ARM using unsigned long for register masks:
-1. makes little sense as immediately after bitwise operation it will be
-   cast to 32-bit value when calling writel(),
-2. is actually error-prone because it might promote other operands to
-   64-bit.
+This allows to return individual errno values for the config attribute
+check callback instead of returning invalid argument only.
 
-Addresses-Coverity: Unintentional integer overflow
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Link: https://lore.kernel.org/r/20210408195029.69974-1-krzysztof.kozlowski@canonical.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/samsung/pinctrl-exynos.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ fs/dlm/config.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/pinctrl/samsung/pinctrl-exynos.c b/drivers/pinctrl/samsung/pinctrl-exynos.c
-index 0cd7f33cdf25..2b99f4130e1e 100644
---- a/drivers/pinctrl/samsung/pinctrl-exynos.c
-+++ b/drivers/pinctrl/samsung/pinctrl-exynos.c
-@@ -55,7 +55,7 @@ static void exynos_irq_mask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
+diff --git a/fs/dlm/config.c b/fs/dlm/config.c
+index 582bffa09a66..8439610c266a 100644
+--- a/fs/dlm/config.c
++++ b/fs/dlm/config.c
+@@ -125,7 +125,7 @@ static ssize_t cluster_cluster_name_store(struct config_item *item,
+ CONFIGFS_ATTR(cluster_, cluster_name);
  
- 	raw_spin_lock_irqsave(&bank->slock, flags);
-@@ -83,7 +83,7 @@ static void exynos_irq_unmask(struct irq_data *irqd)
- 	struct exynos_irq_chip *our_chip = to_exynos_irq_chip(chip);
- 	struct samsung_pin_bank *bank = irq_data_get_irq_chip_data(irqd);
- 	unsigned long reg_mask = our_chip->eint_mask + bank->eint_offset;
--	unsigned long mask;
-+	unsigned int mask;
- 	unsigned long flags;
+ static ssize_t cluster_set(struct dlm_cluster *cl, unsigned int *cl_field,
+-			   int *info_field, bool (*check_cb)(unsigned int x),
++			   int *info_field, int (*check_cb)(unsigned int x),
+ 			   const char *buf, size_t len)
+ {
+ 	unsigned int x;
+@@ -137,8 +137,11 @@ static ssize_t cluster_set(struct dlm_cluster *cl, unsigned int *cl_field,
+ 	if (rc)
+ 		return rc;
  
- 	/*
-@@ -483,7 +483,7 @@ static void exynos_irq_eint0_15(struct irq_desc *desc)
- 	chained_irq_exit(chip, desc);
+-	if (check_cb && check_cb(x))
+-		return -EINVAL;
++	if (check_cb) {
++		rc = check_cb(x);
++		if (rc)
++			return rc;
++	}
+ 
+ 	*cl_field = x;
+ 	*info_field = x;
+@@ -161,14 +164,20 @@ static ssize_t cluster_##name##_show(struct config_item *item, char *buf)     \
+ }                                                                             \
+ CONFIGFS_ATTR(cluster_, name);
+ 
+-static bool dlm_check_zero(unsigned int x)
++static int dlm_check_zero(unsigned int x)
+ {
+-	return !x;
++	if (!x)
++		return -EINVAL;
++
++	return 0;
  }
  
--static inline void exynos_irq_demux_eint(unsigned long pend,
-+static inline void exynos_irq_demux_eint(unsigned int pend,
- 						struct irq_domain *domain)
+-static bool dlm_check_buffer_size(unsigned int x)
++static int dlm_check_buffer_size(unsigned int x)
  {
- 	unsigned int irq;
-@@ -500,8 +500,8 @@ static void exynos_irq_demux_eint16_31(struct irq_desc *desc)
- {
- 	struct irq_chip *chip = irq_desc_get_chip(desc);
- 	struct exynos_muxed_weint_data *eintd = irq_desc_get_handler_data(desc);
--	unsigned long pend;
--	unsigned long mask;
-+	unsigned int pend;
-+	unsigned int mask;
- 	int i;
+-	return (x < DEFAULT_BUFFER_SIZE);
++	if (x < DEFAULT_BUFFER_SIZE)
++		return -EINVAL;
++
++	return 0;
+ }
  
- 	chained_irq_enter(chip, desc);
+ CLUSTER_ATTR(tcp_port, dlm_check_zero);
 -- 
 2.30.2
 
