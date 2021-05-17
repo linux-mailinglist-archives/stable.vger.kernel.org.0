@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1173382EA0
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:08:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 80B69383089
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:29:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237753AbhEQOJn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:09:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58468 "EHLO mail.kernel.org"
+        id S239317AbhEQO2X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:28:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238091AbhEQOHs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:07:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D4C061352;
-        Mon, 17 May 2021 14:06:18 +0000 (UTC)
+        id S239426AbhEQO0R (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:26:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C0156128A;
+        Mon, 17 May 2021 14:13:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260378;
-        bh=b3RxAnqZyvSpqfjl9rUegzuE+IJ21GBgWwQc2A7a/zk=;
+        s=korg; t=1621260812;
+        bh=HXBZL71tidJvpD5CLLWpiTgA238TwpQKleyRhzYVTMI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hi2ROHJNCbUPp9ztCycpER4feBKwJ+glXY4A/xylE7N2RteOLPFPLEXCUSkrWATIR
-         2635fbqXO3/KBSY1WYT7BQdmOofPmGv5aRkZnow7n8ge6OFZr5/JFjFcs/zZ0AYaKU
-         MJCug16bO6PlxGohoywxaHkWVt50bNMPu/iJCfrQ=
+        b=ZziaBHx2o2RsEx95QptuZBkDBSvaVRWdl+MJKr0y9sk/iJnWZnL6Jku4pcEX73UdJ
+         h1p/5ik/1BEgKVgyLuhY752ouDD+1WhG0NOCPdWyuiLzJvSr2lbQKQwVVS98Rv+dMh
+         rxdZpSwR/075UDQbvZgeIjP8vwsqmjKRTysMAKYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>,
-        Suzuki K Poulose <suzuki.poulose@arm.com>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 054/363] coresight: Do not scan for graph if none is present
-Date:   Mon, 17 May 2021 15:58:40 +0200
-Message-Id: <20210517140304.432526388@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.11 010/329] cpufreq: intel_pstate: Use HWP if enabled by platform firmware
+Date:   Mon, 17 May 2021 15:58:41 +0200
+Message-Id: <20210517140302.398765394@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
-References: <20210517140302.508966430@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suzuki K Poulose <suzuki.poulose@arm.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-[ Upstream commit 2b921b671a8d29c2adb255a86409aad1e3267309 ]
+commit e5af36b2adb858e982d78d41d7363d05d951a19a upstream.
 
-If a graph node is not found for a given node, of_get_next_endpoint()
-will emit the following error message :
+It turns out that there are systems where HWP is enabled during
+initialization by the platform firmware (BIOS), but HWP EPP support
+is not advertised.
 
- OF: graph: no port node found in /<node_name>
+After commit 7aa1031223bc ("cpufreq: intel_pstate: Avoid enabling HWP
+if EPP is not supported") intel_pstate refuses to use HWP on those
+systems, but the fallback PERF_CTL interface does not work on them
+either because of enabled HWP, and once enabled, HWP cannot be
+disabled.  Consequently, the users of those systems cannot control
+CPU performance scaling.
 
-If the given component doesn't have any explicit connections (e.g,
-ETE) we could simply ignore the graph parsing. As for any legacy
-component where this is mandatory, the device will not be usable
-as before this patch. Updating the DT bindings to Yaml and enabling
-the schema checks can detect such issues with the DT.
+Address this issue by making intel_pstate use HWP unconditionally if
+it is enabled already when the driver starts.
 
-Cc: Mike Leach <mike.leach@linaro.org>
-Cc: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Suzuki K Poulose <suzuki.poulose@arm.com>
-Link: https://lore.kernel.org/r/20210405164307.1720226-11-suzuki.poulose@arm.com
-Signed-off-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 7aa1031223bc ("cpufreq: intel_pstate: Avoid enabling HWP if EPP is not supported")
+Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwtracing/coresight/coresight-platform.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/cpufreq/intel_pstate.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hwtracing/coresight/coresight-platform.c b/drivers/hwtracing/coresight/coresight-platform.c
-index 3629b7885aca..c594f45319fc 100644
---- a/drivers/hwtracing/coresight/coresight-platform.c
-+++ b/drivers/hwtracing/coresight/coresight-platform.c
-@@ -90,6 +90,12 @@ static void of_coresight_get_ports_legacy(const struct device_node *node,
- 	struct of_endpoint endpoint;
- 	int in = 0, out = 0;
+--- a/drivers/cpufreq/intel_pstate.c
++++ b/drivers/cpufreq/intel_pstate.c
+@@ -3053,6 +3053,14 @@ static const struct x86_cpu_id hwp_suppo
+ 	{}
+ };
  
-+	/*
-+	 * Avoid warnings in of_graph_get_next_endpoint()
-+	 * if the device doesn't have any graph connections
-+	 */
-+	if (!of_graph_is_present(node))
-+		return;
- 	do {
- 		ep = of_graph_get_next_endpoint(node, ep);
- 		if (!ep)
--- 
-2.30.2
-
++static bool intel_pstate_hwp_is_enabled(void)
++{
++	u64 value;
++
++	rdmsrl(MSR_PM_ENABLE, value);
++	return !!(value & 0x1);
++}
++
+ static int __init intel_pstate_init(void)
+ {
+ 	const struct x86_cpu_id *id;
+@@ -3071,8 +3079,12 @@ static int __init intel_pstate_init(void
+ 		 * Avoid enabling HWP for processors without EPP support,
+ 		 * because that means incomplete HWP implementation which is a
+ 		 * corner case and supporting it is generally problematic.
++		 *
++		 * If HWP is enabled already, though, there is no choice but to
++		 * deal with it.
+ 		 */
+-		if (!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) {
++		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) ||
++		    intel_pstate_hwp_is_enabled()) {
+ 			hwp_active++;
+ 			hwp_mode_bdw = id->driver_data;
+ 			intel_pstate.attr = hwp_cpufreq_attrs;
 
 
