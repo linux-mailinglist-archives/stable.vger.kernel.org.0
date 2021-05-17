@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4817A38368E
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561563837FF
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:47:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243128AbhEQPd7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:33:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58256 "EHLO mail.kernel.org"
+        id S245163AbhEQPsP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:48:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241265AbhEQPb5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:31:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E6EA61401;
-        Mon, 17 May 2021 14:38:26 +0000 (UTC)
+        id S1345008AbhEQPqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:46:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3285061D34;
+        Mon, 17 May 2021 14:44:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262306;
-        bh=nrLbR1qS2oetQEG6q1ppywEyY3I4leNoq2ksalzIrvs=;
+        s=korg; t=1621262652;
+        bh=bybrmc16683+KkVjrbVUfWRxtX5ZT1hUJQR5ErdOCqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3Nhm1p5e832dRDuWJjpGoWMd8w+X/wPAcLaqZrnKH67ddDZuPIUj6tVlrWB4unxh
-         vbuv0gTPR9FXMsmPF5+sXip03rOnTxwwVcwivXzU0QvlL4Wqj7GOsy+nH9vUC/ZKPF
-         wqSGWu2Lg2z22ofbBikmrYAf69nISLT8ThpNKsk4=
+        b=Sh03uh0LCnzILh5297Q392X3kk9KRvOM99/VSmFnmVJLqTBBS2N4IPp+uOmP0IHz5
+         BN0vU3FOIaubaIetSGTdfxWjUee8W2UDRjhM1EVdedzi+X581msblAAMmzNliGXsYa
+         4m1P8j6+jVMirLLqAst3ZImVRr5Wc2z/qRZ/4NVk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 261/329] iio: light: gp2ap002: Fix rumtime PM imbalance on error
+        stable@vger.kernel.org,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Jack Pham <jackp@codeaurora.org>,
+        Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+Subject: [PATCH 5.10 247/289] usb: typec: ucsi: Retrieve all the PDOs instead of just the first 4
 Date:   Mon, 17 May 2021 16:02:52 +0200
-Message-Id: <20210517140310.940874820@linuxfoundation.org>
+Message-Id: <20210517140313.460178155@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +41,165 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Jack Pham <jackp@codeaurora.org>
 
-[ Upstream commit 8edb79af88efc6e49e735f9baf61d9f0748b881f ]
+commit 1f4642b72be79757f050924a9b9673b6a02034bc upstream.
 
-When devm_request_threaded_irq() fails, we should decrease the
-runtime PM counter to keep the counter balanced. But when
-iio_device_register() fails, we need not to decrease it because
-we have already decreased it before.
+commit 4dbc6a4ef06d ("usb: typec: ucsi: save power data objects
+in PD mode") introduced retrieval of the PDOs when connected to a
+PD-capable source. But only the first 4 PDOs are received since
+that is the maximum number that can be fetched at a time given the
+MESSAGE_IN length limitation (16 bytes). However, as per the PD spec
+a connected source may advertise up to a maximum of 7 PDOs.
 
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 97d642e23037 ("iio: light: Add a driver for Sharp GP2AP002x00F")
-Link: https://lore.kernel.org/r/20210407034927.16882-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If such a source is connected it's possible the PPM could have
+negotiated a power contract with one of the PDOs at index greater
+than 4, and would be reflected in the request data object's (RDO)
+object position field. This would result in an out-of-bounds access
+when the rdo_index() is used to index into the src_pdos array in
+ucsi_psy_get_voltage_now().
+
+With the help of the UBSAN -fsanitize=array-bounds checker enabled
+this exact issue is revealed when connecting to a PD source adapter
+that advertise 5 PDOs and the PPM enters a contract having selected
+the 5th one.
+
+[  151.545106][   T70] Unexpected kernel BRK exception at EL1
+[  151.545112][   T70] Internal error: BRK handler: f2005512 [#1] PREEMPT SMP
+...
+[  151.545499][   T70] pc : ucsi_psy_get_prop+0x208/0x20c
+[  151.545507][   T70] lr : power_supply_show_property+0xc0/0x328
+...
+[  151.545542][   T70] Call trace:
+[  151.545544][   T70]  ucsi_psy_get_prop+0x208/0x20c
+[  151.545546][   T70]  power_supply_uevent+0x1a4/0x2f0
+[  151.545550][   T70]  dev_uevent+0x200/0x384
+[  151.545555][   T70]  kobject_uevent_env+0x1d4/0x7e8
+[  151.545557][   T70]  power_supply_changed_work+0x174/0x31c
+[  151.545562][   T70]  process_one_work+0x244/0x6f0
+[  151.545564][   T70]  worker_thread+0x3e0/0xa64
+
+We can resolve this by instead retrieving and storing up to the
+maximum of 7 PDOs in the con->src_pdos array. This would involve
+two calls to the GET_PDOS command.
+
+Fixes: 992a60ed0d5e ("usb: typec: ucsi: register with power_supply class")
+Fixes: 4dbc6a4ef06d ("usb: typec: ucsi: save power data objects in PD mode")
+Cc: stable@vger.kernel.org
+Reported-and-tested-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503074611.30973-1-jackp@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/light/gp2ap002.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/typec/ucsi/ucsi.c |   41 ++++++++++++++++++++++++++++++++---------
+ drivers/usb/typec/ucsi/ucsi.h |    6 ++++--
+ 2 files changed, 36 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/iio/light/gp2ap002.c b/drivers/iio/light/gp2ap002.c
-index 7ba7aa59437c..040d8429a6e0 100644
---- a/drivers/iio/light/gp2ap002.c
-+++ b/drivers/iio/light/gp2ap002.c
-@@ -583,7 +583,7 @@ static int gp2ap002_probe(struct i2c_client *client,
- 					"gp2ap002", indio_dev);
- 	if (ret) {
- 		dev_err(dev, "unable to request IRQ\n");
--		goto out_disable_vio;
-+		goto out_put_pm;
+--- a/drivers/usb/typec/ucsi/ucsi.c
++++ b/drivers/usb/typec/ucsi/ucsi.c
+@@ -495,7 +495,8 @@ static void ucsi_unregister_altmodes(str
  	}
- 	gp2ap002->irq = client->irq;
+ }
  
-@@ -613,8 +613,9 @@ static int gp2ap002_probe(struct i2c_client *client,
+-static void ucsi_get_pdos(struct ucsi_connector *con, int is_partner)
++static int ucsi_get_pdos(struct ucsi_connector *con, int is_partner,
++			 u32 *pdos, int offset, int num_pdos)
+ {
+ 	struct ucsi *ucsi = con->ucsi;
+ 	u64 command;
+@@ -503,17 +504,39 @@ static void ucsi_get_pdos(struct ucsi_co
  
- 	return 0;
+ 	command = UCSI_COMMAND(UCSI_GET_PDOS) | UCSI_CONNECTOR_NUMBER(con->num);
+ 	command |= UCSI_GET_PDOS_PARTNER_PDO(is_partner);
+-	command |= UCSI_GET_PDOS_NUM_PDOS(UCSI_MAX_PDOS - 1);
++	command |= UCSI_GET_PDOS_PDO_OFFSET(offset);
++	command |= UCSI_GET_PDOS_NUM_PDOS(num_pdos - 1);
+ 	command |= UCSI_GET_PDOS_SRC_PDOS;
+-	ret = ucsi_send_command(ucsi, command, con->src_pdos,
+-			       sizeof(con->src_pdos));
+-	if (ret < 0) {
++	ret = ucsi_send_command(ucsi, command, pdos + offset,
++				num_pdos * sizeof(u32));
++	if (ret < 0)
+ 		dev_err(ucsi->dev, "UCSI_GET_PDOS failed (%d)\n", ret);
++	if (ret == 0 && offset == 0)
++		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
++
++	return ret;
++}
++
++static void ucsi_get_src_pdos(struct ucsi_connector *con, int is_partner)
++{
++	int ret;
++
++	/* UCSI max payload means only getting at most 4 PDOs at a time */
++	ret = ucsi_get_pdos(con, 1, con->src_pdos, 0, UCSI_MAX_PDOS);
++	if (ret < 0)
+ 		return;
+-	}
++
+ 	con->num_pdos = ret / sizeof(u32); /* number of bytes to 32-bit PDOs */
+-	if (ret == 0)
+-		dev_warn(ucsi->dev, "UCSI_GET_PDOS returned 0 bytes\n");
++	if (con->num_pdos < UCSI_MAX_PDOS)
++		return;
++
++	/* get the remaining PDOs, if any */
++	ret = ucsi_get_pdos(con, 1, con->src_pdos, UCSI_MAX_PDOS,
++			    PDO_MAX_OBJECTS - UCSI_MAX_PDOS);
++	if (ret < 0)
++		return;
++
++	con->num_pdos += ret / sizeof(u32);
+ }
  
--out_disable_pm:
-+out_put_pm:
- 	pm_runtime_put_noidle(dev);
-+out_disable_pm:
- 	pm_runtime_disable(dev);
- out_disable_vio:
- 	regulator_disable(gp2ap002->vio);
--- 
-2.30.2
-
+ static void ucsi_pwr_opmode_change(struct ucsi_connector *con)
+@@ -522,7 +545,7 @@ static void ucsi_pwr_opmode_change(struc
+ 	case UCSI_CONSTAT_PWR_OPMODE_PD:
+ 		con->rdo = con->status.request_data_obj;
+ 		typec_set_pwr_opmode(con->port, TYPEC_PWR_MODE_PD);
+-		ucsi_get_pdos(con, 1);
++		ucsi_get_src_pdos(con, 1);
+ 		break;
+ 	case UCSI_CONSTAT_PWR_OPMODE_TYPEC1_5:
+ 		con->rdo = 0;
+--- a/drivers/usb/typec/ucsi/ucsi.h
++++ b/drivers/usb/typec/ucsi/ucsi.h
+@@ -8,6 +8,7 @@
+ #include <linux/power_supply.h>
+ #include <linux/types.h>
+ #include <linux/usb/typec.h>
++#include <linux/usb/pd.h>
+ 
+ /* -------------------------------------------------------------------------- */
+ 
+@@ -133,7 +134,9 @@ void ucsi_connector_change(struct ucsi *
+ 
+ /* GET_PDOS command bits */
+ #define UCSI_GET_PDOS_PARTNER_PDO(_r_)		((u64)(_r_) << 23)
++#define UCSI_GET_PDOS_PDO_OFFSET(_r_)		((u64)(_r_) << 24)
+ #define UCSI_GET_PDOS_NUM_PDOS(_r_)		((u64)(_r_) << 32)
++#define UCSI_MAX_PDOS				(4)
+ #define UCSI_GET_PDOS_SRC_PDOS			((u64)1 << 34)
+ 
+ /* -------------------------------------------------------------------------- */
+@@ -300,7 +303,6 @@ struct ucsi {
+ 
+ #define UCSI_MAX_SVID		5
+ #define UCSI_MAX_ALTMODES	(UCSI_MAX_SVID * 6)
+-#define UCSI_MAX_PDOS		(4)
+ 
+ #define UCSI_TYPEC_VSAFE5V	5000
+ #define UCSI_TYPEC_1_5_CURRENT	1500
+@@ -327,7 +329,7 @@ struct ucsi_connector {
+ 	struct power_supply *psy;
+ 	struct power_supply_desc psy_desc;
+ 	u32 rdo;
+-	u32 src_pdos[UCSI_MAX_PDOS];
++	u32 src_pdos[PDO_MAX_OBJECTS];
+ 	int num_pdos;
+ };
+ 
 
 
