@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8B3938368B
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEC3B38368D
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242605AbhEQPdr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:33:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57350 "EHLO mail.kernel.org"
+        id S243107AbhEQPd6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:33:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53994 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243072AbhEQPb2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:31:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0CB7613F7;
-        Mon, 17 May 2021 14:38:19 +0000 (UTC)
+        id S244185AbhEQPb4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:31:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 131386141F;
+        Mon, 17 May 2021 14:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262300;
-        bh=P9LNJfZVMETolnPmcQMKXlWFJEtYJqWcQNRs47Gp0Pk=;
+        s=korg; t=1621262304;
+        bh=iHKtszs9IIlWoFV7+AuVDwDxIjB0taP5A/9EBFJd1V4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ENpuwHMtMV9mNRaj1A6BlM8hWwxtIDdAfEOgfh/5bI7uxLQMrUFi9QDIRB1poj6sH
-         E+EfwY1deD2oEdB6UhJ2laORWWFV2Xv6XRIl70j4UKiZ6s4c5BrKWQ/G6yMq9sjhZW
-         pjUNjpTNZ7/cdQp3g/Ev8pkPTNlfxYJFGLHovA4A=
+        b=tJWLIuB/hvn+SU3vE4nronZnS/T7a2k5TLV9XT8ES6JAWZArBKnXKgwaF4/89Eqyv
+         cmdSfaI6N5yhxHQaQ+fvW0rKfxl8dVKI/wc2FT2Nr0SgkkNHI4Xzfkrux5wv9Zrhlk
+         MXLpGKvzbXrFcDGjPdDG6ukG4oRhbkBEKtpJFIps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Md Haris Iqbal <haris.iqbal@ionos.com>,
-        Guoqing Jiang <guoqing.jiang@ionos.com>,
-        Jack Wang <jinpu.wang@ionos.com>,
-        Gioh Kim <gi-oh.kim@ionos.com>, Jens Axboe <axboe@kernel.dk>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Govindarajulu Varadarajan <gvaradar@cisco.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/289] block/rnbd-clt: Check the return value of the function rtrs_clt_query
-Date:   Mon, 17 May 2021 16:01:21 +0200
-Message-Id: <20210517140310.385643619@linuxfoundation.org>
+Subject: [PATCH 5.10 157/289] ethernet:enic: Fix a use after free bug in enic_hard_start_xmit
+Date:   Mon, 17 May 2021 16:01:22 +0200
+Message-Id: <20210517140310.417272734@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -42,56 +41,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Md Haris Iqbal <haris.iqbal@cloud.ionos.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 1056ad829ec43f9b705b507c2093b05e2088b0b7 ]
+[ Upstream commit 643001b47adc844ae33510c4bb93c236667008a3 ]
 
-In case none of the paths are in connected state, the function
-rtrs_clt_query returns an error. In such a case, error out since the
-values in the rtrs_attrs structure would be garbage.
+In enic_hard_start_xmit, it calls enic_queue_wq_skb(). Inside
+enic_queue_wq_skb, if some error happens, the skb will be freed
+by dev_kfree_skb(skb). But the freed skb is still used in
+skb_tx_timestamp(skb).
 
-Fixes: f7a7a5c228d45 ("block/rnbd: client: main functionality")
-Signed-off-by: Md Haris Iqbal <haris.iqbal@ionos.com>
-Reviewed-by: Guoqing Jiang <guoqing.jiang@ionos.com>
-Signed-off-by: Jack Wang <jinpu.wang@ionos.com>
-Signed-off-by: Gioh Kim <gi-oh.kim@ionos.com>
-Link: https://lore.kernel.org/r/20210428061359.206794-4-gi-oh.kim@ionos.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+My patch makes enic_queue_wq_skb() return error and goto spin_unlock()
+incase of error. The solution is provided by Govind.
+See https://lkml.org/lkml/2021/4/30/961.
+
+Fixes: fb7516d42478e ("enic: add sw timestamp support")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Acked-by: Govindarajulu Varadarajan <gvaradar@cisco.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/rnbd/rnbd-clt.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/cisco/enic/enic_main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/block/rnbd/rnbd-clt.c b/drivers/block/rnbd/rnbd-clt.c
-index ba334fe7626d..71b86fee81c2 100644
---- a/drivers/block/rnbd/rnbd-clt.c
-+++ b/drivers/block/rnbd/rnbd-clt.c
-@@ -679,7 +679,11 @@ static void remap_devs(struct rnbd_clt_session *sess)
- 		return;
+diff --git a/drivers/net/ethernet/cisco/enic/enic_main.c b/drivers/net/ethernet/cisco/enic/enic_main.c
+index fb269d587b74..548d8095c0a7 100644
+--- a/drivers/net/ethernet/cisco/enic/enic_main.c
++++ b/drivers/net/ethernet/cisco/enic/enic_main.c
+@@ -768,7 +768,7 @@ static inline int enic_queue_wq_skb_encap(struct enic *enic, struct vnic_wq *wq,
+ 	return err;
+ }
+ 
+-static inline void enic_queue_wq_skb(struct enic *enic,
++static inline int enic_queue_wq_skb(struct enic *enic,
+ 	struct vnic_wq *wq, struct sk_buff *skb)
+ {
+ 	unsigned int mss = skb_shinfo(skb)->gso_size;
+@@ -814,6 +814,7 @@ static inline void enic_queue_wq_skb(struct enic *enic,
+ 		wq->to_use = buf->next;
+ 		dev_kfree_skb(skb);
+ 	}
++	return err;
+ }
+ 
+ /* netif_tx_lock held, process context with BHs disabled, or BH */
+@@ -857,7 +858,8 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
+ 		return NETDEV_TX_BUSY;
  	}
  
--	rtrs_clt_query(sess->rtrs, &attrs);
-+	err = rtrs_clt_query(sess->rtrs, &attrs);
-+	if (err) {
-+		pr_err("rtrs_clt_query(\"%s\"): %d\n", sess->sessname, err);
-+		return;
-+	}
- 	mutex_lock(&sess->lock);
- 	sess->max_io_size = attrs.max_io_size;
+-	enic_queue_wq_skb(enic, wq, skb);
++	if (enic_queue_wq_skb(enic, wq, skb))
++		goto error;
  
-@@ -1211,7 +1215,11 @@ find_and_get_or_create_sess(const char *sessname,
- 		err = PTR_ERR(sess->rtrs);
- 		goto wake_up_and_put;
- 	}
--	rtrs_clt_query(sess->rtrs, &attrs);
-+
-+	err = rtrs_clt_query(sess->rtrs, &attrs);
-+	if (err)
-+		goto close_rtrs;
-+
- 	sess->max_io_size = attrs.max_io_size;
- 	sess->queue_depth = attrs.queue_depth;
+ 	if (vnic_wq_desc_avail(wq) < MAX_SKB_FRAGS + ENIC_DESC_MAX_SPLITS)
+ 		netif_tx_stop_queue(txq);
+@@ -865,6 +867,7 @@ static netdev_tx_t enic_hard_start_xmit(struct sk_buff *skb,
+ 	if (!netdev_xmit_more() || netif_xmit_stopped(txq))
+ 		vnic_wq_doorbell(wq);
  
++error:
+ 	spin_unlock(&enic->wq_lock[txq_map]);
+ 
+ 	return NETDEV_TX_OK;
 -- 
 2.30.2
 
