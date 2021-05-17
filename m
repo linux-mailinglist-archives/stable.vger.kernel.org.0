@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9CCE3830C6
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C703830AE
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:30:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239644AbhEQOa5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:30:57 -0400
-Received: from foss.arm.com ([217.140.110.172]:53328 "EHLO foss.arm.com"
+        id S238241AbhEQOaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:30:13 -0400
+Received: from foss.arm.com ([217.140.110.172]:53362 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239682AbhEQO1U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:27:20 -0400
+        id S235754AbhEQO1u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:27:50 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 2341112FC;
-        Mon, 17 May 2021 07:26:02 -0700 (PDT)
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 0A045139F;
+        Mon, 17 May 2021 07:26:34 -0700 (PDT)
 Received: from monolith.localdoman (unknown [172.31.20.19])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 275623F73B;
-        Mon, 17 May 2021 07:26:01 -0700 (PDT)
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 1339D3F73B;
+        Mon, 17 May 2021 07:26:32 -0700 (PDT)
 From:   Alexandru Elisei <alexandru.elisei@arm.com>
 To:     stable@vger.kernel.org, maz@kernel.org,
         linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu
 Cc:     james.morse@arm.com, suzuki.poulose@arm.com
-Subject: [PATCH for-stable-4.19] KVM: arm64: Initialize VCPU mdcr_el2 before loading it
-Date:   Mon, 17 May 2021 15:26:37 +0100
-Message-Id: <20210517142637.400527-1-alexandru.elisei@arm.com>
+Subject: [PATCH for-stable-5.4] KVM: arm64: Initialize VCPU mdcr_el2 before loading it
+Date:   Mon, 17 May 2021 15:27:13 +0100
+Message-Id: <20210517142713.400651-1-alexandru.elisei@arm.com>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -55,7 +55,7 @@ Let's avoid both issues by initializing the VCPU's mdcr_el2 field in
 kvm_vcpu_vcpu_first_run_init(), thus making sure that the MDCR_EL2 register
 has a consistent value after each vcpu_load().
 
-[ v4.19 backport: added stub for KVM/arm that fixes compilation errors ]
+[ v5.4 backport: added stub for KVM/arm that fixes compilation errors ]
 
 Fixes: d5a21bcc2995 ("KVM: arm64: Move common VHE/non-VHE trap config in separate functions")
 Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
@@ -69,10 +69,10 @@ Link: https://lore.kernel.org/r/20210407144857.199746-3-alexandru.elisei@arm.com
  4 files changed, 64 insertions(+), 28 deletions(-)
 
 diff --git a/arch/arm/include/asm/kvm_host.h b/arch/arm/include/asm/kvm_host.h
-index 471859cbfe0b..ae073fceb3f0 100644
+index dd03d5e01a94..32564b017ba0 100644
 --- a/arch/arm/include/asm/kvm_host.h
 +++ b/arch/arm/include/asm/kvm_host.h
-@@ -303,6 +303,7 @@ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+@@ -335,6 +335,7 @@ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
  static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
  
  static inline void kvm_arm_init_debug(void) {}
@@ -81,10 +81,10 @@ index 471859cbfe0b..ae073fceb3f0 100644
  static inline void kvm_arm_clear_debug(struct kvm_vcpu *vcpu) {}
  static inline void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu) {}
 diff --git a/arch/arm64/include/asm/kvm_host.h b/arch/arm64/include/asm/kvm_host.h
-index 151e69a93e34..07472c138ced 100644
+index dfa6dc4575be..697702a1a1ff 100644
 --- a/arch/arm64/include/asm/kvm_host.h
 +++ b/arch/arm64/include/asm/kvm_host.h
-@@ -455,6 +455,7 @@ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
+@@ -552,6 +552,7 @@ static inline void kvm_arch_sched_in(struct kvm_vcpu *vcpu, int cpu) {}
  static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
  
  void kvm_arm_init_debug(void);
@@ -93,11 +93,11 @@ index 151e69a93e34..07472c138ced 100644
  void kvm_arm_clear_debug(struct kvm_vcpu *vcpu);
  void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu);
 diff --git a/arch/arm64/kvm/debug.c b/arch/arm64/kvm/debug.c
-index 3606f6b89094..7fe195ef7c3f 100644
+index dbc890511631..2484b2cca74b 100644
 --- a/arch/arm64/kvm/debug.c
 +++ b/arch/arm64/kvm/debug.c
-@@ -79,6 +79,64 @@ void kvm_arm_init_debug(void)
- 	__this_cpu_write(mdcr_el2, kvm_call_hyp(__kvm_get_mdcr_el2));
+@@ -68,6 +68,64 @@ void kvm_arm_init_debug(void)
+ 	__this_cpu_write(mdcr_el2, kvm_call_hyp_ret(__kvm_get_mdcr_el2));
  }
  
 +/**
@@ -161,7 +161,7 @@ index 3606f6b89094..7fe195ef7c3f 100644
  /**
   * kvm_arm_reset_debug_ptr - reset the debug ptr to point to the vcpu state
   */
-@@ -94,13 +152,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
+@@ -83,13 +141,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
   * @vcpu:	the vcpu pointer
   *
   * This is called before each entry into the hypervisor to setup any
@@ -176,7 +176,7 @@ index 3606f6b89094..7fe195ef7c3f 100644
   *
   * Additionally, KVM only traps guest accesses to the debug registers if
   * the guest is not actively using them (see the KVM_ARM64_DEBUG_DIRTY
-@@ -112,28 +164,14 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
+@@ -101,28 +153,14 @@ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu)
  
  void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
  {
@@ -206,7 +206,7 @@ index 3606f6b89094..7fe195ef7c3f 100644
  		/* Save guest debug state */
  		save_guest_debug_regs(vcpu);
  
-@@ -187,7 +225,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+@@ -176,7 +214,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
  
  			vcpu->arch.debug_ptr = &vcpu->arch.external_debug_state;
  			vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
@@ -214,7 +214,7 @@ index 3606f6b89094..7fe195ef7c3f 100644
  
  			trace_kvm_arm_set_regset("BKPTS", get_num_brps(),
  						&vcpu->arch.debug_ptr->dbg_bcr[0],
-@@ -202,10 +239,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+@@ -191,10 +228,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
  	BUG_ON(!vcpu->guest_debug &&
  		vcpu->arch.debug_ptr != &vcpu->arch.vcpu_debug_state);
  
@@ -225,7 +225,7 @@ index 3606f6b89094..7fe195ef7c3f 100644
  	/* If KDE or MDE are set, perform a full save/restore cycle. */
  	if (vcpu_read_sys_reg(vcpu, MDSCR_EL1) & (DBG_MDSCR_KDE | DBG_MDSCR_MDE))
  		vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
-@@ -214,7 +247,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+@@ -203,7 +236,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
  	if (has_vhe() && orig_mdcr_el2 != vcpu->arch.mdcr_el2)
  		write_sysreg(vcpu->arch.mdcr_el2, mdcr_el2);
  
@@ -234,10 +234,10 @@ index 3606f6b89094..7fe195ef7c3f 100644
  }
  
 diff --git a/virt/kvm/arm/arm.c b/virt/kvm/arm/arm.c
-index d982650deb33..39706799ecdf 100644
+index 2e7d2b3f2907..4af85605730e 100644
 --- a/virt/kvm/arm/arm.c
 +++ b/virt/kvm/arm/arm.c
-@@ -574,6 +574,8 @@ static int kvm_vcpu_first_run_init(struct kvm_vcpu *vcpu)
+@@ -579,6 +579,8 @@ static int kvm_vcpu_first_run_init(struct kvm_vcpu *vcpu)
  
  	vcpu->arch.has_run_once = true;
  
