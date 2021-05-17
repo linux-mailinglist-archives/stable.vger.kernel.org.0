@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D239F38375A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 925A938375C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:42:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343742AbhEQPmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52064 "EHLO mail.kernel.org"
+        id S244950AbhEQPmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1343954AbhEQPkD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:40:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75C4C61554;
-        Mon, 17 May 2021 14:41:38 +0000 (UTC)
+        id S1343961AbhEQPkF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:40:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1AC3614A5;
+        Mon, 17 May 2021 14:41:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262498;
-        bh=nr3DIadgRhyKZCDLi1pOFobQNv/FUqmsYyPOqkzvbgY=;
+        s=korg; t=1621262501;
+        bh=xx4soS1oLn3EmiWOESXtXN5vjYrSWD6ePeDFhyy70Hw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MUKF8GIg0wnDpTjrapE6+Yn3BmFR+Cz27YuKyAn3hcgsQr7yHaLJfpscvjTxBP81/
-         11zYA86f1tfCMHmk0mfmxdJjpuAIdeDKvRZ6EWhuVy81ZiWI1viQ8tD16/x93W1sFy
-         nDO/h0HMbqEUrRSPnG+v9HkrWzyDHNesJaoGpTzU=
+        b=URpv7eauV9KpmxRBWQ1/EAs1tPtjBAcDCpCAWaDSsN9jQqSDrd5y6N3GmRuSVn+ng
+         Bn8FkrOiGkHQV2ywm/P2W6pC7VHQ0QwUkahIL0DjxVYUZ0Kp8fPLdx8qM4uZ4cmanL
+         UX7sKwqsIVqlRej1MdHtBNlZldzmovuq/6dpsX4s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Keerthy <j-keerthy@ti.com>,
+        Tero Kristo <kristo@kernel.org>,
+        Tony Lindgren <tony@atomide.com>,
         Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.11 307/329] clocksource/drivers/timer-ti-dm: Prepare to handle dra7 timer wrap issue
-Date:   Mon, 17 May 2021 16:03:38 +0200
-Message-Id: <20210517140312.467782107@linuxfoundation.org>
+Subject: [PATCH 5.11 308/329] clocksource/drivers/timer-ti-dm: Handle dra7 timer wrap errata i940
+Date:   Mon, 17 May 2021 16:03:39 +0200
+Message-Id: <20210517140312.507980114@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -41,147 +43,203 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tony Lindgren <tony@atomide.com>
 
-commit 3efe7a878a11c13b5297057bfc1e5639ce1241ce upstream.
+commit 25de4ce5ed02994aea8bc111d133308f6fd62566 upstream.
 
 There is a timer wrap issue on dra7 for the ARM architected timer.
 In a typical clock configuration the timer fails to wrap after 388 days.
 
-To work around the issue, we need to use timer-ti-dm timers instead.
+To work around the issue, we need to use timer-ti-dm percpu timers instead.
 
-Let's prepare for adding support for percpu timers by adding a common
-dmtimer_clkevt_init_common() and call it from dmtimer_clockevent_init().
-This patch makes no intentional functional changes.
+Let's configure dmtimer3 and 4 as percpu timers by default, and warn about
+the issue if the dtb is not configured properly.
 
+Let's do this as a single patch so it can be backported to v5.8 and later
+kernels easily. Note that this patch depends on earlier timer-ti-dm
+systimer posted mode fixes, and a preparatory clockevent patch
+"clocksource/drivers/timer-ti-dm: Prepare to handle dra7 timer wrap issue".
+
+For more information, please see the errata for "AM572x Sitara Processors
+Silicon Revisions 1.1, 2.0":
+
+https://www.ti.com/lit/er/sprz429m/sprz429m.pdf
+
+The concept is based on earlier reference patches done by Tero Kristo and
+Keerthy.
+
+Cc: Keerthy <j-keerthy@ti.com>
+Cc: Tero Kristo <kristo@kernel.org>
 Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210323074326.28302-2-tony@atomide.com
+Link: https://lore.kernel.org/r/20210323074326.28302-3-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clocksource/timer-ti-dm-systimer.c |   68 ++++++++++++++++++-----------
- 1 file changed, 44 insertions(+), 24 deletions(-)
+ arch/arm/boot/dts/dra7-l4.dtsi             |    4 -
+ arch/arm/boot/dts/dra7.dtsi                |   20 +++++++
+ drivers/clocksource/timer-ti-dm-systimer.c |   76 +++++++++++++++++++++++++++++
+ include/linux/cpuhotplug.h                 |    1 
+ 4 files changed, 99 insertions(+), 2 deletions(-)
 
+--- a/arch/arm/boot/dts/dra7-l4.dtsi
++++ b/arch/arm/boot/dts/dra7-l4.dtsi
+@@ -1168,7 +1168,7 @@
+ 			};
+ 		};
+ 
+-		target-module@34000 {			/* 0x48034000, ap 7 46.0 */
++		timer3_target: target-module@34000 {	/* 0x48034000, ap 7 46.0 */
+ 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
+ 			reg = <0x34000 0x4>,
+ 			      <0x34010 0x4>;
+@@ -1195,7 +1195,7 @@
+ 			};
+ 		};
+ 
+-		target-module@36000 {			/* 0x48036000, ap 9 4e.0 */
++		timer4_target: target-module@36000 {	/* 0x48036000, ap 9 4e.0 */
+ 			compatible = "ti,sysc-omap4-timer", "ti,sysc";
+ 			reg = <0x36000 0x4>,
+ 			      <0x36010 0x4>;
+--- a/arch/arm/boot/dts/dra7.dtsi
++++ b/arch/arm/boot/dts/dra7.dtsi
+@@ -46,6 +46,7 @@
+ 
+ 	timer {
+ 		compatible = "arm,armv7-timer";
++		status = "disabled";	/* See ARM architected timer wrap erratum i940 */
+ 		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
+ 			     <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
+ 			     <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(2) | IRQ_TYPE_LEVEL_LOW)>,
+@@ -1241,3 +1242,22 @@
+ 		assigned-clock-parents = <&sys_32k_ck>;
+ 	};
+ };
++
++/* Local timers, see ARM architected timer wrap erratum i940 */
++&timer3_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER3_CLKCTRL 24>;
++		assigned-clock-parents = <&timer_sys_clk_div>;
++	};
++};
++
++&timer4_target {
++	ti,no-reset-on-init;
++	ti,no-idle;
++	timer@0 {
++		assigned-clocks = <&l4per_clkctrl DRA7_L4PER_TIMER4_CLKCTRL 24>;
++		assigned-clock-parents = <&timer_sys_clk_div>;
++	};
++};
 --- a/drivers/clocksource/timer-ti-dm-systimer.c
 +++ b/drivers/clocksource/timer-ti-dm-systimer.c
-@@ -530,17 +530,17 @@ static void omap_clockevent_unidle(struc
- 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
+@@ -2,6 +2,7 @@
+ #include <linux/clk.h>
+ #include <linux/clocksource.h>
+ #include <linux/clockchips.h>
++#include <linux/cpuhotplug.h>
+ #include <linux/interrupt.h>
+ #include <linux/io.h>
+ #include <linux/iopoll.h>
+@@ -630,6 +631,78 @@ err_out_free:
+ 	return error;
  }
  
--static int __init dmtimer_clockevent_init(struct device_node *np)
-+static int __init dmtimer_clkevt_init_common(struct dmtimer_clockevent *clkevt,
-+					     struct device_node *np,
-+					     unsigned int features,
-+					     const struct cpumask *cpumask,
-+					     const char *name,
-+					     int rating)
- {
--	struct dmtimer_clockevent *clkevt;
- 	struct clock_event_device *dev;
- 	struct dmtimer_systimer *t;
- 	int error;
- 
--	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
--	if (!clkevt)
--		return -ENOMEM;
--
- 	t = &clkevt->t;
- 	dev = &clkevt->dev;
- 
-@@ -548,25 +548,23 @@ static int __init dmtimer_clockevent_ini
- 	 * We mostly use cpuidle_coupled with ARM local timers for runtime,
- 	 * so there's probably no use for CLOCK_EVT_FEAT_DYNIRQ here.
- 	 */
--	dev->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
--	dev->rating = 300;
-+	dev->features = features;
-+	dev->rating = rating;
- 	dev->set_next_event = dmtimer_set_next_event;
- 	dev->set_state_shutdown = dmtimer_clockevent_shutdown;
- 	dev->set_state_periodic = dmtimer_set_periodic;
- 	dev->set_state_oneshot = dmtimer_clockevent_shutdown;
- 	dev->set_state_oneshot_stopped = dmtimer_clockevent_shutdown;
- 	dev->tick_resume = dmtimer_clockevent_shutdown;
--	dev->cpumask = cpu_possible_mask;
-+	dev->cpumask = cpumask;
- 
- 	dev->irq = irq_of_parse_and_map(np, 0);
--	if (!dev->irq) {
--		error = -ENXIO;
--		goto err_out_free;
--	}
-+	if (!dev->irq)
-+		return -ENXIO;
- 
- 	error = dmtimer_systimer_setup(np, &clkevt->t);
- 	if (error)
--		goto err_out_free;
-+		return error;
- 
- 	clkevt->period = 0xffffffff - DIV_ROUND_CLOSEST(t->rate, HZ);
- 
-@@ -578,32 +576,54 @@ static int __init dmtimer_clockevent_ini
- 	writel_relaxed(OMAP_TIMER_CTRL_POSTED, t->base + t->ifctrl);
- 
- 	error = request_irq(dev->irq, dmtimer_clockevent_interrupt,
--			    IRQF_TIMER, "clockevent", clkevt);
-+			    IRQF_TIMER, name, clkevt);
- 	if (error)
- 		goto err_out_unmap;
- 
- 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->irq_ena);
- 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
- 
--	pr_info("TI gptimer clockevent: %s%lu Hz at %pOF\n",
--		of_find_property(np, "ti,timer-alwon", NULL) ?
-+	pr_info("TI gptimer %s: %s%lu Hz at %pOF\n",
-+		name, of_find_property(np, "ti,timer-alwon", NULL) ?
- 		"always-on " : "", t->rate, np->parent);
- 
--	clockevents_config_and_register(dev, t->rate,
--					3, /* Timer internal resynch latency */
-+	return 0;
++/* Dmtimer as percpu timer. See dra7 ARM architected timer wrap erratum i940 */
++static DEFINE_PER_CPU(struct dmtimer_clockevent, dmtimer_percpu_timer);
 +
-+err_out_unmap:
-+	iounmap(t->base);
-+
-+	return error;
-+}
-+
-+static int __init dmtimer_clockevent_init(struct device_node *np)
++static int __init dmtimer_percpu_timer_init(struct device_node *np, int cpu)
 +{
 +	struct dmtimer_clockevent *clkevt;
 +	int error;
 +
-+	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
-+	if (!clkevt)
-+		return -ENOMEM;
++	if (!cpu_possible(cpu))
++		return -EINVAL;
 +
-+	error = dmtimer_clkevt_init_common(clkevt, np,
-+					   CLOCK_EVT_FEAT_PERIODIC |
-+					   CLOCK_EVT_FEAT_ONESHOT,
-+					   cpu_possible_mask, "clockevent",
-+					   300);
++	if (!of_property_read_bool(np->parent, "ti,no-reset-on-init") ||
++	    !of_property_read_bool(np->parent, "ti,no-idle"))
++		pr_warn("Incomplete dtb for percpu dmtimer %pOF\n", np->parent);
++
++	clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
++
++	error = dmtimer_clkevt_init_common(clkevt, np, CLOCK_EVT_FEAT_ONESHOT,
++					   cpumask_of(cpu), "percpu-dmtimer",
++					   500);
 +	if (error)
-+		goto err_out_free;
++		return error;
 +
-+	clockevents_config_and_register(&clkevt->dev, clkevt->t.rate,
-+					3, /* Timer internal resync latency */
- 					0xffffffff);
++	return 0;
++}
++
++/* See TRM for timer internal resynch latency */
++static int omap_dmtimer_starting_cpu(unsigned int cpu)
++{
++	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, cpu);
++	struct clock_event_device *dev = &clkevt->dev;
++	struct dmtimer_systimer *t = &clkevt->t;
++
++	clockevents_config_and_register(dev, t->rate, 3, ULONG_MAX);
++	irq_force_affinity(dev->irq, cpumask_of(cpu));
++
++	return 0;
++}
++
++static int __init dmtimer_percpu_timer_startup(void)
++{
++	struct dmtimer_clockevent *clkevt = per_cpu_ptr(&dmtimer_percpu_timer, 0);
++	struct dmtimer_systimer *t = &clkevt->t;
++
++	if (t->sysc) {
++		cpuhp_setup_state(CPUHP_AP_TI_GP_TIMER_STARTING,
++				  "clockevents/omap/gptimer:starting",
++				  omap_dmtimer_starting_cpu, NULL);
++	}
++
++	return 0;
++}
++subsys_initcall(dmtimer_percpu_timer_startup);
++
++static int __init dmtimer_percpu_quirk_init(struct device_node *np, u32 pa)
++{
++	struct device_node *arm_timer;
++
++	arm_timer = of_find_compatible_node(NULL, NULL, "arm,armv7-timer");
++	if (of_device_is_available(arm_timer)) {
++		pr_warn_once("ARM architected timer wrap issue i940 detected\n");
++		return 0;
++	}
++
++	if (pa == 0x48034000)		/* dra7 dmtimer3 */
++		return dmtimer_percpu_timer_init(np, 0);
++	else if (pa == 0x48036000)	/* dra7 dmtimer4 */
++		return dmtimer_percpu_timer_init(np, 1);
++
++	return 0;
++}
++
+ /* Clocksource */
+ static struct dmtimer_clocksource *
+ to_dmtimer_clocksource(struct clocksource *cs)
+@@ -763,6 +836,9 @@ static int __init dmtimer_systimer_init(
+ 	if (clockevent == pa)
+ 		return dmtimer_clockevent_init(np);
  
- 	if (of_machine_is_compatible("ti,am33xx") ||
- 	    of_machine_is_compatible("ti,am43")) {
--		dev->suspend = omap_clockevent_idle;
--		dev->resume = omap_clockevent_unidle;
-+		clkevt->dev.suspend = omap_clockevent_idle;
-+		clkevt->dev.resume = omap_clockevent_unidle;
- 	}
- 
++	if (of_machine_is_compatible("ti,dra7"))
++		return dmtimer_percpu_quirk_init(np, pa);
++
  	return 0;
+ }
  
--err_out_unmap:
--	iounmap(t->base);
--
- err_out_free:
- 	kfree(clkevt);
- 
+--- a/include/linux/cpuhotplug.h
++++ b/include/linux/cpuhotplug.h
+@@ -135,6 +135,7 @@ enum cpuhp_state {
+ 	CPUHP_AP_RISCV_TIMER_STARTING,
+ 	CPUHP_AP_CLINT_TIMER_STARTING,
+ 	CPUHP_AP_CSKY_TIMER_STARTING,
++	CPUHP_AP_TI_GP_TIMER_STARTING,
+ 	CPUHP_AP_HYPERV_TIMER_STARTING,
+ 	CPUHP_AP_KVM_STARTING,
+ 	CPUHP_AP_KVM_ARM_VGIC_INIT_STARTING,
 
 
