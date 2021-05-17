@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 53684382F2C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:13:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9067C382F32
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236751AbhEQON4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:13:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60382 "EHLO mail.kernel.org"
+        id S239074AbhEQOOx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:14:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238700AbhEQOMD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:12:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17828613CA;
-        Mon, 17 May 2021 14:07:59 +0000 (UTC)
+        id S238369AbhEQOMJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:12:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 445F1613D8;
+        Mon, 17 May 2021 14:08:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260480;
-        bh=+Lb80RiCQ4DsnEB3+qdr0F/sCYz07DzZ2ogEYRtlZ3I=;
+        s=korg; t=1621260482;
+        bh=l6JtpswOXURGtwYZ5hYYWOergdQEDDoc8UI/xd6dLdg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOOB/rm4ecPahm4sbijaZrjlISjCijxIGgVGro+GlYHKwGzuRZc14vk7i9gFZpxMr
-         xNSVUEuwV9+JK7EfBnXQoeesnwTt2cJsu49zTTkR0N4WvIe8WlY7HkfI+5cs8hmWJr
-         i82+V4N6VyiTVKp+VVgHknAbE7hbFzxo6CvIIoDs=
+        b=vl7fZWjYGPF3ktAzSXnjLg6s+YL7pDHW1b5uW8Xg4WVUfWDwJOQ4mC2ZSc7MbJAq8
+         0vznBsJHM72Z9uLvdmg1aw13WRwTjyBIe6+IT8ckQVpUX+aZfad3Vg6fGAP+BztOlM
+         05cI/ZOWxacboEq/XBDrPR3zENkzbHGqq0vfjZbY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+d50710fd0873a9c6b40c@syzkaller.appspotmail.com,
-        Du Cheng <ducheng2@gmail.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 099/363] net: sched: tapr: prevent cycle_time == 0 in parse_taprio_schedule
-Date:   Mon, 17 May 2021 15:59:25 +0200
-Message-Id: <20210517140305.936202085@linuxfoundation.org>
+        stable@vger.kernel.org, Yaqi Chen <chendotjs@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 100/363] samples/bpf: Fix broken tracex1 due to kprobe argument change
+Date:   Mon, 17 May 2021 15:59:26 +0200
+Message-Id: <20210517140305.967244875@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -43,43 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Yaqi Chen <chendotjs@gmail.com>
 
-[ Upstream commit ed8157f1ebf1ae81a8fa2653e3f20d2076fad1c9 ]
+[ Upstream commit 137733d08f4ab14a354dacaa9a8fc35217747605 ]
 
-There is a reproducible sequence from the userland that will trigger a WARN_ON()
-condition in taprio_get_start_time, which causes kernel to panic if configured
-as "panic_on_warn". Catch this condition in parse_taprio_schedule to
-prevent this condition.
+>From commit c0bbbdc32feb ("__netif_receive_skb_core: pass skb by
+reference"), the first argument passed into __netif_receive_skb_core
+has changed to reference of a skb pointer.
 
-Reported as bug on syzkaller:
-https://syzkaller.appspot.com/bug?extid=d50710fd0873a9c6b40c
+This commit fixes by using bpf_probe_read_kernel.
 
-Reported-by: syzbot+d50710fd0873a9c6b40c@syzkaller.appspotmail.com
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Yaqi Chen <chendotjs@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20210416154803.37157-1-chendotjs@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ samples/bpf/tracex1_kern.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 8287894541e3..909c798b7403 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -901,6 +901,12 @@ static int parse_taprio_schedule(struct taprio_sched *q, struct nlattr **tb,
+diff --git a/samples/bpf/tracex1_kern.c b/samples/bpf/tracex1_kern.c
+index 3f4599c9a202..ef30d2b353b0 100644
+--- a/samples/bpf/tracex1_kern.c
++++ b/samples/bpf/tracex1_kern.c
+@@ -26,7 +26,7 @@
+ SEC("kprobe/__netif_receive_skb_core")
+ int bpf_prog1(struct pt_regs *ctx)
+ {
+-	/* attaches to kprobe netif_receive_skb,
++	/* attaches to kprobe __netif_receive_skb_core,
+ 	 * looks for packets on loobpack device and prints them
+ 	 */
+ 	char devname[IFNAMSIZ];
+@@ -35,7 +35,7 @@ int bpf_prog1(struct pt_regs *ctx)
+ 	int len;
  
- 		list_for_each_entry(entry, &new->entries, list)
- 			cycle = ktime_add_ns(cycle, entry->interval);
-+
-+		if (!cycle) {
-+			NL_SET_ERR_MSG(extack, "'cycle_time' can never be 0");
-+			return -EINVAL;
-+		}
-+
- 		new->cycle_time = cycle;
- 	}
+ 	/* non-portable! works for the given kernel only */
+-	skb = (struct sk_buff *) PT_REGS_PARM1(ctx);
++	bpf_probe_read_kernel(&skb, sizeof(skb), (void *)PT_REGS_PARM1(ctx));
+ 	dev = _(skb->dev);
+ 	len = _(skb->len);
  
 -- 
 2.30.2
