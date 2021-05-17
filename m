@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B36C38358E
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D4F3833C1
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242671AbhEQPXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:23:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54996 "EHLO mail.kernel.org"
+        id S242194AbhEQPB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:01:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34300 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243347AbhEQPSV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:18:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B343161C6E;
-        Mon, 17 May 2021 14:33:28 +0000 (UTC)
+        id S242551AbhEQO7y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:59:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8157460FDB;
+        Mon, 17 May 2021 14:26:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262009;
-        bh=LlLP6X09O5DlDYbL590+9uh82tEFBXAaaL5feOB3nik=;
+        s=korg; t=1621261594;
+        bh=k5C75qtX6axUQoPUFNu69OAcxdQJxSQiBnEDC1eZvvU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4Uo7DDr/KntlAyiWqKgilC/Vy3oQY/CQUuI+X6I25JRFVy6bryAvs96+gKtk2AL/
-         U56+KEaMwCTOixIT/reS0/y2kQuJ7ti8Dmd7lkLVPrWr1fMG3aFI7jGtLmQhiJWaLO
-         w0PTsGqH4w1eeEspT+13Fa6ehtInPZt506kgLFVE=
+        b=kASheDvLRf0EVoZj/FlRJYG8QklVbHHJmjbpRxnZjV+JzytBesU+2nYirPqUwgBPK
+         geS9BaKAZxPutYOUW0yzME2bcBaUnxIwNR/RMMiC0k28FVgzCMCWtrXyDP7AHJ8Y/a
+         MYAXn2SArgMEjAXG7ygxPl3YQjY85e0yeq6WbIQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        David Hildenbrand <david@redhat.com>,
-        Alistair Popple <apopple@nvidia.com>,
-        Jerome Glisse <jglisse@redhat.com>,
-        Rafael Aquini <aquini@redhat.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 203/329] mm/migrate.c: fix potential indeterminate pte entry in migrate_vma_insert_page()
-Date:   Mon, 17 May 2021 16:01:54 +0200
-Message-Id: <20210517140308.980753642@linuxfoundation.org>
+Subject: [PATCH 5.4 063/141] rtc: fsl-ftm-alarm: add MODULE_TABLE()
+Date:   Mon, 17 May 2021 16:01:55 +0200
+Message-Id: <20210517140244.884444912@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
+References: <20210517140242.729269392@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,47 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 34f5e9b9d1990d286199084efa752530ee3d8297 ]
+[ Upstream commit 7fcb86185978661c9188397d474f90364745b8d9 ]
 
-If the zone device page does not belong to un-addressable device memory,
-the variable entry will be uninitialized and lead to indeterminate pte
-entry ultimately.  Fix this unexpected case and warn about it.
+The module doesn't load automatically. Fix it by adding the missing
+MODULE_TABLE().
 
-Link: https://lkml.kernel.org/r/20210325131524.48181-4-linmiaohe@huawei.com
-Fixes: df6ad69838fc ("mm/device-public-memory: device memory cache coherent with CPU")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Cc: Alistair Popple <apopple@nvidia.com>
-Cc: Jerome Glisse <jglisse@redhat.com>
-Cc: Rafael Aquini <aquini@redhat.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 7b0b551dbc1e ("rtc: fsl-ftm-alarm: add FTM alarm driver")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210414084006.17933-1-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/migrate.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/rtc/rtc-fsl-ftm-alarm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/migrate.c b/mm/migrate.c
-index 20ca887ea769..4754f2489d78 100644
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -2967,6 +2967,13 @@ static void migrate_vma_insert_page(struct migrate_vma *migrate,
+diff --git a/drivers/rtc/rtc-fsl-ftm-alarm.c b/drivers/rtc/rtc-fsl-ftm-alarm.c
+index 8df2075af9a2..835695bedaac 100644
+--- a/drivers/rtc/rtc-fsl-ftm-alarm.c
++++ b/drivers/rtc/rtc-fsl-ftm-alarm.c
+@@ -316,6 +316,7 @@ static const struct of_device_id ftm_rtc_match[] = {
+ 	{ .compatible = "fsl,lx2160a-ftm-alarm", },
+ 	{ },
+ };
++MODULE_DEVICE_TABLE(of, ftm_rtc_match);
  
- 			swp_entry = make_device_private_entry(page, vma->vm_flags & VM_WRITE);
- 			entry = swp_entry_to_pte(swp_entry);
-+		} else {
-+			/*
-+			 * For now we only support migrating to un-addressable
-+			 * device memory.
-+			 */
-+			pr_warn_once("Unsupported ZONE_DEVICE page type.\n");
-+			goto abort;
- 		}
- 	} else {
- 		entry = mk_pte(page, vma->vm_page_prot);
+ static struct platform_driver ftm_rtc_driver = {
+ 	.probe		= ftm_rtc_probe,
 -- 
 2.30.2
 
