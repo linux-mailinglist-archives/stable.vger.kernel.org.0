@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C33238365F
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2ADBB383662
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244985AbhEQPbp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56440 "EHLO mail.kernel.org"
+        id S243620AbhEQPbw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244095AbhEQP3I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:29:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4694861CBC;
-        Mon, 17 May 2021 14:37:29 +0000 (UTC)
+        id S245442AbhEQP30 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:29:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A1A0961CBD;
+        Mon, 17 May 2021 14:37:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262249;
-        bh=hGFvCicMJSd+OXQXSjAVDr5lHiJ4sa10UlQ0LN+CYRk=;
+        s=korg; t=1621262254;
+        bh=WmuVAwAtjafgC3wQ4Rh/jk6ByBy3UhvsymwyiPIaXGg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLblzrjt/uvoO4nXHeWRlWltcJkx+kdFMu4U85ygofWQhKLgIXqdah1ZduSEruu7k
-         QyeoXMsqurjgOGknlEmcCgDMbTmHCt+TXaxEvQ+ZdVhehpP08jQsh66aYWNKyFNl7E
-         mNXgZ/z/KN2H2ftrQXYDeEoc49XqU2TmTgQS3Gc8=
+        b=F7rimTqLBZZ4maYLQTAUnZ4hn0pCBYcVNyOGjaHQG95DVyM9Sz5tiYIuq9orBu1i3
+         BPvBspaDDreridYnb9KUHrb26EjOqYhRP/dwJQlGVoPQE+F1DTqRG612xQH52Nhl+S
+         RxQLusWe4SkYVEa7diohWVgPB9jbi7Evpl7abLDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ben Segall <bsegall@google.com>,
-        Venkatesh Srinivas <venkateshs@chromium.org>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Jim Mattson <jmattson@google.com>
-Subject: [PATCH 5.11 249/329] kvm: exit halt polling on need_resched() as well
-Date:   Mon, 17 May 2021 16:02:40 +0200
-Message-Id: <20210517140310.537115832@linuxfoundation.org>
+        stable@vger.kernel.org, Jonathan Marek <jonathan@marek.ca>,
+        Rob Clark <robdclark@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 250/329] drm/msm: fix LLC not being enabled for mmu500 targets
+Date:   Mon, 17 May 2021 16:02:41 +0200
+Message-Id: <20210517140310.567824645@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -41,38 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benjamin Segall <bsegall@google.com>
+From: Jonathan Marek <jonathan@marek.ca>
 
-commit 262de4102c7bb8e59f26a967a8ffe8cce85cc537 upstream.
+[ Upstream commit 4b95d371fb001185af84d177e69a23d55bd0167a ]
 
-single_task_running() is usually more general than need_resched()
-but CFS_BANDWIDTH throttling will use resched_task() when there
-is just one task to get the task to block. This was causing
-long-need_resched warnings and was likely allowing VMs to
-overrun their quota when halt polling.
+mmu500 targets don't have a "cx_mem" region, set llc_mmio to NULL in that
+case to avoid the IS_ERR() condition in a6xx_llc_activate().
 
-Signed-off-by: Ben Segall <bsegall@google.com>
-Signed-off-by: Venkatesh Srinivas <venkateshs@chromium.org>
-Message-Id: <20210429162233.116849-1-venkateshs@chromium.org>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3d247123b5a1 ("drm/msm/a6xx: Add support for using system cache on MMU500 based targets")
+Signed-off-by: Jonathan Marek <jonathan@marek.ca>
+Link: https://lore.kernel.org/r/20210424014927.1661-1-jonathan@marek.ca
+Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- virt/kvm/kvm_main.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/msm/adreno/a6xx_gpu.c | 9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/virt/kvm/kvm_main.c
-+++ b/virt/kvm/kvm_main.c
-@@ -2814,7 +2814,8 @@ void kvm_vcpu_block(struct kvm_vcpu *vcp
- 				goto out;
- 			}
- 			poll_end = cur = ktime_get();
--		} while (single_task_running() && ktime_before(cur, stop));
-+		} while (single_task_running() && !need_resched() &&
-+			 ktime_before(cur, stop));
- 	}
+diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+index b6e8ff2782da..50ddc5834cab 100644
+--- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
++++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
+@@ -1152,10 +1152,6 @@ static void a6xx_llc_slices_init(struct platform_device *pdev,
+ {
+ 	struct device_node *phandle;
  
- 	prepare_to_rcuwait(&vcpu->wait);
+-	a6xx_gpu->llc_mmio = msm_ioremap(pdev, "cx_mem", "gpu_cx");
+-	if (IS_ERR(a6xx_gpu->llc_mmio))
+-		return;
+-
+ 	/*
+ 	 * There is a different programming path for targets with an mmu500
+ 	 * attached, so detect if that is the case
+@@ -1165,6 +1161,11 @@ static void a6xx_llc_slices_init(struct platform_device *pdev,
+ 		of_device_is_compatible(phandle, "arm,mmu-500"));
+ 	of_node_put(phandle);
+ 
++	if (a6xx_gpu->have_mmu500)
++		a6xx_gpu->llc_mmio = NULL;
++	else
++		a6xx_gpu->llc_mmio = msm_ioremap(pdev, "cx_mem", "gpu_cx");
++
+ 	a6xx_gpu->llc_slice = llcc_slice_getd(LLCC_GPU);
+ 	a6xx_gpu->htw_llc_slice = llcc_slice_getd(LLCC_GPUHTW);
+ 
+-- 
+2.30.2
+
 
 
