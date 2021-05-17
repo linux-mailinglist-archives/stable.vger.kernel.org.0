@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE1BD38339A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 322613833A7
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:00:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240065AbhEQPAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:00:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51760 "EHLO mail.kernel.org"
+        id S241056AbhEQPBB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:01:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241428AbhEQO6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:58:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D620C619BF;
-        Mon, 17 May 2021 14:26:02 +0000 (UTC)
+        id S241866AbhEQO6p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:58:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 92012619C0;
+        Mon, 17 May 2021 14:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261563;
-        bh=PyDvcV9alSlUkvI3Up4Z2xICb4l0Dj+8y9NT0P7S61c=;
+        s=korg; t=1621261572;
+        bh=5AoVSY0rIKEgDOuGfik+tVUzDE4zH26IXcsVnkXzkzE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q33xaT6sZE1C4kBJxJhv3WjRQQL1JtwOU2VlYV3LuMFf/gnXvLIvkIFbXrGi2/W9d
-         mZYkv5YM1DIeqO23SLIJ4UPWhgUFQotvneJKlkjqJTD5Opvop7wIJe8ZmX1GSSy79x
-         FVsGlwF2Z4jNP1JfPSbRfIUnpu98VDvR0Kui6DaA=
+        b=Z4XT1wwrE886hD+BlB+Tl4FUUcIGth0hh7kL89DuKotuxOv+E2yeP8LkU04qhkFs/
+         W5GSoreYUbKSD1rFpPq276MB4anibbGPS6GMrglk86L3sqCe4W/bJ1eXyV/xZfqPxp
+         LyCJNTdEPQ6+oRcs3Jr6Dy6lL56A+KV9IB3MwFl8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 059/141] NFS: Deal correctly with attribute generation counter overflow
-Date:   Mon, 17 May 2021 16:01:51 +0200
-Message-Id: <20210517140244.758125230@linuxfoundation.org>
+Subject: [PATCH 5.4 060/141] PCI: endpoint: Fix missing destroy_workqueue()
+Date:   Mon, 17 May 2021 16:01:52 +0200
+Message-Id: <20210517140244.788893033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -40,47 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 9fdbfad1777cb4638f489eeb62d85432010c0031 ]
+[ Upstream commit acaef7981a218813e3617edb9c01837808de063c ]
 
-We need to use unsigned long subtraction and then convert to signed in
-order to deal correcly with C overflow rules.
+Add the missing destroy_workqueue() before return from
+pci_epf_test_init() in the error handling case and add
+destroy_workqueue() in pci_epf_test_exit().
 
-Fixes: f5062003465c ("NFS: Set an attribute barrier on all updates")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Link: https://lore.kernel.org/r/20210331084012.2091010-1-yangyingliang@huawei.com
+Fixes: 349e7a85b25fa ("PCI: endpoint: functions: Add an EP function to test PCI")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/pci/endpoint/functions/pci-epf-test.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 53604cc090ca..8c0f916380c4 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -1618,10 +1618,10 @@ EXPORT_SYMBOL_GPL(_nfs_display_fhandle);
-  */
- static int nfs_inode_attrs_need_update(const struct inode *inode, const struct nfs_fattr *fattr)
- {
--	const struct nfs_inode *nfsi = NFS_I(inode);
-+	unsigned long attr_gencount = NFS_I(inode)->attr_gencount;
+diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
+index 1cfe3687a211..6dcee39b364a 100644
+--- a/drivers/pci/endpoint/functions/pci-epf-test.c
++++ b/drivers/pci/endpoint/functions/pci-epf-test.c
+@@ -604,6 +604,7 @@ static int __init pci_epf_test_init(void)
  
--	return ((long)fattr->gencount - (long)nfsi->attr_gencount) > 0 ||
--		((long)nfsi->attr_gencount - (long)nfs_read_attr_generation_counter() > 0);
-+	return (long)(fattr->gencount - attr_gencount) > 0 ||
-+	       (long)(attr_gencount - nfs_read_attr_generation_counter()) > 0;
- }
- 
- static int nfs_refresh_inode_locked(struct inode *inode, struct nfs_fattr *fattr)
-@@ -2049,7 +2049,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
- 			nfsi->attrtimeo_timestamp = now;
- 		}
- 		/* Set the barrier to be more recent than this fattr */
--		if ((long)fattr->gencount - (long)nfsi->attr_gencount > 0)
-+		if ((long)(fattr->gencount - nfsi->attr_gencount) > 0)
- 			nfsi->attr_gencount = fattr->gencount;
+ 	ret = pci_epf_register_driver(&test_driver);
+ 	if (ret) {
++		destroy_workqueue(kpcitest_workqueue);
+ 		pr_err("Failed to register pci epf test driver --> %d\n", ret);
+ 		return ret;
  	}
+@@ -614,6 +615,8 @@ module_init(pci_epf_test_init);
  
+ static void __exit pci_epf_test_exit(void)
+ {
++	if (kpcitest_workqueue)
++		destroy_workqueue(kpcitest_workqueue);
+ 	pci_epf_unregister_driver(&test_driver);
+ }
+ module_exit(pci_epf_test_exit);
 -- 
 2.30.2
 
