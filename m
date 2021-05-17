@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7465338302E
+	by mail.lfdr.de (Postfix) with ESMTP id BD8EF38302F
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235684AbhEQOZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35962 "EHLO mail.kernel.org"
+        id S237416AbhEQOZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239204AbhEQOWT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:22:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 226AD610CB;
-        Mon, 17 May 2021 14:11:49 +0000 (UTC)
+        id S239212AbhEQOWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:22:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7125161285;
+        Mon, 17 May 2021 14:11:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260710;
-        bh=LSyJ0nUKHPe0cCFG6u5p6HPaHIU32sXINdzx/z6TiW0=;
+        s=korg; t=1621260714;
+        bh=PEOqu0ZRJMUuDv4a3XyK6Or/hZs8JcJHsqf8AyVV0Yk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HIo1fx/NOQGYLdp+1efMTv6mg6OCUIfi7yz6Cdo7756Y/Hdevas+GS5mXOSk+Cmm9
-         gU67yIwdbfR7jWvBhG/DBITHFYJ9lT68WhpzxDC/Y3h+VQKdPxbM5WNCo31kq6w896
-         0ZwCn8LU+WPWZlJ6BqxDsrxVV+Pcd8DgAU1pmKX0=
+        b=G9FQ/E+o+ZQZMiUwRbbOagMhU3RXd1fv2yktkCQyOTsb1F8tOVnDb8yKyWO1cjyIn
+         T8rF9jQkgGvENL6Qjb+mSyhf6hXN2VT4hmDjs8GLtWnNUtqVGbFv6z1Qf8QxTJ/dK/
+         tRttw6Gd04JX2WJ8ROe0MZG8r9ininTbWcEpEkHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jim Quinlan <jim2101024@gmail.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Jens Axboe <axboe@kernel.dk>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 205/363] ata: ahci_brcm: Fix use of BCM7216 reset controller
-Date:   Mon, 17 May 2021 16:01:11 +0200
-Message-Id: <20210517140309.508923897@linuxfoundation.org>
+Subject: [PATCH 5.12 206/363] PCI: brcmstb: Use reset/rearm instead of deassert/assert
+Date:   Mon, 17 May 2021 16:01:12 +0200
+Message-Id: <20210517140309.546556088@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -44,125 +43,98 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jim Quinlan <jim2101024@gmail.com>
 
-[ Upstream commit e8d6f9e56187c101b325e8d18f1d4032420d08ff ]
+[ Upstream commit bb610757fcd74558ad94fe19993fd4470208dd02 ]
 
-This driver may use one of two resets controllers.  Keep them in separate
-variables to keep things simple.  The reset controller "rescal" is shared
-between the AHCI driver and the PCIe driver for the BrcmSTB 7216 chip.  Use
-devm_reset_control_get_optional_shared() to handle this sharing.
+The Broadcom STB PCIe RC uses a reset control "rescal" for certain chips.
+The "rescal" implements a "pulse reset" so using assert/deassert is wrong
+for this device.  Instead, we use reset/rearm.  We need to use rearm so
+that we can reset it after a suspend/resume cycle; w/o using "rearm", the
+"rescal" device will only ever fire once.
 
-[bhelgaas: add Jens' ack from v5 posting]
-Fixes: 272ecd60a636 ("ata: ahci_brcm: BCM7216 reset is self de-asserting")
-Fixes: c345ec6a50e9 ("ata: ahci_brcm: Support BCM7216 reset controller name")
-Link: https://lore.kernel.org/r/20210430152156.21162-3-jim2101024@gmail.com
+Of course for suspend/resume to work we also need to put the reset/rearm
+calls in the suspend and resume routines.
+
+Fixes: 740d6c3708a9 ("PCI: brcmstb: Add control of rescal reset")
+Link: https://lore.kernel.org/r/20210430152156.21162-4-jim2101024@gmail.com
 Signed-off-by: Jim Quinlan <jim2101024@gmail.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Acked-by: Jens Axboe <axboe@kernel.dk>
 Acked-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/ahci_brcm.c | 46 ++++++++++++++++++++---------------------
- 1 file changed, 23 insertions(+), 23 deletions(-)
+ drivers/pci/controller/pcie-brcmstb.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/ata/ahci_brcm.c b/drivers/ata/ahci_brcm.c
-index 5b32df5d33ad..6e9c5ade4c2e 100644
---- a/drivers/ata/ahci_brcm.c
-+++ b/drivers/ata/ahci_brcm.c
-@@ -86,7 +86,8 @@ struct brcm_ahci_priv {
- 	u32 port_mask;
- 	u32 quirks;
- 	enum brcm_ahci_version version;
--	struct reset_control *rcdev;
-+	struct reset_control *rcdev_rescal;
-+	struct reset_control *rcdev_ahci;
- };
+diff --git a/drivers/pci/controller/pcie-brcmstb.c b/drivers/pci/controller/pcie-brcmstb.c
+index 69c999222cc8..08bc788d9422 100644
+--- a/drivers/pci/controller/pcie-brcmstb.c
++++ b/drivers/pci/controller/pcie-brcmstb.c
+@@ -1148,6 +1148,7 @@ static int brcm_pcie_suspend(struct device *dev)
  
- static inline u32 brcm_sata_readreg(void __iomem *addr)
-@@ -352,8 +353,8 @@ static int brcm_ahci_suspend(struct device *dev)
- 	else
- 		ret = 0;
- 
--	if (priv->version != BRCM_SATA_BCM7216)
--		reset_control_assert(priv->rcdev);
-+	reset_control_assert(priv->rcdev_ahci);
-+	reset_control_rearm(priv->rcdev_rescal);
+ 	brcm_pcie_turn_off(pcie);
+ 	ret = brcm_phy_stop(pcie);
++	reset_control_rearm(pcie->rescal);
+ 	clk_disable_unprepare(pcie->clk);
  
  	return ret;
- }
-@@ -365,10 +366,10 @@ static int __maybe_unused brcm_ahci_resume(struct device *dev)
- 	struct brcm_ahci_priv *priv = hpriv->plat_data;
- 	int ret = 0;
+@@ -1163,9 +1164,13 @@ static int brcm_pcie_resume(struct device *dev)
+ 	base = pcie->base;
+ 	clk_prepare_enable(pcie->clk);
  
--	if (priv->version == BRCM_SATA_BCM7216)
--		ret = reset_control_reset(priv->rcdev);
--	else
--		ret = reset_control_deassert(priv->rcdev);
-+	ret = reset_control_deassert(priv->rcdev_ahci);
++	ret = reset_control_reset(pcie->rescal);
 +	if (ret)
-+		return ret;
-+	ret = reset_control_reset(priv->rcdev_rescal);
++		goto err_disable_clk;
++
+ 	ret = brcm_phy_start(pcie);
  	if (ret)
- 		return ret;
+-		goto err;
++		goto err_reset;
  
-@@ -434,7 +435,6 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- {
- 	const struct of_device_id *of_id;
- 	struct device *dev = &pdev->dev;
--	const char *reset_name = NULL;
- 	struct brcm_ahci_priv *priv;
- 	struct ahci_host_priv *hpriv;
- 	struct resource *res;
-@@ -456,15 +456,15 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 	if (IS_ERR(priv->top_ctrl))
- 		return PTR_ERR(priv->top_ctrl);
+ 	/* Take bridge out of reset so we can access the SERDES reg */
+ 	pcie->bridge_sw_init_set(pcie, 0);
+@@ -1180,14 +1185,16 @@ static int brcm_pcie_resume(struct device *dev)
  
--	/* Reset is optional depending on platform and named differently */
--	if (priv->version == BRCM_SATA_BCM7216)
--		reset_name = "rescal";
--	else
--		reset_name = "ahci";
--
--	priv->rcdev = devm_reset_control_get_optional(&pdev->dev, reset_name);
--	if (IS_ERR(priv->rcdev))
--		return PTR_ERR(priv->rcdev);
-+	if (priv->version == BRCM_SATA_BCM7216) {
-+		priv->rcdev_rescal = devm_reset_control_get_optional_shared(
-+			&pdev->dev, "rescal");
-+		if (IS_ERR(priv->rcdev_rescal))
-+			return PTR_ERR(priv->rcdev_rescal);
-+	}
-+	priv->rcdev_ahci = devm_reset_control_get_optional(&pdev->dev, "ahci");
-+	if (IS_ERR(priv->rcdev_ahci))
-+		return PTR_ERR(priv->rcdev_ahci);
+ 	ret = brcm_pcie_setup(pcie);
+ 	if (ret)
+-		goto err;
++		goto err_reset;
  
- 	hpriv = ahci_platform_get_resources(pdev, 0);
- 	if (IS_ERR(hpriv))
-@@ -485,10 +485,10 @@ static int brcm_ahci_probe(struct platform_device *pdev)
- 		break;
+ 	if (pcie->msi)
+ 		brcm_msi_set_regs(pcie->msi);
+ 
+ 	return 0;
+ 
+-err:
++err_reset:
++	reset_control_rearm(pcie->rescal);
++err_disable_clk:
+ 	clk_disable_unprepare(pcie->clk);
+ 	return ret;
+ }
+@@ -1197,7 +1204,7 @@ static void __brcm_pcie_remove(struct brcm_pcie *pcie)
+ 	brcm_msi_remove(pcie);
+ 	brcm_pcie_turn_off(pcie);
+ 	brcm_phy_stop(pcie);
+-	reset_control_assert(pcie->rescal);
++	reset_control_rearm(pcie->rescal);
+ 	clk_disable_unprepare(pcie->clk);
+ }
+ 
+@@ -1278,13 +1285,13 @@ static int brcm_pcie_probe(struct platform_device *pdev)
+ 		return PTR_ERR(pcie->perst_reset);
  	}
  
--	if (priv->version == BRCM_SATA_BCM7216)
--		ret = reset_control_reset(priv->rcdev);
--	else
--		ret = reset_control_deassert(priv->rcdev);
-+	ret = reset_control_reset(priv->rcdev_rescal);
-+	if (ret)
-+		return ret;
-+	ret = reset_control_deassert(priv->rcdev_ahci);
+-	ret = reset_control_deassert(pcie->rescal);
++	ret = reset_control_reset(pcie->rescal);
  	if (ret)
+ 		dev_err(&pdev->dev, "failed to deassert 'rescal'\n");
+ 
+ 	ret = brcm_phy_start(pcie);
+ 	if (ret) {
+-		reset_control_assert(pcie->rescal);
++		reset_control_rearm(pcie->rescal);
+ 		clk_disable_unprepare(pcie->clk);
  		return ret;
- 
-@@ -539,8 +539,8 @@ out_disable_regulators:
- out_disable_clks:
- 	ahci_platform_disable_clks(hpriv);
- out_reset:
--	if (priv->version != BRCM_SATA_BCM7216)
--		reset_control_assert(priv->rcdev);
-+	reset_control_assert(priv->rcdev_ahci);
-+	reset_control_rearm(priv->rcdev_rescal);
- 	return ret;
- }
- 
+ 	}
 -- 
 2.30.2
 
