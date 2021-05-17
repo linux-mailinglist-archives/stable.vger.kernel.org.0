@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CDFF383648
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 135D838386C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243959AbhEQPbL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:31:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
+        id S1344063AbhEQPwp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:52:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244409AbhEQP1r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:27:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59FE461CAE;
-        Mon, 17 May 2021 14:36:54 +0000 (UTC)
+        id S242882AbhEQPun (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:50:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D3AB61440;
+        Mon, 17 May 2021 14:45:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262214;
-        bh=TpbOr6elZi+PPwNfI3J7bCp2pEpHJnlhWoG5yRXdSxU=;
+        s=korg; t=1621262756;
+        bh=nr3DIadgRhyKZCDLi1pOFobQNv/FUqmsYyPOqkzvbgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KJnk2SkEN1KuWYaBATuiTbZsK1EWXnxWvzlH8CQhI8xoxnEQm/FAhLsJwprVQtZ0r
-         pKmfqZYO5arghDXCxkWHQ2BJl765s3XYB2YSQZJTcMU3SPRUtV07aFobWQ3VTGRBYH
-         z4N7AoDkXQKbUcYIb+cJblRpx8AtR4iYADa5X+fQ=
+        b=pjO0G9ffw6HTICxyTs2fAhFawBGjAi6VoSFXQbtEKjNmdsDgWYhMG9SKyitVOdnjy
+         5mNg/39lNZfj7y3mKwlxnnVtdgvwpi7pgnZQz/3XHRHaEnbR6D9LjvLQeL2dFWpSQS
+         UujB+6IYyuNYyPAhhl56207nxBEwDhkkFOvYibAM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.4 141/141] ASoC: rsnd: check all BUSIF status when error
-Date:   Mon, 17 May 2021 16:03:13 +0200
-Message-Id: <20210517140247.574180538@linuxfoundation.org>
+        stable@vger.kernel.org, Tony Lindgren <tony@atomide.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.10 269/289] clocksource/drivers/timer-ti-dm: Prepare to handle dra7 timer wrap issue
+Date:   Mon, 17 May 2021 16:03:14 +0200
+Message-Id: <20210517140314.202256252@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
-References: <20210517140242.729269392@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
+From: Tony Lindgren <tony@atomide.com>
 
-commit a4856e15e58b54977f1c0c0299309ad4d1f13365 upstream.
+commit 3efe7a878a11c13b5297057bfc1e5639ce1241ce upstream.
 
-commit 66c705d07d784 ("SoC: rsnd: add interrupt support for SSI BUSIF
-buffer") adds __rsnd_ssi_interrupt() checks for BUSIF status,
-but is using "break" at for loop.
-This means it is not checking all status. Let's check all BUSIF status.
+There is a timer wrap issue on dra7 for the ARM architected timer.
+In a typical clock configuration the timer fails to wrap after 388 days.
 
-Fixes: commit 66c705d07d784 ("SoC: rsnd: add interrupt support for SSI BUSIF buffer")
-Signed-off-by: Kuninori Morimoto <kuninori.morimoto.gx@renesas.com>
-Link: https://lore.kernel.org/r/874kgh1jsw.wl-kuninori.morimoto.gx@renesas.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+To work around the issue, we need to use timer-ti-dm timers instead.
+
+Let's prepare for adding support for percpu timers by adding a common
+dmtimer_clkevt_init_common() and call it from dmtimer_clockevent_init().
+This patch makes no intentional functional changes.
+
+Signed-off-by: Tony Lindgren <tony@atomide.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210323074326.28302-2-tony@atomide.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sh/rcar/ssi.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/clocksource/timer-ti-dm-systimer.c |   68 ++++++++++++++++++-----------
+ 1 file changed, 44 insertions(+), 24 deletions(-)
 
---- a/sound/soc/sh/rcar/ssi.c
-+++ b/sound/soc/sh/rcar/ssi.c
-@@ -797,7 +797,6 @@ static void __rsnd_ssi_interrupt(struct
- 						       SSI_SYS_STATUS(i * 2),
- 						       0xf << (id * 4));
- 					stop = true;
--					break;
- 				}
- 			}
- 			break;
-@@ -815,7 +814,6 @@ static void __rsnd_ssi_interrupt(struct
- 						SSI_SYS_STATUS((i * 2) + 1),
- 						0xf << 4);
- 					stop = true;
--					break;
- 				}
- 			}
- 			break;
+--- a/drivers/clocksource/timer-ti-dm-systimer.c
++++ b/drivers/clocksource/timer-ti-dm-systimer.c
+@@ -530,17 +530,17 @@ static void omap_clockevent_unidle(struc
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
+ }
+ 
+-static int __init dmtimer_clockevent_init(struct device_node *np)
++static int __init dmtimer_clkevt_init_common(struct dmtimer_clockevent *clkevt,
++					     struct device_node *np,
++					     unsigned int features,
++					     const struct cpumask *cpumask,
++					     const char *name,
++					     int rating)
+ {
+-	struct dmtimer_clockevent *clkevt;
+ 	struct clock_event_device *dev;
+ 	struct dmtimer_systimer *t;
+ 	int error;
+ 
+-	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
+-	if (!clkevt)
+-		return -ENOMEM;
+-
+ 	t = &clkevt->t;
+ 	dev = &clkevt->dev;
+ 
+@@ -548,25 +548,23 @@ static int __init dmtimer_clockevent_ini
+ 	 * We mostly use cpuidle_coupled with ARM local timers for runtime,
+ 	 * so there's probably no use for CLOCK_EVT_FEAT_DYNIRQ here.
+ 	 */
+-	dev->features = CLOCK_EVT_FEAT_PERIODIC | CLOCK_EVT_FEAT_ONESHOT;
+-	dev->rating = 300;
++	dev->features = features;
++	dev->rating = rating;
+ 	dev->set_next_event = dmtimer_set_next_event;
+ 	dev->set_state_shutdown = dmtimer_clockevent_shutdown;
+ 	dev->set_state_periodic = dmtimer_set_periodic;
+ 	dev->set_state_oneshot = dmtimer_clockevent_shutdown;
+ 	dev->set_state_oneshot_stopped = dmtimer_clockevent_shutdown;
+ 	dev->tick_resume = dmtimer_clockevent_shutdown;
+-	dev->cpumask = cpu_possible_mask;
++	dev->cpumask = cpumask;
+ 
+ 	dev->irq = irq_of_parse_and_map(np, 0);
+-	if (!dev->irq) {
+-		error = -ENXIO;
+-		goto err_out_free;
+-	}
++	if (!dev->irq)
++		return -ENXIO;
+ 
+ 	error = dmtimer_systimer_setup(np, &clkevt->t);
+ 	if (error)
+-		goto err_out_free;
++		return error;
+ 
+ 	clkevt->period = 0xffffffff - DIV_ROUND_CLOSEST(t->rate, HZ);
+ 
+@@ -578,32 +576,54 @@ static int __init dmtimer_clockevent_ini
+ 	writel_relaxed(OMAP_TIMER_CTRL_POSTED, t->base + t->ifctrl);
+ 
+ 	error = request_irq(dev->irq, dmtimer_clockevent_interrupt,
+-			    IRQF_TIMER, "clockevent", clkevt);
++			    IRQF_TIMER, name, clkevt);
+ 	if (error)
+ 		goto err_out_unmap;
+ 
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->irq_ena);
+ 	writel_relaxed(OMAP_TIMER_INT_OVERFLOW, t->base + t->wakeup);
+ 
+-	pr_info("TI gptimer clockevent: %s%lu Hz at %pOF\n",
+-		of_find_property(np, "ti,timer-alwon", NULL) ?
++	pr_info("TI gptimer %s: %s%lu Hz at %pOF\n",
++		name, of_find_property(np, "ti,timer-alwon", NULL) ?
+ 		"always-on " : "", t->rate, np->parent);
+ 
+-	clockevents_config_and_register(dev, t->rate,
+-					3, /* Timer internal resynch latency */
++	return 0;
++
++err_out_unmap:
++	iounmap(t->base);
++
++	return error;
++}
++
++static int __init dmtimer_clockevent_init(struct device_node *np)
++{
++	struct dmtimer_clockevent *clkevt;
++	int error;
++
++	clkevt = kzalloc(sizeof(*clkevt), GFP_KERNEL);
++	if (!clkevt)
++		return -ENOMEM;
++
++	error = dmtimer_clkevt_init_common(clkevt, np,
++					   CLOCK_EVT_FEAT_PERIODIC |
++					   CLOCK_EVT_FEAT_ONESHOT,
++					   cpu_possible_mask, "clockevent",
++					   300);
++	if (error)
++		goto err_out_free;
++
++	clockevents_config_and_register(&clkevt->dev, clkevt->t.rate,
++					3, /* Timer internal resync latency */
+ 					0xffffffff);
+ 
+ 	if (of_machine_is_compatible("ti,am33xx") ||
+ 	    of_machine_is_compatible("ti,am43")) {
+-		dev->suspend = omap_clockevent_idle;
+-		dev->resume = omap_clockevent_unidle;
++		clkevt->dev.suspend = omap_clockevent_idle;
++		clkevt->dev.resume = omap_clockevent_unidle;
+ 	}
+ 
+ 	return 0;
+ 
+-err_out_unmap:
+-	iounmap(t->base);
+-
+ err_out_free:
+ 	kfree(clkevt);
+ 
 
 
