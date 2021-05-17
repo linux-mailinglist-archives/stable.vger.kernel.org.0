@@ -2,43 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B0F3837BD
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 542C6383627
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:32:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244251AbhEQPqo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:46:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52358 "EHLO mail.kernel.org"
+        id S244868AbhEQP2p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:28:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344301AbhEQPoP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:44:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4FBD61406;
-        Mon, 17 May 2021 14:43:14 +0000 (UTC)
+        id S243751AbhEQP0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:26:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 415A561C98;
+        Mon, 17 May 2021 14:36:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262595;
-        bh=fBCwBoQIBu1Z/Im+ck+WQ9ZRSffBq64U6W6k0+CiYPY=;
+        s=korg; t=1621262188;
+        bh=e6rbGkevxH80htg2S1pnTYsN/VIFVvqRPI21soQ99II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mThKyBUQFBjv60FKsTXXCDn+c/Eno/+iS7uvHYCXTGpLDmZ2hwCUcI2hzYYPNPYRO
-         m80+7jc7M58EEuLwQIu7GhKm/mYRnJexnheVwapZ5WeKrFJ4rERdLGX8QRXmebrwXA
-         W9K5tqNnyStePm1bNVODnNOIygCpoL+niPfRmgVg=
+        b=K62xMHFf1YCR+CSL680fmgEnDB9WYrUTESimKWOPqwdZYMZoRH4dSBXdp4p6ddR8h
+         wQB3GjmT4gBlgESSZsJx7X7mcQmQa+yfJKluybQVT8fWFPzzqXUUcxxsaA/lHmlAzd
+         5Trb2z58tb6VC3PwJTF8NmViPAFLRVYl5H1P6gi4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Justin M. Forbes" <jforbes@redhat.com>,
-        Jiri Olsa <jolsa@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ian Rogers <irogers@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Michael Petlan <mpetlan@redhat.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 221/289] perf tools: Fix dynamic libbpf link
+        stable@vger.kernel.org, Jouni Roivas <jouni.roivas@tuxera.com>,
+        Anton Altaparmakov <anton@tuxera.com>,
+        Anatoly Trosinenko <anatoly.trosinenko@gmail.com>,
+        Viacheslav Dubeyko <slava@dubeyko.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.11 235/329] hfsplus: prevent corruption in shrinking truncate
 Date:   Mon, 17 May 2021 16:02:26 +0200
-Message-Id: <20210517140312.594711262@linuxfoundation.org>
+Message-Id: <20210517140310.065784644@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,74 +43,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Jouni Roivas <jouni.roivas@tuxera.com>
 
-[ Upstream commit ad1237c30d975535a669746496cbed136aa5a045 ]
+commit c3187cf32216313fb316084efac4dab3a8459b1d upstream.
 
-Justin reported broken build with LIBBPF_DYNAMIC=1.
+I believe there are some issues introduced by commit 31651c607151
+("hfsplus: avoid deadlock on file truncation")
 
-When linking libbpf dynamically we need to use perf's
-hashmap object, because it's not exported in libbpf.so
-(only in libbpf.a).
+HFS+ has extent records which always contains 8 extents.  In case the
+first extent record in catalog file gets full, new ones are allocated from
+extents overflow file.
 
-Following build is now passing:
+In case shrinking truncate happens to middle of an extent record which
+locates in extents overflow file, the logic in hfsplus_file_truncate() was
+changed so that call to hfs_brec_remove() is not guarded any more.
 
-  $ make LIBBPF_DYNAMIC=1
-    BUILD:   Doing 'make -j8' parallel build
-    ...
-  $ ldd perf | grep libbpf
-        libbpf.so.0 => /lib64/libbpf.so.0 (0x00007fa7630db000)
+Right action would be just freeing the extents that exceed the new size
+inside extent record by calling hfsplus_free_extents(), and then check if
+the whole extent record should be removed.  However since the guard
+(blk_cnt > start) is now after the call to hfs_brec_remove(), this has
+unfortunate effect that the last matching extent record is removed
+unconditionally.
 
-Fixes: eee19501926d ("perf tools: Grab a copy of libbpf's hashmap")
-Reported-by: Justin M. Forbes <jforbes@redhat.com>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Michael Petlan <mpetlan@redhat.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Link: http://lore.kernel.org/lkml/20210508205020.617984-1-jolsa@kernel.org
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+To reproduce this issue, create a file which has at least 10 extents, and
+then perform shrinking truncate into middle of the last extent record, so
+that the number of remaining extents is not under or divisible by 8.  This
+causes the last extent record (8 extents) to be removed totally instead of
+truncating into middle of it.  Thus this causes corruption, and lost data.
+
+Fix for this is simply checking if the new truncated end is below the
+start of this extent record, making it safe to remove the full extent
+record.  However call to hfs_brec_remove() can't be moved to it's previous
+place since we're dropping ->tree_lock and it can cause a race condition
+and the cached info being invalidated possibly corrupting the node data.
+
+Another issue is related to this one.  When entering into the block
+(blk_cnt > start) we are not holding the ->tree_lock.  We break out from
+the loop not holding the lock, but hfs_find_exit() does unlock it.  Not
+sure if it's possible for someone else to take the lock under our feet,
+but it can cause hard to debug errors and premature unlocking.  Even if
+there's no real risk of it, the locking should still always be kept in
+balance.  Thus taking the lock now just before the check.
+
+Link: https://lkml.kernel.org/r/20210429165139.3082828-1-jouni.roivas@tuxera.com
+Fixes: 31651c607151f ("hfsplus: avoid deadlock on file truncation")
+Signed-off-by: Jouni Roivas <jouni.roivas@tuxera.com>
+Reviewed-by: Anton Altaparmakov <anton@tuxera.com>
+Cc: Anatoly Trosinenko <anatoly.trosinenko@gmail.com>
+Cc: Viacheslav Dubeyko <slava@dubeyko.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/Makefile.config | 1 +
- tools/perf/util/Build      | 7 +++++++
- 2 files changed, 8 insertions(+)
+ fs/hfsplus/extents.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/tools/perf/Makefile.config b/tools/perf/Makefile.config
-index ce8516e4de34..2abbd75fbf2e 100644
---- a/tools/perf/Makefile.config
-+++ b/tools/perf/Makefile.config
-@@ -530,6 +530,7 @@ ifndef NO_LIBELF
-       ifdef LIBBPF_DYNAMIC
-         ifeq ($(feature-libbpf), 1)
-           EXTLIBS += -lbpf
-+          $(call detected,CONFIG_LIBBPF_DYNAMIC)
-         else
-           dummy := $(error Error: No libbpf devel library found, please install libbpf-devel);
-         endif
-diff --git a/tools/perf/util/Build b/tools/perf/util/Build
-index e2563d0154eb..0cf27354aa45 100644
---- a/tools/perf/util/Build
-+++ b/tools/perf/util/Build
-@@ -140,7 +140,14 @@ perf-$(CONFIG_LIBELF) += symbol-elf.o
- perf-$(CONFIG_LIBELF) += probe-file.o
- perf-$(CONFIG_LIBELF) += probe-event.o
+--- a/fs/hfsplus/extents.c
++++ b/fs/hfsplus/extents.c
+@@ -598,13 +598,15 @@ void hfsplus_file_truncate(struct inode
+ 		res = __hfsplus_ext_cache_extent(&fd, inode, alloc_cnt);
+ 		if (res)
+ 			break;
+-		hfs_brec_remove(&fd);
  
-+ifdef CONFIG_LIBBPF_DYNAMIC
-+  hashmap := 1
-+endif
- ifndef CONFIG_LIBBPF
-+  hashmap := 1
-+endif
-+
-+ifdef hashmap
- perf-y += hashmap.o
- endif
+-		mutex_unlock(&fd.tree->tree_lock);
+ 		start = hip->cached_start;
++		if (blk_cnt <= start)
++			hfs_brec_remove(&fd);
++		mutex_unlock(&fd.tree->tree_lock);
+ 		hfsplus_free_extents(sb, hip->cached_extents,
+ 				     alloc_cnt - start, alloc_cnt - blk_cnt);
+ 		hfsplus_dump_extent(hip->cached_extents);
++		mutex_lock(&fd.tree->tree_lock);
+ 		if (blk_cnt > start) {
+ 			hip->extent_state |= HFSPLUS_EXT_DIRTY;
+ 			break;
+@@ -612,7 +614,6 @@ void hfsplus_file_truncate(struct inode
+ 		alloc_cnt = start;
+ 		hip->cached_start = hip->cached_blocks = 0;
+ 		hip->extent_state &= ~(HFSPLUS_EXT_DIRTY | HFSPLUS_EXT_NEW);
+-		mutex_lock(&fd.tree->tree_lock);
+ 	}
+ 	hfs_find_exit(&fd);
  
--- 
-2.30.2
-
 
 
