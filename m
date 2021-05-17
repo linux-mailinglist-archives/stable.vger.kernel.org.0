@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2655383864
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:52:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EF543836EA
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1343750AbhEQPwT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:52:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45534 "EHLO mail.kernel.org"
+        id S244793AbhEQPhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:37:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345119AbhEQPuQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:50:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A94261D4B;
-        Mon, 17 May 2021 14:45:49 +0000 (UTC)
+        id S243319AbhEQPf0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:35:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD28C61CD8;
+        Mon, 17 May 2021 14:39:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262750;
-        bh=WQfgM7ZoBlcn0q0ZndU0b98p6G+CR1wQVtqSdzHtEnI=;
+        s=korg; t=1621262385;
+        bh=wnt279nJJ8vbj7pONq42NrMo7lIbIbQXr5x4KuW3GTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncaw+3wI+ioDYDKm7sbCP7Y7W7e972jd5alyWIxBkJlr8HDAJY76r5l8W9jWmBjQ0
-         0ASM+CAKnYw6iVnrt1qPKXnp1S5kjY6Zj5F6vow7SLziIZQO7NRonsZSrzoKE0ao9A
-         8PRq6mHyiylrhKpZzDQBpL5J17M6HKX8Nad85wEs=
+        b=q1GqwOE4eW+lKAUPqq5mz+gbjOIhUbq0yKkErEikkGvd1p5ZwY8LhqVB8ahqQYDBH
+         4aGJmxoXnonjOao1LJ1lNUefafaH4Ii2aOAExoXTfpsN0ymvAUz+5Z8k2VFbT0f0eQ
+         f8xkQvLJoohf2JT/EnUlUFbP1ZsghQShcnl2u0IU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Huacai Chen <chenhuacai@kernel.org>,
-        "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 5.10 266/289] MIPS: Reinstate platform `__div64_32 handler
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 280/329] blk-mq: Swap two calls in blk_mq_exit_queue()
 Date:   Mon, 17 May 2021 16:03:11 +0200
-Message-Id: <20210517140314.103283035@linuxfoundation.org>
+Message-Id: <20210517140311.580384042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,161 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit c49f71f60754acbff37505e1d16ca796bf8a8140 upstream.
+[ Upstream commit 630ef623ed26c18a457cdc070cf24014e50129c2 ]
 
-Our current MIPS platform `__div64_32' handler is inactive, because it
-is incorrectly only enabled for 64-bit configurations, for which generic
-`do_div' code does not call it anyway.
+If a tag set is shared across request queues (e.g. SCSI LUNs) then the
+block layer core keeps track of the number of active request queues in
+tags->active_queues. blk_mq_tag_busy() and blk_mq_tag_idle() update that
+atomic counter if the hctx flag BLK_MQ_F_TAG_QUEUE_SHARED is set. Make
+sure that blk_mq_exit_queue() calls blk_mq_tag_idle() before that flag is
+cleared by blk_mq_del_queue_tag_set().
 
-The handler is not suitable for being called from there though as it
-only calculates 32 bits of the quotient under the assumption the 64-bit
-divident has been suitably reduced.  Code for such reduction used to be
-there, however it has been incorrectly removed with commit c21004cd5b4c
-("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0."), which should
-have only updated an obsoleted constraint for an inline asm involving
-$hi and $lo register outputs, while possibly wiring the original MIPS
-variant of the `do_div' macro as `__div64_32' handler for the generic
-`do_div' implementation
-
-Correct the handler as follows then:
-
-- Revert most of the commit referred, however retaining the current
-  formatting, except for the final two instructions of the inline asm
-  sequence, which the original commit missed.  Omit the original 64-bit
-  parts though.
-
-- Rename the original `do_div' macro to `__div64_32'.  Use the combined
-  `x' constraint referring to the MD accumulator as a whole, replacing
-  the original individual `h' and `l' constraints used for $hi and $lo
-  registers respectively, of which `h' has been obsoleted with GCC 4.4.
-  Update surrounding code accordingly.
-
-  We have since removed support for GCC versions before 4.9, so no need
-  for a special arrangement here; GCC has supported the `x' constraint
-  since forever anyway, or at least going back to 1991.
-
-- Rename the `__base' local variable in `__div64_32' to `__radix' to
-  avoid a conflict with a local variable in `do_div'.
-
-- Actually enable this code for 32-bit rather than 64-bit configurations
-  by qualifying it with BITS_PER_LONG being 32 instead of 64.  Include
-  <asm/bitsperlong.h> for this macro rather than <linux/types.h> as we
-  don't need anything else.
-
-- Finally include <asm-generic/div64.h> last rather than first.
-
-This has passed correctness verification with test_div64 and reduced the
-module's average execution time down to 1.0668s and 0.2629s from 2.1529s
-and 0.5647s respectively for an R3400 CPU @40MHz and a 5Kc CPU @160MHz.
-For a reference 64-bit `do_div' code where we have the DDIVU instruction
-available to do the whole calculation right away averages at 0.0660s for
-the latter CPU.
-
-Fixes: c21004cd5b4c ("MIPS: Rewrite <asm/div64.h> to work with gcc 4.4.0.")
-Reported-by: Huacai Chen <chenhuacai@kernel.org>
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Cc: stable@vger.kernel.org # v2.6.30+
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Fixes: 0d2602ca30e4 ("blk-mq: improve support for shared tags maps")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210513171529.7977-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/include/asm/div64.h |   57 ++++++++++++++++++++++++++++++------------
- 1 file changed, 41 insertions(+), 16 deletions(-)
+ block/blk-mq.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/mips/include/asm/div64.h
-+++ b/arch/mips/include/asm/div64.h
-@@ -1,5 +1,5 @@
- /*
-- * Copyright (C) 2000, 2004  Maciej W. Rozycki
-+ * Copyright (C) 2000, 2004, 2021  Maciej W. Rozycki
-  * Copyright (C) 2003, 07 Ralf Baechle (ralf@linux-mips.org)
-  *
-  * This file is subject to the terms and conditions of the GNU General Public
-@@ -9,25 +9,18 @@
- #ifndef __ASM_DIV64_H
- #define __ASM_DIV64_H
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 2cd922579b2f..88c843fa8d13 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -3244,10 +3244,12 @@ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
+ /* tags can _not_ be used after returning from blk_mq_exit_queue */
+ void blk_mq_exit_queue(struct request_queue *q)
+ {
+-	struct blk_mq_tag_set	*set = q->tag_set;
++	struct blk_mq_tag_set *set = q->tag_set;
  
--#include <asm-generic/div64.h>
--
--#if BITS_PER_LONG == 64
-+#include <asm/bitsperlong.h>
+-	blk_mq_del_queue_tag_set(q);
++	/* Checks hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED. */
+ 	blk_mq_exit_hw_queues(q, set, set->nr_hw_queues);
++	/* May clear BLK_MQ_F_TAG_QUEUE_SHARED in hctx->flags. */
++	blk_mq_del_queue_tag_set(q);
+ }
  
--#include <linux/types.h>
-+#if BITS_PER_LONG == 32
- 
- /*
-  * No traps on overflows for any of these...
-  */
- 
--#define __div64_32(n, base)						\
--({									\
-+#define do_div64_32(res, high, low, base) ({				\
- 	unsigned long __cf, __tmp, __tmp2, __i;				\
- 	unsigned long __quot32, __mod32;				\
--	unsigned long __high, __low;					\
--	unsigned long long __n;						\
- 									\
--	__high = *__n >> 32;						\
--	__low = __n;							\
- 	__asm__(							\
- 	"	.set	push					\n"	\
- 	"	.set	noat					\n"	\
-@@ -51,18 +44,50 @@
- 	"	subu	%0, %0, %z6				\n"	\
- 	"	addiu	%2, %2, 1				\n"	\
- 	"3:							\n"	\
--	"	bnez	%4, 0b\n\t"					\
--	"	 srl	%5, %1, 0x1f\n\t"				\
-+	"	bnez	%4, 0b					\n"	\
-+	"	 srl	%5, %1, 0x1f				\n"	\
- 	"	.set	pop"						\
- 	: "=&r" (__mod32), "=&r" (__tmp),				\
- 	  "=&r" (__quot32), "=&r" (__cf),				\
- 	  "=&r" (__i), "=&r" (__tmp2)					\
--	: "Jr" (base), "0" (__high), "1" (__low));			\
-+	: "Jr" (base), "0" (high), "1" (low));				\
- 									\
--	(__n) = __quot32;						\
-+	(res) = __quot32;						\
- 	__mod32;							\
- })
- 
--#endif /* BITS_PER_LONG == 64 */
-+#define __div64_32(n, base) ({						\
-+	unsigned long __upper, __low, __high, __radix;			\
-+	unsigned long long __modquot;					\
-+	unsigned long long __quot;					\
-+	unsigned long long __div;					\
-+	unsigned long __mod;						\
-+									\
-+	__div = (*n);							\
-+	__radix = (base);						\
-+									\
-+	__high = __div >> 32;						\
-+	__low = __div;							\
-+	__upper = __high;						\
-+									\
-+	if (__high) {							\
-+		__asm__("divu	$0, %z1, %z2"				\
-+		: "=x" (__modquot)					\
-+		: "Jr" (__high), "Jr" (__radix));			\
-+		__upper = __modquot >> 32;				\
-+		__high = __modquot;					\
-+	}								\
-+									\
-+	__mod = do_div64_32(__low, __upper, __low, __radix);		\
-+									\
-+	__quot = __high;						\
-+	__quot = __quot << 32 | __low;					\
-+	(*n) = __quot;							\
-+	__mod;								\
-+})
-+
-+#endif /* BITS_PER_LONG == 32 */
-+
-+#include <asm-generic/div64.h>
- 
- #endif /* __ASM_DIV64_H */
+ static int __blk_mq_alloc_rq_maps(struct blk_mq_tag_set *set)
+-- 
+2.30.2
+
 
 
