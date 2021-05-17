@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B1D7F3834CB
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:12:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A43873834CF
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:12:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239702AbhEQPMQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:12:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36846 "EHLO mail.kernel.org"
+        id S239713AbhEQPMj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:12:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243589AbhEQPKZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:10:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 508156162A;
-        Mon, 17 May 2021 14:30:35 +0000 (UTC)
+        id S242976AbhEQPKf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:10:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E04A26161E;
+        Mon, 17 May 2021 14:30:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261835;
-        bh=5HDarrOnd3PyUpXFms1LgR/HMD2JMMSNN0aj4RHPhJ0=;
+        s=korg; t=1621261842;
+        bh=LrNG479SmsQRMUuhF8XIsslIbx4AsT9If1H9oW8g+Nk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=luIg0K7bSYqv2ugzwISSNlSwdtE4FvySMX8brLYTUDXW14P1sSIcYk62JF2sLqhJm
-         Dh+3PRy1lWqlKxGOd9EqfAVvEu6pXim3vkVXOIGgts7w/1d3r8efeO6haLiHegg8Gz
-         HD+ZyV2RJDlJhp4pTYRkiwSjXhKyk/Lalw4X4cbQ=
+        b=kU+wVfDNF8gnH24eEVDvQP6NIIWSE4rt38wAnuI3eB7NupL9WbRYccmOknSwuyxb4
+         qTybB1v3MAi4PPur2ksxyrmwNg/n/PjT521OXpOTUBizkGrJ6gD/DttIr68tLj11Y3
+         6ptZHUPjAUNOQ4LyHezxCiRc9UpLJkbSKHNeI8H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Can Guo <cang@codeaurora.org>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 175/329] scsi: ufs: core: Cancel rpm_dev_flush_recheck_work during system suspend
-Date:   Mon, 17 May 2021 16:01:26 +0200
-Message-Id: <20210517140308.045525098@linuxfoundation.org>
+Subject: [PATCH 5.11 176/329] scsi: ufs: core: Narrow down fast path in system suspend path
+Date:   Mon, 17 May 2021 16:01:27 +0200
+Message-Id: <20210517140308.078221133@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -43,36 +43,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Can Guo <cang@codeaurora.org>
 
-[ Upstream commit 637822e63b79ee8a729f7ba2645a26cf5a524ee4 ]
+[ Upstream commit ce4f62f9dd8cf43ac044045ed598a0b80ef33890 ]
 
-During ufs system suspend, leaving rpm_dev_flush_recheck_work running or
-pending is risky because concurrency may happen between system
-suspend/resume and runtime resume routine. Fix this by cancelling
-rpm_dev_flush_recheck_work synchronously during system suspend.
+If spm_lvl is set to 0 or 1, when system suspend kicks start and HBA is
+runtime active, system suspend may just bail without doing anything (the
+fast path), leaving other contexts still running, e.g., clock gating and
+clock scaling. When system resume kicks start, concurrency can happen
+between ufshcd_resume() and these contexts, leading to various stability
+issues.
 
-Link: https://lore.kernel.org/r/1619408921-30426-3-git-send-email-cang@codeaurora.org
-Fixes: 51dd905bd2f6 ("scsi: ufs: Fix WriteBooster flush during runtime suspend")
+Add a check against HBA's runtime state and allowing fast path only if HBA
+is runtime suspended, otherwise let system suspend go ahead call
+ufshcd_suspend(). This will guarantee that these contexts are stopped by
+either runtime suspend or system suspend.
+
+Link: https://lore.kernel.org/r/1619408921-30426-4-git-send-email-cang@codeaurora.org
+Fixes: 0b257734344a ("scsi: ufs: optimize system suspend handling")
 Reviewed-by: Daejun Park <daejun7.park@samsung.com>
 Signed-off-by: Can Guo <cang@codeaurora.org>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 9f811fc5916d..d7e983e952cb 100644
+index d7e983e952cb..ab3a5c1b5723 100644
 --- a/drivers/scsi/ufs/ufshcd.c
 +++ b/drivers/scsi/ufs/ufshcd.c
-@@ -8972,6 +8972,8 @@ int ufshcd_system_suspend(struct ufs_hba *hba)
- 	if (!hba->is_powered)
- 		return 0;
- 
-+	cancel_delayed_work_sync(&hba->rpm_dev_flush_recheck_work);
-+
- 	if ((ufs_get_pm_lvl_to_dev_pwr_mode(hba->spm_lvl) ==
+@@ -8978,6 +8978,7 @@ int ufshcd_system_suspend(struct ufs_hba *hba)
  	     hba->curr_dev_pwr_mode) &&
  	    (ufs_get_pm_lvl_to_link_pwr_state(hba->spm_lvl) ==
+ 	     hba->uic_link_state) &&
++	     pm_runtime_suspended(hba->dev) &&
+ 	     !hba->dev_info.b_rpm_dev_flush_capable)
+ 		goto out;
+ 
 -- 
 2.30.2
 
