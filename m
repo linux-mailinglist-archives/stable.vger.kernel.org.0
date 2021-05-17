@@ -2,107 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF88B382C5A
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 14:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CEDD7382C79
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 14:45:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237055AbhEQMkv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 08:40:51 -0400
-Received: from wforward2-smtp.messagingengine.com ([64.147.123.31]:53429 "EHLO
-        wforward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237044AbhEQMkv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 08:40:51 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.west.internal (Postfix) with ESMTP id 265A3C53;
-        Mon, 17 May 2021 08:39:34 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 May 2021 08:39:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tWaTDq
-        WtDuPrHuz910BqnxjlHmtCGps9mPWqCfXobTw=; b=ryqJ/IZZvIYuyREmrZggFO
-        wl9GMCXJo8xShBa5WNl5Ze7Gpa+mDno3hbMbe1MfGBT/qALnKCvEJN0mOHiJSxkL
-        QaUATUvy9Mfmg3tlQzur8O6jLrPCfX1xBvZJ7ZnUhU5DHBmloQ4fC4skojuA1r5i
-        qhuhDEG4UnENpAIQ+ZYJ58Yq4L7VjaZ6OJDALJ5DaIBYboCVpOzP1R9bTfAzljuF
-        2lji+E8Ams1vcYm0xn/q7XcoZjFig8eiOtF6Ryu8rX3hGsXCWh/FcMQWPHKPKLBC
-        WswtblTAhPlvd9ZU9kDi8X2G23EPiThjP10IAdKPFd/M+wnk7wFtxSPyb1jT47iA
-        ==
-X-ME-Sender: <xms:BWSiYHxiiwWqI6GuKqSOdg7hPY7L6EX8fjWnFsGLlMR5RnhMUVEriw>
-    <xme:BWSiYPRyGjFOdb3IV3l5yMoSlT7N2l-QrKip5KhOPyGk_QwAnaMaOkroAZZ7-HugF
-    bSDjzzAO6i8TQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeihedgheeiucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
-    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
-    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
-    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:BWSiYBWC2jM6UU3EN-L9KDDAtd-8KNhHUQvlP-ZsE79W172WGLH4WA>
-    <xmx:BWSiYBitJ8uM4leguLOuMwbT8MZSIZCylZCuxE7Jq7pAG29Q9Vtjgw>
-    <xmx:BWSiYJAHzMNXXZj8co-SmU1XRCCFiSOGsg6ftJIL28mx4thTTqn6bA>
-    <xmx:BWSiYIPMOl-ah5vVwnms2wHjgTC-TcM1qXHVVq9UtjGGCTZwZvCe-thiAz0>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 08:39:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/i915/overlay: Fix active retire callback alignment" failed to apply to 5.4-stable tree
-To:     tvrtko.ursulin@intel.com, chris@chris-wilson.co.uk,
-        jani.nikula@intel.com, matthew.auld@intel.com,
-        ville.syrjala@linux.intel.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 17 May 2021 14:39:27 +0200
-Message-ID: <1621255167231244@kroah.com>
+        id S233899AbhEQMq2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 08:46:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45502 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231591AbhEQMq2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 08:46:28 -0400
+Received: from mail-oi1-x22b.google.com (mail-oi1-x22b.google.com [IPv6:2607:f8b0:4864:20::22b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F6F6C061573
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 05:45:12 -0700 (PDT)
+Received: by mail-oi1-x22b.google.com with SMTP id z3so6336042oib.5
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 05:45:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=bBBm+WeHyz4lkqmetRMun1w+G5fl+4ObKMk21jjZXDo=;
+        b=fDbCmPvV4q2OS4aLWE1KQwF12pUd3FlZ3XEq5OSfSnQWLygroXQAxUjkaWInH4JTW+
+         czwfirUH+JmeQHhesZIDvZ5f06eI/+ixi3b+52hLFDXTZCU8SSQ0JZuoiT+p4h5v859y
+         76D5BEpAZu6CFEkO8CXJ6yTXCzZ3eKnyEBS/4CHBt4ftJh2h+X83Wx7isDL65AtTDX8n
+         XxVahAFSD+ZQsTU3W0VCwPUsPRO5NAYOb5LSG6ShoT0U43PnrWA3sFdDzizrj21VtEnM
+         dSBbS61q+LPDIHTIRfZdaHCGmzwOCuEo6Rd9xx650MSncVMwy/zXjf2YN6YLeL4/FuWb
+         ZRrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=bBBm+WeHyz4lkqmetRMun1w+G5fl+4ObKMk21jjZXDo=;
+        b=nPFsy8M6T8Xo6Kf3TbWlMDxP4djDEM4upUFAt61myJb51EgbOfTZPvs8aT4hEUjPB9
+         zXdJwp54MwwyHzxXkMQRsS5XmWfta6gut/psMThfZZgfLE/PLHKONEIPZVtsYRV+194q
+         NRwHhbAmoz/3Wkj6xEKqMc1iBViATkpnH7qI/DJoxJvHrum/hHSW0vksXb+cef6tua8d
+         f4Y6y4atf9X2YCuieBe7wm31Wo8S2TkwsXgaiBnnYIXAQYO2SWJvwC/aLGXSHNOG4v7t
+         Kw1PPizIY5UmzIum7GtuYvgyq0LoRUGulTHUcp9BpnST+KnPaKy+AG/E4BB3MJJyLpPg
+         y1eg==
+X-Gm-Message-State: AOAM531eRMq9YcC63aR1IB7ctDjwQF+vX6EWUkMrT7n302oNteV/C868
+        QCEMKtwVqJUlsCtqDyGeVjs/6gHkKy5wm4WQN/zSnv0O/Ec=
+X-Google-Smtp-Source: ABdhPJxzJP4HwiriiP7w14de/Kr5lE657Tw5IZx4On2XQ3FQGHiwAjvO0FlwLXQfh0ttqKMd8IExwVUxrfsx02NYRbw=
+X-Received: by 2002:aca:f156:: with SMTP id p83mr42943541oih.91.1621255511852;
+ Mon, 17 May 2021 05:45:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <e0e9ecf4-cfd7-b31a-29b0-ead4a6c0ee40@charleswright.co>
+ <1621180418@msgid.manchmal.in-ulm.de> <YKI/D64ODBUEHO9M@kroah.com>
+ <1621251453@msgid.manchmal.in-ulm.de> <1621251685@msgid.manchmal.in-ulm.de>
+ <CA+res+RHyF22T-sGwCG5zA6EBrk_gWbnZETX_iAgdRdWaPLbfw@mail.gmail.com> <1621254246@msgid.manchmal.in-ulm.de>
+In-Reply-To: <1621254246@msgid.manchmal.in-ulm.de>
+From:   Jack Wang <jack.wang.usish@gmail.com>
+Date:   Mon, 17 May 2021 14:45:01 +0200
+Message-ID: <CA+res+QRm3VyJSjMaKLYm=KY5+T5nX+6-QhOgrgBcP+d2Ganag@mail.gmail.com>
+Subject: Re: 5.10.37 won't boot on my system, but 5.10.36 with same config does
+To:     Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+Cc:     stable <stable@vger.kernel.org>, iommu@lists.linux-foundation.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From a915fe5e9601c632417ef5261af70788d7d23a8a Mon Sep 17 00:00:00 2001
-From: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Date: Thu, 29 Apr 2021 09:35:29 +0100
-Subject: [PATCH] drm/i915/overlay: Fix active retire callback alignment
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-
-__i915_active_call annotation is required on the retire callback to ensure
-correct function alignment.
-
-Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
-Fixes: a21ce8ad12d2 ("drm/i915/overlay: Switch to using i915_active tracking")
-Cc: Chris Wilson <chris@chris-wilson.co.uk>
-Cc: Matthew Auld <matthew.auld@intel.com>
-Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210429083530.849546-1-tvrtko.ursulin@linux.intel.com
-(cherry picked from commit d8e44e4dd221ee283ea60a6fb87bca08807aa0ab)
-Signed-off-by: Jani Nikula <jani.nikula@intel.com>
-
-diff --git a/drivers/gpu/drm/i915/display/intel_overlay.c b/drivers/gpu/drm/i915/display/intel_overlay.c
-index e5dadde422f7..bbaf05515e88 100644
---- a/drivers/gpu/drm/i915/display/intel_overlay.c
-+++ b/drivers/gpu/drm/i915/display/intel_overlay.c
-@@ -383,7 +383,7 @@ static void intel_overlay_off_tail(struct intel_overlay *overlay)
- 		i830_overlay_clock_gating(dev_priv, true);
- }
- 
--static void
-+__i915_active_call static void
- intel_overlay_last_flip_retire(struct i915_active *active)
- {
- 	struct intel_overlay *overlay =
-
+Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de> =E4=BA=8E2021=E5=B9=
+=B45=E6=9C=8817=E6=97=A5=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=882:25=E5=86=99=
+=E9=81=93=EF=BC=9A
+>
+> Jack Wang wrote...
+>
+> > Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de> =E4=BA=8E2021=E5=
+=B9=B45=E6=9C=8817=E6=97=A5=E5=91=A8=E4=B8=80 =E4=B8=8B=E5=8D=881:52=E5=86=
+=99=E9=81=93=EF=BC=9A
+> > >
+> > > Christoph Biedl wrote...
+> > >
+> > > > Thanks for taking care, unfortunately no improvement with 5.10.38-r=
+c1 here.
+> > >
+> > > So in case this is related to the .config, I'm attaching it. Hardware=
+ is,
+> > > as said before, an old Thinkpad x200, vendor BIOS and no particular m=
+odifications.
+> > > After disabling all vga/video/fbcon parameters I see the system suffe=
+rs
+> > > a kernel panic but unfortunately only the last 25 lines are visible.
+> > > Possibly (typos are mine)
+> > >
+> > >     RIP: 0010:__domain_mapping+0xa7/0x3a0
+> > >
+> > > is a hint into the right direction?
+> > This looks intel_iommu related, can you try boot with
+> > "intel_iommu=3Doff" in kernel parameter?
+>
+> Gotcha. System boots up fine then.
+>
+>     Christoph
+So it's caused by this commit[1], and it should be fixed by latest
+5.10.38-rc1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git/log/?h=3Dlinux-5.10.y
+[1]https://lore.kernel.org/stable/20210515132855.4bn7ve2ozvdhpnj4@nabokov.f=
+ritz.box/
