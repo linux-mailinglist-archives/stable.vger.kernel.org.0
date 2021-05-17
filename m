@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D4648382FCD
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9E0382FCC
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:20:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238337AbhEQOUr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:20:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36042 "EHLO mail.kernel.org"
+        id S238449AbhEQOUo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:20:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239133AbhEQOSt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239137AbhEQOSt (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 17 May 2021 10:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1082613AF;
-        Mon, 17 May 2021 14:10:39 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17B456135D;
+        Mon, 17 May 2021 14:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260640;
-        bh=LHbAARHTedA2/v4hrm2YrX6wgYt8bojWAYV82dByK94=;
+        s=korg; t=1621260642;
+        bh=earRuwhM9IlX1sdqnRMD1QZno2DCgbezXANkhzn7bxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVdLOe8ITYiXsEkvOO3s7TbIVfD6MzojYymkFdDBHOWLxctGQT2figGKnG55ZltGp
-         DNfzOYisevo22hNwLOc8sfve2yPNcVY2HcSWzp/VOKaxsL3ehmgfhnW72E9k0gzHdQ
-         3uQ3uvD4yOD7/IWshsIjf91uJNRXUTLlRiY5u8mc=
+        b=H1pDSsVXwIlJSDXI2QjrRkNSiQDg9d+KHQKtuZ1yTX5CDzNO8HRYbs6QGZxD3X3hb
+         xpvKh5RnqU+xhGT8Cg/9CrA99lxR1KHI5hmlKKaUDZTV+jUG70VxQLERcMt2tC8b0I
+         szbQ5AsOpo0ZF83OeQqV+RJHsSsXyQaILu6wnZAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
         Dave Jiang <dave.jiang@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 172/363] dmaengine: idxd: use ida for device instance enumeration
-Date:   Mon, 17 May 2021 16:00:38 +0200
-Message-Id: <20210517140308.419999099@linuxfoundation.org>
+Subject: [PATCH 5.12 173/363] dmaengine: idxd: fix idxd conf_dev struct device lifetime
+Date:   Mon, 17 May 2021 16:00:39 +0200
+Message-Id: <20210517140308.454341690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,79 +42,386 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit f7f7739847bd68b3c3103fd1b50d943038bd14c7 ]
+[ Upstream commit 47c16ac27d4cb664cee53ee0b9b7e2f907923fb3 ]
 
-The idr is only used for an device id, never to lookup context from that
-id. Switch to plain ida.
+The devm managed lifetime is incompatible with 'struct device' objects that
+resides in idxd context. This is one of the series that clean up the idxd
+driver 'struct device' lifetime. Fix idxd->conf_dev 'struct device'
+lifetime. Address issues flagged by CONFIG_DEBUG_KOBJECT_RELEASE.
+Add release functions in order to free the allocated memory at the
+appropriate time.
 
-Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
 Reported-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
-Link: https://lore.kernel.org/r/161852984730.2203940.15032482460902003819.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/161852985319.2203940.4650791514462735368.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/init.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ drivers/dma/idxd/idxd.h  | 36 ++++++++++------
+ drivers/dma/idxd/init.c  | 56 ++++++++++++++++--------
+ drivers/dma/idxd/sysfs.c | 92 ++++++++++++++--------------------------
+ 3 files changed, 94 insertions(+), 90 deletions(-)
 
+diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
+index 401b035e42b1..bb3a580732af 100644
+--- a/drivers/dma/idxd/idxd.h
++++ b/drivers/dma/idxd/idxd.h
+@@ -8,6 +8,7 @@
+ #include <linux/percpu-rwsem.h>
+ #include <linux/wait.h>
+ #include <linux/cdev.h>
++#include <linux/idr.h>
+ #include "registers.h"
+ 
+ #define IDXD_DRIVER_VERSION	"1.00"
+@@ -255,6 +256,23 @@ extern struct bus_type dsa_bus_type;
+ extern struct bus_type iax_bus_type;
+ 
+ extern bool support_enqcmd;
++extern struct device_type dsa_device_type;
++extern struct device_type iax_device_type;
++
++static inline bool is_dsa_dev(struct device *dev)
++{
++	return dev->type == &dsa_device_type;
++}
++
++static inline bool is_iax_dev(struct device *dev)
++{
++	return dev->type == &iax_device_type;
++}
++
++static inline bool is_idxd_dev(struct device *dev)
++{
++	return is_dsa_dev(dev) || is_iax_dev(dev);
++}
+ 
+ static inline bool wq_dedicated(struct idxd_wq *wq)
+ {
+@@ -292,18 +310,6 @@ static inline int idxd_get_wq_portal_full_offset(int wq_id,
+ 	return ((wq_id * 4) << PAGE_SHIFT) + idxd_get_wq_portal_offset(prot);
+ }
+ 
+-static inline void idxd_set_type(struct idxd_device *idxd)
+-{
+-	struct pci_dev *pdev = idxd->pdev;
+-
+-	if (pdev->device == PCI_DEVICE_ID_INTEL_DSA_SPR0)
+-		idxd->type = IDXD_TYPE_DSA;
+-	else if (pdev->device == PCI_DEVICE_ID_INTEL_IAX_SPR0)
+-		idxd->type = IDXD_TYPE_IAX;
+-	else
+-		idxd->type = IDXD_TYPE_UNKNOWN;
+-}
+-
+ static inline void idxd_wq_get(struct idxd_wq *wq)
+ {
+ 	wq->client_count++;
+@@ -319,14 +325,16 @@ static inline int idxd_wq_refcount(struct idxd_wq *wq)
+ 	return wq->client_count;
+ };
+ 
++struct ida *idxd_ida(struct idxd_device *idxd);
+ const char *idxd_get_dev_name(struct idxd_device *idxd);
+ int idxd_register_bus_type(void);
+ void idxd_unregister_bus_type(void);
+-int idxd_setup_sysfs(struct idxd_device *idxd);
+-void idxd_cleanup_sysfs(struct idxd_device *idxd);
++int idxd_register_devices(struct idxd_device *idxd);
++void idxd_unregister_devices(struct idxd_device *idxd);
+ int idxd_register_driver(void);
+ void idxd_unregister_driver(void);
+ struct bus_type *idxd_get_bus_type(struct idxd_device *idxd);
++struct device_type *idxd_get_device_type(struct idxd_device *idxd);
+ 
+ /* device interrupt control */
+ void idxd_msix_perm_setup(struct idxd_device *idxd);
 diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
-index 11a2e14b5b80..a4f0489515b4 100644
+index a4f0489515b4..17d3b36610a9 100644
 --- a/drivers/dma/idxd/init.c
 +++ b/drivers/dma/idxd/init.c
-@@ -34,8 +34,7 @@ MODULE_PARM_DESC(sva, "Toggle SVA support on/off");
+@@ -51,6 +51,11 @@ static char *idxd_name[] = {
+ 	"iax"
+ };
  
- bool support_enqcmd;
++struct ida *idxd_ida(struct idxd_device *idxd)
++{
++	return &idxd_idas[idxd->type];
++}
++
+ const char *idxd_get_dev_name(struct idxd_device *idxd)
+ {
+ 	return idxd_name[idxd->type];
+@@ -81,9 +86,8 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ 	 * We implement 1 completion list per MSI-X entry except for
+ 	 * entry 0, which is for errors and others.
+ 	 */
+-	idxd->irq_entries = devm_kcalloc(dev, msixcnt,
+-					 sizeof(struct idxd_irq_entry),
+-					 GFP_KERNEL);
++	idxd->irq_entries = kcalloc_node(msixcnt, sizeof(struct idxd_irq_entry),
++					 GFP_KERNEL, dev_to_node(dev));
+ 	if (!idxd->irq_entries) {
+ 		rc = -ENOMEM;
+ 		goto err_irq_entries;
+@@ -262,16 +266,44 @@ static void idxd_read_caps(struct idxd_device *idxd)
+ 	}
+ }
  
--static struct idr idxd_idrs[IDXD_TYPE_MAX];
--static DEFINE_MUTEX(idxd_idr_lock);
-+static struct ida idxd_idas[IDXD_TYPE_MAX];
++static inline void idxd_set_type(struct idxd_device *idxd)
++{
++	struct pci_dev *pdev = idxd->pdev;
++
++	if (pdev->device == PCI_DEVICE_ID_INTEL_DSA_SPR0)
++		idxd->type = IDXD_TYPE_DSA;
++	else if (pdev->device == PCI_DEVICE_ID_INTEL_IAX_SPR0)
++		idxd->type = IDXD_TYPE_IAX;
++	else
++		idxd->type = IDXD_TYPE_UNKNOWN;
++}
++
+ static struct idxd_device *idxd_alloc(struct pci_dev *pdev)
+ {
+ 	struct device *dev = &pdev->dev;
+ 	struct idxd_device *idxd;
++	int rc;
  
- static struct pci_device_id idxd_pci_tbl[] = {
- 	/* DSA ver 1.0 platforms */
-@@ -348,12 +347,10 @@ static int idxd_probe(struct idxd_device *idxd)
+-	idxd = devm_kzalloc(dev, sizeof(struct idxd_device), GFP_KERNEL);
++	idxd = kzalloc_node(sizeof(*idxd), GFP_KERNEL, dev_to_node(dev));
+ 	if (!idxd)
+ 		return NULL;
+ 
+ 	idxd->pdev = pdev;
++	idxd_set_type(idxd);
++	idxd->id = ida_alloc(idxd_ida(idxd), GFP_KERNEL);
++	if (idxd->id < 0)
++		return NULL;
++
++	device_initialize(&idxd->conf_dev);
++	idxd->conf_dev.parent = dev;
++	idxd->conf_dev.bus = idxd_get_bus_type(idxd);
++	idxd->conf_dev.type = idxd_get_device_type(idxd);
++	rc = dev_set_name(&idxd->conf_dev, "%s%d", idxd_get_dev_name(idxd), idxd->id);
++	if (rc < 0) {
++		put_device(&idxd->conf_dev);
++		return NULL;
++	}
++
+ 	spin_lock_init(&idxd->dev_lock);
+ 
+ 	return idxd;
+@@ -347,20 +379,11 @@ static int idxd_probe(struct idxd_device *idxd)
  
  	dev_dbg(dev, "IDXD interrupt setup complete.\n");
  
--	mutex_lock(&idxd_idr_lock);
--	idxd->id = idr_alloc(&idxd_idrs[idxd->type], idxd, 0, 0, GFP_KERNEL);
--	mutex_unlock(&idxd_idr_lock);
-+	idxd->id = ida_alloc(&idxd_idas[idxd->type], GFP_KERNEL);
- 	if (idxd->id < 0) {
- 		rc = -ENOMEM;
--		goto err_idr_fail;
-+		goto err_ida_fail;
- 	}
- 
+-	idxd->id = ida_alloc(&idxd_idas[idxd->type], GFP_KERNEL);
+-	if (idxd->id < 0) {
+-		rc = -ENOMEM;
+-		goto err_ida_fail;
+-	}
+-
  	idxd->major = idxd_cdev_get_major(idxd);
-@@ -361,7 +358,7 @@ static int idxd_probe(struct idxd_device *idxd)
+ 
  	dev_dbg(dev, "IDXD device %d probed successfully\n", idxd->id);
  	return 0;
  
-- err_idr_fail:
-+ err_ida_fail:
- 	idxd_mask_error_interrupts(idxd);
- 	idxd_mask_msix_vectors(idxd);
+- err_ida_fail:
+-	idxd_mask_error_interrupts(idxd);
+-	idxd_mask_msix_vectors(idxd);
   err_setup:
-@@ -518,9 +515,7 @@ static void idxd_remove(struct pci_dev *pdev)
+ 	if (device_pasid_enabled(idxd))
+ 		idxd_disable_system_pasid(idxd);
+@@ -412,7 +435,6 @@ static int idxd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (rc)
+ 		goto err;
+ 
+-	idxd_set_type(idxd);
+ 
+ 	idxd_type_init(idxd);
+ 
+@@ -427,7 +449,7 @@ static int idxd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 		goto err;
+ 	}
+ 
+-	rc = idxd_setup_sysfs(idxd);
++	rc = idxd_register_devices(idxd);
+ 	if (rc) {
+ 		dev_err(dev, "IDXD sysfs setup failed\n");
+ 		goto err;
+@@ -443,6 +465,7 @@ static int idxd_pci_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+  err:
+ 	pci_iounmap(pdev, idxd->reg_base);
+  err_iomap:
++	put_device(&idxd->conf_dev);
+  err_idxd_alloc:
+ 	pci_disable_device(pdev);
+ 	return rc;
+@@ -511,11 +534,10 @@ static void idxd_remove(struct pci_dev *pdev)
+ 	struct idxd_device *idxd = pci_get_drvdata(pdev);
+ 
+ 	dev_dbg(&pdev->dev, "%s called\n", __func__);
+-	idxd_cleanup_sysfs(idxd);
  	idxd_shutdown(pdev);
  	if (device_pasid_enabled(idxd))
  		idxd_disable_system_pasid(idxd);
--	mutex_lock(&idxd_idr_lock);
--	idr_remove(&idxd_idrs[idxd->type], idxd->id);
--	mutex_unlock(&idxd_idr_lock);
-+	ida_free(&idxd_idas[idxd->type], idxd->id);
+-	ida_free(&idxd_idas[idxd->type], idxd->id);
++	idxd_unregister_devices(idxd);
  }
  
  static struct pci_driver idxd_pci_driver = {
-@@ -550,7 +545,7 @@ static int __init idxd_init_module(void)
- 		support_enqcmd = true;
+diff --git a/drivers/dma/idxd/sysfs.c b/drivers/dma/idxd/sysfs.c
+index 18bf4d148989..36193e555e36 100644
+--- a/drivers/dma/idxd/sysfs.c
++++ b/drivers/dma/idxd/sysfs.c
+@@ -16,51 +16,26 @@ static char *idxd_wq_type_names[] = {
+ 	[IDXD_WQT_USER]		= "user",
+ };
  
- 	for (i = 0; i < IDXD_TYPE_MAX; i++)
--		idr_init(&idxd_idrs[i]);
-+		ida_init(&idxd_idas[i]);
+-static void idxd_conf_device_release(struct device *dev)
++static void idxd_conf_sub_device_release(struct device *dev)
+ {
+ 	dev_dbg(dev, "%s for %s\n", __func__, dev_name(dev));
+ }
  
- 	err = idxd_register_bus_type();
- 	if (err < 0)
+ static struct device_type idxd_group_device_type = {
+ 	.name = "group",
+-	.release = idxd_conf_device_release,
++	.release = idxd_conf_sub_device_release,
+ };
+ 
+ static struct device_type idxd_wq_device_type = {
+ 	.name = "wq",
+-	.release = idxd_conf_device_release,
++	.release = idxd_conf_sub_device_release,
+ };
+ 
+ static struct device_type idxd_engine_device_type = {
+ 	.name = "engine",
+-	.release = idxd_conf_device_release,
++	.release = idxd_conf_sub_device_release,
+ };
+ 
+-static struct device_type dsa_device_type = {
+-	.name = "dsa",
+-	.release = idxd_conf_device_release,
+-};
+-
+-static struct device_type iax_device_type = {
+-	.name = "iax",
+-	.release = idxd_conf_device_release,
+-};
+-
+-static inline bool is_dsa_dev(struct device *dev)
+-{
+-	return dev ? dev->type == &dsa_device_type : false;
+-}
+-
+-static inline bool is_iax_dev(struct device *dev)
+-{
+-	return dev ? dev->type == &iax_device_type : false;
+-}
+-
+-static inline bool is_idxd_dev(struct device *dev)
+-{
+-	return is_dsa_dev(dev) || is_iax_dev(dev);
+-}
+-
+ static inline bool is_idxd_wq_dev(struct device *dev)
+ {
+ 	return dev ? dev->type == &idxd_wq_device_type : false;
+@@ -405,7 +380,7 @@ struct bus_type *idxd_get_bus_type(struct idxd_device *idxd)
+ 	return idxd_bus_types[idxd->type];
+ }
+ 
+-static struct device_type *idxd_get_device_type(struct idxd_device *idxd)
++struct device_type *idxd_get_device_type(struct idxd_device *idxd)
+ {
+ 	if (idxd->type == IDXD_TYPE_DSA)
+ 		return &dsa_device_type;
+@@ -1644,6 +1619,30 @@ static const struct attribute_group *idxd_attribute_groups[] = {
+ 	NULL,
+ };
+ 
++static void idxd_conf_device_release(struct device *dev)
++{
++	struct idxd_device *idxd = container_of(dev, struct idxd_device, conf_dev);
++
++	kfree(idxd->groups);
++	kfree(idxd->wqs);
++	kfree(idxd->engines);
++	kfree(idxd->irq_entries);
++	ida_free(idxd_ida(idxd), idxd->id);
++	kfree(idxd);
++}
++
++struct device_type dsa_device_type = {
++	.name = "dsa",
++	.release = idxd_conf_device_release,
++	.groups = idxd_attribute_groups,
++};
++
++struct device_type iax_device_type = {
++	.name = "iax",
++	.release = idxd_conf_device_release,
++	.groups = idxd_attribute_groups,
++};
++
+ static int idxd_setup_engine_sysfs(struct idxd_device *idxd)
+ {
+ 	struct device *dev = &idxd->pdev->dev;
+@@ -1745,39 +1744,14 @@ cleanup:
+ 	return rc;
+ }
+ 
+-static int idxd_setup_device_sysfs(struct idxd_device *idxd)
++int idxd_register_devices(struct idxd_device *idxd)
+ {
+ 	struct device *dev = &idxd->pdev->dev;
+ 	int rc;
+-	char devname[IDXD_NAME_SIZE];
+ 
+-	sprintf(devname, "%s%d", idxd_get_dev_name(idxd), idxd->id);
+-	idxd->conf_dev.parent = dev;
+-	dev_set_name(&idxd->conf_dev, "%s", devname);
+-	idxd->conf_dev.bus = idxd_get_bus_type(idxd);
+-	idxd->conf_dev.groups = idxd_attribute_groups;
+-	idxd->conf_dev.type = idxd_get_device_type(idxd);
+-
+-	dev_dbg(dev, "IDXD device register: %s\n", dev_name(&idxd->conf_dev));
+-	rc = device_register(&idxd->conf_dev);
+-	if (rc < 0) {
+-		put_device(&idxd->conf_dev);
+-		return rc;
+-	}
+-
+-	return 0;
+-}
+-
+-int idxd_setup_sysfs(struct idxd_device *idxd)
+-{
+-	struct device *dev = &idxd->pdev->dev;
+-	int rc;
+-
+-	rc = idxd_setup_device_sysfs(idxd);
+-	if (rc < 0) {
+-		dev_dbg(dev, "Device sysfs registering failed: %d\n", rc);
++	rc = device_add(&idxd->conf_dev);
++	if (rc < 0)
+ 		return rc;
+-	}
+ 
+ 	rc = idxd_setup_wq_sysfs(idxd);
+ 	if (rc < 0) {
+@@ -1803,7 +1777,7 @@ int idxd_setup_sysfs(struct idxd_device *idxd)
+ 	return 0;
+ }
+ 
+-void idxd_cleanup_sysfs(struct idxd_device *idxd)
++void idxd_unregister_devices(struct idxd_device *idxd)
+ {
+ 	int i;
+ 
 -- 
 2.30.2
 
