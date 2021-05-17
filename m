@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB401383454
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A140383459
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242546AbhEQPHO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:07:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48534 "EHLO mail.kernel.org"
+        id S242688AbhEQPHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49854 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243019AbhEQPFN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:05:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC7B61352;
-        Mon, 17 May 2021 14:28:41 +0000 (UTC)
+        id S241393AbhEQPFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:05:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3351F61628;
+        Mon, 17 May 2021 14:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261722;
-        bh=dMaOqTSdh0dUbtJHZVhX6tLdO6Bp8U5x9eQR4swSXPc=;
+        s=korg; t=1621261730;
+        bh=i/Jqc1TDop8tdAZ1RtNPv6dz1tvWgmmBg3wQcFM+xv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0XKgkMnwAS4bKZbTeEC9tEKzCOJXwpUzk0aCvXiFwQFZIqNESg2TUe6ZxsEN90em
-         PedsxGZkgllpLI1Invv9ACm/HVK2OYzrSsig4HE9t3/Xxxh7sM2a1HeKOEtJSa+ybV
-         W8tvcOInZE4SvWeIZHhAsDHWjADl8Q3rRqCQ0l3w=
+        b=G4464s+q/XMBYnk+DU2Z2S0o5QrcXGP9gN4EjBvT5w5JVcN8gIp2ydzSBU8567IZL
+         Ubr+NmfCtBI/73C+xz7cAbF8D9eYP2j14zzMjLkYyWNcnwFl8LC46yAAUGwSp8Dm4C
+         jmcfff/l9WN73WBqICIJMiLMYE2bFEu+nK/R7kF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dave Jiang <dave.jiang@intel.com>,
         Dan Williams <dan.j.williams@intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 155/329] dmaengine: idxd: fix dma device lifetime
-Date:   Mon, 17 May 2021 16:01:06 +0200
-Message-Id: <20210517140307.352819176@linuxfoundation.org>
+Subject: [PATCH 5.11 156/329] dmaengine: idxd: cleanup pci interrupt vector allocation management
+Date:   Mon, 17 May 2021 16:01:07 +0200
+Message-Id: <20210517140307.385361262@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -43,239 +43,205 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Jiang <dave.jiang@intel.com>
 
-[ Upstream commit 397862855619271296e46d10f7dfa7bafe71eb81 ]
+[ Upstream commit 5fc8e85ff12ce0530ac658686902a0ee64600f56 ]
 
 The devm managed lifetime is incompatible with 'struct device' objects that
 resides in idxd context. This is one of the series that clean up the idxd
-driver 'struct device' lifetime. Remove embedding of dma_device and dma_chan
-in idxd since it's not the only interface that idxd will use. The freeing of
-the dma_device will be managed by the ->release() function.
+driver 'struct device' lifetime. Remove devm managed pci interrupt vectors
+and replace with unmanged allocators.
 
 Reported-by: Jason Gunthorpe <jgg@nvidia.com>
 Fixes: bfe1d56091c1 ("dmaengine: idxd: Init and probe for Intel data accelerators")
 Signed-off-by: Dave Jiang <dave.jiang@intel.com>
 Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Link: https://lore.kernel.org/r/161852983001.2203940.14817017492384561719.stgit@djiang5-desk3.ch.intel.com
+Link: https://lore.kernel.org/r/161852983563.2203940.8116028229124776669.stgit@djiang5-desk3.ch.intel.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/idxd/device.c |  2 -
- drivers/dma/idxd/dma.c    | 77 ++++++++++++++++++++++++++++++++-------
- drivers/dma/idxd/idxd.h   | 18 +++++++--
- 3 files changed, 79 insertions(+), 18 deletions(-)
+ drivers/dma/idxd/device.c |  4 +--
+ drivers/dma/idxd/idxd.h   |  2 +-
+ drivers/dma/idxd/init.c   | 64 +++++++++++++++++----------------------
+ 3 files changed, 30 insertions(+), 40 deletions(-)
 
 diff --git a/drivers/dma/idxd/device.c b/drivers/dma/idxd/device.c
-index 78d2dc5e9bd8..d255bb016c4d 100644
+index d255bb016c4d..3f696abd74ac 100644
 --- a/drivers/dma/idxd/device.c
 +++ b/drivers/dma/idxd/device.c
-@@ -186,8 +186,6 @@ int idxd_wq_alloc_resources(struct idxd_wq *wq)
- 		desc->id = i;
- 		desc->wq = wq;
- 		desc->cpu = -1;
--		dma_async_tx_descriptor_init(&desc->txd, &wq->dma_chan);
--		desc->txd.tx_submit = idxd_dma_tx_submit;
- 	}
- 
- 	return 0;
-diff --git a/drivers/dma/idxd/dma.c b/drivers/dma/idxd/dma.c
-index a15e50126434..77439b645044 100644
---- a/drivers/dma/idxd/dma.c
-+++ b/drivers/dma/idxd/dma.c
-@@ -14,7 +14,10 @@
- 
- static inline struct idxd_wq *to_idxd_wq(struct dma_chan *c)
+@@ -19,7 +19,7 @@ static void idxd_cmd_exec(struct idxd_device *idxd, int cmd_code, u32 operand,
+ /* Interrupt control bits */
+ void idxd_mask_msix_vector(struct idxd_device *idxd, int vec_id)
  {
--	return container_of(c, struct idxd_wq, dma_chan);
-+	struct idxd_dma_chan *idxd_chan;
-+
-+	idxd_chan = container_of(c, struct idxd_dma_chan, chan);
-+	return idxd_chan->wq;
+-	struct irq_data *data = irq_get_irq_data(idxd->msix_entries[vec_id].vector);
++	struct irq_data *data = irq_get_irq_data(idxd->irq_entries[vec_id].vector);
+ 
+ 	pci_msi_mask_irq(data);
  }
+@@ -36,7 +36,7 @@ void idxd_mask_msix_vectors(struct idxd_device *idxd)
  
- void idxd_dma_complete_txd(struct idxd_desc *desc,
-@@ -135,7 +138,7 @@ static void idxd_dma_issue_pending(struct dma_chan *dma_chan)
+ void idxd_unmask_msix_vector(struct idxd_device *idxd, int vec_id)
  {
- }
+-	struct irq_data *data = irq_get_irq_data(idxd->msix_entries[vec_id].vector);
++	struct irq_data *data = irq_get_irq_data(idxd->irq_entries[vec_id].vector);
  
--dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
-+static dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
- {
- 	struct dma_chan *c = tx->chan;
- 	struct idxd_wq *wq = to_idxd_wq(c);
-@@ -156,14 +159,25 @@ dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx)
- 
- static void idxd_dma_release(struct dma_device *device)
- {
-+	struct idxd_dma_dev *idxd_dma = container_of(device, struct idxd_dma_dev, dma);
-+
-+	kfree(idxd_dma);
- }
- 
- int idxd_register_dma_device(struct idxd_device *idxd)
- {
--	struct dma_device *dma = &idxd->dma_dev;
-+	struct idxd_dma_dev *idxd_dma;
-+	struct dma_device *dma;
-+	struct device *dev = &idxd->pdev->dev;
-+	int rc;
- 
-+	idxd_dma = kzalloc_node(sizeof(*idxd_dma), GFP_KERNEL, dev_to_node(dev));
-+	if (!idxd_dma)
-+		return -ENOMEM;
-+
-+	dma = &idxd_dma->dma;
- 	INIT_LIST_HEAD(&dma->channels);
--	dma->dev = &idxd->pdev->dev;
-+	dma->dev = dev;
- 
- 	dma_cap_set(DMA_PRIVATE, dma->cap_mask);
- 	dma_cap_set(DMA_COMPLETION_NO_ORDER, dma->cap_mask);
-@@ -179,35 +193,72 @@ int idxd_register_dma_device(struct idxd_device *idxd)
- 	dma->device_alloc_chan_resources = idxd_dma_alloc_chan_resources;
- 	dma->device_free_chan_resources = idxd_dma_free_chan_resources;
- 
--	return dma_async_device_register(&idxd->dma_dev);
-+	rc = dma_async_device_register(dma);
-+	if (rc < 0) {
-+		kfree(idxd_dma);
-+		return rc;
-+	}
-+
-+	idxd_dma->idxd = idxd;
-+	/*
-+	 * This pointer is protected by the refs taken by the dma_chan. It will remain valid
-+	 * as long as there are outstanding channels.
-+	 */
-+	idxd->idxd_dma = idxd_dma;
-+	return 0;
- }
- 
- void idxd_unregister_dma_device(struct idxd_device *idxd)
- {
--	dma_async_device_unregister(&idxd->dma_dev);
-+	dma_async_device_unregister(&idxd->idxd_dma->dma);
- }
- 
- int idxd_register_dma_channel(struct idxd_wq *wq)
- {
- 	struct idxd_device *idxd = wq->idxd;
--	struct dma_device *dma = &idxd->dma_dev;
--	struct dma_chan *chan = &wq->dma_chan;
--	int rc;
-+	struct dma_device *dma = &idxd->idxd_dma->dma;
-+	struct device *dev = &idxd->pdev->dev;
-+	struct idxd_dma_chan *idxd_chan;
-+	struct dma_chan *chan;
-+	int rc, i;
-+
-+	idxd_chan = kzalloc_node(sizeof(*idxd_chan), GFP_KERNEL, dev_to_node(dev));
-+	if (!idxd_chan)
-+		return -ENOMEM;
- 
--	memset(&wq->dma_chan, 0, sizeof(struct dma_chan));
-+	chan = &idxd_chan->chan;
- 	chan->device = dma;
- 	list_add_tail(&chan->device_node, &dma->channels);
-+
-+	for (i = 0; i < wq->num_descs; i++) {
-+		struct idxd_desc *desc = wq->descs[i];
-+
-+		dma_async_tx_descriptor_init(&desc->txd, chan);
-+		desc->txd.tx_submit = idxd_dma_tx_submit;
-+	}
-+
- 	rc = dma_async_device_channel_register(dma, chan);
--	if (rc < 0)
-+	if (rc < 0) {
-+		kfree(idxd_chan);
- 		return rc;
-+	}
-+
-+	wq->idxd_chan = idxd_chan;
-+	idxd_chan->wq = wq;
-+	get_device(&wq->conf_dev);
- 
- 	return 0;
- }
- 
- void idxd_unregister_dma_channel(struct idxd_wq *wq)
- {
--	struct dma_chan *chan = &wq->dma_chan;
-+	struct idxd_dma_chan *idxd_chan = wq->idxd_chan;
-+	struct dma_chan *chan = &idxd_chan->chan;
-+	struct idxd_dma_dev *idxd_dma = wq->idxd->idxd_dma;
- 
--	dma_async_device_channel_unregister(&wq->idxd->dma_dev, chan);
-+	dma_async_device_channel_unregister(&idxd_dma->dma, chan);
- 	list_del(&chan->device_node);
-+	kfree(wq->idxd_chan);
-+	wq->idxd_chan = NULL;
-+	put_device(&wq->conf_dev);
+ 	pci_msi_unmask_irq(data);
  }
 diff --git a/drivers/dma/idxd/idxd.h b/drivers/dma/idxd/idxd.h
-index 76014c14f473..80e534680c9a 100644
+index 80e534680c9a..401b035e42b1 100644
 --- a/drivers/dma/idxd/idxd.h
 +++ b/drivers/dma/idxd/idxd.h
-@@ -14,6 +14,9 @@
+@@ -36,6 +36,7 @@ struct idxd_device_driver {
+ struct idxd_irq_entry {
+ 	struct idxd_device *idxd;
+ 	int id;
++	int vector;
+ 	struct llist_head pending_llist;
+ 	struct list_head work_list;
+ 	/*
+@@ -219,7 +220,6 @@ struct idxd_device {
  
- extern struct kmem_cache *idxd_desc_pool;
- 
-+struct idxd_device;
-+struct idxd_wq;
-+
- #define IDXD_REG_TIMEOUT	50
- #define IDXD_DRAIN_TIMEOUT	5000
- 
-@@ -96,6 +99,11 @@ enum idxd_complete_type {
- 	IDXD_COMPLETE_DEV_FAIL,
- };
- 
-+struct idxd_dma_chan {
-+	struct dma_chan chan;
-+	struct idxd_wq *wq;
-+};
-+
- struct idxd_wq {
- 	void __iomem *portal;
- 	struct device conf_dev;
-@@ -125,7 +133,7 @@ struct idxd_wq {
- 	int compls_size;
- 	struct idxd_desc **descs;
- 	struct sbitmap_queue sbq;
--	struct dma_chan dma_chan;
-+	struct idxd_dma_chan *idxd_chan;
- 	char name[WQ_NAME_SIZE + 1];
- 	u64 max_xfer_bytes;
- 	u32 max_batch_size;
-@@ -162,6 +170,11 @@ enum idxd_device_flag {
- 	IDXD_FLAG_PASID_ENABLED,
- };
- 
-+struct idxd_dma_dev {
-+	struct idxd_device *idxd;
-+	struct dma_device dma;
-+};
-+
- struct idxd_device {
- 	enum idxd_type type;
- 	struct device conf_dev;
-@@ -210,7 +223,7 @@ struct idxd_device {
+ 	union sw_err_reg sw_err;
+ 	wait_queue_head_t cmd_waitq;
+-	struct msix_entry *msix_entries;
  	int num_wq_irqs;
  	struct idxd_irq_entry *irq_entries;
  
--	struct dma_device dma_dev;
-+	struct idxd_dma_dev *idxd_dma;
- 	struct workqueue_struct *wq;
- 	struct work_struct work;
- };
-@@ -363,7 +376,6 @@ void idxd_unregister_dma_channel(struct idxd_wq *wq);
- void idxd_parse_completion_status(u8 status, enum dmaengine_tx_result *res);
- void idxd_dma_complete_txd(struct idxd_desc *desc,
- 			   enum idxd_complete_type comp_type);
--dma_cookie_t idxd_dma_tx_submit(struct dma_async_tx_descriptor *tx);
+diff --git a/drivers/dma/idxd/init.c b/drivers/dma/idxd/init.c
+index 8f3df64aa1be..d54a5e5f82a2 100644
+--- a/drivers/dma/idxd/init.c
++++ b/drivers/dma/idxd/init.c
+@@ -57,7 +57,6 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ {
+ 	struct pci_dev *pdev = idxd->pdev;
+ 	struct device *dev = &pdev->dev;
+-	struct msix_entry *msix;
+ 	struct idxd_irq_entry *irq_entry;
+ 	int i, msixcnt;
+ 	int rc = 0;
+@@ -65,23 +64,13 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ 	msixcnt = pci_msix_vec_count(pdev);
+ 	if (msixcnt < 0) {
+ 		dev_err(dev, "Not MSI-X interrupt capable.\n");
+-		goto err_no_irq;
++		return -ENOSPC;
+ 	}
  
- /* cdev */
- int idxd_cdev_register(void);
+-	idxd->msix_entries = devm_kzalloc(dev, sizeof(struct msix_entry) *
+-			msixcnt, GFP_KERNEL);
+-	if (!idxd->msix_entries) {
+-		rc = -ENOMEM;
+-		goto err_no_irq;
+-	}
+-
+-	for (i = 0; i < msixcnt; i++)
+-		idxd->msix_entries[i].entry = i;
+-
+-	rc = pci_enable_msix_exact(pdev, idxd->msix_entries, msixcnt);
+-	if (rc) {
+-		dev_err(dev, "Failed enabling %d MSIX entries.\n", msixcnt);
+-		goto err_no_irq;
++	rc = pci_alloc_irq_vectors(pdev, msixcnt, msixcnt, PCI_IRQ_MSIX);
++	if (rc != msixcnt) {
++		dev_err(dev, "Failed enabling %d MSIX entries: %d\n", msixcnt, rc);
++		return -ENOSPC;
+ 	}
+ 	dev_dbg(dev, "Enabled %d msix vectors\n", msixcnt);
+ 
+@@ -94,58 +83,57 @@ static int idxd_setup_interrupts(struct idxd_device *idxd)
+ 					 GFP_KERNEL);
+ 	if (!idxd->irq_entries) {
+ 		rc = -ENOMEM;
+-		goto err_no_irq;
++		goto err_irq_entries;
+ 	}
+ 
+ 	for (i = 0; i < msixcnt; i++) {
+ 		idxd->irq_entries[i].id = i;
+ 		idxd->irq_entries[i].idxd = idxd;
++		idxd->irq_entries[i].vector = pci_irq_vector(pdev, i);
+ 		spin_lock_init(&idxd->irq_entries[i].list_lock);
+ 	}
+ 
+-	msix = &idxd->msix_entries[0];
+ 	irq_entry = &idxd->irq_entries[0];
+-	rc = devm_request_threaded_irq(dev, msix->vector, idxd_irq_handler,
+-				       idxd_misc_thread, 0, "idxd-misc",
+-				       irq_entry);
++	rc = request_threaded_irq(irq_entry->vector, idxd_irq_handler, idxd_misc_thread,
++				  0, "idxd-misc", irq_entry);
+ 	if (rc < 0) {
+ 		dev_err(dev, "Failed to allocate misc interrupt.\n");
+-		goto err_no_irq;
++		goto err_misc_irq;
+ 	}
+ 
+-	dev_dbg(dev, "Allocated idxd-misc handler on msix vector %d\n",
+-		msix->vector);
++	dev_dbg(dev, "Allocated idxd-misc handler on msix vector %d\n", irq_entry->vector);
+ 
+ 	/* first MSI-X entry is not for wq interrupts */
+ 	idxd->num_wq_irqs = msixcnt - 1;
+ 
+ 	for (i = 1; i < msixcnt; i++) {
+-		msix = &idxd->msix_entries[i];
+ 		irq_entry = &idxd->irq_entries[i];
+ 
+ 		init_llist_head(&idxd->irq_entries[i].pending_llist);
+ 		INIT_LIST_HEAD(&idxd->irq_entries[i].work_list);
+-		rc = devm_request_threaded_irq(dev, msix->vector,
+-					       idxd_irq_handler,
+-					       idxd_wq_thread, 0,
+-					       "idxd-portal", irq_entry);
++		rc = request_threaded_irq(irq_entry->vector, idxd_irq_handler,
++					  idxd_wq_thread, 0, "idxd-portal", irq_entry);
+ 		if (rc < 0) {
+-			dev_err(dev, "Failed to allocate irq %d.\n",
+-				msix->vector);
+-			goto err_no_irq;
++			dev_err(dev, "Failed to allocate irq %d.\n", irq_entry->vector);
++			goto err_wq_irqs;
+ 		}
+-		dev_dbg(dev, "Allocated idxd-msix %d for vector %d\n",
+-			i, msix->vector);
++		dev_dbg(dev, "Allocated idxd-msix %d for vector %d\n", i, irq_entry->vector);
+ 	}
+ 
+ 	idxd_unmask_error_interrupts(idxd);
+ 	idxd_msix_perm_setup(idxd);
+ 	return 0;
+ 
+- err_no_irq:
++ err_wq_irqs:
++	while (--i >= 0) {
++		irq_entry = &idxd->irq_entries[i];
++		free_irq(irq_entry->vector, irq_entry);
++	}
++ err_misc_irq:
+ 	/* Disable error interrupt generation */
+ 	idxd_mask_error_interrupts(idxd);
+-	pci_disable_msix(pdev);
++ err_irq_entries:
++	pci_free_irq_vectors(pdev);
+ 	dev_err(dev, "No usable interrupts\n");
+ 	return rc;
+ }
+@@ -489,7 +477,8 @@ static void idxd_shutdown(struct pci_dev *pdev)
+ 
+ 	for (i = 0; i < msixcnt; i++) {
+ 		irq_entry = &idxd->irq_entries[i];
+-		synchronize_irq(idxd->msix_entries[i].vector);
++		synchronize_irq(irq_entry->vector);
++		free_irq(irq_entry->vector, irq_entry);
+ 		if (i == 0)
+ 			continue;
+ 		idxd_flush_pending_llist(irq_entry);
+@@ -497,6 +486,7 @@ static void idxd_shutdown(struct pci_dev *pdev)
+ 	}
+ 
+ 	idxd_msix_perm_clear(idxd);
++	pci_free_irq_vectors(pdev);
+ 	destroy_workqueue(idxd->wq);
+ }
+ 
 -- 
 2.30.2
 
