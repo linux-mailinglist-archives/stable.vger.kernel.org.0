@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F110383493
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E98AC38348F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241332AbhEQPKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47748 "EHLO mail.kernel.org"
+        id S243638AbhEQPKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:10:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47774 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241833AbhEQPG4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:06:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63EB361C25;
-        Mon, 17 May 2021 14:29:16 +0000 (UTC)
+        id S242440AbhEQPG6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:06:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06F2861C1A;
+        Mon, 17 May 2021 14:29:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261756;
-        bh=ZFAuTJO59UT5twKnCexyk2VzbleOLvEsm/3HKj7R0A8=;
+        s=korg; t=1621261763;
+        bh=gIik3LMwVlaSZYEiZ1NwSDYhkCjkG9S+J7u9h0qpwK8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UPDEJ7pC68gMwUta+UKkqxjXqKUULEzpbUqtQMLEK3Q6cZ48jJ5NUD3IuAEU3qILV
-         wGbBe9eBGEIO34SbY/BbAwxxK8Zq47dYUuHM4aTHgUyB0CEX6f+qukJEsoCzfq4ib3
-         +wjlNxwmLa47KzDIuMHNjrSIx9I+MsGTTcmOvID4=
+        b=OliPp8eXNpLEwb2ICn12PLwMYJcOuAw8QoD46XY1UyZaQ48UEpad3JjMEt3YW+gTr
+         Jd2ym7aUFcugSJmLldqGNDjVBXw/Us19rZpcMXFbkYj6pzrQHdEi3tl9CyDLvLyJ7q
+         EfQE4HaI8mLujvZhi77c9Twf6G+kR4hAB4kCal/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org,
+        Torin Cooper-Bennun <torin@maxiluxsystems.com>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 086/141] netfilter: nfnetlink_osf: Fix a missing skb_header_pointer() NULL check
-Date:   Mon, 17 May 2021 16:02:18 +0200
-Message-Id: <20210517140245.677516898@linuxfoundation.org>
+Subject: [PATCH 5.4 087/141] can: m_can: m_can_tx_work_queue(): fix tx_skb race condition
+Date:   Mon, 17 May 2021 16:02:19 +0200
+Message-Id: <20210517140245.715713873@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140242.729269392@linuxfoundation.org>
 References: <20210517140242.729269392@linuxfoundation.org>
@@ -39,33 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 5e024c325406470d1165a09c6feaf8ec897936be ]
+[ Upstream commit e04b2cfe61072c7966e1a5fb73dd1feb30c206ed ]
 
-Do not assume that the tcph->doff field is correct when parsing for TCP
-options, skb_header_pointer() might fail to fetch these bits.
+The m_can_start_xmit() function checks if the cdev->tx_skb is NULL and
+returns with NETDEV_TX_BUSY in case tx_sbk is not NULL.
 
-Fixes: 11eeef41d5f6 ("netfilter: passive OS fingerprint xtables match")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+There is a race condition in the m_can_tx_work_queue(), where first
+the skb is send to the driver and then the case tx_sbk is set to NULL.
+A TX complete IRQ might come in between and wake the queue, which
+results in tx_skb not being cleared yet.
+
+Fixes: f524f829b75a ("can: m_can: Create a m_can platform framework")
+Tested-by: Torin Cooper-Bennun <torin@maxiluxsystems.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_osf.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/can/m_can/m_can.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/netfilter/nfnetlink_osf.c b/net/netfilter/nfnetlink_osf.c
-index 916a3c7f9eaf..79fbf37291f3 100644
---- a/net/netfilter/nfnetlink_osf.c
-+++ b/net/netfilter/nfnetlink_osf.c
-@@ -186,6 +186,8 @@ static const struct tcphdr *nf_osf_hdr_ctx_init(struct nf_osf_hdr_ctx *ctx,
+diff --git a/drivers/net/can/m_can/m_can.c b/drivers/net/can/m_can/m_can.c
+index b2224113987c..de275ccb4fd0 100644
+--- a/drivers/net/can/m_can/m_can.c
++++ b/drivers/net/can/m_can/m_can.c
+@@ -1418,6 +1418,8 @@ static netdev_tx_t m_can_tx_handler(struct m_can_classdev *cdev)
+ 	int i;
+ 	int putidx;
  
- 		ctx->optp = skb_header_pointer(skb, ip_hdrlen(skb) +
- 				sizeof(struct tcphdr), ctx->optsize, opts);
-+		if (!ctx->optp)
-+			return NULL;
- 	}
++	cdev->tx_skb = NULL;
++
+ 	/* Generate ID field for TX buffer Element */
+ 	/* Common to all supported M_CAN versions */
+ 	if (cf->can_id & CAN_EFF_FLAG) {
+@@ -1534,7 +1536,6 @@ static void m_can_tx_work_queue(struct work_struct *ws)
+ 						tx_work);
  
- 	return tcp;
+ 	m_can_tx_handler(cdev);
+-	cdev->tx_skb = NULL;
+ }
+ 
+ static netdev_tx_t m_can_start_xmit(struct sk_buff *skb,
 -- 
 2.30.2
 
