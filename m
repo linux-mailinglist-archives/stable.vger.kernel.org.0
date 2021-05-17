@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4B2B38329C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8823C3832A1
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:50:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240212AbhEQOuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:50:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41092 "EHLO mail.kernel.org"
+        id S240757AbhEQOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37900 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240997AbhEQOrJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:47:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3191C6145A;
-        Mon, 17 May 2021 14:21:58 +0000 (UTC)
+        id S240446AbhEQOr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:47:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F881610A1;
+        Mon, 17 May 2021 14:22:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261318;
-        bh=RCxLgN7/gkXsKhym5ThqqgbVTx9xWZPHnifZLnamMSs=;
+        s=korg; t=1621261327;
+        bh=zIWO+613aa93ZZ/vIAzAca28AJUUZ1Qux+x+xGm+ZvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WjlxyKYJHCOuFiJ3FF4D9q5K0b7a2NfMc5v+Gp5VlJpBylp3lAYKp7aSnNpLgSrLu
-         7pBo/wYQ4BpLLxZgUFWTlkS4B2Ij7XerjMC+/iLwW/IlUubwW8p2+TanzSkrxNturL
-         6jQpQr1G+rka2tFNW1aOUj49az9gmzCpfJQUZBeo=
+        b=AqyCXbY2Yf6+I0Hs2cvsScfeXn/wwyxF47MybtdJqpY7YSr7nIRlyQcILxEUGRKv9
+         9bYBFZN9kGOtlZheOJZgwi6XOf1uMbOh2mNZQQKsQ+rYk5k1sMjOO/hEuMagQGsdA3
+         NNwD5FvHKh2rXty77B+1ahcoacNPRLhugOHetYrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Assmann <sassmann@kpanic.de>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 101/329] iavf: remove duplicate free resources calls
-Date:   Mon, 17 May 2021 16:00:12 +0200
-Message-Id: <20210517140305.542678764@linuxfoundation.org>
+Subject: [PATCH 5.11 102/329] net: ethernet: mtk_eth_soc: fix RX VLAN offload
+Date:   Mon, 17 May 2021 16:00:13 +0200
+Message-Id: <20210517140305.582466175@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,34 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Assmann <sassmann@kpanic.de>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit 1a0e880b028f97478dc689e2900b312741d0d772 ]
+[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
 
-Both iavf_free_all_tx_resources() and iavf_free_all_rx_resources() have
-already been called in the very same function.
-Remove the duplicate calls.
+The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
+set. Fixes frames wrongly marked with VLAN tags.
 
-Signed-off-by: Stefan Assmann <sassmann@kpanic.de>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+[Ilya: fix commit message]
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/iavf/iavf_main.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/iavf/iavf_main.c b/drivers/net/ethernet/intel/iavf/iavf_main.c
-index dc5b3c06d1e0..ebd08543791b 100644
---- a/drivers/net/ethernet/intel/iavf/iavf_main.c
-+++ b/drivers/net/ethernet/intel/iavf/iavf_main.c
-@@ -3899,8 +3899,6 @@ static void iavf_remove(struct pci_dev *pdev)
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index 6d2d60675ffd..d930fcda9c3b 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1319,7 +1319,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
+ 		skb->protocol = eth_type_trans(skb, netdev);
  
- 	iounmap(hw->hw_addr);
- 	pci_release_regions(pdev);
--	iavf_free_all_tx_resources(adapter);
--	iavf_free_all_rx_resources(adapter);
- 	iavf_free_queues(adapter);
- 	kfree(adapter->vf_res);
- 	spin_lock_bh(&adapter->mac_vlan_list_lock);
+ 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
+-		    RX_DMA_VID(trxd.rxd3))
++		    (trxd.rxd2 & RX_DMA_VTAG))
+ 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
+ 					       RX_DMA_VID(trxd.rxd3));
+ 		skb_record_rx_queue(skb, 0);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 454cfcd465fd..73ce1f0f307a 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -295,6 +295,7 @@
+ #define RX_DMA_LSO		BIT(30)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
++#define RX_DMA_VTAG		BIT(15)
+ 
+ /* QDMA descriptor rxd3 */
+ #define RX_DMA_VID(_x)		((_x) & 0xfff)
 -- 
 2.30.2
 
