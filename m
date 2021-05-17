@@ -2,200 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68F58386CE3
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 00:23:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8DB386CF5
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 00:30:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236777AbhEQWYp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 18:24:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235885AbhEQWYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 18:24:45 -0400
-Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEB9DC061573
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 15:23:27 -0700 (PDT)
-Received: by mail-pl1-x635.google.com with SMTP id s20so3951529plr.13
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 15:23:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=i02TSdWuU4fuymXqQYWUJGr4pgcypbY8VX0djBsNDj8=;
-        b=E/C8HFJ+GrxqxQbfsG9j/PX8BbyEGJOWk9xUWV+b44YtTqb0yrUYrZnIEK4NqRQVw6
-         iCXT7RRsxZdlk0aIu1c+Jt6FnwSzt2BuMALsH5LRXBVWmy9Plz7hFw7zENKUp+lvYdd4
-         jq2HshcecFWkR3iRFRyzo8e//+Xymab5obPsDNmFr26o6UqEXuh60Hg1Th/goz5OOtLs
-         4mjCrSTgE6XFMq7enqFvS9wFr1nr7e4jZ3xmYasGTAL6m27MgtPXT2EPQFOIBBAfx8at
-         kgs3aMTWeKngzF6INVs09xLJnIY8WiaPtE4xMSUxGmBXVKbJPxv0xhdhLDep1zrrTi7m
-         +CCg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=i02TSdWuU4fuymXqQYWUJGr4pgcypbY8VX0djBsNDj8=;
-        b=ui5CgkpIM7k/mps5riPHMzD+7IdbFsz1p5srqJtAP/5K0BXtl/jb1HNKhsCFkJpHJk
-         9DJz4iMO5oq4FQgQHg9NO8+MN9DQ6mwTwqoj6W9rhzrzCLeZsVBiCfKTf9Npqan24ZqA
-         4PuJ/jnFxzJ8kBa0Bu8Ao8D5Kx8JAs6rE7HwlbDS70282Bo7Zi+lB5GjQjiWBTbCpFSy
-         bi3Mo4/gAIMm6dcBMlKxescIGRwtByEr4K9ArjCjHMfIfskrbh5CBy6xQKPQmp8lfb/t
-         50xhldbR/TyO1MZeHPwQ+tdREweJzsdGDCr3FdieYm0qSnI8UUKLf1Iq92yabn1IpAfc
-         EhiQ==
-X-Gm-Message-State: AOAM5310Lor6jGAffqM8QTdqL5SysaHksgQMztYuhPOLhMECYx9QHfk3
-        bQnjfOyH6UbZ8NgpKTEc54wOU/1nU0SFa6wX
-X-Google-Smtp-Source: ABdhPJwGzhck+y0OV5HO5PGJCBxDWjyHz7RFvMEWv1xW3cblcdQkFmVSFPH2kA5ET0oZ62wsTxv8JA==
-X-Received: by 2002:a17:90a:8005:: with SMTP id b5mr1725390pjn.208.1621290207214;
-        Mon, 17 May 2021 15:23:27 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w74sm498732pfd.209.2021.05.17.15.23.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 15:23:26 -0700 (PDT)
-Message-ID: <60a2ecde.1c69fb81.f8ff0.2741@mx.google.com>
-Date:   Mon, 17 May 2021 15:23:26 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S1343810AbhEQWbp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 18:31:45 -0400
+Received: from manchmal.in-ulm.de ([217.10.9.201]:57602 "EHLO
+        manchmal.in-ulm.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S1343804AbhEQWbg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 18:31:36 -0400
+Date:   Tue, 18 May 2021 00:30:15 +0200
+From:   Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
+To:     Greg KH <greg@kroah.com>
+Cc:     Jack Wang <jack.wang.usish@gmail.com>,
+        stable <stable@vger.kernel.org>, iommu@lists.linux-foundation.org
+Subject: Re: 5.10.37 won't boot on my system, but 5.10.36 with same config
+ does
+Message-ID: <1621290515@msgid.manchmal.in-ulm.de>
+References: <e0e9ecf4-cfd7-b31a-29b0-ead4a6c0ee40@charleswright.co>
+ <1621180418@msgid.manchmal.in-ulm.de>
+ <YKI/D64ODBUEHO9M@kroah.com>
+ <1621251453@msgid.manchmal.in-ulm.de>
+ <1621251685@msgid.manchmal.in-ulm.de>
+ <CA+res+RHyF22T-sGwCG5zA6EBrk_gWbnZETX_iAgdRdWaPLbfw@mail.gmail.com>
+ <1621254246@msgid.manchmal.in-ulm.de>
+ <CA+res+QRm3VyJSjMaKLYm=KY5+T5nX+6-QhOgrgBcP+d2Ganag@mail.gmail.com>
+ <YKJ5ysGAuI32Jpn6@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.268-223-gaf1b2385a78f
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 83 runs,
- 3 regressions (v4.9.268-223-gaf1b2385a78f)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="v2Uk6McLiE8OV1El"
+Content-Disposition: inline
+In-Reply-To: <YKJ5ysGAuI32Jpn6@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 83 runs, 3 regressions (v4.9.268-223-gaf1b238=
-5a78f)
 
-Regressions Summary
--------------------
+--v2Uk6McLiE8OV1El
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
+Greg KH wrote...
 
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
+> On Mon, May 17, 2021 at 02:45:01PM +0200, Jack Wang wrote:
 
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
+> > So it's caused by this commit[1], and it should be fixed by latest
+> > 5.10.38-rc1 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linu=
+x-stable-rc.git/log/?h=3Dlinux-5.10.y
+> > [1]https://lore.kernel.org/stable/20210515132855.4bn7ve2ozvdhpnj4@nabok=
+ov.fritz.box/
+>=20
+> Hopefully the "real" 5.10.38-rc1 release that is out now should fix
+> this.  If not, please let us know.
 
+Good news: Fixed with that "real" 5.10.38-rc1.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.268-223-gaf1b2385a78f/plan/baseline/
+    Christoph
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.268-223-gaf1b2385a78f
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      af1b2385a78fe42c791a6304ba7a9caab9865fd5 =
+--v2Uk6McLiE8OV1El
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
+iQIzBAABCgAdFiEEWXMI+726A12MfJXdxCxY61kUkv0FAmCi7m8ACgkQxCxY61kU
+kv3R1w/+OsPyGGnxeMcCjTZTrn/+WJFpR9fcHM13lTfgwjznk+gdR3uQ0QL6la0X
+ros7A94fRiJ6QOhl3K5IiuNS7F+mOaaFaSrPtUzFgvqnroj+0tzya6ISxJJQpRSe
+GQV/RO/iN8dL1+lnRDDSqIsQmXQrrPgog7Z1XdvDZ43TfRPNMgfoFFgvfyKeOiqk
+V7shbi2R7d2kvlPmPV3Mva8Xg+di/KUePLFUT5z8Nvd1c+knA/m2SqCEQ3B79WWC
+bzpb/EdxGOQAvj/lgU7vuXvhKKj+1k5+gpr/VVIYdXxwYl26LoKOLpGkWNKnOqZ9
+AXVJq/6Zne3h7WKivAYSAq5LOJpeKpCKmOnVNmvZXWe55t8sCPeh6KAP4hJpIY2x
+VVyZWsolt8nb8vEyVRn89oJbJfbmY2XaKqphysjr0PDMizmiD3/MAS0C9U6tn/33
+OgQHs88svvSC895bCrg3BtzU9SLcboSFpcOpGvL90Oz8vPEwv5ya1zOLqVWR0Qvc
+WzXh6CrZ10tUJ5Dak5YCyLwhauCJJ7hDO36t0KYrKCtZseQj8tMm/L+YnIXR4Kia
+MU8XasRAI9MVo8EAcJnq83tpMOHVGxTM6EUP1xpeD+tuVjB88Rr4zHcjfP9etdlx
+GMvN5TMHQQYK8sZUQyctbW8c8pM0HS6/7iWJqNLWQMFjCVLlHSM=
+=BFBR
+-----END PGP SIGNATURE-----
 
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-baylibre | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2b6b850b8037a9fb3afaa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2b6b850b8037a9fb3a=
-fab
-        failing since 184 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-broonie  | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2b6a7e36890c8d0b3afb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2b6a7e36890c8d0b3a=
-fba
-        failing since 184 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =
-
-
-
-platform             | arch | lab          | compiler | defconfig          =
- | regressions
----------------------+------+--------------+----------+--------------------=
--+------------
-qemu_arm-versatilepb | arm  | lab-cip      | gcc-8    | versatile_defconfig=
- | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a2b6b0e4e1245083b3af9b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.268-2=
-23-gaf1b2385a78f/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ve=
-rsatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a2b6b0e4e1245083b3a=
-f9c
-        failing since 184 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
- fail: v4.9.243-25-ga01fe8e99a22) =
-
- =20
+--v2Uk6McLiE8OV1El--
