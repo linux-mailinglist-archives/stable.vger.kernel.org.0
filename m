@@ -2,31 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4798F383252
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E4150383203
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241124AbhEQOrC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:47:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54306 "EHLO mail.kernel.org"
+        id S240616AbhEQOnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55124 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240065AbhEQOlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:41:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7446961968;
-        Mon, 17 May 2021 14:19:14 +0000 (UTC)
+        id S240866AbhEQOlj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:41:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 00CA8613AF;
+        Mon, 17 May 2021 14:19:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261154;
-        bh=G0ZouCx4KY8m+lgR/uSo9qQJuuWGppTL+4CPKntMjnk=;
+        s=korg; t=1621261161;
+        bh=XsYnRwTNZcPyBxGlG/1oCN2uPgUhDI/zC/nuPTGhFV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V8uqngSZM5WMUsEHHstv/JzTA9bgnj1CwSDPRzMqvU5PuWf/8A/0nBpoXqPlTfQu7
-         nxjmQNoarXdNN9zGDcU/FRvNO8HD7LSAJ6tv7dVR18/EhnjUpDzbvAblEXRiMgTODr
-         jqEwDA/bKM5bZ+J5gXUkUmAfHTHQ+kPG6WX+nf7E=
+        b=wQg7iNfnltEO+vYzHEqjvBao+Q2BX0oTw4/gDY2AbVjd8ymIADlFOS4zLVDfNQI9+
+         sQyR/sYn+KDFkknFUSLFIlH45eQl9Kzg1MJDIUyxdF779z5jNMbLjfNvUU062ErAM5
+         n43NWNflgWkkA4foL0zDhbrbi5Zg6rJAb3wtUg7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.12 315/363] usb: dwc3: gadget: Return success always for kick transfer in ep queue
-Date:   Mon, 17 May 2021 16:03:01 +0200
-Message-Id: <20210517140313.259565985@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Kyle Tso <kyletso@google.com>
+Subject: [PATCH 5.12 316/363] usb: typec: tcpm: Fix wrong handling in GET_SINK_CAP
+Date:   Mon, 17 May 2021 16:03:02 +0200
+Message-Id: <20210517140313.289180358@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -38,38 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Kyle Tso <kyletso@google.com>
 
-commit 18ffa988dbae69cc6e9949cddd9606f6fe533894 upstream.
+commit 2e2b8d15adc2f6ab2d4aa0550e241b9742a436a0 upstream.
 
-If an error is received when issuing a start or update transfer
-command, the error handler will stop all active requests (including
-the current USB request), and call dwc3_gadget_giveback() to notify
-function drivers of the requests which have been stopped.  Avoid
-returning an error for kick transfer during EP queue, to remove
-duplicate cleanup operations on the request being queued.
+After receiving Sink Capabilities Message in GET_SINK_CAP AMS, it is
+incorrect to call tcpm_pd_handle_state because the Message is expected
+and the current state is not Ready states. The result of this incorrect
+operation ends in Soft Reset which is definitely wrong. Simply
+forwarding to Ready States is enough to finish the AMS.
 
-Fixes: 8d99087c2db8 ("usb: dwc3: gadget: Properly handle failed kick_transfer")
-cc: stable@vger.kernel.org
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1620410119-24971-1-git-send-email-wcheng@codeaurora.org
+Fixes: 8dea75e11380 ("usb: typec: tcpm: Protocol Error handling")
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503171849.2605302-1-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/tcpm.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1676,7 +1676,9 @@ static int __dwc3_gadget_ep_queue(struct
- 		}
- 	}
- 
--	return __dwc3_gadget_kick_transfer(dep);
-+	__dwc3_gadget_kick_transfer(dep);
-+
-+	return 0;
- }
- 
- static int dwc3_gadget_ep_queue(struct usb_ep *ep, struct usb_request *request,
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -2387,7 +2387,7 @@ static void tcpm_pd_data_request(struct
+ 		port->nr_sink_caps = cnt;
+ 		port->sink_cap_done = true;
+ 		if (port->ams == GET_SINK_CAPABILITIES)
+-			tcpm_pd_handle_state(port, ready_state(port), NONE_AMS, 0);
++			tcpm_set_state(port, ready_state(port), 0);
+ 		/* Unexpected Sink Capabilities */
+ 		else
+ 			tcpm_pd_handle_msg(port,
 
 
