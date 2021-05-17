@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A61382E76
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:06:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D152A382E53
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:05:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237815AbhEQOHl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:07:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59666 "EHLO mail.kernel.org"
+        id S237808AbhEQOGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:06:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237934AbhEQOGw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:06:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 068546128A;
-        Mon, 17 May 2021 14:05:27 +0000 (UTC)
+        id S237810AbhEQOF6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:05:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 724B961221;
+        Mon, 17 May 2021 14:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260328;
-        bh=CHDLsbY41fpI6Ik6L7y4vSF1M3Gyohgf3E2GyIpl/78=;
+        s=korg; t=1621260281;
+        bh=m5LxW08p885Yq4NLdEFRCj/2P/qR3556v3A8SahSzS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Pj80yGesv7PwIMFMNhfBrJb1rSAQSKp+JnHsucmwDEsJbQNykaa9wyP8DkopbGqjV
-         fooxp/8+c+3rsnIiOx0wVhb6W+MfqCu5BZmyqMoNF1AsG5KBKlhOBTwZn+G5D/2Q/w
-         AqrzvPb+SwGP2sU9nc0ymVT355bsNXaT5cvyczx4=
+        b=AN5x8VDAzUqChVw8mNFisXSZQv1MnShN9/KLS7cWToWkmSDk/JsNDD//EIRQSfa8Z
+         IxTyJsBAO+q5RKC9nQiBTDqOeeDaY+w09G5eKMu2BiRLTBHYRxggXkzZfNsLoCMEoa
+         n0aIUX0rLUMKFsW0gtrfSuBOaY90W+4vWXIB399c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
-Subject: [PATCH 5.12 010/363] cpufreq: intel_pstate: Use HWP if enabled by platform firmware
-Date:   Mon, 17 May 2021 15:57:56 +0200
-Message-Id: <20210517140302.896186357@linuxfoundation.org>
+        stable@vger.kernel.org, David Matlack <dmatlack@google.com>,
+        Venkatesh Srinivas <venkateshs@chromium.org>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.12 011/363] kvm: Cap halt polling at kvm->max_halt_poll_ns
+Date:   Mon, 17 May 2021 15:57:57 +0200
+Message-Id: <20210517140302.934349093@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -40,64 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: David Matlack <dmatlack@google.com>
 
-commit e5af36b2adb858e982d78d41d7363d05d951a19a upstream.
+commit 258785ef08b323bddd844b4926a32c2b2045a1b0 upstream.
 
-It turns out that there are systems where HWP is enabled during
-initialization by the platform firmware (BIOS), but HWP EPP support
-is not advertised.
+When growing halt-polling, there is no check that the poll time exceeds
+the per-VM limit. It's possible for vcpu->halt_poll_ns to grow past
+kvm->max_halt_poll_ns and stay there until a halt which takes longer
+than kvm->halt_poll_ns.
 
-After commit 7aa1031223bc ("cpufreq: intel_pstate: Avoid enabling HWP
-if EPP is not supported") intel_pstate refuses to use HWP on those
-systems, but the fallback PERF_CTL interface does not work on them
-either because of enabled HWP, and once enabled, HWP cannot be
-disabled.  Consequently, the users of those systems cannot control
-CPU performance scaling.
-
-Address this issue by making intel_pstate use HWP unconditionally if
-it is enabled already when the driver starts.
-
-Fixes: 7aa1031223bc ("cpufreq: intel_pstate: Avoid enabling HWP if EPP is not supported")
-Reported-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Tested-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: 5.9+ <stable@vger.kernel.org> # 5.9+
+Signed-off-by: David Matlack <dmatlack@google.com>
+Signed-off-by: Venkatesh Srinivas <venkateshs@chromium.org>
+Message-Id: <20210506152442.4010298-1-venkateshs@chromium.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cpufreq/intel_pstate.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ virt/kvm/kvm_main.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/cpufreq/intel_pstate.c
-+++ b/drivers/cpufreq/intel_pstate.c
-@@ -3054,6 +3054,14 @@ static const struct x86_cpu_id hwp_suppo
- 	{}
- };
+--- a/virt/kvm/kvm_main.c
++++ b/virt/kvm/kvm_main.c
+@@ -2758,8 +2758,8 @@ static void grow_halt_poll_ns(struct kvm
+ 	if (val < grow_start)
+ 		val = grow_start;
  
-+static bool intel_pstate_hwp_is_enabled(void)
-+{
-+	u64 value;
-+
-+	rdmsrl(MSR_PM_ENABLE, value);
-+	return !!(value & 0x1);
-+}
-+
- static int __init intel_pstate_init(void)
- {
- 	const struct x86_cpu_id *id;
-@@ -3072,8 +3080,12 @@ static int __init intel_pstate_init(void
- 		 * Avoid enabling HWP for processors without EPP support,
- 		 * because that means incomplete HWP implementation which is a
- 		 * corner case and supporting it is generally problematic.
-+		 *
-+		 * If HWP is enabled already, though, there is no choice but to
-+		 * deal with it.
- 		 */
--		if (!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) {
-+		if ((!no_hwp && boot_cpu_has(X86_FEATURE_HWP_EPP)) ||
-+		    intel_pstate_hwp_is_enabled()) {
- 			hwp_active++;
- 			hwp_mode_bdw = id->driver_data;
- 			intel_pstate.attr = hwp_cpufreq_attrs;
+-	if (val > halt_poll_ns)
+-		val = halt_poll_ns;
++	if (val > vcpu->kvm->max_halt_poll_ns)
++		val = vcpu->kvm->max_halt_poll_ns;
+ 
+ 	vcpu->halt_poll_ns = val;
+ out:
 
 
