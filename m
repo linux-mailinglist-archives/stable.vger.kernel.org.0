@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 47DF1383248
+	by mail.lfdr.de (Postfix) with ESMTP id 91BB6383249
 	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239737AbhEQOqs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:46:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56730 "EHLO mail.kernel.org"
+        id S241075AbhEQOqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:46:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241296AbhEQOoW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:44:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17F761955;
-        Mon, 17 May 2021 14:20:35 +0000 (UTC)
+        id S241310AbhEQOoX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:44:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94BDB6195C;
+        Mon, 17 May 2021 14:20:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261236;
-        bh=XR2uOFFXND4OXxNyR95eOdKZs4Yb3E4Yj2In+6DR7Pc=;
+        s=korg; t=1621261245;
+        bh=3d+IWm9c/O8sHKIwBHAISjeRkekeqprqysvOxnSGRLc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7HnSsPVdCMj4ZlKlE//rWGndx+IRJMh8353PXbf747LL1/ms2MJE1fxCZLNDZh1Q
-         U2LjAfYB1d+Mh07XPQ7EuFBUKuFsbTtAg8rTpEAo1Xb/CfZJObNoT494KpEk19lwCM
-         zL+Z8Li3M3jDVJsrOsKSKZAWixk3CatD/JqdjhCM=
+        b=gWf6S2LIDzuee+4eAyHj8laqLbIQH83Q297ZlcHC3DjS6GJtHNdK8tlBB6S7g6JH6
+         irDylLiHG64xEa/YwXri7B/ShPm4jBradTaskPoePU+l5o8ZwvowfQq7r8YIveK3wa
+         sOReRujaiNBCOxaDVS9MxxreMB7PB6+V8pOIKKws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Tomasz Duszynski <tomasz.duszynski@octakon.com>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.12 323/363] iio: core: fix ioctl handlers removal
-Date:   Mon, 17 May 2021 16:03:09 +0200
-Message-Id: <20210517140313.519198043@linuxfoundation.org>
+        stable@vger.kernel.org, Svyatoslav Ryhel <clamor95@gmail.com>,
+        Andy Shevchenko <Andy.Shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Dmitry Osipenko <digetx@gmail.com>,
+        Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Maxim Schwalm <maxim.schwalm@gmail.com>
+Subject: [PATCH 5.12 324/363] iio: gyro: mpu3050: Fix reported temperature value
+Date:   Mon, 17 May 2021 16:03:10 +0200
+Message-Id: <20210517140313.557493957@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,51 +44,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomasz Duszynski <tomasz.duszynski@octakon.com>
+From: Dmitry Osipenko <digetx@gmail.com>
 
-commit 901f84de0e16bde10a72d7eb2f2eb73fcde8fa1a upstream.
+commit f73c730774d88a14d7b60feee6d0e13570f99499 upstream.
 
-Currently ioctl handlers are removed twice. For the first time during
-iio_device_unregister() then later on inside
-iio_device_unregister_eventset() and iio_buffers_free_sysfs_and_mask().
-Double free leads to kernel panic.
+The raw temperature value is a 16-bit signed integer. The sign casting
+is missing in the code, which results in a wrong temperature reported
+by userspace tools, fix it.
 
-Fix this by not touching ioctl handlers list directly but rather
-letting code responsible for registration call the matching cleanup
-routine itself.
-
-Fixes: 8dedcc3eee3ac ("iio: core: centralize ioctl() calls to the main chardev")
-Signed-off-by: Tomasz Duszynski <tomasz.duszynski@octakon.com>
-Acked-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Cc: <Stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210423080244.2790-1-tomasz.duszynski@octakon.com
+Cc: stable@vger.kernel.org
+Fixes: 3904b28efb2c ("iio: gyro: Add driver for the MPU-3050 gyroscope")
+Datasheet: https://www.cdiweb.com/datasheets/invensense/mpu-3000a.pdf
+Tested-by: Maxim Schwalm <maxim.schwalm@gmail.com> # Asus TF700T
+Tested-by: Svyatoslav Ryhel <clamor95@gmail.com> # Asus TF201
+Reported-by: Svyatoslav Ryhel <clamor95@gmail.com>
+Reviewed-by: Andy Shevchenko <Andy.Shevchenko@gmail.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Dmitry Osipenko <digetx@gmail.com>
+Acked-by: Jean-Baptiste Maneyrol <jmaneyrol@invensense.com>
+Link: https://lore.kernel.org/r/20210423020959.5023-1-digetx@gmail.com
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/industrialio-core.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/iio/gyro/mpu3050-core.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/industrialio-core.c
-+++ b/drivers/iio/industrialio-core.c
-@@ -1863,9 +1863,6 @@ EXPORT_SYMBOL(__iio_device_register);
-  **/
- void iio_device_unregister(struct iio_dev *indio_dev)
- {
--	struct iio_dev_opaque *iio_dev_opaque = to_iio_dev_opaque(indio_dev);
--	struct iio_ioctl_handler *h, *t;
--
- 	cdev_device_del(&indio_dev->chrdev, &indio_dev->dev);
+--- a/drivers/iio/gyro/mpu3050-core.c
++++ b/drivers/iio/gyro/mpu3050-core.c
+@@ -272,7 +272,16 @@ static int mpu3050_read_raw(struct iio_d
+ 	case IIO_CHAN_INFO_OFFSET:
+ 		switch (chan->type) {
+ 		case IIO_TEMP:
+-			/* The temperature scaling is (x+23000)/280 Celsius */
++			/*
++			 * The temperature scaling is (x+23000)/280 Celsius
++			 * for the "best fit straight line" temperature range
++			 * of -30C..85C.  The 23000 includes room temperature
++			 * offset of +35C, 280 is the precision scale and x is
++			 * the 16-bit signed integer reported by hardware.
++			 *
++			 * Temperature value itself represents temperature of
++			 * the sensor die.
++			 */
+ 			*val = 23000;
+ 			return IIO_VAL_INT;
+ 		default:
+@@ -329,7 +338,7 @@ static int mpu3050_read_raw(struct iio_d
+ 				goto out_read_raw_unlock;
+ 			}
  
- 	mutex_lock(&indio_dev->info_exist_lock);
-@@ -1876,9 +1873,6 @@ void iio_device_unregister(struct iio_de
+-			*val = be16_to_cpu(raw_val);
++			*val = (s16)be16_to_cpu(raw_val);
+ 			ret = IIO_VAL_INT;
  
- 	indio_dev->info = NULL;
- 
--	list_for_each_entry_safe(h, t, &iio_dev_opaque->ioctl_handlers, entry)
--		list_del(&h->entry);
--
- 	iio_device_wakeup_eventset(indio_dev);
- 	iio_buffer_wakeup_poll(indio_dev);
- 
+ 			goto out_read_raw_unlock;
 
 
