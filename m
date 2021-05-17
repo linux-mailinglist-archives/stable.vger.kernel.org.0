@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E234383587
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 036D2383588
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239797AbhEQPXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240850AbhEQPXC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 17 May 2021 11:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57498 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:52810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244000AbhEQPRO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:17:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D17C161919;
-        Mon, 17 May 2021 14:33:04 +0000 (UTC)
+        id S243087AbhEQPRi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:17:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A167561C65;
+        Mon, 17 May 2021 14:33:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261985;
-        bh=Cd5mqYR84zBiwxDbvgj+kl3P4OKZXzWnnKmbnkpyB6g=;
+        s=korg; t=1621261994;
+        bh=R2pOYF1CecIdaBWP8UyK7lhs94ym5AHYEM9Pw3LWvjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HvKpYeYb5zBa5WRV4EKfwLto2zSd3fJWxTuhR3yD+YMNaTouy0fqKyPAz8qJ2wDh+
-         jUSisFGW2g8fG55y+RchAYrY5hQsFTZtrE/GHGCWGj01OGd5/N0eZm8+fgEK6Brkac
-         egUm3M8wMVd3SZ8DaLk1UywyLOmusyJOXc4P874g=
+        b=SgKHuqB0v+uYHegPGunCBCoJD3g4qr/T0nMKgh5DRuM7iShcDO3H1eimVQ01uREAD
+         8XZ7NOG7fiw5YOcso7gsDQYhN998AXAGsZxopthbWW5OrWvtatGskCx/sR+XBRuxUb
+         Uo3C7WUC/6ooYlcvWAimzxcBcMMKJxpVfzU+u5ik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
+        stable@vger.kernel.org, Eric Biggers <ebiggers@google.com>,
+        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 095/289] f2fs: move ioctl interface definitions to separated file
-Date:   Mon, 17 May 2021 16:00:20 +0200
-Message-Id: <20210517140308.385166603@linuxfoundation.org>
+Subject: [PATCH 5.10 096/289] f2fs: fix compat F2FS_IOC_{MOVE,GARBAGE_COLLECT}_RANGE
+Date:   Mon, 17 May 2021 16:00:21 +0200
+Message-Id: <20210517140308.416005496@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -42,245 +42,291 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Chao Yu <yuchao0@huawei.com>
 
-[ Upstream commit fa4320cefb8537a70cc28c55d311a1f569697cd3 ]
+[ Upstream commit 34178b1bc4b5c936eab3adb4835578093095a571 ]
 
-Like other filesystem does, we introduce a new file f2fs.h in path of
-include/uapi/linux/, and move f2fs-specified ioctl interface definitions
-to that file, after then, in order to use those definitions, userspace
-developer only need to include the new header file rather than
-copy & paste definitions from fs/f2fs/f2fs.h.
+Eric reported a ioctl bug in below link:
 
+https://lore.kernel.org/linux-f2fs-devel/20201103032234.GB2875@sol.localdomain/
+
+That said, on some 32-bit architectures, u64 has only 32-bit alignment,
+notably i386 and x86_32, so that size of struct f2fs_gc_range compiled
+in x86_32 is 20 bytes, however the size in x86_64 is 24 bytes, binary
+compiled in x86_32 can not call F2FS_IOC_GARBAGE_COLLECT_RANGE successfully
+due to mismatched value of ioctl command in between binary and f2fs
+module, similarly, F2FS_IOC_MOVE_RANGE will fail too.
+
+In this patch we introduce two ioctls for compatibility of above special
+32-bit binary:
+- F2FS_IOC32_GARBAGE_COLLECT_RANGE
+- F2FS_IOC32_MOVE_RANGE
+
+Reported-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Chao Yu <yuchao0@huawei.com>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- MAINTAINERS                 |  1 +
- fs/f2fs/f2fs.h              | 79 ---------------------------------
- fs/f2fs/file.c              |  1 +
- include/trace/events/f2fs.h |  1 +
- include/uapi/linux/f2fs.h   | 87 +++++++++++++++++++++++++++++++++++++
- 5 files changed, 90 insertions(+), 79 deletions(-)
- create mode 100644 include/uapi/linux/f2fs.h
+ fs/f2fs/file.c | 137 +++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 104 insertions(+), 33 deletions(-)
 
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 24cdfcf334ea..4fef10dd2975 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -6694,6 +6694,7 @@ F:	Documentation/filesystems/f2fs.rst
- F:	fs/f2fs/
- F:	include/linux/f2fs_fs.h
- F:	include/trace/events/f2fs.h
-+F:	include/uapi/linux/f2fs.h
- 
- F71805F HARDWARE MONITORING DRIVER
- M:	Jean Delvare <jdelvare@suse.com>
-diff --git a/fs/f2fs/f2fs.h b/fs/f2fs/f2fs.h
-index 699815e94bd3..af294eb23283 100644
---- a/fs/f2fs/f2fs.h
-+++ b/fs/f2fs/f2fs.h
-@@ -402,85 +402,6 @@ static inline bool __has_cursum_space(struct f2fs_journal *journal,
- 	return size <= MAX_SIT_JENTRIES(journal);
- }
- 
--/*
-- * f2fs-specific ioctl commands
-- */
--#define F2FS_IOCTL_MAGIC		0xf5
--#define F2FS_IOC_START_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 1)
--#define F2FS_IOC_COMMIT_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 2)
--#define F2FS_IOC_START_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 3)
--#define F2FS_IOC_RELEASE_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 4)
--#define F2FS_IOC_ABORT_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 5)
--#define F2FS_IOC_GARBAGE_COLLECT	_IOW(F2FS_IOCTL_MAGIC, 6, __u32)
--#define F2FS_IOC_WRITE_CHECKPOINT	_IO(F2FS_IOCTL_MAGIC, 7)
--#define F2FS_IOC_DEFRAGMENT		_IOWR(F2FS_IOCTL_MAGIC, 8,	\
--						struct f2fs_defragment)
--#define F2FS_IOC_MOVE_RANGE		_IOWR(F2FS_IOCTL_MAGIC, 9,	\
--						struct f2fs_move_range)
--#define F2FS_IOC_FLUSH_DEVICE		_IOW(F2FS_IOCTL_MAGIC, 10,	\
--						struct f2fs_flush_device)
--#define F2FS_IOC_GARBAGE_COLLECT_RANGE	_IOW(F2FS_IOCTL_MAGIC, 11,	\
--						struct f2fs_gc_range)
--#define F2FS_IOC_GET_FEATURES		_IOR(F2FS_IOCTL_MAGIC, 12, __u32)
--#define F2FS_IOC_SET_PIN_FILE		_IOW(F2FS_IOCTL_MAGIC, 13, __u32)
--#define F2FS_IOC_GET_PIN_FILE		_IOR(F2FS_IOCTL_MAGIC, 14, __u32)
--#define F2FS_IOC_PRECACHE_EXTENTS	_IO(F2FS_IOCTL_MAGIC, 15)
--#define F2FS_IOC_RESIZE_FS		_IOW(F2FS_IOCTL_MAGIC, 16, __u64)
--#define F2FS_IOC_GET_COMPRESS_BLOCKS	_IOR(F2FS_IOCTL_MAGIC, 17, __u64)
--#define F2FS_IOC_RELEASE_COMPRESS_BLOCKS				\
--					_IOR(F2FS_IOCTL_MAGIC, 18, __u64)
--#define F2FS_IOC_RESERVE_COMPRESS_BLOCKS				\
--					_IOR(F2FS_IOCTL_MAGIC, 19, __u64)
--#define F2FS_IOC_SEC_TRIM_FILE		_IOW(F2FS_IOCTL_MAGIC, 20,	\
--						struct f2fs_sectrim_range)
--
--/*
-- * should be same as XFS_IOC_GOINGDOWN.
-- * Flags for going down operation used by FS_IOC_GOINGDOWN
-- */
--#define F2FS_IOC_SHUTDOWN	_IOR('X', 125, __u32)	/* Shutdown */
--#define F2FS_GOING_DOWN_FULLSYNC	0x0	/* going down with full sync */
--#define F2FS_GOING_DOWN_METASYNC	0x1	/* going down with metadata */
--#define F2FS_GOING_DOWN_NOSYNC		0x2	/* going down */
--#define F2FS_GOING_DOWN_METAFLUSH	0x3	/* going down with meta flush */
--#define F2FS_GOING_DOWN_NEED_FSCK	0x4	/* going down to trigger fsck */
--
--/*
-- * Flags used by F2FS_IOC_SEC_TRIM_FILE
-- */
--#define F2FS_TRIM_FILE_DISCARD		0x1	/* send discard command */
--#define F2FS_TRIM_FILE_ZEROOUT		0x2	/* zero out */
--#define F2FS_TRIM_FILE_MASK		0x3
--
--struct f2fs_gc_range {
--	u32 sync;
--	u64 start;
--	u64 len;
--};
--
--struct f2fs_defragment {
--	u64 start;
--	u64 len;
--};
--
--struct f2fs_move_range {
--	u32 dst_fd;		/* destination fd */
--	u64 pos_in;		/* start position in src_fd */
--	u64 pos_out;		/* start position in dst_fd */
--	u64 len;		/* size to move */
--};
--
--struct f2fs_flush_device {
--	u32 dev_num;		/* device number to flush */
--	u32 segments;		/* # of segments to flush */
--};
--
--struct f2fs_sectrim_range {
--	u64 start;
--	u64 len;
--	u64 flags;
--};
--
- /* for inline stuff */
- #define DEF_INLINE_RESERVED_SIZE	1
- static inline int get_extra_isize(struct inode *inode);
 diff --git a/fs/f2fs/file.c b/fs/f2fs/file.c
-index 498e3aac7934..28f0bde38806 100644
+index 28f0bde38806..6850fb2081c8 100644
 --- a/fs/f2fs/file.c
 +++ b/fs/f2fs/file.c
-@@ -31,6 +31,7 @@
- #include "gc.h"
- #include "trace.h"
- #include <trace/events/f2fs.h>
-+#include <uapi/linux/f2fs.h>
+@@ -2496,26 +2496,19 @@ out:
+ 	return ret;
+ }
  
- static vm_fault_t f2fs_filemap_fault(struct vm_fault *vmf)
+-static int f2fs_ioc_gc_range(struct file *filp, unsigned long arg)
++static int __f2fs_ioc_gc_range(struct file *filp, struct f2fs_gc_range *range)
  {
-diff --git a/include/trace/events/f2fs.h b/include/trace/events/f2fs.h
-index f8f1e85ff130..56b113e3cd6a 100644
---- a/include/trace/events/f2fs.h
-+++ b/include/trace/events/f2fs.h
-@@ -6,6 +6,7 @@
- #define _TRACE_F2FS_H
+-	struct inode *inode = file_inode(filp);
+-	struct f2fs_sb_info *sbi = F2FS_I_SB(inode);
+-	struct f2fs_gc_range range;
++	struct f2fs_sb_info *sbi = F2FS_I_SB(file_inode(filp));
+ 	u64 end;
+ 	int ret;
  
- #include <linux/tracepoint.h>
-+#include <uapi/linux/f2fs.h>
+ 	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
+-
+-	if (copy_from_user(&range, (struct f2fs_gc_range __user *)arg,
+-							sizeof(range)))
+-		return -EFAULT;
+-
+ 	if (f2fs_readonly(sbi->sb))
+ 		return -EROFS;
  
- #define show_dev(dev)		MAJOR(dev), MINOR(dev)
- #define show_dev_ino(entry)	show_dev(entry->dev), (unsigned long)entry->ino
-diff --git a/include/uapi/linux/f2fs.h b/include/uapi/linux/f2fs.h
-new file mode 100644
-index 000000000000..28bcfe8d2c27
---- /dev/null
-+++ b/include/uapi/linux/f2fs.h
-@@ -0,0 +1,87 @@
-+/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note */
+-	end = range.start + range.len;
+-	if (end < range.start || range.start < MAIN_BLKADDR(sbi) ||
++	end = range->start + range->len;
++	if (end < range->start || range->start < MAIN_BLKADDR(sbi) ||
+ 					end >= MAX_BLKADDR(sbi))
+ 		return -EINVAL;
+ 
+@@ -2524,7 +2517,7 @@ static int f2fs_ioc_gc_range(struct file *filp, unsigned long arg)
+ 		return ret;
+ 
+ do_more:
+-	if (!range.sync) {
++	if (!range->sync) {
+ 		if (!down_write_trylock(&sbi->gc_lock)) {
+ 			ret = -EBUSY;
+ 			goto out;
+@@ -2533,20 +2526,30 @@ do_more:
+ 		down_write(&sbi->gc_lock);
+ 	}
+ 
+-	ret = f2fs_gc(sbi, range.sync, true, GET_SEGNO(sbi, range.start));
++	ret = f2fs_gc(sbi, range->sync, true, GET_SEGNO(sbi, range->start));
+ 	if (ret) {
+ 		if (ret == -EBUSY)
+ 			ret = -EAGAIN;
+ 		goto out;
+ 	}
+-	range.start += BLKS_PER_SEC(sbi);
+-	if (range.start <= end)
++	range->start += BLKS_PER_SEC(sbi);
++	if (range->start <= end)
+ 		goto do_more;
+ out:
+ 	mnt_drop_write_file(filp);
+ 	return ret;
+ }
+ 
++static int f2fs_ioc_gc_range(struct file *filp, unsigned long arg)
++{
++	struct f2fs_gc_range range;
 +
-+#ifndef _UAPI_LINUX_F2FS_H
-+#define _UAPI_LINUX_F2FS_H
-+#include <linux/types.h>
-+#include <linux/ioctl.h>
++	if (copy_from_user(&range, (struct f2fs_gc_range __user *)arg,
++							sizeof(range)))
++		return -EFAULT;
++	return __f2fs_ioc_gc_range(filp, &range);
++}
 +
-+/*
-+ * f2fs-specific ioctl commands
-+ */
-+#define F2FS_IOCTL_MAGIC		0xf5
-+#define F2FS_IOC_START_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 1)
-+#define F2FS_IOC_COMMIT_ATOMIC_WRITE	_IO(F2FS_IOCTL_MAGIC, 2)
-+#define F2FS_IOC_START_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 3)
-+#define F2FS_IOC_RELEASE_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 4)
-+#define F2FS_IOC_ABORT_VOLATILE_WRITE	_IO(F2FS_IOCTL_MAGIC, 5)
-+#define F2FS_IOC_GARBAGE_COLLECT	_IOW(F2FS_IOCTL_MAGIC, 6, __u32)
-+#define F2FS_IOC_WRITE_CHECKPOINT	_IO(F2FS_IOCTL_MAGIC, 7)
-+#define F2FS_IOC_DEFRAGMENT		_IOWR(F2FS_IOCTL_MAGIC, 8,	\
-+						struct f2fs_defragment)
-+#define F2FS_IOC_MOVE_RANGE		_IOWR(F2FS_IOCTL_MAGIC, 9,	\
-+						struct f2fs_move_range)
-+#define F2FS_IOC_FLUSH_DEVICE		_IOW(F2FS_IOCTL_MAGIC, 10,	\
-+						struct f2fs_flush_device)
-+#define F2FS_IOC_GARBAGE_COLLECT_RANGE	_IOW(F2FS_IOCTL_MAGIC, 11,	\
-+						struct f2fs_gc_range)
-+#define F2FS_IOC_GET_FEATURES		_IOR(F2FS_IOCTL_MAGIC, 12, __u32)
-+#define F2FS_IOC_SET_PIN_FILE		_IOW(F2FS_IOCTL_MAGIC, 13, __u32)
-+#define F2FS_IOC_GET_PIN_FILE		_IOR(F2FS_IOCTL_MAGIC, 14, __u32)
-+#define F2FS_IOC_PRECACHE_EXTENTS	_IO(F2FS_IOCTL_MAGIC, 15)
-+#define F2FS_IOC_RESIZE_FS		_IOW(F2FS_IOCTL_MAGIC, 16, __u64)
-+#define F2FS_IOC_GET_COMPRESS_BLOCKS	_IOR(F2FS_IOCTL_MAGIC, 17, __u64)
-+#define F2FS_IOC_RELEASE_COMPRESS_BLOCKS				\
-+					_IOR(F2FS_IOCTL_MAGIC, 18, __u64)
-+#define F2FS_IOC_RESERVE_COMPRESS_BLOCKS				\
-+					_IOR(F2FS_IOCTL_MAGIC, 19, __u64)
-+#define F2FS_IOC_SEC_TRIM_FILE		_IOW(F2FS_IOCTL_MAGIC, 20,	\
-+						struct f2fs_sectrim_range)
+ static int f2fs_ioc_write_checkpoint(struct file *filp, unsigned long arg)
+ {
+ 	struct inode *inode = file_inode(filp);
+@@ -2883,9 +2886,9 @@ out:
+ 	return ret;
+ }
+ 
+-static int f2fs_ioc_move_range(struct file *filp, unsigned long arg)
++static int __f2fs_ioc_move_range(struct file *filp,
++				struct f2fs_move_range *range)
+ {
+-	struct f2fs_move_range range;
+ 	struct fd dst;
+ 	int err;
+ 
+@@ -2893,11 +2896,7 @@ static int f2fs_ioc_move_range(struct file *filp, unsigned long arg)
+ 			!(filp->f_mode & FMODE_WRITE))
+ 		return -EBADF;
+ 
+-	if (copy_from_user(&range, (struct f2fs_move_range __user *)arg,
+-							sizeof(range)))
+-		return -EFAULT;
+-
+-	dst = fdget(range.dst_fd);
++	dst = fdget(range->dst_fd);
+ 	if (!dst.file)
+ 		return -EBADF;
+ 
+@@ -2910,8 +2909,8 @@ static int f2fs_ioc_move_range(struct file *filp, unsigned long arg)
+ 	if (err)
+ 		goto err_out;
+ 
+-	err = f2fs_move_file_range(filp, range.pos_in, dst.file,
+-					range.pos_out, range.len);
++	err = f2fs_move_file_range(filp, range->pos_in, dst.file,
++					range->pos_out, range->len);
+ 
+ 	mnt_drop_write_file(filp);
+ 	if (err)
+@@ -2925,6 +2924,16 @@ err_out:
+ 	return err;
+ }
+ 
++static int f2fs_ioc_move_range(struct file *filp, unsigned long arg)
++{
++	struct f2fs_move_range range;
 +
-+/*
-+ * should be same as XFS_IOC_GOINGDOWN.
-+ * Flags for going down operation used by FS_IOC_GOINGDOWN
-+ */
-+#define F2FS_IOC_SHUTDOWN	_IOR('X', 125, __u32)	/* Shutdown */
-+#define F2FS_GOING_DOWN_FULLSYNC	0x0	/* going down with full sync */
-+#define F2FS_GOING_DOWN_METASYNC	0x1	/* going down with metadata */
-+#define F2FS_GOING_DOWN_NOSYNC		0x2	/* going down */
-+#define F2FS_GOING_DOWN_METAFLUSH	0x3	/* going down with meta flush */
-+#define F2FS_GOING_DOWN_NEED_FSCK	0x4	/* going down to trigger fsck */
++	if (copy_from_user(&range, (struct f2fs_move_range __user *)arg,
++							sizeof(range)))
++		return -EFAULT;
++	return __f2fs_ioc_move_range(filp, &range);
++}
 +
-+/*
-+ * Flags used by F2FS_IOC_SEC_TRIM_FILE
-+ */
-+#define F2FS_TRIM_FILE_DISCARD		0x1	/* send discard command */
-+#define F2FS_TRIM_FILE_ZEROOUT		0x2	/* zero out */
-+#define F2FS_TRIM_FILE_MASK		0x3
+ static int f2fs_ioc_flush_device(struct file *filp, unsigned long arg)
+ {
+ 	struct inode *inode = file_inode(filp);
+@@ -3961,13 +3970,8 @@ err:
+ 	return ret;
+ }
+ 
+-long f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
++static long __f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ {
+-	if (unlikely(f2fs_cp_error(F2FS_I_SB(file_inode(filp)))))
+-		return -EIO;
+-	if (!f2fs_is_checkpoint_ready(F2FS_I_SB(file_inode(filp))))
+-		return -ENOSPC;
+-
+ 	switch (cmd) {
+ 	case FS_IOC_GETFLAGS:
+ 		return f2fs_ioc_getflags(filp, arg);
+@@ -4054,6 +4058,16 @@ long f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+ 	}
+ }
+ 
++long f2fs_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
++{
++	if (unlikely(f2fs_cp_error(F2FS_I_SB(file_inode(filp)))))
++		return -EIO;
++	if (!f2fs_is_checkpoint_ready(F2FS_I_SB(file_inode(filp))))
++		return -ENOSPC;
 +
-+struct f2fs_gc_range {
-+	__u32 sync;
-+	__u64 start;
-+	__u64 len;
++	return __f2fs_ioctl(filp, cmd, arg);
++}
++
+ static ssize_t f2fs_file_read_iter(struct kiocb *iocb, struct iov_iter *iter)
+ {
+ 	struct file *file = iocb->ki_filp;
+@@ -4176,8 +4190,63 @@ out:
+ }
+ 
+ #ifdef CONFIG_COMPAT
++struct compat_f2fs_gc_range {
++	u32 sync;
++	compat_u64 start;
++	compat_u64 len;
 +};
++#define F2FS_IOC32_GARBAGE_COLLECT_RANGE	_IOW(F2FS_IOCTL_MAGIC, 11,\
++						struct compat_f2fs_gc_range)
 +
-+struct f2fs_defragment {
-+	__u64 start;
-+	__u64 len;
++static int f2fs_compat_ioc_gc_range(struct file *file, unsigned long arg)
++{
++	struct compat_f2fs_gc_range __user *urange;
++	struct f2fs_gc_range range;
++	int err;
++
++	urange = compat_ptr(arg);
++	err = get_user(range.sync, &urange->sync);
++	err |= get_user(range.start, &urange->start);
++	err |= get_user(range.len, &urange->len);
++	if (err)
++		return -EFAULT;
++
++	return __f2fs_ioc_gc_range(file, &range);
++}
++
++struct compat_f2fs_move_range {
++	u32 dst_fd;
++	compat_u64 pos_in;
++	compat_u64 pos_out;
++	compat_u64 len;
 +};
++#define F2FS_IOC32_MOVE_RANGE		_IOWR(F2FS_IOCTL_MAGIC, 9,	\
++					struct compat_f2fs_move_range)
 +
-+struct f2fs_move_range {
-+	__u32 dst_fd;		/* destination fd */
-+	__u64 pos_in;		/* start position in src_fd */
-+	__u64 pos_out;		/* start position in dst_fd */
-+	__u64 len;		/* size to move */
-+};
++static int f2fs_compat_ioc_move_range(struct file *file, unsigned long arg)
++{
++	struct compat_f2fs_move_range __user *urange;
++	struct f2fs_move_range range;
++	int err;
 +
-+struct f2fs_flush_device {
-+	__u32 dev_num;		/* device number to flush */
-+	__u32 segments;		/* # of segments to flush */
-+};
++	urange = compat_ptr(arg);
++	err = get_user(range.dst_fd, &urange->dst_fd);
++	err |= get_user(range.pos_in, &urange->pos_in);
++	err |= get_user(range.pos_out, &urange->pos_out);
++	err |= get_user(range.len, &urange->len);
++	if (err)
++		return -EFAULT;
 +
-+struct f2fs_sectrim_range {
-+	__u64 start;
-+	__u64 len;
-+	__u64 flags;
-+};
++	return __f2fs_ioc_move_range(file, &range);
++}
 +
-+#endif /* _UAPI_LINUX_F2FS_H */
+ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ {
++	if (unlikely(f2fs_cp_error(F2FS_I_SB(file_inode(file)))))
++		return -EIO;
++	if (!f2fs_is_checkpoint_ready(F2FS_I_SB(file_inode(file))))
++		return -ENOSPC;
++
+ 	switch (cmd) {
+ 	case FS_IOC32_GETFLAGS:
+ 		cmd = FS_IOC_GETFLAGS;
+@@ -4188,6 +4257,10 @@ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case FS_IOC32_GETVERSION:
+ 		cmd = FS_IOC_GETVERSION;
+ 		break;
++	case F2FS_IOC32_GARBAGE_COLLECT_RANGE:
++		return f2fs_compat_ioc_gc_range(file, arg);
++	case F2FS_IOC32_MOVE_RANGE:
++		return f2fs_compat_ioc_move_range(file, arg);
+ 	case F2FS_IOC_START_ATOMIC_WRITE:
+ 	case F2FS_IOC_COMMIT_ATOMIC_WRITE:
+ 	case F2FS_IOC_START_VOLATILE_WRITE:
+@@ -4205,10 +4278,8 @@ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	case FS_IOC_GET_ENCRYPTION_KEY_STATUS:
+ 	case FS_IOC_GET_ENCRYPTION_NONCE:
+ 	case F2FS_IOC_GARBAGE_COLLECT:
+-	case F2FS_IOC_GARBAGE_COLLECT_RANGE:
+ 	case F2FS_IOC_WRITE_CHECKPOINT:
+ 	case F2FS_IOC_DEFRAGMENT:
+-	case F2FS_IOC_MOVE_RANGE:
+ 	case F2FS_IOC_FLUSH_DEVICE:
+ 	case F2FS_IOC_GET_FEATURES:
+ 	case FS_IOC_FSGETXATTR:
+@@ -4229,7 +4300,7 @@ long f2fs_compat_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 	default:
+ 		return -ENOIOCTLCMD;
+ 	}
+-	return f2fs_ioctl(file, cmd, (unsigned long) compat_ptr(arg));
++	return __f2fs_ioctl(file, cmd, (unsigned long) compat_ptr(arg));
+ }
+ #endif
+ 
 -- 
 2.30.2
 
