@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBF88382FA9
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:17:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95B03382FAE
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:17:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238911AbhEQOSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:18:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47270 "EHLO mail.kernel.org"
+        id S239150AbhEQOTC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:19:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238893AbhEQOQs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:16:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 900A061241;
-        Mon, 17 May 2021 14:10:00 +0000 (UTC)
+        id S238726AbhEQORD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:17:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E3860698;
+        Mon, 17 May 2021 14:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260601;
-        bh=DGejjeRC7+aoqLuuEhvVuE+mag9lvvv+H+3HISvqTwQ=;
+        s=korg; t=1621260603;
+        bh=xLutIPXd40xSoRJUslveawDzG4kGbUS0s7SQymDKaeY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fXwy/EoTPr6xRWpiydDgT5oql0Idw1Wfzwhs75cBQMt3LsF5b9pbNq7IYABQRrVFJ
-         bGA9IqDP/C1oO5FP/Q8Os+orBP+ogNjHpDrOGcu0CVUZoxkSiCeQQk2qQFMHAXnEyg
-         A/XOg0bvY+hsnJGrkTx39CfyA0+T7M5VmEzW52AI=
+        b=Dov4wqldE1dPz0V95nqIwTZvOJeVB7qqbpAlP9TvRiJ9XT8Z/B13b8VbGFuzExPH4
+         U0TQRzgKR8u2zKcSx9Spk6YmhmhknA3FBo0X4c/y0WxgbAxCULBmNXwkATw5QGFcPe
+         8OMrRq+eTTFmAfhvtF6CmMempHcnijrFnMPvr9Pc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Suman Anna <s-anna@ti.com>,
+        stable@vger.kernel.org,
         Mathieu Poirier <mathieu.poirier@linaro.org>,
+        Vignesh Raghavendra <vigneshr@ti.com>,
+        Suman Anna <s-anna@ti.com>,
         Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 156/363] remoteproc: pru: Fix wrong success return value for fw events
-Date:   Mon, 17 May 2021 16:00:22 +0200
-Message-Id: <20210517140307.886147815@linuxfoundation.org>
+Subject: [PATCH 5.12 157/363] remoteproc: pru: Fix and cleanup firmware interrupt mapping logic
+Date:   Mon, 17 May 2021 16:00:23 +0200
+Message-Id: <20210517140307.916543961@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -43,45 +45,99 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Suman Anna <s-anna@ti.com>
 
-[ Upstream commit 1fe72bcfac087dba5ab52778e0646ed9e145cd32 ]
+[ Upstream commit 880a66e026fbe6a17cd59fe0ee942bbad62a6c26 ]
 
-The irq_create_fwspec_mapping() returns a proper virq value on success
-and 0 upon any failure. The pru_handle_intrmap() treats this as an error
-and disposes all firmware event mappings correctly, but is returning
-this incorrect value as is, letting the pru_rproc_start() interpret it
-as a success and boot the PRU.
+The PRU firmware interrupt mappings are configured and unconfigured in
+.start() and .stop() callbacks respectively using the variables 'evt_count'
+and a 'mapped_irq' pointer. These variables are modified only during these
+callbacks but are not re-initialized/reset properly during unwind or
+failure paths. These stale values caused a kernel crash while stopping a
+PRU remoteproc running a different firmware with no events on a subsequent
+run after a previous run that was running a firmware with events.
 
-Fix this by returning an error value back upon any such failure. While
-at this, revise the error trace to print some meaningful info about the
-failed event.
+Fix this crash by ensuring that the evt_count is 0 and the mapped_irq
+pointer is set to NULL in pru_dispose_irq_mapping(). Also, reset these
+variables properly during any failures in the .start() callback. While
+at this, the pru_dispose_irq_mapping() callsites are all made to look
+the same, moving any conditional logic to inside the function.
 
-Fixes: c75c9fdac66e ("remoteproc: pru: Add support for PRU specific interrupt configuration")
-Signed-off-by: Suman Anna <s-anna@ti.com>
 Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
-Link: https://lore.kernel.org/r/20210407155641.5501-3-s-anna@ti.com
+Fixes: c75c9fdac66e ("remoteproc: pru: Add support for PRU specific interrupt configuration")
+Reported-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Suman Anna <s-anna@ti.com>
+Link: https://lore.kernel.org/r/20210407155641.5501-4-s-anna@ti.com
 Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/remoteproc/pru_rproc.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/remoteproc/pru_rproc.c | 22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/remoteproc/pru_rproc.c b/drivers/remoteproc/pru_rproc.c
-index 9226b8f3fe14..dcd5ea0d1f37 100644
+index dcd5ea0d1f37..549ed3fed625 100644
 --- a/drivers/remoteproc/pru_rproc.c
 +++ b/drivers/remoteproc/pru_rproc.c
-@@ -339,8 +339,10 @@ static int pru_handle_intrmap(struct rproc *rproc)
+@@ -266,12 +266,17 @@ static void pru_rproc_create_debug_entries(struct rproc *rproc)
  
- 		pru->mapped_irq[i] = irq_create_fwspec_mapping(&fwspec);
- 		if (!pru->mapped_irq[i]) {
--			dev_err(dev, "failed to get virq\n");
--			ret = pru->mapped_irq[i];
-+			dev_err(dev, "failed to get virq for fw mapping %d: event %d chnl %d host %d\n",
-+				i, fwspec.param[0], fwspec.param[1],
-+				fwspec.param[2]);
-+			ret = -EINVAL;
- 			goto map_fail;
- 		}
+ static void pru_dispose_irq_mapping(struct pru_rproc *pru)
+ {
+-	while (pru->evt_count--) {
++	if (!pru->mapped_irq)
++		return;
++
++	while (pru->evt_count) {
++		pru->evt_count--;
+ 		if (pru->mapped_irq[pru->evt_count] > 0)
+ 			irq_dispose_mapping(pru->mapped_irq[pru->evt_count]);
  	}
+ 
+ 	kfree(pru->mapped_irq);
++	pru->mapped_irq = NULL;
+ }
+ 
+ /*
+@@ -307,8 +312,10 @@ static int pru_handle_intrmap(struct rproc *rproc)
+ 	pru->evt_count = rsc->num_evts;
+ 	pru->mapped_irq = kcalloc(pru->evt_count, sizeof(unsigned int),
+ 				  GFP_KERNEL);
+-	if (!pru->mapped_irq)
++	if (!pru->mapped_irq) {
++		pru->evt_count = 0;
+ 		return -ENOMEM;
++	}
+ 
+ 	/*
+ 	 * parse and fill in system event to interrupt channel and
+@@ -317,13 +324,19 @@ static int pru_handle_intrmap(struct rproc *rproc)
+ 	 * corresponding sibling PRUSS INTC node.
+ 	 */
+ 	parent = of_get_parent(dev_of_node(pru->dev));
+-	if (!parent)
++	if (!parent) {
++		kfree(pru->mapped_irq);
++		pru->mapped_irq = NULL;
++		pru->evt_count = 0;
+ 		return -ENODEV;
++	}
+ 
+ 	irq_parent = of_get_child_by_name(parent, "interrupt-controller");
+ 	of_node_put(parent);
+ 	if (!irq_parent) {
+ 		kfree(pru->mapped_irq);
++		pru->mapped_irq = NULL;
++		pru->evt_count = 0;
+ 		return -ENODEV;
+ 	}
+ 
+@@ -398,8 +411,7 @@ static int pru_rproc_stop(struct rproc *rproc)
+ 	pru_control_write_reg(pru, PRU_CTRL_CTRL, val);
+ 
+ 	/* dispose irq mapping - new firmware can provide new mapping */
+-	if (pru->mapped_irq)
+-		pru_dispose_irq_mapping(pru);
++	pru_dispose_irq_mapping(pru);
+ 
+ 	return 0;
+ }
 -- 
 2.30.2
 
