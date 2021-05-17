@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 460803836F4
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD75383833
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245183AbhEQPiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38868 "EHLO mail.kernel.org"
+        id S243465AbhEQPun (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:50:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S243460AbhEQPf7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:35:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5301361CE7;
-        Mon, 17 May 2021 14:39:51 +0000 (UTC)
+        id S244185AbhEQPrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:47:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFCC561D3B;
+        Mon, 17 May 2021 14:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262391;
-        bh=bBZdnNjDGJVADnWg/L62VTsJidFCmRulnLAs2KUCXjQ=;
+        s=korg; t=1621262681;
+        bh=Wy5n+kKT3DpRwN3gNA16ZtIgW/KSm8eu08jOP/HWRRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zUPsXAUs05aLlNeVr8yqUSCgVgbPqTxwW2oqpzg+h6RmGOzK43j4Zk1BCDOvRpmZu
-         CA4bN1cp85k8u+L8FmpeJzNwEHqX0HliYXX9jRT8WHO7iSxKOUhsW7Vx+za35XlHbi
-         YNTBcNg7z9ohOhv07d0exgSF6S4ot1I90UoRSsgo=
+        b=EV8+oZE+FacD4Q7AYo66gv8RJyKuaGg6QOB90Sban18eW1o6ufWkFDYTLXEib1dfC
+         1WopFcZK81z2kmE3H8sL7Mah0Q/7miY+ckuf5jtlXu3OanANclEDPoRpJT6OntMDMO
+         DoIN1RJUvjUq10lALLnT2Pn4VWHt0jhWDqWlVuQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 272/329] nvmet: fix inline bio check for bdev-ns
-Date:   Mon, 17 May 2021 16:03:03 +0200
-Message-Id: <20210517140311.322849945@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Jim Mattson <jmattson@google.com>,
+        Reiji Watanabe <reijiw@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 259/289] KVM: VMX: Do not advertise RDPID if ENABLE_RDTSCP control is unsupported
+Date:   Mon, 17 May 2021 16:03:04 +0200
+Message-Id: <20210517140313.868161885@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,82 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 608a969046e6e0567d05a166be66c77d2dd8220b ]
+commit 8aec21c04caa2000f91cf8822ae0811e4b0c3971 upstream.
 
-When handling rw commands, for inline bio case we only consider
-transfer size. This works well when req->sg_cnt fits into the
-req->inline_bvec, but it will result in the warning in
-__bio_add_page() when req->sg_cnt > NVMET_MAX_INLINE_BVEC.
+Clear KVM's RDPID capability if the ENABLE_RDTSCP secondary exec control is
+unsupported.  Despite being enumerated in a separate CPUID flag, RDPID is
+bundled under the same VMCS control as RDTSCP and will #UD in VMX non-root
+if ENABLE_RDTSCP is not enabled.
 
-Consider an I/O size 32768 and first page is not aligned to the page
-boundary, then I/O is split in following manner :-
-
-[ 2206.256140] nvmet: sg->length 3440 sg->offset 656
-[ 2206.256144] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256148] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256152] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256155] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256159] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256163] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256166] nvmet: sg->length 4096 sg->offset 0
-[ 2206.256170] nvmet: sg->length 656 sg->offset 0
-
-Now the req->transfer_size == NVMET_MAX_INLINE_DATA_LEN i.e. 32768, but
-the req->sg_cnt is (9) > NVMET_MAX_INLINE_BIOVEC which is (8).
-This will result in the following warning message :-
-
-nvmet_bdev_execute_rw()
-	bio_add_page()
-		__bio_add_page()
-			WARN_ON_ONCE(bio_full(bio, len));
-
-This scenario is very hard to reproduce on the nvme-loop transport only
-with rw commands issued with the passthru IOCTL interface from the host
-application and the data buffer is allocated with the malloc() and not
-the posix_memalign().
-
-Fixes: 73383adfad24 ("nvmet: don't split large I/Os unconditionally")
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 41cd02c6f7f6 ("kvm: x86: Expose RDPID in KVM_GET_SUPPORTED_CPUID")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210504171734.1434054-2-seanjc@google.com>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Reiji Watanabe <reijiw@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/io-cmd-bdev.c | 2 +-
- drivers/nvme/target/nvmet.h       | 6 ++++++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ arch/x86/kvm/vmx/vmx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/nvme/target/io-cmd-bdev.c b/drivers/nvme/target/io-cmd-bdev.c
-index 23095bdfce06..6a9626ff0713 100644
---- a/drivers/nvme/target/io-cmd-bdev.c
-+++ b/drivers/nvme/target/io-cmd-bdev.c
-@@ -258,7 +258,7 @@ static void nvmet_bdev_execute_rw(struct nvmet_req *req)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -7302,9 +7302,11 @@ static __init void vmx_set_cpu_caps(void
+ 	if (!cpu_has_vmx_xsaves())
+ 		kvm_cpu_cap_clear(X86_FEATURE_XSAVES);
  
- 	sector = nvmet_lba_to_sect(req->ns, req->cmd->rw.slba);
+-	/* CPUID 0x80000001 */
+-	if (!cpu_has_vmx_rdtscp())
++	/* CPUID 0x80000001 and 0x7 (RDPID) */
++	if (!cpu_has_vmx_rdtscp()) {
+ 		kvm_cpu_cap_clear(X86_FEATURE_RDTSCP);
++		kvm_cpu_cap_clear(X86_FEATURE_RDPID);
++	}
  
--	if (req->transfer_len <= NVMET_MAX_INLINE_DATA_LEN) {
-+	if (nvmet_use_inline_bvec(req)) {
- 		bio = &req->b.inline_bio;
- 		bio_init(bio, req->inline_bvec, ARRAY_SIZE(req->inline_bvec));
- 	} else {
-diff --git a/drivers/nvme/target/nvmet.h b/drivers/nvme/target/nvmet.h
-index 8776dd1a0490..7f8712de77e0 100644
---- a/drivers/nvme/target/nvmet.h
-+++ b/drivers/nvme/target/nvmet.h
-@@ -613,4 +613,10 @@ static inline sector_t nvmet_lba_to_sect(struct nvmet_ns *ns, __le64 lba)
- 	return le64_to_cpu(lba) << (ns->blksize_shift - SECTOR_SHIFT);
- }
- 
-+static inline bool nvmet_use_inline_bvec(struct nvmet_req *req)
-+{
-+	return req->transfer_len <= NVMET_MAX_INLINE_DATA_LEN &&
-+	       req->sg_cnt <= NVMET_MAX_INLINE_BIOVEC;
-+}
-+
- #endif /* _NVMET_H */
--- 
-2.30.2
-
+ 	if (cpu_has_vmx_waitpkg())
+ 		kvm_cpu_cap_check_and_set(X86_FEATURE_WAITPKG);
 
 
