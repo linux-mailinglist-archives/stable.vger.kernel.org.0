@@ -2,55 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1883438294C
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 12:02:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 683EC38295E
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 12:06:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231840AbhEQKDa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 06:03:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53294 "EHLO mail.kernel.org"
+        id S236271AbhEQKHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 06:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236393AbhEQKDM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 06:03:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DE2661029;
-        Mon, 17 May 2021 10:01:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621245713;
-        bh=K4yEuz9FYYQvrGIGVmWYP2UnG2JLIdaG5G9xrIkdLyw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jBvzocVD/obZ4/grmy2Lwx+NZsOw0gPOoGjeFYD75LUqnVzJbnTakoHiTI1GLGy0o
-         Py3KIddhHHhiz9NkaegMUYfIyhvsoBoWw3Ej6spki/TMjY9TNS5Iuv8IpzuomK8tx7
-         jABWfFhoQOSa1yBXF7sIzbqIiRzhcHC3hl4Yekck=
-Date:   Mon, 17 May 2021 12:01:51 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christoph Biedl <linux-kernel.bfrz@manchmal.in-ulm.de>
-Cc:     stable@vger.kernel.org
-Subject: Re: 5.10.37 won't boot on my system, but 5.10.36 with same config
- does
-Message-ID: <YKI/D64ODBUEHO9M@kroah.com>
-References: <e0e9ecf4-cfd7-b31a-29b0-ead4a6c0ee40@charleswright.co>
- <1621180418@msgid.manchmal.in-ulm.de>
+        id S236330AbhEQKGz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 06:06:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD869610C9;
+        Mon, 17 May 2021 10:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621245927;
+        bh=tYCqLfJRyuJ4yv/1riKqBYwWUTjUR4sj/G4c74/mzEc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=kVSHPwqLd+WDpDWgi9We7u3KCx9lfKBNXfXd7kL1n+8dg0wlsNSuWPuY4DPe2nMXv
+         DPwVBgNmb3r0mKf2u15PM2T0GvODqYjFTiJePB7LrXLrwwNMjTz4nELQe36nOcoS1V
+         7nmL3B1jW/3nNaE/fi0dA3J7wdh+MtINgb9pCH8mBD/UVGjWQrq79piJ3uhdiaT8Ee
+         /cGpQm78qf8t6CB25aBzZ3AIv9EkkEu/uGflC9uiRSFpZWMOvxcCbYT0DROLvQNqkc
+         OZHHHJV09uX3q6lz9aGrrnkX/PNwYI9Az5qaIVC+1vABjVHFeh73ecveZExL2rpsjf
+         j81Piw8x/eVqg==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1lia7p-0006J5-0K; Mon, 17 May 2021 12:05:25 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Jiri Kosina <jikos@kernel.org>
+Cc:     Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        linux-input@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan@kernel.org>,
+        syzbot+ee6f6e2e68886ca256a8@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Claudio Mettler <claudio@ponyfleisch.ch>,
+        Marek Wyborski <marek.wyborski@emwesoft.com>,
+        Sean O'Brien <seobrien@chromium.org>
+Subject: [PATCH] HID: magicmouse: fix NULL-deref on disconnect
+Date:   Mon, 17 May 2021 12:04:30 +0200
+Message-Id: <20210517100430.20509-1-johan@kernel.org>
+X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1621180418@msgid.manchmal.in-ulm.de>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, May 16, 2021 at 06:00:14PM +0200, Christoph Biedl wrote:
-> Charles Wright wrote...
-> 
-> > I see a couple of other posts with same issue.
-> 
-> Count me in. It's not a global issue, though, various machine rebooted
-> without any problems. Only failing device so far was an old x200
-> Thinkpad - stalls before console gets intialized, so I have no idea at
-> all what went wrong there. And I'm sorry, I don't have the time for
-> bisecting at the moment.
+Commit 9d7b18668956 ("HID: magicmouse: add support for Apple Magic
+Trackpad 2") added a sanity check for an Apple trackpad but returned
+success instead of -ENODEV when the check failed. This means that the
+remove callback will dereference the never-initialised driver data
+pointer when the driver is later unbound (e.g. on USB disconnect).
 
-Hopefully now fixed in the stable queue, I'll push out new -rc releases
-today for people to test.
+Reported-by: syzbot+ee6f6e2e68886ca256a8@syzkaller.appspotmail.com
+Fixes: 9d7b18668956 ("HID: magicmouse: add support for Apple Magic Trackpad 2")
+Cc: stable@vger.kernel.org      # 4.20
+Cc: Claudio Mettler <claudio@ponyfleisch.ch>
+Cc: Marek Wyborski <marek.wyborski@emwesoft.com>
+Cc: Sean O'Brien <seobrien@chromium.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/hid/hid-magicmouse.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-thanks,
+diff --git a/drivers/hid/hid-magicmouse.c b/drivers/hid/hid-magicmouse.c
+index 2bb473d8c424..56dda50aa3d8 100644
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -693,7 +693,7 @@ static int magicmouse_probe(struct hid_device *hdev,
+ 	if (id->vendor == USB_VENDOR_ID_APPLE &&
+ 	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
+ 	    hdev->type != HID_TYPE_USBMOUSE)
+-		return 0;
++		return -ENODEV;
+ 
+ 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
+ 	if (msc == NULL) {
+-- 
+2.26.3
 
-greg k-h
