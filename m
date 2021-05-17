@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0B54383104
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA5C538335F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:59:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240125AbhEQOdp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:33:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43382 "EHLO mail.kernel.org"
+        id S241353AbhEQO5j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:57:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240167AbhEQObm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:31:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A880D61166;
-        Mon, 17 May 2021 14:15:32 +0000 (UTC)
+        id S241802AbhEQOx7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:53:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CEE06199B;
+        Mon, 17 May 2021 14:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260933;
-        bh=1Tj8L1ZaYES/mLH5ILY14A6ccbafPhdoBV0lV+yee9w=;
+        s=korg; t=1621261467;
+        bh=1fgGe6EVea6dgSAsAZvzBziRCktDtmZTRV18UlD/8CU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiRrV4jhpUmppVkc8gQKw04eSP6clLHSXgP0iBc3J0X75m2xKH8v3ndbwo+Zus5W+
-         MmtWRdXcBM0RZluZwW25xO6x7RvbIrN6WXeTOqtlrOkFfWsJcakc7Hjg3JvXGrivmE
-         NV1HtWCCFVtztprhY/7Oko8OMNR45kVFvmjJsVnw=
+        b=x+oKOPgEyQEzkM9Zmt5C+jAFPLVs5bQmbhFI3giF5BFwsk40A7kkLozLmWG1iGQw1
+         TWRrANJox5tSDEi2J0uaFXsUYXlok0oU6UnEgh24ruXGkDwPZFfpdqgFbNC4c9cDED
+         Ylmyg1rc/jbersvfnSqji4qy4tVKtP3Iwm4ZVrFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
-        syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com,
-        Alain Michaud <alainm@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 037/329] Bluetooth: check for zapped sk before connecting
+Subject: [PATCH 5.10 023/289] ALSA: hdsp: dont disable if not enabled
 Date:   Mon, 17 May 2021 15:59:08 +0200
-Message-Id: <20210517140303.302166585@linuxfoundation.org>
+Message-Id: <20210517140305.964312672@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,67 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 3af70b39fa2d415dc86c370e5b24ddb9fdacbd6f ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-There is a possibility of receiving a zapped sock on
-l2cap_sock_connect(). This could lead to interesting crashes, one
-such case is tearing down an already tore l2cap_sock as is happened
-with this call trace:
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-__dump_stack lib/dump_stack.c:15 [inline]
-dump_stack+0xc4/0x118 lib/dump_stack.c:56
-register_lock_class kernel/locking/lockdep.c:792 [inline]
-register_lock_class+0x239/0x6f6 kernel/locking/lockdep.c:742
-__lock_acquire+0x209/0x1e27 kernel/locking/lockdep.c:3105
-lock_acquire+0x29c/0x2fb kernel/locking/lockdep.c:3599
-__raw_spin_lock_bh include/linux/spinlock_api_smp.h:137 [inline]
-_raw_spin_lock_bh+0x38/0x47 kernel/locking/spinlock.c:175
-spin_lock_bh include/linux/spinlock.h:307 [inline]
-lock_sock_nested+0x44/0xfa net/core/sock.c:2518
-l2cap_sock_teardown_cb+0x88/0x2fb net/bluetooth/l2cap_sock.c:1345
-l2cap_chan_del+0xa3/0x383 net/bluetooth/l2cap_core.c:598
-l2cap_chan_close+0x537/0x5dd net/bluetooth/l2cap_core.c:756
-l2cap_chan_timeout+0x104/0x17e net/bluetooth/l2cap_core.c:429
-process_one_work+0x7e3/0xcb0 kernel/workqueue.c:2064
-worker_thread+0x5a5/0x773 kernel/workqueue.c:2196
-kthread+0x291/0x2a6 kernel/kthread.c:211
-ret_from_fork+0x4e/0x80 arch/x86/entry/entry_64.S:604
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
 
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reported-by: syzbot+abfc0f5e668d4099af73@syzkaller.appspotmail.com
-Reviewed-by: Alain Michaud <alainm@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_sock.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/bluetooth/l2cap_sock.c b/net/bluetooth/l2cap_sock.c
-index f1b1edd0b697..c99d65ef13b1 100644
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -179,9 +179,17 @@ static int l2cap_sock_connect(struct socket *sock, struct sockaddr *addr,
- 	struct l2cap_chan *chan = l2cap_pi(sk)->chan;
- 	struct sockaddr_l2 la;
- 	int len, err = 0;
-+	bool zapped;
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index cea53a878c36..4aee30db034d 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5321,7 +5321,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
- 	BT_DBG("sk %p", sk);
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
+ }
  
-+	lock_sock(sk);
-+	zapped = sock_flag(sk, SOCK_ZAPPED);
-+	release_sock(sk);
-+
-+	if (zapped)
-+		return -EINVAL;
-+
- 	if (!addr || alen < offsetofend(struct sockaddr, sa_family) ||
- 	    addr->sa_family != AF_BLUETOOTH)
- 		return -EINVAL;
 -- 
 2.30.2
 
