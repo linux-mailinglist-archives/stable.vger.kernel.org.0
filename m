@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C9A3837D9
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:46:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E7B9383665
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:33:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S244517AbhEQPrO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:47:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36456 "EHLO mail.kernel.org"
+        id S242887AbhEQPby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1344716AbhEQPpc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:45:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3BFB61D2F;
-        Mon, 17 May 2021 14:43:46 +0000 (UTC)
+        id S245497AbhEQP3u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:29:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03AE7613F5;
+        Mon, 17 May 2021 14:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262627;
-        bh=2utz0rH/92bftGsuGGggQJvRKqYX3sQlunQSg7yC0+o=;
+        s=korg; t=1621262258;
+        bh=2ZG0b9EVKtAyzoHzd47jQfWhZOI9s3h/S+m0CpotFg4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rqzlVfTDcEq/kas3jaPrlh/VdQt28346fKfWPnd7yeK0nDJzsnd+WJTMQIKDlIEZx
-         v9Pb0dqNHvtfUwNk+DbGvVngBmNfLL4JF8MNOuM6c514A7kL/zNPUl3wR6P0UlvBlw
-         e1Y1wmTokqm7Xb7hdd6GmUzaHSigo6rArXf92yJs=
+        b=Ao4riwsHDtJizCzo3beXqJMkN75fANOOW+APbpsnpgWg8XWTn0QRD7HLr+NMzDyi1
+         Iey2l6gT7eCNiHpVPBWh83pkCdsTB4yjLqinD+U/iPT89cC7dZEqpFXrtykbUnQd4K
+         kxJoqs9i7HBaU5X0hrFDnsv7FOsKyw1DMgrS12rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sun Ke <sunke32@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 237/289] nbd: Fix NULL pointer in flush_workqueue
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.11 251/329] KVM: LAPIC: Accurately guarantee busy wait for timer to expire when using hv_timer
 Date:   Mon, 17 May 2021 16:02:42 +0200
-Message-Id: <20210517140313.149833914@linuxfoundation.org>
+Message-Id: <20210517140310.597532327@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
-References: <20210517140305.140529752@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+References: <20210517140302.043055203@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sun Ke <sunke32@huawei.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-[ Upstream commit 79ebe9110fa458d58f1fceb078e2068d7ad37390 ]
+[ Upstream commit d981dd15498b188636ec5a7d8ad485e650f63d8d ]
 
-Open /dev/nbdX first, the config_refs will be 1 and
-the pointers in nbd_device are still null. Disconnect
-/dev/nbdX, then reference a null recv_workq. The
-protection by config_refs in nbd_genl_disconnect is useless.
+Commit ee66e453db13d (KVM: lapic: Busy wait for timer to expire when
+using hv_timer) tries to set ktime->expired_tscdeadline by checking
+ktime->hv_timer_in_use since lapic timer oneshot/periodic modes which
+are emulated by vmx preemption timer also get advanced, they leverage
+the same vmx preemption timer logic with tsc-deadline mode. However,
+ktime->hv_timer_in_use is cleared before apic_timer_expired() handling,
+let's delay this clearing in preemption-disabled region.
 
-[  656.366194] BUG: kernel NULL pointer dereference, address: 0000000000000020
-[  656.368943] #PF: supervisor write access in kernel mode
-[  656.369844] #PF: error_code(0x0002) - not-present page
-[  656.370717] PGD 10cc87067 P4D 10cc87067 PUD 1074b4067 PMD 0
-[  656.371693] Oops: 0002 [#1] SMP
-[  656.372242] CPU: 5 PID: 7977 Comm: nbd-client Not tainted 5.11.0-rc5-00040-g76c057c84d28 #1
-[  656.373661] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS ?-20190727_073836-buildvm-ppc64le-16.ppc.fedoraproject.org-3.fc31 04/01/2014
-[  656.375904] RIP: 0010:mutex_lock+0x29/0x60
-[  656.376627] Code: 00 0f 1f 44 00 00 55 48 89 fd 48 83 05 6f d7 fe 08 01 e8 7a c3 ff ff 48 83 05 6a d7 fe 08 01 31 c0 65 48 8b 14 25 00 6d 01 00 <f0> 48 0f b1 55 d
-[  656.378934] RSP: 0018:ffffc900005eb9b0 EFLAGS: 00010246
-[  656.379350] RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-[  656.379915] RDX: ffff888104cf2600 RSI: ffffffffaae8f452 RDI: 0000000000000020
-[  656.380473] RBP: 0000000000000020 R08: 0000000000000000 R09: ffff88813bd6b318
-[  656.381039] R10: 00000000000000c7 R11: fefefefefefefeff R12: ffff888102710b40
-[  656.381599] R13: ffffc900005eb9e0 R14: ffffffffb2930680 R15: ffff88810770ef00
-[  656.382166] FS:  00007fdf117ebb40(0000) GS:ffff88813bd40000(0000) knlGS:0000000000000000
-[  656.382806] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  656.383261] CR2: 0000000000000020 CR3: 0000000100c84000 CR4: 00000000000006e0
-[  656.383819] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  656.384370] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  656.384927] Call Trace:
-[  656.385111]  flush_workqueue+0x92/0x6c0
-[  656.385395]  nbd_disconnect_and_put+0x81/0xd0
-[  656.385716]  nbd_genl_disconnect+0x125/0x2a0
-[  656.386034]  genl_family_rcv_msg_doit.isra.0+0x102/0x1b0
-[  656.386422]  genl_rcv_msg+0xfc/0x2b0
-[  656.386685]  ? nbd_ioctl+0x490/0x490
-[  656.386954]  ? genl_family_rcv_msg_doit.isra.0+0x1b0/0x1b0
-[  656.387354]  netlink_rcv_skb+0x62/0x180
-[  656.387638]  genl_rcv+0x34/0x60
-[  656.387874]  netlink_unicast+0x26d/0x590
-[  656.388162]  netlink_sendmsg+0x398/0x6c0
-[  656.388451]  ? netlink_rcv_skb+0x180/0x180
-[  656.388750]  ____sys_sendmsg+0x1da/0x320
-[  656.389038]  ? ____sys_recvmsg+0x130/0x220
-[  656.389334]  ___sys_sendmsg+0x8e/0xf0
-[  656.389605]  ? ___sys_recvmsg+0xa2/0xf0
-[  656.389889]  ? handle_mm_fault+0x1671/0x21d0
-[  656.390201]  __sys_sendmsg+0x6d/0xe0
-[  656.390464]  __x64_sys_sendmsg+0x23/0x30
-[  656.390751]  do_syscall_64+0x45/0x70
-[  656.391017]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-To fix it, just add if (nbd->recv_workq) to nbd_disconnect_and_put().
-
-Fixes: e9e006f5fcf2 ("nbd: fix max number of supported devs")
-Signed-off-by: Sun Ke <sunke32@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20210512114331.1233964-2-sunke32@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: ee66e453db13d ("KVM: lapic: Busy wait for timer to expire when using hv_timer")
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1619608082-4187-1-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/x86/kvm/lapic.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/block/nbd.c b/drivers/block/nbd.c
-index 5e45eddbe2ab..9a70eab7edbf 100644
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -2031,7 +2031,8 @@ static void nbd_disconnect_and_put(struct nbd_device *nbd)
- 	 * config ref and try to destroy the workqueue from inside the work
- 	 * queue.
- 	 */
--	flush_workqueue(nbd->recv_workq);
-+	if (nbd->recv_workq)
-+		flush_workqueue(nbd->recv_workq);
- 	if (test_and_clear_bit(NBD_RT_HAS_CONFIG_REF,
- 			       &nbd->config->runtime_flags))
- 		nbd_config_put(nbd);
+diff --git a/arch/x86/kvm/lapic.c b/arch/x86/kvm/lapic.c
+index 570fa298083c..70eb00f4317f 100644
+--- a/arch/x86/kvm/lapic.c
++++ b/arch/x86/kvm/lapic.c
+@@ -1908,8 +1908,8 @@ void kvm_lapic_expired_hv_timer(struct kvm_vcpu *vcpu)
+ 	if (!apic->lapic_timer.hv_timer_in_use)
+ 		goto out;
+ 	WARN_ON(rcuwait_active(&vcpu->wait));
+-	cancel_hv_timer(apic);
+ 	apic_timer_expired(apic, false);
++	cancel_hv_timer(apic);
+ 
+ 	if (apic_lvtt_period(apic) && apic->lapic_timer.period) {
+ 		advance_periodic_target_expiration(apic);
 -- 
 2.30.2
 
