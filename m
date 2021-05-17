@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C768E3833C8
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 274F63833D3
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239444AbhEQPCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:02:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59320 "EHLO mail.kernel.org"
+        id S242461AbhEQPCi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:02:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S242641AbhEQPAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:00:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01F5A619D5;
-        Mon, 17 May 2021 14:26:44 +0000 (UTC)
+        id S241378AbhEQPAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C8EA9619CD;
+        Mon, 17 May 2021 14:26:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261605;
-        bh=DykbBS9B3GBNT6APzCYhnEXR7x69pcyvFvShwrP/fRw=;
+        s=korg; t=1621261614;
+        bh=0+9Xdgeq1Rpqm/DtwPbsBg2XLXCA4ICNfobY8GCq/VY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zRZvzngCcV8MP2KGVxtlsUvoSZN/FfJ7dQ0ftACoOPG3JzTh87EfLw0ROMWn0/OAw
-         Y9E8O7nmfiD7Z0VRD/ZRdAYiyHh/XJ0myB55HXDHtKTfgdIJMv/uehLDsbCdnZlUiz
-         YhSkeQSJHr8K2kG3tZ5fyGCfH4xQ5t8M+jZ1Q8PE=
+        b=dNubAmeUUk/AyfvOmjBL4SveXjjbc5MsS3mZfJqQmMo4IscUxbD19ynDZ/5DoO8PZ
+         amzrNeiLjrdxi/i1My7RnUQBacq3y7BK3G3Rd739HCn8wHPkYlS1DFE4yl68SJsWX2
+         YOY8igrFkVKYwlWcmLGKMWgHSX+VuzjuwuX94WvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "mark-yw.chen" <mark-yw.chen@mediatek.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/289] Bluetooth: btusb: Enable quirk boolean flag for Mediatek Chip.
-Date:   Mon, 17 May 2021 15:59:24 +0200
-Message-Id: <20210517140306.514717016@linuxfoundation.org>
+Subject: [PATCH 5.10 040/289] ASoC: rt5670: Add a quirk for the Dell Venue 10 Pro 5055
+Date:   Mon, 17 May 2021 15:59:25 +0200
+Message-Id: <20210517140306.554103331@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -40,34 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: mark-yw.chen <mark-yw.chen@mediatek.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 27e554a4fcd84e499bf0a82122b8c4c3f1de38b6 ]
+[ Upstream commit 84cb0d5581b6a7bd5d96013f67e9f2eb0c7b4378 ]
 
-Adding support LE scatternet and WBS for Mediatek Chip
+Add a quirk with the jack-detect and dmic settings necessary to make
+jack-detect and the builtin mic work on Dell Venue 10 Pro 5055 tablets.
 
-Signed-off-by: mark-yw.chen <mark-yw.chen@mediatek.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210402140747.174716-5-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/soc/codecs/rt5670.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 2953b96b3ced..175cb1c0d569 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -392,7 +392,9 @@ static const struct usb_device_id blacklist_table[] = {
- 
- 	/* MediaTek Bluetooth devices */
- 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0e8d, 0xe0, 0x01, 0x01),
--	  .driver_info = BTUSB_MEDIATEK },
-+	  .driver_info = BTUSB_MEDIATEK |
-+			 BTUSB_WIDEBAND_SPEECH |
-+			 BTUSB_VALID_LE_STATES },
- 
- 	/* Additional Realtek 8723AE Bluetooth devices */
- 	{ USB_DEVICE(0x0930, 0x021d), .driver_info = BTUSB_REALTEK },
+diff --git a/sound/soc/codecs/rt5670.c b/sound/soc/codecs/rt5670.c
+index a0c8f58d729b..47ce074289ca 100644
+--- a/sound/soc/codecs/rt5670.c
++++ b/sound/soc/codecs/rt5670.c
+@@ -2908,6 +2908,18 @@ static const struct dmi_system_id dmi_platform_intel_quirks[] = {
+ 						 RT5670_GPIO1_IS_IRQ |
+ 						 RT5670_JD_MODE3),
+ 	},
++	{
++		.callback = rt5670_quirk_cb,
++		.ident = "Dell Venue 10 Pro 5055",
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Venue 10 Pro 5055"),
++		},
++		.driver_data = (unsigned long *)(RT5670_DMIC_EN |
++						 RT5670_DMIC2_INR |
++						 RT5670_GPIO1_IS_IRQ |
++						 RT5670_JD_MODE1),
++	},
+ 	{
+ 		.callback = rt5670_quirk_cb,
+ 		.ident = "Aegex 10 tablet (RU2)",
 -- 
 2.30.2
 
