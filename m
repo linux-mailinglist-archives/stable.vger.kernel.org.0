@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A80FD3831D1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6161F3831D5
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:43:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240026AbhEQOlH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:41:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60372 "EHLO mail.kernel.org"
+        id S240661AbhEQOlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240583AbhEQOiu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:38:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CCD061934;
-        Mon, 17 May 2021 14:18:15 +0000 (UTC)
+        id S240868AbhEQOjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:39:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D67C061937;
+        Mon, 17 May 2021 14:18:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261095;
-        bh=bQWRWZNSZrHFi+hejWxx4tlj/NoZ3bkrVH/8nEnLuNU=;
+        s=korg; t=1621261102;
+        bh=PlpePXivunUZg8exTB6V4+pEmH7TIZv8X5nGFEjG21k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EmfwDxflDRQ8JpE7nnNo1gM/gXjNzzrxO+e0hqaMN7WHbCEfEK+KO3UmxBMAMwtNx
-         S8MZrmnX3Cf1n7U0NG+3cI3aImLjisnFN7li6kWt4Qth6hu6MU91LtaRTfUZ92y3H3
-         0tvMzXoQKawHMp0BSqG9GqtlZcE0mCR6V2NIk8aw=
+        b=QyTbcF+c4KJYDLNe/ibHVysBAiSuAvCVAyxSS2xufU3epH8xjstxTpm5sElK8F5lc
+         AfMdJZh60EjCx3npIWX80LA51aY7nWQicFdr+2v1ZhOF8Pid39RkNMYxXigsgUMjXd
+         IhYIV6UIU6RRB4XiGpHQXzdONvlzBJ7EnIijWeio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?C=C3=A9dric=20Le=20Goater?= <clg@kaod.org>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 305/363] powerpc/64s: Make NMI record implicitly soft-masked code as irqs disabled
-Date:   Mon, 17 May 2021 16:02:51 +0200
-Message-Id: <20210517140312.907247622@linuxfoundation.org>
+        stable@vger.kernel.org, Yanhui Ma <yama@redhat.com>,
+        John Garry <john.garry@huawei.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        kashyap.desai@broadcom.com, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 306/363] blk-mq: plug request for shared sbitmap
+Date:   Mon, 17 May 2021 16:02:52 +0200
+Message-Id: <20210517140312.937872656@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -42,92 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit 4ec5feec1ad029bdf7d49bc50ccc0c195eeabe93 ]
+[ Upstream commit 03f26d8f11403295de445b6e4e0e57ac57755791 ]
 
-scv support introduced the notion of code that implicitly soft-masks
-irqs due to the instruction addresses. This is required because scv
-enters the kernel with MSR[EE]=1.
+In case of shared sbitmap, request won't be held in plug list any more
+sine commit 32bc15afed04 ("blk-mq: Facilitate a shared sbitmap per
+tagset"), this way makes request merge from flush plug list & batching
+submission not possible, so cause performance regression.
 
-If a NMI (including soft-NMI) interrupt hits when we are implicitly
-soft-masked then its regs->softe does not reflect this because it is
-derived from the explicit soft mask state (paca->irq_soft_mask). This
-makes arch_irq_disabled_regs(regs) return false.
+Yanhui reports performance regression when running sequential IO
+test(libaio, 16 jobs, 8 depth for each job) in VM, and the VM disk
+is emulated with image stored on xfs/megaraid_sas.
 
-This can trigger a warning in the soft-NMI watchdog code (shown below).
-Fix it by having NMI interrupts set regs->softe to disabled in case of
-interrupting an implicit soft-masked region.
+Fix the issue by recovering original behavior to allow to hold request
+in plug list.
 
-  ------------[ cut here ]------------
-  WARNING: CPU: 41 PID: 1103 at arch/powerpc/kernel/watchdog.c:259 soft_nmi_interrupt+0x3e4/0x5f0
-  CPU: 41 PID: 1103 Comm: (spawn) Not tainted
-  NIP:  c000000000039534 LR: c000000000039234 CTR: c000000000009a00
-  REGS: c000007fffbcf940 TRAP: 0700   Not tainted
-  MSR:  9000000000021033 <SF,HV,ME,IR,DR,RI,LE>  CR: 22042482  XER: 200400ad
-  CFAR: c000000000039260 IRQMASK: 3
-  GPR00: c000000000039204 c000007fffbcfbe0 c000000001d6c300 0000000000000003
-  GPR04: 00007ffffa45d078 0000000000000000 0000000000000008 0000000000000020
-  GPR08: 0000007ffd4e0000 0000000000000000 c000007ffffceb00 7265677368657265
-  GPR12: 9000000000009033 c000007ffffceb00 00000f7075bf4480 000000000000002a
-  GPR16: 00000f705745a528 00007ffffa45ddd8 00000f70574d0008 0000000000000000
-  GPR20: 00000f7075c58d70 00000f7057459c38 0000000000000001 0000000000000040
-  GPR24: 0000000000000000 0000000000000029 c000000001dae058 0000000000000029
-  GPR28: 0000000000000000 0000000000000800 0000000000000009 c000007fffbcfd60
-  NIP [c000000000039534] soft_nmi_interrupt+0x3e4/0x5f0
-  LR [c000000000039234] soft_nmi_interrupt+0xe4/0x5f0
-  Call Trace:
-  [c000007fffbcfbe0] [c000000000039204] soft_nmi_interrupt+0xb4/0x5f0 (unreliable)
-  [c000007fffbcfcf0] [c00000000000c0e8] soft_nmi_common+0x138/0x1c4
-  --- interrupt: 900 at end_real_trampolines+0x0/0x1000
-  NIP:  c000000000003000 LR: 00007ca426adb03c CTR: 900000000280f033
-  REGS: c000007fffbcfd60 TRAP: 0900
-  MSR:  9000000000009033 <SF,HV,EE,ME,IR,DR,RI,LE>  CR: 44042482  XER: 200400ad
-  CFAR: 00007ca426946020 IRQMASK: 0
-  GPR00: 00000000000000ad 00007ffffa45d050 00007ca426b07f00 0000000000000035
-  GPR04: 00007ffffa45d078 0000000000000000 0000000000000008 0000000000000020
-  GPR08: 0000000000000000 0000000000100000 0000000010000000 00007ffffa45d110
-  GPR12: 0000000000000001 00007ca426d4e680 00000f7075bf4480 000000000000002a
-  GPR16: 00000f705745a528 00007ffffa45ddd8 00000f70574d0008 0000000000000000
-  GPR20: 00000f7075c58d70 00000f7057459c38 0000000000000001 0000000000000040
-  GPR24: 0000000000000000 00000f7057473f68 0000000000000003 000000000000041b
-  GPR28: 00007ffffa45d4c4 0000000000000035 0000000000000000 00000f7057473f68
-  NIP [c000000000003000] end_real_trampolines+0x0/0x1000
-  LR [00007ca426adb03c] 0x7ca426adb03c
-  --- interrupt: 900
-  Instruction dump:
-  60000000 60000000 60420000 38600001 482b3ae5 60000000 e93f0138 a36d0008
-  7daa6b78 71290001 7f7907b4 4082fd34 <0fe00000> 4bfffd2c 60420000 ea6100a8
-  ---[ end trace dc75f67d819779da ]---
-
-Fixes: 118178e62e2e ("powerpc: move NMI entry/exit code into wrapper")
-Reported-by: Cédric Le Goater <clg@kaod.org>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210503111708.758261-1-npiggin@gmail.com
+Cc: Yanhui Ma <yama@redhat.com>
+Cc: John Garry <john.garry@huawei.com>
+Cc: Bart Van Assche <bvanassche@acm.org>
+Cc: kashyap.desai@broadcom.com
+Fixes: 32bc15afed04 ("blk-mq: Facilitate a shared sbitmap per tagset")
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210514022052.1047665-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/interrupt.h | 7 +++++++
- 1 file changed, 7 insertions(+)
+ block/blk-mq.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/include/asm/interrupt.h b/arch/powerpc/include/asm/interrupt.h
-index e8d09a841373..31ed5356590a 100644
---- a/arch/powerpc/include/asm/interrupt.h
-+++ b/arch/powerpc/include/asm/interrupt.h
-@@ -138,6 +138,13 @@ static inline void interrupt_nmi_enter_prepare(struct pt_regs *regs, struct inte
- 	local_paca->irq_soft_mask = IRQS_ALL_DISABLED;
- 	local_paca->irq_happened |= PACA_IRQ_HARD_DIS;
- 
-+	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) && !(regs->msr & MSR_PR) &&
-+				regs->nip < (unsigned long)__end_interrupts) {
-+		// Kernel code running below __end_interrupts is
-+		// implicitly soft-masked.
-+		regs->softe = IRQS_ALL_DISABLED;
-+	}
-+
- 	/* Don't do any per-CPU operations until interrupt state is fixed */
- #endif
- 	/* Allow DEC and PMI to be traced when they are soft-NMI */
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index d4d7c1caa439..c0b740be62ad 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2216,8 +2216,9 @@ blk_qc_t blk_mq_submit_bio(struct bio *bio)
+ 		/* Bypass scheduler for flush requests */
+ 		blk_insert_flush(rq);
+ 		blk_mq_run_hw_queue(data.hctx, true);
+-	} else if (plug && (q->nr_hw_queues == 1 || q->mq_ops->commit_rqs ||
+-				!blk_queue_nonrot(q))) {
++	} else if (plug && (q->nr_hw_queues == 1 ||
++		   blk_mq_is_sbitmap_shared(rq->mq_hctx->flags) ||
++		   q->mq_ops->commit_rqs || !blk_queue_nonrot(q))) {
+ 		/*
+ 		 * Use plugging if we have a ->commit_rqs() hook as well, as
+ 		 * we know the driver uses bd->last in a smart fashion.
 -- 
 2.30.2
 
