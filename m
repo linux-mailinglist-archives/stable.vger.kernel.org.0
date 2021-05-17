@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2C0A383531
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:24:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DDC5383536
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:24:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241525AbhEQPQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42180 "EHLO mail.kernel.org"
+        id S242642AbhEQPQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:16:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36458 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240706AbhEQPN5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:13:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1380061C4E;
-        Mon, 17 May 2021 14:31:53 +0000 (UTC)
+        id S243513AbhEQPOP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:14:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DBEF61C51;
+        Mon, 17 May 2021 14:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261914;
-        bh=InIh6HKvECFj20U6L9vgh3JjpNCfwKZj7DEXA3TKNOk=;
+        s=korg; t=1621261921;
+        bh=G5ssfBGRLK53uQMuqh6icA54W4r/oxerTpHLqKs707Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfOtOXI6dBeKDM++lJMeNkO95zj3Or2UVwYT1X3g176NWxTVIZpyQ2Or+kglaDC0t
-         zkTCVXdzKU4A0NyhaWNZC1ICxrx0K+qU5bYvJ7is+l6SXeYKCT9T4RMx8hL/aWZeoc
-         YHG2xTYcbS7py2xPbV27VQOZXOAtgUhgIFzTH88k=
+        b=XXOU5ZD6dl9BRgsHUNcEJlbQ/6tzrx1LhdXqeEV5+EluvAt52CseeIlzzVGh+LMZr
+         YYbvTF4far2B2P1QY4MwwVDx4vGlpxiVLP5U2mhwTWaOZwnkuuLeLtdUNWhwMlUBeb
+         EwhOPsCBy/dn7bNx6leUVuZWA0CjMpvZ5Fwmanlc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Baptiste Lepers <baptiste.lepers@gmail.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Brendan Jackman <jackmanb@google.com>,
+        Andrii Nakryiko <andrii@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 186/329] sunrpc: Fix misplaced barrier in call_decode
-Date:   Mon, 17 May 2021 16:01:37 +0200
-Message-Id: <20210517140308.419829091@linuxfoundation.org>
+Subject: [PATCH 5.11 187/329] libbpf: Fix signed overflow in ringbuf_process_ring
+Date:   Mon, 17 May 2021 16:01:38 +0200
+Message-Id: <20210517140308.452003031@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -41,66 +40,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Baptiste Lepers <baptiste.lepers@gmail.com>
+From: Brendan Jackman <jackmanb@google.com>
 
-[ Upstream commit f8f7e0fb22b2e75be55f2f0c13e229e75b0eac07 ]
+[ Upstream commit 2a30f9440640c418bcfbea9b2b344d268b58e0a2 ]
 
-Fix a misplaced barrier in call_decode. The struct rpc_rqst is modified
-as follows by xprt_complete_rqst:
+One of our benchmarks running in (Google-internal) CI pushes data
+through the ringbuf faster htan than userspace is able to consume
+it. In this case it seems we're actually able to get >INT_MAX entries
+in a single ring_buffer__consume() call. ASAN detected that cnt
+overflows in this case.
 
-req->rq_private_buf.len = copied;
-/* Ensure all writes are done before we update */
-/* req->rq_reply_bytes_recvd */
-smp_wmb();
-req->rq_reply_bytes_recvd = copied;
+Fix by using 64-bit counter internally and then capping the result to
+INT_MAX before converting to the int return type. Do the same for
+the ring_buffer__poll().
 
-And currently read as follows by call_decode:
-
-smp_rmb(); // misplaced
-if (!req->rq_reply_bytes_recvd)
-   goto out;
-req->rq_rcv_buf.len = req->rq_private_buf.len;
-
-This patch places the smp_rmb after the if to ensure that
-rq_reply_bytes_recvd and rq_private_buf.len are read in order.
-
-Fixes: 9ba828861c56a ("SUNRPC: Don't try to parse incomplete RPC messages")
-Signed-off-by: Baptiste Lepers <baptiste.lepers@gmail.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: bf99c936f947 (libbpf: Add BPF ring buffer support)
+Signed-off-by: Brendan Jackman <jackmanb@google.com>
+Signed-off-by: Andrii Nakryiko <andrii@kernel.org>
+Link: https://lore.kernel.org/bpf/20210429130510.1621665-1-jackmanb@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/clnt.c | 11 +++++------
- 1 file changed, 5 insertions(+), 6 deletions(-)
+ tools/lib/bpf/ringbuf.c | 30 +++++++++++++++++++++---------
+ 1 file changed, 21 insertions(+), 9 deletions(-)
 
-diff --git a/net/sunrpc/clnt.c b/net/sunrpc/clnt.c
-index c2a01125be1a..f555d335e910 100644
---- a/net/sunrpc/clnt.c
-+++ b/net/sunrpc/clnt.c
-@@ -2456,12 +2456,6 @@ call_decode(struct rpc_task *task)
- 		task->tk_flags &= ~RPC_CALL_MAJORSEEN;
+diff --git a/tools/lib/bpf/ringbuf.c b/tools/lib/bpf/ringbuf.c
+index e7a8d847161f..1d80ad4e0de8 100644
+--- a/tools/lib/bpf/ringbuf.c
++++ b/tools/lib/bpf/ringbuf.c
+@@ -202,9 +202,11 @@ static inline int roundup_len(__u32 len)
+ 	return (len + 7) / 8 * 8;
+ }
+ 
+-static int ringbuf_process_ring(struct ring* r)
++static int64_t ringbuf_process_ring(struct ring* r)
+ {
+-	int *len_ptr, len, err, cnt = 0;
++	int *len_ptr, len, err;
++	/* 64-bit to avoid overflow in case of extreme application behavior */
++	int64_t cnt = 0;
+ 	unsigned long cons_pos, prod_pos;
+ 	bool got_new_data;
+ 	void *sample;
+@@ -244,12 +246,14 @@ done:
+ }
+ 
+ /* Consume available ring buffer(s) data without event polling.
+- * Returns number of records consumed across all registered ring buffers, or
+- * negative number if any of the callbacks return error.
++ * Returns number of records consumed across all registered ring buffers (or
++ * INT_MAX, whichever is less), or negative number if any of the callbacks
++ * return error.
+  */
+ int ring_buffer__consume(struct ring_buffer *rb)
+ {
+-	int i, err, res = 0;
++	int64_t err, res = 0;
++	int i;
+ 
+ 	for (i = 0; i < rb->ring_cnt; i++) {
+ 		struct ring *ring = &rb->rings[i];
+@@ -259,18 +263,24 @@ int ring_buffer__consume(struct ring_buffer *rb)
+ 			return err;
+ 		res += err;
  	}
++	if (res > INT_MAX)
++		return INT_MAX;
+ 	return res;
+ }
  
--	/*
--	 * Ensure that we see all writes made by xprt_complete_rqst()
--	 * before it changed req->rq_reply_bytes_recvd.
--	 */
--	smp_rmb();
--
- 	/*
- 	 * Did we ever call xprt_complete_rqst()? If not, we should assume
- 	 * the message is incomplete.
-@@ -2470,6 +2464,11 @@ call_decode(struct rpc_task *task)
- 	if (!req->rq_reply_bytes_recvd)
- 		goto out;
+ /* Poll for available data and consume records, if any are available.
+- * Returns number of records consumed, or negative number, if any of the
+- * registered callbacks returned error.
++ * Returns number of records consumed (or INT_MAX, whichever is less), or
++ * negative number, if any of the registered callbacks returned error.
+  */
+ int ring_buffer__poll(struct ring_buffer *rb, int timeout_ms)
+ {
+-	int i, cnt, err, res = 0;
++	int i, cnt;
++	int64_t err, res = 0;
  
-+	/* Ensure that we see all writes made by xprt_complete_rqst()
-+	 * before it changed req->rq_reply_bytes_recvd.
-+	 */
-+	smp_rmb();
+ 	cnt = epoll_wait(rb->epoll_fd, rb->events, rb->ring_cnt, timeout_ms);
++	if (cnt < 0)
++		return -errno;
 +
- 	req->rq_rcv_buf.len = req->rq_private_buf.len;
- 	trace_rpc_xdr_recvfrom(task, &req->rq_rcv_buf);
+ 	for (i = 0; i < cnt; i++) {
+ 		__u32 ring_id = rb->events[i].data.fd;
+ 		struct ring *ring = &rb->rings[ring_id];
+@@ -280,7 +290,9 @@ int ring_buffer__poll(struct ring_buffer *rb, int timeout_ms)
+ 			return err;
+ 		res += err;
+ 	}
+-	return cnt < 0 ? -errno : res;
++	if (res > INT_MAX)
++		return INT_MAX;
++	return res;
+ }
  
+ /* Get an fd that can be used to sleep until data is available in the ring(s) */
 -- 
 2.30.2
 
