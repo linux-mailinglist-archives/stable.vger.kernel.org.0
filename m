@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2468F3834A1
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:11:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E409338355C
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238645AbhEQPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:11:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
+        id S243327AbhEQPSQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:18:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54748 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241669AbhEQPI6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:08:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FF9261C35;
-        Mon, 17 May 2021 14:29:53 +0000 (UTC)
+        id S242692AbhEQPQM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:16:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1995861C5B;
+        Mon, 17 May 2021 14:32:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621261794;
-        bh=yrd9r5JwA3yOvNf7FmsslUm1ObnMa9Zr1q/nKRW35Dw=;
+        s=korg; t=1621261962;
+        bh=VSWwm3qHb2ni9JKb0Wjc4srAAOWNFy3yN5/uvmUwoCw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SlK89+BjptzDNSYEJhDO/H/hnqmd838KD7keUfTCq18A2sgbgHiNJ3UXE2IT9ehXW
-         HcJMHfOkAqRPFaqdWIEvt3zdaYNknk5ukVZ0JE9Y5IFSDPhvDYEnRWQiFYYHjdTVRA
-         QqLovYSPJ94V22xT0NUze6gfiBDEY31BLDIrqtjg=
+        b=p1mLUHBngSqEtTyN66IYXuoV4qiLi3QYRYx7Jii7elxO+ySMIJSSYkvtNpbSy0Z1E
+         howUCyqQOWG5sb8EjNzGsfVaD0yOVkv3ZDZyg+T/n3grjWfPu+TYVfO7aqtJMrVGQN
+         WTLB0Ud6itMREjhqMDbRQWWHpnT/gmCQfLc1+vDM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.11 165/329] SUNRPC: fix ternary sign expansion bug in tracing
-Date:   Mon, 17 May 2021 16:01:16 +0200
-Message-Id: <20210517140307.721541280@linuxfoundation.org>
+Subject: [PATCH 5.11 166/329] SUNRPC: Fix null pointer dereference in svc_rqst_free()
+Date:   Mon, 17 May 2021 16:01:17 +0200
+Message-Id: <20210517140307.753790459@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
 References: <20210517140302.043055203@linuxfoundation.org>
@@ -40,40 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[ Upstream commit cb579086536f6564f5846f89808ec394ef8b8621 ]
+[ Upstream commit b9f83ffaa0c096b4c832a43964fe6bff3acffe10 ]
 
-This code is supposed to pass negative "err" values for tracing but it
-passes positive values instead.  The problem is that the
-trace_svcsock_tcp_send() function takes a long but "err" is an int and
-"sent" is a u32.  The negative is first type promoted to u32 so it
-becomes a high positive then it is promoted to long and it stays
-positive.
+When alloc_pages_node() returns null in svc_rqst_alloc(), the
+null rq_scratch_page pointer will be dereferenced when calling
+put_page() in svc_rqst_free(). Fix it by adding a null check.
 
-Fix this by casting "err" directly to long.
-
-Fixes: 998024dee197 ("SUNRPC: Add more svcsock tracepoints")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Addresses-Coverity: ("Dereference after null check")
+Fixes: 5191955d6fc6 ("SUNRPC: Prepare for xdr_stream-style decoding on the server-side")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sunrpc/svcsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sunrpc/svc.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/net/sunrpc/svcsock.c b/net/sunrpc/svcsock.c
-index 5a809c64dc7b..42a400135d41 100644
---- a/net/sunrpc/svcsock.c
-+++ b/net/sunrpc/svcsock.c
-@@ -1176,7 +1176,7 @@ static int svc_tcp_sendto(struct svc_rqst *rqstp)
- 		goto out_notconn;
- 	err = svc_tcp_sendmsg(svsk->sk_sock, &msg, xdr, marker, &sent);
- 	xdr_free_bvec(xdr);
--	trace_svcsock_tcp_send(xprt, err < 0 ? err : sent);
-+	trace_svcsock_tcp_send(xprt, err < 0 ? (long)err : sent);
- 	if (err < 0 || sent != (xdr->len + sizeof(marker)))
- 		goto out_close;
- 	mutex_unlock(&xprt->xpt_mutex);
+diff --git a/net/sunrpc/svc.c b/net/sunrpc/svc.c
+index 7034b4755fa1..16b6681a97ab 100644
+--- a/net/sunrpc/svc.c
++++ b/net/sunrpc/svc.c
+@@ -846,7 +846,8 @@ void
+ svc_rqst_free(struct svc_rqst *rqstp)
+ {
+ 	svc_release_buffer(rqstp);
+-	put_page(rqstp->rq_scratch_page);
++	if (rqstp->rq_scratch_page)
++		put_page(rqstp->rq_scratch_page);
+ 	kfree(rqstp->rq_resp);
+ 	kfree(rqstp->rq_argp);
+ 	kfree(rqstp->rq_auth_data);
 -- 
 2.30.2
 
