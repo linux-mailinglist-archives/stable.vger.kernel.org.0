@@ -2,40 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1A9B3835DD
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:26:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8009C3835A7
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:25:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S242715AbhEQPZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:25:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41894 "EHLO mail.kernel.org"
+        id S241274AbhEQPXr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:23:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S245049AbhEQPW5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:22:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E4C9F61C9F;
-        Mon, 17 May 2021 14:35:13 +0000 (UTC)
+        id S242251AbhEQPQh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:16:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 401A761C5F;
+        Mon, 17 May 2021 14:32:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262114;
-        bh=N+cDqyWaNRu7Fs6ee6v1kiQ73FqSCuRxLtsnmHdnzyU=;
+        s=korg; t=1621261971;
+        bh=MW17LMhkgf4zsGdmSa+gCO4FhcVWWoYvhnsDJfybypI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c7ZRFoDp6HGKHiRnlNE0wV9+NnoM2b6IXBfZSDn2zlGsQKh2zJqBoXtCNC5b+b3so
-         sbBAwXe1kp472Cu1rnJmCL9wymiDaV0OQnBSOPLNrgyNvtAYEUzLUaiHYaMyY76zrn
-         ZPPZF04lljv9m4KI+SX5E7Q4QA8rZmffMIPw7BII=
+        b=YuDvOhRDDj/lfLyiwyPXb/qTdwbZ1MVfq7UclkbpBaE573LPqFc3ss8QsEEsuPX2c
+         UUMJiv/JseFzb0AR0uBT9q5f2zzA123DYyq7/B2u2rj0P85kmGt0ySN/HQdmJrdWh/
+         RtyfGEG2aGnEB+RuxcWll+mBUbYROcFFre34WKh8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Petr Mladek <pmladek@suse.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        Laurence Oberman <loberman@redhat.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vincent Whitchurch <vincent.whitchurch@axis.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 092/289] watchdog: fix barriers when printing backtraces from all CPUs
-Date:   Mon, 17 May 2021 16:00:17 +0200
-Message-Id: <20210517140308.284047046@linuxfoundation.org>
+Subject: [PATCH 5.10 093/289] ASoC: rt286: Make RT286_SET_GPIO_* readable and writable
+Date:   Mon, 17 May 2021 16:00:18 +0200
+Message-Id: <20210517140308.320913373@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
 References: <20210517140305.140529752@linuxfoundation.org>
@@ -47,74 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Mladek <pmladek@suse.com>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit 9f113bf760ca90d709f8f89a733d10abb1f04a83 ]
+[ Upstream commit cd8499d5c03ba260e3191e90236d0e5f6b147563 ]
 
-Any parallel softlockup reports are skipped when one CPU is already
-printing backtraces from all CPUs.
+The GPIO configuration cannot be applied if the registers are inaccessible.
+This prevented the headset mic from working on the Dell XPS 13 9343.
 
-The exclusive rights are synchronized using one bit in
-soft_lockup_nmi_warn.  There is also one memory barrier that does not make
-much sense.
-
-Use two barriers on the right location to prevent mixing two reports.
-
-[pmladek@suse.com: use bit lock operations to prevent multiple soft-lockup reports]
-  Link: https://lkml.kernel.org/r/YFSVsLGVWMXTvlbk@alley
-
-Link: https://lkml.kernel.org/r/20210311122130.6788-6-pmladek@suse.com
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Acked-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@kernel.org>
-Cc: Laurence Oberman <loberman@redhat.com>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Vincent Whitchurch <vincent.whitchurch@axis.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=114171
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Link: https://lore.kernel.org/r/20210418134658.4333-5-david.ward@gatech.edu
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/watchdog.c | 17 ++++++-----------
- 1 file changed, 6 insertions(+), 11 deletions(-)
+ sound/soc/codecs/rt286.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/kernel/watchdog.c b/kernel/watchdog.c
-index 122e272ad7f2..01bf977090dc 100644
---- a/kernel/watchdog.c
-+++ b/kernel/watchdog.c
-@@ -393,11 +393,12 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
- 		if (kvm_check_and_clear_guest_paused())
- 			return HRTIMER_RESTART;
- 
-+		/*
-+		 * Prevent multiple soft-lockup reports if one cpu is already
-+		 * engaged in dumping all cpu back traces.
-+		 */
- 		if (softlockup_all_cpu_backtrace) {
--			/* Prevent multiple soft-lockup reports if one cpu is already
--			 * engaged in dumping cpu back traces
--			 */
--			if (test_and_set_bit(0, &soft_lockup_nmi_warn))
-+			if (test_and_set_bit_lock(0, &soft_lockup_nmi_warn))
- 				return HRTIMER_RESTART;
- 		}
- 
-@@ -415,14 +416,8 @@ static enum hrtimer_restart watchdog_timer_fn(struct hrtimer *hrtimer)
- 			dump_stack();
- 
- 		if (softlockup_all_cpu_backtrace) {
--			/* Avoid generating two back traces for current
--			 * given that one is already made above
--			 */
- 			trigger_allbutself_cpu_backtrace();
--
--			clear_bit(0, &soft_lockup_nmi_warn);
--			/* Barrier to sync with other cpus */
--			smp_mb__after_atomic();
-+			clear_bit_unlock(0, &soft_lockup_nmi_warn);
- 		}
- 
- 		add_taint(TAINT_SOFTLOCKUP, LOCKDEP_STILL_OK);
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index 8ae2e2eaad3d..eec2dd93ecbb 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -171,6 +171,9 @@ static bool rt286_readable_register(struct device *dev, unsigned int reg)
+ 	case RT286_PROC_COEF:
+ 	case RT286_SET_AMP_GAIN_ADC_IN1:
+ 	case RT286_SET_AMP_GAIN_ADC_IN2:
++	case RT286_SET_GPIO_MASK:
++	case RT286_SET_GPIO_DIRECTION:
++	case RT286_SET_GPIO_DATA:
+ 	case RT286_SET_POWER(RT286_DAC_OUT1):
+ 	case RT286_SET_POWER(RT286_DAC_OUT2):
+ 	case RT286_SET_POWER(RT286_ADC_IN1):
 -- 
 2.30.2
 
