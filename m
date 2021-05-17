@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BF35383102
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D573383142
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 16:35:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237985AbhEQOdm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 10:33:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
+        id S239675AbhEQOgG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 10:36:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236504AbhEQObk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 10:31:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CB196186A;
-        Mon, 17 May 2021 14:15:28 +0000 (UTC)
+        id S240264AbhEQOdl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 10:33:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F626191D;
+        Mon, 17 May 2021 14:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621260928;
-        bh=oDdmwiAs4OkF35TIcoVtoX+ScytIn7uyrYIh5qLdz2w=;
+        s=korg; t=1621260972;
+        bh=EAfkBS4b60opCiLOVlnBupkfa4IP9sMSU+ZZMIUm5Rw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lPez/X75jb8TqMxtM1H4F2d+aRtIOrRBWDNmyxxJOcrgjhSD31aVO3nadz/ynqPiF
-         k3HhRnNdI4/LpcwbWWTAkX2e/gOoK0CyvwKPGnQkOYzSn0Qa5DoewBuGwAY9IxkAet
-         3uKiD72L8C2klICtGAx3cKgJseQafIaGtE9RzYFs=
+        b=xBsEARLuxr5fnzrtqgf49C3Cfp2rKDNBz6u7gzkSFyaC5aWzDxyVoF+V+SujDO3KM
+         iyYGb3JzTslK1Y5Ks4HfHHVMG7ZU9m5vfQhqaYLmLU0PjtcAMnfyJJfnvighiA54Xi
+         BoY97ENOkIi6qdV1FGA/Lk81lj2fdrRvwteTkjpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.12 251/363] sh: Remove unused variable
-Date:   Mon, 17 May 2021 16:01:57 +0200
-Message-Id: <20210517140311.078763547@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.12 252/363] powerpc/64s: Fix crashes when toggling stf barrier
+Date:   Mon, 17 May 2021 16:01:58 +0200
+Message-Id: <20210517140311.112554612@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
 References: <20210517140302.508966430@linuxfoundation.org>
@@ -39,35 +38,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 0d3ae948741ac6d80e39ab27b45297367ee477de upstream.
+commit 8ec7791bae1327b1c279c5cd6e929c3b12daaf0a upstream.
 
-Removes this annoying warning:
+The STF (store-to-load forwarding) barrier mitigation can be
+enabled/disabled at runtime via a debugfs file (stf_barrier), which
+causes the kernel to patch itself to enable/disable the relevant
+mitigations.
 
-arch/sh/kernel/traps.c: In function ‘nmi_trap_handler’:
-arch/sh/kernel/traps.c:183:15: warning: unused variable ‘cpu’ [-Wunused-variable]
-  183 |  unsigned int cpu = smp_processor_id();
+However depending on which mitigation we're using, it may not be safe to
+do that patching while other CPUs are active. For example the following
+crash:
 
-Fixes: fe3f1d5d7cd3 ("sh: Get rid of nmi_count()")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210414170517.1205430-1-eric.dumazet@gmail.com
+  User access of kernel address (c00000003fff5af0) - exploit attempt? (uid: 0)
+  segfault (11) at c00000003fff5af0 nip 7fff8ad12198 lr 7fff8ad121f8 code 1
+  code: 40820128 e93c00d0 e9290058 7c292840 40810058 38600000 4bfd9a81 e8410018
+  code: 2c030006 41810154 3860ffb6 e9210098 <e94d8ff0> 7d295279 39400000 40820a3c
+
+Shows that we returned to userspace without restoring the user r13
+value, due to executing the partially patched STF exit code.
+
+Fix it by doing the patching under stop machine. The CPUs that aren't
+doing the patching will be spinning in the core of the stop machine
+logic. That is currently sufficient for our purposes, because none of
+the patching we do is to that code or anywhere in the vicinity.
+
+Fixes: a048a07d7f45 ("powerpc/64s: Add support for a store forwarding barrier at kernel entry/exit")
+Cc: stable@vger.kernel.org # v4.17+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210506044959.1298123-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/sh/kernel/traps.c |    1 -
- 1 file changed, 1 deletion(-)
+ arch/powerpc/lib/feature-fixups.c |   19 +++++++++++++++++--
+ 1 file changed, 17 insertions(+), 2 deletions(-)
 
---- a/arch/sh/kernel/traps.c
-+++ b/arch/sh/kernel/traps.c
-@@ -180,7 +180,6 @@ static inline void arch_ftrace_nmi_exit(
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -14,6 +14,7 @@
+ #include <linux/string.h>
+ #include <linux/init.h>
+ #include <linux/sched/mm.h>
++#include <linux/stop_machine.h>
+ #include <asm/cputable.h>
+ #include <asm/code-patching.h>
+ #include <asm/page.h>
+@@ -227,11 +228,25 @@ static void do_stf_exit_barrier_fixups(e
+ 		                                           : "unknown");
+ }
  
- BUILD_TRAP_HANDLER(nmi)
++static int __do_stf_barrier_fixups(void *data)
++{
++	enum stf_barrier_type *types = data;
++
++	do_stf_entry_barrier_fixups(*types);
++	do_stf_exit_barrier_fixups(*types);
++
++	return 0;
++}
+ 
+ void do_stf_barrier_fixups(enum stf_barrier_type types)
  {
--	unsigned int cpu = smp_processor_id();
- 	TRAP_HANDLER_DECL;
+-	do_stf_entry_barrier_fixups(types);
+-	do_stf_exit_barrier_fixups(types);
++	/*
++	 * The call to the fallback entry flush, and the fallback/sync-ori exit
++	 * flush can not be safely patched in/out while other CPUs are executing
++	 * them. So call __do_stf_barrier_fixups() on one CPU while all other CPUs
++	 * spin in the stop machine core with interrupts hard disabled.
++	 */
++	stop_machine(__do_stf_barrier_fixups, &types, NULL);
+ }
  
- 	arch_ftrace_nmi_enter();
+ void do_uaccess_flush_fixups(enum l1d_flush_type types)
 
 
