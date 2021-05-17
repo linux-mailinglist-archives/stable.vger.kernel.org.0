@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79E19383709
-	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:39:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E8E38383F
+	for <lists+stable@lfdr.de>; Mon, 17 May 2021 17:51:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S245001AbhEQPi6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 11:38:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40610 "EHLO mail.kernel.org"
+        id S238100AbhEQPu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 11:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35758 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S244314AbhEQPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 11:36:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE1AF6193E;
-        Mon, 17 May 2021 14:40:19 +0000 (UTC)
+        id S245174AbhEQPsS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 11:48:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BFF6A61D40;
+        Mon, 17 May 2021 14:45:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621262420;
-        bh=G0ZouCx4KY8m+lgR/uSo9qQJuuWGppTL+4CPKntMjnk=;
+        s=korg; t=1621262708;
+        bh=lue57tV8oA1EXdfL+lbVZxqvPFzdnVFaPZD8vKlkt60=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Elp4+GaN1YBrIsXHF751jiVgoI61O0Ar83/A5ujS504qiEC9C12PkrVyOokouDGhq
-         kUfPKSYHXYR9qjg7Ucotot8f+vvGU0KH6HDL02W9oONv7lTYpTs7Hx0k6gdU+k9sVV
-         baiLmXrXIVPNBazX/zfXd/vFrJMBhAtl78VoUuqw=
+        b=x2sKoNSDb2h1JjQrQ/t5xYQP0pFlR2JdyxvIeH4FZ3foGo8rjnm/mU6eAFMl9JZ7t
+         O3H7kBX7hgSOUWjU62c2Y11Je1+Q3veX0Bteat/x+UWh6ubof+eGJP5TYUeeTgEZFR
+         R+/IgaN5otzHX//zAjsNACEuQUB1EGQm4wTDVmG8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wesley Cheng <wcheng@codeaurora.org>
-Subject: [PATCH 5.11 287/329] usb: dwc3: gadget: Return success always for kick transfer in ep queue
+        Joel Stanley <joel@jms.id.au>,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.10 273/289] ARM: 9020/1: mm: use correct section size macro to describe the FDT virtual address
 Date:   Mon, 17 May 2021 16:03:18 +0200
-Message-Id: <20210517140311.812102781@linuxfoundation.org>
+Message-Id: <20210517140314.331553505@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
-References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140305.140529752@linuxfoundation.org>
+References: <20210517140305.140529752@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,38 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wesley Cheng <wcheng@codeaurora.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit 18ffa988dbae69cc6e9949cddd9606f6fe533894 upstream.
+commit fc2933c133744305236793025b00c2f7d258b687 upstream
 
-If an error is received when issuing a start or update transfer
-command, the error handler will stop all active requests (including
-the current USB request), and call dwc3_gadget_giveback() to notify
-function drivers of the requests which have been stopped.  Avoid
-returning an error for kick transfer during EP queue, to remove
-duplicate cleanup operations on the request being queued.
+Commit
 
-Fixes: 8d99087c2db8 ("usb: dwc3: gadget: Properly handle failed kick_transfer")
-cc: stable@vger.kernel.org
-Signed-off-by: Wesley Cheng <wcheng@codeaurora.org>
-Link: https://lore.kernel.org/r/1620410119-24971-1-git-send-email-wcheng@codeaurora.org
+  149a3ffe62b9dbc3 ("9012/1: move device tree mapping out of linear region")
+
+created a permanent, read-only section mapping of the device tree blob
+provided by the firmware, and added a set of macros to get the base and
+size of the virtually mapped FDT based on the physical address. However,
+while the mapping code uses the SECTION_SIZE macro correctly, the macros
+use PMD_SIZE instead, which means something entirely different on ARM when
+using short descriptors, and is therefore not the right quantity to use
+here. So replace PMD_SIZE with SECTION_SIZE. While at it, change the names
+of the macro and its parameter to clarify that it returns the virtual
+address of the start of the FDT, based on the physical address in memory.
+
+Tested-by: Joel Stanley <joel@jms.id.au>
+Tested-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/arm/include/asm/memory.h |    6 +++---
+ arch/arm/kernel/setup.c       |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1676,7 +1676,9 @@ static int __dwc3_gadget_ep_queue(struct
- 		}
- 	}
+--- a/arch/arm/include/asm/memory.h
++++ b/arch/arm/include/asm/memory.h
+@@ -68,8 +68,8 @@
+ #define XIP_VIRT_ADDR(physaddr)  (MODULES_VADDR + ((physaddr) & 0x000fffff))
  
--	return __dwc3_gadget_kick_transfer(dep);
-+	__dwc3_gadget_kick_transfer(dep);
-+
-+	return 0;
- }
+ #define FDT_FIXED_BASE		UL(0xff800000)
+-#define FDT_FIXED_SIZE		(2 * PMD_SIZE)
+-#define FDT_VIRT_ADDR(physaddr)	((void *)(FDT_FIXED_BASE | (physaddr) % PMD_SIZE))
++#define FDT_FIXED_SIZE		(2 * SECTION_SIZE)
++#define FDT_VIRT_BASE(physbase)	((void *)(FDT_FIXED_BASE | (physbase) % SECTION_SIZE))
  
- static int dwc3_gadget_ep_queue(struct usb_ep *ep, struct usb_request *request,
+ #if !defined(CONFIG_SMP) && !defined(CONFIG_ARM_LPAE)
+ /*
+@@ -111,7 +111,7 @@ extern unsigned long vectors_base;
+ #define MODULES_VADDR		PAGE_OFFSET
+ 
+ #define XIP_VIRT_ADDR(physaddr)  (physaddr)
+-#define FDT_VIRT_ADDR(physaddr)  ((void *)(physaddr))
++#define FDT_VIRT_BASE(physbase)  ((void *)(physbase))
+ 
+ #endif /* !CONFIG_MMU */
+ 
+--- a/arch/arm/kernel/setup.c
++++ b/arch/arm/kernel/setup.c
+@@ -1086,7 +1086,7 @@ void __init setup_arch(char **cmdline_p)
+ 	void *atags_vaddr = NULL;
+ 
+ 	if (__atags_pointer)
+-		atags_vaddr = FDT_VIRT_ADDR(__atags_pointer);
++		atags_vaddr = FDT_VIRT_BASE(__atags_pointer);
+ 
+ 	setup_processor();
+ 	if (atags_vaddr) {
 
 
