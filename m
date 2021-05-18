@@ -2,152 +2,201 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCF338775C
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 13:22:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C46B3387790
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 13:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231361AbhERLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 07:24:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40154 "EHLO
+        id S234361AbhERL30 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 07:29:26 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231223AbhERLYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 07:24:01 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DC2C061756
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:22:43 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id c15so11081875ljr.7
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:22:43 -0700 (PDT)
+        with ESMTP id S233672AbhERL3Z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 07:29:25 -0400
+Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22CCBC061573
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:28:07 -0700 (PDT)
+Received: by mail-wr1-x42a.google.com with SMTP id p7so6077623wru.10
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:28:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=rdF8gyGM2Z+kErBHsZUshH2jdfE4Xe2DvLEUbreL60U=;
-        b=1sVP6RY0xs/XVwcMfqv4WRnrwBmXXikMvu1TQJKiSO31kX9DZeKI57xT+5FL0EYx1x
-         +3seia/Q7r5h7t6ZX35ELEdvGoxEQN2T+MqDHUIEWCv96cL1r+ib3Z0JLTGMluRQFJDL
-         ZUAZWmEylF+8OtZq5QDeIdlekR4sGDmh+TZkuh7Q+mKEpenzoml7GtYeQPr4FvABvqN9
-         WnDh7EvM+OCrxIH64AwUMxFQONX8SXJpO6PsaBP/1rl+B6T7zghl78igm41gBSQbVquJ
-         5mXB/Jcm/wkOODAxd2CfZ33ptYVHR7L2HVg5ADTZa1YUH3mJ99LL3bg3d4tnMc2xWxZJ
-         TKJQ==
+        d=gmail.com; s=20161025;
+        h=from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DBZYTwBjlgIUJh90JAijG8YFeudnF6JrxuRLB0DtebM=;
+        b=HMGgZv6NNq8l9NC1VeRwRLoXs3PT1U13wN5eWSfYyjAyi5br4LPNIDVgmZuY3M9KQH
+         Buwu6vpOu9W4XUgjyYWQSwfHiWiBCL8u8/LPiUEeiIYyZOpdwVGwSQRkplLxSbYQ6abo
+         9+ClwEM9iAnfASbClcN/3e63+mWhtLBES0HHZxAF5WrzGjs64MGcNFYYzNf3JJNr3jkM
+         o5SsZ0AWc5KqXHc8y7N1Hbpf7V5mmfJPaCTP8uaSTGG/e9qeEQ6cOHA5XG5CPjKLR4hi
+         98bDQ6W+jJB2bgRJG7MifjrNJsnfuE4xvy7CQV2fhMsTVn/gNIR+tuaBnWJdfgSqtJzn
+         GU/g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=rdF8gyGM2Z+kErBHsZUshH2jdfE4Xe2DvLEUbreL60U=;
-        b=mlWA98t6eFEpUCprFLTa4f0cAZhA2IFlny/EeXdCiwcwvNehx1ylTNPZyoZZrxRk8Q
-         pusPJ2D6HqGwdO0eJgSn4I1kWYsFQOOnSdXGulWLAV0ZwLMM8DakVX7NbgxRjeaeqk3m
-         qZfrhX+3SO+VOPj+6BMnjGOGgt+hdINDde+SyB9QFMQ7OR0TpnO33HVS/QcaJ9gpxiQw
-         R+CvxU/Pj9zxcCBXla09KWGbxFyKXPdFYJI0bXJJwLqIA835CqHOHVkGwkzKUDHKDtIn
-         IdaClnJmHqf4fdqpGz3sSVe/cie/dq1huGk1hj1DDihnXdBFy9SZMzH5eDOtaWHvkMqs
-         h5pg==
-X-Gm-Message-State: AOAM5326cULlqCpJTdskOoj7MyCW6Do5MuFocALONNPXaQDimkCT68Su
-        fZGgDR+JrifuwtmKLTjwpr4tdM6RGcAadgcLe5Pu4g==
-X-Google-Smtp-Source: ABdhPJxBW/CEWIJES064VALHXUE3Rx9StlZhCWBm/mjDDQH6cTQbrZrHxWnR9ESSztRpf6Wum7KRjECmh/vA1A7fvFI=
-X-Received: by 2002:a05:651c:156:: with SMTP id c22mr3703525ljd.175.1621336961673;
- Tue, 18 May 2021 04:22:41 -0700 (PDT)
+        h=x-gm-message-state:from:to:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=DBZYTwBjlgIUJh90JAijG8YFeudnF6JrxuRLB0DtebM=;
+        b=UqS8B1XstLNe3z6RyEaap5siygJ5ddVw82seKgAirUpiZurQSBm3fFh6JiEtWYDsus
+         FFhDrUVaHMLhfL/8aVhNIl9/b17JUXmNknFwfIASi5GXQ8Y/pphX6jqVzhvGX8CYhNSk
+         Yk0dH5YewiTBT6d0Y3BxasI668L4KMfmUCitf3KGbq6rlh9Yw+Be2tJ0vNfe8tUTzvLh
+         Z/GFthCN7823RhT/qGiVGPgToo4k9gF2w71TJau100ABnKU6tYA7VsA7Drmu/L/imMc9
+         FBMKe/iLB3Bjr5eFqtq/+fIqC9Z8heiffpKi4ePuGfrynpdRVPNhtA6yaWJH3mrqTiSs
+         ye0g==
+X-Gm-Message-State: AOAM532SCo7K5jEJ1x0LpRT2s0171E6/VF5rA+0vtS6VihkBsV3IPZS1
+        WZG+0ped5coBfYpk9oF4Fzk=
+X-Google-Smtp-Source: ABdhPJztIpYFVR8N2vxVCwJJbiBnqVQK84aPYzVh/OrQPemiwgocbRl6tvCJp167mztLKS2xRPYmZQ==
+X-Received: by 2002:a5d:534f:: with SMTP id t15mr6116986wrv.206.1621337285835;
+        Tue, 18 May 2021 04:28:05 -0700 (PDT)
+Received: from localhost.localdomain (h-46-59-47-246.A165.priv.bahnhof.se. [46.59.47.246])
+        by smtp.gmail.com with ESMTPSA id y2sm2723709wmq.45.2021.05.18.04.28.04
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 18 May 2021 04:28:05 -0700 (PDT)
+From:   Magnus Karlsson <magnus.karlsson@gmail.com>
+To:     bjorn@kernel.org, maciej.fijalkowski@intel.com,
+        magnus.karlsson@intel.com, bganne@cisco.com, stable@vger.kernel.org
+Subject: Backport of 11cc2d21499c for 5.4.y and 4.19.y
+Date:   Tue, 18 May 2021 13:27:39 +0200
+Message-Id: <20210518112739.14086-1-magnus.karlsson@gmail.com>
+X-Mailer: git-send-email 2.29.0
 MIME-Version: 1.0
-References: <20210518090925.15480-1-pdk@semihalf.com> <YKOI9ndTg8s1uUvx@kroah.com>
-In-Reply-To: <YKOI9ndTg8s1uUvx@kroah.com>
-From:   Patryk Duda <pdk@semihalf.com>
-Date:   Tue, 18 May 2021 13:22:30 +0200
-Message-ID: <CAGOBvLq8hyRs7MZoZE0o0h0s9y1bL9eV3ex2A3FsmfjtofxsAg@mail.gmail.com>
-Subject: Re: [PATCH] platform/chrome: cros_ec_proto: Send command again when
- timeout occurs
-To:     Greg KH <greg@kroah.com>
-Cc:     Benson Leung <bleung@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        linux-kernel@vger.kernel.org, upstream@semihalf.com,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-wt., 18 maj 2021 o 11:29 Greg KH <greg@kroah.com> napisa=C5=82(a):
->
-> On Tue, May 18, 2021 at 11:09:25AM +0200, Patryk Duda wrote:
-> > Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
-> > hasn't initialized SPI yet. This can happen because FPMCU is restarted
-> > during system boot and kernel can send message in short window
-> > eg. between sysjump to RW and SPI initialization.
-> >
-> > Cc: <stable@vger.kernel.org> # 4.4+
-> > Signed-off-by: Patryk Duda <pdk@semihalf.com>
-> > ---
-> > Fingerprint MCU is rebooted during system startup by AP firmware (coreb=
-oot).
-> > During cold boot kernel can query FPMCU in a window just after jump to =
-RW
-> > section of firmware but before SPI is initialized. The window was
-> > shortened to <1ms, but it can't be eliminated completly.
-> >
-> > Communication with FPMCU (and all devices based on EC) is bi-directiona=
-l.
-> > When kernel sends message, EC will send EC_SPI* status codes. When EC i=
-s
-> > not able to process command one of bytes will be eg. EC_SPI_NOT_READY.
-> > This mechanism won't work when SPI is not initailized on EC side. In fa=
-ct,
-> > buffer is filled with 0xFF bytes, so from kernel perspective device is =
-not
-> > responding. To avoid this problem, we can query device once again. We a=
-re
-> > already waiting EC_MSG_DEADLINE_MS for response, so we can send command
-> > immediately.
-> >
-> > Best regards,
-> > Patryk
-> >  drivers/platform/chrome/cros_ec_proto.c | 12 ++++++++++++
-> >  1 file changed, 12 insertions(+)
-> >
-> > diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform=
-/chrome/cros_ec_proto.c
-> > index aa7f7aa77297..3384631d21e2 100644
-> > --- a/drivers/platform/chrome/cros_ec_proto.c
-> > +++ b/drivers/platform/chrome/cros_ec_proto.c
-> > @@ -279,6 +279,18 @@ static int cros_ec_host_command_proto_query(struct=
- cros_ec_device *ec_dev,
-> >       msg->insize =3D sizeof(struct ec_response_get_protocol_info);
-> >
-> >       ret =3D send_command(ec_dev, msg);
-> > +     /*
-> > +      * Send command once again when timeout occurred.
-> > +      * Fingerprint MCU (FPMCU) is restarted during system boot which
-> > +      * introduces small window in which FPMCU won't respond for any
-> > +      * messages sent by kernel. There is no need to wait before next
-> > +      * attempt because we waited at least EC_MSG_DEADLINE_MS.
-> > +      */
-> > +     if (ret =3D=3D -ETIMEDOUT) {
-> > +             dev_warn(ec_dev->dev,
-> > +                      "Timeout to get response from EC. Retrying.\n");
->
-> If a user sees this, what can they do?  No need to spam the kernel logs,
-> just retry.
-User can do nothing about it. I will remove this in next version of patch.
->
-> > +             ret =3D send_command(ec_dev, msg);
->
-> But wait, why just retry once?  Why not 10 times?  100?  1000?  How
-> about a simple loop here instead, with a "sane" number of retries as a
-> max.
-EC based devices are designed to respond always or return appropriate
-status code
-when they can't process command. But this assumes that SPI is always
-ready to work.
-It's true for Embedded Controller, but not for Fingerprint MCU. So we
-can retry once,
-in case of sending message, when FPMCU is in narrow window (~1ms) when SPI =
-is
-not initialized.
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-Every send_command() call can take about 200ms when device is not respondin=
-g,
-so next retry will happen after 200ms, at least. If 200ms is not
-enough for FPMCU
-to initialize SPI, it's definitely something wrong with FPMCU
->
-> thanks,
->
-> greg k-h
+Hi Greg and Sasha,
 
-Best regards,
-Patryk
+Please find attached backports of commit 11cc2d21499c ("xsk: Simplify
+detection of empty and full rings") for the 5.4.y and 4.19.y stable
+series. It solves a reproducible race between poll() and sendmsg()
+when used concurrently by two different processes using the same
+AF_XDP socket. Note that the commit above unknowingly (read: by sheer
+luck) fixed the bug as it was about simplification and performance
+improvement only. I have included two backports that are code wise
+equivallent to the commit above, however, they contain a commit message
+that describes the race in question and how it is fixed by the
+patch. Sorry, but I do not know the correct procedure in these kind of
+situations, but if you prefer to pick the original commit, please
+ignore the "backports" below.
+
+Please let me know if there are any problems.
+
+Thanks: Magnus
+
+
+>From aa84d8c8e0ba1e83a3454df04cd6bd417ee2bc8e Mon Sep 17 00:00:00 2001
+From: Magnus Karlsson <magnus.karlsson@intel.com>
+Date: Thu, 19 Dec 2019 13:39:21 +0100
+Subject: [PATCH 4.19] xsk: fix race between poll and the driver
+
+commit 11cc2d21499cabe7e7964389634ed1de3ee91d33 upstream
+
+Fix a race between poll() and the driver that can result in one or
+more packets being transmitted or received twice. The problem is that
+poll() uses the same function the driver uses to access the Rx and Tx
+rings in user space, and this function will update the state of one of
+these rings under certain conditions. E.g., if the poll() call from
+one process updates the Tx ring state while at the same time the
+driver in zero-copy mode is processing entries in the ring (invoked by
+sendmsg() or an interrupt), some packets will be sent twice. All the
+AF_XDP rings are single producer / single consumer, so modifying one
+from two places at the same time will corrupt it. Similarly, on the Rx
+side packets might be received twice.
+
+Fix this by changing the poll() function to not use the same function
+as the driver uses and instead only read state from the ring.
+
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Fixes: c497176cb2e4 ("xsk: add Rx receive functions and poll support")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Reported-by: Benoit Ganne <bganne@cisco.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/BYAPR11MB365382C5DB1E5FCC53242609C1549@BYAPR11MB3653.namprd11.prod.outlook.com/
+---
+ net/xdp/xsk_queue.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
+index fe96c0d039f2..cf7cbb5dd918 100644
+--- a/net/xdp/xsk_queue.h
++++ b/net/xdp/xsk_queue.h
+@@ -245,12 +245,15 @@ static inline void xskq_produce_flush_desc(struct xsk_queue *q)
+
+ static inline bool xskq_full_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_avail(q, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->producer) - READ_ONCE(q->ring->consumer) ==
++		q->nentries;
+ }
+
+ static inline bool xskq_empty_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_free(q, q->prod_tail, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->consumer) == READ_ONCE(q->ring->producer);
+ }
+
+ void xskq_set_umem(struct xsk_queue *q, struct xdp_umem_props *umem_props);
+
+base-commit: 3c8c23092588a23bf1856a64f58c37f477a413be
+--
+2.29.0
+
+
+>From 07f2ccb39bd20e90293c59ffcc977c14cf0ce577 Mon Sep 17 00:00:00 2001
+From: Magnus Karlsson <magnus.karlsson@intel.com>
+Date: Thu, 19 Dec 2019 13:39:21 +0100
+Subject: [PATCH 5.4] xsk: fix race between poll and the driver
+
+commit 11cc2d21499cabe7e7964389634ed1de3ee91d33 upstream
+
+Fix a race between poll() and the driver that can result in one or
+more packets being transmitted or received twice. The problem is that
+poll() uses the same function the driver uses to access the Rx and Tx
+rings in user space, and this function will update the state of one of
+these rings under certain conditions. E.g., if the poll() call from
+one process updates the Tx ring state while at the same time the
+driver in zero-copy mode is processing entries in the ring (invoked by
+sendmsg() or an interrupt), some packets will be sent twice. All the
+AF_XDP rings are single producer / single consumer, so modifying one
+from two places at the same time will corrupt it. Similarly, on the Rx
+side packets might be received twice.
+
+Fix this by changing the poll() function to not use the same function
+as the driver uses and instead only read state from the ring.
+
+Fixes: 35fcde7f8deb ("xsk: support for Tx")
+Fixes: c497176cb2e4 ("xsk: add Rx receive functions and poll support")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Reported-by: Benoit Ganne <bganne@cisco.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/BYAPR11MB365382C5DB1E5FCC53242609C1549@BYAPR11MB3653.namprd11.prod.outlook.com/
+---
+ net/xdp/xsk_queue.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
+index eddae4688862..ee3f8c857dd8 100644
+--- a/net/xdp/xsk_queue.h
++++ b/net/xdp/xsk_queue.h
+@@ -363,12 +363,15 @@ static inline void xskq_produce_flush_desc(struct xsk_queue *q)
+
+ static inline bool xskq_full_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_avail(q, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->producer) - READ_ONCE(q->ring->consumer) ==
++		q->nentries;
+ }
+
+ static inline bool xskq_empty_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_free(q, q->prod_tail, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->consumer) == READ_ONCE(q->ring->producer);
+ }
+
+ void xskq_set_umem(struct xsk_queue *q, u64 size, u64 chunk_mask);
+
+base-commit: b82e5721a17325739adef83a029340a63b53d4ad
+--
+2.29.0
