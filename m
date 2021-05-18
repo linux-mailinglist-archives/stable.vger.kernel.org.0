@@ -2,201 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F6C9386EEC
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:10:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4A54386F1D
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243303AbhERBLv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 21:11:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57814 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345545AbhERBLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 21:11:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA5EC613C1;
-        Tue, 18 May 2021 01:10:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621300219;
-        bh=308Rgqzwzn8F6+BdjMW1/khn4yX6QfWk8pZLxSJPSbg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=URmr45uXLYw/PScPtE0T753lKBNxFKJeP3Ia8T7MIXEUJK0SOiwoAM2hQrPRPYxsD
-         1Wu3og6nu6tPPYGlKAL5pLiEuj1XvMw7CWRqK/tzSuWoMl+zH+gAWyxab6vZqsw6Bn
-         WiIRCjDkwVuK745Dq+YzSCslUzN1QLTHgpLYoNWxmsbt4t0+kULJM7J9CS+/sYrvi3
-         7CsSCAJTaqJ8jffnvCejifVfhgIMNRJBkgIa/0DsBIFvkX3f/yHGEo4MJLyS8/fIHa
-         FDi1YGYaU4kZpmr9taI7uRGaAksDJ4s84bNSDeeeQsoVRTIh8mERjwGgr6l40FF8oU
-         +ZqQ4K+u6WxnQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oleg Nesterov <oleg@redhat.com>,
-        Simon Marchi <simon.marchi@efficios.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Pedro Alves <palves@redhat.com>,
-        Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.4] ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
-Date:   Mon, 17 May 2021 21:10:17 -0400
-Message-Id: <20210518011017.1486375-1-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
+        id S233202AbhERB1h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 21:27:37 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36509 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1345638AbhERB1f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 21:27:35 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailout.nyi.internal (Postfix) with ESMTP id 237EF5C0101;
+        Mon, 17 May 2021 21:26:16 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Mon, 17 May 2021 21:26:16 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=Qx5EOO9JcORbUxQvF4VZ6WpeCO
+        3MxZZJb0IuffeAra0=; b=ovGNGL1J9LzmVfzkucnGHZ3JkI9vriLMHMUYte9S52
+        RJ1aVVE7g1tfJtKxuBE9jC+qHZsEPhqU9Vu1ddHXNeIeLv5jMXvCnMk2jk+McDrT
+        EMsXm8P/Xk/gV3l6+FtdOg9IZc4TGvOYR14U6OLNGyFI9aST+AeeFBRlBOMU7upt
+        egp/MVVPQm5kdtvhfbSX5xPd1QmPtk+griKSoyIHniED1K7UyUwObeleuAbIZM6H
+        CKWEQkwLgCMV0mqZGL0ziCuxXUSjHEvoZZVRQCerl8oGuGk7OmHSoeieqt5a0GkC
+        tHB/Awdun42vHNi3iCVx6jQ5zK09oGg+Z1m44kP1+LEw==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Qx5EOO9JcORbUxQvF
+        4VZ6WpeCO3MxZZJb0IuffeAra0=; b=Di6b8QXTOU+YxMiUTnC1c62jpvdgwlWGD
+        HgqsRkb+Kb2W1hNP1x8cWwyPoIQDfGTsMW8z5maMo+gj2hYjQ3B+3a4y7w/tj5I9
+        yCm4AOE4P3Yb8Ov4xbr3FjQwMfm7BOIDLI/8psn5ncWBm4rZdk/L4+sLd+V6bjen
+        0ZG2QDhCHzliLPxCkEaPd4LkH1x2ZczwVGYiJ9XzQpl8xsuwRViHHBGX3j3ENUEd
+        HhGlnmLPkE5kDqJNcHLWSYoCTQEDvZbzD077n/Z+bLecyOfaI5D6moOJk6V6oqOP
+        ilas+d55QFYEuK/4Slqb6dCr7JvDK2uKAITRoyVj4OA9vhKhKZrmg==
+X-ME-Sender: <xms:uBejYGLNYwcshtKFymGJ4izaThHYjU-MXhxQI1nanwYF9es9vSJUrg>
+    <xme:uBejYOKaUmryTh89EcsrvOhbusPNwmwEgtdKhYs5bgheqc-PDfZp176Q0PbTZ7qj6
+    NjmGh_kfY3PZCvvq64>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeiiedggedvucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
+    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
+    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecukfhppedugedrfedr
+    ieehrddujeehnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrh
+    homhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjph
+X-ME-Proxy: <xmx:uBejYGtWCzie_nWvgGRp2txNwayxoTx7V4HHMKqCVhBC03dnwOSeBg>
+    <xmx:uBejYLZZ_8Uf4mGFY5JNWctGXCg4dMKlxiNePmuRrvRIYOUt7fZ_kw>
+    <xmx:uBejYNZ6XnzcjnQf2vO01t3b_nezldlDiZd2zM3Bf69j5cVXlOLm1A>
+    <xmx:uBejYMylRzuj1mWHnAonotJb_go4XyxJoB-7WB8XKMbZBIPHORFmxw>
+Received: from workstation.flets-east.jp (ae065175.dynamic.ppp.asahi-net.or.jp [14.3.65.175])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 17 May 2021 21:26:14 -0400 (EDT)
+From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To:     tiwai@suse.de
+Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
+        stable@vger.kernel.org
+Subject: [PATCH] ALSA: dice: fix stream format for TC Electronic Konnekt Live at high sampling transfer frequency
+Date:   Tue, 18 May 2021 10:26:12 +0900
+Message-Id: <20210518012612.37268-1-o-takashi@sakamocchi.jp>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+At high sampling transfer frequency, TC Electronic Konnekt Live
+transfers/receives 6 audio data frames in multi bit linear audio data
+channel of data block in CIP payload. Current hard-coded stream format
+is wrong.
 
-[ Upstream commit dbb5afad100a828c97e012c6106566d99f041db6 ]
-
-Suppose we have 2 threads, the group-leader L and a sub-theread T,
-both parked in ptrace_stop(). Debugger tries to resume both threads
-and does
-
-	ptrace(PTRACE_CONT, T);
-	ptrace(PTRACE_CONT, L);
-
-If the sub-thread T execs in between, the 2nd PTRACE_CONT doesn not
-resume the old leader L, it resumes the post-exec thread T which was
-actually now stopped in PTHREAD_EVENT_EXEC. In this case the
-PTHREAD_EVENT_EXEC event is lost, and the tracer can't know that the
-tracee changed its pid.
-
-This patch makes ptrace() fail in this case until debugger does wait()
-and consumes PTHREAD_EVENT_EXEC which reports old_pid. This affects all
-ptrace requests except the "asynchronous" PTRACE_INTERRUPT/KILL.
-
-The patch doesn't add the new PTRACE_ option to not complicate the API,
-and I _hope_ this won't cause any noticeable regression:
-
-	- If debugger uses PTRACE_O_TRACEEXEC and the thread did an exec
-	  and the tracer does a ptrace request without having consumed
-	  the exec event, it's 100% sure that the thread the ptracer
-	  thinks it is targeting does not exist anymore, or isn't the
-	  same as the one it thinks it is targeting.
-
-	- To some degree this patch adds nothing new. In the scenario
-	  above ptrace(L) can fail with -ESRCH if it is called after the
-	  execing sub-thread wakes the leader up and before it "steals"
-	  the leader's pid.
-
-Test-case:
-
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <errno.h>
-	#include <pthread.h>
-	#include <assert.h>
-
-	void *tf(void *arg)
-	{
-		execve("/usr/bin/true", NULL, NULL);
-		assert(0);
-
-		return NULL;
-	}
-
-	int main(void)
-	{
-		int leader = fork();
-		if (!leader) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-			for (;;)
-				pause();
-
-			return 0;
-		}
-
-		waitpid(leader, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, leader, 0,
-				PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
-		waitpid(leader, NULL, 0);
-
-		ptrace(PTRACE_CONT, leader, 0,0);
-		waitpid(leader, NULL, 0);
-
-		int status, thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != leader);
-		assert(status == 0x80137f);
-
-		ptrace(PTRACE_CONT, thread, 0,0);
-		/*
-		 * waitid() because waitpid(leader, &status, WNOWAIT) does not
-		 * report status. Why ????
-		 *
-		 * Why WEXITED? because we have another kernel problem connected
-		 * to mt-exec.
-		 */
-		siginfo_t info;
-		assert(waitid(P_PID, leader, &info, WSTOPPED|WEXITED|WNOWAIT) == 0);
-		assert(info.si_pid == leader && info.si_status == 0x0405);
-
-		/* OK, it sleeps in ptrace(PTRACE_EVENT_EXEC == 0x04) */
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == -1);
-		assert(errno == ESRCH);
-
-		assert(leader == waitpid(leader, &status, WNOHANG));
-		assert(status == 0x04057f);
-
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == 0);
-
-		return 0;
-	}
-
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Acked-by: Pedro Alves <palves@redhat.com>
-Acked-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: f1f0f330b1d0 ("ALSA: dice: add parameters of stream formats for models produced by TC Electronic")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 ---
- kernel/ptrace.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ sound/firewire/dice/dice-tcelectronic.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index da8c358930fb..5a1d8cc7ef4e 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -129,6 +129,21 @@ void __ptrace_unlink(struct task_struct *child)
- 	spin_unlock(&child->sighand->siglock);
- }
+diff --git a/sound/firewire/dice/dice-tcelectronic.c b/sound/firewire/dice/dice-tcelectronic.c
+index a8875d24ba2a..43a3bcb15b3d 100644
+--- a/sound/firewire/dice/dice-tcelectronic.c
++++ b/sound/firewire/dice/dice-tcelectronic.c
+@@ -38,8 +38,8 @@ static const struct dice_tc_spec konnekt_24d = {
+ };
  
-+static bool looks_like_a_spurious_pid(struct task_struct *task)
-+{
-+	if (task->exit_code != ((PTRACE_EVENT_EXEC << 8) | SIGTRAP))
-+		return false;
-+
-+	if (task_pid_vnr(task) == task->ptrace_message)
-+		return false;
-+	/*
-+	 * The tracee changed its pid but the PTRACE_EVENT_EXEC event
-+	 * was not wait()'ed, most probably debugger targets the old
-+	 * leader which was destroyed in de_thread().
-+	 */
-+	return true;
-+}
-+
- /* Ensure that nothing can wake it up, even SIGKILL */
- static bool ptrace_freeze_traced(struct task_struct *task)
- {
-@@ -139,7 +154,8 @@ static bool ptrace_freeze_traced(struct task_struct *task)
- 		return ret;
+ static const struct dice_tc_spec konnekt_live = {
+-	.tx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
+-	.rx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
++	.tx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
++	.rx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
+ 	.has_midi = true,
+ };
  
- 	spin_lock_irq(&task->sighand->siglock);
--	if (task_is_traced(task) && !__fatal_signal_pending(task)) {
-+	if (task_is_traced(task) && !looks_like_a_spurious_pid(task) &&
-+	    !__fatal_signal_pending(task)) {
- 		task->state = __TASK_TRACED;
- 		ret = true;
- 	}
 -- 
-2.30.2
+2.27.0
 
