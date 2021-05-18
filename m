@@ -2,243 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BAA863873C7
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 10:14:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A3C387402
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 10:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1347406AbhERIOC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 04:14:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53206 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S242020AbhERIOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 04:14:01 -0400
-Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 837C2C061756
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 01:12:42 -0700 (PDT)
-Received: by mail-ej1-x631.google.com with SMTP id z12so11733077ejw.0
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 01:12:42 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=8+rvu90qqHRVLIV6jyDYwaC+D+UAbpfG2s6LRRdF7Tw=;
-        b=iLYMyT7GGyobgp3BOsIb8vCQ4JaEp0FlaCq8WZdJXvHzYgUgqk7xP2oQa2uqZBWj4K
-         GbbKvGDheVPHQOp0354TwwTHz79kSoeu0DrEUyhBOdFMpLDATYpA62HAl2OVsBOtpjDW
-         GuV8DEMOrpWmhFUeR7srEFgzw1ScccvTKcn6z1MlJVqThei3H79/QLO1xtEsh6nzCvmE
-         3cLdbC1PAZ17Tjx+loAXDZp74XXwliZ9u9+X8KwnZ7x021p4nK+EGhg1U/zVJI33g1ku
-         bjQL7tlDQpVsMblbeLH4OVK3OM+QAADeiemKhNzCyyvn9MkE7seavAksTXFtU1p34yoW
-         bLGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=8+rvu90qqHRVLIV6jyDYwaC+D+UAbpfG2s6LRRdF7Tw=;
-        b=J2KtEYxreglpipCXBuoHEH7Yy5iUp5oi+ejyAXcMMB0/hMiR0hhmo/0JE/qIx5NrNG
-         nB5fu0kuapAAtl0xdaTPNh2TajPHGnSG54b8HiVquljFxABH3EodxGIDy3J2l9czBHwk
-         wV7akjvJrGc4OPSa8U0G8x+4vIxrj31/2E9iiDWF/6ROIILEjAUxcuIS+4OHnAgyMpP2
-         +/9yis98/5lXvOIv3mZcZyhJCE/S3jol/Uyxemm8KoYBKpwzxQzwmFjnceKYa+ZEg+KO
-         pEAT6amhG7Bu5V90gOTZJyXlo/Lk9BpKPxlePt1Fzx38sHXmgu7oLLfulu/6diJ54X1D
-         wMZg==
-X-Gm-Message-State: AOAM533p7WmyywjyGwQiTJbkhWFUhPGqQGlMWigBP+WvSHuZWaKBXsFY
-        Yt2LXNditcxVun3u590k/8wcX5+houLt1XgjHhxgZQ==
-X-Google-Smtp-Source: ABdhPJxEw3S1tILNEp6/aSmt9S1DVpPVaXzjk3cKAuJCNfa+z614rDbJ/HiIEC8u2iZxckhSk9PGMTUXlOBudwCQ5mU=
-X-Received: by 2002:a17:906:4e59:: with SMTP id g25mr4804469ejw.133.1621325560935;
- Tue, 18 May 2021 01:12:40 -0700 (PDT)
+        id S1347438AbhERIaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 04:30:10 -0400
+Received: from mga14.intel.com ([192.55.52.115]:12722 "EHLO mga14.intel.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S239229AbhERIaK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 May 2021 04:30:10 -0400
+IronPort-SDR: RPrxie+ysdzzfZQdWcJPutXvJ1ldKoQ8+gBh2Lp1fj2Ot6rJXjucoeNXKr1+fftNJBPWWyjjK/
+ 2gm4tWvtUDng==
+X-IronPort-AV: E=McAfee;i="6200,9189,9987"; a="200352322"
+X-IronPort-AV: E=Sophos;i="5.82,309,1613462400"; 
+   d="scan'208";a="200352322"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2021 01:28:52 -0700
+IronPort-SDR: Ha8IYiF0XGp/PBrW7dHSByfYEHsheNtP8u8snDDO95yZ726cg+7ukqTm5ch6zsNpjJo87yPc6/
+ NiPJ9EOmDApQ==
+X-IronPort-AV: E=Sophos;i="5.82,309,1613462400"; 
+   d="scan'208";a="473352254"
+Received: from smile.fi.intel.com (HELO smile) ([10.237.68.40])
+  by fmsmga002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 18 May 2021 01:28:50 -0700
+Received: from andy by smile with local (Exim 4.94)
+        (envelope-from <andriy.shevchenko@linux.intel.com>)
+        id 1liv5r-00Cu5x-2q; Tue, 18 May 2021 11:28:47 +0300
+Date:   Tue, 18 May 2021 11:28:47 +0300
+From:   Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
+        "H. Peter Anvin" <hpa@zytor.com>, Sachi King <nakato@nakato.io>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        David Laight <David.Laight@aculab.com>,
+        "x86@kernel.org" <x86@kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Sasha Levin <sashal@kernel.org>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: Re: [PATCH] x86/i8259: Work around buggy legacy PIC
+Message-ID: <YKN6vwGE2XAg3kY7@smile.fi.intel.com>
+References: <87a6otfblh.ffs@nanos.tec.linutronix.de>
+ <b509418f-9fff-ab27-b460-ecbe6fdea09a@gmail.com>
+ <87lf8ddjqx.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-References: <20210517140302.508966430@linuxfoundation.org>
-In-Reply-To: <20210517140302.508966430@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 18 May 2021 13:42:29 +0530
-Message-ID: <CA+G9fYsdpoByDJ3ULPRCUCQo7NOyyxwg_xXp3tjR9QE4hZnJkA@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/363] 5.12.5-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87lf8ddjqx.ffs@nanos.tec.linutronix.de>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 17 May 2021 at 19:33, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.5 release.
-> There are 363 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 19 May 2021 14:02:12 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.5-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Tue, May 18, 2021 at 01:27:02AM +0200, Thomas Gleixner wrote:
+> On Mon, May 17 2021 at 21:25, Maximilian Luz wrote:
+> > On 5/17/21 8:40 PM, Thomas Gleixner wrote:
+> >> Can you please add "apic=verbose" to the kernel command line and provide
+> >> full dmesg output for a kernel w/o your patch and one with your patch
+> >> applied?
+> >
+> > I don't actually own an affected device, but I'm sure Sachi can provide
+> > you with that.
+> 
+> Ok.
+> 
+> > As far as we can tell, due to the NULL PIC being chosen nr_legacy_irqs()
+> > returns 0. That in turn causes mp_check_pin_attr() to return false
+> > because is_level and active_low don't seem to match the expected
+> > values.
+> 
+> Ok.
+> 
+> > That check is essentially ignored if nr_legacy_irqs() returns a high
+> > enough value.
+> 
+> Close enough.
+> 
+> > I guess that might also be a firmware bug here? Not sure where the
+> > expected values come from.
+> 
+> They come from the interrupt override ACPI table and if not supplied
+> then irq 0-15 is preset with default values, which are type=edge and
+> polarity=high, i.e.  the opposite of what the failing driver wants.
+> 
+> The ACPI table lacks an override entry for IRQ7. I looked at one of the
+> dmesg files in that github thread and that has overrides:
+> 
+> [    0.111674] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+> [    0.111681] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 low level)
+> [    0.111688] ACPI: IRQ0 used by override.
+> [    0.111692] ACPI: IRQ9 used by override.
+> 
+> IRQ7 should have a corresponding entry as IRQ9 has:
+> 
+> https://github.com/linux-surface/acpidumps/blob/4da0148744164cea0c924dab92f45842fde03177/surface_laptop_4_amd/apic.dsl#L178
+> 
+>           Subtable Type : 02 [Interrupt Source Override]
+>                  Length : 0A
+>                     Bus : 00
+>                  Source : 07
+>               Interrupt : 00000007
+>   Flags (decoded below) : 000F
+>                Polarity : 3
+>            Trigger Mode : 3
+> 
+> > Sachi can probably walk you through this a bit better as she's the one
+> > who tracked this down. See also [1, 2] and following comments.
+> 
+> Impressive detective work!
+> 
+> Sachi, can you please try the hack below to confirm the above?
+> 
+> It's not meant to be a solution, but it's the most trivial way to
+> validate this.
+> 
+> I'm pretty sure that Windows on Surface does not care about the PIC at
+> all. Whether that's on purpose to safe power or just because Windows
+> ignores the PIC completely by now does not matter at all. No idea how
+> that repeated poking on the PIC makes it come alive either and TBH, I
+> don't care too much about it simply because Linux is able to cope with a
+> missing PIC as long as the ACPI tables are correct.
+> 
+> I'm way too tired to think about a proper solution for that problem and
+> I noticed another related issue in that dmesg output:
+> 
+> [    0.272448] Failed to register legacy timer interrupt
+> 
+> It's not a problem which causes failures, but it's related to the
+> missing PIC.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+But ACPI has a pretty nice means about missing legacy hardware, it's called
+Hardware Reduced mode. It excludes automatically the (legacy) PIC, PIT, etc.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+OTOH it excludes ACPI power chip as well. I haven't looked into this, just
+share my thoughts what else can be checked. (On Intel the MID devices use
+that approach)
 
-## Build
-* kernel: 5.12.5-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.12.y
-* git commit: 8c6ba5015affe5c570b32cf542f58218e4dfebf1
-* git describe: v5.12.4-364-g8c6ba5015aff
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
-.4-364-g8c6ba5015aff
+> Needs some more thoughts with brain awake...
 
-## No regressions (compared to v5.12.4)
+-- 
+With Best Regards,
+Andy Shevchenko
 
-## Fixes (compared to v5.12.4)
-* mips, build
-  - clang-10-allnoconfig
-  - clang-10-defconfig
-  - clang-10-tinyconfig
-  - clang-11-allnoconfig
-  - clang-11-defconfig
-  - clang-11-tinyconfig
-  - clang-12-allnoconfig
-  - clang-12-defconfig
-  - clang-12-tinyconfig
 
-## Test result summary
- total: 76409, pass: 63868, fail: 1049, skip: 10771, xfail: 721,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 0 passed, 1 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
