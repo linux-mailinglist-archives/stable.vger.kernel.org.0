@@ -2,85 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A475388211
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 23:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C7158388256
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 23:45:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1352453AbhERVWH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 17:22:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236472AbhERVWH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 17:22:07 -0400
-Received: from mail-qt1-x82d.google.com (mail-qt1-x82d.google.com [IPv6:2607:f8b0:4864:20::82d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A39C061573;
-        Tue, 18 May 2021 14:20:49 -0700 (PDT)
-Received: by mail-qt1-x82d.google.com with SMTP id t20so8644454qtx.8;
-        Tue, 18 May 2021 14:20:49 -0700 (PDT)
+        id S1352582AbhERVqN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 17:46:13 -0400
+Received: from mailfilter05-out40.webhostingserver.nl ([195.211.74.36]:47114
+        "EHLO mailfilter05-out40.webhostingserver.nl" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1352569AbhERVqM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 17:46:12 -0400
+X-Greylist: delayed 963 seconds by postgrey-1.27 at vger.kernel.org; Tue, 18 May 2021 17:46:12 EDT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=zzExhpuG9xrx+5ygEhfYQTdPQOez+oeyluEKF4Na9zM=;
-        b=oy+twmjrNxzK7GdlHjIuYEcgQ8uobX+thy47/6v8RWwLnWDTGt1U6DDH2mA4m14rEg
-         d77O42Y4qgw0SDdEah/iK92rkVnxvn+xT4KSJAWOXUkw1xlk1r0AtkbRkAvEnfsn/E7b
-         77CAH/y+3bt5F9nihZUK6hM8CeWwW1Uv4Mca2AztRNihnHxt2yTBRjuUrGX/DflgLM56
-         XX60sq00AxT6GXwScEvlGDXJnBpqgg6D2Q1UO5ct4t9oMLbhSnZWgy/H5QzHapS/bGhI
-         IJy5CFlXSeaG5+q/56LwgbD3vYowcSJD4e/bHFpwPYZxYeBGZ628mv+B4EaPtDMIgnjs
-         0P4g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=zzExhpuG9xrx+5ygEhfYQTdPQOez+oeyluEKF4Na9zM=;
-        b=uLQkERk10EyBkOLv7edfk7o/XvguqjEA8T6DlUq0XblxiTFGwSTuY8zKldWS4+GHuO
-         rf0cXEAkAEK5eOYrBvMUmWmTNBoP9H5Vx0Dodkyi28zJx4+J5KeDrF8VVpcWGKXmgB+4
-         YWaHjf8BvHJmVUHs7V5iPDBmvxY4oBeNj37zFcZ1ZRtwVKGiWSJrPspCZC3RC/Ac+JdG
-         gFwVOZThesyDfLLa2HnmNyTLlDM2nPsmFEZXfoC5N4u1zoQEf3rwm09NYr4xfY9r89nF
-         TUKckdP0OIwSgEablVYuj2oUiQBcfFZIHKgGyn1GvDVu+erbmYGn0TubvRus/g8aAxFP
-         XkDA==
-X-Gm-Message-State: AOAM533dn0QzZ1MaRtjvpQDyct+5RqLHWYPlhh8J4XX8RBdhzJvmqjdl
-        /q1qxlJX6z9XgJF368XOUqDV/1hmKi0=
-X-Google-Smtp-Source: ABdhPJwdtfJKFeevJCcDfWFdRe+iFkYA+wsxjTVmy0aSptaS9XulKNf+iSU4R6gIKzuUUY2gtTivKw==
-X-Received: by 2002:ac8:5886:: with SMTP id t6mr7324572qta.212.1621372848396;
-        Tue, 18 May 2021 14:20:48 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id h10sm14059738qka.26.2021.05.18.14.20.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 May 2021 14:20:48 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 18 May 2021 14:20:46 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.11 000/329] 5.11.22-rc1 review
-Message-ID: <20210518212046.GD3533378@roeck-us.net>
-References: <20210517140302.043055203@linuxfoundation.org>
+        d=exalondelft.nl; s=whs1;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc:to:from:
+         from;
+        bh=r1V16Y5GIRXwUTK+1TLre5uwbLOjG0Lm/wFKIhXVtXY=;
+        b=miTktNcY7YTq2u9lPqkSuJ6v2iSkoBIuafLAk/cz2/D9XxKL0ctaKmnse0v1D4zAJfQP/C9wo4Y3l
+         UDPuCxEYRL0Dz5L5HWBxbsJvbnU4S6dT3gA4muXx+MscedtBzFDcQ6RlyxJocGmwhau/m0GEDXkBG+
+         9iTT5L6Fe6p/KoOuDhWRvUqGYuOt/kFV8U9JbK4zyceLO6y1TDZZXkZZNZY47ZB8LMvUvrv8NmSi/g
+         j5qSGtpbRUb/mYOzwTyuYN4Fdcu2y3aSm93vS8SRp+Qw0m95qEcw3eK2ktDU10NuhWj2vnBTmvbCua
+         csoDRyTGjXozu6iHmP2B0/eIZkSHM3w==
+X-Halon-ID: 086bd20a-b820-11eb-b080-001a4a4cb933
+Received: from s198.webhostingserver.nl (s198.webhostingserver.nl [141.138.168.154])
+        by mailfilter05.webhostingserver.nl (Halon) with ESMTPSA
+        id 086bd20a-b820-11eb-b080-001a4a4cb933;
+        Tue, 18 May 2021 23:28:48 +0200 (CEST)
+Received: from [2001:981:6fec:1:dae6:899:1e05:8781] (helo=delfion.fritz.box)
+        by s198.webhostingserver.nl with esmtpa (Exim 4.94.2)
+        (envelope-from <ftoth@exalondelft.nl>)
+        id 1lj7Gi-004E57-8x; Tue, 18 May 2021 23:28:48 +0200
+From:   Ferry Toth <ftoth@exalondelft.nl>
+To:     linux-kernel@vger.kernel.org
+Cc:     MyungJoo Ham <myungjoo.ham@samsung.com>,
+        Chanwoo Choi <cw00.choi@samsung.com>,
+        Ferry Toth <ftoth@exalondelft.nl>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/1] extcon: intel-mrfld: Sync hardware and software state on init
+Date:   Tue, 18 May 2021 23:27:09 +0200
+Message-Id: <20210518212708.301112-1-ftoth@exalondelft.nl>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+Content-Transfer-Encoding: 8bit
+X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 17, 2021 at 03:58:31PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.11.22 release.
-> There are 329 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 19 May 2021 14:02:16 +0000.
-> Anything received after that time might be too late.
-> 
+extcon driver for Basin Cove PMIC shadows the switch status used for dwc3
+DRD to detect a change in the switch position. This change initializes the
+status at probe time.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 461 pass: 461 fail: 0
+Signed-off-by: Ferry Toth <ftoth@exalondelft.nl>
+Fixes: 492929c54791 ("extcon: mrfld: Introduce extcon driver for Basin Cove PMIC")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Cc: stable@vger.kernel.org
+---
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+v2:
+ - Clarified patch title (Chanwoo)
+---
+ drivers/extcon/extcon-intel-mrfld.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Guenter
+diff --git a/drivers/extcon/extcon-intel-mrfld.c b/drivers/extcon/extcon-intel-mrfld.c
+index f47016fb28a8..cd1a5f230077 100644
+--- a/drivers/extcon/extcon-intel-mrfld.c
++++ b/drivers/extcon/extcon-intel-mrfld.c
+@@ -197,6 +197,7 @@ static int mrfld_extcon_probe(struct platform_device *pdev)
+ 	struct intel_soc_pmic *pmic = dev_get_drvdata(dev->parent);
+ 	struct regmap *regmap = pmic->regmap;
+ 	struct mrfld_extcon_data *data;
++	unsigned int status;
+ 	unsigned int id;
+ 	int irq, ret;
+ 
+@@ -244,6 +245,14 @@ static int mrfld_extcon_probe(struct platform_device *pdev)
+ 	/* Get initial state */
+ 	mrfld_extcon_role_detect(data);
+ 
++	/*
++	 * Cached status value is used for cable detection, see comments
++	 * in mrfld_extcon_cable_detect(), we need to sync cached value
++	 * with a real state of the hardware.
++	 */
++	regmap_read(regmap, BCOVE_SCHGRIRQ1, &status);
++	data->status = status;
++
+ 	mrfld_extcon_clear(data, BCOVE_MIRQLVL1, BCOVE_LVL1_CHGR);
+ 	mrfld_extcon_clear(data, BCOVE_MCHGRIRQ1, BCOVE_CHGRIRQ_ALL);
+ 
+-- 
+2.30.2
+
