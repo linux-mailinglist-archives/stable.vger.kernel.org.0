@@ -2,143 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 91FD7387A3D
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 15:42:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EE78387A64
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 15:49:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232890AbhERNna (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 09:43:30 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:42790 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230217AbhERNn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 09:43:27 -0400
-Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14IDXX7v128662;
-        Tue, 18 May 2021 09:42:08 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=wrCmGTA3qV1P4OBAi41PqexRyVV215cQoS1i46SG2TY=;
- b=WID3jdexlsL5dZpe9hlpJNDcAgh4+h0dDv25dDXaBLtw7KlHFpxKGG2pKQeFhkh6GgTd
- ZRrfYCuqIzspz79frBxOok+J9Rz/H3p2kcCjw7Iln1Pse+MpZEjs3V74U8jD5qklQBDt
- G4Mhyk8hniGM9gcK/wLyRLv49kENIbdDanTxoDJrmEFane0l0BzO3Xaq3aUQJt+xyxen
- TrwUQHg/XRSSpQpZxp6oQUPDTS95H8okeT1eAjX7fXOSVdcGHtl3AaT6gRhSTWsfYk3U
- KJ9G086SnxphmPM9oVmRdNcYQdu/kfbeTP6RVo47z5QsjQsfOBCCb3QOCGr7BYQoJtHR qg== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mc9vcugn-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 09:42:08 -0400
-Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14IDYia6135192;
-        Tue, 18 May 2021 09:42:07 -0400
-Received: from ppma02dal.us.ibm.com (a.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.10])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mc9vcug1-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 09:42:07 -0400
-Received: from pps.filterd (ppma02dal.us.ibm.com [127.0.0.1])
-        by ppma02dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14IDawON009278;
-        Tue, 18 May 2021 13:42:06 GMT
-Received: from b01cxnp22035.gho.pok.ibm.com (b01cxnp22035.gho.pok.ibm.com [9.57.198.25])
-        by ppma02dal.us.ibm.com with ESMTP id 38j5x9d6fq-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 13:42:06 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22035.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IDg5oS28312052
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 13:42:05 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id C8B79AC069;
-        Tue, 18 May 2021 13:42:05 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 59C1DAC06D;
-        Tue, 18 May 2021 13:42:05 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 18 May 2021 13:42:05 +0000 (GMT)
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
- <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
- <20210514021500.60ad2a22.pasic@linux.ibm.com>
- <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
- <20210517211030.368ca64b.pasic@linux.ibm.com>
- <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
-Date:   Tue, 18 May 2021 09:42:05 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
+        id S240909AbhERNub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 09:50:31 -0400
+Received: from mail-eopbgr80083.outbound.protection.outlook.com ([40.107.8.83]:40030
+        "EHLO EUR04-VI1-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231285AbhERNua (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 May 2021 09:50:30 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZSa0X1eK9KkZhnnMxeiLe3gRYSd63py0oj9pUubBBDEFX05IAqosamHtiN4KU+H81xF6GclAnTfJ0Z8K35Hb2nyNvsWF3+vh52m0Dck8175KyrzWRfxBMnPFnF1X9ImB1T+Pbo0QPtN4YDkVytr+Turyy99emMLOsIumw88XdPS65VFEfHYAVWUyMP3uFEFV9Sv+79CopkEizab+EwIgq0RdSGkbuZGORsRxIQxAlCpNK0O7ymuhYWnen6ycCATIIBbSuhrL4PGBuzbivCaWq5YimumM0JuVwZ4CJ8rvEI5Yk8JEzwTg0VWv9zItS6tBHNp1qLyfawxrc4fOTIwetQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=S5CC4vWadh+hrab6Lsp6tHbdcF0IRjQFyu+8rcjEL80=;
+ b=kVy62HTLQoaeZBCKMVk6wr6d1BMmC8RJuXtpHIiXezYGh8kPevQf1Amk0xTqunZfrkqSl8+8LDAwXtsmFYfDQs8A/tydnZzi9jE3ay8L1Y3sNcg0nkpQCqgA2jf/v+sKbjMNKpMFDW6JQeXBepQlVr3F56vtdGxyRQ+JX8s+rhXzO7/YR6zKkFjgwqoAmO3iBjE7EirJigTnF3xsY5c1+U6gXXwbyn/JhWcUOJ3xZv5VmDozCcRtzwKrsssCXvH8GblojghK7yj2LjxoNhb0tFPw6xS32BwXn94/BfZ2NCQ4qUKayMw/j3dc4nEi06rJIM1PMmDEHvxc8jFiSG8fXA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nxp.com; dmarc=pass action=none header.from=nxp.com; dkim=pass
+ header.d=nxp.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nxp.com; s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=S5CC4vWadh+hrab6Lsp6tHbdcF0IRjQFyu+8rcjEL80=;
+ b=ncE9a5ixF8pdK1xRdyvaQJjJIHiPmmwYMrxH9BwJFpR31M648drPIfz/Sp0AZk2Cr9+SSLuaKTh3KRi8C0f7VkCNYRRpRKpp/lRGy2Dh+M32gPT6rxbzIuQwGNsmLut0+THvKwVQW+q9xJaZng5HWVR1figIuYBHz0RcbySp2jc=
+Received: from VI1PR04MB5136.eurprd04.prod.outlook.com (2603:10a6:803:55::19)
+ by VI1PR0401MB2685.eurprd04.prod.outlook.com (2603:10a6:800:58::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.28; Tue, 18 May
+ 2021 13:49:10 +0000
+Received: from VI1PR04MB5136.eurprd04.prod.outlook.com
+ ([fe80::b1a0:d654:a578:53ab]) by VI1PR04MB5136.eurprd04.prod.outlook.com
+ ([fe80::b1a0:d654:a578:53ab%7]) with mapi id 15.20.4129.032; Tue, 18 May 2021
+ 13:49:10 +0000
+From:   Vladimir Oltean <vladimir.oltean@nxp.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Rudi Heitbaum <rudi@heitbaum.com>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.12 081/363] net: bridge: propagate error code and extack
+ from br_mc_disabled_update
+Thread-Topic: [PATCH 5.12 081/363] net: bridge: propagate error code and
+ extack from br_mc_disabled_update
+Thread-Index: AQHXSyXz39k+T2AuW0mkDF4mKAdj96rpK1SAgAAEIICAABNngA==
+Date:   Tue, 18 May 2021 13:49:10 +0000
+Message-ID: <20210518134909.iak6mdnscrcbzm6f@skbuf>
+References: <20210517140302.508966430@linuxfoundation.org>
+ <20210517140305.339768334@linuxfoundation.org>
+ <20210518122449.GA65@ec3d6f83b95b> <YKO1jx78HibCUDkD@kroah.com>
+In-Reply-To: <YKO1jx78HibCUDkD@kroah.com>
+Accept-Language: en-US
 Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: BDl3obggwP77k2A2gDiCvZ7Cq3D47TiJ
-X-Proofpoint-GUID: opj8dfyHcutsGLgKwZeBn8590IoVbS4_
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-18_04:2021-05-18,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999
- priorityscore=1501 mlxscore=0 lowpriorityscore=0 adultscore=0
- clxscore=1015 impostorscore=0 spamscore=0 malwarescore=0 bulkscore=0
- suspectscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
- scancount=1 engine=8.12.0-2104190000 definitions=main-2105180096
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=none action=none
+ header.from=nxp.com;
+x-originating-ip: [188.26.52.84]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: 442758ce-80a9-49b0-21d0-08d91a03b6e4
+x-ms-traffictypediagnostic: VI1PR0401MB2685:
+x-microsoft-antispam-prvs: <VI1PR0401MB26852C76E627CB480DA4F21AE02C9@VI1PR0401MB2685.eurprd04.prod.outlook.com>
+x-ms-oob-tlc-oobclassifiers: OLM:989;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 5W67PXZKRUnumBt6+6TmrCYgn2ZDVzGk7YX+QZDAoAM6zsPFwFGQjHKUGI5dnzi0QN8yFf8pENriNmbGZC13WKFs+WPbYXVpuJbsA+A2FkCU7N+RYy9LAD9CrI+oyeh5wKKeSN9Rl/UbY9sB3JF6k+zxDXEjsY/W8CWHpq9pKzDzcYx7hq7h2wBPmr65wHEbyNmIgXsOx7yB16oB+EUjWr0kZeDvDO43IdA1hWGTRZkpm7CQ1VLmS/P/h3riQR/mu4YqLQV+iAPxfsXaef07i/4Jlua9z0aKeCu/gduNvorwoKJj5jfm+QquYXu1Wa2uF+nQcXRtTpz3PSgKpT+ZVR4NvYsaeLWscwcZe5UzLVT44atahgsH0nSWHS26LnaTZSHpQnFok1lWO75dGaGs593n0d2oIcoHm7enUE1S2vX7A0F+PaR0aWTATDv4tEoPwg1ZCxva0g0V6poz1fpkIMrCOhX+3HSwv5rHTR4mq6crIxmm8Zp1iOdosdPrGBaAKdJXlVtNFPRPaMeJUzFjltMX4lV74Pkvvlh8ymGAmRCcpRyFmRd3JU3EFtH+Z9NoVCDB7BF7rIPQhlhx7bCi3XIKEw3x6W8H0GIaKkE7z20s0UMj1dzd0Pv3oT5Ulr6gq3kFLtcjAbOiPjmVyt79tFxZuhXVls8R+Ywq9sggNO+bUH0jc+Tc5R5IPUPGSuBx/8qiEmA+WtHC+mroxULcdz78ovD4cpksPR1QjzbC0IY=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI1PR04MB5136.eurprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(7916004)(39840400004)(366004)(136003)(346002)(396003)(376002)(6916009)(8676002)(83380400001)(186003)(6512007)(966005)(9686003)(26005)(6506007)(122000001)(5660300002)(4326008)(44832011)(91956017)(76116006)(2906002)(38100700002)(66476007)(64756008)(66556008)(66446008)(316002)(6486002)(66946007)(86362001)(8936002)(1076003)(54906003)(478600001)(33716001)(71200400001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?azfIS48aI/7coXLzksvyyeDhLbJJEetKlT7ggV9IEvGq+EeG9MUzzgMt/xFq?=
+ =?us-ascii?Q?0znjlZZTIQbIy0cPk2UTbBywdjidqDuyeYtBbimNWpFS9XdiPukWSg50nSHV?=
+ =?us-ascii?Q?/tazq3SHe0UlT433WmlpVYu5EFDkFGtwUvmPQVEka2dbohiQUsM7POePkIzF?=
+ =?us-ascii?Q?L4SUqYgvSifb4i5mnrGFfnwrB2cAudWrF5efrcZHCWW7zFUB9IIgDsHWC7hr?=
+ =?us-ascii?Q?lnJMM0hwVIWQNLri4APlxUFso+QpsvG5EywQnYSdb1dS9vBC8sX1wixAe4lr?=
+ =?us-ascii?Q?tnht9fH6FllnffPueW+7q4o+F5JxWVUlJgqLHLalv+OPZlwttFcOkxCb5YuO?=
+ =?us-ascii?Q?/sRpymku+XkVTiaYbgasRFwBn30f0VN1gdNs8ShUPu+24IwJuRY/6RmGPqBe?=
+ =?us-ascii?Q?nLvFVmSGPjOgm4y6mvIe+A+P54LOkd2HG+RWdDGKufEU8O5MvAMeXG1Bx7Si?=
+ =?us-ascii?Q?Ti7x64XVpHuBQVOQTYoVxzfcte2hcZUKoX+/Fl9XDm1BVDliAvMllPy8dBDL?=
+ =?us-ascii?Q?JLftJgT/81Hmy56qtBnYfS6rxrQXdopSpAzDMg4O1jqHNatA4gQuiOCwWxRB?=
+ =?us-ascii?Q?BTAiyBiH8Kce5NXz/DW8nztiD4T96ZfAqAdqfGmXx8uqDvx0t+l9otoVcF+a?=
+ =?us-ascii?Q?z+Td00omtpSSQVsM6VBRNMj0x6PVMR+dMTIUnm0Ki8EQDc2mSSc0rxHWUWND?=
+ =?us-ascii?Q?MLfwAWqUH8/u3EayPz2HPt18CVaEDsnlgxGGp1OrVFhSo+7gw4Ae0nG9VTpm?=
+ =?us-ascii?Q?L5XXl/Ss3f20Ug5RE7/JqHWIbwJd88USZee46S3lsfgohHHGA70oVc6MxjD1?=
+ =?us-ascii?Q?AYw6hkYZzZJO7i2bJaJZR12Hmlt4zmSW3ic4/AugpL8SvSd+bRfDkI7GYA6R?=
+ =?us-ascii?Q?NFXpUHZJLgJHLTLYwsTh1g0351ung3R5Jw1el2nDE0Ug1frUoGLnd4vWLuZs?=
+ =?us-ascii?Q?W/ex/47B48YOCDVWVPPfCK16AABpLTOZGDPOn1MeEHUfTJDHHqv3zgxfZwR+?=
+ =?us-ascii?Q?bHp0OyPeK3/As2hQzSjIEgNWxU1Dk0EpWlgrTqtD2KavBL/r8DOE3RnZiDWF?=
+ =?us-ascii?Q?iRTxT6HdX+kD+OGaFmcB1elU4Z7t3VWR2QF+Nr3Owh3J4mbhj09t3/a1EI6I?=
+ =?us-ascii?Q?mLkiFCQDgmPTiF9rkwDIeX5jiCjA/K8sJnpDatwl1rCgCJOOiwOxUAPI0qEK?=
+ =?us-ascii?Q?V/6+HnQCAWFM5OvIGLxQa3e+kRnis0BcmgA2Ni8HQM6NSw14A22zBQBt0GqY?=
+ =?us-ascii?Q?WS1MKhq1Ur4dvRqYjjbo/37k2r9hjA/KKNfK+KRidWG6DfknvSG0eJKtYEh2?=
+ =?us-ascii?Q?YOW+uzXm2waUiGzspq5ct1Zu?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <17EE8D362C73F9419BDBFA28D17BC493@eurprd04.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: nxp.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: VI1PR04MB5136.eurprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 442758ce-80a9-49b0-21d0-08d91a03b6e4
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 May 2021 13:49:10.4024
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 686ea1d3-bc2b-4c6f-a92c-d99c5c301635
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: DvYfArVFIBmQmBJzyHwUKWq/4LXQudWQgCeJ6s4TKGwVN4ndGG5tcakyZrMDTHZ/izuRXfC9w3nnHeWE/PO1Xw==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI1PR0401MB2685
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greg,
 
+On Tue, May 18, 2021 at 02:39:43PM +0200, Greg Kroah-Hartman wrote:
+> On Tue, May 18, 2021 at 12:24:57PM +0000, Rudi Heitbaum wrote:
+> > On Mon, May 17, 2021 at 03:59:07PM +0200, Greg Kroah-Hartman wrote:
+> > > From: Florian Fainelli <f.fainelli@gmail.com>
+> > >=20
+> > > [ Upstream commit ae1ea84b33dab45c7b6c1754231ebda5959b504c ]
+> > >=20
+> > > Some Ethernet switches might only be able to support disabling multic=
+ast
+> > > snooping globally, which is an issue for example when several bridges
+> > > span the same physical device and request contradictory settings.
+> > >=20
+> > > Propagate the return value of br_mc_disabled_update() such that this
+> > > limitation is transmitted correctly to user-space.
+> > >=20
+> > > Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+> > > Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+> > > Signed-off-by: David S. Miller <davem@davemloft.net>
+> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> > > ---
+> > >  net/bridge/br_multicast.c | 28 +++++++++++++++++++++-------
+> > >  net/bridge/br_netlink.c   |  4 +++-
+> > >  net/bridge/br_private.h   |  3 ++-
+> > >  net/bridge/br_sysfs_br.c  |  8 +-------
+> > >  4 files changed, 27 insertions(+), 16 deletions(-)
+> >=20
+> > This patch results in docker failing to start, and a regression between
+> > 5.12.4 and 5.12.5-rc1
+> >=20
+> > A working dmesg output is like:
+> >=20
+> > [   11.545255] device eth0 entered promiscuous mode
+> > [   11.693848] process 'docker/tmp/qemu-check643160757/check' started w=
+ith executable stack
+> > [   17.233059] br-92020c7e3aea: port 1(veth17a0552) entered blocking st=
+ate
+> > [   17.233065] br-92020c7e3aea: port 1(veth17a0552) entered disabled st=
+ate
+> > [   17.233098] device veth17a0552 entered promiscuous mode
+> > [   17.292839] docker0: port 2(veth9d227f5) entered blocking state
+> > [   17.292848] docker0: port 2(veth9d227f5) entered disabled state
+> > [   17.292946] device veth9d227f5 entered promiscuous mode
+> > [   17.293070] docker0: port 2(veth9d227f5) entered blocking state
+> > [   17.293075] docker0: port 2(veth9d227f5) entered forwarding state
+> >=20
+> > with this patch "device veth17a0552 entered promiscuous mode" never
+> > shows up.
+> >=20
+> > the docker error itself is:
+> >=20
+> > docker: Error response from daemon: failed to create endpoint
+> > sleepy_dijkstra on network bridge: adding interface veth8cbd8f9 to
+> > bridge docker0 failed: operation not supported.
+>=20
+> Ick.
+>=20
+> Does 5.13-rc1 also show this same problem?
+>=20
+> And thanks for testing!
 
-On 5/18/21 5:30 AM, Christian Borntraeger wrote:
->
->
-> On 17.05.21 21:10, Halil Pasic wrote:
->> On Mon, 17 May 2021 09:37:42 -0400
->> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>
->>>>
->>>> Because of this, I don't think the rest of your argument is valid.
->>>
->>> Okay, so your concern is that between the point in time the
->>> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
->>> priv.c and the point in time the handle_pqap() function
->>> in vfio_ap_ops.c is called, the memory allocated for the
->>> matrix_mdev containing the struct kvm_s390_module_hook
->>> may get freed, thus rendering the function pointer invalid.
->>> While not impossible, that seems extremely unlikely to
->>> happen. Can you articulate a scenario where that could
->>> even occur?
->>
->> Malicious userspace. We tend to do the pqap aqic just once
->> in the guest right after the queue is detected. I do agree
->> it ain't very likely to happen during normal operation. But why are
->> you asking?
->
-> Would it help, if the code in priv.c would read the hook once
-> and then only work on the copy? We could protect that with rcu
-> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
-> unsetting the pointer?
-
-I'll look into this.
-
->>
->> I'm not sure I understood correctly what kind of a scenario are
->> you asking for. PQAP AQIC and mdev remove are independent
->> events originated in userspace, so AFAIK we may not assume
->> that the execution of two won't overlap, nor are we allowed
->> to make assumptions on how does the execution of these two
->> overlap (except for the things we explicitly ensure -- e.g.
->> some parts are made mutually exclusive using the matrix_dev->lock
->> lock).
->>
->> Regards,
->> Halil
->>
-
+Did you backport this patch too?
+https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/commit/=
+?id=3D68f5c12abbc9b6f8c5eea16c62f8b7be70793163=
