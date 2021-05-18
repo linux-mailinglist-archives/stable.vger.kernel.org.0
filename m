@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 823E2386ECB
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:09:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DA33386ED4
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:10:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345404AbhERBLG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 21:11:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56908 "EHLO mail.kernel.org"
+        id S1345413AbhERBLN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 21:11:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57044 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345413AbhERBLG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 21:11:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C66461354;
-        Tue, 18 May 2021 01:09:47 +0000 (UTC)
+        id S1345426AbhERBLJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 21:11:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A53F61396;
+        Tue, 18 May 2021 01:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621300188;
-        bh=0zKjkGyEvQV2romi22O4oKlA9u2Zf+tpdLVoIqglSLc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OweZpeDIZXqLP/xyVBRgeVY588O42UWbJ2mRdhcERaUblxrPuISqXyw3cwIIYCSvC
-         d+oG7kQjZiXb90wlm9oMq5oT2UYnPfk2BM8ewiou5jK7OqUDWPGfaQp5PYVnCTnlvG
-         f+suzg+GqLMhfqnFtJzRM9Z7QfUJs9sEmEJnshA+UCtpuOjHMe/aW5O8CgaO/VMKFA
-         CA9qGc169fQkZf4C914MS2dVr6IbpVA66VeyVSRAfn9XqM+kVisFkhOh7IKD+IIzzj
-         gvpOERVaq9kP2PilKRudaQw++PAU/aq5/w6dR54168FGYIV2y6BCkzJwuHydNGWJgK
-         ozNGFZNfele+Q==
+        s=k20201202; t=1621300192;
+        bh=4Uwbo0gfhMFUq6mLsIEwG/ISxNQkeMeFnQoaIeZqoS4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=J5keRascX5XvRed3WvgzNZ2Hlq5pK5emAtoAog1lv2KoZjLv9Y+89FJKxQlMyGVSh
+         LLYcnouZa3b2SQiKZ80jS7cjvVl0dSxHOuH11kCcwutEJRnqKnGUSYzkwzIDn9JtyM
+         F2h2XDnfJVCU4lXVTik98ivj3ObVgHKleE5ihZFF4bcD91Dg7lpWUDt/NIpPujS/aS
+         4xzQtmeHaPqmSWHPAHzy1LwNgqiMMLEbxbhJ0IUzlyF4anNCDhzxDLthF0HfafJeQ1
+         37nbQ8dnHbuE9ATZIkExqgShN7O4vhiYnG0mm64frQzG02PZi4aMVMAaNVxMfI6D6G
+         8fFKsXWmEc8DQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        dri-devel@lists.freedesktop.org, linux-fbdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 5/5] tty: vt: always invoke vc->vc_sw->con_resize callback
-Date:   Mon, 17 May 2021 21:09:40 -0400
-Message-Id: <20210518010940.1485417-5-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        "Naveen N . Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+        virtualization@lists.linux-foundation.org
+Subject: [PATCH AUTOSEL 5.11 1/3] powerpc/pseries: Fix hcall tracing recursion in pv queued spinlocks
+Date:   Mon, 17 May 2021 21:09:47 -0400
+Message-Id: <20210518010950.1485574-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210518010940.1485417-1-sashal@kernel.org>
-References: <20210518010940.1485417-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -44,76 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit ffb324e6f874121f7dce5bdae5e05d02baae7269 ]
+[ Upstream commit 2c8c89b95831f46a2fb31a8d0fef4601694023ce ]
 
-syzbot is reporting OOB write at vga16fb_imageblit() [1], for
-resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
-requested rows/columns fit the amount of memory reserved for the graphical
-screen if current mode is KD_GRAPHICS.
+The paravit queued spinlock slow path adds itself to the queue then
+calls pv_wait to wait for the lock to become free. This is implemented
+by calling H_CONFER to donate cycles.
 
-----------
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  #include <linux/kd.h>
-  #include <linux/vt.h>
+When hcall tracing is enabled, this H_CONFER call can lead to a spin
+lock being taken in the tracing code, which will result in the lock to
+be taken again, which will also go to the slow path because it queues
+behind itself and so won't ever make progress.
 
-  int main(int argc, char *argv[])
-  {
-        const int fd = open("/dev/char/4:1", O_RDWR);
-        struct vt_sizes vt = { 0x4100, 2 };
+An example trace of a deadlock:
 
-        ioctl(fd, KDSETMODE, KD_GRAPHICS);
-        ioctl(fd, VT_RESIZE, &vt);
-        ioctl(fd, KDSETMODE, KD_TEXT);
-        return 0;
-  }
-----------
+  __pv_queued_spin_lock_slowpath
+  trace_clock_global
+  ring_buffer_lock_reserve
+  trace_event_buffer_lock_reserve
+  trace_event_buffer_reserve
+  trace_event_raw_event_hcall_exit
+  __trace_hcall_exit
+  plpar_hcall_norets_trace
+  __pv_queued_spin_lock_slowpath
+  trace_clock_global
+  ring_buffer_lock_reserve
+  trace_event_buffer_lock_reserve
+  trace_event_buffer_reserve
+  trace_event_raw_event_rcu_dyntick
+  rcu_irq_exit
+  irq_exit
+  __do_irq
+  call_do_irq
+  do_IRQ
+  hardware_interrupt_common_virt
 
-Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
-KD_GRAPHICS check from resize_screen() to fbcon_resize().
+Fix this by introducing plpar_hcall_norets_notrace(), and using that to
+make SPLPAR virtual processor dispatching hcalls by the paravirt
+spinlock code.
 
-Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
-Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210508101455.1578318-2-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt.c              | 2 +-
- drivers/video/fbdev/core/fbcon.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/hvcall.h       |  3 +++
+ arch/powerpc/include/asm/paravirt.h     | 22 +++++++++++++++++++---
+ arch/powerpc/platforms/pseries/hvCall.S | 10 ++++++++++
+ arch/powerpc/platforms/pseries/lpar.c   |  3 +--
+ 4 files changed, 33 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/tty/vt/vt.c b/drivers/tty/vt/vt.c
-index 0cc360da5426..53cbf2c3f033 100644
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1171,7 +1171,7 @@ static inline int resize_screen(struct vc_data *vc, int width, int height,
- 	/* Resizes the resolution of the display adapater */
- 	int err = 0;
+diff --git a/arch/powerpc/include/asm/hvcall.h b/arch/powerpc/include/asm/hvcall.h
+index c98f5141e3fc..dd89aa3aea8f 100644
+--- a/arch/powerpc/include/asm/hvcall.h
++++ b/arch/powerpc/include/asm/hvcall.h
+@@ -446,6 +446,9 @@
+  */
+ long plpar_hcall_norets(unsigned long opcode, ...);
  
--	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
-+	if (vc->vc_sw->con_resize)
- 		err = vc->vc_sw->con_resize(vc, width, height, user);
++/* Variant which does not do hcall tracing */
++long plpar_hcall_norets_notrace(unsigned long opcode, ...);
++
+ /**
+  * plpar_hcall: - Make a pseries hypervisor call
+  * @opcode: The hypervisor call to make.
+diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
+index 5d1726bb28e7..bcb7b5f917be 100644
+--- a/arch/powerpc/include/asm/paravirt.h
++++ b/arch/powerpc/include/asm/paravirt.h
+@@ -28,19 +28,35 @@ static inline u32 yield_count_of(int cpu)
+ 	return be32_to_cpu(yield_count);
+ }
  
- 	return err;
-diff --git a/drivers/video/fbdev/core/fbcon.c b/drivers/video/fbdev/core/fbcon.c
-index 3406067985b1..22bb3892f6bd 100644
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2019,7 +2019,7 @@ static int fbcon_resize(struct vc_data *vc, unsigned int width,
- 			return -EINVAL;
++/*
++ * Spinlock code confers and prods, so don't trace the hcalls because the
++ * tracing code takes spinlocks which can cause recursion deadlocks.
++ *
++ * These calls are made while the lock is not held: the lock slowpath yields if
++ * it can not acquire the lock, and unlock slow path might prod if a waiter has
++ * yielded). So this may not be a problem for simple spin locks because the
++ * tracing does not technically recurse on the lock, but we avoid it anyway.
++ *
++ * However the queued spin lock contended path is more strictly ordered: the
++ * H_CONFER hcall is made after the task has queued itself on the lock, so then
++ * recursing on that lock will cause the task to then queue up again behind the
++ * first instance (or worse: queued spinlocks use tricks that assume a context
++ * never waits on more than one spinlock, so such recursion may cause random
++ * corruption in the lock code).
++ */
+ static inline void yield_to_preempted(int cpu, u32 yield_count)
+ {
+-	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
++	plpar_hcall_norets_notrace(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
+ }
  
- 		pr_debug("resize now %ix%i\n", var.xres, var.yres);
--		if (con_is_visible(vc)) {
-+		if (con_is_visible(vc) && vc->vc_mode == KD_TEXT) {
- 			var.activate = FB_ACTIVATE_NOW |
- 				FB_ACTIVATE_FORCE;
- 			fb_set_var(info, &var);
+ static inline void prod_cpu(int cpu)
+ {
+-	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
++	plpar_hcall_norets_notrace(H_PROD, get_hard_smp_processor_id(cpu));
+ }
+ 
+ static inline void yield_to_any(void)
+ {
+-	plpar_hcall_norets(H_CONFER, -1, 0);
++	plpar_hcall_norets_notrace(H_CONFER, -1, 0);
+ }
+ #else
+ static inline bool is_shared_processor(void)
+diff --git a/arch/powerpc/platforms/pseries/hvCall.S b/arch/powerpc/platforms/pseries/hvCall.S
+index 2136e42833af..8a2b8d64265b 100644
+--- a/arch/powerpc/platforms/pseries/hvCall.S
++++ b/arch/powerpc/platforms/pseries/hvCall.S
+@@ -102,6 +102,16 @@ END_FTR_SECTION(0, 1);						\
+ #define HCALL_BRANCH(LABEL)
+ #endif
+ 
++_GLOBAL_TOC(plpar_hcall_norets_notrace)
++	HMT_MEDIUM
++
++	mfcr	r0
++	stw	r0,8(r1)
++	HVSC				/* invoke the hypervisor */
++	lwz	r0,8(r1)
++	mtcrf	0xff,r0
++	blr				/* return r3 = status */
++
+ _GLOBAL_TOC(plpar_hcall_norets)
+ 	HMT_MEDIUM
+ 
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index cd38bd421f38..d4aa6a46e1fa 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -1830,8 +1830,7 @@ void hcall_tracepoint_unregfunc(void)
+ 
+ /*
+  * Since the tracing code might execute hcalls we need to guard against
+- * recursion. One example of this are spinlocks calling H_YIELD on
+- * shared processor partitions.
++ * recursion.
+  */
+ static DEFINE_PER_CPU(unsigned int, hcall_trace_depth);
+ 
 -- 
 2.30.2
 
