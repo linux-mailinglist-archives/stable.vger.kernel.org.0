@@ -2,236 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8CF938706B
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 05:59:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 762B3387073
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 06:03:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229507AbhEREA5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 00:00:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53398 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbhEREA4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 00:00:56 -0400
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07FA6C061573
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 20:59:39 -0700 (PDT)
-Received: by mail-pg1-x533.google.com with SMTP id j12so6075417pgh.7
-        for <stable@vger.kernel.org>; Mon, 17 May 2021 20:59:39 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=2H7nA5GX6ucqQLo92wxE3cDKXuagWyHeuhcAgvav1N8=;
-        b=oet996OhW0lwr0lb9iUOODmYJdaQTuXXrYS4Oyyhh4SceQBxfy5n+Y58XHvxBt9Otk
-         W4dBiMd13UtqR6vlYC7IwnYMeHbZcunsWG/yVtz1+tCqlG37gExPwNGECqvUPlCqAbMC
-         TNyYT77xRhhYCU3uISgKeK0DaE0QtLtpmuFaJId0MTRZf3b+quP16IJdvksyHUcn0nrP
-         tm+RHnFxP/DrpT3f6LBi0VHKVTmcKyx8xDxmEBBJNKgUES9EIjxaddQytczsQ8XfbF0+
-         vj7Qjg7UPznconI5j8nFOqNIqc6WyKYTIiwcMBnzclhf6YWUV5xk35De2u/nPRCCXeht
-         ddPQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=2H7nA5GX6ucqQLo92wxE3cDKXuagWyHeuhcAgvav1N8=;
-        b=Bi4a1JM9Ai6Yv4NQky5n+RN3E/AuaTeZpu0Ln9Bs0wt5KX23FVUKzrsM10ywQrCQvp
-         /HYpQPKAdz7Zjzz9px/qrZ9a5jNQ4y5t8YyOp2OHHCqDZ+aJhLd/+KyGM31lx5az1bHH
-         8nE47GzNU4nMd7Vo5Pui72b0Uf5pDUjmT8OIK7cm8qZ6ZmNHRRuDjzsKtw03rN3/BXRN
-         zcMQWaBcaM7OCv4ByRb+8kmUdHs6XJro87GKbwA7OxR6H/oJRrvhvfCWJG1guo5zlxjk
-         Pi+ikot1DD10+hI/jAIHeqPUH8xIV4mr6/IrH4F1swbiFrHSIjx9JwjohD2BI1XChAUP
-         ublw==
-X-Gm-Message-State: AOAM533cxXJRPPV8OiLWIYQasMWJ+/Xwss3mSgEvvIxGCeeeGTX6ZSZY
-        MKqgf8weOFMSD1zHv51BwHEZMuH2ZmCGV9cp
-X-Google-Smtp-Source: ABdhPJzYDBkc8rwum0Mow/4h5URBUM3NyiLfzvLo0/3i7xjnaByl2rJ5euvn+rheI8FLFuwieMC0Pw==
-X-Received: by 2002:a65:6a08:: with SMTP id m8mr2942446pgu.146.1621310378388;
-        Mon, 17 May 2021 20:59:38 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id gj21sm681375pjb.49.2021.05.17.20.59.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 17 May 2021 20:59:38 -0700 (PDT)
-Message-ID: <60a33baa.1c69fb81.5bdc5.364e@mx.google.com>
-Date:   Mon, 17 May 2021 20:59:38 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S240079AbhEREEh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 00:04:37 -0400
+Received: from mx2.suse.de ([195.135.220.15]:57456 "EHLO mx2.suse.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230378AbhEREEg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 May 2021 00:04:36 -0400
+X-Virus-Scanned: by amavisd-new at test-mx.suse.de
+Received: from relay2.suse.de (unknown [195.135.221.27])
+        by mx2.suse.de (Postfix) with ESMTP id 4998AB007;
+        Tue, 18 May 2021 04:03:17 +0000 (UTC)
+Subject: Re: [PATCH] bcache: avoid oversized read request in cache missing
+ code path
+To:     linux-bcache@vger.kernel.org
+Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Diego Ercolani <diego.ercolani@gmail.com>,
+        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
+        Marco Rebhan <me@dblsaiko.net>,
+        Matthias Ferdinand <bcache@mfedv.net>,
+        Thorsten Knabe <linux@thorsten-knabe.de>,
+        Victor Westerhuis <victor@westerhu.is>,
+        Vojtech Pavlik <vojtech@suse.cz>, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>
+References: <20210517162256.128236-1-colyli@suse.de>
+From:   Coly Li <colyli@suse.de>
+Message-ID: <36999d42-d70e-04a3-fd56-30a560a05b53@suse.de>
+Date:   Tue, 18 May 2021 12:03:10 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.119-142-gd406e11dbc13
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 129 runs,
- 4 regressions (v5.4.119-142-gd406e11dbc13)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+In-Reply-To: <20210517162256.128236-1-colyli@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 129 runs, 4 regressions (v5.4.119-142-gd406=
-e11dbc13)
+Hi folks,
 
-Regressions Summary
--------------------
+Please hold on, this patch fails on a large size read test case this
+morning. I will post a new version after the issue fixed.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+Thanks.
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+Coly Li
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+On 5/18/21 12:22 AM, colyli@suse.de wrote:
+> From: Coly Li <colyli@suse.de>
+> 
+> In the cache missing code path of cached device, if a proper location
+> from the internal B+ tree is matched for a cache miss range, function
+> cached_dev_cache_miss() will be called in cache_lookup_fn() in the
+> following code block,
+> [code block 1]
+>   526         unsigned int sectors = KEY_INODE(k) == s->iop.inode
+>   527                 ? min_t(uint64_t, INT_MAX,
+>   528                         KEY_START(k) - bio->bi_iter.bi_sector)
+>   529                 : INT_MAX;
+>   530         int ret = s->d->cache_miss(b, s, bio, sectors);
+> 
+> Here s->d->cache_miss() is the call backfunction pointer initialized as
+> cached_dev_cache_miss(), the last parameter 'sectors' is an important
+> hint to calculate the size of read request to backing device of the
+> missing cache data.
+> 
+> Current calculation in above code block may generate oversized value of
+> 'sectors', which consequently may trigger 2 different potential kernel
+> panics by BUG() or BUG_ON() as listed below,
+> 
+> 1) BUG_ON() inside bch_btree_insert_key(),
+> [code block 2]
+>    886         BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
+> 2) BUG() inside biovec_slab(),
+> [code block 3]
+>    51         default:
+>    52                 BUG();
+>    53                 return NULL;
+> 
+> All the above panics are original from cached_dev_cache_miss() by the
+> oversized parameter 'sectors'.
+> 
+> Inside cached_dev_cache_miss(), parameter 'sectors' is used to calculate
+> the size of data read from backing device for the cache missing. This
+> size is stored in s->insert_bio_sectors by the following lines of code,
+> [code block 4]
+>   909    s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
+> 
+> Then the actual key inserting to the internal B+ tree is generated and
+> stored in s->iop.replace_key by the following lines of code,
+> [code block 5]
+>   911   s->iop.replace_key = KEY(s->iop.inode,
+>   912                    bio->bi_iter.bi_sector + s->insert_bio_sectors,
+>   913                    s->insert_bio_sectors);
+> The oversized parameter 'sectors' may trigger panic 1) by BUG_ON() from
+> the above code block.
+> 
+> And the bio sending to backing device for the missing data is allocated
+> with hint from s->insert_bio_sectors by the following lines of code,
+> [code block 6]
+>   926    cache_bio = bio_alloc_bioset(GFP_NOWAIT,
+>   927                 DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS),
+>   928                 &dc->disk.bio_split);
+> The oversized parameter 'sectors' may trigger panic 2) by BUG() from the
+> agove code block.
+> 
+> Now let me explain how the panics happen with the oversized 'sectors'.
+> In code block 5, replace_key is generated by macro KEY(). From the
+> definition of macro KEY(),
+> [code block 7]
+>   71 #define KEY(inode, offset, size)                                  \
+>   72 ((struct bkey) {                                                  \
+>   73      .high = (1ULL << 63) | ((__u64) (size) << 20) | (inode),     \
+>   74      .low = (offset)                                              \
+>   75 })
+> 
+> Here 'size' is 16bits width embedded in 64bits member 'high' of struct
+> bkey. But in code block 1, if "KEY_START(k) - bio->bi_iter.bi_sector" is
+> very probably to be larger than (1<<16) - 1, which makes the bkey size
+> calculation in code block 5 is overflowed. In one bug report the value
+> of parameter 'sectors' is 131072 (= 1 << 17), the overflowed 'sectors'
+> results the overflowed s->insert_bio_sectors in code block 4, then makes
+> size field of s->iop.replace_key to be 0 in code block 5. Then the 0-
+> sized s->iop.replace_key is inserted into the internal B+ tree as cache
+> missing check key (a special key to detect and avoid a racing between
+> normal write request and cache missing read request) as,
+> [code block 8]
+>   915   ret = bch_btree_insert_check_key(b, &s->op, &s->iop.replace_key);
+> 
+> Then the 0-sized s->iop.replace_key as 3rd parameter triggers the bkey
+> size check BUG_ON() in code block 2, and causes the kernel panic 1).
+> 
+> Another kernel panic is from code block 6, is from the oversized value
+> s->insert_bio_sectors resulted by the oversized 'sectors'. From a bug
+> report the result of "DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS)"
+> from code block 6 can be 344, 282, 946, 342 and many other values which
+> larther than BIO_MAX_VECS (a.k.a 256). When calling bio_alloc_bioset()
+> with such larger-than-256 value as the 2nd parameter, this value will
+> eventually be sent to biovec_slab() as parameter 'nr_vecs' in following
+> code path,
+>    bio_alloc_bioset() ==> bvec_alloc() ==> biovec_slab()
+> 
+> Because parameter 'nr_vecs' is larger-than-256 value, the panic by BUG()
+> in code block 3 is triggered inside biovec_slab().
+> 
+> From the above analysis, it is obvious that in order to avoid the kernel
+> panics in code block 2 and code block 3, the calculated 'sectors' in
+> code block 1 should not generate overflowed value in code block 5 and
+> code block 6.
+> 
+> To avoid overflow in code block 5, the maximum 'sectors' value should be
+> equal or less than (1 << KEY_SIZE_BITS) - 1. And to avoid overflow in
+> code block 6, the maximum 'sectors' value should be euqal or less than
+> BIO_MAX_VECS * PAGE_SECTORS. Considering the kernel page size can be
+> variable, a reasonable maximum limitation of 'sectors' in code block 1
+> should be smaller on from "(1 << KEY_SIZE_BITS) - 1" and "BIO_MAX_VECS *
+> PAGE_SECTORS".
+> 
+> In this patch, a local variable inside cache_lookup_fn() is added as,
+>      max_cache_miss_size = min_t(uint32_t,
+> 		(1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
+> Then code block 1 uses max_cache_miss_size to limit the maximum value of
+> 'sectors' calculation as,
+>   533        unsigned int sectors = KEY_INODE(k) == s->iop.inode
+>   534                 ? min_t(uint64_t, max_cache_miss_size,
+>   535                         KEY_START(k) - bio->bi_iter.bi_sector)
+>   536                 : max_cache_miss_size;
+> 
+> Now the calculated 'sectors' value sent into cached_dev_cache_miss()
+> won't trigger neither of the above kernel panics.
+> 
+> Current problmatic code can be partially found since Linux v5.13-rc1,
+> therefore all maintained stable kernels should try to apply this fix.
+> 
+> Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
+> Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
+> Reported-by: Marco Rebhan <me@dblsaiko.net>
+> Reported-by: Matthias Ferdinand <bcache@mfedv.net>
+> Reported-by: Thorsten Knabe <linux@thorsten-knabe.de>
+> Reported-by: Victor Westerhuis <victor@westerhu.is>
+> Reported-by: Vojtech Pavlik <vojtech@suse.cz>
+> Signed-off-by: Coly Li <colyli@suse.de>
+> Cc: stable@vger.kernel.org
+> Cc: Takashi Iwai <tiwai@suse.com>
+> Cc: Kent Overstreet <kent.overstreet@gmail.com>
+> ---
+>  drivers/md/bcache/request.c | 15 +++++++++++----
+>  1 file changed, 11 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
+> index 29c231758293..90fa9ac47661 100644
+> --- a/drivers/md/bcache/request.c
+> +++ b/drivers/md/bcache/request.c
+> @@ -515,18 +515,25 @@ static int cache_lookup_fn(struct btree_op *op, struct btree *b, struct bkey *k)
+>  	struct search *s = container_of(op, struct search, op);
+>  	struct bio *n, *bio = &s->bio.bio;
+>  	struct bkey *bio_key;
+> -	unsigned int ptr;
+> +	unsigned int ptr, max_cache_miss_size;
+>  
+>  	if (bkey_cmp(k, &KEY(s->iop.inode, bio->bi_iter.bi_sector, 0)) <= 0)
+>  		return MAP_CONTINUE;
+>  
+> +	/*
+> +	 * Make sure the cache missing size won't exceed the restrictions of
+> +	 * max bkey size and max bio's bi_max_vecs.
+> +	 */
+> +	max_cache_miss_size = min_t(uint32_t,
+> +		(1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
+> +
+>  	if (KEY_INODE(k) != s->iop.inode ||
+>  	    KEY_START(k) > bio->bi_iter.bi_sector) {
+>  		unsigned int bio_sectors = bio_sectors(bio);
+>  		unsigned int sectors = KEY_INODE(k) == s->iop.inode
+> -			? min_t(uint64_t, INT_MAX,
+> +			? min_t(uint64_t, max_cache_miss_size,
+>  				KEY_START(k) - bio->bi_iter.bi_sector)
+> -			: INT_MAX;
+> +			: max_cache_miss_size;
+>  		int ret = s->d->cache_miss(b, s, bio, sectors);
+>  
+>  		if (ret != MAP_CONTINUE)
+> @@ -547,7 +554,7 @@ static int cache_lookup_fn(struct btree_op *op, struct btree *b, struct bkey *k)
+>  	if (KEY_DIRTY(k))
+>  		s->read_dirty_data = true;
+>  
+> -	n = bio_next_split(bio, min_t(uint64_t, INT_MAX,
+> +	n = bio_next_split(bio, min_t(uint64_t, max_cache_miss_size,
+>  				      KEY_OFFSET(k) - bio->bi_iter.bi_sector),
+>  			   GFP_NOIO, &s->d->bio_split);
+>  
+> 
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.119-142-gd406e11dbc13/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.119-142-gd406e11dbc13
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      d406e11dbc1324e375ab1f7c4669abc3cbd994f4 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a30862eb59d390a7b3afa2
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unlea=
-shed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unlea=
-shed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a30862eb59d390a7b3a=
-fa3
-        failing since 178 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a30707fde5acb21cb3afaa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a30707fde5acb21cb3a=
-fab
-        failing since 184 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a306d5b9b2d3a8d4b3afaa
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a306d5b9b2d3a8d4b3a=
-fab
-        failing since 184 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a306f32a094259a1b3afba
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.119=
--142-gd406e11dbc13/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a306f32a094259a1b3a=
-fbb
-        failing since 184 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
