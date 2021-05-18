@@ -2,239 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 762B3387073
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 06:03:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A1AE3870D5
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 07:09:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240079AbhEREEh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 00:04:37 -0400
-Received: from mx2.suse.de ([195.135.220.15]:57456 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230378AbhEREEg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 May 2021 00:04:36 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 4998AB007;
-        Tue, 18 May 2021 04:03:17 +0000 (UTC)
-Subject: Re: [PATCH] bcache: avoid oversized read request in cache missing
- code path
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Diego Ercolani <diego.ercolani@gmail.com>,
-        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
-        Marco Rebhan <me@dblsaiko.net>,
-        Matthias Ferdinand <bcache@mfedv.net>,
-        Thorsten Knabe <linux@thorsten-knabe.de>,
-        Victor Westerhuis <victor@westerhu.is>,
-        Vojtech Pavlik <vojtech@suse.cz>, stable@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>
-References: <20210517162256.128236-1-colyli@suse.de>
-From:   Coly Li <colyli@suse.de>
-Message-ID: <36999d42-d70e-04a3-fd56-30a560a05b53@suse.de>
-Date:   Tue, 18 May 2021 12:03:10 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.1
-MIME-Version: 1.0
-In-Reply-To: <20210517162256.128236-1-colyli@suse.de>
-Content-Type: text/plain; charset=utf-8
+        id S241374AbhERE2x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 00:28:53 -0400
+Received: from esa1.hgst.iphmx.com ([68.232.141.245]:2073 "EHLO
+        esa1.hgst.iphmx.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235926AbhERE2w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 00:28:52 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1621312054; x=1652848054;
+  h=from:to:cc:subject:date:message-id:references:
+   content-transfer-encoding:mime-version;
+  bh=riOyWCGCfagiaL4/BqVrgpz2q9ai3y4RxtrWAsDd7N0=;
+  b=h7ZXdm3EWfDT2I/7ee7qgbAAu8hnmjqLg7k85EjDuhBZcIlpoOlXcbxO
+   jO7YCUhbql5h7EG5Pp4QWbjU8CySumflYjt3rbfFTcklgu2xhCzZLHNbS
+   /2N2ztBVyp1aT94c4I2O++mIwtvLb3jyfpVTHq8/2sc7gfGKaxmqH+ykF
+   t3FY1T5sJEZnOtewvRcLbLDixoNcKyQG07OF0Va2W3C+AKfDOIbdb6yZL
+   cYMofO+ER2py/H4lU8zCgQoq6xWHlAOqld2IJVNZgwF8mUK3xLwFMlHVY
+   4EfDnA4nlz19QuHI3GzUncmwhaHUFvdBhcB4GRfqaHR7gIBQaxm5ix3yi
+   w==;
+IronPort-SDR: yDmB2cse2XETlLYvxVMxeE2kZJuL/HhTvHLKa9NhXa3hA8pRZaJL8z09Fju6+CW2nJlUIxcXQ3
+ ga/hk1Vl9s8wd5ZGw5zXlYXShWfnwBfqJ+vMjOa0xqERxc4Dl2f4vYiV2WieJX7/9xQKCW6NN1
+ uWYweOvGqkzI8xfHfzwttdrgBh5DSipwPFQS33A8UbaF9cPirbOmzrJK6Ktaq+5dwqbN+AK6Ba
+ 95cuJF8/cbE59MysL2quIZHbeoB4QK5XhXYxY23F9G6D1ILkQfHSHd/2cZRj8rpZjJo4TOfA50
+ AGo=
+X-IronPort-AV: E=Sophos;i="5.82,309,1613404800"; 
+   d="scan'208";a="279742612"
+Received: from mail-bn7nam10lp2101.outbound.protection.outlook.com (HELO NAM10-BN7-obe.outbound.protection.outlook.com) ([104.47.70.101])
+  by ob1.hgst.iphmx.com with ESMTP; 18 May 2021 12:27:33 +0800
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=maanQMGJRAL4GFamqlxUDK8nc6gh+v+B3T+toNiorRw1juOAtlqltEddllJHYB76U6B3Ri87RBv2lnxzSZ1XL2Uzj+ZyJbcr8b7Ixz3EZRykwz6YYMwvrSt+z9jb/w0jc9zHjXna9v+sSpFHmqZ64l7Pnhpu2LIU3yo+i4ULF3NEXNGuJSafzswfz8Q9QOo4XmzpAtm0xhCXKYZXo8KHfMXnSBH9cUbQ5QeuVVro6fcrsik5nZKYWhbZ22x80jf6rXSnFHg70dNmkiaHDgoqBaHILE+YG/nGlcAZPgN6XMs5R8KCpKfoBKYcC9jyIHtYbR+EkjZCdKpefdLMeyav+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=riOyWCGCfagiaL4/BqVrgpz2q9ai3y4RxtrWAsDd7N0=;
+ b=IIxKpnUeyAjSmrvYBe+esenxjZCituxUusIx2HPt+fgcCCQ+GcNLvV9c75Q6pojG+z5fzLCUmoIkXq0xWrGkjOg0dSZCzWO6nqYBnU5a+7e9mFkyYY1Zz2BkLjDUPckEj9tzt2icH5Btf4lC9bmBbCq0zC8HPDP4WykDFQH/gb2ErBpjCJoj6IuPr+kjzXaguin5DPTTKKAoGUgfDe7fWvmDY7UDznzAhWnpY54tjxK+axxmRgWVYK3d4Of/RM7YIljLSJaC3kJ1B8IV52x8Agucc36qHMNn01nvxTRutCmYUmlsPyKdkQQ8Lvj1a0T39T6y5bGB7zyg+8ibRrIwvw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=wdc.com; dmarc=pass action=none header.from=wdc.com; dkim=pass
+ header.d=wdc.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=sharedspace.onmicrosoft.com; s=selector2-sharedspace-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=riOyWCGCfagiaL4/BqVrgpz2q9ai3y4RxtrWAsDd7N0=;
+ b=DHr2k6huKvGx27dGkFJFKv88TYi9JxGp7InwbM/rcLipb1CW3oiMZ2ET38eevhoCoagDWr64xqUQvNsTdZmKhvpCWXDscohSOZlDRkIhleGCdzfAg6cThs0gvZTXs9cpM6lT1PWZIGe7D2w8E1ZpQsZCKnqzKhyjuwm9M7GPcTs=
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com (2603:10b6:a03:4d::25)
+ by BYAPR04MB6103.namprd04.prod.outlook.com (2603:10b6:a03:e6::23) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.26; Tue, 18 May
+ 2021 04:27:32 +0000
+Received: from BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::6873:3d64:8f9f:faf0]) by BYAPR04MB4965.namprd04.prod.outlook.com
+ ([fe80::6873:3d64:8f9f:faf0%7]) with mapi id 15.20.4129.031; Tue, 18 May 2021
+ 04:27:32 +0000
+From:   Chaitanya Kulkarni <Chaitanya.Kulkarni@wdc.com>
+To:     Sasha Levin <sashal@kernel.org>
+CC:     "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Daniel Wagner <dwagner@suse.de>,
+        Enzo Matsumiya <ematsumiya@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "linux-nvme@lists.infradead.org" <linux-nvme@lists.infradead.org>
+Subject: Re: [PATCH AUTOSEL 5.4 2/2] nvmet: seset ns->file when open fails
+Thread-Topic: [PATCH AUTOSEL 5.4 2/2] nvmet: seset ns->file when open fails
+Thread-Index: AQHXS4QLY+4qNiq68Ua1UWDgR0mY1w==
+Date:   Tue, 18 May 2021 04:27:32 +0000
+Message-ID: <BYAPR04MB4965B34C6F9C5E833782C7C1862C9@BYAPR04MB4965.namprd04.prod.outlook.com>
+References: <20210518011002.1485938-1-sashal@kernel.org>
+ <20210518011002.1485938-2-sashal@kernel.org>
+Accept-Language: en-US
 Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: kernel.org; dkim=none (message not signed)
+ header.d=none;kernel.org; dmarc=none action=none header.from=wdc.com;
+x-originating-ip: [199.255.45.62]
+x-ms-publictraffictype: Email
+x-ms-office365-filtering-correlation-id: c9026b4c-fccf-4be0-32e7-08d919b5413d
+x-ms-traffictypediagnostic: BYAPR04MB6103:
+x-microsoft-antispam-prvs: <BYAPR04MB61036049CAFD517872409647862C9@BYAPR04MB6103.namprd04.prod.outlook.com>
+wdcipoutbound: EOP-TRUE
+x-ms-oob-tlc-oobclassifiers: OLM:2000;
+x-ms-exchange-senderadcheck: 1
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: 7WLFUMHevqVC9AtoGXUxJOvJLXWifZOg/juS14Gv7HS4mRMjgJyZQbGVclvEfzViW/FqcjjjL2gLB0pV4sC7o3oU3wnwLDABtAhHJyAFJD1nVPo302kE96AfzmeAJdUxCCv/iWaf7tpYq/H5lisHiGwmnC+5qvITH8UDn1k/x9t1lYpInTARvMfJlk8zkGEzp25dmrgpVcsDchfMusk5v73MX/D4kBWx4ceFMXxRTTw6bvGaFq4rSesMzBmWWSr00hkdRoTuAI2YP45mY+GWG5pxXyW1Vtnj5bAyOpxLH+mRFF4vAx+2nkdheEXU3GIpZ9scSJVCoGyksIHbmzszvogUN0m6nf+IxaaVvDiZfuRIbjdBr+8FcuVhB8tJhzDdh2MKDUp54w3w5Mq27Fw1i9oeouJ7d/BGLARiRWSHcPrYVmyGNQOYDQ5EfGieSKLpYEap4s2aCnVUQ4W5BuQVp7EfPYzfHb/cjQqEQed7ynHih1HiaG+0N8e9k9uc43gh1IBig5X5+ezZ1GsWoX7KP0VYUT6zaQ8hthP7G8V2QiA7FoKVP8B3kIAbzydBwpl1zqedt2JS0C7aH9z9uPosv7jxaYOVt5vblIRs1EDugJA=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BYAPR04MB4965.namprd04.prod.outlook.com;PTR:;CAT:NONE;SFS:(4636009)(136003)(346002)(396003)(366004)(39860400002)(376002)(54906003)(7696005)(64756008)(66556008)(66476007)(8936002)(66446008)(33656002)(6916009)(2906002)(478600001)(8676002)(186003)(5660300002)(53546011)(316002)(4326008)(26005)(6506007)(122000001)(38100700002)(55016002)(52536014)(9686003)(4744005)(66946007)(86362001)(71200400001)(76116006);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata: =?us-ascii?Q?G20Zp4T+9ytJRpu+bKBhf4X5dju+4OeyJPHoSyomgiVBLj7GlNQmsFoGwS84?=
+ =?us-ascii?Q?oSXbAzaVoyYon/O8+zGxs153Ecq19gIj2dtpCgAF/dJZ1QDut/yFeC+805CO?=
+ =?us-ascii?Q?oS/FmuCJoSjXQXJ46E2hEJXFRfLEfpK3o1/mG7XVU3NhqtrO83XoT4rYpJ6Z?=
+ =?us-ascii?Q?snmuG3Blqe2HEUKub+MDUwbbQMXaCuSdSZ0vysPlDm7YbRC4QPl3ANJ0CXzm?=
+ =?us-ascii?Q?0F/xCjQ60oWU3HIFQnmi6X3OEiPgFBlyYpetTUQFkYCk+z51+hZimxIHgAR9?=
+ =?us-ascii?Q?i6E/HWhr5WPm7BvwVXqFN7DcEh+73HAc7iK7WiI2kwLy1PodQiVotqdOES5+?=
+ =?us-ascii?Q?ZEzQbS5cUuRsvCNIJaHo6lt4ywys8QRwK/OMZX2jGCQT16QIgP5GSWUALLDY?=
+ =?us-ascii?Q?DHKvfIdrbZ/wTYpPPQtxQvupsuWwpE1EaPp/4FiUEbMBCUuVvgFKbKKWcjvP?=
+ =?us-ascii?Q?oeOLvvcKbRCDUZCBlyMVgLUEUcfeIoN+Qoitsw62MXOfimXZ9fiH3vi7CRzw?=
+ =?us-ascii?Q?5mkw2PdXfjm29ZsrJARG5IodVooqFl5uFkMeH7ikEd0SPX112ygspDOEfqBA?=
+ =?us-ascii?Q?Ou5X/xyugB/Kie2Zd2W10BizSMdmTiAKfe6nUY2DI9Vp6oZKqG8uf8ywDH8f?=
+ =?us-ascii?Q?aRgE+iNLT3CW5vKIuotvrJvvzSASdu0b5lO+t1Ukg9UscBCLqLVp0G9qTuW1?=
+ =?us-ascii?Q?0jMBX2mgkbrW4wTgQdcL/ew8R0EkU5MIKNXugK3vO19u+UXZDX4GRqRls4HK?=
+ =?us-ascii?Q?BfXXvyBXiQpBnHh3/wyYsE6g781e9fxQZduy2rmvyS6LAKHo2xU9u1I814cq?=
+ =?us-ascii?Q?CrbxZjD0grXEE3zS0/iqkK8SJ8OxtPQEXsZJt2r/Dz654H2YUhplJ0py9KCH?=
+ =?us-ascii?Q?MQDGtrsemPXgT4NMj/PJLIjoqkjvU4hAA9LXR8UWKlLES321+M0f7hzCUWxN?=
+ =?us-ascii?Q?M+S5kFWUy8hrz/sfTNPfyQWYp4tbmBZ8iuuhHfQsVNvhomqMY7k9rqf9nqjz?=
+ =?us-ascii?Q?alXJ0/dM2nWSSJnHA8IX4RCcB5O08X3NMN/fZITKKgReH/e5s/4XvMhzGS2B?=
+ =?us-ascii?Q?unvPHAjF44W6viP8JFodAOJLi1DVZR8ERc/mQNtJKuLuSRyfadqpkQWqVWm5?=
+ =?us-ascii?Q?hpRywF0sKg3Q+kXgHrvgnVMWeAcedD9EK54YLxbcQlVBDJ56hcV//YYJk1lj?=
+ =?us-ascii?Q?/R75EcRsVJP1qwILpqeR/owlcxKrwbcEwLmcRwBTTQ+Vvf+buNJ8HLpomDsB?=
+ =?us-ascii?Q?mMvyPGcq8cwsvYJL0qANh9zCq+nfxAH9AW9LmXCRM81nBMy3oLfjQSuirHDM?=
+ =?us-ascii?Q?DmaFHuVO7aoAq5p0rwkCQ8X6?=
+x-ms-exchange-transport-forked: True
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+X-OriginatorOrg: wdc.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BYAPR04MB4965.namprd04.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: c9026b4c-fccf-4be0-32e7-08d919b5413d
+X-MS-Exchange-CrossTenant-originalarrivaltime: 18 May 2021 04:27:32.2351
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: b61c8803-16f3-4c35-9b17-6f65f441df86
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: q7dguruzbIGjas2T/ytm0kVMqU9QKxWcdmBd+kWPEVFeaVCiMJ34tXY3EzJ6exdxewDXlM5nfzNGnHgxmkARPnLWcnSPMkp2BwfQGavfegQ=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BYAPR04MB6103
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi folks,
-
-Please hold on, this patch fails on a large size read test case this
-morning. I will post a new version after the issue fixed.
-
-Thanks.
-
-Coly Li
-
-On 5/18/21 12:22 AM, colyli@suse.de wrote:
-> From: Coly Li <colyli@suse.de>
-> 
-> In the cache missing code path of cached device, if a proper location
-> from the internal B+ tree is matched for a cache miss range, function
-> cached_dev_cache_miss() will be called in cache_lookup_fn() in the
-> following code block,
-> [code block 1]
->   526         unsigned int sectors = KEY_INODE(k) == s->iop.inode
->   527                 ? min_t(uint64_t, INT_MAX,
->   528                         KEY_START(k) - bio->bi_iter.bi_sector)
->   529                 : INT_MAX;
->   530         int ret = s->d->cache_miss(b, s, bio, sectors);
-> 
-> Here s->d->cache_miss() is the call backfunction pointer initialized as
-> cached_dev_cache_miss(), the last parameter 'sectors' is an important
-> hint to calculate the size of read request to backing device of the
-> missing cache data.
-> 
-> Current calculation in above code block may generate oversized value of
-> 'sectors', which consequently may trigger 2 different potential kernel
-> panics by BUG() or BUG_ON() as listed below,
-> 
-> 1) BUG_ON() inside bch_btree_insert_key(),
-> [code block 2]
->    886         BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
-> 2) BUG() inside biovec_slab(),
-> [code block 3]
->    51         default:
->    52                 BUG();
->    53                 return NULL;
-> 
-> All the above panics are original from cached_dev_cache_miss() by the
-> oversized parameter 'sectors'.
-> 
-> Inside cached_dev_cache_miss(), parameter 'sectors' is used to calculate
-> the size of data read from backing device for the cache missing. This
-> size is stored in s->insert_bio_sectors by the following lines of code,
-> [code block 4]
->   909    s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
-> 
-> Then the actual key inserting to the internal B+ tree is generated and
-> stored in s->iop.replace_key by the following lines of code,
-> [code block 5]
->   911   s->iop.replace_key = KEY(s->iop.inode,
->   912                    bio->bi_iter.bi_sector + s->insert_bio_sectors,
->   913                    s->insert_bio_sectors);
-> The oversized parameter 'sectors' may trigger panic 1) by BUG_ON() from
-> the above code block.
-> 
-> And the bio sending to backing device for the missing data is allocated
-> with hint from s->insert_bio_sectors by the following lines of code,
-> [code block 6]
->   926    cache_bio = bio_alloc_bioset(GFP_NOWAIT,
->   927                 DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS),
->   928                 &dc->disk.bio_split);
-> The oversized parameter 'sectors' may trigger panic 2) by BUG() from the
-> agove code block.
-> 
-> Now let me explain how the panics happen with the oversized 'sectors'.
-> In code block 5, replace_key is generated by macro KEY(). From the
-> definition of macro KEY(),
-> [code block 7]
->   71 #define KEY(inode, offset, size)                                  \
->   72 ((struct bkey) {                                                  \
->   73      .high = (1ULL << 63) | ((__u64) (size) << 20) | (inode),     \
->   74      .low = (offset)                                              \
->   75 })
-> 
-> Here 'size' is 16bits width embedded in 64bits member 'high' of struct
-> bkey. But in code block 1, if "KEY_START(k) - bio->bi_iter.bi_sector" is
-> very probably to be larger than (1<<16) - 1, which makes the bkey size
-> calculation in code block 5 is overflowed. In one bug report the value
-> of parameter 'sectors' is 131072 (= 1 << 17), the overflowed 'sectors'
-> results the overflowed s->insert_bio_sectors in code block 4, then makes
-> size field of s->iop.replace_key to be 0 in code block 5. Then the 0-
-> sized s->iop.replace_key is inserted into the internal B+ tree as cache
-> missing check key (a special key to detect and avoid a racing between
-> normal write request and cache missing read request) as,
-> [code block 8]
->   915   ret = bch_btree_insert_check_key(b, &s->op, &s->iop.replace_key);
-> 
-> Then the 0-sized s->iop.replace_key as 3rd parameter triggers the bkey
-> size check BUG_ON() in code block 2, and causes the kernel panic 1).
-> 
-> Another kernel panic is from code block 6, is from the oversized value
-> s->insert_bio_sectors resulted by the oversized 'sectors'. From a bug
-> report the result of "DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS)"
-> from code block 6 can be 344, 282, 946, 342 and many other values which
-> larther than BIO_MAX_VECS (a.k.a 256). When calling bio_alloc_bioset()
-> with such larger-than-256 value as the 2nd parameter, this value will
-> eventually be sent to biovec_slab() as parameter 'nr_vecs' in following
-> code path,
->    bio_alloc_bioset() ==> bvec_alloc() ==> biovec_slab()
-> 
-> Because parameter 'nr_vecs' is larger-than-256 value, the panic by BUG()
-> in code block 3 is triggered inside biovec_slab().
-> 
-> From the above analysis, it is obvious that in order to avoid the kernel
-> panics in code block 2 and code block 3, the calculated 'sectors' in
-> code block 1 should not generate overflowed value in code block 5 and
-> code block 6.
-> 
-> To avoid overflow in code block 5, the maximum 'sectors' value should be
-> equal or less than (1 << KEY_SIZE_BITS) - 1. And to avoid overflow in
-> code block 6, the maximum 'sectors' value should be euqal or less than
-> BIO_MAX_VECS * PAGE_SECTORS. Considering the kernel page size can be
-> variable, a reasonable maximum limitation of 'sectors' in code block 1
-> should be smaller on from "(1 << KEY_SIZE_BITS) - 1" and "BIO_MAX_VECS *
-> PAGE_SECTORS".
-> 
-> In this patch, a local variable inside cache_lookup_fn() is added as,
->      max_cache_miss_size = min_t(uint32_t,
-> 		(1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
-> Then code block 1 uses max_cache_miss_size to limit the maximum value of
-> 'sectors' calculation as,
->   533        unsigned int sectors = KEY_INODE(k) == s->iop.inode
->   534                 ? min_t(uint64_t, max_cache_miss_size,
->   535                         KEY_START(k) - bio->bi_iter.bi_sector)
->   536                 : max_cache_miss_size;
-> 
-> Now the calculated 'sectors' value sent into cached_dev_cache_miss()
-> won't trigger neither of the above kernel panics.
-> 
-> Current problmatic code can be partially found since Linux v5.13-rc1,
-> therefore all maintained stable kernels should try to apply this fix.
-> 
-> Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
-> Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
-> Reported-by: Marco Rebhan <me@dblsaiko.net>
-> Reported-by: Matthias Ferdinand <bcache@mfedv.net>
-> Reported-by: Thorsten Knabe <linux@thorsten-knabe.de>
-> Reported-by: Victor Westerhuis <victor@westerhu.is>
-> Reported-by: Vojtech Pavlik <vojtech@suse.cz>
-> Signed-off-by: Coly Li <colyli@suse.de>
-> Cc: stable@vger.kernel.org
-> Cc: Takashi Iwai <tiwai@suse.com>
-> Cc: Kent Overstreet <kent.overstreet@gmail.com>
-> ---
->  drivers/md/bcache/request.c | 15 +++++++++++----
->  1 file changed, 11 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-> index 29c231758293..90fa9ac47661 100644
-> --- a/drivers/md/bcache/request.c
-> +++ b/drivers/md/bcache/request.c
-> @@ -515,18 +515,25 @@ static int cache_lookup_fn(struct btree_op *op, struct btree *b, struct bkey *k)
->  	struct search *s = container_of(op, struct search, op);
->  	struct bio *n, *bio = &s->bio.bio;
->  	struct bkey *bio_key;
-> -	unsigned int ptr;
-> +	unsigned int ptr, max_cache_miss_size;
->  
->  	if (bkey_cmp(k, &KEY(s->iop.inode, bio->bi_iter.bi_sector, 0)) <= 0)
->  		return MAP_CONTINUE;
->  
-> +	/*
-> +	 * Make sure the cache missing size won't exceed the restrictions of
-> +	 * max bkey size and max bio's bi_max_vecs.
-> +	 */
-> +	max_cache_miss_size = min_t(uint32_t,
-> +		(1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
-> +
->  	if (KEY_INODE(k) != s->iop.inode ||
->  	    KEY_START(k) > bio->bi_iter.bi_sector) {
->  		unsigned int bio_sectors = bio_sectors(bio);
->  		unsigned int sectors = KEY_INODE(k) == s->iop.inode
-> -			? min_t(uint64_t, INT_MAX,
-> +			? min_t(uint64_t, max_cache_miss_size,
->  				KEY_START(k) - bio->bi_iter.bi_sector)
-> -			: INT_MAX;
-> +			: max_cache_miss_size;
->  		int ret = s->d->cache_miss(b, s, bio, sectors);
->  
->  		if (ret != MAP_CONTINUE)
-> @@ -547,7 +554,7 @@ static int cache_lookup_fn(struct btree_op *op, struct btree *b, struct bkey *k)
->  	if (KEY_DIRTY(k))
->  		s->read_dirty_data = true;
->  
-> -	n = bio_next_split(bio, min_t(uint64_t, INT_MAX,
-> +	n = bio_next_split(bio, min_t(uint64_t, max_cache_miss_size,
->  				      KEY_OFFSET(k) - bio->bi_iter.bi_sector),
->  			   GFP_NOIO, &s->d->bio_split);
->  
-> 
-
+Sasha,=0A=
+=0A=
+On 5/17/21 18:20, Sasha Levin wrote:=0A=
+> From: Daniel Wagner <dwagner@suse.de>=0A=
+>=0A=
+> [ Upstream commit 85428beac80dbcace5b146b218697c73e367dcf5 ]=0A=
+>=0A=
+> Reset the ns->file value to NULL also in the error case in=0A=
+> nvmet_file_ns_enable().=0A=
+>=0A=
+> The ns->file variable points either to file object or contains the=0A=
+> error code after the filp_open() call. This can lead to following=0A=
+> problem:=0A=
+>=0A=
+> When the user first setups an invalid file backend and tries to enable=0A=
+> the ns, it will fail. Then the user switches over to a bdev backend=0A=
+> and enables successfully the ns. The first received I/O will crash the=0A=
+> system because the IO backend is chosen based on the ns->file value:=0A=
+=0A=
+I think the patch subject line is being worked on since it needs to be=0A=
+reset and not seset.=0A=
+=0A=
+Not sure how we can go about fixing that.=0A=
+=0A=
+=0A=
