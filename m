@@ -2,98 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4A54386F1D
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:26:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01281386F57
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233202AbhERB1h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 21:27:37 -0400
-Received: from out4-smtp.messagingengine.com ([66.111.4.28]:36509 "EHLO
-        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S1345638AbhERB1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 21:27:35 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 237EF5C0101;
-        Mon, 17 May 2021 21:26:16 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 17 May 2021 21:26:16 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
-         h=from:to:cc:subject:date:message-id:mime-version
-        :content-transfer-encoding; s=fm1; bh=Qx5EOO9JcORbUxQvF4VZ6WpeCO
-        3MxZZJb0IuffeAra0=; b=ovGNGL1J9LzmVfzkucnGHZ3JkI9vriLMHMUYte9S52
-        RJ1aVVE7g1tfJtKxuBE9jC+qHZsEPhqU9Vu1ddHXNeIeLv5jMXvCnMk2jk+McDrT
-        EMsXm8P/Xk/gV3l6+FtdOg9IZc4TGvOYR14U6OLNGyFI9aST+AeeFBRlBOMU7upt
-        egp/MVVPQm5kdtvhfbSX5xPd1QmPtk+griKSoyIHniED1K7UyUwObeleuAbIZM6H
-        CKWEQkwLgCMV0mqZGL0ziCuxXUSjHEvoZZVRQCerl8oGuGk7OmHSoeieqt5a0GkC
-        tHB/Awdun42vHNi3iCVx6jQ5zK09oGg+Z1m44kP1+LEw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:date:from
-        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
-        :x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Qx5EOO9JcORbUxQvF
-        4VZ6WpeCO3MxZZJb0IuffeAra0=; b=Di6b8QXTOU+YxMiUTnC1c62jpvdgwlWGD
-        HgqsRkb+Kb2W1hNP1x8cWwyPoIQDfGTsMW8z5maMo+gj2hYjQ3B+3a4y7w/tj5I9
-        yCm4AOE4P3Yb8Ov4xbr3FjQwMfm7BOIDLI/8psn5ncWBm4rZdk/L4+sLd+V6bjen
-        0ZG2QDhCHzliLPxCkEaPd4LkH1x2ZczwVGYiJ9XzQpl8xsuwRViHHBGX3j3ENUEd
-        HhGlnmLPkE5kDqJNcHLWSYoCTQEDvZbzD077n/Z+bLecyOfaI5D6moOJk6V6oqOP
-        ilas+d55QFYEuK/4Slqb6dCr7JvDK2uKAITRoyVj4OA9vhKhKZrmg==
-X-ME-Sender: <xms:uBejYGLNYwcshtKFymGJ4izaThHYjU-MXhxQI1nanwYF9es9vSJUrg>
-    <xme:uBejYOKaUmryTh89EcsrvOhbusPNwmwEgtdKhYs5bgheqc-PDfZp176Q0PbTZ7qj6
-    NjmGh_kfY3PZCvvq64>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeiiedggedvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
-    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
-    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
-    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecukfhppedugedrfedr
-    ieehrddujeehnecuvehluhhsthgvrhfuihiivgepudenucfrrghrrghmpehmrghilhhfrh
-    homhepohdqthgrkhgrshhhihesshgrkhgrmhhotggthhhirdhjph
-X-ME-Proxy: <xmx:uBejYGtWCzie_nWvgGRp2txNwayxoTx7V4HHMKqCVhBC03dnwOSeBg>
-    <xmx:uBejYLZZ_8Uf4mGFY5JNWctGXCg4dMKlxiNePmuRrvRIYOUt7fZ_kw>
-    <xmx:uBejYNZ6XnzcjnQf2vO01t3b_nezldlDiZd2zM3Bf69j5cVXlOLm1A>
-    <xmx:uBejYMylRzuj1mWHnAonotJb_go4XyxJoB-7WB8XKMbZBIPHORFmxw>
-Received: from workstation.flets-east.jp (ae065175.dynamic.ppp.asahi-net.or.jp [14.3.65.175])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 17 May 2021 21:26:14 -0400 (EDT)
-From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
-To:     tiwai@suse.de
-Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
-        stable@vger.kernel.org
-Subject: [PATCH] ALSA: dice: fix stream format for TC Electronic Konnekt Live at high sampling transfer frequency
-Date:   Tue, 18 May 2021 10:26:12 +0900
-Message-Id: <20210518012612.37268-1-o-takashi@sakamocchi.jp>
-X-Mailer: git-send-email 2.27.0
+        id S1345906AbhERBhF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 21:37:05 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50014 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237906AbhERBhE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 17 May 2021 21:37:04 -0400
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D239C061756
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 18:35:47 -0700 (PDT)
+Received: by mail-lf1-x12e.google.com with SMTP id i9so11568231lfe.13
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 18:35:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=3Y4UC937pcRi6mdp2HazCoUPjtNxk9PJkqRxwraum1Y=;
+        b=gqVqIx8Ym2P95cU1nEwsXDnOMInJKjvLvl6PdHm+m4USuWxwS7QapJ/4AnjrYoQgjp
+         Ul+p1xz0jsBYnf7HxkvT5KEQQnHy9T/2McLKcqfpIWocA0q+0ATrVtMzn0XcOX6uS6dk
+         /MUMbUdum0s43SXkfV0oQ3/kVHBjAyHYj0f2I=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=3Y4UC937pcRi6mdp2HazCoUPjtNxk9PJkqRxwraum1Y=;
+        b=Mopts66WUAIsWibkvNWwHVU872CFSkQCh5U+EG+I7pNXQKVvdKPRxPgMt9QYFdNrnQ
+         05kHBEWRC1Uu7B3x9k/3IcRySrJDwRq0IllfIkyQMyAp8uNq8Ni9K9q2nggbcy5a6Beo
+         37STFAwcWGF/TtAeOLdDflHccNKiLK/S8Ll0iyJH1UtZnwoAiz/rcg3xFYw6H40uC+a/
+         KP2fYQV48Caijc6OzPhWWR44ncYL+TWU6X5OMeXH/dJ5KLRUgZ8DgUh6wdLAHME/evT7
+         OJptZRImL1b3r7GQc+j/9N/KJ2U0l1i//fY411xp4jxbLhXdZxbNgtOGMLVaJGCIbE6x
+         7h6g==
+X-Gm-Message-State: AOAM532zRCYtAocs1bvnZ1HtT4HRzkq+VTZKBRFBALiIcevAeG6XDttS
+        as72m4G80s/YRGCOdRmNN5QMnovNGK2ZtSsO
+X-Google-Smtp-Source: ABdhPJwnV9soSWchaqKXd3mulrCsTQu7rBcftZzgSC4+fG4C6sxqeC05CoZg6SA0BxRA2LRNxluvog==
+X-Received: by 2002:ac2:5e69:: with SMTP id a9mr2137536lfr.387.1621301745696;
+        Mon, 17 May 2021 18:35:45 -0700 (PDT)
+Received: from mail-lf1-f42.google.com (mail-lf1-f42.google.com. [209.85.167.42])
+        by smtp.gmail.com with ESMTPSA id d15sm2123330lfa.137.2021.05.17.18.35.44
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 17 May 2021 18:35:45 -0700 (PDT)
+Received: by mail-lf1-f42.google.com with SMTP id q7so10265762lfr.6
+        for <stable@vger.kernel.org>; Mon, 17 May 2021 18:35:44 -0700 (PDT)
+X-Received: by 2002:a05:6512:36c5:: with SMTP id e5mr2066552lfs.41.1621301740633;
+ Mon, 17 May 2021 18:35:40 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210518010940.1485417-1-sashal@kernel.org> <20210518010940.1485417-5-sashal@kernel.org>
+In-Reply-To: <20210518010940.1485417-5-sashal@kernel.org>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Mon, 17 May 2021 18:35:24 -0700
+X-Gmail-Original-Message-ID: <CAHk-=whw9_rp0NYTsCqcGnUkcV5Qgv7FTxADtPrdq4KFmsj+Lg@mail.gmail.com>
+Message-ID: <CAHk-=whw9_rp0NYTsCqcGnUkcV5Qgv7FTxADtPrdq4KFmsj+Lg@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 5.12 5/5] tty: vt: always invoke
+ vc->vc_sw->con_resize callback
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-At high sampling transfer frequency, TC Electronic Konnekt Live
-transfers/receives 6 audio data frames in multi bit linear audio data
-channel of data block in CIP payload. Current hard-coded stream format
-is wrong.
+On Mon, May 17, 2021 at 6:09 PM Sasha Levin <sashal@kernel.org> wrote:
+>
+> From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+>
+> [ Upstream commit ffb324e6f874121f7dce5bdae5e05d02baae7269 ]
 
-Cc: <stable@vger.kernel.org>
-Fixes: f1f0f330b1d0 ("ALSA: dice: add parameters of stream formats for models produced by TC Electronic")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
----
- sound/firewire/dice/dice-tcelectronic.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+So I think the commit is fine, and yes, it should be applied to
+stable, but it's one of those "there were three different patches in
+as many days to fix the problem, and this is the right one, but maybe
+stable should hold off for a while to see that there aren't any
+problem reports".
 
-diff --git a/sound/firewire/dice/dice-tcelectronic.c b/sound/firewire/dice/dice-tcelectronic.c
-index a8875d24ba2a..43a3bcb15b3d 100644
---- a/sound/firewire/dice/dice-tcelectronic.c
-+++ b/sound/firewire/dice/dice-tcelectronic.c
-@@ -38,8 +38,8 @@ static const struct dice_tc_spec konnekt_24d = {
- };
- 
- static const struct dice_tc_spec konnekt_live = {
--	.tx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
--	.rx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
-+	.tx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
-+	.rx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
- 	.has_midi = true,
- };
- 
--- 
-2.27.0
+I don't think there will be any problems from this, but while the
+patch is tiny, it's conceptually quite a big change to something that
+people haven't really touched for a long time.
 
+So use your own judgement, but it might be a good idea to wait a week
+before backporting this to see if anything screams.
+
+          Linus
