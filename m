@@ -2,227 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81F8D387703
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 13:00:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCF338775C
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 13:22:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S243238AbhERLBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 07:01:38 -0400
-Received: from mx2.suse.de ([195.135.220.15]:47286 "EHLO mx2.suse.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239147AbhERLBh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 18 May 2021 07:01:37 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id E2134AF19;
-        Tue, 18 May 2021 11:00:17 +0000 (UTC)
-From:   colyli@suse.de
-To:     linux-bcache@vger.kernel.org
-Cc:     linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Coly Li <colyli@suse.de>,
-        Diego Ercolani <diego.ercolani@gmail.com>,
-        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
-        Marco Rebhan <me@dblsaiko.net>,
-        Matthias Ferdinand <bcache@mfedv.net>,
-        Thorsten Knabe <linux@thorsten-knabe.de>,
-        Victor Westerhuis <victor@westerhu.is>,
-        Vojtech Pavlik <vojtech@suse.cz>, stable@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.com>,
-        Kent Overstreet <kent.overstreet@gmail.com>
-Subject: [PATCH v3] bcache: avoid oversized read request in cache missing code path
-Date:   Tue, 18 May 2021 19:00:09 +0800
-Message-Id: <20210518110009.11413-1-colyli@suse.de>
-X-Mailer: git-send-email 2.26.2
+        id S231361AbhERLYC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 07:24:02 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40154 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231223AbhERLYB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 07:24:01 -0400
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DC2C061756
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:22:43 -0700 (PDT)
+Received: by mail-lj1-x234.google.com with SMTP id c15so11081875ljr.7
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 04:22:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf-com.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=rdF8gyGM2Z+kErBHsZUshH2jdfE4Xe2DvLEUbreL60U=;
+        b=1sVP6RY0xs/XVwcMfqv4WRnrwBmXXikMvu1TQJKiSO31kX9DZeKI57xT+5FL0EYx1x
+         +3seia/Q7r5h7t6ZX35ELEdvGoxEQN2T+MqDHUIEWCv96cL1r+ib3Z0JLTGMluRQFJDL
+         ZUAZWmEylF+8OtZq5QDeIdlekR4sGDmh+TZkuh7Q+mKEpenzoml7GtYeQPr4FvABvqN9
+         WnDh7EvM+OCrxIH64AwUMxFQONX8SXJpO6PsaBP/1rl+B6T7zghl78igm41gBSQbVquJ
+         5mXB/Jcm/wkOODAxd2CfZ33ptYVHR7L2HVg5ADTZa1YUH3mJ99LL3bg3d4tnMc2xWxZJ
+         TKJQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=rdF8gyGM2Z+kErBHsZUshH2jdfE4Xe2DvLEUbreL60U=;
+        b=mlWA98t6eFEpUCprFLTa4f0cAZhA2IFlny/EeXdCiwcwvNehx1ylTNPZyoZZrxRk8Q
+         pusPJ2D6HqGwdO0eJgSn4I1kWYsFQOOnSdXGulWLAV0ZwLMM8DakVX7NbgxRjeaeqk3m
+         qZfrhX+3SO+VOPj+6BMnjGOGgt+hdINDde+SyB9QFMQ7OR0TpnO33HVS/QcaJ9gpxiQw
+         R+CvxU/Pj9zxcCBXla09KWGbxFyKXPdFYJI0bXJJwLqIA835CqHOHVkGwkzKUDHKDtIn
+         IdaClnJmHqf4fdqpGz3sSVe/cie/dq1huGk1hj1DDihnXdBFy9SZMzH5eDOtaWHvkMqs
+         h5pg==
+X-Gm-Message-State: AOAM5326cULlqCpJTdskOoj7MyCW6Do5MuFocALONNPXaQDimkCT68Su
+        fZGgDR+JrifuwtmKLTjwpr4tdM6RGcAadgcLe5Pu4g==
+X-Google-Smtp-Source: ABdhPJxBW/CEWIJES064VALHXUE3Rx9StlZhCWBm/mjDDQH6cTQbrZrHxWnR9ESSztRpf6Wum7KRjECmh/vA1A7fvFI=
+X-Received: by 2002:a05:651c:156:: with SMTP id c22mr3703525ljd.175.1621336961673;
+ Tue, 18 May 2021 04:22:41 -0700 (PDT)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20210518090925.15480-1-pdk@semihalf.com> <YKOI9ndTg8s1uUvx@kroah.com>
+In-Reply-To: <YKOI9ndTg8s1uUvx@kroah.com>
+From:   Patryk Duda <pdk@semihalf.com>
+Date:   Tue, 18 May 2021 13:22:30 +0200
+Message-ID: <CAGOBvLq8hyRs7MZoZE0o0h0s9y1bL9eV3ex2A3FsmfjtofxsAg@mail.gmail.com>
+Subject: Re: [PATCH] platform/chrome: cros_ec_proto: Send command again when
+ timeout occurs
+To:     Greg KH <greg@kroah.com>
+Cc:     Benson Leung <bleung@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        linux-kernel@vger.kernel.org, upstream@semihalf.com,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Coly Li <colyli@suse.de>
+wt., 18 maj 2021 o 11:29 Greg KH <greg@kroah.com> napisa=C5=82(a):
+>
+> On Tue, May 18, 2021 at 11:09:25AM +0200, Patryk Duda wrote:
+> > Sometimes kernel is trying to probe Fingerprint MCU (FPMCU) when it
+> > hasn't initialized SPI yet. This can happen because FPMCU is restarted
+> > during system boot and kernel can send message in short window
+> > eg. between sysjump to RW and SPI initialization.
+> >
+> > Cc: <stable@vger.kernel.org> # 4.4+
+> > Signed-off-by: Patryk Duda <pdk@semihalf.com>
+> > ---
+> > Fingerprint MCU is rebooted during system startup by AP firmware (coreb=
+oot).
+> > During cold boot kernel can query FPMCU in a window just after jump to =
+RW
+> > section of firmware but before SPI is initialized. The window was
+> > shortened to <1ms, but it can't be eliminated completly.
+> >
+> > Communication with FPMCU (and all devices based on EC) is bi-directiona=
+l.
+> > When kernel sends message, EC will send EC_SPI* status codes. When EC i=
+s
+> > not able to process command one of bytes will be eg. EC_SPI_NOT_READY.
+> > This mechanism won't work when SPI is not initailized on EC side. In fa=
+ct,
+> > buffer is filled with 0xFF bytes, so from kernel perspective device is =
+not
+> > responding. To avoid this problem, we can query device once again. We a=
+re
+> > already waiting EC_MSG_DEADLINE_MS for response, so we can send command
+> > immediately.
+> >
+> > Best regards,
+> > Patryk
+> >  drivers/platform/chrome/cros_ec_proto.c | 12 ++++++++++++
+> >  1 file changed, 12 insertions(+)
+> >
+> > diff --git a/drivers/platform/chrome/cros_ec_proto.c b/drivers/platform=
+/chrome/cros_ec_proto.c
+> > index aa7f7aa77297..3384631d21e2 100644
+> > --- a/drivers/platform/chrome/cros_ec_proto.c
+> > +++ b/drivers/platform/chrome/cros_ec_proto.c
+> > @@ -279,6 +279,18 @@ static int cros_ec_host_command_proto_query(struct=
+ cros_ec_device *ec_dev,
+> >       msg->insize =3D sizeof(struct ec_response_get_protocol_info);
+> >
+> >       ret =3D send_command(ec_dev, msg);
+> > +     /*
+> > +      * Send command once again when timeout occurred.
+> > +      * Fingerprint MCU (FPMCU) is restarted during system boot which
+> > +      * introduces small window in which FPMCU won't respond for any
+> > +      * messages sent by kernel. There is no need to wait before next
+> > +      * attempt because we waited at least EC_MSG_DEADLINE_MS.
+> > +      */
+> > +     if (ret =3D=3D -ETIMEDOUT) {
+> > +             dev_warn(ec_dev->dev,
+> > +                      "Timeout to get response from EC. Retrying.\n");
+>
+> If a user sees this, what can they do?  No need to spam the kernel logs,
+> just retry.
+User can do nothing about it. I will remove this in next version of patch.
+>
+> > +             ret =3D send_command(ec_dev, msg);
+>
+> But wait, why just retry once?  Why not 10 times?  100?  1000?  How
+> about a simple loop here instead, with a "sane" number of retries as a
+> max.
+EC based devices are designed to respond always or return appropriate
+status code
+when they can't process command. But this assumes that SPI is always
+ready to work.
+It's true for Embedded Controller, but not for Fingerprint MCU. So we
+can retry once,
+in case of sending message, when FPMCU is in narrow window (~1ms) when SPI =
+is
+not initialized.
 
-In the cache missing code path of cached device, if a proper location
-from the internal B+ tree is matched for a cache miss range, function
-cached_dev_cache_miss() will be called in cache_lookup_fn() in the
-following code block,
-[code block 1]
-  526         unsigned int sectors = KEY_INODE(k) == s->iop.inode
-  527                 ? min_t(uint64_t, INT_MAX,
-  528                         KEY_START(k) - bio->bi_iter.bi_sector)
-  529                 : INT_MAX;
-  530         int ret = s->d->cache_miss(b, s, bio, sectors);
+Every send_command() call can take about 200ms when device is not respondin=
+g,
+so next retry will happen after 200ms, at least. If 200ms is not
+enough for FPMCU
+to initialize SPI, it's definitely something wrong with FPMCU
+>
+> thanks,
+>
+> greg k-h
 
-Here s->d->cache_miss() is the call backfunction pointer initialized as
-cached_dev_cache_miss(), the last parameter 'sectors' is an important
-hint to calculate the size of read request to backing device of the
-missing cache data.
-
-Current calculation in above code block may generate oversized value of
-'sectors', which consequently may trigger 2 different potential kernel
-panics by BUG() or BUG_ON() as listed below,
-
-1) BUG_ON() inside bch_btree_insert_key(),
-[code block 2]
-   886         BUG_ON(b->ops->is_extents && !KEY_SIZE(k));
-2) BUG() inside biovec_slab(),
-[code block 3]
-   51         default:
-   52                 BUG();
-   53                 return NULL;
-
-All the above panics are original from cached_dev_cache_miss() by the
-oversized parameter 'sectors'.
-
-Inside cached_dev_cache_miss(), parameter 'sectors' is used to calculate
-the size of data read from backing device for the cache missing. This
-size is stored in s->insert_bio_sectors by the following lines of code,
-[code block 4]
-  909    s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
-
-Then the actual key inserting to the internal B+ tree is generated and
-stored in s->iop.replace_key by the following lines of code,
-[code block 5]
-  911   s->iop.replace_key = KEY(s->iop.inode,
-  912                    bio->bi_iter.bi_sector + s->insert_bio_sectors,
-  913                    s->insert_bio_sectors);
-The oversized parameter 'sectors' may trigger panic 1) by BUG_ON() from
-the above code block.
-
-And the bio sending to backing device for the missing data is allocated
-with hint from s->insert_bio_sectors by the following lines of code,
-[code block 6]
-  926    cache_bio = bio_alloc_bioset(GFP_NOWAIT,
-  927                 DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS),
-  928                 &dc->disk.bio_split);
-The oversized parameter 'sectors' may trigger panic 2) by BUG() from the
-agove code block.
-
-Now let me explain how the panics happen with the oversized 'sectors'.
-In code block 5, replace_key is generated by macro KEY(). From the
-definition of macro KEY(),
-[code block 7]
-  71 #define KEY(inode, offset, size)                                  \
-  72 ((struct bkey) {                                                  \
-  73      .high = (1ULL << 63) | ((__u64) (size) << 20) | (inode),     \
-  74      .low = (offset)                                              \
-  75 })
-
-Here 'size' is 16bits width embedded in 64bits member 'high' of struct
-bkey. But in code block 1, if "KEY_START(k) - bio->bi_iter.bi_sector" is
-very probably to be larger than (1<<16) - 1, which makes the bkey size
-calculation in code block 5 is overflowed. In one bug report the value
-of parameter 'sectors' is 131072 (= 1 << 17), the overflowed 'sectors'
-results the overflowed s->insert_bio_sectors in code block 4, then makes
-size field of s->iop.replace_key to be 0 in code block 5. Then the 0-
-sized s->iop.replace_key is inserted into the internal B+ tree as cache
-missing check key (a special key to detect and avoid a racing between
-normal write request and cache missing read request) as,
-[code block 8]
-  915   ret = bch_btree_insert_check_key(b, &s->op, &s->iop.replace_key);
-
-Then the 0-sized s->iop.replace_key as 3rd parameter triggers the bkey
-size check BUG_ON() in code block 2, and causes the kernel panic 1).
-
-Another kernel panic is from code block 6, is from the oversized value
-s->insert_bio_sectors resulted by the oversized 'sectors'. From a bug
-report the result of "DIV_ROUND_UP(s->insert_bio_sectors, PAGE_SECTORS)"
-from code block 6 can be 344, 282, 946, 342 and many other values which
-larther than BIO_MAX_VECS (a.k.a 256). When calling bio_alloc_bioset()
-with such larger-than-256 value as the 2nd parameter, this value will
-eventually be sent to biovec_slab() as parameter 'nr_vecs' in following
-code path,
-   bio_alloc_bioset() ==> bvec_alloc() ==> biovec_slab()
-
-Because parameter 'nr_vecs' is larger-than-256 value, the panic by BUG()
-in code block 3 is triggered inside biovec_slab().
-
-From the above analysis, we know that the 4th parameter 'sector' sent
-into cached_dev_cache_miss() may cause overflow in code block 5 and 6,
-and finally cause kernel panic in code block 2 and 3.
-
-Therefore inside cached_dev_cache_miss() before parameter 'sector' is
-used to calculate s->insert_bio_sectors in code block4, there should be
-an value overflow check on 'sector' and fix its value when necessary.
-- To avoid overflow in code block 5, the maximum 'sectors' value should
-  be equal or less than (1 << KEY_SIZE_BITS) - 1.
-- To avoid overflow in code block 6, the maximum 'sectors' value should
-  be euqal or less than BIO_MAX_VECS * PAGE_SECTORS.
-Considering the kernel page size can be variable, a reasonable maximum
-limitation of 'sectors' should be the smaller one of the values
-"(1 << KEY_SIZE_BITS) - 1" and "BIO_MAX_VECS * PAGE_SECTORS".
-
-In this patch, a local variable inside cached_dev_cache_miss() is added
-as,
-     max_miss_size =  min_t(uint32_t,
-             (1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
-Then the following code check and fix parameter 'sectors' as,
-     if (sectors > max_miss_size)
-             sectors = max_miss_size;
-
-Now inside cached_dev_cache_miss(), the calculated 'sectors' value sent
-into code block 5 and 6 will not trigger neither of the above kernel
-panics anymore.
-
-Current problmatic code can be partially found since Linux v5.13-rc1,
-therefore all maintained stable kernels should try to apply this fix.
-
-Reported-by: Diego Ercolani <diego.ercolani@gmail.com>
-Reported-by: Jan Szubiak <jan.szubiak@linuxpolska.pl>
-Reported-by: Marco Rebhan <me@dblsaiko.net>
-Reported-by: Matthias Ferdinand <bcache@mfedv.net>
-Reported-by: Thorsten Knabe <linux@thorsten-knabe.de>
-Reported-by: Victor Westerhuis <victor@westerhu.is>
-Reported-by: Vojtech Pavlik <vojtech@suse.cz>
-Signed-off-by: Coly Li <colyli@suse.de>
-Cc: stable@vger.kernel.org
-Cc: Takashi Iwai <tiwai@suse.com>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
----
-Changlog:
-v3, fix typo in v2.
-v2, fix the bypass bio size calculation in v1.
-v1, the initial version
-
- drivers/md/bcache/request.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/md/bcache/request.c b/drivers/md/bcache/request.c
-index 29c231758293..ba1612b00b9f 100644
---- a/drivers/md/bcache/request.c
-+++ b/drivers/md/bcache/request.c
-@@ -883,6 +883,7 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
- 	unsigned int reada = 0;
- 	struct cached_dev *dc = container_of(s->d, struct cached_dev, disk);
- 	struct bio *miss, *cache_bio;
-+	unsigned int max_miss_size;
- 
- 	s->cache_missed = 1;
- 
-@@ -899,6 +900,25 @@ static int cached_dev_cache_miss(struct btree *b, struct search *s,
- 			      get_capacity(bio->bi_bdev->bd_disk) -
- 			      bio_end_sector(bio));
- 
-+	/*
-+	 * Make sure sectors won't exceed two size limitations,
-+	 * - The bkey maximum size
-+	 *   Size field in the bkey is 16 bits, the maximum permitted
-+	 *   value is (1 << KEY_SIZE_BITS) - 1, in unit of sector.
-+	 * - The bio io vecs maximum number
-+	 *   BIO_MAX_VECS is the maximum permitted io vecs number of a
-+	 *   bio, any larger value will result a BUG() complain in bio
-+	 *   layer code. When maximum size of each io vector is a page,
-+	 *   BIO_MAX_VECS * PAGE_SECTORS is the maximum permitted value
-+	 *   in unit of sectors.
-+	 * Then we are sure there is no overflow for key size of
-+	 * s->iop.replace_key and bio io vecs number of cache_bio.
-+	 */
-+	max_miss_size =  min_t(uint32_t,
-+		(1 << KEY_SIZE_BITS) - 1, BIO_MAX_VECS * PAGE_SECTORS);
-+	if (sectors > max_miss_size)
-+		sectors = max_miss_size;
-+
- 	s->insert_bio_sectors = min(sectors, bio_sectors(bio) + reada);
- 
- 	s->iop.replace_key = KEY(s->iop.inode,
--- 
-2.26.2
-
+Best regards,
+Patryk
