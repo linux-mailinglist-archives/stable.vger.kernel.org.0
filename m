@@ -2,27 +2,27 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73443386EE9
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:10:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3625E386EEB
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 03:10:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1345613AbhERBLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 17 May 2021 21:11:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57664 "EHLO mail.kernel.org"
+        id S1345679AbhERBLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 17 May 2021 21:11:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S1345638AbhERBLa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 17 May 2021 21:11:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F610613AF;
-        Tue, 18 May 2021 01:10:12 +0000 (UTC)
+        id S1345547AbhERBLe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 17 May 2021 21:11:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96DBD613C7;
+        Tue, 18 May 2021 01:10:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621300213;
-        bh=gzdMHHbF17uf/nPffsgfSUAqtUyd0PLnOBU967U7p74=;
+        s=k20201202; t=1621300216;
+        bh=BHmX+3MSs8DrwrmdsxqilJN75gfvTJiFcyAeYjNUK7s=;
         h=From:To:Cc:Subject:Date:From;
-        b=q4GzELtyDHKemiT+d+2gBHEd9zlCttbFXNjudMQro7HCt5Wqm2EKgD6aWyoym5VRZ
-         pm/t2iqok9SQ3w3KYridL4Bkg/YXAiOdlZReKjq0yU5N5L+jeI81KP8bOzdqK060Gs
-         r5N5vW+pPoQVNGNIhai/2nprg9oREm8oZG+DdkFI1f9e6Svyfu3WCrCZbsxi53YXRg
-         of9Qsoz+/T31N7qeviPbSOsfubbVEeqmTlhz9Vjlif7RfyHMpGBqH/smM22dN9PvRp
-         4ZHtKe9DWW0iPaR9UtPKf5/lPAoIYiaZLyi6sjJPNW1jqg1DoBTRBAm0nV15czgOYZ
-         p5emP/vPm67AA==
+        b=SjaoEjE9HQQEyuxS28QNY777g3pGLsvTtPVeYKOLh2c7VerCqKtpNAXCDcuaLXemW
+         ClNi8G8Xivkkn+F77/fGE3zhb95VZQuGMWPxOCY3lQ0/0p28rpsnWio7Qeh19zUUFF
+         44oyCz5rJXjNGHSiErSQoLjcj0fzAGgOAtHCyIzWKyjODPRuRXIEWxeO8M7wPurD5k
+         CK7SWSl9AzOAV7zfDx7Nm+P+9YRVSk5Gj/WnmmGUwD7d3d765q7neumEx5mtpDpJjn
+         Wy6zEIYRk/ZMBX/e6UaKfACr9fbDR2rtmxfygEwIEWU6GFNwT/SgVnBLHIPdLAYWqB
+         YWAbQQJBsUtsw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Oleg Nesterov <oleg@redhat.com>,
@@ -32,9 +32,9 @@ Cc:     Oleg Nesterov <oleg@redhat.com>,
         Jan Kratochvil <jan.kratochvil@redhat.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 4.14] ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
-Date:   Mon, 17 May 2021 21:10:10 -0400
-Message-Id: <20210518011011.1486227-1-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9] ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
+Date:   Mon, 17 May 2021 21:10:14 -0400
+Message-Id: <20210518011014.1486303-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 X-stable: review
@@ -162,10 +162,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 17 insertions(+), 1 deletion(-)
 
 diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index 43a283041296..b28f3c66c6fe 100644
+index ea3370e205fb..4f10223bc7b0 100644
 --- a/kernel/ptrace.c
 +++ b/kernel/ptrace.c
-@@ -163,6 +163,21 @@ void __ptrace_unlink(struct task_struct *child)
+@@ -159,6 +159,21 @@ void __ptrace_unlink(struct task_struct *child)
  	spin_unlock(&child->sighand->siglock);
  }
  
@@ -187,7 +187,7 @@ index 43a283041296..b28f3c66c6fe 100644
  /* Ensure that nothing can wake it up, even SIGKILL */
  static bool ptrace_freeze_traced(struct task_struct *task)
  {
-@@ -173,7 +188,8 @@ static bool ptrace_freeze_traced(struct task_struct *task)
+@@ -169,7 +184,8 @@ static bool ptrace_freeze_traced(struct task_struct *task)
  		return ret;
  
  	spin_lock_irq(&task->sighand->siglock);
