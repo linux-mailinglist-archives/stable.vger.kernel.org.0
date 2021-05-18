@@ -2,157 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71D19387F59
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 20:14:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBFF387F82
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 20:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbhERSP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 14:15:27 -0400
-Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:58084 "EHLO
-        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229652AbhERSP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 14:15:26 -0400
-Received: from pps.filterd (m0098404.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14II4IfL119167;
-        Tue, 18 May 2021 14:14:07 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=Hb1S33DB4cwbzzdrXp1MdMWeQN6Uj465PyTHwToqkAM=;
- b=keLbMtE4ph8SU/x9Q6DPWtfunqRS03zOd9isfVibTDqij8e09uvBqfL4vv+7vToEBASt
- aNrfDt7jDvUurhOAUvkB0rKDu6O2r1+3HXPlGUFN2NRh3F4cHXR+/YBWbuwPwSbJ2rWQ
- ITgt/7Sd0DqWkQ7NK2L/1UfLJGZS9pA3RfvBSxikv+R2bZCGHdpwQvsXIBriKE4dM/ci
- wdF3mu0JS1j7jz/myWCBdkU0SWloqiIuTVTDYHxHZDLxRYw33lopKZgBtQmwgc/e6X+d
- yDFD94PzGj2MSryOfjPVsD7vdmiQ5Hcm5g1tEk2x57DfdJwX5Bsy897m2a1kUEn+K55P DA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mjfg0bwt-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 14:14:07 -0400
-Received: from m0098404.ppops.net (m0098404.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14II4PX5119805;
-        Tue, 18 May 2021 14:14:06 -0400
-Received: from ppma03dal.us.ibm.com (b.bd.3ea9.ip4.static.sl-reverse.com [169.62.189.11])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38mjfg0bw5-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 14:14:06 -0400
-Received: from pps.filterd (ppma03dal.us.ibm.com [127.0.0.1])
-        by ppma03dal.us.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14IIBV75021734;
-        Tue, 18 May 2021 18:14:05 GMT
-Received: from b01cxnp22033.gho.pok.ibm.com (b01cxnp22033.gho.pok.ibm.com [9.57.198.23])
-        by ppma03dal.us.ibm.com with ESMTP id 38j5x9fbvc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 18:14:05 +0000
-Received: from b01ledav006.gho.pok.ibm.com (b01ledav006.gho.pok.ibm.com [9.57.199.111])
-        by b01cxnp22033.gho.pok.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14IIE4E517367318
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 18:14:04 GMT
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 65E8AAC073;
-        Tue, 18 May 2021 18:14:04 +0000 (GMT)
-Received: from b01ledav006.gho.pok.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id E363FAC06C;
-        Tue, 18 May 2021 18:14:03 +0000 (GMT)
-Received: from cpe-172-100-179-72.stny.res.rr.com (unknown [9.85.177.219])
-        by b01ledav006.gho.pok.ibm.com (Postfix) with ESMTP;
-        Tue, 18 May 2021 18:14:03 +0000 (GMT)
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Christian Borntraeger <borntraeger@de.ibm.com>,
-        Halil Pasic <pasic@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
- <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
- <20210514021500.60ad2a22.pasic@linux.ibm.com>
- <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
- <20210517211030.368ca64b.pasic@linux.ibm.com>
- <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
- <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
- <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
-From:   Tony Krowiak <akrowiak@linux.ibm.com>
-Message-ID: <00c86767-ce8b-7050-f665-75f33fabe118@linux.ibm.com>
-Date:   Tue, 18 May 2021 14:14:03 -0400
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
-MIME-Version: 1.0
-In-Reply-To: <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
+        id S1351512AbhERSXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 14:23:36 -0400
+Received: from mail-mw2nam12on2084.outbound.protection.outlook.com ([40.107.244.84]:15425
+        "EHLO NAM12-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S1351497AbhERSXf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 18 May 2021 14:23:35 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZkMNUbrUiEEMnTt2CwbXHcCdRFdrMSTFvkafV7k6VDBayAYV/Z1KKbYDixqYHu1MGtrRIBJHOhQ/hCAa8PBpcYRju3mFl51cU5IWpC/XVx1KnLvRKK/S2n6N3WbEgyCy9NaG9pyvrlTuvWf6lGdGZoITBOx9JqzWPtcYU/O1tz3J1iC6P0lwj4G4vQw+Uh309lzV8gQEVTFiBkKcDKIoK+o13K/s9r2SN8ftwbNdOwjwITYPrh0ywOh/Fx9DmfLjWFPc6DTPuLLaPsPaZSlrGFITF8lZ9nlMmTFG+gvQCcVwhceCckhwIqHIDKV8dyHzm/qmNjLya/KcK+SjiFrWiw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aZKiYsD0VzU3NOYYi96PKjVH87NttAY50mlHEAOuxJs=;
+ b=HBU7cdqp9TRNmktPB3e9NrcFKfFyyC6QMELe3070inVOtez8VUrs8oRWNP3FJ3cNl9HXuKyNQZtPHXlVMCalrnH5xgOLNWwtqRFgR4c+ZT6a/t8DJq/wuo7Dn5DV0E1mqZ+hTWxIkbQdGmph4VimkMfQW0EResow+ymZznr758mlokCjKjwtxR8j3nWwxVPlMqFNW29Sz+MmItPbQgTOg8BOqilQbJd2HQw2BqE6OBjoj18No03+3jPUlyyVX6QA3nl9m7BaxeuOloM+1T6nPS35dmS+j+82oah6XCvYHWo7+269Z9nakAW7lagMNO7NhY3KMOJLlbMocsy1uB8NBw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=aZKiYsD0VzU3NOYYi96PKjVH87NttAY50mlHEAOuxJs=;
+ b=CC+1+YBmqpAoebnBax5rCzSwHQozp5HWINjx3ML408zxNZW9u98VmSNeF2Zv5ekfW/nfm4hL5mog33zCF+1UpjjvP+jdLerNijV0M/X6HV16uPb2gleqw7859eph5BZ6+ETUoVEqKcOuF0n7bQDfWCpnKBslQDYmqTje2JMnUqIW5vG8HPmgcHcBdxrsG2mv3iDhfw6Ww6P4WYUt4coCwRp2jZEci2wDgZkYk+7Hy4JJPSkELy8semqjif93xLymwN0eusTB4LzIHFj8wfdscCLMhHwjYDIOi9JKCMe5Sgw0CP9MdvGC7SH/KzEUp+XrN9gPHmIdWS0bvMN5yOCiIg==
+Received: from DM5PR07CA0100.namprd07.prod.outlook.com (2603:10b6:4:ae::29) by
+ BN8PR12MB3204.namprd12.prod.outlook.com (2603:10b6:408:9d::19) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.4129.28; Tue, 18 May 2021 18:22:15 +0000
+Received: from DM6NAM11FT009.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:4:ae:cafe::2) by DM5PR07CA0100.outlook.office365.com
+ (2603:10b6:4:ae::29) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4108.25 via Frontend
+ Transport; Tue, 18 May 2021 18:22:15 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ DM6NAM11FT009.mail.protection.outlook.com (10.13.173.20) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4129.25 via Frontend Transport; Tue, 18 May 2021 18:22:15 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 18 May
+ 2021 18:22:14 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Tue, 18 May 2021 18:22:14 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 5.12 000/363] 5.12.5-rc2 review
+In-Reply-To: <20210518135831.445321364@linuxfoundation.org>
+References: <20210518135831.445321364@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-TM-AS-GCONF: 00
-X-Proofpoint-GUID: w89M7WGTal8YvIqrvKylruOjxFeDkIpH
-X-Proofpoint-ORIG-GUID: -WN6utSFq3HBY8dU3IVSml2EZwoBiaFz
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-18_09:2021-05-18,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=999 spamscore=0
- bulkscore=0 phishscore=0 adultscore=0 malwarescore=0 impostorscore=0
- suspectscore=0 mlxscore=0 priorityscore=1501 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105180126
+MIME-Version: 1.0
+Message-ID: <812545e166b7488bb74aac85d3c1a58b@HQMAIL105.nvidia.com>
+Date:   Tue, 18 May 2021 18:22:14 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 035f27da-f3f5-4fa9-49b5-08d91a29dd34
+X-MS-TrafficTypeDiagnostic: BN8PR12MB3204:
+X-Microsoft-Antispam-PRVS: <BN8PR12MB3204E414A8E5636CA59956AFD92C9@BN8PR12MB3204.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: uVVI1TX0VU6BoBE587/V9nyrH3OYwG+Z+qNU3QICSKy7KgP4C4MyZy3sKObTDvCZCBoVV+614bdepSiFFwhz5ELl6HLh4s5Y1lJaQ3xXkh4MLMLxFa/kd15uMGU/zf1Fmne0CLGoQPDtM70PuejDyu0BFfdU10LqvApai+dOfhG1WhCg+4yAfWwjg5gMgPTH8V6cw4g8Kwej3RwWEzk1FcosvkTX95yiWXQHn4WuJpsAil2Tg0YN+DyfkTuSwMuJOKqS4TWmVq7xuWldqmhwq1kfqABByv0mqV6GPTaxBg/s5UPCkPsz4loQMPGO3IkKaRmnzKHAOqWOcooJ5sEiI+l/KCTJjpzuYDr5ea5dd+aNQ0P2RwuazCZWUuNqKMW1J8uZSxImt6aGn+yMVHvTF535w0zwu6scNtqS2NNDWGrG3VMrjoYf+dokZF9l2Dikdsif/L7/yWrcLQV09FuUUCS/MXpRNX4zRiUyDaxucFkCrU81vRv4Qpr+cqP4DzSU1ucns1Y+FkWK5D+o1jaGYc4iL0ex9ORFSu4QbRanWVtSrp/EIRnlskoZLYGZ13ghsXhXRIh2YiG2IiRkUGHtq1kxKCIy5m3PAVoBdGYslTPaYtN2jBEGW1i7X+KMFhcnt2rxFtT28NAnKEDFgFDyFH4+Bk1ukgMIfuFOR9ojJ8WfC7mSVGCulowQ1ntQYMGhm7GCnSAKIXlQgKUg8tlAAu9xBFLbuo3IzkfPyuZeNbc=
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(136003)(396003)(346002)(376002)(39860400002)(36840700001)(46966006)(356005)(47076005)(8676002)(6916009)(7636003)(7416002)(36860700001)(82740400003)(5660300002)(82310400003)(426003)(86362001)(108616005)(186003)(24736004)(966005)(54906003)(70206006)(70586007)(336012)(8936002)(2906002)(26005)(478600001)(4326008)(36906005)(316002);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 18 May 2021 18:22:15.5709
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 035f27da-f3f5-4fa9-49b5-08d91a29dd34
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT009.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3204
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, 18 May 2021 15:59:03 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.5 release.
+> There are 363 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Thu, 20 May 2021 13:57:42 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.5-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
+All tests passing for Tegra ...
 
-On 5/18/21 9:59 AM, Christian Borntraeger wrote:
->
->
-> On 18.05.21 15:42, Tony Krowiak wrote:
->>
->>
->> On 5/18/21 5:30 AM, Christian Borntraeger wrote:
->>>
->>>
->>> On 17.05.21 21:10, Halil Pasic wrote:
->>>> On Mon, 17 May 2021 09:37:42 -0400
->>>> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
->>>>
->>>>>>
->>>>>> Because of this, I don't think the rest of your argument is valid.
->>>>>
->>>>> Okay, so your concern is that between the point in time the
->>>>> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
->>>>> priv.c and the point in time the handle_pqap() function
->>>>> in vfio_ap_ops.c is called, the memory allocated for the
->>>>> matrix_mdev containing the struct kvm_s390_module_hook
->>>>> may get freed, thus rendering the function pointer invalid.
->>>>> While not impossible, that seems extremely unlikely to
->>>>> happen. Can you articulate a scenario where that could
->>>>> even occur?
->>>>
->>>> Malicious userspace. We tend to do the pqap aqic just once
->>>> in the guest right after the queue is detected. I do agree
->>>> it ain't very likely to happen during normal operation. But why are
->>>> you asking?
->>>
->>> Would it help, if the code in priv.c would read the hook once
->>> and then only work on the copy? We could protect that with rcu
->>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
->>> unsetting the pointer?
->>
->> I'll look into this.
->
-> I think it could work. in priv.c use rcu_readlock, save the
-> pointer, do the check and call, call rcu_read_unlock.
-> In vfio_ap use rcu_assign_pointer to set the pointer and
-> after setting it to zero call sychronize_rcu.
->
-> Halil, I think we can do this as an addon patch as it makes
-> sense to have this callback pointer protected independent of
-> this patch. Agree?
+Test results for stable-v5.12:
+    12 builds:	12 pass, 0 fail
+    28 boots:	28 pass, 0 fail
+    104 tests:	104 pass, 0 fail
 
-I agree that this is a viable option; however, this does not
-guarantee that the matrix_mdev is not freed thus rendering
-the function pointer to the interception handler invalid unless
-that is also included within the rcu_readlock/rcu_read_unlock.
-That is not possible given the matrix_mdev is freed within
-the remove callback and the pointer to the structure that
-contains the interception handler function pointer is cleared
-in the vfio_ap_mdev_unset_kvm() function. I am working on
-a patch and should be able to post it before EOD or first thing
-tomorrow.
+Linux version:	5.12.5-rc2-gd9d51f8654b9
+Boards tested:	tegra124-jetson-tk1, tegra186-p2771-0000,
+                tegra194-p2972-0000, tegra194-p3509-0000+p3668-0000,
+                tegra20-ventana, tegra210-p2371-2180,
+                tegra210-p3450-0000, tegra30-cardhu-a04
 
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
+
+Jon
