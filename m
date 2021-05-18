@@ -2,135 +2,243 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A2F05387525
-	for <lists+stable@lfdr.de>; Tue, 18 May 2021 11:30:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35710387574
+	for <lists+stable@lfdr.de>; Tue, 18 May 2021 11:46:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241842AbhERJby (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 18 May 2021 05:31:54 -0400
-Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:20952 "EHLO
-        mx0b-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S240100AbhERJbx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 05:31:53 -0400
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14I92ovB060806;
-        Tue, 18 May 2021 05:30:34 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
- references : from : message-id : date : mime-version : in-reply-to :
- content-type : content-transfer-encoding; s=pp1;
- bh=+73G4iYiJwotX63fMRiCMOVJPpMNf7eP+rGiJGZlsJ4=;
- b=p/Me31qq6Qwfpa0q9svke6AGZOXda5Eq5v2Kr1vYMOxjL4zlbruk02UGcdTP6pn3W/4Z
- plZ9fNnv6vI0ek+yQ3efKFegHopVDBwLrS0hRNVmNbmPlCL27tpy18QsmDUzhClifRez
- 0wfH/Pn8KZWEvnO+tkKCJjHztjGzii7hSJa6PKPSju/vA80Ij0vQmQRQGp1JVmPWyux7
- vW6jUUYrT5/crYyrtVvU/gHBmpekdhsrXkQm1/Vxyjw+awT3FbI+VvWAkCJdbcdPvnhZ
- BvVVBuIP3tvTXhHAHMviKWPdchbyFl1onrCf1WxaJpAFmKo8j7UujIked8mF2DmZxatm KA== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38m8uvkr4g-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 05:30:34 -0400
-Received: from m0098417.ppops.net (m0098417.ppops.net [127.0.0.1])
-        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14I944Kv065504;
-        Tue, 18 May 2021 05:30:34 -0400
-Received: from ppma06fra.de.ibm.com (48.49.7a9f.ip4.static.sl-reverse.com [159.122.73.72])
-        by mx0a-001b2d01.pphosted.com with ESMTP id 38m8uvkr3u-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 05:30:33 -0400
-Received: from pps.filterd (ppma06fra.de.ibm.com [127.0.0.1])
-        by ppma06fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14I9RhsS002084;
-        Tue, 18 May 2021 09:30:32 GMT
-Received: from b06cxnps3074.portsmouth.uk.ibm.com (d06relay09.portsmouth.uk.ibm.com [9.149.109.194])
-        by ppma06fra.de.ibm.com with ESMTP id 38j5jh0r6p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 18 May 2021 09:30:31 +0000
-Received: from d06av22.portsmouth.uk.ibm.com (d06av22.portsmouth.uk.ibm.com [9.149.105.58])
-        by b06cxnps3074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14I9USp024772888
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Tue, 18 May 2021 09:30:28 GMT
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id BE92E4C04E;
-        Tue, 18 May 2021 09:30:28 +0000 (GMT)
-Received: from d06av22.portsmouth.uk.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 36EBA4C044;
-        Tue, 18 May 2021 09:30:28 +0000 (GMT)
-Received: from oc7455500831.ibm.com (unknown [9.171.42.71])
-        by d06av22.portsmouth.uk.ibm.com (Postfix) with ESMTP;
-        Tue, 18 May 2021 09:30:28 +0000 (GMT)
-Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
-To:     Halil Pasic <pasic@linux.ibm.com>,
-        Tony Krowiak <akrowiak@linux.ibm.com>
-Cc:     linux-s390@vger.kernel.org, linux-kernel@vger.kernel.org,
-        cohuck@redhat.com, pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com,
-        jgg@nvidia.com, alex.williamson@redhat.com, kwankhede@nvidia.com,
-        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
-References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
- <20210512203536.4209c29c.pasic@linux.ibm.com>
- <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
- <20210513194541.58d1628a.pasic@linux.ibm.com>
- <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
- <20210514021500.60ad2a22.pasic@linux.ibm.com>
- <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
- <20210517211030.368ca64b.pasic@linux.ibm.com>
-From:   Christian Borntraeger <borntraeger@de.ibm.com>
-Message-ID: <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
-Date:   Tue, 18 May 2021 11:30:27 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S243517AbhERJrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 18 May 2021 05:47:01 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46290 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S241211AbhERJrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 18 May 2021 05:47:00 -0400
+Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADFF5C061756
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 02:45:41 -0700 (PDT)
+Received: by mail-ej1-x62a.google.com with SMTP id et19so6494707ejc.4
+        for <stable@vger.kernel.org>; Tue, 18 May 2021 02:45:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=+oqeCKfXv82JScb7czkuI4jlT3GFELCoxB29oxrX+A0=;
+        b=UODTDDeQoU/FGbWm2WyozsDnYWpZ6FCKK6tmqI8b5MhtfXONiBI5+1Pmst92hBNNPt
+         H4VH0TjkP6r/CBPL8FhCEOU/1aKJ1TZzS8uN4n0x3tgtNOG8ixpFQ/FCVTU0lyBH9H5d
+         iXqxYAr1VDzHxoQR/olXH2InXbvejnSwTtihL+1gW/Rw4lRmyoNyJehoNHYAnHXEy0M7
+         GWDolLF72tyOPKN0WviHS7qzAQKREHTvwZRzeg3yn7prVhLIKKE9k0AcKxGS7oolEc4p
+         6cNTmD/TJ2m8enTohFyA1+AKHiGfAQSJaFqEu5j85ORQkpJVHfzshDg/PYUHiVZfN7+s
+         xoTQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=+oqeCKfXv82JScb7czkuI4jlT3GFELCoxB29oxrX+A0=;
+        b=T0q0X6fQHSGtLyFmsnMwhu2PyaK2ue+/0oXpkS73GezaY052837Wzqgn/bXzj752KS
+         mClWq+ZHD7YypEGVtyRGuGah/B0pjHSPEsy2TAqZ9eVZoakLBtb28ozIRI5N8O0h4msK
+         HXRE++Wqd62Jzx8v8+WuI3akhbQkvqSGxW+lmLMLiey3u09akffCl0EwteBy+hIaec7Y
+         9elbyizNNRS0dOkrl64AhtOZi9+2g3jsSE0fcn6Ww2VdVdn1v4l+mYrDpGnW5wTTKxG5
+         FJEbJNLrYEKgmNkQ7QoIHP8Ep2ALoFSVhrpn0K+H3D4pk8rBYrGecjzy1kMeUZhmF6is
+         Mc+A==
+X-Gm-Message-State: AOAM532TwEKdzdjcORvTriJQoLmEOPR/J5lHCOVAL3h3/9U2ssAi0rJn
+        w6GnkUOJNDoE8nivbRKQTCsCmk9EoO/KBbkzf4RGaQ==
+X-Google-Smtp-Source: ABdhPJzQ7ATO2yRh0M7AqlfnoDtHYcLtEEj1Om/5GtLciWdQuJEb5qLvvhnhYEqraag/rAlJvvPBRDOxPxKVavqC8ks=
+X-Received: by 2002:a17:906:c211:: with SMTP id d17mr5113796ejz.247.1621331140210;
+ Tue, 18 May 2021 02:45:40 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <20210517211030.368ca64b.pasic@linux.ibm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: TQwsr9HUi8vLd4mSM0Rv1rBj9m5TBD3W
-X-Proofpoint-GUID: QaWeeB09EWreJr9ayiND5uz2uhmDgFEj
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-18_04:2021-05-17,2021-05-18 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 phishscore=0
- mlxlogscore=999 impostorscore=0 malwarescore=0 lowpriorityscore=0
- priorityscore=1501 mlxscore=0 adultscore=0 spamscore=0 clxscore=1015
- suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2104190000 definitions=main-2105180066
+References: <20210517140302.043055203@linuxfoundation.org>
+In-Reply-To: <20210517140302.043055203@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 18 May 2021 15:15:28 +0530
+Message-ID: <CA+G9fYu=Y4m9Q5QSgKC21JaXo5=_UVFmK17WOMr4H2ADwpWBZw@mail.gmail.com>
+Subject: Re: [PATCH 5.11 000/329] 5.11.22-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 17 May 2021 at 19:34, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.11.22 release.
+> There are 329 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 19 May 2021 14:02:16 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.11.22-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.11.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
+
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
+
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+
+## Build
+* kernel: 5.11.22-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.11.y
+* git commit: 6d09fa399bd51fced0a3ad760d2b28f3cfca1678
+* git describe: v5.11.21-330-g6d09fa399bd5
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.11.y/build/v5.11=
+.21-330-g6d09fa399bd5
+
+## No regressions (compared to v5.11.21)
 
 
-On 17.05.21 21:10, Halil Pasic wrote:
-> On Mon, 17 May 2021 09:37:42 -0400
-> Tony Krowiak <akrowiak@linux.ibm.com> wrote:
-> 
->>>
->>> Because of this, I don't think the rest of your argument is valid.
->>
->> Okay, so your concern is that between the point in time the
->> vcpu->kvm->arch.crypto.pqap_hook pointer is checked in
->> priv.c and the point in time the handle_pqap() function
->> in vfio_ap_ops.c is called, the memory allocated for the
->> matrix_mdev containing the struct kvm_s390_module_hook
->> may get freed, thus rendering the function pointer invalid.
->> While not impossible, that seems extremely unlikely to
->> happen. Can you articulate a scenario where that could
->> even occur?
-> 
-> Malicious userspace. We tend to do the pqap aqic just once
-> in the guest right after the queue is detected. I do agree
-> it ain't very likely to happen during normal operation. But why are
-> you asking?
+## Fixes (compared to v5.11.21)
+* mips, build
+  - clang-10-allnoconfig
+  - clang-10-defconfig
+  - clang-10-tinyconfig
+  - clang-11-allnoconfig
+  - clang-11-defconfig
+  - clang-11-tinyconfig
+  - clang-12-allnoconfig
+  - clang-12-defconfig
+  - clang-12-tinyconfig
 
-Would it help, if the code in priv.c would read the hook once
-and then only work on the copy? We could protect that with rcu
-and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
-unsetting the pointer?
-> 
-> I'm not sure I understood correctly what kind of a scenario are
-> you asking for. PQAP AQIC and mdev remove are independent
-> events originated in userspace, so AFAIK we may not assume
-> that the execution of two won't overlap, nor are we allowed
-> to make assumptions on how does the execution of these two
-> overlap (except for the things we explicitly ensure -- e.g.
-> some parts are made mutually exclusive using the matrix_dev->lock
-> lock).
-> 
-> Regards,
-> Halil
-> 
+## Test result summary
+ total: 77570, pass: 64809, fail: 945, skip: 11208, xfail: 608,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
