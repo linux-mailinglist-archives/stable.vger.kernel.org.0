@@ -2,121 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F07413887C2
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 08:44:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 338A8388844
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 09:42:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232519AbhESGpu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 02:45:50 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48136 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232439AbhESGpu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 02:45:50 -0400
-Received: from mail-pj1-x1036.google.com (mail-pj1-x1036.google.com [IPv6:2607:f8b0:4864:20::1036])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A89CEC06175F
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 23:44:30 -0700 (PDT)
-Received: by mail-pj1-x1036.google.com with SMTP id k5so6834317pjj.1
-        for <stable@vger.kernel.org>; Tue, 18 May 2021 23:44:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=PBkJ8xEe0V5XJGdcayuuTyIOxDg1623Z9YdjIystf6E=;
-        b=MIBH9CMHRnqVT46CGi8cFI3G2aOY/WOc4J7sw2LS0TSfxmt+BSVmDzWRbTZGscnCD6
-         M1Kt2nLS6rUFTblEcIuhxIgNoOSHdEMORNZEs6tObjeX+mnbT8W/vkZYWrOeI5I2E/ZO
-         vd02N82b246ueL2RonZ8XctIxMWwYzlg7Kh9nTVNB2BYOEU7AK4OQVricz26NvOSkVcY
-         OvHfZ2sPu+HHMsiqUTNLetc7WhqJmuNVAyhiDEq1NYl3YP14wdJrfZ/1rKxwYYiVwcRU
-         RbMhwLDpyQd/M9+0fav1+j9tinH5XpL+fqX7KzI7d+jK1qxIJaQbvMOcLBjzNhGLqlJQ
-         Rl8g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=PBkJ8xEe0V5XJGdcayuuTyIOxDg1623Z9YdjIystf6E=;
-        b=BDeWfV5JF/YwN9LVjS7Yw9g57HEPfNn2mSH+zUIjOn4GgDudGKeVo427KOk1zxgclw
-         nHn150CbacqFUPZulRt9pTXm5Cr4ikJfUj07YSeai6U2j9LYSpYehm+fmOAE7p3eWcgB
-         TKaPBjXMY/N8NZqpTEK8iB1v7PBWhmcJ8kmg0Ev48TczwQN0S3nFzi+UJNIF/QGuCzD2
-         ynGLGp5P9YLrnFtO9m91bmQhVp0X74BVrHk+8WAb0M+Jm2X2JWl1Q+63mor6xwoQnVBX
-         9jPmSW2AcKN7Z5T0vidPaVAlXckbOCdRnMDmJokAh837Id4t0cfWgKY65KrKoZmAIEGm
-         CtYA==
-X-Gm-Message-State: AOAM5301rI4iq+Ss151pEgx8OJaVoTEwnFrhQ+VZ3bdHS9ilV5ptK3lK
-        8MKia6GRsOrXPoh0hujOqeUKV4eaTK/yc1on
-X-Google-Smtp-Source: ABdhPJzkq2sM8kXuJWcCCecLUUtRzCtncslYIjXsJDiy7aQK6kXjuxrXL7Ibn0noQllB65TcMhf68A==
-X-Received: by 2002:a17:90a:8911:: with SMTP id u17mr9933959pjn.165.1621406670063;
-        Tue, 18 May 2021 23:44:30 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id f21sm9516768pjt.11.2021.05.18.23.44.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 18 May 2021 23:44:29 -0700 (PDT)
-Message-ID: <60a4b3cd.1c69fb81.445d8.1078@mx.google.com>
-Date:   Tue, 18 May 2021 23:44:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S240657AbhESHn1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 03:43:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40606 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S240620AbhESHn1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 May 2021 03:43:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3F5461353;
+        Wed, 19 May 2021 07:42:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621410128;
+        bh=vu5ThGta28LHz0+RO/abPJ60jEn1Pg++/iBmT2Fj+Cs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=t6dL0Ha2TJkZOSuylhxZ/PKdcoJt2VI5FwlzJrRuTH4hwrarFuec9qbAKI6SRsQcr
+         Q6VymvvLggdu51TXoHf8mkwrtvttjqpLPAD/nwUK8snU5XvS6H5XY7+YMgWZwBTVy+
+         pkv94L2k2EVHSEWA0/IJbxNHHTKxHUDYK+XOv9KKMI++NAx5bs5oBx5Knjlxhh7FYy
+         oubzvPuzQy1kXHsY0l4DDP0wAVX/otqlKZa8uwkqynNaj5MGD5M8+/Hwv47ZTwkEhA
+         X9p0csY3+xOQTXyVFsiGu3Z+pJ4Qjvm97QglJnemHrwwoxLdBRhGtC0YpYJ9dBuTqh
+         k2yxguidUj4fw==
+From:   Ard Biesheuvel <ardb@kernel.org>
+To:     stable@vger.kernel.org
+Cc:     snitzer@redhat.com, agk@redhat.com, dm-devel@redhat.com,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Ard Biesheuvel <ardb@kernel.org>
+Subject: [PATCH stable] dm ioctl: fix out of bounds array access when no devices
+Date:   Wed, 19 May 2021 09:41:24 +0200
+Message-Id: <20210519074124.49890-1-ardb@kernel.org>
+X-Mailer: git-send-email 2.20.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.12.4-363-g2fd5d85fdab9
-X-Kernelci-Branch: queue/5.12
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.12 baseline: 164 runs,
- 1 regressions (v5.12.4-363-g2fd5d85fdab9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 164 runs, 1 regressions (v5.12.4-363-g2fd5d8=
-5fdab9)
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-Regressions Summary
--------------------
+commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
 
-platform      | arch  | lab          | compiler | defconfig | regressions
---------------+-------+--------------+----------+-----------+------------
-r8a77960-ulcb | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+If there are not any dm devices, we need to zero the "dev" argument in
+the first structure dm_name_list. However, this can cause out of
+bounds write, because the "needed" variable is zero and len may be
+less than eight.
 
+Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
+too small to hold the "nl->dev" value.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.4-363-g2fd5d85fdab9/plan/baseline/
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+---
+Please apply to 4.4.y and 4.9.y
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.4-363-g2fd5d85fdab9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      2fd5d85fdab929230d046c639c6dd768bf78992d =
+ drivers/md/dm-ioctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
+diff --git a/drivers/md/dm-ioctl.c b/drivers/md/dm-ioctl.c
+index 836a2808c0c7..eb2659a12310 100644
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -524,7 +524,7 @@ static int list_devices(struct dm_ioctl *param, size_t param_size)
+ 	 * Grab our output buffer.
+ 	 */
+ 	nl = get_result_buffer(param, param_size, &len);
+-	if (len < needed) {
++	if (len < needed || len < sizeof(nl->dev)) {
+ 		param->flags |= DM_BUFFER_FULL_FLAG;
+ 		goto out;
+ 	}
+-- 
+2.20.1
 
-
-Test Regressions
----------------- =
-
-
-
-platform      | arch  | lab          | compiler | defconfig | regressions
---------------+-------+--------------+----------+-----------+------------
-r8a77960-ulcb | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a480562cb03812e2b3afa7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.4-3=
-63-g2fd5d85fdab9/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77960-ulcb.=
-txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.4-3=
-63-g2fd5d85fdab9/arm64/defconfig/gcc-8/lab-baylibre/baseline-r8a77960-ulcb.=
-html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a480562cb03812e2b3a=
-fa8
-        new failure (last pass: v5.12.4-362-g6cee647af019) =
-
- =20
