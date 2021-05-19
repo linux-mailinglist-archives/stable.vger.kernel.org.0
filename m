@@ -2,53 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 46036389685
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 21:20:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BC538971F
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 21:56:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231939AbhESTV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 15:21:58 -0400
-Received: from lithops.sigma-star.at ([195.201.40.130]:35170 "EHLO
-        lithops.sigma-star.at" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231760AbhESTV5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 15:21:57 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id D87CB606BA4E;
-        Wed, 19 May 2021 21:20:34 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id lS9jCYwelv0U; Wed, 19 May 2021 21:20:34 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 8EC5E60A3594;
-        Wed, 19 May 2021 21:20:34 +0200 (CEST)
-Received: from lithops.sigma-star.at ([127.0.0.1])
-        by localhost (lithops.sigma-star.at [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id 1T46rIOgKzPk; Wed, 19 May 2021 21:20:34 +0200 (CEST)
-Received: from lithops.sigma-star.at (lithops.sigma-star.at [195.201.40.130])
-        by lithops.sigma-star.at (Postfix) with ESMTP id 66F7E616B56D;
-        Wed, 19 May 2021 21:20:34 +0200 (CEST)
-Date:   Wed, 19 May 2021 21:20:34 +0200 (CEST)
-From:   Richard Weinberger <richard@nod.at>
-To:     stable <stable@vger.kernel.org>
-Cc:     tomas.melin@vaisala.com, gregkh@linuxfoundation.org,
-        linux-serial@vger.kernel.org
-Message-ID: <919527621.20381.1621452034259.JavaMail.zimbra@nod.at>
-Subject: Please backport b86f86e8e7c5 ("serial: 8250: fix potential deadlock
- in rs485-mode")
+        id S232388AbhEST6P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 15:58:15 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:55054 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232383AbhEST6P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 15:58:15 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 3996E1C0B7F; Wed, 19 May 2021 21:56:54 +0200 (CEST)
+Date:   Wed, 19 May 2021 21:56:52 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Yu Zhang <yu.c.zhang@intel.com>,
+        Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH 5.10 005/289] KVM: x86/mmu: Remove the defunct
+ update_pte() paging hook
+Message-ID: <20210519195651.GA14212@amd>
+References: <20210517140305.140529752@linuxfoundation.org>
+ <20210517140305.340027792@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [195.201.40.130]
-X-Mailer: Zimbra 8.8.12_GA_3807 (ZimbraWebClient - FF78 (Linux)/8.8.12_GA_3809)
-Thread-Index: hqBNF9KYvvk63RA2cmny2kdaKWQidg==
-Thread-Topic: Please backport b86f86e8e7c5 ("serial: 8250: fix potential deadlock in rs485-mode")
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="ew6BAiZeqk4r7MaW"
+Content-Disposition: inline
+In-Reply-To: <20210517140305.340027792@linuxfoundation.org>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+
+--ew6BAiZeqk4r7MaW
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
 Hi!
 
-Please backport commit b86f86e8e7c5 ("serial: 8250: fix potential deadlock in rs485-mode") to stable.
-The issue is real, I was hit by it on 4.14.
+> From: Sean Christopherson <seanjc@google.com>
+>=20
+> commit c5e2184d1544f9e56140791eff1a351bea2e63b9 upstream.
+>=20
+> Remove the update_pte() shadow paging logic, which was obsoleted by
+> commit 4731d4c7a077 ("KVM: MMU: out of sync shadow core"), but never
+> removed.  As pointed out by Yu, KVM never write protects leaf page
 
-Thanks,
-//richard
+First, this is cleanup, not a bugfix.
+
+Second, AFAICT 4731d4c7a077 ("KVM: MMU: out of sync shadow core") is
+not in 5.10, so this will break stuff according to the changelog.
+
+Best regards,
+								Pavel
+							=09
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+
+--ew6BAiZeqk4r7MaW
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
+
+iEYEARECAAYFAmClbYMACgkQMOfwapXb+vLpFwCeOaRAeJp3IbirLorw+F54prgw
+neUAn1emxKbXZw83UCscWvzI81CZ1G4t
+=sREA
+-----END PGP SIGNATURE-----
+
+--ew6BAiZeqk4r7MaW--
