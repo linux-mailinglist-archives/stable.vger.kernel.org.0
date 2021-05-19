@@ -2,113 +2,153 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8A038894F
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 10:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9848F3889A8
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 10:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237588AbhESIZX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 04:25:23 -0400
-Received: from wout1-smtp.messagingengine.com ([64.147.123.24]:44627 "EHLO
-        wout1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S237523AbhESIZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 04:25:23 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailout.west.internal (Postfix) with ESMTP id EFD2B138F;
-        Wed, 19 May 2021 04:24:02 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Wed, 19 May 2021 04:24:03 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
-        date:from:to:cc:subject:message-id:references:mime-version
-        :content-type:in-reply-to; s=fm3; bh=0SETtIoHoSLRFxXXnzA6YE1GPr8
-        GujCyHaH8e/QgHPw=; b=hY/Nq5O95Dc8JehlHpmNDbro8HW8Cb+fg86jFv+XgMq
-        V2JQzZ4tI7os8riZbecQW4jLdqdfBx78/Bg7Q08WAeKZtuAgg/+k3bsoZZPqOOOh
-        Y50xtDJ48RtyZq1QcsdLu0HAFbwB5ZSpzv2ErSm5ME0LhbBMoDcGMfVXOpn1+iiG
-        Qn6gmzq+wt9ZQSyBfGkfatgzTmXKv/bnN18C0itB4S+TbKQlo+tlBoUnK90RalkK
-        kvLQGZhk+G8iLc/tML4mn0Ro/NzaEWyG5OAHYjc09y9cM2RfITHlwncHSQRmbpIc
-        0IXnDPwGjwrR6qtiv5EMmkIRw2gzNA3LcWiS31lfRyA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-type:date:from:in-reply-to
-        :message-id:mime-version:references:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0SETtI
-        oHoSLRFxXXnzA6YE1GPr8GujCyHaH8e/QgHPw=; b=KIdR8VKzjoWWBVh4UJIfKl
-        9IyVFOgxfSzgSJ4QNQETYmZPKXM/qudwutpM4SqqNNele+xb0VzhiRMOD3cSGVHE
-        Indli67jnHrVaypwU4neMXk/YTUc2oft/qpW036FVuBWWUkB2epB9RXtPR/gecEb
-        23bY2jSBEy44n0TOUGbuWKkDzMJGngsjSAUHR8ykxb9SHVIKfccl3i8C5U81C5Fb
-        zNjn+09B1toPtJrwalRkGql6meJnR1MpbNvbq3JL0+uJYVlZPzf2ArQOy5zB0jjc
-        vzQdD85SvuHYC9IqiEfVvuEHCb54q5cHITqXGAF6RWdtmKkykBxVHc1hRkUR1Ywg
-        ==
-X-ME-Sender: <xms:IMukYF9XY0nczE2Uhsmj57ssDDknb1rY5JhSkt0r6CmO8tEJUUnIew>
-    <xme:IMukYJupVbVunz67hytUpbdhta1virt4BjvfDBSHHhUexrDW5fNgs9x54W68YlM8S
-    XsRMLob_MKzBA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeiledgtddvucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
-    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevhefgje
-    eitdfffefhvdegleeigeejgeeiffekieffjeeflefhieegtefhudejueenucfkphepkeef
-    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
-    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:IMukYDDRHujoX71qbuh-B_b7JUT6O1EEnJp3kqmj8v2YYHztQBrQIA>
-    <xmx:IMukYJedM0LON_i_MQhtM_97Juw2U1_7HOFWEyh0uSTvKIqV9c0CKA>
-    <xmx:IMukYKOHBwVFYK0hsGvmeRr9Jya6mAmVFR133CndRV59PmKJHHijfg>
-    <xmx:IsukYJfQuKKLcSpds_LRO-Mv2-KUxUPwIJD_mPZLiLnG2QfIYLUERQ>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Wed, 19 May 2021 04:24:00 -0400 (EDT)
-Date:   Wed, 19 May 2021 10:23:58 +0200
-From:   Greg KH <greg@kroah.com>
-To:     "Anatoli N.Chechelnickiy" <Anatoli.Chechelnickiy@m.interpipe.biz>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "baolu.lu@linux.intel.com" <baolu.lu@linux.intel.com>,
-        "sashal@kernel.org" <sashal@kernel.org>
-Subject: Re: regressions in iommu system with 5.10.37
-Message-ID: <YKTLHuWCdIhEIObv@kroah.com>
-References: <8893cfb2-d4e8-f3e9-e0b9-bbacf1220dca@m.interpipe.biz>
+        id S1343687AbhESIrz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 04:47:55 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:31312 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S1343696AbhESIrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 04:47:52 -0400
+Received: from pps.filterd (m0098409.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14J8hf8c151433;
+        Wed, 19 May 2021 04:46:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=subject : to : cc :
+ references : from : message-id : date : mime-version : in-reply-to :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=OYWWSIcs12yMfYYufLMR8/Q7KvEDR7ikuAOk4RW6roE=;
+ b=sqHNhlRQ7OZzBnCrWq+GWAjtMH4f0glFjDlRU/aR8Sokt+ge0xMj9kBKeORaCl9iTuLo
+ Tqk9kRZKOGSkIAr25OOb4Lj9sRhasik8mTMczBp74qVCczAl7CBhWP38yO/oIQIrUtsA
+ xj2/lvlep7aTlqkMqh4nvF10nm1i8MSgAxthOI+ciePovfqsWJ7dh3bAAXlvzj1eW7Ml
+ UAzIw7jE/5PG8n+TJdhSKQeE0t5/jv75+zTwtHq6XkHZ2NhCMWg6xIKrFBGrwH4TYYhk
+ Mh6WmaevWQ9ISkhG6KX8bNxg+6jx7ih8n93r3GvWLi8EGrbn3TniQVskqDAl5XJi1BC4 EQ== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxbx2arq-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 04:46:24 -0400
+Received: from m0098409.ppops.net (m0098409.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14J8iRvO154388;
+        Wed, 19 May 2021 04:46:23 -0400
+Received: from ppma04fra.de.ibm.com (6a.4a.5195.ip4.static.sl-reverse.com [149.81.74.106])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38mxbx2ar1-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 04:46:23 -0400
+Received: from pps.filterd (ppma04fra.de.ibm.com [127.0.0.1])
+        by ppma04fra.de.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14J8hvco020970;
+        Wed, 19 May 2021 08:46:21 GMT
+Received: from b06cxnps4074.portsmouth.uk.ibm.com (d06relay11.portsmouth.uk.ibm.com [9.149.109.196])
+        by ppma04fra.de.ibm.com with ESMTP id 38j5x81386-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 08:46:21 +0000
+Received: from d06av25.portsmouth.uk.ibm.com (d06av25.portsmouth.uk.ibm.com [9.149.105.61])
+        by b06cxnps4074.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14J8kIkd28705074
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 May 2021 08:46:18 GMT
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 517CC11C0D8;
+        Wed, 19 May 2021 08:46:16 +0000 (GMT)
+Received: from d06av25.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 081F211C307;
+        Wed, 19 May 2021 08:17:50 +0000 (GMT)
+Received: from oc7455500831.ibm.com (unknown [9.171.89.97])
+        by d06av25.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Wed, 19 May 2021 08:17:49 +0000 (GMT)
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove callback
+To:     Halil Pasic <pasic@linux.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+ <20210512203536.4209c29c.pasic@linux.ibm.com>
+ <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+ <20210513194541.58d1628a.pasic@linux.ibm.com>
+ <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+ <20210514021500.60ad2a22.pasic@linux.ibm.com>
+ <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+ <20210517211030.368ca64b.pasic@linux.ibm.com>
+ <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
+ <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
+ <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+ <20210518173351.39646b45.pasic@linux.ibm.com>
+ <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
+ <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+From:   Christian Borntraeger <borntraeger@de.ibm.com>
+Message-ID: <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+Date:   Wed, 19 May 2021 10:17:49 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8893cfb2-d4e8-f3e9-e0b9-bbacf1220dca@m.interpipe.biz>
+In-Reply-To: <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: -pRYk4RQyfIs3-_W5GkkstdLTwAmRRRt
+X-Proofpoint-ORIG-GUID: Rtnd7wG_q_PxxiCdyVU6eOCYewUvxU0r
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-19_04:2021-05-18,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501
+ lowpriorityscore=0 phishscore=0 impostorscore=0 spamscore=0 bulkscore=0
+ malwarescore=0 suspectscore=0 mlxscore=0 clxscore=1011 mlxlogscore=999
+ adultscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105190064
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 19, 2021 at 08:01:29AM +0000, Anatoli N.Chechelnickiy wrote:
-> Hi
-> 
-> I'm sorry to report about regression in 5.10.37
-> 
-> with
-> 
-> CONFIG_IOMMU_IOVA=y
-> CONFIG_IOMMU_API=y
-> CONFIG_IOMMU_SUPPORT=y
-> CONFIG_OF_IOMMU=y
-> CONFIG_INTEL_IOMMU=y
-> CONFIG_INTEL_IOMMU_SVM=y
-> CONFIG_INTEL_IOMMU_DEFAULT_ON=y
-> CONFIG_INTEL_IOMMU_FLOPPY_WA=y
-> 
-> and iommu=on in grub.cfg
-> 
-> 
-> All my dell r340 and all lenovo servers won't boot any more. Just black
-> screen at once.
-> 
-> 
-> with intel_iommu=on iommu=pt DELL R240 and Lenovo SR350 cat boot
-> 
-> Older Lenovo cannot boot even with "intel_iommu=on iommu=pt" only with
-> iommu=off in grub
-> 
-> With iommu=off in grub all servers are booting well
-> 
-> With 5.4.36 do not have this problem
-> 
-> 
-> tested last 4 days with 10+ different servers(
 
-Should be fixed with 5.10.38.  If not, please let us know.
 
-thanks,
+On 19.05.21 01:27, Halil Pasic wrote:
+> On Tue, 18 May 2021 19:01:42 +0200
+> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> 
+>> On 18.05.21 17:33, Halil Pasic wrote:
+>>> On Tue, 18 May 2021 15:59:36 +0200
+>>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> [..]
+>>>>>>
+>>>>>> Would it help, if the code in priv.c would read the hook once
+>>>>>> and then only work on the copy? We could protect that with rcu
+>>>>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
+>>>>>> unsetting the pointer?
+>>>
+>>> Unfortunately just "the hook" is ambiguous in this context. We
+>>> have kvm->arch.crypto.pqap_hook that is supposed to point to
+>>> a struct kvm_s390_module_hook member of struct ap_matrix_mdev
+>>> which is also called pqap_hook. And struct kvm_s390_module_hook
+>>> has function pointer member named "hook".
+>>
+>> I was referring to the full struct.
+>>>    
+>>>>>
+>>>>> I'll look into this.
+>>>>
+>>>> I think it could work. in priv.c use rcu_readlock, save the
+>>>> pointer, do the check and call, call rcu_read_unlock.
+>>>> In vfio_ap use rcu_assign_pointer to set the pointer and
+>>>> after setting it to zero call sychronize_rcu.
+>>>
+>>> In my opinion, we should make the accesses to the
+>>> kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
+>>> not sure if that is what you are proposing. How do we usually
+>>> do synchronisation on the stuff that lives in kvm->arch?
+>>>    
+>>
+>> RCU is a method of synchronization. We  make sure that structure
+>> pqap_hook is still valid as long as we are inside the rcu read
+>> lock. So the idea is: clear pointer, wait until all old readers
+>> have finished and the proceed with getting rid of the structure.
+> 
+> Yes I know that RCU is a method of synchronization, but I'm not
+> very familiar with it. I'm a little confused by "read the hook
+> once and then work on a copy". I guess, I would have to read up
+> on the RCU again to get clarity. I intend to brush up my RCU knowledge
+> once the patch comes along. I would be glad to have your help when
+> reviewing an RCU based solution for this.
 
-greg k-h
+Just had a quick look. Its not trivial, as the hook function itself
+takes a mutex and an rcu section must not sleep. Will have a deeper
+look.
