@@ -2,135 +2,204 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B894388CB7
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 13:24:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7987388CBF
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 13:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S1350529AbhESLZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 07:25:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55272 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S1350339AbhESLZT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 07:25:19 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A64AEC0613CE;
-        Wed, 19 May 2021 04:23:59 -0700 (PDT)
-Date:   Wed, 19 May 2021 11:23:57 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1621423438;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iAXAUArqh6DsaVjCU+NUVObsM0uEAWgGBNbNgpdCKYs=;
-        b=m0qIGMUU5Z/MSzvGLzA7mpLCfUSSIDx1XI/KJiQngQ5jWI8WfZVs0rZheTXmbTIqpwPdzY
-        J5JBbwPXQQrzQwkUMRUfgHOLup7Uf2wjmWb66LGp4wD/P8hJG6nKIs8UfCMuiiWA0AZj1Q
-        JLXR2NHCk4yjgpUM6GwncPwN6XuyvBxxWVCLqr77SjyJiXFvpVtPCTNmkZ/TWuCvqm05Ee
-        tqpb+N7jpv9nGnBYuCkGND/rTvu5AwJUoH2iiWB+Uf8wAOPX8e3RbO3bsxlSiT29baVToF
-        wmK8l6K8Paj2uHT0lSIwGSPsFxx2xuGmkLMbxLSvH0o7vZMMYci0oapgEK27qA==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1621423438;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=iAXAUArqh6DsaVjCU+NUVObsM0uEAWgGBNbNgpdCKYs=;
-        b=NCtb0Q8Tn13DufqbeNLZc8mfZliUINDOIKeDg5bqcCJODSx7u3Zk98SK0kpqjq9aSC0LiW
-        6JDklMJyYJmXCWCg==
-From:   "tip-bot2 for Nathan Chancellor" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/build: Fix location of '-plugin-opt=' flags
-Cc:     Anthony Ruhier <aruhier@mailbox.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Ingo Molnar <mingo@kernel.org>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210518190106.60935-1-nathan@kernel.org>
-References: <20210518190106.60935-1-nathan@kernel.org>
+        id S238029AbhESL1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 07:27:20 -0400
+Received: from mx0b-001b2d01.pphosted.com ([148.163.158.5]:6648 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-FAIL)
+        by vger.kernel.org with ESMTP id S237819AbhESL1T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 07:27:19 -0400
+Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14JB5YaK002366;
+        Wed, 19 May 2021 07:25:58 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=date : from : to : cc :
+ subject : message-id : in-reply-to : references : mime-version :
+ content-type : content-transfer-encoding; s=pp1;
+ bh=xjNwDg6g7R/jUn4STa3QG5nV0qyInx4KtgFWDfuBse0=;
+ b=lbW3PP5qWk9eiRNicUTrzl5EBQnharuU086gFlmexOGxkaemMp3ZGbxA+Wl+Ywey+ybT
+ TI+EcYWjqW9NX/y2S4pvTMg9b5WZQ3wCLUfo2ytYO0bRkRabTalekV6yNlDG6RqDX/kr
+ g6FwFIJm4GzWmTNfRo7+fXUR4KiRxNa3WILi3TPAX3UxzQ1XqOuHKzEIXEOhprY6rDJP
+ Bkb4tys9EtrL4IsAdhBOC96DuOZH2ba4wjDxu0f9BZVVQZ60/1+msNoV7u957iH3RWOp
+ dx2UokkhcFioPHUr+JbzKpD2lzZU8NlEskyM3QypBawyOtpQkGLY/SzTnD5qkImZn4o6 AA== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0a02qre-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 07:25:58 -0400
+Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
+        by pps.reinject (8.16.0.43/8.16.0.43) with SMTP id 14JB5nXF003560;
+        Wed, 19 May 2021 07:25:57 -0400
+Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
+        by mx0b-001b2d01.pphosted.com with ESMTP id 38n0a02qqu-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 07:25:57 -0400
+Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
+        by ppma06ams.nl.ibm.com (8.16.0.43/8.16.0.43) with SMTP id 14JBPXaF011293;
+        Wed, 19 May 2021 11:25:55 GMT
+Received: from b06cxnps3075.portsmouth.uk.ibm.com (d06relay10.portsmouth.uk.ibm.com [9.149.109.195])
+        by ppma06ams.nl.ibm.com with ESMTP id 38j5jgt2cs-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Wed, 19 May 2021 11:25:55 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps3075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14JBPqrA34013598
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 19 May 2021 11:25:52 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 8B8CDAE056;
+        Wed, 19 May 2021 11:25:52 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id AC9E8AE051;
+        Wed, 19 May 2021 11:25:51 +0000 (GMT)
+Received: from li-e979b1cc-23ba-11b2-a85c-dfd230f6cf82 (unknown [9.171.63.209])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with SMTP;
+        Wed, 19 May 2021 11:25:51 +0000 (GMT)
+Date:   Wed, 19 May 2021 13:25:49 +0200
+From:   Halil Pasic <pasic@linux.ibm.com>
+To:     Christian Borntraeger <borntraeger@de.ibm.com>
+Cc:     Tony Krowiak <akrowiak@linux.ibm.com>, linux-s390@vger.kernel.org,
+        linux-kernel@vger.kernel.org, cohuck@redhat.com,
+        pasic@linux.vnet.ibm.com, jjherne@linux.ibm.com, jgg@nvidia.com,
+        alex.williamson@redhat.com, kwankhede@nvidia.com,
+        stable@vger.kernel.org, Tony Krowiak <akrowiak@stny.rr.com>
+Subject: Re: [PATCH v2] s390/vfio-ap: fix memory leak in mdev remove
+ callback
+Message-ID: <20210519132549.295d48db.pasic@linux.ibm.com>
+In-Reply-To: <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+References: <20210510214837.359717-1-akrowiak@linux.ibm.com>
+        <20210512203536.4209c29c.pasic@linux.ibm.com>
+        <4c156ab8-da49-4867-f29c-9712c2628d44@linux.ibm.com>
+        <20210513194541.58d1628a.pasic@linux.ibm.com>
+        <243086e2-08a0-71ed-eb7e-618a62b007e4@linux.ibm.com>
+        <20210514021500.60ad2a22.pasic@linux.ibm.com>
+        <594374f6-8cf6-4c22-0bac-3b224c55bbb6@linux.ibm.com>
+        <20210517211030.368ca64b.pasic@linux.ibm.com>
+        <966a60ad-bdde-68d0-ae2f-06121c6ad970@de.ibm.com>
+        <9ebd5fd8-b093-e5bc-e680-88fa7a9b085c@linux.ibm.com>
+        <494af62b-dc9a-ef2c-1869-d8f5ed239504@de.ibm.com>
+        <20210518173351.39646b45.pasic@linux.ibm.com>
+        <ca5f1c72-09a3-d270-44a0-bda54c554f67@de.ibm.com>
+        <20210519012709.3bcc30e7.pasic@linux.ibm.com>
+        <250189ed-bded-5261-d8f3-f75787be7aeb@de.ibm.com>
+Organization: IBM
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.32; x86_64-redhat-linux-gnu)
 MIME-Version: 1.0
-Message-ID: <162142343747.29796.17891708186447529713.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-ORIG-GUID: _iyEpA1SPmLyKZ1JJ59LaZOsF_ozL0VD
+X-Proofpoint-GUID: J30VBoJ0VeHxI7dmTnPyIu16zuzxnH5P
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-19_04:2021-05-19,2021-05-19 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 bulkscore=0 mlxscore=0
+ lowpriorityscore=0 adultscore=0 mlxlogscore=999 phishscore=0 spamscore=0
+ impostorscore=0 suspectscore=0 malwarescore=0 clxscore=1015
+ priorityscore=1501 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105190074
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Wed, 19 May 2021 10:17:49 +0200
+Christian Borntraeger <borntraeger@de.ibm.com> wrote:
 
-Commit-ID:     0024430e920f2900654ad83cd081cf52e02a3ef5
-Gitweb:        https://git.kernel.org/tip/0024430e920f2900654ad83cd081cf52e02a3ef5
-Author:        Nathan Chancellor <nathan@kernel.org>
-AuthorDate:    Tue, 18 May 2021 12:01:06 -07:00
-Committer:     Ingo Molnar <mingo@kernel.org>
-CommitterDate: Wed, 19 May 2021 13:05:53 +02:00
+> On 19.05.21 01:27, Halil Pasic wrote:
+> > On Tue, 18 May 2021 19:01:42 +0200
+> > Christian Borntraeger <borntraeger@de.ibm.com> wrote:
+> >   
+> >> On 18.05.21 17:33, Halil Pasic wrote:  
+> >>> On Tue, 18 May 2021 15:59:36 +0200
+> >>> Christian Borntraeger <borntraeger@de.ibm.com> wrote:  
+> > [..]  
+> >>>>>>
+> >>>>>> Would it help, if the code in priv.c would read the hook once
+> >>>>>> and then only work on the copy? We could protect that with rcu
+> >>>>>> and do a synchronize rcu in vfio_ap_mdev_unset_kvm after
+> >>>>>> unsetting the pointer?  
+> >>>
+> >>> Unfortunately just "the hook" is ambiguous in this context. We
+> >>> have kvm->arch.crypto.pqap_hook that is supposed to point to
+> >>> a struct kvm_s390_module_hook member of struct ap_matrix_mdev
+> >>> which is also called pqap_hook. And struct kvm_s390_module_hook
+> >>> has function pointer member named "hook".  
+> >>
+> >> I was referring to the full struct.  
+> >>>      
+> >>>>>
+> >>>>> I'll look into this.  
+> >>>>
+> >>>> I think it could work. in priv.c use rcu_readlock, save the
+> >>>> pointer, do the check and call, call rcu_read_unlock.
+> >>>> In vfio_ap use rcu_assign_pointer to set the pointer and
+> >>>> after setting it to zero call sychronize_rcu.  
+> >>>
+> >>> In my opinion, we should make the accesses to the
+> >>> kvm->arch.crypto.pqap_hook pointer properly synchronized. I'm
+> >>> not sure if that is what you are proposing. How do we usually
+> >>> do synchronisation on the stuff that lives in kvm->arch?
+> >>>      
+> >>
+> >> RCU is a method of synchronization. We  make sure that structure
+> >> pqap_hook is still valid as long as we are inside the rcu read
+> >> lock. So the idea is: clear pointer, wait until all old readers
+> >> have finished and the proceed with getting rid of the structure.  
+> > 
+> > Yes I know that RCU is a method of synchronization, but I'm not
+> > very familiar with it. I'm a little confused by "read the hook
+> > once and then work on a copy". I guess, I would have to read up
+> > on the RCU again to get clarity. I intend to brush up my RCU knowledge
+> > once the patch comes along. I would be glad to have your help when
+> > reviewing an RCU based solution for this.  
+> 
+> Just had a quick look. Its not trivial, as the hook function itself
+> takes a mutex and an rcu section must not sleep. Will have a deeper
+> look.
 
-x86/build: Fix location of '-plugin-opt=' flags
+I refreshed my RCU knowledge and RCU seems to be a reasonable choice
+here. I don't think we have to make the rcu read section span the 
+call to the callback. That is something like
 
-Commit b33fff07e3e3 ("x86, build: allow LTO to be selected") added a
-couple of '-plugin-opt=' flags to KBUILD_LDFLAGS because the code model
-and stack alignment are not stored in LLVM bitcode.
-
-However, these flags were added to KBUILD_LDFLAGS prior to the
-emulation flag assignment, which uses ':=', so they were overwritten
-and never added to $(LD) invocations.
-
-The absence of these flags caused misalignment issues in the
-AMDGPU driver when compiling with CONFIG_LTO_CLANG, resulting in
-general protection faults.
-
-Shuffle the assignment below the initial one so that the flags are
-properly passed along and all of the linker flags stay together.
-
-At the same time, avoid any future issues with clobbering flags by
-changing the emulation flag assignment to '+=' since KBUILD_LDFLAGS is
-already defined with ':=' in the main Makefile before being exported for
-modification here as a result of commit:
-
-  ce99d0bf312d ("kbuild: clear LDFLAGS in the top Makefile")
-
-Fixes: b33fff07e3e3 ("x86, build: allow LTO to be selected")
-Reported-by: Anthony Ruhier <aruhier@mailbox.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Tested-by: Anthony Ruhier <aruhier@mailbox.org>
-Cc: stable@vger.kernel.org
-Link: https://github.com/ClangBuiltLinux/linux/issues/1374
-Link: https://lore.kernel.org/r/20210518190106.60935-1-nathan@kernel.org
----
- arch/x86/Makefile | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index c77c5d8..3075294 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -178,11 +178,6 @@ ifeq ($(ACCUMULATE_OUTGOING_ARGS), 1)
- 	KBUILD_CFLAGS += $(call cc-option,-maccumulate-outgoing-args,)
- endif
+--- a/arch/s390/kvm/priv.c
++++ b/arch/s390/kvm/priv.c
+@@ -613,6 +613,7 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+        unsigned long reg0;
+        int ret;
+        uint8_t fc;
++       int (*pqap_hook)(struct kvm_vcpu *vcpu);
  
--ifdef CONFIG_LTO_CLANG
--KBUILD_LDFLAGS	+= -plugin-opt=-code-model=kernel \
--		   -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
--endif
--
- # Workaround for a gcc prelease that unfortunately was shipped in a suse release
- KBUILD_CFLAGS += -Wno-sign-compare
- #
-@@ -202,7 +197,12 @@ ifdef CONFIG_RETPOLINE
-   endif
- endif
- 
--KBUILD_LDFLAGS := -m elf_$(UTS_MACHINE)
-+KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
-+
-+ifdef CONFIG_LTO_CLANG
-+KBUILD_LDFLAGS	+= -plugin-opt=-code-model=kernel \
-+		   -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
-+endif
- 
- ifdef CONFIG_X86_NEED_RELOCS
- LDFLAGS_vmlinux := --emit-relocs --discard-none
+        /* Verify that the AP instruction are available */
+        if (!ap_instructions_available())
+@@ -657,14 +658,21 @@ static int handle_pqap(struct kvm_vcpu *vcpu)
+         * Verify that the hook callback is registered, lock the owner
+         * and call the hook.
+         */
++       rcu_read_lock();
+        if (vcpu->kvm->arch.crypto.pqap_hook) {
+-               if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner))
++               if (!try_module_get(vcpu->kvm->arch.crypto.pqap_hook->owner)) {
++                       rcu_read_unlock();
+                        return -EOPNOTSUPP;
+-               ret = vcpu->kvm->arch.crypto.pqap_hook->hook(vcpu);
++               }
++               pqap_hook = READ_ONCE(vcpu->kvm->arch.crypto.pqap_hook->hook);
++               rcu_read_unlock();
++               ret = pqap_hook();
+                module_put(vcpu->kvm->arch.crypto.pqap_hook->owner);
+                if (!ret && vcpu->run->s.regs.gprs[1] & 0x00ff0000)
+                        kvm_s390_set_psw_cc(vcpu, 3);
+                return ret;
++       } else {
++               rcu_read_unlock();
+        }
+        /*
+         * A vfio_driver must register a hook.
+
+Should be sufficient. The module get ensures that the pointee is still
+around for the duration of the call. The handle_pqap() from
+vfio_ap_ops.c checks the vcpu->kvm->arch.crypto.pqap_hook the same
+lock that is used to set it to NULL, and bails out if it is NULL. It
+is a bit convoluted, but it should work.
+
+Regards,
+Halil
+
