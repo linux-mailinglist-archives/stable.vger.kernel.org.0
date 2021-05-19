@@ -2,77 +2,145 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92A3C38922E
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 17:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 489F8389230
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 17:06:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231193AbhESPHo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 11:07:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231128AbhESPHo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 19 May 2021 11:07:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D1895610CD
-        for <stable@vger.kernel.org>; Wed, 19 May 2021 15:06:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621436784;
-        bh=5jEFJ7ggKEicyqCe7rS+Sp+ajcxY/hacncm8PNDuyyU=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=Sdb5A2st9XCTzYwY46/WjFk5QjpgEsiUMAa1KeQZz3sGYCyqdiJkXQxyCwP+gh+2b
-         dCboCISpXpfmjBm4dMbuOUW/7wJl1J4sXlaeRUE34A1tcqDpboq6XyYt/bLUH7XP1m
-         qjaBZ88Us+cG1WD8xXXJIyaX6JmIX+eYMT+EQ6CjdZlL0qaR3DtarfmHywEHlDRway
-         +iLCmttTJyHy1LKwDm0pJo/BSYiYmeZsrbx9QFpLAt7dnyIkh7gJxJ7XQkTDPHRs7s
-         KjryP9lKWco4XbG68MBTDdB18Al8SGXQ4nLOzVH1FlNRz1syBLR8hzNMi8Krrfz3G8
-         wAaZ1Tb6oZP6w==
-Received: by mail-ot1-f54.google.com with SMTP id 36-20020a9d0ba70000b02902e0a0a8fe36so12005568oth.8
-        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:06:24 -0700 (PDT)
-X-Gm-Message-State: AOAM532MTG8xQq22JDE/X8t0QNMBIjh2taSgm/RJJYbByCcOpvT4igIR
-        RZ6oNz9TAUNFUeI2xLxSDBsntSgYeZPigvsOT5k=
-X-Google-Smtp-Source: ABdhPJz7YjwLlgP6XDI/AIAJhBP9bxQFyyxjatMuY+lC1KTHOkBwbOjEn1xXEDHgqxmWuGRturRWH4/HgYsgbs5DAkc=
-X-Received: by 2002:a05:6830:4da:: with SMTP id s26mr9240884otd.77.1621436784158;
- Wed, 19 May 2021 08:06:24 -0700 (PDT)
+        id S231803AbhESPIP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 11:08:15 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231361AbhESPIO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 11:08:14 -0400
+Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 399D5C06175F
+        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:06:54 -0700 (PDT)
+Received: by mail-ed1-x536.google.com with SMTP id df21so15790549edb.3
+        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:06:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=J+AedYZJkbOKp6nFVAINBDzhfLoYklzsCTYadR3CbeM=;
+        b=XnS5rx4QBHPJDHwJ/Si0eoQ9CBnlABWDS5R9+V8lTwjGVdtC1QGIJfx9lv0pecF2Xn
+         0xKNXN+fgyfMWKuZEHVOUL8bxNEDQp75l3b8BgkJmi0l6qThP3FGkLxa+INDxWYdbx5+
+         q9OzZPxgTo+MtkPfb8vCDqIqO4Jme8wEinXsi0XU2niaH64AEpv2cF5ZGkKwEx0RqSIE
+         cevBNa41Vq91ERoZ/JNKVWTvidl1JVKpacUx/i5XQ0PMQTl/r4MRPo9RRLbTUG5+QCJQ
+         b76anT1CEaLasN1bd9/YD/3TOizAmBb0kzkVXb6ULfP9JEmLzn/qjWzPZO6X9qkuWx2z
+         +3RA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=J+AedYZJkbOKp6nFVAINBDzhfLoYklzsCTYadR3CbeM=;
+        b=ovkoNWNS5skC+bfG10rXjIpDxTOi9Jq7tlRKio1uDwbk/sQsGSWCIzrmpZfDyeZv8o
+         qL3/nXHxu84xECSRo9KNPSil/Wzfk9rwNiro7iH0v5KL8tG2hAQJs2UDp3TW+KqnUhuU
+         GenteW6gaqEnEtgN38J0fo6U6HbOyDvwqlsWcb5NAl8OMAtjWFPc27X3VNGG4p2u1ZgT
+         b17Qoib74nW9kNHsXJSebg8ZS5q2I0Q47iGcZ69rLm3GDw72gpEjqwMwC+eJYI3J+6OO
+         p4NGJ5boPAqzczM4ShO/slje8awVbYHXMuHU9BmAMtrU+eYk0dp6UUdkYDLGYV+OKfm7
+         V3Tw==
+X-Gm-Message-State: AOAM530kuE98iLMWAVHWUGm6SANXn+e4V0mTEJRwpgNkVPPfKxXFqiaJ
+        rZRhY7lfdAFNyztNNXkCxTq1PGENV17gP8w1+nNykw==
+X-Google-Smtp-Source: ABdhPJwhcCJKrgx1tq8XuO4wAj5TbZemTD4aL5TN5XgYn5xGeAi+RERByHHVmUMQrVfrZ9dl/lFplEoqHoDwK9Unt9Q=
+X-Received: by 2002:aa7:cc19:: with SMTP id q25mr14840930edt.56.1621436812652;
+ Wed, 19 May 2021 08:06:52 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210519074124.49890-1-ardb@kernel.org> <YKUnOBqGgfHPXX5F@sashalap>
-In-Reply-To: <YKUnOBqGgfHPXX5F@sashalap>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 19 May 2021 17:06:12 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXG2Wt25Uv_NnrKohuq3cGG3diZp=VmCEyPEj8PVG+trTw@mail.gmail.com>
-Message-ID: <CAMj1kXG2Wt25Uv_NnrKohuq3cGG3diZp=VmCEyPEj8PVG+trTw@mail.gmail.com>
-Subject: Re: [PATCH stable] dm ioctl: fix out of bounds array access when no devices
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     "# 3.4.x" <stable@vger.kernel.org>,
-        Mike Snitzer <snitzer@redhat.com>, agk@redhat.com,
-        dm-devel@redhat.com, Mikulas Patocka <mpatocka@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>
+References: <20210519074323.665872-2-daniel.vetter@ffwll.ch> <20210519101523.688398-1-daniel.vetter@ffwll.ch>
+In-Reply-To: <20210519101523.688398-1-daniel.vetter@ffwll.ch>
+From:   Jason Ekstrand <jason@jlekstrand.net>
+Date:   Wed, 19 May 2021 10:06:40 -0500
+Message-ID: <CAOFGe968OKdHu9BL0hU6KWM3J5Fc6popg4GJ5kEDd-3bf4HjJw@mail.gmail.com>
+Subject: Re: [PATCH] Revert "drm/i915: Propagate errors on awaiting already
+ signaled fences"
+To:     Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
+        DRI Development <dri-devel@lists.freedesktop.org>,
+        Jason Ekstrand <jason.ekstrand@intel.com>,
+        Marcin Slusarz <marcin.slusarz@intel.com>,
+        stable@vger.kernel.org, Jon Bloomfield <jon.bloomfield@intel.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 19 May 2021 at 16:56, Sasha Levin <sashal@kernel.org> wrote:
->
-> On Wed, May 19, 2021 at 09:41:24AM +0200, Ard Biesheuvel wrote:
-> >From: Mikulas Patocka <mpatocka@redhat.com>
-> >
-> >commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
-> >
-> >If there are not any dm devices, we need to zero the "dev" argument in
-> >the first structure dm_name_list. However, this can cause out of
-> >bounds write, because the "needed" variable is zero and len may be
-> >less than eight.
-> >
-> >Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
-> >too small to hold the "nl->dev" value.
-> >
-> >Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-> >Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-> >Cc: stable@vger.kernel.org
-> >Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-> >Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> >---
-> >Please apply to 4.4.y and 4.9.y
->
-> We already carry this patch via the backport provided in
-> https://lore.kernel.org/stable/20210513094552.266451-1-nobuhiro1.iwamatsu@toshiba.co.jp/
->
+Once we no longer rely on error propagation, I think there's a lot we
+can rip out.
 
-Excellent, thanks.
+--Jason
+
+On Wed, May 19, 2021 at 5:15 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+>
+> From: Jason Ekstrand <jason@jlekstrand.net>
+>
+> This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
+> since that commit, we've been having issues where a hang in one client
+> can propagate to another.  In particular, a hang in an app can propagate
+> to the X server which causes the whole desktop to lock up.
+>
+> Error propagation along fences sound like a good idea, but as your bug
+> shows, surprising consequences, since propagating errors across security
+> boundaries is not a good thing.
+>
+> What we do have is track the hangs on the ctx, and report information to
+> userspace using RESET_STATS. That's how arb_robustness works. Also, if my
+> understanding is still correct, the EIO from execbuf is when your context
+> is banned (because not recoverable or too many hangs). And in all these
+> cases it's up to userspace to figure out what is all impacted and should
+> be reported to the application, that's not on the kernel to guess and
+> automatically propagate.
+>
+> What's more, we're also building more features on top of ctx error
+> reporting with RESET_STATS ioctl: Encrypted buffers use the same, and the
+> userspace fence wait also relies on that mechanism. So it is the path
+> going forward for reporting gpu hangs and resets to userspace.
+>
+> So all together that's why I think we should just bury this idea again as
+> not quite the direction we want to go to, hence why I think the revert is
+> the right option here.Signed-off-by: Jason Ekstrand <jason.ekstrand@intel.com>
+>
+> v2: Augment commit message. Also restore Jason's sob that I
+> accidentally lost.
+>
+> Signed-off-by: Jason Ekstrand <jason.ekstrand@intel.com> (v1)
+> Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
+> Cc: <stable@vger.kernel.org> # v5.6+
+> Cc: Jason Ekstrand <jason.ekstrand@intel.com>
+> Cc: Marcin Slusarz <marcin.slusarz@intel.com>
+> Cc: Jon Bloomfield <jon.bloomfield@intel.com>
+> Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
+> Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
+> Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+> ---
+>  drivers/gpu/drm/i915/i915_request.c | 8 ++------
+>  1 file changed, 2 insertions(+), 6 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
+> index 970d8f4986bb..b796197c0772 100644
+> --- a/drivers/gpu/drm/i915/i915_request.c
+> +++ b/drivers/gpu/drm/i915/i915_request.c
+> @@ -1426,10 +1426,8 @@ i915_request_await_execution(struct i915_request *rq,
+>
+>         do {
+>                 fence = *child++;
+> -               if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+> -                       i915_sw_fence_set_error_once(&rq->submit, fence->error);
+> +               if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+>                         continue;
+> -               }
+>
+>                 if (fence->context == rq->fence.context)
+>                         continue;
+> @@ -1527,10 +1525,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
+>
+>         do {
+>                 fence = *child++;
+> -               if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
+> -                       i915_sw_fence_set_error_once(&rq->submit, fence->error);
+> +               if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
+>                         continue;
+> -               }
+>
+>                 /*
+>                  * Requests on the same timeline are explicitly ordered, along
+> --
+> 2.31.0
+>
