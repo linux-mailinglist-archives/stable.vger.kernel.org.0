@@ -2,184 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1158389228
-	for <lists+stable@lfdr.de>; Wed, 19 May 2021 17:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92A3C38922E
+	for <lists+stable@lfdr.de>; Wed, 19 May 2021 17:06:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbhESPGH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 19 May 2021 11:06:07 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49668 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231134AbhESPGG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 19 May 2021 11:06:06 -0400
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5CC4CC06175F
-        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:04:46 -0700 (PDT)
-Received: by mail-ej1-x62b.google.com with SMTP id i7so2623043ejc.5
-        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:04:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=AIh3LPxhFUPUIJHux8vcxGYsWFeEVlxPbplmJRkb4OU=;
-        b=qrIa0Nm9V/t9pk6g1i6yexCNcwW//lGzLTXb4MCUaGrntJtk0iaY1IHYr9t3wpY5vI
-         Qe3lFBH4xbWIwutLCRQ7VrCmX0P+SC/TuZYnJrVTtyKA5aqFpikfOBT+PdOmrHuSQ6Vd
-         cfWJ/TvI0kv3WyryGyqgFGImvdiQh8jyIQtjsN44jsIyBH4RtSw7yCCBhV+3vo/34DEF
-         d3pEYu3CnzYJB0q2xRIKlxYLayV/Z8QNMaxUqs0wRgafs3sVH6fFl10L3mtVOBX+qccp
-         iWYanUUnfTwIUVS7WyEMjRxkD4Kp4xASvRzsTGQC8qDAmwEzdyXapOb3f6eGAnIFnUO2
-         CxNg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=AIh3LPxhFUPUIJHux8vcxGYsWFeEVlxPbplmJRkb4OU=;
-        b=t1cg6Kc4btMc2YlJzIMvct9z6LpSp6LSvgzxaibCCw6DlRmd/xck7XlrPW6YlQfEhs
-         n1v88ZdO1hLq+sYIvK0pZuXky5+NO3pE2pmI0gtCVQu84IAJeRhb1c9zAHxXV9dO5Vji
-         jKO+IqMJGYnrsqbyDvb17oepPtuKf9aMzDvWtPboUTYeaU/eFOOc4cPvIjnnOynWN5/4
-         2trCaTnK6p4pyHsrd0PIdTR+r1IfKPg9+YbH2t8E3tk3krzNEx6XXXDsNaTph7SGRLDr
-         WBflCUfIy/cC1gKrqfWb2PKX219WtkhJFlyST/BFlIInOouBl3qIznOEUknrDuYOhMZM
-         hfXQ==
-X-Gm-Message-State: AOAM531DE48WRqUwLHmyJok5O93eRJ4kzUiOfvEniSINcq9JPdQpjT2Q
-        od8ZdfJ7Wb0b1ep4DTc0JJB8s2oe+kqAVfiiwE1GnA==
-X-Google-Smtp-Source: ABdhPJy4po16yJDUE4DJ+brqx3On5vbmYSffXxAApMOaW490uyvlp7No8jeNdKyh9YxrKjsAGiz8RqBgxQkalrV4rPg=
-X-Received: by 2002:a17:907:781a:: with SMTP id la26mr13095156ejc.435.1621436684760;
- Wed, 19 May 2021 08:04:44 -0700 (PDT)
+        id S231193AbhESPHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 19 May 2021 11:07:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51194 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231128AbhESPHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 19 May 2021 11:07:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1895610CD
+        for <stable@vger.kernel.org>; Wed, 19 May 2021 15:06:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621436784;
+        bh=5jEFJ7ggKEicyqCe7rS+Sp+ajcxY/hacncm8PNDuyyU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=Sdb5A2st9XCTzYwY46/WjFk5QjpgEsiUMAa1KeQZz3sGYCyqdiJkXQxyCwP+gh+2b
+         dCboCISpXpfmjBm4dMbuOUW/7wJl1J4sXlaeRUE34A1tcqDpboq6XyYt/bLUH7XP1m
+         qjaBZ88Us+cG1WD8xXXJIyaX6JmIX+eYMT+EQ6CjdZlL0qaR3DtarfmHywEHlDRway
+         +iLCmttTJyHy1LKwDm0pJo/BSYiYmeZsrbx9QFpLAt7dnyIkh7gJxJ7XQkTDPHRs7s
+         KjryP9lKWco4XbG68MBTDdB18Al8SGXQ4nLOzVH1FlNRz1syBLR8hzNMi8Krrfz3G8
+         wAaZ1Tb6oZP6w==
+Received: by mail-ot1-f54.google.com with SMTP id 36-20020a9d0ba70000b02902e0a0a8fe36so12005568oth.8
+        for <stable@vger.kernel.org>; Wed, 19 May 2021 08:06:24 -0700 (PDT)
+X-Gm-Message-State: AOAM532MTG8xQq22JDE/X8t0QNMBIjh2taSgm/RJJYbByCcOpvT4igIR
+        RZ6oNz9TAUNFUeI2xLxSDBsntSgYeZPigvsOT5k=
+X-Google-Smtp-Source: ABdhPJz7YjwLlgP6XDI/AIAJhBP9bxQFyyxjatMuY+lC1KTHOkBwbOjEn1xXEDHgqxmWuGRturRWH4/HgYsgbs5DAkc=
+X-Received: by 2002:a05:6830:4da:: with SMTP id s26mr9240884otd.77.1621436784158;
+ Wed, 19 May 2021 08:06:24 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210519074323.665872-1-daniel.vetter@ffwll.ch>
-In-Reply-To: <20210519074323.665872-1-daniel.vetter@ffwll.ch>
-From:   Jason Ekstrand <jason@jlekstrand.net>
-Date:   Wed, 19 May 2021 10:04:33 -0500
-Message-ID: <CAOFGe971P6K5_dQyNQtnZK3vp-3ax97-6Z9O87+5BFR+kiKmjg@mail.gmail.com>
-Subject: Re: [PATCH 1/2] drm/i915/cmdparser: No-op failed batches on all platforms
-To:     Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     DRI Development <dri-devel@lists.freedesktop.org>,
-        Intel Graphics Development <intel-gfx@lists.freedesktop.org>,
-        stable@vger.kernel.org, Jason Ekstrand <jason.ekstrand@intel.com>,
-        Jon Bloomfield <jon.bloomfield@intel.com>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        Daniel Vetter <daniel.vetter@intel.com>
+References: <20210519074124.49890-1-ardb@kernel.org> <YKUnOBqGgfHPXX5F@sashalap>
+In-Reply-To: <YKUnOBqGgfHPXX5F@sashalap>
+From:   Ard Biesheuvel <ardb@kernel.org>
+Date:   Wed, 19 May 2021 17:06:12 +0200
+X-Gmail-Original-Message-ID: <CAMj1kXG2Wt25Uv_NnrKohuq3cGG3diZp=VmCEyPEj8PVG+trTw@mail.gmail.com>
+Message-ID: <CAMj1kXG2Wt25Uv_NnrKohuq3cGG3diZp=VmCEyPEj8PVG+trTw@mail.gmail.com>
+Subject: Re: [PATCH stable] dm ioctl: fix out of bounds array access when no devices
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     "# 3.4.x" <stable@vger.kernel.org>,
+        Mike Snitzer <snitzer@redhat.com>, agk@redhat.com,
+        dm-devel@redhat.com, Mikulas Patocka <mpatocka@redhat.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>
 Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 19, 2021 at 2:43 AM Daniel Vetter <daniel.vetter@ffwll.ch> wrote:
+On Wed, 19 May 2021 at 16:56, Sasha Levin <sashal@kernel.org> wrote:
 >
-> On gen9 for blt cmd parser we relied on the magic fence error
-> propagation which:
-> - doesn't work on gen7, because there's no scheduler with ringbuffers
->   there yet
-> - fence error propagation can be weaponized to attack other things, so
->   not a good design idea
+> On Wed, May 19, 2021 at 09:41:24AM +0200, Ard Biesheuvel wrote:
+> >From: Mikulas Patocka <mpatocka@redhat.com>
+> >
+> >commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
+> >
+> >If there are not any dm devices, we need to zero the "dev" argument in
+> >the first structure dm_name_list. However, this can cause out of
+> >bounds write, because the "needed" variable is zero and len may be
+> >less than eight.
+> >
+> >Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
+> >too small to hold the "nl->dev" value.
+> >
+> >Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+> >Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+> >Cc: stable@vger.kernel.org
+> >Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+> >Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> >---
+> >Please apply to 4.4.y and 4.9.y
 >
-> Instead of magic, do the same thing on gen9 as on gen7.
+> We already carry this patch via the backport provided in
+> https://lore.kernel.org/stable/20210513094552.266451-1-nobuhiro1.iwamatsu@toshiba.co.jp/
+>
 
-I think the commit message could be improved.  Maybe something like this?
-
-When we re-introduced the command parser on Gen9 platforms to protect
-against BLT CS register writes, we did things a bit differently than
-on previous platforms.  On Gen7 platforms, if a batch contains
-unsupported commands, we smash the start of the shadow batch to
-MI_BATCH_BUFFER_END to cancel the batch.  If it's mostly ok
-(-EACCESS), we trampoline to run in unprivileged mode and let the
-limited HW parser handle security.  On Gen9, we only care about
-rejecting batches because we don't trust the HW parser for a few cases
-so we don't need this second trampoline case.
-
-However, instead of stopping there and avoiding the trampoline, we
-chose to avoid executing the new batch all together on Gen9 by use of
-dma-fence error propagation.  When the batch parser fails, it returns
-a non-zero error and we would propgate that through the chain of
-fences and trust the scheduler to know to cancel anything dependent on
-a fence with an error.  However, fence error propagation is sketchy at
-best and can be weaponized to attack other things so it's not really a
-good design.  This commit restores a bit of the Gen7 functionality on
-Gen9 (smashing the start of the shadow batch to MI_BB_END) so that
-it's always safe to run the batch post-parser.  A later commit will
-get rid of the error propagation nonsense.
-
->
-> Kudos to Jason for figuring this out.
->
-> Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-> Cc: <stable@vger.kernel.org> # v5.6+
-> Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-> Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-> Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-> Relates: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-> Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
-> ---
->  drivers/gpu/drm/i915/i915_cmd_parser.c | 34 +++++++++++++-------------
->  1 file changed, 17 insertions(+), 17 deletions(-)
->
-> diff --git a/drivers/gpu/drm/i915/i915_cmd_parser.c b/drivers/gpu/drm/i915/i915_cmd_parser.c
-> index 5b4b2bd46e7c..2d3336ab7ba3 100644
-> --- a/drivers/gpu/drm/i915/i915_cmd_parser.c
-> +++ b/drivers/gpu/drm/i915/i915_cmd_parser.c
-> @@ -1509,6 +1509,12 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
->                 }
->         }
->
-> +       /* Batch unsafe to execute with privileges, cancel! */
-> +       if (ret) {
-> +               cmd = page_mask_bits(shadow->obj->mm.mapping);
-> +               *cmd = MI_BATCH_BUFFER_END;
-> +       }
-> +
->         if (trampoline) {
->                 /*
->                  * With the trampoline, the shadow is executed twice.
-> @@ -1524,26 +1530,20 @@ int intel_engine_cmd_parser(struct intel_engine_cs *engine,
->                  */
->                 *batch_end = MI_BATCH_BUFFER_END;
-
-Bit of a bike shed but, given the new structure of the code, I think
-it makes it more clear if we do
-
-if (ret == -EACCESS) {
-   /* stuff */
-   __gen6_emit_bb_start(...);
-} else {
-   *batch_end = MI_BATCH_BUFFER_END;
-}
-
-That way it's clear that we're making a choice between firing off the
-client batch in privileged mode and ending early.
-
->
-> -               if (ret) {
-> -                       /* Batch unsafe to execute with privileges, cancel! */
-> -                       cmd = page_mask_bits(shadow->obj->mm.mapping);
-> -                       *cmd = MI_BATCH_BUFFER_END;
-> +               /* If batch is unsafe but valid, jump to the original */
-> +               if (ret == -EACCES) {
-> +                       unsigned int flags;
->
-> -                       /* If batch is unsafe but valid, jump to the original */
-> -                       if (ret == -EACCES) {
-> -                               unsigned int flags;
-> +                       flags = MI_BATCH_NON_SECURE_I965;
-> +                       if (IS_HASWELL(engine->i915))
-> +                               flags = MI_BATCH_NON_SECURE_HSW;
->
-> -                               flags = MI_BATCH_NON_SECURE_I965;
-> -                               if (IS_HASWELL(engine->i915))
-> -                                       flags = MI_BATCH_NON_SECURE_HSW;
-> +                       GEM_BUG_ON(!IS_GEN_RANGE(engine->i915, 6, 7));
-> +                       __gen6_emit_bb_start(batch_end,
-> +                                            batch_addr,
-> +                                            flags);
->
-> -                               GEM_BUG_ON(!IS_GEN_RANGE(engine->i915, 6, 7));
-> -                               __gen6_emit_bb_start(batch_end,
-> -                                                    batch_addr,
-> -                                                    flags);
-> -
-> -                               ret = 0; /* allow execution */
-> -                       }
-> +                       ret = 0; /* allow execution */
->                 }
->         }
->
-> --
-> 2.31.0
->
+Excellent, thanks.
