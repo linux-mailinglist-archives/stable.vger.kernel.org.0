@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A98D938A748
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB8B138A916
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232666AbhETKgm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:36:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
+        id S239126AbhETK5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:57:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54442 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237065AbhETKdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AEA061C55;
-        Thu, 20 May 2021 09:53:11 +0000 (UTC)
+        id S239386AbhETKyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:54:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C7DE61CE2;
+        Thu, 20 May 2021 10:01:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504391;
-        bh=o13Mt/lsms794xZ8ZPtyRv9zpO+Y43TGEBGBmRL6zhM=;
+        s=korg; t=1621504881;
+        bh=pUU7Sk1wS29Qif8RB2nCfqehjHYuPivh06PDo2M0P1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jZrRYcvTGDwkmQLUVVWS9ge1WheayKYHHAv0LXtl75nwY+J7a6OZosUgKODw1jLKh
-         z6CnWD0BzcfFk0g2ub1x8gcAiEn1uOMT/7lAfU2XIGTQkpV30s0e/ATwVDV5EXyfRN
-         OVtzPiqFO/QcJ0nqdpkYLCC28ypEMf3D8itn+fWM=
+        b=b+vmHTwzSdp6IweFvoAkT6ijSA5/tPAZ9l0VKEBWQSPmJ9mMEDrd56rxx7hmN0RZd
+         XKuzQgo4efjOGpRaGviZOI8qOHUN/zVtO5bXt9j6GVIlcT8/bQcnM/WJVsAU1NKKIF
+         gTPg6rjaXEmTYzgF2pi8W4GoBc4HNKjlPE689+e8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 224/323] powerpc/52xx: Fix an invalid ASM expression (addi used instead of add)
+Subject: [PATCH 4.9 124/240] media: m88rs6000t: avoid potential out-of-bounds reads on arrays
 Date:   Thu, 20 May 2021 11:21:56 +0200
-Message-Id: <20210520092127.822491042@linuxfoundation.org>
+Message-Id: <20210520092112.828024442@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,44 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 8a87a507714386efc39c3ae6fa24d4f79846b522 ]
+[ Upstream commit 9baa3d64e8e2373ddd11c346439e5dfccb2cbb0d ]
 
-  AS      arch/powerpc/platforms/52xx/lite5200_sleep.o
-arch/powerpc/platforms/52xx/lite5200_sleep.S: Assembler messages:
-arch/powerpc/platforms/52xx/lite5200_sleep.S:184: Warning: invalid register expression
+There a 3 array for-loops that don't check the upper bounds of the
+index into arrays and this may lead to potential out-of-bounds
+reads.  Fix this by adding array size upper bounds checks to be
+full safe.
 
-In the following code, 'addi' is wrong, has to be 'add'
+Addresses-Coverity: ("Out-of-bounds read")
 
-	/* local udelay in sram is needed */
-  udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
-	mullw	r12, r12, r11
-	mftb	r13	/* start */
-	addi	r12, r13, r12 /* end */
-
-Fixes: ee983079ce04 ("[POWERPC] MPC5200 low power mode")
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/cb4cec9131c8577803367f1699209a7e104cec2a.1619025821.git.christophe.leroy@csgroup.eu
+Link: https://lore.kernel.org/linux-media/20201007121628.20676-1-colin.king@canonical.com
+Fixes: 333829110f1d ("[media] m88rs6000t: add new dvb-s/s2 tuner for integrated chip M88RS6000")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/52xx/lite5200_sleep.S | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/tuners/m88rs6000t.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/platforms/52xx/lite5200_sleep.S b/arch/powerpc/platforms/52xx/lite5200_sleep.S
-index 3a9969c429b3..054f927bfef9 100644
---- a/arch/powerpc/platforms/52xx/lite5200_sleep.S
-+++ b/arch/powerpc/platforms/52xx/lite5200_sleep.S
-@@ -181,7 +181,7 @@ sram_code:
-   udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
- 	mullw	r12, r12, r11
- 	mftb	r13	/* start */
--	addi	r12, r13, r12 /* end */
-+	add	r12, r13, r12 /* end */
-     1:
- 	mftb	r13	/* current */
- 	cmp	cr0, r13, r12
+diff --git a/drivers/media/tuners/m88rs6000t.c b/drivers/media/tuners/m88rs6000t.c
+index 9f3e0fd4cad9..d4443f9c9fa3 100644
+--- a/drivers/media/tuners/m88rs6000t.c
++++ b/drivers/media/tuners/m88rs6000t.c
+@@ -534,7 +534,7 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	PGA2_cri = PGA2_GC >> 2;
+ 	PGA2_crf = PGA2_GC & 0x03;
+ 
+-	for (i = 0; i <= RF_GC; i++)
++	for (i = 0; i <= RF_GC && i < ARRAY_SIZE(RFGS); i++)
+ 		RFG += RFGS[i];
+ 
+ 	if (RF_GC == 0)
+@@ -546,12 +546,12 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	if (RF_GC == 3)
+ 		RFG += 100;
+ 
+-	for (i = 0; i <= IF_GC; i++)
++	for (i = 0; i <= IF_GC && i < ARRAY_SIZE(IFGS); i++)
+ 		IFG += IFGS[i];
+ 
+ 	TIAG = TIA_GC * TIA_GS;
+ 
+-	for (i = 0; i <= BB_GC; i++)
++	for (i = 0; i <= BB_GC && i < ARRAY_SIZE(BBGS); i++)
+ 		BBG += BBGS[i];
+ 
+ 	PGA2G = PGA2_cri * PGA2_cri_GS + PGA2_crf * PGA2_crf_GS;
 -- 
 2.30.2
 
