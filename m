@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31F4938A6CB
+	by mail.lfdr.de (Postfix) with ESMTP id 7B38C38A6CC
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237223AbhETKac (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236580AbhETKac (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 06:30:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55902 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236579AbhETK2r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B10D561C35;
-        Thu, 20 May 2021 09:51:05 +0000 (UTC)
+        id S236581AbhETK2s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:28:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E018B61C34;
+        Thu, 20 May 2021 09:51:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504266;
-        bh=x1S1tk8e4qo3ieI9GVN1SbYi1rrOISifk0sPD6tKviQ=;
+        s=korg; t=1621504268;
+        bh=4Dh4ky47eesxA32whC6DU9UPEv4hl2aLNhlx19AD61s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ADnrNaCY96oo2FWov9AxRPFn/RRvfw/ZK1pkQfHcXZWinzyd5nSXCE1nNc4leLpDu
-         yKTALNsJxXO26ES/37WQIA5YDX70DOOZqf99xKRdFGY9Az1kNa535n0SH2iCTjrpVt
-         H2V1W84B1DyYef5n4DjsiRMVQjZ62oUaft5T8Ze0=
+        b=u//g7pQ6TCfIyoumlHiYreD3/8m5kTkxi38CJ10MqqjU9K89/QmnW5Uhl7ox/Xv7Q
+         cYo0oXQ8VPnKxRr9Eyc5k6dB3luO6tluuy/UcrI9o6v2LdGuZ21JBkT6AIjtvHDRZf
+         KAJr2oAU453cgyCaVAHR8yok4rtYiZ9AxE/gdcUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 4.14 133/323] x86/cpu: Initialize MSR_TSC_AUX if RDTSCP *or* RDPID is supported
-Date:   Thu, 20 May 2021 11:20:25 +0200
-Message-Id: <20210520092124.668398382@linuxfoundation.org>
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4.14 134/323] KVM: s390: split kvm_s390_logical_to_effective
+Date:   Thu, 20 May 2021 11:20:26 +0200
+Message-Id: <20210520092124.704650356@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -39,43 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit b6b4fbd90b155a0025223df2c137af8a701d53b3 upstream.
+commit f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b upstream.
 
-Initialize MSR_TSC_AUX with CPU node information if RDTSCP or RDPID is
-supported.  This fixes a bug where vdso_read_cpunode() will read garbage
-via RDPID if RDPID is supported but RDTSCP is not.  While no known CPU
-supports RDPID but not RDTSCP, both Intel's SDM and AMD's APM allow for
-RDPID to exist without RDTSCP, e.g. it's technically a legal CPU model
-for a virtual machine.
+Split kvm_s390_logical_to_effective to a generic function called
+_kvm_s390_logical_to_effective. The new function takes a PSW and an address
+and returns the address with the appropriate bits masked off. The old
+function now calls the new function with the appropriate PSW from the vCPU.
 
-Note, technically MSR_TSC_AUX could be initialized if and only if RDPID
-is supported since RDTSCP is currently not used to retrieve the CPU node.
-But, the cost of the superfluous WRMSR is negigible, whereas leaving
-MSR_TSC_AUX uninitialized is just asking for future breakage if someone
-decides to utilize RDTSCP.
+This is needed to avoid code duplication for vSIE.
 
-Fixes: a582c540ac1b ("x86/vdso: Use RDPID in preference to LSL when available")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210504225632.1532621-2-seanjc@google.com
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
+Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
+Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
+Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/entry/vdso/vma.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/s390/kvm/gaccess.h |   31 ++++++++++++++++++++++++-------
+ 1 file changed, 24 insertions(+), 7 deletions(-)
 
---- a/arch/x86/entry/vdso/vma.c
-+++ b/arch/x86/entry/vdso/vma.c
-@@ -342,7 +342,7 @@ static void vgetcpu_cpu_init(void *arg)
- #ifdef CONFIG_NUMA
- 	node = cpu_to_node(cpu);
- #endif
--	if (static_cpu_has(X86_FEATURE_RDTSCP))
-+	if (boot_cpu_has(X86_FEATURE_RDTSCP) || boot_cpu_has(X86_FEATURE_RDPID))
- 		write_rdtscp_aux((node << 12) | cpu);
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -40,6 +40,29 @@ static inline unsigned long kvm_s390_rea
+ }
  
- 	/*
+ /**
++ * _kvm_s390_logical_to_effective - convert guest logical to effective address
++ * @psw: psw of the guest
++ * @ga: guest logical address
++ *
++ * Convert a guest logical address to an effective address by applying the
++ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
++ * (extendended/basic addressing mode).
++ *
++ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
++ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
++ * mode) of @ga will be zeroed and the remaining bits will be returned.
++ */
++static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
++							   unsigned long ga)
++{
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
++		return ga;
++	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
++		return ga & ((1UL << 31) - 1);
++	return ga & ((1UL << 24) - 1);
++}
++
++/**
+  * kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @vcpu: guest virtual cpu
+  * @ga: guest logical address
+@@ -55,13 +78,7 @@ static inline unsigned long kvm_s390_rea
+ static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
+ 							  unsigned long ga)
+ {
+-	psw_t *psw = &vcpu->arch.sie_block->gpsw;
+-
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
+-		return ga;
+-	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
+-		return ga & ((1UL << 31) - 1);
+-	return ga & ((1UL << 24) - 1);
++	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
+ }
+ 
+ /*
 
 
