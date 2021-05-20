@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E726E38A8B6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37D5438A6F4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239252AbhETKw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:52:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
+        id S237011AbhETKc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:32:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239070AbhETKuw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:50:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 608C3616ED;
-        Thu, 20 May 2021 09:59:55 +0000 (UTC)
+        id S236498AbhETKaX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:30:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 461EC613F8;
+        Thu, 20 May 2021 09:51:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504795;
-        bh=xXX5McdmUxXqSOBkFsDc4M7sZeKPB7C/9OfsfQ9iiuo=;
+        s=korg; t=1621504305;
+        bh=pqGc/iq8PZQ1uV9Pr4Ci85FtXsjp9BGp/hxBrcH8Qmw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u9Kgup+1VDvBkDxNL9KuiWNtLVn9LmYjUfjOYCRnPXWlfBYwh2z+8Q1H3jPtGrsg6
-         p70O7cv0AwPf0YwcizY1tyjFJRy9RT9Cs8VOm8OqSli0lPoHzW3djYJQ/cInHOfEuu
-         jQY2fu0T+2BQ2sGA7+CY+X6nTTRl/WI/Sn2vBJ/o=
+        b=gOP2fTHq462quOkDvv8SSbToD01//TnuEREpwHRO3pUMyAuQzTJ/5BC6ST8srX+CL
+         fUrlIT/LDJ18o7guR8uFGXfzTTwTzi24I87tp+ojoieVilLeDlFBhg+z0F8J/T5Bj4
+         LYWmMGGfqwwU6CNy3HXrrN9shycyPDVwNQhT9RUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Colin Ian King <colin.king@canonical.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 4.9 085/240] drm/radeon: fix copy of uninitialized variable back to userspace
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 185/323] sata_mv: add IRQ checks
 Date:   Thu, 20 May 2021 11:21:17 +0200
-Message-Id: <20210520092111.543899074@linuxfoundation.org>
+Message-Id: <20210520092126.445539053@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit 8dbc2ccac5a65c5b57e3070e36a3dc97c7970d96 upstream.
+[ Upstream commit e6471a65fdd5efbb8dd2732dd0f063f960685ceb ]
 
-Currently the ioctl command RADEON_INFO_SI_BACKEND_ENABLED_MASK can
-copy back uninitialised data in value_tmp that pointer *value points
-to. This can occur when rdev->family is less than CHIP_BONAIRE and
-less than CHIP_TAHITI.  Fix this by adding in a missing -EINVAL
-so that no invalid value is copied back to userspace.
+The function mv_platform_probe() neglects to check the results of the
+calls to platform_get_irq() and irq_of_parse_and_map() and blithely
+passes them to ata_host_activate() -- while the latter only checks
+for IRQ0 (treating it as a polling mode indicattion) and passes the
+negative values to devm_request_irq() causing it to fail as it takes
+unsigned values for the IRQ #...
 
-Addresses-Coverity: ("Uninitialized scalar variable)
-Cc: stable@vger.kernel.org # 3.13+
-Fixes: 439a1cfffe2c ("drm/radeon: expose render backend mask to the userspace")
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add to mv_platform_probe() the proper IRQ checks to pass the positive IRQ
+#s to ata_host_activate(), propagate upstream the negative error codes,
+and override the IRQ0 with -EINVAL (as we don't want the polling mode).
+
+Fixes: f351b2d638c3 ("sata_mv: Support SoC controllers")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/51436f00-27a1-e20b-c21b-0e817e0a7c86@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/radeon/radeon_kms.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/sata_mv.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/radeon/radeon_kms.c
-+++ b/drivers/gpu/drm/radeon/radeon_kms.c
-@@ -506,6 +506,7 @@ static int radeon_info_ioctl(struct drm_
- 			*value = rdev->config.si.backend_enable_mask;
- 		} else {
- 			DRM_DEBUG_KMS("BACKEND_ENABLED_MASK is si+ only!\n");
-+			return -EINVAL;
- 		}
- 		break;
- 	case RADEON_INFO_MAX_SCLK:
+diff --git a/drivers/ata/sata_mv.c b/drivers/ata/sata_mv.c
+index d85965bab2e2..6059b030678b 100644
+--- a/drivers/ata/sata_mv.c
++++ b/drivers/ata/sata_mv.c
+@@ -4112,6 +4112,10 @@ static int mv_platform_probe(struct platform_device *pdev)
+ 		n_ports = mv_platform_data->n_ports;
+ 		irq = platform_get_irq(pdev, 0);
+ 	}
++	if (irq < 0)
++		return irq;
++	if (!irq)
++		return -EINVAL;
+ 
+ 	host = ata_host_alloc_pinfo(&pdev->dev, ppi, n_ports);
+ 	hpriv = devm_kzalloc(&pdev->dev, sizeof(*hpriv), GFP_KERNEL);
+-- 
+2.30.2
+
 
 
