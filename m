@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 209E938A692
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:28:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5490E38A694
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:28:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbhETK2W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:28:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54246 "EHLO mail.kernel.org"
+        id S236821AbhETK22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:28:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236413AbhETK0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:26:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9B8161C25;
-        Thu, 20 May 2021 09:50:12 +0000 (UTC)
+        id S236432AbhETK00 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:26:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0748A61C21;
+        Thu, 20 May 2021 09:50:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504213;
-        bh=6G7tz6cxg/TnwXPla/UCD0PshnpgXKlMGDz99ngo7rM=;
+        s=korg; t=1621504215;
+        bh=7RWaWjYveePaY8Mpxqu4kZZKehtD0m+H22q+9jrGGSc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=boIpSp9mRItG/dCWhANDljbRhL0BCzGMF875LmAnkvvjq2Oxo4oQLek4teNDUmsM5
-         /Xn0uYYGSjXhY8FrU+71ocuf07vQGBpKgaWFWC4l5SJ4oFR+QtBW+Ct+KOSWIDbJtr
-         x2DZltEk620bzer4peQWn4bPK4IKr8niTflCN+TM=
+        b=AxguqGI2wJ7Sv9Z0SShBW6uFqQN3oI0Q3byGixMZ/E9wL/TQJOgdCqkor+fE8YnjN
+         JQ632rwOx/He6+I87d+EEy1QSFpeVeRYkBi0QdCzaL/zYGkpY86V9TKSUsVfVB0Cwy
+         3BLpmX3BV4M3xtrArjWhOPbnzGAK88yHpYFLiRqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Badhri Jagan Sridharan <badhri@google.com>,
+        stable@vger.kernel.org, Otavio Pontes <otavio.pontes@intel.com>,
+        Borislav Petkov <bp@suse.de>, Tony Luck <tony.luck@intel.com>,
+        Ashok Raj <ashok.raj@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 144/323] usb: typec: tcpci: Check ROLE_CONTROL while interpreting CC_STATUS
-Date:   Thu, 20 May 2021 11:20:36 +0200
-Message-Id: <20210520092125.040547510@linuxfoundation.org>
+Subject: [PATCH 4.14 145/323] x86/microcode: Check for offline CPUs before requesting new microcode
+Date:   Thu, 20 May 2021 11:20:37 +0200
+Message-Id: <20210520092125.070854324@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -41,96 +41,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Badhri Jagan Sridharan <badhri@google.com>
+From: Otavio Pontes <otavio.pontes@intel.com>
 
-[ Upstream commit 19c234a14eafca78e0bc14ffb8be3891096ce147 ]
+[ Upstream commit 7189b3c11903667808029ec9766a6e96de5012a5 ]
 
-While interpreting CC_STATUS, ROLE_CONTROL has to be read to make
-sure that CC1/CC2 is not forced presenting Rp/Rd.
+Currently, the late microcode loading mechanism checks whether any CPUs
+are offlined, and, in such a case, aborts the load attempt.
 
->From the TCPCI spec:
+However, this must be done before the kernel caches new microcode from
+the filesystem. Otherwise, when offlined CPUs are onlined later, those
+cores are going to be updated through the CPU hotplug notifier callback
+with the new microcode, while CPUs previously onine will continue to run
+with the older microcode.
 
-4.4.5.2 ROLE_CONTROL (Normative):
-The TCPM shall write B6 (DRP) = 0b and B3..0 (CC1/CC2) if it wishes
-to control the Rp/Rd directly instead of having the TCPC perform
-DRP toggling autonomously. When controlling Rp/Rd directly, the
-TCPM writes to B3..0 (CC1/CC2) each time it wishes to change the
-CC1/CC2 values. This control is used for TCPM-TCPC implementing
-Source or Sink only as well as when a connection has been detected
-via DRP toggling but the TCPM wishes to attempt Try.Src or Try.Snk.
+For example:
 
-Table 4-22. CC_STATUS Register Definition:
-If (ROLE_CONTROL.CC1 = Rd) or ConnectResult=1)
-00b: SNK.Open (Below maximum vRa)
-01b: SNK.Default (Above minimum vRd-Connect)
-10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp-1.5A
-11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp-3.0A
+Turn off one core (2 threads):
 
-If (ROLE_CONTROL.CC2=Rd) or (ConnectResult=1)
-00b: SNK.Open (Below maximum vRa)
-01b: SNK.Default (Above minimum vRd-Connect)
-10b: SNK.Power1.5 (Above minimum vRd-Connect) Detects Rp 1.5A
-11b: SNK.Power3.0 (Above minimum vRd-Connect) Detects Rp 3.0A
+  echo 0 > /sys/devices/system/cpu/cpu3/online
+  echo 0 > /sys/devices/system/cpu/cpu1/online
 
-Fixes: 74e656d6b0551 ("staging: typec: Type-C Port Controller Interface driver (tcpci)")
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Badhri Jagan Sridharan <badhri@google.com>
-Link: https://lore.kernel.org/r/20210304070931.1947316-1-badhri@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Install the ucode fails because a primary SMT thread is offline:
+
+  cp intel-ucode/06-8e-09 /lib/firmware/intel-ucode/
+  echo 1 > /sys/devices/system/cpu/microcode/reload
+  bash: echo: write error: Invalid argument
+
+Turn the core back on
+
+  echo 1 > /sys/devices/system/cpu/cpu3/online
+  echo 1 > /sys/devices/system/cpu/cpu1/online
+  cat /proc/cpuinfo |grep microcode
+  microcode : 0x30
+  microcode : 0xde
+  microcode : 0x30
+  microcode : 0xde
+
+The rationale for why the update is aborted when at least one primary
+thread is offline is because even if that thread is soft-offlined
+and idle, it will still have to participate in broadcasted MCE's
+synchronization dance or enter SMM, and in both examples it will execute
+instructions so it better have the same microcode revision as the other
+cores.
+
+ [ bp: Heavily edit and extend commit message with the reasoning behind all
+   this. ]
+
+Fixes: 30ec26da9967 ("x86/microcode: Do not upload microcode if CPUs are offline")
+Signed-off-by: Otavio Pontes <otavio.pontes@intel.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Tony Luck <tony.luck@intel.com>
+Acked-by: Ashok Raj <ashok.raj@intel.com>
+Link: https://lkml.kernel.org/r/20210319165515.9240-2-otavio.pontes@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/typec/tcpci.c | 21 ++++++++++++++++++---
- 1 file changed, 18 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/microcode/core.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/staging/typec/tcpci.c b/drivers/staging/typec/tcpci.c
-index df72d8b01e73..39e2aee0b1a3 100644
---- a/drivers/staging/typec/tcpci.c
-+++ b/drivers/staging/typec/tcpci.c
-@@ -28,6 +28,15 @@
+diff --git a/arch/x86/kernel/cpu/microcode/core.c b/arch/x86/kernel/cpu/microcode/core.c
+index 93c22e7ee424..51583a5d656d 100644
+--- a/arch/x86/kernel/cpu/microcode/core.c
++++ b/arch/x86/kernel/cpu/microcode/core.c
+@@ -627,16 +627,16 @@ static ssize_t reload_store(struct device *dev,
+ 	if (val != 1)
+ 		return size;
  
- #define PD_RETRY_COUNT 3
+-	tmp_ret = microcode_ops->request_microcode_fw(bsp, &microcode_pdev->dev, true);
+-	if (tmp_ret != UCODE_NEW)
+-		return size;
+-
+ 	get_online_cpus();
  
-+#define tcpc_presenting_cc1_rd(reg) \
-+	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
-+	 (((reg) & (TCPC_ROLE_CTRL_CC1_MASK << TCPC_ROLE_CTRL_CC1_SHIFT)) == \
-+	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC1_SHIFT)))
-+#define tcpc_presenting_cc2_rd(reg) \
-+	(!(TCPC_ROLE_CTRL_DRP & (reg)) && \
-+	 (((reg) & (TCPC_ROLE_CTRL_CC2_MASK << TCPC_ROLE_CTRL_CC2_SHIFT)) == \
-+	  (TCPC_ROLE_CTRL_CC_RD << TCPC_ROLE_CTRL_CC2_SHIFT)))
+ 	ret = check_online_cpus();
+ 	if (ret)
+ 		goto put;
+ 
++	tmp_ret = microcode_ops->request_microcode_fw(bsp, &microcode_pdev->dev, true);
++	if (tmp_ret != UCODE_NEW)
++		goto put;
 +
- struct tcpci {
- 	struct device *dev;
- 	struct i2c_client *client;
-@@ -149,19 +158,25 @@ static int tcpci_get_cc(struct tcpc_dev *tcpc,
- 			enum typec_cc_status *cc1, enum typec_cc_status *cc2)
- {
- 	struct tcpci *tcpci = tcpc_to_tcpci(tcpc);
--	unsigned int reg;
-+	unsigned int reg, role_control;
- 	int ret;
- 
-+	ret = regmap_read(tcpci->regmap, TCPC_ROLE_CTRL, &role_control);
-+	if (ret < 0)
-+		return ret;
-+
- 	ret = regmap_read(tcpci->regmap, TCPC_CC_STATUS, &reg);
- 	if (ret < 0)
- 		return ret;
- 
- 	*cc1 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC1_SHIFT) &
- 				 TCPC_CC_STATUS_CC1_MASK,
--				 reg & TCPC_CC_STATUS_TERM);
-+				 reg & TCPC_CC_STATUS_TERM ||
-+				 tcpc_presenting_cc1_rd(role_control));
- 	*cc2 = tcpci_to_typec_cc((reg >> TCPC_CC_STATUS_CC2_SHIFT) &
- 				 TCPC_CC_STATUS_CC2_MASK,
--				 reg & TCPC_CC_STATUS_TERM);
-+				 reg & TCPC_CC_STATUS_TERM ||
-+				 tcpc_presenting_cc2_rd(role_control));
- 
- 	return 0;
- }
+ 	mutex_lock(&microcode_mutex);
+ 	ret = microcode_reload_late();
+ 	mutex_unlock(&microcode_mutex);
 -- 
 2.30.2
 
