@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E56AD38A946
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E77538A75F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238270AbhETLAh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:00:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57122 "EHLO mail.kernel.org"
+        id S237069AbhETKhp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:37:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234019AbhETK6M (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:58:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BF44C6191D;
-        Thu, 20 May 2021 10:02:20 +0000 (UTC)
+        id S237815AbhETKfi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:35:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96C9161C60;
+        Thu, 20 May 2021 09:53:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504941;
-        bh=Bd7ya/Acu3UmQZhaki/yGBV6VqDbjpKrpEA+fXt7tFE=;
+        s=korg; t=1621504429;
+        bh=d0XyCZajFhdsawT98emn2xj0whUeV6aPMjizOV0UV/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O0FOxTIzz3Y11e2tbuZis1U48FFRsvAc69gkTi79eXSx41m9tPfKlLsG/meyGioqm
-         GUWaqhB53CTi/C21hSPbzrCQ/Z8JOsfxJEkN0qoUdnH+HsJEjPVQB4JYxE1RybP3KO
-         gHzG9niKUj9S9z/j/BPB1BYF25gBLIy7IwQV3XZQ=
+        b=o2wgtft7Rcno7+02btOJuuWwFKICG30zwy2D9dMkz1J4qyAbRxBtD3+mvYOi2TyQF
+         StSmj/24Ych20vX9SLYgv5xE+FI6ouPU6dbmHGYL7E+HcuZSEZHOd7XkDB6pS+ao3+
+         V3PZojDlWoW15hRUCt3TLJFac2sD+LSicAPHpF2Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Richard Weinberger <richard@nod.at>,
-        Miquel Raynal <miquel.raynal@bootlin.com>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 107/240] mtd: require write permissions for locking and badblock ioctls
+Subject: [PATCH 4.14 207/323] mac80211: bail out if cipher schemes are invalid
 Date:   Thu, 20 May 2021 11:21:39 +0200
-Message-Id: <20210520092112.271357965@linuxfoundation.org>
+Message-Id: <20210520092127.220041893@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 1e97743fd180981bef5f01402342bb54bf1c6366 ]
+[ Upstream commit db878e27a98106a70315d264cc92230d84009e72 ]
 
-MEMLOCK, MEMUNLOCK and OTPLOCK modify protection bits. Thus require
-write permission. Depending on the hardware MEMLOCK might even be
-write-once, e.g. for SPI-NOR flashes with their WP# tied to GND. OTPLOCK
-is always write-once.
+If any of the cipher schemes specified by the driver are invalid, bail
+out and fail the registration rather than just warning.  Otherwise, we
+might later crash when we try to use the invalid cipher scheme, e.g.
+if the hdr_len is (significantly) less than the pn_offs + pn_len, we'd
+have an out-of-bounds access in RX validation.
 
-MEMSETBADBLOCK modifies the bad block table.
-
-Fixes: f7e6b19bc764 ("mtd: properly check all write ioctls for permissions")
-Signed-off-by: Michael Walle <michael@walle.cc>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Acked-by: Rafał Miłecki <rafal@milecki.pl>
-Acked-by: Richard Weinberger <richard@nod.at>
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210303155735.25887-1-michael@walle.cc
+Fixes: 2475b1cc0d52 ("mac80211: add generic cipher scheme support")
+Link: https://lore.kernel.org/r/20210408143149.38a3a13a1b19.I6b7f5790fa0958ed8049cf02ac2a535c61e9bc96@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mtd/mtdchar.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ net/mac80211/main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/mtd/mtdchar.c b/drivers/mtd/mtdchar.c
-index 331183548bc5..b43b8edc18ec 100644
---- a/drivers/mtd/mtdchar.c
-+++ b/drivers/mtd/mtdchar.c
-@@ -689,16 +689,12 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
- 	case MEMGETINFO:
- 	case MEMREADOOB:
- 	case MEMREADOOB64:
--	case MEMLOCK:
--	case MEMUNLOCK:
- 	case MEMISLOCKED:
- 	case MEMGETOOBSEL:
- 	case MEMGETBADBLOCK:
--	case MEMSETBADBLOCK:
- 	case OTPSELECT:
- 	case OTPGETREGIONCOUNT:
- 	case OTPGETREGIONINFO:
--	case OTPLOCK:
- 	case ECCGETLAYOUT:
- 	case ECCGETSTATS:
- 	case MTDFILEMODE:
-@@ -709,9 +705,13 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
- 	/* "dangerous" commands */
- 	case MEMERASE:
- 	case MEMERASE64:
-+	case MEMLOCK:
-+	case MEMUNLOCK:
-+	case MEMSETBADBLOCK:
- 	case MEMWRITEOOB:
- 	case MEMWRITEOOB64:
- 	case MEMWRITE:
-+	case OTPLOCK:
- 		if (!(file->f_mode & FMODE_WRITE))
- 			return -EPERM;
- 		break;
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index 2136ce3b4489..a24acd0ee788 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1043,8 +1043,11 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 	if (local->hw.wiphy->max_scan_ie_len)
+ 		local->hw.wiphy->max_scan_ie_len -= local->scan_ies_len;
+ 
+-	WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
+-					 local->hw.n_cipher_schemes));
++	if (WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
++					     local->hw.n_cipher_schemes))) {
++		result = -EINVAL;
++		goto fail_workqueue;
++	}
+ 
+ 	result = ieee80211_init_cipher_suites(local);
+ 	if (result < 0)
 -- 
 2.30.2
 
