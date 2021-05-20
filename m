@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7DF38A9BD
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B56E338AB39
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239349AbhETLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
+        id S241129AbhETLVt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:21:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238682AbhETLEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:04:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 209BE61D16;
-        Thu, 20 May 2021 10:04:34 +0000 (UTC)
+        id S241005AbhETLTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A550D6195D;
+        Thu, 20 May 2021 10:10:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505075;
-        bh=OTbSiwauZZ0FTdkzXgPJIbFUGR+UuxbBdPOLf2qKQ8M=;
+        s=korg; t=1621505446;
+        bh=nTm8LRrpyUZP5X3dXoiOauWMZOqsahfD2+SgGSn6TW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ju9Clmw7TfhD0tIEr8naWx0tUnenankXoKwG4IEL8pIqFiiKiXl/IS27zCzStisQR
-         Y3y1tdslPs5iznEDrvkO4IsjDBvO+FSaaeiAHs2eqLIHvQuQLxgGE09izrvmqojQFk
-         0djiMQLZ7QiU50Dl90Jal897rDMmCZCLsZEy3pEs=
+        b=VnLKF9vLJC2Sp/lyCDnIdszHIVI+StYrPyFJ3L3TMJmOYmY7CGTwY5s1x7zDO8Y2o
+         dKu3XIvAgf1Nw/wbohbG2MP/zXwyrrXgrezX2dxKCoEI7cO4tKAe3/wbvdW3keigFR
+         DhbMT5mK8dxRUIQXlYtFpvqJ6CAu5i/RUxTLEruk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 210/240] ACPI: scan: Fix a memory leak in an error handling path
+Subject: [PATCH 4.4 138/190] ALSA: hdsp: dont disable if not enabled
 Date:   Thu, 20 May 2021 11:23:22 +0200
-Message-Id: <20210520092115.710975069@linuxfoundation.org>
+Message-Id: <20210520092106.755692975@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,34 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 0c8bd174f0fc131bc9dfab35cd8784f59045da87 ]
+[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
 
-If 'acpi_device_set_name()' fails, we must free
-'acpi_device_bus_id->bus_id' or there is a (potential) memory leak.
+hdsp wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-Fixes: eb50aaf960e3 ("ACPI: scan: Use unique number for instance_no")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
+[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.766985] Call Trace:
+[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
+[    1.767388]  release_card_device+0x4b/0x80 [snd]
+[    1.767639]  device_release+0x3b/0xa0
+[    1.767838]  kobject_put+0x94/0x1b0
+[    1.768027]  put_device+0x13/0x20
+[    1.768207]  snd_card_free+0x61/0x90 [snd]
+[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
+
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/pci/rme9652/hdsp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index d749fe20fbfc..89ce7b14a166 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -704,6 +704,7 @@ int acpi_device_add(struct acpi_device *device,
+diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
+index dd6c9e6a1d53..4128c04fbfde 100644
+--- a/sound/pci/rme9652/hdsp.c
++++ b/sound/pci/rme9652/hdsp.c
+@@ -5314,7 +5314,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
+ 	if (hdsp->port)
+ 		pci_release_regions(hdsp->pci);
  
- 		result = acpi_device_set_name(device, acpi_device_bus_id);
- 		if (result) {
-+			kfree_const(acpi_device_bus_id->bus_id);
- 			kfree(acpi_device_bus_id);
- 			goto err_unlock;
- 		}
+-	pci_disable_device(hdsp->pci);
++	if (pci_is_enabled(hdsp->pci))
++		pci_disable_device(hdsp->pci);
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
