@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E68B138AA61
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:12:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B7C1438AA5E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:12:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239670AbhETLMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:12:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
+        id S239643AbhETLMi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:12:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58194 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239671AbhETLKh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239663AbhETLKh (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 07:10:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ADEBE61D43;
-        Thu, 20 May 2021 10:07:02 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DEEE961D42;
+        Thu, 20 May 2021 10:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505223;
-        bh=W1dfffQwlch8RlK62erStBs4ROP1V/A9EDn3d3+p4hQ=;
+        s=korg; t=1621505225;
+        bh=nOpHOHBLShCI7jtWoZ0qwhmcLRazgJvP60vUYA4YlGE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y0VGvL9yL4+2aJMEqMG7fmTEw/DT3x/fBuB99mnuW5VtVAy9BLvOcw/xy6Sik0QuT
-         KVkUGwtP18CpDnAf56H2loIhPm74MxdEL6S7A082s1nrKkWuSJBZeitmpiWNM1fFJw
-         +8bERCeSKgB0FknF1zCqW8dBfJFowKhWRt7QF5/I=
+        b=bwoGifzy8RypGmv26xMMHt0B1NQHhhX6JdCbarzNQVMtukj3JdeUxFkoXb6Q9xWju
+         7Qg55lxZPWefukNYhSkU/jRdKr8NMvgJqw5JXOdW/nzNBm5ZZJgG/CT/1J4MZqY57r
+         /WyP1AT9Wm84atnbl5xr6Uze4vvrBTtRgnbIqIKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Chris Chiu <chris.chiu@canonical.com>
-Subject: [PATCH 4.4 006/190] USB: Add reset-resume quirk for WD19s Realtek Hub
-Date:   Thu, 20 May 2021 11:21:10 +0200
-Message-Id: <20210520092102.377386170@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Pearson <markpearson@lenovo.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.4 007/190] platform/x86: thinkpad_acpi: Correct thermal sensor allocation
+Date:   Thu, 20 May 2021 11:21:11 +0200
+Message-Id: <20210520092102.409474159@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -39,55 +39,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Chiu <chris.chiu@canonical.com>
+From: Mark Pearson <markpearson@lenovo.com>
 
-commit ca91fd8c7643d93bfc18a6fec1a0d3972a46a18a upstream.
+commit 6759e18e5cd8745a5dfc5726e4a3db5281ec1639 upstream.
 
-Realtek Hub (0bda:5487) in Dell Dock WD19 sometimes fails to work
-after the system resumes from suspend with remote wakeup enabled
-device connected:
-[ 1947.640907] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641208] usb 5-2.3-port5: cannot disable (err = -71)
-[ 1947.641401] hub 5-2.3:1.0: hub_ext_port_status failed (err = -71)
-[ 1947.641450] usb 5-2.3-port4: cannot reset (err = -71)
+On recent Thinkpad platforms it was reported that temp sensor 11 was
+always incorrectly displaying 66C. It turns out the reason for this is
+that this location in EC RAM is not a temperature sensor but is the
+power supply ID (offset 0xC2).
 
-Information of this hub:
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 10 Spd=480  MxCh= 5
-D:  Ver= 2.10 Cls=09(hub  ) Sub=00 Prot=02 MxPS=64 #Cfgs=  1
-P:  Vendor=0bda ProdID=5487 Rev= 1.47
-S:  Manufacturer=Dell Inc.
-S:  Product=Dell dock
-C:* #Ifs= 1 Cfg#= 1 Atr=e0 MxPwr=  0mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=01 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
-I:* If#= 0 Alt= 1 #EPs= 1 Cls=09(hub  ) Sub=00 Prot=02 Driver=hub
-E:  Ad=81(I) Atr=03(Int.) MxPS=   1 Ivl=256ms
+Based on feedback from the Lenovo firmware team the EC RAM version can
+be determined and for the current version (3) only the 0x78 to 0x7F
+range is used for temp sensors. I don't have any details for earlier
+versions so I have left the implementation unaltered there.
 
-The failure results from the ETIMEDOUT by chance when turning on
-the suspend feature for the specified port of the hub. The port
-seems to be in an unknown state so the hub_activate during resume
-fails the hub_port_status, then the hub will fail to work.
+Note - in this block only 0x78 and 0x79 are officially designated (CPU &
+GPU sensors). The use of the other locations in the block will vary from
+platform to platform; but the existing logic to detect a sensor presence
+holds.
 
-The quirky hub needs the reset-resume quirk to function correctly.
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chris Chiu <chris.chiu@canonical.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210420174651.6202-1-chris.chiu@canonical.com
+Signed-off-by: Mark Pearson <markpearson@lenovo.com>
+Link: https://lore.kernel.org/r/20210407212015.298222-1-markpearson@lenovo.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/platform/x86/thinkpad_acpi.c |   31 ++++++++++++++++++++++---------
+ 1 file changed, 22 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -245,6 +245,7 @@ static const struct usb_device_id usb_qu
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -5766,6 +5766,7 @@ enum thermal_access_mode {
+ enum { /* TPACPI_THERMAL_TPEC_* */
+ 	TP_EC_THERMAL_TMP0 = 0x78,	/* ACPI EC regs TMP 0..7 */
+ 	TP_EC_THERMAL_TMP8 = 0xC0,	/* ACPI EC regs TMP 8..15 */
++	TP_EC_FUNCREV      = 0xEF,      /* ACPI EC Functional revision */
+ 	TP_EC_THERMAL_TMP_NA = -128,	/* ACPI EC sensor not available */
  
- 	/* Realtek hub in Dell WD19 (Type-C) */
- 	{ USB_DEVICE(0x0bda, 0x0487), .driver_info = USB_QUIRK_NO_LPM },
-+	{ USB_DEVICE(0x0bda, 0x5487), .driver_info = USB_QUIRK_RESET_RESUME },
+ 	TPACPI_THERMAL_SENSOR_NA = -128000, /* Sensor not available */
+@@ -5964,7 +5965,7 @@ static const struct attribute_group ther
  
- 	/* Generic RTL8153 based ethernet adapters */
- 	{ USB_DEVICE(0x0bda, 0x8153), .driver_info = USB_QUIRK_NO_LPM },
+ static int __init thermal_init(struct ibm_init_struct *iibm)
+ {
+-	u8 t, ta1, ta2;
++	u8 t, ta1, ta2, ver = 0;
+ 	int i;
+ 	int acpi_tmp7;
+ 	int res;
+@@ -5979,7 +5980,14 @@ static int __init thermal_init(struct ib
+ 		 * 0x78-0x7F, 0xC0-0xC7.  Registers return 0x00 for
+ 		 * non-implemented, thermal sensors return 0x80 when
+ 		 * not available
++		 * The above rule is unfortunately flawed. This has been seen with
++		 * 0xC2 (power supply ID) causing thermal control problems.
++		 * The EC version can be determined by offset 0xEF and at least for
++		 * version 3 the Lenovo firmware team confirmed that registers 0xC0-0xC7
++		 * are not thermal registers.
+ 		 */
++		if (!acpi_ec_read(TP_EC_FUNCREV, &ver))
++			pr_warn("Thinkpad ACPI EC unable to access EC version\n");
+ 
+ 		ta1 = ta2 = 0;
+ 		for (i = 0; i < 8; i++) {
+@@ -5989,11 +5997,13 @@ static int __init thermal_init(struct ib
+ 				ta1 = 0;
+ 				break;
+ 			}
+-			if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
+-				ta2 |= t;
+-			} else {
+-				ta1 = 0;
+-				break;
++			if (ver < 3) {
++				if (acpi_ec_read(TP_EC_THERMAL_TMP8 + i, &t)) {
++					ta2 |= t;
++				} else {
++					ta1 = 0;
++					break;
++				}
+ 			}
+ 		}
+ 		if (ta1 == 0) {
+@@ -6009,9 +6019,12 @@ static int __init thermal_init(struct ib
+ 				thermal_read_mode = TPACPI_THERMAL_NONE;
+ 			}
+ 		} else {
+-			thermal_read_mode =
+-			    (ta2 != 0) ?
+-			    TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
++			if (ver >= 3)
++				thermal_read_mode = TPACPI_THERMAL_TPEC_8;
++			else
++				thermal_read_mode =
++					(ta2 != 0) ?
++					TPACPI_THERMAL_TPEC_16 : TPACPI_THERMAL_TPEC_8;
+ 		}
+ 	} else if (acpi_tmp7) {
+ 		if (tpacpi_is_ibm() &&
 
 
