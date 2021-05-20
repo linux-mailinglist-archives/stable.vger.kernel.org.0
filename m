@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 240B138A1C0
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E252C38A1C4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232297AbhETJey (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:34:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
+        id S232605AbhETJe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231929AbhETJce (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:32:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC745613EE;
-        Thu, 20 May 2021 09:28:24 +0000 (UTC)
+        id S231640AbhETJcj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:32:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FB4E613F1;
+        Thu, 20 May 2021 09:28:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502905;
-        bh=0ZKD8rf3+Vc1wjaTNw560g8nRWwhJ9F1LguEY8wn3Xo=;
+        s=korg; t=1621502907;
+        bh=7i+KjgdqmmVBDqYkkzPiP9M1fqyyU969MSb7jd+wSW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UT+6c45r9KVwTm1yCwEW3B8afyg3JKCukW6AVcs/fWaq0GSu51aDwANCHccoqWtRD
-         x/z4Ckcz1n4C+vHw21anR9MyEbNg6NhGHLmWYxUHgZ2n9APK3te3BA8w7KeNUA8/5M
-         TBLhinA+xcWgLi4kASEngI74G13RwVEoyzKF+SF8=
+        b=oyBhxENm9LrNfIaGUhNRFzvZH56A7rDYEnD4NRCVraQC6wrFyXF77pScxxiGJ4RA/
+         LxyUrlRtKwtghxvyhjshf0vBEhzAoHQONfW5vj8bZ/IEXNLrL47bnwSuzTxtNmd4e0
+         i06cB20qcZQiQOHi3FKbuqn+HwUPirSA2Ud6UURI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Josh Poimboeuf <jpoimboe@redhat.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        stable@vger.kernel.org,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 06/37] pinctrl: ingenic: Improve unreachable code generation
-Date:   Thu, 20 May 2021 11:22:27 +0200
-Message-Id: <20210520092052.474597254@linuxfoundation.org>
+Subject: [PATCH 5.4 07/37] xsk: Simplify detection of empty and full rings
+Date:   Thu, 20 May 2021 11:22:28 +0200
+Message-Id: <20210520092052.506301027@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
 References: <20210520092052.265851579@linuxfoundation.org>
@@ -41,65 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josh Poimboeuf <jpoimboe@redhat.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit d6d43a92172085a2681e06a0d06aac53c7bcdd12 ]
+[ Upstream commit 11cc2d21499cabe7e7964389634ed1de3ee91d33 ]
 
-In the second loop of ingenic_pinconf_set(), it annotates the switch
-default case as unreachable().  The annotation is technically correct,
-because that same case would have resulted in an early function return
-in the previous loop.
+In order to set the correct return flags for poll, the xsk code has to
+check if the Rx queue is empty and if the Tx queue is full. This code
+was unnecessarily large and complex as it used the functions that are
+used to update the local state from the global state (xskq_nb_free and
+xskq_nb_avail). Since we are not doing this nor updating any data
+dependent on this state, we can simplify the functions. Another
+benefit from this is that we can also simplify the xskq_nb_free and
+xskq_nb_avail functions in a later commit.
 
-However, the compiled code is suboptimal.  GCC seems to work extra hard
-to ensure that the unreachable code path triggers undefined behavior.
-The function would fall through to start executing whatever function
-happens to be next in the compilation unit.
-
-This is problematic because:
-
-  a) it adds unnecessary 'ensure undefined behavior' logic, and
-     corresponding i-cache footprint; and
-
-  b) it's less robust -- if a bug were to be introduced, falling through
-     to the next function would be catastrophic.
-
-Yet another issue is that, while objtool normally understands
-unreachable() annotations, there's one special case where it doesn't:
-when the annotation occurs immediately after a 'ret' instruction.  That
-happens to be the case here because unreachable() is immediately before
-the return.
-
-Remove the unreachable() annotation and replace it with a comment.  This
-simplifies the code generation and changes the unreachable error path to
-just silently return instead of corrupting execution.
-
-This fixes the following objtool warning:
-
-  drivers/pinctrl/pinctrl-ingenic.o: warning: objtool: ingenic_pinconf_set() falls through to next function ingenic_pinconf_group_set()
-
-Reported-by: Randy Dunlap <rdunlap@infradead.org>
-Signed-off-by: Josh Poimboeuf <jpoimboe@redhat.com>
-Link: https://lore.kernel.org/r/bc20fdbcb826512cf76b7dfd0972740875931b19.1582212881.git.jpoimboe@redhat.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/1576759171-28550-3-git-send-email-magnus.karlsson@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-ingenic.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/xdp/xsk_queue.h | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/pinctrl/pinctrl-ingenic.c b/drivers/pinctrl/pinctrl-ingenic.c
-index 61e7d938d4c5..91596eee0bda 100644
---- a/drivers/pinctrl/pinctrl-ingenic.c
-+++ b/drivers/pinctrl/pinctrl-ingenic.c
-@@ -1846,7 +1846,8 @@ static int ingenic_pinconf_set(struct pinctrl_dev *pctldev, unsigned int pin,
- 			break;
+diff --git a/net/xdp/xsk_queue.h b/net/xdp/xsk_queue.h
+index eddae4688862..ee3f8c857dd8 100644
+--- a/net/xdp/xsk_queue.h
++++ b/net/xdp/xsk_queue.h
+@@ -363,12 +363,15 @@ static inline void xskq_produce_flush_desc(struct xsk_queue *q)
  
- 		default:
--			unreachable();
-+			/* unreachable */
-+			break;
- 		}
- 	}
+ static inline bool xskq_full_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_avail(q, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->producer) - READ_ONCE(q->ring->consumer) ==
++		q->nentries;
+ }
  
+ static inline bool xskq_empty_desc(struct xsk_queue *q)
+ {
+-	return xskq_nb_free(q, q->prod_tail, q->nentries) == q->nentries;
++	/* No barriers needed since data is not accessed */
++	return READ_ONCE(q->ring->consumer) == READ_ONCE(q->ring->producer);
+ }
+ 
+ void xskq_set_umem(struct xsk_queue *q, u64 size, u64 chunk_mask);
 -- 
 2.30.2
 
