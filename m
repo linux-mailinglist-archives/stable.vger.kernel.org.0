@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54DCB38A7B4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91F4338A7B2
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235236AbhETKly (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:41:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
+        id S236986AbhETKls (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238325AbhETKjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238328AbhETKjp (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF9561C7D;
-        Thu, 20 May 2021 09:55:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9833961C7E;
+        Thu, 20 May 2021 09:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504527;
-        bh=GgrLl6uBq4OvXt0I0ec1fvwloYaMRa2/9eAwroYI6aM=;
+        s=korg; t=1621504530;
+        bh=4+NpStLaTBZCx2bdwMaGYPXOVhxWz6xLxkKaJpEYUIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hzW9gyVkeBtoSw1CVXTXdTVdVDNu1WumvAUuNYIWRkCWRgNzLTavM8U7ru/XlhLq8
-         srcZHkit0i3Kk35n7zXdlDxJb6wj8dU5Sm4ZHNZLkyigiyZKQ+kiGpP18cVR8cN/FJ
-         SJr/h7JjHsLml6NavVI3/0UpdbOdFZiO3POJRcNc=
+        b=IhL+HiKSkQ+FzDXNx2fhlRWCvGsp0tdH3m8YaMM1pP+RJMLsJD91ROoD028p/qRmS
+         NTJ3q/qgl05cGLVcoqzsNtp98Jod3ASSTAFSw50RjxDQBfoW+vpIK244p5LxRiwT7m
+         4HBcPnKsm5Tz0+5gZv8y37DxFlz4uY+Tm9ih3Y38=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.14 287/323] usb: xhci: Increase timeout for HC halt
-Date:   Thu, 20 May 2021 11:22:59 +0200
-Message-Id: <20210520092130.053097853@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Phil Elwell <phil@raspberrypi.com>
+Subject: [PATCH 4.14 288/323] usb: dwc2: Fix gadget DMA unmap direction
+Date:   Thu, 20 May 2021 11:23:00 +0200
+Message-Id: <20210520092130.087760061@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -39,38 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maximilian Luz <luzmaximilian@gmail.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-commit ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 upstream.
+commit 75a41ce46bae6cbe7d3bb2584eb844291d642874 upstream.
 
-On some devices (specifically the SC8180x based Surface Pro X with
-QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
-the xhci-hcd driver at some point later does not exhibit this behavior.
-To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
-issue.
+The dwc2 gadget support maps and unmaps DMA buffers as necessary. When
+mapping and unmapping it uses the direction of the endpoint to select
+the direction of the DMA transfer, but this fails for Control OUT
+transfers because the unmap occurs after the endpoint direction has
+been reversed for the status phase.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
+A possible solution would be to unmap the buffer before the direction
+is changed, but a safer, less invasive fix is to remember the buffer
+direction independently of the endpoint direction.
+
+Fixes: fe0b94abcdf6 ("usb: dwc2: gadget: manage ep0 state in software")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20210506112200.2893922-1-phil@raspberrypi.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ext-caps.h |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/dwc2/core.h   |    2 ++
+ drivers/usb/dwc2/gadget.c |    3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ext-caps.h
-+++ b/drivers/usb/host/xhci-ext-caps.h
-@@ -19,8 +19,9 @@
-  * along with this program; if not, write to the Free Software Foundation,
-  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-  */
--/* Up to 16 ms to halt an HC */
--#define XHCI_MAX_HALT_USEC	(16*1000)
-+
-+/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
-+#define XHCI_MAX_HALT_USEC	(32 * 1000)
- /* HC not running - set to 1 when run/stop bit is cleared. */
- #define XHCI_STS_HALT		(1<<0)
+--- a/drivers/usb/dwc2/core.h
++++ b/drivers/usb/dwc2/core.h
+@@ -166,6 +166,7 @@ struct dwc2_hsotg_req;
+  * @lock: State lock to protect contents of endpoint.
+  * @dir_in: Set to true if this endpoint is of the IN direction, which
+  *          means that it is sending data to the Host.
++ * @map_dir: Set to the value of dir_in when the DMA buffer is mapped.
+  * @index: The index for the endpoint registers.
+  * @mc: Multi Count - number of transactions per microframe
+  * @interval - Interval for periodic endpoints, in frames or microframes.
+@@ -214,6 +215,7 @@ struct dwc2_hsotg_ep {
+ 	unsigned short		fifo_index;
  
+ 	unsigned char           dir_in;
++	unsigned char           map_dir;
+ 	unsigned char           index;
+ 	unsigned char           mc;
+ 	u16                     interval;
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -413,7 +413,7 @@ static void dwc2_hsotg_unmap_dma(struct
+ {
+ 	struct usb_request *req = &hs_req->req;
+ 
+-	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->dir_in);
++	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->map_dir);
+ }
+ 
+ /*
+@@ -1213,6 +1213,7 @@ static int dwc2_hsotg_map_dma(struct dwc
+ {
+ 	int ret;
+ 
++	hs_ep->map_dir = hs_ep->dir_in;
+ 	ret = usb_gadget_map_request(&hsotg->gadget, req, hs_ep->dir_in);
+ 	if (ret)
+ 		goto dma_error;
 
 
