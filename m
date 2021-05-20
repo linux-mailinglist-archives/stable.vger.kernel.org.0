@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3759B38A8DF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A1B738A706
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237415AbhETKzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52614 "EHLO mail.kernel.org"
+        id S237046AbhETKda (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239144AbhETKwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84D0161CD1;
-        Thu, 20 May 2021 10:00:17 +0000 (UTC)
+        id S237287AbhETKb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01DF5614A7;
+        Thu, 20 May 2021 09:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504818;
-        bh=7EjtfTgjnZWz5ODTHWQEGkADYgCzxFgSDanAMjZISA8=;
+        s=korg; t=1621504325;
+        bh=KQhPeZnW2nWyf/Ff/gdFewVGIDpXPlb8reWCN3mCa1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kpIjG+6AshwCOa/GqoOa/p3qyT3/rjcWw1swniMivN66H6/rITTb8x3HD3S6RTrpR
-         cbbw41kL0XWzk3LEyBLCA4Oc5xJR9tgoglOOwbryq9lP7vdxUysz3PdRW1AO1pSWRr
-         iuCZ0xAx7c2+5jy7qBqNT9cbwEsbKPBQf5bP3VUw=
+        b=yfSvIDWw+N3U5zkE2NFjUXuAfK7TpwadZessU8UV/T9kp91/Fiimcd36aFXZ5il+A
+         A/3Dl1vFMO1g3o+1YXiFeraUw2QjdYoOvbNZdvYSV0+Nj0iJKXbhbQYQUZx7faiBCo
+         Ct1A1OQqJF4I4rcmlsYBv0DaBOQ7LodIWKu+15rQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 094/240] ARM: dts: exynos: correct PMIC interrupt trigger level on Snow
+Subject: [PATCH 4.14 194/323] x86/events/amd/iommu: Fix sysfs type mismatch
 Date:   Thu, 20 May 2021 11:21:26 +0200
-Message-Id: <20210520092111.849481733@linuxfoundation.org>
+Message-Id: <20210520092126.767874119@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 8987efbb17c2522be8615085df9a14da2ab53d34 ]
+[ Upstream commit de5bc7b425d4c27ae5faa00ea7eb6b9780b9a355 ]
 
-The Maxim PMIC datasheets describe the interrupt line as active low
-with a requirement of acknowledge from the CPU.  Without specifying the
-interrupt type in Devicetree, kernel might apply some fixed
-configuration, not necessarily working for this hardware.
+dev_attr_show() calls _iommu_event_show() via an indirect call but
+_iommu_event_show()'s type does not currently match the type of the
+show() member in 'struct device_attribute', resulting in a Control Flow
+Integrity violation.
 
-Additionally, the interrupt line is shared so using level sensitive
-interrupt is here especially important to avoid races.
+$ cat /sys/devices/amd_iommu_1/events/mem_dte_hit
+csource=0x0a
 
-Fixes: c61248afa819 ("ARM: dts: Add max77686 RTC interrupt to cros5250-common")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201210212534.216197-9-krzk@kernel.org
+$ dmesg | grep "CFI failure"
+[ 3526.735140] CFI failure (target: _iommu_event_show...):
+
+Change _iommu_event_show() and 'struct amd_iommu_event_desc' to
+'struct device_attribute' so that there is no more CFI violation.
+
+Fixes: 7be6296fdd75 ("perf/x86/amd: AMD IOMMU Performance Counter PERF uncore PMU implementation")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210415001112.3024673-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-snow-common.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/amd/iommu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5250-snow-common.dtsi b/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-index d5d51916bb74..b24a77781e75 100644
---- a/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-+++ b/arch/arm/boot/dts/exynos5250-snow-common.dtsi
-@@ -280,7 +280,7 @@
- 	max77686: max77686@09 {
- 		compatible = "maxim,max77686";
- 		interrupt-parent = <&gpx3>;
--		interrupts = <2 IRQ_TYPE_NONE>;
-+		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&max77686_irq>;
- 		wakeup-source;
+diff --git a/arch/x86/events/amd/iommu.c b/arch/x86/events/amd/iommu.c
+index 3641e24fdac5..5a372b8902f4 100644
+--- a/arch/x86/events/amd/iommu.c
++++ b/arch/x86/events/amd/iommu.c
+@@ -84,12 +84,12 @@ static struct attribute_group amd_iommu_events_group = {
+ };
+ 
+ struct amd_iommu_event_desc {
+-	struct kobj_attribute attr;
++	struct device_attribute attr;
+ 	const char *event;
+ };
+ 
+-static ssize_t _iommu_event_show(struct kobject *kobj,
+-				struct kobj_attribute *attr, char *buf)
++static ssize_t _iommu_event_show(struct device *dev,
++				struct device_attribute *attr, char *buf)
+ {
+ 	struct amd_iommu_event_desc *event =
+ 		container_of(attr, struct amd_iommu_event_desc, attr);
 -- 
 2.30.2
 
