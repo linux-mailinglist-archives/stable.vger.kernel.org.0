@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F92838AB0A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8B0438A97F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:02:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239780AbhETLUN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38292 "EHLO mail.kernel.org"
+        id S238214AbhETLDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240490AbhETLRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A96861D72;
-        Thu, 20 May 2021 10:09:45 +0000 (UTC)
+        id S238750AbhETLBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C0EC61D0A;
+        Thu, 20 May 2021 10:03:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505386;
-        bh=S93TGJLzU4z0SvaBVoU9+QAZiDLSTWOOJBOi35DTRa0=;
+        s=korg; t=1621505011;
+        bh=rZz1ZdBZL2WzTgvLe7/w0Oc3q815CYmWv5pnPMZ73co=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FT0KSwl6R5edw/cf3FWC1yC/66r7JVOfeS/NMfDudY36y4theWXXDhmVgr7B7GHRR
-         qLCUH35pFCdS1okjpKjYd6hQKj8msLWJD5ragtQguscdYZjipcM0WiYKimPsFpmwOK
-         Xl/m8/AWHDF08S3vmzl9fWP+Kp1vMQobQ9XqOLbA=
+        b=0kUaliJ/TYB/G2PSU9f3G3kpqsQQVBozb9K5IVmM/xv18JFsXINY2FExepQTbBXzX
+         4wMRFc8/GpPeiAnXRwop5wEHlQCHX0LD440HG3EzPh8q7SvAlJi2ulL+ZD+l7oBiTD
+         0nehfWvq9/mzvRnkJ2nmSThTwvGBSvtp2Xsa/Zag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 077/190] ARM: dts: exynos: correct PMIC interrupt trigger level on SMDK5250
+Subject: [PATCH 4.9 149/240] net: thunderx: Fix unintentional sign extension issue
 Date:   Thu, 20 May 2021 11:22:21 +0200
-Message-Id: <20210520092104.741800409@linuxfoundation.org>
+Message-Id: <20210520092113.653804196@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzk@kernel.org>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit f6368c60561370e4a92fac22982a3bd656172170 ]
+[ Upstream commit e701a25840360706fe4cf5de0015913ca19c274b ]
 
-The Maxim PMIC datasheets describe the interrupt line as active low
-with a requirement of acknowledge from the CPU.  Without specifying the
-interrupt type in Devicetree, kernel might apply some fixed
-configuration, not necessarily working for this hardware.
+The shifting of the u8 integers rq->caching by 26 bits to
+the left will be promoted to a 32 bit signed int and then
+sign-extended to a u64. In the event that rq->caching is
+greater than 0x1f then all then all the upper 32 bits of
+the u64 end up as also being set because of the int
+sign-extension. Fix this by casting the u8 values to a
+u64 before the 26 bit left shift.
 
-Additionally, the interrupt line is shared so using level sensitive
-interrupt is here especially important to avoid races.
-
-Fixes: 47580e8d94c2 ("ARM: dts: Specify MAX77686 pmic interrupt for exynos5250-smdk5250")
-Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/r/20201210212534.216197-8-krzk@kernel.org
+Addresses-Coverity: ("Unintended sign extension")
+Fixes: 4863dea3fab0 ("net: Adding support for Cavium ThunderX network controller")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5250-smdk5250.dts | 2 +-
+ drivers/net/ethernet/cavium/thunder/nicvf_queues.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-index 0f5dcd418af8..97b152e43f9c 100644
---- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
-+++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
-@@ -134,7 +134,7 @@
- 		compatible = "maxim,max77686";
- 		reg = <0x09>;
- 		interrupt-parent = <&gpx3>;
--		interrupts = <2 IRQ_TYPE_NONE>;
-+		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&max77686_irq>;
- 		wakeup-source;
+diff --git a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+index 747ef0882976..8f3d544bec0c 100644
+--- a/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
++++ b/drivers/net/ethernet/cavium/thunder/nicvf_queues.c
+@@ -537,7 +537,7 @@ static void nicvf_rcv_queue_config(struct nicvf *nic, struct queue_set *qs,
+ 	mbx.rq.msg = NIC_MBOX_MSG_RQ_CFG;
+ 	mbx.rq.qs_num = qs->vnic_id;
+ 	mbx.rq.rq_num = qidx;
+-	mbx.rq.cfg = (rq->caching << 26) | (rq->cq_qs << 19) |
++	mbx.rq.cfg = ((u64)rq->caching << 26) | (rq->cq_qs << 19) |
+ 			  (rq->cq_idx << 16) | (rq->cont_rbdr_qs << 9) |
+ 			  (rq->cont_qs_rbdr_idx << 8) |
+ 			  (rq->start_rbdr_qs << 1) | (rq->start_qs_rbdr_idx);
 -- 
 2.30.2
 
