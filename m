@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E68C38A931
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C23E38A786
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238168AbhETK7E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:59:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
+        id S234606AbhETKjt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:39:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238637AbhETK4u (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:56:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10DB661CF2;
-        Thu, 20 May 2021 10:02:00 +0000 (UTC)
+        id S238064AbhETKhT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:37:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAB3C6024A;
+        Thu, 20 May 2021 09:54:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504921;
-        bh=NIqcAYn4WfEsiIXnZoUATbnVbVspGmg6azhO7tGZnQ4=;
+        s=korg; t=1621504464;
+        bh=BbzLu1ivL34nJcNHeN2z0zIJWOV2cAWxbUzVSxiME2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZJBlH4cVXLbH1BBl3pC0HFKTg68/5/HXzZuoewvF2WgrPIlbFa2dT3C5yvBio3TD0
-         kwGJdFLxsfkhCnj4bQOw5KVQuEMmzBuhUQRTFXUz/HXlzMMsDDTNhqK5xHNP9I9QAA
-         vcARNdp3biKgudMW5MYJ4BpGtAr5+/i9TL6lgFEk=
+        b=qsqhFigYqWkpPC8QAF/bARrdAljsZfKhZWK0/24fTUnzLyTAf38q13VlSlUU+WX9o
+         7w6AbojV7dPCdhpILoi8HAcpowoEDeFvscuoLL89Zv9EWddV+/l4LaJA7EcHeX+XeS
+         zHrjRkd//SJw7pda/LENtJWzshP0QmkMWe6C3dvc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
+        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
+        Alain Michaud <alainm@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 140/240] powerpc/prom: Mark identical_pvr_fixup as __init
+Subject: [PATCH 4.14 240/323] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
 Date:   Thu, 20 May 2021 11:22:12 +0200
-Message-Id: <20210520092113.344294750@linuxfoundation.org>
+Message-Id: <20210520092128.407729935@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit 1ef1dd9c7ed27b080445e1576e8a05957e0e4dfc ]
+[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
 
-If identical_pvr_fixup() is not inlined, there are two modpost warnings:
+Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
+However, there is a flag CONF_NOT_COMPLETE which is set when
+creating the l2cap_chan. It is suggested that the flag should be
+cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
+is called, l2cap_chan is not yet ready. Therefore, we must set this
+flag as the default.
 
-WARNING: modpost: vmlinux.o(.text+0x54e8): Section mismatch in reference
-from the function identical_pvr_fixup() to the function
-.init.text:of_get_flat_dt_prop()
-The function identical_pvr_fixup() references
-the function __init of_get_flat_dt_prop().
-This is often because identical_pvr_fixup lacks a __init
-annotation or the annotation of of_get_flat_dt_prop is wrong.
+Example crash call trace:
+__dump_stack lib/dump_stack.c:15 [inline]
+dump_stack+0xc4/0x118 lib/dump_stack.c:56
+panic+0x1c6/0x38b kernel/panic.c:117
+__warn+0x170/0x1b9 kernel/panic.c:471
+warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
+debug_print_object+0x175/0x193 lib/debugobjects.c:260
+debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
+debug_timer_assert_init kernel/time/timer.c:629 [inline]
+debug_assert_init kernel/time/timer.c:677 [inline]
+del_timer+0x7c/0x179 kernel/time/timer.c:1034
+try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
+cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
+l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
+l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
+l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
+l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
+l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
+__sock_release+0xda/0x217 net/socket.c:580
+sock_close+0x1b/0x1f net/socket.c:1039
+__fput+0x322/0x55c fs/file_table.c:208
+____fput+0x17/0x19 fs/file_table.c:244
+task_work_run+0x19b/0x1d3 kernel/task_work.c:115
+exit_task_work include/linux/task_work.h:21 [inline]
+do_exit+0xe4c/0x204a kernel/exit.c:766
+do_group_exit+0x291/0x291 kernel/exit.c:891
+get_signal+0x749/0x1093 kernel/signal.c:2396
+do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
+exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
+prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
+syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
+int_ret_from_sys_call+0x25/0xa3
 
-WARNING: modpost: vmlinux.o(.text+0x551c): Section mismatch in reference
-from the function identical_pvr_fixup() to the function
-.init.text:identify_cpu()
-The function identical_pvr_fixup() references
-the function __init identify_cpu().
-This is often because identical_pvr_fixup lacks a __init
-annotation or the annotation of identify_cpu is wrong.
-
-identical_pvr_fixup() calls two functions marked as __init and is only
-called by a function marked as __init so it should be marked as __init
-as well. At the same time, remove the inline keywork as it is not
-necessary to inline this function. The compiler is still free to do so
-if it feels it is worthwhile since commit 889b3c1245de ("compiler:
-remove CONFIG_OPTIMIZE_INLINING entirely").
-
-Fixes: 14b3d926a22b ("[POWERPC] 4xx: update 440EP(x)/440GR(x) identical PVR issue workaround")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1316
-Link: https://lore.kernel.org/r/20210302200829.2680663-1-nathan@kernel.org
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
+Reviewed-by: Alain Michaud <alainm@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
-index b868f07c4246..11b4ecec04ee 100644
---- a/arch/powerpc/kernel/prom.c
-+++ b/arch/powerpc/kernel/prom.c
-@@ -262,7 +262,7 @@ static struct feature_property {
- };
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index df8cc639c46d..b5a7d04066ec 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -510,7 +510,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
+ 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
+ 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
+ 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
++
+ 	chan->conf_state = 0;
++	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
  
- #if defined(CONFIG_44x) && defined(CONFIG_PPC_FPU)
--static inline void identical_pvr_fixup(unsigned long node)
-+static __init void identical_pvr_fixup(unsigned long node)
- {
- 	unsigned int pvr;
- 	const char *model = of_get_flat_dt_prop(node, "model", NULL);
+ 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
+ }
 -- 
 2.30.2
 
