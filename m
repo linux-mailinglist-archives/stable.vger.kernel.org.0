@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94AFD38A403
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC1B138A406
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233659AbhETKAN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:00:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59134 "EHLO mail.kernel.org"
+        id S234368AbhETKAT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:00:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235186AbhETJ5w (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235189AbhETJ5w (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 05:57:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86CC6613BE;
-        Thu, 20 May 2021 09:38:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B637061415;
+        Thu, 20 May 2021 09:38:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503487;
-        bh=78gEKsbijpXic+wdjychEXMDO/H2HEqJvvQxTkarXXQ=;
+        s=korg; t=1621503489;
+        bh=TuqiWQ4ROAsgjp1Mjiz3bp9joRa+82z8UOoZwQuYqEU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpwjDUpORYpfnU/0P62pN4SFOzGDQhdy/7xEX5MV4isCYLFlu72yxkYYUdYptDRkM
-         BwZ2EOdwFM2/2dv4zcbBsc410tWTzFDBT9Xi0DwqPZ+3byAqAJC8bJYmK7zTtDlYUL
-         I1RYnkrkMGU/uZZAJQDuLER2zBj490Obv9RjYWgQ=
+        b=tZhcGPpy1LDA4QOUvBdLXNQeuFSBPl1JkTZPAjuL9qzu2bfvuKuCubqaePXnirkeD
+         iI3FMNbw7JpovDfYVWnWaMpGSvZz8BD559RXxWPII/C/mb71O4ZGOaHBK83cwHF1va
+         SW17tRsiwYl6gOfre1tq5vOmUGBJW/kvyDohMZ2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Fabrice Gasnier <fabrice.gasnier@foss.st.com>,
-        William Breathitt Gray <vilhelm.gray@gmail.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 243/425] mfd: stm32-timers: Avoid clearing auto reload register
-Date:   Thu, 20 May 2021 11:20:12 +0200
-Message-Id: <20210520092139.411304336@linuxfoundation.org>
+Subject: [PATCH 4.19 244/425] HSI: core: fix resource leaks in hsi_add_client_from_dt()
+Date:   Thu, 20 May 2021 11:20:13 +0200
+Message-Id: <20210520092139.442479583@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,56 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 4917e498c6894ba077867aff78f82cffd5ffbb5c ]
+[ Upstream commit 5c08b0f75575648032f309a6f58294453423ed93 ]
 
-The ARR register is cleared unconditionally upon probing, after the maximum
-value has been read. This initial condition is rather not intuitive, when
-considering the counter child driver. It rather expects the maximum value
-by default:
-- The counter interface shows a zero value by default for 'ceiling'
-  attribute.
-- Enabling the counter without any prior configuration makes it doesn't
-  count.
+If some of the allocations fail between the dev_set_name() and the
+device_register() then the name will not be freed.  Fix this by
+moving dev_set_name() directly in front of the call to device_register().
 
-The reset value of ARR register is the maximum. So Choice here
-is to backup it, and restore it then, instead of clearing its value.
-It also fixes the initial condition seen by the counter driver.
-
-Fixes: d0f949e220fd ("mfd: Add STM32 Timers driver")
-Signed-off-by: Fabrice Gasnier <fabrice.gasnier@foss.st.com>
-Acked-by: William Breathitt Gray <vilhelm.gray@gmail.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Fixes: a2aa24734d9d ("HSI: Add common DT binding for HSI client devices")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mfd/stm32-timers.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/hsi/hsi_core.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/mfd/stm32-timers.c b/drivers/mfd/stm32-timers.c
-index efcd4b980c94..1adba6a46dcb 100644
---- a/drivers/mfd/stm32-timers.c
-+++ b/drivers/mfd/stm32-timers.c
-@@ -158,13 +158,18 @@ static const struct regmap_config stm32_timers_regmap_cfg = {
+diff --git a/drivers/hsi/hsi_core.c b/drivers/hsi/hsi_core.c
+index 9065efd21851..71895da63810 100644
+--- a/drivers/hsi/hsi_core.c
++++ b/drivers/hsi/hsi_core.c
+@@ -223,8 +223,6 @@ static void hsi_add_client_from_dt(struct hsi_port *port,
+ 	if (err)
+ 		goto err;
  
- static void stm32_timers_get_arr_size(struct stm32_timers *ddata)
- {
-+	u32 arr;
-+
-+	/* Backup ARR to restore it after getting the maximum value */
-+	regmap_read(ddata->regmap, TIM_ARR, &arr);
-+
- 	/*
- 	 * Only the available bits will be written so when readback
- 	 * we get the maximum value of auto reload register
- 	 */
- 	regmap_write(ddata->regmap, TIM_ARR, ~0L);
- 	regmap_read(ddata->regmap, TIM_ARR, &ddata->max_arr);
--	regmap_write(ddata->regmap, TIM_ARR, 0x0);
-+	regmap_write(ddata->regmap, TIM_ARR, arr);
- }
+-	dev_set_name(&cl->device, "%s", name);
+-
+ 	err = hsi_of_property_parse_mode(client, "hsi-mode", &mode);
+ 	if (err) {
+ 		err = hsi_of_property_parse_mode(client, "hsi-rx-mode",
+@@ -306,6 +304,7 @@ static void hsi_add_client_from_dt(struct hsi_port *port,
+ 	cl->device.release = hsi_client_release;
+ 	cl->device.of_node = client;
  
- static void stm32_timers_dma_probe(struct device *dev,
++	dev_set_name(&cl->device, "%s", name);
+ 	if (device_register(&cl->device) < 0) {
+ 		pr_err("hsi: failed to register client: %s\n", name);
+ 		put_device(&cl->device);
 -- 
 2.30.2
 
