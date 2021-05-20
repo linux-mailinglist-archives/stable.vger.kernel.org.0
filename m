@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0509938AB1E
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136ED38A9A9
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240469AbhETLUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37990 "EHLO mail.kernel.org"
+        id S238501AbhETLFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:05:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240731AbhETLTP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD54361D76;
-        Thu, 20 May 2021 10:10:25 +0000 (UTC)
+        id S239300AbhETLDD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:03:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D51761D2C;
+        Thu, 20 May 2021 10:04:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505426;
-        bh=iiscaPkcBcW5UAiWlZ54mhEZiIuXeONDNcb1ezIM+7c=;
+        s=korg; t=1621505055;
+        bh=8OQj5p3y3B1QGSdoqzyGs4Hfl3t+mA/SsXXk5jSOApg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SDq5Lv+b6XxShb5DodDdTqIcaaUkU5sNKlbc6tadTOdNWu03c1fw2PCh6hpFyJRm+
-         MBxLzRnBs/hDQx3o0HoAsWQmDEfVTFoLj/zLIqCa3yWciz1g2P/FwcqhbrT5QfuSHv
-         XXfBA5Xc8yhTLjGUcjR4F17x6pm45hSfpeF2p3tw=
+        b=uHaAFacJZsX8dWIa8RPUEUhC2M9zlUtBD8ZwAfj1x3RKNxgvV1z+w+OrfJfGXC3qZ
+         Kcy1e3/n5j0Ip4+zKIVqPFdawwgE6hYoDcS8+c9Z4DLEFhbA2mk8vsOZ+xBJQW3E/l
+         cfuUspjEEskIZC9RGHHp23ywCVT7dVRhtXrPBlKY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Lorenzo Bianconi <lorenzo@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+        Feilong Lin <linfeilong@huawei.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 129/190] ath9k: Fix error check in ath9k_hw_read_revisions() for PCI devices
-Date:   Thu, 20 May 2021 11:23:13 +0200
-Message-Id: <20210520092106.464791871@linuxfoundation.org>
+Subject: [PATCH 4.9 202/240] mm/hugeltb: handle the error case in hugetlb_fix_reserve_counts()
+Date:   Thu, 20 May 2021 11:23:14 +0200
+Message-Id: <20210520092115.441531656@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +43,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Toke Høiland-Jørgensen <toke@redhat.com>
+From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit 7dd9a40fd6e0d0f1fd8e1931c007e080801dfdce ]
+[ Upstream commit da56388c4397878a65b74f7fe97760f5aa7d316b ]
 
-When the error check in ath9k_hw_read_revisions() was added, it checked for
--EIO which is what ath9k_regread() in the ath9k_htc driver uses. However,
-for plain ath9k, the register read function uses ioread32(), which just
-returns -1 on error. So if such a read fails, it still gets passed through
-and ends up as a weird mac revision in the log output.
+A rare out of memory error would prevent removal of the reserve map region
+for a page.  hugetlb_fix_reserve_counts() handles this rare case to avoid
+dangling with incorrect counts.  Unfortunately, hugepage_subpool_get_pages
+and hugetlb_acct_memory could possibly fail too.  We should correctly
+handle these cases.
 
-Fix this by changing ath9k_regread() to return -1 on error like ioread32()
-does, and fix the error check to look for that instead of -EIO.
-
-Fixes: 2f90c7e5d094 ("ath9k: Check for errors when reading SREV register")
-Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210326180819.142480-1-toke@redhat.com
+Link: https://lkml.kernel.org/r/20210410072348.20437-5-linmiaohe@huawei.com
+Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Feilong Lin <linfeilong@huawei.com>
+Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 +-
- drivers/net/wireless/ath/ath9k/hw.c           | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ mm/hugetlb.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-index 3932e3d14f3d..379e843fbe0d 100644
---- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-+++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
-@@ -246,7 +246,7 @@ static unsigned int ath9k_regread(void *hw_priv, u32 reg_offset)
- 	if (unlikely(r)) {
- 		ath_dbg(common, WMI, "REGISTER READ FAILED: (0x%04x, %d)\n",
- 			reg_offset, r);
--		return -EIO;
-+		return -1;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index e2b5e38e7a4b..9049e8613237 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -586,13 +586,20 @@ void hugetlb_fix_reserve_counts(struct inode *inode)
+ {
+ 	struct hugepage_subpool *spool = subpool_inode(inode);
+ 	long rsv_adjust;
++	bool reserved = false;
+ 
+ 	rsv_adjust = hugepage_subpool_get_pages(spool, 1);
+-	if (rsv_adjust) {
++	if (rsv_adjust > 0) {
+ 		struct hstate *h = hstate_inode(inode);
+ 
+-		hugetlb_acct_memory(h, 1);
++		if (!hugetlb_acct_memory(h, 1))
++			reserved = true;
++	} else if (!rsv_adjust) {
++		reserved = true;
  	}
++
++	if (!reserved)
++		pr_warn("hugetlb: Huge Page Reserved count may go negative.\n");
+ }
  
- 	return be32_to_cpu(val);
-diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
-index d50e2e8bd998..25c3e5d3fe62 100644
---- a/drivers/net/wireless/ath/ath9k/hw.c
-+++ b/drivers/net/wireless/ath/ath9k/hw.c
-@@ -285,7 +285,7 @@ static bool ath9k_hw_read_revisions(struct ath_hw *ah)
- 
- 	srev = REG_READ(ah, AR_SREV);
- 
--	if (srev == -EIO) {
-+	if (srev == -1) {
- 		ath_err(ath9k_hw_common(ah),
- 			"Failed to read SREV register");
- 		return false;
+ /*
 -- 
 2.30.2
 
