@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EABAC38ABA8
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FCF38AA19
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241206AbhETL0T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:26:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43254 "EHLO mail.kernel.org"
+        id S240509AbhETLKY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241353AbhETLYW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:24:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BE8E61DA3;
-        Thu, 20 May 2021 10:12:26 +0000 (UTC)
+        id S240112AbhETLHC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:07:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C61CB61D1D;
+        Thu, 20 May 2021 10:05:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505546;
-        bh=LTJpDmpBJqC8yJgaPvmv6a4Y3UQO9eWwuc15wsEnw8E=;
+        s=korg; t=1621505150;
+        bh=iXgKiE9R8jdkGoaGr2EyzBtoQ+G1t82TOnZlung0k0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gqwmt61xboygqH7NtVI/IwXyzebHEvNINzMTim7u+bC8uUho7qm4PZpcBuFrAkOqR
-         NKkqWoieGPb/prNp7Olgmxz84NPxeYhq/vQPfOxLdEkpM+RR/XEwcrZEl+wNckr920
-         obEYdc0nZa8RshsId///cdpIDzJWHGH8fj3DufFY=
+        b=FnCz2QVhL17yBtYzDS1SDZlC+0/+VrztiJLAmhT3esj5hiJcMAQjyj/9kzO8Dy2Iv
+         015Ke47HWw/k7v8ammcCMBDtOoNL8UsDIsgTPeTaTCnbm3f5wWqr7aF/Us/l6iwZlh
+         qFIdBknvcyyT9hfW/YLtOP31+d2/gXvAlrCcRxgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Kees Cook <keescook@chromium.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 150/190] wl3501_cs: Fix out-of-bounds warnings in wl3501_send_pkt
-Date:   Thu, 20 May 2021 11:23:34 +0200
-Message-Id: <20210520092107.139468777@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 4.9 223/240] clk: exynos7: Mark aclk_fsys1_200 as critical
+Date:   Thu, 20 May 2021 11:23:35 +0200
+Message-Id: <20210520092116.194916667@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,147 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-[ Upstream commit 820aa37638a252b57967bdf4038a514b1ab85d45 ]
+commit 34138a59b92c1a30649a18ec442d2e61f3bc34dd upstream.
 
-Fix the following out-of-bounds warnings by enclosing structure members
-daddr and saddr into new struct addr, in structures wl3501_md_req and
-wl3501_md_ind:
+This clock must be always enabled to allow access to any registers in
+fsys1 CMU. Until proper solution based on runtime PM is applied
+(similar to what was done for Exynos5433), mark that clock as critical
+so it won't be disabled.
 
-arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
-arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+It was observed on Samsung Galaxy S6 device (based on Exynos7420), where
+UFS module is probed before pmic used to power that device.
+In this case defer probe was happening and that clock was disabled by
+UFS driver, causing whole boot to hang on next CMU access.
 
-Refactor the code, accordingly:
-
-$ pahole -C wl3501_md_req drivers/net/wireless/wl3501_cs.o
-struct wl3501_md_req {
-	u16                        next_blk;             /*     0     2 */
-	u8                         sig_id;               /*     2     1 */
-	u8                         routing;              /*     3     1 */
-	u16                        data;                 /*     4     2 */
-	u16                        size;                 /*     6     2 */
-	u8                         pri;                  /*     8     1 */
-	u8                         service_class;        /*     9     1 */
-	struct {
-		u8                 daddr[6];             /*    10     6 */
-		u8                 saddr[6];             /*    16     6 */
-	} addr;                                          /*    10    12 */
-
-	/* size: 22, cachelines: 1, members: 8 */
-	/* last cacheline: 22 bytes */
-};
-
-$ pahole -C wl3501_md_ind drivers/net/wireless/wl3501_cs.o
-struct wl3501_md_ind {
-	u16                        next_blk;             /*     0     2 */
-	u8                         sig_id;               /*     2     1 */
-	u8                         routing;              /*     3     1 */
-	u16                        data;                 /*     4     2 */
-	u16                        size;                 /*     6     2 */
-	u8                         reception;            /*     8     1 */
-	u8                         pri;                  /*     9     1 */
-	u8                         service_class;        /*    10     1 */
-	struct {
-		u8                 daddr[6];             /*    11     6 */
-		u8                 saddr[6];             /*    17     6 */
-	} addr;                                          /*    11    12 */
-
-	/* size: 24, cachelines: 1, members: 9 */
-	/* padding: 1 */
-	/* last cacheline: 24 bytes */
-};
-
-The problem is that the original code is trying to copy data into a
-couple of arrays adjacent to each other in a single call to memcpy().
-Now that a new struct _addr_ enclosing those two adjacent arrays
-is introduced, memcpy() doesn't overrun the length of &sig.daddr[0]
-and &sig.daddr, because the address of the new struct object _addr_
-is used, instead.
-
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/d260fe56aed7112bff2be5b4d152d03ad7b78e78.1618442265.git.gustavoars@kernel.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 753195a749a6 ("clk: samsung: exynos7: Correct CMU_FSYS1 clocks names")
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/linux-clk/20201024154346.9589-1-pawel.mikolaj.chmiel@gmail.com
+[s.nawrocki: Added comment in the code]
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/wl3501.h    | 12 ++++++++----
- drivers/net/wireless/wl3501_cs.c | 10 ++++++----
- 2 files changed, 14 insertions(+), 8 deletions(-)
+ drivers/clk/samsung/clk-exynos7.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
-index 3fbfd19818f1..ba2a36cfb1c8 100644
---- a/drivers/net/wireless/wl3501.h
-+++ b/drivers/net/wireless/wl3501.h
-@@ -470,8 +470,10 @@ struct wl3501_md_req {
- 	u16	size;
- 	u8	pri;
- 	u8	service_class;
--	u8	daddr[ETH_ALEN];
--	u8	saddr[ETH_ALEN];
-+	struct {
-+		u8	daddr[ETH_ALEN];
-+		u8	saddr[ETH_ALEN];
-+	} addr;
- };
+--- a/drivers/clk/samsung/clk-exynos7.c
++++ b/drivers/clk/samsung/clk-exynos7.c
+@@ -541,8 +541,13 @@ static const struct samsung_gate_clock t
+ 	GATE(CLK_ACLK_FSYS0_200, "aclk_fsys0_200", "dout_aclk_fsys0_200",
+ 		ENABLE_ACLK_TOP13, 28, CLK_SET_RATE_PARENT |
+ 		CLK_IS_CRITICAL, 0),
++	/*
++	 * This clock is required for the CMU_FSYS1 registers access, keep it
++	 * enabled permanently until proper runtime PM support is added.
++	 */
+ 	GATE(CLK_ACLK_FSYS1_200, "aclk_fsys1_200", "dout_aclk_fsys1_200",
+-		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT, 0),
++		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT |
++		CLK_IS_CRITICAL, 0),
  
- struct wl3501_md_ind {
-@@ -483,8 +485,10 @@ struct wl3501_md_ind {
- 	u8	reception;
- 	u8	pri;
- 	u8	service_class;
--	u8	daddr[ETH_ALEN];
--	u8	saddr[ETH_ALEN];
-+	struct {
-+		u8	daddr[ETH_ALEN];
-+		u8	saddr[ETH_ALEN];
-+	} addr;
- };
- 
- struct wl3501_md_confirm {
-diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
-index d5c371d77ddf..15613f4761f4 100644
---- a/drivers/net/wireless/wl3501_cs.c
-+++ b/drivers/net/wireless/wl3501_cs.c
-@@ -457,6 +457,7 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
- 	struct wl3501_md_req sig = {
- 		.sig_id = WL3501_SIG_MD_REQ,
- 	};
-+	size_t sig_addr_len = sizeof(sig.addr);
- 	u8 *pdata = (char *)data;
- 	int rc = -EIO;
- 
-@@ -472,9 +473,9 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
- 			goto out;
- 		}
- 		rc = 0;
--		memcpy(&sig.daddr[0], pdata, 12);
--		pktlen = len - 12;
--		pdata += 12;
-+		memcpy(&sig.addr, pdata, sig_addr_len);
-+		pktlen = len - sig_addr_len;
-+		pdata += sig_addr_len;
- 		sig.data = bf;
- 		if (((*pdata) * 256 + (*(pdata + 1))) > 1500) {
- 			u8 addr4[ETH_ALEN] = {
-@@ -968,7 +969,8 @@ static inline void wl3501_md_ind_interrupt(struct net_device *dev,
- 	} else {
- 		skb->dev = dev;
- 		skb_reserve(skb, 2); /* IP headers on 16 bytes boundaries */
--		skb_copy_to_linear_data(skb, (unsigned char *)&sig.daddr, 12);
-+		skb_copy_to_linear_data(skb, (unsigned char *)&sig.addr,
-+					sizeof(sig.addr));
- 		wl3501_receive(this, skb->data, pkt_len);
- 		skb_put(skb, pkt_len);
- 		skb->protocol	= eth_type_trans(skb, dev);
--- 
-2.30.2
-
+ 	GATE(CLK_SCLK_PHY_FSYS1_26M, "sclk_phy_fsys1_26m",
+ 		"dout_sclk_phy_fsys1_26m", ENABLE_SCLK_TOP1_FSYS11,
 
 
