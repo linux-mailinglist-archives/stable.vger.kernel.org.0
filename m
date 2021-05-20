@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D73E38A751
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E74C438A8EB
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237108AbhETKhO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
+        id S238753AbhETKzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:55:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237689AbhETKfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA60461601;
-        Thu, 20 May 2021 09:53:26 +0000 (UTC)
+        id S238639AbhETKwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:52:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2AB861864;
+        Thu, 20 May 2021 10:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504407;
-        bh=uidAe+Es+/+PmreWX+fJb2EbtdDpLV3OhFvWEUt83cY=;
+        s=korg; t=1621504842;
+        bh=3FJsfvIKvb8jEni70x0lqGFtIs3Ws2pMVf7+0cM9FeM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W0bRR/IopTo6dDZm3Nw/QAITAsj3JLIC7UuU+tI3sktZvhTj6rqVMDQxk6J41Nj4N
-         Hmr9obqgs8VHMmBIzZVrheXNjMCWxoa/ZP3C7z/UFktAiTETXi7smhZbuixRiXE3H2
-         DhzjaRQXc20B8aVqz+3ACEoAxyMXGzPOgHG29sLI=
+        b=nIA13PZ55PTaqZQ1V9qApT0dZGn3X62zwdK/wQIlp7UfbfFQQAQ/q1p3x3GXgA6sL
+         A0dCAVRF6u8Wjm4z9Dgyua/FaJhIF2QUDR2AKEyjVVa0mK2MiaFaqJkqJ1wrMOiHSI
+         dYvYfN/mKAYEYiJNh/0nQSlbqemzVbvLPzonBHMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 204/323] liquidio: Fix unintented sign extension of a left shift of a u16
+Subject: [PATCH 4.9 104/240] fotg210-udc: Mask GRP2 interrupts we dont handle
 Date:   Thu, 20 May 2021 11:21:36 +0200
-Message-Id: <20210520092127.123009570@linuxfoundation.org>
+Message-Id: <20210520092112.177721833@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-[ Upstream commit 298b58f00c0f86868ea717426beb5c1198772f81 ]
+[ Upstream commit 9aee3a23d6455200702f3a57e731fa11e8408667 ]
 
-The macro CN23XX_PEM_BAR1_INDEX_REG is being used to shift oct->pcie_port
-(a u16) left 24 places. There are two subtle issues here, first the
-shift gets promoted to an signed int and then sign extended to a u64.
-If oct->pcie_port is 0x80 or more then the upper bits get sign extended
-to 1. Secondly shfiting a u16 24 bits will lead to an overflow so it
-needs to be cast to a u64 for all the bits to not overflow.
+Currently it leaves unhandled interrupts unmasked, but those are never
+acked. In the case of a "device idle" interrupt, this leads to an
+effectively frozen system until plugging it in.
 
-It is entirely possible that the u16 port value is never large enough
-for this to fail, but it is useful to fix unintended overflows such
-as this.
-
-Fix this by casting the port parameter to the macro to a u64 before
-the shift.
-
-Addresses-Coverity: ("Unintended sign extension")
-Fixes: 5bc67f587ba7 ("liquidio: CN23XX register definitions")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/20210324141115.9384-5-fabian@ritter-vogt.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/cavium/liquidio/cn23xx_pf_regs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/fotg210-udc.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_regs.h b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_regs.h
-index e6d4ad99cc38..3f1c189646f4 100644
---- a/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_regs.h
-+++ b/drivers/net/ethernet/cavium/liquidio/cn23xx_pf_regs.h
-@@ -521,7 +521,7 @@
- #define    CN23XX_BAR1_INDEX_OFFSET                3
+diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
+index d0a9ce7d0635..491b04dd6db7 100644
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -1033,6 +1033,12 @@ static void fotg210_init(struct fotg210_udc *fotg210)
+ 	value &= ~DMCR_GLINT_EN;
+ 	iowrite32(value, fotg210->reg + FOTG210_DMCR);
  
- #define    CN23XX_PEM_BAR1_INDEX_REG(port, idx)		\
--		(CN23XX_PEM_BAR1_INDEX_START + ((port) << CN23XX_PEM_OFFSET) + \
-+		(CN23XX_PEM_BAR1_INDEX_START + (((u64)port) << CN23XX_PEM_OFFSET) + \
- 		 ((idx) << CN23XX_BAR1_INDEX_OFFSET))
++	/* enable only grp2 irqs we handle */
++	iowrite32(~(DISGR2_DMA_ERROR | DISGR2_RX0BYTE_INT | DISGR2_TX0BYTE_INT
++		    | DISGR2_ISO_SEQ_ABORT_INT | DISGR2_ISO_SEQ_ERR_INT
++		    | DISGR2_RESM_INT | DISGR2_SUSP_INT | DISGR2_USBRST_INT),
++		  fotg210->reg + FOTG210_DMISGR2);
++
+ 	/* disable all fifo interrupt */
+ 	iowrite32(~(u32)0, fotg210->reg + FOTG210_DMISGR1);
  
- /*############################ DPI #########################*/
 -- 
 2.30.2
 
