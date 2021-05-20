@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E555C38AB89
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E104238AA04
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239335AbhETLZw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:25:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43486 "EHLO mail.kernel.org"
+        id S239774AbhETLIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:08:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239239AbhETLW2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:22:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5FBDA61D8D;
-        Thu, 20 May 2021 10:11:51 +0000 (UTC)
+        id S239828AbhETLGf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:06:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC24C61D25;
+        Thu, 20 May 2021 10:05:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505511;
-        bh=H+iePsEJXbIzUdlHnlEkKi0VxFRP4qzqQ+3bdi8ZSzk=;
+        s=korg; t=1621505139;
+        bh=Pa45VHiF6hGUaP6wxRaq0xLevbsHAEKEZKT+YeNSAIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UWUGeRDxai6ttNaoMOjk6Y3w9nD4t5PLns2sheQIYT+zj0/3uFsIZeZcavu/PcrOs
-         FU6Cjm+9lSRiQvdPrQmdhB2GB2U5zpt4jFVhQs7AgItm4dNAxQLTXHVKageZhMLCSW
-         NTVBCRuAc56LtWgvmmKnQCY6A9Cw70yhRhEJcviQ=
+        b=Lo7fo+4lxH49PTRlb1hiOwyiJj9CSlbsHFP+aH1YxCvVGQFNislejibQEpKk34SGb
+         qVuJJHBnGE02lmefSY8uUuuSnzC+bdvp825qqU13OCMPlBftMAafBrYcJljg+70lkq
+         pW4iBZLeWDStX3E2lybMFa9uJaZKez1wK3h8hqk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianping Fang <tianping.fang@mediatek.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 4.4 168/190] usb: core: hub: fix race condition about TRSMRCY of resume
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 240/240] ipv6: remove extra dev_hold() for fallback tunnels
 Date:   Thu, 20 May 2021 11:23:52 +0200
-Message-Id: <20210520092107.730868243@linuxfoundation.org>
+Message-Id: <20210520092116.739408397@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 975f94c7d6c306b833628baa9aec3f79db1eb3a1 upstream.
+commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
 
-This may happen if the port becomes resume status exactly
-when usb_port_resume() gets port status, it still need provide
-a TRSMCRY time before access the device.
+My previous commits added a dev_hold() in tunnels ndo_init(),
+but forgot to remove it from special functions setting up fallback tunnels.
 
-CC: <stable@vger.kernel.org>
-Reported-by: Tianping Fang <tianping.fang@mediatek.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20210512020738.52961-1-chunfeng.yun@mediatek.com
+Fallback tunnels do call their respective ndo_init()
+
+This leads to various reports like :
+
+unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
+
+Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/ipv6/ip6_gre.c    |    3 ---
+ net/ipv6/ip6_tunnel.c |    1 -
+ net/ipv6/ip6_vti.c    |    1 -
+ net/ipv6/sit.c        |    1 -
+ 4 files changed, 6 deletions(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3430,9 +3430,6 @@ int usb_port_resume(struct usb_device *u
- 		 * sequence.
- 		 */
- 		status = hub_port_status(hub, port1, &portstatus, &portchange);
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -350,7 +350,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
+ 	if (!(nt->parms.o_flags & TUNNEL_SEQ))
+ 		dev->features |= NETIF_F_LLTX;
+ 
+-	dev_hold(dev);
+ 	ip6gre_tunnel_link(ign, nt);
+ 	return nt;
+ 
+@@ -1085,8 +1084,6 @@ static void ip6gre_fb_tunnel_init(struct
+ 	strcpy(tunnel->parms.name, dev->name);
+ 
+ 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
 -
--		/* TRSMRCY = 10 msec */
--		msleep(10);
- 	}
+-	dev_hold(dev);
+ }
  
-  SuspendCleared:
-@@ -3447,6 +3444,9 @@ int usb_port_resume(struct usb_device *u
- 				usb_clear_port_feature(hub->hdev, port1,
- 						USB_PORT_FEAT_C_SUSPEND);
- 		}
-+
-+		/* TRSMRCY = 10 msec */
-+		msleep(10);
- 	}
  
- 	if (udev->persist_enabled && hub_is_superspeed(hub->hdev))
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1888,7 +1888,6 @@ static int __net_init ip6_fb_tnl_dev_ini
+ 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+ 
+ 	t->parms.proto = IPPROTO_IPV6;
+-	dev_hold(dev);
+ 
+ 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
+ 	return 0;
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -945,7 +945,6 @@ static int __net_init vti6_fb_tnl_dev_in
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 
+ 	t->parms.proto = IPPROTO_IPV6;
+-	dev_hold(dev);
+ 
+ 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
+ 	return 0;
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1414,7 +1414,6 @@ static void __net_init ipip6_fb_tunnel_i
+ 	iph->ihl		= 5;
+ 	iph->ttl		= 64;
+ 
+-	dev_hold(dev);
+ 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
+ }
+ 
 
 
