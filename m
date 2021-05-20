@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4518738A8C4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE8F038A6FA
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237779AbhETKxv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:53:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
+        id S237143AbhETKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239108AbhETKvs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:51:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEA8E61CCB;
-        Thu, 20 May 2021 10:00:01 +0000 (UTC)
+        id S236651AbhETKa5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:30:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D29761C38;
+        Thu, 20 May 2021 09:51:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504802;
-        bh=DZ49FfwXbFBW/HdCYNjUsyjxMS1HJY05sHhllPN0g28=;
+        s=korg; t=1621504314;
+        bh=3Gn753fkwrHl9WOyOxVbJ+VolEhzTSTT82586210nyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SbG3LjfaZYYWzs0IA1thp4iJOPOHPRylSSJa+vwkGnEwcnI1KA2NVG/sg8kbZxncR
-         HP2RR6BftTDLg/KEsZcxx7YEDzreFVT+zWzWfmfu7041jcyVTuuSuaes5Fq2LdiMpA
-         2J9r7GRQadArjrNhOXNxQSOvWXtOWCWX06/utN1o=
+        b=dtkwDMRAqM01wDYwxe9jmiW6Kt63o4lNXbHmBVtozwwB9dEQHSKnR03eul6eCJbpt
+         Jlzxuf4lNbHj4SFqQKZQKqiKWyQKDiKSDb9tCfrdIHEsHi9F3cRLFi567uBKm87fFJ
+         RiTUsTmorVblkiGzAad5CAuySkdRG6pwotcajAfQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 088/240] ALSA: hda/realtek: Re-order ALC269 Sony quirk table entries
-Date:   Thu, 20 May 2021 11:21:20 +0200
-Message-Id: <20210520092111.639138142@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 189/323] scsi: jazz_esp: Add IRQ check
+Date:   Thu, 20 May 2021 11:21:21 +0200
+Message-Id: <20210520092126.603439354@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,40 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit cab561f8d4bc9b196ae20c960aa5da89fd786ab5 upstream.
+[ Upstream commit 38fca15c29db6ed06e894ac194502633e2a7d1fb ]
 
-Just re-order the alc269_fixup_tbl[] entries for Sony devices for
-avoiding the oversight of the duplicated or unapplied item in future.
-No functional changes.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding the real
+error code.  Stop calling request_irq() with the invalid IRQ #s.
 
-Also Cc-to-stable for the further patch applications.
-
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210428112704.23967-9-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/594aa9ae-2215-49f6-f73c-33bd38989912@omprussia.ru
+Fixes: 352e921f0dd4 ("[SCSI] jazz_esp: converted to use esp_core")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/jazz_esp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5821,12 +5821,12 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x8398, "ASUS P1005", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x83ce, "ASUS P1005", ALC269_FIXUP_STEREO_DMIC),
- 	SND_PCI_QUIRK(0x1043, 0x8516, "ASUS X101CH", ALC269_FIXUP_ASUS_X101),
--	SND_PCI_QUIRK(0x104d, 0x90b5, "Sony VAIO Pro 11", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
--	SND_PCI_QUIRK(0x104d, 0x90b6, "Sony VAIO Pro 13", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x104d, 0x9073, "Sony VAIO", ALC275_FIXUP_SONY_VAIO_GPIO2),
- 	SND_PCI_QUIRK(0x104d, 0x907b, "Sony VAIO", ALC275_FIXUP_SONY_HWEQ),
- 	SND_PCI_QUIRK(0x104d, 0x9084, "Sony VAIO", ALC275_FIXUP_SONY_HWEQ),
- 	SND_PCI_QUIRK(0x104d, 0x9099, "Sony VAIO S13", ALC275_FIXUP_SONY_DISABLE_AAMIX),
-+	SND_PCI_QUIRK(0x104d, 0x90b5, "Sony VAIO Pro 11", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x104d, 0x90b6, "Sony VAIO Pro 13", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x10cf, 0x1475, "Lifebook", ALC269_FIXUP_LIFEBOOK),
- 	SND_PCI_QUIRK(0x10cf, 0x159f, "Lifebook E780", ALC269_FIXUP_LIFEBOOK_NO_HP_TO_LINEOUT),
- 	SND_PCI_QUIRK(0x10cf, 0x15dc, "Lifebook T731", ALC269_FIXUP_LIFEBOOK_HP_PIN),
+diff --git a/drivers/scsi/jazz_esp.c b/drivers/scsi/jazz_esp.c
+index 9aaa74e349cc..65f0dbfc3a45 100644
+--- a/drivers/scsi/jazz_esp.c
++++ b/drivers/scsi/jazz_esp.c
+@@ -170,7 +170,9 @@ static int esp_jazz_probe(struct platform_device *dev)
+ 	if (!esp->command_block)
+ 		goto fail_unmap_regs;
+ 
+-	host->irq = platform_get_irq(dev, 0);
++	host->irq = err = platform_get_irq(dev, 0);
++	if (err < 0)
++		goto fail_unmap_command_block;
+ 	err = request_irq(host->irq, scsi_esp_intr, IRQF_SHARED, "ESP", esp);
+ 	if (err < 0)
+ 		goto fail_unmap_command_block;
+-- 
+2.30.2
+
 
 
