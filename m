@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 86C0238A160
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 005AC38A11A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231623AbhETJaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:30:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52732 "EHLO mail.kernel.org"
+        id S232166AbhETJ2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:28:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232005AbhETJ2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:28:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7929E6135A;
-        Thu, 20 May 2021 09:27:01 +0000 (UTC)
+        id S231934AbhETJ1Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:27:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D57BB6135C;
+        Thu, 20 May 2021 09:26:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502821;
-        bh=v3ZjQ43TMOMvGcD1Uozxi5K+kr7k2gN8fh3BFJ+U9w4=;
+        s=korg; t=1621502764;
+        bh=7JjN/D17G6ME5Mc+DmYKPPS1cVShSzMCm9Pl9HYk81k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sws8VHCu9/1cONWSnuXas3JD1aH8tIheMrCXsf1s/5UdelaH11/9EfCi+S8b5eZCy
-         fUOifElEN44OaAjTepBbgVja6+f8AOe6yhcO7Oi+CSffpgNL7tGKNRdEHvlsDfMAbO
-         fhK9tdaAQFB1a8sMHytwk3KSXFnX5gSMg2xwYdhE=
+        b=Ur4r4xVcILns6NovbGQ22VAofcmyJtxgFEVW5IEMumrmlYUMtkzMAmoRTuuBTanPJ
+         7Qig48TKnBvsA2eZnK6c/vnv9yTdZda0AAdMAiOxt8AL+wQdieXiVSWRtYqYaVxeyh
+         8F5VrdHgzY65U9I6d6ZZkTY/MurYRJFj3x5UsaUY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Xiubo Li <xiubli@redhat.com>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 29/47] ceph: dont allow access to MDS-private inodes
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Pavel Begunkov <asml.silencec@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 39/45] block: reexpand iov_iter after read/write
 Date:   Thu, 20 May 2021 11:22:27 +0200
-Message-Id: <20210520092054.489098425@linuxfoundation.org>
+Message-Id: <20210520092054.789347422@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,128 +40,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit d4f6b31d721779d91b5e2f8072478af73b196c34 ]
+[ Upstream commit cf7b39a0cbf6bf57aa07a008d46cf695add05b4c ]
 
-The MDS reserves a set of inodes for its own usage, and these should
-never be accessible to clients. Add a new helper to vet a proposed
-inode number against that range, and complain loudly and refuse to
-create or look it up if it's in it.
+We get a bug:
 
-Also, ensure that the MDS doesn't try to delegate inodes that are in
-that range or lower. Print a warning if it does, and don't save the
-range in the xarray.
+BUG: KASAN: slab-out-of-bounds in iov_iter_revert+0x11c/0x404
+lib/iov_iter.c:1139
+Read of size 8 at addr ffff0000d3fb11f8 by task
 
-URL: https://tracker.ceph.com/issues/49922
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Reviewed-by: Xiubo Li <xiubli@redhat.com>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
+CPU: 0 PID: 12582 Comm: syz-executor.2 Not tainted
+5.10.0-00843-g352c8610ccd2 #2
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
+ show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x110/0x164 lib/dump_stack.c:118
+ print_address_description+0x78/0x5c8 mm/kasan/report.c:385
+ __kasan_report mm/kasan/report.c:545 [inline]
+ kasan_report+0x148/0x1e4 mm/kasan/report.c:562
+ check_memory_region_inline mm/kasan/generic.c:183 [inline]
+ __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
+ iov_iter_revert+0x11c/0x404 lib/iov_iter.c:1139
+ io_read fs/io_uring.c:3421 [inline]
+ io_issue_sqe+0x2344/0x2d64 fs/io_uring.c:5943
+ __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
+ io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
+ io_submit_sqe fs/io_uring.c:6395 [inline]
+ io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
+ __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
+ __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
+ __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+
+Allocated by task 12570:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
+ kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
+ __kmalloc+0x23c/0x334 mm/slub.c:3970
+ kmalloc include/linux/slab.h:557 [inline]
+ __io_alloc_async_data+0x68/0x9c fs/io_uring.c:3210
+ io_setup_async_rw fs/io_uring.c:3229 [inline]
+ io_read fs/io_uring.c:3436 [inline]
+ io_issue_sqe+0x2954/0x2d64 fs/io_uring.c:5943
+ __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
+ io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
+ io_submit_sqe fs/io_uring.c:6395 [inline]
+ io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
+ __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
+ __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
+ __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+
+Freed by task 12570:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track+0x38/0x6c mm/kasan/common.c:56
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
+ __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
+ kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
+ slab_free_hook mm/slub.c:1544 [inline]
+ slab_free_freelist_hook mm/slub.c:1577 [inline]
+ slab_free mm/slub.c:3142 [inline]
+ kfree+0x104/0x38c mm/slub.c:4124
+ io_dismantle_req fs/io_uring.c:1855 [inline]
+ __io_free_req+0x70/0x254 fs/io_uring.c:1867
+ io_put_req_find_next fs/io_uring.c:2173 [inline]
+ __io_queue_sqe+0x1fc/0x520 fs/io_uring.c:6279
+ __io_req_task_submit+0x154/0x21c fs/io_uring.c:2051
+ io_req_task_submit+0x2c/0x44 fs/io_uring.c:2063
+ task_work_run+0xdc/0x128 kernel/task_work.c:151
+ get_signal+0x6f8/0x980 kernel/signal.c:2562
+ do_signal+0x108/0x3a4 arch/arm64/kernel/signal.c:658
+ do_notify_resume+0xbc/0x25c arch/arm64/kernel/signal.c:722
+ work_pending+0xc/0x180
+
+blkdev_read_iter can truncate iov_iter's count since the count + pos may
+exceed the size of the blkdev. This will confuse io_read that we have
+consume the iovec. And once we do the iov_iter_revert in io_read, we
+will trigger the slab-out-of-bounds. Fix it by reexpand the count with
+size has been truncated.
+
+blkdev_write_iter can trigger the problem too.
+
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Acked-by: Pavel Begunkov <asml.silencec@gmail.com>
+Link: https://lore.kernel.org/r/20210401071807.3328235-1-yangerkun@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/export.c     |  8 ++++++++
- fs/ceph/inode.c      |  3 +++
- fs/ceph/mds_client.c |  7 +++++++
- fs/ceph/super.h      | 24 ++++++++++++++++++++++++
- 4 files changed, 42 insertions(+)
+ fs/block_dev.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ceph/export.c b/fs/ceph/export.c
-index baa6368bece5..042bb4a02c0a 100644
---- a/fs/ceph/export.c
-+++ b/fs/ceph/export.c
-@@ -129,6 +129,10 @@ static struct inode *__lookup_inode(struct super_block *sb, u64 ino)
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 09d6f7229db9..a5a6a7930e5e 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1684,6 +1684,7 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	struct inode *bd_inode = bdev_file_inode(file);
+ 	loff_t size = i_size_read(bd_inode);
+ 	struct blk_plug plug;
++	size_t shorted = 0;
+ 	ssize_t ret;
  
- 	vino.ino = ino;
- 	vino.snap = CEPH_NOSNAP;
-+
-+	if (ceph_vino_is_reserved(vino))
-+		return ERR_PTR(-ESTALE);
-+
- 	inode = ceph_find_inode(sb, vino);
- 	if (!inode) {
- 		struct ceph_mds_request *req;
-@@ -214,6 +218,10 @@ static struct dentry *__snapfh_to_dentry(struct super_block *sb,
- 		vino.ino = sfh->ino;
- 		vino.snap = sfh->snapid;
- 	}
-+
-+	if (ceph_vino_is_reserved(vino))
-+		return ERR_PTR(-ESTALE);
-+
- 	inode = ceph_find_inode(sb, vino);
- 	if (inode)
- 		return d_obtain_alias(inode);
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 790433cb849e..346fcdfcd3e9 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -56,6 +56,9 @@ struct inode *ceph_get_inode(struct super_block *sb, struct ceph_vino vino)
- {
- 	struct inode *inode;
+ 	if (bdev_read_only(I_BDEV(bd_inode)))
+@@ -1701,12 +1702,17 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if ((iocb->ki_flags & (IOCB_NOWAIT | IOCB_DIRECT)) == IOCB_NOWAIT)
+ 		return -EOPNOTSUPP;
  
-+	if (ceph_vino_is_reserved(vino))
-+		return ERR_PTR(-EREMOTEIO);
-+
- 	inode = iget5_locked(sb, (unsigned long)vino.ino, ceph_ino_compare,
- 			     ceph_set_ino_cb, &vino);
- 	if (!inode)
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 8f1d7500a7ec..d560752b764d 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -433,6 +433,13 @@ static int ceph_parse_deleg_inos(void **p, void *end,
- 
- 		ceph_decode_64_safe(p, end, start, bad);
- 		ceph_decode_64_safe(p, end, len, bad);
-+
-+		/* Don't accept a delegation of system inodes */
-+		if (start < CEPH_INO_SYSTEM_BASE) {
-+			pr_warn_ratelimited("ceph: ignoring reserved inode range delegation (start=0x%llx len=0x%llx)\n",
-+					start, len);
-+			continue;
-+		}
- 		while (len--) {
- 			int err = xa_insert(&s->s_delegated_inos, ino = start++,
- 					    DELEGATED_INO_AVAILABLE,
-diff --git a/fs/ceph/super.h b/fs/ceph/super.h
-index 482473e4cce1..c33f744a8e11 100644
---- a/fs/ceph/super.h
-+++ b/fs/ceph/super.h
-@@ -529,10 +529,34 @@ static inline int ceph_ino_compare(struct inode *inode, void *data)
- 		ci->i_vino.snap == pvino->snap;
- }
- 
-+/*
-+ * The MDS reserves a set of inodes for its own usage. These should never
-+ * be accessible by clients, and so the MDS has no reason to ever hand these
-+ * out. The range is CEPH_MDS_INO_MDSDIR_OFFSET..CEPH_INO_SYSTEM_BASE.
-+ *
-+ * These come from src/mds/mdstypes.h in the ceph sources.
-+ */
-+#define CEPH_MAX_MDS		0x100
-+#define CEPH_NUM_STRAY		10
-+#define CEPH_MDS_INO_MDSDIR_OFFSET	(1 * CEPH_MAX_MDS)
-+#define CEPH_INO_SYSTEM_BASE		((6*CEPH_MAX_MDS) + (CEPH_MAX_MDS * CEPH_NUM_STRAY))
-+
-+static inline bool ceph_vino_is_reserved(const struct ceph_vino vino)
-+{
-+	if (vino.ino < CEPH_INO_SYSTEM_BASE &&
-+	    vino.ino >= CEPH_MDS_INO_MDSDIR_OFFSET) {
-+		WARN_RATELIMIT(1, "Attempt to access reserved inode number 0x%llx", vino.ino);
-+		return true;
+-	iov_iter_truncate(from, size - iocb->ki_pos);
++	size -= iocb->ki_pos;
++	if (iov_iter_count(from) > size) {
++		shorted = iov_iter_count(from) - size;
++		iov_iter_truncate(from, size);
 +	}
-+	return false;
-+}
  
- static inline struct inode *ceph_find_inode(struct super_block *sb,
- 					    struct ceph_vino vino)
- {
-+	if (ceph_vino_is_reserved(vino))
-+		return NULL;
+ 	blk_start_plug(&plug);
+ 	ret = __generic_file_write_iter(iocb, from);
+ 	if (ret > 0)
+ 		ret = generic_write_sync(iocb, ret);
++	iov_iter_reexpand(from, iov_iter_count(from) + shorted);
+ 	blk_finish_plug(&plug);
+ 	return ret;
+ }
+@@ -1718,13 +1724,21 @@ ssize_t blkdev_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	struct inode *bd_inode = bdev_file_inode(file);
+ 	loff_t size = i_size_read(bd_inode);
+ 	loff_t pos = iocb->ki_pos;
++	size_t shorted = 0;
++	ssize_t ret;
+ 
+ 	if (pos >= size)
+ 		return 0;
+ 
+ 	size -= pos;
+-	iov_iter_truncate(to, size);
+-	return generic_file_read_iter(iocb, to);
++	if (iov_iter_count(to) > size) {
++		shorted = iov_iter_count(to) - size;
++		iov_iter_truncate(to, size);
++	}
 +
- 	/*
- 	 * NB: The hashval will be run through the fs/inode.c hash function
- 	 * anyway, so there is no need to squash the inode number down to
++	ret = generic_file_read_iter(iocb, to);
++	iov_iter_reexpand(to, iov_iter_count(to) + shorted);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(blkdev_read_iter);
+ 
 -- 
 2.30.2
 
