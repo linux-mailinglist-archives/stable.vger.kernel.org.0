@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7E3938A6C7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E55C138A892
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236832AbhETKaX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:30:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55848 "EHLO mail.kernel.org"
+        id S237801AbhETKv2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236509AbhETK2i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E2DF61401;
-        Thu, 20 May 2021 09:51:01 +0000 (UTC)
+        id S238623AbhETKt5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:49:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E10E6162E;
+        Thu, 20 May 2021 09:59:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504261;
-        bh=T49rh45U6lPypUCiE91O/QscMUsu3C9juocM8XfqQ0M=;
+        s=korg; t=1621504754;
+        bh=6Q5uY934E/VMdQv+u9n4rpHhowCGxfQSyTVolvusDM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SRV4jplt1XAesU4bPFShF3v3US0Zx3jiC2fcM6NRtgKfsAN3n/jlZrVId4ul2JaS4
-         TN+7TYKJNjLDoa53kTzUJR3xMsHI+MTb6k/zvKlADwnMblkqpWliLlTlh/ovCK6Hun
-         TpOLconeUeEJiVr7RZFWo77LUeeL4+Z4M1H2MC2M=
+        b=YVcb1SszK91zixLec1t28pnhPDswGGRygJ6KOS54C6HQ1ROAHlWE0j9IVdF3NcWWE
+         Cmj5KwXg5BPhKiffi+FxYNcEPkofgdEXdZ4oHV5H6sGwp2bxmuotRsSrw1k5OEB8cq
+         22GlzeQLIqGi+j1NWEgZRdLa6yx4dape9H/+G6fo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 164/323] staging: greybus: uart: fix unprivileged TIOCCSERIAL
+        stable@vger.kernel.org, Dean Anderson <dean@sensoray.com>
+Subject: [PATCH 4.9 064/240] usb: gadget/function/f_fs string table fix for multiple languages
 Date:   Thu, 20 May 2021 11:20:56 +0200
-Message-Id: <20210520092125.724807910@linuxfoundation.org>
+Message-Id: <20210520092110.828518971@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Dean Anderson <dean@sensoray.com>
 
-[ Upstream commit 60c6b305c11b5fd167ce5e2ce42f3a9098c388f0 ]
+commit 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e upstream.
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Fixes bug with the handling of more than one language in
+the string table in f_fs.c.
+str_count was not reset for subsequent language codes.
+str_count-- "rolls under" and processes u32 max strings on
+the processing of the second language entry.
+The existing bug can be reproduced by adding a second language table
+to the structure "strings" in tools/usb/ffs-test.c.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
-
-Fix the greybus implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
-
-Fixes: e68453ed28c5 ("greybus: uart-gb: now builds, more framework added")
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210407102334.32361-7-johan@kernel.org
+Signed-off-by: Dean Anderson <dean@sensoray.com>
+Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/greybus/uart.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/staging/greybus/uart.c b/drivers/staging/greybus/uart.c
-index 2b297df88bdd..b0b7d4a1cee4 100644
---- a/drivers/staging/greybus/uart.c
-+++ b/drivers/staging/greybus/uart.c
-@@ -657,8 +657,6 @@ static int set_serial_info(struct gb_tty *gb_tty,
- 		if ((close_delay != gb_tty->port.close_delay) ||
- 		    (closing_wait != gb_tty->port.closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		gb_tty->port.close_delay = close_delay;
- 		gb_tty->port.closing_wait = closing_wait;
--- 
-2.30.2
-
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -2543,6 +2543,7 @@ static int __ffs_data_got_strings(struct
+ 
+ 	do { /* lang_count > 0 so we can use do-while */
+ 		unsigned needed = needed_count;
++		u32 str_per_lang = str_count;
+ 
+ 		if (unlikely(len < 3))
+ 			goto error_free;
+@@ -2578,7 +2579,7 @@ static int __ffs_data_got_strings(struct
+ 
+ 			data += length + 1;
+ 			len -= length + 1;
+-		} while (--str_count);
++		} while (--str_per_lang);
+ 
+ 		s->id = 0;   /* terminator */
+ 		s->s = NULL;
 
 
