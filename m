@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3AE738A19E
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1976338A1A1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232711AbhETJcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:32:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
+        id S231760AbhETJdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:33:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232221AbhETJaq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:30:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 35C3C613C1;
-        Thu, 20 May 2021 09:27:47 +0000 (UTC)
+        id S232025AbhETJbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5E0613DC;
+        Thu, 20 May 2021 09:27:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502867;
-        bh=OqZjzTHcvVGSV/zJVpzoxHvBZ/8GXEM9zR/cxCAA5Eg=;
+        s=korg; t=1621502869;
+        bh=L1TraLPJIGnK4pTDFEezIQ9FbUehOUnWLcqyWq2g0cA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hKha6fG6j1LzdMOTAAnq4xOvTzjU8XD5YAt7UVG5hYygZ0+jgUAvrihvhuj1DZakb
-         IOI7Psewcb+ZKoiakx5+q4vn4NLJkR2v/BUwg936qvvR8DlsXYqeoZsyc4+y5RDNii
-         bhALizv133NIJkHmlv5GjRS3cEpGnXAHrk9EM5cc=
+        b=xnSnDF/K4u71052fbj+C57natXjKMaM25nGKyKcRIfYVUMYN8ilv+XbfoUuC07sfw
+         ISyeLRR/Iy1GihW4AgHJOZx0daUInhDlzxw/m4YXWMa2wrNmNkaV5QyFDXCXV5da5K
+         tEncdECs8b/hP0wjZrCrChcstbJ/lNPlt2rad9u8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Ritesh Raj Sarraf <rrs@debian.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 17/47] NFS: NFS_INO_REVAL_PAGECACHE should mark the change attribute invalid
-Date:   Thu, 20 May 2021 11:22:15 +0200
-Message-Id: <20210520092054.106759529@linuxfoundation.org>
+Subject: [PATCH 5.10 18/47] um: Mark all kernel symbols as local
+Date:   Thu, 20 May 2021 11:22:16 +0200
+Message-Id: <20210520092054.137914317@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
 References: <20210520092053.559923764@linuxfoundation.org>
@@ -40,33 +42,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 50c7a7994dd20af56e4d47e90af10bab71b71001 ]
+[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
 
-When we're looking to revalidate the page cache, we should just ensure
-that we mark the change attribute invalid.
+Ritesh reported a bug [1] against UML, noting that it crashed on
+startup. The backtrace shows the following (heavily redacted):
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+(gdb) bt
+...
+ #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
+ #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
+ #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
+...
+ #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
+...
+ #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
+ #45 0x00007f8990968b85 in __getgrnam_r [...]
+ #46 0x00007f89909d6b77 in grantpt [...]
+ #47 0x00007f8990a9394e in __GI_openpty [...]
+ #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
+ #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
+ #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
+ #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
+ #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
+
+indicating that the UML function openpty_cb() calls openpty(),
+which internally calls __getgrnam_r(), which causes the nsswitch
+machinery to get started.
+
+This loads, through lots of indirection that I snipped, the
+libcom_err.so.2 library, which (in an unknown function, "??")
+calls sem_init().
+
+Now, of course it wants to get libpthread's sem_init(), since
+it's linked against libpthread. However, the dynamic linker
+looks up that symbol against the binary first, and gets the
+kernel's sem_init().
+
+Hajime Tazaki noted that "objcopy -L" can localize a symbol,
+so the dynamic linker wouldn't do the lookup this way. I tried,
+but for some reason that didn't seem to work.
+
+Doing the same thing in the linker script instead does seem to
+work, though I cannot entirely explain - it *also* works if I
+just add "VERSION { { global: *; }; }" instead, indicating that
+something else is happening that I don't really understand. It
+may be that explicitly doing that marks them with some kind of
+empty version, and that's different from the default.
+
+Explicitly marking them with a version breaks kallsyms, so that
+doesn't seem to be possible.
+
+Marking all the symbols as local seems correct, and does seem
+to address the issue, so do that. Also do it for static link,
+nsswitch libraries could still be loaded there.
+
+[1] https://bugs.debian.org/983379
+
+Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/inode.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/um/kernel/dyn.lds.S | 6 ++++++
+ arch/um/kernel/uml.lds.S | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
-index 6e2e948f1475..dc2cbca98fb0 100644
---- a/fs/nfs/inode.c
-+++ b/fs/nfs/inode.c
-@@ -207,7 +207,8 @@ static void nfs_set_cache_invalid(struct inode *inode, unsigned long flags)
- 				| NFS_INO_INVALID_SIZE
- 				| NFS_INO_REVAL_PAGECACHE
- 				| NFS_INO_INVALID_XATTR);
--	}
-+	} else if (flags & NFS_INO_REVAL_PAGECACHE)
-+		flags |= NFS_INO_INVALID_CHANGE | NFS_INO_INVALID_SIZE;
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index dacbfabf66d8..2f2a8ce92f1e 100644
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
  
- 	if (inode->i_mapping->nrpages == 0)
- 		flags &= ~(NFS_INO_INVALID_DATA|NFS_INO_DATA_INVAL_DEFER);
++VERSION {
++  {
++    local: *;
++  };
++}
++
+ SECTIONS
+ {
+   PROVIDE (__executable_start = START);
+diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
+index 45d957d7004c..7a8e2b123e29 100644
+--- a/arch/um/kernel/uml.lds.S
++++ b/arch/um/kernel/uml.lds.S
+@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
+ 
++VERSION {
++  {
++    local: *;
++  };
++}
++
+ SECTIONS
+ {
+   /* This must contain the right address - not quite the default ELF one.*/
 -- 
 2.30.2
 
