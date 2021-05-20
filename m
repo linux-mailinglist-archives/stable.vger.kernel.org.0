@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A91CD38A741
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B76838A743
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236844AbhETKgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236966AbhETKgf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 06:36:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60460 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237305AbhETKdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237089AbhETKdk (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:33:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F317161C51;
-        Thu, 20 May 2021 09:52:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3986C61581;
+        Thu, 20 May 2021 09:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504378;
-        bh=buqJqw0bvNnd5ForWdt98KkmOmySANGI6ExAAgNy6w8=;
+        s=korg; t=1621504380;
+        bh=LGNpyK4Do3h3CvzevW2+nFJk++3+zBIXTaQn1hxw0QU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S0bH2S8rARoH2kuGzrsDFx3ELj/NPa6oekX0E83FlzOtEOvFy0cqa7LGGQEvebj3o
-         027+cQwaa/qzXitpWE9rp8pQcmJ4yIZ/tuKd1Hm4KPSoXkVm4jjz37Wz/0GP0lj8vi
-         7nSwEQ+OqewCuHvvQFNV7jUDzWnA1jeOIrJQzBuY=
+        b=uelpw/qGHEQu6kJ1G6eKp7pS5XbHABdJQptqkspaSI7ctPv1SUgb6LMe68z7UJt6d
+         42LwXN3W+B0ZgbainLSW6r7OhCGFypcyVFJHAcmpeDaLyAe9hPn3XJzg3ymXhnqmop
+         BNmpmQsdRGWRFDRQiN1HEdI3Ay7TXL4OpUrUNYwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 219/323] mwl8k: Fix a double Free in mwl8k_probe_hw
-Date:   Thu, 20 May 2021 11:21:51 +0200
-Message-Id: <20210520092127.638234673@linuxfoundation.org>
+Subject: [PATCH 4.14 220/323] vsock/vmci: log once the failed queue pair allocation
+Date:   Thu, 20 May 2021 11:21:52 +0200
+Message-Id: <20210520092127.672742642@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,39 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit a8e083ee8e2a6c94c29733835adae8bf5b832748 ]
+[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
 
-In mwl8k_probe_hw, hw->priv->txq is freed at the first time by
-dma_free_coherent() in the call chain:
-if(!priv->ap_fw)->mwl8k_init_txqs(hw)->mwl8k_txq_init(hw, i).
+VMCI feature is not supported in conjunction with the vSphere Fault
+Tolerance (FT) feature.
 
-Then in err_free_queues of mwl8k_probe_hw, hw->priv->txq is freed
-at the second time by mwl8k_txq_deinit(hw, i)->dma_free_coherent().
+VMware Tools can repeatedly try to create a vsock connection. If FT is
+enabled the kernel logs is flooded with the following messages:
 
-My patch set txq->txd to NULL after the first free to avoid the
-double free.
+    qp_alloc_hypercall result = -20
+    Could not attach to queue pair with -20
 
-Fixes: a66098daacee2 ("mwl8k: Marvell TOPDOG wireless driver")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210402182627.4256-1-lyl2019@mail.ustc.edu.cn
+"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
+("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
+not attach to queue pair with -20" is still there flooding the log.
+
+Since the error message can be useful in some cases, print it only once.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwl8k.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/vmw_vsock/vmci_transport.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
-index a87ccf9ceb67..e39aaee92add 100644
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -1464,6 +1464,7 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
- 	txq->skb = kcalloc(MWL8K_TX_DESCS, sizeof(*txq->skb), GFP_KERNEL);
- 	if (txq->skb == NULL) {
- 		pci_free_consistent(priv->pdev, size, txq->txd, txq->txd_dma);
-+		txq->txd = NULL;
- 		return -ENOMEM;
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index ba4cb18c4b9a..c1da1ce3d36e 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -585,8 +585,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
+ 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
+ out:
+ 	if (err < 0) {
+-		pr_err("Could not attach to queue pair with %d\n",
+-		       err);
++		pr_err_once("Could not attach to queue pair with %d\n", err);
+ 		err = vmci_transport_error_to_vsock_error(err);
  	}
  
 -- 
