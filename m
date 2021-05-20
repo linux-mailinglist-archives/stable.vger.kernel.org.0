@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D78B138AA66
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:12:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DE1F38AA73
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:12:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239457AbhETLNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53584 "EHLO mail.kernel.org"
+        id S240164AbhETLNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239506AbhETLLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:11:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE27561D39;
-        Thu, 20 May 2021 10:07:13 +0000 (UTC)
+        id S239768AbhETLLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D45261D47;
+        Thu, 20 May 2021 10:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505234;
-        bh=CUa6fDlJdtOnkrgQq1DKHgdCRYF4uXoisvo2HPBjMs4=;
+        s=korg; t=1621505258;
+        bh=jNFo7NKnWOIApppX+Dex7WrZmrfhePM+x12UpR8/ps0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bZ3tKkDV8oU5t9ixE9paGrPkFmef/mZP6w4zwR0MDKRxslKdsEcrIOqJGw4LlxCnY
-         FdQpoGESM9Ymi2CVZLTCZIbFLLFn6t3Inj/RHmrAlldcrfo3vzCp9s1KXaeWZYAFMo
-         foFECTU9c3DfSIcnyPg80zS9w2mstOTqngofZFeM=
+        b=fbQEMkCznpjHwbLKH4d1ak8XfHZ3+j88H2ywtN6NxjfMzNKLPcQbD4xMxFqk2QPL1
+         4GfNtximQno+4HWasT+uZVzCuff3+7IqEUqOOsUmCmqRYrvctZngnT70GIfAhmdr6C
+         /fpwHKXpASQtysvCoogM49rXRVVnmZc7jEl8poik=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@somainline.org>,
-        Marijn Suijten <marijn.suijten@somainline.org>,
-        Rob Clark <robdclark@chromium.org>,
+        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 035/190] drm/msm/mdp5: Configure PP_SYNC_HEIGHT to double the vtotal
-Date:   Thu, 20 May 2021 11:21:39 +0200
-Message-Id: <20210520092103.332509149@linuxfoundation.org>
+Subject: [PATCH 4.4 036/190] drm/amdgpu: fix NULL pointer dereference
+Date:   Thu, 20 May 2021 11:21:40 +0200
+Message-Id: <20210520092103.364668808@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -43,55 +41,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marijn Suijten <marijn.suijten@somainline.org>
+From: Guchun Chen <guchun.chen@amd.com>
 
-[ Upstream commit 2ad52bdb220de5ab348098e3482b01235d15a842 ]
+[ Upstream commit 3c3dc654333f6389803cdcaf03912e94173ae510 ]
 
-Leaving this at a close-to-maximum register value 0xFFF0 means it takes
-very long for the MDSS to generate a software vsync interrupt when the
-hardware TE interrupt doesn't arrive.  Configuring this to double the
-vtotal (like some downstream kernels) leads to a frame to take at most
-twice before the vsync signal, until hardware TE comes up.
+ttm->sg needs to be checked before accessing its child member.
 
-In this case the hardware interrupt responsible for providing this
-signal - "disp-te" gpio - is not hooked up to the mdp5 vsync/pp logic at
-all.  This solves severe panel update issues observed on at least the
-Xperia Loire and Tone series, until said gpio is properly hooked up to
-an irq.
+Call Trace:
+ amdgpu_ttm_backend_destroy+0x12/0x70 [amdgpu]
+ ttm_bo_cleanup_memtype_use+0x3a/0x60 [ttm]
+ ttm_bo_release+0x17d/0x300 [ttm]
+ amdgpu_bo_unref+0x1a/0x30 [amdgpu]
+ amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x78b/0x8b0 [amdgpu]
+ kfd_ioctl_alloc_memory_of_gpu+0x118/0x220 [amdgpu]
+ kfd_ioctl+0x222/0x400 [amdgpu]
+ ? kfd_dev_is_large_bar+0x90/0x90 [amdgpu]
+ __x64_sys_ioctl+0x8e/0xd0
+ ? __context_tracking_exit+0x52/0x90
+ do_syscall_64+0x33/0x80
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
+RIP: 0033:0x7f97f264d317
+Code: b3 66 90 48 8b 05 71 4b 2d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff ff ff c3 66 2e 0f 1f 84 00 00 00 00 00 b8 10 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 41 4b 2d 00 f7 d8 64 89 01 48
+RSP: 002b:00007ffdb402c338 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007f97f3cc63a0 RCX: 00007f97f264d317
+RDX: 00007ffdb402c380 RSI: 00000000c0284b16 RDI: 0000000000000003
+RBP: 00007ffdb402c380 R08: 00007ffdb402c428 R09: 00000000c4000004
+R10: 00000000c4000004 R11: 0000000000000246 R12: 00000000c0284b16
+R13: 0000000000000003 R14: 00007f97f3cc63a0 R15: 00007f8836200000
 
-Suggested-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Signed-off-by: Marijn Suijten <marijn.suijten@somainline.org>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@somainline.org>
-Link: https://lore.kernel.org/r/20210406214726.131534-2-marijn.suijten@somainline.org
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Signed-off-by: Guchun Chen <guchun.chen@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/mdp/mdp5/mdp5_cmd_encoder.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_cmd_encoder.c b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_cmd_encoder.c
-index 8e6c9b598a57..d8c7b8a6a418 100644
---- a/drivers/gpu/drm/msm/mdp/mdp5/mdp5_cmd_encoder.c
-+++ b/drivers/gpu/drm/msm/mdp/mdp5/mdp5_cmd_encoder.c
-@@ -128,9 +128,17 @@ static int pingpong_tearcheck_setup(struct drm_encoder *encoder,
- 		| MDP5_PP_SYNC_CONFIG_VSYNC_IN_EN;
- 	cfg |= MDP5_PP_SYNC_CONFIG_VSYNC_COUNT(vclks_line);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 062c23125b2a..6beb3e76e1c9 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -566,7 +566,7 @@ static void amdgpu_ttm_tt_unpin_userptr(struct ttm_tt *ttm)
+ 		DMA_BIDIRECTIONAL : DMA_TO_DEVICE;
  
-+	/*
-+	 * Tearcheck emits a blanking signal every vclks_line * vtotal * 2 ticks on
-+	 * the vsync_clk equating to roughly half the desired panel refresh rate.
-+	 * This is only necessary as stability fallback if interrupts from the
-+	 * panel arrive too late or not at all, but is currently used by default
-+	 * because these panel interrupts are not wired up yet.
-+	 */
- 	mdp5_write(mdp5_kms, REG_MDP5_PP_SYNC_CONFIG_VSYNC(pp_id), cfg);
- 	mdp5_write(mdp5_kms,
--		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), 0xfff0);
-+		REG_MDP5_PP_SYNC_CONFIG_HEIGHT(pp_id), (2 * mode->vtotal));
-+
- 	mdp5_write(mdp5_kms,
- 		REG_MDP5_PP_VSYNC_INIT_VAL(pp_id), mode->vdisplay);
- 	mdp5_write(mdp5_kms, REG_MDP5_PP_RD_PTR_IRQ(pp_id), mode->vdisplay + 1);
+ 	/* double check that we don't free the table twice */
+-	if (!ttm->sg->sgl)
++	if (!ttm->sg || !ttm->sg->sgl)
+ 		return;
+ 
+ 	/* free the sg table and pages again */
 -- 
 2.30.2
 
