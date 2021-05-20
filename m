@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26FCE38A28B
+	by mail.lfdr.de (Postfix) with ESMTP id 6FF0B38A28C
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:42:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233280AbhETJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233600AbhETJm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 05:42:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41906 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233296AbhETJk4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:40:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAA9B613CA;
-        Thu, 20 May 2021 09:31:52 +0000 (UTC)
+        id S232194AbhETJlA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:41:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12DD661428;
+        Thu, 20 May 2021 09:31:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503113;
-        bh=QAT7/DpyHeJMZMdN80nWXT2iJv4L2bS1nhzR0FOK+k8=;
+        s=korg; t=1621503115;
+        bh=mLjKCclCXjmopzmHucu9fmvsbWaMkFHV5qpIgOSKUBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vdux6j1+uXrInUIgdUYtngcGzhm7qjxxxOZyWxVzTf5pem+btNU7TWUkaxcZ4aD5P
-         b3xpc6fEmz/UbLNe3y+3Jc6/iUGMo013cTab8s241enIp5cCuc1SMwnYJ9fOF5k2yT
-         sSRDQPtJYxvla2X1c9m8P6QNimCQEAbUuGhDBiMQ=
+        b=RENV2dSmiWqYYxGOIR0Be5DabjgrJertqz9OBx16fX+7xPQO7WPpJbtdsxx1WOIId
+         8/MJJu9nlmcGV/RlqkM/7F4+P0bKC7Av2Iv6DY356H6XT2vY+Nw1oIYhpOBKSoh1NP
+         anmdkhBXZA8OnDNsxut7moEvdB+RZTso7n3D3zME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 040/425] phy: phy-twl4030-usb: Fix possible use-after-free in twl4030_usb_remove()
-Date:   Thu, 20 May 2021 11:16:49 +0200
-Message-Id: <20210520092132.744998467@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 041/425] btrfs: convert logic BUG_ON()s in replace_path to ASSERT()s
+Date:   Thu, 20 May 2021 11:16:50 +0200
+Message-Id: <20210520092132.775303012@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,42 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e1723d8b87b73ab363256e7ca3af3ddb75855680 ]
+[ Upstream commit 7a9213a93546e7eaef90e6e153af6b8fc7553f10 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
+A few BUG_ON()'s in replace_path are purely to keep us from making
+logical mistakes, so replace them with ASSERT()'s.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210407092716.3270248-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/phy-twl4030-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/ti/phy-twl4030-usb.c b/drivers/phy/ti/phy-twl4030-usb.c
-index c267afb68f07..ea7564392108 100644
---- a/drivers/phy/ti/phy-twl4030-usb.c
-+++ b/drivers/phy/ti/phy-twl4030-usb.c
-@@ -801,7 +801,7 @@ static int twl4030_usb_remove(struct platform_device *pdev)
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index e6e4e6fb2add..06c6a66a991f 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1755,8 +1755,8 @@ int replace_path(struct btrfs_trans_handle *trans,
+ 	int ret;
+ 	int slot;
  
- 	usb_remove_phy(&twl->phy);
- 	pm_runtime_get_sync(twl->dev);
--	cancel_delayed_work(&twl->id_workaround_work);
-+	cancel_delayed_work_sync(&twl->id_workaround_work);
- 	device_remove_file(twl->dev, &dev_attr_vbus);
+-	BUG_ON(src->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
+-	BUG_ON(dest->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(src->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(dest->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
  
- 	/* set transceiver mode to power on defaults */
+ 	last_snapshot = btrfs_root_last_snapshot(&src->root_item);
+ again:
+@@ -1790,7 +1790,7 @@ again:
+ 		struct btrfs_key first_key;
+ 
+ 		level = btrfs_header_level(parent);
+-		BUG_ON(level < lowest_level);
++		ASSERT(level >= lowest_level);
+ 
+ 		ret = btrfs_bin_search(parent, &key, level, &slot);
+ 		if (ret && slot > 0)
 -- 
 2.30.2
 
