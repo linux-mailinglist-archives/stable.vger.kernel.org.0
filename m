@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C2E838AB04
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A848738AB21
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238912AbhETLUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37898 "EHLO mail.kernel.org"
+        id S239939AbhETLUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37920 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239844AbhETLRE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C68146194D;
-        Thu, 20 May 2021 10:09:32 +0000 (UTC)
+        id S240165AbhETLRG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:17:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BDB161952;
+        Thu, 20 May 2021 10:09:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505373;
-        bh=aqSnn32DClRk/sKgfHKM1/7v4s/2EXYqYOp9LYOrsQo=;
+        s=korg; t=1621505375;
+        bh=cOc6lcQ5YoBHcNEo7t7yxygIjdYW5ATkR8jzQrmKxU4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJ+634vXMX4v8M5y1g12c1+FjucCnHVqkVG00V/zr6wIj+bWLvlHcNoipj0b26ImI
-         Zej/sCx7jLQI1r27X4Js4+oglxSGF1xAidYRsvzY+we/wqi1HBdPNiKCJcX7IQHDMl
-         iGpfQPsqcIDWp6+J+dEOzccdOtosAzOmRIFmNvFE=
+        b=Iuwb7ltbI2GLMLJNsN+2PYX0sktrJPO01uvWfLeEJy87cHEjfW4upHzaTFS7dmuJh
+         LXnulACjl0j+5FLqcaQJ1R6LVoLbwztdT2IAeksxXm2s1lJ8yVwbVfjmSFb+lXBkYN
+         rMmaQZjK4jUuEZlpRehodJlP6Nec2g3ggrnE+ElY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 104/190] scsi: fcoe: Fix mismatched fcoe_wwn_from_mac declaration
-Date:   Thu, 20 May 2021 11:22:48 +0200
-Message-Id: <20210520092105.633546421@linuxfoundation.org>
+Subject: [PATCH 4.4 105/190] media: dvb-usb-remote: fix dvb_usb_nec_rc_key_to_event type mismatch
+Date:   Thu, 20 May 2021 11:22:49 +0200
+Message-Id: <20210520092105.665311713@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -42,43 +43,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5b11c9d80bde81f6896cc85b23aeaa9502a704ed ]
+[ Upstream commit 0fa430e96d3c3561a78701f51fd8593da68b8474 ]
 
-An old cleanup changed the array size from MAX_ADDR_LEN to unspecified in
-the declaration, but now gcc-11 warns about this:
+gcc-11 warns about the prototype not exactly matching the function
+definition:
 
-drivers/scsi/fcoe/fcoe_ctlr.c:1972:37: error: argument 1 of type ‘unsigned char[32]’ with mismatched bound [-Werror=array-parameter=]
- 1972 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN],
-      |                       ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-In file included from /git/arm-soc/drivers/scsi/fcoe/fcoe_ctlr.c:33:
-include/scsi/libfcoe.h:252:37: note: previously declared as ‘unsigned char[]’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-      |                       ~~~~~~~~~~~~~~^~~~~
+drivers/media/usb/dvb-usb/dvb-usb-remote.c:363:20: error: argument 2 of type ‘u8[5]’ {aka ‘unsigned char[5]’} with mismatched bound [-Werror=array-parameter=]
+  363 |                 u8 keybuf[5], u32 *event, int *state)
+      |                 ~~~^~~~~~~~~
+In file included from drivers/media/usb/dvb-usb/dvb-usb-common.h:13,
+                 from drivers/media/usb/dvb-usb/dvb-usb-remote.c:9:
+drivers/media/usb/dvb-usb/dvb-usb.h:490:65: note: previously declared as ‘u8[]’ {aka ‘unsigned char[]’}
+  490 | extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
+      |                                                                 ^~~~
 
-Change the type back to what the function definition uses.
-
-Link: https://lore.kernel.org/r/20210322164702.957810-1-arnd@kernel.org
-Fixes: fdd78027fd47 ("[SCSI] fcoe: cleans up libfcoe.h and adds fcoe.h for fcoe module")
+Fixes: 776338e121b9 ("[PATCH] dvb: Add generalized dvb-usb driver")
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/scsi/libfcoe.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/dvb-usb/dvb-usb.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/scsi/libfcoe.h b/include/scsi/libfcoe.h
-index e59180264591..004bf0ca8884 100644
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -256,7 +256,7 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctlr *, struct fc_lport *,
- 			 struct fc_frame *);
+diff --git a/drivers/media/usb/dvb-usb/dvb-usb.h b/drivers/media/usb/dvb-usb/dvb-usb.h
+index ce4c4e3b58bb..dd80b737d4da 100644
+--- a/drivers/media/usb/dvb-usb/dvb-usb.h
++++ b/drivers/media/usb/dvb-usb/dvb-usb.h
+@@ -466,7 +466,8 @@ extern int dvb_usb_generic_rw(struct dvb_usb_device *, u8 *, u16, u8 *, u16,int)
+ extern int dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
  
- /* libfcoe funcs */
--u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-+u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
- int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
- 		      const struct libfc_function_template *, int init_fcp);
- u32 fcoe_fc_crc(struct fc_frame *fp);
+ /* commonly used remote control parsing */
+-extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
++int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *d, u8 keybuf[5],
++				u32 *event, int *state);
+ 
+ /* commonly used firmware download types and function */
+ struct hexline {
 -- 
 2.30.2
 
