@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 204C938A6F7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4518738A8C4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236369AbhETKcc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:32:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33416 "EHLO mail.kernel.org"
+        id S237779AbhETKxv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:53:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237222AbhETKac (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:30:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D39ED61C3C;
-        Thu, 20 May 2021 09:51:51 +0000 (UTC)
+        id S239108AbhETKvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:51:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EEA8E61CCB;
+        Thu, 20 May 2021 10:00:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504312;
-        bh=thZBLT5OleGrMB3A34zQLhYUq+OfO+QaM23VjAiwnac=;
+        s=korg; t=1621504802;
+        bh=DZ49FfwXbFBW/HdCYNjUsyjxMS1HJY05sHhllPN0g28=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yjk5MC7VtEQc9qrJ+KJRtrt4NypvmVqjE9yDthSfC+7FtMeNJu1/m30pRuGJi9L7M
-         OQw1BqyX+kFRib7h7KUAnbKyzO3H2Cgy+eALg1jNV4ralRBxpTp93eOBTM2n/kahRa
-         gU+SZCep8xTtB3e30ZbJQvqxunIuNnZLz4bBq3Es=
+        b=SbG3LjfaZYYWzs0IA1thp4iJOPOHPRylSSJa+vwkGnEwcnI1KA2NVG/sg8kbZxncR
+         HP2RR6BftTDLg/KEsZcxx7YEDzreFVT+zWzWfmfu7041jcyVTuuSuaes5Fq2LdiMpA
+         2J9r7GRQadArjrNhOXNxQSOvWXtOWCWX06/utN1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Stephen Boyd <sboyd@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 188/323] clk: uniphier: Fix potential infinite loop
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 088/240] ALSA: hda/realtek: Re-order ALC269 Sony quirk table entries
 Date:   Thu, 20 May 2021 11:21:20 +0200
-Message-Id: <20210520092126.562388440@linuxfoundation.org>
+Message-Id: <20210520092111.639138142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +38,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit f6b1340dc751a6caa2a0567b667d0f4f4172cd58 ]
+commit cab561f8d4bc9b196ae20c960aa5da89fd786ab5 upstream.
 
-The for-loop iterates with a u8 loop counter i and compares this
-with the loop upper limit of num_parents that is an int type.
-There is a potential infinite loop if num_parents is larger than
-the u8 loop counter. Fix this by making the loop counter the same
-type as num_parents.  Also make num_parents an unsigned int to
-match the return type of the call to clk_hw_get_num_parents.
+Just re-order the alc269_fixup_tbl[] entries for Sony devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20210409090104.629722-1-colin.king@canonical.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also Cc-to-stable for the further patch applications.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-9-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/clk/uniphier/clk-uniphier-mux.c | 4 ++--
+ sound/pci/hda/patch_realtek.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/uniphier/clk-uniphier-mux.c b/drivers/clk/uniphier/clk-uniphier-mux.c
-index 2c243a894f3b..3a52ab968ac2 100644
---- a/drivers/clk/uniphier/clk-uniphier-mux.c
-+++ b/drivers/clk/uniphier/clk-uniphier-mux.c
-@@ -40,10 +40,10 @@ static int uniphier_clk_mux_set_parent(struct clk_hw *hw, u8 index)
- static u8 uniphier_clk_mux_get_parent(struct clk_hw *hw)
- {
- 	struct uniphier_clk_mux *mux = to_uniphier_clk_mux(hw);
--	int num_parents = clk_hw_get_num_parents(hw);
-+	unsigned int num_parents = clk_hw_get_num_parents(hw);
- 	int ret;
- 	unsigned int val;
--	u8 i;
-+	unsigned int i;
- 
- 	ret = regmap_read(mux->regmap, mux->reg, &val);
- 	if (ret)
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5821,12 +5821,12 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x8398, "ASUS P1005", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x83ce, "ASUS P1005", ALC269_FIXUP_STEREO_DMIC),
+ 	SND_PCI_QUIRK(0x1043, 0x8516, "ASUS X101CH", ALC269_FIXUP_ASUS_X101),
+-	SND_PCI_QUIRK(0x104d, 0x90b5, "Sony VAIO Pro 11", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
+-	SND_PCI_QUIRK(0x104d, 0x90b6, "Sony VAIO Pro 13", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x104d, 0x9073, "Sony VAIO", ALC275_FIXUP_SONY_VAIO_GPIO2),
+ 	SND_PCI_QUIRK(0x104d, 0x907b, "Sony VAIO", ALC275_FIXUP_SONY_HWEQ),
+ 	SND_PCI_QUIRK(0x104d, 0x9084, "Sony VAIO", ALC275_FIXUP_SONY_HWEQ),
+ 	SND_PCI_QUIRK(0x104d, 0x9099, "Sony VAIO S13", ALC275_FIXUP_SONY_DISABLE_AAMIX),
++	SND_PCI_QUIRK(0x104d, 0x90b5, "Sony VAIO Pro 11", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
++	SND_PCI_QUIRK(0x104d, 0x90b6, "Sony VAIO Pro 13", ALC286_FIXUP_SONY_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x10cf, 0x1475, "Lifebook", ALC269_FIXUP_LIFEBOOK),
+ 	SND_PCI_QUIRK(0x10cf, 0x159f, "Lifebook E780", ALC269_FIXUP_LIFEBOOK_NO_HP_TO_LINEOUT),
+ 	SND_PCI_QUIRK(0x10cf, 0x15dc, "Lifebook T731", ALC269_FIXUP_LIFEBOOK_HP_PIN),
 
 
