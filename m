@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B140338AB92
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F0BC838AA1B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240075AbhETLZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
+        id S232738AbhETLKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240952AbhETLXq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:23:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E8C6261D99;
-        Thu, 20 May 2021 10:12:08 +0000 (UTC)
+        id S240022AbhETLG5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:06:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B33861D2A;
+        Thu, 20 May 2021 10:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505529;
-        bh=ZBymqGWVFeC6mz2Gi2Zf3T39esbhwQLJBbxSe594f6w=;
+        s=korg; t=1621505145;
+        bh=ohp7rWeWY5eEJpqoG1zTg90+0OjjATPWPtYVKU5OirU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=smOvCVVhyb9DTqZfQjNDrkbgiOIRBIZK4KKWkaeiCdZWGzUw6lnPCQlCOlQePOgWq
-         83XevimnrJ/8ObSHCefD75tAp3NrThPQL1zYRpjX75llB1he3ba78za+frQbOeu7/e
-         fnxPDx2ZpRG0AKjORxQVk4uFekzgEmNiVYq2byF8=
+        b=a/RQ8TOvu+c0Yj+aJCe5NmywcUDClNduMcWL7BaP7wYfY3WuhnTttdOIGo/s0rawc
+         RgCu0+er5SnmjbmlB58zVG/it7z6DgPh+AJ2O5/kwRTkNwu6Hm+qJnPO7+smuiUpLV
+         bWQlUcF+sRHVRIXGSkVNY4ehvBmtTscIZAJF1wm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 149/190] ASoC: rt286: Generalize support for ALC3263 codec
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        syzbot+92340f7b2b4789907fdb@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 221/240] kobject_uevent: remove warning in init_uevent_argv()
 Date:   Thu, 20 May 2021 11:23:33 +0200
-Message-Id: <20210520092107.107379187@linuxfoundation.org>
+Message-Id: <20210520092116.120588012@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,99 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ward <david.ward@gatech.edu>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
+commit b4104180a2efb85f55e1ba1407885c9421970338 upstream.
 
-The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
-and Venue 11 Pro 7140. They require the same handling for the combo jack to
-work with a headset: GPIO pin 6 must be set.
+syzbot can trigger the WARN() in init_uevent_argv() which isn't the
+nicest as the code does properly recover and handle the error.  So
+change the WARN() call to pr_warn() and provide some more information on
+what the buffer size that was needed.
 
-The HDA driver always sets this pin on the ALC3263, which it distinguishes
-by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
-(Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
-determine if Dell is the system vendor.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
-Signed-off-by: David Ward <david.ward@gatech.edu>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/20201107082206.GA19079@kroah.com
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Reported-by: syzbot+92340f7b2b4789907fdb@syzkaller.appspotmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210405094852.1348499-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/codecs/rt286.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ lib/kobject_uevent.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
-index af2ed774b552..63ed5b38b11f 100644
---- a/sound/soc/codecs/rt286.c
-+++ b/sound/soc/codecs/rt286.c
-@@ -1117,12 +1117,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
- 	{ }
- };
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -128,12 +128,13 @@ static int kobj_usermode_filter(struct k
  
--static const struct dmi_system_id dmi_dell_dino[] = {
-+static const struct dmi_system_id dmi_dell[] = {
- 	{
--		.ident = "Dell Dino",
-+		.ident = "Dell",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
- 		}
- 	},
- 	{ }
-@@ -1133,7 +1132,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ static int init_uevent_argv(struct kobj_uevent_env *env, const char *subsystem)
  {
- 	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
- 	struct rt286_priv *rt286;
--	int i, ret, val;
-+	int i, ret, vendor_id;
++	int buffer_size = sizeof(env->buf) - env->buflen;
+ 	int len;
  
- 	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
- 				GFP_KERNEL);
-@@ -1149,14 +1148,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+-	len = strlcpy(&env->buf[env->buflen], subsystem,
+-		      sizeof(env->buf) - env->buflen);
+-	if (len >= (sizeof(env->buf) - env->buflen)) {
+-		WARN(1, KERN_ERR "init_uevent_argv: buffer size too small\n");
++	len = strlcpy(&env->buf[env->buflen], subsystem, buffer_size);
++	if (len >= buffer_size) {
++		pr_warn("init_uevent_argv: buffer size of %d too small, needed %d\n",
++			buffer_size, len);
+ 		return -ENOMEM;
  	}
  
- 	ret = regmap_read(rt286->regmap,
--		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
-+		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
- 	if (ret != 0) {
- 		dev_err(&i2c->dev, "I2C error %d\n", ret);
- 		return ret;
- 	}
--	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
-+	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
- 		dev_err(&i2c->dev,
--			"Device with ID register %#x is not rt286\n", val);
-+			"Device with ID register %#x is not rt286\n",
-+			vendor_id);
- 		return -ENODEV;
- 	}
- 
-@@ -1180,8 +1180,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
- 	if (pdata)
- 		rt286->pdata = *pdata;
- 
--	if (dmi_check_system(force_combo_jack_table) ||
--		dmi_check_system(dmi_dell_dino))
-+	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
-+		dmi_check_system(force_combo_jack_table))
- 		rt286->pdata.cbj_en = true;
- 
- 	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
-@@ -1220,7 +1220,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
- 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
- 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
- 
--	if (dmi_check_system(dmi_dell_dino)) {
-+	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
- 		regmap_update_bits(rt286->regmap,
- 			RT286_SET_GPIO_MASK, 0x40, 0x40);
- 		regmap_update_bits(rt286->regmap,
--- 
-2.30.2
-
 
 
