@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 525CD38A746
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D9B38A91A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236178AbhETKgj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:36:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
+        id S239149AbhETK5h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:57:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237058AbhETKdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:33:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A21361C53;
-        Thu, 20 May 2021 09:53:04 +0000 (UTC)
+        id S239332AbhETKys (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:54:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D748B61CDE;
+        Thu, 20 May 2021 10:01:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504385;
-        bh=wc2f9ho+L9XPJcFs4VOnTopaVG8HjPKl2gTGzl3PhmE=;
+        s=korg; t=1621504875;
+        bh=XmTnRO0tUxq1mQAVmgbpfEFX1Y1/wMsQYo/kVpIRatg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMNnLL83qfHllRkjQnWkh6Esjt9G3VCPcj3hTKwDYQ2qcGO2n0uS5hNiAbg2IPqGq
-         kBjMePYV5UZ4wOf+qHXQY+wf8B2Xffxuflj8b++umUXUAwoyCiBZYyjm/4NJOGI9ZS
-         qxgO2z8oJR4GQ90Xy1F8aGTh5tgR7UwjCg0VLZAQ=
+        b=Rb9ZLcx4rU4hBJNq2lTN0OgRiDqa0WGYZt3jbj4GzPNHhkZEzYTP0oZs3DWA4/er9
+         KkTgk4Nd62vGJq9Agd8QDoPCmB5Lkia12if4hNj1YH65UPjZY+h02m7gUHoNpx4IQI
+         Vdw9c04JMbnG4+OKz3YxIEsGAhw2JrURHZQYg2fE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sindhu Devale <sindhu.devale@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>,
+        syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 221/323] RDMA/i40iw: Fix error unwinding when i40iw_hmc_sd_one fails
+Subject: [PATCH 4.9 121/240] ttyprintk: Add TTY hangup callback.
 Date:   Thu, 20 May 2021 11:21:53 +0200
-Message-Id: <20210520092127.710759502@linuxfoundation.org>
+Message-Id: <20210520092112.726583376@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +42,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sindhu Devale <sindhu.devale@intel.com>
+From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
 
-[ Upstream commit 783a11bf2400e5d5c42a943c3083dc0330751842 ]
+[ Upstream commit c0070e1e60270f6a1e09442a9ab2335f3eaeaad2 ]
 
-When i40iw_hmc_sd_one fails, chunk is freed without the deletion of chunk
-entry in the PBLE info list.
+syzbot is reporting hung task due to flood of
 
-Fix it by adding the chunk entry to the PBLE info list only after
-successful addition of SD in i40iw_hmc_sd_one.
+  tty_warn(tty, "%s: tty->count = 1 port count = %d\n", __func__,
+           port->count);
 
-This fixes a static checker warning reported here:
-  https://lore.kernel.org/linux-rdma/YHV4CFXzqTm23AOZ@mwanda/
+message [1], for ioctl(TIOCVHANGUP) prevents tty_port_close() from
+decrementing port->count due to tty_hung_up_p() == true.
 
-Fixes: 9715830157be ("i40iw: add pble resource files")
-Link: https://lore.kernel.org/r/20210416002104.323-1-shiraz.saleem@intel.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sindhu Devale <sindhu.devale@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+----------
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
+
+int main(int argc, char *argv[])
+{
+	int i;
+	int fd[10];
+
+	for (i = 0; i < 10; i++)
+		fd[i] = open("/dev/ttyprintk", O_WRONLY);
+	ioctl(fd[0], TIOCVHANGUP);
+	for (i = 0; i < 10; i++)
+		close(fd[i]);
+	close(open("/dev/ttyprintk", O_WRONLY));
+	return 0;
+}
+----------
+
+When TTY hangup happens, port->count needs to be reset via
+"struct tty_operations"->hangup callback.
+
+[1] https://syzkaller.appspot.com/bug?id=39ea6caa479af471183997376dc7e90bc7d64a6a
+
+Reported-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
+Reported-by: syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>
+Tested-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Fixes: 24b4b67d17c308aa ("add ttyprintk driver")
+Link: https://lore.kernel.org/r/17e0652d-89b7-c8c0-fb53-e7566ac9add4@i-love.sakura.ne.jp
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_pble.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/char/ttyprintk.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_pble.c b/drivers/infiniband/hw/i40iw/i40iw_pble.c
-index 540aab5e502d..3fafc5424e76 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_pble.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_pble.c
-@@ -392,12 +392,9 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
- 	i40iw_debug(dev, I40IW_DEBUG_PBLE, "next_fpm_addr = %llx chunk_size[%u] = 0x%x\n",
- 		    pble_rsrc->next_fpm_addr, chunk->size, chunk->size);
- 	pble_rsrc->unallocated_pble -= (chunk->size >> 3);
--	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
- 	sd_reg_val = (sd_entry_type == I40IW_SD_TYPE_PAGED) ?
- 			sd_entry->u.pd_table.pd_page_addr.pa : sd_entry->u.bp.addr.pa;
--	if (sd_entry->valid)
--		return 0;
--	if (dev->is_pf) {
-+	if (dev->is_pf && !sd_entry->valid) {
- 		ret_code = i40iw_hmc_sd_one(dev, hmc_info->hmc_fn_id,
- 					    sd_reg_val, idx->sd_idx,
- 					    sd_entry->entry_type, true);
-@@ -408,6 +405,7 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
- 	}
- 
- 	sd_entry->valid = true;
-+	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
+diff --git a/drivers/char/ttyprintk.c b/drivers/char/ttyprintk.c
+index 774748497ace..e56ac5adb5fc 100644
+--- a/drivers/char/ttyprintk.c
++++ b/drivers/char/ttyprintk.c
+@@ -159,12 +159,23 @@ static int tpk_ioctl(struct tty_struct *tty,
  	return 0;
-  error:
- 	kfree(chunk);
+ }
+ 
++/*
++ * TTY operations hangup function.
++ */
++static void tpk_hangup(struct tty_struct *tty)
++{
++	struct ttyprintk_port *tpkp = tty->driver_data;
++
++	tty_port_hangup(&tpkp->port);
++}
++
+ static const struct tty_operations ttyprintk_ops = {
+ 	.open = tpk_open,
+ 	.close = tpk_close,
+ 	.write = tpk_write,
+ 	.write_room = tpk_write_room,
+ 	.ioctl = tpk_ioctl,
++	.hangup = tpk_hangup,
+ };
+ 
+ static const struct tty_port_operations null_ops = { };
 -- 
 2.30.2
 
