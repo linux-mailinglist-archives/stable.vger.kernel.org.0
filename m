@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE0938A5BA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:20:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70F7938A5C4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:20:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235248AbhETKTH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:19:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47608 "EHLO mail.kernel.org"
+        id S234726AbhETKUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235814AbhETKRR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235825AbhETKRR (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:17:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3BC36199D;
-        Thu, 20 May 2021 09:46:09 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C13061999;
+        Thu, 20 May 2021 09:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503970;
-        bh=Ijss7ILH0wpXAWgpiT4C5Kk8LSV4ypLf4ecaPXgNKCc=;
+        s=korg; t=1621503974;
+        bh=95U2WqULwpNN6/Z3CkkSoHFK88b2el0ua3k+wDTb7cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1gqGETfn7PSauqxmxexC3AsJ2nHM+MsQp6rOhBNtjFXriBlJCNnR4r6/Itq71Wcg4
-         z5eRmLXkOKwFxUpj7kQbRpkqM/yI+hwd0TCutLeadLhmjwi3o+/tAiBRw4n5BG6r89
-         VbBW+sjBQ+jzYyIWozm1SwMyN4UsyjAQohTraZaA=
+        b=kT9mVeU6vQ46sIbb7F7CBewKXQSuVizhnM9eH8Kh9J9idv0+peyV1sCV8cwjSbMHC
+         3q2M1l5RD8ydmb2VOGV9T8wQCU40RIpHxS7P1x0IOqmI6dJhym6vdbCFdYOiXG4v3e
+         asDHAd8IKxEiJllqILqf7TNz7qrkoq6sMhMmuND4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, John Millikin <john@john-millikin.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
+        Sedat Dilek <sedat.dilek@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 036/323] PCI: PM: Do not read power state in pci_enable_device_flags()
-Date:   Thu, 20 May 2021 11:18:48 +0200
-Message-Id: <20210520092121.348625922@linuxfoundation.org>
+Subject: [PATCH 4.14 037/323] x86/build: Propagate $(CLANG_FLAGS) to $(REALMODE_FLAGS)
+Date:   Thu, 20 May 2021 11:18:49 +0200
+Message-Id: <20210520092121.380750941@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -41,70 +42,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: John Millikin <john@john-millikin.com>
 
-[ Upstream commit 4514d991d99211f225d83b7e640285f29f0755d0 ]
+[ Upstream commit 8abe7fc26ad8f28bfdf78adbed56acd1fa93f82d ]
 
-It should not be necessary to update the current_state field of
-struct pci_dev in pci_enable_device_flags() before calling
-do_pci_enable_device() for the device, because none of the
-code between that point and the pci_set_power_state() call in
-do_pci_enable_device() invoked later depends on it.
+When cross-compiling with Clang, the `$(CLANG_FLAGS)' variable
+contains additional flags needed to build C and assembly sources
+for the target platform. Normally this variable is automatically
+included in `$(KBUILD_CFLAGS)' via the top-level Makefile.
 
-Moreover, doing that is actively harmful in some cases.  For example,
-if the given PCI device depends on an ACPI power resource whose _STA
-method initially returns 0 ("off"), but the config space of the PCI
-device is accessible and the power state retrieved from the
-PCI_PM_CTRL register is D0, the current_state field in the struct
-pci_dev representing that device will get out of sync with the
-power.state of its ACPI companion object and that will lead to
-power management issues going forward.
+The x86 real-mode makefile builds `$(REALMODE_CFLAGS)' from a
+plain assignment and therefore drops the Clang flags. This causes
+Clang to not recognize x86-specific assembler directives:
 
-To avoid such issues it is better to leave the current_state value
-as is until it is changed to PCI_D0 by do_pci_enable_device() as
-appropriate.  However, the power state of the device is not changed
-to PCI_D0 if it is already enabled when pci_enable_device_flags()
-gets called for it, so update its current_state in that case, but
-use pci_update_current_state() covering platform PM too for that.
+  arch/x86/realmode/rm/header.S:36:1: error: unknown directive
+  .type real_mode_header STT_OBJECT ; .size real_mode_header, .-real_mode_header
+  ^
 
-Link: https://lore.kernel.org/lkml/20210314000439.3138941-1-luzmaximilian@gmail.com/
-Reported-by: Maximilian Luz <luzmaximilian@gmail.com>
-Tested-by: Maximilian Luz <luzmaximilian@gmail.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Explicit propagation of `$(CLANG_FLAGS)' to `$(REALMODE_CFLAGS)',
+which is inherited by real-mode make rules, fixes cross-compilation
+with Clang for x86 targets.
+
+Relevant flags:
+
+* `--target' sets the target architecture when cross-compiling. This
+  flag must be set for both compilation and assembly (`KBUILD_AFLAGS')
+  to support architecture-specific assembler directives.
+
+* `-no-integrated-as' tells clang to assemble with GNU Assembler
+  instead of its built-in LLVM assembler. This flag is set by default
+  unless `LLVM_IAS=1' is set, because the LLVM assembler can't yet
+  parse certain GNU extensions.
+
+Signed-off-by: John Millikin <john@john-millikin.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
+Link: https://lkml.kernel.org/r/20210326000435.4785-2-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/pci.c | 16 +++-------------
- 1 file changed, 3 insertions(+), 13 deletions(-)
+ arch/x86/Makefile | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index c847b5554db6..1993e5e28ea7 100644
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1378,20 +1378,10 @@ static int pci_enable_device_flags(struct pci_dev *dev, unsigned long flags)
- 	int err;
- 	int i, bars = 0;
+diff --git a/arch/x86/Makefile b/arch/x86/Makefile
+index 146aadeb7c8e..844d5a72d2ad 100644
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -41,6 +41,7 @@ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
+ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
++REALMODE_CFLAGS += $(CLANG_FLAGS)
+ export REALMODE_CFLAGS
  
--	/*
--	 * Power state could be unknown at this point, either due to a fresh
--	 * boot or a device removal call.  So get the current power state
--	 * so that things like MSI message writing will behave as expected
--	 * (e.g. if the device really is in D0 at enable time).
--	 */
--	if (dev->pm_cap) {
--		u16 pmcsr;
--		pci_read_config_word(dev, dev->pm_cap + PCI_PM_CTRL, &pmcsr);
--		dev->current_state = (pmcsr & PCI_PM_CTRL_STATE_MASK);
--	}
--
--	if (atomic_inc_return(&dev->enable_cnt) > 1)
-+	if (atomic_inc_return(&dev->enable_cnt) > 1) {
-+		pci_update_current_state(dev, dev->current_state);
- 		return 0;		/* already enabled */
-+	}
- 
- 	bridge = pci_upstream_bridge(dev);
- 	if (bridge)
+ # BITS is used as extension for files which are available in a 32 bit
 -- 
 2.30.2
 
