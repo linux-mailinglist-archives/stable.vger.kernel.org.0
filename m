@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08F238A763
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 843B038A905
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237384AbhETKhu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
+        id S237634AbhETK4W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:56:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237814AbhETKfi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD9EB61C5F;
-        Thu, 20 May 2021 09:53:50 +0000 (UTC)
+        id S238989AbhETKyW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:54:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D24FD6141E;
+        Thu, 20 May 2021 10:01:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504431;
-        bh=sEsfvlxfhDwNz/ByYf1XBGxL95q/Ch3vdnMjYnakl4E=;
+        s=korg; t=1621504864;
+        bh=wuEv9uLP2+8BvOM9r0lSZMHS1SSZLXzGGyT9AoTcsCc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r+bKRr2IKwANgWj1IsVOIzEXtlj5ks/xz3jbrLihwxyszhnKDFEl2NAGcftRu+YyQ
-         hnMkYTAjxeRA4PUZK3L8mhJYNiaITzmTjfszV1D+bGLNOFU8MFGT67bCReQdKytvHP
-         lVgCEZIzbNrn2IsrSBtMoMR9Lr6T8ieQz6nzvy34=
+        b=ScKRz3YBgE3piz+hr4n9Oe8ygxSHH1TZ4Xx7FJ7sSpvjuprBqXPOp+BcO9LexPfaJ
+         dpM/VJuS3QTEl7IsMfhj/ODYV50Go9Lk5yzwgduM1rbb23NXILn750phjk2cfYQTv3
+         7SGKNrP2M+XjpSj0tUlsQ0QDDAETMtbUfncg6c9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Jakub Kicinski <kubakici@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
+        Pan Bian <bianpan2016@163.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 208/323] mt7601u: fix always true expression
+Subject: [PATCH 4.9 108/240] bus: qcom: Put child node before return
 Date:   Thu, 20 May 2021 11:21:40 +0200
-Message-Id: <20210520092127.259353102@linuxfoundation.org>
+Message-Id: <20210520092112.305287969@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Pan Bian <bianpan2016@163.com>
 
-[ Upstream commit 87fce88658ba047ae62e83497d3f3c5dc22fa6f9 ]
+[ Upstream commit ac6ad7c2a862d682bb584a4bc904d89fa7721af8 ]
 
-Currently the expression ~nic_conf1 is always true because nic_conf1
-is a u16 and according to 6.5.3.3 of the C standard the ~ operator
-promotes the u16 to an integer before flipping all the bits. Thus
-the top 16 bits of the integer result are all set so the expression
-is always true.  If the intention was to flip all the bits of nic_conf1
-then casting the integer result back to a u16 is a suitabel fix.
+Put child node before return to fix potential reference count leak.
+Generally, the reference count of child is incremented and decremented
+automatically in the macro for_each_available_child_of_node() and should
+be decremented manually if the loop is broken in loop body.
 
-Interestingly static analyzers seem to thing a bitwise ! should be
-used instead of ~ for this scenario, so I think the original intent
-of the expression may need some extra consideration.
-
-Addresses-Coverity: ("Logical vs. bitwise operator")
-Fixes: c869f77d6abb ("add mt7601u driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Jakub Kicinski <kubakici@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210225183241.1002129-1-colin.king@canonical.com
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 335a12754808 ("bus: qcom: add EBI2 driver")
+Signed-off-by: Pan Bian <bianpan2016@163.com>
+Link: https://lore.kernel.org/r/20210121114907.109267-1-bianpan2016@163.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/bus/qcom-ebi2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt7601u/eeprom.c b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-index da6faea092d6..80d0f64205f8 100644
---- a/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-@@ -106,7 +106,7 @@ mt7601u_has_tssi(struct mt7601u_dev *dev, u8 *eeprom)
- {
- 	u16 nic_conf1 = get_unaligned_le16(eeprom + MT_EE_NIC_CONF_1);
+diff --git a/drivers/bus/qcom-ebi2.c b/drivers/bus/qcom-ebi2.c
+index a6444244c411..bfb67aa00bec 100644
+--- a/drivers/bus/qcom-ebi2.c
++++ b/drivers/bus/qcom-ebi2.c
+@@ -357,8 +357,10 @@ static int qcom_ebi2_probe(struct platform_device *pdev)
  
--	return ~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
-+	return (u16)~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
- }
+ 		/* Figure out the chipselect */
+ 		ret = of_property_read_u32(child, "reg", &csindex);
+-		if (ret)
++		if (ret) {
++			of_node_put(child);
+ 			return ret;
++		}
  
- static void
+ 		if (csindex > 5) {
+ 			dev_err(dev,
 -- 
 2.30.2
 
