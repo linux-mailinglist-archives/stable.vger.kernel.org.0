@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4097838A3FD
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB34338A3FC
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbhETKAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:00:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58746 "EHLO mail.kernel.org"
+        id S235396AbhETKAI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:00:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234646AbhETJ5K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:57:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E2CE6162C;
-        Thu, 20 May 2021 09:37:53 +0000 (UTC)
+        id S234659AbhETJ5M (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:57:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8DB6140F;
+        Thu, 20 May 2021 09:37:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503473;
-        bh=j21C0uGGw69LIIlZ8NcvxEXIBkOXsAvJUGkVDQuVpdM=;
+        s=korg; t=1621503476;
+        bh=thZBLT5OleGrMB3A34zQLhYUq+OfO+QaM23VjAiwnac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFW0EXOMG7Pa2hh8DW7a/+ZqKZfVc/bInS6UqhqKhNPUYMbRTKIR9Be+ukNKkuX7Q
-         2M8qnSpr1jJiKMbD7SokHInJm+tcchyIuOOzFnPIzPtst19HIoW5/a1T/x/I3lyqhk
-         HxFN3U8s5HXuWTh7LD+gFrWmlJyHERyZ10KwvqBM=
+        b=YPl09w+a/AykjJoTkNylJ/p8cxsmx/hklVhXz5pgeB44L3RBQ71sTjpexoa6R3mxm
+         o8ATX809qJHaT/eSRekWhjNE6qcNywT9rnLihQSkoN+lWcwf2M+sA8mgury+rsJsRC
+         i0QamDDG1RX78Kjs0MDH+DaA+uaEPvAcx/lFx2B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Hui <clare.chenhui@huawei.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 237/425] clk: qcom: a53-pll: Add missing MODULE_DEVICE_TABLE
-Date:   Thu, 20 May 2021 11:20:06 +0200
-Message-Id: <20210520092139.218414530@linuxfoundation.org>
+Subject: [PATCH 4.19 238/425] clk: uniphier: Fix potential infinite loop
+Date:   Thu, 20 May 2021 11:20:07 +0200
+Message-Id: <20210520092139.250619600@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,37 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Hui <clare.chenhui@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 790b516ada10a4dcc0f0a56dc0ced475d86d5820 ]
+[ Upstream commit f6b1340dc751a6caa2a0567b667d0f4f4172cd58 ]
 
-CONFIG_QCOM_A53PLL is tristate option and therefore this driver can be
-compiled as a module. This patch adds missing MODULE_DEVICE_TABLE
-definition which generates correct modalias for automatic loading of
-this driver when it is built as an external module.
+The for-loop iterates with a u8 loop counter i and compares this
+with the loop upper limit of num_parents that is an int type.
+There is a potential infinite loop if num_parents is larger than
+the u8 loop counter. Fix this by making the loop counter the same
+type as num_parents.  Also make num_parents an unsigned int to
+match the return type of the call to clk_hw_get_num_parents.
 
-Fixes: 0c6ab1b8f894 ("clk: qcom: Add A53 PLL support")
-Signed-off-by: Chen Hui <clare.chenhui@huawei.com>
-Reviewed-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Link: https://lore.kernel.org/r/20210409082352.233810-3-clare.chenhui@huawei.com
+Addresses-Coverity: ("Infinite loop")
+Fixes: 734d82f4a678 ("clk: uniphier: add core support code for UniPhier clock driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Reviewed-by: Masahiro Yamada <masahiroy@kernel.org>
+Link: https://lore.kernel.org/r/20210409090104.629722-1-colin.king@canonical.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/qcom/a53-pll.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/clk/uniphier/clk-uniphier-mux.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/qcom/a53-pll.c b/drivers/clk/qcom/a53-pll.c
-index 45cfc57bff92..af6ac17c7dae 100644
---- a/drivers/clk/qcom/a53-pll.c
-+++ b/drivers/clk/qcom/a53-pll.c
-@@ -93,6 +93,7 @@ static const struct of_device_id qcom_a53pll_match_table[] = {
- 	{ .compatible = "qcom,msm8916-a53pll" },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(of, qcom_a53pll_match_table);
+diff --git a/drivers/clk/uniphier/clk-uniphier-mux.c b/drivers/clk/uniphier/clk-uniphier-mux.c
+index 2c243a894f3b..3a52ab968ac2 100644
+--- a/drivers/clk/uniphier/clk-uniphier-mux.c
++++ b/drivers/clk/uniphier/clk-uniphier-mux.c
+@@ -40,10 +40,10 @@ static int uniphier_clk_mux_set_parent(struct clk_hw *hw, u8 index)
+ static u8 uniphier_clk_mux_get_parent(struct clk_hw *hw)
+ {
+ 	struct uniphier_clk_mux *mux = to_uniphier_clk_mux(hw);
+-	int num_parents = clk_hw_get_num_parents(hw);
++	unsigned int num_parents = clk_hw_get_num_parents(hw);
+ 	int ret;
+ 	unsigned int val;
+-	u8 i;
++	unsigned int i;
  
- static struct platform_driver qcom_a53pll_driver = {
- 	.probe = qcom_a53pll_probe,
+ 	ret = regmap_read(mux->regmap, mux->reg, &val);
+ 	if (ret)
 -- 
 2.30.2
 
