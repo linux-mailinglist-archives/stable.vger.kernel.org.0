@@ -2,138 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DD638AE46
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:32:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAB0838AE6F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:36:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbhETMdx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 08:33:53 -0400
-Received: from mail-dm6nam10on2068.outbound.protection.outlook.com ([40.107.93.68]:34657
-        "EHLO NAM10-DM6-obe.outbound.protection.outlook.com"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S233104AbhETMdm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 08:33:42 -0400
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=XUUZ+rMe8oszFO2o6SnLwanAxtgswI4oFRuc6k3pWlocc4WvJH7wCvTlHkWNKVwMovEz3nyU+3XVIHhFk4o44P72wTmncSFVoSJjFarZOtg+KMzbvRbTOLnOKzOv2NgzGLE/7lyw8lyXN0/RtorrKj7d5d6d6ZoDQub3y0SiNqAc36aAW6cx1Eq6uTPSLNCl4ikTeTIWPn31OPeSDBGjZntPwPun0kdbyhn4hQiC5TBOfYT+aEO/t+Xn2M4atSdR78N+lapUpbNpr+iA5aiL2tJ4pkRNrV2SQI39KC9/tR9Z/gfGywZoY9tLqypfo6E7OTQRds5io7lAIao3HeO0kg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d7Y23aM4JASZ3P0lQo3UnV1Vsacl6/8BeJ96+fDQpxc=;
- b=QeQ8Li7r+y8yvgToX8as5foggFZbdvdNLVK007sHpUPwRDYe0TKnlROgW8q1BHhJu0rKOZp2abwD9OJIFyfltDyB45w3n/kDef2D/kdhbHMtRmYUIgnM83JRXNrtMEIzUZZtZn1vq2Bm1LakHJ3YzT2LPT5CyCLV0pyshMceX/OS0fIW5QT12ov5CDR5zk5xnpHJ9oqOYE0D+oJAIE+yQ5UXrTIUh2MusO5gcCeW2CJOH4ZZ/+Mln7NKL6i9AE6DqCDtP6QsR0qqXI3XVo2qFcHoQ40ZtS91OhjOXL9NlWXuZ4qXiNlE3LGq9unJFOBco3UR2nCMzNnbkdl0Ju+2Kw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.112.34) smtp.rcpttodomain=linux-foundation.org
- smtp.mailfrom=nvidia.com; dmarc=pass (p=none sp=none pct=100) action=none
- header.from=nvidia.com; dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=d7Y23aM4JASZ3P0lQo3UnV1Vsacl6/8BeJ96+fDQpxc=;
- b=QeobQmhlogyfo2WR0D7GpM5R2u9m0EckXtGU0A1I4MaUTNOrv44latyDny4J4u3IqOHj2TPEEsisbpgqhyhFoQ0QLgRd6ACpiioCk1qQlcS/FUsVQziLTBBL2l7WMzfb7DNZ+yQyZJfhhoI0/0pizs5VqENVesctsrwpZ3ynmIU8bGVZ5h4vI4mR85QID6dIopPN/6F6UKKQTp+lHql9yqLn1PBILigFcGaBTFouWs0Zh6Mmw7E8OyQRKLBTrelIpdbROSIRET1Z8I2lBg4ab+anPNSpgCygAuWSKBKf1IC2ylhpLn7woyV92VPdWK5PFHjuJ6Lk7yDkBg6C0mWn/g==
-Received: from MWHPR21CA0042.namprd21.prod.outlook.com (2603:10b6:300:129::28)
- by BN8PR12MB3124.namprd12.prod.outlook.com (2603:10b6:408:41::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.25; Thu, 20 May
- 2021 12:32:19 +0000
-Received: from CO1NAM11FT041.eop-nam11.prod.protection.outlook.com
- (2603:10b6:300:129:cafe::7e) by MWHPR21CA0042.outlook.office365.com
- (2603:10b6:300:129::28) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.3 via Frontend
- Transport; Thu, 20 May 2021 12:32:19 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.34)
- smtp.mailfrom=nvidia.com; linux-foundation.org; dkim=none (message not
- signed) header.d=none;linux-foundation.org; dmarc=pass action=none
- header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.112.34 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.112.34; helo=mail.nvidia.com;
-Received: from mail.nvidia.com (216.228.112.34) by
- CO1NAM11FT041.mail.protection.outlook.com (10.13.174.217) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.20.4129.25 via Frontend Transport; Thu, 20 May 2021 12:32:19 +0000
-Received: from [10.26.49.10] (172.20.145.6) by HQMAIL107.nvidia.com
- (172.20.187.13) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 20 May
- 2021 12:32:16 +0000
-Subject: Re: [PATCH 5.10 00/47] 5.10.39-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <f.fainelli@gmail.com>, <stable@vger.kernel.org>,
-        Vidya Sagar <vidyas@nvidia.com>,
-        linux-tegra <linux-tegra@vger.kernel.org>
-References: <20210520092053.559923764@linuxfoundation.org>
-From:   Jon Hunter <jonathanh@nvidia.com>
-Message-ID: <447d562a-248f-7e92-42de-4239a2c18fc0@nvidia.com>
-Date:   Thu, 20 May 2021 13:32:14 +0100
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S239749AbhETMhw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 08:37:52 -0400
+Received: from so254-9.mailgun.net ([198.61.254.9]:40717 "EHLO
+        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S237268AbhETMhc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:37:32 -0400
+DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
+ s=smtp; t=1621514171; h=Content-Type: MIME-Version: Message-ID:
+ In-Reply-To: Date: References: Subject: Cc: To: From: Sender;
+ bh=TpLmLahd2h7hQJJWsFxm53pPM8fVoixMAUaW1DdjRfU=; b=Qt+4nde75s5mPPD6Tj9Ub0Ehgh992Cg5mU38zA7yh7q89MJ7RUzXVCI+vCJCoXgo6YbiE8Bi
+ N0XDe8souk9vtmqXg7sgBJZM5IABNB6VRF9fYelEAqQnd3C1itMiyrqR576gCVuCybCLbOrw
+ dVJ1vyyyinHsuJVWTwMUmS76MlA=
+X-Mailgun-Sending-Ip: 198.61.254.9
+X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
+Received: from smtp.codeaurora.org
+ (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
+ smtp-out-n01.prod.us-east-1.postgun.com with SMTP id
+ 60a657b6d1aee7698da9f550 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Thu, 20 May 2021 12:36:06
+ GMT
+Sender: kvalo=codeaurora.org@mg.codeaurora.org
+Received: by smtp.codeaurora.org (Postfix, from userid 1001)
+        id C7E16C43217; Thu, 20 May 2021 12:36:05 +0000 (UTC)
+X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
+        aws-us-west-2-caf-mail-1.web.codeaurora.org
+X-Spam-Level: 
+X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
+        autolearn=no autolearn_force=no version=3.4.0
+Received: from potku.adurom.net (88-114-240-156.elisa-laajakaista.fi [88.114.240.156])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: kvalo)
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id D7A4AC433F1;
+        Thu, 20 May 2021 12:36:02 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org D7A4AC433F1
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
+Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=kvalo@codeaurora.org
+From:   Kalle Valo <kvalo@codeaurora.org>
+To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Bhaumik Bhatt <bbhatt@codeaurora.org>,
+        Loic Poulain <loic.poulain@linaro.org>,
+        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
+        regressions@lists.linux.dev, stable@vger.kernel.org
+Subject: Re: [regressions] ath11k: v5.12.3 mhi regression
+References: <87v97dhh2u.fsf@codeaurora.org> <YKYzwBJNTy4Czd1A@kroah.com>
+        <20210520104313.GA128703@thinkpad>
+Date:   Thu, 20 May 2021 15:36:00 +0300
+In-Reply-To: <20210520104313.GA128703@thinkpad> (Manivannan Sadhasivam's
+        message of "Thu, 20 May 2021 16:13:13 +0530")
+Message-ID: <87r1i1h9an.fsf@codeaurora.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/24.5 (gnu/linux)
 MIME-Version: 1.0
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [172.20.145.6]
-X-ClientProxiedBy: HQMAIL107.nvidia.com (172.20.187.13) To
- HQMAIL107.nvidia.com (172.20.187.13)
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: c305fe0c-5d64-4777-ac0a-08d91b8b4f44
-X-MS-TrafficTypeDiagnostic: BN8PR12MB3124:
-X-Microsoft-Antispam-PRVS: <BN8PR12MB312470C2CEA2D24ED1FE7B64D92A9@BN8PR12MB3124.namprd12.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
-X-MS-Exchange-SenderADCheck: 1
-X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Wyl2vNfBZgybNpy606wDDxwDLY1tK7ePlF5SVvX97OvvCi6NOLMOpVfY4yvgqoEA4ccsm+8G6cu4ks20eejH/wgAtsf4ESEsIABFPLofYyFSso4FHm2IRLJB02Dk/CT+2j0xyMRQoK9sC/1eCkY/F9OkR9deZps32CmV2M5I+IVsgZPnZb3MRqYbzbLWwi+51uaTk3PUPvj7Jrxh7x0hxJ/XMD5wnNOjBK1eF5k43dydtSQMvbGVfMxEwx6TC9OVwWme3C1CYTHBXnLol2+k+5TOLPw356KSi7tsv6btfVgEv4oSovZXZapm9SmJpQWgerASHZKhszeBuwNzH5nTnJR8efFmgdeBKDsYlQcrNixtRTNUhAtTnWAsh/XhSYn9fZGn5u2LgDlo+CaK3Pi0d4+KzdneCJEoMXeDp9JrMVCUCfQWT0MjE7ErUoZrWQvrGpf4C7wy0Kdo8GLE3GeH0tKm0bH8wlftGiDDm9rDRZpVAL/F5Fx2xmS91ZB46PQe/ti2QTQiSWkDuxKuCsOLFfwfpAt7volxmKCzE1mf/5400Ic9CuHH0YBA0+bcr/QsaV/H2T7x57n+I5ADWBPwAbRFbygsQradgnLi7iPZsq0Gb0R/oewcbmt0/6obypzx2sWkX/JCHhObhOzgwbO7N7UC/RWRwdWep8UERmEjQrEO1a7pcX2KbCDrs6eqJCrmBxIVSziMkhaA+M1A+iPImxpH7w4LMI2VI776ZXrMlQzLtfY8Dv5uYOEOJWq6IqHq9Yb180C7kX2nV8B9SqhjH/DmAVB/R2dfWnYx8wRAZRI0iNXq0UjGZYUD4hQVAMjN
-X-Forefront-Antispam-Report: CIP:216.228.112.34;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid03.nvidia.com;CAT:NONE;SFS:(4636009)(346002)(39860400002)(376002)(396003)(136003)(36840700001)(46966006)(53546011)(70586007)(70206006)(31696002)(966005)(7636003)(2616005)(426003)(336012)(47076005)(8936002)(8676002)(82310400003)(36756003)(26005)(36860700001)(186003)(4326008)(356005)(16576012)(31686004)(110136005)(316002)(54906003)(82740400003)(7416002)(86362001)(16526019)(36906005)(5660300002)(2906002)(478600001)(43740500002);DIR:OUT;SFP:1101;
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2021 12:32:19.2821
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: c305fe0c-5d64-4777-ac0a-08d91b8b4f44
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.34];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT041.eop-nam11.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN8PR12MB3124
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org> writes:
 
-On 20/05/2021 10:21, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.39 release.
-> There are 47 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 22 May 2021 09:20:38 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+> On Thu, May 20, 2021 at 12:02:40PM +0200, Greg KH wrote:
+>> On Thu, May 20, 2021 at 12:47:53PM +0300, Kalle Valo wrote:
+>> > Hi,
+>> > 
+>> > I got several reports that this mhi commit broke ath11k in v5.12.3:
+>> > 
+>> > commit 29b9829718c5e9bd68fc1c652f5e0ba9b9a64fed
+>> > Author: Bhaumik Bhatt <bbhatt@codeaurora.org>
+>> > Date:   Wed Feb 24 15:23:04 2021 -0800
+>> > 
+>> >     bus: mhi: core: Process execution environment changes serially
+>> >     
+>> >     [ Upstream commit ef2126c4e2ea2b92f543fae00a2a0332e4573c48 ]
+>> > 
+>> > Here are the reports:
+>> > 
+>> > https://bugzilla.kernel.org/show_bug.cgi?id=213055
+>> > 
+>> > https://bugzilla.kernel.org/show_bug.cgi?id=212187
+>> > 
+>> > https://bugs.archlinux.org/task/70849?project=1&string=linux
+>> > 
+>> > Interestingly v5.13-rc1 seems to work fine, at least for me, though I
+>> > have not tested v5.12.3 myself. Can someone revert this commit in the
+>> > stable release so that people get their wifi working again, please?
+>> 
+>> How does the mhi bus code relate to a ath11k driver?  What bus is that
+>> on?
+>> 
+>
+> MHI is the transport used by the ath11k driver to work with the WLAN devices
+> over PCIe.
+>
+> Regarding the bug, I'd suggest to wait for Bhaumik (the author of 29b9829718c5)
+> to comment on the possible commit which needs backporting from mainline.
 
-...
+Ok, but if a quick fix is not available I think we should just revert
+this in the stable releases. I also got a report that v5.11.21 is
+broken:
 
-> Vidya Sagar <vidyas@nvidia.com>
->     PCI: tegra: Add Tegra194 MCFG quirks for ECAM errata
+https://bugzilla.kernel.org/show_bug.cgi?id=213055#c11
 
-
-The above is causing some tests regressions for Tegra. We have a fix
-that is under review but not merged yet [0]. Please can you drop this
-for v5.10 and v5.12? Sorry about that.
-
-Thanks!
-Jon	
-
-[0]
-https://patchwork.ozlabs.org/project/linux-tegra/patch/20210520090123.11814-1-jonathanh@nvidia.com/
 -- 
-nvpublic
+https://patchwork.kernel.org/project/linux-wireless/list/
+
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
