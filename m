@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48FFB38A7AE
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E3F238A92F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237488AbhETKlc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:41:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
+        id S235376AbhETK7A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:59:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238175AbhETKji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 935F1610CB;
-        Thu, 20 May 2021 09:55:18 +0000 (UTC)
+        id S238940AbhETK4t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:56:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C28BE61CF1;
+        Thu, 20 May 2021 10:01:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504519;
-        bh=2yVv66ORtp3I0H7NgUJ9D7pHsQDEf/7FRXuB7kH07dI=;
+        s=korg; t=1621504919;
+        bh=6rdUQUeVTP0airz7hksVZY3ye/GUxnnujGEhtTwlOR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TQzZd5AzItPWmRrM42u2nw+Q2lmom/it0MKCLDjTeasEitM81fVeFYyrkDJeS4wF/
-         YOkDWSIuEbVY/7+tZL428RDeiZOogvwGQPyJUwk87WmShRnDCLrqlocYWXIx6jRcgR
-         FT212cq4yMW4XveSK1H9pveQS5e4qI40uLXR51o4=
+        b=p/SoSXcMpVkXp8i3jtSPujKNA66Y8e+mFsxdv9iREeMvN2iHD4GsVgS80fSoJc3Dl
+         Sl1R9PXSiCE44WgBmZczNeyZDhxvPPazI0+oyROBp9lN1CCd0L5ikCRpi5mtd2iiw8
+         fgwO4fUS4N2Cg7GSI+8k7OhZEBw9/rDA5BBBFiSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 238/323] ALSA: hdspm: dont disable if not enabled
-Date:   Thu, 20 May 2021 11:22:10 +0200
-Message-Id: <20210520092128.331893003@linuxfoundation.org>
+Subject: [PATCH 4.9 139/240] net: lapbether: Prevent racing when checking whether the netif is running
+Date:   Thu, 20 May 2021 11:22:11 +0200
+Message-Id: <20210520092113.314064013@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit 790f5719b85e12e10c41753b864e74249585ed08 ]
+[ Upstream commit 5acd0cfbfbb5a688da1bfb1a2152b0c855115a35 ]
 
-hdspm wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+There are two "netif_running" checks in this driver. One is in
+"lapbeth_xmit" and the other is in "lapbeth_rcv". They serve to make
+sure that the LAPB APIs called in these functions are called before
+"lapb_unregister" is called by the "ndo_stop" function.
 
-[    1.786391] snd_hdspm 0000:00:03.0: disabling already-disabled device
-[    1.786400] WARNING: CPU: 0 PID: 182 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.795181] Call Trace:
-[    1.795320]  snd_hdspm_card_free+0x58/0xa0 [snd_hdspm]
-[    1.795595]  release_card_device+0x4b/0x80 [snd]
-[    1.795860]  device_release+0x3b/0xa0
-[    1.796072]  kobject_put+0x94/0x1b0
-[    1.796260]  put_device+0x13/0x20
-[    1.796438]  snd_card_free+0x61/0x90 [snd]
-[    1.796659]  snd_hdspm_probe+0x97b/0x1440 [snd_hdspm]
+However, these "netif_running" checks are unreliable, because it's
+possible that immediately after "netif_running" returns true, "ndo_stop"
+is called (which causes "lapb_unregister" to be called).
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-3-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+This patch adds locking to make sure "lapbeth_xmit" and "lapbeth_rcv" can
+reliably check and ensure the netif is running while doing their work.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/hdspm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wan/lapbether.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
-diff --git a/sound/pci/rme9652/hdspm.c b/sound/pci/rme9652/hdspm.c
-index 343f533906ba..5bbbbba0817b 100644
---- a/sound/pci/rme9652/hdspm.c
-+++ b/sound/pci/rme9652/hdspm.c
-@@ -6913,7 +6913,8 @@ static int snd_hdspm_free(struct hdspm * hdspm)
- 	if (hdspm->port)
- 		pci_release_regions(hdspm->pci);
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 666bbacb8cb4..24daa1d0e9c5 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -56,6 +56,8 @@ struct lapbethdev {
+ 	struct list_head	node;
+ 	struct net_device	*ethdev;	/* link to ethernet device */
+ 	struct net_device	*axdev;		/* lapbeth device (lapb#) */
++	bool			up;
++	spinlock_t		up_lock;	/* Protects "up" */
+ };
  
--	pci_disable_device(hdspm->pci);
-+	if (pci_is_enabled(hdspm->pci))
-+		pci_disable_device(hdspm->pci);
+ static LIST_HEAD(lapbeth_devices);
+@@ -103,8 +105,9 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
+ 	rcu_read_lock();
+ 	lapbeth = lapbeth_get_x25_dev(dev);
+ 	if (!lapbeth)
+-		goto drop_unlock;
+-	if (!netif_running(lapbeth->axdev))
++		goto drop_unlock_rcu;
++	spin_lock_bh(&lapbeth->up_lock);
++	if (!lapbeth->up)
+ 		goto drop_unlock;
+ 
+ 	len = skb->data[0] + skb->data[1] * 256;
+@@ -119,11 +122,14 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
+ 		goto drop_unlock;
+ 	}
+ out:
++	spin_unlock_bh(&lapbeth->up_lock);
+ 	rcu_read_unlock();
+ 	return 0;
+ drop_unlock:
+ 	kfree_skb(skb);
+ 	goto out;
++drop_unlock_rcu:
++	rcu_read_unlock();
+ drop:
+ 	kfree_skb(skb);
+ 	return 0;
+@@ -151,13 +157,11 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
+ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 				      struct net_device *dev)
+ {
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
+ 
+-	/*
+-	 * Just to be *really* sure not to send anything if the interface
+-	 * is down, the ethernet device may have gone.
+-	 */
+-	if (!netif_running(dev))
++	spin_lock_bh(&lapbeth->up_lock);
++	if (!lapbeth->up)
+ 		goto drop;
+ 
+ 	/* There should be a pseudo header of 1 byte added by upper layers.
+@@ -188,6 +192,7 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 		goto drop;
+ 	}
+ out:
++	spin_unlock_bh(&lapbeth->up_lock);
+ 	return NETDEV_TX_OK;
+ drop:
+ 	kfree_skb(skb);
+@@ -279,6 +284,7 @@ static const struct lapb_register_struct lapbeth_callbacks = {
+  */
+ static int lapbeth_open(struct net_device *dev)
+ {
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
+ 
+ 	if ((err = lapb_register(dev, &lapbeth_callbacks)) != LAPB_OK) {
+@@ -286,13 +292,22 @@ static int lapbeth_open(struct net_device *dev)
+ 		return -ENODEV;
+ 	}
+ 
++	spin_lock_bh(&lapbeth->up_lock);
++	lapbeth->up = true;
++	spin_unlock_bh(&lapbeth->up_lock);
++
  	return 0;
  }
  
+ static int lapbeth_close(struct net_device *dev)
+ {
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
+ 
++	spin_lock_bh(&lapbeth->up_lock);
++	lapbeth->up = false;
++	spin_unlock_bh(&lapbeth->up_lock);
++
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
+ 
+@@ -350,6 +365,9 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	dev_hold(dev);
+ 	lapbeth->ethdev = dev;
+ 
++	lapbeth->up = false;
++	spin_lock_init(&lapbeth->up_lock);
++
+ 	rc = -EIO;
+ 	if (register_netdevice(ndev))
+ 		goto fail;
 -- 
 2.30.2
 
