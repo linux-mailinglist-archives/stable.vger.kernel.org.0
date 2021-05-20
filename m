@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF23838A4ED
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:10:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF8838A4DA
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:09:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235348AbhETKKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:10:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43768 "EHLO mail.kernel.org"
+        id S234871AbhETKKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:10:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235460AbhETKIv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:08:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 643256143A;
-        Thu, 20 May 2021 09:42:13 +0000 (UTC)
+        id S235549AbhETKJB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:09:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E80A46192C;
+        Thu, 20 May 2021 09:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503734;
-        bh=e0XjMLk829S1IqiWdREGCSZM0P1bCu+NXQbESvhWf4g=;
+        s=korg; t=1621503738;
+        bh=/vVAZBTJczzepv2ZvtiWaqztKonQBlujdTGiwK4gbPE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qo6C9SrFqN5R17vn8DH1L5nCO+rEi7LIPavVtWjXDg+DRHa2gMErWx66WRjjifYMe
-         1uF+ygkHOCASx1E8ukh3hKFQFiCDnS/nQxwMTqDSUq8khhHJOODk0XnNLeiW1ilbqh
-         f0OOVl1MYYQcKEqTuvmjJ0l/xC4/YttkokpPjExI=
+        b=JeZlzdGNBowxW8XDipGR+MdcN7BamYwE8QxIdkXMfSmGv/7hpKoMoaXt9GgjxAXdh
+         aKiAVT1vzwBjJzY6Uqa7NKEUDEe7l8T6Llm3huGuxH56KBK5YhKGT1Ell6hKKcL4nf
+         35XYlEBZxfcLPmdIvBHt+WAI44QRfnzPA96WOTSQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nucca Chen <nuccachen@google.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        David Ahern <dsahern@gmail.com>,
+        stable@vger.kernel.org, John Fastabend <john.fastabend@gmail.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <jakub.kicinski@netronome.com>,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Jiri Pirko <jiri@mellanox.com>, Jiri Pirko <jiri@resnulli.us>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 355/425] net: fix nla_strcmp to handle more then one trailing null character
-Date:   Thu, 20 May 2021 11:22:04 +0200
-Message-Id: <20210520092143.076689129@linuxfoundation.org>
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 356/425] smc: disallow TCP_ULP in smc_setsockopt()
+Date:   Thu, 20 May 2021 11:22:05 +0200
+Message-Id: <20210520092143.108614291@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -45,47 +43,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 2c16db6c92b0ee4aa61e88366df82169e83c3f7e ]
+[ Upstream commit 8621436671f3a4bba5db57482e1ee604708bf1eb ]
 
-Android userspace has been using TCA_KIND with a char[IFNAMESIZ]
-many-null-terminated buffer containing the string 'bpf'.
+syzbot is able to setup kTLS on an SMC socket which coincidentally
+uses sk_user_data too. Later, kTLS treats it as psock so triggers a
+refcnt warning. The root cause is that smc_setsockopt() simply calls
+TCP setsockopt() which includes TCP_ULP. I do not think it makes
+sense to setup kTLS on top of SMC sockets, so we should just disallow
+this setup.
 
-This works on 4.19 and ceases to work on 5.10.
+It is hard to find a commit to blame, but we can apply this patch
+since the beginning of TCP_ULP.
 
-I'm not entirely sure what fixes tag to use, but I think the issue
-was likely introduced in the below mentioned 5.4 commit.
-
-Reported-by: Nucca Chen <nuccachen@google.com>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: Jakub Kicinski <jakub.kicinski@netronome.com>
-Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-Cc: Jiri Pirko <jiri@mellanox.com>
-Cc: Jiri Pirko <jiri@resnulli.us>
-Fixes: 62794fc4fbf5 ("net_sched: add max len check for TCA_KIND")
-Change-Id: I66dc281f165a2858fc29a44869a270a2d698a82b
+Reported-and-tested-by: syzbot+b54a1ce86ba4a623b7f0@syzkaller.appspotmail.com
+Fixes: 734942cc4ea6 ("tcp: ULP infrastructure")
+Cc: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/nlattr.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/smc/af_smc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/lib/nlattr.c b/lib/nlattr.c
-index e335bcafa9e4..00bfc6aece05 100644
---- a/lib/nlattr.c
-+++ b/lib/nlattr.c
-@@ -402,7 +402,7 @@ int nla_strcmp(const struct nlattr *nla, const char *str)
- 	int attrlen = nla_len(nla);
- 	int d;
+diff --git a/net/smc/af_smc.c b/net/smc/af_smc.c
+index 26dcd02b2d0c..9aab4ab8161b 100644
+--- a/net/smc/af_smc.c
++++ b/net/smc/af_smc.c
+@@ -1644,6 +1644,9 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 	struct smc_sock *smc;
+ 	int val, rc;
  
--	if (attrlen > 0 && buf[attrlen - 1] == '\0')
-+	while (attrlen > 0 && buf[attrlen - 1] == '\0')
- 		attrlen--;
++	if (level == SOL_TCP && optname == TCP_ULP)
++		return -EOPNOTSUPP;
++
+ 	smc = smc_sk(sk);
  
- 	d = attrlen - len;
+ 	/* generic setsockopts reaching us here always apply to the
+@@ -1665,7 +1668,6 @@ static int smc_setsockopt(struct socket *sock, int level, int optname,
+ 
+ 	lock_sock(sk);
+ 	switch (optname) {
+-	case TCP_ULP:
+ 	case TCP_FASTOPEN:
+ 	case TCP_FASTOPEN_CONNECT:
+ 	case TCP_FASTOPEN_KEY:
 -- 
 2.30.2
 
