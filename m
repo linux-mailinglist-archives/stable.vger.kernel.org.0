@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B993738A920
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFC1A38A74E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239168AbhETK6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:58:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
+        id S237197AbhETKhB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:37:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238218AbhETK4A (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:56:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB56E61CE6;
-        Thu, 20 May 2021 10:01:34 +0000 (UTC)
+        id S237485AbhETKen (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:34:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43D2861C57;
+        Thu, 20 May 2021 09:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504895;
-        bh=wEos7WXOMHm+jSsREr1wT7HK3fZ2ULV1lTmouuYlNw4=;
+        s=korg; t=1621504402;
+        bh=MqBs9hbLq9HkzJKK6RdAlMRa4CgB/pN8ZvBRyiHN+AY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bajhpbXSMLkGEfDOhRJsHR9xdUuNKeEM++NwteVIwN9tHqrNGFA+qkYOv8PG6OLKS
-         aGatFO8FSpoJkKtrqLGooSMLeHeIdewdJmsZb57tln/nM92XhgXkv8xEUKZawvGlEC
-         p/y8hmo3Nbo4HyvRAJbBO5Sg9WpSk74XyiDAuRpM=
+        b=ZiHs3hgsjygImzhXcphnMAm9fYxCnNyg6vP8S0VdTOG7wBurQssPrUnO98tJSqwVQ
+         I30crAsxDbK6/C62aIANA+TcDeO0x+/8opmABgCZr9mU1pqUgtTfuJP5utRXGHL0NY
+         aehivcuXbTKZtSgoAHG97j2Fo3/sH5uF/7AmNchU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 129/240] scsi: fcoe: Fix mismatched fcoe_wwn_from_mac declaration
+        stable@vger.kernel.org,
+        syzbot+959223586843e69a2674@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 229/323] Revert "net/sctp: fix race condition in sctp_destroy_sock"
 Date:   Thu, 20 May 2021 11:22:01 +0200
-Message-Id: <20210520092112.993458670@linuxfoundation.org>
+Message-Id: <20210520092128.011856517@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 5b11c9d80bde81f6896cc85b23aeaa9502a704ed ]
+commit 01bfe5e8e428b475982a98a46cca5755726f3f7f upstream.
 
-An old cleanup changed the array size from MAX_ADDR_LEN to unspecified in
-the declaration, but now gcc-11 warns about this:
+This reverts commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b.
 
-drivers/scsi/fcoe/fcoe_ctlr.c:1972:37: error: argument 1 of type ‘unsigned char[32]’ with mismatched bound [-Werror=array-parameter=]
- 1972 | u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN],
-      |                       ~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~
-In file included from /git/arm-soc/drivers/scsi/fcoe/fcoe_ctlr.c:33:
-include/scsi/libfcoe.h:252:37: note: previously declared as ‘unsigned char[]’
-  252 | u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-      |                       ~~~~~~~~~~~~~~^~~~~
+This one has to be reverted as it introduced a dead lock, as
+syzbot reported:
 
-Change the type back to what the function definition uses.
+       CPU0                    CPU1
+       ----                    ----
+  lock(&net->sctp.addr_wq_lock);
+                               lock(slock-AF_INET6);
+                               lock(&net->sctp.addr_wq_lock);
+  lock(slock-AF_INET6);
 
-Link: https://lore.kernel.org/r/20210322164702.957810-1-arnd@kernel.org
-Fixes: fdd78027fd47 ("[SCSI] fcoe: cleans up libfcoe.h and adds fcoe.h for fcoe module")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CPU0 is the thread of sctp_addr_wq_timeout_handler(), and CPU1
+is that of sctp_close().
+
+The original issue this commit fixed will be fixed in the next
+patch.
+
+Reported-by: syzbot+959223586843e69a2674@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/scsi/libfcoe.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/sctp/socket.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/include/scsi/libfcoe.h b/include/scsi/libfcoe.h
-index 6be92eede5c0..a911f993219d 100644
---- a/include/scsi/libfcoe.h
-+++ b/include/scsi/libfcoe.h
-@@ -261,7 +261,7 @@ int fcoe_ctlr_recv_flogi(struct fcoe_ctlr *, struct fc_lport *,
- 			 struct fc_frame *);
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -1586,9 +1586,11 @@ static void sctp_close(struct sock *sk,
  
- /* libfcoe funcs */
--u64 fcoe_wwn_from_mac(unsigned char mac[], unsigned int, unsigned int);
-+u64 fcoe_wwn_from_mac(unsigned char mac[MAX_ADDR_LEN], unsigned int, unsigned int);
- int fcoe_libfc_config(struct fc_lport *, struct fcoe_ctlr *,
- 		      const struct libfc_function_template *, int init_fcp);
- u32 fcoe_fc_crc(struct fc_frame *fp);
--- 
-2.30.2
-
+ 	/* Supposedly, no process has access to the socket, but
+ 	 * the net layers still may.
++	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
++	 * held and that should be grabbed before socket lock.
+ 	 */
+-	local_bh_disable();
+-	bh_lock_sock(sk);
++	spin_lock_bh(&net->sctp.addr_wq_lock);
++	bh_lock_sock_nested(sk);
+ 
+ 	/* Hold the sock, since sk_common_release() will put sock_put()
+ 	 * and we have just a little more cleanup.
+@@ -1597,7 +1599,7 @@ static void sctp_close(struct sock *sk,
+ 	sk_common_release(sk);
+ 
+ 	bh_unlock_sock(sk);
+-	local_bh_enable();
++	spin_unlock_bh(&net->sctp.addr_wq_lock);
+ 
+ 	sock_put(sk);
+ 
+@@ -4447,6 +4449,9 @@ static int sctp_init_sock(struct sock *s
+ 	sk_sockets_allocated_inc(sk);
+ 	sock_prot_inuse_add(net, sk->sk_prot, 1);
+ 
++	/* Nothing can fail after this block, otherwise
++	 * sctp_destroy_sock() will be called without addr_wq_lock held
++	 */
+ 	if (net->sctp.default_auto_asconf) {
+ 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
+ 		list_add_tail(&sp->auto_asconf_list,
+@@ -4481,9 +4486,7 @@ static void sctp_destroy_sock(struct soc
+ 
+ 	if (sp->do_auto_asconf) {
+ 		sp->do_auto_asconf = 0;
+-		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+ 		list_del(&sp->auto_asconf_list);
+-		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+ 	}
+ 	sctp_endpoint_free(sp->ep);
+ 	local_bh_disable();
 
 
