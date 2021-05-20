@@ -2,81 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33EDC38ABC1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE36D38AB08
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239380AbhETL1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46010 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241814AbhETLZb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:25:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5562610A1;
-        Thu, 20 May 2021 10:59:37 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621508378;
-        bh=ErWk98vzrForhE3SzoXim0biwXq3y3R8u0Q+s0olTjs=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uAUg38sxA+TEk/ciN9KzSw30zOGHA3wAihTITwKIJaqe8WohUEiH/7B3tb8uz763X
-         p5w596CDMKcMYBLNAvIR4zZt91ZeaBpr58coNVbjotzJQnE7HKOw1iWOCoG3c02g2e
-         3EZGa98xW6WJRijNaw+sLa9JrmBr1maJJy2DiyBM=
-Date:   Thu, 20 May 2021 12:59:36 +0200
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Ard Biesheuvel <ardb@kernel.org>
-Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        "# 3.4.x" <stable@vger.kernel.org>,
-        Nicolas Pitre <nico@fluxnic.net>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.12 06/45] ARM: 9058/1: cache-v7: refactor
- v7_invalidate_l1 to avoid clobbering r5/r6
-Message-ID: <YKZBGG4iJ0Wwpk7+@kroah.com>
-References: <20210520092053.516042993@linuxfoundation.org>
- <20210520092053.731407333@linuxfoundation.org>
- <CAMj1kXECeTz5T+0Pi77POE-uo65D_+gXFHZh=wi6EDVBDK2Rsg@mail.gmail.com>
+        id S239566AbhETLUJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:09 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:34531 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S240136AbhETLRQ (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Thu, 20 May 2021 07:17:16 -0400
+Received: from 1.general.cking.uk.vpn ([10.172.193.212] helo=localhost)
+        by youngberry.canonical.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <colin.king@canonical.com>)
+        id 1ljgee-0006Fj-BN; Thu, 20 May 2021 11:15:52 +0000
+From:   Colin King <colin.king@canonical.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     kernel-janitors@vger.kernel.org, Stable@vger.kernel.org,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH][4.9.y] iio: tsl2583: Fix division by a zero lux_val
+Date:   Thu, 20 May 2021 12:15:52 +0100
+Message-Id: <20210520111552.27409-1-colin.king@canonical.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAMj1kXECeTz5T+0Pi77POE-uo65D_+gXFHZh=wi6EDVBDK2Rsg@mail.gmail.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 20, 2021 at 11:59:40AM +0200, Ard Biesheuvel wrote:
-> On Thu, 20 May 2021 at 11:25, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > From: Ard Biesheuvel <ardb@kernel.org>
-> >
-> > [ Upstream commit f9e7a99fb6b86aa6a00e53b34ee6973840e005aa ]
-> >
-> > The cache invalidation code in v7_invalidate_l1 can be tweaked to
-> > re-read the associativity from CCSIDR, and keep the way identifier
-> > component in a single register that is assigned in the outer loop. This
-> > way, we need 2 registers less.
-> >
-> > Given that the number of sets is typically much larger than the
-> > associativity, rearrange the code so that the outer loop has the fewer
-> > number of iterations, ensuring that the re-read of CCSIDR only occurs a
-> > handful of times in practice.
-> >
-> > Fix the whitespace while at it, and update the comment to indicate that
-> > this code is no longer a clone of anything else.
-> >
-> > Acked-by: Nicolas Pitre <nico@fluxnic.net>
-> > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-> > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> 
-> Please do NOT backport this to any stable trees.
-> 
-> It has no cc:stable tag
-> It has no fixes: tag
-> It was part of a 3 part series, but only the middle patch was selected.
-> It touches ARM assembly that may assemble without problems but be
-> completely broken at runtime when used out of the original intended
-> context.
+From: Colin Ian King <colin.king@canonical.com>
 
-Now dropped from all stable queues, thanks for letting us know.
+commit af0e1871d79cfbb91f732d2c6fa7558e45c31038 upstream.
 
-greg k-h
+The lux_val returned from tsl2583_get_lux can potentially be zero,
+so check for this to avoid a division by zero and an overflowed
+gain_trim_val.
+
+Fixes clang scan-build warning:
+
+drivers/iio/light/tsl2583.c:345:40: warning: Either the
+condition 'lux_val<0' is redundant or there is division
+by zero at line 345. [zerodivcond]
+
+Fixes: ac4f6eee8fe8 ("staging: iio: TAOS tsl258x: Device driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[iwamatsu: Change file path.]
+[Colin Ian King: minor context adjustments for 4.9.y]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+---
+ drivers/staging/iio/light/tsl2583.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+
+diff --git a/drivers/staging/iio/light/tsl2583.c b/drivers/staging/iio/light/tsl2583.c
+index 08f1583ee34e..fb3ec56d45b6 100644
+--- a/drivers/staging/iio/light/tsl2583.c
++++ b/drivers/staging/iio/light/tsl2583.c
+@@ -382,6 +382,15 @@ static int taos_als_calibrate(struct iio_dev *indio_dev)
+ 		dev_err(&chip->client->dev, "taos_als_calibrate failed to get lux\n");
+ 		return lux_val;
+ 	}
++
++	/* Avoid division by zero of lux_value later on */
++	if (lux_val == 0) {
++		dev_err(&chip->client->dev,
++			"%s: lux_val of 0 will produce out of range trim_value\n",
++			__func__);
++		return -ENODATA;
++	}
++
+ 	gain_trim_val = (unsigned int)(((chip->taos_settings.als_cal_target)
+ 			* chip->taos_settings.als_gain_trim) / lux_val);
+ 
+-- 
+2.31.1
+
