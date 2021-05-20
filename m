@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8F038A6FA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51E3F38A8CA
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237143AbhETKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:32:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33738 "EHLO mail.kernel.org"
+        id S237986AbhETKx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:53:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236651AbhETKa5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:30:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D29761C38;
-        Thu, 20 May 2021 09:51:53 +0000 (UTC)
+        id S237494AbhETKv6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:51:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8541361CCD;
+        Thu, 20 May 2021 10:00:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504314;
-        bh=3Gn753fkwrHl9WOyOxVbJ+VolEhzTSTT82586210nyU=;
+        s=korg; t=1621504807;
+        bh=XGr/V3iEfUMP/K/YkUPx5vA9u4hMw8ytrQhUs19QHhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dtkwDMRAqM01wDYwxe9jmiW6Kt63o4lNXbHmBVtozwwB9dEQHSKnR03eul6eCJbpt
-         Jlzxuf4lNbHj4SFqQKZQKqiKWyQKDiKSDb9tCfrdIHEsHi9F3cRLFi567uBKm87fFJ
-         RiTUsTmorVblkiGzAad5CAuySkdRG6pwotcajAfQ=
+        b=KgRAhXOYiD6+jK9DKccEA0dD7VMFzFbCrN1MLhtq9fGbigYtmKqv1X5m6kdHq8HV7
+         Pwr+QVf0QeerII8KGQltbpQ46jEUBvB4aiFSEdS/omMoMVmN7eZKKa2Ja46LorV3Iq
+         MEyarVRe3Mx1ZZEmTUbarzO704eu7KcfoMbjlpVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 189/323] scsi: jazz_esp: Add IRQ check
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 089/240] ALSA: hda/realtek: Re-order ALC269 Lenovo quirk table entries
 Date:   Thu, 20 May 2021 11:21:21 +0200
-Message-Id: <20210520092126.603439354@linuxfoundation.org>
+Message-Id: <20210520092111.669997953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +38,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 38fca15c29db6ed06e894ac194502633e2a7d1fb ]
+commit f552ff54c2a700616a02b038e4bf3cbf859f65b7 upstream.
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to request_irq() (which takes
-*unsigned* IRQ #), causing it to fail with -EINVAL, overriding the real
-error code.  Stop calling request_irq() with the invalid IRQ #s.
+Just re-order the alc269_fixup_tbl[] entries for Lenovo devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-Link: https://lore.kernel.org/r/594aa9ae-2215-49f6-f73c-33bd38989912@omprussia.ru
-Fixes: 352e921f0dd4 ("[SCSI] jazz_esp: converted to use esp_core")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also Cc-to-stable for the further patch applications.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-10-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/jazz_esp.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/scsi/jazz_esp.c b/drivers/scsi/jazz_esp.c
-index 9aaa74e349cc..65f0dbfc3a45 100644
---- a/drivers/scsi/jazz_esp.c
-+++ b/drivers/scsi/jazz_esp.c
-@@ -170,7 +170,9 @@ static int esp_jazz_probe(struct platform_device *dev)
- 	if (!esp->command_block)
- 		goto fail_unmap_regs;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5841,9 +5841,9 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x21b8, "Thinkpad Edge 14", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21ca, "Thinkpad L412", ALC269_FIXUP_SKU_IGNORE),
+ 	SND_PCI_QUIRK(0x17aa, 0x21e9, "Thinkpad Edge 15", ALC269_FIXUP_SKU_IGNORE),
++	SND_PCI_QUIRK(0x17aa, 0x21f3, "Thinkpad T430", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21f6, "Thinkpad T530", ALC269_FIXUP_LENOVO_DOCK_LIMIT_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fa, "Thinkpad X230", ALC269_FIXUP_LENOVO_DOCK),
+-	SND_PCI_QUIRK(0x17aa, 0x21f3, "Thinkpad T430", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x21fb, "Thinkpad T430s", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x2203, "Thinkpad X230 Tablet", ALC269_FIXUP_LENOVO_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x2208, "Thinkpad T431s", ALC269_FIXUP_LENOVO_DOCK),
+@@ -5875,6 +5875,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x3902, "Lenovo E50-80", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
+ 	SND_PCI_QUIRK(0x17aa, 0x3977, "IdeaPad S210", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x3978, "Lenovo B50-70", ALC269_FIXUP_DMIC_THINKPAD_ACPI),
++	SND_PCI_QUIRK(0x17aa, 0x3bf8, "Quanta FL1", ALC269_FIXUP_PCM_44K),
+ 	SND_PCI_QUIRK(0x17aa, 0x5013, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x501a, "Thinkpad", ALC283_FIXUP_INT_MIC),
+ 	SND_PCI_QUIRK(0x17aa, 0x501e, "Thinkpad L440", ALC292_FIXUP_TPT440_DOCK),
+@@ -5893,7 +5894,6 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x17aa, 0x5109, "Thinkpad", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
+ 	SND_PCI_QUIRK(0x17aa, 0x511e, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+ 	SND_PCI_QUIRK(0x17aa, 0x511f, "Thinkpad", ALC298_FIXUP_TPT470_DOCK),
+-	SND_PCI_QUIRK(0x17aa, 0x3bf8, "Quanta FL1", ALC269_FIXUP_PCM_44K),
+ 	SND_PCI_QUIRK(0x17aa, 0x9e54, "LENOVO NB", ALC269_FIXUP_LENOVO_EAPD),
+ 	SND_PCI_QUIRK(0x1b7d, 0xa831, "Ordissimo EVE2 ", ALC269VB_FIXUP_ORDISSIMO_EVE2), /* Also known as Malata PC-B1303 */
  
--	host->irq = platform_get_irq(dev, 0);
-+	host->irq = err = platform_get_irq(dev, 0);
-+	if (err < 0)
-+		goto fail_unmap_command_block;
- 	err = request_irq(host->irq, scsi_esp_intr, IRQF_SHARED, "ESP", esp);
- 	if (err < 0)
- 		goto fail_unmap_command_block;
--- 
-2.30.2
-
 
 
