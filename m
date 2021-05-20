@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1B738A706
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EE4E138A70A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237046AbhETKda (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:33:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
+        id S237341AbhETKdg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60398 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237287AbhETKb3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:31:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01DF5614A7;
-        Thu, 20 May 2021 09:52:04 +0000 (UTC)
+        id S237299AbhETKbd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E99961554;
+        Thu, 20 May 2021 09:52:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504325;
-        bh=KQhPeZnW2nWyf/Ff/gdFewVGIDpXPlb8reWCN3mCa1o=;
+        s=korg; t=1621504329;
+        bh=cCrNn2euBcLAifiTT7YeE826qd6sGAU2WsPETqS6HiE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yfSvIDWw+N3U5zkE2NFjUXuAfK7TpwadZessU8UV/T9kp91/Fiimcd36aFXZ5il+A
-         A/3Dl1vFMO1g3o+1YXiFeraUw2QjdYoOvbNZdvYSV0+Nj0iJKXbhbQYQUZx7faiBCo
-         Ct1A1OQqJF4I4rcmlsYBv0DaBOQ7LodIWKu+15rQ=
+        b=diPGnCG1UXSWvCMGrJZG8YfISds+0vbQxwXGCAt2D6R4SbG5PK9SLlP3FwS4CsCM1
+         Ux5Wm+6HH8JJOvWTh3eCGZqjPCzQeuyYwyH+g1facP7hH2OWcJOgNt6s5XfUxnzf3E
+         tPfDrXqtS4yL+pFAmT7J898IGYcy1f195ohfqMMw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 194/323] x86/events/amd/iommu: Fix sysfs type mismatch
-Date:   Thu, 20 May 2021 11:21:26 +0200
-Message-Id: <20210520092126.767874119@linuxfoundation.org>
+        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 195/323] HID: plantronics: Workaround for double volume key presses
+Date:   Thu, 20 May 2021 11:21:27 +0200
+Message-Id: <20210520092126.798314784@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,53 +39,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-[ Upstream commit de5bc7b425d4c27ae5faa00ea7eb6b9780b9a355 ]
+[ Upstream commit f567d6ef8606fb427636e824c867229ecb5aefab ]
 
-dev_attr_show() calls _iommu_event_show() via an indirect call but
-_iommu_event_show()'s type does not currently match the type of the
-show() member in 'struct device_attribute', resulting in a Control Flow
-Integrity violation.
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
 
-$ cat /sys/devices/amd_iommu_1/events/mem_dte_hit
-csource=0x0a
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
 
-$ dmesg | grep "CFI failure"
-[ 3526.735140] CFI failure (target: _iommu_event_show...):
-
-Change _iommu_event_show() and 'struct amd_iommu_event_desc' to
-'struct device_attribute' so that there is no more CFI violation.
-
-Fixes: 7be6296fdd75 ("perf/x86/amd: AMD IOMMU Performance Counter PERF uncore PMU implementation")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210415001112.3024673-1-nathan@kernel.org
+Fixes: 81bb773faed7 ("HID: plantronics: Update to map volume up/down controls")
+Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/amd/iommu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/hid/hid-ids.h         |  1 +
+ drivers/hid/hid-plantronics.c | 60 +++++++++++++++++++++++++++++++++--
+ include/linux/hid.h           |  2 ++
+ 3 files changed, 61 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/events/amd/iommu.c b/arch/x86/events/amd/iommu.c
-index 3641e24fdac5..5a372b8902f4 100644
---- a/arch/x86/events/amd/iommu.c
-+++ b/arch/x86/events/amd/iommu.c
-@@ -84,12 +84,12 @@ static struct attribute_group amd_iommu_events_group = {
- };
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index be0707cfc0fd..e5f2958bc18c 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -859,6 +859,7 @@
+ #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
  
- struct amd_iommu_event_desc {
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- 	const char *event;
- };
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
  
--static ssize_t _iommu_event_show(struct kobject *kobj,
--				struct kobj_attribute *attr, char *buf)
-+static ssize_t _iommu_event_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index 584b10d3fc3d..460711c1124a 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/jiffies.h>
+ 
+ #define PLT_HID_1_0_PAGE	0xffa00000
+ #define PLT_HID_2_0_PAGE	0xffa20000
+@@ -39,6 +40,16 @@
+ #define PLT_ALLOW_CONSUMER (field->application == HID_CP_CONSUMERCONTROL && \
+ 			    (usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER)
+ 
++#define PLT_QUIRK_DOUBLE_VOLUME_KEYS BIT(0)
++
++#define PLT_DOUBLE_KEY_TIMEOUT 5 /* ms */
++
++struct plt_drv_data {
++	unsigned long device_type;
++	unsigned long last_volume_key_ts;
++	u32 quirks;
++};
++
+ static int plantronics_input_mapping(struct hid_device *hdev,
+ 				     struct hid_input *hi,
+ 				     struct hid_field *field,
+@@ -46,7 +57,8 @@ static int plantronics_input_mapping(struct hid_device *hdev,
+ 				     unsigned long **bit, int *max)
  {
- 	struct amd_iommu_event_desc *event =
- 		container_of(attr, struct amd_iommu_event_desc, attr);
+ 	unsigned short mapped_key;
+-	unsigned long plt_type = (unsigned long)hid_get_drvdata(hdev);
++	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
++	unsigned long plt_type = drv_data->device_type;
+ 
+ 	/* special case for PTT products */
+ 	if (field->application == HID_GD_JOYSTICK)
+@@ -108,6 +120,30 @@ mapped:
+ 	return 1;
+ }
+ 
++static int plantronics_event(struct hid_device *hdev, struct hid_field *field,
++			     struct hid_usage *usage, __s32 value)
++{
++	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
++
++	if (drv_data->quirks & PLT_QUIRK_DOUBLE_VOLUME_KEYS) {
++		unsigned long prev_ts, cur_ts;
++
++		/* Usages are filtered in plantronics_usages. */
++
++		if (!value) /* Handle key presses only. */
++			return 0;
++
++		prev_ts = drv_data->last_volume_key_ts;
++		cur_ts = jiffies;
++		if (jiffies_to_msecs(cur_ts - prev_ts) <= PLT_DOUBLE_KEY_TIMEOUT)
++			return 1; /* Ignore the repeated key. */
++
++		drv_data->last_volume_key_ts = cur_ts;
++	}
++
++	return 0;
++}
++
+ static unsigned long plantronics_device_type(struct hid_device *hdev)
+ {
+ 	unsigned i, col_page;
+@@ -136,15 +172,24 @@ exit:
+ static int plantronics_probe(struct hid_device *hdev,
+ 			     const struct hid_device_id *id)
+ {
++	struct plt_drv_data *drv_data;
+ 	int ret;
+ 
++	drv_data = devm_kzalloc(&hdev->dev, sizeof(*drv_data), GFP_KERNEL);
++	if (!drv_data)
++		return -ENOMEM;
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+ 		goto err;
+ 	}
+ 
+-	hid_set_drvdata(hdev, (void *)plantronics_device_type(hdev));
++	drv_data->device_type = plantronics_device_type(hdev);
++	drv_data->quirks = id->driver_data;
++	drv_data->last_volume_key_ts = jiffies - msecs_to_jiffies(PLT_DOUBLE_KEY_TIMEOUT);
++
++	hid_set_drvdata(hdev, drv_data);
+ 
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT |
+ 		HID_CONNECT_HIDINPUT_FORCE | HID_CONNECT_HIDDEV_FORCE);
+@@ -156,15 +201,26 @@ err:
+ }
+ 
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, plantronics_devices);
+ 
++static const struct hid_usage_id plantronics_usages[] = {
++	{ HID_CP_VOLUMEUP, EV_KEY, HID_ANY_ID },
++	{ HID_CP_VOLUMEDOWN, EV_KEY, HID_ANY_ID },
++	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
++};
++
+ static struct hid_driver plantronics_driver = {
+ 	.name = "plantronics",
+ 	.id_table = plantronics_devices,
++	.usage_table = plantronics_usages,
+ 	.input_mapping = plantronics_input_mapping,
++	.event = plantronics_event,
+ 	.probe = plantronics_probe,
+ };
+ module_hid_driver(plantronics_driver);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 40409453ef3e..d07fe33a9045 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -263,6 +263,8 @@ struct hid_item {
+ #define HID_CP_SELECTION	0x000c0080
+ #define HID_CP_MEDIASELECTION	0x000c0087
+ #define HID_CP_SELECTDISC	0x000c00ba
++#define HID_CP_VOLUMEUP		0x000c00e9
++#define HID_CP_VOLUMEDOWN	0x000c00ea
+ #define HID_CP_PLAYBACKSPEED	0x000c00f1
+ #define HID_CP_PROXIMITY	0x000c0109
+ #define HID_CP_SPEAKERSYSTEM	0x000c0160
 -- 
 2.30.2
 
