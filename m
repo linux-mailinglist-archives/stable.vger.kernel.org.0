@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08B0238AB31
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD64138A9B6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240850AbhETLVX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:21:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
+        id S239106AbhETLFg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:05:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38332 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240888AbhETLTg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 094CB613E3;
-        Thu, 20 May 2021 10:10:38 +0000 (UTC)
+        id S239530AbhETLDd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:03:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DD4261D13;
+        Thu, 20 May 2021 10:04:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505439;
-        bh=K4Gxbu8Li8VuMOhLddDQQmmtlV8IRL45B30dXYpG75g=;
+        s=korg; t=1621505066;
+        bh=qgA/fXD4F6Koj9VdCi58OxcitLjK1laDKud+WmMKar8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VEwlEEO4fNwVzNvAmQQhPeEBg4+PArT+DH/8ttMv0O06eo9CZrdHgVJA3LexVqayM
-         9OnezD3YB1CMsPixqQBJs3m4gexTZ01q30ExXfmqA0kUfkCO7vf0S+57lQTScfERIT
-         4Sg9ex0QrBpyvAsZm1aZTLlCo8GDnbx1D4xJcxSc=
+        b=OxKHxef/PFXDPWzHc/Cfqyti2fSvZQ+oCqRe2rE6sZgqACC9FbNoitMgUv+fIVreP
+         QbyzSFOrziPzRr9yU0gyiLld7fCV8oBcq7c4VbHh4UU/DTjkl1W2p1hGJ9XIbUJ+vI
+         opwTmqJoK4P5SWKZDao0fbqDpjQy2g5n5zQzq3Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 135/190] fs: dlm: fix debugfs dump
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com,
+        syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 207/240] squashfs: fix divide error in calculate_skip()
 Date:   Thu, 20 May 2021 11:23:19 +0200
-Message-Id: <20210520092106.661300839@linuxfoundation.org>
+Message-Id: <20210520092115.608903588@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
+commit d6e621de1fceb3b098ebf435ef7ea91ec4838a1a upstream.
 
-This patch fixes the following message which randomly pops up during
-glocktop call:
+Sysbot has reported a "divide error" which has been identified as being
+caused by a corrupted file_size value within the file inode.  This value
+has been corrupted to a much larger value than expected.
 
-seq_file: buggy .next function table_seq_next did not update position index
+Calculate_skip() is passed i_size_read(inode) >> msblk->block_log.  Due to
+the file_size value corruption this overflows the int argument/variable in
+that function, leading to the divide error.
 
-The issue is that seq_read_iter() in fs/seq_file.c also needs an
-increment of the index in an non next record case as well which this
-patch fixes otherwise seq_read_iter() will print out the above message.
+This patch changes the function to use u64.  This will accommodate any
+unexpectedly large values due to corruption.
 
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The value returned from calculate_skip() is clamped to be never more than
+SQUASHFS_CACHED_BLKS - 1, or 7.  So file_size corruption does not lead to
+an unexpectedly large return result here.
+
+Link: https://lkml.kernel.org/r/20210507152618.9447-1-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: <syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com>
+Reported-by: <syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/dlm/debug_fs.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/squashfs/file.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
-index eea64912c9c0..3b79c0284a30 100644
---- a/fs/dlm/debug_fs.c
-+++ b/fs/dlm/debug_fs.c
-@@ -545,6 +545,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
+--- a/fs/squashfs/file.c
++++ b/fs/squashfs/file.c
+@@ -224,11 +224,11 @@ failure:
+  * If the skip factor is limited in this way then the file will use multiple
+  * slots.
+  */
+-static inline int calculate_skip(int blocks)
++static inline int calculate_skip(u64 blocks)
+ {
+-	int skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
++	u64 skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
+ 		 * SQUASHFS_META_INDEXES);
+-	return min(SQUASHFS_CACHED_BLKS - 1, skip + 1);
++	return min((u64) SQUASHFS_CACHED_BLKS - 1, skip + 1);
+ }
  
- 		if (bucket >= ls->ls_rsbtbl_size) {
- 			kfree(ri);
-+			++*pos;
- 			return NULL;
- 		}
- 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
--- 
-2.30.2
-
+ 
 
 
