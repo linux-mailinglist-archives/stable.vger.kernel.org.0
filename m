@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39FCF38AA19
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A55538ABAA
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240509AbhETLKY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
+        id S241222AbhETL0V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:26:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240112AbhETLHC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:07:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C61CB61D1D;
-        Thu, 20 May 2021 10:05:49 +0000 (UTC)
+        id S241384AbhETLYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:24:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AAF0061D90;
+        Thu, 20 May 2021 10:12:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505150;
-        bh=iXgKiE9R8jdkGoaGr2EyzBtoQ+G1t82TOnZlung0k0A=;
+        s=korg; t=1621505549;
+        bh=GbwkeANYMOiVUFGcBcEHecXgpHDycYYzfksVPGujX1w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FnCz2QVhL17yBtYzDS1SDZlC+0/+VrztiJLAmhT3esj5hiJcMAQjyj/9kzO8Dy2Iv
-         015Ke47HWw/k7v8ammcCMBDtOoNL8UsDIsgTPeTaTCnbm3f5wWqr7aF/Us/l6iwZlh
-         qFIdBknvcyyT9hfW/YLtOP31+d2/gXvAlrCcRxgE=
+        b=DbejSX0te8VIqqvyzXDEN8Y+1+5xkbn+sj0eklvOFx7ifSJTRj7AqrbwDdCHFsOe4
+         jNaYDLtXpVGx/8nRXKm30K2aTcgfeg36k6M19MNXw771JF7eEERC3dhRpLVelKaq0L
+         AUkjsX4kOzwFoJAbNgU1M4kDRmBpqqvblN9IRXSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
-        Sylwester Nawrocki <s.nawrocki@samsung.com>
-Subject: [PATCH 4.9 223/240] clk: exynos7: Mark aclk_fsys1_200 as critical
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 151/190] wl3501_cs: Fix out-of-bounds warnings in wl3501_mgmt_join
 Date:   Thu, 20 May 2021 11:23:35 +0200
-Message-Id: <20210520092116.194916667@linuxfoundation.org>
+Message-Id: <20210520092107.169929001@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +42,286 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-commit 34138a59b92c1a30649a18ec442d2e61f3bc34dd upstream.
+[ Upstream commit bb43e5718d8f1b46e7a77e7b39be3c691f293050 ]
 
-This clock must be always enabled to allow access to any registers in
-fsys1 CMU. Until proper solution based on runtime PM is applied
-(similar to what was done for Exynos5433), mark that clock as critical
-so it won't be disabled.
+Fix the following out-of-bounds warnings by adding a new structure
+wl3501_req instead of duplicating the same members in structure
+wl3501_join_req and wl3501_scan_confirm:
 
-It was observed on Samsung Galaxy S6 device (based on Exynos7420), where
-UFS module is probed before pmic used to power that device.
-In this case defer probe was happening and that clock was disabled by
-UFS driver, causing whole boot to hang on next CMU access.
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [39, 108] from the object at 'sig' is out of the bounds of referenced subobject 'beacon_period' with type 'short unsigned int' at offset 36 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [25, 95] from the object at 'sig' is out of the bounds of referenced subobject 'beacon_period' with type 'short unsigned int' at offset 22 [-Warray-bounds]
 
-Fixes: 753195a749a6 ("clk: samsung: exynos7: Correct CMU_FSYS1 clocks names")
-Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
-Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
-Link: https://lore.kernel.org/linux-clk/20201024154346.9589-1-pawel.mikolaj.chmiel@gmail.com
-[s.nawrocki: Added comment in the code]
-Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Refactor the code, accordingly:
+
+$ pahole -C wl3501_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_req {
+        u16                        beacon_period;        /*     0     2 */
+        u16                        dtim_period;          /*     2     2 */
+        u16                        cap_info;             /*     4     2 */
+        u8                         bss_type;             /*     6     1 */
+        u8                         bssid[6];             /*     7     6 */
+        struct iw_mgmt_essid_pset  ssid;                 /*    13    34 */
+        struct iw_mgmt_ds_pset     ds_pset;              /*    47     3 */
+        struct iw_mgmt_cf_pset     cf_pset;              /*    50     8 */
+        struct iw_mgmt_ibss_pset   ibss_pset;            /*    58     4 */
+        struct iw_mgmt_data_rset   bss_basic_rset;       /*    62    10 */
+
+        /* size: 72, cachelines: 2, members: 10 */
+        /* last cacheline: 8 bytes */
+};
+
+$ pahole -C wl3501_join_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_join_req {
+        u16                        next_blk;             /*     0     2 */
+        u8                         sig_id;               /*     2     1 */
+        u8                         reserved;             /*     3     1 */
+        struct iw_mgmt_data_rset   operational_rset;     /*     4    10 */
+        u16                        reserved2;            /*    14     2 */
+        u16                        timeout;              /*    16     2 */
+        u16                        probe_delay;          /*    18     2 */
+        u8                         timestamp[8];         /*    20     8 */
+        u8                         local_time[8];        /*    28     8 */
+        struct wl3501_req          req;                  /*    36    72 */
+
+        /* size: 108, cachelines: 2, members: 10 */
+        /* last cacheline: 44 bytes */
+};
+
+$ pahole -C wl3501_scan_confirm drivers/net/wireless/wl3501_cs.o
+struct wl3501_scan_confirm {
+        u16                        next_blk;             /*     0     2 */
+        u8                         sig_id;               /*     2     1 */
+        u8                         reserved;             /*     3     1 */
+        u16                        status;               /*     4     2 */
+        char                       timestamp[8];         /*     6     8 */
+        char                       localtime[8];         /*    14     8 */
+        struct wl3501_req          req;                  /*    22    72 */
+        /* --- cacheline 1 boundary (64 bytes) was 30 bytes ago --- */
+        u8                         rssi;                 /*    94     1 */
+
+        /* size: 96, cachelines: 2, members: 8 */
+        /* padding: 1 */
+        /* last cacheline: 32 bytes */
+};
+
+The problem is that the original code is trying to copy data into a
+bunch of struct members adjacent to each other in a single call to
+memcpy(). Now that a new struct wl3501_req enclosing all those adjacent
+members is introduced, memcpy() doesn't overrun the length of
+&sig.beacon_period and &this->bss_set[i].beacon_period, because the
+address of the new struct object _req_ is used as the destination,
+instead.
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/1fbaf516da763b50edac47d792a9145aa4482e29.1618442265.git.gustavoars@kernel.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/samsung/clk-exynos7.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/wl3501.h    | 35 +++++++++++--------------
+ drivers/net/wireless/wl3501_cs.c | 44 +++++++++++++++++---------------
+ 2 files changed, 38 insertions(+), 41 deletions(-)
 
---- a/drivers/clk/samsung/clk-exynos7.c
-+++ b/drivers/clk/samsung/clk-exynos7.c
-@@ -541,8 +541,13 @@ static const struct samsung_gate_clock t
- 	GATE(CLK_ACLK_FSYS0_200, "aclk_fsys0_200", "dout_aclk_fsys0_200",
- 		ENABLE_ACLK_TOP13, 28, CLK_SET_RATE_PARENT |
- 		CLK_IS_CRITICAL, 0),
-+	/*
-+	 * This clock is required for the CMU_FSYS1 registers access, keep it
-+	 * enabled permanently until proper runtime PM support is added.
-+	 */
- 	GATE(CLK_ACLK_FSYS1_200, "aclk_fsys1_200", "dout_aclk_fsys1_200",
--		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT, 0),
-+		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT |
-+		CLK_IS_CRITICAL, 0),
+diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
+index ba2a36cfb1c8..ca2021bcac14 100644
+--- a/drivers/net/wireless/wl3501.h
++++ b/drivers/net/wireless/wl3501.h
+@@ -378,16 +378,7 @@ struct wl3501_get_confirm {
+ 	u8	mib_value[100];
+ };
  
- 	GATE(CLK_SCLK_PHY_FSYS1_26M, "sclk_phy_fsys1_26m",
- 		"dout_sclk_phy_fsys1_26m", ENABLE_SCLK_TOP1_FSYS11,
+-struct wl3501_join_req {
+-	u16			    next_blk;
+-	u8			    sig_id;
+-	u8			    reserved;
+-	struct iw_mgmt_data_rset    operational_rset;
+-	u16			    reserved2;
+-	u16			    timeout;
+-	u16			    probe_delay;
+-	u8			    timestamp[8];
+-	u8			    local_time[8];
++struct wl3501_req {
+ 	u16			    beacon_period;
+ 	u16			    dtim_period;
+ 	u16			    cap_info;
+@@ -400,6 +391,19 @@ struct wl3501_join_req {
+ 	struct iw_mgmt_data_rset    bss_basic_rset;
+ };
+ 
++struct wl3501_join_req {
++	u16			    next_blk;
++	u8			    sig_id;
++	u8			    reserved;
++	struct iw_mgmt_data_rset    operational_rset;
++	u16			    reserved2;
++	u16			    timeout;
++	u16			    probe_delay;
++	u8			    timestamp[8];
++	u8			    local_time[8];
++	struct wl3501_req	    req;
++};
++
+ struct wl3501_join_confirm {
+ 	u16	next_blk;
+ 	u8	sig_id;
+@@ -442,16 +446,7 @@ struct wl3501_scan_confirm {
+ 	u16			    status;
+ 	char			    timestamp[8];
+ 	char			    localtime[8];
+-	u16			    beacon_period;
+-	u16			    dtim_period;
+-	u16			    cap_info;
+-	u8			    bss_type;
+-	u8			    bssid[ETH_ALEN];
+-	struct iw_mgmt_essid_pset   ssid;
+-	struct iw_mgmt_ds_pset	    ds_pset;
+-	struct iw_mgmt_cf_pset	    cf_pset;
+-	struct iw_mgmt_ibss_pset    ibss_pset;
+-	struct iw_mgmt_data_rset    bss_basic_rset;
++	struct wl3501_req	    req;
+ 	u8			    rssi;
+ };
+ 
+diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
+index 15613f4761f4..f91f7bd90b85 100644
+--- a/drivers/net/wireless/wl3501_cs.c
++++ b/drivers/net/wireless/wl3501_cs.c
+@@ -578,7 +578,7 @@ static int wl3501_mgmt_join(struct wl3501_card *this, u16 stas)
+ 	struct wl3501_join_req sig = {
+ 		.sig_id		  = WL3501_SIG_JOIN_REQ,
+ 		.timeout	  = 10,
+-		.ds_pset = {
++		.req.ds_pset = {
+ 			.el = {
+ 				.id  = IW_MGMT_INFO_ELEMENT_DS_PARAMETER_SET,
+ 				.len = 1,
+@@ -587,7 +587,7 @@ static int wl3501_mgmt_join(struct wl3501_card *this, u16 stas)
+ 		},
+ 	};
+ 
+-	memcpy(&sig.beacon_period, &this->bss_set[stas].beacon_period, 72);
++	memcpy(&sig.req, &this->bss_set[stas].req, sizeof(sig.req));
+ 	return wl3501_esbq_exec(this, &sig, sizeof(sig));
+ }
+ 
+@@ -655,35 +655,37 @@ static void wl3501_mgmt_scan_confirm(struct wl3501_card *this, u16 addr)
+ 	if (sig.status == WL3501_STATUS_SUCCESS) {
+ 		pr_debug("success");
+ 		if ((this->net_type == IW_MODE_INFRA &&
+-		     (sig.cap_info & WL3501_MGMT_CAPABILITY_ESS)) ||
++		     (sig.req.cap_info & WL3501_MGMT_CAPABILITY_ESS)) ||
+ 		    (this->net_type == IW_MODE_ADHOC &&
+-		     (sig.cap_info & WL3501_MGMT_CAPABILITY_IBSS)) ||
++		     (sig.req.cap_info & WL3501_MGMT_CAPABILITY_IBSS)) ||
+ 		    this->net_type == IW_MODE_AUTO) {
+ 			if (!this->essid.el.len)
+ 				matchflag = 1;
+ 			else if (this->essid.el.len == 3 &&
+ 				 !memcmp(this->essid.essid, "ANY", 3))
+ 				matchflag = 1;
+-			else if (this->essid.el.len != sig.ssid.el.len)
++			else if (this->essid.el.len != sig.req.ssid.el.len)
+ 				matchflag = 0;
+-			else if (memcmp(this->essid.essid, sig.ssid.essid,
++			else if (memcmp(this->essid.essid, sig.req.ssid.essid,
+ 					this->essid.el.len))
+ 				matchflag = 0;
+ 			else
+ 				matchflag = 1;
+ 			if (matchflag) {
+ 				for (i = 0; i < this->bss_cnt; i++) {
+-					if (ether_addr_equal_unaligned(this->bss_set[i].bssid, sig.bssid)) {
++					if (ether_addr_equal_unaligned(this->bss_set[i].req.bssid,
++								       sig.req.bssid)) {
+ 						matchflag = 0;
+ 						break;
+ 					}
+ 				}
+ 			}
+ 			if (matchflag && (i < 20)) {
+-				memcpy(&this->bss_set[i].beacon_period,
+-				       &sig.beacon_period, 73);
++				memcpy(&this->bss_set[i].req,
++				       &sig.req, sizeof(sig.req));
+ 				this->bss_cnt++;
+ 				this->rssi = sig.rssi;
++				this->bss_set[i].rssi = sig.rssi;
+ 			}
+ 		}
+ 	} else if (sig.status == WL3501_STATUS_TIMEOUT) {
+@@ -875,19 +877,19 @@ static void wl3501_mgmt_join_confirm(struct net_device *dev, u16 addr)
+ 			if (this->join_sta_bss < this->bss_cnt) {
+ 				const int i = this->join_sta_bss;
+ 				memcpy(this->bssid,
+-				       this->bss_set[i].bssid, ETH_ALEN);
+-				this->chan = this->bss_set[i].ds_pset.chan;
++				       this->bss_set[i].req.bssid, ETH_ALEN);
++				this->chan = this->bss_set[i].req.ds_pset.chan;
+ 				iw_copy_mgmt_info_element(&this->keep_essid.el,
+-						     &this->bss_set[i].ssid.el);
++						     &this->bss_set[i].req.ssid.el);
+ 				wl3501_mgmt_auth(this);
+ 			}
+ 		} else {
+ 			const int i = this->join_sta_bss;
+ 
+-			memcpy(&this->bssid, &this->bss_set[i].bssid, ETH_ALEN);
+-			this->chan = this->bss_set[i].ds_pset.chan;
++			memcpy(&this->bssid, &this->bss_set[i].req.bssid, ETH_ALEN);
++			this->chan = this->bss_set[i].req.ds_pset.chan;
+ 			iw_copy_mgmt_info_element(&this->keep_essid.el,
+-						  &this->bss_set[i].ssid.el);
++						  &this->bss_set[i].req.ssid.el);
+ 			wl3501_online(dev);
+ 		}
+ 	} else {
+@@ -1566,30 +1568,30 @@ static int wl3501_get_scan(struct net_device *dev, struct iw_request_info *info,
+ 	for (i = 0; i < this->bss_cnt; ++i) {
+ 		iwe.cmd			= SIOCGIWAP;
+ 		iwe.u.ap_addr.sa_family = ARPHRD_ETHER;
+-		memcpy(iwe.u.ap_addr.sa_data, this->bss_set[i].bssid, ETH_ALEN);
++		memcpy(iwe.u.ap_addr.sa_data, this->bss_set[i].req.bssid, ETH_ALEN);
+ 		current_ev = iwe_stream_add_event(info, current_ev,
+ 						  extra + IW_SCAN_MAX_DATA,
+ 						  &iwe, IW_EV_ADDR_LEN);
+ 		iwe.cmd		  = SIOCGIWESSID;
+ 		iwe.u.data.flags  = 1;
+-		iwe.u.data.length = this->bss_set[i].ssid.el.len;
++		iwe.u.data.length = this->bss_set[i].req.ssid.el.len;
+ 		current_ev = iwe_stream_add_point(info, current_ev,
+ 						  extra + IW_SCAN_MAX_DATA,
+ 						  &iwe,
+-						  this->bss_set[i].ssid.essid);
++						  this->bss_set[i].req.ssid.essid);
+ 		iwe.cmd	   = SIOCGIWMODE;
+-		iwe.u.mode = this->bss_set[i].bss_type;
++		iwe.u.mode = this->bss_set[i].req.bss_type;
+ 		current_ev = iwe_stream_add_event(info, current_ev,
+ 						  extra + IW_SCAN_MAX_DATA,
+ 						  &iwe, IW_EV_UINT_LEN);
+ 		iwe.cmd = SIOCGIWFREQ;
+-		iwe.u.freq.m = this->bss_set[i].ds_pset.chan;
++		iwe.u.freq.m = this->bss_set[i].req.ds_pset.chan;
+ 		iwe.u.freq.e = 0;
+ 		current_ev = iwe_stream_add_event(info, current_ev,
+ 						  extra + IW_SCAN_MAX_DATA,
+ 						  &iwe, IW_EV_FREQ_LEN);
+ 		iwe.cmd = SIOCGIWENCODE;
+-		if (this->bss_set[i].cap_info & WL3501_MGMT_CAPABILITY_PRIVACY)
++		if (this->bss_set[i].req.cap_info & WL3501_MGMT_CAPABILITY_PRIVACY)
+ 			iwe.u.data.flags = IW_ENCODE_ENABLED | IW_ENCODE_NOKEY;
+ 		else
+ 			iwe.u.data.flags = IW_ENCODE_DISABLED;
+-- 
+2.30.2
+
 
 
