@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FAE338AA39
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18FD538AA3A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239062AbhETLLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:11:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
+        id S239651AbhETLLS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:11:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240147AbhETLJL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:09:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B7C961940;
-        Thu, 20 May 2021 10:06:36 +0000 (UTC)
+        id S240238AbhETLJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:09:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C7E061935;
+        Thu, 20 May 2021 10:06:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505196;
-        bh=y1KZOimxnzrONNjyUcvByZsk2dyLGwJrGm9ar+YMXgY=;
+        s=korg; t=1621505199;
+        bh=tdsfINl8WT06Bq7ZxsVz/BBSClxn1h0PBiNLgj8e6j8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MP/F9xv/8ETLjdQV/YX5HtQpO0NxF3hhKyHmHmGAQqpyhB11iAA0r5MMIoNkNX2d9
-         5P/ePAoZ/wycIJOWPuwYPe7D0qt18BtK1VS52Ur+Xcc6p5OOmafxHttUdkhgexocJZ
-         vDwzp1g8k4DG3Tj6AJmnDIzsqmCswLv5mXbqBbOg=
+        b=V/A39bR6krBartEkzdOXSI7gyfCr9QXkpG4niPBtjBEJyXzXmzH/uG+v7UKT33lea
+         wGopJKTgQ4b93yAvk9vcR1ZKLBN4J+15hG5BrOb5JKyFvTtKmacu8N6ymUiyYrHuZt
+         574YLH3j2hzXKIPCkJuxyiSxLypNd/vNziCXo8N8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        stable@vger.kernel.org, Daniel Niv <danielniv3@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 025/190] media: ite-cir: check for receive overflow
-Date:   Thu, 20 May 2021 11:21:29 +0200
-Message-Id: <20210520092103.007082724@linuxfoundation.org>
+Subject: [PATCH 4.4 026/190] media: media/saa7164: fix saa7164_encoder_register() memory leak bugs
+Date:   Thu, 20 May 2021 11:21:30 +0200
+Message-Id: <20210520092103.039746970@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -40,39 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Young <sean@mess.org>
+From: Daniel Niv <danielniv3@gmail.com>
 
-[ Upstream commit 28c7afb07ccfc0a939bb06ac1e7afe669901c65a ]
+[ Upstream commit c759b2970c561e3b56aa030deb13db104262adfe ]
 
-It's best if this condition is reported.
+Add a fix for the memory leak bugs that can occur when the
+saa7164_encoder_register() function fails.
+The function allocates memory without explicitly freeing
+it when errors occur.
+Add a better error handling that deallocate the unused buffers before the
+function exits during a fail.
 
-Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Daniel Niv <danielniv3@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/rc/ite-cir.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/media/pci/saa7164/saa7164-encoder.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/media/rc/ite-cir.c b/drivers/media/rc/ite-cir.c
-index 63165d324fff..7d3e50d94d86 100644
---- a/drivers/media/rc/ite-cir.c
-+++ b/drivers/media/rc/ite-cir.c
-@@ -292,8 +292,14 @@ static irqreturn_t ite_cir_isr(int irq, void *data)
- 	/* read the interrupt flags */
- 	iflags = dev->params.get_irq_causes(dev);
+diff --git a/drivers/media/pci/saa7164/saa7164-encoder.c b/drivers/media/pci/saa7164/saa7164-encoder.c
+index 1b184c39ba97..966de363c575 100644
+--- a/drivers/media/pci/saa7164/saa7164-encoder.c
++++ b/drivers/media/pci/saa7164/saa7164-encoder.c
+@@ -1031,7 +1031,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 		       "(errno = %d), NO PCI configuration\n",
+ 			__func__, result);
+ 		result = -ENOMEM;
+-		goto failed;
++		goto fail_pci;
+ 	}
  
-+	/* Check for RX overflow */
-+	if (iflags & ITE_IRQ_RX_FIFO_OVERRUN) {
-+		dev_warn(&dev->rdev->dev, "receive overflow\n");
-+		ir_raw_event_reset(dev->rdev);
-+	}
-+
- 	/* check for the receive interrupt */
--	if (iflags & (ITE_IRQ_RX_FIFO | ITE_IRQ_RX_FIFO_OVERRUN)) {
-+	if (iflags & ITE_IRQ_RX_FIFO) {
- 		/* read the FIFO bytes */
- 		rx_bytes =
- 			dev->params.get_rx_bytes(dev, rx_buf,
+ 	/* Establish encoder defaults here */
+@@ -1085,7 +1085,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 			  100000, ENCODER_DEF_BITRATE);
+ 	if (hdl->error) {
+ 		result = hdl->error;
+-		goto failed;
++		goto fail_hdl;
+ 	}
+ 
+ 	port->std = V4L2_STD_NTSC_M;
+@@ -1103,7 +1103,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 		printk(KERN_INFO "%s: can't allocate mpeg device\n",
+ 			dev->name);
+ 		result = -ENOMEM;
+-		goto failed;
++		goto fail_hdl;
+ 	}
+ 
+ 	port->v4l_device->ctrl_handler = hdl;
+@@ -1114,10 +1114,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 	if (result < 0) {
+ 		printk(KERN_INFO "%s: can't register mpeg device\n",
+ 			dev->name);
+-		/* TODO: We're going to leak here if we don't dealloc
+-		 The buffers above. The unreg function can't deal wit it.
+-		*/
+-		goto failed;
++		goto fail_reg;
+ 	}
+ 
+ 	printk(KERN_INFO "%s: registered device video%d [mpeg]\n",
+@@ -1139,9 +1136,14 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 
+ 	saa7164_api_set_encoder(port);
+ 	saa7164_api_get_encoder(port);
++	return 0;
+ 
+-	result = 0;
+-failed:
++fail_reg:
++	video_device_release(port->v4l_device);
++	port->v4l_device = NULL;
++fail_hdl:
++	v4l2_ctrl_handler_free(hdl);
++fail_pci:
+ 	return result;
+ }
+ 
 -- 
 2.30.2
 
