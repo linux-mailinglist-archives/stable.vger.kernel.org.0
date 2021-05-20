@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC79238AB02
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A198A38A973
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233481AbhETLUF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37174 "EHLO mail.kernel.org"
+        id S235421AbhETLCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:02:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239790AbhETLRB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 911B56143F;
-        Thu, 20 May 2021 10:09:30 +0000 (UTC)
+        id S239673AbhETLAM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:00:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F2586191E;
+        Thu, 20 May 2021 10:03:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505371;
-        bh=9bCk7lst2Wr2aSBAmq/2HsY7GvcqAWinacpkppcJSuE=;
+        s=korg; t=1621505000;
+        bh=3cUj3yBLF72EvCqc47Y86vCXsukCn6sVkodffvx693o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s5OIEiy7xo4HJobES/D9vHolyqpWeb4Tp9LKm1ILHeN329Ysr6qu/WGpVdWgT/4RP
-         oSQp2wVsdYOhQZ86RY9y41h/iC0B3R01TRGLqtvdNfLUxhPHpCJaEVbisuS4irT6fS
-         /a5f4oN7HghdD5KUnxiAJOAYmC3lp0Ju3SodpIOs=
+        b=UD0Z/ntwqDrbOyLz7ZyI5lWM8cV5wTdzitZwYK7WYF33ip5lFWjutYrcjwJ2xf4kg
+         PZ7L+2lBcLJ0e8Pyl6D9tBWlhwRz3u3W12uFfsXnbStGKMZujiw03iTZkRhLRfVUR7
+         z9ETO1Gcki5D9GHrzOCw4ErtLRQBvzqEY+XaP/94=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 103/190] ata: libahci_platform: fix IRQ check
-Date:   Thu, 20 May 2021 11:22:47 +0200
-Message-Id: <20210520092105.601733089@linuxfoundation.org>
+        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
+        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
+        Alain Michaud <alainm@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 176/240] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
+Date:   Thu, 20 May 2021 11:22:48 +0200
+Message-Id: <20210520092114.573610528@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +44,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
+[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
 
-Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
-early (as if the call was successful). Override IRQ0 with -EINVAL instead
-as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
+Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
+However, there is a flag CONF_NOT_COMPLETE which is set when
+creating the l2cap_chan. It is suggested that the flag should be
+cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
+is called, l2cap_chan is not yet ready. Therefore, we must set this
+flag as the default.
 
-Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Example crash call trace:
+__dump_stack lib/dump_stack.c:15 [inline]
+dump_stack+0xc4/0x118 lib/dump_stack.c:56
+panic+0x1c6/0x38b kernel/panic.c:117
+__warn+0x170/0x1b9 kernel/panic.c:471
+warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
+debug_print_object+0x175/0x193 lib/debugobjects.c:260
+debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
+debug_timer_assert_init kernel/time/timer.c:629 [inline]
+debug_assert_init kernel/time/timer.c:677 [inline]
+del_timer+0x7c/0x179 kernel/time/timer.c:1034
+try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
+cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
+l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
+l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
+l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
+l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
+l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
+__sock_release+0xda/0x217 net/socket.c:580
+sock_close+0x1b/0x1f net/socket.c:1039
+__fput+0x322/0x55c fs/file_table.c:208
+____fput+0x17/0x19 fs/file_table.c:244
+task_work_run+0x19b/0x1d3 kernel/task_work.c:115
+exit_task_work include/linux/task_work.h:21 [inline]
+do_exit+0xe4c/0x204a kernel/exit.c:766
+do_group_exit+0x291/0x291 kernel/exit.c:891
+get_signal+0x749/0x1093 kernel/signal.c:2396
+do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
+exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
+prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
+syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
+int_ret_from_sys_call+0x25/0xa3
+
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
+Reviewed-by: Alain Michaud <alainm@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 65371e1befe8..8839ad6b73e3 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -516,11 +516,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
- 	int i, irq, n_ports, rc;
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index b96818cda12d..d586caaa3af4 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -510,7 +510,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
+ 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
+ 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
+ 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
++
+ 	chan->conf_state = 0;
++	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
  
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0) {
-+	if (irq < 0) {
- 		if (irq != -EPROBE_DEFER)
- 			dev_err(dev, "no irq\n");
- 		return irq;
- 	}
-+	if (!irq)
-+		return -EINVAL;
- 
- 	hpriv->irq = irq;
- 
+ 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
+ }
 -- 
 2.30.2
 
