@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CF3B38A74C
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 702B338A91F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237147AbhETKgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:36:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33412 "EHLO mail.kernel.org"
+        id S238589AbhETK6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:58:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237433AbhETKeZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:34:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13CA66157E;
-        Thu, 20 May 2021 09:53:19 +0000 (UTC)
+        id S238790AbhETKzx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:55:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C8DA60FDA;
+        Thu, 20 May 2021 10:01:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504400;
-        bh=qURO246+2vAK3TsFBzpTuXJeHrY/IQ9PWRX/GYoR+bI=;
+        s=korg; t=1621504892;
+        bh=bQNP+xR4D/CqaoinGYqKOf6mmpPGEkX0HU28J4S4yoI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fEU0Ks7yKRywrTuyOIK6wq2BbXNliikW5X59Z4LQNQrW04EkHSixg9rBX6x/GhDO2
-         RdXEc+3kWoQp5V358l31lWQvnT56+BfUDaRWjkRONPfnzyPeQn+ETAz0ZQXSAQ3i48
-         58AFC39K+zD5YaYqbrMAATapa+pWBVgYvWjNb7AA=
+        b=2D0YoDpCrG4/ZWZbKVhS6Y5L2lAwE1L82f2/LrZHP6YBpkhA69Yf7i3yBdNgai8Oy
+         hP+h8df9OazPtbgi4Qyb0kXDAKM3s/9GynsGCFkqj0wn7h2uks9HHsXtivWNf7nOP+
+         6KpX622Nu/1IudhyXcGBRBZWT0W13NEQVNQdcXkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Jens Axboe <axboe@kernel.dk>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.14 228/323] smp: Fix smp_call_function_single_async prototype
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 128/240] ata: libahci_platform: fix IRQ check
 Date:   Thu, 20 May 2021 11:22:00 +0200
-Message-Id: <20210520092127.971927113@linuxfoundation.org>
+Message-Id: <20210520092112.955347811@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,107 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit 1139aeb1c521eb4a050920ce6c64c36c4f2a3ab7 upstream.
+[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
 
-As of commit 966a967116e6 ("smp: Avoid using two cache lines for struct
-call_single_data"), the smp code prefers 32-byte aligned call_single_data
-objects for performance reasons, but the block layer includes an instance
-of this structure in the main 'struct request' that is more senstive
-to size than to performance here, see 4ccafe032005 ("block: unalign
-call_single_data in struct request").
+Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
+early (as if the call was successful). Override IRQ0 with -EINVAL instead
+as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
 
-The result is a violation of the calling conventions that clang correctly
-points out:
-
-block/blk-mq.c:630:39: warning: passing 8-byte aligned argument to 32-byte aligned parameter 2 of 'smp_call_function_single_async' may result in an unaligned pointer access [-Walign-mismatch]
-                smp_call_function_single_async(cpu, &rq->csd);
-
-It does seem that the usage of the call_single_data without cache line
-alignment should still be allowed by the smp code, so just change the
-function prototype so it accepts both, but leave the default alignment
-unchanged for the other users. This seems better to me than adding
-a local hack to shut up an otherwise correct warning in the caller.
-
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: Jens Axboe <axboe@kernel.dk>
-Link: https://lkml.kernel.org/r/20210505211300.3174456-1-arnd@kernel.org
-[nc: Fix conflicts]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/smp.h |    2 +-
- kernel/smp.c        |   10 +++++-----
- kernel/up.c         |    2 +-
- 3 files changed, 7 insertions(+), 7 deletions(-)
+ drivers/ata/libahci_platform.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/smp.h
-+++ b/include/linux/smp.h
-@@ -53,7 +53,7 @@ void on_each_cpu_cond(bool (*cond_func)(
- 		smp_call_func_t func, void *info, bool wait,
- 		gfp_t gfp_flags);
+diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
+index 0b80502bc1c5..bfa2e5eec263 100644
+--- a/drivers/ata/libahci_platform.c
++++ b/drivers/ata/libahci_platform.c
+@@ -518,11 +518,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
+ 	int i, irq, n_ports, rc;
  
--int smp_call_function_single_async(int cpu, call_single_data_t *csd);
-+int smp_call_function_single_async(int cpu, struct __call_single_data *csd);
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq <= 0) {
++	if (irq < 0) {
+ 		if (irq != -EPROBE_DEFER)
+ 			dev_err(dev, "no irq\n");
+ 		return irq;
+ 	}
++	if (!irq)
++		return -EINVAL;
  
- #ifdef CONFIG_SMP
+ 	hpriv->irq = irq;
  
---- a/kernel/smp.c
-+++ b/kernel/smp.c
-@@ -103,12 +103,12 @@ void __init call_function_init(void)
-  * previous function call. For multi-cpu calls its even more interesting
-  * as we'll have to ensure no other cpu is observing our csd.
-  */
--static __always_inline void csd_lock_wait(call_single_data_t *csd)
-+static __always_inline void csd_lock_wait(struct __call_single_data *csd)
- {
- 	smp_cond_load_acquire(&csd->flags, !(VAL & CSD_FLAG_LOCK));
- }
- 
--static __always_inline void csd_lock(call_single_data_t *csd)
-+static __always_inline void csd_lock(struct __call_single_data *csd)
- {
- 	csd_lock_wait(csd);
- 	csd->flags |= CSD_FLAG_LOCK;
-@@ -121,7 +121,7 @@ static __always_inline void csd_lock(cal
- 	smp_wmb();
- }
- 
--static __always_inline void csd_unlock(call_single_data_t *csd)
-+static __always_inline void csd_unlock(struct __call_single_data *csd)
- {
- 	WARN_ON(!(csd->flags & CSD_FLAG_LOCK));
- 
-@@ -138,7 +138,7 @@ static DEFINE_PER_CPU_SHARED_ALIGNED(cal
-  * for execution on the given CPU. data must already have
-  * ->func, ->info, and ->flags set.
-  */
--static int generic_exec_single(int cpu, call_single_data_t *csd,
-+static int generic_exec_single(int cpu, struct __call_single_data *csd,
- 			       smp_call_func_t func, void *info)
- {
- 	if (cpu == smp_processor_id()) {
-@@ -323,7 +323,7 @@ EXPORT_SYMBOL(smp_call_function_single);
-  * NOTE: Be careful, there is unfortunately no current debugging facility to
-  * validate the correctness of this serialization.
-  */
--int smp_call_function_single_async(int cpu, call_single_data_t *csd)
-+int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
- {
- 	int err = 0;
- 
---- a/kernel/up.c
-+++ b/kernel/up.c
-@@ -23,7 +23,7 @@ int smp_call_function_single(int cpu, vo
- }
- EXPORT_SYMBOL(smp_call_function_single);
- 
--int smp_call_function_single_async(int cpu, call_single_data_t *csd)
-+int smp_call_function_single_async(int cpu, struct __call_single_data *csd)
- {
- 	unsigned long flags;
- 
+-- 
+2.30.2
+
 
 
