@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B78E238A925
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4649F38A753
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238794AbhETK6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:58:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
+        id S238050AbhETKhP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:37:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238718AbhETK4K (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:56:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E506961CE7;
-        Thu, 20 May 2021 10:01:36 +0000 (UTC)
+        id S237692AbhETKfT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:35:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D75F261582;
+        Thu, 20 May 2021 09:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504897;
-        bh=APEL3NPHVZ70NZi9W8u6aNCiB6M4fnP/x0E/P/hQ7mI=;
+        s=korg; t=1621504409;
+        bh=rVNgWBzYJQW4cFfpHDK+NQlrI5Y2WbL1fz1YraVtl7o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wArtXUvfQ+MD0bZ09/LrcT68RpsoTAsbjnNGVhfe/WTklWVDaGnZ5N0Y7mw2WpXmf
-         Jm1ayyIC+fuOkD7TTvAeXM9rpI7kRPDQJFQ/Mqwr4WP1lpDv1DLbkNi8Iu74Zve1Gg
-         ommOddR4CiyVkpS03CZEmhQviSUJvYdGrUz0YcW4=
+        b=gBnR9/cPev9lX2/9yScV2Dy9Y7Hbawb5fX3MGxQ/bHvp1wcPtadVyKYutUbriVm/G
+         wrxUuzb9kslao9bml4t4k2XiaNiVv6XOVDzkB8yugndzFxW3HWKxsBb60ckZr8LrfZ
+         EsUeB6Gjcv/x8q/d17udct0U85ZzEesqWOJvbtaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 130/240] media: dvb-usb-remote: fix dvb_usb_nec_rc_key_to_event type mismatch
-Date:   Thu, 20 May 2021 11:22:02 +0200
-Message-Id: <20210520092113.032479662@linuxfoundation.org>
+        Alexandre TORGUE <alexandre.torgue@foss.st.com>,
+        Quentin Perret <qperret@google.com>
+Subject: [PATCH 4.14 231/323] Revert "of/fdt: Make sure no-map does not remove already reserved regions"
+Date:   Thu, 20 May 2021 11:22:03 +0200
+Message-Id: <20210520092128.080134633@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Quentin Perret <qperret@google.com>
 
-[ Upstream commit 0fa430e96d3c3561a78701f51fd8593da68b8474 ]
+This reverts commit 6793433fc8f263eaba1621d3724b6aeba511c6c5.
+It is not really a fix, and the backport misses dependencies, which
+breaks existing platforms.
 
-gcc-11 warns about the prototype not exactly matching the function
-definition:
-
-drivers/media/usb/dvb-usb/dvb-usb-remote.c:363:20: error: argument 2 of type ‘u8[5]’ {aka ‘unsigned char[5]’} with mismatched bound [-Werror=array-parameter=]
-  363 |                 u8 keybuf[5], u32 *event, int *state)
-      |                 ~~~^~~~~~~~~
-In file included from drivers/media/usb/dvb-usb/dvb-usb-common.h:13,
-                 from drivers/media/usb/dvb-usb/dvb-usb-remote.c:9:
-drivers/media/usb/dvb-usb/dvb-usb.h:490:65: note: previously declared as ‘u8[]’ {aka ‘unsigned char[]’}
-  490 | extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-      |                                                                 ^~~~
-
-Fixes: 776338e121b9 ("[PATCH] dvb: Add generalized dvb-usb driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Alexandre TORGUE <alexandre.torgue@foss.st.com>
+Signed-off-by: Quentin Perret <qperret@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/of/fdt.c |   10 +---------
+ 1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb.h b/drivers/media/usb/dvb-usb/dvb-usb.h
-index 107255b08b2b..704d57e3ea1c 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/usb/dvb-usb/dvb-usb.h
-@@ -471,7 +471,8 @@ extern int dvb_usb_generic_rw(struct dvb_usb_device *, u8 *, u16, u8 *, u16,int)
- extern int dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -1212,16 +1212,8 @@ int __init __weak early_init_dt_mark_hot
+ int __init __weak early_init_dt_reserve_memory_arch(phys_addr_t base,
+ 					phys_addr_t size, bool nomap)
+ {
+-	if (nomap) {
+-		/*
+-		 * If the memory is already reserved (by another region), we
+-		 * should not allow it to be marked nomap.
+-		 */
+-		if (memblock_is_region_reserved(base, size))
+-			return -EBUSY;
+-
++	if (nomap)
+ 		return memblock_mark_nomap(base, size);
+-	}
+ 	return memblock_reserve(base, size);
+ }
  
- /* commonly used remote control parsing */
--extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-+int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *d, u8 keybuf[5],
-+				u32 *event, int *state);
- 
- /* commonly used firmware download types and function */
- struct hexline {
--- 
-2.30.2
-
 
 
