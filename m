@@ -2,274 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C029338B100
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 16:07:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8590838B105
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 16:07:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238027AbhETOIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 10:08:40 -0400
-Received: from ms-10.1blu.de ([178.254.4.101]:57296 "EHLO ms-10.1blu.de"
+        id S243588AbhETOIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 10:08:50 -0400
+Received: from foss.arm.com ([217.140.110.172]:52178 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240523AbhETOHP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 10:07:15 -0400
-Received: from [87.102.202.253] (helo=[192.168.1.92])
-        by ms-10.1blu.de with esmtpsa (TLS1.2:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        (Exim 4.90_1)
-        (envelope-from <joerg.sigle@jsigle.com>)
-        id 1ljjJ9-00008D-Jl
-        for stable@vger.kernel.org; Thu, 20 May 2021 16:05:51 +0200
-Subject: To Greg KH: Re: [PATCH] iommu/vt-d: Fix kernel panic caused by
- 416fa531c816: Preset Access/Dirty bits for IOVA over FL
-References: <d3fa9eed-98bf-a137-5b0d-c6e992848f76@jsigle.com>
-To:     stable@vger.kernel.org
-From:   "Joerg M. Sigle" <joerg.sigle@jsigle.com>
-Openpgp: preference=signencrypt
-Autocrypt: addr=joerg.sigle@jsigle.com; prefer-encrypt=mutual; keydata=
- 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
- 8PuOAKC9roFUBE+MA3ttuTAdqMIxhIo1cw==
-X-Forwarded-Message-Id: <d3fa9eed-98bf-a137-5b0d-c6e992848f76@jsigle.com>
-Message-ID: <4a3c08af-6f6f-ac84-7c98-46529f96fefc@jsigle.com>
-Date:   Thu, 20 May 2021 16:05:51 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:52.0) Gecko/20100101
- Thunderbird/52.9.1
+        id S243493AbhETOHo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 10:07:44 -0400
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 110E011D4;
+        Thu, 20 May 2021 07:06:20 -0700 (PDT)
+Received: from C02TD0UTHF1T.local (unknown [10.57.7.235])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 917B53F73B;
+        Thu, 20 May 2021 07:06:18 -0700 (PDT)
+Date:   Thu, 20 May 2021 15:06:15 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        kernel-team@android.com, stable@vger.kernel.org,
+        Steven Price <steven.price@arm.com>
+Subject: Re: [PATCH] KVM: arm64: Prevent mixed-width VM creation
+Message-ID: <20210520140615.GH17233@C02TD0UTHF1T.local>
+References: <20210520122253.171545-1-maz@kernel.org>
+ <20210520124434.GD17233@C02TD0UTHF1T.local>
+ <87zgwptvcg.wl-maz@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <d3fa9eed-98bf-a137-5b0d-c6e992848f76@jsigle.com>
-Content-Type: multipart/mixed;
- boundary="------------A9B1CDA86F2D73F559CF7A21"
-Content-Language: de-DE-1901
-X-Con-Id: 102464
-X-Con-U: 0-joergsigle
-X-Originating-IP: 87.102.202.253
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <87zgwptvcg.wl-maz@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------A9B1CDA86F2D73F559CF7A21
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-
-From: Joerg M. Sigle <joerg.sigle@jsigle.com>
-
-Patch 416fa531c816 commit 416fa531c8160151090206a51b829b9218b804d9 caused
-an immediate kernel panic on boot at RIP: 0010:__domain_mapping+0xa7/0x3a0
-with longterm kernel 5.10.37 configured w/ CONFIG_INTEL_IOMMU_DEFAULT_ON=y
-due to removal of a check. Putting the check back in place fixes this.
-The kernel panic was observed on various Intel Core i7 i5 i3 CPUs from
-Sandy Bridge, Haswell, Broadwell and Kaby Lake generations (at least).
-It may NOT be reproducible on some older CPU generations.
-Suppressing the panic with boot parameter intel_iommu=off is diagnostic.
-See: https://bugzilla.kernel.org/show_bug.cgi?id=213077
-https://bugzilla.kernel.org/show_bug.cgi?id=213087
-https://bugzilla.kernel.org/show_bug.cgi?id=213095
-
-Signed-off-by: Joerg M. Sigle <joerg.sigle@jsigle.com>
-Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-
----
-
-Hi Greg, thanks for your response.
-
-> Are you sure that 5.10.38 doesn't already fix this issue?  We resolved
-> an issue in this area.
-
-Yes, I'm sure.
-
-Your a282b76166b13496967c70bd61ea8f03609d8a76 simply reverts the offending patch.
-My approach corrects it instead.
-
-I have submitted that properly before, don't know why it hasn't found you yet.
-
-I'm including the "proper" submission info above.
-The file with the patch is attached again again.
-
-If I should send it to another address, please tell me.
-
-Communication with Lu Baolu who saw it last Monday is also attached below.
-
-Hope this contribution is helpful. Thanks & kind regards! Joerg
-
-Am 20.05.2021 um 10:52 schrieb Greg KH:
-> On Thu, May 20, 2021 at 09:47:40AM +0200, Joerg M. Sigle wrote:
->> Dear colleaguse
->>
->> I've submitted a patch for 5.10.37 that wasn't included in 5.10.38,
->> which would have corrected a patch that has been reverted instead.
->>
->> More info:
->> https://bugzilla.kernel.org/show_bug.cgi?id=213077
->>
->> Now sending to the other kernel list, according to autoresponse
->> from Greg Kroah-Hartman.
->>
->> Thanks for any feedback & Kind regards, Joerg Sigle
+On Thu, May 20, 2021 at 01:58:55PM +0100, Marc Zyngier wrote:
+> On Thu, 20 May 2021 13:44:34 +0100,
+> Mark Rutland <mark.rutland@arm.com> wrote:
+> > 
+> > On Thu, May 20, 2021 at 01:22:53PM +0100, Marc Zyngier wrote:
+> > > It looks like we have tolerated creating mixed-width VMs since...
+> > > forever. However, that was never the intention, and we'd rather
+> > > not have to support that pointless complexity.
+> > > 
+> > > Forbid such a setup by making sure all the vcpus have the same
+> > > register width.
+> > > 
+> > > Reported-by: Steven Price <steven.price@arm.com>
+> > > Signed-off-by: Marc Zyngier <maz@kernel.org>
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >  arch/arm64/kvm/reset.c | 28 ++++++++++++++++++++++++----
+> > >  1 file changed, 24 insertions(+), 4 deletions(-)
+> > > 
+> > > diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+> > > index 956cdc240148..1cf308be6ef3 100644
+> > > --- a/arch/arm64/kvm/reset.c
+> > > +++ b/arch/arm64/kvm/reset.c
+> > > @@ -166,6 +166,25 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
+> > >  	return 0;
+> > >  }
+> > >  
+> > > +static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
+> > > +{
+> > > +	struct kvm_vcpu *tmp;
+> > > +	int i;
+> > > +
+> > > +	/* Check that the vcpus are either all 32bit or all 64bit */
+> > > +	kvm_for_each_vcpu(i, tmp, vcpu->kvm) {
+> > > +		bool w;
+> > > +
+> > > +		w  = test_bit(KVM_ARM_VCPU_EL1_32BIT, tmp->arch.features);
+> > > +		w ^= test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features);
+> > > +
+> > > +		if (w)
+> > > +			return false;
+> > > +	}
+> > 
+> > I think this is wrong for a single-cpu VM. In that case, the loop will
+> > have a single iteration, and tmp == vcpu, so w must be 0 regardless of
+> > the value of arch.features.
 > 
-> Are you sure that 5.10.38 doesn't already fix this issue?  We resolved
-> an issue in this area.
+> I don't immediately see what is wrong with a single-cpu VM. 'w' will
+> be zero indeed, and we'll return that this is allowed. After all, each
+> VM starts by being a single-CPU VM.
+
+Sorry; I should have been clearer. I had assumed that this was trying to
+rely on a difference across vcpus implicitly providing an equivalent of
+the removed check for the KVM_ARM_VCPU_EL1_32BIT cap. I guess from the
+below that was not the case. :)
+
+Thanks,
+Mark.
+
+> But of course...
 > 
-> And where is the patch, I can't find it in this email, can you submit it
-> "properly" so that it can be reviewed?
+> > IIUC that doesn't prevent KVM_ARM_VCPU_EL1_32BIT being set when we don't
+> > have the ARM64_HAS_32BIT_EL1 cap, unless that's checked elsewhere?
 > 
-> thanks,
+> ... I mistakenly removed the check against ARM64_HAS_32BIT_EL1...
 > 
-> greg k-h
+> > 
+> > How about something like:
+> > 
+> > | static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
+> > | {
+> > | 	bool is_32bit = vcpu_features_32bit(vcpu);
+> > | 	struct kvm_vcpu *tmp;
+> > | 	int i;
+> > | 
+> > | 	if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1) && is_32bit)
+> > | 		return false;
+> > | 
+> > | 	kvm_for_each_vcpu(i, tmp, vcpu->kvm) {
+> > | 		if (is_32bit != vcpu_features_32bit(tmp))
+> > | 			return false;
+> > | 	}
+> > | 
+> > | 	return true;
+> > | }
+> > 
+> > ... with a helper in <asm/kvm_emulate.h> like:
+> > 
+> > | static bool vcpu_features_32bit(struct kvm_vcpu *vcpu)
+> > | {
+> > | 	return test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features);
+> > | }
+> > 
+> > ... or
+> > 
+> > | static inline bool vcpu_has_feature(struct kvm_vcpu *vcpu, int feature)
+> > | {
+> > | 	return test_bit(feature, vcpu->arch.features);
+> > | }
+> > 
+> > ... so that we can avoid the line splitting required by the length of
+> > the test_bit() expression?
 > 
-
----
-
-Dear colleagues,
-
-Please find the suggested patch in the attachment, now reformatted to include the affected C function.
-It fixes a problem in LT kernel 5.10.37; I'm asking for inclusion into LT kernel 5.10.38.
-
-I'm submitting this now, after receiving Lu Baolu's positive response attached below.
-Baolu, I hope that the line "Acked-by: Lu Baolu ..." is ok given your comment.
-
-I hope I'm providing this in a useful way, following
-https://www.kernel.org/doc/html/v4.17/process/submitting-patches.html
-
-I'm still unsure whether this line should be added above:
-Cc: stable@vger.kernel.org
-Please add this if needed, also considering Baolu's comment re. upstream/backported.
-
-Thanks and kind regards to all! Joerg
-
-
-Am 17.05.2021 um 04:51 schrieb Lu Baolu:
-> Hi Joerg,
->
-> On 5/16/21 7:57 AM, Joerg M. Sigle wrote:
->> Dear colleagues at Intel
->>
->> could you please check the enclosed bug report
->> and confirm whether the suggested patch is valid.
->>
->> Thank you very much & kind regards - Joerg
->>
->>
->> -------- Weitergeleitete Nachricht --------
->> From: bugzilla-daemon@bugzilla.kernel.org
->> To: joerg.sigle@jsigle.com
->> Subject: [Bug 213077] Kernel 5.10.37 immediately panics at boot w/ Intel Core i7-4910MQ Haswell or Core i3-5010U Broadwell w/ custom .config CONFIG_INTEL_IOMMU_DEFAULT_ON=y, same config worked with 5.10.36, due to commit 416fa531c816 =
->> a8ce9ebbecdfda3322bbcece6b3b25888217f8e3
->> Date: Sat, 15 May 2021 23:47:39 +0000
->> X-Envelope-To: joerg.sigle@jsigle.com
->>
->> https://bugzilla.kernel.org/show_bug.cgi?id=213077
->>
->> --- Comment #7 from Joerg M. Sigle (joerg.sigle@jsigle.com) ---
->> This patch:
->>
->> 416fa531c816 iommu/vt-d: Preset Access/Dirty bits for IOVA over FL
->> commit 416fa531c8160151090206a51b829b9218b804d9
->> Upstream commit a8ce9ebbecdfda3322bbcece6b3b25888217f8e3
->>
->> https://github.com/arter97/x86-kernel/commit/416fa531c8160151090206a51b829b9218b804d9
->>
->> while doing other things, changed the conditional:
->>
->> if (!sg) { ...
->>          sg_res = nr_pages;
->>          pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
->> }
->>
->> to an unconditional:
->>
->> pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
->>
->> Reinserting the check for !sg fixed the immediate panic on boot for me.
->> Reverting the remainder of the same patch had not helped before.
->>
->> Here's a possible patch for 5.10.37:
->>
->> -------------------------------------------------------------------------
->> --- a/drivers/iommu/intel/iommu.c       2021-05-14 09:50:46.000000000 +0200
->> +++ b/drivers/iommu/intel/iommu.c       2021-05-16 01:02:17.816810690 +0200
->> @@ -2373,7 +2373,10 @@
->>                  }
->>          }
->>
->> -       pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
->> +        if (!sg) {
->> +                sg_res = nr_pages;
->> +                pteval = ((phys_addr_t)phys_pfn << VTD_PAGE_SHIFT) | attr;
->> +       }
->>
->>          while (nr_pages > 0) {
->>                  uint64_t tmp;
->> -------------------------------------------------------------------------
->>
->> Could you please check this patch submission and pass it to upstream?
->
->
-> Above fix looks good to me.
->
-> This issue is caused by the back-ported patch for stable v5.10.37.
-> There's no need for upstream.
->
-> Best regards,
-> baolu
->
->>
->> I have, however, NOT tried to understand what the code really does.
->> So please ask the suppliers of patch 416fa531c816 whether their
->> removal of the condition was intentional or a mere lapsus. Thanks!
->>
->> Thanks and kind regards, Joerg
->>
->
-
-
--- 
--------------------------------------------------------------------
-Dr. med. Jörg M. Sigle                             +41 76 276 86 94
-http://www.ql-recorder.com                         +41 32 510 23 46
-http://www.jsigle.com                           +49 176 96 43 54 13
-
-
---------------A9B1CDA86F2D73F559CF7A21
-Content-Type: text/plain; charset=UTF-8;
- name="patch-to-LinuxKernelLT5.10.37-iommuvtd-FixKernelPanicBy416fa531c816-202105160112js.txt"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
- filename*0="patch-to-LinuxKernelLT5.10.37-iommuvtd-FixKernelPanicBy416fa";
- filename*1="531c816-202105160112js.txt"
-
-LS0tIGEvZHJpdmVycy9pb21tdS9pbnRlbC9pb21tdS5jCTIwMjEtMDUtMTQgMDk6NTA6NDYu
-MDAwMDAwMDAwICswMjAwCisrKyBiL2RyaXZlcnMvaW9tbXUvaW50ZWwvaW9tbXUuYwkyMDIx
-LTA1LTE2IDAxOjAyOjE3LjgxNjgxMDY5MCArMDIwMApAQCAtMjM3Myw3ICsyMzczLDEwIEBA
-IHN0YXRpYyBpbnQgX19kb21haW5fbWFwcGluZyhzdHJ1Y3QgZG1hcl8KIAkJfQogCX0KIAot
-CXB0ZXZhbCA9ICgocGh5c19hZGRyX3QpcGh5c19wZm4gPDwgVlREX1BBR0VfU0hJRlQpIHwg
-YXR0cjsKKwlpZiAoIXNnKSB7CisgICAgICAgICAgICAgICAgc2dfcmVzID0gbnJfcGFnZXM7
-CisgICAgICAgICAgICAgICAgcHRldmFsID0gKChwaHlzX2FkZHJfdClwaHlzX3BmbiA8PCBW
-VERfUEFHRV9TSElGVCkgfCBhdHRyOworCX0KIAogCXdoaWxlIChucl9wYWdlcyA+IDApIHsK
-IAkJdWludDY0X3QgdG1wOwo=
---------------A9B1CDA86F2D73F559CF7A21--
+> Yup, looks OK to me (with a preference for the latter).
+> 
+> Thanks,
+> 
+> 	M.
+> 
+> -- 
+> Without deviation from the norm, progress is not possible.
