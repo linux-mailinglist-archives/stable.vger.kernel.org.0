@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFA9838A791
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1245538A963
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236711AbhETKkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:40:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
+        id S239308AbhETLBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237421AbhETKiN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:38:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8113613B0;
-        Thu, 20 May 2021 09:54:45 +0000 (UTC)
+        id S239544AbhETK7g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:59:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 313BE61D03;
+        Thu, 20 May 2021 10:02:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504486;
-        bh=Z+zOrTYRiag6oGcrAqPw3MpvSumXZNlYQGt3EfTHQTQ=;
+        s=korg; t=1621504978;
+        bh=gBf7JQuiMchMJMj27SI9YlCqZIKfXup9TmY+DS1xi7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nrfDMdUqRvvjXF85nfUtADKlzj+fL4c5k9c84TByUs4jv68eCcWv65/rugZYtza+R
-         YjjeSOzNJQtaIsblAIWfJ3LsMt4naZPx3c99pXS9H44qOerp942d5yoPj+C4xqrgWU
-         cyaClhsJw7jSMJSN13JOEsSSzjd041yXgra9gv44=
+        b=yopqikVFOOTbK4iFFKo2PgUhCDMl7PWJQJc5qnA8aVABvlrW/JUFh0IZVXlOflCU3
+         +BB4xgP3+zjG8E278u4RYKjhu15xNWklEWYr+cWCnJ0laYi7kfUy5dQINfuGK6Abkq
+         JYwJ1mUmB7BQTikW48fR/6no9L5xuAAhW+kH26Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
-        Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 267/323] rtc: ds1307: Fix wday settings for rx8130
+        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 167/240] sctp: delay auto_asconf init until binding the first addr
 Date:   Thu, 20 May 2021 11:22:39 +0200
-Message-Id: <20210520092129.368352627@linuxfoundation.org>
+Message-Id: <20210520092114.249703783@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
+commit 34e5b01186858b36c4d7c87e1a025071e8e2401f upstream.
 
-rx8130 wday specifies the bit position, not BCD.
+As Or Cohen described:
 
-Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
-Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
+  held and sp->do_auto_asconf is true, then an element is removed
+  from the auto_asconf_splist without any proper locking.
+
+  This can happen in the following functions:
+  1. In sctp_accept, if sctp_sock_migrate fails.
+  2. In inet_create or inet6_create, if there is a bpf program
+     attached to BPF_CGROUP_INET_SOCK_CREATE which denies
+     creation of the sctp socket.
+
+This patch is to fix it by moving the auto_asconf init out of
+sctp_init_sock(), by which inet_create()/inet6_create() won't
+need to operate it in sctp_destroy_sock() when calling
+sk_common_release().
+
+It also makes more sense to do auto_asconf init while binding the
+first addr, as auto_asconf actually requires an ANY addr bind,
+see it in sctp_addr_wq_timeout_handler().
+
+This addresses CVE-2021-23133.
+
+Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
+Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ net/sctp/socket.c |   31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
-index 8d45d93b1db6..19749ec87b24 100644
---- a/drivers/rtc/rtc-ds1307.c
-+++ b/drivers/rtc/rtc-ds1307.c
-@@ -417,7 +417,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
- 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
- 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
- 	t->tm_hour = bcd2bin(tmp);
--	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
-+	else
-+		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
- 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
- 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
- 	t->tm_mon = bcd2bin(tmp) - 1;
-@@ -465,7 +469,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
- 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
- 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
- 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
--	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
-+	/* rx8130 is bit position, not BCD */
-+	if (ds1307->type == rx_8130)
-+		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
-+	else
-+		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
- 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
- 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -367,6 +367,18 @@ static struct sctp_af *sctp_sockaddr_af(
+ 	return af;
+ }
  
--- 
-2.30.2
-
++static void sctp_auto_asconf_init(struct sctp_sock *sp)
++{
++	struct net *net = sock_net(&sp->inet.sk);
++
++	if (net->sctp.default_auto_asconf) {
++		spin_lock(&net->sctp.addr_wq_lock);
++		list_add_tail(&sp->auto_asconf_list, &net->sctp.auto_asconf_splist);
++		spin_unlock(&net->sctp.addr_wq_lock);
++		sp->do_auto_asconf = 1;
++	}
++}
++
+ /* Bind a local address either to an endpoint or to an association.  */
+ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
+ {
+@@ -429,8 +441,10 @@ static int sctp_do_bind(struct sock *sk,
+ 	}
+ 
+ 	/* Refresh ephemeral port.  */
+-	if (!bp->port)
++	if (!bp->port) {
+ 		bp->port = inet_sk(sk)->inet_num;
++		sctp_auto_asconf_init(sp);
++	}
+ 
+ 	/* Add the address to the bind address list.
+ 	 * Use GFP_ATOMIC since BHs will be disabled.
+@@ -4262,19 +4276,6 @@ static int sctp_init_sock(struct sock *s
+ 	sk_sockets_allocated_inc(sk);
+ 	sock_prot_inuse_add(net, sk->sk_prot, 1);
+ 
+-	/* Nothing can fail after this block, otherwise
+-	 * sctp_destroy_sock() will be called without addr_wq_lock held
+-	 */
+-	if (net->sctp.default_auto_asconf) {
+-		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
+-		list_add_tail(&sp->auto_asconf_list,
+-		    &net->sctp.auto_asconf_splist);
+-		sp->do_auto_asconf = 1;
+-		spin_unlock(&sock_net(sk)->sctp.addr_wq_lock);
+-	} else {
+-		sp->do_auto_asconf = 0;
+-	}
+-
+ 	local_bh_enable();
+ 
+ 	return 0;
+@@ -7817,6 +7818,8 @@ static void sctp_sock_migrate(struct soc
+ 	sctp_bind_addr_dup(&newsp->ep->base.bind_addr,
+ 				&oldsp->ep->base.bind_addr, GFP_KERNEL);
+ 
++	sctp_auto_asconf_init(newsp);
++
+ 	/* Move any messages in the old socket's receive queue that are for the
+ 	 * peeled off association to the new socket's receive queue.
+ 	 */
 
 
