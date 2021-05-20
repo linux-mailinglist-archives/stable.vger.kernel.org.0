@@ -2,153 +2,172 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85A8438AEEA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EBE538AF5E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239109AbhETMrp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 08:47:45 -0400
-Received: from foss.arm.com ([217.140.110.172]:50238 "EHLO foss.arm.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241464AbhETMqA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 08:46:00 -0400
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id DB16314FF;
-        Thu, 20 May 2021 05:44:38 -0700 (PDT)
-Received: from C02TD0UTHF1T.local (unknown [10.57.7.235])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 43FC83F73B;
-        Thu, 20 May 2021 05:44:37 -0700 (PDT)
-Date:   Thu, 20 May 2021 13:44:34 +0100
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
-        kernel-team@android.com, stable@vger.kernel.org,
-        Steven Price <steven.price@arm.com>
-Subject: Re: [PATCH] KVM: arm64: Prevent mixed-width VM creation
-Message-ID: <20210520124434.GD17233@C02TD0UTHF1T.local>
-References: <20210520122253.171545-1-maz@kernel.org>
+        id S241395AbhETNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 09:00:09 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:37054 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243069AbhETM57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:57:59 -0400
+Received: from mail-qk1-f199.google.com ([209.85.222.199])
+        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <krzysztof.kozlowski@canonical.com>)
+        id 1ljiE7-0005QB-LR
+        for stable@vger.kernel.org; Thu, 20 May 2021 12:56:35 +0000
+Received: by mail-qk1-f199.google.com with SMTP id e8-20020a05620a2088b02903a5edeec4d6so2091843qka.11
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 05:56:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=GTsCI7Ul4nDoQha4vSzhm2s0jP3aZ/M4QD8W/QCV/+0=;
+        b=JdHXNRaZ+VB523BsWlciwtn9yZjzlkz7etdkz5z543V+dyzhUdknlOPX7+qnhs5QN/
+         y6bcPfk2z0l/sntWsTg8pEldq/72TOB73/oW3k0zz+B6Qh7O5KMK/jZ9rpRtYCsUYp/z
+         Ja3iV7PVVVj0UCZ1q4TkYIXbqVbCZ6QfDXCjRpnoXby23Yjo6YgLfakFdRtahZhdixfD
+         4Eb4AyOMcb1CHIb3bJsid+qHTX//SfajfA8fYPnDheZUmQeAFGyJ7xltz0dxhu+BzZlM
+         cGTlk84vVNyFWTBZuJjbmRBT5psT2FuwUOOj+hOz2+HOzB/rGDKVja8TMvG943d+u5T0
+         C4ag==
+X-Gm-Message-State: AOAM530SW2xvIYUJEGcwZnj1RuH1jfa/NxIl8lm3D485IMTkbKHkW0FP
+        KvfH9J2hDanARYyOR0F+QPyYWz/mHXYqQwoJPuiPMkahFUXBVm2iiJO09ASkXuW2z+neY35N2bE
+        efrDXOAwi/VnHwwOHxxUpYdWsrl+PJgc8kA==
+X-Received: by 2002:a37:4697:: with SMTP id t145mr4889840qka.188.1621515394427;
+        Thu, 20 May 2021 05:56:34 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJzVA/A4t3ep/bU/SXqDGZuuLc1tdq3g7fGuJjWd5nWI06K1ldK6khe556QlVnqNuNVK+VNUrA==
+X-Received: by 2002:a37:4697:: with SMTP id t145mr4889807qka.188.1621515394226;
+        Thu, 20 May 2021 05:56:34 -0700 (PDT)
+Received: from localhost.localdomain ([45.237.48.3])
+        by smtp.gmail.com with ESMTPSA id g185sm1931471qkf.62.2021.05.20.05.56.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 May 2021 05:56:33 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     stable@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH stable v5.4+ 1/3] x86/kvm: Teardown PV features on boot CPU as well
+Date:   Thu, 20 May 2021 08:56:23 -0400
+Message-Id: <20210520125625.12566-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210520122253.171545-1-maz@kernel.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 20, 2021 at 01:22:53PM +0100, Marc Zyngier wrote:
-> It looks like we have tolerated creating mixed-width VMs since...
-> forever. However, that was never the intention, and we'd rather
-> not have to support that pointless complexity.
-> 
-> Forbid such a setup by making sure all the vcpus have the same
-> register width.
-> 
-> Reported-by: Steven Price <steven.price@arm.com>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Cc: stable@vger.kernel.org
-> ---
->  arch/arm64/kvm/reset.c | 28 ++++++++++++++++++++++++----
->  1 file changed, 24 insertions(+), 4 deletions(-)
-> 
-> diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
-> index 956cdc240148..1cf308be6ef3 100644
-> --- a/arch/arm64/kvm/reset.c
-> +++ b/arch/arm64/kvm/reset.c
-> @@ -166,6 +166,25 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
->  	return 0;
->  }
->  
-> +static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
-> +{
-> +	struct kvm_vcpu *tmp;
-> +	int i;
-> +
-> +	/* Check that the vcpus are either all 32bit or all 64bit */
-> +	kvm_for_each_vcpu(i, tmp, vcpu->kvm) {
-> +		bool w;
-> +
-> +		w  = test_bit(KVM_ARM_VCPU_EL1_32BIT, tmp->arch.features);
-> +		w ^= test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features);
-> +
-> +		if (w)
-> +			return false;
-> +	}
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-I think this is wrong for a single-cpu VM. In that case, the loop will
-have a single iteration, and tmp == vcpu, so w must be 0 regardless of
-the value of arch.features.
+commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
 
-IIUC that doesn't prevent KVM_ARM_VCPU_EL1_32BIT being set when we don't
-have the ARM64_HAS_32BIT_EL1 cap, unless that's checked elsewhere?
+Various PV features (Async PF, PV EOI, steal time) work through memory
+shared with hypervisor and when we restore from hibernation we must
+properly teardown all these features to make sure hypervisor doesn't
+write to stale locations after we jump to the previously hibernated kernel
+(which can try to place anything there). For secondary CPUs the job is
+already done by kvm_cpu_down_prepare(), register syscore ops to do
+the same for boot CPU.
 
-How about something like:
+Krzysztof:
+This fixes memory corruption visible after second resume from
+hibernation:
 
-| static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
-| {
-| 	bool is_32bit = vcpu_features_32bit(vcpu);
-| 	struct kvm_vcpu *tmp;
-| 	int i;
-| 
-| 	if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1) && is_32bit)
-| 		return false;
-| 
-| 	kvm_for_each_vcpu(i, tmp, vcpu->kvm) {
-| 		if (is_32bit != vcpu_features_32bit(tmp))
-| 			return false;
-| 	}
-| 
-| 	return true;
-| }
+  BUG: Bad page state in process dbus-daemon  pfn:18b01
+  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
 
-... with a helper in <asm/kvm_emulate.h> like:
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+[krzysztof: Extend the commit message]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
 
-| static bool vcpu_features_32bit(struct kvm_vcpu *vcpu)
-| {
-| 	return test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features);
-| }
+Backport to v5.4 seems reasonable. Might have sense to earlier versions,
+but this was not tested/investigated.
 
-... or
+ arch/x86/kernel/kvm.c | 32 ++++++++++++++++++++++++++++----
+ 1 file changed, 28 insertions(+), 4 deletions(-)
 
-| static inline bool vcpu_has_feature(struct kvm_vcpu *vcpu, int feature)
-| {
-| 	return test_bit(feature, vcpu->arch.features);
-| }
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index e820568ed4d5..6b906a651fb1 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -24,6 +24,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/nmi.h>
+ #include <linux/swait.h>
++#include <linux/syscore_ops.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -558,17 +559,21 @@ static void kvm_guest_cpu_offline(void)
+ 
+ static int kvm_cpu_online(unsigned int cpu)
+ {
+-	local_irq_disable();
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	kvm_guest_cpu_init();
+-	local_irq_enable();
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ 
+ static int kvm_cpu_down_prepare(unsigned int cpu)
+ {
+-	local_irq_disable();
++	unsigned long flags;
++
++	local_irq_save(flags);
+ 	kvm_guest_cpu_offline();
+-	local_irq_enable();
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ #endif
+@@ -606,6 +611,23 @@ static void kvm_flush_tlb_others(const struct cpumask *cpumask,
+ 	native_flush_tlb_others(flushmask, info);
+ }
+ 
++static int kvm_suspend(void)
++{
++	kvm_guest_cpu_offline();
++
++	return 0;
++}
++
++static void kvm_resume(void)
++{
++	kvm_cpu_online(raw_smp_processor_id());
++}
++
++static struct syscore_ops kvm_syscore_ops = {
++	.suspend	= kvm_suspend,
++	.resume		= kvm_resume,
++};
++
+ static void __init kvm_guest_init(void)
+ {
+ 	int i;
+@@ -649,6 +671,8 @@ static void __init kvm_guest_init(void)
+ 	kvm_guest_cpu_init();
+ #endif
+ 
++	register_syscore_ops(&kvm_syscore_ops);
++
+ 	/*
+ 	 * Hard lockup detection is enabled by default. Disable it, as guests
+ 	 * can get false positives too easily, for example if the host is
+-- 
+2.27.0
 
-... so that we can avoid the line splitting required by the length of
-the test_bit() expression?
-
-Thanks,
-Mark.
-
-> +
-> +	return true;
-> +}
-> +
->  /**
->   * kvm_reset_vcpu - sets core registers and sys_regs to reset value
->   * @vcpu: The VCPU pointer
-> @@ -217,13 +236,14 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
->  		}
->  	}
->  
-> +	if (!vcpu_allowed_register_width(vcpu)) {
-> +		ret = -EINVAL;
-> +		goto out;
-> +	}
-> +
->  	switch (vcpu->arch.target) {
->  	default:
->  		if (test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features)) {
-> -			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1)) {
-> -				ret = -EINVAL;
-> -				goto out;
-> -			}
->  			pstate = VCPU_RESET_PSTATE_SVC;
->  		} else {
->  			pstate = VCPU_RESET_PSTATE_EL1;
-> -- 
-> 2.30.2
-> 
-> _______________________________________________
-> kvmarm mailing list
-> kvmarm@lists.cs.columbia.edu
-> https://lists.cs.columbia.edu/mailman/listinfo/kvmarm
