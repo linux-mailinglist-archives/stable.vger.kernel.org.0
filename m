@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AC8438AAC7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:17:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6102438AAC4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240422AbhETLRR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:17:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
+        id S240518AbhETLRN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:17:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240657AbhETLPH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:15:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E23E61950;
-        Thu, 20 May 2021 10:08:52 +0000 (UTC)
+        id S240667AbhETLPI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:15:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4558561D5D;
+        Thu, 20 May 2021 10:08:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505333;
-        bh=ikUvAc2dvmrT59VybQQhYjoK9wTU9L4Bvf+kBTfqDcA=;
+        s=korg; t=1621505335;
+        bh=9F7GBg8iv9FcM4Ynvwy/14HuZRJPF7qdIdcjcDKQ/EQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcixy1jPv4sqhv+00m1zN8S8LYmaCNpU5kJcWDcm3GD8ddWbcLuiY2T7PTQco9gQv
-         ceM5JxC4GKdnEvXIlROlev8zjvBy+Jl1FU3w4Hqj8tP9I7kTEyLAqKlTmu70mHe76c
-         lgKJJR04hHg0/GB5sq4GRzMEWNvHSspboS+pEngg=
+        b=ZY1oZRXGp3RXVrVXvzcwPXVIILdqezMOFCjYc4FuH27t28bRPozWLPwxdslkB4np4
+         eml19KgiX2GyL6NGFPqHvHhBkgPPppyrGtoM2h7ubxtc7Oe+9Fa9STIWIHnM3Jt6tL
+         LkYdx5CSu4BFfUFyWAcWTSplt2SsN7OQR4PruqXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        stable@vger.kernel.org, Michael Walle <michael@walle.cc>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Richard Weinberger <richard@nod.at>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 088/190] fotg210-udc: Complete OUT requests on short packets
-Date:   Thu, 20 May 2021 11:22:32 +0200
-Message-Id: <20210520092105.107456554@linuxfoundation.org>
+Subject: [PATCH 4.4 089/190] mtd: require write permissions for locking and badblock ioctls
+Date:   Thu, 20 May 2021 11:22:33 +0200
+Message-Id: <20210520092105.143669910@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -39,45 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Michael Walle <michael@walle.cc>
 
-[ Upstream commit 75bb93be0027123b5db6cbcce89eb62f0f6b3c5b ]
+[ Upstream commit 1e97743fd180981bef5f01402342bb54bf1c6366 ]
 
-A short packet indicates the end of a transfer and marks the request as
-complete.
+MEMLOCK, MEMUNLOCK and OTPLOCK modify protection bits. Thus require
+write permission. Depending on the hardware MEMLOCK might even be
+write-once, e.g. for SPI-NOR flashes with their WP# tied to GND. OTPLOCK
+is always write-once.
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-8-fabian@ritter-vogt.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+MEMSETBADBLOCK modifies the bad block table.
+
+Fixes: f7e6b19bc764 ("mtd: properly check all write ioctls for permissions")
+Signed-off-by: Michael Walle <michael@walle.cc>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Acked-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210303155735.25887-1-michael@walle.cc
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/mtd/mtdchar.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index b2910bc65e51..9e102ba9cf66 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -856,12 +856,16 @@ static void fotg210_out_fifo_handler(struct fotg210_ep *ep)
- {
- 	struct fotg210_request *req = list_entry(ep->queue.next,
- 						 struct fotg210_request, queue);
-+	int disgr1 = ioread32(ep->fotg210->reg + FOTG210_DISGR1);
- 
- 	fotg210_start_dma(ep, req);
- 
--	/* finish out transfer */
-+	/* Complete the request when it's full or a short packet arrived.
-+	 * Like other drivers, short_not_ok isn't handled.
-+	 */
-+
- 	if (req->req.length == req->req.actual ||
--	    req->req.actual < ep->ep.maxpacket)
-+	    (disgr1 & DISGR1_SPK_INT(ep->epnum - 1)))
- 		fotg210_done(ep, req, 0);
- }
- 
+diff --git a/drivers/mtd/mtdchar.c b/drivers/mtd/mtdchar.c
+index ce87d9506f6a..0a2832782807 100644
+--- a/drivers/mtd/mtdchar.c
++++ b/drivers/mtd/mtdchar.c
+@@ -616,16 +616,12 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
+ 	case MEMGETINFO:
+ 	case MEMREADOOB:
+ 	case MEMREADOOB64:
+-	case MEMLOCK:
+-	case MEMUNLOCK:
+ 	case MEMISLOCKED:
+ 	case MEMGETOOBSEL:
+ 	case MEMGETBADBLOCK:
+-	case MEMSETBADBLOCK:
+ 	case OTPSELECT:
+ 	case OTPGETREGIONCOUNT:
+ 	case OTPGETREGIONINFO:
+-	case OTPLOCK:
+ 	case ECCGETLAYOUT:
+ 	case ECCGETSTATS:
+ 	case MTDFILEMODE:
+@@ -636,9 +632,13 @@ static int mtdchar_ioctl(struct file *file, u_int cmd, u_long arg)
+ 	/* "dangerous" commands */
+ 	case MEMERASE:
+ 	case MEMERASE64:
++	case MEMLOCK:
++	case MEMUNLOCK:
++	case MEMSETBADBLOCK:
+ 	case MEMWRITEOOB:
+ 	case MEMWRITEOOB64:
+ 	case MEMWRITE:
++	case OTPLOCK:
+ 		if (!(file->f_mode & FMODE_WRITE))
+ 			return -EPERM;
+ 		break;
 -- 
 2.30.2
 
