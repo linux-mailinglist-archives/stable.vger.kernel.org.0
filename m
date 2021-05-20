@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B38C38A6CC
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BE3238A870
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236580AbhETKac (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:30:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55262 "EHLO mail.kernel.org"
+        id S237445AbhETKvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236581AbhETK2s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E018B61C34;
-        Thu, 20 May 2021 09:51:07 +0000 (UTC)
+        id S238395AbhETKrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:47:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2C9D61CB1;
+        Thu, 20 May 2021 09:58:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504268;
-        bh=4Dh4ky47eesxA32whC6DU9UPEv4hl2aLNhlx19AD61s=;
+        s=korg; t=1621504701;
+        bh=RxSDs10Oqh684eg1f1HuD5natqgFviAlM902DsIm54o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u//g7pQ6TCfIyoumlHiYreD3/8m5kTkxi38CJ10MqqjU9K89/QmnW5Uhl7ox/Xv7Q
-         cYo0oXQ8VPnKxRr9Eyc5k6dB3luO6tluuy/UcrI9o6v2LdGuZ21JBkT6AIjtvHDRZf
-         KAJr2oAU453cgyCaVAHR8yok4rtYiZ9AxE/gdcUc=
+        b=Ioz0+7XO/9hfs81gg/zDGvLxZayXpiURaRPS9ikPBS6YDt1yUtc/T1noEmKKPXuA7
+         wxrWb24m+rc4sP5n9fBwM2FP9oZZhyJu9Zz4lO0RapbGFZDDp0Gpgqrtb1ZRzKrAMR
+         SNLFpc2GK7M097m06IpT36tkQWx8qsosdM7WClM0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.14 134/323] KVM: s390: split kvm_s390_logical_to_effective
+        stable@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+        "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 034/240] scsi: scsi_dh_alua: Remove check for ASC 24h in alua_rtpg()
 Date:   Thu, 20 May 2021 11:20:26 +0200
-Message-Id: <20210520092124.704650356@linuxfoundation.org>
+Message-Id: <20210520092109.803933039@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Ewan D. Milne <emilne@redhat.com>
 
-commit f85f1baaa18932a041fd2b1c2ca6cfd9898c7d2b upstream.
+[ Upstream commit bc3f2b42b70eb1b8576e753e7d0e117bbb674496 ]
 
-Split kvm_s390_logical_to_effective to a generic function called
-_kvm_s390_logical_to_effective. The new function takes a PSW and an address
-and returns the address with the appropriate bits masked off. The old
-function now calls the new function with the appropriate PSW from the vCPU.
+Some arrays return ILLEGAL_REQUEST with ASC 00h if they don't support the
+RTPG extended header so remove the check for INVALID FIELD IN CDB.
 
-This is needed to avoid code duplication for vSIE.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: stable@vger.kernel.org # for VSIE: correctly handle MVPG when in VSIE
-Link: https://lore.kernel.org/r/20210302174443.514363-2-imbrenda@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210331201154.20348-1-emilne@redhat.com
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/gaccess.h |   31 ++++++++++++++++++++++++-------
- 1 file changed, 24 insertions(+), 7 deletions(-)
+ drivers/scsi/device_handler/scsi_dh_alua.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -40,6 +40,29 @@ static inline unsigned long kvm_s390_rea
- }
- 
- /**
-+ * _kvm_s390_logical_to_effective - convert guest logical to effective address
-+ * @psw: psw of the guest
-+ * @ga: guest logical address
-+ *
-+ * Convert a guest logical address to an effective address by applying the
-+ * rules of the addressing mode defined by bits 31 and 32 of the given PSW
-+ * (extendended/basic addressing mode).
-+ *
-+ * Depending on the addressing mode, the upper 40 bits (24 bit addressing
-+ * mode), 33 bits (31 bit addressing mode) or no bits (64 bit addressing
-+ * mode) of @ga will be zeroed and the remaining bits will be returned.
-+ */
-+static inline unsigned long _kvm_s390_logical_to_effective(psw_t *psw,
-+							   unsigned long ga)
-+{
-+	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
-+		return ga;
-+	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
-+		return ga & ((1UL << 31) - 1);
-+	return ga & ((1UL << 24) - 1);
-+}
-+
-+/**
-  * kvm_s390_logical_to_effective - convert guest logical to effective address
-  * @vcpu: guest virtual cpu
-  * @ga: guest logical address
-@@ -55,13 +78,7 @@ static inline unsigned long kvm_s390_rea
- static inline unsigned long kvm_s390_logical_to_effective(struct kvm_vcpu *vcpu,
- 							  unsigned long ga)
- {
--	psw_t *psw = &vcpu->arch.sie_block->gpsw;
--
--	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_64BIT)
--		return ga;
--	if (psw_bits(*psw).eaba == PSW_BITS_AMODE_31BIT)
--		return ga & ((1UL << 31) - 1);
--	return ga & ((1UL << 24) - 1);
-+	return _kvm_s390_logical_to_effective(&vcpu->arch.sie_block->gpsw, ga);
- }
- 
- /*
+diff --git a/drivers/scsi/device_handler/scsi_dh_alua.c b/drivers/scsi/device_handler/scsi_dh_alua.c
+index 2bc3dc6244a5..dce885276235 100644
+--- a/drivers/scsi/device_handler/scsi_dh_alua.c
++++ b/drivers/scsi/device_handler/scsi_dh_alua.c
+@@ -564,10 +564,11 @@ static int alua_rtpg(struct scsi_device *sdev, struct alua_port_group *pg)
+ 		 * even though it shouldn't according to T10.
+ 		 * The retry without rtpg_ext_hdr_req set
+ 		 * handles this.
++		 * Note:  some arrays return a sense key of ILLEGAL_REQUEST
++		 * with ASC 00h if they don't support the extended header.
+ 		 */
+ 		if (!(pg->flags & ALUA_RTPG_EXT_HDR_UNSUPP) &&
+-		    sense_hdr.sense_key == ILLEGAL_REQUEST &&
+-		    sense_hdr.asc == 0x24 && sense_hdr.ascq == 0) {
++		    sense_hdr.sense_key == ILLEGAL_REQUEST) {
+ 			pg->flags |= ALUA_RTPG_EXT_HDR_UNSUPP;
+ 			goto retry;
+ 		}
+-- 
+2.30.2
+
 
 
