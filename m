@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC1F38AA37
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FAE338AA39
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239564AbhETLLI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:11:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
+        id S239062AbhETLLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:11:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239820AbhETLJF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:09:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E3BA60C41;
-        Thu, 20 May 2021 10:06:34 +0000 (UTC)
+        id S240147AbhETLJL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:09:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B7C961940;
+        Thu, 20 May 2021 10:06:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505194;
-        bh=oda4eqHRVFvsClBa5OXXc3KjLxo1xhYRA+i0CkL0TGM=;
+        s=korg; t=1621505196;
+        bh=y1KZOimxnzrONNjyUcvByZsk2dyLGwJrGm9ar+YMXgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtbNiTFFdk4ZZNdtiYZynugMLsXxcYAJVGxZlsZe1w9qh7Plrkl/HpKHBxknl64oU
-         5UHca8c5ZLboitwJuWvCpad8sq7NjClVYjx9a+FC/T4sQb9EeEh/ils7Qjk57vjKN5
-         U0CLkisxSPvii/KdEmuHLD+9cXebfQ4J7A/oW9A0=
+        b=MP/F9xv/8ETLjdQV/YX5HtQpO0NxF3hhKyHmHmGAQqpyhB11iAA0r5MMIoNkNX2d9
+         5P/ePAoZ/wycIJOWPuwYPe7D0qt18BtK1VS52Ur+Xcc6p5OOmafxHttUdkhgexocJZ
+         vDwzp1g8k4DG3Tj6AJmnDIzsqmCswLv5mXbqBbOg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mike Christie <michael.christie@oracle.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 024/190] scsi: target: pscsi: Fix warning in pscsi_complete_cmd()
-Date:   Thu, 20 May 2021 11:21:28 +0200
-Message-Id: <20210520092102.975931247@linuxfoundation.org>
+Subject: [PATCH 4.4 025/190] media: ite-cir: check for receive overflow
+Date:   Thu, 20 May 2021 11:21:29 +0200
+Message-Id: <20210520092103.007082724@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -43,41 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+From: Sean Young <sean@mess.org>
 
-[ Upstream commit fd48c056a32ed6e7754c7c475490f3bed54ed378 ]
+[ Upstream commit 28c7afb07ccfc0a939bb06ac1e7afe669901c65a ]
 
-This fixes a compilation warning in pscsi_complete_cmd():
+It's best if this condition is reported.
 
-     drivers/target/target_core_pscsi.c: In function ‘pscsi_complete_cmd’:
-     drivers/target/target_core_pscsi.c:624:5: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
-     ; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
-
-Link: https://lore.kernel.org/r/20210228055645.22253-5-chaitanya.kulkarni@wdc.com
-Reviewed-by: Mike Christie <michael.christie@oracle.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sean Young <sean@mess.org>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_pscsi.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/media/rc/ite-cir.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
-index d72a4058fd08..0ce3697ecbd7 100644
---- a/drivers/target/target_core_pscsi.c
-+++ b/drivers/target/target_core_pscsi.c
-@@ -629,8 +629,9 @@ static void pscsi_transport_complete(struct se_cmd *cmd, struct scatterlist *sg,
- 			unsigned char *buf;
+diff --git a/drivers/media/rc/ite-cir.c b/drivers/media/rc/ite-cir.c
+index 63165d324fff..7d3e50d94d86 100644
+--- a/drivers/media/rc/ite-cir.c
++++ b/drivers/media/rc/ite-cir.c
+@@ -292,8 +292,14 @@ static irqreturn_t ite_cir_isr(int irq, void *data)
+ 	/* read the interrupt flags */
+ 	iflags = dev->params.get_irq_causes(dev);
  
- 			buf = transport_kmap_data_sg(cmd);
--			if (!buf)
-+			if (!buf) {
- 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
-+			}
- 
- 			if (cdb[0] == MODE_SENSE_10) {
- 				if (!(buf[3] & 0x80))
++	/* Check for RX overflow */
++	if (iflags & ITE_IRQ_RX_FIFO_OVERRUN) {
++		dev_warn(&dev->rdev->dev, "receive overflow\n");
++		ir_raw_event_reset(dev->rdev);
++	}
++
+ 	/* check for the receive interrupt */
+-	if (iflags & (ITE_IRQ_RX_FIFO | ITE_IRQ_RX_FIFO_OVERRUN)) {
++	if (iflags & ITE_IRQ_RX_FIFO) {
+ 		/* read the FIFO bytes */
+ 		rx_bytes =
+ 			dev->params.get_rx_bytes(dev, rx_buf,
 -- 
 2.30.2
 
