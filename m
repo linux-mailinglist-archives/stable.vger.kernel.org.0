@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49DA338A9DB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE08F38AB05
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240096AbhETLG6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:06:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59276 "EHLO mail.kernel.org"
+        id S239326AbhETLUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240066AbhETLE5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:04:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A38A61D2D;
-        Thu, 20 May 2021 10:05:01 +0000 (UTC)
+        id S240245AbhETLRI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:17:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 731106194F;
+        Thu, 20 May 2021 10:09:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505101;
-        bh=8nAV+BLngu0fFs8EMp2agqkejTe7TnNMaP+QMkgtdMg=;
+        s=korg; t=1621505379;
+        bh=FJx9plFRkCLtY+h32Yo0G9TZRxeVfAmOVNZCVF8I4iE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y11zPp3XqymWg3kgZO4WVismNcxXOb91KUDK/ZvkZMsfQLk435k4BwB6+ecqeuLmZ
-         5Eu4sK/AaH1YDs4nlkyeDxfHDCQNMmAbue8z3ikCdUw0ZJmlIoCxPDFenD/3M99t+1
-         oK6NjYLaR+URsEvwFLcUl887iKTBXanQNcsQaTOI=
+        b=u5M1ZOx4ox613CpzI4ZlQp8XYqq8LK63Upv8eIfacGBvgCRwH5fGmhaqMyG3HBd1D
+         U8CuXGXGm/si5vA2hgp21BKzX+1S5BtdAWekxBI8iFddgoj/klgVL6m30FHKVGV5K7
+         ZFjRcENUmw5rX5YsJH3wo60YGpKE7yQ+DbcDxtFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Emmanuel Grumbach <emmanuel.grumbach@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 179/240] mac80211: clear the beacons CRC after channel switch
+Subject: [PATCH 4.4 107/190] scsi: sun3x_esp: Add IRQ check
 Date:   Thu, 20 May 2021 11:22:51 +0200
-Message-Id: <20210520092114.671665723@linuxfoundation.org>
+Message-Id: <20210520092105.731961553@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit d6843d1ee283137723b4a8c76244607ce6db1951 ]
+[ Upstream commit 14b321380eb333c82853d7d612d0995f05f88fdc ]
 
-After channel switch, we should consider any beacon with a
-CSA IE as a new switch. If the CSA IE is a leftover from
-before the switch that the AP forgot to remove, we'll get
-a CSA-to-Self.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding the real
+error code.  Stop calling request_irq() with the invalid IRQ #s.
 
-This caused issues in iwlwifi where the firmware saw a beacon
-with a CSA-to-Self with mode = 1 on the new channel after a
-switch. The firmware considered this a new switch and closed
-its queues. Since the beacon didn't change between before and
-after the switch, we wouldn't handle it (the CRC is the same)
-and we wouldn't let the firmware open its queues again or
-disconnect if the CSA IE stays for too long.
-
-Clear the CRC valid state after we switch to make sure that
-we handle the beacon and handle the CSA IE as required.
-
-Signed-off-by: Emmanuel Grumbach <emmanuel.grumbach@intel.com>
-Link: https://lore.kernel.org/r/20210408143124.b9e68aa98304.I465afb55ca2c7d59f7bf610c6046a1fd732b4c28@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Link: https://lore.kernel.org/r/363eb4c8-a3bf-4dc9-2a9e-90f349030a15@omprussia.ru
+Fixes: 0bb67f181834 ("[SCSI] sun3x_esp: convert to esp_scsi")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/mlme.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/scsi/sun3x_esp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/mac80211/mlme.c b/net/mac80211/mlme.c
-index 58b80270e58c..3217c98f2b5a 100644
---- a/net/mac80211/mlme.c
-+++ b/net/mac80211/mlme.c
-@@ -1101,6 +1101,11 @@ static void ieee80211_chswitch_post_beacon(struct ieee80211_sub_if_data *sdata)
+diff --git a/drivers/scsi/sun3x_esp.c b/drivers/scsi/sun3x_esp.c
+index d50c5ed8f428..167ae2d29e47 100644
+--- a/drivers/scsi/sun3x_esp.c
++++ b/drivers/scsi/sun3x_esp.c
+@@ -233,7 +233,9 @@ static int esp_sun3x_probe(struct platform_device *dev)
+ 	if (!esp->command_block)
+ 		goto fail_unmap_regs_dma;
  
- 	sdata->vif.csa_active = false;
- 	ifmgd->csa_waiting_bcn = false;
-+	/*
-+	 * If the CSA IE is still present on the beacon after the switch,
-+	 * we need to consider it as a new CSA (possibly to self).
-+	 */
-+	ifmgd->beacon_crc_valid = false;
- 
- 	ret = drv_post_channel_switch(sdata);
- 	if (ret) {
+-	host->irq = platform_get_irq(dev, 0);
++	host->irq = err = platform_get_irq(dev, 0);
++	if (err < 0)
++		goto fail_unmap_command_block;
+ 	err = request_irq(host->irq, scsi_esp_intr, IRQF_SHARED,
+ 			  "SUN3X ESP", esp);
+ 	if (err < 0)
 -- 
 2.30.2
 
