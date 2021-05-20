@@ -2,38 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 272CB38A0C4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:24:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC62238A0DE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231341AbhETJZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:25:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51974 "EHLO mail.kernel.org"
+        id S231756AbhETJ0g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52732 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230483AbhETJZ4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:25:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6142761244;
-        Thu, 20 May 2021 09:24:35 +0000 (UTC)
+        id S231667AbhETJ0V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C99216121E;
+        Thu, 20 May 2021 09:24:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502675;
-        bh=rxvVo1mbwg1haJLsBX/KuJjKQzseHj9hXv/3V3jLG9I=;
+        s=korg; t=1621502700;
+        bh=sPSfakmgnesZ82Y93DUvN1QdtL+qmeXs8YleoAHn0nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iotP1r2MvpU2qsfpqhKxLVy8J7mTIWi+eDhkw2+8HrXh91f6dXC+4pIYNNvaNudcV
-         O8AJDJ/8fAGqaiqL4XqL0uAqCzCD50IgPjt6toBFjG//bIzA12GsicBHjGxEoquLzu
-         q2511gKMmzblwnQKUWhwt411gCUSDan9vVS6W/iM=
+        b=IeT0QUIpWhrKqingzBPsHcVBAP65OWHlsMjWGImgpH3kbHApzccHCTNqBwNNY5ADv
+         spB1z13arB+vsdGTd10XF8NKVbMMlWtl6E92yd1OVeMxn0C1ZRzquGXvFNbCcwlwRV
+         WVvm3mtVLaL9w824bC7nDdnT7+pupnDVdjG5ISQ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 5.12 01/45] x86/msr: Fix wr/rdmsr_safe_regs_on_cpu() prototypes
-Date:   Thu, 20 May 2021 11:21:49 +0200
-Message-Id: <20210520092053.564432736@linuxfoundation.org>
+        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
+        Dave Airlie <airlied@redhat.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 02/45] drm/i915/display: fix compiler warning about array overrun
+Date:   Thu, 20 May 2021 11:21:50 +0200
+Message-Id: <20210520092053.593776689@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
 References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -41,48 +45,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-commit 396a66aa1172ef2b78c21651f59b40b87b2e5e1e upstream.
+commit fec4d42724a1bf3dcba52307e55375fdb967b852 upstream.
 
-gcc-11 warns about mismatched prototypes here:
+intel_dp_check_mst_status() uses a 14-byte array to read the DPRX Event
+Status Indicator data, but then passes that buffer at offset 10 off as
+an argument to drm_dp_channel_eq_ok().
 
-  arch/x86/lib/msr-smp.c:255:51: error: argument 2 of type ‘u32 *’ {aka ‘unsigned int *’} declared as a pointer [-Werror=array-parameter=]
-    255 | int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-        |                                              ~~~~~^~~~
-  arch/x86/include/asm/msr.h:347:50: note: previously declared as an array ‘u32[8]’ {aka ‘unsigned int[8]’}
+End result: there are only 4 bytes remaining of the buffer, yet
+drm_dp_channel_eq_ok() wants a 6-byte buffer.  gcc-11 correctly warns
+about this case:
 
-GCC is right here - fix up the types.
+  drivers/gpu/drm/i915/display/intel_dp.c: In function ‘intel_dp_check_mst_status’:
+  drivers/gpu/drm/i915/display/intel_dp.c:3491:22: warning: ‘drm_dp_channel_eq_ok’ reading 6 bytes from a region of size 4 [-Wstringop-overread]
+   3491 |                     !drm_dp_channel_eq_ok(&esi[10], intel_dp->lane_count)) {
+        |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  drivers/gpu/drm/i915/display/intel_dp.c:3491:22: note: referencing argument 1 of type ‘const u8 *’ {aka ‘const unsigned char *’}
+  In file included from drivers/gpu/drm/i915/display/intel_dp.c:38:
+  include/drm/drm_dp_helper.h:1466:6: note: in a call to function ‘drm_dp_channel_eq_ok’
+   1466 | bool drm_dp_channel_eq_ok(const u8 link_status[DP_LINK_STATUS_SIZE],
+        |      ^~~~~~~~~~~~~~~~~~~~
+       6:14 elapsed
 
-[ mingo: Twiddled the changelog. ]
+This commit just extends the original array by 2 zero-initialized bytes,
+avoiding the warning.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210322164541.912261-1-arnd@kernel.org
+There may be some underlying bug in here that caused this confusion, but
+this is at least no worse than the existing situation that could use
+random data off the stack.
+
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/lib/msr-smp.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c |   13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
---- a/arch/x86/lib/msr-smp.c
-+++ b/arch/x86/lib/msr-smp.c
-@@ -252,7 +252,7 @@ static void __wrmsr_safe_regs_on_cpu(voi
- 	rv->err = wrmsr_safe_regs(rv->regs);
- }
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -4488,7 +4488,18 @@ intel_dp_check_mst_status(struct intel_d
+ 	drm_WARN_ON_ONCE(&i915->drm, intel_dp->active_mst_links < 0);
  
--int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-+int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8])
- {
- 	int err;
- 	struct msr_regs_info rv;
-@@ -265,7 +265,7 @@ int rdmsr_safe_regs_on_cpu(unsigned int
- }
- EXPORT_SYMBOL(rdmsr_safe_regs_on_cpu);
+ 	for (;;) {
+-		u8 esi[DP_DPRX_ESI_LEN] = {};
++		/*
++		 * The +2 is because DP_DPRX_ESI_LEN is 14, but we then
++		 * pass in "esi+10" to drm_dp_channel_eq_ok(), which
++		 * takes a 6-byte array. So we actually need 16 bytes
++		 * here.
++		 *
++		 * Somebody who knows what the limits actually are
++		 * should check this, but for now this is at least
++		 * harmless and avoids a valid compiler warning about
++		 * using more of the array than we have allocated.
++		 */
++		u8 esi[DP_DPRX_ESI_LEN+2] = {};
+ 		bool handled;
+ 		int retry;
  
--int wrmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-+int wrmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8])
- {
- 	int err;
- 	struct msr_regs_info rv;
 
 
