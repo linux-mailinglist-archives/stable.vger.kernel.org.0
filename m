@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9933A38AA26
+	by mail.lfdr.de (Postfix) with ESMTP id E29CE38AA27
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239661AbhETLKg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
+        id S238427AbhETLKi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238649AbhETLIA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:08:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 61AF96192F;
-        Thu, 20 May 2021 10:06:03 +0000 (UTC)
+        id S239329AbhETLIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:08:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D41660200;
+        Thu, 20 May 2021 10:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505163;
-        bh=aGCiKD8jMTlWxqXODhGkIoo9kGtODsFpxsEENlJTFqo=;
+        s=korg; t=1621505166;
+        bh=A5inPiDro2dmLvOCGI1sSMAgCihZAUQs94S2G83GUg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=egHucys+G38tFdLlR4D9K5IdTtPAWmmehIzMB+NePJ8NFaLzl3bItUDYeejvRRYbb
-         eLzEFLpZjryCFHT8NbZIj5JqyVyRYbGrmiqyJB9OAYqy7gs7wOjxrng/f6IoYxr33X
-         Mq3pZl33ykSYeN14rBeUIH5U8W67P9amEgy2EsE0=
+        b=ccSMp79x4zO7RysLwFL8/4aIwlAQ0SYk+uiSrt/d3Hh6xeSL+GCgmMam+oLMxnPp9
+         Q81yoZzPNT2/vJ9fGCJbmPzh2PNgvygume4JGb2XRPhDUbgNujD5k2hTapoS6VFSGJ
+         qG4LTI6+gZDPCAhEz5mdZZrm2LWOw/xHLTyfX+Z4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jeffrey Mitchell <jeffrey.mitchell@starlab.io>,
-        Tyler Hicks <code@tyhicks.com>
-Subject: [PATCH 4.4 011/190] ecryptfs: fix kernel panic with null dev_name
-Date:   Thu, 20 May 2021 11:21:15 +0200
-Message-Id: <20210520092102.549817450@linuxfoundation.org>
+        stable@vger.kernel.org, DooHyun Hwang <dh0421.hwang@samsung.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 4.4 012/190] mmc: core: Do a power cycle when the CMD11 fails
+Date:   Thu, 20 May 2021 11:21:16 +0200
+Message-Id: <20210520092102.581769861@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -40,40 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
+From: DooHyun Hwang <dh0421.hwang@samsung.com>
 
-commit 9046625511ad8dfbc8c6c2de16b3532c43d68d48 upstream.
+commit 147186f531ae49c18b7a9091a2c40e83b3d95649 upstream.
 
-When mounting eCryptfs, a null "dev_name" argument to ecryptfs_mount()
-causes a kernel panic if the parsed options are valid. The easiest way to
-reproduce this is to call mount() from userspace with an existing
-eCryptfs mount's options and a "source" argument of 0.
+A CMD11 is sent to the SD/SDIO card to start the voltage switch procedure
+into 1.8V I/O. According to the SD spec a power cycle is needed of the
+card, if it turns out that the CMD11 fails. Let's fix this, to allow a
+retry of the initialization without the voltage switch, to succeed.
 
-Error out if "dev_name" is null in ecryptfs_mount()
+Note that, whether it makes sense to also retry with the voltage switch
+after the power cycle is a bit more difficult to know. At this point, we
+treat it like the CMD11 isn't supported and therefore we skip it when
+retrying.
 
-Fixes: 237fead61998 ("[PATCH] ecryptfs: fs/Makefile and fs/Kconfig")
+Signed-off-by: DooHyun Hwang <dh0421.hwang@samsung.com>
+Link: https://lore.kernel.org/r/20210210045936.7809-1-dh0421.hwang@samsung.com
 Cc: stable@vger.kernel.org
-Signed-off-by: Jeffrey Mitchell <jeffrey.mitchell@starlab.io>
-Signed-off-by: Tyler Hicks <code@tyhicks.com>
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ecryptfs/main.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/mmc/core/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ecryptfs/main.c
-+++ b/fs/ecryptfs/main.c
-@@ -507,6 +507,12 @@ static struct dentry *ecryptfs_mount(str
- 		goto out;
- 	}
+--- a/drivers/mmc/core/core.c
++++ b/drivers/mmc/core/core.c
+@@ -1593,7 +1593,7 @@ int mmc_set_signal_voltage(struct mmc_ho
  
-+	if (!dev_name) {
-+		rc = -EINVAL;
-+		err = "Device name cannot be null";
-+		goto out;
-+	}
-+
- 	rc = ecryptfs_parse_options(sbi, raw_data, &check_ruid);
- 	if (rc) {
- 		err = "Error parsing options";
+ 	err = mmc_wait_for_cmd(host, &cmd, 0);
+ 	if (err)
+-		return err;
++		goto power_cycle;
+ 
+ 	if (!mmc_host_is_spi(host) && (cmd.resp[0] & R1_ERROR))
+ 		return -EIO;
 
 
