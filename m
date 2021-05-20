@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 903A238A24A
+	by mail.lfdr.de (Postfix) with ESMTP id D980638A24B
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbhETJkY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:40:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41292 "EHLO mail.kernel.org"
+        id S233131AbhETJk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:40:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41294 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231513AbhETJip (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:38:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A97E6141C;
-        Thu, 20 May 2021 09:30:52 +0000 (UTC)
+        id S233241AbhETJiq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:38:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A367613D6;
+        Thu, 20 May 2021 09:30:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503053;
-        bh=9m8i2hDsaKJLlIMzMD1ZAvL1znc/2jK0+OLLzrbpAQE=;
+        s=korg; t=1621503055;
+        bh=71XwmiYEqE86phbVMEykCV8hy+dESJ4c8+LHyZEaTs8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HB4bDLoT2EhA1c7lteYZoJUk6APim4X6NdrTiUswWOg1vVEF+9BMY3EE6CnvH8BkH
-         qO3rL9aRW8cNlmCgjtkn79ZSxE4o9L/AeOKhjHlHRC49gtQ44W0RUXuzBCbSbW/VKl
-         jrKQF/XBLb9xXY+l9H9KY8E1xTR4QWFclqfx4ESw=
+        b=OnTjSkAetsfFQcEgDN3MNrElOXPmNOKBa23KveYWxhRlIei+asPomQvGaP2YR5GlZ
+         DCNNy8/ZJnDctef2d4w07vfcM7GLSprpYKlAu0cdp48tuFrMQUQk6WrASRib9ml1ZD
+         gSz+GpCuwaNIXIlvG4PV9IdUJ53bDNpUjYKCLGAs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Lee Jones <lee.jones@linaro.org>,
+        stable@vger.kernel.org, Daniel Niv <danielniv3@gmail.com>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 048/425] extcon: arizona: Fix some issues when HPDET IRQ fires after the jack has been unplugged
-Date:   Thu, 20 May 2021 11:16:57 +0200
-Message-Id: <20210520092133.005378736@linuxfoundation.org>
+Subject: [PATCH 4.19 049/425] media: media/saa7164: fix saa7164_encoder_register() memory leak bugs
+Date:   Thu, 20 May 2021 11:16:58 +0200
+Message-Id: <20210520092133.042908459@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -43,93 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Daniel Niv <danielniv3@gmail.com>
 
-[ Upstream commit c309a3e8793f7e01c4a4ec7960658380572cb576 ]
+[ Upstream commit c759b2970c561e3b56aa030deb13db104262adfe ]
 
-When the jack is partially inserted and then removed again it may be
-removed while the hpdet code is running. In this case the following
-may happen:
+Add a fix for the memory leak bugs that can occur when the
+saa7164_encoder_register() function fails.
+The function allocates memory without explicitly freeing
+it when errors occur.
+Add a better error handling that deallocate the unused buffers before the
+function exits during a fail.
 
-1. The "JACKDET rise" or ""JACKDET fall" IRQ triggers
-2. arizona_jackdet runs and takes info->lock
-3. The "HPDET" IRQ triggers
-4. arizona_hpdet_irq runs, blocks on info->lock
-5. arizona_jackdet calls arizona_stop_mic() and clears info->hpdet_done
-6. arizona_jackdet releases info->lock
-7. arizona_hpdet_irq now can continue running and:
-7.1 Calls arizona_start_mic() (if a mic was detected)
-7.2 sets info->hpdet_done
-
-Step 7 is undesirable / a bug:
-7.1 causes the device to stay in a high power-state (with MICVDD enabled)
-7.2 causes hpdet to not run on the next jack insertion, which in turn
-    causes the EXTCON_JACK_HEADPHONE state to never get set
-
-This fixes both issues by skipping these 2 steps when arizona_hpdet_irq
-runs after the jack has been unplugged.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Tested-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Acked-by: Chanwoo Choi <cw00.choi@samsung.com>
-Signed-off-by: Lee Jones <lee.jones@linaro.org>
+Signed-off-by: Daniel Niv <danielniv3@gmail.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/extcon/extcon-arizona.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/media/pci/saa7164/saa7164-encoder.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/extcon/extcon-arizona.c b/drivers/extcon/extcon-arizona.c
-index 9327479c719c..c857120c00d9 100644
---- a/drivers/extcon/extcon-arizona.c
-+++ b/drivers/extcon/extcon-arizona.c
-@@ -602,7 +602,7 @@ static irqreturn_t arizona_hpdet_irq(int irq, void *data)
- 	struct arizona *arizona = info->arizona;
- 	int id_gpio = arizona->pdata.hpdet_id_gpio;
- 	unsigned int report = EXTCON_JACK_HEADPHONE;
--	int ret, reading;
-+	int ret, reading, state;
- 	bool mic = false;
- 
- 	mutex_lock(&info->lock);
-@@ -615,12 +615,11 @@ static irqreturn_t arizona_hpdet_irq(int irq, void *data)
+diff --git a/drivers/media/pci/saa7164/saa7164-encoder.c b/drivers/media/pci/saa7164/saa7164-encoder.c
+index 32136ebe4f61..962f8eb73b05 100644
+--- a/drivers/media/pci/saa7164/saa7164-encoder.c
++++ b/drivers/media/pci/saa7164/saa7164-encoder.c
+@@ -1024,7 +1024,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 		printk(KERN_ERR "%s() failed (errno = %d), NO PCI configuration\n",
+ 			__func__, result);
+ 		result = -ENOMEM;
+-		goto failed;
++		goto fail_pci;
  	}
  
- 	/* If the cable was removed while measuring ignore the result */
--	ret = extcon_get_state(info->edev, EXTCON_MECHANICAL);
--	if (ret < 0) {
--		dev_err(arizona->dev, "Failed to check cable state: %d\n",
--			ret);
-+	state = extcon_get_state(info->edev, EXTCON_MECHANICAL);
-+	if (state < 0) {
-+		dev_err(arizona->dev, "Failed to check cable state: %d\n", state);
- 		goto out;
--	} else if (!ret) {
-+	} else if (!state) {
- 		dev_dbg(arizona->dev, "Ignoring HPDET for removed cable\n");
- 		goto done;
- 	}
-@@ -673,7 +672,7 @@ done:
- 			   ARIZONA_ACCDET_MODE_MASK, ARIZONA_ACCDET_MODE_MIC);
- 
- 	/* If we have a mic then reenable MICDET */
--	if (mic || info->mic)
-+	if (state && (mic || info->mic))
- 		arizona_start_mic(info);
- 
- 	if (info->hpdet_active) {
-@@ -681,7 +680,9 @@ done:
- 		info->hpdet_active = false;
+ 	/* Establish encoder defaults here */
+@@ -1078,7 +1078,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 			  100000, ENCODER_DEF_BITRATE);
+ 	if (hdl->error) {
+ 		result = hdl->error;
+-		goto failed;
++		goto fail_hdl;
  	}
  
--	info->hpdet_done = true;
-+	/* Do not set hp_det done when the cable has been unplugged */
-+	if (state)
-+		info->hpdet_done = true;
+ 	port->std = V4L2_STD_NTSC_M;
+@@ -1096,7 +1096,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 		printk(KERN_INFO "%s: can't allocate mpeg device\n",
+ 			dev->name);
+ 		result = -ENOMEM;
+-		goto failed;
++		goto fail_hdl;
+ 	}
  
- out:
- 	mutex_unlock(&info->lock);
+ 	port->v4l_device->ctrl_handler = hdl;
+@@ -1107,10 +1107,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 	if (result < 0) {
+ 		printk(KERN_INFO "%s: can't register mpeg device\n",
+ 			dev->name);
+-		/* TODO: We're going to leak here if we don't dealloc
+-		 The buffers above. The unreg function can't deal wit it.
+-		*/
+-		goto failed;
++		goto fail_reg;
+ 	}
+ 
+ 	printk(KERN_INFO "%s: registered device video%d [mpeg]\n",
+@@ -1132,9 +1129,14 @@ int saa7164_encoder_register(struct saa7164_port *port)
+ 
+ 	saa7164_api_set_encoder(port);
+ 	saa7164_api_get_encoder(port);
++	return 0;
+ 
+-	result = 0;
+-failed:
++fail_reg:
++	video_device_release(port->v4l_device);
++	port->v4l_device = NULL;
++fail_hdl:
++	v4l2_ctrl_handler_free(hdl);
++fail_pci:
+ 	return result;
+ }
+ 
 -- 
 2.30.2
 
