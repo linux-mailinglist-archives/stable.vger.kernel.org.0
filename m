@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B7D938A4E1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 231C038A4DF
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:09:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235049AbhETKK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:10:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42276 "EHLO mail.kernel.org"
+        id S234852AbhETKKX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:10:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235663AbhETKHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235669AbhETKHZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95587613CA;
-        Thu, 20 May 2021 09:41:40 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C50D861428;
+        Thu, 20 May 2021 09:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503701;
-        bh=nNUIKOtOdN/94SchlFzWSoxeDMp8+TNm7vFVQLQC7j4=;
+        s=korg; t=1621503703;
+        bh=YW47w+0iF8U084Kqnf+Fszc1K6VXKhqvgFO+TLTLQvk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DTtpNmJkttT5HYS74F1LDldz4WB7r0dRVlnM1W5AFUvYe6Xj+OcdqPafOuoUvZKdA
-         pnnEax15UiNXUbsvsdhWJIUjcXUuoBRzMPt8O//L+OLOeObiQy553Rz4Uvgdcn0Agu
-         gyOZyr/9kxLOmw75c2/L8CJLKq7nWIakezkgXEOI=
+        b=iWygxHmEoBdBgQ35zk7CjCUG8Kjtm+kOSEziPhHjd7NK1opOA05PYnJk1bKwma7Ov
+         hbFv8ChSbKB06Yaq+40lIuHzARrDfzsaSIVztOjCcshe8yDt5BJ/B/wG5SDfwQBo9Z
+         30rFsuXm1TlKPl6SzRDWSjlyspDoOhln/tSApa5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        stable@vger.kernel.org, Nikola Livic <nlivic@gmail.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 341/425] PCI: endpoint: Fix missing destroy_workqueue()
-Date:   Thu, 20 May 2021 11:21:50 +0200
-Message-Id: <20210520092142.623541747@linuxfoundation.org>
+Subject: [PATCH 4.19 342/425] pNFS/flexfiles: fix incorrect size check in decode_nfs_fh()
+Date:   Thu, 20 May 2021 11:21:51 +0200
+Message-Id: <20210520092142.655278309@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,45 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Nikola Livic <nlivic@gmail.com>
 
-[ Upstream commit acaef7981a218813e3617edb9c01837808de063c ]
+[ Upstream commit ed34695e15aba74f45247f1ee2cf7e09d449f925 ]
 
-Add the missing destroy_workqueue() before return from
-pci_epf_test_init() in the error handling case and add
-destroy_workqueue() in pci_epf_test_exit().
+We (adam zabrocki, alexander matrosov, alexander tereshkin, maksym
+bazalii) observed the check:
 
-Link: https://lore.kernel.org/r/20210331084012.2091010-1-yangyingliang@huawei.com
-Fixes: 349e7a85b25fa ("PCI: endpoint: functions: Add an EP function to test PCI")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+	if (fh->size > sizeof(struct nfs_fh))
+
+should not use the size of the nfs_fh struct which includes an extra two
+bytes from the size field.
+
+struct nfs_fh {
+	unsigned short         size;
+	unsigned char          data[NFS_MAXFHSIZE];
+}
+
+but should determine the size from data[NFS_MAXFHSIZE] so the memcpy
+will not write 2 bytes beyond destination.  The proposed fix is to
+compare against the NFS_MAXFHSIZE directly, as is done elsewhere in fs
+code base.
+
+Fixes: d67ae825a59d ("pnfs/flexfiles: Add the FlexFile Layout Driver")
+Signed-off-by: Nikola Livic <nlivic@gmail.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/endpoint/functions/pci-epf-test.c | 3 +++
- 1 file changed, 3 insertions(+)
+ fs/nfs/flexfilelayout/flexfilelayout.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/endpoint/functions/pci-epf-test.c b/drivers/pci/endpoint/functions/pci-epf-test.c
-index 4bbd26e8a9e2..09a1e449cd1c 100644
---- a/drivers/pci/endpoint/functions/pci-epf-test.c
-+++ b/drivers/pci/endpoint/functions/pci-epf-test.c
-@@ -572,6 +572,7 @@ static int __init pci_epf_test_init(void)
- 					     WQ_MEM_RECLAIM | WQ_HIGHPRI, 0);
- 	ret = pci_epf_register_driver(&test_driver);
- 	if (ret) {
-+		destroy_workqueue(kpcitest_workqueue);
- 		pr_err("Failed to register pci epf test driver --> %d\n", ret);
- 		return ret;
- 	}
-@@ -582,6 +583,8 @@ module_init(pci_epf_test_init);
- 
- static void __exit pci_epf_test_exit(void)
- {
-+	if (kpcitest_workqueue)
-+		destroy_workqueue(kpcitest_workqueue);
- 	pci_epf_unregister_driver(&test_driver);
- }
- module_exit(pci_epf_test_exit);
+diff --git a/fs/nfs/flexfilelayout/flexfilelayout.c b/fs/nfs/flexfilelayout/flexfilelayout.c
+index d8cba46a9395..fee421da2197 100644
+--- a/fs/nfs/flexfilelayout/flexfilelayout.c
++++ b/fs/nfs/flexfilelayout/flexfilelayout.c
+@@ -101,7 +101,7 @@ static int decode_nfs_fh(struct xdr_stream *xdr, struct nfs_fh *fh)
+ 	if (unlikely(!p))
+ 		return -ENOBUFS;
+ 	fh->size = be32_to_cpup(p++);
+-	if (fh->size > sizeof(struct nfs_fh)) {
++	if (fh->size > NFS_MAXFHSIZE) {
+ 		printk(KERN_ERR "NFS flexfiles: Too big fh received %d\n",
+ 		       fh->size);
+ 		return -EOVERFLOW;
 -- 
 2.30.2
 
