@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABD8F38A8E8
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:54:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26CDB38A710
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238588AbhETKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53054 "EHLO mail.kernel.org"
+        id S236086AbhETKds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238531AbhETKwr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BDEB561876;
-        Thu, 20 May 2021 10:00:30 +0000 (UTC)
+        id S237323AbhETKbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37A5B61C49;
+        Thu, 20 May 2021 09:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504831;
-        bh=utB81Tu5o0FGhvkrJTwDv5ReOSB+x+BN7TURfsh8vN8=;
+        s=korg; t=1621504338;
+        bh=2GY01OsC7VGukOUeNRc8K8i7wEp992UsqrzLthKnV/Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n1RMH+2GqCzm4glVaAMdZuMofCNobaKJ2XzI/aONLFYih/3M5Xq7AXQVOjDDhea8U
-         RTr8AS2Aa9+nbZFRCgO6WyxPGBBb6+opf+4KlEOdHdpozGXbPL/WIwFDUI2Ao5omNX
-         uL3JWMjDfRO8S2iQm5AuY7A73YwjyO8smhYVAH/c=
+        b=dLc5fr1K7vgEdVooW4vG8V2A0FKq0farzRZ7yIg0ZTs0oRcGh3FWnUFwyhB91sOJY
+         q1+zc9wj3zo7JitnP2Ha8q7yO3aXJ6qip6ZMiKuUqIwPKPRLbc+wuHdDAJV18nyVu3
+         vyBRdDvxW7cN1LMIX9B/Vl9YepB/hhK5RHu6T/AM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Chen Huang <chenhuang5@huawei.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 099/240] crypto: qat - dont release uninitialized resources
+Subject: [PATCH 4.14 199/323] powerpc: Fix HAVE_HARDLOCKUP_DETECTOR_ARCH build configuration
 Date:   Thu, 20 May 2021 11:21:31 +0200
-Message-Id: <20210520092112.016439519@linuxfoundation.org>
+Message-Id: <20210520092126.942607998@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,66 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Chen Huang <chenhuang5@huawei.com>
 
-[ Upstream commit b66accaab3791e15ac99c92f236d0d3a6d5bd64e ]
+[ Upstream commit 4fe529449d85e78972fa327999961ecc83a0b6db ]
 
-adf_vf_isr_resource_alloc() is not unwinding correctly when error
-happens and it want to release uninitialized resources.
-To fix this, only release initialized resources.
+When compiling the powerpc with the SMP disabled, it shows the issue:
 
-[    1.792845] Trying to free already-free IRQ 11
-[    1.793091] WARNING: CPU: 0 PID: 182 at kernel/irq/manage.c:1821 free_irq+0x202/0x380
-[    1.801340] Call Trace:
-[    1.801477]  adf_vf_isr_resource_free+0x32/0xb0 [intel_qat]
-[    1.801785]  adf_vf_isr_resource_alloc+0x14d/0x150 [intel_qat]
-[    1.802105]  adf_dev_init+0xba/0x140 [intel_qat]
+arch/powerpc/kernel/watchdog.c: In function ‘watchdog_smp_panic’:
+arch/powerpc/kernel/watchdog.c:177:4: error: implicit declaration of function ‘smp_send_nmi_ipi’; did you mean ‘smp_send_stop’? [-Werror=implicit-function-declaration]
+  177 |    smp_send_nmi_ipi(c, wd_lockup_ipi, 1000000);
+      |    ^~~~~~~~~~~~~~~~
+      |    smp_send_stop
+cc1: all warnings being treated as errors
+make[2]: *** [scripts/Makefile.build:273: arch/powerpc/kernel/watchdog.o] Error 1
+make[1]: *** [scripts/Makefile.build:534: arch/powerpc/kernel] Error 2
+make: *** [Makefile:1980: arch/powerpc] Error 2
+make: *** Waiting for unfinished jobs....
 
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Fixes: dd0f368398ea ("crypto: qat - Add qat dh895xcc VF driver")
-Acked-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+We found that powerpc used ipi to implement hardlockup watchdog, so the
+HAVE_HARDLOCKUP_DETECTOR_ARCH should depend on the SMP.
+
+Fixes: 2104180a5369 ("powerpc/64s: implement arch-specific hardlockup watchdog")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210327094900.938555-1-chenhuang5@huawei.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_vf_isr.c | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ arch/powerpc/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-index bf99e11a3403..4c1217ba83ae 100644
---- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
-@@ -304,17 +304,26 @@ int adf_vf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
- 		goto err_out;
- 
- 	if (adf_setup_pf2vf_bh(accel_dev))
--		goto err_out;
-+		goto err_disable_msi;
- 
- 	if (adf_setup_bh(accel_dev))
--		goto err_out;
-+		goto err_cleanup_pf2vf_bh;
- 
- 	if (adf_request_msi_irq(accel_dev))
--		goto err_out;
-+		goto err_cleanup_bh;
- 
- 	return 0;
-+
-+err_cleanup_bh:
-+	adf_cleanup_bh(accel_dev);
-+
-+err_cleanup_pf2vf_bh:
-+	adf_cleanup_pf2vf_bh(accel_dev);
-+
-+err_disable_msi:
-+	adf_disable_msi(accel_dev);
-+
- err_out:
--	adf_vf_isr_resource_free(accel_dev);
- 	return -EFAULT;
- }
- EXPORT_SYMBOL_GPL(adf_vf_isr_resource_alloc);
+diff --git a/arch/powerpc/Kconfig b/arch/powerpc/Kconfig
+index fff11a5bb805..3fcfa8534156 100644
+--- a/arch/powerpc/Kconfig
++++ b/arch/powerpc/Kconfig
+@@ -208,7 +208,7 @@ config PPC
+ 	select HAVE_MEMBLOCK_NODE_MAP
+ 	select HAVE_MOD_ARCH_SPECIFIC
+ 	select HAVE_NMI				if PERF_EVENTS || (PPC64 && PPC_BOOK3S)
+-	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if (PPC64 && PPC_BOOK3S)
++	select HAVE_HARDLOCKUP_DETECTOR_ARCH	if PPC64 && PPC_BOOK3S && SMP
+ 	select HAVE_OPROFILE
+ 	select HAVE_OPTPROBES			if PPC64
+ 	select HAVE_PERF_EVENTS
 -- 
 2.30.2
 
