@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 603E038AB26
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A843738A9B8
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240275AbhETLU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
+        id S239211AbhETLFn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:05:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240387AbhETLSg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:18:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 50A2661958;
-        Thu, 20 May 2021 10:09:59 +0000 (UTC)
+        id S239559AbhETLDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AEAC561D17;
+        Thu, 20 May 2021 10:04:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505399;
-        bh=9L0kefZA+evGsUfkvgKvlf7KaRvK5E+FIY1nVBxSgyg=;
+        s=korg; t=1621505071;
+        bh=fTf4qo64soCDRDnKGHNUSCNtTuVdhpbH+CBMMyRAsiw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFDRYEKMCMOPImaRYgalZDckXgzjzAGODZ1fkoTi9OqzoGujT5/xY0sLmZj6yU52G
-         o5HPkHOyEmWoOC1hxQCMHfQXKELgFZXVTxXFESTmiQPBxkAHk0XfP7VJxyOpx4fYED
-         dWOBcAMUD/w3luSW7lpS2r947huljKe5ndLA6rVQ=
+        b=Cb1zt5s8ugoyKBFzoxRDjFC+FLKExWUTo6TBwxhN6q3pTL/NPSfeXVuAS9F0s3W1n
+         Hcnxpvoz5YEhowqkBoLpFEkU2q/GTe1iOvIT8LA/oSTvcMjgTv4ynr8BmOrKjgExD3
+         KB+HD78qgdWGe/CtRYNoFyDE5Atr1eQHBS4jO8SI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        stable@vger.kernel.org, Mihai Moldovan <ionic@ionic.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 110/190] x86/events/amd/iommu: Fix sysfs type mismatch
+Subject: [PATCH 4.9 182/240] kconfig: nconf: stop endless search loops
 Date:   Thu, 20 May 2021 11:22:54 +0200
-Message-Id: <20210520092105.834249893@linuxfoundation.org>
+Message-Id: <20210520092114.771204915@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Mihai Moldovan <ionic@ionic.de>
 
-[ Upstream commit de5bc7b425d4c27ae5faa00ea7eb6b9780b9a355 ]
+[ Upstream commit 8c94b430b9f6213dec84e309bb480a71778c4213 ]
 
-dev_attr_show() calls _iommu_event_show() via an indirect call but
-_iommu_event_show()'s type does not currently match the type of the
-show() member in 'struct device_attribute', resulting in a Control Flow
-Integrity violation.
+If the user selects the very first entry in a page and performs a
+search-up operation, or selects the very last entry in a page and
+performs a search-down operation that will not succeed (e.g., via
+[/]asdfzzz[Up Arrow]), nconf will never terminate searching the page.
 
-$ cat /sys/devices/amd_iommu_1/events/mem_dte_hit
-csource=0x0a
+The reason is that in this case, the starting point will be set to -1
+or n, which is then translated into (n - 1) (i.e., the last entry of
+the page) or 0 (i.e., the first entry of the page) and finally the
+search begins. This continues to work fine until the index reaches 0 or
+(n - 1), at which point it will be decremented to -1 or incremented to
+n, but not checked against the starting point right away. Instead, it's
+wrapped around to the bottom or top again, after which the starting
+point check occurs... and naturally fails.
 
-$ dmesg | grep "CFI failure"
-[ 3526.735140] CFI failure (target: _iommu_event_show...):
+My original implementation added another check for -1 before wrapping
+the running index variable around, but Masahiro Yamada pointed out that
+the actual issue is that the comparison point (starting point) exceeds
+bounds (i.e., the [0,n-1] interval) in the first place and that,
+instead, the starting point should be fixed.
 
-Change _iommu_event_show() and 'struct amd_iommu_event_desc' to
-'struct device_attribute' so that there is no more CFI violation.
+This has the welcome side-effect of also fixing the case where the
+starting point was n while searching down, which also lead to an
+infinite loop.
 
-Fixes: 7be6296fdd75 ("perf/x86/amd: AMD IOMMU Performance Counter PERF uncore PMU implementation")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210415001112.3024673-1-nathan@kernel.org
+OTOH, this code is now essentially all his work.
+
+Amazingly, nobody seems to have been hit by this for 11 years - or at
+the very least nobody bothered to debug and fix this.
+
+Signed-off-by: Mihai Moldovan <ionic@ionic.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/cpu/perf_event_amd_iommu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ scripts/kconfig/nconf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/cpu/perf_event_amd_iommu.c b/arch/x86/kernel/cpu/perf_event_amd_iommu.c
-index 97242a9242bd..ec0bfbab7265 100644
---- a/arch/x86/kernel/cpu/perf_event_amd_iommu.c
-+++ b/arch/x86/kernel/cpu/perf_event_amd_iommu.c
-@@ -80,12 +80,12 @@ static struct attribute_group amd_iommu_format_group = {
-  * sysfs events attributes
-  *---------------------------------------------*/
- struct amd_iommu_event_desc {
--	struct kobj_attribute attr;
-+	struct device_attribute attr;
- 	const char *event;
- };
+diff --git a/scripts/kconfig/nconf.c b/scripts/kconfig/nconf.c
+index f7049e288e93..c58a46904861 100644
+--- a/scripts/kconfig/nconf.c
++++ b/scripts/kconfig/nconf.c
+@@ -502,8 +502,8 @@ static int get_mext_match(const char *match_str, match_f flag)
+ 	else if (flag == FIND_NEXT_MATCH_UP)
+ 		--match_start;
  
--static ssize_t _iommu_event_show(struct kobject *kobj,
--				struct kobj_attribute *attr, char *buf)
-+static ssize_t _iommu_event_show(struct device *dev,
-+				struct device_attribute *attr, char *buf)
- {
- 	struct amd_iommu_event_desc *event =
- 		container_of(attr, struct amd_iommu_event_desc, attr);
++	match_start = (match_start + items_num) % items_num;
+ 	index = match_start;
+-	index = (index + items_num) % items_num;
+ 	while (true) {
+ 		char *str = k_menu_items[index].str;
+ 		if (strcasestr(str, match_str) != 0)
 -- 
 2.30.2
 
