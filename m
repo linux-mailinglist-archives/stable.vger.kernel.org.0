@@ -2,157 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 78D3038AE25
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:26:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A84738AE43
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:32:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233997AbhETM2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 08:28:12 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55564 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232818AbhETM1J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:27:09 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1621513548;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nwkYYr9VKakeJ7pnq4AzoFfWPLnb5O3KiOprpBwKwMo=;
-        b=PxCsqZ3H8OA+SJoX4f4CSiwzYptIZh27CpgZD00n50PwBHXLwi1/QRS0HZKgIlJz+1pl4S
-        qDDC619VvSP9YjncZEqmNZqBpSDA3MGI4CEAyYXDRBokUfOIiIyWCrhOLHnjyjsmoFMmfO
-        SPALmYvSHME8N6HWMoXzRaJjNyNKROo=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-335-sj5KzOTbMoi146jFiq3AbA-1; Thu, 20 May 2021 08:25:46 -0400
-X-MC-Unique: sj5KzOTbMoi146jFiq3AbA-1
-Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 865091A8A61;
-        Thu, 20 May 2021 12:25:45 +0000 (UTC)
-Received: from max.com (unknown [10.40.195.97])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id B8AD160C04;
-        Thu, 20 May 2021 12:25:43 +0000 (UTC)
-From:   Andreas Gruenbacher <agruenba@redhat.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>, cluster-devel@redhat.com
-Cc:     linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
-        Jan Kara <jack@suse.cz>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/6] gfs2: Fix mmap + page fault deadlocks (part 1)
-Date:   Thu, 20 May 2021 14:25:31 +0200
-Message-Id: <20210520122536.1596602-2-agruenba@redhat.com>
-In-Reply-To: <20210520122536.1596602-1-agruenba@redhat.com>
-References: <20210520122536.1596602-1-agruenba@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
+        id S233205AbhETMdn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 08:33:43 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56412 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233367AbhETMdQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:33:16 -0400
+Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EC7C061763;
+        Thu, 20 May 2021 04:38:56 -0700 (PDT)
+Received: by mail-pf1-x432.google.com with SMTP id g18so10478845pfr.2;
+        Thu, 20 May 2021 04:38:56 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=7zLtfprzXuegTIA4p07/iyZIuvz3cMv0M9dQl84C9y4=;
+        b=Q/7bJQoXJdbVtB6wpcoUOPLEleZWqRnni5fQlGkn81IDxOlfGAKAFZnGjWkFpACt9X
+         y+JewgcGItqrxmj/ZfIcu255GcOGzw7xNXh58ZGiJwR9qbODOmULeh70Zqz6aAkfXPEu
+         B9tfeS9mq8OuP014RsoD63tFe0pAo28Pl9ryy3Glps3FCxauLKwCGUxHe2PIvpHDIG4c
+         I6BXW3jIOdfaeuS6pIVpZW+UIuG8zkHEo8eZjJN3T2boGGixhBajYpohr5P1W55ss857
+         oPtXQvKgo7BFcutfnB/2OxuFJtbFll4DJ3mVJU3fbIkuwid5cZhveGd+LVGLyOhy4CeT
+         O7Tg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=7zLtfprzXuegTIA4p07/iyZIuvz3cMv0M9dQl84C9y4=;
+        b=mLlsh8IV8zglohQ3wS3Cc3+JZ89GrpjRffZtA55ZW90uSfidp/CrLK0FMjT+yLFm6i
+         8WcIBfwVOMBA9fLuJAn6RERytSv/MEhKFNO5Q9ilIiM6w0frbied2QzXzeRg4l42TfAg
+         jEU4ypLt4YBxj1OL/ur6JV8/s42lQVeMH6fs90xyVqkkbUB2M4TBfML6uBOHXUceKw/Z
+         +y2fJ9WeKtqjmTe6NTQodFcjtDLHkVFSOK6C81Y7niSyNsbS9zES5tMUnKJhiout9bOr
+         iMxEgV1XIRau28AdOx26lEbtHbCmjrGYdUYndRHAEqNactH8ZlaP0nRYsTs1zrwEQKit
+         ohJA==
+X-Gm-Message-State: AOAM530E0PxPqxkQ6HEBIIfyOFNbOmwB8lYrBXyYEXcAaZllIMJgVjOb
+        7cLX5x0pzQgRrg15Pq5Sox01GzHJfEWdN+L2Ps0=
+X-Google-Smtp-Source: ABdhPJy50v/wpYD51e2/DXPewOwR5RHgjFndiTZY3CLSJbwDNl1Fd/rcwF4gpYw3pw3B1ih4pUpiZA==
+X-Received: by 2002:aa7:8601:0:b029:2da:f3a7:9b41 with SMTP id p1-20020aa786010000b02902daf3a79b41mr4403410pfn.74.1621510735316;
+        Thu, 20 May 2021 04:38:55 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id a8sm1584024pfk.11.2021.05.20.04.38.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 20 May 2021 04:38:54 -0700 (PDT)
+Message-ID: <60a64a4e.1c69fb81.9c251.4d30@mx.google.com>
+Date:   Thu, 20 May 2021 04:38:54 -0700 (PDT)
+X-Google-Original-Date: Thu, 20 May 2021 11:38:53 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+Subject: RE: [PATCH 5.12 00/45] 5.12.6-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When the buffer passed to a read or write system call is memory mapped to the
-same file, a page fault can occur in gfs2_fault.  In that case, the task will
-already be holding the inode glock, and trying to take it again will result in
-a BUG in add_to_queue().  Fix that by recognizing the self-recursion case and
-either skipping the lock taking (when the glock is held in a compatible way),
-or fail the operation.
+On Thu, 20 May 2021 11:21:48 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.12.6 release.
+> There are 45 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 22 May 2021 09:20:38 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.6-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Likewise, a request to un-share a copy-on-write page can *probably* happen in
-similar situations, so treat the locking in gfs2_page_mkwrite in the same way.
-
-A future patch will handle this case more gracefully, along with addressing
-more complex deadlock scenarios.
-
-Reported-by: Jan Kara <jack@suse.cz>
-Fixes: 20f829999c38 ("gfs2: Rework read and page fault locking")
-Cc: stable@vger.kernel.org # v5.8+
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
----
- fs/gfs2/file.c | 40 ++++++++++++++++++++++++++++++----------
- 1 file changed, 30 insertions(+), 10 deletions(-)
-
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 6d77743f11a4..7d88abb4629b 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -423,6 +423,7 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
- 	struct page *page = vmf->page;
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
-+	struct gfs2_holder *outer_gh = gfs2_glock_is_locked_by_me(ip->i_gl);
- 	struct gfs2_sbd *sdp = GFS2_SB(inode);
- 	struct gfs2_alloc_parms ap = { .aflags = 0, };
- 	u64 offset = page_offset(page);
-@@ -436,10 +437,18 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
- 	sb_start_pagefault(inode->i_sb);
- 
- 	gfs2_holder_init(ip->i_gl, LM_ST_EXCLUSIVE, 0, &gh);
--	err = gfs2_glock_nq(&gh);
--	if (err) {
--		ret = block_page_mkwrite_return(err);
--		goto out_uninit;
-+	if (likely(!outer_gh)) {
-+		err = gfs2_glock_nq(&gh);
-+		if (err) {
-+			ret = block_page_mkwrite_return(err);
-+			goto out_uninit;
-+		}
-+	} else {
-+		if (!gfs2_holder_is_compatible(outer_gh, LM_ST_EXCLUSIVE)) {
-+			/* We could try to upgrade outer_gh here. */
-+			ret = VM_FAULT_SIGBUS;
-+			goto out_uninit;
-+		}
- 	}
- 
- 	/* Check page index against inode size */
-@@ -540,7 +549,8 @@ static vm_fault_t gfs2_page_mkwrite(struct vm_fault *vmf)
- out_quota_unlock:
- 	gfs2_quota_unlock(ip);
- out_unlock:
--	gfs2_glock_dq(&gh);
-+	if (likely(!outer_gh))
-+		gfs2_glock_dq(&gh);
- out_uninit:
- 	gfs2_holder_uninit(&gh);
- 	if (ret == VM_FAULT_LOCKED) {
-@@ -555,6 +565,7 @@ static vm_fault_t gfs2_fault(struct vm_fault *vmf)
- {
- 	struct inode *inode = file_inode(vmf->vma->vm_file);
- 	struct gfs2_inode *ip = GFS2_I(inode);
-+	struct gfs2_holder *outer_gh = gfs2_glock_is_locked_by_me(ip->i_gl);
- 	struct gfs2_holder gh;
- 	vm_fault_t ret;
- 	u16 state;
-@@ -562,13 +573,22 @@ static vm_fault_t gfs2_fault(struct vm_fault *vmf)
- 
- 	state = (vmf->flags & FAULT_FLAG_WRITE) ? LM_ST_EXCLUSIVE : LM_ST_SHARED;
- 	gfs2_holder_init(ip->i_gl, state, 0, &gh);
--	err = gfs2_glock_nq(&gh);
--	if (err) {
--		ret = block_page_mkwrite_return(err);
--		goto out_uninit;
-+	if (likely(!outer_gh)) {
-+		err = gfs2_glock_nq(&gh);
-+		if (err) {
-+			ret = block_page_mkwrite_return(err);
-+			goto out_uninit;
-+		}
-+	} else {
-+		if (!gfs2_holder_is_compatible(outer_gh, state)) {
-+			/* We could try to upgrade outer_gh here. */
-+			ret = VM_FAULT_SIGBUS;
-+			goto out_uninit;
-+		}
- 	}
- 	ret = filemap_fault(vmf);
--	gfs2_glock_dq(&gh);
-+	if (likely(!outer_gh))
-+		gfs2_glock_dq(&gh);
- out_uninit:
- 	gfs2_holder_uninit(&gh);
- 	return ret;
--- 
-2.26.3
+5.12.6-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
