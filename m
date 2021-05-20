@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2212538A42D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5360738A42E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235032AbhETKBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
+        id S235068AbhETKB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:01:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235291AbhETJ7s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:59:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 278766162D;
-        Thu, 20 May 2021 09:38:46 +0000 (UTC)
+        id S235309AbhETJ7v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:59:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57D7C616EA;
+        Thu, 20 May 2021 09:38:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503526;
-        bh=8CW865KVytU24fiLS2p4+yfG6Txeuofcb6aQV21QHlU=;
+        s=korg; t=1621503528;
+        bh=+uwFB22R7uq68oCTs6inYh+B0n7EtzWjvWskIxez55U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vWk34sMl0R9BjAU85Fd+gxmID8DiHHa2LaS1okr92UNjLRp6XVGo0aojux9U4yYcY
-         35cL/BZYvxNdu6cQ6Yay3ppF2Db2s4c2yC5z6eUM0ivKhNHCCJRcVdBysjAs54wzAi
-         LWYnwgzY3YH7AGLXWMnjG25JlrUwmanshmdS2vHA=
+        b=xDYXwdVonC58riYvOY2dGg7Q9nRtYPprjHRfLzWPTatb6qUp+ZqXRVWBFL8Vte1vb
+         Sp7qDRzejAMYSKShnTH69iphEOryV70ST89iHBEMXE7sBfyJD7EUhSSQPPeX5Z/Nr1
+         P7wfB9Dxh03MyPGF3mybO7Du2pa/CwcvIjrqnkng=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Jakub Kicinski <kubakici@wp.pl>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 262/425] mac80211: bail out if cipher schemes are invalid
-Date:   Thu, 20 May 2021 11:20:31 +0200
-Message-Id: <20210520092140.061530159@linuxfoundation.org>
+Subject: [PATCH 4.19 263/425] mt7601u: fix always true expression
+Date:   Thu, 20 May 2021 11:20:32 +0200
+Message-Id: <20210520092140.091838814@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -39,42 +41,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit db878e27a98106a70315d264cc92230d84009e72 ]
+[ Upstream commit 87fce88658ba047ae62e83497d3f3c5dc22fa6f9 ]
 
-If any of the cipher schemes specified by the driver are invalid, bail
-out and fail the registration rather than just warning.  Otherwise, we
-might later crash when we try to use the invalid cipher scheme, e.g.
-if the hdr_len is (significantly) less than the pn_offs + pn_len, we'd
-have an out-of-bounds access in RX validation.
+Currently the expression ~nic_conf1 is always true because nic_conf1
+is a u16 and according to 6.5.3.3 of the C standard the ~ operator
+promotes the u16 to an integer before flipping all the bits. Thus
+the top 16 bits of the integer result are all set so the expression
+is always true.  If the intention was to flip all the bits of nic_conf1
+then casting the integer result back to a u16 is a suitabel fix.
 
-Fixes: 2475b1cc0d52 ("mac80211: add generic cipher scheme support")
-Link: https://lore.kernel.org/r/20210408143149.38a3a13a1b19.I6b7f5790fa0958ed8049cf02ac2a535c61e9bc96@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Interestingly static analyzers seem to thing a bitwise ! should be
+used instead of ~ for this scenario, so I think the original intent
+of the expression may need some extra consideration.
+
+Addresses-Coverity: ("Logical vs. bitwise operator")
+Fixes: c869f77d6abb ("add mt7601u driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Acked-by: Jakub Kicinski <kubakici@wp.pl>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210225183241.1002129-1-colin.king@canonical.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/main.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt7601u/eeprom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/mac80211/main.c b/net/mac80211/main.c
-index f44d00f35fe7..e8c4e9c0c5a0 100644
---- a/net/mac80211/main.c
-+++ b/net/mac80211/main.c
-@@ -1080,8 +1080,11 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
- 	if (local->hw.wiphy->max_scan_ie_len)
- 		local->hw.wiphy->max_scan_ie_len -= local->scan_ies_len;
+diff --git a/drivers/net/wireless/mediatek/mt7601u/eeprom.c b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
+index 76117b402880..6ab1035e4a12 100644
+--- a/drivers/net/wireless/mediatek/mt7601u/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
+@@ -107,7 +107,7 @@ mt7601u_has_tssi(struct mt7601u_dev *dev, u8 *eeprom)
+ {
+ 	u16 nic_conf1 = get_unaligned_le16(eeprom + MT_EE_NIC_CONF_1);
  
--	WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
--					 local->hw.n_cipher_schemes));
-+	if (WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
-+					     local->hw.n_cipher_schemes))) {
-+		result = -EINVAL;
-+		goto fail_workqueue;
-+	}
+-	return ~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
++	return (u16)~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
+ }
  
- 	result = ieee80211_init_cipher_suites(local);
- 	if (result < 0)
+ static void
 -- 
 2.30.2
 
