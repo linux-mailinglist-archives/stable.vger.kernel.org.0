@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C20D138A134
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9575138A0CB
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:24:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbhETJ3D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:29:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53892 "EHLO mail.kernel.org"
+        id S231362AbhETJ0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231851AbhETJ1w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:27:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0887E613BF;
-        Thu, 20 May 2021 09:26:25 +0000 (UTC)
+        id S231563AbhETJ0D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D2C61244;
+        Thu, 20 May 2021 09:24:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502786;
-        bh=jTHY5n8qWZOrwPMdba7LGqIXjfTJPFfzXkcurO33shg=;
+        s=korg; t=1621502682;
+        bh=GvCpCU7LOFMdC1La32QjDV/EKg3mqUZvXZcpx4mc1MQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f+sfcqZDsIc7j2jLGnJ5B3fMkpk3kWA35DR8zKasrJzTsEX9YQgrUyIoOPqoRvgQL
-         n9mL2ZvLiaKbTzR4FgzgPMRmA8hR/ohsjTDyQsI1srS29jknoi0+A2FCyjDHXlgaGl
-         0rXIrSUNb3KQQ3Ll14rMbRYFXsipZRebo5cm3NP8=
+        b=Vu/zoduZ9wFqUF1pPwPGC/+Cealb5tSGRUF9wHcKZYsVjDlQbV/IerJicsLydjOFe
+         0Bet7aJCy1lIvuGpdJ5GinSkBPbC7kjbsW1uSvlmdrTzY+O0WE0eSBY7C5gt7e2rBR
+         yLJAWFSAvj5awMnhQ4U44kXSnHdIIo06ow6OnoEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Dave Airlie <airlied@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 02/47] drm/i915/display: fix compiler warning about array overrun
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Thierry Reding <treding@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 12/45] PCI: tegra: Fix runtime PM imbalance in pex_ep_event_pex_rst_deassert()
 Date:   Thu, 20 May 2021 11:22:00 +0200
-Message-Id: <20210520092053.640378568@linuxfoundation.org>
+Message-Id: <20210520092053.923782367@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,69 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-commit fec4d42724a1bf3dcba52307e55375fdb967b852 upstream.
+[ Upstream commit 5859c926d1f052ee61b5815b14658875c14f6243 ]
 
-intel_dp_check_mst_status() uses a 14-byte array to read the DPRX Event
-Status Indicator data, but then passes that buffer at offset 10 off as
-an argument to drm_dp_channel_eq_ok().
+pm_runtime_get_sync() will increase the runtime PM counter
+even it returns an error. Thus a pairing decrement is needed
+to prevent refcount leak. Fix this by replacing this API with
+pm_runtime_resume_and_get(), which will not change the runtime
+PM counter on error.
 
-End result: there are only 4 bytes remaining of the buffer, yet
-drm_dp_channel_eq_ok() wants a 6-byte buffer.  gcc-11 correctly warns
-about this case:
-
-  drivers/gpu/drm/i915/display/intel_dp.c: In function ‘intel_dp_check_mst_status’:
-  drivers/gpu/drm/i915/display/intel_dp.c:3491:22: warning: ‘drm_dp_channel_eq_ok’ reading 6 bytes from a region of size 4 [-Wstringop-overread]
-   3491 |                     !drm_dp_channel_eq_ok(&esi[10], intel_dp->lane_count)) {
-        |                      ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  drivers/gpu/drm/i915/display/intel_dp.c:3491:22: note: referencing argument 1 of type ‘const u8 *’ {aka ‘const unsigned char *’}
-  In file included from drivers/gpu/drm/i915/display/intel_dp.c:38:
-  include/drm/drm_dp_helper.h:1466:6: note: in a call to function ‘drm_dp_channel_eq_ok’
-   1466 | bool drm_dp_channel_eq_ok(const u8 link_status[DP_LINK_STATUS_SIZE],
-        |      ^~~~~~~~~~~~~~~~~~~~
-       6:14 elapsed
-
-This commit just extends the original array by 2 zero-initialized bytes,
-avoiding the warning.
-
-There may be some underlying bug in here that caused this confusion, but
-this is at least no worse than the existing situation that could use
-random data off the stack.
-
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc: Dave Airlie <airlied@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210408072700.15791-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/display/intel_dp.c |   13 ++++++++++++-
- 1 file changed, 12 insertions(+), 1 deletion(-)
+ drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/intel_dp.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp.c
-@@ -5655,7 +5655,18 @@ intel_dp_check_mst_status(struct intel_d
- 	drm_WARN_ON_ONCE(&i915->drm, intel_dp->active_mst_links < 0);
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 6fa216e52d14..0e94190ca4e8 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -1645,7 +1645,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
+ 	if (pcie->ep_state == EP_STATE_ENABLED)
+ 		return;
  
- 	for (;;) {
--		u8 esi[DP_DPRX_ESI_LEN] = {};
-+		/*
-+		 * The +2 is because DP_DPRX_ESI_LEN is 14, but we then
-+		 * pass in "esi+10" to drm_dp_channel_eq_ok(), which
-+		 * takes a 6-byte array. So we actually need 16 bytes
-+		 * here.
-+		 *
-+		 * Somebody who knows what the limits actually are
-+		 * should check this, but for now this is at least
-+		 * harmless and avoids a valid compiler warning about
-+		 * using more of the array than we have allocated.
-+		 */
-+		u8 esi[DP_DPRX_ESI_LEN+2] = {};
- 		bool handled;
- 		int retry;
- 
+-	ret = pm_runtime_get_sync(dev);
++	ret = pm_runtime_resume_and_get(dev);
+ 	if (ret < 0) {
+ 		dev_err(dev, "Failed to get runtime sync for PCIe dev: %d\n",
+ 			ret);
+-- 
+2.30.2
+
 
 
