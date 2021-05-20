@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EFA438A167
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3AE9338A0E8
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232282AbhETJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:31:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53892 "EHLO mail.kernel.org"
+        id S231743AbhETJ0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231837AbhETJ3C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:29:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26691613C5;
-        Thu, 20 May 2021 09:27:10 +0000 (UTC)
+        id S231751AbhETJ0e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12E796135B;
+        Thu, 20 May 2021 09:25:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502830;
-        bh=6ieyFlyfSapVajR5zSjbwnaHHoYjNS5mTloDETdWzXo=;
+        s=korg; t=1621502713;
+        bh=XjNwv2Xw4I05Tn+u7g5M5/v9oyFzRCtsszzdvESb0/g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4aE3CGkBx3d+saA4B0BIcLSMgNXXZNO5LA8uHw6UGgiVfatq5BfuookcbT5ZuRZ1
-         /0u67CM8Dab4KxqdyZg6oshGTmn4eXCi2P2AeOwfXSINswYj97ftVHO3Ia588l+ZTb
-         K3UbHlkh9fxei2J6vex+U+EEzrpU2uag9NtQpMRM=
+        b=yYkwJdV1WoUCGxntliULb8YkB2bOi7nIm4uOczMrgwqsLMVSL8LGMj8805LXa1P0Y
+         ZNSt2WsHhr//AbjmmVmIsxFLEVdxQ1lMHwWTZ+IVuSZkBFc+9C+98ho1+sH+N1MY0y
+         cN0pLrxCWo/b47mSrUsvw2SewCG5Tf2AIGqSZJJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/47] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
+Subject: [PATCH 5.12 25/45] riscv: Workaround mcount name prior to clang-13
 Date:   Thu, 20 May 2021 11:22:13 +0200
-Message-Id: <20210520092054.044650261@linuxfoundation.org>
+Message-Id: <20210520092054.334013268@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,129 +41,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 65299e8bfb24774e6340e93ae49f6626598917c8 ]
+[ Upstream commit 7ce04771503074a7de7f539cc43f5e1b385cb99b ]
 
-Several users have been reporting that elants_i2c gives several errors
-during probe and that their touchscreen does not work on their Lenovo AMD
-based laptops with a touchscreen with a ELAN0001 ACPI hardware-id:
+Prior to clang 13.0.0, the RISC-V name for the mcount symbol was
+"mcount", which differs from the GCC version of "_mcount", which results
+in the following errors:
 
-[    0.550596] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vcc33 not found, using dummy regulator
-[    0.551836] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vccio not found, using dummy regulator
-[    0.560932] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.562427] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.595925] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.597974] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.621893] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
-[    0.622504] elants_i2c i2c-ELAN0001:00: software reset failed: -121
-[    0.632650] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (4d 61 69 6e): -121
-[    0.634256] elants_i2c i2c-ELAN0001:00: boot failed: -121
-[    0.699212] elants_i2c i2c-ELAN0001:00: invalid 'hello' packet: 00 00 ff ff
-[    1.630506] elants_i2c i2c-ELAN0001:00: Failed to read fw id: -121
-[    1.645508] elants_i2c i2c-ELAN0001:00: unknown packet 00 00 ff ff
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_level':
+main.c:(.text+0xe): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_start':
+main.c:(.text+0x4e): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_finish':
+main.c:(.text+0x92): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `.LBB32_28':
+main.c:(.text+0x30c): undefined reference to `mcount'
+riscv64-linux-gnu-ld: init/main.o: in function `free_initmem':
+main.c:(.text+0x54c): undefined reference to `mcount'
 
-Despite these errors, the elants_i2c driver stays bound to the device
-(it returns 0 from its probe method despite the errors), blocking the
-i2c-hid driver from binding.
+This has been corrected in https://reviews.llvm.org/D98881 but the
+minimum supported clang version is 10.0.1. To avoid build errors and to
+gain a working function tracer, adjust the name of the mcount symbol for
+older versions of clang in mount.S and recordmcount.pl.
 
-Manually unbinding the elants_i2c driver and binding the i2c-hid driver
-makes the touchscreen work.
-
-Check if the ACPI-fwnode for the touchscreen contains one of the i2c-hid
-compatiblity-id strings and if it has the I2C-HID spec's DSM to get the
-HID descriptor address, If it has both then make elants_i2c not bind,
-so that the i2c-hid driver can bind.
-
-This assumes that non of the (older) elan touchscreens which actually
-need the elants_i2c driver falsely advertise an i2c-hid compatiblity-id
-+ DSM in their ACPI-fwnodes. If some of them actually do have this
-false advertising, then this change may lead to regressions.
-
-While at it also drop the unnecessary DEVICE_NAME prefixing of the
-"I2C check functionality error", dev_err already outputs the driver-name.
-
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207759
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210405202756.16830-1-hdegoede@redhat.com
-
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1331
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/elants_i2c.c | 44 ++++++++++++++++++++++++--
- 1 file changed, 42 insertions(+), 2 deletions(-)
+ arch/riscv/include/asm/ftrace.h | 14 ++++++++++++--
+ arch/riscv/kernel/mcount.S      | 10 +++++-----
+ scripts/recordmcount.pl         |  2 +-
+ 3 files changed, 18 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
-index 50c348297e38..03a482535944 100644
---- a/drivers/input/touchscreen/elants_i2c.c
-+++ b/drivers/input/touchscreen/elants_i2c.c
-@@ -38,6 +38,7 @@
- #include <linux/of.h>
- #include <linux/gpio/consumer.h>
- #include <linux/regulator/consumer.h>
-+#include <linux/uuid.h>
- #include <asm/unaligned.h>
+diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
+index 845002cc2e57..04dad3380041 100644
+--- a/arch/riscv/include/asm/ftrace.h
++++ b/arch/riscv/include/asm/ftrace.h
+@@ -13,9 +13,19 @@
+ #endif
+ #define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
  
- /* Device, Driver information */
-@@ -1224,6 +1225,40 @@ static void elants_i2c_power_off(void *_data)
- 	}
- }
- 
-+#ifdef CONFIG_ACPI
-+static const struct acpi_device_id i2c_hid_ids[] = {
-+	{"ACPI0C50", 0 },
-+	{"PNP0C50", 0 },
-+	{ },
-+};
-+
-+static const guid_t i2c_hid_guid =
-+	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
-+		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
-+
-+static bool elants_acpi_is_hid_device(struct device *dev)
-+{
-+	acpi_handle handle = ACPI_HANDLE(dev);
-+	union acpi_object *obj;
-+
-+	if (acpi_match_device_ids(ACPI_COMPANION(dev), i2c_hid_ids))
-+		return false;
-+
-+	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL, ACPI_TYPE_INTEGER);
-+	if (obj) {
-+		ACPI_FREE(obj);
-+		return true;
-+	}
-+
-+	return false;
-+}
++/*
++ * Clang prior to 13 had "mcount" instead of "_mcount":
++ * https://reviews.llvm.org/D98881
++ */
++#if defined(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 130000
++#define MCOUNT_NAME _mcount
 +#else
-+static bool elants_acpi_is_hid_device(struct device *dev)
-+{
-+	return false;
-+}
++#define MCOUNT_NAME mcount
 +#endif
 +
- static int elants_i2c_probe(struct i2c_client *client,
- 			    const struct i2c_device_id *id)
+ #define ARCH_SUPPORTS_FTRACE_OPS 1
+ #ifndef __ASSEMBLY__
+-void _mcount(void);
++void MCOUNT_NAME(void);
+ static inline unsigned long ftrace_call_adjust(unsigned long addr)
  {
-@@ -1232,9 +1267,14 @@ static int elants_i2c_probe(struct i2c_client *client,
- 	unsigned long irqflags;
- 	int error;
+ 	return addr;
+@@ -36,7 +46,7 @@ struct dyn_arch_ftrace {
+  * both auipc and jalr at the same time.
+  */
  
-+	/* Don't bind to i2c-hid compatible devices, these are handled by the i2c-hid drv. */
-+	if (elants_acpi_is_hid_device(&client->dev)) {
-+		dev_warn(&client->dev, "This device appears to be an I2C-HID device, not binding\n");
-+		return -ENODEV;
-+	}
-+
- 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
--		dev_err(&client->dev,
--			"%s: i2c check functionality error\n", DEVICE_NAME);
-+		dev_err(&client->dev, "I2C check functionality error\n");
- 		return -ENXIO;
- 	}
+-#define MCOUNT_ADDR		((unsigned long)_mcount)
++#define MCOUNT_ADDR		((unsigned long)MCOUNT_NAME)
+ #define JALR_SIGN_MASK		(0x00000800)
+ #define JALR_OFFSET_MASK	(0x00000fff)
+ #define AUIPC_OFFSET_MASK	(0xfffff000)
+diff --git a/arch/riscv/kernel/mcount.S b/arch/riscv/kernel/mcount.S
+index 8a5593ff9ff3..6d462681c9c0 100644
+--- a/arch/riscv/kernel/mcount.S
++++ b/arch/riscv/kernel/mcount.S
+@@ -47,8 +47,8 @@
  
+ ENTRY(ftrace_stub)
+ #ifdef CONFIG_DYNAMIC_FTRACE
+-       .global _mcount
+-       .set    _mcount, ftrace_stub
++       .global MCOUNT_NAME
++       .set    MCOUNT_NAME, ftrace_stub
+ #endif
+ 	ret
+ ENDPROC(ftrace_stub)
+@@ -78,7 +78,7 @@ ENDPROC(return_to_handler)
+ #endif
+ 
+ #ifndef CONFIG_DYNAMIC_FTRACE
+-ENTRY(_mcount)
++ENTRY(MCOUNT_NAME)
+ 	la	t4, ftrace_stub
+ #ifdef CONFIG_FUNCTION_GRAPH_TRACER
+ 	la	t0, ftrace_graph_return
+@@ -124,6 +124,6 @@ do_trace:
+ 	jalr	t5
+ 	RESTORE_ABI_STATE
+ 	ret
+-ENDPROC(_mcount)
++ENDPROC(MCOUNT_NAME)
+ #endif
+-EXPORT_SYMBOL(_mcount)
++EXPORT_SYMBOL(MCOUNT_NAME)
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index a36df04cfa09..7b83a1aaec98 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -392,7 +392,7 @@ if ($arch eq "x86_64") {
+     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
+ } elsif ($arch eq "riscv") {
+     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
+-    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
++    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_?mcount\$";
+     $type = ".quad";
+     $alignment = 2;
+ } elsif ($arch eq "nds32") {
 -- 
 2.30.2
 
