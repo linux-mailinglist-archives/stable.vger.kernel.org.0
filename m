@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E356338A8E6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:54:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C716538A766
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238582AbhETKzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50584 "EHLO mail.kernel.org"
+        id S237316AbhETKh7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:37:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239228AbhETKws (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24273613CE;
-        Thu, 20 May 2021 10:00:35 +0000 (UTC)
+        id S237878AbhETKf4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:35:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 712A161613;
+        Thu, 20 May 2021 09:53:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504835;
-        bh=w1zepXwKZCJSEghz91NfTQzyP7m84JxtGMbjg+FLY/U=;
+        s=korg; t=1621504437;
+        bh=L/Jez19Pc3wQHXKmpNlxL1LxJ5eIjWlSW6+jEMaupH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LdUrF0iMVSoApcUbx6HtfDVTT9p1IlwdYjkdVdJ1LkmDfjs4GQgNINAzDHTjOMLE0
-         zAN/wqLFbXR0DUblGBaiVMdDf4v8qEVc1K1w0nRLXllChlWAwR4LUAB3ZOHrb8kZE5
-         rNEoHgRVQgG7Iv/nEKtoUnuvvkhyzla+lnjiDL50=
+        b=1A59gddJgjrl36HYUoTg2YY9a5pEANai2on1ORRcGv6aEbjuaTlNaZYWwInBR/DRh
+         hTs1olJ3cLIGI2w0fePmRsHVIzT6UnfouzQAbNN2ztHXQtcb9fOchI+IJZPkpLqJeJ
+         6Z+/8Lnpqysfz508lgjyhLlGtrcraGL0bZ3DUbrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
+        stable@vger.kernel.org, Andrew Scull <ascull@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 101/240] fotg210-udc: Fix DMA on EP0 for length > max packet size
+Subject: [PATCH 4.14 201/323] bug: Remove redundant condition check in report_bug
 Date:   Thu, 20 May 2021 11:21:33 +0200
-Message-Id: <20210520092112.087777739@linuxfoundation.org>
+Message-Id: <20210520092127.024263712@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Andrew Scull <ascull@google.com>
 
-[ Upstream commit 755915fc28edfc608fa89a163014acb2f31c1e19 ]
+[ Upstream commit 3ad1a6cb0abc63d036fc866bd7c2c5983516dec5 ]
 
-For a 75 Byte request, it would send the first 64 separately, then detect
-that the remaining 11 Byte fit into a single DMA, but due to this bug set
-the length to the original 75 Bytes. This leads to a DMA failure (which is
-ignored...) and the request completes without the remaining bytes having
-been sent.
+report_bug() will return early if it cannot find a bug corresponding to
+the provided address. The subsequent test for the bug will always be
+true so remove it.
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-2-fabian@ritter-vogt.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1b4cfe3c0a30d ("lib/bug.c: exclude non-BUG/WARN exceptions from report_bug()")
+Signed-off-by: Andrew Scull <ascull@google.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: "Steven Rostedt (VMware)" <rostedt@goodmis.org>
+Reviewed-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Acked-by: Will Deacon <will@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210318143311.839894-2-ascull@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/bug.c | 33 +++++++++++++++------------------
+ 1 file changed, 15 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 76e991557116..7831c556a40b 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -348,7 +348,7 @@ static void fotg210_start_dma(struct fotg210_ep *ep,
- 		if (req->req.length - req->req.actual > ep->ep.maxpacket)
- 			length = ep->ep.maxpacket;
- 		else
--			length = req->req.length;
-+			length = req->req.length - req->req.actual;
+diff --git a/lib/bug.c b/lib/bug.c
+index d2c9a099561a..cabecce6ffa7 100644
+--- a/lib/bug.c
++++ b/lib/bug.c
+@@ -155,30 +155,27 @@ enum bug_trap_type report_bug(unsigned long bugaddr, struct pt_regs *regs)
+ 
+ 	file = NULL;
+ 	line = 0;
+-	warning = 0;
+ 
+-	if (bug) {
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+ #ifndef CONFIG_GENERIC_BUG_RELATIVE_POINTERS
+-		file = bug->file;
++	file = bug->file;
+ #else
+-		file = (const char *)bug + bug->file_disp;
++	file = (const char *)bug + bug->file_disp;
+ #endif
+-		line = bug->line;
++	line = bug->line;
+ #endif
+-		warning = (bug->flags & BUGFLAG_WARNING) != 0;
+-		once = (bug->flags & BUGFLAG_ONCE) != 0;
+-		done = (bug->flags & BUGFLAG_DONE) != 0;
+-
+-		if (warning && once) {
+-			if (done)
+-				return BUG_TRAP_TYPE_WARN;
+-
+-			/*
+-			 * Since this is the only store, concurrency is not an issue.
+-			 */
+-			bug->flags |= BUGFLAG_DONE;
+-		}
++	warning = (bug->flags & BUGFLAG_WARNING) != 0;
++	once = (bug->flags & BUGFLAG_ONCE) != 0;
++	done = (bug->flags & BUGFLAG_DONE) != 0;
++
++	if (warning && once) {
++		if (done)
++			return BUG_TRAP_TYPE_WARN;
++
++		/*
++		 * Since this is the only store, concurrency is not an issue.
++		 */
++		bug->flags |= BUGFLAG_DONE;
  	}
  
- 	d = dma_map_single(NULL, buffer, length,
+ 	if (warning) {
 -- 
 2.30.2
 
