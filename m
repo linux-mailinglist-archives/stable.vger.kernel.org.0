@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BFE538A4B6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:07:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6521B38A48C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:05:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234713AbhETKIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:08:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36316 "EHLO mail.kernel.org"
+        id S234723AbhETKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:06:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235266AbhETKF5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:05:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F2BE61935;
-        Thu, 20 May 2021 09:41:25 +0000 (UTC)
+        id S235217AbhETKDX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:03:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F43061423;
+        Thu, 20 May 2021 09:40:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503685;
-        bh=MQpu4WwJTKgdxc+EeP2Zj+e63L1hnstGQvQog8EE/JU=;
+        s=korg; t=1621503606;
+        bh=D513QAe6+ds8yHQQ538gonVJ6YmkA0l+bGeNrXMecJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kJ30JH1pOH7fFTjjGZu2V/nQo5z8hLylioNYOXgZwIOL8YKL53aPCwYjxHZHoGCfc
-         szKgPYIaDqvbQ34KwRh1vWtRSa2gXvd80izhdKIu9DTCShcIpXuXHQ+MOYaVjDW+yV
-         9riDStg+vMH7LgNTXQiIOwJPDm9zY8veQ8Qb04CQ=
+        b=cVb9+J0B+F7pmlJWAYy+zW1p/v4ThdL+xLn67EKWudc55Zw6sj16tuSxlrKPiMCuG
+         +ftLFsolOCtWiPVAayNh1LlCPULL31GJJny8jfXInC38O1gZVdCsHkG5bBDV/zu4Ev
+         I2f7R6OuHjlGrV0nCjDj4QhsfUeOZ2vVeKxo92Og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        "David S. Miller" <davem@davemloft.net>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Devesh Sharma <devesh.sharma@broadcom.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 289/425] net:emac/emac-mac: Fix a use after free in emac_mac_tx_buf_send
-Date:   Thu, 20 May 2021 11:20:58 +0200
-Message-Id: <20210520092140.949037993@linuxfoundation.org>
+Subject: [PATCH 4.19 290/425] RDMA/bnxt_re: Fix a double free in bnxt_qplib_alloc_res
+Date:   Thu, 20 May 2021 11:20:59 +0200
+Message-Id: <20210520092140.982238864@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,49 +44,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 6d72e7c767acbbdd44ebc7d89c6690b405b32b57 ]
+[ Upstream commit 34b39efa5ae82fc0ad0acc27653c12a56328dbbe ]
 
-In emac_mac_tx_buf_send, it calls emac_tx_fill_tpd(..,skb,..).
-If some error happens in emac_tx_fill_tpd(), the skb will be freed via
-dev_kfree_skb(skb) in error branch of emac_tx_fill_tpd().
-But the freed skb is still used via skb->len by netdev_sent_queue(,skb->len).
+In bnxt_qplib_alloc_res, it calls bnxt_qplib_alloc_dpi_tbl().  Inside
+bnxt_qplib_alloc_dpi_tbl, dpit->dbr_bar_reg_iomem is freed via
+pci_iounmap() in unmap_io error branch. After the callee returns err code,
+bnxt_qplib_alloc_res calls
+bnxt_qplib_free_res()->bnxt_qplib_free_dpi_tbl() in the fail branch. Then
+dpit->dbr_bar_reg_iomem is freed in the second time by pci_iounmap().
 
-As i observed that emac_tx_fill_tpd() haven't modified the value of skb->len,
-thus my patch assigns skb->len to 'len' before the possible free and
-use 'len' instead of skb->len later.
+My patch set dpit->dbr_bar_reg_iomem to NULL after it is freed by
+pci_iounmap() in the first time, to avoid the double free.
 
-Fixes: b9b17debc69d2 ("net: emac: emac gigabit ethernet controller driver")
+Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
+Link: https://lore.kernel.org/r/20210426140614.6722-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Acked-by: Devesh Sharma <devesh.sharma@broadcom.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qualcomm/emac/emac-mac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/bnxt_re/qplib_res.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/qualcomm/emac/emac-mac.c b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
-index 031f6e6ee9c1..351a90698010 100644
---- a/drivers/net/ethernet/qualcomm/emac/emac-mac.c
-+++ b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
-@@ -1449,6 +1449,7 @@ int emac_mac_tx_buf_send(struct emac_adapter *adpt, struct emac_tx_queue *tx_q,
- {
- 	struct emac_tpd tpd;
- 	u32 prod_idx;
-+	int len;
+diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.c b/drivers/infiniband/hw/bnxt_re/qplib_res.c
+index 539a5d44e6db..655952a6c0e6 100644
+--- a/drivers/infiniband/hw/bnxt_re/qplib_res.c
++++ b/drivers/infiniband/hw/bnxt_re/qplib_res.c
+@@ -725,6 +725,7 @@ static int bnxt_qplib_alloc_dpi_tbl(struct bnxt_qplib_res     *res,
  
- 	memset(&tpd, 0, sizeof(tpd));
+ unmap_io:
+ 	pci_iounmap(res->pdev, dpit->dbr_bar_reg_iomem);
++	dpit->dbr_bar_reg_iomem = NULL;
+ 	return -ENOMEM;
+ }
  
-@@ -1468,9 +1469,10 @@ int emac_mac_tx_buf_send(struct emac_adapter *adpt, struct emac_tx_queue *tx_q,
- 	if (skb_network_offset(skb) != ETH_HLEN)
- 		TPD_TYP_SET(&tpd, 1);
- 
-+	len = skb->len;
- 	emac_tx_fill_tpd(adpt, tx_q, skb, &tpd);
- 
--	netdev_sent_queue(adpt->netdev, skb->len);
-+	netdev_sent_queue(adpt->netdev, len);
- 
- 	/* Make sure the are enough free descriptors to hold one
- 	 * maximum-sized SKB.  We need one desc for each fragment,
 -- 
 2.30.2
 
