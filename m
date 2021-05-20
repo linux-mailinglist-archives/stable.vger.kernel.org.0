@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09E9238ABA6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A7238AB8F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241167AbhETL0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:26:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44022 "EHLO mail.kernel.org"
+        id S239925AbhETLZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:25:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241186AbhETLXK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:23:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91BA661964;
-        Thu, 20 May 2021 10:12:04 +0000 (UTC)
+        id S241216AbhETLXZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:23:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD74B61D93;
+        Thu, 20 May 2021 10:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505525;
-        bh=Ym1DpdQO5VB2aSbe9sWiUpyoIr1TKeJ0DVms1qB8QYo=;
+        s=korg; t=1621505527;
+        bh=Sz6EOdc7yV52bDWQgKlyk4LCblp+4sumZFTP9xmgSn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nKh1rsIquk8jb23jVURsyh9LCaiYNg7uNmyEFNFpDeJiF/2s83wbs0W8ifOn3W4jn
-         a/goX5crkeoJ4CZ2YS9Etka1lE2F0noB00MVBAMDE5rS4tp538hlbVHSopuNeqNAiA
-         bumZY3JNkjJbAqglX95MEvOS6Z1XuwOZs3qSc+98=
+        b=WPkNYby0RVXZ0wF7o8zRXbxXwhnvftJ7ieCIVHdouibYWx1KeDJpsiN4ooKjGIXKJ
+         TLwdLGMW7ZuyP7KeXKXGkOPjoJRg43DQ2YEHouAnQJYsSuAFZjbib5nSMln5+C/V3U
+         doSVaqX/gTIQSA5wLEPZCkGAKf9boVRMIVr+7LIo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lukasz Luba <lukasz.luba@arm.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 4.4 174/190] thermal/core/fair share: Lock the thermal zone while looping over instances
-Date:   Thu, 20 May 2021 11:23:58 +0200
-Message-Id: <20210520092107.924945062@linuxfoundation.org>
+        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 175/190] dm ioctl: fix out of bounds array access when no devices
+Date:   Thu, 20 May 2021 11:23:59 +0200
+Message-Id: <20210520092107.957446529@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -39,42 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukasz Luba <lukasz.luba@arm.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit fef05776eb02238dcad8d5514e666a42572c3f32 upstream.
+commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
 
-The tz->lock must be hold during the looping over the instances in that
-thermal zone. This lock was missing in the governor code since the
-beginning, so it's hard to point into a particular commit.
+If there are not any dm devices, we need to zero the "dev" argument in
+the first structure dm_name_list. However, this can cause out of
+bounds write, because the "needed" variable is zero and len may be
+less than eight.
 
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210422153624.6074-2-lukasz.luba@arm.com
+Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
+too small to hold the "nl->dev" value.
+
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+[iwamatsu: Adjust context]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/fair_share.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/md/dm-ioctl.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/thermal/fair_share.c
-+++ b/drivers/thermal/fair_share.c
-@@ -93,6 +93,8 @@ static int fair_share_throttle(struct th
- 	int total_instance = 0;
- 	int cur_trip_level = get_trip_level(tz);
- 
-+	mutex_lock(&tz->lock);
-+
- 	list_for_each_entry(instance, &tz->thermal_instances, tz_node) {
- 		if (instance->trip != trip)
- 			continue;
-@@ -119,6 +121,8 @@ static int fair_share_throttle(struct th
- 		instance->cdev->updated = false;
- 		thermal_cdev_update(cdev);
+--- a/drivers/md/dm-ioctl.c
++++ b/drivers/md/dm-ioctl.c
+@@ -524,7 +524,7 @@ static int list_devices(struct dm_ioctl
+ 	 * Grab our output buffer.
+ 	 */
+ 	nl = get_result_buffer(param, param_size, &len);
+-	if (len < needed) {
++	if (len < needed || len < sizeof(nl->dev)) {
+ 		param->flags |= DM_BUFFER_FULL_FLAG;
+ 		goto out;
  	}
-+
-+	mutex_unlock(&tz->lock);
- 	return 0;
- }
- 
 
 
