@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2967538ABAC
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13ED038ABB1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240171AbhETL0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:26:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
+        id S240672AbhETL0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:26:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241563AbhETLYu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:24:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6681D61971;
-        Thu, 20 May 2021 10:12:50 +0000 (UTC)
+        id S241672AbhETLZS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:25:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 986066196E;
+        Thu, 20 May 2021 10:12:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505570;
-        bh=IqVgUf0A9O2k0LqHz61gCW9Mhs8q3/BFxzLuq65IT64=;
+        s=korg; t=1621505573;
+        bh=Dp6o75Ff8MqXtSUbmpR2f9jwiirqVvPfWwHj8OA9CP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6IpXtGGEOqcT2p6U8lgM1cACT5CoRO2jQA2szmqfsWsWQaGh5q7aCpUumr15bTBz
-         eRFZKerq4l8rNlJ9P9tHho9YuQvaqP/iWfFMv/zBeoZpDvBscJS4ToI4wMeLW7sqnh
-         gVqs7vrCMuRl3BJ61+0vWS6TJ7LdWXvv+LmRmfcU=
+        b=RyALVIi3q2kCQxlUO8Zeo7H1/T3jssz4QdkK+NO59IG16nZXmwNqRV2zRIpV7/jzj
+         7jl9jyTNRXEeZd23/JbeNBA5U3uS13kEOL3khkR1ylAnFY8hnsebanXT5pGKIULIKM
+         SW/nHOOiSqIWNSaecj4Iy96lxPdeh7KPxIxQEWTQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 188/190] ipv6: remove extra dev_hold() for fallback tunnels
-Date:   Thu, 20 May 2021 11:24:12 +0200
-Message-Id: <20210520092108.384557826@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.4 189/190] xhci: Do not use GFP_KERNEL in (potentially) atomic context
+Date:   Thu, 20 May 2021 11:24:13 +0200
+Message-Id: <20210520092108.415487606@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -40,82 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
+commit dda32c00c9a0fa103b5d54ef72c477b7aa993679 upstream.
 
-My previous commits added a dev_hold() in tunnels ndo_init(),
-but forgot to remove it from special functions setting up fallback tunnels.
+'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
+submitted in interrupt context" (see comment related to 'usb_submit_urb()'
+in 'drivers/usb/core/urb.c')
 
-Fallback tunnels do call their respective ndo_init()
+So this flag should be used in all the calling chain.
+Up to now, 'xhci_check_maxpacket()' which is only called from
+'xhci_urb_enqueue()', uses GFP_KERNEL.
 
-This leads to various reports like :
+Be safe and pass the mem_flags to this function as well.
 
-unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
-
-Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
+[iwamatsu: Adjust context]
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c    |    3 ---
- net/ipv6/ip6_tunnel.c |    1 -
- net/ipv6/ip6_vti.c    |    1 -
- net/ipv6/sit.c        |    1 -
- 4 files changed, 6 deletions(-)
+ drivers/usb/host/xhci.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -350,7 +350,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
- 	if (!(nt->parms.o_flags & GRE_SEQ))
- 		dev->features |= NETIF_F_LLTX;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -1302,7 +1302,7 @@ static int xhci_configure_endpoint(struc
+  * we need to issue an evaluate context command and wait on it.
+  */
+ static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
+-		unsigned int ep_index, struct urb *urb)
++		unsigned int ep_index, struct urb *urb, gfp_t mem_flags)
+ {
+ 	struct xhci_container_ctx *out_ctx;
+ 	struct xhci_input_control_ctx *ctrl_ctx;
+@@ -1333,7 +1333,7 @@ static int xhci_check_maxpacket(struct x
+ 		 * changes max packet sizes.
+ 		 */
  
--	dev_hold(dev);
- 	ip6gre_tunnel_link(ign, nt);
- 	return nt;
+-		command = xhci_alloc_command(xhci, false, true, GFP_KERNEL);
++		command = xhci_alloc_command(xhci, false, true, mem_flags);
+ 		if (!command)
+ 			return -ENOMEM;
  
-@@ -1310,8 +1309,6 @@ static void ip6gre_fb_tunnel_init(struct
- 	strcpy(tunnel->parms.name, dev->name);
- 
- 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
--
--	dev_hold(dev);
- }
- 
- 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1614,7 +1614,6 @@ static int __net_init ip6_fb_tnl_dev_ini
- 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -931,7 +931,6 @@ static int __net_init vti6_fb_tnl_dev_in
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1413,7 +1413,6 @@ static void __net_init ipip6_fb_tunnel_i
- 	iph->ihl		= 5;
- 	iph->ttl		= 64;
- 
--	dev_hold(dev);
- 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
- }
- 
+@@ -1440,7 +1440,7 @@ int xhci_urb_enqueue(struct usb_hcd *hcd
+ 		 */
+ 		if (urb->dev->speed == USB_SPEED_FULL) {
+ 			ret = xhci_check_maxpacket(xhci, slot_id,
+-					ep_index, urb);
++					ep_index, urb, mem_flags);
+ 			if (ret < 0) {
+ 				xhci_urb_free_priv(urb_priv);
+ 				urb->hcpriv = NULL;
 
 
