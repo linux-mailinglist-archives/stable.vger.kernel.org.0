@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D14D238A317
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:47:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAFD438A311
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:47:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233834AbhETJso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47800 "EHLO mail.kernel.org"
+        id S234161AbhETJsm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:48:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233837AbhETJqj (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233840AbhETJqj (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 05:46:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC6066145E;
-        Thu, 20 May 2021 09:34:00 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BA786145F;
+        Thu, 20 May 2021 09:34:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503241;
-        bh=Wo6UJarYlLD4jwMqh8qhs8BVvvgDb70kH13z56ZTjSs=;
+        s=korg; t=1621503243;
+        bh=XAy2pfgFYlYB+28faCmmV4EPXsFKQAhJypPcnYGlmpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GaByykTeHiZYlHPkiccpIonW0169TL1fBk83RA1rAT4Kd9fyl6i549v3m/yunU1/D
-         JYBEVTbSpfkGI86qsgFVxczotIXjrlwKg0T6cPjkBsj/TGlZM/vhhZ8U5bwQCckvV0
-         tWG5YCDoEYARdTtHgdTNsIy++gSvQ00vyEih3mmU=
+        b=WW1EG/Xc9fdBP7/Yn2qV3ZFstLBKjjgUEsyioRZPAhXTGzKLyhYHpU/79x77mtcwl
+         2nvHAsehyWIQBwvezqR8SLqqtraF8MdbMBVKI667HHa3tdqwvV5Zjc9p5nbk+rnQTf
+         +NuSmiHVIr957lu4k53eHDFFRocOXiDXhYLwU6r4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
-        linux-mediatek@lists.infradead.org,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Tobias Wolf <dev-NTEO@vplace.de>,
         Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Subject: [PATCH 4.19 132/425] MIPS: pci-mt7620: fix PLL lock check
-Date:   Thu, 20 May 2021 11:18:21 +0200
-Message-Id: <20210520092135.771895768@linuxfoundation.org>
+Subject: [PATCH 4.19 133/425] MIPS: pci-rt2880: fix slot 0 configuration
+Date:   Thu, 20 May 2021 11:18:22 +0200
+Message-Id: <20210520092135.803149244@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -44,53 +44,102 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-commit c15b99ae2ba9ea30da3c7cd4765b8a4707e530a6 upstream.
+commit 8e98b697006d749d745d3b174168a877bb96c500 upstream.
 
-Upstream a long-standing OpenWrt patch [0] that fixes MT7620 PCIe PLL
-lock check. The existing code checks the wrong register bit: PPLL_SW_SET
-is not defined in PPLL_CFG1 and bit 31 of PPLL_CFG1 is marked as reserved
-in the MT7620 Programming Guide. The correct bit to check for PLL lock
-is PPLL_LD (bit 23).
+pci_fixup_irqs() used to call pcibios_map_irq on every PCI device, which
+for RT2880 included bus 0 slot 0. After pci_fixup_irqs() got removed,
+only slots/funcs with devices attached would be called. While arguably
+the right thing, that left no chance for this driver to ever initialize
+slot 0, effectively bricking PCI and USB on RT2880 devices such as the
+Belkin F5D8235-4 v1.
 
-Also reword the error message for clarity.
+Slot 0 configuration needs to happen after PCI bus enumeration, but
+before any device at slot 0x11 (func 0 or 1) is talked to. That was
+determined empirically by testing on a Belkin F5D8235-4 v1 device. A
+minimal BAR 0 config write followed by read, then setting slot 0
+PCI_COMMAND to MASTER | IO | MEMORY is all that seems to be required for
+proper functionality.
 
-Without this change it is unlikely that this driver ever worked with
-mainline kernel.
+Tested by ensuring that full- and high-speed USB devices get enumerated
+on the Belkin F5D8235-4 v1 (with an out of tree DTS file from OpenWrt).
 
-[0]: https://lists.infradead.org/pipermail/lede-commits/2017-July/004441.html
-
+Fixes: 04c81c7293df ("MIPS: PCI: Replace pci_fixup_irqs() call with host bridge IRQ mapping hooks")
 Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: John Crispin <john@phrozen.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-mediatek@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org
+Cc: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
+Cc: Tobias Wolf <dev-NTEO@vplace.de>
+Cc: <stable@vger.kernel.org> # v4.14+
 Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/mips/pci/pci-mt7620.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/mips/pci/pci-rt2880.c |   37 ++++++++++++++++++++++++-------------
+ 1 file changed, 24 insertions(+), 13 deletions(-)
 
---- a/arch/mips/pci/pci-mt7620.c
-+++ b/arch/mips/pci/pci-mt7620.c
-@@ -33,6 +33,7 @@
- #define RALINK_GPIOMODE			0x60
+--- a/arch/mips/pci/pci-rt2880.c
++++ b/arch/mips/pci/pci-rt2880.c
+@@ -183,7 +183,6 @@ static inline void rt2880_pci_write_u32(
  
- #define PPLL_CFG1			0x9c
-+#define PPLL_LD				BIT(23)
+ int pcibios_map_irq(const struct pci_dev *dev, u8 slot, u8 pin)
+ {
+-	u16 cmd;
+ 	int irq = -1;
  
- #define PPLL_DRV			0xa0
- #define PDRV_SW_SET			BIT(31)
-@@ -242,8 +243,8 @@ static int mt7620_pci_hw_init(struct pla
- 	rt_sysc_m32(0, RALINK_PCIE0_CLK_EN, RALINK_CLKCFG1);
- 	mdelay(100);
+ 	if (dev->bus->number != 0)
+@@ -191,8 +190,6 @@ int pcibios_map_irq(const struct pci_dev
  
--	if (!(rt_sysc_r32(PPLL_CFG1) & PDRV_SW_SET)) {
--		dev_err(&pdev->dev, "MT7620 PPLL unlock\n");
-+	if (!(rt_sysc_r32(PPLL_CFG1) & PPLL_LD)) {
-+		dev_err(&pdev->dev, "pcie PLL not locked, aborting init\n");
- 		reset_control_assert(rstpcie0);
- 		rt_sysc_m32(RALINK_PCIE0_CLK_EN, 0, RALINK_CLKCFG1);
- 		return -1;
+ 	switch (PCI_SLOT(dev->devfn)) {
+ 	case 0x00:
+-		rt2880_pci_write_u32(PCI_BASE_ADDRESS_0, 0x08000000);
+-		(void) rt2880_pci_read_u32(PCI_BASE_ADDRESS_0);
+ 		break;
+ 	case 0x11:
+ 		irq = RT288X_CPU_IRQ_PCI;
+@@ -204,16 +201,6 @@ int pcibios_map_irq(const struct pci_dev
+ 		break;
+ 	}
+ 
+-	pci_write_config_byte((struct pci_dev *) dev,
+-		PCI_CACHE_LINE_SIZE, 0x14);
+-	pci_write_config_byte((struct pci_dev *) dev, PCI_LATENCY_TIMER, 0xFF);
+-	pci_read_config_word((struct pci_dev *) dev, PCI_COMMAND, &cmd);
+-	cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_IO | PCI_COMMAND_MEMORY |
+-		PCI_COMMAND_INVALIDATE | PCI_COMMAND_FAST_BACK |
+-		PCI_COMMAND_SERR | PCI_COMMAND_WAIT | PCI_COMMAND_PARITY;
+-	pci_write_config_word((struct pci_dev *) dev, PCI_COMMAND, cmd);
+-	pci_write_config_byte((struct pci_dev *) dev, PCI_INTERRUPT_LINE,
+-			      dev->irq);
+ 	return irq;
+ }
+ 
+@@ -252,6 +239,30 @@ static int rt288x_pci_probe(struct platf
+ 
+ int pcibios_plat_dev_init(struct pci_dev *dev)
+ {
++	static bool slot0_init;
++
++	/*
++	 * Nobody seems to initialize slot 0, but this platform requires it, so
++	 * do it once when some other slot is being enabled. The PCI subsystem
++	 * should configure other slots properly, so no need to do anything
++	 * special for those.
++	 */
++	if (!slot0_init && dev->bus->number == 0) {
++		u16 cmd;
++		u32 bar0;
++
++		slot0_init = true;
++
++		pci_bus_write_config_dword(dev->bus, 0, PCI_BASE_ADDRESS_0,
++					   0x08000000);
++		pci_bus_read_config_dword(dev->bus, 0, PCI_BASE_ADDRESS_0,
++					  &bar0);
++
++		pci_bus_read_config_word(dev->bus, 0, PCI_COMMAND, &cmd);
++		cmd |= PCI_COMMAND_MASTER | PCI_COMMAND_IO | PCI_COMMAND_MEMORY;
++		pci_bus_write_config_word(dev->bus, 0, PCI_COMMAND, cmd);
++	}
++
+ 	return 0;
+ }
+ 
 
 
