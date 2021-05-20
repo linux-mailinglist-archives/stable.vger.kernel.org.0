@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62A7A38A2DF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:45:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAB3B38A2E6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:45:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234019AbhETJqm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:46:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47818 "EHLO mail.kernel.org"
+        id S233365AbhETJq7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:46:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48004 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233945AbhETJoj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:44:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 652C56144D;
-        Thu, 20 May 2021 09:33:23 +0000 (UTC)
+        id S233320AbhETJo5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:44:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 945BD61451;
+        Thu, 20 May 2021 09:33:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503203;
-        bh=Iu+n9JsXKTp3CbzqBVUQxZ1DMRkaPClel+mrPh+YlV4=;
+        s=korg; t=1621503206;
+        bh=6qMJiWZ3pEETEodCSZjOD1Yryzg/jRm6fKQC5tedRcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wj1kczWexv5I9hPHC01LIgxKlZg6LVhwkuG0kVFyO0WSnuB8vJGJSjWgZL0ABoIxb
-         a3HPBdiJwjnJCGsE8VzME2LG/7Wi07M+x82FOxIoOpuDyA5bULbevRc26qQ2u/Hj2C
-         UJfaGb8NLdZZJirqDJccnnga/iwB190pm+RShT7g=
+        b=XlsMa0Vw6l44lfMCOk6U1KGRuLb2iSwDYmCJfouhGydKzv0pRHg+rozOsHKGm8hu2
+         BpVR/zgW5WSHVfb/QyuCrEOY09o/hqbAy06qj1p+xW2YrdXoObAMbwjCXk3qzG1a0h
+         h5UAYkk0JdpE9xl3HjAg8H/156FllIaABfwFLpK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Joe Thornber <ejt@redhat.com>,
+        Ming-Hung Tsai <mtsai@redhat.com>,
         Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 116/425] dm persistent data: packed struct should have an aligned() attribute too
-Date:   Thu, 20 May 2021 11:18:05 +0200
-Message-Id: <20210520092135.257703968@linuxfoundation.org>
+Subject: [PATCH 4.19 117/425] dm space map common: fix division bug in sm_ll_find_free_block()
+Date:   Thu, 20 May 2021 11:18:06 +0200
+Message-Id: <20210520092135.288867806@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,74 +42,31 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Joe Thornber <ejt@redhat.com>
 
-commit a88b2358f1da2c9f9fcc432f2e0a79617fea397c upstream.
+commit 5208692e80a1f3c8ce2063a22b675dd5589d1d80 upstream.
 
-Otherwise most non-x86 architectures (e.g. riscv, arm) will resort to
-byte-by-byte access.
+This division bug meant the search for free metadata space could skip
+the final allocation bitmap's worth of entries. Fix affects DM thinp,
+cache and era targets.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Joe Thornber <ejt@redhat.com>
+Tested-by: Ming-Hung Tsai <mtsai@redhat.com>
 Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/persistent-data/dm-btree-internal.h   |    4 ++--
- drivers/md/persistent-data/dm-space-map-common.h |    8 ++++----
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ drivers/md/persistent-data/dm-space-map-common.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/md/persistent-data/dm-btree-internal.h
-+++ b/drivers/md/persistent-data/dm-btree-internal.h
-@@ -34,12 +34,12 @@ struct node_header {
- 	__le32 max_entries;
- 	__le32 value_size;
- 	__le32 padding;
--} __packed;
-+} __attribute__((packed, aligned(8)));
+--- a/drivers/md/persistent-data/dm-space-map-common.c
++++ b/drivers/md/persistent-data/dm-space-map-common.c
+@@ -337,6 +337,8 @@ int sm_ll_find_free_block(struct ll_disk
+ 	 */
+ 	begin = do_div(index_begin, ll->entries_per_block);
+ 	end = do_div(end, ll->entries_per_block);
++	if (end == 0)
++		end = ll->entries_per_block;
  
- struct btree_node {
- 	struct node_header header;
- 	__le64 keys[0];
--} __packed;
-+} __attribute__((packed, aligned(8)));
- 
- 
- /*
---- a/drivers/md/persistent-data/dm-space-map-common.h
-+++ b/drivers/md/persistent-data/dm-space-map-common.h
-@@ -33,7 +33,7 @@ struct disk_index_entry {
- 	__le64 blocknr;
- 	__le32 nr_free;
- 	__le32 none_free_before;
--} __packed;
-+} __attribute__ ((packed, aligned(8)));
- 
- 
- #define MAX_METADATA_BITMAPS 255
-@@ -43,7 +43,7 @@ struct disk_metadata_index {
- 	__le64 blocknr;
- 
- 	struct disk_index_entry index[MAX_METADATA_BITMAPS];
--} __packed;
-+} __attribute__ ((packed, aligned(8)));
- 
- struct ll_disk;
- 
-@@ -86,7 +86,7 @@ struct disk_sm_root {
- 	__le64 nr_allocated;
- 	__le64 bitmap_root;
- 	__le64 ref_count_root;
--} __packed;
-+} __attribute__ ((packed, aligned(8)));
- 
- #define ENTRIES_PER_BYTE 4
- 
-@@ -94,7 +94,7 @@ struct disk_bitmap_header {
- 	__le32 csum;
- 	__le32 not_used;
- 	__le64 blocknr;
--} __packed;
-+} __attribute__ ((packed, aligned(8)));
- 
- enum allocation_event {
- 	SM_NONE,
+ 	for (i = index_begin; i < index_end; i++, begin = 0) {
+ 		struct dm_block *blk;
 
 
