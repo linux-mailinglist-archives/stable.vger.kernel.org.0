@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C76538A7A1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99F5538A95E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232814AbhETKlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
+        id S238696AbhETLBS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237413AbhETKiF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:38:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A14D61C78;
-        Thu, 20 May 2021 09:54:41 +0000 (UTC)
+        id S239357AbhETK7G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:59:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C2D2561D01;
+        Thu, 20 May 2021 10:02:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504481;
-        bh=mfU49GYTZqOw/I7JKuvZr88Pd7fKmif0/zfVAt6DikE=;
+        s=korg; t=1621504974;
+        bh=/ZW8JwvHwnl77jWCkthAo3Vaac0GolRsZMMhyixU/f4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+O4DOy0wIvynLraAetdkoKq/gbGdJ1FYFNGrRQsR2gY/2C4BRLs2W5SjFsHCVsZx
-         Z2+OhSRscYEFL5vPRCqpdkk1M2nyqtBLPVA0EjJ8rfnLQt+B9kF21D4ap8nplVKwIj
-         eUwVouv4EYWGpddJkp+WAnzhfBasb0csTCfv/p3g=
+        b=ziGdYPqUe/eBrObgGZ3T7B0PT388nwa+605icYvqqj1k/gAT7OGYFHzFAxPBqjOZg
+         GDEHaieCr1neNOvhIgcMKtkZzAK+xqvRi3iEyhVOU2vPcbwnuhtiYXyu6V0fyQXayq
+         JRptOxKF8UqJUlpZku3AEFuAD6Qa1W8n1vQY0yD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nikola Livic <nlivic@gmail.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stefani Seibold <stefani@seibold.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 265/323] pNFS/flexfiles: fix incorrect size check in decode_nfs_fh()
+Subject: [PATCH 4.9 165/240] kfifo: fix ternary sign extension bugs
 Date:   Thu, 20 May 2021 11:22:37 +0200
-Message-Id: <20210520092129.302664881@linuxfoundation.org>
+Message-Id: <20210520092114.188530857@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,118 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nikola Livic <nlivic@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ed34695e15aba74f45247f1ee2cf7e09d449f925 ]
+[ Upstream commit 926ee00ea24320052b46745ef4b00d91c05bd03d ]
 
-We (adam zabrocki, alexander matrosov, alexander tereshkin, maksym
-bazalii) observed the check:
+The intent with this code was to return negative error codes but instead
+it returns positives.
 
-	if (fh->size > sizeof(struct nfs_fh))
+The problem is how type promotion works with ternary operations.  These
+functions return long, "ret" is an int and "copied" is a u32.  The
+negative error code is first cast to u32 so it becomes a high positive and
+then cast to long where it's still a positive.
 
-should not use the size of the nfs_fh struct which includes an extra two
-bytes from the size field.
+We could fix this by declaring "ret" as a ssize_t but let's just get rid
+of the ternaries instead.
 
-struct nfs_fh {
-	unsigned short         size;
-	unsigned char          data[NFS_MAXFHSIZE];
-}
-
-but should determine the size from data[NFS_MAXFHSIZE] so the memcpy
-will not write 2 bytes beyond destination.  The proposed fix is to
-compare against the NFS_MAXFHSIZE directly, as is done elsewhere in fs
-code base.
-
-Fixes: d67ae825a59d ("pnfs/flexfiles: Add the FlexFile Layout Driver")
-Signed-off-by: Nikola Livic <nlivic@gmail.com>
+Link: https://lkml.kernel.org/r/YIE+/cK1tBzSuQPU@mwanda
+Fixes: 5bf2b19320ec ("kfifo: add example files to the kernel sample directory")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Cc: Stefani Seibold <stefani@seibold.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/flexfilelayout/flexfilelayout.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ samples/kfifo/bytestream-example.c | 8 ++++++--
+ samples/kfifo/inttype-example.c    | 8 ++++++--
+ samples/kfifo/record-example.c     | 8 ++++++--
+ 3 files changed, 18 insertions(+), 6 deletions(-)
 
-diff --git a/fs/nfs/flexfilelayout/flexfilelayout.c b/fs/nfs/flexfilelayout/flexfilelayout.c
-index 74f15498c9bf..9d99e19d98bd 100644
---- a/fs/nfs/flexfilelayout/flexfilelayout.c
-+++ b/fs/nfs/flexfilelayout/flexfilelayout.c
-@@ -101,7 +101,7 @@ static int decode_nfs_fh(struct xdr_stream *xdr, struct nfs_fh *fh)
- 	if (unlikely(!p))
- 		return -ENOBUFS;
- 	fh->size = be32_to_cpup(p++);
--	if (fh->size > sizeof(struct nfs_fh)) {
-+	if (fh->size > NFS_MAXFHSIZE) {
- 		printk(KERN_ERR "NFS flexfiles: Too big fh received %d\n",
- 		       fh->size);
- 		return -EOVERFLOW;
+diff --git a/samples/kfifo/bytestream-example.c b/samples/kfifo/bytestream-example.c
+index 2fca916d9edf..a7f5ee8b6edc 100644
+--- a/samples/kfifo/bytestream-example.c
++++ b/samples/kfifo/bytestream-example.c
+@@ -124,8 +124,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
+ 	ret = kfifo_from_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&write_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static ssize_t fifo_read(struct file *file, char __user *buf,
+@@ -140,8 +142,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
+ 	ret = kfifo_to_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&read_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static const struct file_operations fifo_fops = {
+diff --git a/samples/kfifo/inttype-example.c b/samples/kfifo/inttype-example.c
+index 8dc3c2e7105a..a326a37e9163 100644
+--- a/samples/kfifo/inttype-example.c
++++ b/samples/kfifo/inttype-example.c
+@@ -117,8 +117,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
+ 	ret = kfifo_from_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&write_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static ssize_t fifo_read(struct file *file, char __user *buf,
+@@ -133,8 +135,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
+ 	ret = kfifo_to_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&read_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static const struct file_operations fifo_fops = {
+diff --git a/samples/kfifo/record-example.c b/samples/kfifo/record-example.c
+index 2d7529eeb294..deb87a2e4e6b 100644
+--- a/samples/kfifo/record-example.c
++++ b/samples/kfifo/record-example.c
+@@ -131,8 +131,10 @@ static ssize_t fifo_write(struct file *file, const char __user *buf,
+ 	ret = kfifo_from_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&write_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static ssize_t fifo_read(struct file *file, char __user *buf,
+@@ -147,8 +149,10 @@ static ssize_t fifo_read(struct file *file, char __user *buf,
+ 	ret = kfifo_to_user(&test, buf, count, &copied);
+ 
+ 	mutex_unlock(&read_lock);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
+ }
+ 
+ static const struct file_operations fifo_fops = {
 -- 
 2.30.2
 
