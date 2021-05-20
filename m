@@ -2,35 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4689638A7B1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BB5C38A7B3
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237573AbhETKlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39858 "EHLO mail.kernel.org"
+        id S237599AbhETKlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238231AbhETKjn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:39:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 00CAC61C77;
-        Thu, 20 May 2021 09:55:22 +0000 (UTC)
+        id S238322AbhETKjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:39:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CE1D613E2;
+        Thu, 20 May 2021 09:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504523;
-        bh=7vx0vj6tEE+9WDAwQ6VJZdwh+sqangh/uiaOhn30SG0=;
+        s=korg; t=1621504525;
+        bh=1rV6bTo8+MSqkosykBa/BVfO+1KSswGChwij4PbyuI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4XWx9cyn4ADdLtsuk5HXcSpBQE1jVeMgLud3jcQIr4bz9POO7Cg9HIq7LjVG2Fhb
-         qIRYIxazoXipqWQN/dcD7dgx9LllAS7rDWqdsjwBncXIGcSXNGuZPqThJVMV+ENm3X
-         DQDaVBEphQxlMtVSGaCBFbsOJ+3FAt3WJEGmf+l4=
+        b=vitaxhoWSpNsWXHGeGJGP7eUmmLur+1P1i/7+0c06AwJ79VifG/l+VRYL7SPWJ69e
+         7JRjOUn2bgqfDcoSdGNh6iGJWwG4/jsjGcevycJ9NrEE5Hk5cqigbFDhAqP3GIbTdP
+         rleeGesCQg4qX32DTRcOTKkzFwGRgCNP1sADc9UQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-        Ming Lei <ming.lei@redhat.com>,
-        Hannes Reinecke <hare@suse.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 285/323] blk-mq: Swap two calls in blk_mq_exit_queue()
-Date:   Thu, 20 May 2021 11:22:57 +0200
-Message-Id: <20210520092129.990282542@linuxfoundation.org>
+        stable@vger.kernel.org, Marcel Hamer <marcel@solidxs.se>
+Subject: [PATCH 4.14 286/323] usb: dwc3: omap: improve extcon initialization
+Date:   Thu, 20 May 2021 11:22:58 +0200
+Message-Id: <20210520092130.022895967@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -42,51 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Marcel Hamer <marcel@solidxs.se>
 
-[ Upstream commit 630ef623ed26c18a457cdc070cf24014e50129c2 ]
+commit e17b02d4970913233d543c79c9c66e72cac05bdd upstream.
 
-If a tag set is shared across request queues (e.g. SCSI LUNs) then the
-block layer core keeps track of the number of active request queues in
-tags->active_queues. blk_mq_tag_busy() and blk_mq_tag_idle() update that
-atomic counter if the hctx flag BLK_MQ_F_TAG_QUEUE_SHARED is set. Make
-sure that blk_mq_exit_queue() calls blk_mq_tag_idle() before that flag is
-cleared by blk_mq_del_queue_tag_set().
+When extcon is used in combination with dwc3, it is assumed that the dwc3
+registers are untouched and as such are only configured if VBUS is valid
+or ID is tied to ground.
 
-Cc: Christoph Hellwig <hch@infradead.org>
-Cc: Ming Lei <ming.lei@redhat.com>
-Cc: Hannes Reinecke <hare@suse.com>
-Fixes: 0d2602ca30e4 ("blk-mq: improve support for shared tags maps")
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20210513171529.7977-1-bvanassche@acm.org
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+In case VBUS is not valid or ID is floating, the registers are not
+configured as such during driver initialization, causing a wrong
+default state during boot.
+
+If the registers are not in a default state, because they are for
+instance touched by a boot loader, this can cause for a kernel error.
+
+Signed-off-by: Marcel Hamer <marcel@solidxs.se>
+Link: https://lore.kernel.org/r/20210427122118.1948340-1-marcel@solidxs.se
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-mq.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/usb/dwc3/dwc3-omap.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/block/blk-mq.c b/block/blk-mq.c
-index cf56bdad2e06..7b785855a6e4 100644
---- a/block/blk-mq.c
-+++ b/block/blk-mq.c
-@@ -2489,10 +2489,12 @@ EXPORT_SYMBOL(blk_mq_init_allocated_queue);
+--- a/drivers/usb/dwc3/dwc3-omap.c
++++ b/drivers/usb/dwc3/dwc3-omap.c
+@@ -440,8 +440,13 @@ static int dwc3_omap_extcon_register(str
  
- void blk_mq_free_queue(struct request_queue *q)
- {
--	struct blk_mq_tag_set	*set = q->tag_set;
-+	struct blk_mq_tag_set *set = q->tag_set;
+ 		if (extcon_get_state(edev, EXTCON_USB) == true)
+ 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_VALID);
++		else
++			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_OFF);
++
+ 		if (extcon_get_state(edev, EXTCON_USB_HOST) == true)
+ 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_GROUND);
++		else
++			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_FLOAT);
  
--	blk_mq_del_queue_tag_set(q);
-+	/* Checks hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED. */
- 	blk_mq_exit_hw_queues(q, set, set->nr_hw_queues);
-+	/* May clear BLK_MQ_F_TAG_QUEUE_SHARED in hctx->flags. */
-+	blk_mq_del_queue_tag_set(q);
- }
- 
- /* Basically redo blk_mq_init_queue with queue frozen */
--- 
-2.30.2
-
+ 		omap->edev = edev;
+ 	}
 
 
