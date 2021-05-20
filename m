@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0400838AB3D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C39CA38A9C1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241152AbhETLWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:22:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43054 "EHLO mail.kernel.org"
+        id S238708AbhETLGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239319AbhETLUI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:20:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 20E8A61D73;
-        Thu, 20 May 2021 10:10:51 +0000 (UTC)
+        id S238980AbhETLEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B0A761930;
+        Thu, 20 May 2021 10:04:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505452;
-        bh=ZRTrll+/9TeBCPtkuF809MAdV4Fzm/EVrDVnWwSVPwg=;
+        s=korg; t=1621505079;
+        bh=iv/5rXtzT0ctIRZTVHraCYhLh6rKHKljN6baBKx/wj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o1Lld8WSrHuyPICZfdv6fHy2u2OzyImY7jptsLtThFVLY7p/14XCjgaEwK85OA+RJ
-         7PAV4Y/xe67gXzATJy24kDs3X5UBJUnwSz4SJ0dI1WBsTXSrZK7MCviwNAmqpG7vA9
-         y1D6SnG6ddSoHIZjyKGLSvTFZteiFZNXB4eAas0E=
+        b=qkVpu9wycZ0yZEvo5hQsaq9mIUN27WzSnjagJp2G5KyeuY9NRC09XPekQWLt64MWt
+         ae0nGuCkaaIP7XjDyQPbQm18cGemWBJemcU8qXiyl9g7vI4DGM3pGpzuEOQ31+pcPK
+         5F4olWd9hAOpybxxjxxxl0RuCYe0yA+OjI6gxuZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 140/190] ALSA: rme9652: dont disable if not enabled
+        stable@vger.kernel.org,
+        Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>,
+        Phil Elwell <phil@raspberrypi.com>
+Subject: [PATCH 4.9 212/240] usb: dwc2: Fix gadget DMA unmap direction
 Date:   Thu, 20 May 2021 11:23:24 +0200
-Message-Id: <20210520092106.821306643@linuxfoundation.org>
+Message-Id: <20210520092115.796712478@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Phil Elwell <phil@raspberrypi.com>
 
-[ Upstream commit f57a741874bb6995089020e97a1dcdf9b165dcbe ]
+commit 75a41ce46bae6cbe7d3bb2584eb844291d642874 upstream.
 
-rme9652 wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+The dwc2 gadget support maps and unmaps DMA buffers as necessary. When
+mapping and unmapping it uses the direction of the endpoint to select
+the direction of the DMA transfer, but this fails for Control OUT
+transfers because the unmap occurs after the endpoint direction has
+been reversed for the status phase.
 
-[    1.751595] snd_rme9652 0000:00:03.0: disabling already-disabled device
-[    1.751605] WARNING: CPU: 0 PID: 174 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.759968] Call Trace:
-[    1.760145]  snd_rme9652_card_free+0x76/0xa0 [snd_rme9652]
-[    1.760434]  release_card_device+0x4b/0x80 [snd]
-[    1.760679]  device_release+0x3b/0xa0
-[    1.760874]  kobject_put+0x94/0x1b0
-[    1.761059]  put_device+0x13/0x20
-[    1.761235]  snd_card_free+0x61/0x90 [snd]
-[    1.761454]  snd_rme9652_probe+0x3be/0x700 [snd_rme9652]
+A possible solution would be to unmap the buffer before the direction
+is changed, but a safer, less invasive fix is to remember the buffer
+direction independently of the endpoint direction.
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-4-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fe0b94abcdf6 ("usb: dwc2: gadget: manage ep0 state in software")
+Acked-by: Minas Harutyunyan <Minas.Harutyunyan@synopsys.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Phil Elwell <phil@raspberrypi.com>
+Link: https://lore.kernel.org/r/20210506112200.2893922-1-phil@raspberrypi.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/rme9652/rme9652.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/dwc2/core.h   |    2 ++
+ drivers/usb/dwc2/gadget.c |    3 ++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/rme9652/rme9652.c b/sound/pci/rme9652/rme9652.c
-index c253bdf92e36..e5611ee9f2ae 100644
---- a/sound/pci/rme9652/rme9652.c
-+++ b/sound/pci/rme9652/rme9652.c
-@@ -1761,7 +1761,8 @@ static int snd_rme9652_free(struct snd_rme9652 *rme9652)
- 	if (rme9652->port)
- 		pci_release_regions(rme9652->pci);
+--- a/drivers/usb/dwc2/core.h
++++ b/drivers/usb/dwc2/core.h
+@@ -164,6 +164,7 @@ struct dwc2_hsotg_req;
+  * @lock: State lock to protect contents of endpoint.
+  * @dir_in: Set to true if this endpoint is of the IN direction, which
+  *          means that it is sending data to the Host.
++ * @map_dir: Set to the value of dir_in when the DMA buffer is mapped.
+  * @index: The index for the endpoint registers.
+  * @mc: Multi Count - number of transactions per microframe
+  * @interval - Interval for periodic endpoints, in frames or microframes.
+@@ -207,6 +208,7 @@ struct dwc2_hsotg_ep {
+ 	unsigned short		fifo_index;
  
--	pci_disable_device(rme9652->pci);
-+	if (pci_is_enabled(rme9652->pci))
-+		pci_disable_device(rme9652->pci);
- 	return 0;
+ 	unsigned char           dir_in;
++	unsigned char           map_dir;
+ 	unsigned char           index;
+ 	unsigned char           mc;
+ 	u16                     interval;
+--- a/drivers/usb/dwc2/gadget.c
++++ b/drivers/usb/dwc2/gadget.c
+@@ -308,7 +308,7 @@ static void dwc2_hsotg_unmap_dma(struct
+ 	if (hs_req->req.length == 0)
+ 		return;
+ 
+-	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->dir_in);
++	usb_gadget_unmap_request(&hsotg->gadget, req, hs_ep->map_dir);
  }
  
--- 
-2.30.2
-
+ /**
+@@ -745,6 +745,7 @@ static int dwc2_hsotg_map_dma(struct dwc
+ 	if (hs_req->req.length == 0)
+ 		return 0;
+ 
++	hs_ep->map_dir = hs_ep->dir_in;
+ 	ret = usb_gadget_map_request(&hsotg->gadget, req, hs_ep->dir_in);
+ 	if (ret)
+ 		goto dma_error;
 
 
