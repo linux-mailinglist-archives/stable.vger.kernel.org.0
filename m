@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37CF538AA28
+	by mail.lfdr.de (Postfix) with ESMTP id CAB2538AA2A
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237565AbhETLKl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
+        id S238855AbhETLKm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239494AbhETLIB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236335AbhETLIB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 07:08:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA6D16100A;
-        Thu, 20 May 2021 10:06:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E7039613DC;
+        Thu, 20 May 2021 10:06:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505168;
-        bh=utCbk+blntjf/cU7sZIjoED/DrtKfhd2Mvgji68r64w=;
+        s=korg; t=1621505170;
+        bh=hs+EqPyCDyqCDKC+REF6QbabERUgprgunsI+jUv/DwY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgsUcLgc1COmgA9sBQN2JxehryXLSQ4LUVjza5js7kh4PzEhpztRBAI64O0MNKPIy
-         CAx4NfYaCafHbGmTsG4fU6jr4sJnzP7JIRLAZkeQhbsWceEhJcGu/x35MDvYyUeweu
-         mGxQ+7/fhWa1sUaczX5D4+TsJY7uGX1NYlC5mwOA=
+        b=GHe+llIpmUfrCL7r+a+VcU+HB98SAOccnjxpA62BlxEwjRkJIpTnKMeyvObPWOgc8
+         1hOD914INSm2h3qHpAArncplFEkM6w8bacUwTzMKh6j2iMcviAJ9YQK11jXXud/4bK
+         SzIrAn8CimC7mDLLmKcA4941+gzmLCXCXKghvJpI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Seunghui Lee <sh043.lee@samsung.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.4 013/190] mmc: core: Set read only for SD cards with permanent write protect bit
-Date:   Thu, 20 May 2021 11:21:17 +0200
-Message-Id: <20210520092102.613855441@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Phillip Potter <phil@philpotter.co.uk>
+Subject: [PATCH 4.4 014/190] fbdev: zero-fill colormap in fbcmap.c
+Date:   Thu, 20 May 2021 11:21:18 +0200
+Message-Id: <20210520092102.645060439@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -39,45 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seunghui Lee <sh043.lee@samsung.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 917a5336f2c27928be270226ab374ed0cbf3805d upstream.
+commit 19ab233989d0f7ab1de19a036e247afa4a0a1e9c upstream.
 
-Some of SD cards sets permanent write protection bit in their CSD register,
-due to lifespan or internal problem. To avoid unnecessary I/O write
-operations, let's parse the bits in the CSD during initialization and mark
-the card as read only for this case.
+Use kzalloc() rather than kmalloc() for the dynamically allocated parts
+of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
+data to userspace under certain circumstances.
 
-Signed-off-by: Seunghui Lee <sh043.lee@samsung.com>
-Link: https://lore.kernel.org/r/20210222083156.19158-1-sh043.lee@samsung.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes a KMSAN-found infoleak bug reported by syzbot at:
+https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
+
+Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sd.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/video/fbdev/core/fbcmap.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/mmc/core/sd.c
-+++ b/drivers/mmc/core/sd.c
-@@ -138,6 +138,9 @@ static int mmc_decode_csd(struct mmc_car
- 			csd->erase_size = UNSTUFF_BITS(resp, 39, 7) + 1;
- 			csd->erase_size <<= csd->write_blkbits - 9;
- 		}
-+
-+		if (UNSTUFF_BITS(resp, 13, 1))
-+			mmc_card_set_readonly(card);
- 		break;
- 	case 1:
- 		/*
-@@ -172,6 +175,9 @@ static int mmc_decode_csd(struct mmc_car
- 		csd->write_blkbits = 9;
- 		csd->write_partial = 0;
- 		csd->erase_size = 1;
-+
-+		if (UNSTUFF_BITS(resp, 13, 1))
-+			mmc_card_set_readonly(card);
- 		break;
- 	default:
- 		pr_err("%s: unrecognised CSD structure version %d\n",
+--- a/drivers/video/fbdev/core/fbcmap.c
++++ b/drivers/video/fbdev/core/fbcmap.c
+@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cm
+ 		if (!len)
+ 			return 0;
+ 
+-		cmap->red = kmalloc(size, flags);
++		cmap->red = kzalloc(size, flags);
+ 		if (!cmap->red)
+ 			goto fail;
+-		cmap->green = kmalloc(size, flags);
++		cmap->green = kzalloc(size, flags);
+ 		if (!cmap->green)
+ 			goto fail;
+-		cmap->blue = kmalloc(size, flags);
++		cmap->blue = kzalloc(size, flags);
+ 		if (!cmap->blue)
+ 			goto fail;
+ 		if (transp) {
+-			cmap->transp = kmalloc(size, flags);
++			cmap->transp = kzalloc(size, flags);
+ 			if (!cmap->transp)
+ 				goto fail;
+ 		} else {
 
 
