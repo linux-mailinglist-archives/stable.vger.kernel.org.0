@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD8C338A68F
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CECC138A693
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:28:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236372AbhETK2L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:28:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
+        id S236809AbhETK21 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:28:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236375AbhETK0V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:26:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 649B261C23;
-        Thu, 20 May 2021 09:50:08 +0000 (UTC)
+        id S236422AbhETK0Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:26:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9056A61C24;
+        Thu, 20 May 2021 09:50:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504208;
-        bh=NNagmpoOcTBcNOeRt/xwnkAT/BbevfPqH4FZ1vQeS8M=;
+        s=korg; t=1621504211;
+        bh=9q53dVbRJ4/lK7UlsyJsJs2G0m4XJoVNBPMKmJNYzss=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLBUxlizpyTp2wZPZNYMM6w+6llDV78Hddud+2/mAh5TSWWZdRVLfAMIo8cUGPePt
-         Plj10fazn1M1EuZ9l+vyzpd5cV7oZf9BoJ0PLMqTkGf4O1kDW3Y3ILkHi911vnue5Q
-         KqBs532DSVdVc24c2PrwrpQ634Dn0qvl4cjkP9wM=
+        b=yYZdapgUie3J+e48qp7ys1B+D0VKfJCOimXXxsRNLhtjmw/2ahnGH6lDvK+dhgxsM
+         f3zlyZ+uVlnuPX3nyb5OevOBAYyGlvQgDty1oAF9CUh5u/t2q+fMYxf7YcW2CgyJzr
+         zAh+9X0KiNIH7HMm63Qe8SQvckT3vG5wHWD4RzRw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Erwan Le Ray <erwan.leray@foss.st.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 142/323] serial: stm32: fix incorrect characters on console
-Date:   Thu, 20 May 2021 11:20:34 +0200
-Message-Id: <20210520092124.968262608@linuxfoundation.org>
+Subject: [PATCH 4.14 143/323] serial: stm32: fix tx_empty condition
+Date:   Thu, 20 May 2021 11:20:35 +0200
+Message-Id: <20210520092125.007021822@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -41,54 +41,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Erwan Le Ray <erwan.leray@foss.st.com>
 
-[ Upstream commit f264c6f6aece81a9f8fbdf912b20bd3feb476a7a ]
+[ Upstream commit 3db1d52466dc11dca4e47ef12a6e6e97f846af62 ]
 
-Incorrect characters are observed on console during boot. This issue occurs
-when init/main.c is modifying termios settings to open /dev/console on the
-rootfs.
+In "tx_empty", we should poll TC bit in both DMA and PIO modes (instead of
+TXE) to check transmission data register has been transmitted independently
+of the FIFO mode. TC indicates that both transmit register and shift
+register are empty. When shift register is empty, tx_empty should return
+TIOCSER_TEMT instead of TC value.
 
-This patch adds a waiting loop in set_termios to wait for TX shift register
-empty (and TX FIFO if any) before stopping serial port.
+Cleans the USART_CR_TC TCCF register define (transmission complete clear
+flag) as it is duplicate of USART_ICR_TCCF.
 
 Fixes: 48a6092fb41f ("serial: stm32-usart: Add STM32 USART Driver")
 Signed-off-by: Erwan Le Ray <erwan.leray@foss.st.com>
-Link: https://lore.kernel.org/r/20210304162308.8984-4-erwan.leray@foss.st.com
+Link: https://lore.kernel.org/r/20210304162308.8984-13-erwan.leray@foss.st.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/stm32-usart.c | 12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/tty/serial/stm32-usart.c | 5 ++++-
+ drivers/tty/serial/stm32-usart.h | 3 ---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
-index 1e854e1851fb..6ad982cf31fc 100644
+index 6ad982cf31fc..a10335e904ea 100644
 --- a/drivers/tty/serial/stm32-usart.c
 +++ b/drivers/tty/serial/stm32-usart.c
-@@ -499,8 +499,9 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
- 	unsigned int baud;
- 	u32 usartdiv, mantissa, fraction, oversampling;
- 	tcflag_t cflag = termios->c_cflag;
--	u32 cr1, cr2, cr3;
-+	u32 cr1, cr2, cr3, isr;
- 	unsigned long flags;
-+	int ret;
+@@ -365,7 +365,10 @@ static unsigned int stm32_tx_empty(struct uart_port *port)
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
  
- 	if (!stm32_port->hw_flow_control)
- 		cflag &= ~CRTSCTS;
-@@ -509,6 +510,15 @@ static void stm32_set_termios(struct uart_port *port, struct ktermios *termios,
- 
- 	spin_lock_irqsave(&port->lock, flags);
- 
-+	ret = readl_relaxed_poll_timeout_atomic(port->membase + ofs->isr,
-+						isr,
-+						(isr & USART_SR_TC),
-+						10, 100000);
+-	return readl_relaxed(port->membase + ofs->isr) & USART_SR_TXE;
++	if (readl_relaxed(port->membase + ofs->isr) & USART_SR_TC)
++		return TIOCSER_TEMT;
 +
-+	/* Send the TC error message only when ISR_TC is not set. */
-+	if (ret)
-+		dev_err(port->dev, "Transmission is not complete\n");
-+
- 	/* Stop serial port and reset value */
- 	writel_relaxed(0, port->membase + ofs->cr1);
++	return 0;
+ }
+ 
+ static void stm32_set_mctrl(struct uart_port *port, unsigned int mctrl)
+diff --git a/drivers/tty/serial/stm32-usart.h b/drivers/tty/serial/stm32-usart.h
+index 9d087881913a..55142df8e24b 100644
+--- a/drivers/tty/serial/stm32-usart.h
++++ b/drivers/tty/serial/stm32-usart.h
+@@ -123,9 +123,6 @@ struct stm32_usart_info stm32h7_info = {
+ /* Dummy bits */
+ #define USART_SR_DUMMY_RX	BIT(16)
+ 
+-/* USART_ICR (F7) */
+-#define USART_CR_TC		BIT(6)
+-
+ /* USART_DR */
+ #define USART_DR_MASK		GENMASK(8, 0)
  
 -- 
 2.30.2
