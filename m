@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CEEC38A83A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A47738A83C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:46:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236803AbhETKsJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:48:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45066 "EHLO mail.kernel.org"
+        id S237679AbhETKsM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:48:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46552 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237532AbhETKqH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:46:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C74B761CA0;
-        Thu, 20 May 2021 09:57:45 +0000 (UTC)
+        id S237788AbhETKqN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:46:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 06A8F61628;
+        Thu, 20 May 2021 09:57:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504666;
-        bh=XXiP8hIl8j9SfARZKtshWyoRYEFRCqGySqGCWLow8yU=;
+        s=korg; t=1621504668;
+        bh=vw9bmeJyvGs2tTVz99pCPUZL3362gfhABXPXfJqqy9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C3wbjmOX6aZxcmPtRC/Mrjr9uueNlc3Ze+wkFa5rZjphyOGxr9KpXJe/DTLEBG6Yi
-         kVLRepqLQjTS9/je1H4NqV5/eoZn7x2IgBtUZGnBUMrW/NfG3CpvQiY4zWICPnX3hl
-         uyMGyD2zQafa9+Wt4vtuV2KzOY/W0y0BR4D2JmXE=
+        b=N0dwF96KAnOi9X052t+3RjD8TW4W0Ohxpm1pfhB3J1RSd+CXDBZmQIa0FzglQHC+N
+         i9cJOVcqm4SaM2GKp604mNY74VDjGoWF2o0T1hkqR4URy4E5VzaM9PT5P+FhZQN1mw
+         lWlqVHV1EmqdClt5r9Jy4t2xBKC4YH8cVsVNmL7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 025/240] phy: phy-twl4030-usb: Fix possible use-after-free in twl4030_usb_remove()
-Date:   Thu, 20 May 2021 11:20:17 +0200
-Message-Id: <20210520092109.487026134@linuxfoundation.org>
+        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 026/240] btrfs: convert logic BUG_ON()s in replace_path to ASSERT()s
+Date:   Thu, 20 May 2021 11:20:18 +0200
+Message-Id: <20210520092109.519069535@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -40,42 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit e1723d8b87b73ab363256e7ca3af3ddb75855680 ]
+[ Upstream commit 7a9213a93546e7eaef90e6e153af6b8fc7553f10 ]
 
-This driver's remove path calls cancel_delayed_work(). However, that
-function does not wait until the work function finishes. This means
-that the callback function may still be running after the driver's
-remove function has finished, which would result in a use-after-free.
+A few BUG_ON()'s in replace_path are purely to keep us from making
+logical mistakes, so replace them with ASSERT()'s.
 
-Fix by calling cancel_delayed_work_sync(), which ensures that
-the work is properly cancelled, no longer running, and unable
-to re-schedule itself.
-
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20210407092716.3270248-1-yangyingliang@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/phy-twl4030-usb.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/relocation.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/phy/phy-twl4030-usb.c b/drivers/phy/phy-twl4030-usb.c
-index ddb530ee2255..9d57695e1f21 100644
---- a/drivers/phy/phy-twl4030-usb.c
-+++ b/drivers/phy/phy-twl4030-usb.c
-@@ -798,7 +798,7 @@ static int twl4030_usb_remove(struct platform_device *pdev)
+diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
+index cd5b86d80e7a..5caf4dbdd801 100644
+--- a/fs/btrfs/relocation.c
++++ b/fs/btrfs/relocation.c
+@@ -1801,8 +1801,8 @@ int replace_path(struct btrfs_trans_handle *trans,
+ 	int ret;
+ 	int slot;
  
- 	usb_remove_phy(&twl->phy);
- 	pm_runtime_get_sync(twl->dev);
--	cancel_delayed_work(&twl->id_workaround_work);
-+	cancel_delayed_work_sync(&twl->id_workaround_work);
- 	device_remove_file(twl->dev, &dev_attr_vbus);
+-	BUG_ON(src->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
+-	BUG_ON(dest->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(src->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
++	ASSERT(dest->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
  
- 	/* set transceiver mode to power on defaults */
+ 	last_snapshot = btrfs_root_last_snapshot(&src->root_item);
+ again:
+@@ -1834,7 +1834,7 @@ again:
+ 	parent = eb;
+ 	while (1) {
+ 		level = btrfs_header_level(parent);
+-		BUG_ON(level < lowest_level);
++		ASSERT(level >= lowest_level);
+ 
+ 		ret = btrfs_bin_search(parent, &key, level, &slot);
+ 		if (ret && slot > 0)
 -- 
 2.30.2
 
