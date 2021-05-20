@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27D4738A9E8
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA79738AB5D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238969AbhETLHd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:07:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38332 "EHLO mail.kernel.org"
+        id S241093AbhETLXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239096AbhETLFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:05:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6FB61D31;
-        Thu, 20 May 2021 10:05:10 +0000 (UTC)
+        id S240971AbhETLVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:21:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDD0A61D8F;
+        Thu, 20 May 2021 10:11:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505110;
-        bh=+jcIGcjeKOo/f6wb1UeksPpIsxSXW9diPnA0V1vZo8I=;
+        s=korg; t=1621505485;
+        bh=TCw6IzIBlq8q+GKZ9gdle9bWfo09GoqckjT9I6Ml+eg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/A358rPQj4g+pu5AECi5DhTTZC/Am4xEr4viXrzphZehCeuROvaa5LytGyoboHYR
-         PH2fgBpr791F5pipqyPknqRqlFJCcbLC7cEdx3XyhiwIRoHZij3HBd8OGAzt6sYGrk
-         zTX77tjJ+HyoZL8Pe4lLC9KHuCF00nLSIdKkHSus=
+        b=RdimsMC6xtJWD3K2rl5Oep3W7yLuldx/S/qY3N1+i3HUrHKwohBgoDZVZlmrtGVW+
+         xwCf5GayPehN1Qc0ty6iL7e/34vIQaj0dnb3kcpQe2mwyoG7vSh677vuy+S6YYJfq1
+         bb+eKgNAn35r/7XcYwJqswkudWQLfv9F1K6uoDoU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tosk Robot <tencent_os_robot@tencent.com>,
-        Kaixu Xia <kaixuxia@tencent.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.9 228/240] cxgb4: Fix the -Wmisleading-indentation warning
-Date:   Thu, 20 May 2021 11:23:40 +0200
-Message-Id: <20210520092116.364906568@linuxfoundation.org>
+        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 157/190] NFSv4.2 fix handling of sr_eof in SEEKs reply
+Date:   Thu, 20 May 2021 11:23:41 +0200
+Message-Id: <20210520092107.357813500@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kaixu Xia <kaixuxia@tencent.com>
+From: Olga Kornievskaia <kolga@netapp.com>
 
-commit ea8146c6845799142aa4ee2660741c215e340cdf upstream.
+[ Upstream commit 73f5c88f521a630ea1628beb9c2d48a2e777a419 ]
 
-Fix the gcc warning:
+Currently the client ignores the value of the sr_eof of the SEEK
+operation. According to the spec, if the server didn't find the
+requested extent and reached the end of the file, the server
+would return sr_eof=true. In case the request for DATA and no
+data was found (ie in the middle of the hole), then the lseek
+expects that ENXIO would be returned.
 
-drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c:2673:9: warning: this 'for' clause does not guard... [-Wmisleading-indentation]
- 2673 |         for (i = 0; i < n; ++i) \
-
-Reported-by: Tosk Robot <tencent_os_robot@tencent.com>
-Signed-off-by: Kaixu Xia <kaixuxia@tencent.com>
-Link: https://lore.kernel.org/r/1604467444-23043-1-git-send-email-kaixuxia@tencent.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1c6dcbe5ceff8 ("NFS: Implement SEEK")
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/nfs42proc.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c
-@@ -2446,7 +2446,7 @@ do { \
- 	seq_printf(seq, "%-12s", s); \
- 	for (i = 0; i < n; ++i) \
- 		seq_printf(seq, " %16" fmt_spec, v); \
--		seq_putc(seq, '\n'); \
-+	seq_putc(seq, '\n'); \
- } while (0)
- #define S(s, v) S3("s", s, v)
- #define T3(fmt_spec, s, v) S3(fmt_spec, s, tx[i].v)
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 7f1a0fb8c493..31cc6f3d992d 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -168,7 +168,10 @@ static loff_t _nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
+ 	if (status)
+ 		return status;
+ 
+-	return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
++	if (whence == SEEK_DATA && res.sr_eof)
++		return -NFS4ERR_NXIO;
++	else
++		return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
+ }
+ 
+ loff_t nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
+-- 
+2.30.2
+
 
 
