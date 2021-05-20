@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EC84538A3EE
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 42D1338A3F7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234805AbhETJ6l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:58:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58460 "EHLO mail.kernel.org"
+        id S234340AbhETJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:59:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234613AbhETJ4j (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:56:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E83D61405;
-        Thu, 20 May 2021 09:37:44 +0000 (UTC)
+        id S231924AbhETJ5C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:57:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E712B61627;
+        Thu, 20 May 2021 09:37:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503465;
-        bh=tVTv+aXED1UpheeDz+k8kU9g/uaMaGmFqE3wfhfqOXw=;
+        s=korg; t=1621503469;
+        bh=GnE2Mid1xYoPgRWwU+m+5UdnTv4WO4oFBg/7XbvxAqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jk7eLQhQtmUFxfjFprOKHzcDjhrgSmHX56LVhr1unJGTPruieG5/GzMDs0ca3RpoG
-         8abNj7cFnpLx4n5sBWfuhv1zONwCeihsZRFx3WuIU7EdE3I2UOvutpOcw2XFrfNfq5
-         K9mtiwqSe4E9H4o3oCCoBEHty98MBDEqF/G+nLd4=
+        b=R2MK0kc5+p6X/4M98t631WOG6dzY9eQVP21ycY+4ObJk9QjboymJVKxP81OBp5xSs
+         SvhEcs9NkH3CbASoE3swtR4KpD/P7fgI8ELeztJGblv4A2ygOiDtp7AWB/5yxJnC96
+         nfe4JTGHhBzLfo8ByOtrhMSOkLUJt3R12PnziWI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 234/425] ata: libahci_platform: fix IRQ check
-Date:   Thu, 20 May 2021 11:20:03 +0200
-Message-Id: <20210520092139.121732005@linuxfoundation.org>
+        stable@vger.kernel.org, Martin George <marting@netapp.com>,
+        Hannes Reinecke <hare@suse.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 235/425] nvme: retrigger ANA log update if group descriptor isnt found
+Date:   Thu, 20 May 2021 11:20:04 +0200
+Message-Id: <20210520092139.153401198@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -39,42 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Hannes Reinecke <hare@suse.de>
 
-[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
+[ Upstream commit dd8f7fa908f66dd44abcd83cbb50410524b9f8ef ]
 
-Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
-early (as if the call was successful). Override IRQ0 with -EINVAL instead
-as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
+If ANA is enabled but no ANA group descriptor is found when creating
+a new namespace the ANA log is most likely out of date, so trigger
+a re-read. The namespace will be tagged with the NS_ANA_PENDING flag
+to exclude it from path selection until the ANA log has been re-read.
 
-Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 32acab3181c7 ("nvme: implement multipath access to nvme subsystems")
+Reported-by: Martin George <marting@netapp.com>
+Signed-off-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/libahci_platform.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/nvme/host/multipath.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 522b543f718d..6a55aac0c60f 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -544,11 +544,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
- 	int i, irq, n_ports, rc;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0) {
-+	if (irq < 0) {
- 		if (irq != -EPROBE_DEFER)
- 			dev_err(dev, "no irq\n");
- 		return irq;
- 	}
-+	if (!irq)
-+		return -EINVAL;
- 
- 	hpriv->irq = irq;
- 
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 4ef05fe00dac..64f699a1afd7 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -516,6 +516,10 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
+ 		if (desc.state) {
+ 			/* found the group desc: update */
+ 			nvme_update_ns_ana_state(&desc, ns);
++		} else {
++			/* group desc not found: trigger a re-read */
++			set_bit(NVME_NS_ANA_PENDING, &ns->flags);
++			queue_work(nvme_wq, &ns->ctrl->ana_work);
+ 		}
+ 	} else {
+ 		mutex_lock(&ns->head->lock);
 -- 
 2.30.2
 
