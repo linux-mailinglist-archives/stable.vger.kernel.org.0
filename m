@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F82638A8B2
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF5B38A6EE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239219AbhETKwr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:52:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49212 "EHLO mail.kernel.org"
+        id S235825AbhETKb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238995AbhETKuq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:50:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C69B160C3F;
-        Thu, 20 May 2021 09:59:48 +0000 (UTC)
+        id S237161AbhETK3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:29:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7633661186;
+        Thu, 20 May 2021 09:51:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504789;
-        bh=Xtb75x+6vaCBMpeFqitC/PyP58tciQn/PQ7zTTMXx6M=;
+        s=korg; t=1621504296;
+        bh=n63INNdp53CnWN4/M9FUKUeIT4BVwDIF/5cVVFzUU1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9uf2fHRQy7G9To4zzAn3cZ0Rmtlj+KPfm4qKRxsLtLGiv/S1ELCyATqe2yCR9B34
-         WyC5vPZO6fR5eCiC7I57nRiA9M5lFsbz4QvLcQDjQ/znhKfJABLZO+8DapOip98jK5
-         9diw9CalRI1+K8YXjl5zUIbfzwQXdaZTQyRBvI+c=
+        b=ByxmkMtSW9IZZW1qgYLYJM9hWX83aD++P798uAJ9Z0vmq33iFsfufr1dDVMU9NhWn
+         k4ZP/Q9cZQdpsnnT8ZL8xxwbc+RnVBr4MAsQv2wE8/TBjw2H9vFpzTpq64x2QFQY58
+         PZsbHPGEuIJ2H5gumVkH0h8TeyenoUxdTLmedr5Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Zhao Heming <heming.zhao@suse.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 4.9 082/240] md: md_open returns -EBUSY when entering racing area
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 182/323] x86/kprobes: Fix to check non boostable prefixes correctly
 Date:   Thu, 20 May 2021 11:21:14 +0200
-Message-Id: <20210520092111.443914515@linuxfoundation.org>
+Message-Id: <20210520092126.351299026@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,146 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-commit 6a4db2a60306eb65bfb14ccc9fde035b74a4b4e7 upstream.
+[ Upstream commit 6dd3b8c9f58816a1354be39559f630cd1bd12159 ]
 
-commit d3374825ce57 ("md: make devices disappear when they are no longer
-needed.") introduced protection between mddev creating & removing. The
-md_open shouldn't create mddev when all_mddevs list doesn't contain
-mddev. With currently code logic, there will be very easy to trigger
-soft lockup in non-preempt env.
+There are 2 bugs in the can_boost() function because of using
+x86 insn decoder. Since the insn->opcode never has a prefix byte,
+it can not find CS override prefix in it. And the insn->attr is
+the attribute of the opcode, thus inat_is_address_size_prefix(
+insn->attr) always returns false.
 
-This patch changes md_open returning from -ERESTARTSYS to -EBUSY, which
-will break the infinitely retry when md_open enter racing area.
+Fix those by checking each prefix bytes with for_each_insn_prefix
+loop and getting the correct attribute for each prefix byte.
+Also, this removes unlikely, because this is a slow path.
 
-This patch is partly fix soft lockup issue, full fix needs mddev_find
-is split into two functions: mddev_find & mddev_find_or_alloc. And
-md_open should call new mddev_find (it only does searching job).
-
-For more detail, please refer with Christoph's "split mddev_find" patch
-in later commits.
-
-*** env ***
-kvm-qemu VM 2C1G with 2 iscsi luns
-kernel should be non-preempt
-
-*** script ***
-
-about trigger every time with below script
-
-```
-1  node1="mdcluster1"
-2  node2="mdcluster2"
-3
-4  mdadm -Ss
-5  ssh ${node2} "mdadm -Ss"
-6  wipefs -a /dev/sda /dev/sdb
-7  mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sda \
-   /dev/sdb --assume-clean
-8
-9  for i in {1..10}; do
-10    echo ==== $i ====;
-11
-12    echo "test  ...."
-13    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
-14    sleep 1
-15
-16    echo "clean  ....."
-17    ssh ${node2} "mdadm -Ss"
-18 done
-```
-
-I use mdcluster env to trigger soft lockup, but it isn't mdcluster
-speical bug. To stop md array in mdcluster env will do more jobs than
-non-cluster array, which will leave enough time/gap to allow kernel to
-run md_open.
-
-*** stack ***
-
-```
-[  884.226509]  mddev_put+0x1c/0xe0 [md_mod]
-[  884.226515]  md_open+0x3c/0xe0 [md_mod]
-[  884.226518]  __blkdev_get+0x30d/0x710
-[  884.226520]  ? bd_acquire+0xd0/0xd0
-[  884.226522]  blkdev_get+0x14/0x30
-[  884.226524]  do_dentry_open+0x204/0x3a0
-[  884.226531]  path_openat+0x2fc/0x1520
-[  884.226534]  ? seq_printf+0x4e/0x70
-[  884.226536]  do_filp_open+0x9b/0x110
-[  884.226542]  ? md_release+0x20/0x20 [md_mod]
-[  884.226543]  ? seq_read+0x1d8/0x3e0
-[  884.226545]  ? kmem_cache_alloc+0x18a/0x270
-[  884.226547]  ? do_sys_open+0x1bd/0x260
-[  884.226548]  do_sys_open+0x1bd/0x260
-[  884.226551]  do_syscall_64+0x5b/0x1e0
-[  884.226554]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-```
-
-*** rootcause ***
-
-"mdadm -A" (or other array assemble commands) will start a daemon "mdadm
---monitor" by default. When "mdadm -Ss" is running, the stop action will
-wakeup "mdadm --monitor". The "--monitor" daemon will immediately get
-info from /proc/mdstat. This time mddev in kernel still exist, so
-/proc/mdstat still show md device, which makes "mdadm --monitor" to open
-/dev/md0.
-
-The previously "mdadm -Ss" is removing action, the "mdadm --monitor"
-open action will trigger md_open which is creating action. Racing is
-happening.
-
-```
-<thread 1>: "mdadm -Ss"
-md_release
-  mddev_put deletes mddev from all_mddevs
-  queue_work for mddev_delayed_delete
-  at this time, "/dev/md0" is still available for opening
-
-<thread 2>: "mdadm --monitor ..."
-md_open
- + mddev_find can't find mddev of /dev/md0, and create a new mddev and
- |    return.
- + trigger "if (mddev->gendisk != bdev->bd_disk)" and return
-      -ERESTARTSYS.
-```
-
-In non-preempt kernel, <thread 2> is occupying on current CPU. and
-mddev_delayed_delete which was created in <thread 1> also can't be
-schedule.
-
-In preempt kernel, it can also trigger above racing. But kernel doesn't
-allow one thread running on a CPU all the time. after <thread 2> running
-some time, the later "mdadm -A" (refer above script line 13) will call
-md_alloc to alloc a new gendisk for mddev. it will break md_open
-statement "if (mddev->gendisk != bdev->bd_disk)" and return 0 to caller,
-the soft lockup is broken.
-
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a8d11cd0714f ("kprobes/x86: Consolidate insn decoder users for copying code")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/161666691162.1120877.2808435205294352583.stgit@devnote2
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/md.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/kprobes/core.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 368cad6cd53a..464cca5d5952 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7821,8 +7821,7 @@ static int md_open(struct block_device *bdev, fmode_t mode)
- 		/* Wait until bdev->bd_disk is definitely gone */
- 		if (work_pending(&mddev->del_work))
- 			flush_workqueue(md_misc_wq);
--		/* Then retry the open from the top */
--		return -ERESTARTSYS;
-+		return -EBUSY;
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index 700d434f5bda..cfd8269ab4cd 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -173,6 +173,8 @@ NOKPROBE_SYMBOL(skip_prefixes);
+ int can_boost(struct insn *insn, void *addr)
+ {
+ 	kprobe_opcode_t opcode;
++	insn_byte_t prefix;
++	int i;
+ 
+ 	if (search_exception_tables((unsigned long)addr))
+ 		return 0;	/* Page fault may occur on this address. */
+@@ -185,9 +187,14 @@ int can_boost(struct insn *insn, void *addr)
+ 	if (insn->opcode.nbytes != 1)
+ 		return 0;
+ 
+-	/* Can't boost Address-size override prefix */
+-	if (unlikely(inat_is_address_size_prefix(insn->attr)))
+-		return 0;
++	for_each_insn_prefix(insn, i, prefix) {
++		insn_attr_t attr;
++
++		attr = inat_get_opcode_attribute(prefix);
++		/* Can't boost Address-size override prefix and CS override prefix */
++		if (prefix == 0x2e || inat_is_address_size_prefix(attr))
++			return 0;
++	}
+ 
+ 	opcode = insn->opcode.bytes[0];
+ 
+@@ -212,8 +219,8 @@ int can_boost(struct insn *insn, void *addr)
+ 		/* clear and set flags are boostable */
+ 		return (opcode == 0xf5 || (0xf7 < opcode && opcode < 0xfe));
+ 	default:
+-		/* CS override prefix and call are not boostable */
+-		return (opcode != 0x2e && opcode != 0x9a);
++		/* call is not boostable */
++		return opcode != 0x9a;
  	}
- 	BUG_ON(mddev != bdev->bd_disk->private_data);
+ }
  
 -- 
-2.31.1
+2.30.2
 
 
 
