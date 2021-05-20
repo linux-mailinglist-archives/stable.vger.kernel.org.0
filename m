@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 372DF38AB41
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C482638A9CD
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241180AbhETLWa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:22:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43468 "EHLO mail.kernel.org"
+        id S239825AbhETLGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240236AbhETLUZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:20:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4649C61D79;
-        Thu, 20 May 2021 10:11:05 +0000 (UTC)
+        id S239987AbhETLEd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0AC961D21;
+        Thu, 20 May 2021 10:04:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505465;
-        bh=+D3dMhJFfWNYk5aCWYiaiO86DlRBPBr+4MpKKicNDCI=;
+        s=korg; t=1621505095;
+        bh=b0rR+QDRbz59hXUl2qWMphxVF11Th+xrdM4dF47ePNA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jcvl55/hEqKZIs5MG7Cs+qxtOibNBk5se8vgHZXUQtzNeXZiBwQQgAbSOiP2YXPEg
-         dm3oASnW5Da/PW8Tu6hlBxL21mRzWVSo1cYRBnsG8bP5xUzOMM94v+HIbTG6UsgPiT
-         SPhk8DnRBT2i/zqYNdEyxcogojpVsaWJlSIjIq7E=
+        b=VzpjtleICgkfJV+zvoN9olbx46I8sOfVdk9o+vTPGix4W7mPYjOrYmgxGYAiOIxZO
+         bCVdj2bosTV7T9bYmBtXRSFmpjdT+1wELEVCijwVq2l5VjxdSSASXuNBXhQS34pLlb
+         AARo0rV+3SIAcrYXfiFXD7XbDtgvid/deKUIyjeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 113/190] powerpc/prom: Mark identical_pvr_fixup as __init
-Date:   Thu, 20 May 2021 11:22:57 +0200
-Message-Id: <20210520092105.931882292@linuxfoundation.org>
+Subject: [PATCH 4.9 186/240] powerpc/pseries: Stop calling printk in rtas_stop_self()
+Date:   Thu, 20 May 2021 11:22:58 +0200
+Message-Id: <20210520092114.896061305@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +39,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 1ef1dd9c7ed27b080445e1576e8a05957e0e4dfc ]
+[ Upstream commit ed8029d7b472369a010a1901358567ca3b6dbb0d ]
 
-If identical_pvr_fixup() is not inlined, there are two modpost warnings:
+RCU complains about us calling printk() from an offline CPU:
 
-WARNING: modpost: vmlinux.o(.text+0x54e8): Section mismatch in reference
-from the function identical_pvr_fixup() to the function
-.init.text:of_get_flat_dt_prop()
-The function identical_pvr_fixup() references
-the function __init of_get_flat_dt_prop().
-This is often because identical_pvr_fixup lacks a __init
-annotation or the annotation of of_get_flat_dt_prop is wrong.
+  =============================
+  WARNING: suspicious RCU usage
+  5.12.0-rc7-02874-g7cf90e481cb8 #1 Not tainted
+  -----------------------------
+  kernel/locking/lockdep.c:3568 RCU-list traversed in non-reader section!!
 
-WARNING: modpost: vmlinux.o(.text+0x551c): Section mismatch in reference
-from the function identical_pvr_fixup() to the function
-.init.text:identify_cpu()
-The function identical_pvr_fixup() references
-the function __init identify_cpu().
-This is often because identical_pvr_fixup lacks a __init
-annotation or the annotation of identify_cpu is wrong.
+  other info that might help us debug this:
 
-identical_pvr_fixup() calls two functions marked as __init and is only
-called by a function marked as __init so it should be marked as __init
-as well. At the same time, remove the inline keywork as it is not
-necessary to inline this function. The compiler is still free to do so
-if it feels it is worthwhile since commit 889b3c1245de ("compiler:
-remove CONFIG_OPTIMIZE_INLINING entirely").
+  RCU used illegally from offline CPU!
+  rcu_scheduler_active = 2, debug_locks = 1
+  no locks held by swapper/0/0.
 
-Fixes: 14b3d926a22b ("[POWERPC] 4xx: update 440EP(x)/440GR(x) identical PVR issue workaround")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+  stack backtrace:
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7-02874-g7cf90e481cb8 #1
+  Call Trace:
+    dump_stack+0xec/0x144 (unreliable)
+    lockdep_rcu_suspicious+0x124/0x144
+    __lock_acquire+0x1098/0x28b0
+    lock_acquire+0x128/0x600
+    _raw_spin_lock_irqsave+0x6c/0xc0
+    down_trylock+0x2c/0x70
+    __down_trylock_console_sem+0x60/0x140
+    vprintk_emit+0x1a8/0x4b0
+    vprintk_func+0xcc/0x200
+    printk+0x40/0x54
+    pseries_cpu_offline_self+0xc0/0x120
+    arch_cpu_idle_dead+0x54/0x70
+    do_idle+0x174/0x4a0
+    cpu_startup_entry+0x38/0x40
+    rest_init+0x268/0x388
+    start_kernel+0x748/0x790
+    start_here_common+0x1c/0x614
+
+Which happens because by the time we get to rtas_stop_self() we are
+already offline. In addition the message can be spammy, and is not that
+helpful for users, so remove it.
+
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1316
-Link: https://lore.kernel.org/r/20210302200829.2680663-1-nathan@kernel.org
+Link: https://lore.kernel.org/r/20210418135413.1204031-1-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/prom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/powerpc/platforms/pseries/hotplug-cpu.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
-index 04a27307a2c4..77690c7f2671 100644
---- a/arch/powerpc/kernel/prom.c
-+++ b/arch/powerpc/kernel/prom.c
-@@ -258,7 +258,7 @@ static struct feature_property {
- };
+diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
+index 7a2beedb9740..a7d9dd029850 100644
+--- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
++++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
+@@ -92,9 +92,6 @@ static void rtas_stop_self(void)
  
- #if defined(CONFIG_44x) && defined(CONFIG_PPC_FPU)
--static inline void identical_pvr_fixup(unsigned long node)
-+static __init void identical_pvr_fixup(unsigned long node)
- {
- 	unsigned int pvr;
- 	const char *model = of_get_flat_dt_prop(node, "model", NULL);
+ 	BUG_ON(rtas_stop_self_token == RTAS_UNKNOWN_SERVICE);
+ 
+-	printk("cpu %u (hwid %u) Ready to die...\n",
+-	       smp_processor_id(), hard_smp_processor_id());
+-
+ 	rtas_call_unlocked(&args, rtas_stop_self_token, 0, 1, NULL);
+ 
+ 	panic("Alas, I survived.\n");
 -- 
 2.30.2
 
