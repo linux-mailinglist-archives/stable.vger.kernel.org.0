@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 336A138AB5F
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77D4138A9ED
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241098AbhETLXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
+        id S239474AbhETLHs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:07:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240968AbhETLVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:21:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B0FA61430;
-        Thu, 20 May 2021 10:11:26 +0000 (UTC)
+        id S239258AbhETLFr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:05:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D53C061D22;
+        Thu, 20 May 2021 10:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505487;
-        bh=rYCCULLztU7od0So7eMpCzb6sjaWePsMR0pnfPpPrNk=;
+        s=korg; t=1621505117;
+        bh=LBUiWkUiNLs9ar18JzgmZtwMR793r1nSTlH0UvyhSQ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M7EhijdC20hUMwa1vB2PScnSvYCiKyVdN3cOFaW5lvPK/jhsM2nUyj8fDmUfvVnbe
-         tb5KeMTjwkvLAE0nn91wyjxQein6m16ckOzbMlZQLCHN4YrCH90y7YMZ/4BIMLze/b
-         6UqHpGx+itT+P5A7OyEvyuVuI0rwf2UyTfd4+iiY=
+        b=cUVmjlWIvmyqqpyDWA66cVgDpRY+P/gjGZ+UyckayiVzlhcM8RJ8K/rTTU9pvDi/L
+         Rdhhrvbt5PMmY3vU+dWdldVaOIaFAkJRYSYKdFtEge7EVfFr4jC4l0pUXDHeUJQ2aI
+         piWX1j2diWUKsAUkVDNN04y4Wy0DB2s6if7JgPaE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Feilong Lin <linfeilong@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 158/190] sctp: fix a SCTP_MIB_CURRESTAB leak in sctp_sf_do_dupcook_b
-Date:   Thu, 20 May 2021 11:23:42 +0200
-Message-Id: <20210520092107.389871451@linuxfoundation.org>
+Subject: [PATCH 4.9 231/240] ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
+Date:   Thu, 20 May 2021 11:23:43 +0200
+Message-Id: <20210520092116.457653477@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Feilong Lin <linfeilong@huawei.com>
 
-[ Upstream commit f282df0391267fb2b263da1cc3233aa6fb81defc ]
+[ Upstream commit 3bbfd319034ddce59e023837a4aa11439460509b ]
 
-Normally SCTP_MIB_CURRESTAB is always incremented once asoc enter into
-ESTABLISHED from the state < ESTABLISHED and decremented when the asoc
-is being deleted.
+In enable_slot(), if pci_get_slot() returns NULL, we clear the SLOT_ENABLED
+flag. When pci_get_slot() finds a device, it increments the device's
+reference count.  In this case, we did not call pci_dev_put() to decrement
+the reference count, so the memory of the device (struct pci_dev type) will
+eventually leak.
 
-However, in sctp_sf_do_dupcook_b(), the asoc's state can be changed to
-ESTABLISHED from the state >= ESTABLISHED where it shouldn't increment
-SCTP_MIB_CURRESTAB. Otherwise, one asoc may increment MIB_CURRESTAB
-multiple times but only decrement once at the end.
+Call pci_dev_put() to decrement its reference count when pci_get_slot()
+returns a PCI device.
 
-I was able to reproduce it by using scapy to do the 4-way shakehands,
-after that I replayed the COOKIE-ECHO chunk with 'peer_vtag' field
-changed to different values, and SCTP_MIB_CURRESTAB was incremented
-multiple times and never went back to 0 even when the asoc was freed.
-
-This patch is to fix it by only incrementing SCTP_MIB_CURRESTAB when
-the state < ESTABLISHED in sctp_sf_do_dupcook_b().
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/b411af88-5049-a1c6-83ac-d104a1f429be@huawei.com
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/pci/hotplug/acpiphp_glue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index a9a72f7e0cd7..a9ba6f2bb8c8 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1851,7 +1851,8 @@ static sctp_disposition_t sctp_sf_do_dupcook_b(struct net *net,
- 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
- 			SCTP_STATE(SCTP_STATE_ESTABLISHED));
--	SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
-+	if (asoc->state < SCTP_STATE_ESTABLISHED)
-+		SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
- 	sctp_add_cmd_sf(commands, SCTP_CMD_HB_TIMERS_START, SCTP_NULL());
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index 7f2b9ef185e4..f154b05f467f 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -538,6 +538,7 @@ static void enable_slot(struct acpiphp_slot *slot)
+ 			slot->flags &= (~SLOT_ENABLED);
+ 			continue;
+ 		}
++		pci_dev_put(dev);
+ 	}
+ }
  
- 	repl = sctp_make_cookie_ack(new_asoc, chunk);
 -- 
 2.30.2
 
