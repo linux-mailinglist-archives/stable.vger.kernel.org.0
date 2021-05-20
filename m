@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0577538A715
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEFCD38A8C3
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237256AbhETKd4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:33:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
+        id S238360AbhETKxu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:53:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52068 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234377AbhETKbq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:31:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F80761C40;
-        Thu, 20 May 2021 09:52:26 +0000 (UTC)
+        id S239110AbhETKvs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:51:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52EAE617C9;
+        Thu, 20 May 2021 10:00:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504347;
-        bh=ym+m/yQwNqgv38CotRp6lsOUloY4oq5yNC1CYHl0Vso=;
+        s=korg; t=1621504804;
+        bh=UX0XKPTdDTy/mbmYjVl+qgSNN60V0sjiGcON+9tifMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ienvgTBfSQbRy6o9gokC+R2GIh4O9NLrMmzO+mPAtMtLMOBRNwKrUoS4zOxXcYXGq
-         YBxE1L9oGbcduy4+HZhNUINfKrxwdIgwBooS+of+lGHD09AuUc/LKY77paXNscMp5N
-         UswSBqSWA2nO0IHM2mGAcuyFWTymglik1lTeWA0E=
+        b=JNQ//R2zRnH7MDJ0c/XW+3BjIYKMtlQEupPE+NAFPC0c1uqla7Irtrfe0eWscPO6J
+         H3Xi7DyMKbmPXEeljGFrhXCv55F2UCsnGnAo+hvDoG5IxqcOrOqpig9mkMUzPS+UIb
+         nqHG18ZwAjIwCNfmhTtB9w5a1BuY/p4/aEe8TYUo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 171/323] USB: cdc-acm: fix unprivileged TIOCCSERIAL
+        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
+        Nadav Markus <nmarkus@paloaltonetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 071/240] net/nfc: fix use-after-free llcp_sock_bind/connect
 Date:   Thu, 20 May 2021 11:21:03 +0200
-Message-Id: <20210520092125.974336930@linuxfoundation.org>
+Message-Id: <20210520092111.063684823@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Or Cohen <orcohen@paloaltonetworks.com>
 
-[ Upstream commit dd5619582d60007139f0447382d2839f4f9e339b ]
+commit c61760e6940dd4039a7f5e84a6afc9cdbf4d82b6 upstream.
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Commits 8a4cd82d ("nfc: fix refcount leak in llcp_sock_connect()")
+and c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
+fixed a refcount leak bug in bind/connect but introduced a
+use-after-free if the same local is assigned to 2 different sockets.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+This can be triggered by the following simple program:
+    int sock1 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
+    int sock2 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
+    memset( &addr, 0, sizeof(struct sockaddr_nfc_llcp) );
+    addr.sa_family = AF_NFC;
+    addr.nfc_protocol = NFC_PROTO_NFC_DEP;
+    bind( sock1, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
+    bind( sock2, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
+    close(sock1);
+    close(sock2);
 
-Fix the cdc-acm implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
+Fix this by assigning NULL to llcp_sock->local after calling
+nfc_llcp_local_put.
 
-Fixes: ba2d8ce9db0a ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-3-johan@kernel.org
+This addresses CVE-2021-23134.
+
+Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
+Reported-by: Nadav Markus <nmarkus@paloaltonetworks.com>
+Fixes: c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
+Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/nfc/llcp_sock.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 22a7f67e70e7..fbf7cb8d34e7 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -999,8 +999,6 @@ static int set_serial_info(struct acm *acm,
- 		if ((new_serial.close_delay != old_close_delay) ||
- 	            (new_serial.closing_wait != old_closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		acm->port.close_delay  = close_delay;
- 		acm->port.closing_wait = closing_wait;
--- 
-2.30.2
-
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -120,12 +120,14 @@ static int llcp_sock_bind(struct socket
+ 					  GFP_KERNEL);
+ 	if (!llcp_sock->service_name) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		ret = -ENOMEM;
+ 		goto put_dev;
+ 	}
+ 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		kfree(llcp_sock->service_name);
+ 		llcp_sock->service_name = NULL;
+ 		ret = -EADDRINUSE;
+@@ -721,6 +723,7 @@ static int llcp_sock_connect(struct sock
+ 	llcp_sock->ssap = nfc_llcp_get_local_ssap(local);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		ret = -ENOMEM;
+ 		goto put_dev;
+ 	}
+@@ -759,6 +762,7 @@ static int llcp_sock_connect(struct sock
+ sock_unlink:
+ 	nfc_llcp_put_ssap(local, llcp_sock->ssap);
+ 	nfc_llcp_local_put(llcp_sock->local);
++	llcp_sock->local = NULL;
+ 
+ 	nfc_llcp_sock_unlink(&local->connecting_sockets, sk);
+ 	kfree(llcp_sock->service_name);
 
 
