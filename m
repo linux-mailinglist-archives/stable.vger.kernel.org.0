@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C50E138A774
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3622F38A949
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237419AbhETKi7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:38:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
+        id S238365AbhETLAk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:00:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236464AbhETKgb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:36:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC99B60241;
-        Thu, 20 May 2021 09:54:12 +0000 (UTC)
+        id S239182AbhETK6W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:58:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2382261CFB;
+        Thu, 20 May 2021 10:02:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504453;
-        bh=QRjsWFr95pZ/Dn6GZ4PD62pPBDVKFseo49Jn6YL5rk0=;
+        s=korg; t=1621504945;
+        bh=os3IdbjtmowGQlAp1NLTz3BkNBLLRVYjWB6eNY2ukH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z5vUdChPN1xfIh+N+LVU0Ccx6Tc7DNZcQpG9b/oRJet5YZFilPe+HOBA/dsAVPzTZ
-         y0q0aFZvc64jzLveXjmzV706Xn5W/6WDI3tbmPTND/R41Iat4oxB19lnWxDMkgf2R8
-         d2thsBgwHGT7YkWGvK244zGBw5gB7yM8lpgQoHIQ=
+        b=Z+VF5GtZ4htZyF2GrjBq+kv3zUGTnAvOD+B0ngPkxbz9Jze23yHntBOPtb0fqeotV
+         QLSddLIXD7BXKZuLPoNYVghJ6TV+rA5ZjUX0reT6cplVBsuJaCqsLlT0LrxSovpXPW
+         P+fxLHascGt0uPTlYP2ZPNyoGKIPFVGEvIpF5wiU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 253/323] powerpc/pseries: Stop calling printk in rtas_stop_self()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 153/240] i2c: sh7760: add IRQ check
 Date:   Thu, 20 May 2021 11:22:25 +0200
-Message-Id: <20210520092128.874581515@linuxfoundation.org>
+Message-Id: <20210520092113.778651825@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,70 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit ed8029d7b472369a010a1901358567ca3b6dbb0d ]
+[ Upstream commit e5b2e3e742015dd2aa6bc7bcef2cb59b2de1221c ]
 
-RCU complains about us calling printk() from an offline CPU:
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-  =============================
-  WARNING: suspicious RCU usage
-  5.12.0-rc7-02874-g7cf90e481cb8 #1 Not tainted
-  -----------------------------
-  kernel/locking/lockdep.c:3568 RCU-list traversed in non-reader section!!
-
-  other info that might help us debug this:
-
-  RCU used illegally from offline CPU!
-  rcu_scheduler_active = 2, debug_locks = 1
-  no locks held by swapper/0/0.
-
-  stack backtrace:
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7-02874-g7cf90e481cb8 #1
-  Call Trace:
-    dump_stack+0xec/0x144 (unreliable)
-    lockdep_rcu_suspicious+0x124/0x144
-    __lock_acquire+0x1098/0x28b0
-    lock_acquire+0x128/0x600
-    _raw_spin_lock_irqsave+0x6c/0xc0
-    down_trylock+0x2c/0x70
-    __down_trylock_console_sem+0x60/0x140
-    vprintk_emit+0x1a8/0x4b0
-    vprintk_func+0xcc/0x200
-    printk+0x40/0x54
-    pseries_cpu_offline_self+0xc0/0x120
-    arch_cpu_idle_dead+0x54/0x70
-    do_idle+0x174/0x4a0
-    cpu_startup_entry+0x38/0x40
-    rest_init+0x268/0x388
-    start_kernel+0x748/0x790
-    start_here_common+0x1c/0x614
-
-Which happens because by the time we get to rtas_stop_self() we are
-already offline. In addition the message can be spammy, and is not that
-helpful for users, so remove it.
-
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210418135413.1204031-1-mpe@ellerman.id.au
+Fixes: a26c20b1fa6d ("i2c: Renesas SH7760 I2C master driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/platforms/pseries/hotplug-cpu.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/i2c/busses/i2c-sh7760.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/platforms/pseries/hotplug-cpu.c b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-index 0baaaa6b0929..73071c4339c5 100644
---- a/arch/powerpc/platforms/pseries/hotplug-cpu.c
-+++ b/arch/powerpc/platforms/pseries/hotplug-cpu.c
-@@ -95,9 +95,6 @@ static void rtas_stop_self(void)
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index c2005c789d2b..c79c9f542c5a 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -471,7 +471,10 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
+ 		goto out2;
+ 	}
  
- 	BUG_ON(rtas_stop_self_token == RTAS_UNKNOWN_SERVICE);
+-	id->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
++	id->irq = ret;
  
--	printk("cpu %u (hwid %u) Ready to die...\n",
--	       smp_processor_id(), hard_smp_processor_id());
--
- 	rtas_call_unlocked(&args, rtas_stop_self_token, 0, 1, NULL);
- 
- 	panic("Alas, I survived.\n");
+ 	id->adap.nr = pdev->id;
+ 	id->adap.algo = &sh7760_i2c_algo;
 -- 
 2.30.2
 
