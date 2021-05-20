@@ -2,32 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7B9038AA8B
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:13:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C17E38AA99
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:14:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239871AbhETLPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:15:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58194 "EHLO mail.kernel.org"
+        id S240343AbhETLPW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:15:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239225AbhETLMh (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S239981AbhETLMh (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 07:12:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB50D61D51;
-        Thu, 20 May 2021 10:07:46 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 01F5961D4E;
+        Thu, 20 May 2021 10:07:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505267;
-        bh=T5rSBJd4plAcNx/h6/w8lHfaDh9/GyQPgP4Zl6nEL+o=;
+        s=korg; t=1621505269;
+        bh=cvoZfSTAUw9JrapwZzE2DjN0socTY7hAVAnWIxQh1UE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t2M4i2huKbkXON3GnqXUs8IilhLIIaPkmkyS1dpHM6VjeFH8J74TXg+vj31VyQ7wY
-         1Va9t3z7romDa5NEY082rJpe6SH86h5FcVtqE36eMpT3DZWAqwvFLUnosvCTPRmMF3
-         SpqEKPyZszxYZOcUeinPHi9vQlYuuiEfPiMLXZHw=
+        b=FF9hS9gShOp05pQqdadvhkoIrBlHCwdXmS8xavckFYyyx53d78N4jxeZnpEq7jvmi
+         i0/d5+Ii0IQR/bHXUmQrQgDS726JFxu7DVHlo4bbuu+/r4PZbVJwxk+A5S0G9zoydi
+         k1jmzpqXF1vJgdfUuV+hhkIMXv1ZC1NqLEVZUucU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 057/190] FDDI: defxx: Bail out gracefully with unassigned PCI resource for CSR
-Date:   Thu, 20 May 2021 11:22:01 +0200
-Message-Id: <20210520092104.054672557@linuxfoundation.org>
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 4.4 058/190] misc: lis3lv02d: Fix false-positive WARN on various HP models
+Date:   Thu, 20 May 2021 11:22:02 +0200
+Message-Id: <20210520092104.087024625@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -39,193 +38,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit f626ca682912fab55dff15469ce893ae16b65c7e upstream.
+commit 3641762c1c9c7cfd84a7061a0a73054f09b412e3 upstream.
 
-Recent versions of the PCI Express specification have deprecated support
-for I/O transactions and actually some PCIe host bridges, such as Power
-Systems Host Bridge 4 (PHB4), do not implement them.
+Before this commit lis3lv02d_get_pwron_wait() had a WARN_ONCE() to catch
+a potential divide by 0. WARN macros should only be used to catch internal
+kernel bugs and that is not the case here. We have been receiving a lot of
+bug reports about kernel backtraces caused by this WARN.
 
-For those systems the PCI BARs that request a mapping in the I/O space
-have the length recorded in the corresponding PCI resource set to zero,
-which makes it unassigned:
+The div value being checked comes from the lis3->odrs[] array. Which
+is sized to be a power-of-2 matching the number of bits in lis3->odr_mask.
 
-# lspci -s 0031:02:04.0 -v
-0031:02:04.0 FDDI network controller: Digital Equipment Corporation PCI-to-PDQ Interface Chip [PFI] FDDI (DEFPA) (rev 02)
-	Subsystem: Digital Equipment Corporation FDDIcontroller/PCI (DEFPA)
-	Flags: bus master, medium devsel, latency 136, IRQ 57, NUMA node 8
-	Memory at 620c080020000 (32-bit, non-prefetchable) [size=128]
-	I/O ports at <unassigned> [disabled]
-	Memory at 620c080030000 (32-bit, non-prefetchable) [size=64K]
-	Capabilities: [50] Power Management version 2
-	Kernel driver in use: defxx
-	Kernel modules: defxx
+The only lis3 model where this array is not entirely filled with non zero
+values. IOW the only model where we can hit the div == 0 check is the
+3dc ("8 bits 3DC sensor") model:
 
-#
+int lis3_3dc_rates[16] = {0, 1, 10, 25, 50, 100, 200, 400, 1600, 5000};
 
-Regardless the driver goes ahead and requests it (here observed with a
-Raptor Talos II POWER9 system), resulting in an odd /proc/ioport entry:
+Note the 0 value at index 0, according to the datasheet an odr index of 0
+means "Power-down mode". HP typically uses a lis3 accelerometer for HDD
+fall protection. What I believe is happening here is that on newer
+HP devices, which only contain a SDD, the BIOS is leaving the lis3 device
+powered-down since it is not used for HDD fall protection.
 
-# cat /proc/ioports
-00000000-ffffffffffffffff : 0031:02:04.0
-#
+Note that the lis3_3dc_rates array initializer only specifies 10 values,
+which matches the datasheet. So it also contains 6 zero values at the end.
 
-Furthermore, the system gets confused as the driver actually continues
-and pokes at those locations, causing a flood of messages being output
-to the system console by the underlying system firmware, like:
+Replace the WARN with a normal check, which treats an odr index of 0
+as power-down and uses a normal dev_err() to report the error in case
+odr index point past the initialized part of the array.
 
-defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
-defxx 0031:02:04.0: enabling device (0140 -> 0142)
-LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010000
-IPMI: dropping non severe PEL event
-LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
-IPMI: dropping non severe PEL event
-LPC[000]: Got SYNC no-response error. Error address reg: 0xd0010014
-IPMI: dropping non severe PEL event
-
-and so on and so on (possibly intermixed actually, as there's no locking
-between the kernel and the firmware in console port access with this
-particular system, but cleaned up above for clarity), and once some 10k
-of such pairs of the latter two messages have been produced an interace
-eventually shows up in a useless state:
-
-0031:02:04.0: DEFPA at I/O addr = 0x0, IRQ = 57, Hardware addr = 00-00-00-00-00-00
-
-This was not expected to happen as resource handling was added to the
-driver a while ago, because it was not known at that time that a PCI
-system would be possible that cannot assign port I/O resources, and
-oddly enough `request_region' does not fail, which would have caught it.
-
-Correct the problem then by checking for the length of zero for the CSR
-resource and bail out gracefully refusing to register an interface if
-that turns out to be the case, producing messages like:
-
-defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
-0031:02:04.0: Cannot use I/O, no address set, aborting
-0031:02:04.0: Recompile driver with "CONFIG_DEFXX_MMIO=y"
-
-Keep the original check for the EISA MMIO resource as implemented,
-because in that case the length is hardwired to 0x400 as a consequence
-of how the compare/mask address decoding works in the ESIC chip and it
-is only the base address that is set to zero if MMIO has been disabled
-for the adapter in EISA configuration, which in turn could be a valid
-bus address in a legacy-free system implementing PCI, especially for
-port I/O.
-
-Where the EISA MMIO resource has been disabled for the adapter in EISA
-configuration this arrangement keeps producing messages like:
-
-eisa 00:05: EISA: slot 5: DEC3002 detected
-defxx: v1.11 2014/07/01  Lawrence V. Stefani and others
-00:05: Cannot use MMIO, no address set, aborting
-00:05: Recompile driver with "CONFIG_DEFXX_MMIO=n"
-00:05: Or run ECU and set adapter's MMIO location
-
-with the last two lines now swapped for easier handling in the driver.
-
-There is no need to check for and catch the case of a port I/O resource
-not having been assigned for EISA as the adapter uses the slot-specific
-I/O space, which gets assigned by how EISA has been specified and maps
-directly to the particular slot an option card has been placed in.  And
-the EISA variant of the adapter has additional registers that are only
-accessible via the port I/O space anyway.
-
-While at it factor out the error message calls into helpers and fix an
-argument order bug with the `pr_err' call now in `dfx_register_res_err'.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 4d0438e56a8f ("defxx: Clean up DEFEA resource management")
-Cc: stable@vger.kernel.org # v3.19+
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1510dd5954be ("lis3lv02d: avoid divide by zero due to unchecked")
+Cc: stable@vger.kernel.org
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=785814
+BugLink: https://bugzilla.redhat.com/show_bug.cgi?id=1817027
+BugLink: https://bugs.centos.org/view.php?id=10720
+Link: https://lore.kernel.org/r/20210217102501.31758-1-hdegoede@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/fddi/defxx.c |   47 ++++++++++++++++++++++++++++++-----------------
- 1 file changed, 30 insertions(+), 17 deletions(-)
+ drivers/misc/lis3lv02d/lis3lv02d.c |   21 ++++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
---- a/drivers/net/fddi/defxx.c
-+++ b/drivers/net/fddi/defxx.c
-@@ -495,6 +495,25 @@ static const struct net_device_ops dfx_n
- 	.ndo_set_mac_address	= dfx_ctl_set_mac_address,
- };
+--- a/drivers/misc/lis3lv02d/lis3lv02d.c
++++ b/drivers/misc/lis3lv02d/lis3lv02d.c
+@@ -220,7 +220,7 @@ static int lis3_3dc_rates[16] = {0, 1, 1
+ static int lis3_3dlh_rates[4] = {50, 100, 400, 1000};
  
-+static void dfx_register_res_alloc_err(const char *print_name, bool mmio,
-+				       bool eisa)
-+{
-+	pr_err("%s: Cannot use %s, no address set, aborting\n",
-+	       print_name, mmio ? "MMIO" : "I/O");
-+	pr_err("%s: Recompile driver with \"CONFIG_DEFXX_MMIO=%c\"\n",
-+	       print_name, mmio ? 'n' : 'y');
-+	if (eisa && mmio)
-+		pr_err("%s: Or run ECU and set adapter's MMIO location\n",
-+		       print_name);
-+}
+ /* ODR is Output Data Rate */
+-static int lis3lv02d_get_odr(struct lis3lv02d *lis3)
++static int lis3lv02d_get_odr_index(struct lis3lv02d *lis3)
+ {
+ 	u8 ctrl;
+ 	int shift;
+@@ -228,15 +228,23 @@ static int lis3lv02d_get_odr(struct lis3
+ 	lis3->read(lis3, CTRL_REG1, &ctrl);
+ 	ctrl &= lis3->odr_mask;
+ 	shift = ffs(lis3->odr_mask) - 1;
+-	return lis3->odrs[(ctrl >> shift)];
++	return (ctrl >> shift);
+ }
+ 
+ static int lis3lv02d_get_pwron_wait(struct lis3lv02d *lis3)
+ {
+-	int div = lis3lv02d_get_odr(lis3);
++	int odr_idx = lis3lv02d_get_odr_index(lis3);
++	int div = lis3->odrs[odr_idx];
+ 
+-	if (WARN_ONCE(div == 0, "device returned spurious data"))
++	if (div == 0) {
++		if (odr_idx == 0) {
++			/* Power-down mode, not sampling no need to sleep */
++			return 0;
++		}
 +
-+static void dfx_register_res_err(const char *print_name, bool mmio,
-+				 unsigned long start, unsigned long len)
-+{
-+	pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, aborting\n",
-+	       print_name, mmio ? "MMIO" : "I/O", len, start);
-+}
++		dev_err(&lis3->pdev->dev, "Error unknown odrs-index: %d\n", odr_idx);
+ 		return -ENXIO;
++	}
+ 
+ 	/* LIS3 power on delay is quite long */
+ 	msleep(lis3->pwron_delay / div);
+@@ -819,9 +827,12 @@ static ssize_t lis3lv02d_rate_show(struc
+ 			struct device_attribute *attr, char *buf)
+ {
+ 	struct lis3lv02d *lis3 = dev_get_drvdata(dev);
++	int odr_idx;
+ 
+ 	lis3lv02d_sysfs_poweron(lis3);
+-	return sprintf(buf, "%d\n", lis3lv02d_get_odr(lis3));
 +
- /*
-  * ================
-  * = dfx_register =
-@@ -568,15 +587,12 @@ static int dfx_register(struct device *b
- 	dev_set_drvdata(bdev, dev);
++	odr_idx = lis3lv02d_get_odr_index(lis3);
++	return sprintf(buf, "%d\n", lis3->odrs[odr_idx]);
+ }
  
- 	dfx_get_bars(bdev, bar_start, bar_len);
--	if (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0) {
--		pr_err("%s: Cannot use MMIO, no address set, aborting\n",
--		       print_name);
--		pr_err("%s: Run ECU and set adapter's MMIO location\n",
--		       print_name);
--		pr_err("%s: Or recompile driver with \"CONFIG_DEFXX_MMIO=n\""
--		       "\n", print_name);
-+	if (bar_len[0] == 0 ||
-+	    (dfx_bus_eisa && dfx_use_mmio && bar_start[0] == 0)) {
-+		dfx_register_res_alloc_err(print_name, dfx_use_mmio,
-+					   dfx_bus_eisa);
- 		err = -ENXIO;
--		goto err_out;
-+		goto err_out_disable;
- 	}
- 
- 	if (dfx_use_mmio)
-@@ -585,18 +601,16 @@ static int dfx_register(struct device *b
- 	else
- 		region = request_region(bar_start[0], bar_len[0], print_name);
- 	if (!region) {
--		pr_err("%s: Cannot reserve %s resource 0x%lx @ 0x%lx, "
--		       "aborting\n", dfx_use_mmio ? "MMIO" : "I/O", print_name,
--		       (long)bar_len[0], (long)bar_start[0]);
-+		dfx_register_res_err(print_name, dfx_use_mmio,
-+				     bar_start[0], bar_len[0]);
- 		err = -EBUSY;
- 		goto err_out_disable;
- 	}
- 	if (bar_start[1] != 0) {
- 		region = request_region(bar_start[1], bar_len[1], print_name);
- 		if (!region) {
--			pr_err("%s: Cannot reserve I/O resource "
--			       "0x%lx @ 0x%lx, aborting\n", print_name,
--			       (long)bar_len[1], (long)bar_start[1]);
-+			dfx_register_res_err(print_name, 0,
-+					     bar_start[1], bar_len[1]);
- 			err = -EBUSY;
- 			goto err_out_csr_region;
- 		}
-@@ -604,9 +618,8 @@ static int dfx_register(struct device *b
- 	if (bar_start[2] != 0) {
- 		region = request_region(bar_start[2], bar_len[2], print_name);
- 		if (!region) {
--			pr_err("%s: Cannot reserve I/O resource "
--			       "0x%lx @ 0x%lx, aborting\n", print_name,
--			       (long)bar_len[2], (long)bar_start[2]);
-+			dfx_register_res_err(print_name, 0,
-+					     bar_start[2], bar_len[2]);
- 			err = -EBUSY;
- 			goto err_out_bh_region;
- 		}
+ static ssize_t lis3lv02d_rate_set(struct device *dev,
 
 
