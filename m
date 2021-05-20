@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0CC638A75D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AF0F38A8F8
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237361AbhETKhl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39816 "EHLO mail.kernel.org"
+        id S238064AbhETKz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:55:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52048 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237805AbhETKfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6853861400;
-        Thu, 20 May 2021 09:53:46 +0000 (UTC)
+        id S237500AbhETKxt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:53:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C00061CDB;
+        Thu, 20 May 2021 10:00:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504426;
-        bh=t2SDdH4ejF2+umXZYksPCXnl5nME/ht8BNAB3lEBcgc=;
+        s=korg; t=1621504846;
+        bh=ikUvAc2dvmrT59VybQQhYjoK9wTU9L4Bvf+kBTfqDcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEssUkb8g/HW7ev70AAQ+Ufwv1BNTqHyGB5Ka9a/6nNz0hWTcWo631rFLtccAHhTG
-         YiA4NGrHkQLm9/C2Br3arkoHBPkuuT1FduWso8DmHuF0+KxASd2a3jJ5yC1jMiVQ48
-         /u75o2i8yYC7NuDeXdkOR4JjEn9MAElgruXJbVlg=
+        b=lg65lFzeGJWEJhbFl3IacHZNqFqrVVGbmjh8ckwLtwIU2NrmO3+tGHXXS3PZu51/Z
+         HbK8lM2hCobQho7KOJpDbVfenmV/qLp5/bfxNpVloa756NXU17L0/Bp+3DLoYlo1c9
+         BlTZ8P/vClXIVHhpq6IXDxwZIIeRm8dyuH03e3t8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Randy Dunlap <rdunlap@infradead.org>,
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 206/323] powerpc: iommu: fix build when neither PCI or IBMVIO is set
+Subject: [PATCH 4.9 106/240] fotg210-udc: Complete OUT requests on short packets
 Date:   Thu, 20 May 2021 11:21:38 +0200
-Message-Id: <20210520092127.185508204@linuxfoundation.org>
+Message-Id: <20210520092112.240394215@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-[ Upstream commit b27dadecdf9102838331b9a0b41ffc1cfe288154 ]
+[ Upstream commit 75bb93be0027123b5db6cbcce89eb62f0f6b3c5b ]
 
-When neither CONFIG_PCI nor CONFIG_IBMVIO is set/enabled, iommu.c has a
-build error. The fault injection code is not useful in that kernel config,
-so make the FAIL_IOMMU option depend on PCI || IBMVIO.
+A short packet indicates the end of a transfer and marks the request as
+complete.
 
-Prevents this build error (warning escalated to error):
-../arch/powerpc/kernel/iommu.c:178:30: error: 'fail_iommu_bus_notifier' defined but not used [-Werror=unused-variable]
-  178 | static struct notifier_block fail_iommu_bus_notifier = {
-
-Fixes: d6b9a81b2a45 ("powerpc: IOMMU fault injection")
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Acked-by: Randy Dunlap <rdunlap@infradead.org> # build-tested
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210404192623.10697-1-rdunlap@infradead.org
+Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/20210324141115.9384-8-fabian@ritter-vogt.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/Kconfig.debug | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/gadget/udc/fotg210-udc.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/Kconfig.debug b/arch/powerpc/Kconfig.debug
-index be1c8c5beb61..762bb08b0f59 100644
---- a/arch/powerpc/Kconfig.debug
-+++ b/arch/powerpc/Kconfig.debug
-@@ -349,6 +349,7 @@ config PPC_EARLY_DEBUG_CPM_ADDR
- config FAIL_IOMMU
- 	bool "Fault-injection capability for IOMMU"
- 	depends on FAULT_INJECTION
-+	depends on PCI || IBMVIO
- 	help
- 	  Provide fault-injection capability for IOMMU. Each device can
- 	  be selectively enabled via the fail_iommu property.
+diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
+index b2910bc65e51..9e102ba9cf66 100644
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -856,12 +856,16 @@ static void fotg210_out_fifo_handler(struct fotg210_ep *ep)
+ {
+ 	struct fotg210_request *req = list_entry(ep->queue.next,
+ 						 struct fotg210_request, queue);
++	int disgr1 = ioread32(ep->fotg210->reg + FOTG210_DISGR1);
+ 
+ 	fotg210_start_dma(ep, req);
+ 
+-	/* finish out transfer */
++	/* Complete the request when it's full or a short packet arrived.
++	 * Like other drivers, short_not_ok isn't handled.
++	 */
++
+ 	if (req->req.length == req->req.actual ||
+-	    req->req.actual < ep->ep.maxpacket)
++	    (disgr1 & DISGR1_SPK_INT(ep->epnum - 1)))
+ 		fotg210_done(ep, req, 0);
+ }
+ 
 -- 
 2.30.2
 
