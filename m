@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 807C138A879
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC97138A87B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238000AbhETKvG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:51:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48038 "EHLO mail.kernel.org"
+        id S237675AbhETKvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48094 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237976AbhETKsY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:48:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC2496141B;
-        Thu, 20 May 2021 09:58:40 +0000 (UTC)
+        id S238014AbhETKs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:48:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DDE606141D;
+        Thu, 20 May 2021 09:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504721;
-        bh=nRo9sQUMY5z+ikLKs/ucIjK3otGR0dljQp6tMkFhvCA=;
+        s=korg; t=1621504723;
+        bh=TdqnW6tppbjS5iPvbuOsdbm4sZAxcDxsTGeuTpgehFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nvqCTyiv7h427R5Cor2SqE5wyrkqnYiQQtOJHX2wu/W6+fAbTUMrJSg+6hozBz73q
-         YTBATRUAP1fUZ1IaZ3xE6cS40KhKydC5CnaycPArhijiVGkqZFhINuLqat6qo9+FW1
-         11h+XTeyQkjzWg++ia+1cJSp1g1AEhdpQ630DkEs=
+        b=mvk6sCpDnaiRdbJt5t/2+Rb73T9taZXTbL/Qf3QSpms0ORIQgq732cD+pyoW8Sx7W
+         HZ2xisSk52HTpjH3Y2mWNInx60LGYHZNIELRsoVq06x+sb2/9J1CtffN/4B+k7IJ4p
+         tuMcjex44nyFpHQg1vIN3rnpyqxiLWzoMcRbZC5E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eelco Chaudron <echaudro@redhat.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 051/240] openvswitch: fix stack OOB read while fragmenting IPv4 packets
-Date:   Thu, 20 May 2021 11:20:43 +0200
-Message-Id: <20210520092110.383792831@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.9 052/240] NFSv4: Dont discard segments marked for return in _pnfs_return_layout()
+Date:   Thu, 20 May 2021 11:20:44 +0200
+Message-Id: <20210520092110.420550292@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -40,115 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 7c0ea5930c1c211931819d83cfb157bff1539a4c upstream.
+commit de144ff4234f935bd2150108019b5d87a90a8a96 upstream.
 
-running openvswitch on kernels built with KASAN, it's possible to see the
-following splat while testing fragmentation of IPv4 packets:
+If the pNFS layout segment is marked with the NFS_LSEG_LAYOUTRETURN
+flag, then the assumption is that it has some reporting requirement
+to perform through a layoutreturn (e.g. flexfiles layout stats or error
+information).
 
- BUG: KASAN: stack-out-of-bounds in ip_do_fragment+0x1b03/0x1f60
- Read of size 1 at addr ffff888112fc713c by task handler2/1367
-
- CPU: 0 PID: 1367 Comm: handler2 Not tainted 5.12.0-rc6+ #418
- Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
- Call Trace:
-  dump_stack+0x92/0xc1
-  print_address_description.constprop.7+0x1a/0x150
-  kasan_report.cold.13+0x7f/0x111
-  ip_do_fragment+0x1b03/0x1f60
-  ovs_fragment+0x5bf/0x840 [openvswitch]
-  do_execute_actions+0x1bd5/0x2400 [openvswitch]
-  ovs_execute_actions+0xc8/0x3d0 [openvswitch]
-  ovs_packet_cmd_execute+0xa39/0x1150 [openvswitch]
-  genl_family_rcv_msg_doit.isra.15+0x227/0x2d0
-  genl_rcv_msg+0x287/0x490
-  netlink_rcv_skb+0x120/0x380
-  genl_rcv+0x24/0x40
-  netlink_unicast+0x439/0x630
-  netlink_sendmsg+0x719/0xbf0
-  sock_sendmsg+0xe2/0x110
-  ____sys_sendmsg+0x5ba/0x890
-  ___sys_sendmsg+0xe9/0x160
-  __sys_sendmsg+0xd3/0x170
-  do_syscall_64+0x33/0x40
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7f957079db07
- Code: c3 66 90 41 54 41 89 d4 55 48 89 f5 53 89 fb 48 83 ec 10 e8 eb ec ff ff 44 89 e2 48 89 ee 89 df 41 89 c0 b8 2e 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 35 44 89 c7 48 89 44 24 08 e8 24 ed ff ff 48
- RSP: 002b:00007f956ce35a50 EFLAGS: 00000293 ORIG_RAX: 000000000000002e
- RAX: ffffffffffffffda RBX: 0000000000000019 RCX: 00007f957079db07
- RDX: 0000000000000000 RSI: 00007f956ce35ae0 RDI: 0000000000000019
- RBP: 00007f956ce35ae0 R08: 0000000000000000 R09: 00007f9558006730
- R10: 0000000000000000 R11: 0000000000000293 R12: 0000000000000000
- R13: 00007f956ce37308 R14: 00007f956ce35f80 R15: 00007f956ce35ae0
-
- The buggy address belongs to the page:
- page:00000000af2a1d93 refcount:0 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x112fc7
- flags: 0x17ffffc0000000()
- raw: 0017ffffc0000000 0000000000000000 dead000000000122 0000000000000000
- raw: 0000000000000000 0000000000000000 00000000ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- addr ffff888112fc713c is located in stack of task handler2/1367 at offset 180 in frame:
-  ovs_fragment+0x0/0x840 [openvswitch]
-
- this frame has 2 objects:
-  [32, 144) 'ovs_dst'
-  [192, 424) 'ovs_rt'
-
- Memory state around the buggy address:
-  ffff888112fc7000: f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff888112fc7080: 00 f1 f1 f1 f1 00 00 00 00 00 00 00 00 00 00 00
- >ffff888112fc7100: 00 00 00 f2 f2 f2 f2 f2 f2 00 00 00 00 00 00 00
-                                         ^
-  ffff888112fc7180: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff888112fc7200: 00 00 00 00 00 00 f2 f2 f2 00 00 00 00 00 00 00
-
-for IPv4 packets, ovs_fragment() uses a temporary struct dst_entry. Then,
-in the following call graph:
-
-  ip_do_fragment()
-    ip_skb_dst_mtu()
-      ip_dst_mtu_maybe_forward()
-        ip_mtu_locked()
-
-the pointer to struct dst_entry is used as pointer to struct rtable: this
-turns the access to struct members like rt_mtu_locked into an OOB read in
-the stack. Fix this changing the temporary variable used for IPv4 packets
-in ovs_fragment(), similarly to what is done for IPv6 few lines below.
-
-Fixes: d52e5a7e7ca4 ("ipv4: lock mtu in fnhe when received PMTU < net.ipv4.route.min_pmt")
-Cc: <stable@vger.kernel.org>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 6d597e175012 ("pnfs: only tear down lsegs that precede seqid in LAYOUTRETURN args")
+Cc: stable@vger.kernel.org
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/openvswitch/actions.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ fs/nfs/pnfs.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/openvswitch/actions.c
-+++ b/net/openvswitch/actions.c
-@@ -710,16 +710,16 @@ static void ovs_fragment(struct net *net
- 	}
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1088,7 +1088,7 @@ _pnfs_return_layout(struct inode *ino)
+ 	pnfs_get_layout_hdr(lo);
+ 	empty = list_empty(&lo->plh_segs);
+ 	pnfs_clear_layoutcommit(ino, &tmp_list);
+-	pnfs_mark_matching_lsegs_invalid(lo, &tmp_list, NULL, 0);
++	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
  
- 	if (ethertype == htons(ETH_P_IP)) {
--		struct dst_entry ovs_dst;
-+		struct rtable ovs_rt = { 0 };
- 		unsigned long orig_dst;
- 
- 		prepare_frag(vport, skb);
--		dst_init(&ovs_dst, &ovs_dst_ops, NULL, 1,
-+		dst_init(&ovs_rt.dst, &ovs_dst_ops, NULL, 1,
- 			 DST_OBSOLETE_NONE, DST_NOCOUNT);
--		ovs_dst.dev = vport->dev;
-+		ovs_rt.dst.dev = vport->dev;
- 
- 		orig_dst = skb->_skb_refdst;
--		skb_dst_set_noref(skb, &ovs_dst);
-+		skb_dst_set_noref(skb, &ovs_rt.dst);
- 		IPCB(skb)->frag_max_size = mru;
- 
- 		ip_do_fragment(net, skb->sk, skb, ovs_vport_output);
+ 	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
+ 		struct pnfs_layout_range range = {
 
 
