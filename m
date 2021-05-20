@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75D6338A756
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F7B438A92C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238054AbhETKhR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39712 "EHLO mail.kernel.org"
+        id S238560AbhETK6n (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:58:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237729AbhETKfY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7B06F61C5B;
-        Thu, 20 May 2021 09:53:35 +0000 (UTC)
+        id S237405AbhETK4W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:56:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B9F536190A;
+        Thu, 20 May 2021 10:01:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504415;
-        bh=lBp3f5LDs3ZwVf5n60dmCuEVqvWqm3314S221/UgQ5I=;
+        s=korg; t=1621504906;
+        bh=A2fJw8J4qkKI0mHDMqXWAWUio4MghHaOQNIakzht9Us=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j14qWwGDtaeO8XROEOcCXw9ZXnSFduzdIb5P2tP2SrJCT6sYOMkka90hmCXz8ARbJ
-         BhSOBp7o9WCKU1PR/Z4QgmwoIiHpTBqS7SiBGrrTaF0tJm6Bl5LV0XDN2Omw/tUS4s
-         h42G3LzXdKZJSxcVZ45wNqjENzOoygJPwLy5uqwI=
+        b=Gw34zoUoWl2p5zESESbS63KGroYIiEwQqI4iFkoLd/6li7wezhVrG3oWTquQ+1FPq
+         oqNYOItOpgM4M3y6Tcch9D4j9JJ5xOV9vnjCTXAZTZ+914dH7y/qFX8NVNcCUBhDiv
+         obKum+NCnh1oCBVGzxCo3RL1CG4A8roY1+szXAho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        David Teigland <teigland@redhat.com>,
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 234/323] fs: dlm: fix debugfs dump
+Subject: [PATCH 4.9 134/240] scsi: sni_53c710: Add IRQ check
 Date:   Thu, 20 May 2021 11:22:06 +0200
-Message-Id: <20210520092128.180490998@linuxfoundation.org>
+Message-Id: <20210520092113.155059181@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Aring <aahringo@redhat.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
+[ Upstream commit 1160d61bc51e87e509cfaf9da50a0060f67b6de4 ]
 
-This patch fixes the following message which randomly pops up during
-glocktop call:
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #s), causing it to fail with -EINVAL (overridden by -ENODEV
+further below).  Stop calling request_irq() with the invalid IRQ #s.
 
-seq_file: buggy .next function table_seq_next did not update position index
-
-The issue is that seq_read_iter() in fs/seq_file.c also needs an
-increment of the index in an non next record case as well which this
-patch fixes otherwise seq_read_iter() will print out the above message.
-
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: David Teigland <teigland@redhat.com>
+Link: https://lore.kernel.org/r/8f4b8fa5-8251-b977-70a1-9099bcb4bb17@omprussia.ru
+Fixes: c27d85f3f3c5 ("[SCSI] SNI RM 53c710 driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/dlm/debug_fs.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/sni_53c710.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
-index fa08448e35dd..bb87dad03cd4 100644
---- a/fs/dlm/debug_fs.c
-+++ b/fs/dlm/debug_fs.c
-@@ -544,6 +544,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
+diff --git a/drivers/scsi/sni_53c710.c b/drivers/scsi/sni_53c710.c
+index b0f5220ae23a..fad68cb028d6 100644
+--- a/drivers/scsi/sni_53c710.c
++++ b/drivers/scsi/sni_53c710.c
+@@ -71,6 +71,7 @@ static int snirm710_probe(struct platform_device *dev)
+ 	struct NCR_700_Host_Parameters *hostdata;
+ 	struct Scsi_Host *host;
+ 	struct  resource *res;
++	int rc;
  
- 		if (bucket >= ls->ls_rsbtbl_size) {
- 			kfree(ri);
-+			++*pos;
- 			return NULL;
- 		}
- 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+ 	if (!res)
+@@ -96,7 +97,9 @@ static int snirm710_probe(struct platform_device *dev)
+ 		goto out_kfree;
+ 	host->this_id = 7;
+ 	host->base = base;
+-	host->irq = platform_get_irq(dev, 0);
++	host->irq = rc = platform_get_irq(dev, 0);
++	if (rc < 0)
++		goto out_put_host;
+ 	if(request_irq(host->irq, NCR_700_intr, IRQF_SHARED, "snirm710", host)) {
+ 		printk(KERN_ERR "snirm710: request_irq failed!\n");
+ 		goto out_put_host;
 -- 
 2.30.2
 
