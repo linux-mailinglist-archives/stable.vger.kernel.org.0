@@ -2,71 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D1C238ABBC
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33EDC38ABC1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241464AbhETL12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:27:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45834 "EHLO mail.kernel.org"
+        id S239380AbhETL1e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:27:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241734AbhETLZZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:25:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11C606109F;
-        Thu, 20 May 2021 10:23:10 +0000 (UTC)
+        id S241814AbhETLZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:25:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5562610A1;
+        Thu, 20 May 2021 10:59:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621506191;
-        bh=Ne8XWBjCjC7wMEdXnGePN5BGuqE/9UQF0eMVmwjZmgc=;
+        s=korg; t=1621508378;
+        bh=ErWk98vzrForhE3SzoXim0biwXq3y3R8u0Q+s0olTjs=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=HtYjcM9VChqKKpPfgLDpUZn56MOoNCY1C3QUQdtMNbLH22/6n+YCYMPx/ZL5MgbCX
-         zKFTBcw5DfH5Kdw0pP9Ces1FmRO8A9XdQ88MxPm8ipZGgNd6AGy6QPat4jS6JYVp4S
-         zbMVw6yN9c9vrB+H89nqbDNyi9adLX1rVGzeAvaE=
-Date:   Thu, 20 May 2021 12:02:40 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kalle Valo <kvalo@codeaurora.org>
-Cc:     Bhaumik Bhatt <bbhatt@codeaurora.org>,
-        Loic Poulain <loic.poulain@linaro.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        ath11k@lists.infradead.org, linux-wireless@vger.kernel.org,
-        regressions@lists.linux.dev, stable@vger.kernel.org
-Subject: Re: [regressions] ath11k: v5.12.3 mhi regression
-Message-ID: <YKYzwBJNTy4Czd1A@kroah.com>
-References: <87v97dhh2u.fsf@codeaurora.org>
+        b=uAUg38sxA+TEk/ciN9KzSw30zOGHA3wAihTITwKIJaqe8WohUEiH/7B3tb8uz763X
+         p5w596CDMKcMYBLNAvIR4zZt91ZeaBpr58coNVbjotzJQnE7HKOw1iWOCoG3c02g2e
+         3EZGa98xW6WJRijNaw+sLa9JrmBr1maJJy2DiyBM=
+Date:   Thu, 20 May 2021 12:59:36 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Ard Biesheuvel <ardb@kernel.org>
+Cc:     Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        "# 3.4.x" <stable@vger.kernel.org>,
+        Nicolas Pitre <nico@fluxnic.net>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.12 06/45] ARM: 9058/1: cache-v7: refactor
+ v7_invalidate_l1 to avoid clobbering r5/r6
+Message-ID: <YKZBGG4iJ0Wwpk7+@kroah.com>
+References: <20210520092053.516042993@linuxfoundation.org>
+ <20210520092053.731407333@linuxfoundation.org>
+ <CAMj1kXECeTz5T+0Pi77POE-uo65D_+gXFHZh=wi6EDVBDK2Rsg@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87v97dhh2u.fsf@codeaurora.org>
+In-Reply-To: <CAMj1kXECeTz5T+0Pi77POE-uo65D_+gXFHZh=wi6EDVBDK2Rsg@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 20, 2021 at 12:47:53PM +0300, Kalle Valo wrote:
-> Hi,
+On Thu, May 20, 2021 at 11:59:40AM +0200, Ard Biesheuvel wrote:
+> On Thu, 20 May 2021 at 11:25, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > From: Ard Biesheuvel <ardb@kernel.org>
+> >
+> > [ Upstream commit f9e7a99fb6b86aa6a00e53b34ee6973840e005aa ]
+> >
+> > The cache invalidation code in v7_invalidate_l1 can be tweaked to
+> > re-read the associativity from CCSIDR, and keep the way identifier
+> > component in a single register that is assigned in the outer loop. This
+> > way, we need 2 registers less.
+> >
+> > Given that the number of sets is typically much larger than the
+> > associativity, rearrange the code so that the outer loop has the fewer
+> > number of iterations, ensuring that the re-read of CCSIDR only occurs a
+> > handful of times in practice.
+> >
+> > Fix the whitespace while at it, and update the comment to indicate that
+> > this code is no longer a clone of anything else.
+> >
+> > Acked-by: Nicolas Pitre <nico@fluxnic.net>
+> > Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+> > Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> I got several reports that this mhi commit broke ath11k in v5.12.3:
+> Please do NOT backport this to any stable trees.
 > 
-> commit 29b9829718c5e9bd68fc1c652f5e0ba9b9a64fed
-> Author: Bhaumik Bhatt <bbhatt@codeaurora.org>
-> Date:   Wed Feb 24 15:23:04 2021 -0800
-> 
->     bus: mhi: core: Process execution environment changes serially
->     
->     [ Upstream commit ef2126c4e2ea2b92f543fae00a2a0332e4573c48 ]
-> 
-> Here are the reports:
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=213055
-> 
-> https://bugzilla.kernel.org/show_bug.cgi?id=212187
-> 
-> https://bugs.archlinux.org/task/70849?project=1&string=linux
-> 
-> Interestingly v5.13-rc1 seems to work fine, at least for me, though I
-> have not tested v5.12.3 myself. Can someone revert this commit in the
-> stable release so that people get their wifi working again, please?
+> It has no cc:stable tag
+> It has no fixes: tag
+> It was part of a 3 part series, but only the middle patch was selected.
+> It touches ARM assembly that may assemble without problems but be
+> completely broken at runtime when used out of the original intended
+> context.
 
-How does the mhi bus code relate to a ath11k driver?  What bus is that
-on?
-
-This seems odd...
+Now dropped from all stable queues, thanks for letting us know.
 
 greg k-h
