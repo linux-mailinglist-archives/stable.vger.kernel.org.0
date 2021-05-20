@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24E6538A189
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A547138A1C6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbhETJb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:31:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52886 "EHLO mail.kernel.org"
+        id S232607AbhETJe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:34:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231483AbhETJaG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:30:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F61E60C3F;
-        Thu, 20 May 2021 09:27:25 +0000 (UTC)
+        id S231985AbhETJdA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:33:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D1A613DA;
+        Thu, 20 May 2021 09:28:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502845;
-        bh=yUWvzWqsU4F6Oj06Y7fNVRyGoo2onls05eXIg9qfd+Q=;
+        s=korg; t=1621502916;
+        bh=ouPUubX0podFZljV6MH3eWHq7jZEaHhpp8WTmiD8ZY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zPQWv1rSG13yb66x9cGChuW/x2NKvWXbk00/CZInhbOVlo5690fUXxjqPe8Jzexlp
-         MxX1cnLTY+DTUEcgUDhZU8p4I14uMCQ0WbGEiK846uoX15OPBBLAFcabFEgBrRn/v/
-         2Hh16ch24jvRyGeLccHf29Psxw6y6PYOqiZziXyw=
+        b=T17uZxTPJPxbWAZ+/5xQb7YTegaUyLn+0aFogut6IvJWKeS2J7fHv1ic9GNa0WlR1
+         pbmbIIusq5HVXWW+rHWlXDdK2bAMRBWlBFgeaP8Mr3s/IFFpj/XvnrZxZyiqtu432h
+         HfIqH0qLAt5HP5Nk08EBTmn5RVX2oLM9OZ4Mj8lI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
-        Pavel Begunkov <asml.silencec@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 39/47] block: reexpand iov_iter after read/write
+        stable@vger.kernel.org, Ritesh Raj Sarraf <rrs@debian.org>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+        Richard Weinberger <richard@nod.at>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 16/37] um: Mark all kernel symbols as local
 Date:   Thu, 20 May 2021 11:22:37 +0200
-Message-Id: <20210520092054.806651637@linuxfoundation.org>
+Message-Id: <20210520092052.811814581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
+References: <20210520092052.265851579@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,169 +42,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: yangerkun <yangerkun@huawei.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit cf7b39a0cbf6bf57aa07a008d46cf695add05b4c ]
+[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
 
-We get a bug:
+Ritesh reported a bug [1] against UML, noting that it crashed on
+startup. The backtrace shows the following (heavily redacted):
 
-BUG: KASAN: slab-out-of-bounds in iov_iter_revert+0x11c/0x404
-lib/iov_iter.c:1139
-Read of size 8 at addr ffff0000d3fb11f8 by task
+(gdb) bt
+...
+ #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
+ #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
+ #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
+...
+ #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
+...
+ #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
+ #45 0x00007f8990968b85 in __getgrnam_r [...]
+ #46 0x00007f89909d6b77 in grantpt [...]
+ #47 0x00007f8990a9394e in __GI_openpty [...]
+ #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
+ #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
+ #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
+ #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
+ #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
 
-CPU: 0 PID: 12582 Comm: syz-executor.2 Not tainted
-5.10.0-00843-g352c8610ccd2 #2
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
- show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0x110/0x164 lib/dump_stack.c:118
- print_address_description+0x78/0x5c8 mm/kasan/report.c:385
- __kasan_report mm/kasan/report.c:545 [inline]
- kasan_report+0x148/0x1e4 mm/kasan/report.c:562
- check_memory_region_inline mm/kasan/generic.c:183 [inline]
- __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
- iov_iter_revert+0x11c/0x404 lib/iov_iter.c:1139
- io_read fs/io_uring.c:3421 [inline]
- io_issue_sqe+0x2344/0x2d64 fs/io_uring.c:5943
- __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
- io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
- io_submit_sqe fs/io_uring.c:6395 [inline]
- io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
- __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
- __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
- __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+indicating that the UML function openpty_cb() calls openpty(),
+which internally calls __getgrnam_r(), which causes the nsswitch
+machinery to get started.
 
-Allocated by task 12570:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track mm/kasan/common.c:56 [inline]
- __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
- kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
- __kmalloc+0x23c/0x334 mm/slub.c:3970
- kmalloc include/linux/slab.h:557 [inline]
- __io_alloc_async_data+0x68/0x9c fs/io_uring.c:3210
- io_setup_async_rw fs/io_uring.c:3229 [inline]
- io_read fs/io_uring.c:3436 [inline]
- io_issue_sqe+0x2954/0x2d64 fs/io_uring.c:5943
- __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
- io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
- io_submit_sqe fs/io_uring.c:6395 [inline]
- io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
- __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
- __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
- __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
- __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
- el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
- do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
- el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
- el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
- el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
+This loads, through lots of indirection that I snipped, the
+libcom_err.so.2 library, which (in an unknown function, "??")
+calls sem_init().
 
-Freed by task 12570:
- stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
- kasan_save_stack mm/kasan/common.c:48 [inline]
- kasan_set_track+0x38/0x6c mm/kasan/common.c:56
- kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
- __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
- kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
- slab_free_hook mm/slub.c:1544 [inline]
- slab_free_freelist_hook mm/slub.c:1577 [inline]
- slab_free mm/slub.c:3142 [inline]
- kfree+0x104/0x38c mm/slub.c:4124
- io_dismantle_req fs/io_uring.c:1855 [inline]
- __io_free_req+0x70/0x254 fs/io_uring.c:1867
- io_put_req_find_next fs/io_uring.c:2173 [inline]
- __io_queue_sqe+0x1fc/0x520 fs/io_uring.c:6279
- __io_req_task_submit+0x154/0x21c fs/io_uring.c:2051
- io_req_task_submit+0x2c/0x44 fs/io_uring.c:2063
- task_work_run+0xdc/0x128 kernel/task_work.c:151
- get_signal+0x6f8/0x980 kernel/signal.c:2562
- do_signal+0x108/0x3a4 arch/arm64/kernel/signal.c:658
- do_notify_resume+0xbc/0x25c arch/arm64/kernel/signal.c:722
- work_pending+0xc/0x180
+Now, of course it wants to get libpthread's sem_init(), since
+it's linked against libpthread. However, the dynamic linker
+looks up that symbol against the binary first, and gets the
+kernel's sem_init().
 
-blkdev_read_iter can truncate iov_iter's count since the count + pos may
-exceed the size of the blkdev. This will confuse io_read that we have
-consume the iovec. And once we do the iov_iter_revert in io_read, we
-will trigger the slab-out-of-bounds. Fix it by reexpand the count with
-size has been truncated.
+Hajime Tazaki noted that "objcopy -L" can localize a symbol,
+so the dynamic linker wouldn't do the lookup this way. I tried,
+but for some reason that didn't seem to work.
 
-blkdev_write_iter can trigger the problem too.
+Doing the same thing in the linker script instead does seem to
+work, though I cannot entirely explain - it *also* works if I
+just add "VERSION { { global: *; }; }" instead, indicating that
+something else is happening that I don't really understand. It
+may be that explicitly doing that marks them with some kind of
+empty version, and that's different from the default.
 
-Signed-off-by: yangerkun <yangerkun@huawei.com>
-Acked-by: Pavel Begunkov <asml.silencec@gmail.com>
-Link: https://lore.kernel.org/r/20210401071807.3328235-1-yangerkun@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Explicitly marking them with a version breaks kallsyms, so that
+doesn't seem to be possible.
+
+Marking all the symbols as local seems correct, and does seem
+to address the issue, so do that. Also do it for static link,
+nsswitch libraries could still be loaded there.
+
+[1] https://bugs.debian.org/983379
+
+Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
+Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/block_dev.c | 20 +++++++++++++++++---
- 1 file changed, 17 insertions(+), 3 deletions(-)
+ arch/um/kernel/dyn.lds.S | 6 ++++++
+ arch/um/kernel/uml.lds.S | 6 ++++++
+ 2 files changed, 12 insertions(+)
 
-diff --git a/fs/block_dev.c b/fs/block_dev.c
-index 718533f0fb90..cacea6bafc22 100644
---- a/fs/block_dev.c
-+++ b/fs/block_dev.c
-@@ -1903,6 +1903,7 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	struct inode *bd_inode = bdev_file_inode(file);
- 	loff_t size = i_size_read(bd_inode);
- 	struct blk_plug plug;
-+	size_t shorted = 0;
- 	ssize_t ret;
+diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
+index f5001481010c..a82ec0113321 100644
+--- a/arch/um/kernel/dyn.lds.S
++++ b/arch/um/kernel/dyn.lds.S
+@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
  
- 	if (bdev_read_only(I_BDEV(bd_inode)))
-@@ -1920,12 +1921,17 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 	if ((iocb->ki_flags & (IOCB_NOWAIT | IOCB_DIRECT)) == IOCB_NOWAIT)
- 		return -EOPNOTSUPP;
- 
--	iov_iter_truncate(from, size - iocb->ki_pos);
-+	size -= iocb->ki_pos;
-+	if (iov_iter_count(from) > size) {
-+		shorted = iov_iter_count(from) - size;
-+		iov_iter_truncate(from, size);
-+	}
- 
- 	blk_start_plug(&plug);
- 	ret = __generic_file_write_iter(iocb, from);
- 	if (ret > 0)
- 		ret = generic_write_sync(iocb, ret);
-+	iov_iter_reexpand(from, iov_iter_count(from) + shorted);
- 	blk_finish_plug(&plug);
- 	return ret;
- }
-@@ -1937,13 +1943,21 @@ ssize_t blkdev_read_iter(struct kiocb *iocb, struct iov_iter *to)
- 	struct inode *bd_inode = bdev_file_inode(file);
- 	loff_t size = i_size_read(bd_inode);
- 	loff_t pos = iocb->ki_pos;
-+	size_t shorted = 0;
-+	ssize_t ret;
- 
- 	if (pos >= size)
- 		return 0;
- 
- 	size -= pos;
--	iov_iter_truncate(to, size);
--	return generic_file_read_iter(iocb, to);
-+	if (iov_iter_count(to) > size) {
-+		shorted = iov_iter_count(to) - size;
-+		iov_iter_truncate(to, size);
-+	}
++VERSION {
++  {
++    local: *;
++  };
++}
 +
-+	ret = generic_file_read_iter(iocb, to);
-+	iov_iter_reexpand(to, iov_iter_count(to) + shorted);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(blkdev_read_iter);
+ SECTIONS
+ {
+   PROVIDE (__executable_start = START);
+diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
+index 9f21443be2c9..85b404d068f4 100644
+--- a/arch/um/kernel/uml.lds.S
++++ b/arch/um/kernel/uml.lds.S
+@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
+ ENTRY(_start)
+ jiffies = jiffies_64;
  
++VERSION {
++  {
++    local: *;
++  };
++}
++
+ SECTIONS
+ {
+   /* This must contain the right address - not quite the default ELF one.*/
 -- 
 2.30.2
 
