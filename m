@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A259738A39B
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC5C38A3AB
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:56:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbhETJx7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:53:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53336 "EHLO mail.kernel.org"
+        id S233897AbhETJ4C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:56:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232179AbhETJv6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:51:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E276615FF;
-        Thu, 20 May 2021 09:36:02 +0000 (UTC)
+        id S234536AbhETJxP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:53:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BA9D61403;
+        Thu, 20 May 2021 09:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503363;
-        bh=Gungbleld/3by/u/3r0WsxlqXHH7ueQt0ROCvkLKL9M=;
+        s=korg; t=1621503387;
+        bh=+qUpnmvumi9wFaNS6zSghXEbPM3w5EdTruS5jqAL/UY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdPx3WKJJj9yd0zj5PgCNE0HoU1AhZARkgbUS2oDJ142PePXUG/gmvb9qXcBGabFt
-         9SkhoeNrTcy0nxMbFJyhYdJdX6aoVqllTd0ftfSXW9s+alzGGzWGyKWDyHsybeHqIE
-         8yVNYzH8bNVaTStlskTJECk0gfctdbXlq2ZcATuA=
+        b=u8bPrf9xw67sBnMMXoCXScvRTtlSjX7Vay07MH/4b8U1v5FVlzb1GROYfi57pkk7h
+         olmIOCfUbZwwOSxG7q3d8qdtS0OCLTAT8yn8ffkoW1FNj1gYtJpohUvAceQrfez+am
+         0ea08SnvSXudsb3X2+/1zjsBJmdqZrecDE/UB9Iw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Tong Zhang <ztong0001@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 180/425] usb: gadget: pch_udc: Check for DMA mapping error
-Date:   Thu, 20 May 2021 11:19:09 +0200
-Message-Id: <20210520092137.347652088@linuxfoundation.org>
+Subject: [PATCH 4.19 181/425] crypto: qat - dont release uninitialized resources
+Date:   Thu, 20 May 2021 11:19:10 +0200
+Message-Id: <20210520092137.378212130@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,37 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 4a28d77e359009b846951b06f7c0d8eec8dce298 ]
+[ Upstream commit b66accaab3791e15ac99c92f236d0d3a6d5bd64e ]
 
-DMA mapping might fail, we have to check it with dma_mapping_error().
-Otherwise DMA-API is not happy:
+adf_vf_isr_resource_alloc() is not unwinding correctly when error
+happens and it want to release uninitialized resources.
+To fix this, only release initialized resources.
 
-  DMA-API: pch_udc 0000:02:02.4: device driver failed to check map error[device address=0x00000000027ee678] [size=64 bytes] [mapped as single]
+[    1.792845] Trying to free already-free IRQ 11
+[    1.793091] WARNING: CPU: 0 PID: 182 at kernel/irq/manage.c:1821 free_irq+0x202/0x380
+[    1.801340] Call Trace:
+[    1.801477]  adf_vf_isr_resource_free+0x32/0xb0 [intel_qat]
+[    1.801785]  adf_vf_isr_resource_alloc+0x14d/0x150 [intel_qat]
+[    1.802105]  adf_dev_init+0xba/0x140 [intel_qat]
 
-Fixes: abab0c67c061 ("usb: pch_udc: Fixed issue which does not work with g_serial")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-3-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Fixes: dd0f368398ea ("crypto: qat - Add qat dh895xcc VF driver")
+Acked-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_vf_isr.c | 17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
-index d87c9217cb57..14e99905cbee 100644
---- a/drivers/usb/gadget/udc/pch_udc.c
-+++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -2973,7 +2973,7 @@ static int init_dma_pools(struct pch_udc_dev *dev)
- 	dev->dma_addr = dma_map_single(&dev->pdev->dev, ep0out_buf,
- 				       UDC_EP0OUT_BUFF_SIZE * 4,
- 				       DMA_FROM_DEVICE);
--	return 0;
-+	return dma_mapping_error(&dev->pdev->dev, dev->dma_addr);
- }
+diff --git a/drivers/crypto/qat/qat_common/adf_vf_isr.c b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+index 4a73fc70f7a9..df9a1f35b832 100644
+--- a/drivers/crypto/qat/qat_common/adf_vf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_vf_isr.c
+@@ -304,17 +304,26 @@ int adf_vf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
+ 		goto err_out;
  
- static int pch_udc_start(struct usb_gadget *g,
+ 	if (adf_setup_pf2vf_bh(accel_dev))
+-		goto err_out;
++		goto err_disable_msi;
+ 
+ 	if (adf_setup_bh(accel_dev))
+-		goto err_out;
++		goto err_cleanup_pf2vf_bh;
+ 
+ 	if (adf_request_msi_irq(accel_dev))
+-		goto err_out;
++		goto err_cleanup_bh;
+ 
+ 	return 0;
++
++err_cleanup_bh:
++	adf_cleanup_bh(accel_dev);
++
++err_cleanup_pf2vf_bh:
++	adf_cleanup_pf2vf_bh(accel_dev);
++
++err_disable_msi:
++	adf_disable_msi(accel_dev);
++
+ err_out:
+-	adf_vf_isr_resource_free(accel_dev);
+ 	return -EFAULT;
+ }
+ EXPORT_SYMBOL_GPL(adf_vf_isr_resource_alloc);
 -- 
 2.30.2
 
