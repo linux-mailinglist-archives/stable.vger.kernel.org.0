@@ -2,43 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C8938A9F8
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8F0338AB81
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239535AbhETLIN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:08:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39782 "EHLO mail.kernel.org"
+        id S241883AbhETLZm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:25:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239140AbhETLGE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:06:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE33E60FDB;
-        Thu, 20 May 2021 10:05:29 +0000 (UTC)
+        id S236564AbhETLWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4933A6105A;
+        Thu, 20 May 2021 10:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505130;
-        bh=bxQYnJV0rEBNwhtbGDeP8nQut7nB2UF5lBADMfe58Sk=;
+        s=korg; t=1621505500;
+        bh=qgA/fXD4F6Koj9VdCi58OxcitLjK1laDKud+WmMKar8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mJP+wGChkL5N8+j96JTVna8DbBPfDr1NZ2qrgrBZV0SOK3Yu/qwvz4btQLIo8Fn4r
-         0GNOSn2s4fvOCYHelpQ4VlpaALCI2QAfB74C3RfKvCvxuF7xujRQ6gmGCYryUjjywX
-         ERA0NDkNm3uolFxUl08lv+t0W8khM4tcNbdSHFDw=
+        b=OociV8P/4izf7tM6f7GDUe15yuW3NBvCUqsTQK/qI9XeZEnqgyAzsklFxcZ4HRpzh
+         HbTQwwJD4GihZ4VBCqxcFSwRWBVCFiUVjGBZQQIiJeGDB3b5SLsKmv0otyGomtWWWZ
+         YDlgRQqnrhVvOUtBBoosyL2SlmkmzJJd+lX1Z6iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
-        Andrew Halaney <ahalaney@redhat.com>,
-        Alexander Potapenko <glider@google.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Vijayanand Jitta <vjitta@codeaurora.org>,
-        Vinayak Menon <vinmenon@codeaurora.org>,
-        Yogesh Lal <ylal@codeaurora.org>,
+        stable@vger.kernel.org, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com,
+        syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 236/240] lib: stackdepot: turn depot_lock spinlock to raw_spinlock
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 164/190] squashfs: fix divide error in calculate_skip()
 Date:   Thu, 20 May 2021 11:23:48 +0200
-Message-Id: <20210520092116.613782743@linuxfoundation.org>
+Message-Id: <20210520092107.590542533@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -47,75 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-[ Upstream commit 78564b9434878d686c5f88c4488b20cccbcc42bc ]
+commit d6e621de1fceb3b098ebf435ef7ea91ec4838a1a upstream.
 
-In RT system, the spin_lock will be replaced by sleepable rt_mutex lock,
-in __call_rcu(), disable interrupts before calling
-kasan_record_aux_stack(), will trigger this calltrace:
+Sysbot has reported a "divide error" which has been identified as being
+caused by a corrupted file_size value within the file inode.  This value
+has been corrupted to a much larger value than expected.
 
-  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:951
-  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 19, name: pgdatinit0
-  Call Trace:
-    ___might_sleep.cold+0x1b2/0x1f1
-    rt_spin_lock+0x3b/0xb0
-    stack_depot_save+0x1b9/0x440
-    kasan_save_stack+0x32/0x40
-    kasan_record_aux_stack+0xa5/0xb0
-    __call_rcu+0x117/0x880
-    __exit_signal+0xafb/0x1180
-    release_task+0x1d6/0x480
-    exit_notify+0x303/0x750
-    do_exit+0x678/0xcf0
-    kthread+0x364/0x4f0
-    ret_from_fork+0x22/0x30
+Calculate_skip() is passed i_size_read(inode) >> msblk->block_log.  Due to
+the file_size value corruption this overflows the int argument/variable in
+that function, leading to the divide error.
 
-Replace spinlock with raw_spinlock.
+This patch changes the function to use u64.  This will accommodate any
+unexpectedly large values due to corruption.
 
-Link: https://lkml.kernel.org/r/20210329084009.27013-1-qiang.zhang@windriver.com
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Reported-by: Andrew Halaney <ahalaney@redhat.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
-Cc: Vijayanand Jitta <vjitta@codeaurora.org>
-Cc: Vinayak Menon <vinmenon@codeaurora.org>
-Cc: Yogesh Lal <ylal@codeaurora.org>
+The value returned from calculate_skip() is clamped to be never more than
+SQUASHFS_CACHED_BLKS - 1, or 7.  So file_size corruption does not lead to
+an unexpectedly large return result here.
+
+Link: https://lkml.kernel.org/r/20210507152618.9447-1-phillip@squashfs.org.uk
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: <syzbot+e8f781243ce16ac2f962@syzkaller.appspotmail.com>
+Reported-by: <syzbot+7b98870d4fec9447b951@syzkaller.appspotmail.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/stackdepot.c |    6 +++---
+ fs/squashfs/file.c |    6 +++---
  1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/lib/stackdepot.c
-+++ b/lib/stackdepot.c
-@@ -78,7 +78,7 @@ static void *stack_slabs[STACK_ALLOC_MAX
- static int depot_index;
- static int next_slab_inited;
- static size_t depot_offset;
--static DEFINE_SPINLOCK(depot_lock);
-+static DEFINE_RAW_SPINLOCK(depot_lock);
- 
- static bool init_stack_slab(void **prealloc)
+--- a/fs/squashfs/file.c
++++ b/fs/squashfs/file.c
+@@ -224,11 +224,11 @@ failure:
+  * If the skip factor is limited in this way then the file will use multiple
+  * slots.
+  */
+-static inline int calculate_skip(int blocks)
++static inline int calculate_skip(u64 blocks)
  {
-@@ -253,7 +253,7 @@ depot_stack_handle_t depot_save_stack(st
- 			prealloc = page_address(page);
- 	}
+-	int skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
++	u64 skip = blocks / ((SQUASHFS_META_ENTRIES + 1)
+ 		 * SQUASHFS_META_INDEXES);
+-	return min(SQUASHFS_CACHED_BLKS - 1, skip + 1);
++	return min((u64) SQUASHFS_CACHED_BLKS - 1, skip + 1);
+ }
  
--	spin_lock_irqsave(&depot_lock, flags);
-+	raw_spin_lock_irqsave(&depot_lock, flags);
  
- 	found = find_stack(*bucket, trace->entries, trace->nr_entries, hash);
- 	if (!found) {
-@@ -277,7 +277,7 @@ depot_stack_handle_t depot_save_stack(st
- 		WARN_ON(!init_stack_slab(&prealloc));
- 	}
- 
--	spin_unlock_irqrestore(&depot_lock, flags);
-+	raw_spin_unlock_irqrestore(&depot_lock, flags);
- exit:
- 	if (prealloc) {
- 		/* Nobody used this memory, ok to free it. */
 
 
