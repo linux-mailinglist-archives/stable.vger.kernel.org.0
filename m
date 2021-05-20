@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 51B4E38A426
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 39B4238A3DE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:57:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234916AbhETKB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32852 "EHLO mail.kernel.org"
+        id S235195AbhETJ5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235106AbhETJ7Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:59:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A7D9616E8;
-        Thu, 20 May 2021 09:38:39 +0000 (UTC)
+        id S235123AbhETJzv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:55:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85C22613B4;
+        Thu, 20 May 2021 09:37:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503520;
-        bh=XmTnRO0tUxq1mQAVmgbpfEFX1Y1/wMsQYo/kVpIRatg=;
+        s=korg; t=1621503445;
+        bh=bBkE66/Q8JF/rMUl905Rn1myBRKl5hrHfu1zTOb7ggc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=atPnf5+WAt0xeg7/pVjkMIxLxdL//QjII5jnX/65+HXwBzFy871lcjYepymrm521I
-         GONdGQloKt5p7n30kEL8HitqxOmCxJ6SjmDHIjOb31VGf2woQqbnoqthsSUyi4NjSp
-         jL7r9eL2hta9R6F+QWgEoV+K3YEAN5WB/Kp4b8rc=
+        b=gjOhUmJgRMK2OUO96RakXHoyRu767XRNbL6W9b9hrDX1EgjkpGkYKhMHzeH09pMyM
+         ZSiseSaTjNi4gBxBAVGd9hCsz0Tx/ys+VIhYcHxIOwwVmebiqlYU4sJNKnMI2UTwnF
+         S0ugqCraEervNAhyAMJUGzKNQ+ZATKLPGd10n6o0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>,
-        syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 224/425] ttyprintk: Add TTY hangup callback.
-Date:   Thu, 20 May 2021 11:19:53 +0200
-Message-Id: <20210520092138.783405415@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Joel Stanley <joel@jms.id.au>,
+        Patrick Venture <venture@google.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 225/425] soc: aspeed: fix a ternary sign expansion bug
+Date:   Thu, 20 May 2021 11:19:54 +0200
+Message-Id: <20210520092138.815562664@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,85 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c0070e1e60270f6a1e09442a9ab2335f3eaeaad2 ]
+[ Upstream commit 5ffa828534036348fa90fb3079ccc0972d202c4a ]
 
-syzbot is reporting hung task due to flood of
+The intent here was to return negative error codes but it actually
+returns positive values.  The problem is that type promotion with
+ternary operations is quite complicated.
 
-  tty_warn(tty, "%s: tty->count = 1 port count = %d\n", __func__,
-           port->count);
+"ret" is an int.  "copied" is a u32.  And the snoop_file_read() function
+returns long.  What happens is that "ret" is cast to u32 and becomes
+positive then it's cast to long and it's still positive.
 
-message [1], for ioctl(TIOCVHANGUP) prevents tty_port_close() from
-decrementing port->count due to tty_hung_up_p() == true.
+Fix this by removing the ternary so that "ret" is type promoted directly
+to long.
 
-----------
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <unistd.h>
-
-int main(int argc, char *argv[])
-{
-	int i;
-	int fd[10];
-
-	for (i = 0; i < 10; i++)
-		fd[i] = open("/dev/ttyprintk", O_WRONLY);
-	ioctl(fd[0], TIOCVHANGUP);
-	for (i = 0; i < 10; i++)
-		close(fd[i]);
-	close(open("/dev/ttyprintk", O_WRONLY));
-	return 0;
-}
-----------
-
-When TTY hangup happens, port->count needs to be reset via
-"struct tty_operations"->hangup callback.
-
-[1] https://syzkaller.appspot.com/bug?id=39ea6caa479af471183997376dc7e90bc7d64a6a
-
-Reported-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
-Reported-by: syzbot <syzbot+3ed715090790806d8b18@syzkaller.appspotmail.com>
-Tested-by: syzbot <syzbot+43e93968b964e369db0b@syzkaller.appspotmail.com>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Fixes: 24b4b67d17c308aa ("add ttyprintk driver")
-Link: https://lore.kernel.org/r/17e0652d-89b7-c8c0-fb53-e7566ac9add4@i-love.sakura.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3772e5da4454 ("drivers/misc: Aspeed LPC snoop output using misc chardev")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Patrick Venture <venture@google.com>
+Link: https://lore.kernel.org/r/YIE90PSXsMTa2Y8n@mwanda
+Link: https://lore.kernel.org/r/20210423000919.1249474-1-joel@jms.id.au'
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/ttyprintk.c | 11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/misc/aspeed-lpc-snoop.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/char/ttyprintk.c b/drivers/char/ttyprintk.c
-index 774748497ace..e56ac5adb5fc 100644
---- a/drivers/char/ttyprintk.c
-+++ b/drivers/char/ttyprintk.c
-@@ -159,12 +159,23 @@ static int tpk_ioctl(struct tty_struct *tty,
- 	return 0;
+diff --git a/drivers/misc/aspeed-lpc-snoop.c b/drivers/misc/aspeed-lpc-snoop.c
+index b4a776bf44bc..e2cb0b9607d1 100644
+--- a/drivers/misc/aspeed-lpc-snoop.c
++++ b/drivers/misc/aspeed-lpc-snoop.c
+@@ -99,8 +99,10 @@ static ssize_t snoop_file_read(struct file *file, char __user *buffer,
+ 			return -EINTR;
+ 	}
+ 	ret = kfifo_to_user(&chan->fifo, buffer, count, &copied);
++	if (ret)
++		return ret;
+ 
+-	return ret ? ret : copied;
++	return copied;
  }
  
-+/*
-+ * TTY operations hangup function.
-+ */
-+static void tpk_hangup(struct tty_struct *tty)
-+{
-+	struct ttyprintk_port *tpkp = tty->driver_data;
-+
-+	tty_port_hangup(&tpkp->port);
-+}
-+
- static const struct tty_operations ttyprintk_ops = {
- 	.open = tpk_open,
- 	.close = tpk_close,
- 	.write = tpk_write,
- 	.write_room = tpk_write_room,
- 	.ioctl = tpk_ioctl,
-+	.hangup = tpk_hangup,
- };
- 
- static const struct tty_port_operations null_ops = { };
+ static __poll_t snoop_file_poll(struct file *file,
 -- 
 2.30.2
 
