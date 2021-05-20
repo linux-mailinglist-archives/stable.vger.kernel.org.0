@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA58B38A13B
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E30338A0CE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:24:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232033AbhETJ3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:29:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53974 "EHLO mail.kernel.org"
+        id S231578AbhETJ0J (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231911AbhETJ1z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:27:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C4DB613D1;
-        Thu, 20 May 2021 09:26:28 +0000 (UTC)
+        id S231583AbhETJ0G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4736B61261;
+        Thu, 20 May 2021 09:24:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502788;
-        bh=w5l4O0LkTqldlHZgRmHg74sh8TNSwu4hS5lJhnkt0G4=;
+        s=korg; t=1621502684;
+        bh=sRCDHEtlOYRoF0ugZsq88Egozlq1CUEd7jWG6ONVEmY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nYzDhxDc4xhx10JbU7Ek4tgyp9Ea9J7WF5mz30JzLXjG6RdTViUPHpl/w6UXu8ZuY
-         E3804TTJc+QcTE4LdLQGDJH8ZzMYbC0hJKsK7lmwXfFn8Bz28H3K7k7QeB9AJFWtur
-         HYttmwhDeP3DXyZ0XOCsbPFap03oa5QC2NuSe53E=
+        b=xWbYsZfRUrciW2uAPutedr59ztGdiHHZoa8XK410gZ0EFQ3NeMzHrlaNpjZeZp9u2
+         dHtDz+0RBqiAzwywiBGKm/piiuZ6NW79XiWzbEiLrvUDl0oZuSCVSEgd2Feefrce8I
+         CF+cWGb9edfFVAyIBFHaMT/MXkPTfseaTuA8Yu7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 5.10 03/47] airo: work around stack usage warning
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 13/45] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
 Date:   Thu, 20 May 2021 11:22:01 +0200
-Message-Id: <20210520092053.672558737@linuxfoundation.org>
+Message-Id: <20210520092053.952823292@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,164 +42,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 7909a590eba6d021f104958857cbc4f0089daceb upstream.
+[ Upstream commit 65299e8bfb24774e6340e93ae49f6626598917c8 ]
 
-gcc-11 with KASAN on 32-bit arm produces a warning about a function
-that needs a lot of stack space:
+Several users have been reporting that elants_i2c gives several errors
+during probe and that their touchscreen does not work on their Lenovo AMD
+based laptops with a touchscreen with a ELAN0001 ACPI hardware-id:
 
-drivers/net/wireless/cisco/airo.c: In function 'setup_card.constprop':
-drivers/net/wireless/cisco/airo.c:3960:1: error: the frame size of 1512 bytes is larger than 1400 bytes [-Werror=frame-larger-than=]
+[    0.550596] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vcc33 not found, using dummy regulator
+[    0.551836] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vccio not found, using dummy regulator
+[    0.560932] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.562427] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.595925] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.597974] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.621893] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.622504] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.632650] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (4d 61 69 6e): -121
+[    0.634256] elants_i2c i2c-ELAN0001:00: boot failed: -121
+[    0.699212] elants_i2c i2c-ELAN0001:00: invalid 'hello' packet: 00 00 ff ff
+[    1.630506] elants_i2c i2c-ELAN0001:00: Failed to read fw id: -121
+[    1.645508] elants_i2c i2c-ELAN0001:00: unknown packet 00 00 ff ff
 
-Most of this is from a single large structure that could be dynamically
-allocated or moved into the per-device structure.  However, as the callers
-all seem to have a fairly well bounded call chain, the easiest change
-is to pull out the part of the function that needs the large variables
-into a separate function and mark that as noinline_for_stack. This does
-not reduce the total stack usage, but it gets rid of the warning and
-requires minimal changes otherwise.
+Despite these errors, the elants_i2c driver stays bound to the device
+(it returns 0 from its probe method despite the errors), blocking the
+i2c-hid driver from binding.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210323131634.2669455-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Manually unbinding the elants_i2c driver and binding the i2c-hid driver
+makes the touchscreen work.
+
+Check if the ACPI-fwnode for the touchscreen contains one of the i2c-hid
+compatiblity-id strings and if it has the I2C-HID spec's DSM to get the
+HID descriptor address, If it has both then make elants_i2c not bind,
+so that the i2c-hid driver can bind.
+
+This assumes that non of the (older) elan touchscreens which actually
+need the elants_i2c driver falsely advertise an i2c-hid compatiblity-id
++ DSM in their ACPI-fwnodes. If some of them actually do have this
+false advertising, then this change may lead to regressions.
+
+While at it also drop the unnecessary DEVICE_NAME prefixing of the
+"I2C check functionality error", dev_err already outputs the driver-name.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207759
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210405202756.16830-1-hdegoede@redhat.com
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/cisco/airo.c |  117 +++++++++++++++++++++-----------------
- 1 file changed, 65 insertions(+), 52 deletions(-)
+ drivers/input/touchscreen/elants_i2c.c | 44 ++++++++++++++++++++++++--
+ 1 file changed, 42 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/cisco/airo.c
-+++ b/drivers/net/wireless/cisco/airo.c
-@@ -3825,6 +3825,68 @@ static inline void set_auth_type(struct
- 		local->last_auth = auth_type;
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 5f7706febcb0..17540bdb1eaf 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -38,6 +38,7 @@
+ #include <linux/of.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/uuid.h>
+ #include <asm/unaligned.h>
+ 
+ /* Device, Driver information */
+@@ -1334,6 +1335,40 @@ static void elants_i2c_power_off(void *_data)
+ 	}
  }
  
-+static int noinline_for_stack airo_readconfig(struct airo_info *ai, u8 *mac, int lock)
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id i2c_hid_ids[] = {
++	{"ACPI0C50", 0 },
++	{"PNP0C50", 0 },
++	{ },
++};
++
++static const guid_t i2c_hid_guid =
++	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
++		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
++
++static bool elants_acpi_is_hid_device(struct device *dev)
 +{
-+	int i, status;
-+	/* large variables, so don't inline this function,
-+	 * maybe change to kmalloc
-+	 */
-+	tdsRssiRid rssi_rid;
-+	CapabilityRid cap_rid;
++	acpi_handle handle = ACPI_HANDLE(dev);
++	union acpi_object *obj;
 +
-+	kfree(ai->SSID);
-+	ai->SSID = NULL;
-+	// general configuration (read/modify/write)
-+	status = readConfigRid(ai, lock);
-+	if (status != SUCCESS) return ERROR;
++	if (acpi_match_device_ids(ACPI_COMPANION(dev), i2c_hid_ids))
++		return false;
 +
-+	status = readCapabilityRid(ai, &cap_rid, lock);
-+	if (status != SUCCESS) return ERROR;
-+
-+	status = PC4500_readrid(ai, RID_RSSI, &rssi_rid, sizeof(rssi_rid), lock);
-+	if (status == SUCCESS) {
-+		if (ai->rssi || (ai->rssi = kmalloc(512, GFP_KERNEL)) != NULL)
-+			memcpy(ai->rssi, (u8*)&rssi_rid + 2, 512); /* Skip RID length member */
-+	}
-+	else {
-+		kfree(ai->rssi);
-+		ai->rssi = NULL;
-+		if (cap_rid.softCap & cpu_to_le16(8))
-+			ai->config.rmode |= RXMODE_NORMALIZED_RSSI;
-+		else
-+			airo_print_warn(ai->dev->name, "unknown received signal "
-+					"level scale");
-+	}
-+	ai->config.opmode = adhoc ? MODE_STA_IBSS : MODE_STA_ESS;
-+	set_auth_type(ai, AUTH_OPEN);
-+	ai->config.modulation = MOD_CCK;
-+
-+	if (le16_to_cpu(cap_rid.len) >= sizeof(cap_rid) &&
-+	    (cap_rid.extSoftCap & cpu_to_le16(1)) &&
-+	    micsetup(ai) == SUCCESS) {
-+		ai->config.opmode |= MODE_MIC;
-+		set_bit(FLAG_MIC_CAPABLE, &ai->flags);
++	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL, ACPI_TYPE_INTEGER);
++	if (obj) {
++		ACPI_FREE(obj);
++		return true;
 +	}
 +
-+	/* Save off the MAC */
-+	for (i = 0; i < ETH_ALEN; i++) {
-+		mac[i] = ai->config.macAddr[i];
-+	}
-+
-+	/* Check to see if there are any insmod configured
-+	   rates to add */
-+	if (rates[0]) {
-+		memset(ai->config.rates, 0, sizeof(ai->config.rates));
-+		for (i = 0; i < 8 && rates[i]; i++) {
-+			ai->config.rates[i] = rates[i];
-+		}
-+	}
-+	set_bit (FLAG_COMMIT, &ai->flags);
-+
-+	return SUCCESS;
++	return false;
 +}
++#else
++static bool elants_acpi_is_hid_device(struct device *dev)
++{
++	return false;
++}
++#endif
 +
-+
- static u16 setup_card(struct airo_info *ai, u8 *mac, int lock)
+ static int elants_i2c_probe(struct i2c_client *client,
+ 			    const struct i2c_device_id *id)
  {
- 	Cmd cmd;
-@@ -3871,58 +3933,9 @@ static u16 setup_card(struct airo_info *
- 	if (lock)
- 		up(&ai->sem);
- 	if (ai->config.len == 0) {
--		int i;
--		tdsRssiRid rssi_rid;
--		CapabilityRid cap_rid;
--
--		kfree(ai->SSID);
--		ai->SSID = NULL;
--		// general configuration (read/modify/write)
--		status = readConfigRid(ai, lock);
--		if (status != SUCCESS) return ERROR;
--
--		status = readCapabilityRid(ai, &cap_rid, lock);
--		if (status != SUCCESS) return ERROR;
--
--		status = PC4500_readrid(ai, RID_RSSI,&rssi_rid, sizeof(rssi_rid), lock);
--		if (status == SUCCESS) {
--			if (ai->rssi || (ai->rssi = kmalloc(512, GFP_KERNEL)) != NULL)
--				memcpy(ai->rssi, (u8*)&rssi_rid + 2, 512); /* Skip RID length member */
--		}
--		else {
--			kfree(ai->rssi);
--			ai->rssi = NULL;
--			if (cap_rid.softCap & cpu_to_le16(8))
--				ai->config.rmode |= RXMODE_NORMALIZED_RSSI;
--			else
--				airo_print_warn(ai->dev->name, "unknown received signal "
--						"level scale");
--		}
--		ai->config.opmode = adhoc ? MODE_STA_IBSS : MODE_STA_ESS;
--		set_auth_type(ai, AUTH_OPEN);
--		ai->config.modulation = MOD_CCK;
--
--		if (le16_to_cpu(cap_rid.len) >= sizeof(cap_rid) &&
--		    (cap_rid.extSoftCap & cpu_to_le16(1)) &&
--		    micsetup(ai) == SUCCESS) {
--			ai->config.opmode |= MODE_MIC;
--			set_bit(FLAG_MIC_CAPABLE, &ai->flags);
--		}
--
--		/* Save off the MAC */
--		for (i = 0; i < ETH_ALEN; i++) {
--			mac[i] = ai->config.macAddr[i];
--		}
--
--		/* Check to see if there are any insmod configured
--		   rates to add */
--		if (rates[0]) {
--			memset(ai->config.rates, 0, sizeof(ai->config.rates));
--			for (i = 0; i < 8 && rates[i]; i++) {
--				ai->config.rates[i] = rates[i];
--			}
--		}
--		set_bit (FLAG_COMMIT, &ai->flags);
-+		status = airo_readconfig(ai, mac, lock);
-+		if (status != SUCCESS)
-+			return ERROR;
+@@ -1342,9 +1377,14 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	unsigned long irqflags;
+ 	int error;
+ 
++	/* Don't bind to i2c-hid compatible devices, these are handled by the i2c-hid drv. */
++	if (elants_acpi_is_hid_device(&client->dev)) {
++		dev_warn(&client->dev, "This device appears to be an I2C-HID device, not binding\n");
++		return -ENODEV;
++	}
++
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		dev_err(&client->dev,
+-			"%s: i2c check functionality error\n", DEVICE_NAME);
++		dev_err(&client->dev, "I2C check functionality error\n");
+ 		return -ENXIO;
  	}
  
- 	/* Setup the SSIDs if present */
+-- 
+2.30.2
+
 
 
