@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4402738A0FD
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E10F38A159
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232008AbhETJ1m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:27:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
+        id S231869AbhETJa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231435AbhETJ0y (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:26:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 056F861355;
-        Thu, 20 May 2021 09:25:32 +0000 (UTC)
+        id S232167AbhETJ2W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:28:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3583461358;
+        Thu, 20 May 2021 09:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502733;
-        bh=0CI2ZwNSZ4KkGK4JR7dWcrMIe/AmclU8g10YbHCsFBU=;
+        s=korg; t=1621502808;
+        bh=ew4M8HlQkJCi7mRSE24rJFwi4BQphLpJSQz2xNFxnQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ds6pKKJVf3OQTRQ3IYPA+vT8SCmN7nXclT0Ow4i2GSiOw52GVn3e6iaFC1LPEmM6y
-         yeV5kYhLWzxmF42craIC8Nz1q8mN0JrPCH315FcCGoxswnEQtex4JKOOrwBcCccXhW
-         yywd/AiRS1YkEYPjyPrwc/RIFXZUPvfiuxf8sna0=
+        b=mSfRCdXS13d7z2GDg9RcLthKXEIXvK4fflzRPmcCNWFNYnMU8VPPIXKLPymBz1mLs
+         B1lIFnd57K+8p9MdGYLqmf6DAslowIulFsLmycpY3ucIQv1KKaG7ESHg57ORMtbd5L
+         ylisaTkq4J+Xfqa8IcyrdHVUYLyFcSPpocjsskUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+e267bed19bfc5478fb33@syzkaller.appspotmail.com,
-        Phillip Potter <phil@philpotter.co.uk>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 33/45] net: hsr: check skb can contain struct hsr_ethhdr in fill_frame_info
+Subject: [PATCH 5.10 23/47] riscv: Use $(LD) instead of $(CC) to link vDSO
 Date:   Thu, 20 May 2021 11:22:21 +0200
-Message-Id: <20210520092054.596219345@linuxfoundation.org>
+Message-Id: <20210520092054.292173621@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +41,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 2e9f60932a2c19e8a11b4a69d419f107024b05a0 ]
+[ Upstream commit 7f3d349065d0c643f7f7013fbf9bc9f2c90b675f ]
 
-Check at start of fill_frame_info that the MAC header in the supplied
-skb is large enough to fit a struct hsr_ethhdr, as otherwise this is
-not a valid HSR frame. If it is too small, return an error which will
-then cause the callers to clean up the skb. Fixes a KMSAN-found
-uninit-value bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=f7e9b601f1414f814f7602a82b6619a8d80bce3f
+Currently, the VDSO is being linked through $(CC). This does not match
+how the rest of the kernel links objects, which is through the $(LD)
+variable.
 
-Reported-by: syzbot+e267bed19bfc5478fb33@syzkaller.appspotmail.com
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+When linking with clang, there are a couple of warnings about flags that
+will not be used during the link:
+
+clang-12: warning: argument unused during compilation: '-no-pie' [-Wunused-command-line-argument]
+clang-12: warning: argument unused during compilation: '-pg' [-Wunused-command-line-argument]
+
+'-no-pie' was added in commit 85602bea297f ("RISC-V: build vdso-dummy.o
+with -no-pie") to override '-pie' getting added to the ld command from
+distribution versions of GCC that enable PIE by default. It is
+technically no longer needed after commit c2c81bb2f691 ("RISC-V: Fix the
+VDSO symbol generaton for binutils-2.35+"), which removed vdso-dummy.o
+in favor of generating vdso-syms.S from vdso.so with $(NM) but this also
+resolves the issue in case it ever comes back due to having full control
+over the $(LD) command. '-pg' is for function tracing, it is not used
+during linking as clang states.
+
+These flags could be removed/filtered to fix the warnings but it is
+easier to just match the rest of the kernel and use $(LD) directly for
+linking. See commits
+
+  fe00e50b2db8 ("ARM: 8858/1: vdso: use $(LD) instead of $(CC) to link VDSO")
+  691efbedc60d ("arm64: vdso: use $(LD) instead of $(CC) to link VDSO")
+  2ff906994b6c ("MIPS: VDSO: Use $(LD) instead of $(CC) to link VDSO")
+  2b2a25845d53 ("s390/vdso: Use $(LD) instead of $(CC) to link vDSO")
+
+for more information.
+
+The flags are converted to linker flags and '--eh-frame-hdr' is added to
+match what is added by GCC implicitly, which can be seen by adding '-v'
+to GCC's invocation.
+
+Additionally, since this area is being modified, use the $(OBJCOPY)
+variable instead of an open coded $(CROSS_COMPILE)objcopy so that the
+user's choice of objcopy binary is respected.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/803
+Link: https://github.com/ClangBuiltLinux/linux/issues/970
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/hsr/hsr_forward.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/riscv/kernel/vdso/Makefile | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/net/hsr/hsr_forward.c b/net/hsr/hsr_forward.c
-index b218e4594009..6852e9bccf5b 100644
---- a/net/hsr/hsr_forward.c
-+++ b/net/hsr/hsr_forward.c
-@@ -520,6 +520,10 @@ static int fill_frame_info(struct hsr_frame_info *frame,
- 	struct ethhdr *ethhdr;
- 	__be16 proto;
+diff --git a/arch/riscv/kernel/vdso/Makefile b/arch/riscv/kernel/vdso/Makefile
+index 71a315e73cbe..ca2b40dfd24b 100644
+--- a/arch/riscv/kernel/vdso/Makefile
++++ b/arch/riscv/kernel/vdso/Makefile
+@@ -41,11 +41,10 @@ KASAN_SANITIZE := n
+ $(obj)/vdso.o: $(obj)/vdso.so
  
-+	/* Check if skb contains hsr_ethhdr */
-+	if (skb->mac_len < sizeof(struct hsr_ethhdr))
-+		return -EINVAL;
-+
- 	memset(frame, 0, sizeof(*frame));
- 	frame->is_supervision = is_supervision_frame(port->hsr, skb);
- 	frame->node_src = hsr_get_node(port, &hsr->node_db, skb,
+ # link rule for the .so file, .lds has to be first
+-SYSCFLAGS_vdso.so.dbg = $(c_flags)
+ $(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso) FORCE
+ 	$(call if_changed,vdsold)
+-SYSCFLAGS_vdso.so.dbg = -shared -s -Wl,-soname=linux-vdso.so.1 \
+-	-Wl,--build-id=sha1 -Wl,--hash-style=both
++LDFLAGS_vdso.so.dbg = -shared -s -soname=linux-vdso.so.1 \
++	--build-id=sha1 --hash-style=both --eh-frame-hdr
+ 
+ # We also create a special relocatable object that should mirror the symbol
+ # table and layout of the linked DSO. With ld --just-symbols we can then
+@@ -60,13 +59,10 @@ $(obj)/%.so: $(obj)/%.so.dbg FORCE
+ 
+ # actual build commands
+ # The DSO images are built using a special linker script
+-# Add -lgcc so rv32 gets static muldi3 and lshrdi3 definitions.
+ # Make sure only to export the intended __vdso_xxx symbol offsets.
+ quiet_cmd_vdsold = VDSOLD  $@
+-      cmd_vdsold = $(CC) $(KBUILD_CFLAGS) $(call cc-option, -no-pie) -nostdlib -nostartfiles $(SYSCFLAGS_$(@F)) \
+-                           -Wl,-T,$(filter-out FORCE,$^) -o $@.tmp && \
+-                   $(CROSS_COMPILE)objcopy \
+-                           $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
++      cmd_vdsold = $(LD) $(ld_flags) -T $(filter-out FORCE,$^) -o $@.tmp && \
++                   $(OBJCOPY) $(patsubst %, -G __vdso_%, $(vdso-syms)) $@.tmp $@ && \
+                    rm $@.tmp
+ 
+ # Extracts symbol offsets from the VDSO, converting them into an assembly file
 -- 
 2.30.2
 
