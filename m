@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CAB2538AA2A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2034138AA2B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238855AbhETLKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
+        id S238511AbhETLKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236335AbhETLIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:08:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7039613DC;
-        Thu, 20 May 2021 10:06:09 +0000 (UTC)
+        id S239093AbhETLIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:08:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2501461937;
+        Thu, 20 May 2021 10:06:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505170;
-        bh=hs+EqPyCDyqCDKC+REF6QbabERUgprgunsI+jUv/DwY=;
+        s=korg; t=1621505172;
+        bh=i6nxWaGnI13Ya4iWXKJbLda0atge26fqRNEacbktChY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GHe+llIpmUfrCL7r+a+VcU+HB98SAOccnjxpA62BlxEwjRkJIpTnKMeyvObPWOgc8
-         1hOD914INSm2h3qHpAArncplFEkM6w8bacUwTzMKh6j2iMcviAJ9YQK11jXXud/4bK
-         SzIrAn8CimC7mDLLmKcA4941+gzmLCXCXKghvJpI=
+        b=0U8xDlOuiySousMD7WkcHo39cXH1iPddRc9VrH5kUyCmZVUxq0Rw50keV8rXKYdju
+         2iksFWwYDaV1S5f/qdWlT7KGUmCaIGsPeFWRWEjbHkYNRRHML5xZ3FUdMm9eeYoS1c
+         a48/rQUDyLxG2+gJmEVDFNllnheiekznajO+0S88=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Phillip Potter <phil@philpotter.co.uk>
-Subject: [PATCH 4.4 014/190] fbdev: zero-fill colormap in fbcmap.c
-Date:   Thu, 20 May 2021 11:21:18 +0200
-Message-Id: <20210520092102.645060439@linuxfoundation.org>
+        stable@vger.kernel.org, karthik alapati <mail@karthek.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 015/190] staging: wimax/i2400m: fix byte-order issue
+Date:   Thu, 20 May 2021 11:21:19 +0200
+Message-Id: <20210520092102.676619444@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,51 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: karthik alapati <mail@karthek.com>
 
-commit 19ab233989d0f7ab1de19a036e247afa4a0a1e9c upstream.
+[ Upstream commit 0c37baae130df39b19979bba88bde2ee70a33355 ]
 
-Use kzalloc() rather than kmalloc() for the dynamically allocated parts
-of the colormap in fb_alloc_cmap_gfp, to prevent a leak of random kernel
-data to userspace under certain circumstances.
+fix sparse byte-order warnings by converting host byte-order
+type to __le16 byte-order types before assigning to hdr.length
 
-Fixes a KMSAN-found infoleak bug reported by syzbot at:
-https://syzkaller.appspot.com/bug?id=741578659feabd108ad9e06696f0c1f2e69c4b6e
-
-Reported-by: syzbot+47fa9c9c648b765305b9@syzkaller.appspotmail.com
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210331220719.1499743-1-phil@philpotter.co.uk
+Signed-off-by: karthik alapati <mail@karthek.com>
+Link: https://lore.kernel.org/r/0ae5c5c4c646506d8be871e7be5705542671a1d5.1613921277.git.mail@karthek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/core/fbcmap.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wimax/i2400m/op-rfkill.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/core/fbcmap.c
-+++ b/drivers/video/fbdev/core/fbcmap.c
-@@ -101,17 +101,17 @@ int fb_alloc_cmap_gfp(struct fb_cmap *cm
- 		if (!len)
- 			return 0;
- 
--		cmap->red = kmalloc(size, flags);
-+		cmap->red = kzalloc(size, flags);
- 		if (!cmap->red)
- 			goto fail;
--		cmap->green = kmalloc(size, flags);
-+		cmap->green = kzalloc(size, flags);
- 		if (!cmap->green)
- 			goto fail;
--		cmap->blue = kmalloc(size, flags);
-+		cmap->blue = kzalloc(size, flags);
- 		if (!cmap->blue)
- 			goto fail;
- 		if (transp) {
--			cmap->transp = kmalloc(size, flags);
-+			cmap->transp = kzalloc(size, flags);
- 			if (!cmap->transp)
- 				goto fail;
- 		} else {
+diff --git a/drivers/net/wimax/i2400m/op-rfkill.c b/drivers/net/wimax/i2400m/op-rfkill.c
+index dc6fe93ce71f..e8473047b2d1 100644
+--- a/drivers/net/wimax/i2400m/op-rfkill.c
++++ b/drivers/net/wimax/i2400m/op-rfkill.c
+@@ -101,7 +101,7 @@ int i2400m_op_rfkill_sw_toggle(struct wimax_dev *wimax_dev,
+ 	if (cmd == NULL)
+ 		goto error_alloc;
+ 	cmd->hdr.type = cpu_to_le16(I2400M_MT_CMD_RF_CONTROL);
+-	cmd->hdr.length = sizeof(cmd->sw_rf);
++	cmd->hdr.length = cpu_to_le16(sizeof(cmd->sw_rf));
+ 	cmd->hdr.version = cpu_to_le16(I2400M_L3L4_VERSION);
+ 	cmd->sw_rf.hdr.type = cpu_to_le16(I2400M_TLV_RF_OPERATION);
+ 	cmd->sw_rf.hdr.length = cpu_to_le16(sizeof(cmd->sw_rf.status));
+-- 
+2.30.2
+
 
 
