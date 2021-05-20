@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E8DE038A587
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:16:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9003438A588
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:16:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234695AbhETKRW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:17:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47740 "EHLO mail.kernel.org"
+        id S235133AbhETKRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236473AbhETKPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236476AbhETKPU (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:15:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F335A6198C;
-        Thu, 20 May 2021 09:45:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 343406198F;
+        Thu, 20 May 2021 09:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503932;
-        bh=beTbDepfJp+gV3uCFBN0fe35WAaiIPXY1D7wJK7dTI4=;
+        s=korg; t=1621503934;
+        bh=vkFFtSBmwEKNYszD+U0WXB2my47SbLhZne37+HJ8phQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uwmiPT2mqQu7OA/m8dpi6/Zu3AVD9l4mmcWLbKEZgRxI00866Mi3cJ69yCW0+aj9M
-         +W6Z6icd7EqWeTlAtoVrqfMoCDpzui+h0L9UEqyGkNQ9Z0aJY3+hutwqolL0aqv93Q
-         eYBB/Io+RQ/IZIvq3VFLs4iUq32/3KoH6RSAOTfI=
+        b=QE41QeH6kYfkaURSWJl7BGBGY8PhpM7nGMZY0u1C//lXPkPysoW+A8mwtvW56zZKy
+         8gLnJSs5M0IQiyDVf5EHJubGUQvz2S7VExJWFpFqFYusDNV9tmXYTTsDrRREm19MQO
+         ikn28Zi80sXy38BYdMPOzAJiAn+YhbY94wVuYi7E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Samuel Mendoza-Jonas <samjonas@amazon.com>,
-        Frank van der Linden <fllinden@amazon.com>,
-        Ethan Chen <yishache@amazon.com>, Yonghong Song <yhs@fb.com>
-Subject: [PATCH 4.14 004/323] bpf: Fix backport of "bpf: restrict unknown scalars of mixed signed bounds for unprivileged"
-Date:   Thu, 20 May 2021 11:18:16 +0200
-Message-Id: <20210520092120.276176727@linuxfoundation.org>
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.14 005/323] bpf: fix up selftests after backports were fixed
+Date:   Thu, 20 May 2021 11:18:17 +0200
+Message-Id: <20210520092120.308727153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,55 +38,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Mendoza-Jonas <samjonas@amazon.com>
+From: Frank van der Linden <fllinden@amazon.com>
 
-The 4.14 backport of 9d7eceede ("bpf: restrict unknown scalars of mixed
-signed bounds for unprivileged") adds the PTR_TO_MAP_VALUE check to the
-wrong location in adjust_ptr_min_max_vals(), most likely because 4.14
-doesn't include the commit that updates the if-statement to a
-switch-statement (aad2eeaf4 "bpf: Simplify ptr_min_max_vals adjustment").
+After the backport of the changes to fix CVE 2019-7308, the
+selftests also need to be fixed up, as was done originally
+in mainline 80c9b2fae87b ("bpf: add various test cases to selftests").
 
-Move the check to the proper location in adjust_ptr_min_max_vals().
+4.14 commit 03f11a51a19 ("bpf: Fix selftests are changes for CVE 2019-7308")
+did that, but since there was an error in the backport, some
+selftests did not change output. So, add them now that this error
+has been fixed, and their output has actually changed as expected.
 
-Fixes: 17efa65350c5a ("bpf: restrict unknown scalars of mixed signed bounds for unprivileged")
-Signed-off-by: Samuel Mendoza-Jonas <samjonas@amazon.com>
-Reviewed-by: Frank van der Linden <fllinden@amazon.com>
-Reviewed-by: Ethan Chen <yishache@amazon.com>
-Acked-by: Yonghong Song <yhs@fb.com>
+This adds the rest of the changed test outputs from 80c9b2fae87b.
+
+Fixes: 03f11a51a19 ("bpf: Fix selftests are changes for CVE 2019-7308")
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c |   12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2204,6 +2204,13 @@ static int adjust_ptr_min_max_vals(struc
- 				dst);
- 		return -EACCES;
- 	}
-+	if (ptr_reg->type == PTR_TO_MAP_VALUE) {
-+		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
-+			verbose("R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
-+				off_reg == dst_reg ? dst : src);
-+			return -EACCES;
-+		}
-+	}
- 
- 	/* In case of 'scalar += pointer', dst_reg inherits pointer type and id.
- 	 * The id may be overwritten later if we create a new variable offset.
-@@ -2349,13 +2356,6 @@ static int adjust_ptr_min_max_vals(struc
- 			verbose("R%d bitwise operator %s on pointer prohibited\n",
- 				dst, bpf_alu_string[opcode >> 4]);
- 		return -EACCES;
--	case PTR_TO_MAP_VALUE:
--		if (!env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
--			verbose("R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
--				off_reg == dst_reg ? dst : src);
--			return -EACCES;
--		}
--		/* fall-through */
- 	default:
- 		/* other operators (e.g. MUL,LSH) produce non-pointer results */
- 		if (!env->allow_ptr_leaks)
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -6207,6 +6207,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6231,6 +6232,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6257,6 +6259,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6282,6 +6285,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6330,6 +6334,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6401,6 +6406,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6452,6 +6458,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6479,6 +6486,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6505,6 +6513,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6534,6 +6543,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R7 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6592,6 +6602,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 		.result_unpriv = REJECT,
+ 	},
+@@ -6644,6 +6655,7 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "R0 min value is negative, either use unsigned index or do a if (index >=0) check.",
++		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
 
 
