@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D65C38A79C
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC16E38A79A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237359AbhETKkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:40:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39654 "EHLO mail.kernel.org"
+        id S237339AbhETKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39660 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237720AbhETKil (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237734AbhETKil (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:38:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA59D61C79;
-        Thu, 20 May 2021 09:54:56 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C02A61C71;
+        Thu, 20 May 2021 09:54:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504497;
-        bh=MmVAgyYqHDI2wWDlWO1LQ2t08By/1j+dK10i4ZJa9Kg=;
+        s=korg; t=1621504499;
+        bh=olxwLQKUoh0pv7hlajAdGVNyIeCmb2yMv6GLGAzdL9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YKxJfttG6EQEfsDXzfWdvGi71xxjmheCHzS07M7iYLSICEpMRJpQGBSt157QUSaq2
-         pJoyHsfla1PWD3hD3XkuCCUtXMn3I6aoEQHawYV2qkHOX0hX18UGLLjBjWXTeli4Ip
-         b/mcLIktu2E+2Mz0ViyOI7sLlYTSbdCRvcfYSrtc=
+        b=lXuBviGuzR6qq0xJoczMWa68My7HUW6WZ8Y5gCveYU0jvkpsopt3njgUJdFdLrhzX
+         j1+NjCU9Bfxd7xW0KTzDZPYtZWQNkXWC/wuHCZfC/waMV/iIm1fn+5ms3omFsy1eUp
+         2YzdDUjRy9GeImorrRYFS9K/u9Pxrchv9XvqIWDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
+        Hugh Dickins <hughd@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 271/323] mm/hugeltb: handle the error case in hugetlb_fix_reserve_counts()
-Date:   Thu, 20 May 2021 11:22:43 +0200
-Message-Id: <20210520092129.517462862@linuxfoundation.org>
+Subject: [PATCH 4.14 272/323] ksm: fix potential missing rmap_item for stable_node
+Date:   Thu, 20 May 2021 11:22:44 +0200
+Message-Id: <20210520092129.548113494@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -45,53 +44,53 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miaohe Lin <linmiaohe@huawei.com>
 
-[ Upstream commit da56388c4397878a65b74f7fe97760f5aa7d316b ]
+[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
 
-A rare out of memory error would prevent removal of the reserve map region
-for a page.  hugetlb_fix_reserve_counts() handles this rare case to avoid
-dangling with incorrect counts.  Unfortunately, hugepage_subpool_get_pages
-and hugetlb_acct_memory could possibly fail too.  We should correctly
-handle these cases.
+When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
+cleared with head reserved.  So the following scenario might happen: For
+ksm page with rmap_item1:
 
-Link: https://lkml.kernel.org/r/20210410072348.20437-5-linmiaohe@huawei.com
-Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
+cmp_and_merge_page
+  stable_node->head = &migrate_nodes;
+  remove_rmap_item_from_tree, but head still equal to stable_node;
+  try_to_merge_with_ksm_page failed;
+  return;
+
+For the same ksm page with rmap_item2, stable node migration succeed this
+time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
+page with rmap_item1 again:
+
+cmp_and_merge_page
+ stable_node->head != &migrate_nodes && rmap_item->head == stable_node
+ return;
+
+We would miss the rmap_item for stable_node and might result in failed
+rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
+is removed from stable tree.
+
+Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
+Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
 Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Hugh Dickins <hughd@google.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mm/ksm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 0f6959961f9a..777ad49dbd46 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -589,13 +589,20 @@ void hugetlb_fix_reserve_counts(struct inode *inode)
- {
- 	struct hugepage_subpool *spool = subpool_inode(inode);
- 	long rsv_adjust;
-+	bool reserved = false;
+diff --git a/mm/ksm.c b/mm/ksm.c
+index 65d4bf52f543..6d3bc2723c9b 100644
+--- a/mm/ksm.c
++++ b/mm/ksm.c
+@@ -768,6 +768,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
+ 		stable_node->rmap_hlist_len--;
  
- 	rsv_adjust = hugepage_subpool_get_pages(spool, 1);
--	if (rsv_adjust) {
-+	if (rsv_adjust > 0) {
- 		struct hstate *h = hstate_inode(inode);
+ 		put_anon_vma(rmap_item->anon_vma);
++		rmap_item->head = NULL;
+ 		rmap_item->address &= PAGE_MASK;
  
--		hugetlb_acct_memory(h, 1);
-+		if (!hugetlb_acct_memory(h, 1))
-+			reserved = true;
-+	} else if (!rsv_adjust) {
-+		reserved = true;
- 	}
-+
-+	if (!reserved)
-+		pr_warn("hugetlb: Huge Page Reserved count may go negative.\n");
- }
- 
- /*
+ 	} else if (rmap_item->address & UNSTABLE_FLAG) {
 -- 
 2.30.2
 
