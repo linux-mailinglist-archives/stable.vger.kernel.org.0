@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4068138A1DA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:34:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64D5638A1E5
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:34:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231534AbhETJfp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:35:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35682 "EHLO mail.kernel.org"
+        id S232754AbhETJgD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:36:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60810 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232445AbhETJdp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:33:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3991613F9;
-        Thu, 20 May 2021 09:28:57 +0000 (UTC)
+        id S232770AbhETJeE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:34:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C75A6101E;
+        Thu, 20 May 2021 09:29:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502938;
-        bh=8xMgb47kKdyhTkekxZ0R1r3HhfPW+PyNnzFz9iXQp2Q=;
+        s=korg; t=1621502942;
+        bh=ppsXdqrI2PPYPAA/ycHQ18gm8CRb0Vu+vjPDl3qIf9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZ5/PWRAIiCVKIAXlYNgpns2UFwVilRJ8z3+BurgKvNcnPQB1ccuSbn9PA9EixecG
-         gxsKlhmkkgW2AUraEtIhrbSXSKaHO4aUX+D9QOHIwYoqyA2pz5LuBLDirTlwOu2gK7
-         FuN/xwX89cg0F/IRkJF5tb3nxP95q9FlyXPpg4O4=
+        b=Ec/nCNq09Rx0k18ZQkM69DtmS6wBZnHucyefcbCK6aW7CbLURrMJoscf0wlwvLmGX
+         EytFKHTaSP7LaV2nsw7EoTUozKCzy3dpL/CA7FNLK/Gl0saVnqCDdK8vzighxiizgH
+         x3vZrf1ka3UB3nb89whRvcLgcGvTJBNWHvwZ6gvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 34/37] ipv6: remove extra dev_hold() for fallback tunnels
-Date:   Thu, 20 May 2021 11:22:55 +0200
-Message-Id: <20210520092053.397626559@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.4 35/37] KVM: arm64: Initialize VCPU mdcr_el2 before loading it
+Date:   Thu, 20 May 2021 11:22:56 +0200
+Message-Id: <20210520092053.428885545@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
 References: <20210520092052.265851579@linuxfoundation.org>
@@ -40,82 +40,213 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Alexandru Elisei <alexandru.elisei@arm.com>
 
-commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
+commit 263d6287da1433aba11c5b4046388f2cdf49675c upstream.
 
-My previous commits added a dev_hold() in tunnels ndo_init(),
-but forgot to remove it from special functions setting up fallback tunnels.
+When a VCPU is created, the kvm_vcpu struct is initialized to zero in
+kvm_vm_ioctl_create_vcpu(). On VHE systems, the first time
+vcpu.arch.mdcr_el2 is loaded on hardware is in vcpu_load(), before it is
+set to a sensible value in kvm_arm_setup_debug() later in the run loop. The
+result is that KVM executes for a short time with MDCR_EL2 set to zero.
 
-Fallback tunnels do call their respective ndo_init()
+This has several unintended consequences:
 
-This leads to various reports like :
+* Setting MDCR_EL2.HPMN to 0 is constrained unpredictable according to ARM
+  DDI 0487G.a, page D13-3820. The behavior specified by the architecture
+  in this case is for the PE to behave as if MDCR_EL2.HPMN is set to a
+  value less than or equal to PMCR_EL0.N, which means that an unknown
+  number of counters are now disabled by MDCR_EL2.HPME, which is zero.
 
-unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
+* The host configuration for the other debug features controlled by
+  MDCR_EL2 is temporarily lost. This has been harmless so far, as Linux
+  doesn't use the other fields, but that might change in the future.
 
-Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Let's avoid both issues by initializing the VCPU's mdcr_el2 field in
+kvm_vcpu_vcpu_first_run_init(), thus making sure that the MDCR_EL2 register
+has a consistent value after each vcpu_load().
+
+Fixes: d5a21bcc2995 ("KVM: arm64: Move common VHE/non-VHE trap config in separate functions")
+Signed-off-by: Alexandru Elisei <alexandru.elisei@arm.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20210407144857.199746-3-alexandru.elisei@arm.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c    |    3 ---
- net/ipv6/ip6_tunnel.c |    1 -
- net/ipv6/ip6_vti.c    |    1 -
- net/ipv6/sit.c        |    1 -
- 4 files changed, 6 deletions(-)
+ arch/arm/include/asm/kvm_host.h   |    1 
+ arch/arm64/include/asm/kvm_host.h |    1 
+ arch/arm64/kvm/debug.c            |   88 +++++++++++++++++++++++++-------------
+ virt/kvm/arm/arm.c                |    2 
+ 4 files changed, 64 insertions(+), 28 deletions(-)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -387,7 +387,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
- 	if (!(nt->parms.o_flags & TUNNEL_SEQ))
- 		dev->features |= NETIF_F_LLTX;
+--- a/arch/arm/include/asm/kvm_host.h
++++ b/arch/arm/include/asm/kvm_host.h
+@@ -335,6 +335,7 @@ static inline void kvm_arch_sched_in(str
+ static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
  
--	dev_hold(dev);
- 	ip6gre_tunnel_link(ign, nt);
- 	return nt;
+ static inline void kvm_arm_init_debug(void) {}
++static inline void kvm_arm_vcpu_init_debug(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arm_setup_debug(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arm_clear_debug(struct kvm_vcpu *vcpu) {}
+ static inline void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu) {}
+--- a/arch/arm64/include/asm/kvm_host.h
++++ b/arch/arm64/include/asm/kvm_host.h
+@@ -552,6 +552,7 @@ static inline void kvm_arch_sched_in(str
+ static inline void kvm_arch_vcpu_block_finish(struct kvm_vcpu *vcpu) {}
  
-@@ -1526,8 +1525,6 @@ static void ip6gre_fb_tunnel_init(struct
- 	strcpy(tunnel->parms.name, dev->name);
+ void kvm_arm_init_debug(void);
++void kvm_arm_vcpu_init_debug(struct kvm_vcpu *vcpu);
+ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu);
+ void kvm_arm_clear_debug(struct kvm_vcpu *vcpu);
+ void kvm_arm_reset_debug_ptr(struct kvm_vcpu *vcpu);
+--- a/arch/arm64/kvm/debug.c
++++ b/arch/arm64/kvm/debug.c
+@@ -69,6 +69,64 @@ void kvm_arm_init_debug(void)
+ }
  
- 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
+ /**
++ * kvm_arm_setup_mdcr_el2 - configure vcpu mdcr_el2 value
++ *
++ * @vcpu:	the vcpu pointer
++ *
++ * This ensures we will trap access to:
++ *  - Performance monitors (MDCR_EL2_TPM/MDCR_EL2_TPMCR)
++ *  - Debug ROM Address (MDCR_EL2_TDRA)
++ *  - OS related registers (MDCR_EL2_TDOSA)
++ *  - Statistical profiler (MDCR_EL2_TPMS/MDCR_EL2_E2PB)
++ *  - Self-hosted Trace Filter controls (MDCR_EL2_TTRF)
++ */
++static void kvm_arm_setup_mdcr_el2(struct kvm_vcpu *vcpu)
++{
++	/*
++	 * This also clears MDCR_EL2_E2PB_MASK to disable guest access
++	 * to the profiling buffer.
++	 */
++	vcpu->arch.mdcr_el2 = __this_cpu_read(mdcr_el2) & MDCR_EL2_HPMN_MASK;
++	vcpu->arch.mdcr_el2 |= (MDCR_EL2_TPM |
++				MDCR_EL2_TPMS |
++				MDCR_EL2_TTRF |
++				MDCR_EL2_TPMCR |
++				MDCR_EL2_TDRA |
++				MDCR_EL2_TDOSA);
++
++	/* Is the VM being debugged by userspace? */
++	if (vcpu->guest_debug)
++		/* Route all software debug exceptions to EL2 */
++		vcpu->arch.mdcr_el2 |= MDCR_EL2_TDE;
++
++	/*
++	 * Trap debug register access when one of the following is true:
++	 *  - Userspace is using the hardware to debug the guest
++	 *  (KVM_GUESTDBG_USE_HW is set).
++	 *  - The guest is not using debug (KVM_ARM64_DEBUG_DIRTY is clear).
++	 */
++	if ((vcpu->guest_debug & KVM_GUESTDBG_USE_HW) ||
++	    !(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY))
++		vcpu->arch.mdcr_el2 |= MDCR_EL2_TDA;
++
++	trace_kvm_arm_set_dreg32("MDCR_EL2", vcpu->arch.mdcr_el2);
++}
++
++/**
++ * kvm_arm_vcpu_init_debug - setup vcpu debug traps
++ *
++ * @vcpu:	the vcpu pointer
++ *
++ * Set vcpu initial mdcr_el2 value.
++ */
++void kvm_arm_vcpu_init_debug(struct kvm_vcpu *vcpu)
++{
++	preempt_disable();
++	kvm_arm_setup_mdcr_el2(vcpu);
++	preempt_enable();
++}
++
++/**
+  * kvm_arm_reset_debug_ptr - reset the debug ptr to point to the vcpu state
+  */
+ 
+@@ -83,13 +141,7 @@ void kvm_arm_reset_debug_ptr(struct kvm_
+  * @vcpu:	the vcpu pointer
+  *
+  * This is called before each entry into the hypervisor to setup any
+- * debug related registers. Currently this just ensures we will trap
+- * access to:
+- *  - Performance monitors (MDCR_EL2_TPM/MDCR_EL2_TPMCR)
+- *  - Debug ROM Address (MDCR_EL2_TDRA)
+- *  - OS related registers (MDCR_EL2_TDOSA)
+- *  - Statistical profiler (MDCR_EL2_TPMS/MDCR_EL2_E2PB)
+- *  - Self-hosted Trace Filter controls (MDCR_EL2_TTRF)
++ * debug related registers.
+  *
+  * Additionally, KVM only traps guest accesses to the debug registers if
+  * the guest is not actively using them (see the KVM_ARM64_DEBUG_DIRTY
+@@ -101,28 +153,14 @@ void kvm_arm_reset_debug_ptr(struct kvm_
+ 
+ void kvm_arm_setup_debug(struct kvm_vcpu *vcpu)
+ {
+-	bool trap_debug = !(vcpu->arch.flags & KVM_ARM64_DEBUG_DIRTY);
+ 	unsigned long mdscr, orig_mdcr_el2 = vcpu->arch.mdcr_el2;
+ 
+ 	trace_kvm_arm_setup_debug(vcpu, vcpu->guest_debug);
+ 
+-	/*
+-	 * This also clears MDCR_EL2_E2PB_MASK to disable guest access
+-	 * to the profiling buffer.
+-	 */
+-	vcpu->arch.mdcr_el2 = __this_cpu_read(mdcr_el2) & MDCR_EL2_HPMN_MASK;
+-	vcpu->arch.mdcr_el2 |= (MDCR_EL2_TPM |
+-				MDCR_EL2_TPMS |
+-				MDCR_EL2_TTRF |
+-				MDCR_EL2_TPMCR |
+-				MDCR_EL2_TDRA |
+-				MDCR_EL2_TDOSA);
++	kvm_arm_setup_mdcr_el2(vcpu);
+ 
+ 	/* Is Guest debugging in effect? */
+ 	if (vcpu->guest_debug) {
+-		/* Route all software debug exceptions to EL2 */
+-		vcpu->arch.mdcr_el2 |= MDCR_EL2_TDE;
 -
--	dev_hold(dev);
+ 		/* Save guest debug state */
+ 		save_guest_debug_regs(vcpu);
+ 
+@@ -176,7 +214,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu
+ 
+ 			vcpu->arch.debug_ptr = &vcpu->arch.external_debug_state;
+ 			vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
+-			trap_debug = true;
+ 
+ 			trace_kvm_arm_set_regset("BKPTS", get_num_brps(),
+ 						&vcpu->arch.debug_ptr->dbg_bcr[0],
+@@ -191,10 +228,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu
+ 	BUG_ON(!vcpu->guest_debug &&
+ 		vcpu->arch.debug_ptr != &vcpu->arch.vcpu_debug_state);
+ 
+-	/* Trap debug register access */
+-	if (trap_debug)
+-		vcpu->arch.mdcr_el2 |= MDCR_EL2_TDA;
+-
+ 	/* If KDE or MDE are set, perform a full save/restore cycle. */
+ 	if (vcpu_read_sys_reg(vcpu, MDSCR_EL1) & (DBG_MDSCR_KDE | DBG_MDSCR_MDE))
+ 		vcpu->arch.flags |= KVM_ARM64_DEBUG_DIRTY;
+@@ -203,7 +236,6 @@ void kvm_arm_setup_debug(struct kvm_vcpu
+ 	if (has_vhe() && orig_mdcr_el2 != vcpu->arch.mdcr_el2)
+ 		write_sysreg(vcpu->arch.mdcr_el2, mdcr_el2);
+ 
+-	trace_kvm_arm_set_dreg32("MDCR_EL2", vcpu->arch.mdcr_el2);
+ 	trace_kvm_arm_set_dreg32("MDSCR_EL1", vcpu_read_sys_reg(vcpu, MDSCR_EL1));
  }
  
- static struct inet6_protocol ip6gre_protocol __read_mostly = {
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1904,7 +1904,6 @@ static int __net_init ip6_fb_tnl_dev_ini
- 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+--- a/virt/kvm/arm/arm.c
++++ b/virt/kvm/arm/arm.c
+@@ -579,6 +579,8 @@ static int kvm_vcpu_first_run_init(struc
  
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
+ 	vcpu->arch.has_run_once = true;
  
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -952,7 +952,6 @@ static int __net_init vti6_fb_tnl_dev_in
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1422,7 +1422,6 @@ static void __net_init ipip6_fb_tunnel_i
- 	iph->ihl		= 5;
- 	iph->ttl		= 64;
- 
--	dev_hold(dev);
- 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
- }
- 
++	kvm_arm_vcpu_init_debug(vcpu);
++
+ 	if (likely(irqchip_in_kernel(kvm))) {
+ 		/*
+ 		 * Map the VGIC hardware resources before running a vcpu the
 
 
