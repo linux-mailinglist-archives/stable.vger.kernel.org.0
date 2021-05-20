@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E104238AA04
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACB9738ABA4
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239774AbhETLIg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:08:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40950 "EHLO mail.kernel.org"
+        id S241158AbhETL0N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:26:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239828AbhETLGf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:06:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC24C61D25;
-        Thu, 20 May 2021 10:05:38 +0000 (UTC)
+        id S240404AbhETLWg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:22:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8E9296143B;
+        Thu, 20 May 2021 10:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505139;
-        bh=Pa45VHiF6hGUaP6wxRaq0xLevbsHAEKEZKT+YeNSAIA=;
+        s=korg; t=1621505514;
+        bh=0TobhOhGqIN3KUTQo324aLsaE1xxpO7oxPxdAzznYN0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lo7fo+4lxH49PTRlb1hiOwyiJj9CSlbsHFP+aH1YxCvVGQFNislejibQEpKk34SGb
-         qVuJJHBnGE02lmefSY8uUuuSnzC+bdvp825qqU13OCMPlBftMAafBrYcJljg+70lkq
-         pW4iBZLeWDStX3E2lybMFa9uJaZKez1wK3h8hqk8=
+        b=sUXU55Gf7uc81RiGUqq8AiKKXKfOhaOWTaLiTEW4aUAc3n+15692oPuYxKeNijXrv
+         gaGYzEB433qURX9mlIeKLBnZNeNF7Bwj9Ew6T7YDyA4CRnwAc/obuNfPltQ2sMlHm3
+         sKsoDY+kSPjYYUUW4mSNPUIdlIt7cCTf+swyF4QI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 240/240] ipv6: remove extra dev_hold() for fallback tunnels
-Date:   Thu, 20 May 2021 11:23:52 +0200
-Message-Id: <20210520092116.739408397@linuxfoundation.org>
+        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 4.4 169/190] KVM: x86: Cancel pvclock_gtod_work on module removal
+Date:   Thu, 20 May 2021 11:23:53 +0200
+Message-Id: <20210520092107.764024315@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
+commit 594b27e677b35f9734b1969d175ebc6146741109 upstream.
 
-My previous commits added a dev_hold() in tunnels ndo_init(),
-but forgot to remove it from special functions setting up fallback tunnels.
+Nothing prevents the following:
 
-Fallback tunnels do call their respective ndo_init()
+  pvclock_gtod_notify()
+    queue_work(system_long_wq, &pvclock_gtod_work);
+  ...
+  remove_module(kvm);
+  ...
+  work_queue_run()
+    pvclock_gtod_work()	<- UAF
 
-This leads to various reports like :
+Ditto for any other operation on that workqueue list head which touches
+pvclock_gtod_work after module removal.
 
-unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
+Cancel the work in kvm_arch_exit() to prevent that.
 
-Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 16e8d74d2da9 ("KVM: x86: notifier for clocksource changes")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Message-Id: <87czu4onry.ffs@nanos.tec.linutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c    |    3 ---
- net/ipv6/ip6_tunnel.c |    1 -
- net/ipv6/ip6_vti.c    |    1 -
- net/ipv6/sit.c        |    1 -
- 4 files changed, 6 deletions(-)
+ arch/x86/kvm/x86.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -350,7 +350,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
- 	if (!(nt->parms.o_flags & TUNNEL_SEQ))
- 		dev->features |= NETIF_F_LLTX;
- 
--	dev_hold(dev);
- 	ip6gre_tunnel_link(ign, nt);
- 	return nt;
- 
-@@ -1085,8 +1084,6 @@ static void ip6gre_fb_tunnel_init(struct
- 	strcpy(tunnel->parms.name, dev->name);
- 
- 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
--
--	dev_hold(dev);
- }
- 
- 
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1888,7 +1888,6 @@ static int __net_init ip6_fb_tnl_dev_ini
- 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -945,7 +945,6 @@ static int __net_init vti6_fb_tnl_dev_in
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1414,7 +1414,6 @@ static void __net_init ipip6_fb_tunnel_i
- 	iph->ihl		= 5;
- 	iph->ttl		= 64;
- 
--	dev_hold(dev);
- 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
- }
- 
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -6016,6 +6016,7 @@ void kvm_arch_exit(void)
+ 	unregister_hotcpu_notifier(&kvmclock_cpu_notifier_block);
+ #ifdef CONFIG_X86_64
+ 	pvclock_gtod_unregister_notifier(&pvclock_gtod_notifier);
++	cancel_work_sync(&pvclock_gtod_work);
+ #endif
+ 	kvm_x86_ops = NULL;
+ 	kvm_mmu_module_exit();
 
 
