@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C63E38A9AF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7265838AB19
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238783AbhETLFI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57500 "EHLO mail.kernel.org"
+        id S239625AbhETLUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239244AbhETLCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D011761923;
-        Thu, 20 May 2021 10:04:08 +0000 (UTC)
+        id S240700AbhETLTI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4022861D78;
+        Thu, 20 May 2021 10:10:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505049;
-        bh=jfsRrB9tjlkcG7EqrW5XFjZ3xhqhWdzLrvSFZlS54vI=;
+        s=korg; t=1621505419;
+        bh=L700owuqNnrDur4amLaUtpvwjSeUO7C2Wa8E5QQUiBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iSCKPOgdgXfYkq4MVzCcidhHZqcHCE+nRdwagPD3SAzUCegKSqhncwjduJeb6SjbL
-         YaQHboYCcrFwb5sk4OfCxk+Lf0C0Y7wkLFtD9+2YoyAv1PsSUaOEwdIU27kYwGCObk
-         uT2eWRdDE66RC0QPMu3E4SrGfbVdj7ft7fJ1A5UE=
+        b=1BXHZpAiPpbZZuZhdhI2l3FQ0S5VIJ65mIqvniQ7H5m8fsIz9o21w0qGkZBJw7o53
+         FcM9kaDeJ5myd86tJ+UmUPoGb3grtykSAcySFY8/k8mLLu5nJgpo4LGMZBvu+Oav70
+         +i9LYWqn2nv3iOu2kJVXuvtJeiIJh04V8Ni0dQmk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Xin Long <lucien.xin@gmail.com>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 199/240] sctp: fix a SCTP_MIB_CURRESTAB leak in sctp_sf_do_dupcook_b
+Subject: [PATCH 4.4 127/190] vsock/vmci: log once the failed queue pair allocation
 Date:   Thu, 20 May 2021 11:23:11 +0200
-Message-Id: <20210520092115.335834355@linuxfoundation.org>
+Message-Id: <20210520092106.401451833@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit f282df0391267fb2b263da1cc3233aa6fb81defc ]
+[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
 
-Normally SCTP_MIB_CURRESTAB is always incremented once asoc enter into
-ESTABLISHED from the state < ESTABLISHED and decremented when the asoc
-is being deleted.
+VMCI feature is not supported in conjunction with the vSphere Fault
+Tolerance (FT) feature.
 
-However, in sctp_sf_do_dupcook_b(), the asoc's state can be changed to
-ESTABLISHED from the state >= ESTABLISHED where it shouldn't increment
-SCTP_MIB_CURRESTAB. Otherwise, one asoc may increment MIB_CURRESTAB
-multiple times but only decrement once at the end.
+VMware Tools can repeatedly try to create a vsock connection. If FT is
+enabled the kernel logs is flooded with the following messages:
 
-I was able to reproduce it by using scapy to do the 4-way shakehands,
-after that I replayed the COOKIE-ECHO chunk with 'peer_vtag' field
-changed to different values, and SCTP_MIB_CURRESTAB was incremented
-multiple times and never went back to 0 even when the asoc was freed.
+    qp_alloc_hypercall result = -20
+    Could not attach to queue pair with -20
 
-This patch is to fix it by only incrementing SCTP_MIB_CURRESTAB when
-the state < ESTABLISHED in sctp_sf_do_dupcook_b().
+"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
+("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
+not attach to queue pair with -20" is still there flooding the log.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Since the error message can be useful in some cases, print it only once.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_statefuns.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/vmw_vsock/vmci_transport.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
-index 146b568962e0..9045f6bcb34c 100644
---- a/net/sctp/sm_statefuns.c
-+++ b/net/sctp/sm_statefuns.c
-@@ -1851,7 +1851,8 @@ static sctp_disposition_t sctp_sf_do_dupcook_b(struct net *net,
- 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
- 	sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
- 			SCTP_STATE(SCTP_STATE_ESTABLISHED));
--	SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
-+	if (asoc->state < SCTP_STATE_ESTABLISHED)
-+		SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
- 	sctp_add_cmd_sf(commands, SCTP_CMD_HB_TIMERS_START, SCTP_NULL());
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 217810674c35..1f3f34b56840 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -593,8 +593,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
+ 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
+ out:
+ 	if (err < 0) {
+-		pr_err("Could not attach to queue pair with %d\n",
+-		       err);
++		pr_err_once("Could not attach to queue pair with %d\n", err);
+ 		err = vmci_transport_error_to_vsock_error(err);
+ 	}
  
- 	repl = sctp_make_cookie_ack(new_asoc, chunk);
 -- 
 2.30.2
 
