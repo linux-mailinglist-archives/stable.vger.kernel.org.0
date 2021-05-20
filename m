@@ -2,96 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F0E38B1DB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 16:38:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63CDB38B20F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 16:41:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231975AbhETOjx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 10:39:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51490 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231310AbhETOjw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 10:39:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB19561059;
-        Thu, 20 May 2021 14:38:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621521511;
-        bh=xvpCtCufiEHwVLoZrZUuCzovi/WhEqwFryl/dyaGESA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=E5gNo0AkzwIQ49Zjqpf5rcBKCtOPZK07+e4coH0+oL9opWwb9iA2fsGVuOPCkbw/1
-         nmAnUjbr6H4V+kW15Ly4QbTVTb/JCFUkGSZrdMWDadrDGQgcK0yV1UkW9X76twSM9h
-         MCmxtRnTBJTCAdWzcAdyPR+r0tLVO+s3ZZ4fbDpQ=
-Date:   Thu, 20 May 2021 16:38:29 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Joerg M. Sigle" <joerg.sigle@jsigle.com>
-Cc:     stable@vger.kernel.org
-Subject: Re: To Greg KH: Re: [PATCH] iommu/vt-d: Fix kernel panic caused by
- 416fa531c816: Preset Access/Dirty bits for IOVA over FL
-Message-ID: <YKZ0ZROJ+alWpuvF@kroah.com>
-References: <d3fa9eed-98bf-a137-5b0d-c6e992848f76@jsigle.com>
- <4a3c08af-6f6f-ac84-7c98-46529f96fefc@jsigle.com>
+        id S242991AbhETOmr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 10:42:47 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58166 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S243660AbhETOlZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 10:41:25 -0400
+Received: from mail-yb1-xb41.google.com (mail-yb1-xb41.google.com [IPv6:2607:f8b0:4864:20::b41])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1692DC06134E
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 07:39:34 -0700 (PDT)
+Received: by mail-yb1-xb41.google.com with SMTP id r8so23093496ybb.9
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 07:39:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
+        bh=v4MnKTpLU4IMMDMfDFEtGflyeGSbXx+N80JzM2/ECT0=;
+        b=sI7ttlbAOgqRRzdEe/jR9216dJQ5y9uH6ViD4EbTD2i/vmLhSvYoghnW1jb4RgT7IU
+         pzNL1kSUJSBh4cJ43yx5q69RgMPYQ3fT6AlVK1G6qY9OAzEQ8loP2CqmhMmcwKx6/aMO
+         ZW+P+kYB+mHNTUzK1/3Ce1Z2cmQtHbU+VBL+eBodL7gWmHHMsIaUk6Tn4jAM7eYJpley
+         dUEdUNh24XHA9Sqcb2xnLnMcem4ZsywxS9YFPJhljOJkLIAJ69gCMPYCi8Hfx15oPG9r
+         CI4lK5C18k4/DYQCnAdmnKgyAICefpkTs9OZOEO/dXNXksOUqJN2uyr5dZAEFel2jqXJ
+         ArCg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:sender:from:date
+         :message-id:subject:to;
+        bh=v4MnKTpLU4IMMDMfDFEtGflyeGSbXx+N80JzM2/ECT0=;
+        b=onYT8oCULkz+uWks2gu8L818Fr6RGr/5IGnxDyi60Eg4IwMdxWE/b0wr2MvdOD3lb5
+         3uPt8PsuOnySOMiQ0LIgydcNPlrltcjUKpAVrEJoHWRg9N9g9ESQ1E+6fWFvs5d4HvG5
+         DLLVpmvpf5dNxeleOeO7qqSGhL+VMMsQstL55CXXRf+LtZLhnUbVBKQe3dWQiQrMlHxb
+         sNe/qSAcGC5x8V9PJBoh1NTCiDTq9ajLmZYjoJM91z0g4A/eBfpF3y77RPJv3xJRC68B
+         Lhq52TKX1HYCZTAxW9QhYHHCI3TkzV96aTYEVg8SPcClSvmSLHAcdkIS+C0YJJprEpfl
+         ieFA==
+X-Gm-Message-State: AOAM533rrFxYhkhtXw0x4tItfBGXttqWVPwM673+YQDMuGgekLQy5hs/
+        pC99daq2C2I3JUngtSPtUYMEMIJis+zgCu1aSJs=
+X-Google-Smtp-Source: ABdhPJwMY36OnoEzwb94d8RlpgpN4Hch7PsUZeWn3aEV/HqfdsPTcURckCoqS7fMVS870KC3yn3RuZmGeByKGSJFe+M=
+X-Received: by 2002:a25:76d2:: with SMTP id r201mr8000208ybc.432.1621521573376;
+ Thu, 20 May 2021 07:39:33 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4a3c08af-6f6f-ac84-7c98-46529f96fefc@jsigle.com>
+Reply-To: mrssabah51b@gmail.com
+Sender: coca1colaaward@gmail.com
+Received: by 2002:a05:6918:5584:b029:29:5438:1d9b with HTTP; Thu, 20 May 2021
+ 07:39:32 -0700 (PDT)
+From:   MRS SABAH IBRAHIM <absa50602@gmail.com>
+Date:   Thu, 20 May 2021 15:39:32 +0100
+X-Google-Sender-Auth: JO4lLEW35kRxi3-YXNCxw7pMoKk
+Message-ID: <CAPSb_r+71__4=doWW0_R=MZErn522wM7KyuL=LcToB3a04wCtQ@mail.gmail.com>
+Subject: Compliments Asalam Alaykum
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, May 20, 2021 at 04:05:51PM +0200, Joerg M. Sigle wrote:
-> From: Joerg M. Sigle <joerg.sigle@jsigle.com>
+Dear ALLAH Elect,
 
-Odd subject line, what happened?
+It's my pleasure to have contact with you, based on the critical
+condition I find mine self, though, it's not financial problem, but my
+health, you might have know that cancer is not what to talk home
+about, though I don't know you, and my contact with you  was not by
+mistake, but by devine favour of  ALLAH.
 
-> 
-> Patch 416fa531c816 commit 416fa531c8160151090206a51b829b9218b804d9 caused
-> an immediate kernel panic on boot at RIP: 0010:__domain_mapping+0xa7/0x3a0
-> with longterm kernel 5.10.37 configured w/ CONFIG_INTEL_IOMMU_DEFAULT_ON=y
-> due to removal of a check. Putting the check back in place fixes this.
-> The kernel panic was observed on various Intel Core i7 i5 i3 CPUs from
-> Sandy Bridge, Haswell, Broadwell and Kaby Lake generations (at least).
-> It may NOT be reproducible on some older CPU generations.
-> Suppressing the panic with boot parameter intel_iommu=off is diagnostic.
-> See: https://bugzilla.kernel.org/show_bug.cgi?id=213077
-> https://bugzilla.kernel.org/show_bug.cgi?id=213087
-> https://bugzilla.kernel.org/show_bug.cgi?id=213095
-> 
-> Signed-off-by: Joerg M. Sigle <joerg.sigle@jsigle.com>
-> Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
-> 
-> ---
-> 
-> Hi Greg, thanks for your response.
-> 
-> > Are you sure that 5.10.38 doesn't already fix this issue?  We resolved
-> > an issue in this area.
-> 
-> Yes, I'm sure.
+I am married to Mr. Mohammed  Ibrahim who worked with Tunisia embassy
+in Burkina Faso for nine years before he died in the year 2008.We were
+married for eleven years without a child. He died after a brief
+illness that lasted for five days.
 
-Did you test 5.10.38?
+Since his death I decided not to remarry, When my late husband was
+alive he deposited the sum of US$ 2.2m(two million two hundred
+thousand dollars)in a bank in Ouagadougou the capital city of Burkina
+Faso in west Africa Presently this money is still in bank. He made
+this money available for exportation of Gold from Burkina Faso mining.
+Recently, My Doctor told me that I don't have much time to live
+because of the cancer problem,
 
-> 
-> Your a282b76166b13496967c70bd61ea8f03609d8a76 simply reverts the offending patch.
+Please Reply to this Email Id:( mrs2018sabahibrahim@gmail.com)
 
-Yes, and then the next commit in the series applied it back in a
-different form, hopefully "fixed up" correctly.
+ Having known my condition I decided to hand you over this money to
+take care of the less-privileged people, you will utilize this money
+the way I am going to instruct herein. I want you to take 30 Percent
+of the total money for your personal use While 70% of the money will
+go to charity" people and helping the orphanage.
 
-> My approach corrects it instead.
 
-How so?  It does not apply to 5.10.38.  Nor to 5.10.39-rc1.
+ I don't want my husband's efforts to be used by the Government. I
+grew up as an Orphan and I don't have anybody as my family member,
+just to endeavor that the name of ALLAH  is maintained. Am doing this
+so that ALLAH  will forgive my sins and accept my soul because this
+sickness has suffered me so much.
 
-> I have submitted that properly before, don't know why it hasn't found you yet.
+As soon as I receive your reply I shall give you the contact of the
+bank in Burkina Faso and I will send authority letter that will prove
+you the present beneficiary of the money in the bank that is if you
+assure me that you will act accordingly as I Stated herein. Hoping to
+receive your reply. Reply in my alternative email address
+(mrs2018sabahibrahim@gmail.com) for confidential
 
-Where on lore.kernel.org is it shown?
-
-> I'm including the "proper" submission info above.
-> The file with the patch is attached again again.
-
-That's not how to submit patches, take a look at the kernel documentaion
-for all that we need.
-
-But again, are you sure this is needed?  If so, can you make it against
-5.10.39-rc1?
-
-thanks,
-
-greg k-h
+Regards,
+Mrs. Sabah  Ibrahim
+written from Hospital
