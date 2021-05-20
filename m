@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BAF838A0E2
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AE9B38A131
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231709AbhETJ0r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:26:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52886 "EHLO mail.kernel.org"
+        id S232299AbhETJ3A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:29:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhETJ00 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:26:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B0F961261;
-        Thu, 20 May 2021 09:25:04 +0000 (UTC)
+        id S231828AbhETJ1t (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:27:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FA5161355;
+        Thu, 20 May 2021 09:26:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502704;
-        bh=gFCcF5BTHerYyZCaGQSR28fzhZp33fOtxwvk3P1bJTw=;
+        s=korg; t=1621502782;
+        bh=gRKsVhSCPTfSxlwv8gu5v/+2IY0c3SXd+j+s4H623ME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VDVHjkoUdUM9aM9BfGJ3Bz+mtx7ZcNNHzOw6J8wiilTU2QCsZQVwH+uCbvLzQJB8V
-         SzCoku/c8zLUKFuFYRL2pQAF5prN2pwSQ3dZE/Rsjh0PmGtZPgn0R21//82j2ZZmCr
-         bNy1oGMTp2mIyHMuFOo/DOH1awY6zifL9D9Q7Pjk=
+        b=CARoC5N1r4ZVhIOtyeYdnamEhpiGOSPZkUlZM4Hgu/eFY3uSirkCAp+Lj8kquDHMe
+         lDJJF9RNRqEhzqNFaPeIhZtBaTG3ewet/APCTfaHRWvb0sfMbP5LiKYeD37VJjJOH6
+         lMFoQakkxx4e2quc+eRplRbuqGGFMjo/vaXo7oIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 21/45] ARM: 9075/1: kernel: Fix interrupted SMC calls
+        Gustavo Pimentel <gustavo.pimentel@synopsys.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 11/47] dmaengine: dw-edma: Fix crash on loading/unloading driver
 Date:   Thu, 20 May 2021 11:22:09 +0200
-Message-Id: <20210520092054.208150206@linuxfoundation.org>
+Message-Id: <20210520092053.918240913@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,85 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Gustavo Pimentel <Gustavo.Pimentel@synopsys.com>
 
-[ Upstream commit 57ac51667d8cd62731223d687e5fe7b41c502f89 ]
+[ Upstream commit e970dcc4bd8e0a1376e794fc81d41d0fc98262dd ]
 
-On Qualcomm ARM32 platforms, the SMC call can return before it has
-completed. If this occurs, the call can be restarted, but it requires
-using the returned session ID value from the interrupted SMC call.
+When the driver is compiled as a module and loaded if we try to unload
+it, the Kernel shows a crash log. This Kernel crash is due to the
+dma_async_device_unregister() call done after deleting the channels,
+this patch fixes this issue.
 
-The ARM32 SMCC code already has the provision to add platform specific
-quirks for things like this. So let's make use of it and add the
-Qualcomm specific quirk (ARM_SMCCC_QUIRK_QCOM_A6) used by the QCOM_SCM
-driver.
-
-This change is similar to the below one added for ARM64 a while ago:
-commit 82bcd087029f ("firmware: qcom: scm: Fix interrupted SCM calls")
-
-Without this change, the Qualcomm ARM32 platforms like SDX55 will return
--EINVAL for SMC calls used for modem firmware loading and validation.
-
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Bjorn Andersson <bjorn.andersson@linaro.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Gustavo Pimentel <gustavo.pimentel@synopsys.com>
+Link: https://lore.kernel.org/r/4aa850c035cf7ee488f1d3fb6dee0e37be0dce0a.1613674948.git.gustavo.pimentel@synopsys.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/asm-offsets.c |  3 +++
- arch/arm/kernel/smccc-call.S  | 11 ++++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/dma/dw-edma/dw-edma-core.c | 11 +++++------
+ 1 file changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/kernel/asm-offsets.c b/arch/arm/kernel/asm-offsets.c
-index be8050b0c3df..70993af22d80 100644
---- a/arch/arm/kernel/asm-offsets.c
-+++ b/arch/arm/kernel/asm-offsets.c
-@@ -24,6 +24,7 @@
- #include <asm/vdso_datapage.h>
- #include <asm/hardware/cache-l2x0.h>
- #include <linux/kbuild.h>
-+#include <linux/arm-smccc.h>
- #include "signal.h"
+diff --git a/drivers/dma/dw-edma/dw-edma-core.c b/drivers/dma/dw-edma/dw-edma-core.c
+index 08d71dafa001..58c8cc8fe0e1 100644
+--- a/drivers/dma/dw-edma/dw-edma-core.c
++++ b/drivers/dma/dw-edma/dw-edma-core.c
+@@ -937,22 +937,21 @@ int dw_edma_remove(struct dw_edma_chip *chip)
+ 	/* Power management */
+ 	pm_runtime_disable(dev);
  
- /*
-@@ -148,6 +149,8 @@ int main(void)
-   DEFINE(SLEEP_SAVE_SP_PHYS,	offsetof(struct sleep_save_sp, save_ptr_stash_phys));
-   DEFINE(SLEEP_SAVE_SP_VIRT,	offsetof(struct sleep_save_sp, save_ptr_stash));
- #endif
-+  DEFINE(ARM_SMCCC_QUIRK_ID_OFFS,	offsetof(struct arm_smccc_quirk, id));
-+  DEFINE(ARM_SMCCC_QUIRK_STATE_OFFS,	offsetof(struct arm_smccc_quirk, state));
-   BLANK();
-   DEFINE(DMA_BIDIRECTIONAL,	DMA_BIDIRECTIONAL);
-   DEFINE(DMA_TO_DEVICE,		DMA_TO_DEVICE);
-diff --git a/arch/arm/kernel/smccc-call.S b/arch/arm/kernel/smccc-call.S
-index 00664c78faca..931df62a7831 100644
---- a/arch/arm/kernel/smccc-call.S
-+++ b/arch/arm/kernel/smccc-call.S
-@@ -3,7 +3,9 @@
-  * Copyright (c) 2015, Linaro Limited
-  */
- #include <linux/linkage.h>
-+#include <linux/arm-smccc.h>
++	/* Deregister eDMA device */
++	dma_async_device_unregister(&dw->wr_edma);
+ 	list_for_each_entry_safe(chan, _chan, &dw->wr_edma.channels,
+ 				 vc.chan.device_node) {
+-		list_del(&chan->vc.chan.device_node);
+ 		tasklet_kill(&chan->vc.task);
++		list_del(&chan->vc.chan.device_node);
+ 	}
  
-+#include <asm/asm-offsets.h>
- #include <asm/opcodes-sec.h>
- #include <asm/opcodes-virt.h>
- #include <asm/unwind.h>
-@@ -27,7 +29,14 @@ UNWIND(	.fnstart)
- UNWIND(	.save	{r4-r7})
- 	ldm	r12, {r4-r7}
- 	\instr
--	pop	{r4-r7}
-+	ldr	r4, [sp, #36]
-+	cmp	r4, #0
-+	beq	1f			// No quirk structure
-+	ldr     r5, [r4, #ARM_SMCCC_QUIRK_ID_OFFS]
-+	cmp     r5, #ARM_SMCCC_QUIRK_QCOM_A6
-+	bne	1f			// No quirk present
-+	str	r6, [r4, #ARM_SMCCC_QUIRK_STATE_OFFS]
-+1:	pop	{r4-r7}
- 	ldr	r12, [sp, #(4 * 4)]
- 	stm	r12, {r0-r3}
- 	bx	lr
++	dma_async_device_unregister(&dw->rd_edma);
+ 	list_for_each_entry_safe(chan, _chan, &dw->rd_edma.channels,
+ 				 vc.chan.device_node) {
+-		list_del(&chan->vc.chan.device_node);
+ 		tasklet_kill(&chan->vc.task);
++		list_del(&chan->vc.chan.device_node);
+ 	}
+ 
+-	/* Deregister eDMA device */
+-	dma_async_device_unregister(&dw->wr_edma);
+-	dma_async_device_unregister(&dw->rd_edma);
+-
+ 	/* Turn debugfs off */
+ 	dw_edma_v0_core_debugfs_off();
+ 
 -- 
 2.30.2
 
