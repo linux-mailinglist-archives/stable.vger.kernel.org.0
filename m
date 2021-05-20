@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C2D038A1FA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:35:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24E6538A189
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232968AbhETJgr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:36:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34944 "EHLO mail.kernel.org"
+        id S232438AbhETJb4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:31:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232186AbhETJfE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:35:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 300D8613BD;
-        Thu, 20 May 2021 09:29:24 +0000 (UTC)
+        id S231483AbhETJaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:30:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F61E60C3F;
+        Thu, 20 May 2021 09:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502964;
-        bh=pzL1qU+2Rr0Nm+QO054FvBXcIonwTHJVm2YLEYIoKR0=;
+        s=korg; t=1621502845;
+        bh=yUWvzWqsU4F6Oj06Y7fNVRyGoo2onls05eXIg9qfd+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c02nRaSjLUNyTqiowdNFxKWdUMHw59gtp/JeoJmo1lw4e7Xh1FnN2ElW5okOvN2t0
-         z7Fv2Z9igd/Z/aS4H+QoqDyL4K5R30b7jV2YrRKDXctjQbogaMTePIcF3l50WfgnoD
-         MAnqcBtE+AQq9iTetjEQt7Y1YszDU097vw2hbUHg=
+        b=zPQWv1rSG13yb66x9cGChuW/x2NKvWXbk00/CZInhbOVlo5690fUXxjqPe8Jzexlp
+         MxX1cnLTY+DTUEcgUDhZU8p4I14uMCQ0WbGEiK846uoX15OPBBLAFcabFEgBrRn/v/
+         2Hh16ch24jvRyGeLccHf29Psxw6y6PYOqiZziXyw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 15/37] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
-Date:   Thu, 20 May 2021 11:22:36 +0200
-Message-Id: <20210520092052.778033835@linuxfoundation.org>
+        stable@vger.kernel.org, yangerkun <yangerkun@huawei.com>,
+        Pavel Begunkov <asml.silencec@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 39/47] block: reexpand iov_iter after read/write
+Date:   Thu, 20 May 2021 11:22:37 +0200
+Message-Id: <20210520092054.806651637@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
-References: <20210520092052.265851579@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,125 +40,169 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: yangerkun <yangerkun@huawei.com>
 
-[ Upstream commit e479187748a8f151a85116a7091c599b121fdea5 ]
+[ Upstream commit cf7b39a0cbf6bf57aa07a008d46cf695add05b4c ]
 
-Some buggy BIOS-es bring up the touchscreen-controller in a stuck
-state where it blocks the I2C bus. Specifically this happens on
-the Jumper EZpad 7 tablet model.
+We get a bug:
 
-After much poking at this problem I have found that the following steps
-are necessary to unstuck the chip / bus:
+BUG: KASAN: slab-out-of-bounds in iov_iter_revert+0x11c/0x404
+lib/iov_iter.c:1139
+Read of size 8 at addr ffff0000d3fb11f8 by task
 
-1. Turn off the Silead chip.
-2. Try to do an I2C transfer with the chip, this will fail in response to
-   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
-   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
-   drop the chip of the bus by turning it off.
-3. Turn the chip back on.
+CPU: 0 PID: 12582 Comm: syz-executor.2 Not tainted
+5.10.0-00843-g352c8610ccd2 #2
+Hardware name: linux,dummy-virt (DT)
+Call trace:
+ dump_backtrace+0x0/0x2d0 arch/arm64/kernel/stacktrace.c:132
+ show_stack+0x28/0x34 arch/arm64/kernel/stacktrace.c:196
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0x110/0x164 lib/dump_stack.c:118
+ print_address_description+0x78/0x5c8 mm/kasan/report.c:385
+ __kasan_report mm/kasan/report.c:545 [inline]
+ kasan_report+0x148/0x1e4 mm/kasan/report.c:562
+ check_memory_region_inline mm/kasan/generic.c:183 [inline]
+ __asan_load8+0xb4/0xbc mm/kasan/generic.c:252
+ iov_iter_revert+0x11c/0x404 lib/iov_iter.c:1139
+ io_read fs/io_uring.c:3421 [inline]
+ io_issue_sqe+0x2344/0x2d64 fs/io_uring.c:5943
+ __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
+ io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
+ io_submit_sqe fs/io_uring.c:6395 [inline]
+ io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
+ __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
+ __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
+ __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
 
-On the x86/ACPI systems were this problem is seen, step 1. and 3. require
-making ACPI calls and dealing with ACPI Power Resources. This commit adds
-a workaround which runtime-suspends the chip to turn it off, leaving it up
-to the ACPI subsystem to deal with all the ACPI specific details.
+Allocated by task 12570:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track mm/kasan/common.c:56 [inline]
+ __kasan_kmalloc+0xdc/0x120 mm/kasan/common.c:461
+ kasan_kmalloc+0xc/0x14 mm/kasan/common.c:475
+ __kmalloc+0x23c/0x334 mm/slub.c:3970
+ kmalloc include/linux/slab.h:557 [inline]
+ __io_alloc_async_data+0x68/0x9c fs/io_uring.c:3210
+ io_setup_async_rw fs/io_uring.c:3229 [inline]
+ io_read fs/io_uring.c:3436 [inline]
+ io_issue_sqe+0x2954/0x2d64 fs/io_uring.c:5943
+ __io_queue_sqe+0x19c/0x520 fs/io_uring.c:6260
+ io_queue_sqe+0x2a4/0x590 fs/io_uring.c:6326
+ io_submit_sqe fs/io_uring.c:6395 [inline]
+ io_submit_sqes+0x4c0/0xa04 fs/io_uring.c:6624
+ __do_sys_io_uring_enter fs/io_uring.c:9013 [inline]
+ __se_sys_io_uring_enter fs/io_uring.c:8960 [inline]
+ __arm64_sys_io_uring_enter+0x190/0x708 fs/io_uring.c:8960
+ __invoke_syscall arch/arm64/kernel/syscall.c:36 [inline]
+ invoke_syscall arch/arm64/kernel/syscall.c:48 [inline]
+ el0_svc_common arch/arm64/kernel/syscall.c:158 [inline]
+ do_el0_svc+0x120/0x290 arch/arm64/kernel/syscall.c:227
+ el0_svc+0x1c/0x28 arch/arm64/kernel/entry-common.c:367
+ el0_sync_handler+0x98/0x170 arch/arm64/kernel/entry-common.c:383
+ el0_sync+0x140/0x180 arch/arm64/kernel/entry.S:670
 
-There is no good way to detect this bug, so the workaround gets activated
-by a new "silead,stuck-controller-bug" boolean device-property. Since this
-is only used on x86/ACPI, this will be set by model specific device-props
-set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
-device-property is not documented in the DT-bindings.
+Freed by task 12570:
+ stack_trace_save+0x80/0xb8 kernel/stacktrace.c:121
+ kasan_save_stack mm/kasan/common.c:48 [inline]
+ kasan_set_track+0x38/0x6c mm/kasan/common.c:56
+ kasan_set_free_info+0x20/0x40 mm/kasan/generic.c:355
+ __kasan_slab_free+0x124/0x150 mm/kasan/common.c:422
+ kasan_slab_free+0x10/0x1c mm/kasan/common.c:431
+ slab_free_hook mm/slub.c:1544 [inline]
+ slab_free_freelist_hook mm/slub.c:1577 [inline]
+ slab_free mm/slub.c:3142 [inline]
+ kfree+0x104/0x38c mm/slub.c:4124
+ io_dismantle_req fs/io_uring.c:1855 [inline]
+ __io_free_req+0x70/0x254 fs/io_uring.c:1867
+ io_put_req_find_next fs/io_uring.c:2173 [inline]
+ __io_queue_sqe+0x1fc/0x520 fs/io_uring.c:6279
+ __io_req_task_submit+0x154/0x21c fs/io_uring.c:2051
+ io_req_task_submit+0x2c/0x44 fs/io_uring.c:2063
+ task_work_run+0xdc/0x128 kernel/task_work.c:151
+ get_signal+0x6f8/0x980 kernel/signal.c:2562
+ do_signal+0x108/0x3a4 arch/arm64/kernel/signal.c:658
+ do_notify_resume+0xbc/0x25c arch/arm64/kernel/signal.c:722
+ work_pending+0xc/0x180
 
-Dmesg will contain the following messages on systems where the workaround
-is activated:
+blkdev_read_iter can truncate iov_iter's count since the count + pos may
+exceed the size of the blkdev. This will confuse io_read that we have
+consume the iovec. And once we do the iov_iter_revert in io_read, we
+will trigger the slab-out-of-bounds. Fix it by reexpand the count with
+size has been truncated.
 
-[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
-[   55.373593] i2c_designware 808622C1:04: controller timed out
-[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
+blkdev_write_iter can trigger the problem too.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210405202745.16777-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: yangerkun <yangerkun@huawei.com>
+Acked-by: Pavel Begunkov <asml.silencec@gmail.com>
+Link: https://lore.kernel.org/r/20210401071807.3328235-1-yangerkun@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/touchscreen/silead.c | 44 +++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 4 deletions(-)
+ fs/block_dev.c | 20 +++++++++++++++++---
+ 1 file changed, 17 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index ad8b6a2bfd36..c8776146f1d1 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/irq.h>
- #include <linux/regulator/consumer.h>
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index 718533f0fb90..cacea6bafc22 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1903,6 +1903,7 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	struct inode *bd_inode = bdev_file_inode(file);
+ 	loff_t size = i_size_read(bd_inode);
+ 	struct blk_plug plug;
++	size_t shorted = 0;
+ 	ssize_t ret;
  
-@@ -335,10 +336,8 @@ static int silead_ts_get_id(struct i2c_client *client)
+ 	if (bdev_read_only(I_BDEV(bd_inode)))
+@@ -1920,12 +1921,17 @@ ssize_t blkdev_write_iter(struct kiocb *iocb, struct iov_iter *from)
+ 	if ((iocb->ki_flags & (IOCB_NOWAIT | IOCB_DIRECT)) == IOCB_NOWAIT)
+ 		return -EOPNOTSUPP;
  
- 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
- 					      sizeof(chip_id), (u8 *)&chip_id);
--	if (error < 0) {
--		dev_err(&client->dev, "Chip ID read error %d\n", error);
-+	if (error < 0)
- 		return error;
--	}
- 
- 	data->chip_id = le32_to_cpu(chip_id);
- 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
-@@ -351,12 +350,49 @@ static int silead_ts_setup(struct i2c_client *client)
- 	int error;
- 	u32 status;
- 
-+	/*
-+	 * Some buggy BIOS-es bring up the chip in a stuck state where it
-+	 * blocks the I2C bus. The following steps are necessary to
-+	 * unstuck the chip / bus:
-+	 * 1. Turn off the Silead chip.
-+	 * 2. Try to do an I2C transfer with the chip, this will fail in
-+	 *    response to which the I2C-bus-driver will call:
-+	 *    i2c_recover_bus() which will unstuck the I2C-bus. Note the
-+	 *    unstuck-ing of the I2C bus only works if we first drop the
-+	 *    chip off the bus by turning it off.
-+	 * 3. Turn the chip back on.
-+	 *
-+	 * On the x86/ACPI systems were this problem is seen, step 1. and
-+	 * 3. require making ACPI calls and dealing with ACPI Power
-+	 * Resources. The workaround below runtime-suspends the chip to
-+	 * turn it off, leaving it up to the ACPI subsystem to deal with
-+	 * this.
-+	 */
-+
-+	if (device_property_read_bool(&client->dev,
-+				      "silead,stuck-controller-bug")) {
-+		pm_runtime_set_active(&client->dev);
-+		pm_runtime_enable(&client->dev);
-+		pm_runtime_allow(&client->dev);
-+
-+		pm_runtime_suspend(&client->dev);
-+
-+		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
-+		silead_ts_get_id(client);
-+
-+		/* The forbid will also resume the device */
-+		pm_runtime_forbid(&client->dev);
-+		pm_runtime_disable(&client->dev);
-+	}
-+
- 	silead_ts_set_power(client, SILEAD_POWER_OFF);
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
- 
- 	error = silead_ts_get_id(client);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Chip ID read error %d\n", error);
- 		return error;
+-	iov_iter_truncate(from, size - iocb->ki_pos);
++	size -= iocb->ki_pos;
++	if (iov_iter_count(from) > size) {
++		shorted = iov_iter_count(from) - size;
++		iov_iter_truncate(from, size);
 +	}
  
- 	error = silead_ts_init(client);
- 	if (error)
+ 	blk_start_plug(&plug);
+ 	ret = __generic_file_write_iter(iocb, from);
+ 	if (ret > 0)
+ 		ret = generic_write_sync(iocb, ret);
++	iov_iter_reexpand(from, iov_iter_count(from) + shorted);
+ 	blk_finish_plug(&plug);
+ 	return ret;
+ }
+@@ -1937,13 +1943,21 @@ ssize_t blkdev_read_iter(struct kiocb *iocb, struct iov_iter *to)
+ 	struct inode *bd_inode = bdev_file_inode(file);
+ 	loff_t size = i_size_read(bd_inode);
+ 	loff_t pos = iocb->ki_pos;
++	size_t shorted = 0;
++	ssize_t ret;
+ 
+ 	if (pos >= size)
+ 		return 0;
+ 
+ 	size -= pos;
+-	iov_iter_truncate(to, size);
+-	return generic_file_read_iter(iocb, to);
++	if (iov_iter_count(to) > size) {
++		shorted = iov_iter_count(to) - size;
++		iov_iter_truncate(to, size);
++	}
++
++	ret = generic_file_read_iter(iocb, to);
++	iov_iter_reexpand(to, iov_iter_count(to) + shorted);
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(blkdev_read_iter);
+ 
 -- 
 2.30.2
 
