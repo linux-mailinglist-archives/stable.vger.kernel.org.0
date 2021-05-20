@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 198AB38A307
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:47:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA3D938A30E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:47:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233712AbhETJsR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:48:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47676 "EHLO mail.kernel.org"
+        id S233771AbhETJsi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:48:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46030 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233721AbhETJqR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:46:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E5066101D;
-        Thu, 20 May 2021 09:33:56 +0000 (UTC)
+        id S232244AbhETJqh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:46:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB9266145C;
+        Thu, 20 May 2021 09:33:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503236;
-        bh=yhwFXGEG5j30hO8O9ceXy9L37UWOB2el0gYGpR0e+uE=;
+        s=korg; t=1621503239;
+        bh=vY+qJ9L0snUC9/P7fNq23yj/18U4hh5LcVJsNetmqQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dDO6LrxLQHija9wsjSVehF2gWr9bwyM908T/GmUKQb9Oi0d9tFJPuWkVfromp+QMg
-         BvEeVKG93KB3r3KY/1eDKj1DlqBBO0tbi4wNEWajzROVELDyyZOcJH3vc0H4d5K+LF
-         Vdricj1l8V2dgFvjhLNU/2vxYdIsKfMCHSm1V7Ck=
+        b=ENjNq/JmnWK4kVpBwp8JghIW9ezVba0N2JGm2i8DKB1bRFkcwOK19qZTS2BQpV8ho
+         F3EZYWx0aD2J/23fSzN1lC+9A6olNNhEY8nNOMGTHYMta5Pvvxs3hZB4/3KcPSPxpb
+         bLIbRZK8L3E1dSfoHug+Nx+UcgzEFr2tQ7ZLJJco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
-        Nadav Markus <nmarkus@paloaltonetworks.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 130/425] net/nfc: fix use-after-free llcp_sock_bind/connect
-Date:   Thu, 20 May 2021 11:18:19 +0200
-Message-Id: <20210520092135.707218173@linuxfoundation.org>
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 131/425] ASoC: samsung: tm2_wm5110: check of of_parse return value
+Date:   Thu, 20 May 2021 11:18:20 +0200
+Message-Id: <20210520092135.739497881@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,73 +42,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Or Cohen <orcohen@paloaltonetworks.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit c61760e6940dd4039a7f5e84a6afc9cdbf4d82b6 upstream.
+commit d58970da324732686529655c21791cef0ee547c4 upstream.
 
-Commits 8a4cd82d ("nfc: fix refcount leak in llcp_sock_connect()")
-and c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
-fixed a refcount leak bug in bind/connect but introduced a
-use-after-free if the same local is assigned to 2 different sockets.
+cppcheck warning:
 
-This can be triggered by the following simple program:
-    int sock1 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
-    int sock2 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
-    memset( &addr, 0, sizeof(struct sockaddr_nfc_llcp) );
-    addr.sa_family = AF_NFC;
-    addr.nfc_protocol = NFC_PROTO_NFC_DEP;
-    bind( sock1, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
-    bind( sock2, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
-    close(sock1);
-    close(sock2);
+sound/soc/samsung/tm2_wm5110.c:605:6: style: Variable 'ret' is
+reassigned a value before the old one has been
+used. [redundantAssignment]
+ ret = devm_snd_soc_register_component(dev, &tm2_component,
+     ^
+sound/soc/samsung/tm2_wm5110.c:554:7: note: ret is assigned
+  ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
+      ^
+sound/soc/samsung/tm2_wm5110.c:605:6: note: ret is overwritten
+ ret = devm_snd_soc_register_component(dev, &tm2_component,
+     ^
 
-Fix this by assigning NULL to llcp_sock->local after calling
-nfc_llcp_local_put.
+The args is a stack variable, so it could have junk (uninitialized)
+therefore args.np could have a non-NULL and random value even though
+property was missing. Later could trigger invalid pointer dereference.
 
-This addresses CVE-2021-23134.
+There's no need to check for args.np because args.np won't be
+initialized on errors.
 
-Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
-Reported-by: Nadav Markus <nmarkus@paloaltonetworks.com>
-Fixes: c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
-Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8d1513cef51a ("ASoC: samsung: Add support for HDMI audio on TM2 board")
+Cc: <stable@vger.kernel.org>
+Suggested-by: Krzysztof Kozlowski <krzk@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Reviewed-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210312180231.2741-2-pierre-louis.bossart@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/nfc/llcp_sock.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ sound/soc/samsung/tm2_wm5110.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/nfc/llcp_sock.c
-+++ b/net/nfc/llcp_sock.c
-@@ -121,12 +121,14 @@ static int llcp_sock_bind(struct socket
- 					  GFP_KERNEL);
- 	if (!llcp_sock->service_name) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
- 	}
- 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		kfree(llcp_sock->service_name);
- 		llcp_sock->service_name = NULL;
- 		ret = -EADDRINUSE;
-@@ -721,6 +723,7 @@ static int llcp_sock_connect(struct sock
- 	llcp_sock->ssap = nfc_llcp_get_local_ssap(local);
- 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
- 		nfc_llcp_local_put(llcp_sock->local);
-+		llcp_sock->local = NULL;
- 		ret = -ENOMEM;
- 		goto put_dev;
- 	}
-@@ -759,6 +762,7 @@ static int llcp_sock_connect(struct sock
- sock_unlink:
- 	nfc_llcp_put_ssap(local, llcp_sock->ssap);
- 	nfc_llcp_local_put(llcp_sock->local);
-+	llcp_sock->local = NULL;
+--- a/sound/soc/samsung/tm2_wm5110.c
++++ b/sound/soc/samsung/tm2_wm5110.c
+@@ -541,7 +541,7 @@ static int tm2_probe(struct platform_dev
  
- 	nfc_llcp_sock_unlink(&local->connecting_sockets, sk);
- 	kfree(llcp_sock->service_name);
+ 		ret = of_parse_phandle_with_args(dev->of_node, "i2s-controller",
+ 						 cells_name, i, &args);
+-		if (!args.np) {
++		if (ret) {
+ 			dev_err(dev, "i2s-controller property parse error: %d\n", i);
+ 			ret = -EINVAL;
+ 			goto dai_node_put;
 
 
