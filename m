@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FBA338A9FB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 557ED38AB84
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239405AbhETLIQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:08:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40076 "EHLO mail.kernel.org"
+        id S235869AbhETLZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:25:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238167AbhETLGL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:06:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A5976142A;
-        Thu, 20 May 2021 10:05:32 +0000 (UTC)
+        id S239551AbhETLWV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:22:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E0661962;
+        Thu, 20 May 2021 10:11:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505132;
-        bh=p1cSVQX4FEmHZvzCPLvZISok0a/nDQ0qJLk9WnVKDv4=;
+        s=korg; t=1621505502;
+        bh=GZ3C6n59e3n9ghMP7G81j0IE013CKYeByUyEE0SyP0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YUW8r9Y5b2jpma2pGoJZRwy+hbcQrIcBZ7ik2MJpLtBu+n2tmtRmoFJmj/m4g6v6M
-         Db1PKoS1O6aAxL5NBRGTf45t7C0cZobRyFadwScyhlbqmK0m2aCfBh3/+UHJhV90PS
-         T157jsmQNe0PlKHseanQ4WiRqov2or2DaU37nZyI=
+        b=bbFR+ltlmjm57AGjsGHU6gl0EScd1DI4rzQmCTjHKzrx7KngRMcD8xD3r+aKT8sWn
+         3yaTN2QC1yR1ltWFC5FOcQa0/rHDtLxo/PHZy12Ns5Dh2owy386ljE9OdrCX36GnQi
+         /LJZXjLjYvq1eL4WpDiV3yo9RWsMNIfIvbpg56To=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 237/240] sit: proper dev_{hold|put} in ndo_[un]init methods
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 165/190] usb: fotg210-hcd: Fix an error message
 Date:   Thu, 20 May 2021 11:23:49 +0200
-Message-Id: <20210520092116.645263479@linuxfoundation.org>
+Message-Id: <20210520092107.625502040@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 6289a98f0817a4a457750d6345e754838eae9439 upstream.
+[ Upstream commit a60a34366e0d09ca002c966dd7c43a68c28b1f82 ]
 
-After adopting CONFIG_PCPU_DEV_REFCNT=n option, syzbot was able to trigger
-a warning [1]
+'retval' is known to be -ENODEV here.
+This is a hard-coded default error code which is not useful in the error
+message. Moreover, another error message is printed at the end of the
+error handling path. The corresponding error code (-ENOMEM) is more
+informative.
 
-Issue here is that:
+So remove simplify the first error message.
 
-- all dev_put() should be paired with a corresponding prior dev_hold().
+While at it, also remove the useless initialization of 'retval'.
 
-- A driver doing a dev_put() in its ndo_uninit() MUST also
-  do a dev_hold() in its ndo_init(), only when ndo_init()
-  is returning 0.
-
-Otherwise, register_netdevice() would call ndo_uninit()
-in its error path and release a refcount too soon.
-
-Fixes: 919067cc845f ("net: add CONFIG_PCPU_DEV_REFCNT")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 7d50195f6c50 ("usb: host: Faraday fotg210-hcd driver")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/94531bcff98e46d4f9c20183a90b7f47f699126c.1620333419.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/sit.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/usb/host/fotg210-hcd.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -209,8 +209,6 @@ static int ipip6_tunnel_create(struct ne
+diff --git a/drivers/usb/host/fotg210-hcd.c b/drivers/usb/host/fotg210-hcd.c
+index 11b3a8c57eab..5dacc3076efd 100644
+--- a/drivers/usb/host/fotg210-hcd.c
++++ b/drivers/usb/host/fotg210-hcd.c
+@@ -5610,7 +5610,7 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
+ 	struct usb_hcd *hcd;
+ 	struct resource *res;
+ 	int irq;
+-	int retval = -ENODEV;
++	int retval;
+ 	struct fotg210_hcd *fotg210;
  
- 	ipip6_tunnel_clone_6rd(dev, sitn);
- 
--	dev_hold(dev);
--
- 	ipip6_tunnel_link(sitn, t);
- 	return 0;
- 
-@@ -1400,7 +1398,7 @@ static int ipip6_tunnel_init(struct net_
- 		dev->tstats = NULL;
- 		return err;
+ 	if (usb_disabled())
+@@ -5630,7 +5630,7 @@ static int fotg210_hcd_probe(struct platform_device *pdev)
+ 	hcd = usb_create_hcd(&fotg210_fotg210_hc_driver, dev,
+ 			dev_name(dev));
+ 	if (!hcd) {
+-		dev_err(dev, "failed to create hcd with err %d\n", retval);
++		dev_err(dev, "failed to create hcd\n");
+ 		retval = -ENOMEM;
+ 		goto fail_create_hcd;
  	}
--
-+	dev_hold(dev);
- 	return 0;
- }
- 
+-- 
+2.30.2
+
 
 
