@@ -2,34 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B13038AA70
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:12:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8923438AA78
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:13:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239694AbhETLNY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:13:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55582 "EHLO mail.kernel.org"
+        id S239736AbhETLOD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:14:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56154 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239703AbhETLLW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:11:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE6B61D45;
-        Thu, 20 May 2021 10:07:29 +0000 (UTC)
+        id S239719AbhETLL1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:11:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8022361942;
+        Thu, 20 May 2021 10:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505249;
-        bh=6s3pF3zsOt5oF/zaRc4dev6Ar8VPay3TSaKed6ftF8I=;
+        s=korg; t=1621505252;
+        bh=uiYM2F+7VWWT1FmjtdmltqoL6ZZCeOhLp755MzLJqmM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDmazcvgn/mYqqusQ7+VBRZ9Z++1b+8CwaQNV83KNwn7+thRpqx/H59rp/E45Gjqx
-         N+rtAP3GoEjPCxw8MLbYEV2t3UFUMSrKogzm/hOMEmDV+AiPzgv3uT8hsAwVD9mKup
-         QlmsZdOrlhsRg4groqgO4mkgAaTU8fWoU+0RYM0E=
+        b=giKVwIHpywSQJa1ZPtupsIuqbCLb2pQ5ux3OEIgfYVIMeyUU6xpaF9LWYq5rpB8wA
+         uIgSdhA8LDkVEdYBZ+GwEzfgdGjnj8FR8KyQuB86Kup0NogY+O0CKg/zZjmNkid3Fh
+         1dVy5CU328Te1+fHpcn0PQw5aNnBlX0hss3sepNU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Anirudh Rayabharam <mail@anirudhrb.com>
-Subject: [PATCH 4.4 050/190] usb: gadget: dummy_hcd: fix gpf in gadget_setup
-Date:   Thu, 20 May 2021 11:21:54 +0200
-Message-Id: <20210520092103.828139851@linuxfoundation.org>
+        stable@vger.kernel.org, Dean Anderson <dean@sensoray.com>
+Subject: [PATCH 4.4 051/190] usb: gadget/function/f_fs string table fix for multiple languages
+Date:   Thu, 20 May 2021 11:21:55 +0200
+Message-Id: <20210520092103.865287189@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,90 +38,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Dean Anderson <dean@sensoray.com>
 
-commit 4a5d797a9f9c4f18585544237216d7812686a71f upstream.
+commit 55b74ce7d2ce0b0058f3e08cab185a0afacfe39e upstream.
 
-Fix a general protection fault reported by syzbot due to a race between
-gadget_setup() and gadget_unbind() in raw_gadget.
+Fixes bug with the handling of more than one language in
+the string table in f_fs.c.
+str_count was not reset for subsequent language codes.
+str_count-- "rolls under" and processes u32 max strings on
+the processing of the second language entry.
+The existing bug can be reproduced by adding a second language table
+to the structure "strings" in tools/usb/ffs-test.c.
 
-The gadget core is supposed to guarantee that there won't be any more
-callbacks to the gadget driver once the driver's unbind routine is
-called. That guarantee is enforced in usb_gadget_remove_driver as
-follows:
-
-        usb_gadget_disconnect(udc->gadget);
-        if (udc->gadget->irq)
-                synchronize_irq(udc->gadget->irq);
-        udc->driver->unbind(udc->gadget);
-        usb_gadget_udc_stop(udc);
-
-usb_gadget_disconnect turns off the pullup resistor, telling the host
-that the gadget is no longer connected and preventing the transmission
-of any more USB packets. Any packets that have already been received
-are sure to processed by the UDC driver's interrupt handler by the time
-synchronize_irq returns.
-
-But this doesn't work with dummy_hcd, because dummy_hcd doesn't use
-interrupts; it uses a timer instead. It does have code to emulate the
-effect of synchronize_irq, but that code doesn't get invoked at the
-right time -- it currently runs in usb_gadget_udc_stop, after the unbind
-callback instead of before. Indeed, there's no way for
-usb_gadget_remove_driver to invoke this code before the unbind callback.
-
-To fix this, move the synchronize_irq() emulation code to dummy_pullup
-so that it runs before unbind. Also, add a comment explaining why it is
-necessary to have it there.
-
-Reported-by: syzbot+eb4674092e6cc8d9e0bd@syzkaller.appspotmail.com
-Suggested-by: Alan Stern <stern@rowland.harvard.edu>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210419033713.3021-1-mail@anirudhrb.com
+Signed-off-by: Dean Anderson <dean@sensoray.com>
+Link: https://lore.kernel.org/r/20210317224109.21534-1-dean@sensoray.com
 Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/dummy_hcd.c |   23 +++++++++++++++--------
- 1 file changed, 15 insertions(+), 8 deletions(-)
+ drivers/usb/gadget/function/f_fs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/dummy_hcd.c
-+++ b/drivers/usb/gadget/udc/dummy_hcd.c
-@@ -920,6 +920,21 @@ static int dummy_pullup(struct usb_gadge
- 	spin_lock_irqsave(&dum->lock, flags);
- 	dum->pullup = (value != 0);
- 	set_link_state(dum_hcd);
-+	if (value == 0) {
-+		/*
-+		 * Emulate synchronize_irq(): wait for callbacks to finish.
-+		 * This seems to be the best place to emulate the call to
-+		 * synchronize_irq() that's in usb_gadget_remove_driver().
-+		 * Doing it in dummy_udc_stop() would be too late since it
-+		 * is called after the unbind callback and unbind shouldn't
-+		 * be invoked until all the other callbacks are finished.
-+		 */
-+		while (dum->callback_usage > 0) {
-+			spin_unlock_irqrestore(&dum->lock, flags);
-+			usleep_range(1000, 2000);
-+			spin_lock_irqsave(&dum->lock, flags);
-+		}
-+	}
- 	spin_unlock_irqrestore(&dum->lock, flags);
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -2341,6 +2341,7 @@ static int __ffs_data_got_strings(struct
  
- 	usb_hcd_poll_rh_status(dummy_hcd_to_hcd(dum_hcd));
-@@ -1000,14 +1015,6 @@ static int dummy_udc_stop(struct usb_gad
- 	spin_lock_irq(&dum->lock);
- 	dum->ints_enabled = 0;
- 	stop_activity(dum);
--
--	/* emulate synchronize_irq(): wait for callbacks to finish */
--	while (dum->callback_usage > 0) {
--		spin_unlock_irq(&dum->lock);
--		usleep_range(1000, 2000);
--		spin_lock_irq(&dum->lock);
--	}
--
- 	dum->driver = NULL;
- 	spin_unlock_irq(&dum->lock);
+ 	do { /* lang_count > 0 so we can use do-while */
+ 		unsigned needed = needed_count;
++		u32 str_per_lang = str_count;
  
+ 		if (unlikely(len < 3))
+ 			goto error_free;
+@@ -2376,7 +2377,7 @@ static int __ffs_data_got_strings(struct
+ 
+ 			data += length + 1;
+ 			len -= length + 1;
+-		} while (--str_count);
++		} while (--str_per_lang);
+ 
+ 		s->id = 0;   /* terminator */
+ 		s->s = NULL;
 
 
