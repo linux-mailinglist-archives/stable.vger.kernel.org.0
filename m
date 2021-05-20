@@ -2,33 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9040238A7E1
+	by mail.lfdr.de (Postfix) with ESMTP id 44A0B38A7E0
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:44:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237858AbhETKnv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:43:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44686 "EHLO mail.kernel.org"
+        id S237548AbhETKnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:43:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237552AbhETKln (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237553AbhETKln (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:41:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D846D61C87;
-        Thu, 20 May 2021 09:56:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1642361C89;
+        Thu, 20 May 2021 09:56:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504565;
-        bh=1FMfuSkphlXgWf6giN3xc1cdi3gtXazWI9ZFJ23i7ms=;
+        s=korg; t=1621504567;
+        bh=uTaG+Di4XS1WYWv0Dz6/jBPs2AoiU/Wa29VweIUts/o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/0PBufmnA2kehypFsrWvWSGw+ZPYTKK00Ie3CZEqO5uxjB02+xMjq0uGuY8IVz9Y
-         n7nixuTV19KR+NsGDWxJH8RpbRzDIqpySF+sAZRGZNbvppBNrkTVBQJEn+u4WGzNu8
-         rJC2zMdB68+WiVbr3EwzUg4l8lWz+56Q/xY6brbs=
+        b=lyv8woT2TOs04QdESWx0WdnIVD1QvtItK0lejcfQ9fYhrKNKlI26Q7FV1jn9CBwV8
+         llHbAk/oWoCSdlFu0B4Z3cSoqMVSezEHSR59+SK9xEXCXS4YCP23DhYpxO41w0qplx
+         nkK822jix1eGpksPoAEIDsJsUeN1evUF55j83aX8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.14 303/323] kgdb: fix gcc-11 warning on indentation
-Date:   Thu, 20 May 2021 11:23:15 +0200
-Message-Id: <20210520092130.624262685@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 4.14 304/323] usb: sl811-hcd: improve misleading indentation
+Date:   Thu, 20 May 2021 11:23:16 +0200
+Message-Id: <20210520092130.656582232@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -42,66 +40,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Arnd Bergmann <arnd@arndb.de>
 
-commit 40cc3a80bb42587db1e6ae21d6f3090582d33e89 upstream.
+commit 8460f6003a1d2633737b89c4f69d6f4c0c7c65a3 upstream.
 
-gcc-11 starts warning about misleading indentation inside of macros:
+gcc-11 now warns about a confusingly indented code block:
 
-drivers/misc/kgdbts.c: In function ‘kgdbts_break_test’:
-drivers/misc/kgdbts.c:103:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
-  103 |         if (verbose > 1) \
+drivers/usb/host/sl811-hcd.c: In function ‘sl811h_hub_control’:
+drivers/usb/host/sl811-hcd.c:1291:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+ 1291 |         if (*(u16*)(buf+2))     /* only if wPortChange is interesting */
       |         ^~
-drivers/misc/kgdbts.c:200:9: note: in expansion of macro ‘v2printk’
-  200 |         v2printk("kgdbts: breakpoint complete\n");
-      |         ^~~~~~~~
-drivers/misc/kgdbts.c:105:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
-  105 |                 touch_nmi_watchdog();   \
-      |                 ^~~~~~~~~~~~~~~~~~
+drivers/usb/host/sl811-hcd.c:1295:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+ 1295 |                 break;
 
-The code looks correct to me, so just reindent it for readability.
+Rewrite this to use a single if() block with the __is_defined() macro.
 
-Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
 Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210322164308.827846-1-arnd@kernel.org
+Link: https://lore.kernel.org/r/20210322164244.827589-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/kgdbts.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ drivers/usb/host/sl811-hcd.c |    9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
 
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -107,19 +107,19 @@
+--- a/drivers/usb/host/sl811-hcd.c
++++ b/drivers/usb/host/sl811-hcd.c
+@@ -1286,11 +1286,10 @@ sl811h_hub_control(
+ 			goto error;
+ 		put_unaligned_le32(sl811->port1, buf);
  
- #include <asm/sections.h>
- 
--#define v1printk(a...) do { \
--	if (verbose) \
--		printk(KERN_INFO a); \
--	} while (0)
--#define v2printk(a...) do { \
--	if (verbose > 1) \
--		printk(KERN_INFO a); \
--		touch_nmi_watchdog();	\
--	} while (0)
--#define eprintk(a...) do { \
--		printk(KERN_ERR a); \
--		WARN_ON(1); \
--	} while (0)
-+#define v1printk(a...) do {		\
-+	if (verbose)			\
-+		printk(KERN_INFO a);	\
-+} while (0)
-+#define v2printk(a...) do {		\
-+	if (verbose > 1)		\
-+		printk(KERN_INFO a);	\
-+	touch_nmi_watchdog();		\
-+} while (0)
-+#define eprintk(a...) do {		\
-+	printk(KERN_ERR a);		\
-+	WARN_ON(1);			\
-+} while (0)
- #define MAX_CONFIG_LEN		40
- 
- static struct kgdb_io kgdbts_io_ops;
+-#ifndef	VERBOSE
+-	if (*(u16*)(buf+2))	/* only if wPortChange is interesting */
+-#endif
+-		dev_dbg(hcd->self.controller, "GetPortStatus %08x\n",
+-			sl811->port1);
++		if (__is_defined(VERBOSE) ||
++		    *(u16*)(buf+2)) /* only if wPortChange is interesting */
++			dev_dbg(hcd->self.controller, "GetPortStatus %08x\n",
++				sl811->port1);
+ 		break;
+ 	case SetPortFeature:
+ 		if (wIndex != 1 || wLength != 0)
 
 
