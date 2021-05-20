@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81E038A982
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:02:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25ABC38AB0E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239150AbhETLDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:03:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
+        id S239618AbhETLUS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238830AbhETLBG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:01:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01C4361D0C;
-        Thu, 20 May 2021 10:03:37 +0000 (UTC)
+        id S240174AbhETLSE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:18:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1A05613DE;
+        Thu, 20 May 2021 10:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505018;
-        bh=JGXEqjWma7AgE3RhLC1Xlae9sabD63oegoORVlnqXP0=;
+        s=korg; t=1621505395;
+        bh=j8tFkUalTSrNyBkFIfYGnN44fW6MIQg7uDgQV/KITSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv65bp3TLw0wPCu1ncywDillBWH+q+2sAegNGeTdhyxQ1CQtmm2IsbaUcAQX/RwO+
-         bjU1XM6OeJnA+GpTIbXfmf+xpW36Ku7i7ht0XltnS4LVqzKes60fNljDDxeghGwhzB
-         5eGjHDJuNBum0vffzebLgaofNozaLccr6wOROHsQ=
+        b=OnfjW3zcX+0FZAtqjZworIIBzGArpRX9VpWXrgXEKYVTR1QjF1lqR8p9Gn3YCXXty
+         ekka81E9RL1eT6CMpwHBIiGjeWkHDhyZNalXqesu4w1odI6r3nEoSCL9qUlGGSOwEU
+         J2ES8d0RTNQayDwWQ0Nds17KFt5eKlmcGS1dgDeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 152/240] i2c: jz4780: add IRQ check
-Date:   Thu, 20 May 2021 11:22:24 +0200
-Message-Id: <20210520092113.747003491@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 081/190] usb: gadget: pch_udc: Check for DMA mapping error
+Date:   Thu, 20 May 2021 11:22:25 +0200
+Message-Id: <20210520092104.877298249@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit c5e5f7a8d931fb4beba245bdbc94734175fda9de ]
+[ Upstream commit 4a28d77e359009b846951b06f7c0d8eec8dce298 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to devm_request_irq() (which
-takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code.  Stop calling devm_request_irq() with invalid
-IRQ #s.
+DMA mapping might fail, we have to check it with dma_mapping_error().
+Otherwise DMA-API is not happy:
 
-Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+  DMA-API: pch_udc 0000:02:02.4: device driver failed to check map error[device address=0x00000000027ee678] [size=64 bytes] [mapped as single]
+
+Fixes: abab0c67c061 ("usb: pch_udc: Fixed issue which does not work with g_serial")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210323153626.54908-3-andriy.shevchenko@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-jz4780.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/gadget/udc/pch_udc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
-index 41ca9ff7b5da..4dd800c0db14 100644
---- a/drivers/i2c/busses/i2c-jz4780.c
-+++ b/drivers/i2c/busses/i2c-jz4780.c
-@@ -760,7 +760,10 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
+diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
+index 152c2ee0ca50..5301de1c5d31 100644
+--- a/drivers/usb/gadget/udc/pch_udc.c
++++ b/drivers/usb/gadget/udc/pch_udc.c
+@@ -3003,7 +3003,7 @@ static int init_dma_pools(struct pch_udc_dev *dev)
+ 	dev->dma_addr = dma_map_single(&dev->pdev->dev, dev->ep0out_buf,
+ 				       UDC_EP0OUT_BUFF_SIZE * 4,
+ 				       DMA_FROM_DEVICE);
+-	return 0;
++	return dma_mapping_error(&dev->pdev->dev, dev->dma_addr);
+ }
  
- 	jz4780_i2c_writew(i2c, JZ4780_I2C_INTM, 0x0);
- 
--	i2c->irq = platform_get_irq(pdev, 0);
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		goto err;
-+	i2c->irq = ret;
- 	ret = devm_request_irq(&pdev->dev, i2c->irq, jz4780_i2c_irq, 0,
- 			       dev_name(&pdev->dev), i2c);
- 	if (ret)
+ static int pch_udc_start(struct usb_gadget *g,
 -- 
 2.30.2
 
