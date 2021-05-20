@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B71D38AB13
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6999938A9A1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240308AbhETLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
+        id S235113AbhETLFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:05:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240622AbhETLTB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FEEC61D6E;
-        Thu, 20 May 2021 10:10:10 +0000 (UTC)
+        id S238908AbhETLB7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:01:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA1FE61D11;
+        Thu, 20 May 2021 10:03:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505410;
-        bh=iZTZoo/H+Eb2+ejsX1PnEeku1dWxbnLOkC9Ru8jOEns=;
+        s=korg; t=1621505038;
+        bh=luXZQP9Rz2/4d6Wl+X/ZCEKV/DqB17C0PCwyfQdo5ng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1B/gJ5UXgutpUAb/HVPDdrsO7JGLXDU8PfydCVHDLnCF+fc0iHhNQ3gp2ObnJq0aK
-         bYRfgSn9yHVg2gU5B4hBl0zYx3dVoi5Tu39cygwvh3i/SR6Q/B8MgAILL/oWCoQadu
-         PrwRazmd71Dyg2G4+A+dN6+hROvWVMcwjD4Ov+/k=
+        b=lnfPjEtp4/7hpP2tXtctmHCvBr81fKuBbFNaiJz0OjuZnmXvgot5akXMITqGFV4tU
+         3+bz7WfrkhHrqxjyNcF8FQxelHMFHmBrdTjJrQwtRuaMCvswWnAEBaP+WjY8tudauh
+         NSsEcg91PK2+B5xRcysPSjld93IOtWf74eCC2rT8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 123/190] i2c: sh7760: add IRQ check
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 195/240] NFSv4.2: Always flush out writes in nfs42_proc_fallocate()
 Date:   Thu, 20 May 2021 11:23:07 +0200
-Message-Id: <20210520092106.268405422@linuxfoundation.org>
+Message-Id: <20210520092115.210265542@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit e5b2e3e742015dd2aa6bc7bcef2cb59b2de1221c ]
+[ Upstream commit 99f23783224355e7022ceea9b8d9f62c0fd01bd8 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to devm_request_irq() (which
-takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
-an original error code.  Stop calling devm_request_irq() with invalid
-IRQ #s.
+Whether we're allocating or delallocating space, we should flush out the
+pending writes in order to avoid races with attribute updates.
 
-Fixes: a26c20b1fa6d ("i2c: Renesas SH7760 I2C master driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: 1e564d3dbd68 ("NFSv4.2: Fix a race in nfs42_proc_deallocate()")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-sh7760.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/nfs/nfs42proc.c | 16 +++++++++-------
+ 1 file changed, 9 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
-index 24968384b401..70e4437060d5 100644
---- a/drivers/i2c/busses/i2c-sh7760.c
-+++ b/drivers/i2c/busses/i2c-sh7760.c
-@@ -471,7 +471,10 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
- 		goto out2;
- 	}
+diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
+index 5cda392028ce..7e9fb1119bcf 100644
+--- a/fs/nfs/nfs42proc.c
++++ b/fs/nfs/nfs42proc.c
+@@ -56,7 +56,8 @@ static int _nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ 				loff_t offset, loff_t len)
+ {
+-	struct nfs_server *server = NFS_SERVER(file_inode(filep));
++	struct inode *inode = file_inode(filep);
++	struct nfs_server *server = NFS_SERVER(inode);
+ 	struct nfs4_exception exception = { };
+ 	struct nfs_lock_context *lock;
+ 	int err;
+@@ -65,9 +66,13 @@ static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ 	if (IS_ERR(lock))
+ 		return PTR_ERR(lock);
  
--	id->irq = platform_get_irq(pdev, 0);
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret < 0)
-+		return ret;
-+	id->irq = ret;
+-	exception.inode = file_inode(filep);
++	exception.inode = inode;
+ 	exception.state = lock->open_context->state;
  
- 	id->adap.nr = pdev->id;
- 	id->adap.algo = &sh7760_i2c_algo;
++	err = nfs_sync_inode(inode);
++	if (err)
++		goto out;
++
+ 	do {
+ 		err = _nfs42_proc_fallocate(msg, filep, lock, offset, len);
+ 		if (err == -ENOTSUPP) {
+@@ -76,7 +81,7 @@ static int nfs42_proc_fallocate(struct rpc_message *msg, struct file *filep,
+ 		}
+ 		err = nfs4_handle_exception(server, err, &exception);
+ 	} while (exception.retry);
+-
++out:
+ 	nfs_put_lock_context(lock);
+ 	return err;
+ }
+@@ -114,16 +119,13 @@ int nfs42_proc_deallocate(struct file *filep, loff_t offset, loff_t len)
+ 		return -EOPNOTSUPP;
+ 
+ 	inode_lock(inode);
+-	err = nfs_sync_inode(inode);
+-	if (err)
+-		goto out_unlock;
+ 
+ 	err = nfs42_proc_fallocate(&msg, filep, offset, len);
+ 	if (err == 0)
+ 		truncate_pagecache_range(inode, offset, (offset + len) -1);
+ 	if (err == -EOPNOTSUPP)
+ 		NFS_SERVER(inode)->caps &= ~NFS_CAP_DEALLOCATE;
+-out_unlock:
++
+ 	inode_unlock(inode);
+ 	return err;
+ }
 -- 
 2.30.2
 
