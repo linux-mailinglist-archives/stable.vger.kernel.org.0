@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD8638AB82
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79BA38A9F2
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235200AbhETLZr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:25:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
+        id S239509AbhETLIF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:08:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239734AbhETLWM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:22:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDAEC613E9;
-        Thu, 20 May 2021 10:11:35 +0000 (UTC)
+        id S239355AbhETLGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:06:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A74226192B;
+        Thu, 20 May 2021 10:05:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505496;
-        bh=IcjHdlf9KxllRu2dQjiU+p5/Nicq0fCb64u7Ewrsj1U=;
+        s=korg; t=1621505126;
+        bh=/NnEqLW81GmW6Y6kO6A9bBO78unID4AASUPq+dfkJxw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UoPOCzsBbSI3oJWpmVqW6kGQDgro+cBdOqXFANSwt1Qo5GSIqCbZ1mtZCHyhOFOe/
-         i9rDF0T8C0tJz8G9ZUQkI+NazxfXm3aKxBsX0tSMtv3ELAToGpBSiqhsC1GT/Lx9Tp
-         4FZrfIKzaG17M++ONz0vbS22E9MRPILvBmHtof2o=
+        b=Vy+rznFiMFX/xsqDd11N4BXVbO6uekIbO+8M6i7O8T6GnioM3jw0MlfRCg4XRv67R
+         Y2wKKfg7ScvxBTs1ifC2WsWftSgBc8stW3Wi7D7r+D2aidYTot4ImHKb55kDMPBdoR
+         OWzfG2cRXYGZEnocN+1wYeB4TumDLor51z3jsl3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shahab Vahedi <shahab@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.4 162/190] ARC: entry: fix off-by-one error in syscall number validation
-Date:   Thu, 20 May 2021 11:23:46 +0200
-Message-Id: <20210520092107.524217122@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 235/240] ALSA: hda: generic: change the DAC ctl name for LO+SPK or LO+HP
+Date:   Thu, 20 May 2021 11:23:47 +0200
+Message-Id: <20210520092116.581979142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 3433adc8bd09fc9f29b8baddf33b4ecd1ecd2cdc upstream.
+[ Upstream commit f48652bbe3ae62ba2835a396b7e01f063e51c4cd ]
 
-We have NR_syscall syscalls from [0 .. NR_syscall-1].
-However the check for invalid syscall number is "> NR_syscall" as
-opposed to >=. This off-by-one error erronesously allows "NR_syscall"
-to be treated as valid syscall causeing out-of-bounds access into
-syscall-call table ensuing a crash (holes within syscall table have a
-invalid-entry handler but this is beyond the array implementing the
-table).
+Without this change, the DAC ctl's name could be changed only when
+the machine has both Speaker and Headphone, but we met some machines
+which only has Lineout and Headhpone, and the Lineout and Headphone
+share the Audio Mixer0 and DAC0, the ctl's name is set to "Front".
 
-This problem showed up on v5.6 kernel when testing glibc 2.33 (v5.10
-kernel capable, includng faccessat2 syscall 439). The v5.6 kernel has
-NR_syscalls=439 (0 to 438). Due to the bug, 439 passed by glibc was
-not handled as -ENOSYS but processed leading to a crash.
+On most of machines, the "Front" is used for Speaker only or Lineout
+only, but on this machine it is shared by Lineout and Headphone,
+This introduces an issue in the pipewire and pulseaudio, suppose users
+want the Headphone to be on and the Speaker/Lineout to be off, they
+could turn off the "Front", this works on most of the machines, but on
+this machine, the "Front" couldn't be turned off otherwise the
+headphone will be off too. Here we do some change to let the ctl's
+name change to "Headphone+LO" on this machine, and pipewire and
+pulseaudio already could handle "Headphone+LO" and "Speaker+LO".
+(https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/747)
 
-Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/48
-Reported-by: Shahab Vahedi <shahab@synopsys.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BugLink: http://bugs.launchpad.net/bugs/804178
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210504073917.22406-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arc/kernel/entry.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/pci/hda/hda_generic.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -181,7 +181,7 @@ tracesys:
- 
- 	; Do the Sys Call as we normally would.
- 	; Validate the Sys Call number
--	cmp     r8,  NR_syscalls
-+	cmp     r8,  NR_syscalls - 1
- 	mov.hi  r0, -ENOSYS
- 	bhi     tracesys_exit
- 
-@@ -264,7 +264,7 @@ ENTRY(EV_Trap)
- 	;============ Normal syscall case
- 
- 	; syscall num shd not exceed the total system calls avail
--	cmp     r8,  NR_syscalls
-+	cmp     r8,  NR_syscalls - 1
- 	mov.hi  r0, -ENOSYS
- 	bhi     ret_from_system_call
- 
+diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
+index 6089ed6efc8d..8d99ac931ff6 100644
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -1165,11 +1165,17 @@ static const char *get_line_out_pfx(struct hda_codec *codec, int ch,
+ 		*index = ch;
+ 		return "Headphone";
+ 	case AUTO_PIN_LINE_OUT:
+-		/* This deals with the case where we have two DACs and
+-		 * one LO, one HP and one Speaker */
+-		if (!ch && cfg->speaker_outs && cfg->hp_outs) {
+-			bool hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+-			bool spk_lo_shared = !path_has_mixer(codec, spec->speaker_paths[0], ctl_type);
++		/* This deals with the case where one HP or one Speaker or
++		 * one HP + one Speaker need to share the DAC with LO
++		 */
++		if (!ch) {
++			bool hp_lo_shared = false, spk_lo_shared = false;
++
++			if (cfg->speaker_outs)
++				spk_lo_shared = !path_has_mixer(codec,
++								spec->speaker_paths[0],	ctl_type);
++			if (cfg->hp_outs)
++				hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+ 			if (hp_lo_shared && spk_lo_shared)
+ 				return spec->vmaster_mute.hook ? "PCM" : "Master";
+ 			if (hp_lo_shared)
+-- 
+2.30.2
+
 
 
