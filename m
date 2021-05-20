@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE0338A9AB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B32E38AB2C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238631AbhETLFH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37054 "EHLO mail.kernel.org"
+        id S240616AbhETLVJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:21:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38694 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238957AbhETLDH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:03:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05E5461929;
-        Thu, 20 May 2021 10:04:21 +0000 (UTC)
+        id S240840AbhETLTd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B1A361D6B;
+        Thu, 20 May 2021 10:10:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505062;
-        bh=NbHsWF4toT2TuevvL7bKcFylbLteqHQtL3Dy47Am6cc=;
+        s=korg; t=1621505435;
+        bh=r3PgTNOYVYFDY9+0eRBSuSi6TA4LD7E5kTOxTvRapxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CcDJZK/ycq5oGtfFqujLYwI171qp1ph2mw+GmH0FdT1F6XhtV5ihBeXWfp1BTViNO
-         xR/dhGEFqgejOnmiOdtkDgSd5+ybMzl4uM+PV9aXtLZS0jUxmysl7DNzXqaZYkcPLE
-         QXrNLmo0xxH11Tjn9cD87vjNlf6AQuyJLXfv8Cyw=
+        b=vay/Zoe7Di+swe0qv/ZKq3v5IR3CpEv5/IQZqQGRU/qzNrRkHvZVucYcVUED7IhfQ
+         XgKZxArOfGv4iQisBmNtQSO4y0vqhOj1o9t5wncG9uSUGKleXhbImv89vX+8fDA8vH
+         3B+MBVGrZOJmYM8bTEEmvt7Jm7ZfsJ12d7+a1RuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shahab Vahedi <shahab@synopsys.com>,
-        Vineet Gupta <vgupta@synopsys.com>
-Subject: [PATCH 4.9 205/240] ARC: entry: fix off-by-one error in syscall number validation
+        stable@vger.kernel.org,
+        syzbot+959223586843e69a2674@syzkaller.appspotmail.com,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 133/190] Revert "net/sctp: fix race condition in sctp_destroy_sock"
 Date:   Thu, 20 May 2021 11:23:17 +0200
-Message-Id: <20210520092115.539153255@linuxfoundation.org>
+Message-Id: <20210520092106.592913553@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vineet Gupta <vgupta@synopsys.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 3433adc8bd09fc9f29b8baddf33b4ecd1ecd2cdc upstream.
+commit 01bfe5e8e428b475982a98a46cca5755726f3f7f upstream.
 
-We have NR_syscall syscalls from [0 .. NR_syscall-1].
-However the check for invalid syscall number is "> NR_syscall" as
-opposed to >=. This off-by-one error erronesously allows "NR_syscall"
-to be treated as valid syscall causeing out-of-bounds access into
-syscall-call table ensuing a crash (holes within syscall table have a
-invalid-entry handler but this is beyond the array implementing the
-table).
+This reverts commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b.
 
-This problem showed up on v5.6 kernel when testing glibc 2.33 (v5.10
-kernel capable, includng faccessat2 syscall 439). The v5.6 kernel has
-NR_syscalls=439 (0 to 438). Due to the bug, 439 passed by glibc was
-not handled as -ENOSYS but processed leading to a crash.
+This one has to be reverted as it introduced a dead lock, as
+syzbot reported:
 
-Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/48
-Reported-by: Shahab Vahedi <shahab@synopsys.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+       CPU0                    CPU1
+       ----                    ----
+  lock(&net->sctp.addr_wq_lock);
+                               lock(slock-AF_INET6);
+                               lock(&net->sctp.addr_wq_lock);
+  lock(slock-AF_INET6);
+
+CPU0 is the thread of sctp_addr_wq_timeout_handler(), and CPU1
+is that of sctp_close().
+
+The original issue this commit fixed will be fixed in the next
+patch.
+
+Reported-by: syzbot+959223586843e69a2674@syzkaller.appspotmail.com
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arc/kernel/entry.S |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sctp/socket.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
---- a/arch/arc/kernel/entry.S
-+++ b/arch/arc/kernel/entry.S
-@@ -169,7 +169,7 @@ tracesys:
+--- a/net/sctp/socket.c
++++ b/net/sctp/socket.c
+@@ -1567,9 +1567,11 @@ static void sctp_close(struct sock *sk,
  
- 	; Do the Sys Call as we normally would.
- 	; Validate the Sys Call number
--	cmp     r8,  NR_syscalls
-+	cmp     r8,  NR_syscalls - 1
- 	mov.hi  r0, -ENOSYS
- 	bhi     tracesys_exit
+ 	/* Supposedly, no process has access to the socket, but
+ 	 * the net layers still may.
++	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
++	 * held and that should be grabbed before socket lock.
+ 	 */
+-	local_bh_disable();
+-	bh_lock_sock(sk);
++	spin_lock_bh(&net->sctp.addr_wq_lock);
++	bh_lock_sock_nested(sk);
  
-@@ -252,7 +252,7 @@ ENTRY(EV_Trap)
- 	;============ Normal syscall case
+ 	/* Hold the sock, since sk_common_release() will put sock_put()
+ 	 * and we have just a little more cleanup.
+@@ -1578,7 +1580,7 @@ static void sctp_close(struct sock *sk,
+ 	sk_common_release(sk);
  
- 	; syscall num shd not exceed the total system calls avail
--	cmp     r8,  NR_syscalls
-+	cmp     r8,  NR_syscalls - 1
- 	mov.hi  r0, -ENOSYS
- 	bhi     .Lret_from_system_call
+ 	bh_unlock_sock(sk);
+-	local_bh_enable();
++	spin_unlock_bh(&net->sctp.addr_wq_lock);
  
+ 	sock_put(sk);
+ 
+@@ -4159,6 +4161,9 @@ static int sctp_init_sock(struct sock *s
+ 	sk_sockets_allocated_inc(sk);
+ 	sock_prot_inuse_add(net, sk->sk_prot, 1);
+ 
++	/* Nothing can fail after this block, otherwise
++	 * sctp_destroy_sock() will be called without addr_wq_lock held
++	 */
+ 	if (net->sctp.default_auto_asconf) {
+ 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
+ 		list_add_tail(&sp->auto_asconf_list,
+@@ -4193,9 +4198,7 @@ static void sctp_destroy_sock(struct soc
+ 
+ 	if (sp->do_auto_asconf) {
+ 		sp->do_auto_asconf = 0;
+-		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+ 		list_del(&sp->auto_asconf_list);
+-		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
+ 	}
+ 	sctp_endpoint_free(sp->ep);
+ 	local_bh_disable();
 
 
