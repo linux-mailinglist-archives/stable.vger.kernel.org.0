@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D61138A4EF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:10:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5212B38A4F7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:10:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbhETKKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:10:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
+        id S234990AbhETKLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:11:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235816AbhETKJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:09:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB78361952;
-        Thu, 20 May 2021 09:42:37 +0000 (UTC)
+        id S235845AbhETKJc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:09:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC5C761953;
+        Thu, 20 May 2021 09:42:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503758;
-        bh=Y70RnH11d1XJD+3iLneAnjF4aLY0S1a2wNl5ugiGzqw=;
+        s=korg; t=1621503760;
+        bh=5jRYSLaiyP44o6o5Sr8x+VXMMR4C2T7PWd1m+BzyFXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ko6oatoLQ8yu8Pn3Rpj7J0t0qmP2/z9YVdnJdBJymWFaFIc+01PJ7FwUyKw9Ij6S8
-         35MhEM8Zb+7i6hdumFkRG0IaNH2vx4rTOaVQ9izDVW9l+gXwAf34XmR5ZwMyUjp+rA
-         01dvQ3NTs8IbroscRNsUenpBKdAGz3Un08mxeZoM=
+        b=YIAkAONjvlSe18Jm3GOMUGE1/6G4Wwpmp0SXbQexx+bxg8iYrNlTOUZegueikUlnD
+         +nSl4cnmbnDcaJ5CHTPQnyAZaUTw0Zu+Hij2scqYVCtBMlbJFjZfbeXgKxFqx6KVIo
+         xm7F65UbxEaobcvTzcm2tt7AXryyhdx3lW0xFjfw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergei Trofimovich <slyfox@gentoo.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 332/425] ia64: module: fix symbolizer crash on fdescr
-Date:   Thu, 20 May 2021 11:21:41 +0200
-Message-Id: <20210520092142.323355055@linuxfoundation.org>
+Subject: [PATCH 4.19 333/425] ASoC: rt286: Make RT286_SET_GPIO_* readable and writable
+Date:   Thu, 20 May 2021 11:21:42 +0200
+Message-Id: <20210520092142.354358615@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,118 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergei Trofimovich <slyfox@gentoo.org>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit 99e729bd40fb3272fa4b0140839d5e957b58588a ]
+[ Upstream commit cd8499d5c03ba260e3191e90236d0e5f6b147563 ]
 
-Noticed failure as a crash on ia64 when tried to symbolize all backtraces
-collected by page_owner=on:
+The GPIO configuration cannot be applied if the registers are inaccessible.
+This prevented the headset mic from working on the Dell XPS 13 9343.
 
-    $ cat /sys/kernel/debug/page_owner
-    <oops>
-
-    CPU: 1 PID: 2074 Comm: cat Not tainted 5.12.0-rc4 #226
-    Hardware name: hp server rx3600, BIOS 04.03 04/08/2008
-    ip is at dereference_module_function_descriptor+0x41/0x100
-
-Crash happens at dereference_module_function_descriptor() due to
-use-after-free when dereferencing ".opd" section header.
-
-All section headers are already freed after module is laoded successfully.
-
-To keep symbolizer working the change stores ".opd" address and size after
-module is relocated to a new place and before section headers are
-discarded.
-
-To make similar errors less obscure module_finalize() now zeroes out all
-variables relevant to module loading only.
-
-Link: https://lkml.kernel.org/r/20210403074803.3309096-1-slyfox@gentoo.org
-Signed-off-by: Sergei Trofimovich <slyfox@gentoo.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=114171
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Link: https://lore.kernel.org/r/20210418134658.4333-5-david.ward@gatech.edu
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/include/asm/module.h |  6 +++++-
- arch/ia64/kernel/module.c      | 29 +++++++++++++++++++++++++----
- 2 files changed, 30 insertions(+), 5 deletions(-)
+ sound/soc/codecs/rt286.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/arch/ia64/include/asm/module.h b/arch/ia64/include/asm/module.h
-index f319144260ce..9fbf32e6e881 100644
---- a/arch/ia64/include/asm/module.h
-+++ b/arch/ia64/include/asm/module.h
-@@ -14,16 +14,20 @@
- struct elf64_shdr;			/* forward declration */
- 
- struct mod_arch_specific {
-+	/* Used only at module load time. */
- 	struct elf64_shdr *core_plt;	/* core PLT section */
- 	struct elf64_shdr *init_plt;	/* init PLT section */
- 	struct elf64_shdr *got;		/* global offset table */
- 	struct elf64_shdr *opd;		/* official procedure descriptors */
- 	struct elf64_shdr *unwind;	/* unwind-table section */
- 	unsigned long gp;		/* global-pointer for module */
-+	unsigned int next_got_entry;	/* index of next available got entry */
- 
-+	/* Used at module run and cleanup time. */
- 	void *core_unw_table;		/* core unwind-table cookie returned by unwinder */
- 	void *init_unw_table;		/* init unwind-table cookie returned by unwinder */
--	unsigned int next_got_entry;	/* index of next available got entry */
-+	void *opd_addr;			/* symbolize uses .opd to get to actual function */
-+	unsigned long opd_size;
- };
- 
- #define MODULE_PROC_FAMILY	"ia64"
-diff --git a/arch/ia64/kernel/module.c b/arch/ia64/kernel/module.c
-index 1a42ba885188..ee693c8cec49 100644
---- a/arch/ia64/kernel/module.c
-+++ b/arch/ia64/kernel/module.c
-@@ -905,9 +905,31 @@ register_unwind_table (struct module *mod)
- int
- module_finalize (const Elf_Ehdr *hdr, const Elf_Shdr *sechdrs, struct module *mod)
- {
-+	struct mod_arch_specific *mas = &mod->arch;
-+
- 	DEBUGP("%s: init: entry=%p\n", __func__, mod->init);
--	if (mod->arch.unwind)
-+	if (mas->unwind)
- 		register_unwind_table(mod);
-+
-+	/*
-+	 * ".opd" was already relocated to the final destination. Store
-+	 * it's address for use in symbolizer.
-+	 */
-+	mas->opd_addr = (void *)mas->opd->sh_addr;
-+	mas->opd_size = mas->opd->sh_size;
-+
-+	/*
-+	 * Module relocation was already done at this point. Section
-+	 * headers are about to be deleted. Wipe out load-time context.
-+	 */
-+	mas->core_plt = NULL;
-+	mas->init_plt = NULL;
-+	mas->got = NULL;
-+	mas->opd = NULL;
-+	mas->unwind = NULL;
-+	mas->gp = 0;
-+	mas->next_got_entry = 0;
-+
- 	return 0;
- }
- 
-@@ -926,10 +948,9 @@ module_arch_cleanup (struct module *mod)
- 
- void *dereference_module_function_descriptor(struct module *mod, void *ptr)
- {
--	Elf64_Shdr *opd = mod->arch.opd;
-+	struct mod_arch_specific *mas = &mod->arch;
- 
--	if (ptr < (void *)opd->sh_addr ||
--			ptr >= (void *)(opd->sh_addr + opd->sh_size))
-+	if (ptr < mas->opd_addr || ptr >= mas->opd_addr + mas->opd_size)
- 		return ptr;
- 
- 	return dereference_function_descriptor(ptr);
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index 7e44ccae3bc8..c29c6cf41ece 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -174,6 +174,9 @@ static bool rt286_readable_register(struct device *dev, unsigned int reg)
+ 	case RT286_PROC_COEF:
+ 	case RT286_SET_AMP_GAIN_ADC_IN1:
+ 	case RT286_SET_AMP_GAIN_ADC_IN2:
++	case RT286_SET_GPIO_MASK:
++	case RT286_SET_GPIO_DIRECTION:
++	case RT286_SET_GPIO_DATA:
+ 	case RT286_SET_POWER(RT286_DAC_OUT1):
+ 	case RT286_SET_POWER(RT286_DAC_OUT2):
+ 	case RT286_SET_POWER(RT286_ADC_IN1):
 -- 
 2.30.2
 
