@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A507C38A709
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 979D738A711
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236602AbhETKdc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:33:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
+        id S236714AbhETKdt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237297AbhETKbb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:31:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AA15619A5;
-        Thu, 20 May 2021 09:52:07 +0000 (UTC)
+        id S237324AbhETKbm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DF4861C3E;
+        Thu, 20 May 2021 09:52:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504327;
-        bh=ABPAIq8gvkqnkWTpQasrnrVOUKDHwcSujkDgWZ5I+8A=;
+        s=korg; t=1621504343;
+        bh=8APKXRuvakIe0b/7cybuTVvzfs8YW/6wc5fHM9HTOAM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aHs2+SvXe6dxi151vc0Y+vTm+Vm6qH+w+RxLPdAZUCBrGh+LFmtmQwiQhoLdRP0XL
-         wTvwP4sv+ItyJ3KsBwFBOJf6HkUNc/7eWuvPwflvl/pzNQrwLYempvjbrIDrAwMxin
-         cVKPCn1ysHgpJjfGn0RxENcCX36iLP8BRESIGrb8=
+        b=L6XKhkaxsfqrjn/nYKrb9a90AFOjbHLYppBCymrdbe2rhQV3QcAtKIY8nEekpSRsv
+         7VyC3FOsCq8RfmaqUBeIV+jvFHGpFsh/kpblNifbdBDPyg0uIzEsqQnJx/umv1Q3UD
+         2Ti5W/0ZiunD7OH6rbkGewt8H5AeFI7ltCydk1UM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 168/323] ACPI: CPPC: Replace cppc_attr with kobj_attribute
-Date:   Thu, 20 May 2021 11:21:00 +0200
-Message-Id: <20210520092125.862394272@linuxfoundation.org>
+Subject: [PATCH 4.14 169/323] crypto: qat - Fix a double free in adf_create_ring
+Date:   Thu, 20 May 2021 11:21:01 +0200
+Message-Id: <20210520092125.897610294@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,88 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 2bc6262c6117dd18106d5aa50d53e945b5d99c51 ]
+[ Upstream commit f7cae626cabb3350b23722b78fe34dd7a615ca04 ]
 
-All of the CPPC sysfs show functions are called via indirect call in
-kobj_attr_show(), where they should be of type
+In adf_create_ring, if the callee adf_init_ring() failed, the callee will
+free the ring->base_addr by dma_free_coherent() and return -EFAULT. Then
+adf_create_ring will goto err and the ring->base_addr will be freed again
+in adf_cleanup_ring().
 
-ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr, char *buf);
+My patch sets ring->base_addr to NULL after the first freed to avoid the
+double free.
 
-because that is the type of the ->show() member in
-'struct kobj_attribute' but they are actually of type
-
-ssize_t (*show)(struct kobject *kobj, struct attribute *attr, char *buf);
-
-because of the ->show() member in 'struct cppc_attr', resulting in a
-Control Flow Integrity violation [1].
-
-$ cat /sys/devices/system/cpu/cpu0/acpi_cppc/highest_perf
-3400
-
-$ dmesg | grep "CFI failure"
-[  175.970559] CFI failure (target: show_highest_perf+0x0/0x8):
-
-As far as I can tell, the only difference between 'struct cppc_attr'
-and 'struct kobj_attribute' aside from the type of the attr parameter
-is the type of the count parameter in the ->store() member (ssize_t vs.
-size_t), which does not actually matter because all of these nodes are
-read-only.
-
-Eliminate 'struct cppc_attr' in favor of 'struct kobj_attribute' to fix
-the violation.
-
-[1]: https://lore.kernel.org/r/20210401233216.2540591-1-samitolvanen@google.com/
-
-Fixes: 158c998ea44b ("ACPI / CPPC: add sysfs support to compute delivered performance")
-Link: https://github.com/ClangBuiltLinux/linux/issues/1343
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Fixes: a672a9dc872ec ("crypto: qat - Intel(R) QAT transport code")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/cppc_acpi.c | 14 +++-----------
- 1 file changed, 3 insertions(+), 11 deletions(-)
+ drivers/crypto/qat/qat_common/adf_transport.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
-index 732549ee1fe3..5b2e58cbeb35 100644
---- a/drivers/acpi/cppc_acpi.c
-+++ b/drivers/acpi/cppc_acpi.c
-@@ -118,23 +118,15 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
-  */
- #define NUM_RETRIES 500
+diff --git a/drivers/crypto/qat/qat_common/adf_transport.c b/drivers/crypto/qat/qat_common/adf_transport.c
+index 57d2622728a5..4c0067f8c079 100644
+--- a/drivers/crypto/qat/qat_common/adf_transport.c
++++ b/drivers/crypto/qat/qat_common/adf_transport.c
+@@ -197,6 +197,7 @@ static int adf_init_ring(struct adf_etr_ring_data *ring)
+ 		dev_err(&GET_DEV(accel_dev), "Ring address not aligned\n");
+ 		dma_free_coherent(&GET_DEV(accel_dev), ring_size_bytes,
+ 				  ring->base_addr, ring->dma_addr);
++		ring->base_addr = NULL;
+ 		return -EFAULT;
+ 	}
  
--struct cppc_attr {
--	struct attribute attr;
--	ssize_t (*show)(struct kobject *kobj,
--			struct attribute *attr, char *buf);
--	ssize_t (*store)(struct kobject *kobj,
--			struct attribute *attr, const char *c, ssize_t count);
--};
--
- #define define_one_cppc_ro(_name)		\
--static struct cppc_attr _name =			\
-+static struct kobj_attribute _name =		\
- __ATTR(_name, 0444, show_##_name, NULL)
- 
- #define to_cpc_desc(a) container_of(a, struct cpc_desc, kobj)
- 
- #define show_cppc_data(access_fn, struct_name, member_name)		\
- 	static ssize_t show_##member_name(struct kobject *kobj,		\
--					struct attribute *attr,	char *buf) \
-+				struct kobj_attribute *attr, char *buf)	\
- 	{								\
- 		struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);		\
- 		struct struct_name st_name = {0};			\
-@@ -157,7 +149,7 @@ show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, reference_perf);
- show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, wraparound_time);
- 
- static ssize_t show_feedback_ctrs(struct kobject *kobj,
--		struct attribute *attr, char *buf)
-+		struct kobj_attribute *attr, char *buf)
- {
- 	struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);
- 	struct cppc_perf_fb_ctrs fb_ctrs = {0};
 -- 
 2.30.2
 
