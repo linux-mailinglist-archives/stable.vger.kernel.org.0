@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B922B38AB61
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5528138A9F0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241115AbhETLXv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:23:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44452 "EHLO mail.kernel.org"
+        id S238916AbhETLIC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:08:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241130AbhETLVt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:21:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E53A613D9;
-        Thu, 20 May 2021 10:11:31 +0000 (UTC)
+        id S238419AbhETLGA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:06:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EE7D61D23;
+        Thu, 20 May 2021 10:05:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505491;
-        bh=pdeOjzT6MVNubvZ/yMLucSYt+bX/RIVGbC6rpXwTb9o=;
+        s=korg; t=1621505119;
+        bh=Du3FL//xbBC7vzjrkhOTwrNfrjSzBY7HDe4een0KUZ4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pM06eyQld3EitLhSH9zZGhuadhEuu9UqXZx/cKXwGkQcxj5qDSUoFzDW+/E5pWt0p
-         YEwlI5Zg8+TfwbkGJYmoK/v7BeqDhotp5rWNaleUEqg9yEqIIlzC9QI9TNJq675VSs
-         DEM244RM90htzTei2KxUa0enfN2RxG7+5ju9ba/o=
+        b=wxdKj1T+4XL7gWO5TipL+74v1hUitttlLOHLMGhP2PuLvjCosa6JVbagqXtp/UpZi
+         h1Cbx5qdawUSCSTpjwf9nISaxMUhZCYkbBsBiARzftIOO66Vcl8xIShkODSDo+bF6m
+         MX7m9Lc5x9RNNuLgWimLQzniYR94SfsHRFb6Vfyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 160/190] ksm: fix potential missing rmap_item for stable_node
+Subject: [PATCH 4.9 232/240] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
 Date:   Thu, 20 May 2021 11:23:44 +0200
-Message-Id: <20210520092107.460817694@linuxfoundation.org>
+Message-Id: <20210520092116.491184395@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +40,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
+[ Upstream commit e479187748a8f151a85116a7091c599b121fdea5 ]
 
-When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
-cleared with head reserved.  So the following scenario might happen: For
-ksm page with rmap_item1:
+Some buggy BIOS-es bring up the touchscreen-controller in a stuck
+state where it blocks the I2C bus. Specifically this happens on
+the Jumper EZpad 7 tablet model.
 
-cmp_and_merge_page
-  stable_node->head = &migrate_nodes;
-  remove_rmap_item_from_tree, but head still equal to stable_node;
-  try_to_merge_with_ksm_page failed;
-  return;
+After much poking at this problem I have found that the following steps
+are necessary to unstuck the chip / bus:
 
-For the same ksm page with rmap_item2, stable node migration succeed this
-time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
-page with rmap_item1 again:
+1. Turn off the Silead chip.
+2. Try to do an I2C transfer with the chip, this will fail in response to
+   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
+   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
+   drop the chip of the bus by turning it off.
+3. Turn the chip back on.
 
-cmp_and_merge_page
- stable_node->head != &migrate_nodes && rmap_item->head == stable_node
- return;
+On the x86/ACPI systems were this problem is seen, step 1. and 3. require
+making ACPI calls and dealing with ACPI Power Resources. This commit adds
+a workaround which runtime-suspends the chip to turn it off, leaving it up
+to the ACPI subsystem to deal with all the ACPI specific details.
 
-We would miss the rmap_item for stable_node and might result in failed
-rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
-is removed from stable tree.
+There is no good way to detect this bug, so the workaround gets activated
+by a new "silead,stuck-controller-bug" boolean device-property. Since this
+is only used on x86/ACPI, this will be set by model specific device-props
+set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
+device-property is not documented in the DT-bindings.
 
-Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
-Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Dmesg will contain the following messages on systems where the workaround
+is activated:
+
+[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
+[   55.373593] i2c_designware 808622C1:04: controller timed out
+[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210405202745.16777-1-hdegoede@redhat.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/ksm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/input/touchscreen/silead.c | 44 +++++++++++++++++++++++++++---
+ 1 file changed, 40 insertions(+), 4 deletions(-)
 
-diff --git a/mm/ksm.c b/mm/ksm.c
-index f51613052aee..cafe00dfdc3b 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -633,6 +633,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
- 			ksm_pages_shared--;
+diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
+index 867772878c0c..3350c0190c4a 100644
+--- a/drivers/input/touchscreen/silead.c
++++ b/drivers/input/touchscreen/silead.c
+@@ -28,6 +28,7 @@
+ #include <linux/input/mt.h>
+ #include <linux/input/touchscreen.h>
+ #include <linux/pm.h>
++#include <linux/pm_runtime.h>
+ #include <linux/irq.h>
  
- 		put_anon_vma(rmap_item->anon_vma);
-+		rmap_item->head = NULL;
- 		rmap_item->address &= PAGE_MASK;
+ #include <asm/unaligned.h>
+@@ -317,10 +318,8 @@ static int silead_ts_get_id(struct i2c_client *client)
  
- 	} else if (rmap_item->address & UNSTABLE_FLAG) {
+ 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
+ 					      sizeof(chip_id), (u8 *)&chip_id);
+-	if (error < 0) {
+-		dev_err(&client->dev, "Chip ID read error %d\n", error);
++	if (error < 0)
+ 		return error;
+-	}
+ 
+ 	data->chip_id = le32_to_cpu(chip_id);
+ 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
+@@ -333,12 +332,49 @@ static int silead_ts_setup(struct i2c_client *client)
+ 	int error;
+ 	u32 status;
+ 
++	/*
++	 * Some buggy BIOS-es bring up the chip in a stuck state where it
++	 * blocks the I2C bus. The following steps are necessary to
++	 * unstuck the chip / bus:
++	 * 1. Turn off the Silead chip.
++	 * 2. Try to do an I2C transfer with the chip, this will fail in
++	 *    response to which the I2C-bus-driver will call:
++	 *    i2c_recover_bus() which will unstuck the I2C-bus. Note the
++	 *    unstuck-ing of the I2C bus only works if we first drop the
++	 *    chip off the bus by turning it off.
++	 * 3. Turn the chip back on.
++	 *
++	 * On the x86/ACPI systems were this problem is seen, step 1. and
++	 * 3. require making ACPI calls and dealing with ACPI Power
++	 * Resources. The workaround below runtime-suspends the chip to
++	 * turn it off, leaving it up to the ACPI subsystem to deal with
++	 * this.
++	 */
++
++	if (device_property_read_bool(&client->dev,
++				      "silead,stuck-controller-bug")) {
++		pm_runtime_set_active(&client->dev);
++		pm_runtime_enable(&client->dev);
++		pm_runtime_allow(&client->dev);
++
++		pm_runtime_suspend(&client->dev);
++
++		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
++		silead_ts_get_id(client);
++
++		/* The forbid will also resume the device */
++		pm_runtime_forbid(&client->dev);
++		pm_runtime_disable(&client->dev);
++	}
++
+ 	silead_ts_set_power(client, SILEAD_POWER_OFF);
+ 	silead_ts_set_power(client, SILEAD_POWER_ON);
+ 
+ 	error = silead_ts_get_id(client);
+-	if (error)
++	if (error) {
++		dev_err(&client->dev, "Chip ID read error %d\n", error);
+ 		return error;
++	}
+ 
+ 	error = silead_ts_init(client);
+ 	if (error)
 -- 
 2.30.2
 
