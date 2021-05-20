@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17F7838A326
+	by mail.lfdr.de (Postfix) with ESMTP id 839C438A327
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:49:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234561AbhETJt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:49:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S233628AbhETJt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:49:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234012AbhETJrW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:47:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21F0961461;
-        Thu, 20 May 2021 09:34:13 +0000 (UTC)
+        id S234025AbhETJrZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:47:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5429461457;
+        Thu, 20 May 2021 09:34:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503254;
-        bh=tL1WG2HabN56/tkOGg5mdffeNgPB6ImRJFOAt+HNIac=;
+        s=korg; t=1621503256;
+        bh=xix8bAIQHk01R+mSm4qOXOstWPRJzFpE70gb+hsBdXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1HfhpduhWSlyIwsNZ8LWTk6nprjNIvVCOFSPrtblY5meXybr08wb7GFYykIVEDenP
-         nWaMtKHmqaQ0Ob1uXnARx8EmEuNy79LngYCVO5BkaAGm7W+59lPSiN6CRbz+t98lYk
-         Qac/CfMsyZs0T3PbKQDCpvfbuDCW0HFSVMa2ooiI=
+        b=ucBBvLuMfo+/4nU8L4V92cxlePSYkZ+42aCzB6jiy06dZMHvu+XhUtDkxw0jseGI7
+         5scU2AQEoXiqld7OH+1HcWQSniLZRklg4aMRUeQYjAQfXWvi/DP9vra62LaBb8Rsrj
+         C14GiURBfWqQF6X1/INMXjSn9IylOBZF+m1dlE14=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 4.19 137/425] misc: vmw_vmci: explicitly initialize vmci_notify_bm_set_msg struct
-Date:   Thu, 20 May 2021 11:18:26 +0200
-Message-Id: <20210520092135.938599564@linuxfoundation.org>
+Subject: [PATCH 4.19 138/425] misc: vmw_vmci: explicitly initialize vmci_datagram payload
+Date:   Thu, 20 May 2021 11:18:27 +0200
+Message-Id: <20210520092135.970905862@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,25 +41,22 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 376565b9717c30cd58ad33860fa42697615fa2e4 upstream.
+commit b2192cfeba8481224da0a4ec3b4a7ccd80b1623b upstream.
 
-KMSAN complains that the vmci_use_ppn64() == false path in
-vmci_dbell_register_notification_bitmap() left upper 32bits of
-bitmap_set_msg.bitmap_ppn64 member uninitialized.
+KMSAN complains that vmci_check_host_caps() left the payload part of
+check_msg uninitialized.
 
   =====================================================
   BUG: KMSAN: uninit-value in kmsan_check_memory+0xd/0x10
-  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 5.11.0-rc7+ #4
+  CPU: 1 PID: 1 Comm: swapper/0 Tainted: G    B             5.11.0-rc7+ #4
   Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
   Call Trace:
    dump_stack+0x21c/0x280
    kmsan_report+0xfb/0x1e0
-   kmsan_internal_check_memory+0x484/0x520
+   kmsan_internal_check_memory+0x202/0x520
    kmsan_check_memory+0xd/0x10
    iowrite8_rep+0x86/0x380
-   vmci_send_datagram+0x150/0x280
-   vmci_dbell_register_notification_bitmap+0x133/0x1e0
-   vmci_guest_probe_device+0xcab/0x1e70
+   vmci_guest_probe_device+0xf0b/0x1e70
    pci_device_probe+0xab3/0xe70
    really_probe+0xd16/0x24d0
    driver_probe_device+0x29d/0x3a0
@@ -80,33 +77,54 @@ bitmap_set_msg.bitmap_ppn64 member uninitialized.
    kernel_init+0x1f/0x840
    ret_from_fork+0x1f/0x30
 
-  Local variable ----bitmap_set_msg@vmci_dbell_register_notification_bitmap created at:
-   vmci_dbell_register_notification_bitmap+0x50/0x1e0
-   vmci_dbell_register_notification_bitmap+0x50/0x1e0
+  Uninit was created at:
+   kmsan_internal_poison_shadow+0x5c/0xf0
+   kmsan_slab_alloc+0x8d/0xe0
+   kmem_cache_alloc+0x84f/0xe30
+   vmci_guest_probe_device+0xd11/0x1e70
+   pci_device_probe+0xab3/0xe70
+   really_probe+0xd16/0x24d0
+   driver_probe_device+0x29d/0x3a0
+   device_driver_attach+0x25a/0x490
+   __driver_attach+0x78c/0x840
+   bus_for_each_dev+0x210/0x340
+   driver_attach+0x89/0xb0
+   bus_add_driver+0x677/0xc40
+   driver_register+0x485/0x8e0
+   __pci_register_driver+0x1ff/0x350
+   vmci_guest_init+0x3e/0x41
+   vmci_drv_init+0x1d6/0x43f
+   do_one_initcall+0x39c/0x9a0
+   do_initcall_level+0x1d7/0x259
+   do_initcalls+0x127/0x1cb
+   do_basic_setup+0x33/0x36
+   kernel_init_freeable+0x29a/0x3ed
+   kernel_init+0x1f/0x840
+   ret_from_fork+0x1f/0x30
 
-  Bytes 28-31 of 32 are uninitialized
-  Memory access of size 32 starts at ffff88810098f570
+  Bytes 28-31 of 36 are uninitialized
+  Memory access of size 36 starts at ffff8881675e5f00
   =====================================================
 
-Fixes: 83e2ec765be03e8a ("VMCI: doorbell implementation.")
+Fixes: 1f166439917b69d3 ("VMCI: guest side driver implementation.")
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Link: https://lore.kernel.org/r/20210402121742.3917-1-penguin-kernel@I-love.SAKURA.ne.jp
+Link: https://lore.kernel.org/r/20210402121742.3917-2-penguin-kernel@I-love.SAKURA.ne.jp
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/vmw_vmci/vmci_doorbell.c |    2 +-
+ drivers/misc/vmw_vmci/vmci_guest.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/misc/vmw_vmci/vmci_doorbell.c
-+++ b/drivers/misc/vmw_vmci/vmci_doorbell.c
-@@ -334,7 +334,7 @@ int vmci_dbell_host_context_notify(u32 s
- bool vmci_dbell_register_notification_bitmap(u32 bitmap_ppn)
- {
- 	int result;
--	struct vmci_notify_bm_set_msg bitmap_set_msg;
-+	struct vmci_notify_bm_set_msg bitmap_set_msg = { };
+--- a/drivers/misc/vmw_vmci/vmci_guest.c
++++ b/drivers/misc/vmw_vmci/vmci_guest.c
+@@ -169,7 +169,7 @@ static int vmci_check_host_caps(struct p
+ 				VMCI_UTIL_NUM_RESOURCES * sizeof(u32);
+ 	struct vmci_datagram *check_msg;
  
- 	bitmap_set_msg.hdr.dst = vmci_make_handle(VMCI_HYPERVISOR_CONTEXT_ID,
- 						  VMCI_SET_NOTIFY_BITMAP);
+-	check_msg = kmalloc(msg_size, GFP_KERNEL);
++	check_msg = kzalloc(msg_size, GFP_KERNEL);
+ 	if (!check_msg) {
+ 		dev_err(&pdev->dev, "%s: Insufficient memory\n", __func__);
+ 		return -ENOMEM;
 
 
