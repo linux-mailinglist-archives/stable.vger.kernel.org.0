@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 732E638A8EA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:54:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B48B938A744
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238736AbhETKzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
+        id S237027AbhETKgg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:36:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239248AbhETKwz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 806DB61404;
-        Thu, 20 May 2021 10:00:39 +0000 (UTC)
+        id S237353AbhETKdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:33:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B6FB6161E;
+        Thu, 20 May 2021 09:53:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504840;
-        bh=uy3xaIeNdD5r8adhSdQ7+dPo37KVWtOH3gwnu1EkGac=;
+        s=korg; t=1621504382;
+        bh=U6dBV1M3YS+z+qDCQMmkTeOwXhTDunRauYuyBJchu94=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aqoIQ4xRnWrSq4xrC1+/8DTntiOGnHORQTIEQO6SZ7ve7omiLzyR6vvsEFeTPVJWI
-         OgGlQUgQ3sS54xFzLW59TvMSPtVy3nFSWqMAtyGcXBalcI7YDQsAQ5CY4pp2h4C62w
-         NMTuzuKqnuI4d/VnrQy98uz1BpAEaGbI+Ku8QcRI=
+        b=xJd99INf1XhcTjt4cOWMX57Oo3NzGFIslchs28ZMrTL1AKJt1cS0qsoyLAVkhvBv/
+         G0e9SE6cegOLNircjUhi4NWmMPGs2o4C+tcnJy7uULfUT73Jc0fbs4YqaZrCHhhdq+
+         UgymO4qUc3DjN/uOUMLq0y7Ey7f4gevmG3lsKh1s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 103/240] fotg210-udc: Remove a dubious condition leading to fotg210_done
+        stable@vger.kernel.org,
+        coverity-bot <keescook+coverity-bot@chromium.org>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 203/323] ALSA: usb-audio: Add error checks for usb_driver_claim_interface() calls
 Date:   Thu, 20 May 2021 11:21:35 +0200
-Message-Id: <20210520092112.147893903@linuxfoundation.org>
+Message-Id: <20210520092127.091663804@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,38 +40,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit c7f755b243494d6043aadcd9a2989cb157958b95 ]
+[ Upstream commit 5fb45414ae03421255593fd5556aa2d1d82303aa ]
 
-When the EP0 IN request was not completed but less than a packet sent,
-it would complete the request successfully. That doesn't make sense
-and can't really happen as fotg210_start_dma always sends
-min(length, maxpkt) bytes.
+There are a few calls of usb_driver_claim_interface() but all of those
+miss the proper error checks, as reported by Coverity.  This patch
+adds those missing checks.
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-4-fabian@ritter-vogt.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Along with it, replace the magic pointer with -1 with a constant
+USB_AUDIO_IFACE_UNUSED for better readability.
+
+Reported-by: coverity-bot <keescook+coverity-bot@chromium.org>
+Addresses-Coverity-ID: 1475943 ("Error handling issues")
+Addresses-Coverity-ID: 1475944 ("Error handling issues")
+Addresses-Coverity-ID: 1475945 ("Error handling issues")
+Fixes: b1ce7ba619d9 ("ALSA: usb-audio: claim autodetected PCM interfaces all at once")
+Fixes: e5779998bf8b ("ALSA: usb-audio: refactor code")
+Link: https://lore.kernel.org/r/202104051059.FB7F3016@keescook
+Link: https://lore.kernel.org/r/20210406113534.30455-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ sound/usb/card.c     | 14 +++++++-------
+ sound/usb/quirks.c   | 16 ++++++++++++----
+ sound/usb/usbaudio.h |  2 ++
+ 3 files changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index 1eda6fc750c1..d0a9ce7d0635 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -385,8 +385,7 @@ static void fotg210_ep0_queue(struct fotg210_ep *ep,
+diff --git a/sound/usb/card.c b/sound/usb/card.c
+index 721f91f5766d..1a1cb73360a4 100644
+--- a/sound/usb/card.c
++++ b/sound/usb/card.c
+@@ -183,9 +183,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
+ 				ctrlif, interface);
+ 			return -EINVAL;
+ 		}
+-		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
+-
+-		return 0;
++		return usb_driver_claim_interface(&usb_audio_driver, iface,
++						  USB_AUDIO_IFACE_UNUSED);
  	}
- 	if (ep->dir_in) { /* if IN */
- 		fotg210_start_dma(ep, req);
--		if ((req->req.length == req->req.actual) ||
--		    (req->req.actual < ep->ep.maxpacket))
-+		if (req->req.length == req->req.actual)
- 			fotg210_done(ep, req, 0);
- 	} else { /* OUT */
- 		u32 value = ioread32(ep->fotg210->reg + FOTG210_DMISGR0);
+ 
+ 	if ((altsd->bInterfaceClass != USB_CLASS_AUDIO &&
+@@ -205,7 +204,8 @@ static int snd_usb_create_stream(struct snd_usb_audio *chip, int ctrlif, int int
+ 
+ 	if (! snd_usb_parse_audio_interface(chip, interface)) {
+ 		usb_set_interface(dev, interface, 0); /* reset the current interface */
+-		usb_driver_claim_interface(&usb_audio_driver, iface, (void *)-1L);
++		return usb_driver_claim_interface(&usb_audio_driver, iface,
++						  USB_AUDIO_IFACE_UNUSED);
+ 	}
+ 
+ 	return 0;
+@@ -665,7 +665,7 @@ static void usb_audio_disconnect(struct usb_interface *intf)
+ 	struct snd_card *card;
+ 	struct list_head *p;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return;
+ 
+ 	card = chip->card;
+@@ -765,7 +765,7 @@ static int usb_audio_suspend(struct usb_interface *intf, pm_message_t message)
+ 	struct usb_mixer_interface *mixer;
+ 	struct list_head *p;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return 0;
+ 
+ 	if (!chip->num_suspended_intf++) {
+@@ -795,7 +795,7 @@ static int __usb_audio_resume(struct usb_interface *intf, bool reset_resume)
+ 	struct list_head *p;
+ 	int err = 0;
+ 
+-	if (chip == (void *)-1L)
++	if (chip == USB_AUDIO_IFACE_UNUSED)
+ 		return 0;
+ 
+ 	atomic_inc(&chip->active); /* avoid autopm */
+diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
+index 6fc9ad067d82..182c9de4f255 100644
+--- a/sound/usb/quirks.c
++++ b/sound/usb/quirks.c
+@@ -66,8 +66,12 @@ static int create_composite_quirk(struct snd_usb_audio *chip,
+ 		if (!iface)
+ 			continue;
+ 		if (quirk->ifnum != probed_ifnum &&
+-		    !usb_interface_claimed(iface))
+-			usb_driver_claim_interface(driver, iface, (void *)-1L);
++		    !usb_interface_claimed(iface)) {
++			err = usb_driver_claim_interface(driver, iface,
++							 USB_AUDIO_IFACE_UNUSED);
++			if (err < 0)
++				return err;
++		}
+ 	}
+ 
+ 	return 0;
+@@ -398,8 +402,12 @@ static int create_autodetect_quirks(struct snd_usb_audio *chip,
+ 			continue;
+ 
+ 		err = create_autodetect_quirk(chip, iface, driver);
+-		if (err >= 0)
+-			usb_driver_claim_interface(driver, iface, (void *)-1L);
++		if (err >= 0) {
++			err = usb_driver_claim_interface(driver, iface,
++							 USB_AUDIO_IFACE_UNUSED);
++			if (err < 0)
++				return err;
++		}
+ 	}
+ 
+ 	return 0;
+diff --git a/sound/usb/usbaudio.h b/sound/usb/usbaudio.h
+index f4ee83c8e0b2..62456a806bb4 100644
+--- a/sound/usb/usbaudio.h
++++ b/sound/usb/usbaudio.h
+@@ -63,6 +63,8 @@ struct snd_usb_audio {
+ 	struct usb_host_interface *ctrl_intf;	/* the audio control interface */
+ };
+ 
++#define USB_AUDIO_IFACE_UNUSED	((void *)-1L)
++
+ #define usb_audio_err(chip, fmt, args...) \
+ 	dev_err(&(chip)->dev->dev, fmt, ##args)
+ #define usb_audio_warn(chip, fmt, args...) \
 -- 
 2.30.2
 
