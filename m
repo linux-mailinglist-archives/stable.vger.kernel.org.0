@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD51738A352
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:50:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2625D38A353
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234189AbhETJvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:51:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S234608AbhETJvS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:51:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52918 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234303AbhETJtO (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234309AbhETJtO (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 05:49:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 843C061480;
-        Thu, 20 May 2021 09:34:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B49F06147F;
+        Thu, 20 May 2021 09:35:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503299;
-        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
+        s=korg; t=1621503301;
+        bh=2Ibpr1tVezbnyXLqAAOhzFOS/unwy5c0Vjqp9+L7hkY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JVX9c11eUqM2SEzgUm2Cfm5GaXFO/vT2F68XH7WHZaicj1FXKQ+p5myxjOBNNje36
-         /De9rfH10v7TYKq4Efy8xOWUYINpKiyYHqYhIOXl7hsiMhKCpT4okggTf4BCa6NIaa
-         7UZLmVvfdT1nQsioxJ6luqsi2uUzboh258J9WL+c=
+        b=yOVQPse81nWE3XCUzLLqZobOqVMCsmfVOro3bMXGgF8SdKMK64VXu9exSErLNuOXB
+         K3jIWFWrkGIJ5keeC1QbLH4BwpRbOEkOxZ+xLmt6y6ygtBBeedOu36ha5f+WZrCnTa
+         fJg82fmSWLL5fbAQxJorA8k4g2ag0AbUilkM5LjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        David Hildenbrand <david@redhat.com>,
-        Thomas Huth <thuth@redhat.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>
-Subject: [PATCH 4.19 159/425] KVM: s390: split kvm_s390_real_to_abs
-Date:   Thu, 20 May 2021 11:18:48 +0200
-Message-Id: <20210520092136.680792673@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Miklos Szeredi <mszeredi@redhat.com>
+Subject: [PATCH 4.19 160/425] ovl: fix missing revert_creds() on error path
+Date:   Thu, 20 May 2021 11:18:49 +0200
+Message-Id: <20210520092136.717014589@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,71 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudio Imbrenda <imbrenda@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
+commit 7b279bbfd2b230c7a210ff8f405799c7e46bbf48 upstream.
 
-A new function _kvm_s390_real_to_abs will apply prefixing to a real address
-with a given prefix value.
+Smatch complains about missing that the ovl_override_creds() doesn't
+have a matching revert_creds() if the dentry is disconnected.  Fix this
+by moving the ovl_override_creds() until after the disconnected check.
 
-The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
-
-This is needed to avoid code duplication in vSIE.
-
-Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Thomas Huth <thuth@redhat.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
-Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
+Fixes: aa3ff3c152ff ("ovl: copy up of disconnected dentries")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
- 1 file changed, 17 insertions(+), 6 deletions(-)
+ fs/overlayfs/copy_up.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/s390/kvm/gaccess.h
-+++ b/arch/s390/kvm/gaccess.h
-@@ -18,17 +18,14 @@
- 
- /**
-  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-- * @vcpu - guest virtual cpu
-+ * @prefix - guest prefix
-  * @gra - guest real address
-  *
-  * Returns the guest absolute address that corresponds to the passed guest real
-- * address @gra of a virtual guest cpu by applying its prefix.
-+ * address @gra of by applying the given prefix.
-  */
--static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
--						 unsigned long gra)
-+static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+--- a/fs/overlayfs/copy_up.c
++++ b/fs/overlayfs/copy_up.c
+@@ -824,7 +824,7 @@ static int ovl_copy_up_one(struct dentry
+ int ovl_copy_up_flags(struct dentry *dentry, int flags)
  {
--	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
--
- 	if (gra < 2 * PAGE_SIZE)
- 		gra += prefix;
- 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
-@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
- }
+ 	int err = 0;
+-	const struct cred *old_cred = ovl_override_creds(dentry->d_sb);
++	const struct cred *old_cred;
+ 	bool disconnected = (dentry->d_flags & DCACHE_DISCONNECTED);
  
- /**
-+ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
-+ * @vcpu - guest virtual cpu
-+ * @gra - guest real address
-+ *
-+ * Returns the guest absolute address that corresponds to the passed guest real
-+ * address @gra of a virtual guest cpu by applying its prefix.
-+ */
-+static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
-+						 unsigned long gra)
-+{
-+	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
-+}
-+
-+/**
-  * _kvm_s390_logical_to_effective - convert guest logical to effective address
-  * @psw: psw of the guest
-  * @ga: guest logical address
+ 	/*
+@@ -835,6 +835,7 @@ int ovl_copy_up_flags(struct dentry *den
+ 	if (WARN_ON(disconnected && d_is_dir(dentry)))
+ 		return -EIO;
+ 
++	old_cred = ovl_override_creds(dentry->d_sb);
+ 	while (!err) {
+ 		struct dentry *next;
+ 		struct dentry *parent = NULL;
 
 
