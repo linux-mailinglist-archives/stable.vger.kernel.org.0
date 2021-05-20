@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18FD538AA3A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B845238AA3F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239651AbhETLLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:11:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55128 "EHLO mail.kernel.org"
+        id S237857AbhETLLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:11:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240238AbhETLJc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:09:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C7E061935;
-        Thu, 20 May 2021 10:06:38 +0000 (UTC)
+        id S240247AbhETLJd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:09:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB6CB60FF0;
+        Thu, 20 May 2021 10:06:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505199;
-        bh=tdsfINl8WT06Bq7ZxsVz/BBSClxn1h0PBiNLgj8e6j8=;
+        s=korg; t=1621505201;
+        bh=lOswd8yokzUhDq6iGB8LlKGAW5t938NIF0opdt12Too=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/A39bR6krBartEkzdOXSI7gyfCr9QXkpG4niPBtjBEJyXzXmzH/uG+v7UKT33lea
-         wGopJKTgQ4b93yAvk9vcR1ZKLBN4J+15hG5BrOb5JKyFvTtKmacu8N6ymUiyYrHuZt
-         574YLH3j2hzXKIPCkJuxyiSxLypNd/vNziCXo8N8=
+        b=mUyoRZeDWyZZkWfzcDE8ytcEYn9M1eqeyzwEubNDFz1+cBUBueDQ7KcEhaLwUKAHg
+         b5nsR+SBk18pWM0A/8Q9pWrSBtDMkTLMzNS0DtD/M+b+G49YBvDvpLbMAFYsgG5iiF
+         /tkbzpFCNyHiI3sjscwBdXTvUN1J21+l3dYmZEBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Niv <danielniv3@gmail.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        syzbot+a4e309017a5f3a24c7b3@syzkaller.appspotmail.com,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 026/190] media: media/saa7164: fix saa7164_encoder_register() memory leak bugs
-Date:   Thu, 20 May 2021 11:21:30 +0200
-Message-Id: <20210520092103.039746970@linuxfoundation.org>
+Subject: [PATCH 4.4 027/190] media: gspca/sq905.c: fix uninitialized variable
+Date:   Thu, 20 May 2021 11:21:31 +0200
+Message-Id: <20210520092103.071206546@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,85 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Niv <danielniv3@gmail.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit c759b2970c561e3b56aa030deb13db104262adfe ]
+[ Upstream commit eaaea4681984c79d2b2b160387b297477f0c1aab ]
 
-Add a fix for the memory leak bugs that can occur when the
-saa7164_encoder_register() function fails.
-The function allocates memory without explicitly freeing
-it when errors occur.
-Add a better error handling that deallocate the unused buffers before the
-function exits during a fail.
+act_len can be uninitialized if usb_bulk_msg() returns an error.
+Set it to 0 to avoid a KMSAN error.
 
-Signed-off-by: Daniel Niv <danielniv3@gmail.com>
 Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Reported-by: syzbot+a4e309017a5f3a24c7b3@syzkaller.appspotmail.com
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/pci/saa7164/saa7164-encoder.c | 20 +++++++++++---------
- 1 file changed, 11 insertions(+), 9 deletions(-)
+ drivers/media/usb/gspca/sq905.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/pci/saa7164/saa7164-encoder.c b/drivers/media/pci/saa7164/saa7164-encoder.c
-index 1b184c39ba97..966de363c575 100644
---- a/drivers/media/pci/saa7164/saa7164-encoder.c
-+++ b/drivers/media/pci/saa7164/saa7164-encoder.c
-@@ -1031,7 +1031,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
- 		       "(errno = %d), NO PCI configuration\n",
- 			__func__, result);
- 		result = -ENOMEM;
--		goto failed;
-+		goto fail_pci;
- 	}
+diff --git a/drivers/media/usb/gspca/sq905.c b/drivers/media/usb/gspca/sq905.c
+index a7ae0ec9fa91..03322d2b2e82 100644
+--- a/drivers/media/usb/gspca/sq905.c
++++ b/drivers/media/usb/gspca/sq905.c
+@@ -172,7 +172,7 @@ static int
+ sq905_read_data(struct gspca_dev *gspca_dev, u8 *data, int size, int need_lock)
+ {
+ 	int ret;
+-	int act_len;
++	int act_len = 0;
  
- 	/* Establish encoder defaults here */
-@@ -1085,7 +1085,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
- 			  100000, ENCODER_DEF_BITRATE);
- 	if (hdl->error) {
- 		result = hdl->error;
--		goto failed;
-+		goto fail_hdl;
- 	}
- 
- 	port->std = V4L2_STD_NTSC_M;
-@@ -1103,7 +1103,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
- 		printk(KERN_INFO "%s: can't allocate mpeg device\n",
- 			dev->name);
- 		result = -ENOMEM;
--		goto failed;
-+		goto fail_hdl;
- 	}
- 
- 	port->v4l_device->ctrl_handler = hdl;
-@@ -1114,10 +1114,7 @@ int saa7164_encoder_register(struct saa7164_port *port)
- 	if (result < 0) {
- 		printk(KERN_INFO "%s: can't register mpeg device\n",
- 			dev->name);
--		/* TODO: We're going to leak here if we don't dealloc
--		 The buffers above. The unreg function can't deal wit it.
--		*/
--		goto failed;
-+		goto fail_reg;
- 	}
- 
- 	printk(KERN_INFO "%s: registered device video%d [mpeg]\n",
-@@ -1139,9 +1136,14 @@ int saa7164_encoder_register(struct saa7164_port *port)
- 
- 	saa7164_api_set_encoder(port);
- 	saa7164_api_get_encoder(port);
-+	return 0;
- 
--	result = 0;
--failed:
-+fail_reg:
-+	video_device_release(port->v4l_device);
-+	port->v4l_device = NULL;
-+fail_hdl:
-+	v4l2_ctrl_handler_free(hdl);
-+fail_pci:
- 	return result;
- }
- 
+ 	gspca_dev->usb_buf[0] = '\0';
+ 	if (need_lock)
 -- 
 2.30.2
 
