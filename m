@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 27EB838AA35
+	by mail.lfdr.de (Postfix) with ESMTP id CEC1F38AA37
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:10:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239324AbhETLLF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:11:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53584 "EHLO mail.kernel.org"
+        id S239564AbhETLLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237701AbhETLJA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:09:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F062961D36;
-        Thu, 20 May 2021 10:06:31 +0000 (UTC)
+        id S239820AbhETLJF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:09:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E3BA60C41;
+        Thu, 20 May 2021 10:06:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505192;
-        bh=sQFIf3GjQdhh820FKymVWIfyfTPx46OKo/3et9g+dmk=;
+        s=korg; t=1621505194;
+        bh=oda4eqHRVFvsClBa5OXXc3KjLxo1xhYRA+i0CkL0TGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=THDyGSPG3MqrMkPZ4gSCg8ys9khhO4IQ5DYztdHQdiIUxfuRhXNeeOKGvq3GJUQpE
-         c8eRVuI2tIImzzr981IPPy1L76H+1YT884sx5bu9XYBPJauVpgCkDrsYTHuVUjoMwx
-         ukqks7aSaOpYrjModllly9SyMmsyZCAdOV1t5HDc=
+        b=BtbNiTFFdk4ZZNdtiYZynugMLsXxcYAJVGxZlsZe1w9qh7Plrkl/HpKHBxknl64oU
+         5UHca8c5ZLboitwJuWvCpad8sq7NjClVYjx9a+FC/T4sQb9EeEh/ils7Qjk57vjKN5
+         U0CLkisxSPvii/KdEmuHLD+9cXebfQ4J7A/oW9A0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org,
+        Mike Christie <michael.christie@oracle.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 023/190] btrfs: convert logic BUG_ON()s in replace_path to ASSERT()s
-Date:   Thu, 20 May 2021 11:21:27 +0200
-Message-Id: <20210520092102.936808325@linuxfoundation.org>
+Subject: [PATCH 4.4 024/190] scsi: target: pscsi: Fix warning in pscsi_complete_cmd()
+Date:   Thu, 20 May 2021 11:21:28 +0200
+Message-Id: <20210520092102.975931247@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,46 +43,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
 
-[ Upstream commit 7a9213a93546e7eaef90e6e153af6b8fc7553f10 ]
+[ Upstream commit fd48c056a32ed6e7754c7c475490f3bed54ed378 ]
 
-A few BUG_ON()'s in replace_path are purely to keep us from making
-logical mistakes, so replace them with ASSERT()'s.
+This fixes a compilation warning in pscsi_complete_cmd():
 
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+     drivers/target/target_core_pscsi.c: In function ‘pscsi_complete_cmd’:
+     drivers/target/target_core_pscsi.c:624:5: warning: suggest braces around empty body in an ‘if’ statement [-Wempty-body]
+     ; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
+
+Link: https://lore.kernel.org/r/20210228055645.22253-5-chaitanya.kulkarni@wdc.com
+Reviewed-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/relocation.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/target/target_core_pscsi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/relocation.c b/fs/btrfs/relocation.c
-index 5681fc3976ad..628b6a046093 100644
---- a/fs/btrfs/relocation.c
-+++ b/fs/btrfs/relocation.c
-@@ -1785,8 +1785,8 @@ int replace_path(struct btrfs_trans_handle *trans,
- 	int ret;
- 	int slot;
+diff --git a/drivers/target/target_core_pscsi.c b/drivers/target/target_core_pscsi.c
+index d72a4058fd08..0ce3697ecbd7 100644
+--- a/drivers/target/target_core_pscsi.c
++++ b/drivers/target/target_core_pscsi.c
+@@ -629,8 +629,9 @@ static void pscsi_transport_complete(struct se_cmd *cmd, struct scatterlist *sg,
+ 			unsigned char *buf;
  
--	BUG_ON(src->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
--	BUG_ON(dest->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
-+	ASSERT(src->root_key.objectid == BTRFS_TREE_RELOC_OBJECTID);
-+	ASSERT(dest->root_key.objectid != BTRFS_TREE_RELOC_OBJECTID);
+ 			buf = transport_kmap_data_sg(cmd);
+-			if (!buf)
++			if (!buf) {
+ 				; /* XXX: TCM_LOGICAL_UNIT_COMMUNICATION_FAILURE */
++			}
  
- 	last_snapshot = btrfs_root_last_snapshot(&src->root_item);
- again:
-@@ -1818,7 +1818,7 @@ again:
- 	parent = eb;
- 	while (1) {
- 		level = btrfs_header_level(parent);
--		BUG_ON(level < lowest_level);
-+		ASSERT(level >= lowest_level);
- 
- 		ret = btrfs_bin_search(parent, &key, level, &slot);
- 		if (ret && slot > 0)
+ 			if (cdb[0] == MODE_SENSE_10) {
+ 				if (!(buf[3] & 0x80))
 -- 
 2.30.2
 
