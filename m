@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57C9A38A959
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F29B738A7A9
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234087AbhETLBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S237481AbhETKlP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39830 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239326AbhETK7E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:59:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 330966191A;
-        Thu, 20 May 2021 10:02:47 +0000 (UTC)
+        id S238165AbhETKjf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:39:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5119C61C7B;
+        Thu, 20 May 2021 09:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504967;
-        bh=G0Gvg+le5AfDeG8v6ulBFkYfFEl0CA1am35Sooq3Q64=;
+        s=korg; t=1621504514;
+        bh=GkZH2jLkvJLUIT5boZSGask8fzSznjyBbbhHLFjVEbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4Rvtqx3VgjXTyK8NySYgzLXpAyN2HynyDPgT1a/2W/bksVg/v/lK6agQYLDyKhIZ
-         chA2K4GkvReCIltBVY83hxECOr8vakjzP24KWL5Y9lqMTUsIoAayEjG/zIUqfX/9M2
-         Xzt+XbweEQQa0BaRmD1MhXHQ4SAP+W3eFqSRFFyk=
+        b=K15Or7o6zW57ubtasBMXAusaPtKyjDmuQasU3BfetG0GhfyjL/FKWd/UGQCHOz9re
+         SAiHLtgKSxXguGueiu5f9SpEEbCIRI0vwDmO5ZazWHEmvkvsLuStitryZjFm77yMU6
+         PP0FCK/1QYJc4PKLM8ngI4SYb4x3haWZ+xlGMy0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 145/240] powerpc/perf: Fix PMU constraint check for EBB events
-Date:   Thu, 20 May 2021 11:22:17 +0200
-Message-Id: <20210520092113.521325730@linuxfoundation.org>
+Subject: [PATCH 4.14 246/323] cuse: prevent clone
+Date:   Thu, 20 May 2021 11:22:18 +0200
+Message-Id: <20210520092128.624626819@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 10f8f96179ecc7f69c927f6d231f6d02736cea83 ]
+[ Upstream commit 8217673d07256b22881127bf50dce874d0e51653 ]
 
-The power PMU group constraints includes check for EBB events to make
-sure all events in a group must agree on EBB. This will prevent
-scheduling EBB and non-EBB events together. But in the existing check,
-settings for constraint mask and value is interchanged. Patch fixes the
-same.
+For cloned connections cuse_channel_release() will be called more than
+once, resulting in use after free.
 
-Before the patch, PMU selftest "cpu_event_pinned_vs_ebb_test" fails with
-below in dmesg logs. This happens because EBB event gets enabled along
-with a non-EBB cpu event.
+Prevent device cloning for CUSE, which does not make sense at this point,
+and highly unlikely to be used in real life.
 
-  [35600.453346] cpu_event_pinne[41326]: illegal instruction (4)
-  at 10004a18 nip 10004a18 lr 100049f8 code 1 in
-  cpu_event_pinned_vs_ebb_test[10000000+10000]
-
-Test results after the patch:
-
-  $ ./pmu/ebb/cpu_event_pinned_vs_ebb_test
-  test: cpu_event_pinned_vs_ebb
-  tags: git_version:v5.12-rc5-93-gf28c3125acd3-dirty
-  Binding to cpu 8
-  EBB Handler is at 0x100050c8
-  read error on event 0x7fffe6bd4040!
-  PM_RUN_INST_CMPL: result 9872 running/enabled 37930432
-  success: cpu_event_pinned_vs_ebb
-
-This bug was hidden by other logic until commit 1908dc911792 (perf:
-Tweak perf_event_attr::exclusive semantics).
-
-Fixes: 4df489991182 ("powerpc/perf: Add power8 EBB support")
-Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Mention commit 1908dc911792]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1617725761-1464-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/fuse/cuse.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index 7592a6491a9a..2d3557406424 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -139,8 +139,8 @@ ebb_bhrb:
- 	 * EBB events are pinned & exclusive, so this should never actually
- 	 * hit, but we leave it as a fallback in case.
- 	 */
--	mask  |= CNST_EBB_VAL(ebb);
--	value |= CNST_EBB_MASK;
-+	mask  |= CNST_EBB_MASK;
-+	value |= CNST_EBB_VAL(ebb);
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index 55db06c7c587..b15eaa9e6cd7 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -616,6 +616,8 @@ static int __init cuse_init(void)
+ 	cuse_channel_fops.owner		= THIS_MODULE;
+ 	cuse_channel_fops.open		= cuse_channel_open;
+ 	cuse_channel_fops.release	= cuse_channel_release;
++	/* CUSE is not prepared for FUSE_DEV_IOC_CLONE */
++	cuse_channel_fops.unlocked_ioctl	= NULL;
  
- 	*maskp = mask;
- 	*valp = value;
+ 	cuse_class = class_create(THIS_MODULE, "cuse");
+ 	if (IS_ERR(cuse_class))
 -- 
 2.30.2
 
