@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EBE538AF5E
+	by mail.lfdr.de (Postfix) with ESMTP id BCB4038AF5F
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 14:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241395AbhETNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S242038AbhETNAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 09:00:09 -0400
-Received: from youngberry.canonical.com ([91.189.89.112]:37054 "EHLO
+Received: from youngberry.canonical.com ([91.189.89.112]:37064 "EHLO
         youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S243069AbhETM57 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:57:59 -0400
-Received: from mail-qk1-f199.google.com ([209.85.222.199])
+        with ESMTP id S243107AbhETM6B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 08:58:01 -0400
+Received: from mail-qt1-f199.google.com ([209.85.160.199])
         by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
         (Exim 4.93)
         (envelope-from <krzysztof.kozlowski@canonical.com>)
-        id 1ljiE7-0005QB-LR
-        for stable@vger.kernel.org; Thu, 20 May 2021 12:56:35 +0000
-Received: by mail-qk1-f199.google.com with SMTP id e8-20020a05620a2088b02903a5edeec4d6so2091843qka.11
-        for <stable@vger.kernel.org>; Thu, 20 May 2021 05:56:35 -0700 (PDT)
+        id 1ljiEA-0005R2-Fn
+        for stable@vger.kernel.org; Thu, 20 May 2021 12:56:38 +0000
+Received: by mail-qt1-f199.google.com with SMTP id b19-20020ac84f130000b02901d543c52248so12224464qte.1
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 05:56:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=GTsCI7Ul4nDoQha4vSzhm2s0jP3aZ/M4QD8W/QCV/+0=;
-        b=JdHXNRaZ+VB523BsWlciwtn9yZjzlkz7etdkz5z543V+dyzhUdknlOPX7+qnhs5QN/
-         y6bcPfk2z0l/sntWsTg8pEldq/72TOB73/oW3k0zz+B6Qh7O5KMK/jZ9rpRtYCsUYp/z
-         Ja3iV7PVVVj0UCZ1q4TkYIXbqVbCZ6QfDXCjRpnoXby23Yjo6YgLfakFdRtahZhdixfD
-         4Eb4AyOMcb1CHIb3bJsid+qHTX//SfajfA8fYPnDheZUmQeAFGyJ7xltz0dxhu+BzZlM
-         cGTlk84vVNyFWTBZuJjbmRBT5psT2FuwUOOj+hOz2+HOzB/rGDKVja8TMvG943d+u5T0
-         C4ag==
-X-Gm-Message-State: AOAM530SW2xvIYUJEGcwZnj1RuH1jfa/NxIl8lm3D485IMTkbKHkW0FP
-        KvfH9J2hDanARYyOR0F+QPyYWz/mHXYqQwoJPuiPMkahFUXBVm2iiJO09ASkXuW2z+neY35N2bE
-        efrDXOAwi/VnHwwOHxxUpYdWsrl+PJgc8kA==
-X-Received: by 2002:a37:4697:: with SMTP id t145mr4889840qka.188.1621515394427;
-        Thu, 20 May 2021 05:56:34 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJzVA/A4t3ep/bU/SXqDGZuuLc1tdq3g7fGuJjWd5nWI06K1ldK6khe556QlVnqNuNVK+VNUrA==
-X-Received: by 2002:a37:4697:: with SMTP id t145mr4889807qka.188.1621515394226;
-        Thu, 20 May 2021 05:56:34 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=/kEoSYvTEjD0iUfvRsRgx66EC2X7g8N60VyX04WfcGw=;
+        b=ETgHUUCfWuNYdK4qtcKhlMSj3jq1T/6Ot4Pu4TKyGorkWJAsrghc00ADsP6lfgIxPJ
+         f0kadZcep12EpfreB/aAV7THQYr2mEZjvJpQ2hfS4wS4OofVyfUt4FLE8WrUGY+0NjKV
+         NadQh+Xpo3bwiaPOFRHhJy4IsZx7GYHlnn0ZC5lFbiL57GRMpFfEKTEqY+GGGanBj7oI
+         fcMKIpSawJKrJr2F2E7+6cTCqHXh/ObZFWMYJBbqcZ5u1MkCc+Inv3whSk3PrvRLsF3s
+         /fO3TCN7TsF2HRxbhLZHpROwV4NAoSSSXK2IQ5DLfTWaydZDFjjOxwKK83QiVwczb3gW
+         QUJQ==
+X-Gm-Message-State: AOAM532zcDy8O5+3Zvq4cwu+aVO6BNQSHCNKeul7IzFWAPalDGGPDDzB
+        6A/xyL5g9YQuoVS20Lo45IxjAwztRXCZHGa54ouXdsEI59OyFhTw+TY3coWqOlbFt/TFJv62BrH
+        KObYyTuWExJAWnLDMm7Nyc79IbQjmCSkMgg==
+X-Received: by 2002:a37:ef11:: with SMTP id j17mr3488748qkk.234.1621515397133;
+        Thu, 20 May 2021 05:56:37 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwEiXH6P8bE1nzgR5rYzXvnrvuIULpHjI+O+t+FJYaHyHC3Ojm8/Oua5Gn0lMv6nsTQSrypwg==
+X-Received: by 2002:a37:ef11:: with SMTP id j17mr3488724qkk.234.1621515396970;
+        Thu, 20 May 2021 05:56:36 -0700 (PDT)
 Received: from localhost.localdomain ([45.237.48.3])
-        by smtp.gmail.com with ESMTPSA id g185sm1931471qkf.62.2021.05.20.05.56.32
+        by smtp.gmail.com with ESMTPSA id g185sm1931471qkf.62.2021.05.20.05.56.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 May 2021 05:56:33 -0700 (PDT)
+        Thu, 20 May 2021 05:56:36 -0700 (PDT)
 From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 To:     stable@vger.kernel.org, x86@kernel.org, kvm@vger.kernel.org,
         linux-kernel@vger.kernel.org
@@ -49,10 +49,12 @@ Cc:     Vitaly Kuznetsov <vkuznets@redhat.com>,
         Paolo Bonzini <pbonzini@redhat.com>,
         Andrea Righi <andrea.righi@canonical.com>,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Subject: [PATCH stable v5.4+ 1/3] x86/kvm: Teardown PV features on boot CPU as well
-Date:   Thu, 20 May 2021 08:56:23 -0400
-Message-Id: <20210520125625.12566-1-krzysztof.kozlowski@canonical.com>
+Subject: [PATCH stable v5.4+ 2/3] x86/kvm: Disable kvmclock on all CPUs on shutdown
+Date:   Thu, 20 May 2021 08:56:24 -0400
+Message-Id: <20210520125625.12566-2-krzysztof.kozlowski@canonical.com>
 X-Mailer: git-send-email 2.27.0
+In-Reply-To: <20210520125625.12566-1-krzysztof.kozlowski@canonical.com>
+References: <20210520125625.12566-1-krzysztof.kozlowski@canonical.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -61,113 +63,87 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
+commit c02027b5742b5aa804ef08a4a9db433295533046 upstream.
 
-Various PV features (Async PF, PV EOI, steal time) work through memory
-shared with hypervisor and when we restore from hibernation we must
-properly teardown all these features to make sure hypervisor doesn't
-write to stale locations after we jump to the previously hibernated kernel
-(which can try to place anything there). For secondary CPUs the job is
-already done by kvm_cpu_down_prepare(), register syscore ops to do
-the same for boot CPU.
+Currenly, we disable kvmclock from machine_shutdown() hook and this
+only happens for boot CPU. We need to disable it for all CPUs to
+guard against memory corruption e.g. on restore from hibernate.
 
-Krzysztof:
-This fixes memory corruption visible after second resume from
-hibernation:
-
-  BUG: Bad page state in process dbus-daemon  pfn:18b01
-  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
-  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
-  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
-  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
-  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
-  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+Note, writing '0' to kvmclock MSR doesn't clear memory location, it
+just prevents hypervisor from updating the location so for the short
+while after write and while CPU is still alive, the clock remains usable
+and correct so we don't need to switch to some other clocksource.
 
 Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
-Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-4-vkuznets@redhat.com>
 Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
-[krzysztof: Extend the commit message]
 Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 ---
+ arch/x86/include/asm/kvm_para.h | 4 ++--
+ arch/x86/kernel/kvm.c           | 1 +
+ arch/x86/kernel/kvmclock.c      | 5 +----
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
-Backport to v5.4 seems reasonable. Might have sense to earlier versions,
-but this was not tested/investigated.
-
- arch/x86/kernel/kvm.c | 32 ++++++++++++++++++++++++++++----
- 1 file changed, 28 insertions(+), 4 deletions(-)
-
+diff --git a/arch/x86/include/asm/kvm_para.h b/arch/x86/include/asm/kvm_para.h
+index 9b4df6eaa11a..a617fd360023 100644
+--- a/arch/x86/include/asm/kvm_para.h
++++ b/arch/x86/include/asm/kvm_para.h
+@@ -6,8 +6,6 @@
+ #include <asm/alternative.h>
+ #include <uapi/asm/kvm_para.h>
+ 
+-extern void kvmclock_init(void);
+-
+ #ifdef CONFIG_KVM_GUEST
+ bool kvm_check_and_clear_guest_paused(void);
+ #else
+@@ -85,6 +83,8 @@ static inline long kvm_hypercall4(unsigned int nr, unsigned long p1,
+ }
+ 
+ #ifdef CONFIG_KVM_GUEST
++void kvmclock_init(void);
++void kvmclock_disable(void);
+ bool kvm_para_available(void);
+ unsigned int kvm_arch_para_features(void);
+ unsigned int kvm_arch_para_hints(void);
 diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index e820568ed4d5..6b906a651fb1 100644
+index 6b906a651fb1..f535ba7714f8 100644
 --- a/arch/x86/kernel/kvm.c
 +++ b/arch/x86/kernel/kvm.c
-@@ -24,6 +24,7 @@
- #include <linux/debugfs.h>
- #include <linux/nmi.h>
- #include <linux/swait.h>
-+#include <linux/syscore_ops.h>
- #include <asm/timer.h>
- #include <asm/cpu.h>
- #include <asm/traps.h>
-@@ -558,17 +559,21 @@ static void kvm_guest_cpu_offline(void)
+@@ -555,6 +555,7 @@ static void kvm_guest_cpu_offline(void)
+ 		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+ 	kvm_pv_disable_apf();
+ 	apf_task_wake_all();
++	kvmclock_disable();
+ }
  
  static int kvm_cpu_online(unsigned int cpu)
- {
--	local_irq_disable();
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
- 	kvm_guest_cpu_init();
--	local_irq_enable();
-+	local_irq_restore(flags);
- 	return 0;
- }
- 
- static int kvm_cpu_down_prepare(unsigned int cpu)
- {
--	local_irq_disable();
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
- 	kvm_guest_cpu_offline();
--	local_irq_enable();
-+	local_irq_restore(flags);
- 	return 0;
+diff --git a/arch/x86/kernel/kvmclock.c b/arch/x86/kernel/kvmclock.c
+index 904494b924c1..bd3962953f78 100644
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -214,11 +214,9 @@ static void kvm_crash_shutdown(struct pt_regs *regs)
  }
  #endif
-@@ -606,6 +611,23 @@ static void kvm_flush_tlb_others(const struct cpumask *cpumask,
- 	native_flush_tlb_others(flushmask, info);
+ 
+-static void kvm_shutdown(void)
++void kvmclock_disable(void)
+ {
+ 	native_write_msr(msr_kvm_system_time, 0, 0);
+-	kvm_disable_steal_time();
+-	native_machine_shutdown();
  }
  
-+static int kvm_suspend(void)
-+{
-+	kvm_guest_cpu_offline();
-+
-+	return 0;
-+}
-+
-+static void kvm_resume(void)
-+{
-+	kvm_cpu_online(raw_smp_processor_id());
-+}
-+
-+static struct syscore_ops kvm_syscore_ops = {
-+	.suspend	= kvm_suspend,
-+	.resume		= kvm_resume,
-+};
-+
- static void __init kvm_guest_init(void)
- {
- 	int i;
-@@ -649,6 +671,8 @@ static void __init kvm_guest_init(void)
- 	kvm_guest_cpu_init();
+ static void __init kvmclock_init_mem(void)
+@@ -346,7 +344,6 @@ void __init kvmclock_init(void)
  #endif
- 
-+	register_syscore_ops(&kvm_syscore_ops);
-+
- 	/*
- 	 * Hard lockup detection is enabled by default. Disable it, as guests
- 	 * can get false positives too easily, for example if the host is
+ 	x86_platform.save_sched_clock_state = kvm_save_sched_clock_state;
+ 	x86_platform.restore_sched_clock_state = kvm_restore_sched_clock_state;
+-	machine_ops.shutdown  = kvm_shutdown;
+ #ifdef CONFIG_KEXEC_CORE
+ 	machine_ops.crash_shutdown  = kvm_crash_shutdown;
+ #endif
 -- 
 2.27.0
 
