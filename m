@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E1D938A7F0
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:45:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E037738A7FD
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:45:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236563AbhETKpE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:45:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42382 "EHLO mail.kernel.org"
+        id S237636AbhETKpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:45:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237627AbhETKmS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:42:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3503861C8F;
-        Thu, 20 May 2021 09:56:20 +0000 (UTC)
+        id S237227AbhETKmn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:42:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61BF861C93;
+        Thu, 20 May 2021 09:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504580;
-        bh=1v/fpX5itMTgskpq10ESQ6Qgjin0r7MipspUBob+ipM=;
+        s=korg; t=1621504582;
+        bh=84ey2UjrGv61T0itePr91cHQ3aTRkpF+WMV1VJ404U4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KixcwfqxLkt6Him+/00qkPILt2hEMqbZIJeeeCRD43jDwMANiTWedqPUmMyt5zWnY
-         IGVNKsXgzkfAcsZYeMKenZdFxqOrng40qLi33M93LsjWZR8bKBxi/x5rGjRSyuYHna
-         XWxdQ3tA55jdBR4432UuOlXNTgLfsyvAkZ0Phe5c=
+        b=uiwv9SctZh2jHZj9uqjIE8VVObmOf4+R8+1h4wpmrrREAmRD7dGc2mQOtVd3sQ8mp
+         niSSN4C9ZNvw8lmRiEncFrkSZz1oRkiH+qD3JhsBWCGOKVhC4YRj1b8suMl69r4uDj
+         4AW2IRKkiUW+gN2D1+22lL388fGNX5SYDqADLEK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "louis.wang" <liang26812@gmail.com>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Feilong Lin <linfeilong@huawei.com>,
+        Zhiqiang Liu <liuzhiqiang26@huawei.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 309/323] ARM: 9066/1: ftrace: pause/unpause function graph tracer in cpu_suspend()
-Date:   Thu, 20 May 2021 11:23:21 +0200
-Message-Id: <20210520092130.822065788@linuxfoundation.org>
+Subject: [PATCH 4.14 310/323] ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
+Date:   Thu, 20 May 2021 11:23:22 +0200
+Message-Id: <20210520092130.857967546@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,84 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: louis.wang <liang26812@gmail.com>
+From: Feilong Lin <linfeilong@huawei.com>
 
-[ Upstream commit 8252ca87c7a2111502ee13994956f8c309faad7f ]
+[ Upstream commit 3bbfd319034ddce59e023837a4aa11439460509b ]
 
-Enabling function_graph tracer on ARM causes kernel panic, because the
-function graph tracer updates the "return address" of a function in order
-to insert a trace callback on function exit, it saves the function's
-original return address in a return trace stack, but cpu_suspend() may not
-return through the normal return path.
+In enable_slot(), if pci_get_slot() returns NULL, we clear the SLOT_ENABLED
+flag. When pci_get_slot() finds a device, it increments the device's
+reference count.  In this case, we did not call pci_dev_put() to decrement
+the reference count, so the memory of the device (struct pci_dev type) will
+eventually leak.
 
-cpu_suspend() will resume directly via the cpu_resume path, but the return
-trace stack has been set-up by the subfunctions of cpu_suspend(), which
-makes the "return address" inconsistent with cpu_suspend().
+Call pci_dev_put() to decrement its reference count when pci_get_slot()
+returns a PCI device.
 
-This patch refers to Commit de818bd4522c40ea02a81b387d2fa86f989c9623
-("arm64: kernel: pause/unpause function graph tracer in cpu_suspend()"),
-
-fixes the issue by pausing/resuming the function graph tracer on the thread
-executing cpu_suspend(), so that the function graph tracer state is kept
-consistent across functions that enter power down states and never return
-by effectively disabling graph tracer while they are executing.
-
-Signed-off-by: louis.wang <liang26812@gmail.com>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Link: https://lore.kernel.org/r/b411af88-5049-a1c6-83ac-d104a1f429be@huawei.com
+Signed-off-by: Feilong Lin <linfeilong@huawei.com>
+Signed-off-by: Zhiqiang Liu <liuzhiqiang26@huawei.com>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/suspend.c | 19 ++++++++++++++++++-
- 1 file changed, 18 insertions(+), 1 deletion(-)
+ drivers/pci/hotplug/acpiphp_glue.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/kernel/suspend.c b/arch/arm/kernel/suspend.c
-index d08099269e35..e126386fb78a 100644
---- a/arch/arm/kernel/suspend.c
-+++ b/arch/arm/kernel/suspend.c
-@@ -1,4 +1,5 @@
- // SPDX-License-Identifier: GPL-2.0
-+#include <linux/ftrace.h>
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/mm_types.h>
-@@ -26,6 +27,13 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
- 	if (!idmap_pgd)
- 		return -EINVAL;
- 
-+	/*
-+	 * Function graph tracer state gets incosistent when the kernel
-+	 * calls functions that never return (aka suspend finishers) hence
-+	 * disable graph tracing during their execution.
-+	 */
-+	pause_graph_tracing();
-+
- 	/*
- 	 * Provide a temporary page table with an identity mapping for
- 	 * the MMU-enable code, required for resuming.  On successful
-@@ -33,6 +41,9 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
- 	 * back to the correct page tables.
- 	 */
- 	ret = __cpu_suspend(arg, fn, __mpidr);
-+
-+	unpause_graph_tracing();
-+
- 	if (ret == 0) {
- 		cpu_switch_mm(mm->pgd, mm);
- 		local_flush_bp_all();
-@@ -46,7 +57,13 @@ int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
- int cpu_suspend(unsigned long arg, int (*fn)(unsigned long))
- {
- 	u32 __mpidr = cpu_logical_map(smp_processor_id());
--	return __cpu_suspend(arg, fn, __mpidr);
-+	int ret;
-+
-+	pause_graph_tracing();
-+	ret = __cpu_suspend(arg, fn, __mpidr);
-+	unpause_graph_tracing();
-+
-+	return ret;
+diff --git a/drivers/pci/hotplug/acpiphp_glue.c b/drivers/pci/hotplug/acpiphp_glue.c
+index f2c1008e0f76..40e936e3a480 100644
+--- a/drivers/pci/hotplug/acpiphp_glue.c
++++ b/drivers/pci/hotplug/acpiphp_glue.c
+@@ -509,6 +509,7 @@ static void enable_slot(struct acpiphp_slot *slot)
+ 			slot->flags &= (~SLOT_ENABLED);
+ 			continue;
+ 		}
++		pci_dev_put(dev);
+ 	}
  }
- #define	idmap_pgd	NULL
- #endif
+ 
 -- 
 2.30.2
 
