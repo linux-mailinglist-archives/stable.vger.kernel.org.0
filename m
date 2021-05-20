@@ -2,32 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56FCA38A40F
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA05638A40D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234080AbhETKA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232939AbhETKA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 06:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58388 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234064AbhETJ6h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:58:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D93A361624;
-        Thu, 20 May 2021 09:38:19 +0000 (UTC)
+        id S234796AbhETJ6k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:58:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBF586162B;
+        Thu, 20 May 2021 09:38:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503500;
-        bh=LlH/zZWXpUXJ45m+bc0gbMVRlqasiH2lPlss/uNzaF8=;
+        s=korg; t=1621503502;
+        bh=+dR417BbqYZAraeubI92vhWNwp4S7HDTUA298DmE2MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zbRHxp0RTUsyeUaygEzXBdOzJ3V8ComxDvgC3F+umeD4ekoP6I1fDrdU0pUmIALKT
-         gIAb7mNyTYHj8fbggb+sXqT/RHvQaMi/AeRghXe3Iry3hj6aAp0b7Y563kk3XWW+RJ
-         Rn8AJ0mXTtuwCDYTglMUenIWDRo1znt+m3DOy82U=
+        b=nKENSJrwAcP0tMop7FkQ9kkAGqJO25sSX3DelpYxfjhU3YCcOScioYfq/XZaJbpVj
+         dghUqGHtRdMbZ1/7vytuFsKab1Wcf0xtaYhdRz/aR4tVPNRyL80H1moKMIsvJ3t8O7
+         5LpQlE9YoZZ4pyaAVaGmKdIp5qgAgEXRhv7ujtyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 248/425] HID: plantronics: Workaround for double volume key presses
-Date:   Thu, 20 May 2021 11:20:17 +0200
-Message-Id: <20210520092139.570167528@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 249/425] perf symbols: Fix dso__fprintf_symbols_by_name() to return the number of printed chars
+Date:   Thu, 20 May 2021 11:20:18 +0200
+Message-Id: <20210520092139.600684140@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -39,179 +46,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: Arnaldo Carvalho de Melo <acme@redhat.com>
 
-[ Upstream commit f567d6ef8606fb427636e824c867229ecb5aefab ]
+[ Upstream commit 210e4c89ef61432040c6cd828fefa441f4887186 ]
 
-Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
-for each volume key press. This patch adds a quirk to hid-plantronics
-for this product ID, which will ignore the second volume key press if
-it happens within 5 ms from the last one that was handled.
+The 'ret' variable was initialized to zero but then it was not updated
+from the fprintf() return, fix it.
 
-The patch was tested on the mentioned model only, it shouldn't affect
-other models, however, this quirk might be needed for them too.
-Auto-repeat (when a key is held pressed) is not affected, because the
-rate is about 3 times per second, which is far less frequent than once
-in 5 ms.
-
-Fixes: 81bb773faed7 ("HID: plantronics: Update to map volume up/down controls")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Reported-by: Yang Li <yang.lee@linux.alibaba.com>
+cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+cc: Ingo Molnar <mingo@redhat.com>
+cc: Jiri Olsa <jolsa@redhat.com>
+cc: Mark Rutland <mark.rutland@arm.com>
+cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Fixes: 90f18e63fbd00513 ("perf symbols: List symbols in a dso in ascending name order")
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h         |  1 +
- drivers/hid/hid-plantronics.c | 60 +++++++++++++++++++++++++++++++++--
- include/linux/hid.h           |  2 ++
- 3 files changed, 61 insertions(+), 2 deletions(-)
+ tools/perf/util/symbol_fprintf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 68908dac5835..75342f3dfb86 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -904,6 +904,7 @@
- #define USB_DEVICE_ID_ORTEK_IHOME_IMAC_A210S	0x8003
+diff --git a/tools/perf/util/symbol_fprintf.c b/tools/perf/util/symbol_fprintf.c
+index ed0205cc7942..1fd175bb4600 100644
+--- a/tools/perf/util/symbol_fprintf.c
++++ b/tools/perf/util/symbol_fprintf.c
+@@ -66,7 +66,7 @@ size_t dso__fprintf_symbols_by_name(struct dso *dso,
  
- #define USB_VENDOR_ID_PLANTRONICS	0x047f
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
- 
- #define USB_VENDOR_ID_PANASONIC		0x04da
- #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-index 584b10d3fc3d..460711c1124a 100644
---- a/drivers/hid/hid-plantronics.c
-+++ b/drivers/hid/hid-plantronics.c
-@@ -16,6 +16,7 @@
- 
- #include <linux/hid.h>
- #include <linux/module.h>
-+#include <linux/jiffies.h>
- 
- #define PLT_HID_1_0_PAGE	0xffa00000
- #define PLT_HID_2_0_PAGE	0xffa20000
-@@ -39,6 +40,16 @@
- #define PLT_ALLOW_CONSUMER (field->application == HID_CP_CONSUMERCONTROL && \
- 			    (usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER)
- 
-+#define PLT_QUIRK_DOUBLE_VOLUME_KEYS BIT(0)
-+
-+#define PLT_DOUBLE_KEY_TIMEOUT 5 /* ms */
-+
-+struct plt_drv_data {
-+	unsigned long device_type;
-+	unsigned long last_volume_key_ts;
-+	u32 quirks;
-+};
-+
- static int plantronics_input_mapping(struct hid_device *hdev,
- 				     struct hid_input *hi,
- 				     struct hid_field *field,
-@@ -46,7 +57,8 @@ static int plantronics_input_mapping(struct hid_device *hdev,
- 				     unsigned long **bit, int *max)
- {
- 	unsigned short mapped_key;
--	unsigned long plt_type = (unsigned long)hid_get_drvdata(hdev);
-+	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
-+	unsigned long plt_type = drv_data->device_type;
- 
- 	/* special case for PTT products */
- 	if (field->application == HID_GD_JOYSTICK)
-@@ -108,6 +120,30 @@ mapped:
- 	return 1;
- }
- 
-+static int plantronics_event(struct hid_device *hdev, struct hid_field *field,
-+			     struct hid_usage *usage, __s32 value)
-+{
-+	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
-+
-+	if (drv_data->quirks & PLT_QUIRK_DOUBLE_VOLUME_KEYS) {
-+		unsigned long prev_ts, cur_ts;
-+
-+		/* Usages are filtered in plantronics_usages. */
-+
-+		if (!value) /* Handle key presses only. */
-+			return 0;
-+
-+		prev_ts = drv_data->last_volume_key_ts;
-+		cur_ts = jiffies;
-+		if (jiffies_to_msecs(cur_ts - prev_ts) <= PLT_DOUBLE_KEY_TIMEOUT)
-+			return 1; /* Ignore the repeated key. */
-+
-+		drv_data->last_volume_key_ts = cur_ts;
-+	}
-+
-+	return 0;
-+}
-+
- static unsigned long plantronics_device_type(struct hid_device *hdev)
- {
- 	unsigned i, col_page;
-@@ -136,15 +172,24 @@ exit:
- static int plantronics_probe(struct hid_device *hdev,
- 			     const struct hid_device_id *id)
- {
-+	struct plt_drv_data *drv_data;
- 	int ret;
- 
-+	drv_data = devm_kzalloc(&hdev->dev, sizeof(*drv_data), GFP_KERNEL);
-+	if (!drv_data)
-+		return -ENOMEM;
-+
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "parse failed\n");
- 		goto err;
+ 	for (nd = rb_first(&dso->symbol_names); nd; nd = rb_next(nd)) {
+ 		pos = rb_entry(nd, struct symbol_name_rb_node, rb_node);
+-		fprintf(fp, "%s\n", pos->sym.name);
++		ret += fprintf(fp, "%s\n", pos->sym.name);
  	}
  
--	hid_set_drvdata(hdev, (void *)plantronics_device_type(hdev));
-+	drv_data->device_type = plantronics_device_type(hdev);
-+	drv_data->quirks = id->driver_data;
-+	drv_data->last_volume_key_ts = jiffies - msecs_to_jiffies(PLT_DOUBLE_KEY_TIMEOUT);
-+
-+	hid_set_drvdata(hdev, drv_data);
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT |
- 		HID_CONNECT_HIDINPUT_FORCE | HID_CONNECT_HIDDEV_FORCE);
-@@ -156,15 +201,26 @@ err:
- }
- 
- static const struct hid_device_id plantronics_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, plantronics_devices);
- 
-+static const struct hid_usage_id plantronics_usages[] = {
-+	{ HID_CP_VOLUMEUP, EV_KEY, HID_ANY_ID },
-+	{ HID_CP_VOLUMEDOWN, EV_KEY, HID_ANY_ID },
-+	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
-+};
-+
- static struct hid_driver plantronics_driver = {
- 	.name = "plantronics",
- 	.id_table = plantronics_devices,
-+	.usage_table = plantronics_usages,
- 	.input_mapping = plantronics_input_mapping,
-+	.event = plantronics_event,
- 	.probe = plantronics_probe,
- };
- module_hid_driver(plantronics_driver);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index a46b6832b373..4dcce83ca378 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -270,6 +270,8 @@ struct hid_item {
- #define HID_CP_SELECTION	0x000c0080
- #define HID_CP_MEDIASELECTION	0x000c0087
- #define HID_CP_SELECTDISC	0x000c00ba
-+#define HID_CP_VOLUMEUP		0x000c00e9
-+#define HID_CP_VOLUMEDOWN	0x000c00ea
- #define HID_CP_PLAYBACKSPEED	0x000c00f1
- #define HID_CP_PROXIMITY	0x000c0109
- #define HID_CP_SPEAKERSYSTEM	0x000c0160
+ 	return ret;
 -- 
 2.30.2
 
