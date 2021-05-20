@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1509E38A278
+	by mail.lfdr.de (Postfix) with ESMTP id 5DFA938A279
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:41:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232191AbhETJmJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:42:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41218 "EHLO mail.kernel.org"
+        id S232558AbhETJmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232915AbhETJkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232919AbhETJkQ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 05:40:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB5C36142A;
-        Thu, 20 May 2021 09:31:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EFDA360FDB;
+        Thu, 20 May 2021 09:31:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503091;
-        bh=rsMu6y5D+b5JETNkKwdumLVnzmYpdfFAAJ+6RY3kY+A=;
+        s=korg; t=1621503093;
+        bh=evni02BbwAdeZIzay0TcfA75MDlrzK9isldoS+5pYSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eLnYfxBeVt7Yztnq5eC3vXyjw6sXE+1vyqgiTvGM1j9h5FnwZdBpC/x2GdHYuXg8f
-         Aj6ffoeQMZXMi0szDBKmgpFiJYEUtNwHkaZ5vEGBHNTUcPaGiN7AHuIw3vW+lI2eRk
-         2Ui3JqZiXtuqgjkqyFgaObD3c1vf6TUt6bR8aNEo=
+        b=fl8+RJfIE8JpNfoaGQ/X893X8dZ7gCF+ZUjk1CJiAdPohcMLOU5rocdqTu5/PWLRO
+         s0o1PIvyYY4NmI5QYZgJIihKRakCETSNFcliseB5kUUTvTuXnoG8GF6TsAbcKZecVP
+         w2yfTRkF2xaw5tAqOUaUqhHrhz/fIpeOAUfC5G68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,9 +28,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hans Verkuil <hverkuil-cisco@xs4all.nl>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 063/425] media: i2c: adv7511-v4l2: fix possible use-after-free in adv7511_remove()
-Date:   Thu, 20 May 2021 11:17:12 +0200
-Message-Id: <20210520092133.518909001@linuxfoundation.org>
+Subject: [PATCH 4.19 064/425] media: i2c: adv7842: fix possible use-after-free in adv7842_remove()
+Date:   Thu, 20 May 2021 11:17:13 +0200
+Message-Id: <20210520092133.551140389@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -44,7 +44,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 2c9541720c66899adf6f3600984cf3ef151295ad ]
+[ Upstream commit 4a15275b6a18597079f18241c87511406575179a ]
 
 This driver's remove path calls cancel_delayed_work(). However, that
 function does not wait until the work function finishes. This means
@@ -61,22 +61,22 @@ Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/i2c/adv7511-v4l2.c | 2 +-
+ drivers/media/i2c/adv7842.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/i2c/adv7511-v4l2.c b/drivers/media/i2c/adv7511-v4l2.c
-index 6869bb593a68..4052abeead50 100644
---- a/drivers/media/i2c/adv7511-v4l2.c
-+++ b/drivers/media/i2c/adv7511-v4l2.c
-@@ -1965,7 +1965,7 @@ static int adv7511_remove(struct i2c_client *client)
+diff --git a/drivers/media/i2c/adv7842.c b/drivers/media/i2c/adv7842.c
+index 58662ba92d4f..d0ed20652ddb 100644
+--- a/drivers/media/i2c/adv7842.c
++++ b/drivers/media/i2c/adv7842.c
+@@ -3585,7 +3585,7 @@ static int adv7842_remove(struct i2c_client *client)
+ 	struct adv7842_state *state = to_state(sd);
  
- 	adv7511_set_isr(sd, false);
- 	adv7511_init_setup(sd);
--	cancel_delayed_work(&state->edid_handler);
-+	cancel_delayed_work_sync(&state->edid_handler);
- 	i2c_unregister_device(state->i2c_edid);
- 	if (state->i2c_cec)
- 		i2c_unregister_device(state->i2c_cec);
+ 	adv7842_irq_enable(sd, false);
+-	cancel_delayed_work(&state->delayed_work_enable_hotplug);
++	cancel_delayed_work_sync(&state->delayed_work_enable_hotplug);
+ 	v4l2_device_unregister_subdev(sd);
+ 	media_entity_cleanup(&sd->entity);
+ 	adv7842_unregister_clients(sd);
 -- 
 2.30.2
 
