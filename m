@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6915E38A762
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2EAC38A8F7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234687AbhETKhr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
+        id S238683AbhETKz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:55:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237799AbhETKff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A36E61C59;
-        Thu, 20 May 2021 09:53:44 +0000 (UTC)
+        id S238612AbhETKxr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:53:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E895C61883;
+        Thu, 20 May 2021 10:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504424;
-        bh=i4GkmynJrwPHyYe9W9m/4kHJneG8Mr0zODmlFXvQtnE=;
+        s=korg; t=1621504844;
+        bh=ipKLPeu42Bq8fzgLGyaGkLJPTPp01iaR00TYtrxmb4o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BTQE3DyidVJydvvlsmvHGqEAv2yintu1L7ke+psOAhlfBTUfXBSp7KYDG8gnKeADY
-         BUzSRDzHoiGQUpPtRci+kDmfwmRAc4k5Sl8vcOoASVmpGATqP9DiDmtY342mDX7meh
-         tpa3DRjvS80GtMW2AkbmCFzT19kuJTrirBA4CTfc=
+        b=Ee2O+IRcZsbiDIyl57Np6R9gRt2aGm9KXEaNCTxyWlEjSULQkGv7Y3lO+EZtP3org
+         AjPwzybJzVxNG5+beY2fffvu1BcO9m0iwT7+52y2vJ2kpOgw4MB36EbbsCt009hVFl
+         4DKdadeukVKHlh8yQBNPxoLXM7zfoBTQ8nZyBCNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Athira Rajeev <atrajeev@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 205/323] powerpc/perf: Fix PMU constraint check for EBB events
+Subject: [PATCH 4.9 105/240] fotg210-udc: Dont DMA more than the buffer can take
 Date:   Thu, 20 May 2021 11:21:37 +0200
-Message-Id: <20210520092127.154247517@linuxfoundation.org>
+Message-Id: <20210520092112.210510206@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,64 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
+From: Fabian Vogt <fabian@ritter-vogt.de>
 
-[ Upstream commit 10f8f96179ecc7f69c927f6d231f6d02736cea83 ]
+[ Upstream commit 3e7c2510bdfe89a9ec223dd7acd6bfc8bb1cbeb6 ]
 
-The power PMU group constraints includes check for EBB events to make
-sure all events in a group must agree on EBB. This will prevent
-scheduling EBB and non-EBB events together. But in the existing check,
-settings for constraint mask and value is interchanged. Patch fixes the
-same.
+Before this, it wrote as much as available into the buffer, even if it
+didn't fit.
 
-Before the patch, PMU selftest "cpu_event_pinned_vs_ebb_test" fails with
-below in dmesg logs. This happens because EBB event gets enabled along
-with a non-EBB cpu event.
-
-  [35600.453346] cpu_event_pinne[41326]: illegal instruction (4)
-  at 10004a18 nip 10004a18 lr 100049f8 code 1 in
-  cpu_event_pinned_vs_ebb_test[10000000+10000]
-
-Test results after the patch:
-
-  $ ./pmu/ebb/cpu_event_pinned_vs_ebb_test
-  test: cpu_event_pinned_vs_ebb
-  tags: git_version:v5.12-rc5-93-gf28c3125acd3-dirty
-  Binding to cpu 8
-  EBB Handler is at 0x100050c8
-  read error on event 0x7fffe6bd4040!
-  PM_RUN_INST_CMPL: result 9872 running/enabled 37930432
-  success: cpu_event_pinned_vs_ebb
-
-This bug was hidden by other logic until commit 1908dc911792 (perf:
-Tweak perf_event_attr::exclusive semantics).
-
-Fixes: 4df489991182 ("powerpc/perf: Add power8 EBB support")
-Reported-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Athira Rajeev <atrajeev@linux.vnet.ibm.com>
-[mpe: Mention commit 1908dc911792]
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/1617725761-1464-1-git-send-email-atrajeev@linux.vnet.ibm.com
+Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
+Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
+Link: https://lore.kernel.org/r/20210324141115.9384-7-fabian@ritter-vogt.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/perf/isa207-common.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/gadget/udc/fotg210-udc.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/perf/isa207-common.c b/arch/powerpc/perf/isa207-common.c
-index dd9f88fed63c..24a78565bca6 100644
---- a/arch/powerpc/perf/isa207-common.c
-+++ b/arch/powerpc/perf/isa207-common.c
-@@ -361,8 +361,8 @@ ebb_bhrb:
- 	 * EBB events are pinned & exclusive, so this should never actually
- 	 * hit, but we leave it as a fallback in case.
- 	 */
--	mask  |= CNST_EBB_VAL(ebb);
--	value |= CNST_EBB_MASK;
-+	mask  |= CNST_EBB_MASK;
-+	value |= CNST_EBB_VAL(ebb);
- 
- 	*maskp = mask;
- 	*valp = value;
+diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
+index 491b04dd6db7..b2910bc65e51 100644
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -340,8 +340,9 @@ static void fotg210_start_dma(struct fotg210_ep *ep,
+ 		} else {
+ 			buffer = req->req.buf + req->req.actual;
+ 			length = ioread32(ep->fotg210->reg +
+-					FOTG210_FIBCR(ep->epnum - 1));
+-			length &= FIBCR_BCFX;
++					FOTG210_FIBCR(ep->epnum - 1)) & FIBCR_BCFX;
++			if (length > req->req.length - req->req.actual)
++				length = req->req.length - req->req.actual;
+ 		}
+ 	} else {
+ 		buffer = req->req.buf + req->req.actual;
 -- 
 2.30.2
 
