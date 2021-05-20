@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 210D238AB22
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3967338A988
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:02:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240570AbhETLUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37946 "EHLO mail.kernel.org"
+        id S239537AbhETLDd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:03:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240504AbhETLRI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0B3161954;
-        Thu, 20 May 2021 10:09:41 +0000 (UTC)
+        id S239098AbhETLBj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:01:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 69B9E61423;
+        Thu, 20 May 2021 10:03:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505382;
-        bh=A2fJw8J4qkKI0mHDMqXWAWUio4MghHaOQNIakzht9Us=;
+        s=korg; t=1621505022;
+        bh=T3kO8RrvNCX8As7P6Z7PFwvA19Yoow54UYuEWBXkQOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wc21LRXQXVVvymdPtubrKXBhw2ewZyDN71ON1JhnlxT6ACGW9v0ACUH978d4PhxMZ
-         PIdei0YVSeHpPsvXiAzinniilACI3dxAfTjEQ4H0MkOxTPUENWw9NWfbUmKljXwEU9
-         CmAzKgbkCg+gvAmgx0z8FHGn4Zuai858oBkDQAac=
+        b=kBzteK5eBY/1Znu3hDRCuWDRppBbb/U0mhteF9ijHxJp8h7WcQSg4DkpVQFFoi+ay
+         1e6WB1swGPQhIyFiBn/TDDoFkLKtu1c6VIv3u8Jp/G2A3YoxTwwASJn/TAoQvt3nes
+         dMiRa3hzq3hmVUjaB6hNpO2FhlYFvI3K1/7IFJ/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Miklos Szeredi <mszeredi@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 108/190] scsi: sni_53c710: Add IRQ check
+Subject: [PATCH 4.9 180/240] cuse: prevent clone
 Date:   Thu, 20 May 2021 11:22:52 +0200
-Message-Id: <20210520092105.762008910@linuxfoundation.org>
+Message-Id: <20210520092114.703207137@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Miklos Szeredi <mszeredi@redhat.com>
 
-[ Upstream commit 1160d61bc51e87e509cfaf9da50a0060f67b6de4 ]
+[ Upstream commit 8217673d07256b22881127bf50dce874d0e51653 ]
 
-The driver neglects to check the result of platform_get_irq()'s call and
-blithely passes the negative error codes to request_irq() (which takes
-*unsigned* IRQ #s), causing it to fail with -EINVAL (overridden by -ENODEV
-further below).  Stop calling request_irq() with the invalid IRQ #s.
+For cloned connections cuse_channel_release() will be called more than
+once, resulting in use after free.
 
-Link: https://lore.kernel.org/r/8f4b8fa5-8251-b977-70a1-9099bcb4bb17@omprussia.ru
-Fixes: c27d85f3f3c5 ("[SCSI] SNI RM 53c710 driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Prevent device cloning for CUSE, which does not make sense at this point,
+and highly unlikely to be used in real life.
+
+Signed-off-by: Miklos Szeredi <mszeredi@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/sni_53c710.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/fuse/cuse.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/sni_53c710.c b/drivers/scsi/sni_53c710.c
-index b0f5220ae23a..fad68cb028d6 100644
---- a/drivers/scsi/sni_53c710.c
-+++ b/drivers/scsi/sni_53c710.c
-@@ -71,6 +71,7 @@ static int snirm710_probe(struct platform_device *dev)
- 	struct NCR_700_Host_Parameters *hostdata;
- 	struct Scsi_Host *host;
- 	struct  resource *res;
-+	int rc;
+diff --git a/fs/fuse/cuse.c b/fs/fuse/cuse.c
+index d9aba9700726..b83367300f48 100644
+--- a/fs/fuse/cuse.c
++++ b/fs/fuse/cuse.c
+@@ -616,6 +616,8 @@ static int __init cuse_init(void)
+ 	cuse_channel_fops.owner		= THIS_MODULE;
+ 	cuse_channel_fops.open		= cuse_channel_open;
+ 	cuse_channel_fops.release	= cuse_channel_release;
++	/* CUSE is not prepared for FUSE_DEV_IOC_CLONE */
++	cuse_channel_fops.unlocked_ioctl	= NULL;
  
- 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
- 	if (!res)
-@@ -96,7 +97,9 @@ static int snirm710_probe(struct platform_device *dev)
- 		goto out_kfree;
- 	host->this_id = 7;
- 	host->base = base;
--	host->irq = platform_get_irq(dev, 0);
-+	host->irq = rc = platform_get_irq(dev, 0);
-+	if (rc < 0)
-+		goto out_put_host;
- 	if(request_irq(host->irq, NCR_700_intr, IRQF_SHARED, "snirm710", host)) {
- 		printk(KERN_ERR "snirm710: request_irq failed!\n");
- 		goto out_put_host;
+ 	cuse_class = class_create(THIS_MODULE, "cuse");
+ 	if (IS_ERR(cuse_class))
 -- 
 2.30.2
 
