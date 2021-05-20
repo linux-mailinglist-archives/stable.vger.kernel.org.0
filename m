@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136ED38A9A9
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CECE938AB27
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238501AbhETLFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59128 "EHLO mail.kernel.org"
+        id S237692AbhETLVA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:21:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38286 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239300AbhETLDD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:03:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D51761D2C;
-        Thu, 20 May 2021 10:04:15 +0000 (UTC)
+        id S240756AbhETLTS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0418361D7B;
+        Thu, 20 May 2021 10:10:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505055;
-        bh=8OQj5p3y3B1QGSdoqzyGs4Hfl3t+mA/SsXXk5jSOApg=;
+        s=korg; t=1621505428;
+        bh=00WXR+OlTujK/PkeXnndoqQ066Ja43WCBFFxGxfv10g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uHaAFacJZsX8dWIa8RPUEUhC2M9zlUtBD8ZwAfj1x3RKNxgvV1z+w+OrfJfGXC3qZ
-         Kcy1e3/n5j0Ip4+zKIVqPFdawwgE6hYoDcS8+c9Z4DLEFhbA2mk8vsOZ+xBJQW3E/l
-         cfuUspjEEskIZC9RGHHp23ywCVT7dVRhtXrPBlKY=
+        b=vO9n2cwUOJM+QuloevJUJieWS8hyJ3Of6WWKedt4+UaS0U0rVRMd7ZUux1HgnsH8a
+         4GtLlcvPrfRqfCjbfAhIUtmX4d2Mt4iP3GwEMf5pZ9kcyChVC82UwXfhbNRjeP2HUo
+         RrBzxTkOmcxmPiYj+fQJgRupfBfZAlKc4PNgM8GE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Feilong Lin <linfeilong@huawei.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 202/240] mm/hugeltb: handle the error case in hugetlb_fix_reserve_counts()
+Subject: [PATCH 4.4 130/190] powerpc/52xx: Fix an invalid ASM expression (addi used instead of add)
 Date:   Thu, 20 May 2021 11:23:14 +0200
-Message-Id: <20210520092115.441531656@linuxfoundation.org>
+Message-Id: <20210520092106.497133849@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,55 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit da56388c4397878a65b74f7fe97760f5aa7d316b ]
+[ Upstream commit 8a87a507714386efc39c3ae6fa24d4f79846b522 ]
 
-A rare out of memory error would prevent removal of the reserve map region
-for a page.  hugetlb_fix_reserve_counts() handles this rare case to avoid
-dangling with incorrect counts.  Unfortunately, hugepage_subpool_get_pages
-and hugetlb_acct_memory could possibly fail too.  We should correctly
-handle these cases.
+  AS      arch/powerpc/platforms/52xx/lite5200_sleep.o
+arch/powerpc/platforms/52xx/lite5200_sleep.S: Assembler messages:
+arch/powerpc/platforms/52xx/lite5200_sleep.S:184: Warning: invalid register expression
 
-Link: https://lkml.kernel.org/r/20210410072348.20437-5-linmiaohe@huawei.com
-Fixes: b5cec28d36f5 ("hugetlbfs: truncate_hugepages() takes a range of pages")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Feilong Lin <linfeilong@huawei.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+In the following code, 'addi' is wrong, has to be 'add'
+
+	/* local udelay in sram is needed */
+  udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
+	mullw	r12, r12, r11
+	mftb	r13	/* start */
+	addi	r12, r13, r12 /* end */
+
+Fixes: ee983079ce04 ("[POWERPC] MPC5200 low power mode")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/cb4cec9131c8577803367f1699209a7e104cec2a.1619025821.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ arch/powerpc/platforms/52xx/lite5200_sleep.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e2b5e38e7a4b..9049e8613237 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -586,13 +586,20 @@ void hugetlb_fix_reserve_counts(struct inode *inode)
- {
- 	struct hugepage_subpool *spool = subpool_inode(inode);
- 	long rsv_adjust;
-+	bool reserved = false;
- 
- 	rsv_adjust = hugepage_subpool_get_pages(spool, 1);
--	if (rsv_adjust) {
-+	if (rsv_adjust > 0) {
- 		struct hstate *h = hstate_inode(inode);
- 
--		hugetlb_acct_memory(h, 1);
-+		if (!hugetlb_acct_memory(h, 1))
-+			reserved = true;
-+	} else if (!rsv_adjust) {
-+		reserved = true;
- 	}
-+
-+	if (!reserved)
-+		pr_warn("hugetlb: Huge Page Reserved count may go negative.\n");
- }
- 
- /*
+diff --git a/arch/powerpc/platforms/52xx/lite5200_sleep.S b/arch/powerpc/platforms/52xx/lite5200_sleep.S
+index 08ab6fefcf7a..5f44e9223413 100644
+--- a/arch/powerpc/platforms/52xx/lite5200_sleep.S
++++ b/arch/powerpc/platforms/52xx/lite5200_sleep.S
+@@ -180,7 +180,7 @@ sram_code:
+   udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
+ 	mullw	r12, r12, r11
+ 	mftb	r13	/* start */
+-	addi	r12, r13, r12 /* end */
++	add	r12, r13, r12 /* end */
+     1:
+ 	mftb	r13	/* current */
+ 	cmp	cr0, r13, r12
 -- 
 2.30.2
 
