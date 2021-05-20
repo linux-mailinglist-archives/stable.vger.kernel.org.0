@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B17D38A96F
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD49638AAEE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239132AbhETLB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57204 "EHLO mail.kernel.org"
+        id S240609AbhETLS7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:18:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37104 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239625AbhETLAA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:00:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5C706142E;
-        Thu, 20 May 2021 10:03:13 +0000 (UTC)
+        id S239751AbhETLQ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:16:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D87826194E;
+        Thu, 20 May 2021 10:09:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504994;
-        bh=J6ulVizx/gjYpG7QsvdxK2LWgKeG4k9YwqFoA8mB1OU=;
+        s=korg; t=1621505364;
+        bh=n+yVOn8ArjBE+m6x7z1F11aBR1x3/xZBgUpKtegzW9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsd1i3QcxCzmeqVj96MGkV1iiHUl4+UVzo/j2txpPE/bqSJRw9Jto6BAoWLxaND/2
-         mxCfbMWKyL2CUIhRfuTvu14xIFyyarBR60wL+hp+mJaqZX6hNBLzBdrqo5TR0yzeHB
-         7tQdSgCH1su5dwouWPonbL5dHaJ9HBbrdjap/Jw8=
+        b=FRSPT2X7yUflvujR2OLogcFv1dlcT9B43Mpriq8uKQldUQlN2l7hPKsPNbrP6tgxX
+         FAsWkTFU1D/4Y42zWgJs4G9cm1ZaxSo1kL1Gf86IOBkz8YaQwtv2HEjofGBR4vaLRa
+         k7Frd3Frp5WstboThq2F9kxZBeJRyja0rI8LN8cQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 173/240] ALSA: hdsp: dont disable if not enabled
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 101/190] pata_ipx4xx_cf: fix IRQ check
 Date:   Thu, 20 May 2021 11:22:45 +0200
-Message-Id: <20210520092114.459464118@linuxfoundation.org>
+Message-Id: <20210520092105.538064763@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
+[ Upstream commit e379b40cc0f179403ce0b82b7e539f635a568da5 ]
 
-hdsp wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+The driver's probe() method is written as if platform_get_irq() returns 0
+on error, while actually it returns a negative error code (with all the
+other values considered valid IRQs).  Rewrite the driver's IRQ checking
+code to pass the positive IRQ #s to ata_host_activate(), propagate errors
+upstream, and treat IRQ0 as error, returning -EINVAL, as the libata code
+treats 0  as  an indication that polling should be used anyway...
 
-[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
-[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.766985] Call Trace:
-[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
-[    1.767388]  release_card_device+0x4b/0x80 [snd]
-[    1.767639]  device_release+0x3b/0xa0
-[    1.767838]  kobject_put+0x94/0x1b0
-[    1.768027]  put_device+0x13/0x20
-[    1.768207]  snd_card_free+0x61/0x90 [snd]
-[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
-
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 0df0d0a0ea9f ("[libata] ARM: add ixp4xx PATA driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/hdsp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/ata/pata_ixp4xx_cf.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
-index b044dea3c815..9843954698f4 100644
---- a/sound/pci/rme9652/hdsp.c
-+++ b/sound/pci/rme9652/hdsp.c
-@@ -5314,7 +5314,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
- 	if (hdsp->port)
- 		pci_release_regions(hdsp->pci);
+diff --git a/drivers/ata/pata_ixp4xx_cf.c b/drivers/ata/pata_ixp4xx_cf.c
+index abda44183512..fb8d1f68f36f 100644
+--- a/drivers/ata/pata_ixp4xx_cf.c
++++ b/drivers/ata/pata_ixp4xx_cf.c
+@@ -169,8 +169,12 @@ static int ixp4xx_pata_probe(struct platform_device *pdev)
+ 		return -ENOMEM;
  
--	pci_disable_device(hdsp->pci);
-+	if (pci_is_enabled(hdsp->pci))
-+		pci_disable_device(hdsp->pci);
- 	return 0;
- }
+ 	irq = platform_get_irq(pdev, 0);
+-	if (irq)
++	if (irq > 0)
+ 		irq_set_irq_type(irq, IRQ_TYPE_EDGE_RISING);
++	else if (irq < 0)
++		return irq;
++	else
++		return -EINVAL;
  
+ 	/* Setup expansion bus chip selects */
+ 	*data->cs0_cfg = data->cs0_bits;
 -- 
 2.30.2
 
