@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 338E138A47E
+	by mail.lfdr.de (Postfix) with ESMTP id 7D71C38A47F
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:04:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234476AbhETKF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:05:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37246 "EHLO mail.kernel.org"
+        id S235166AbhETKF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:05:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234979AbhETKDx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:03:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F356061929;
-        Thu, 20 May 2021 09:40:20 +0000 (UTC)
+        id S235001AbhETKD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:03:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34B0C61923;
+        Thu, 20 May 2021 09:40:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503621;
-        bh=vI5LWT6H714BA7fXwBiqMpEcxeof87DXV4W9TPRXmZI=;
+        s=korg; t=1621503623;
+        bh=khiZR3WpiPPiv2JrwnDHVhgiP3lU5CeCHaaScLhI3x0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBuKyCgVbyCSN4OI0wwY4g+LNhSfHGUwy8QhV9Q7LGGNmoVFaFGL5cJ8GKnFsgJkY
-         QcBiCKNOYjAPEamwC0tm3QbBHb4fYguYxLvz0GtrRQcXIvn3BpwzV6/gZ6NNO9gqNJ
-         3VLluh66UJpUCrwOevuugwC2v96lz5mVESpG40HI=
+        b=aPrA88dXa3T+8/ot+NeaDPU8OlKWPI4qiqUZlmC9smspUkhIq4HSgK8kp8X1+rgDw
+         GS5zG0wGHCb3WNtjhA6dpv/a4EKBr4cCrH4nCSqLaDtJbafRO/EZHy8cTj7/XPoVOn
+         M0hdUzVVn4GIJxe+dWdEmT7DxgHUkp/MK9H9hMDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 305/425] net: stmmac: Set FIFO sizes for ipq806x
-Date:   Thu, 20 May 2021 11:21:14 +0200
-Message-Id: <20210520092141.460507314@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 306/425] i2c: bail out early when RDWR parameters are wrong
+Date:   Thu, 20 May 2021 11:21:15 +0200
+Message-Id: <20210520092141.494231511@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,42 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan McDowell <noodles@earth.li>
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
 
-[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
+[ Upstream commit 71581562ee36032d2d574a9b23ad4af6d6a64cf7 ]
 
-Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
-started using the TX FIFO size to verify what counts as a valid MTU
-request for the stmmac driver.  This is unset for the ipq806x variant.
-Looking at older patches for this it seems the RX + TXs buffers can be
-up to 8k, so set appropriately.
+The buggy parameters currently get caught later, but emit a noisy WARN.
+Userspace should not be able to trigger this, so add similar checks much
+earlier. Also avoids some unneeded code paths, of course. Apply kernel
+coding stlye to a comment while here.
 
-(I sent this as an RFC patch in June last year, but received no replies.
-I've been running with this on my hardware (a MikroTik RB3011) since
-then with larger MTUs to support both the internal qca8k switch and
-VLANs with no problems. Without the patch it's impossible to set the
-larger MTU required to support this.)
-
-Signed-off-by: Jonathan McDowell <noodles@earth.li>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
+Tested-by: syzbot+ffb0b3ffa6cfbc7d7b3f@syzkaller.appspotmail.com
+Signed-off-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/i2c/i2c-dev.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-index 826626e870d5..0f56f8e33691 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
-@@ -351,6 +351,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
- 	plat_dat->bsp_priv = gmac;
- 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
- 	plat_dat->multicast_filter_bins = 0;
-+	plat_dat->tx_fifo_size = 8192;
-+	plat_dat->rx_fifo_size = 8192;
+diff --git a/drivers/i2c/i2c-dev.c b/drivers/i2c/i2c-dev.c
+index cbda91a0cb5f..1d10ee86299d 100644
+--- a/drivers/i2c/i2c-dev.c
++++ b/drivers/i2c/i2c-dev.c
+@@ -448,8 +448,13 @@ static long i2cdev_ioctl(struct file *file, unsigned int cmd, unsigned long arg)
+ 				   sizeof(rdwr_arg)))
+ 			return -EFAULT;
  
- 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
- 	if (err)
+-		/* Put an arbitrary limit on the number of messages that can
+-		 * be sent at once */
++		if (!rdwr_arg.msgs || rdwr_arg.nmsgs == 0)
++			return -EINVAL;
++
++		/*
++		 * Put an arbitrary limit on the number of messages that can
++		 * be sent at once
++		 */
+ 		if (rdwr_arg.nmsgs > I2C_RDWR_IOCTL_MAX_MSGS)
+ 			return -EINVAL;
+ 
 -- 
 2.30.2
 
