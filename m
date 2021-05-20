@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B86338A89A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A507C38A709
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239112AbhETKvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:51:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48012 "EHLO mail.kernel.org"
+        id S236602AbhETKdc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238734AbhETKuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:50:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F6961CC2;
-        Thu, 20 May 2021 09:59:22 +0000 (UTC)
+        id S237297AbhETKbb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AA15619A5;
+        Thu, 20 May 2021 09:52:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504762;
-        bh=FUsk5MJyqOP1jjkcUMOwzUkZSt/Tl8i133krBf0IZcA=;
+        s=korg; t=1621504327;
+        bh=ABPAIq8gvkqnkWTpQasrnrVOUKDHwcSujkDgWZ5I+8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hIhDEYm65HLAnW6TOGh7JVQr5RYBxjbywIHcJyZ0zkJtg0hGwHhIsf0aFhZ3LrbN3
-         cWoqQhjqpxWoM3VmagEL9h83ykGUkYQByRf5nBp/tObVFHxZ4LxPTgYTCN+vLl2ggc
-         mVSxeYgzmtvBCRb+PLKirKCOW0MJCxtWtujhICG0=
+        b=aHs2+SvXe6dxi151vc0Y+vTm+Vm6qH+w+RxLPdAZUCBrGh+LFmtmQwiQhoLdRP0XL
+         wTvwP4sv+ItyJ3KsBwFBOJf6HkUNc/7eWuvPwflvl/pzNQrwLYempvjbrIDrAwMxin
+         cVKPCn1ysHgpJjfGn0RxENcCX36iLP8BRESIGrb8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
-        syzbot+98228e7407314d2d4ba2@syzkaller.appspotmail.com,
-        Alain Michaud <alainm@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        George Kennedy <george.kennedy@oracle.com>
-Subject: [PATCH 4.9 068/240] Bluetooth: verify AMP hci_chan before amp_destroy
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 168/323] ACPI: CPPC: Replace cppc_attr with kobj_attribute
 Date:   Thu, 20 May 2021 11:21:00 +0200
-Message-Id: <20210520092110.955718321@linuxfoundation.org>
+Message-Id: <20210520092125.862394272@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,138 +40,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 5c4c8c9544099bb9043a10a5318130a943e32fc3 upstream.
+[ Upstream commit 2bc6262c6117dd18106d5aa50d53e945b5d99c51 ]
 
-hci_chan can be created in 2 places: hci_loglink_complete_evt() if
-it is an AMP hci_chan, or l2cap_conn_add() otherwise. In theory,
-Only AMP hci_chan should be removed by a call to
-hci_disconn_loglink_complete_evt(). However, the controller might mess
-up, call that function, and destroy an hci_chan which is not initiated
-by hci_loglink_complete_evt().
+All of the CPPC sysfs show functions are called via indirect call in
+kobj_attr_show(), where they should be of type
 
-This patch adds a verification that the destroyed hci_chan must have
-been init'd by hci_loglink_complete_evt().
+ssize_t (*show)(struct kobject *kobj, struct kobj_attribute *attr, char *buf);
 
-Example crash call trace:
-Call Trace:
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xe3/0x144 lib/dump_stack.c:118
- print_address_description+0x67/0x22a mm/kasan/report.c:256
- kasan_report_error mm/kasan/report.c:354 [inline]
- kasan_report mm/kasan/report.c:412 [inline]
- kasan_report+0x251/0x28f mm/kasan/report.c:396
- hci_send_acl+0x3b/0x56e net/bluetooth/hci_core.c:4072
- l2cap_send_cmd+0x5af/0x5c2 net/bluetooth/l2cap_core.c:877
- l2cap_send_move_chan_cfm_icid+0x8e/0xb1 net/bluetooth/l2cap_core.c:4661
- l2cap_move_fail net/bluetooth/l2cap_core.c:5146 [inline]
- l2cap_move_channel_rsp net/bluetooth/l2cap_core.c:5185 [inline]
- l2cap_bredr_sig_cmd net/bluetooth/l2cap_core.c:5464 [inline]
- l2cap_sig_channel net/bluetooth/l2cap_core.c:5799 [inline]
- l2cap_recv_frame+0x1d12/0x51aa net/bluetooth/l2cap_core.c:7023
- l2cap_recv_acldata+0x2ea/0x693 net/bluetooth/l2cap_core.c:7596
- hci_acldata_packet net/bluetooth/hci_core.c:4606 [inline]
- hci_rx_work+0x2bd/0x45e net/bluetooth/hci_core.c:4796
- process_one_work+0x6f8/0xb50 kernel/workqueue.c:2175
- worker_thread+0x4fc/0x670 kernel/workqueue.c:2321
- kthread+0x2f0/0x304 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:415
+because that is the type of the ->show() member in
+'struct kobj_attribute' but they are actually of type
 
-Allocated by task 38:
- set_track mm/kasan/kasan.c:460 [inline]
- kasan_kmalloc+0x8d/0x9a mm/kasan/kasan.c:553
- kmem_cache_alloc_trace+0x102/0x129 mm/slub.c:2787
- kmalloc include/linux/slab.h:515 [inline]
- kzalloc include/linux/slab.h:709 [inline]
- hci_chan_create+0x86/0x26d net/bluetooth/hci_conn.c:1674
- l2cap_conn_add.part.0+0x1c/0x814 net/bluetooth/l2cap_core.c:7062
- l2cap_conn_add net/bluetooth/l2cap_core.c:7059 [inline]
- l2cap_connect_cfm+0x134/0x852 net/bluetooth/l2cap_core.c:7381
- hci_connect_cfm+0x9d/0x122 include/net/bluetooth/hci_core.h:1404
- hci_remote_ext_features_evt net/bluetooth/hci_event.c:4161 [inline]
- hci_event_packet+0x463f/0x72fa net/bluetooth/hci_event.c:5981
- hci_rx_work+0x197/0x45e net/bluetooth/hci_core.c:4791
- process_one_work+0x6f8/0xb50 kernel/workqueue.c:2175
- worker_thread+0x4fc/0x670 kernel/workqueue.c:2321
- kthread+0x2f0/0x304 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:415
+ssize_t (*show)(struct kobject *kobj, struct attribute *attr, char *buf);
 
-Freed by task 1732:
- set_track mm/kasan/kasan.c:460 [inline]
- __kasan_slab_free mm/kasan/kasan.c:521 [inline]
- __kasan_slab_free+0x106/0x128 mm/kasan/kasan.c:493
- slab_free_hook mm/slub.c:1409 [inline]
- slab_free_freelist_hook+0xaa/0xf6 mm/slub.c:1436
- slab_free mm/slub.c:3009 [inline]
- kfree+0x182/0x21e mm/slub.c:3972
- hci_disconn_loglink_complete_evt net/bluetooth/hci_event.c:4891 [inline]
- hci_event_packet+0x6a1c/0x72fa net/bluetooth/hci_event.c:6050
- hci_rx_work+0x197/0x45e net/bluetooth/hci_core.c:4791
- process_one_work+0x6f8/0xb50 kernel/workqueue.c:2175
- worker_thread+0x4fc/0x670 kernel/workqueue.c:2321
- kthread+0x2f0/0x304 kernel/kthread.c:253
- ret_from_fork+0x3a/0x50 arch/x86/entry/entry_64.S:415
+because of the ->show() member in 'struct cppc_attr', resulting in a
+Control Flow Integrity violation [1].
 
-The buggy address belongs to the object at ffff8881d7af9180
- which belongs to the cache kmalloc-128 of size 128
-The buggy address is located 24 bytes inside of
- 128-byte region [ffff8881d7af9180, ffff8881d7af9200)
-The buggy address belongs to the page:
-page:ffffea00075ebe40 count:1 mapcount:0 mapping:ffff8881da403200 index:0x0
-flags: 0x8000000000000200(slab)
-raw: 8000000000000200 dead000000000100 dead000000000200 ffff8881da403200
-raw: 0000000000000000 0000000080150015 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
+$ cat /sys/devices/system/cpu/cpu0/acpi_cppc/highest_perf
+3400
 
-Memory state around the buggy address:
- ffff8881d7af9080: fc fc fc fc fc fc fc fc fb fb fb fb fb fb fb fb
- ffff8881d7af9100: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
->ffff8881d7af9180: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                            ^
- ffff8881d7af9200: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff8881d7af9280: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+$ dmesg | grep "CFI failure"
+[  175.970559] CFI failure (target: show_highest_perf+0x0/0x8):
 
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reported-by: syzbot+98228e7407314d2d4ba2@syzkaller.appspotmail.com
-Reviewed-by: Alain Michaud <alainm@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Cc: George Kennedy <george.kennedy@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+As far as I can tell, the only difference between 'struct cppc_attr'
+and 'struct kobj_attribute' aside from the type of the attr parameter
+is the type of the count parameter in the ->store() member (ssize_t vs.
+size_t), which does not actually matter because all of these nodes are
+read-only.
+
+Eliminate 'struct cppc_attr' in favor of 'struct kobj_attribute' to fix
+the violation.
+
+[1]: https://lore.kernel.org/r/20210401233216.2540591-1-samitolvanen@google.com/
+
+Fixes: 158c998ea44b ("ACPI / CPPC: add sysfs support to compute delivered performance")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1343
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/bluetooth/hci_core.h |    1 +
- net/bluetooth/hci_event.c        |    3 ++-
- 2 files changed, 3 insertions(+), 1 deletion(-)
+ drivers/acpi/cppc_acpi.c | 14 +++-----------
+ 1 file changed, 3 insertions(+), 11 deletions(-)
 
---- a/include/net/bluetooth/hci_core.h
-+++ b/include/net/bluetooth/hci_core.h
-@@ -512,6 +512,7 @@ struct hci_chan {
- 	struct sk_buff_head data_q;
- 	unsigned int	sent;
- 	__u8		state;
-+	bool		amp;
- };
+diff --git a/drivers/acpi/cppc_acpi.c b/drivers/acpi/cppc_acpi.c
+index 732549ee1fe3..5b2e58cbeb35 100644
+--- a/drivers/acpi/cppc_acpi.c
++++ b/drivers/acpi/cppc_acpi.c
+@@ -118,23 +118,15 @@ static DEFINE_PER_CPU(struct cpc_desc *, cpc_desc_ptr);
+  */
+ #define NUM_RETRIES 500
  
- struct hci_conn_params {
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4399,6 +4399,7 @@ static void hci_loglink_complete_evt(str
- 		return;
+-struct cppc_attr {
+-	struct attribute attr;
+-	ssize_t (*show)(struct kobject *kobj,
+-			struct attribute *attr, char *buf);
+-	ssize_t (*store)(struct kobject *kobj,
+-			struct attribute *attr, const char *c, ssize_t count);
+-};
+-
+ #define define_one_cppc_ro(_name)		\
+-static struct cppc_attr _name =			\
++static struct kobj_attribute _name =		\
+ __ATTR(_name, 0444, show_##_name, NULL)
  
- 	hchan->handle = le16_to_cpu(ev->handle);
-+	hchan->amp = true;
+ #define to_cpc_desc(a) container_of(a, struct cpc_desc, kobj)
  
- 	BT_DBG("hcon %p mgr %p hchan %p", hcon, hcon->amp_mgr, hchan);
+ #define show_cppc_data(access_fn, struct_name, member_name)		\
+ 	static ssize_t show_##member_name(struct kobject *kobj,		\
+-					struct attribute *attr,	char *buf) \
++				struct kobj_attribute *attr, char *buf)	\
+ 	{								\
+ 		struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);		\
+ 		struct struct_name st_name = {0};			\
+@@ -157,7 +149,7 @@ show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, reference_perf);
+ show_cppc_data(cppc_get_perf_ctrs, cppc_perf_fb_ctrs, wraparound_time);
  
-@@ -4431,7 +4432,7 @@ static void hci_disconn_loglink_complete
- 	hci_dev_lock(hdev);
- 
- 	hchan = hci_chan_lookup_handle(hdev, le16_to_cpu(ev->handle));
--	if (!hchan)
-+	if (!hchan || !hchan->amp)
- 		goto unlock;
- 
- 	amp_destroy_logical_link(hchan, ev->reason);
+ static ssize_t show_feedback_ctrs(struct kobject *kobj,
+-		struct attribute *attr, char *buf)
++		struct kobj_attribute *attr, char *buf)
+ {
+ 	struct cpc_desc *cpc_ptr = to_cpc_desc(kobj);
+ 	struct cppc_perf_fb_ctrs fb_ctrs = {0};
+-- 
+2.30.2
+
 
 
