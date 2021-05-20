@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3011B38A9BF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 975CC38AB3F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239306AbhETLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:06:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
+        id S241165AbhETLWV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:22:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41740 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238904AbhETLEA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:04:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7AF61D18;
-        Thu, 20 May 2021 10:04:41 +0000 (UTC)
+        id S239744AbhETLUK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:20:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A2D361D77;
+        Thu, 20 May 2021 10:10:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505082;
-        bh=FTzwyjt6Q+HO2/iZymre7bCZ/r3haZklXwZJ9kdhC/8=;
+        s=korg; t=1621505456;
+        bh=kMl8Qpmc7YJ9wZdy6ELP5ecGOAusWj7dIVbisJZ9KMg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NT8ioos+ZJ1oyzxk/mEyo7rMDeEGS8AzMlsfxQHnnuQLTOMdcryY8WF8XWBxQBeg4
-         Qyp9P/hvCLOfGjRmZtRoYHRBmxq2J2GaAGIgpGqdmNwRz6x6hjlXQUdhBLP1IwNiEz
-         jz8Kmz1OyU3+nc1Xvr7SRu4+aK44PkuFEs50yEVE=
+        b=EaGDo3a9bQVeWa2UhX3huoZUmXNHZ1FykZF7aFOPGU5+3pRn4FPsLfXVe10ZCCYHe
+         w3cu/gGVVnMMFgYfMSCKE5IE5ApVjEeWJxjrhiz8A0/dztpDx2TWkPmgqOmCmzzPF/
+         wh9EYUIvGORxBK/r3qVLA62io1WWhylsq04WxcJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tianping Fang <tianping.fang@mediatek.com>,
-        Alan Stern <stern@rowland.harvard.edu>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 4.9 213/240] usb: core: hub: fix race condition about TRSMRCY of resume
-Date:   Thu, 20 May 2021 11:23:25 +0200
-Message-Id: <20210520092115.829789969@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Subject: [PATCH 4.4 142/190] Bluetooth: initialize skb_queue_head at l2cap_chan_create()
+Date:   Thu, 20 May 2021 11:23:26 +0200
+Message-Id: <20210520092106.885383084@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit 975f94c7d6c306b833628baa9aec3f79db1eb3a1 upstream.
+[ Upstream commit be8597239379f0f53c9710dd6ab551bbf535bec6 ]
 
-This may happen if the port becomes resume status exactly
-when usb_port_resume() gets port status, it still need provide
-a TRSMCRY time before access the device.
+syzbot is hitting "INFO: trying to register non-static key." message [1],
+for "struct l2cap_chan"->tx_q.lock spinlock is not yet initialized when
+l2cap_chan_del() is called due to e.g. timeout.
 
-CC: <stable@vger.kernel.org>
-Reported-by: Tianping Fang <tianping.fang@mediatek.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/20210512020738.52961-1-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since "struct l2cap_chan"->lock mutex is initialized at l2cap_chan_create()
+immediately after "struct l2cap_chan" is allocated using kzalloc(), let's
+as well initialize "struct l2cap_chan"->{tx_q,srej_q}.lock spinlocks there.
+
+[1] https://syzkaller.appspot.com/bug?extid=fadfba6a911f6bf71842
+
+Reported-and-tested-by: syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -3486,9 +3486,6 @@ int usb_port_resume(struct usb_device *u
- 		 * sequence.
- 		 */
- 		status = hub_port_status(hub, port1, &portstatus, &portchange);
--
--		/* TRSMRCY = 10 msec */
--		msleep(10);
- 	}
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index 515f3e52f70a..0de77e741a78 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -434,6 +434,8 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	if (!chan)
+ 		return NULL;
  
-  SuspendCleared:
-@@ -3503,6 +3500,9 @@ int usb_port_resume(struct usb_device *u
- 				usb_clear_port_feature(hub->hdev, port1,
- 						USB_PORT_FEAT_C_SUSPEND);
- 		}
-+
-+		/* TRSMRCY = 10 msec */
-+		msleep(10);
- 	}
++	skb_queue_head_init(&chan->tx_q);
++	skb_queue_head_init(&chan->srej_q);
+ 	mutex_init(&chan->lock);
  
- 	if (udev->persist_enabled)
+ 	/* Set default lock nesting level */
+-- 
+2.30.2
+
 
 
