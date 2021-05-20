@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E530338A474
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:04:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BFE538A4B6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234816AbhETKFs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:05:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35472 "EHLO mail.kernel.org"
+        id S234713AbhETKIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:08:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235127AbhETKCY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:02:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F20F961878;
-        Thu, 20 May 2021 09:39:47 +0000 (UTC)
+        id S235266AbhETKF5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:05:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F2BE61935;
+        Thu, 20 May 2021 09:41:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503588;
-        bh=MsAFQamvFrMBG8qV/sbvQbn9DC83iXFqyufTLuu8Ei0=;
+        s=korg; t=1621503685;
+        bh=MQpu4WwJTKgdxc+EeP2Zj+e63L1hnstGQvQog8EE/JU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Umtl7S7b9O96+493qIKGunj6+0hSAcr66i1mDI4v4V1pDT+fv2CEtHvzLOiNDASMz
-         RrlZ5BYvXXaL+fjQP2MDTzFvEZist6XAkyUEq4B4nBZQ4CF7VZa/44ExAuENQU+0tw
-         2HXC5Pn0tHS0scxKuVzDL7pSAdcmzeuLporcbBSE=
+        b=kJ30JH1pOH7fFTjjGZu2V/nQo5z8hLylioNYOXgZwIOL8YKL53aPCwYjxHZHoGCfc
+         szKgPYIaDqvbQ34KwRh1vWtRSa2gXvd80izhdKIu9DTCShcIpXuXHQ+MOYaVjDW+yV
+         9riDStg+vMH7LgNTXQiIOwJPDm9zY8veQ8Qb04CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <oliver.sang@intel.com>,
-        Sabrina Dubroca <sd@queasysnail.net>,
-        Phillip Potter <phil@philpotter.co.uk>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 288/425] net: geneve: modify IP header check in geneve6_xmit_skb and geneve_xmit_skb
-Date:   Thu, 20 May 2021 11:20:57 +0200
-Message-Id: <20210520092140.908128177@linuxfoundation.org>
+Subject: [PATCH 4.19 289/425] net:emac/emac-mac: Fix a use after free in emac_mac_tx_buf_send
+Date:   Thu, 20 May 2021 11:20:58 +0200
+Message-Id: <20210520092140.949037993@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,54 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit d13f048dd40e8577260cd43faea8ec9b77520197 ]
+[ Upstream commit 6d72e7c767acbbdd44ebc7d89c6690b405b32b57 ]
 
-Modify the header size check in geneve6_xmit_skb and geneve_xmit_skb
-to use pskb_inet_may_pull rather than pskb_network_may_pull. This fixes
-two kernel selftest failures introduced by the commit introducing the
-checks:
-IPv4 over geneve6: PMTU exceptions
-IPv4 over geneve6: PMTU exceptions - nexthop objects
+In emac_mac_tx_buf_send, it calls emac_tx_fill_tpd(..,skb,..).
+If some error happens in emac_tx_fill_tpd(), the skb will be freed via
+dev_kfree_skb(skb) in error branch of emac_tx_fill_tpd().
+But the freed skb is still used via skb->len by netdev_sent_queue(,skb->len).
 
-It does this by correctly accounting for the fact that IPv4 packets may
-transit over geneve IPv6 tunnels (and vice versa), and still fixes the
-uninit-value bug fixed by the original commit.
+As i observed that emac_tx_fill_tpd() haven't modified the value of skb->len,
+thus my patch assigns skb->len to 'len' before the possible free and
+use 'len' instead of skb->len later.
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Fixes: 6628ddfec758 ("net: geneve: check skb is large enough for IPv4/IPv6 header")
-Suggested-by: Sabrina Dubroca <sd@queasysnail.net>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Acked-by: Sabrina Dubroca <sd@queasysnail.net>
+Fixes: b9b17debc69d2 ("net: emac: emac gigabit ethernet controller driver")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/geneve.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qualcomm/emac/emac-mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/geneve.c b/drivers/net/geneve.c
-index ce6fecf421f8..8c458c8f57a3 100644
---- a/drivers/net/geneve.c
-+++ b/drivers/net/geneve.c
-@@ -839,7 +839,7 @@ static int geneve_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 df;
- 	int err;
+diff --git a/drivers/net/ethernet/qualcomm/emac/emac-mac.c b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
+index 031f6e6ee9c1..351a90698010 100644
+--- a/drivers/net/ethernet/qualcomm/emac/emac-mac.c
++++ b/drivers/net/ethernet/qualcomm/emac/emac-mac.c
+@@ -1449,6 +1449,7 @@ int emac_mac_tx_buf_send(struct emac_adapter *adpt, struct emac_tx_queue *tx_q,
+ {
+ 	struct emac_tpd tpd;
+ 	u32 prod_idx;
++	int len;
  
--	if (!pskb_network_may_pull(skb, sizeof(struct iphdr)))
-+	if (!pskb_inet_may_pull(skb))
- 		return -EINVAL;
+ 	memset(&tpd, 0, sizeof(tpd));
  
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
-@@ -885,7 +885,7 @@ static int geneve6_xmit_skb(struct sk_buff *skb, struct net_device *dev,
- 	__be16 sport;
- 	int err;
+@@ -1468,9 +1469,10 @@ int emac_mac_tx_buf_send(struct emac_adapter *adpt, struct emac_tx_queue *tx_q,
+ 	if (skb_network_offset(skb) != ETH_HLEN)
+ 		TPD_TYP_SET(&tpd, 1);
  
--	if (!pskb_network_may_pull(skb, sizeof(struct ipv6hdr)))
-+	if (!pskb_inet_may_pull(skb))
- 		return -EINVAL;
++	len = skb->len;
+ 	emac_tx_fill_tpd(adpt, tx_q, skb, &tpd);
  
- 	sport = udp_flow_src_port(geneve->net, skb, 1, USHRT_MAX, true);
+-	netdev_sent_queue(adpt->netdev, skb->len);
++	netdev_sent_queue(adpt->netdev, len);
+ 
+ 	/* Make sure the are enough free descriptors to hold one
+ 	 * maximum-sized SKB.  We need one desc for each fragment,
 -- 
 2.30.2
 
