@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D51C638A94D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B5138A771
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237829AbhETLAp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:00:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57236 "EHLO mail.kernel.org"
+        id S237813AbhETKir (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:38:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239195AbhETK6Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:58:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECF416141F;
-        Thu, 20 May 2021 10:02:33 +0000 (UTC)
+        id S237123AbhETKgp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:36:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0EB61C6D;
+        Thu, 20 May 2021 09:54:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504954;
-        bh=psKOzoIwM1dzf9DgoDcsWPGH7cZh+2VptugFoXgNnFg=;
+        s=korg; t=1621504462;
+        bh=dLExIPbUsLELB2mh7d2PwNf7U5Fnt958NIluJdxmVGA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBoIy8L/RfqCvpWsvRBdWfYjBxwoTlUmsJ0vw2ob1oVTUzg+KJ10HLFTcw9kx/GzF
-         MgxOetuyCezm7bJ00HIGsQpiVkcCSfbJ4kw7T+x6XG+tFw0uve5Yyw2tXQazebVuTY
-         eh2ZfrMEt0bhXGPO88LEhaf/UofJUHFgzp+04pOM=
+        b=B2QK0GsOtht/4DZcATBYdHbWQTw8bX67S1mqBF31grwRa4+8sMyeaA6lTgDx8m9f+
+         YS8RNx7ibYnVIO8gC9q5cv7+LCXtg0IYdFWgVcwKytViVxgyQfbzSFy4/JyOwYMo96
+         A4Glcys+DGRB5ZWjUeUMq1oa0jFlzCKMK1dj+gzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 157/240] mwl8k: Fix a double Free in mwl8k_probe_hw
+Subject: [PATCH 4.14 257/323] net: ethernet: mtk_eth_soc: fix RX VLAN offload
 Date:   Thu, 20 May 2021 11:22:29 +0200
-Message-Id: <20210520092113.921783221@linuxfoundation.org>
+Message-Id: <20210520092129.014745554@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+From: Felix Fietkau <nbd@nbd.name>
 
-[ Upstream commit a8e083ee8e2a6c94c29733835adae8bf5b832748 ]
+[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
 
-In mwl8k_probe_hw, hw->priv->txq is freed at the first time by
-dma_free_coherent() in the call chain:
-if(!priv->ap_fw)->mwl8k_init_txqs(hw)->mwl8k_txq_init(hw, i).
+The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
+set. Fixes frames wrongly marked with VLAN tags.
 
-Then in err_free_queues of mwl8k_probe_hw, hw->priv->txq is freed
-at the second time by mwl8k_txq_deinit(hw, i)->dma_free_coherent().
-
-My patch set txq->txd to NULL after the first free to avoid the
-double free.
-
-Fixes: a66098daacee2 ("mwl8k: Marvell TOPDOG wireless driver")
-Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210402182627.4256-1-lyl2019@mail.ustc.edu.cn
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+[Ilya: fix commit message]
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwl8k.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
+ drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
+ 2 files changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/mwl8k.c b/drivers/net/wireless/marvell/mwl8k.c
-index b1b400b59d86..66cd38d4f199 100644
---- a/drivers/net/wireless/marvell/mwl8k.c
-+++ b/drivers/net/wireless/marvell/mwl8k.c
-@@ -1459,6 +1459,7 @@ static int mwl8k_txq_init(struct ieee80211_hw *hw, int index)
- 	txq->skb = kcalloc(MWL8K_TX_DESCS, sizeof(*txq->skb), GFP_KERNEL);
- 	if (txq->skb == NULL) {
- 		pci_free_consistent(priv->pdev, size, txq->txd, txq->txd_dma);
-+		txq->txd = NULL;
- 		return -ENOMEM;
- 	}
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+index a52909db67f6..dbd16dd5aa04 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -1041,7 +1041,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
+ 		skb->protocol = eth_type_trans(skb, netdev);
  
+ 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
+-		    RX_DMA_VID(trxd.rxd3))
++		    (trxd.rxd2 & RX_DMA_VTAG))
+ 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
+ 					       RX_DMA_VID(trxd.rxd3));
+ 		skb_record_rx_queue(skb, 0);
+diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+index 3d3c24a28112..ef82a30b2a0d 100644
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
+@@ -283,6 +283,7 @@
+ #define RX_DMA_DONE		BIT(31)
+ #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
+ #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
++#define RX_DMA_VTAG		BIT(15)
+ 
+ /* QDMA descriptor rxd3 */
+ #define RX_DMA_VID(_x)		((_x) & 0xfff)
 -- 
 2.30.2
 
