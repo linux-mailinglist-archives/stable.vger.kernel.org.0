@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9D438A9EB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 336A138AB5F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238239AbhETLHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:07:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38388 "EHLO mail.kernel.org"
+        id S241098AbhETLXq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:23:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239154AbhETLFh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:05:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A28BE61D1B;
-        Thu, 20 May 2021 10:05:14 +0000 (UTC)
+        id S240968AbhETLVp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:21:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B0FA61430;
+        Thu, 20 May 2021 10:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505115;
-        bh=JXmTuobwAbnhWAc/TeI1sLaB+hU4IUFukikAe6g+w/g=;
+        s=korg; t=1621505487;
+        bh=rYCCULLztU7od0So7eMpCzb6sjaWePsMR0pnfPpPrNk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qr2suOdoWtf8/AVSgdOHiDMTuOchD9ushdL3bx5b2XZnbA5ucgfJ+Kvr9ryqRLWGE
-         5HMACnxokgf797xag3+HzvF+/eU8Y5hYewbzvzobbwGxSxdX/9xgSnHPYGMXMujjvQ
-         VeRKGw4t5RkqsxoX0YqhURW9+PUyQfXsQpFf2YQQ=
+        b=M7EhijdC20hUMwa1vB2PScnSvYCiKyVdN3cOFaW5lvPK/jhsM2nUyj8fDmUfvVnbe
+         tb5KeMTjwkvLAE0nn91wyjxQein6m16ckOzbMlZQLCHN4YrCH90y7YMZ/4BIMLze/b
+         6UqHpGx+itT+P5A7OyEvyuVuI0rwf2UyTfd4+iiY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 230/240] ARM: 9058/1: cache-v7: refactor v7_invalidate_l1 to avoid clobbering r5/r6
+Subject: [PATCH 4.4 158/190] sctp: fix a SCTP_MIB_CURRESTAB leak in sctp_sf_do_dupcook_b
 Date:   Thu, 20 May 2021 11:23:42 +0200
-Message-Id: <20210520092116.427654260@linuxfoundation.org>
+Message-Id: <20210520092107.389871451@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit f9e7a99fb6b86aa6a00e53b34ee6973840e005aa ]
+[ Upstream commit f282df0391267fb2b263da1cc3233aa6fb81defc ]
 
-The cache invalidation code in v7_invalidate_l1 can be tweaked to
-re-read the associativity from CCSIDR, and keep the way identifier
-component in a single register that is assigned in the outer loop. This
-way, we need 2 registers less.
+Normally SCTP_MIB_CURRESTAB is always incremented once asoc enter into
+ESTABLISHED from the state < ESTABLISHED and decremented when the asoc
+is being deleted.
 
-Given that the number of sets is typically much larger than the
-associativity, rearrange the code so that the outer loop has the fewer
-number of iterations, ensuring that the re-read of CCSIDR only occurs a
-handful of times in practice.
+However, in sctp_sf_do_dupcook_b(), the asoc's state can be changed to
+ESTABLISHED from the state >= ESTABLISHED where it shouldn't increment
+SCTP_MIB_CURRESTAB. Otherwise, one asoc may increment MIB_CURRESTAB
+multiple times but only decrement once at the end.
 
-Fix the whitespace while at it, and update the comment to indicate that
-this code is no longer a clone of anything else.
+I was able to reproduce it by using scapy to do the 4-way shakehands,
+after that I replayed the COOKIE-ECHO chunk with 'peer_vtag' field
+changed to different values, and SCTP_MIB_CURRESTAB was incremented
+multiple times and never went back to 0 even when the asoc was freed.
 
-Acked-by: Nicolas Pitre <nico@fluxnic.net>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+This patch is to fix it by only incrementing SCTP_MIB_CURRESTAB when
+the state < ESTABLISHED in sctp_sf_do_dupcook_b().
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Reported-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/cache-v7.S | 51 +++++++++++++++++++++---------------------
- 1 file changed, 25 insertions(+), 26 deletions(-)
+ net/sctp/sm_statefuns.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/mm/cache-v7.S b/arch/arm/mm/cache-v7.S
-index 11d699af30ed..db568be45946 100644
---- a/arch/arm/mm/cache-v7.S
-+++ b/arch/arm/mm/cache-v7.S
-@@ -27,41 +27,40 @@
-  * processor.  We fix this by performing an invalidate, rather than a
-  * clean + invalidate, before jumping into the kernel.
-  *
-- * This function is cloned from arch/arm/mach-tegra/headsmp.S, and needs
-- * to be called for both secondary cores startup and primary core resume
-- * procedures.
-+ * This function needs to be called for both secondary cores startup and
-+ * primary core resume procedures.
-  */
- ENTRY(v7_invalidate_l1)
-        mov     r0, #0
-        mcr     p15, 2, r0, c0, c0, 0
-        mrc     p15, 1, r0, c0, c0, 0
+diff --git a/net/sctp/sm_statefuns.c b/net/sctp/sm_statefuns.c
+index a9a72f7e0cd7..a9ba6f2bb8c8 100644
+--- a/net/sctp/sm_statefuns.c
++++ b/net/sctp/sm_statefuns.c
+@@ -1851,7 +1851,8 @@ static sctp_disposition_t sctp_sf_do_dupcook_b(struct net *net,
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_UPDATE_ASSOC, SCTP_ASOC(new_asoc));
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_NEW_STATE,
+ 			SCTP_STATE(SCTP_STATE_ESTABLISHED));
+-	SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
++	if (asoc->state < SCTP_STATE_ESTABLISHED)
++		SCTP_INC_STATS(net, SCTP_MIB_CURRESTAB);
+ 	sctp_add_cmd_sf(commands, SCTP_CMD_HB_TIMERS_START, SCTP_NULL());
  
--       movw    r1, #0x7fff
--       and     r2, r1, r0, lsr #13
-+	movw	r3, #0x3ff
-+	and	r3, r3, r0, lsr #3	@ 'Associativity' in CCSIDR[12:3]
-+	clz	r1, r3			@ WayShift
-+	mov	r2, #1
-+	mov	r3, r3, lsl r1		@ NumWays-1 shifted into bits [31:...]
-+	movs	r1, r2, lsl r1		@ #1 shifted left by same amount
-+	moveq	r1, #1			@ r1 needs value > 0 even if only 1 way
- 
--       movw    r1, #0x3ff
-+	and	r2, r0, #0x7
-+	add	r2, r2, #4		@ SetShift
- 
--       and     r3, r1, r0, lsr #3      @ NumWays - 1
--       add     r2, r2, #1              @ NumSets
-+1:	movw	r4, #0x7fff
-+	and	r0, r4, r0, lsr #13	@ 'NumSets' in CCSIDR[27:13]
- 
--       and     r0, r0, #0x7
--       add     r0, r0, #4      @ SetShift
--
--       clz     r1, r3          @ WayShift
--       add     r4, r3, #1      @ NumWays
--1:     sub     r2, r2, #1      @ NumSets--
--       mov     r3, r4          @ Temp = NumWays
--2:     subs    r3, r3, #1      @ Temp--
--       mov     r5, r3, lsl r1
--       mov     r6, r2, lsl r0
--       orr     r5, r5, r6      @ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
--       mcr     p15, 0, r5, c7, c6, 2
--       bgt     2b
--       cmp     r2, #0
--       bgt     1b
--       dsb     st
--       isb
--       ret     lr
-+2:	mov	r4, r0, lsl r2		@ NumSet << SetShift
-+	orr	r4, r4, r3		@ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
-+	mcr	p15, 0, r4, c7, c6, 2
-+	subs	r0, r0, #1		@ Set--
-+	bpl	2b
-+	subs	r3, r3, r1		@ Way--
-+	bcc	3f
-+	mrc	p15, 1, r0, c0, c0, 0	@ re-read cache geometry from CCSIDR
-+	b	1b
-+3:	dsb	st
-+	isb
-+	ret	lr
- ENDPROC(v7_invalidate_l1)
- 
- /*
+ 	repl = sctp_make_cookie_ack(new_asoc, chunk);
 -- 
 2.30.2
 
