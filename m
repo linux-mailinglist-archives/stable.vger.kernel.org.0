@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5360738A42E
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D18C138A435
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235068AbhETKB5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:01:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59134 "EHLO mail.kernel.org"
+        id S235109AbhETKCN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:02:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235309AbhETJ7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 57D7C616EA;
-        Thu, 20 May 2021 09:38:48 +0000 (UTC)
+        id S235317AbhETJ7w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:59:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A9F461864;
+        Thu, 20 May 2021 09:38:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503528;
-        bh=+uwFB22R7uq68oCTs6inYh+B0n7EtzWjvWskIxez55U=;
+        s=korg; t=1621503531;
+        bh=Tr2taFZ+B9uuMno3GJMN89fBtGGXkeyToDsOSsIv/bQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xDYXwdVonC58riYvOY2dGg7Q9nRtYPprjHRfLzWPTatb6qUp+ZqXRVWBFL8Vte1vb
-         Sp7qDRzejAMYSKShnTH69iphEOryV70ST89iHBEMXE7sBfyJD7EUhSSQPPeX5Z/Nr1
-         P7wfB9Dxh03MyPGF3mybO7Du2pa/CwcvIjrqnkng=
+        b=XFtptVscbyqI5tIVECfWkWlu+TmwiUHLGkC2ycUZ+BKkPdwcNj7FerlYRVYx5A5KJ
+         RN7ZbWkVPLzhkuA836a2NIUKh+8A5nUAxCJNFpgWcp+VegtQdz0ZFraFLQjPKSSw9Z
+         ypRmVXI+WvjjaYB4Oafu7m9VZqBW/OK5MdmouRqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Jakub Kicinski <kubakici@wp.pl>,
-        Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 263/425] mt7601u: fix always true expression
-Date:   Thu, 20 May 2021 11:20:32 +0200
-Message-Id: <20210520092140.091838814@linuxfoundation.org>
+Subject: [PATCH 4.19 264/425] IB/hfi1: Fix error return code in parse_platform_config()
+Date:   Thu, 20 May 2021 11:20:33 +0200
+Message-Id: <20210520092140.121935960@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,45 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit 87fce88658ba047ae62e83497d3f3c5dc22fa6f9 ]
+[ Upstream commit 4c7d9c69adadfc31892c7e8e134deb3546552106 ]
 
-Currently the expression ~nic_conf1 is always true because nic_conf1
-is a u16 and according to 6.5.3.3 of the C standard the ~ operator
-promotes the u16 to an integer before flipping all the bits. Thus
-the top 16 bits of the integer result are all set so the expression
-is always true.  If the intention was to flip all the bits of nic_conf1
-then casting the integer result back to a u16 is a suitabel fix.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Interestingly static analyzers seem to thing a bitwise ! should be
-used instead of ~ for this scenario, so I think the original intent
-of the expression may need some extra consideration.
-
-Addresses-Coverity: ("Logical vs. bitwise operator")
-Fixes: c869f77d6abb ("add mt7601u driver")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Acked-by: Jakub Kicinski <kubakici@wp.pl>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210225183241.1002129-1-colin.king@canonical.com
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20210408113140.103032-1-wangwensheng4@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt7601u/eeprom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/infiniband/hw/hfi1/firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/mediatek/mt7601u/eeprom.c b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-index 76117b402880..6ab1035e4a12 100644
---- a/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-+++ b/drivers/net/wireless/mediatek/mt7601u/eeprom.c
-@@ -107,7 +107,7 @@ mt7601u_has_tssi(struct mt7601u_dev *dev, u8 *eeprom)
- {
- 	u16 nic_conf1 = get_unaligned_le16(eeprom + MT_EE_NIC_CONF_1);
- 
--	return ~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
-+	return (u16)~nic_conf1 && (nic_conf1 & MT_EE_NIC_CONF_1_TX_ALC_EN);
- }
- 
- static void
+diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
+index 2b57ba70ddd6..c09080712485 100644
+--- a/drivers/infiniband/hw/hfi1/firmware.c
++++ b/drivers/infiniband/hw/hfi1/firmware.c
+@@ -1924,6 +1924,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 			dd_dev_err(dd, "%s: Failed CRC check at offset %ld\n",
+ 				   __func__, (ptr -
+ 				   (u32 *)dd->platform_config.data));
++			ret = -EINVAL;
+ 			goto bail;
+ 		}
+ 		/* Jump the CRC DWORD */
 -- 
 2.30.2
 
