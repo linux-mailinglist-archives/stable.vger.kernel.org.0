@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE0AF38AB49
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D2038A9C0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240201AbhETLWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41684 "EHLO mail.kernel.org"
+        id S238152AbhETLGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239302AbhETLUH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:20:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5F1A61D7F;
-        Thu, 20 May 2021 10:10:49 +0000 (UTC)
+        id S237450AbhETLEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A05B6192D;
+        Thu, 20 May 2021 10:04:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505450;
-        bh=E7mHyoEwyXkGAKYTtK4vbGOHHPNmnD95sxULoObJ1qc=;
+        s=korg; t=1621505077;
+        bh=GgrLl6uBq4OvXt0I0ec1fvwloYaMRa2/9eAwroYI6aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mG4Ng09d2z3NLgQwUgEuUoqAg3iH3MNFcA0czrkj04u/aZP/DdHQIWt4HM+sK/xjl
-         Gn4tYUoB8tXEZGwM4uHEp8VK+QCw09vquzLKi7hzhE3qkYDOkC6oE9mGss1de7cDSe
-         z5raGSfqKb89vLduwL+EOfaNoWbszSjsxNj+Bjcc=
+        b=APrTI7NVNuJKpO2AeTo2RTH3dGN3K7dTqTL7FOGoA5dpTrrFgERn4KPL051IMvIYN
+         GPYQNhi7ugVnhmeCZ3VT5Z+Fm3vbeu4MFzXtxHqBz8QoMW2xsu4kc3+uvLtPyCqJKY
+         ei1Gax31KZ0Pa8wFYX4xErr7QiL/JvnZXUTB/tmI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 139/190] ALSA: hdspm: dont disable if not enabled
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.9 211/240] usb: xhci: Increase timeout for HC halt
 Date:   Thu, 20 May 2021 11:23:23 +0200
-Message-Id: <20210520092106.790395683@linuxfoundation.org>
+Message-Id: <20210520092115.755695313@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-[ Upstream commit 790f5719b85e12e10c41753b864e74249585ed08 ]
+commit ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 upstream.
 
-hdspm wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+On some devices (specifically the SC8180x based Surface Pro X with
+QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
+the xhci-hcd driver at some point later does not exhibit this behavior.
+To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
+issue.
 
-[    1.786391] snd_hdspm 0000:00:03.0: disabling already-disabled device
-[    1.786400] WARNING: CPU: 0 PID: 182 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.795181] Call Trace:
-[    1.795320]  snd_hdspm_card_free+0x58/0xa0 [snd_hdspm]
-[    1.795595]  release_card_device+0x4b/0x80 [snd]
-[    1.795860]  device_release+0x3b/0xa0
-[    1.796072]  kobject_put+0x94/0x1b0
-[    1.796260]  put_device+0x13/0x20
-[    1.796438]  snd_card_free+0x61/0x90 [snd]
-[    1.796659]  snd_hdspm_probe+0x97b/0x1440 [snd_hdspm]
-
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-3-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/rme9652/hdspm.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/host/xhci-ext-caps.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/rme9652/hdspm.c b/sound/pci/rme9652/hdspm.c
-index 1a0c0d16a279..f4b164f19d30 100644
---- a/sound/pci/rme9652/hdspm.c
-+++ b/sound/pci/rme9652/hdspm.c
-@@ -6912,7 +6912,8 @@ static int snd_hdspm_free(struct hdspm * hdspm)
- 	if (hdspm->port)
- 		pci_release_regions(hdspm->pci);
+--- a/drivers/usb/host/xhci-ext-caps.h
++++ b/drivers/usb/host/xhci-ext-caps.h
+@@ -19,8 +19,9 @@
+  * along with this program; if not, write to the Free Software Foundation,
+  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+-/* Up to 16 ms to halt an HC */
+-#define XHCI_MAX_HALT_USEC	(16*1000)
++
++/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
++#define XHCI_MAX_HALT_USEC	(32 * 1000)
+ /* HC not running - set to 1 when run/stop bit is cleared. */
+ #define XHCI_STS_HALT		(1<<0)
  
--	pci_disable_device(hdspm->pci);
-+	if (pci_is_enabled(hdspm->pci))
-+		pci_disable_device(hdspm->pci);
- 	return 0;
- }
- 
--- 
-2.30.2
-
 
 
