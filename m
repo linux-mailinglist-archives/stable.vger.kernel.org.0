@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7397538A6D3
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD71A38A885
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236709AbhETKbA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:31:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55694 "EHLO mail.kernel.org"
+        id S238336AbhETKvR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235366AbhETK1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:27:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 488FC6148E;
-        Thu, 20 May 2021 09:50:39 +0000 (UTC)
+        id S238442AbhETKsl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:48:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BDF661CB7;
+        Thu, 20 May 2021 09:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504239;
-        bh=ZIc94EMqkcuLuXABTiZV+DtZ32oFzvSevuNJeutMsao=;
+        s=korg; t=1621504732;
+        bh=K414adILnCwidcvQb3gPQD1BmTcpxvdsNwWyokDk6ak=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ngBQCaAa7JAx55jNKib0qWEOWMkdwLU+8fgFqQpjP6S+At/t6k3viSqnyrajm/iSm
-         fv5kaQvhLPYoGodp0SXmCijRVKb2tDcnm3oAOGrDlDVZ4/79uZSyKy18n9ujp5KI/J
-         yx+dNvgzjL8GGJ4qMLhiZGeE5mu3hDYfIqTa3HV4=
+        b=tx3xXALfRlTrKao0Hv66HB7V2elsnE9mKDNrpwgLdXKEXlfva5ugq0WeeBdkBQA7Z
+         T7c6Z7zMYG48zkut4HViq421U3tJ6nzSdCwJRjURBeqYrvOGzkf6XUpVc79PwkvuK4
+         tP0OvA1A07BxwWJxkldqeIt2/25LDofbeUq8ZYGQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabian Vogt <fabian@ritter-vogt.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 155/323] fotg210-udc: Dont DMA more than the buffer can take
+        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
+        Tony Ambardar <Tony.Ambardar@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.9 055/240] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
 Date:   Thu, 20 May 2021 11:20:47 +0200
-Message-Id: <20210520092125.416291777@linuxfoundation.org>
+Message-Id: <20210520092110.528016458@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabian Vogt <fabian@ritter-vogt.de>
+From: Tony Ambardar <tony.ambardar@gmail.com>
 
-[ Upstream commit 3e7c2510bdfe89a9ec223dd7acd6bfc8bb1cbeb6 ]
+commit 7de21e679e6a789f3729e8402bc440b623a28eae upstream.
 
-Before this, it wrote as much as available into the buffer, even if it
-didn't fit.
+A few archs like powerpc have different errno.h values for macros
+EDEADLOCK and EDEADLK. In code including both libc and linux versions of
+errno.h, this can result in multiple definitions of EDEADLOCK in the
+include chain. Definitions to the same value (e.g. seen with mips) do
+not raise warnings, but on powerpc there are redefinitions changing the
+value, which raise warnings and errors (if using "-Werror").
 
-Fixes: b84a8dee23fd ("usb: gadget: add Faraday fotg210_udc driver")
-Signed-off-by: Fabian Vogt <fabian@ritter-vogt.de>
-Link: https://lore.kernel.org/r/20210324141115.9384-7-fabian@ritter-vogt.de
+Guard against these redefinitions to avoid build errors like the following,
+first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
+musl 1.1.24:
+
+  In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
+                   from ../../include/linux/err.h:8,
+                   from libbpf.c:29:
+  ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
+   #define EDEADLOCK EDEADLK
+
+  In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
+                   from libbpf.c:26:
+  toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
+   #define EDEADLOCK       58
+
+  cc1: all warnings being treated as errors
+
+Cc: Stable <stable@vger.kernel.org>
+Reported-by: Rosen Penev <rosenp@gmail.com>
+Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20200917135437.1238787-1-Tony.Ambardar@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/fotg210-udc.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/powerpc/include/uapi/asm/errno.h |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/gadget/udc/fotg210-udc.c b/drivers/usb/gadget/udc/fotg210-udc.c
-index d25cf5d44121..315d0e485d32 100644
---- a/drivers/usb/gadget/udc/fotg210-udc.c
-+++ b/drivers/usb/gadget/udc/fotg210-udc.c
-@@ -340,8 +340,9 @@ static void fotg210_start_dma(struct fotg210_ep *ep,
- 		} else {
- 			buffer = req->req.buf + req->req.actual;
- 			length = ioread32(ep->fotg210->reg +
--					FOTG210_FIBCR(ep->epnum - 1));
--			length &= FIBCR_BCFX;
-+					FOTG210_FIBCR(ep->epnum - 1)) & FIBCR_BCFX;
-+			if (length > req->req.length - req->req.actual)
-+				length = req->req.length - req->req.actual;
- 		}
- 	} else {
- 		buffer = req->req.buf + req->req.actual;
--- 
-2.30.2
-
+--- a/arch/powerpc/include/uapi/asm/errno.h
++++ b/arch/powerpc/include/uapi/asm/errno.h
+@@ -1,6 +1,7 @@
+ #ifndef _ASM_POWERPC_ERRNO_H
+ #define _ASM_POWERPC_ERRNO_H
+ 
++#undef	EDEADLOCK
+ #include <asm-generic/errno.h>
+ 
+ #undef	EDEADLOCK
 
 
