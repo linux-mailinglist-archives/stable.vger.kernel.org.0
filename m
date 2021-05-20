@@ -2,100 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C6E389FDF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:33:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 393F2389FE3
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:34:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230469AbhETIeX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 04:34:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
+        id S231205AbhETIfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 04:35:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229536AbhETIeX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 04:34:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 95F246109F;
-        Thu, 20 May 2021 08:33:01 +0000 (UTC)
+        id S229536AbhETIfw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 04:35:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E5636109F;
+        Thu, 20 May 2021 08:34:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621499582;
-        bh=6LfKTN8Z0EWHEKM5jlZPV/0/GdXAxxf4veT/rADq2do=;
+        s=korg; t=1621499670;
+        bh=u4rAT+IESICmMNtLLzr6UXo0VOeuySTjohvGBb78gO8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=z00mt0m2dm6JAvzf1fagYtEU/7r8/6THBGgGB0Rzdi44Lvm9sWTNRm0bcAUrqP+CL
-         DwHm77NLV/DnZYGZlPCA41Omm+0SVNv9yxO78t2WE+7mZjNtk/cfRzRjdZFHz3nNi9
-         fgPTg6r08q7MUH+STCV21TbQiHY3uiFYwGw6eHw4=
-Date:   Thu, 20 May 2021 10:32:59 +0200
+        b=CkE2J9mM+Y6CaEfojl2Gl2O2RUfezyePT9l3irRUy+8cZ1qjKtE053geAcVNzV1+N
+         KI4ohL54RJgcTjw4DhPgjt+JAm+9x6LZyi1++DRR8P1idMPUlR6KNSt8STkI9nVbyi
+         HcazCoapc+K7s024Dp47z+Ws0MsKyk7a7DrEnTig=
+Date:   Thu, 20 May 2021 10:34:28 +0200
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Marc Orr <marcorr@google.com>
-Cc:     Jianxiong Gao <jxgao@google.com>, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>, sashal@kernel.org
-Subject: Re: [PATCH 5.4 v2 0/9] preserve DMA offsets when using swiotlb
-Message-ID: <YKYeuwIK2jL+ICgw@kroah.com>
-References: <20210518221818.2963918-1-jxgao@google.com>
- <YKTIJsD2KmiV3mIb@kroah.com>
- <CAMGD6P1FBwYBnVPPSFtn0qgHbs+y=stZXhnYHjX82H+vqei+AQ@mail.gmail.com>
- <YKVE2kerpTzoeIL+@kroah.com>
- <CAA03e5E9ojmsVNcHK4MyuYKCCFLo-RTFa17dA5Ay5v9rCMH+kg@mail.gmail.com>
- <YKVJ7vjUmIUAmdC0@kroah.com>
- <CAA03e5Fe7LZcQ3pwhaVCG-mMWeyfr1VyYjmM8tLkVbzOcAiECg@mail.gmail.com>
+To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Cc:     stable@vger.kernel.org, sashal@kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: Re: [PATCH for 4.4, 4.9 and 4.14] xhci: Do not use GFP_KERNEL in
+ (potentially) atomic context
+Message-ID: <YKYfFAXul22Xy0lH@kroah.com>
+References: <20210518033035.37976-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CAA03e5Fe7LZcQ3pwhaVCG-mMWeyfr1VyYjmM8tLkVbzOcAiECg@mail.gmail.com>
+In-Reply-To: <20210518033035.37976-1-nobuhiro1.iwamatsu@toshiba.co.jp>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, May 19, 2021 at 01:01:25PM -0700, Marc Orr wrote:
-> On Wed, May 19, 2021 at 10:25 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Wed, May 19, 2021 at 10:18:38AM -0700, Marc Orr wrote:
-> > > On Wed, May 19, 2021 at 10:03 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > On Wed, May 19, 2021 at 09:42:42AM -0700, Jianxiong Gao wrote:
-> > > > > On Wed, May 19, 2021 at 1:11 AM Greg KH <gregkh@linuxfoundation.org> wrote:
-> > > > > >
-> > > > > > I still fail to understand why you can not just use the 5.10.y kernel or
-> > > > > > newer.  What is preventing you from doing this if you wish to use this
-> > > > > > type of hardware?  This is not a "regression" in that the 5.4.y kernel
-> > > > > > has never worked with this hardware before, it feels like a new feature.
-> > > > > >
-> > > > > NVMe + SWIOTLB is not a new feature. From my understanding it should
-> > > > > be supported by 5.4.y kernel correctly. Currently without the patch, any
-> > > > > NVMe device (along with some other devices that relies on offset to
-> > > > > work correctly), could be broken if the SWIOTLB is used on a 5.4.y kernel.
-> > > >
-> > > > Then do not do that, as obviously it never worked without your fixes, so
-> > > > this isn't a "regression".
-> > >
-> > > NVMe + SWIOTLB works fine without this bug fix. By fine I mean that a
-> > > guest kernel using this configuration boots and runs stably for weeks
-> > > and months under general-purpose usage. The bug that this patch set
-> > > fixes was only encountered when a user tried to format an xfs
-> > > filesystem under a RHEL guest kernel.
-> > >
-> > > > And again, why can you not just use 5.10.y?
-> > >
-> > > For our use case, this fixes the guest kernel, not the host kernel.
-> > > The guest distros that we support use 5.4 kernels. We do not control
-> > > the kernel that the distros deploy for usage as a guest OS on cloud.
-> > > We only control the host kernel.
-> >
-> > And how are you going to get your guest kernels to update to these
-> > patches?  What specific ones are you concerned about?
-> >
-> > RHEL ignores stable kernel updates, so if you are worried about them,
-> > please just work with that company directly.
+On Tue, May 18, 2021 at 12:30:35PM +0900, Nobuhiro Iwamatsu wrote:
+> From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 > 
-> We support COS as a guest [1], which does base their kernel on 5.4
-> LTS. If these patches were accepted into 5.4 LTS, they would
-> automatically get picked up by COS.
+> commit dda32c00c9a0fa103b5d54ef72c477b7aa993679 upstream.
 > 
-> [1] https://cloud.google.com/container-optimized-os
+> 'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
+> submitted in interrupt context" (see comment related to 'usb_submit_urb()'
+> in 'drivers/usb/core/urb.c')
+> 
+> So this flag should be used in all the calling chain.
+> Up to now, 'xhci_check_maxpacket()' which is only called from
+> 'xhci_urb_enqueue()', uses GFP_KERNEL.
+> 
+> Be safe and pass the mem_flags to this function as well.
+> 
+> Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+> Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> [iwamatsu: Adjust context]
+> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-Then go work with that group to add this "required" set of new features
-for your cloud systems that require this as again, I fail to see how
-this is a "regression" at all.
-
-Maybe I should just go rip out these from 5.10.y as well as it feels
-like a _very_ platform-specific issue that you all are having here.
-
-thanks,
+Now queued up, thanks.
 
 greg k-h
