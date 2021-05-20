@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D097238AB0D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C53438A983
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:02:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240168AbhETLUQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38694 "EHLO mail.kernel.org"
+        id S239307AbhETLDJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:03:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239786AbhETLRn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7707861953;
-        Thu, 20 May 2021 10:09:50 +0000 (UTC)
+        id S238805AbhETLBG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:01:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5EA161D0B;
+        Thu, 20 May 2021 10:03:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505390;
-        bh=70Q2zUYevucvksNKB1LJtedxE0esBWEfuNKP45SGFWA=;
+        s=korg; t=1621505016;
+        bh=AjGOqExW+quzqlpRH62MIZZf6FTJQ3uW+MLWMVs9zNw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSYpn8FKw4W/vxChinhlARKvw954L8Am0z/2rydVShNZnHDx6BLWTSfyRhplvwgLc
-         uZnFrjjOXSRzAAC6Eaiqz/joHQKgOoVhBwekbFGsHd+7/0TQ03ARFxEn5SmPTQVPAR
-         7QB5CFKzoEu/luPvI7H7juor7EnUrjx+413Z9dG8=
+        b=zz8HuAZ09Y5QcQs1a/NkeUerLh8lv51k8mfydJZY2IeskbJlUv/nJQ5o1/PtrRAYV
+         t6CSUQR3FymAfPxuIrWBVRqwc6VJh4iRHhZ2niindLvG7loScYD8PCpfDZpFlq0Kur
+         IQD15KeqHFm6RERC2N91zdl+K+ckKlOBPAy2BbGE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 079/190] usb: gadget: pch_udc: Replace cpu_to_le32() by lower_32_bits()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 151/240] i2c: emev2: add IRQ check
 Date:   Thu, 20 May 2021 11:22:23 +0200
-Message-Id: <20210520092104.809400111@linuxfoundation.org>
+Message-Id: <20210520092113.715678155@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit 91356fed6afd1c83bf0d3df1fc336d54e38f0458 ]
+[ Upstream commit bb6129c32867baa7988f7fd2066cf18ed662d240 ]
 
-Either way ~0 will be in the correct byte order, hence
-replace cpu_to_le32() by lower_32_bits(). Moreover,
-it makes sparse happy, otherwise it complains:
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-.../pch_udc.c:1813:27: warning: incorrect type in assignment (different base types)
-.../pch_udc.c:1813:27:    expected unsigned int [usertype] dataptr
-.../pch_udc.c:1813:27:    got restricted __le32 [usertype]
-
-Fixes: f646cf94520e ("USB device driver of Topcliff PCH")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5faf6e1f58b4 ("i2c: emev2: add driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-emev2.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
-index f4b81e8f2272..6e84b27c14dd 100644
---- a/drivers/usb/gadget/udc/pch_udc.c
-+++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -1797,7 +1797,7 @@ static struct usb_request *pch_udc_alloc_request(struct usb_ep *usbep,
- 	}
- 	/* prevent from using desc. - set HOST BUSY */
- 	dma_desc->status |= PCH_UDC_BS_HST_BSY;
--	dma_desc->dataptr = cpu_to_le32(DMA_ADDR_INVALID);
-+	dma_desc->dataptr = lower_32_bits(DMA_ADDR_INVALID);
- 	req->td_data = dma_desc;
- 	req->td_data_last = dma_desc;
- 	req->chain_len = 1;
+diff --git a/drivers/i2c/busses/i2c-emev2.c b/drivers/i2c/busses/i2c-emev2.c
+index 0218ba6eb26a..ad33c1e3a30f 100644
+--- a/drivers/i2c/busses/i2c-emev2.c
++++ b/drivers/i2c/busses/i2c-emev2.c
+@@ -398,7 +398,10 @@ static int em_i2c_probe(struct platform_device *pdev)
+ 
+ 	em_i2c_reset(&priv->adap);
+ 
+-	priv->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		goto err_clk;
++	priv->irq = ret;
+ 	ret = devm_request_irq(&pdev->dev, priv->irq, em_i2c_irq_handler, 0,
+ 				"em_i2c", priv);
+ 	if (ret)
 -- 
 2.30.2
 
