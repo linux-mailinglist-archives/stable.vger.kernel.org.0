@@ -2,95 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98E51389F68
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F94B389F6E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:06:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230429AbhETIGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 04:06:02 -0400
-Received: from mo-csw1116.securemx.jp ([210.130.202.158]:34092 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229953AbhETIGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 04:06:02 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1116) id 14K84AxD017204; Thu, 20 May 2021 17:04:10 +0900
-X-Iguazu-Qid: 2wGqimLSomUC8jraHi
-X-Iguazu-QSIG: v=2; s=0; t=1621497850; q=2wGqimLSomUC8jraHi; m=yiJB+VldlNNmh0zuATGeRcy5kRgIebjrnRpfj8E++sY=
-Received: from imx12-a.toshiba.co.jp (imx12-a.toshiba.co.jp [61.202.160.135])
-        by relay.securemx.jp (mx-mr1113) id 14K8454q010202
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Thu, 20 May 2021 17:04:08 +0900
-Received: from enc02.toshiba.co.jp (enc02.toshiba.co.jp [61.202.160.51])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx12-a.toshiba.co.jp (Postfix) with ESMTPS id F0FB61000F9;
-        Thu, 20 May 2021 17:04:04 +0900 (JST)
-Received: from hop101.toshiba.co.jp ([133.199.85.107])
-        by enc02.toshiba.co.jp  with ESMTP id 14K844bV023050;
-        Thu, 20 May 2021 17:04:04 +0900
-Date:   Thu, 20 May 2021 17:04:03 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     Greg KH <greg@kroah.com>
-Cc:     Pavel Machek <pavel@denx.de>, wens@csie.org,
-        stable@vger.kernel.org, mark.tomlinson@alliedtelesis.co.nz,
-        pablo@netfilter.org
-Subject: Re: [PATCH 4.4] netfilter: x_tables: Use correct memory barriers.
-X-TSB-HOP: ON
-Message-ID: <20210520080403.w546dfihecpkvsh6@toshiba.co.jp>
-References: <20210509082436.GA25504@amd>
- <YJjmJvw/urUncdcd@kroah.com>
+        id S230426AbhETIHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 04:07:46 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54162 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229953AbhETIHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 04:07:44 -0400
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0571C061574;
+        Thu, 20 May 2021 01:06:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description;
+        bh=EnMP33KD+v1NrZLekTHVvqXVLcSZIAG5TyluA2WJ8xo=; b=VBOQN5YQLqy9hFu1pzd15ldk0y
+        iAt19jFhSEpbvZ1+Q5i649CVOMlTcX4wJFDz0K2mS6FalkPvOwtApOyYYTE6ztaWgacQD5nXnK8WP
+        xKZpNhvwKwiNHg8tWrb3zJvmOcHGoplx2s1DbyJrkQMrDGizj50ZiK0jcODlFJuasSrlrGz9Fobyj
+        iZ5z2jSSyGMJzyaephsd/TyQWpDQShzjsf51XJ6PjHFoLQBPdYsBu2K8u8mdfrvbcR0A9VurYVnQc
+        HmwYVZHicIjB2xZjcen1GpH2xP3B65fgz6pQJIymEoDFwumw8YBsiCpD4qnplFzTGb0KxLz6L7Rx1
+        09J8yQjw==;
+Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
+        id 1ljdg5-00FiuP-QZ; Thu, 20 May 2021 08:05:38 +0000
+Date:   Thu, 20 May 2021 09:05:09 +0100
+From:   Christoph Hellwig <hch@infradead.org>
+To:     colyli@suse.de
+Cc:     linux-bcache@vger.kernel.org, linux-block@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Diego Ercolani <diego.ercolani@gmail.com>,
+        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
+        Marco Rebhan <me@dblsaiko.net>,
+        Matthias Ferdinand <bcache@mfedv.net>,
+        Thorsten Knabe <linux@thorsten-knabe.de>,
+        Victor Westerhuis <victor@westerhu.is>,
+        Vojtech Pavlik <vojtech@suse.cz>, stable@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.com>,
+        Kent Overstreet <kent.overstreet@gmail.com>
+Subject: Re: [PATCH v3] bcache: avoid oversized read request in cache missing
+ code path
+Message-ID: <YKYYNVD+NsXaOFNe@infradead.org>
+References: <20210518110009.11413-1-colyli@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <YJjmJvw/urUncdcd@kroah.com>
+In-Reply-To: <20210518110009.11413-1-colyli@suse.de>
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+This fix is pretty gross.  Adding pages to bios can fail for all kinds
+of reasons, so the fix is to use bio_add_page and check its return
+value, and if it needs another bio keep looping and chaining more bios.
 
-On Mon, May 10, 2021 at 09:52:06AM +0200, Greg KH wrote:
-> On Sun, May 09, 2021 at 10:24:36AM +0200, Pavel Machek wrote:
-> > 
-> > From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-> > 
-> > commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 upstream.
-> > 
-> > When a new table value was assigned, it was followed by a write memory
-> > barrier. This ensured that all writes before this point would complete
-> > before any writes after this point. However, to determine whether the
-> > rules are unused, the sequence counter is read. To ensure that all
-> > writes have been done before these reads, a full memory barrier is
-> > needed, not just a write memory barrier. The same argument applies when
-> > incrementing the counter, before the rules are read.
-> > 
-> > Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
-> > reported in cc00bcaa5899 (which is still present), while still
-> > maintaining the same speed of replacing tables.
-> > 
-> > The smb_mb() barriers potentially slow the packet path, however testing
-> > has shown no measurable change in performance on a 4-core MIPS64
-> > platform.
-> > 
-> > Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
-> > Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-> > Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-> > [Ported to stable, affected barrier is added by d3d40f237480abf3268956daf18cdc56edd32834 in mainline]
-> > Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-> > ---
-> >  include/linux/netfilter/x_tables.h | 2 +-
-> >  net/netfilter/x_tables.c           | 3 +++
-> >  2 files changed, 4 insertions(+), 1 deletion(-)
-> 
-> What about 4.14 and 4.9?  I can't take patches only for 4.4 that are not
-> also in newer releases.
-
-I have confirmed that this patch can be applied to 4.9 and 4.14.
-Do I need resend this patch again?
-
-> 
-> thanks,
-> 
-> greg k-h
-> 
-
-Best regards,
-  Nobuhiro
+And maybe capping the readahead to some sane upper bound still makes
+sense, but it should never look at BIO_MAX_VECS for that.
