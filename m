@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DDC5438A1E1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:34:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB8B38A18D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232723AbhETJf5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:35:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35870 "EHLO mail.kernel.org"
+        id S232599AbhETJcA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:32:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231867AbhETJd5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:33:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9109613FC;
-        Thu, 20 May 2021 09:28:59 +0000 (UTC)
+        id S231718AbhETJaV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:30:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E24613B9;
+        Thu, 20 May 2021 09:27:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502940;
-        bh=rpf7cwl2Ri7h/8RGVYEo/sowX/WykXW286bVHGABWgI=;
+        s=korg; t=1621502850;
+        bh=rToa/W+40TfTQNkL81gd2N0p+SZiNa+CC09YxZAKv1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zul2zRA77lJor/lftVMGSrWx7d6hjIBMK6Sx8nZeLeS5nCQWrX/Tr1jEg/7tdhizo
-         s4CnJOveSMnJTzjyIsxSyKsW+cOMiAqyNo1Cck8jqvJBbF+q3vXrwaUnfNBZtWwtpa
-         xb+hzM9YK71TPvxAoUedRSWN9ZgFJBFfM6XFGf6o=
+        b=BNnwx4v8dHoQM9kmZGfdS7Y4+pxA/ptVs3UoGN27l6pW7AAKCbfDGpvocE3QqQrxI
+         6o8LpZ0nT2SqYa28RJ2SPkH/u/2yfJPI8m48Rxx49DsIRqcQ49TXW3JmwgtGpUgSeE
+         JfZbDZqEWkYSA+uGE98yF3rmDjFEmQ7DV81BQ0WY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 17/37] um: Disable CONFIG_GCOV with MODULES
-Date:   Thu, 20 May 2021 11:22:38 +0200
-Message-Id: <20210520092052.842992229@linuxfoundation.org>
+Subject: [PATCH 5.10 41/47] net: stmmac: Do not enable RX FIFO overflow interrupts
+Date:   Thu, 20 May 2021 11:22:39 +0200
+Message-Id: <20210520092054.871219094@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
-References: <20210520092052.265851579@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Yannick Vignon <yannick.vignon@nxp.com>
 
-[ Upstream commit ad3d19911632debc886ef4a992d41d6de7927006 ]
+[ Upstream commit 8a7cb245cf28cb3e541e0d6c8624b95d079e155b ]
 
-CONFIG_GCOV doesn't work with modules, and for various reasons
-it cannot work, see also
-https://lore.kernel.org/r/d36ea54d8c0a8dd706826ba844a6f27691f45d55.camel@sipsolutions.net
+The RX FIFO overflows when the system is not able to process all received
+packets and they start accumulating (first in the DMA queue in memory,
+then in the FIFO). An interrupt is then raised for each overflowing packet
+and handled in stmmac_interrupt(). This is counter-productive, since it
+brings the system (or more likely, one CPU core) to its knees to process
+the FIFO overflow interrupts.
 
-Make CONFIG_GCOV depend on !MODULES to avoid anyone
-running into issues there. This also means we need
-not export the gcov symbols.
+stmmac_interrupt() handles overflow interrupts by writing the rx tail ptr
+into the corresponding hardware register (according to the MAC spec, this
+has the effect of restarting the MAC DMA). However, without freeing any rx
+descriptors, the DMA stops right away, and another overflow interrupt is
+raised as the FIFO overflows again. Since the DMA is already restarted at
+the end of stmmac_rx_refill() after freeing descriptors, disabling FIFO
+overflow interrupts and the corresponding handling code has no side effect,
+and eliminates the interrupt storm when the RX FIFO overflows.
 
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Link: https://lore.kernel.org/r/20210506143312.20784-1-yannick.vignon@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/Kconfig.debug      |  1 +
- arch/um/kernel/Makefile    |  1 -
- arch/um/kernel/gmon_syms.c | 16 ----------------
- 3 files changed, 1 insertion(+), 17 deletions(-)
- delete mode 100644 arch/um/kernel/gmon_syms.c
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c  |  7 +------
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++------------
+ 2 files changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/arch/um/Kconfig.debug b/arch/um/Kconfig.debug
-index 85726eeec345..e4a0f12f20d9 100644
---- a/arch/um/Kconfig.debug
-+++ b/arch/um/Kconfig.debug
-@@ -17,6 +17,7 @@ config GCOV
- 	bool "Enable gcov support"
- 	depends on DEBUG_INFO
- 	depends on !KCOV
-+	depends on !MODULES
- 	help
- 	  This option allows developers to retrieve coverage data from a UML
- 	  session.
-diff --git a/arch/um/kernel/Makefile b/arch/um/kernel/Makefile
-index 5aa882011e04..e698e0c7dbdc 100644
---- a/arch/um/kernel/Makefile
-+++ b/arch/um/kernel/Makefile
-@@ -21,7 +21,6 @@ obj-y = config.o exec.o exitcode.o irq.o ksyms.o mem.o \
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+index 62aa0e95beb7..a7249e4071f1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+@@ -222,7 +222,7 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+ 				       u32 channel, int fifosz, u8 qmode)
+ {
+ 	unsigned int rqs = fifosz / 256 - 1;
+-	u32 mtl_rx_op, mtl_rx_int;
++	u32 mtl_rx_op;
  
- obj-$(CONFIG_BLK_DEV_INITRD) += initrd.o
- obj-$(CONFIG_GPROF)	+= gprof_syms.o
--obj-$(CONFIG_GCOV)	+= gmon_syms.o
- obj-$(CONFIG_EARLY_PRINTK) += early_printk.o
- obj-$(CONFIG_STACKTRACE) += stacktrace.o
+ 	mtl_rx_op = readl(ioaddr + MTL_CHAN_RX_OP_MODE(channel));
  
-diff --git a/arch/um/kernel/gmon_syms.c b/arch/um/kernel/gmon_syms.c
-deleted file mode 100644
-index 9361a8eb9bf1..000000000000
---- a/arch/um/kernel/gmon_syms.c
-+++ /dev/null
-@@ -1,16 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--/*
-- * Copyright (C) 2001 - 2007 Jeff Dike (jdike@{addtoit,linux.intel}.com)
-- */
+@@ -283,11 +283,6 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+ 	}
+ 
+ 	writel(mtl_rx_op, ioaddr + MTL_CHAN_RX_OP_MODE(channel));
 -
--#include <linux/module.h>
+-	/* Enable MTL RX overflow */
+-	mtl_rx_int = readl(ioaddr + MTL_CHAN_INT_CTRL(channel));
+-	writel(mtl_rx_int | MTL_RX_OVERFLOW_INT_EN,
+-	       ioaddr + MTL_CHAN_INT_CTRL(channel));
+ }
+ 
+ static void dwmac4_dma_tx_chan_op_mode(void __iomem *ioaddr, int mode,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 5b9478dffe10..4374ce4671ad 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4138,7 +4138,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 	/* To handle GMAC own interrupts */
+ 	if ((priv->plat->has_gmac) || xmac) {
+ 		int status = stmmac_host_irq_status(priv, priv->hw, &priv->xstats);
+-		int mtl_status;
+ 
+ 		if (unlikely(status)) {
+ 			/* For LPI we need to save the tx status */
+@@ -4149,17 +4148,8 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 		}
+ 
+ 		for (queue = 0; queue < queues_count; queue++) {
+-			struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
 -
--extern void __bb_init_func(void *)  __attribute__((weak));
--EXPORT_SYMBOL(__bb_init_func);
+-			mtl_status = stmmac_host_mtl_irq_status(priv, priv->hw,
+-								queue);
+-			if (mtl_status != -EINVAL)
+-				status |= mtl_status;
 -
--extern void __gcov_init(void *)  __attribute__((weak));
--EXPORT_SYMBOL(__gcov_init);
--extern void __gcov_merge_add(void *, unsigned int)  __attribute__((weak));
--EXPORT_SYMBOL(__gcov_merge_add);
--extern void __gcov_exit(void)  __attribute__((weak));
--EXPORT_SYMBOL(__gcov_exit);
+-			if (status & CORE_IRQ_MTL_RX_OVERFLOW)
+-				stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
+-						       rx_q->rx_tail_addr,
+-						       queue);
++			status = stmmac_host_mtl_irq_status(priv, priv->hw,
++							    queue);
+ 		}
+ 
+ 		/* PCS link status */
 -- 
 2.30.2
 
