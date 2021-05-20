@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90EF838A634
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:24:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5232438A636
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236151AbhETKZM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:25:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51820 "EHLO mail.kernel.org"
+        id S236206AbhETKZN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:25:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235010AbhETKWf (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235063AbhETKWf (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:22:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B37561464;
-        Thu, 20 May 2021 09:48:22 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C1BDB619F1;
+        Thu, 20 May 2021 09:48:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504103;
-        bh=rDITWcHQR7WEXYie3ztrYHP2UAh7XPB22lNRAsSJRhk=;
+        s=korg; t=1621504105;
+        bh=ORvfsTPWidhMijguO6X2vUt3yYaF9/7ZZj8+OK9Lx3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BBcj3uWoZblIow2iHIzEKqMNMXY1Ny9642TmHSelI/xh+u/9jwMyB1UXrRLn+RW5i
-         wuk6n5YOYHM13w36++L83h4XSb8Wvn7H//mFg/5xAkwTnSd4kpTQNyMBR5Ynf/Ew/m
-         FBVmyBluapoBJXKrXQ5G2KPtpB/pn21FyLo3Bcf4=
+        b=WARzeifrhA7VZfKPFx58cl+JhVXlg5f+ZTeVcCdgvIThumtb0qDeLQYuaT3CwD/mC
+         NXbe2hbdH7LASTVqfC+eoiR6J+Jmg4qksrchfLzt0dR3K6ITTjQXXipLOprKom3Yrk
+         B+x1LwmFv+duL4K1g6QrDQzNjT0+pELg46EckV9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Dinh Nguyen <dinguyen@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 059/323] media: vivid: update EDID
-Date:   Thu, 20 May 2021 11:19:11 +0200
-Message-Id: <20210520092122.133528966@linuxfoundation.org>
+Subject: [PATCH 4.14 060/323] clk: socfpga: arria10: Fix memory leak of socfpga_clk on error return
+Date:   Thu, 20 May 2021 11:19:12 +0200
+Message-Id: <20210520092122.174952678@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,54 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 443ec4bbc6116f6f492a7a1282bfd8422c862158 ]
+[ Upstream commit 657d4d1934f75a2d978c3cf2086495eaa542e7a9 ]
 
-The EDID had a few mistakes as reported by edid-decode:
+There is an error return path that is not kfree'ing socfpga_clk leading
+to a memory leak. Fix this by adding in the missing kfree call.
 
-Block 1, CTA-861 Extension Block:
-  Video Data Block: For improved preferred timing interoperability, set 'Native detailed modes' to 1.
-  Video Capability Data Block: S_PT is equal to S_IT and S_CE, so should be set to 0 instead.
-
-Fixed those.
-
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Addresses-Coverity: ("Resource leak")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Link: https://lore.kernel.org/r/20210406170115.430990-1-colin.king@canonical.com
+Acked-by: Dinh Nguyen <dinguyen@kernel.org>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/clk/socfpga/clk-gate-a10.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/platform/vivid/vivid-core.c b/drivers/media/platform/vivid/vivid-core.c
-index 5f316a5e38db..6754e5fcc4c4 100644
---- a/drivers/media/platform/vivid/vivid-core.c
-+++ b/drivers/media/platform/vivid/vivid-core.c
-@@ -186,13 +186,13 @@ static const u8 vivid_hdmi_edid[256] = {
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
- 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x7b,
- 
--	0x02, 0x03, 0x3f, 0xf0, 0x51, 0x61, 0x60, 0x5f,
-+	0x02, 0x03, 0x3f, 0xf1, 0x51, 0x61, 0x60, 0x5f,
- 	0x5e, 0x5d, 0x10, 0x1f, 0x04, 0x13, 0x22, 0x21,
- 	0x20, 0x05, 0x14, 0x02, 0x11, 0x01, 0x23, 0x09,
- 	0x07, 0x07, 0x83, 0x01, 0x00, 0x00, 0x6d, 0x03,
- 	0x0c, 0x00, 0x10, 0x00, 0x00, 0x3c, 0x21, 0x00,
- 	0x60, 0x01, 0x02, 0x03, 0x67, 0xd8, 0x5d, 0xc4,
--	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xea, 0xe3,
-+	0x01, 0x78, 0x00, 0x00, 0xe2, 0x00, 0xca, 0xe3,
- 	0x05, 0x00, 0x00, 0xe3, 0x06, 0x01, 0x00, 0x4d,
- 	0xd0, 0x00, 0xa0, 0xf0, 0x70, 0x3e, 0x80, 0x30,
- 	0x20, 0x35, 0x00, 0xc0, 0x1c, 0x32, 0x00, 0x00,
-@@ -201,7 +201,7 @@ static const u8 vivid_hdmi_edid[256] = {
- 	0x00, 0x00, 0x1a, 0x1a, 0x1d, 0x00, 0x80, 0x51,
- 	0xd0, 0x1c, 0x20, 0x40, 0x80, 0x35, 0x00, 0xc0,
- 	0x1c, 0x32, 0x00, 0x00, 0x1c, 0x00, 0x00, 0x00,
--	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x63,
-+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x82,
- };
- 
- static int vidioc_querycap(struct file *file, void  *priv,
+diff --git a/drivers/clk/socfpga/clk-gate-a10.c b/drivers/clk/socfpga/clk-gate-a10.c
+index 36376c542055..637e26babf89 100644
+--- a/drivers/clk/socfpga/clk-gate-a10.c
++++ b/drivers/clk/socfpga/clk-gate-a10.c
+@@ -157,6 +157,7 @@ static void __init __socfpga_gate_init(struct device_node *node,
+ 		if (IS_ERR(socfpga_clk->sys_mgr_base_addr)) {
+ 			pr_err("%s: failed to find altr,sys-mgr regmap!\n",
+ 					__func__);
++			kfree(socfpga_clk);
+ 			return;
+ 		}
+ 	}
 -- 
 2.30.2
 
