@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9B5138A771
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3439B38A94E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237813AbhETKir (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:38:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39730 "EHLO mail.kernel.org"
+        id S238543AbhETLAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:00:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237123AbhETKgp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:36:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0EB61C6D;
-        Thu, 20 May 2021 09:54:21 +0000 (UTC)
+        id S239227AbhETK6d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:58:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FDE6613C7;
+        Thu, 20 May 2021 10:02:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504462;
-        bh=dLExIPbUsLELB2mh7d2PwNf7U5Fnt958NIluJdxmVGA=;
+        s=korg; t=1621504956;
+        bh=7YCiDznb37EjyxDHX0s9JDEXOeCj4XvJE3REPc+YBuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B2QK0GsOtht/4DZcATBYdHbWQTw8bX67S1mqBF31grwRa4+8sMyeaA6lTgDx8m9f+
-         YS8RNx7ibYnVIO8gC9q5cv7+LCXtg0IYdFWgVcwKytViVxgyQfbzSFy4/JyOwYMo96
-         A4Glcys+DGRB5ZWjUeUMq1oa0jFlzCKMK1dj+gzk=
+        b=L9hMfxOqK/LuvojA91f+/NL3lGDeVxt5SrPdOxNnOBid+4ps2ky4GUCW0tlR2sdtv
+         1YQ/jo9nzC+6IkfxlEMi8wdqE3x3qN2bc2LuOi5jxDb0w+TkjpMfRJLXT+hfI0RMPQ
+         7hfJQhSRnYI9SoT71otkRrEQdrLegY7l5tvWx27c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+        Jorgen Hansen <jhansen@vmware.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 257/323] net: ethernet: mtk_eth_soc: fix RX VLAN offload
-Date:   Thu, 20 May 2021 11:22:29 +0200
-Message-Id: <20210520092129.014745554@linuxfoundation.org>
+Subject: [PATCH 4.9 158/240] vsock/vmci: log once the failed queue pair allocation
+Date:   Thu, 20 May 2021 11:22:30 +0200
+Message-Id: <20210520092113.954304558@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,48 +41,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-[ Upstream commit 3f57d8c40fea9b20543cab4da12f4680d2ef182c ]
+[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
 
-The VLAN ID in the rx descriptor is only valid if the RX_DMA_VTAG bit is
-set. Fixes frames wrongly marked with VLAN tags.
+VMCI feature is not supported in conjunction with the vSphere Fault
+Tolerance (FT) feature.
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-[Ilya: fix commit message]
-Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+VMware Tools can repeatedly try to create a vsock connection. If FT is
+enabled the kernel logs is flooded with the following messages:
+
+    qp_alloc_hypercall result = -20
+    Could not attach to queue pair with -20
+
+"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
+("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
+not attach to queue pair with -20" is still there flooding the log.
+
+Since the error message can be useful in some cases, print it only once.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 2 +-
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 1 +
- 2 files changed, 2 insertions(+), 1 deletion(-)
+ net/vmw_vsock/vmci_transport.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index a52909db67f6..dbd16dd5aa04 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -1041,7 +1041,7 @@ static int mtk_poll_rx(struct napi_struct *napi, int budget,
- 		skb->protocol = eth_type_trans(skb, netdev);
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 102bf9194662..c09efcdf72d2 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -593,8 +593,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
+ 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
+ out:
+ 	if (err < 0) {
+-		pr_err("Could not attach to queue pair with %d\n",
+-		       err);
++		pr_err_once("Could not attach to queue pair with %d\n", err);
+ 		err = vmci_transport_error_to_vsock_error(err);
+ 	}
  
- 		if (netdev->features & NETIF_F_HW_VLAN_CTAG_RX &&
--		    RX_DMA_VID(trxd.rxd3))
-+		    (trxd.rxd2 & RX_DMA_VTAG))
- 			__vlan_hwaccel_put_tag(skb, htons(ETH_P_8021Q),
- 					       RX_DMA_VID(trxd.rxd3));
- 		skb_record_rx_queue(skb, 0);
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 3d3c24a28112..ef82a30b2a0d 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -283,6 +283,7 @@
- #define RX_DMA_DONE		BIT(31)
- #define RX_DMA_PLEN0(_x)	(((_x) & 0x3fff) << 16)
- #define RX_DMA_GET_PLEN0(_x)	(((_x) >> 16) & 0x3fff)
-+#define RX_DMA_VTAG		BIT(15)
- 
- /* QDMA descriptor rxd3 */
- #define RX_DMA_VID(_x)		((_x) & 0xfff)
 -- 
 2.30.2
 
