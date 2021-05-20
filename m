@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC85538A4AD
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:06:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01A8438A4A9
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235037AbhETKHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37770 "EHLO mail.kernel.org"
+        id S235055AbhETKHg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:07:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232148AbhETKFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232048AbhETKFb (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:05:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3643561938;
-        Thu, 20 May 2021 09:41:14 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6953861939;
+        Thu, 20 May 2021 09:41:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503674;
-        bh=4rvvQe7O3+QpPv0CKGvS3Svpy+bc5RvYcgTBHNoYuzY=;
+        s=korg; t=1621503676;
+        bh=yRRgUS3ItAIl0mq5NIQKEK4SulKoRVO5gWBFjXPDg9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=quyoAhgkfAoBkJd5fr/80oIfVclu62lbzmnXqsOOMZ9dLelckVGCDbgSiL/D2uzUX
-         qgXBxD9hEvg/a3Jxao6fnx8MN48t9Ptou50YFC+cIqtfxIR0Nh7OR5IrB617UFgKvJ
-         4kpMafytY0Ha4jvRxnynB00AJrzXi/F/jWYIsrfg=
+        b=oi1pICufpfJWjFNJCA8V4hylsgjL5gCZ5hed829N4/zCXK8RBQPUt9p/FGa2kxN0k
+         XfoDWa3cvZz+bT0NKj1npcTKW9Yzb/NdVJvh3MiMx3PlHgo+EJ0u+2L92Jzk9kriA/
+         JDz/NlXRd2yKgHwmOtiWhWJDFz8BVwgqrh7VqboU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jane Chu <jane.chu@oracle.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 294/425] mm/memory-failure: unnecessary amount of unmapping
-Date:   Thu, 20 May 2021 11:21:03 +0200
-Message-Id: <20210520092141.115319722@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jonathon Reinhart <jonathon.reinhart@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 295/425] net: Only allow init netns to set default tcp cong to a restricted algo
+Date:   Thu, 20 May 2021 11:21:04 +0200
+Message-Id: <20210520092141.145797375@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -44,42 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jane Chu <jane.chu@oracle.com>
+From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
 
-[ Upstream commit 4d75136be8bf3ae01b0bc3e725b2cdc921e103bd ]
+commit 8d432592f30fcc34ef5a10aac4887b4897884493 upstream.
 
-It appears that unmap_mapping_range() actually takes a 'size' as its third
-argument rather than a location, the current calling fashion causes
-unnecessary amount of unmapping to occur.
+tcp_set_default_congestion_control() is netns-safe in that it writes
+to &net->ipv4.tcp_congestion_control, but it also sets
+ca->flags |= TCP_CONG_NON_RESTRICTED which is not namespaced.
+This has the unintended side-effect of changing the global
+net.ipv4.tcp_allowed_congestion_control sysctl, despite the fact that it
+is read-only: 97684f0970f6 ("net: Make tcp_allowed_congestion_control
+readonly in non-init netns")
 
-Link: https://lkml.kernel.org/r/20210420002821.2749748-1-jane.chu@oracle.com
-Fixes: 6100e34b2526e ("mm, memory_failure: Teach memory_failure() about dev_pagemap pages")
-Signed-off-by: Jane Chu <jane.chu@oracle.com>
-Reviewed-by: Dan Williams <dan.j.williams@intel.com>
-Reviewed-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Dave Jiang <dave.jiang@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Resolve this netns "leak" by only allowing the init netns to set the
+default algorithm to one that is restricted. This restriction could be
+removed if tcp_allowed_congestion_control were namespace-ified in the
+future.
+
+This bug was uncovered with
+https://github.com/JonathonReinhart/linux-netns-sysctl-verify
+
+Fixes: 6670e1524477 ("tcp: Namespace-ify sysctl_tcp_default_congestion_control")
+Signed-off-by: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memory-failure.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/tcp_cong.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index 148fdd929a19..034607a68ccb 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -1220,7 +1220,7 @@ static int memory_failure_dev_pagemap(unsigned long pfn, int flags,
- 		 * communicated in siginfo, see kill_proc()
- 		 */
- 		start = (page->index << PAGE_SHIFT) & ~(size - 1);
--		unmap_mapping_range(page->mapping, start, start + size, 0);
-+		unmap_mapping_range(page->mapping, start, size, 0);
- 	}
- 	kill_procs(&tokill, flags & MF_MUST_KILL, !unmap_success, pfn, flags);
- 	rc = 0;
--- 
-2.30.2
-
+--- a/net/ipv4/tcp_cong.c
++++ b/net/ipv4/tcp_cong.c
+@@ -228,6 +228,10 @@ int tcp_set_default_congestion_control(s
+ 		ret = -ENOENT;
+ 	} else if (!try_module_get(ca->owner)) {
+ 		ret = -EBUSY;
++	} else if (!net_eq(net, &init_net) &&
++			!(ca->flags & TCP_CONG_NON_RESTRICTED)) {
++		/* Only init netns can set default to a restricted algorithm */
++		ret = -EPERM;
+ 	} else {
+ 		prev = xchg(&net->ipv4.tcp_congestion_control, ca);
+ 		if (prev)
 
 
