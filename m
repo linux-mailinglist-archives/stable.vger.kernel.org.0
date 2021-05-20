@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 09B4A38A8F1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 648EB38A70E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238587AbhETKzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52632 "EHLO mail.kernel.org"
+        id S237357AbhETKdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60472 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238616AbhETKwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2917761CD7;
-        Thu, 20 May 2021 10:00:24 +0000 (UTC)
+        id S237077AbhETKbk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 091B261C41;
+        Thu, 20 May 2021 09:52:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504824;
-        bh=mS9gr4zbPKYth+/WNJI4iVqsD55xAD7DVEddjl3Oi78=;
+        s=korg; t=1621504336;
+        bh=sN7CZz3fyDCAITyI9xonr0ZopyfhEPkXWlY8M6AYkaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NcB+rwO4VcnT55LvBC+kzc/JBg+RBDMSV2WaPVuuXnn4XVH5pbKKOA/hWGSYM0PXz
-         cJ97pk42RDlC2cVb3rVUOeKfgHvxXoednWXnoTwIvEMo1jl4gkfOgw1QdR0iOD6d8S
-         XAUCG48ZE6Pw22zT3BeuhT7ZTTRgOoF/ZfMsYNh4=
+        b=gjCZu+ep7YcI9ZZ79n3Shvb7hYuZmH8pns9rpK+dxafhZhl5PCxaoVsPB5MwlE2G9
+         9WmKAjR+DoqJogGJhxJOEuNkGkFTsjSJC+HniMRBxWojBVK97FURv8ScbyEOkk0ggl
+         pS6CLV+myKcxjTBSIRb4Ot3tNejFce/u/Hvx6ztU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 097/240] usb: gadget: pch_udc: Check if driver is present before calling ->setup()
-Date:   Thu, 20 May 2021 11:21:29 +0200
-Message-Id: <20210520092111.949304964@linuxfoundation.org>
+Subject: [PATCH 4.14 198/323] powerpc/prom: Mark identical_pvr_fixup as __init
+Date:   Thu, 20 May 2021 11:21:30 +0200
+Message-Id: <20210520092126.905755708@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,96 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit fbdbbe6d3ee502b3bdeb4f255196bb45003614be ]
+[ Upstream commit 1ef1dd9c7ed27b080445e1576e8a05957e0e4dfc ]
 
-Since we have a separate routine for VBUS sense, the interrupt may occur
-before gadget driver is present. Hence, ->setup() call may oops the kernel:
+If identical_pvr_fixup() is not inlined, there are two modpost warnings:
 
-[   55.245843] BUG: kernel NULL pointer dereference, address: 00000010
-...
-[   55.245843] EIP: pch_udc_isr.cold+0x162/0x33f
-...
-[   55.245843]  <IRQ>
-[   55.245843]  ? pch_udc_svc_data_out+0x160/0x160
+WARNING: modpost: vmlinux.o(.text+0x54e8): Section mismatch in reference
+from the function identical_pvr_fixup() to the function
+.init.text:of_get_flat_dt_prop()
+The function identical_pvr_fixup() references
+the function __init of_get_flat_dt_prop().
+This is often because identical_pvr_fixup lacks a __init
+annotation or the annotation of of_get_flat_dt_prop is wrong.
 
-Check if driver is present before calling ->setup().
+WARNING: modpost: vmlinux.o(.text+0x551c): Section mismatch in reference
+from the function identical_pvr_fixup() to the function
+.init.text:identify_cpu()
+The function identical_pvr_fixup() references
+the function __init identify_cpu().
+This is often because identical_pvr_fixup lacks a __init
+annotation or the annotation of identify_cpu is wrong.
 
-Fixes: f646cf94520e ("USB device driver of Topcliff PCH")
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-2-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+identical_pvr_fixup() calls two functions marked as __init and is only
+called by a function marked as __init so it should be marked as __init
+as well. At the same time, remove the inline keywork as it is not
+necessary to inline this function. The compiler is still free to do so
+if it feels it is worthwhile since commit 889b3c1245de ("compiler:
+remove CONFIG_OPTIMIZE_INLINING entirely").
+
+Fixes: 14b3d926a22b ("[POWERPC] 4xx: update 440EP(x)/440GR(x) identical PVR issue workaround")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1316
+Link: https://lore.kernel.org/r/20210302200829.2680663-1-nathan@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c | 28 ++++++++++++++++++----------
- 1 file changed, 18 insertions(+), 10 deletions(-)
+ arch/powerpc/kernel/prom.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/udc/pch_udc.c b/drivers/usb/gadget/udc/pch_udc.c
-index b143830285f6..2363e3f66647 100644
---- a/drivers/usb/gadget/udc/pch_udc.c
-+++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -2329,6 +2329,21 @@ static void pch_udc_svc_data_out(struct pch_udc_dev *dev, int ep_num)
- 		pch_udc_set_dma(dev, DMA_DIR_RX);
- }
+diff --git a/arch/powerpc/kernel/prom.c b/arch/powerpc/kernel/prom.c
+index bbe9c57dd1a3..99409d0420d2 100644
+--- a/arch/powerpc/kernel/prom.c
++++ b/arch/powerpc/kernel/prom.c
+@@ -265,7 +265,7 @@ static struct feature_property {
+ };
  
-+static int pch_udc_gadget_setup(struct pch_udc_dev *dev)
-+	__must_hold(&dev->lock)
-+{
-+	int rc;
-+
-+	/* In some cases we can get an interrupt before driver gets setup */
-+	if (!dev->driver)
-+		return -ESHUTDOWN;
-+
-+	spin_unlock(&dev->lock);
-+	rc = dev->driver->setup(&dev->gadget, &dev->setup_data);
-+	spin_lock(&dev->lock);
-+	return rc;
-+}
-+
- /**
-  * pch_udc_svc_control_in() - Handle Control IN endpoint interrupts
-  * @dev:	Reference to the device structure
-@@ -2400,15 +2415,12 @@ static void pch_udc_svc_control_out(struct pch_udc_dev *dev)
- 			dev->gadget.ep0 = &dev->ep[UDC_EP0IN_IDX].ep;
- 		else /* OUT */
- 			dev->gadget.ep0 = &ep->ep;
--		spin_lock(&dev->lock);
- 		/* If Mass storage Reset */
- 		if ((dev->setup_data.bRequestType == 0x21) &&
- 		    (dev->setup_data.bRequest == 0xFF))
- 			dev->prot_stall = 0;
- 		/* call gadget with setup data received */
--		setup_supported = dev->driver->setup(&dev->gadget,
--						     &dev->setup_data);
--		spin_unlock(&dev->lock);
-+		setup_supported = pch_udc_gadget_setup(dev);
- 
- 		if (dev->setup_data.bRequestType & USB_DIR_IN) {
- 			ep->td_data->status = (ep->td_data->status &
-@@ -2656,9 +2668,7 @@ static void pch_udc_svc_intf_interrupt(struct pch_udc_dev *dev)
- 		dev->ep[i].halted = 0;
- 	}
- 	dev->stall = 0;
--	spin_unlock(&dev->lock);
--	dev->driver->setup(&dev->gadget, &dev->setup_data);
--	spin_lock(&dev->lock);
-+	pch_udc_gadget_setup(dev);
- }
- 
- /**
-@@ -2693,9 +2703,7 @@ static void pch_udc_svc_cfg_interrupt(struct pch_udc_dev *dev)
- 	dev->stall = 0;
- 
- 	/* call gadget zero with setup data received */
--	spin_unlock(&dev->lock);
--	dev->driver->setup(&dev->gadget, &dev->setup_data);
--	spin_lock(&dev->lock);
-+	pch_udc_gadget_setup(dev);
- }
- 
- /**
+ #if defined(CONFIG_44x) && defined(CONFIG_PPC_FPU)
+-static inline void identical_pvr_fixup(unsigned long node)
++static __init void identical_pvr_fixup(unsigned long node)
+ {
+ 	unsigned int pvr;
+ 	const char *model = of_get_flat_dt_prop(node, "model", NULL);
 -- 
 2.30.2
 
