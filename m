@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8210838A8E0
+	by mail.lfdr.de (Postfix) with ESMTP id D233738A8E1
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237734AbhETKzJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52606 "EHLO mail.kernel.org"
+        id S238158AbhETKzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:55:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239143AbhETKwV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2319461CCE;
-        Thu, 20 May 2021 10:00:12 +0000 (UTC)
+        id S239157AbhETKwW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:52:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 52EC261CCA;
+        Thu, 20 May 2021 10:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504813;
-        bh=Iee+eRKmWk3nQvQWXeOxyGtN2r1yw3VSpMQ68nE4tz8=;
+        s=korg; t=1621504815;
+        bh=nSyohOdoRifUQBKaJOFU46RL/pOu8xoR+00HB6OHH5w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TTWtQIj8h/0nGjsD+pjLp2CnS3WtC9jUPUP73LoPSW7BeEtkASP0lixyCSJkhkPXW
-         wsuBG9biZB6SPLf3F3etF94OqX4FW3PSFxiPriXLvF+nWXY7kWPGIA9rS5YghbZUD8
-         ihzE/HEl3tVUFSBi5RY0VvFhWh1inkHS7UH4H1ZQ=
+        b=AXUt2m4+XFg3B8CaZaOc8rNnraQaf+Gcx1YvlsROP5ejPOGOBn2gezKV59I9HSNAb
+         Kg/j0AOOhldzlRFN+UA0s2y6IyRauKZWD3lFHdJ4ewko2m+daqh4bwkcS+ayDJpWjW
+         65hHH7FJAPBGWl2lPy9YDpjYrcpWTZ8hFsB0SG8o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Krzysztof Kozlowski <krzk@kernel.org>,
+        stable@vger.kernel.org, Krzysztof Kozlowski <krzk@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 092/240] memory: gpmc: fix out of bounds read and dereference on gpmc_cs[]
-Date:   Thu, 20 May 2021 11:21:24 +0200
-Message-Id: <20210520092111.777184492@linuxfoundation.org>
+Subject: [PATCH 4.9 093/240] ARM: dts: exynos: correct PMIC interrupt trigger level on SMDK5250
+Date:   Thu, 20 May 2021 11:21:25 +0200
+Message-Id: <20210520092111.817981988@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -41,51 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
 
-[ Upstream commit e004c3e67b6459c99285b18366a71af467d869f5 ]
+[ Upstream commit f6368c60561370e4a92fac22982a3bd656172170 ]
 
-Currently the array gpmc_cs is indexed by cs before it cs is range checked
-and the pointer read from this out-of-index read is dereferenced. Fix this
-by performing the range check on cs before the read and the following
-pointer dereference.
+The Maxim PMIC datasheets describe the interrupt line as active low
+with a requirement of acknowledge from the CPU.  Without specifying the
+interrupt type in Devicetree, kernel might apply some fixed
+configuration, not necessarily working for this hardware.
 
-Addresses-Coverity: ("Negative array index read")
-Fixes: 9ed7a776eb50 ("ARM: OMAP2+: Fix support for multiple devices on a GPMC chip select")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20210223193821.17232-1-colin.king@canonical.com
+Additionally, the interrupt line is shared so using level sensitive
+interrupt is here especially important to avoid races.
+
+Fixes: 47580e8d94c2 ("ARM: dts: Specify MAX77686 pmic interrupt for exynos5250-smdk5250")
 Signed-off-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/r/20201210212534.216197-8-krzk@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/omap-gpmc.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/exynos5250-smdk5250.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/omap-gpmc.c b/drivers/memory/omap-gpmc.c
-index a9d47c06f80f..4af2f5b231dd 100644
---- a/drivers/memory/omap-gpmc.c
-+++ b/drivers/memory/omap-gpmc.c
-@@ -1028,8 +1028,8 @@ EXPORT_SYMBOL(gpmc_cs_request);
- 
- void gpmc_cs_free(int cs)
- {
--	struct gpmc_cs_data *gpmc = &gpmc_cs[cs];
--	struct resource *res = &gpmc->mem;
-+	struct gpmc_cs_data *gpmc;
-+	struct resource *res;
- 
- 	spin_lock(&gpmc_mem_lock);
- 	if (cs >= gpmc_cs_num || cs < 0 || !gpmc_cs_reserved(cs)) {
-@@ -1038,6 +1038,9 @@ void gpmc_cs_free(int cs)
- 		spin_unlock(&gpmc_mem_lock);
- 		return;
- 	}
-+	gpmc = &gpmc_cs[cs];
-+	res = &gpmc->mem;
-+
- 	gpmc_cs_disable_mem(cs);
- 	if (res->flags)
- 		release_resource(res);
+diff --git a/arch/arm/boot/dts/exynos5250-smdk5250.dts b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+index a97a785ccc6b..f0906d67a107 100644
+--- a/arch/arm/boot/dts/exynos5250-smdk5250.dts
++++ b/arch/arm/boot/dts/exynos5250-smdk5250.dts
+@@ -134,7 +134,7 @@
+ 		compatible = "maxim,max77686";
+ 		reg = <0x09>;
+ 		interrupt-parent = <&gpx3>;
+-		interrupts = <2 IRQ_TYPE_NONE>;
++		interrupts = <2 IRQ_TYPE_LEVEL_LOW>;
+ 		pinctrl-names = "default";
+ 		pinctrl-0 = <&max77686_irq>;
+ 		wakeup-source;
 -- 
 2.30.2
 
