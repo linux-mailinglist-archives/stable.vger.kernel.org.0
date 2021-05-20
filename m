@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D1338A3F7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC6E238A3F6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:59:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234340AbhETJ7G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:59:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60694 "EHLO mail.kernel.org"
+        id S234624AbhETJ7F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:59:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231924AbhETJ5C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:57:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E712B61627;
-        Thu, 20 May 2021 09:37:48 +0000 (UTC)
+        id S232190AbhETJ5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:57:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FD4861628;
+        Thu, 20 May 2021 09:37:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503469;
-        bh=GnE2Mid1xYoPgRWwU+m+5UdnTv4WO4oFBg/7XbvxAqE=;
+        s=korg; t=1621503471;
+        bh=IoqobeW3DHyKT2pgDL6szVyKYu+QV47NWdt3pHMoXEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R2MK0kc5+p6X/4M98t631WOG6dzY9eQVP21ycY+4ObJk9QjboymJVKxP81OBp5xSs
-         SvhEcs9NkH3CbASoE3swtR4KpD/P7fgI8ELeztJGblv4A2ygOiDtp7AWB/5yxJnC96
-         nfe4JTGHhBzLfo8ByOtrhMSOkLUJt3R12PnziWI8=
+        b=aZd7riVpfNUSnOal+g33msXFimJsWflCt3zGt+Lz+c228JHBXZiE9RVjFpNVkLp83
+         EnyjXKMWZsZMjKwjvHHLcFLnUDa6NmFjwyFdKO6CpTtDmwrILapd8EV0AAWEtj0+PY
+         nSh7KA6S+GbQcBmR+dWU7gH07wbsC9jaxw/9suYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Martin George <marting@netapp.com>,
-        Hannes Reinecke <hare@suse.de>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 235/425] nvme: retrigger ANA log update if group descriptor isnt found
-Date:   Thu, 20 May 2021 11:20:04 +0200
-Message-Id: <20210520092139.153401198@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Kevin Tian <kevin.tian@intel.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 236/425] vfio/mdev: Do not allow a mdev_type to have a NULL parent pointer
+Date:   Thu, 20 May 2021 11:20:05 +0200
+Message-Id: <20210520092139.186417390@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,41 +44,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hannes Reinecke <hare@suse.de>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit dd8f7fa908f66dd44abcd83cbb50410524b9f8ef ]
+[ Upstream commit b5a1f8921d5040bb788492bf33a66758021e4be5 ]
 
-If ANA is enabled but no ANA group descriptor is found when creating
-a new namespace the ANA log is most likely out of date, so trigger
-a re-read. The namespace will be tagged with the NS_ANA_PENDING flag
-to exclude it from path selection until the ANA log has been re-read.
+There is a small race where the parent is NULL even though the kobj has
+already been made visible in sysfs.
 
-Fixes: 32acab3181c7 ("nvme: implement multipath access to nvme subsystems")
-Reported-by: Martin George <marting@netapp.com>
-Signed-off-by: Hannes Reinecke <hare@suse.de>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+For instance the attribute_group is made visible in sysfs_create_files()
+and the mdev_type_attr_show() does:
+
+    ret = attr->show(kobj, type->parent->dev, buf);
+
+Which will crash on NULL parent. Move the parent setup to before the type
+pointer leaves the stack frame.
+
+Fixes: 7b96953bc640 ("vfio: Mediated device Core driver")
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Kevin Tian <kevin.tian@intel.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Message-Id: <2-v2-d36939638fc6+d54-vfio2_jgg@nvidia.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/multipath.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/vfio/mdev/mdev_sysfs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
-index 4ef05fe00dac..64f699a1afd7 100644
---- a/drivers/nvme/host/multipath.c
-+++ b/drivers/nvme/host/multipath.c
-@@ -516,6 +516,10 @@ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id)
- 		if (desc.state) {
- 			/* found the group desc: update */
- 			nvme_update_ns_ana_state(&desc, ns);
-+		} else {
-+			/* group desc not found: trigger a re-read */
-+			set_bit(NVME_NS_ANA_PENDING, &ns->flags);
-+			queue_work(nvme_wq, &ns->ctrl->ana_work);
- 		}
- 	} else {
- 		mutex_lock(&ns->head->lock);
+diff --git a/drivers/vfio/mdev/mdev_sysfs.c b/drivers/vfio/mdev/mdev_sysfs.c
+index 1692a0cc3036..c99fcc6c2eba 100644
+--- a/drivers/vfio/mdev/mdev_sysfs.c
++++ b/drivers/vfio/mdev/mdev_sysfs.c
+@@ -108,6 +108,7 @@ struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	type->kobj.kset = parent->mdev_types_kset;
++	type->parent = parent;
+ 
+ 	ret = kobject_init_and_add(&type->kobj, &mdev_type_ktype, NULL,
+ 				   "%s-%s", dev_driver_string(parent->dev),
+@@ -135,7 +136,6 @@ struct mdev_type *add_mdev_supported_type(struct mdev_parent *parent,
+ 	}
+ 
+ 	type->group = group;
+-	type->parent = parent;
+ 	return type;
+ 
+ attrs_failed:
 -- 
 2.30.2
 
