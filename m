@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C4AA138A9A5
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B71D38AB13
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237290AbhETLFC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57202 "EHLO mail.kernel.org"
+        id S240308AbhETLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238210AbhETLB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:01:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DE6561D0F;
-        Thu, 20 May 2021 10:03:55 +0000 (UTC)
+        id S240622AbhETLTB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FEEC61D6E;
+        Thu, 20 May 2021 10:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505036;
-        bh=Mi2KtEz4PPUxtbCTXUfEY7jGyDAc7Vp0qP13vekl+RI=;
+        s=korg; t=1621505410;
+        bh=iZTZoo/H+Eb2+ejsX1PnEeku1dWxbnLOkC9Ru8jOEns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E+gCIy+/98dk+iXZIxN0HII2RMTIJx8pIPYleYn8bgXFLIO+WKh+qbKFTTQUuyn+Y
-         CBHKF/+q9YoLG5tfctPOyDgUETch8Tz9W/+6eG62lu7anNaLvlDL3rfzxGdaeul4iV
-         ioddnzVi5VFpRkXUjZv2FdAGqZAohRHGQ/RV2G3g=
+        b=1B/gJ5UXgutpUAb/HVPDdrsO7JGLXDU8PfydCVHDLnCF+fc0iHhNQ3gp2ObnJq0aK
+         bYRfgSn9yHVg2gU5B4hBl0zYx3dVoi5Tu39cygwvh3i/SR6Q/B8MgAILL/oWCoQadu
+         PrwRazmd71Dyg2G4+A+dN6+hROvWVMcwjD4Ov+/k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhen Lei <thunder.leizhen@huawei.com>,
-        Wang Nan <wangnan0@huawei.com>, Will Deacon <will@kernel.org>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 194/240] ARM: 9064/1: hw_breakpoint: Do not directly check the events overflow_handler hook
-Date:   Thu, 20 May 2021 11:23:06 +0200
-Message-Id: <20210520092115.177668376@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 123/190] i2c: sh7760: add IRQ check
+Date:   Thu, 20 May 2021 11:23:07 +0200
+Message-Id: <20210520092106.268405422@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit a506bd5756290821a4314f502b4bafc2afcf5260 ]
+[ Upstream commit e5b2e3e742015dd2aa6bc7bcef2cb59b2de1221c ]
 
-The commit 1879445dfa7b ("perf/core: Set event's default
-::overflow_handler()") set a default event->overflow_handler in
-perf_event_alloc(), and replace the check event->overflow_handler with
-is_default_overflow_handler(), but one is missing.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-Currently, the bp->overflow_handler can not be NULL. As a result,
-enable_single_step() is always not invoked.
-
-Comments from Zhen Lei:
-
- https://patchwork.kernel.org/project/linux-arm-kernel/patch/20210207105934.2001-1-thunder.leizhen@huawei.com/
-
-Fixes: 1879445dfa7b ("perf/core: Set event's default ::overflow_handler()")
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Cc: Wang Nan <wangnan0@huawei.com>
-Acked-by: Will Deacon <will@kernel.org>
-Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
+Fixes: a26c20b1fa6d ("i2c: Renesas SH7760 I2C master driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/kernel/hw_breakpoint.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-sh7760.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/kernel/hw_breakpoint.c b/arch/arm/kernel/hw_breakpoint.c
-index 671dbc28e5d4..59e04e2d9d9d 100644
---- a/arch/arm/kernel/hw_breakpoint.c
-+++ b/arch/arm/kernel/hw_breakpoint.c
-@@ -891,7 +891,7 @@ static void breakpoint_handler(unsigned long unknown, struct pt_regs *regs)
- 			info->trigger = addr;
- 			pr_debug("breakpoint fired: address = 0x%x\n", addr);
- 			perf_bp_event(bp, regs);
--			if (!bp->overflow_handler)
-+			if (is_default_overflow_handler(bp))
- 				enable_single_step(bp, addr);
- 			goto unlock;
- 		}
+diff --git a/drivers/i2c/busses/i2c-sh7760.c b/drivers/i2c/busses/i2c-sh7760.c
+index 24968384b401..70e4437060d5 100644
+--- a/drivers/i2c/busses/i2c-sh7760.c
++++ b/drivers/i2c/busses/i2c-sh7760.c
+@@ -471,7 +471,10 @@ static int sh7760_i2c_probe(struct platform_device *pdev)
+ 		goto out2;
+ 	}
+ 
+-	id->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		return ret;
++	id->irq = ret;
+ 
+ 	id->adap.nr = pdev->id;
+ 	id->adap.algo = &sh7760_i2c_algo;
 -- 
 2.30.2
 
