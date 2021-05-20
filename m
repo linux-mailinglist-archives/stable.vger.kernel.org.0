@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D777A38A953
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24AC838A78B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238792AbhETLBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57500 "EHLO mail.kernel.org"
+        id S234992AbhETKjv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:39:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39828 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239320AbhETK6w (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:58:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 606C861421;
-        Thu, 20 May 2021 10:02:38 +0000 (UTC)
+        id S237348AbhETKhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:37:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7482F61184;
+        Thu, 20 May 2021 09:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504958;
-        bh=Oxr172v+jW+nHUqF3ibUswf6vwqloYXdfpCdU61+TEo=;
+        s=korg; t=1621504470;
+        bh=kGG51gVk4oUe1HtB/oZPpqkTAh6QD9POEA+VOCSGNPo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bnhMmFQyNv+6Z2c2IfC+9+an5RDEKLgC73j0JU5tWy27otwGWSpaTHVMVZLKUlNYJ
-         4JgtGPFIdHF+lw6+L/q7YF4QXzdJcW35qgWkGdltIbpY9jhaFUOX6kD52l2VI5KKNx
-         OBN2GJQJcg7Adgw2CmCOCQbqCDy5OnFzEojEW7OI=
+        b=0+X7pfiQzMmhi5VbIfpAo8f9/t4Cuc91pbt9XK6jvOgBhiK8+hHJym6k2ofzBq2IA
+         x0EkLuz71NU9KhcK24uxExeMOo1NuwG0SBC189FRWTVIOpFiYdXfFVAJ4MysLRFmtt
+         mo9A+uFeYmfZi6LHSJtcP52uKZeHBIHZWQdzz7HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sindhu Devale <sindhu.devale@intel.com>,
-        Shiraz Saleem <shiraz.saleem@intel.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 159/240] RDMA/i40iw: Fix error unwinding when i40iw_hmc_sd_one fails
-Date:   Thu, 20 May 2021 11:22:31 +0200
-Message-Id: <20210520092113.991636474@linuxfoundation.org>
+Subject: [PATCH 4.14 260/323] PCI: Release OF node in pci_scan_device()s error path
+Date:   Thu, 20 May 2021 11:22:32 +0200
+Message-Id: <20210520092129.119087446@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,56 +42,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sindhu Devale <sindhu.devale@intel.com>
+From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
 
-[ Upstream commit 783a11bf2400e5d5c42a943c3083dc0330751842 ]
+[ Upstream commit c99e755a4a4c165cad6effb39faffd0f3377c02d ]
 
-When i40iw_hmc_sd_one fails, chunk is freed without the deletion of chunk
-entry in the PBLE info list.
+In pci_scan_device(), if pci_setup_device() fails for any reason, the code
+will not release device's of_node by calling pci_release_of_node().  Fix
+that by calling the release function.
 
-Fix it by adding the chunk entry to the PBLE info list only after
-successful addition of SD in i40iw_hmc_sd_one.
-
-This fixes a static checker warning reported here:
-  https://lore.kernel.org/linux-rdma/YHV4CFXzqTm23AOZ@mwanda/
-
-Fixes: 9715830157be ("i40iw: add pble resource files")
-Link: https://lore.kernel.org/r/20210416002104.323-1-shiraz.saleem@intel.com
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Sindhu Devale <sindhu.devale@intel.com>
-Signed-off-by: Shiraz Saleem <shiraz.saleem@intel.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Fixes: 98d9f30c820d ("pci/of: Match PCI devices to OF nodes dynamically")
+Link: https://lore.kernel.org/r/20210124232826.1879-1-dmitry.baryshkov@linaro.org
+Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/i40iw/i40iw_pble.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/pci/probe.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/i40iw/i40iw_pble.c b/drivers/infiniband/hw/i40iw/i40iw_pble.c
-index 85993dc44f6e..3fbf7a3b00de 100644
---- a/drivers/infiniband/hw/i40iw/i40iw_pble.c
-+++ b/drivers/infiniband/hw/i40iw/i40iw_pble.c
-@@ -399,12 +399,9 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
- 	i40iw_debug(dev, I40IW_DEBUG_PBLE, "next_fpm_addr = %llx chunk_size[%u] = 0x%x\n",
- 		    pble_rsrc->next_fpm_addr, chunk->size, chunk->size);
- 	pble_rsrc->unallocated_pble -= (chunk->size >> 3);
--	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
- 	sd_reg_val = (sd_entry_type == I40IW_SD_TYPE_PAGED) ?
- 			sd_entry->u.pd_table.pd_page_addr.pa : sd_entry->u.bp.addr.pa;
--	if (sd_entry->valid)
--		return 0;
--	if (dev->is_pf) {
-+	if (dev->is_pf && !sd_entry->valid) {
- 		ret_code = i40iw_hmc_sd_one(dev, hmc_info->hmc_fn_id,
- 					    sd_reg_val, idx->sd_idx,
- 					    sd_entry->entry_type, true);
-@@ -415,6 +412,7 @@ static enum i40iw_status_code add_pble_pool(struct i40iw_sc_dev *dev,
- 	}
+diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
+index 55ece07e584a..e716d8bba227 100644
+--- a/drivers/pci/probe.c
++++ b/drivers/pci/probe.c
+@@ -2014,6 +2014,7 @@ static struct pci_dev *pci_scan_device(struct pci_bus *bus, int devfn)
+ 	pci_set_of_node(dev);
  
- 	sd_entry->valid = true;
-+	list_add(&chunk->list, &pble_rsrc->pinfo.clist);
- 	return 0;
-  error:
- 	kfree(chunk);
+ 	if (pci_setup_device(dev)) {
++		pci_release_of_node(dev);
+ 		pci_bus_put(dev->bus);
+ 		kfree(dev);
+ 		return NULL;
 -- 
 2.30.2
 
