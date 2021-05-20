@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B467138A957
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48FFB38A7AE
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238864AbhETLBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52988 "EHLO mail.kernel.org"
+        id S237488AbhETKlc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238912AbhETK4s (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:56:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9024B61CF0;
-        Thu, 20 May 2021 10:01:56 +0000 (UTC)
+        id S238175AbhETKji (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:39:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 935F1610CB;
+        Thu, 20 May 2021 09:55:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504917;
-        bh=eETA7KyYu0qVAUl2uOwkEwWeDfkBXmFMH8I/xFWWqdk=;
+        s=korg; t=1621504519;
+        bh=2yVv66ORtp3I0H7NgUJ9D7pHsQDEf/7FRXuB7kH07dI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k0lEOklZ9xRNExBkbg0rZMrXWBukdJ0n4WinVrokwfpGYX/ff1f5QElLGWuF3emx3
-         FI71/ijEHLsrcemuLtl542g1wbNzONTUKrIPKfkxG/OiGW9ETIYprZCODyrOm1WU5o
-         ExOzFsuGjgE4R/ij8NWEgojefIPC8FDfTgMQKDXI=
+        b=TQzZd5AzItPWmRrM42u2nw+Q2lmom/it0MKCLDjTeasEitM81fVeFYyrkDJeS4wF/
+         YOkDWSIuEbVY/7+tZL428RDeiZOogvwGQPyJUwk87WmShRnDCLrqlocYWXIx6jRcgR
+         FT212cq4yMW4XveSK1H9pveQS5e4qI40uLXR51o4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yang Li <yang.lee@linux.alibaba.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Ingo Molnar <mingo@redhat.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Tong Zhang <ztong0001@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 138/240] perf symbols: Fix dso__fprintf_symbols_by_name() to return the number of printed chars
+Subject: [PATCH 4.14 238/323] ALSA: hdspm: dont disable if not enabled
 Date:   Thu, 20 May 2021 11:22:10 +0200
-Message-Id: <20210520092113.281960294@linuxfoundation.org>
+Message-Id: <20210520092128.331893003@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,41 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnaldo Carvalho de Melo <acme@redhat.com>
+From: Tong Zhang <ztong0001@gmail.com>
 
-[ Upstream commit 210e4c89ef61432040c6cd828fefa441f4887186 ]
+[ Upstream commit 790f5719b85e12e10c41753b864e74249585ed08 ]
 
-The 'ret' variable was initialized to zero but then it was not updated
-from the fprintf() return, fix it.
+hdspm wants to disable a not enabled pci device, which makes kernel
+throw a warning. Make sure the device is enabled before calling disable.
 
-Reported-by: Yang Li <yang.lee@linux.alibaba.com>
-cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-cc: Ingo Molnar <mingo@redhat.com>
-cc: Jiri Olsa <jolsa@redhat.com>
-cc: Mark Rutland <mark.rutland@arm.com>
-cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Fixes: 90f18e63fbd00513 ("perf symbols: List symbols in a dso in ascending name order")
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+[    1.786391] snd_hdspm 0000:00:03.0: disabling already-disabled device
+[    1.786400] WARNING: CPU: 0 PID: 182 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
+[    1.795181] Call Trace:
+[    1.795320]  snd_hdspm_card_free+0x58/0xa0 [snd_hdspm]
+[    1.795595]  release_card_device+0x4b/0x80 [snd]
+[    1.795860]  device_release+0x3b/0xa0
+[    1.796072]  kobject_put+0x94/0x1b0
+[    1.796260]  put_device+0x13/0x20
+[    1.796438]  snd_card_free+0x61/0x90 [snd]
+[    1.796659]  snd_hdspm_probe+0x97b/0x1440 [snd_hdspm]
+
+Suggested-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Tong Zhang <ztong0001@gmail.com>
+Link: https://lore.kernel.org/r/20210321153840.378226-3-ztong0001@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/symbol_fprintf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/pci/rme9652/hdspm.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/tools/perf/util/symbol_fprintf.c b/tools/perf/util/symbol_fprintf.c
-index a680bdaa65dc..060957aeb79a 100644
---- a/tools/perf/util/symbol_fprintf.c
-+++ b/tools/perf/util/symbol_fprintf.c
-@@ -64,7 +64,7 @@ size_t dso__fprintf_symbols_by_name(struct dso *dso,
+diff --git a/sound/pci/rme9652/hdspm.c b/sound/pci/rme9652/hdspm.c
+index 343f533906ba..5bbbbba0817b 100644
+--- a/sound/pci/rme9652/hdspm.c
++++ b/sound/pci/rme9652/hdspm.c
+@@ -6913,7 +6913,8 @@ static int snd_hdspm_free(struct hdspm * hdspm)
+ 	if (hdspm->port)
+ 		pci_release_regions(hdspm->pci);
  
- 	for (nd = rb_first(&dso->symbol_names[type]); nd; nd = rb_next(nd)) {
- 		pos = rb_entry(nd, struct symbol_name_rb_node, rb_node);
--		fprintf(fp, "%s\n", pos->sym.name);
-+		ret += fprintf(fp, "%s\n", pos->sym.name);
- 	}
+-	pci_disable_device(hdspm->pci);
++	if (pci_is_enabled(hdspm->pci))
++		pci_disable_device(hdspm->pci);
+ 	return 0;
+ }
  
- 	return ret;
 -- 
 2.30.2
 
