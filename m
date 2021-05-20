@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE2738A960
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CFA9838A791
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238889AbhETLBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56930 "EHLO mail.kernel.org"
+        id S236711AbhETKkJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:40:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239532AbhETK7e (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:59:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02C5E6188B;
-        Thu, 20 May 2021 10:02:55 +0000 (UTC)
+        id S237421AbhETKiN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:38:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8113613B0;
+        Thu, 20 May 2021 09:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504976;
-        bh=s63x41G/QD7wqpHFLWs3naQIS+uEZ1Dr4HjE9vug26s=;
+        s=korg; t=1621504486;
+        bh=Z+zOrTYRiag6oGcrAqPw3MpvSumXZNlYQGt3EfTHQTQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mpYraUq9uxasXlC5t5lEbFshA/6SvWOaN59HmzdaD+xJgNl9mfyLvtqPzNQZuNvY0
-         BPi0jbVVaJMFcYXOdKoOQ2mjtTHnCCyLzeiRtMoCf4OfWWOv8eUK5kP49xcEFO801t
-         5XS0BguIZebo7i0av/JJRRrDSjY7H+j4ao13KSio=
+        b=nrfDMdUqRvvjXF85nfUtADKlzj+fL4c5k9c84TByUs4jv68eCcWv65/rugZYtza+R
+         YjjeSOzNJQtaIsblAIWfJ3LsMt4naZPx3c99pXS9H44qOerp942d5yoPj+C4xqrgWU
+         cyaClhsJw7jSMJSN13JOEsSSzjd041yXgra9gv44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+959223586843e69a2674@syzkaller.appspotmail.com,
-        Xin Long <lucien.xin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 166/240] Revert "net/sctp: fix race condition in sctp_destroy_sock"
-Date:   Thu, 20 May 2021 11:22:38 +0200
-Message-Id: <20210520092114.218944592@linuxfoundation.org>
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 267/323] rtc: ds1307: Fix wday settings for rx8130
+Date:   Thu, 20 May 2021 11:22:39 +0200
+Message-Id: <20210520092129.368352627@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,80 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-commit 01bfe5e8e428b475982a98a46cca5755726f3f7f upstream.
+[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
 
-This reverts commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b.
+rx8130 wday specifies the bit position, not BCD.
 
-This one has to be reverted as it introduced a dead lock, as
-syzbot reported:
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(&net->sctp.addr_wq_lock);
-                               lock(slock-AF_INET6);
-                               lock(&net->sctp.addr_wq_lock);
-  lock(slock-AF_INET6);
-
-CPU0 is the thread of sctp_addr_wq_timeout_handler(), and CPU1
-is that of sctp_close().
-
-The original issue this commit fixed will be fixed in the next
-patch.
-
-Reported-by: syzbot+959223586843e69a2674@syzkaller.appspotmail.com
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/socket.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
---- a/net/sctp/socket.c
-+++ b/net/sctp/socket.c
-@@ -1582,9 +1582,11 @@ static void sctp_close(struct sock *sk,
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index 8d45d93b1db6..19749ec87b24 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -417,7 +417,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
+ 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
+ 	t->tm_hour = bcd2bin(tmp);
+-	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
++	else
++		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
+ 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
+ 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
+ 	t->tm_mon = bcd2bin(tmp) - 1;
+@@ -465,7 +469,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
+ 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
+ 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
+-	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
++	else
++		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
+ 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+ 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
  
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
-+	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
-+	 * held and that should be grabbed before socket lock.
- 	 */
--	local_bh_disable();
--	bh_lock_sock(sk);
-+	spin_lock_bh(&net->sctp.addr_wq_lock);
-+	bh_lock_sock_nested(sk);
- 
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1593,7 +1595,7 @@ static void sctp_close(struct sock *sk,
- 	sk_common_release(sk);
- 
- 	bh_unlock_sock(sk);
--	local_bh_enable();
-+	spin_unlock_bh(&net->sctp.addr_wq_lock);
- 
- 	sock_put(sk);
- 
-@@ -4260,6 +4262,9 @@ static int sctp_init_sock(struct sock *s
- 	sk_sockets_allocated_inc(sk);
- 	sock_prot_inuse_add(net, sk->sk_prot, 1);
- 
-+	/* Nothing can fail after this block, otherwise
-+	 * sctp_destroy_sock() will be called without addr_wq_lock held
-+	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -4294,9 +4299,7 @@ static void sctp_destroy_sock(struct soc
- 
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
--		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
--		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
+-- 
+2.30.2
+
 
 
