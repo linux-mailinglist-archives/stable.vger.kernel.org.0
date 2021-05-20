@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BE5238AB37
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E5C638A9B7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240987AbhETLVq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:21:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
+        id S239167AbhETLFj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:05:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240997AbhETLTt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D9A961D7E;
-        Thu, 20 May 2021 10:10:41 +0000 (UTC)
+        id S239547AbhETLDe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:03:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F45D61D14;
+        Thu, 20 May 2021 10:04:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505441;
-        bh=BRdGr/TlbkTLITp74Ajm2rEP1BuzEVJewHTKzHPom0c=;
+        s=korg; t=1621505069;
+        bh=AL0y3Ulyq87lO2EIkGtAVDh3O0quA74rVMLpWusQE+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sYzVrZQ/t9ypZAgQpDguz3B0un5PKlKvUSefriU4ExFpPFN8zyIBDRvHUpvaoeQdp
-         1iG+UY6zSv6fSRL3un26Abaiqkf5v2aSjXK2nurDH9o6918v4jQEjZpJDQlEgL2gbC
-         Ojg9HBC+HsePnHF1+lcfQGmVkh4v/GkFM2VDZejw=
+        b=bWJjUSp9n9sw8EaLaVis46tyDUD/sBEUs/KSR0D0gbop7jV1vYo1jk2AIXwiaUR8k
+         7jDhkTUT+Kkw6fTyGq2LgKAWfZynre+MoDITbY9nqj8oPqSesogttgNBCzpxHUg96R
+         i01pQeSB0n64Vo0Y6XrN6J5NLW5BjLqiN9skegCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 136/190] tipc: convert dest nodes address to network order
+Subject: [PATCH 4.9 208/240] iio: proximity: pulsedlight: Fix rumtime PM imbalance on error
 Date:   Thu, 20 May 2021 11:23:20 +0200
-Message-Id: <20210520092106.691076367@linuxfoundation.org>
+Message-Id: <20210520092115.648446005@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Dinghao Liu <dinghao.liu@zju.edu.cn>
 
-[ Upstream commit 1980d37565061ab44bdc2f9e4da477d3b9752e81 ]
+[ Upstream commit a2fa9242e89f27696515699fe0f0296bf1ac1815 ]
 
-(struct tipc_link_info)->dest is in network order (__be32), so we must
-convert the value to network order before assigning. The problem detected
-by sparse:
+When lidar_write_control() fails, a pairing PM usage counter
+decrement is needed to keep the counter balanced.
 
-net/tipc/netlink_compat.c:699:24: warning: incorrect type in assignment (different base types)
-net/tipc/netlink_compat.c:699:24:    expected restricted __be32 [usertype] dest
-net/tipc/netlink_compat.c:699:24:    got int
-
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 4ac4e086fd8c5 ("iio: pulsedlight-lidar-lite: add runtime PM")
+Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210412053204.4889-1-dinghao.liu@zju.edu.cn
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/netlink_compat.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/proximity/pulsedlight-lidar-lite-v2.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/tipc/netlink_compat.c b/net/tipc/netlink_compat.c
-index 0975a28f8686..fb1b5dcf0142 100644
---- a/net/tipc/netlink_compat.c
-+++ b/net/tipc/netlink_compat.c
-@@ -632,7 +632,7 @@ static int tipc_nl_compat_link_dump(struct tipc_nl_compat_msg *msg,
+diff --git a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
+index 3141c3c161bb..46e969a3a9b7 100644
+--- a/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
++++ b/drivers/iio/proximity/pulsedlight-lidar-lite-v2.c
+@@ -166,6 +166,7 @@ static int lidar_get_measurement(struct lidar_data *data, u16 *reg)
+ 	ret = lidar_write_control(data, LIDAR_REG_CONTROL_ACQUIRE);
+ 	if (ret < 0) {
+ 		dev_err(&client->dev, "cannot send start measurement command");
++		pm_runtime_put_noidle(&client->dev);
+ 		return ret;
+ 	}
  
- 	nla_parse_nested(link, TIPC_NLA_LINK_MAX, attrs[TIPC_NLA_LINK], NULL);
- 
--	link_info.dest = nla_get_flag(link[TIPC_NLA_LINK_DEST]);
-+	link_info.dest = htonl(nla_get_flag(link[TIPC_NLA_LINK_DEST]));
- 	link_info.up = htonl(nla_get_flag(link[TIPC_NLA_LINK_UP]));
- 	nla_strlcpy(link_info.str, link[TIPC_NLA_LINK_NAME],
- 		    TIPC_MAX_LINK_NAME);
 -- 
 2.30.2
 
