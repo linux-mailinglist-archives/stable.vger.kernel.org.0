@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E79BA38A9F2
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE48E38AB66
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239509AbhETLIF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:08:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39630 "EHLO mail.kernel.org"
+        id S241056AbhETLYD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:24:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239355AbhETLGA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:06:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A74226192B;
-        Thu, 20 May 2021 10:05:25 +0000 (UTC)
+        id S240456AbhETLWM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:22:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0DC9961961;
+        Thu, 20 May 2021 10:11:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505126;
-        bh=/NnEqLW81GmW6Y6kO6A9bBO78unID4AASUPq+dfkJxw=;
+        s=korg; t=1621505498;
+        bh=UogBEB41DP29uE+l1xlhaR64a7oRQDW4cw10EadUpeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vy+rznFiMFX/xsqDd11N4BXVbO6uekIbO+8M6i7O8T6GnioM3jw0MlfRCg4XRv67R
-         Y2wKKfg7ScvxBTs1ifC2WsWftSgBc8stW3Wi7D7r+D2aidYTot4ImHKb55kDMPBdoR
-         OWzfG2cRXYGZEnocN+1wYeB4TumDLor51z3jsl3Y=
+        b=uC4kOuAfPumrCRC6faQIIp6+MD3R4qpaXlR5rmLUMducEvN2PsaiaoMb+qdurJCQW
+         CPPr+e+S/KTDyz4nJH6dES8cckD6ntOdEZmoeUEbAfUOrunKmxfeF+1QdaBE2L1yrV
+         fc3YP+ekxkk6f8SE0S7hcy5OnT9D0TKRcusLQLW0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 235/240] ALSA: hda: generic: change the DAC ctl name for LO+SPK or LO+HP
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 4.4 163/190] powerpc/64s: Fix crashes when toggling entry flush barrier
 Date:   Thu, 20 May 2021 11:23:47 +0200
-Message-Id: <20210520092116.581979142@linuxfoundation.org>
+Message-Id: <20210520092107.555227801@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,64 +38,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit f48652bbe3ae62ba2835a396b7e01f063e51c4cd ]
+commit aec86b052df6541cc97c5fca44e5934cbea4963b upstream.
 
-Without this change, the DAC ctl's name could be changed only when
-the machine has both Speaker and Headphone, but we met some machines
-which only has Lineout and Headhpone, and the Lineout and Headphone
-share the Audio Mixer0 and DAC0, the ctl's name is set to "Front".
+The entry flush mitigation can be enabled/disabled at runtime via a
+debugfs file (entry_flush), which causes the kernel to patch itself to
+enable/disable the relevant mitigations.
 
-On most of machines, the "Front" is used for Speaker only or Lineout
-only, but on this machine it is shared by Lineout and Headphone,
-This introduces an issue in the pipewire and pulseaudio, suppose users
-want the Headphone to be on and the Speaker/Lineout to be off, they
-could turn off the "Front", this works on most of the machines, but on
-this machine, the "Front" couldn't be turned off otherwise the
-headphone will be off too. Here we do some change to let the ctl's
-name change to "Headphone+LO" on this machine, and pipewire and
-pulseaudio already could handle "Headphone+LO" and "Speaker+LO".
-(https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/747)
+However depending on which mitigation we're using, it may not be safe to
+do that patching while other CPUs are active. For example the following
+crash:
 
-BugLink: http://bugs.launchpad.net/bugs/804178
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Link: https://lore.kernel.org/r/20210504073917.22406-1-hui.wang@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  sleeper[15639]: segfault (11) at c000000000004c20 nip c000000000004c20 lr c000000000004c20
+
+Shows that we returned to userspace with a corrupted LR that points into
+the kernel, due to executing the partially patched call to the fallback
+entry flush (ie. we missed the LR restore).
+
+Fix it by doing the patching under stop machine. The CPUs that aren't
+doing the patching will be spinning in the core of the stop machine
+logic. That is currently sufficient for our purposes, because none of
+the patching we do is to that code or anywhere in the vicinity.
+
+Fixes: f79643787e0a ("powerpc/64s: flush L1D on kernel entry")
+Cc: stable@vger.kernel.org # v5.10+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210506044959.1298123-2-mpe@ellerman.id.au
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/hda_generic.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ arch/powerpc/lib/feature-fixups.c |   17 ++++++++++++++++-
+ 1 file changed, 16 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/hda_generic.c b/sound/pci/hda/hda_generic.c
-index 6089ed6efc8d..8d99ac931ff6 100644
---- a/sound/pci/hda/hda_generic.c
-+++ b/sound/pci/hda/hda_generic.c
-@@ -1165,11 +1165,17 @@ static const char *get_line_out_pfx(struct hda_codec *codec, int ch,
- 		*index = ch;
- 		return "Headphone";
- 	case AUTO_PIN_LINE_OUT:
--		/* This deals with the case where we have two DACs and
--		 * one LO, one HP and one Speaker */
--		if (!ch && cfg->speaker_outs && cfg->hp_outs) {
--			bool hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
--			bool spk_lo_shared = !path_has_mixer(codec, spec->speaker_paths[0], ctl_type);
-+		/* This deals with the case where one HP or one Speaker or
-+		 * one HP + one Speaker need to share the DAC with LO
-+		 */
-+		if (!ch) {
-+			bool hp_lo_shared = false, spk_lo_shared = false;
+--- a/arch/powerpc/lib/feature-fixups.c
++++ b/arch/powerpc/lib/feature-fixups.c
+@@ -16,6 +16,7 @@
+ #include <linux/kernel.h>
+ #include <linux/string.h>
+ #include <linux/init.h>
++#include <linux/stop_machine.h>
+ #include <asm/cputable.h>
+ #include <asm/code-patching.h>
+ #include <asm/page.h>
+@@ -279,8 +280,9 @@ void do_uaccess_flush_fixups(enum l1d_fl
+ 						: "unknown");
+ }
+ 
+-void do_entry_flush_fixups(enum l1d_flush_type types)
++static int __do_entry_flush_fixups(void *data)
+ {
++	enum l1d_flush_type types = *(enum l1d_flush_type *)data;
+ 	unsigned int instrs[3], *dest;
+ 	long *start, *end;
+ 	int i;
+@@ -331,6 +333,19 @@ void do_entry_flush_fixups(enum l1d_flus
+ 							: "ori type" :
+ 		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
+ 						: "unknown");
 +
-+			if (cfg->speaker_outs)
-+				spk_lo_shared = !path_has_mixer(codec,
-+								spec->speaker_paths[0],	ctl_type);
-+			if (cfg->hp_outs)
-+				hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
- 			if (hp_lo_shared && spk_lo_shared)
- 				return spec->vmaster_mute.hook ? "PCM" : "Master";
- 			if (hp_lo_shared)
--- 
-2.30.2
-
++	return 0;
++}
++
++void do_entry_flush_fixups(enum l1d_flush_type types)
++{
++	/*
++	 * The call to the fallback flush can not be safely patched in/out while
++	 * other CPUs are executing it. So call __do_entry_flush_fixups() on one
++	 * CPU while all other CPUs spin in the stop machine core with interrupts
++	 * hard disabled.
++	 */
++	stop_machine(__do_entry_flush_fixups, &types, NULL);
+ }
+ 
+ void do_rfi_flush_fixups(enum l1d_flush_type types)
 
 
