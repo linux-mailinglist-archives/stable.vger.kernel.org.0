@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9575138A0CB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA58B38A13B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:28:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbhETJ0E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:26:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52142 "EHLO mail.kernel.org"
+        id S232033AbhETJ3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231563AbhETJ0D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:26:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 17D2C61244;
-        Thu, 20 May 2021 09:24:41 +0000 (UTC)
+        id S231911AbhETJ1z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:27:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C4DB613D1;
+        Thu, 20 May 2021 09:26:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502682;
-        bh=GvCpCU7LOFMdC1La32QjDV/EKg3mqUZvXZcpx4mc1MQ=;
+        s=korg; t=1621502788;
+        bh=w5l4O0LkTqldlHZgRmHg74sh8TNSwu4hS5lJhnkt0G4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vu/zoduZ9wFqUF1pPwPGC/+Cealb5tSGRUF9wHcKZYsVjDlQbV/IerJicsLydjOFe
-         0Bet7aJCy1lIvuGpdJ5GinSkBPbC7kjbsW1uSvlmdrTzY+O0WE0eSBY7C5gt7e2rBR
-         yLJAWFSAvj5awMnhQ4U44kXSnHdIIo06ow6OnoEk=
+        b=nYzDhxDc4xhx10JbU7Ek4tgyp9Ea9J7WF5mz30JzLXjG6RdTViUPHpl/w6UXu8ZuY
+         E3804TTJc+QcTE4LdLQGDJH8ZzMYbC0hJKsK7lmwXfFn8Bz28H3K7k7QeB9AJFWtur
+         HYttmwhDeP3DXyZ0XOCsbPFap03oa5QC2NuSe53E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 12/45] PCI: tegra: Fix runtime PM imbalance in pex_ep_event_pex_rst_deassert()
-Date:   Thu, 20 May 2021 11:22:00 +0200
-Message-Id: <20210520092053.923782367@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 5.10 03/47] airo: work around stack usage warning
+Date:   Thu, 20 May 2021 11:22:01 +0200
+Message-Id: <20210520092053.672558737@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,164 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 5859c926d1f052ee61b5815b14658875c14f6243 ]
+commit 7909a590eba6d021f104958857cbc4f0089daceb upstream.
 
-pm_runtime_get_sync() will increase the runtime PM counter
-even it returns an error. Thus a pairing decrement is needed
-to prevent refcount leak. Fix this by replacing this API with
-pm_runtime_resume_and_get(), which will not change the runtime
-PM counter on error.
+gcc-11 with KASAN on 32-bit arm produces a warning about a function
+that needs a lot of stack space:
 
-Link: https://lore.kernel.org/r/20210408072700.15791-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/net/wireless/cisco/airo.c: In function 'setup_card.constprop':
+drivers/net/wireless/cisco/airo.c:3960:1: error: the frame size of 1512 bytes is larger than 1400 bytes [-Werror=frame-larger-than=]
+
+Most of this is from a single large structure that could be dynamically
+allocated or moved into the per-device structure.  However, as the callers
+all seem to have a fairly well bounded call chain, the easiest change
+is to pull out the part of the function that needs the large variables
+into a separate function and mark that as noinline_for_stack. This does
+not reduce the total stack usage, but it gets rid of the warning and
+requires minimal changes otherwise.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210323131634.2669455-1-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/cisco/airo.c |  117 +++++++++++++++++++++-----------------
+ 1 file changed, 65 insertions(+), 52 deletions(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index 6fa216e52d14..0e94190ca4e8 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1645,7 +1645,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
- 	if (pcie->ep_state == EP_STATE_ENABLED)
- 		return;
+--- a/drivers/net/wireless/cisco/airo.c
++++ b/drivers/net/wireless/cisco/airo.c
+@@ -3825,6 +3825,68 @@ static inline void set_auth_type(struct
+ 		local->last_auth = auth_type;
+ }
  
--	ret = pm_runtime_get_sync(dev);
-+	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to get runtime sync for PCIe dev: %d\n",
- 			ret);
--- 
-2.30.2
-
++static int noinline_for_stack airo_readconfig(struct airo_info *ai, u8 *mac, int lock)
++{
++	int i, status;
++	/* large variables, so don't inline this function,
++	 * maybe change to kmalloc
++	 */
++	tdsRssiRid rssi_rid;
++	CapabilityRid cap_rid;
++
++	kfree(ai->SSID);
++	ai->SSID = NULL;
++	// general configuration (read/modify/write)
++	status = readConfigRid(ai, lock);
++	if (status != SUCCESS) return ERROR;
++
++	status = readCapabilityRid(ai, &cap_rid, lock);
++	if (status != SUCCESS) return ERROR;
++
++	status = PC4500_readrid(ai, RID_RSSI, &rssi_rid, sizeof(rssi_rid), lock);
++	if (status == SUCCESS) {
++		if (ai->rssi || (ai->rssi = kmalloc(512, GFP_KERNEL)) != NULL)
++			memcpy(ai->rssi, (u8*)&rssi_rid + 2, 512); /* Skip RID length member */
++	}
++	else {
++		kfree(ai->rssi);
++		ai->rssi = NULL;
++		if (cap_rid.softCap & cpu_to_le16(8))
++			ai->config.rmode |= RXMODE_NORMALIZED_RSSI;
++		else
++			airo_print_warn(ai->dev->name, "unknown received signal "
++					"level scale");
++	}
++	ai->config.opmode = adhoc ? MODE_STA_IBSS : MODE_STA_ESS;
++	set_auth_type(ai, AUTH_OPEN);
++	ai->config.modulation = MOD_CCK;
++
++	if (le16_to_cpu(cap_rid.len) >= sizeof(cap_rid) &&
++	    (cap_rid.extSoftCap & cpu_to_le16(1)) &&
++	    micsetup(ai) == SUCCESS) {
++		ai->config.opmode |= MODE_MIC;
++		set_bit(FLAG_MIC_CAPABLE, &ai->flags);
++	}
++
++	/* Save off the MAC */
++	for (i = 0; i < ETH_ALEN; i++) {
++		mac[i] = ai->config.macAddr[i];
++	}
++
++	/* Check to see if there are any insmod configured
++	   rates to add */
++	if (rates[0]) {
++		memset(ai->config.rates, 0, sizeof(ai->config.rates));
++		for (i = 0; i < 8 && rates[i]; i++) {
++			ai->config.rates[i] = rates[i];
++		}
++	}
++	set_bit (FLAG_COMMIT, &ai->flags);
++
++	return SUCCESS;
++}
++
++
+ static u16 setup_card(struct airo_info *ai, u8 *mac, int lock)
+ {
+ 	Cmd cmd;
+@@ -3871,58 +3933,9 @@ static u16 setup_card(struct airo_info *
+ 	if (lock)
+ 		up(&ai->sem);
+ 	if (ai->config.len == 0) {
+-		int i;
+-		tdsRssiRid rssi_rid;
+-		CapabilityRid cap_rid;
+-
+-		kfree(ai->SSID);
+-		ai->SSID = NULL;
+-		// general configuration (read/modify/write)
+-		status = readConfigRid(ai, lock);
+-		if (status != SUCCESS) return ERROR;
+-
+-		status = readCapabilityRid(ai, &cap_rid, lock);
+-		if (status != SUCCESS) return ERROR;
+-
+-		status = PC4500_readrid(ai, RID_RSSI,&rssi_rid, sizeof(rssi_rid), lock);
+-		if (status == SUCCESS) {
+-			if (ai->rssi || (ai->rssi = kmalloc(512, GFP_KERNEL)) != NULL)
+-				memcpy(ai->rssi, (u8*)&rssi_rid + 2, 512); /* Skip RID length member */
+-		}
+-		else {
+-			kfree(ai->rssi);
+-			ai->rssi = NULL;
+-			if (cap_rid.softCap & cpu_to_le16(8))
+-				ai->config.rmode |= RXMODE_NORMALIZED_RSSI;
+-			else
+-				airo_print_warn(ai->dev->name, "unknown received signal "
+-						"level scale");
+-		}
+-		ai->config.opmode = adhoc ? MODE_STA_IBSS : MODE_STA_ESS;
+-		set_auth_type(ai, AUTH_OPEN);
+-		ai->config.modulation = MOD_CCK;
+-
+-		if (le16_to_cpu(cap_rid.len) >= sizeof(cap_rid) &&
+-		    (cap_rid.extSoftCap & cpu_to_le16(1)) &&
+-		    micsetup(ai) == SUCCESS) {
+-			ai->config.opmode |= MODE_MIC;
+-			set_bit(FLAG_MIC_CAPABLE, &ai->flags);
+-		}
+-
+-		/* Save off the MAC */
+-		for (i = 0; i < ETH_ALEN; i++) {
+-			mac[i] = ai->config.macAddr[i];
+-		}
+-
+-		/* Check to see if there are any insmod configured
+-		   rates to add */
+-		if (rates[0]) {
+-			memset(ai->config.rates, 0, sizeof(ai->config.rates));
+-			for (i = 0; i < 8 && rates[i]; i++) {
+-				ai->config.rates[i] = rates[i];
+-			}
+-		}
+-		set_bit (FLAG_COMMIT, &ai->flags);
++		status = airo_readconfig(ai, mac, lock);
++		if (status != SUCCESS)
++			return ERROR;
+ 	}
+ 
+ 	/* Setup the SSIDs if present */
 
 
