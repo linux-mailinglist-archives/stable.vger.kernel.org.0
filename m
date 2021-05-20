@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9EA638A7D9
+	by mail.lfdr.de (Postfix) with ESMTP id 7CCA438A7D8
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:44:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235255AbhETKnU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:43:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44328 "EHLO mail.kernel.org"
+        id S237758AbhETKnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44330 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237437AbhETKlQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:41:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48A6461C99;
-        Thu, 20 May 2021 09:55:58 +0000 (UTC)
+        id S237479AbhETKlN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:41:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7971D61406;
+        Thu, 20 May 2021 09:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504558;
-        bh=szv2HLS/5Rd0Kx8gYLKoQ6jvjayXh5uwmj3A7gZYGlI=;
+        s=korg; t=1621504560;
+        bh=iXgKiE9R8jdkGoaGr2EyzBtoQ+G1t82TOnZlung0k0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKu9gjwSJYXTm1qbuMAT06dsRINTOuaNK8WQ48EhHRFSVh4ZF6W0O2CRrzDHpu3AB
-         ZOAhZYwCMfCSvxCYUkzTCNObho0teveBE5kxf8pSlmfGIbk5Qd26bUcjlGgiEmF+SA
-         V+VyGYjne9XHa0PIJDAKalPDtmkGYWnN5Yy5/JFs=
+        b=uos4A73YIxCBbRZRFxjM9Ff9d0UZmnUvXxNlNOLxFcmry1U1+P39tM4k9sgILVCRj
+         IF27NBxKREtwc7ENAWTPu+C/pmFBTb633MM//c/tQ6OYKzqoH7SzoRHga1dc5Av7GA
+         PAY1j7ZDPtKZKPkI7STYkNimG30EJO1A6FPOlj0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Jonathon Reinhart <Jonathon.Reinhart@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 300/323] netfilter: conntrack: Make global sysctls readonly in non-init netns
-Date:   Thu, 20 May 2021 11:23:12 +0200
-Message-Id: <20210520092130.514104922@linuxfoundation.org>
+        =?UTF-8?q?Pawe=C5=82=20Chmiel?= <pawel.mikolaj.chmiel@gmail.com>,
+        Krzysztof Kozlowski <krzk@kernel.org>,
+        Sylwester Nawrocki <s.nawrocki@samsung.com>
+Subject: [PATCH 4.14 301/323] clk: exynos7: Mark aclk_fsys1_200 as critical
+Date:   Thu, 20 May 2021 11:23:13 +0200
+Message-Id: <20210520092130.547040763@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,51 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathon Reinhart <jonathon.reinhart@gmail.com>
+From: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
 
-commit 2671fa4dc0109d3fb581bc3078fdf17b5d9080f6 upstream.
+commit 34138a59b92c1a30649a18ec442d2e61f3bc34dd upstream.
 
-These sysctls point to global variables:
-- NF_SYSCTL_CT_MAX (&nf_conntrack_max)
-- NF_SYSCTL_CT_EXPECT_MAX (&nf_ct_expect_max)
-- NF_SYSCTL_CT_BUCKETS (&nf_conntrack_htable_size_user)
+This clock must be always enabled to allow access to any registers in
+fsys1 CMU. Until proper solution based on runtime PM is applied
+(similar to what was done for Exynos5433), mark that clock as critical
+so it won't be disabled.
 
-Because their data pointers are not updated to point to per-netns
-structures, they must be marked read-only in a non-init_net ns.
-Otherwise, changes in any net namespace are reflected in (leaked into)
-all other net namespaces. This problem has existed since the
-introduction of net namespaces.
+It was observed on Samsung Galaxy S6 device (based on Exynos7420), where
+UFS module is probed before pmic used to power that device.
+In this case defer probe was happening and that clock was disabled by
+UFS driver, causing whole boot to hang on next CMU access.
 
-The current logic marks them read-only only if the net namespace is
-owned by an unprivileged user (other than init_user_ns).
-
-Commit d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in
-unprivileged namespaces") "exposes all sysctls even if the namespace is
-unpriviliged." Since we need to mark them readonly in any case, we can
-forego the unprivileged user check altogether.
-
-Fixes: d0febd81ae77 ("netfilter: conntrack: re-visit sysctls in unprivileged namespaces")
-Signed-off-by: Jonathon Reinhart <Jonathon.Reinhart@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 753195a749a6 ("clk: samsung: exynos7: Correct CMU_FSYS1 clocks names")
+Signed-off-by: Paweł Chmiel <pawel.mikolaj.chmiel@gmail.com>
+Acked-by: Krzysztof Kozlowski <krzk@kernel.org>
+Link: https://lore.kernel.org/linux-clk/20201024154346.9589-1-pawel.mikolaj.chmiel@gmail.com
+[s.nawrocki: Added comment in the code]
+Signed-off-by: Sylwester Nawrocki <s.nawrocki@samsung.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_conntrack_standalone.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/clk/samsung/clk-exynos7.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_conntrack_standalone.c
-+++ b/net/netfilter/nf_conntrack_standalone.c
-@@ -631,8 +631,11 @@ static int nf_conntrack_standalone_init_
- 	if (net->user_ns != &init_user_ns)
- 		table[0].procname = NULL;
+--- a/drivers/clk/samsung/clk-exynos7.c
++++ b/drivers/clk/samsung/clk-exynos7.c
+@@ -541,8 +541,13 @@ static const struct samsung_gate_clock t
+ 	GATE(CLK_ACLK_FSYS0_200, "aclk_fsys0_200", "dout_aclk_fsys0_200",
+ 		ENABLE_ACLK_TOP13, 28, CLK_SET_RATE_PARENT |
+ 		CLK_IS_CRITICAL, 0),
++	/*
++	 * This clock is required for the CMU_FSYS1 registers access, keep it
++	 * enabled permanently until proper runtime PM support is added.
++	 */
+ 	GATE(CLK_ACLK_FSYS1_200, "aclk_fsys1_200", "dout_aclk_fsys1_200",
+-		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT, 0),
++		ENABLE_ACLK_TOP13, 24, CLK_SET_RATE_PARENT |
++		CLK_IS_CRITICAL, 0),
  
--	if (!net_eq(&init_net, net))
-+	if (!net_eq(&init_net, net)) {
-+		table[0].mode = 0444;
- 		table[2].mode = 0444;
-+		table[5].mode = 0444;
-+	}
- 
- 	net->ct.sysctl_header = register_net_sysctl(net, "net/netfilter", table);
- 	if (!net->ct.sysctl_header)
+ 	GATE(CLK_SCLK_PHY_FSYS1_26M, "sclk_phy_fsys1_26m",
+ 		"dout_sclk_phy_fsys1_26m", ENABLE_SCLK_TOP1_FSYS11,
 
 
