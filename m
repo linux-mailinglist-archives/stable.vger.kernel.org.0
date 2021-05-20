@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3098638A4E0
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:09:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09A9138A4DB
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:09:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235027AbhETKKZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:10:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42286 "EHLO mail.kernel.org"
+        id S234914AbhETKKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:10:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235668AbhETKHZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235673AbhETKHZ (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:07:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F293661947;
-        Thu, 20 May 2021 09:41:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B61161949;
+        Thu, 20 May 2021 09:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503705;
-        bh=twAlOi9R6M04C1uNcRCrHsajzJm3UaO7LOHVLdj2GQg=;
+        s=korg; t=1621503707;
+        bh=ser7SnMHAV7kqSBtaETDC4EaoYB/yPNZWqM/f9roDyI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oY8NpjVc63DEnYAvGdKajdYrYUtLiNxFapK7QNbA4dhd6aMGvyDvPoXRg5CW4khJ9
-         XwqB2cn8kGL6xOxpHcQQJVb3GGyvWeLhjLr+knixi6emN8EDqb4EHB5Rg6FhhhvKLs
-         xim035Cj9i0/MOBSoMexLumhAAzJxhpvomcl2Dhk=
+        b=lquSfdVd/DgMCp6gBGTgNoJryuRQVpoXrmndSJcOOn78tKq4NthIDgQKMotuxDMnh
+         CSxNAoQX9zH3v7BqgyMYDOOFJ/FOrEnposChhFBYtwXmYA9FgXmF5VQkxKxkBZHRrM
+         UDE7FlMg5qc/3xsnDbjhV6R6M9HfKVQspM65mTYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        stable@vger.kernel.org,
+        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 343/425] NFSv4.2 fix handling of sr_eof in SEEKs reply
-Date:   Thu, 20 May 2021 11:21:52 +0200
-Message-Id: <20210520092142.685085289@linuxfoundation.org>
+Subject: [PATCH 4.19 344/425] rtc: ds1307: Fix wday settings for rx8130
+Date:   Thu, 20 May 2021 11:21:53 +0200
+Message-Id: <20210520092142.718241759@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,41 +41,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
 
-[ Upstream commit 73f5c88f521a630ea1628beb9c2d48a2e777a419 ]
+[ Upstream commit 204756f016726a380bafe619438ed979088bd04a ]
 
-Currently the client ignores the value of the sr_eof of the SEEK
-operation. According to the spec, if the server didn't find the
-requested extent and reached the end of the file, the server
-would return sr_eof=true. In case the request for DATA and no
-data was found (ie in the middle of the hole), then the lseek
-expects that ENXIO would be returned.
+rx8130 wday specifies the bit position, not BCD.
 
-Fixes: 1c6dcbe5ceff8 ("NFS: Implement SEEK")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: ee0981be7704 ("rtc: ds1307: Add support for Epson RX8130CE")
+Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Link: https://lore.kernel.org/r/20210420023917.1949066-1-nobuhiro1.iwamatsu@toshiba.co.jp
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs42proc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/rtc/rtc-ds1307.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index da7b73ad811f..be252795a6f7 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -500,7 +500,10 @@ static loff_t _nfs42_proc_llseek(struct file *filep,
- 	if (status)
- 		return status;
- 
--	return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
-+	if (whence == SEEK_DATA && res.sr_eof)
-+		return -NFS4ERR_NXIO;
+diff --git a/drivers/rtc/rtc-ds1307.c b/drivers/rtc/rtc-ds1307.c
+index ebd59e86a567..94d31779933f 100644
+--- a/drivers/rtc/rtc-ds1307.c
++++ b/drivers/rtc/rtc-ds1307.c
+@@ -434,7 +434,11 @@ static int ds1307_get_time(struct device *dev, struct rtc_time *t)
+ 	t->tm_min = bcd2bin(regs[DS1307_REG_MIN] & 0x7f);
+ 	tmp = regs[DS1307_REG_HOUR] & 0x3f;
+ 	t->tm_hour = bcd2bin(tmp);
+-	t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		t->tm_wday = fls(regs[DS1307_REG_WDAY] & 0x7f);
 +	else
-+		return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
- }
++		t->tm_wday = bcd2bin(regs[DS1307_REG_WDAY] & 0x07) - 1;
+ 	t->tm_mday = bcd2bin(regs[DS1307_REG_MDAY] & 0x3f);
+ 	tmp = regs[DS1307_REG_MONTH] & 0x1f;
+ 	t->tm_mon = bcd2bin(tmp) - 1;
+@@ -481,7 +485,11 @@ static int ds1307_set_time(struct device *dev, struct rtc_time *t)
+ 	regs[DS1307_REG_SECS] = bin2bcd(t->tm_sec);
+ 	regs[DS1307_REG_MIN] = bin2bcd(t->tm_min);
+ 	regs[DS1307_REG_HOUR] = bin2bcd(t->tm_hour);
+-	regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
++	/* rx8130 is bit position, not BCD */
++	if (ds1307->type == rx_8130)
++		regs[DS1307_REG_WDAY] = 1 << t->tm_wday;
++	else
++		regs[DS1307_REG_WDAY] = bin2bcd(t->tm_wday + 1);
+ 	regs[DS1307_REG_MDAY] = bin2bcd(t->tm_mday);
+ 	regs[DS1307_REG_MONTH] = bin2bcd(t->tm_mon + 1);
  
- loff_t nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
 -- 
 2.30.2
 
