@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8036938A942
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71E0138A73E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238005AbhETLAd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:00:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56974 "EHLO mail.kernel.org"
+        id S236560AbhETKgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239153AbhETK5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BB3E61CEF;
-        Thu, 20 May 2021 10:02:16 +0000 (UTC)
+        id S237327AbhETKdb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:33:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F41461C4C;
+        Thu, 20 May 2021 09:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504936;
-        bh=bedJQkHEQhvq7MEj6i3khvs/huPyfJKwdj2eDVCKmfA=;
+        s=korg; t=1621504371;
+        bh=983Ah+4uJzy0J/+o/pgnIF8hsb2hAolKtyeeyHhuRTs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HWECSd3tk4op2dTAllBFNKx6pQhWwumRMq9Jog37/hrN+mP4SDLRJDRLMT5ho457Y
-         5mO41HN023jHvypYDnrsnzrYBTMxz4oNCm6F00wOIwzJMQJOQYRnjE1tu4Z5lv0AXY
-         khUtiWCa1EkSTSMawjb3Fb/Iznr1CkS+ZiCZVo0U=
+        b=cRJJvukBC5LzdwRk++t1dRYX6o5id6iaVwQ9d4nI0VEhrAnQGiaJN/cxuD7s5sE0w
+         /4KT1AS7d0p2J6WXBKlOKbUeOzohxInBgWCC4Si5mC/DYFihi599mK2mxsSLTMwzse
+         6jJ+bssbJKyBlxU2/7Ak9NGPIHPZjdpmAAzn16Zw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Tyrel Datwyler <tyreld@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 115/240] USB: cdc-acm: fix unprivileged TIOCCSERIAL
-Date:   Thu, 20 May 2021 11:21:47 +0200
-Message-Id: <20210520092112.532434219@linuxfoundation.org>
+Subject: [PATCH 4.14 216/323] powerpc/pseries: extract host bridge from pci_bus prior to bus removal
+Date:   Thu, 20 May 2021 11:21:48 +0200
+Message-Id: <20210520092127.535184080@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Tyrel Datwyler <tyreld@linux.ibm.com>
 
-[ Upstream commit dd5619582d60007139f0447382d2839f4f9e339b ]
+[ Upstream commit 38d0b1c9cec71e6d0f3bddef0bbce41d05a3e796 ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+The pci_bus->bridge reference may no longer be valid after
+pci_bus_remove() resulting in passing a bad value to device_unregister()
+for the associated bridge device.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+Store the host_bridge reference in a separate variable prior to
+pci_bus_remove().
 
-Fix the cdc-acm implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
-
-Fixes: ba2d8ce9db0a ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Acked-by: Oliver Neukum <oneukum@suse.com>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-3-johan@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 7340056567e3 ("powerpc/pci: Reorder pci bus/bridge unregistration during PHB removal")
+Signed-off-by: Tyrel Datwyler <tyreld@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210211182435.47968-1-tyreld@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 2 --
- 1 file changed, 2 deletions(-)
+ arch/powerpc/platforms/pseries/pci_dlpar.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 97b5b021a220..a70d2341ada6 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -870,8 +870,6 @@ static int set_serial_info(struct acm *acm,
- 		if ((new_serial.close_delay != old_close_delay) ||
- 	            (new_serial.closing_wait != old_closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		acm->port.close_delay  = close_delay;
- 		acm->port.closing_wait = closing_wait;
+diff --git a/arch/powerpc/platforms/pseries/pci_dlpar.c b/arch/powerpc/platforms/pseries/pci_dlpar.c
+index 561917fa54a8..afca4b737e80 100644
+--- a/arch/powerpc/platforms/pseries/pci_dlpar.c
++++ b/arch/powerpc/platforms/pseries/pci_dlpar.c
+@@ -66,6 +66,7 @@ EXPORT_SYMBOL_GPL(init_phb_dynamic);
+ int remove_phb_dynamic(struct pci_controller *phb)
+ {
+ 	struct pci_bus *b = phb->bus;
++	struct pci_host_bridge *host_bridge = to_pci_host_bridge(b->bridge);
+ 	struct resource *res;
+ 	int rc, i;
+ 
+@@ -92,7 +93,8 @@ int remove_phb_dynamic(struct pci_controller *phb)
+ 	/* Remove the PCI bus and unregister the bridge device from sysfs */
+ 	phb->bus = NULL;
+ 	pci_remove_bus(b);
+-	device_unregister(b->bridge);
++	host_bridge->bus = NULL;
++	device_unregister(&host_bridge->dev);
+ 
+ 	/* Now release the IO resource */
+ 	if (res->flags & IORESOURCE_IO)
 -- 
 2.30.2
 
