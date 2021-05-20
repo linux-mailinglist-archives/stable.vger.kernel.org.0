@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A848738AB21
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F52038A978
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239939AbhETLUq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37920 "EHLO mail.kernel.org"
+        id S239203AbhETLC3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:02:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240165AbhETLRG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:17:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0BDB161952;
-        Thu, 20 May 2021 10:09:34 +0000 (UTC)
+        id S236827AbhETLA3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:00:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2A8361D07;
+        Thu, 20 May 2021 10:03:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505375;
-        bh=cOc6lcQ5YoBHcNEo7t7yxygIjdYW5ATkR8jzQrmKxU4=;
+        s=korg; t=1621505003;
+        bh=vbZ7pUQk06s1GsGBwbOglzFvRDqryA7w0SmdVJDMFRE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Iuwb7ltbI2GLMLJNsN+2PYX0sktrJPO01uvWfLeEJy87cHEjfW4upHzaTFS7dmuJh
-         LXnulACjl0j+5FLqcaQJ1R6LVoLbwztdT2IAeksxXm2s1lJ8yVwbVfjmSFb+lXBkYN
-         rMmaQZjK4jUuEZlpRehodJlP6Nec2g3ggrnE+ElY=
+        b=oQntdVs65hfCjjXsjVhqcgW1jAkk5E2Np786Fu6zG7Cl3o+ioqvGqsaUD8KVgQf8X
+         PyLN7vQ4QnrX0kFAc0G8wS7cyuuRDfkkUqDm+2bOn06ndcbAV5wfmAhmkTvudLQfSx
+         A75So6ES+Ix7f0EcHHSo3q2DVqQTVflfy5JS9LCE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 105/190] media: dvb-usb-remote: fix dvb_usb_nec_rc_key_to_event type mismatch
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Subject: [PATCH 4.9 177/240] Bluetooth: initialize skb_queue_head at l2cap_chan_create()
 Date:   Thu, 20 May 2021 11:22:49 +0200
-Message-Id: <20210520092105.665311713@linuxfoundation.org>
+Message-Id: <20210520092114.610909955@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 0fa430e96d3c3561a78701f51fd8593da68b8474 ]
+[ Upstream commit be8597239379f0f53c9710dd6ab551bbf535bec6 ]
 
-gcc-11 warns about the prototype not exactly matching the function
-definition:
+syzbot is hitting "INFO: trying to register non-static key." message [1],
+for "struct l2cap_chan"->tx_q.lock spinlock is not yet initialized when
+l2cap_chan_del() is called due to e.g. timeout.
 
-drivers/media/usb/dvb-usb/dvb-usb-remote.c:363:20: error: argument 2 of type ‘u8[5]’ {aka ‘unsigned char[5]’} with mismatched bound [-Werror=array-parameter=]
-  363 |                 u8 keybuf[5], u32 *event, int *state)
-      |                 ~~~^~~~~~~~~
-In file included from drivers/media/usb/dvb-usb/dvb-usb-common.h:13,
-                 from drivers/media/usb/dvb-usb/dvb-usb-remote.c:9:
-drivers/media/usb/dvb-usb/dvb-usb.h:490:65: note: previously declared as ‘u8[]’ {aka ‘unsigned char[]’}
-  490 | extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-      |                                                                 ^~~~
+Since "struct l2cap_chan"->lock mutex is initialized at l2cap_chan_create()
+immediately after "struct l2cap_chan" is allocated using kzalloc(), let's
+as well initialize "struct l2cap_chan"->{tx_q,srej_q}.lock spinlocks there.
 
-Fixes: 776338e121b9 ("[PATCH] dvb: Add generalized dvb-usb driver")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sean Young <sean@mess.org>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+[1] https://syzkaller.appspot.com/bug?extid=fadfba6a911f6bf71842
+
+Reported-and-tested-by: syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/dvb-usb/dvb-usb.h | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb/dvb-usb.h b/drivers/media/usb/dvb-usb/dvb-usb.h
-index ce4c4e3b58bb..dd80b737d4da 100644
---- a/drivers/media/usb/dvb-usb/dvb-usb.h
-+++ b/drivers/media/usb/dvb-usb/dvb-usb.h
-@@ -466,7 +466,8 @@ extern int dvb_usb_generic_rw(struct dvb_usb_device *, u8 *, u16, u8 *, u16,int)
- extern int dvb_usb_generic_write(struct dvb_usb_device *, u8 *, u16);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index d586caaa3af4..204b6ebd2a24 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -445,6 +445,8 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	if (!chan)
+ 		return NULL;
  
- /* commonly used remote control parsing */
--extern int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *, u8[], u32 *, int *);
-+int dvb_usb_nec_rc_key_to_event(struct dvb_usb_device *d, u8 keybuf[5],
-+				u32 *event, int *state);
++	skb_queue_head_init(&chan->tx_q);
++	skb_queue_head_init(&chan->srej_q);
+ 	mutex_init(&chan->lock);
  
- /* commonly used firmware download types and function */
- struct hexline {
+ 	/* Set default lock nesting level */
 -- 
 2.30.2
 
