@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00EB838A8B9
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D57D138A6F0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238558AbhETKxG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:53:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50584 "EHLO mail.kernel.org"
+        id S236115AbhETKcB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:32:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60494 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239030AbhETKus (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:50:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0781961CD3;
-        Thu, 20 May 2021 09:59:50 +0000 (UTC)
+        id S237164AbhETK3l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:29:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A298B60551;
+        Thu, 20 May 2021 09:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504791;
-        bh=QR5aBRGdFE0mJmURdhJkExodKp4G8vkyAhLsjs0tbTg=;
+        s=korg; t=1621504299;
+        bh=EVw1yJLDoY2u+9KBb7oQsjBEFyKgubZGB4jVr4IBGjA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UH2y62zslBepn+fSkXt5NETjTO90IgIVpWV6H51gA7tjucVFkM3KHpM+7yxd3+xp/
-         Etd4ItvbCINQXTmTmqiPYTOHwhFY/cWyrGqmf3CLv3zGsby2lHvkJkdPlbvp7y4fhd
-         j+zVX0DN7RPGeGWKe/4hn+umb4y4B53GTAzqqHn4=
+        b=Ivtq9E3EVkiztKoDn3y2WVL6Sb+vRG8SXjcYFiBtk9O5wC8V+0qhTKHVWD7q5uGps
+         vXfcHbdtul+Mql0hwXIMLBJTNz7d3FDp4jgtLtZoOpxOzEtiZAXJwRRo4k2bzoxGS6
+         d8w47rSv/LCodhE2m/Uhf6tmC/I4UpHsHUdrH6rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stanislav Yakovlev <stas.yakovlev@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.9 083/240] ipw2x00: potential buffer overflow in libipw_wx_set_encodeext()
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 183/323] pata_arasan_cf: fix IRQ check
 Date:   Thu, 20 May 2021 11:21:15 +0200
-Message-Id: <20210520092111.476594360@linuxfoundation.org>
+Message-Id: <20210520092126.382872080@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit 260a9ad9446723d4063ed802989758852809714d upstream.
+[ Upstream commit c7e8f404d56b99c80990b19a402c3f640d74be05 ]
 
-The "ext->key_len" is a u16 that comes from the user.  If it's over
-SCM_KEY_LEN (32) that could lead to memory corruption.
+The driver's probe() method is written as if platform_get_irq() returns 0
+on error, while actually it returns a negative error code (with all the
+other values considered valid IRQs). Rewrite the driver's IRQ checking code
+to pass the positive IRQ #s to ata_host_activate(), propagate upstream
+-EPROBE_DEFER, and set up the driver to polling mode on (negative) errors
+and IRQ0 (libata treats IRQ #0 as a polling mode anyway)...
 
-Fixes: e0d369d1d969 ("[PATCH] ieee82011: Added WE-18 support to default wireless extension handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Stanislav Yakovlev <stas.yakovlev@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YHaoA1i+8uT4ir4h@mwanda
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: a480167b23ef ("pata_arasan_cf: Adding support for arasan compact flash host controller")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/intel/ipw2x00/libipw_wx.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/ata/pata_arasan_cf.c | 15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/drivers/net/wireless/intel/ipw2x00/libipw_wx.c
-+++ b/drivers/net/wireless/intel/ipw2x00/libipw_wx.c
-@@ -649,8 +649,10 @@ int libipw_wx_set_encodeext(struct libip
- 	}
+diff --git a/drivers/ata/pata_arasan_cf.c b/drivers/ata/pata_arasan_cf.c
+index b4d54771c9fe..623199fab8fe 100644
+--- a/drivers/ata/pata_arasan_cf.c
++++ b/drivers/ata/pata_arasan_cf.c
+@@ -819,12 +819,19 @@ static int arasan_cf_probe(struct platform_device *pdev)
+ 	else
+ 		quirk = CF_BROKEN_UDMA; /* as it is on spear1340 */
  
- 	if (ext->alg != IW_ENCODE_ALG_NONE) {
--		memcpy(sec.keys[idx], ext->key, ext->key_len);
--		sec.key_sizes[idx] = ext->key_len;
-+		int key_len = clamp_val(ext->key_len, 0, SCM_KEY_LEN);
-+
-+		memcpy(sec.keys[idx], ext->key, key_len);
-+		sec.key_sizes[idx] = key_len;
- 		sec.flags |= (1 << idx);
- 		if (ext->alg == IW_ENCODE_ALG_WEP) {
- 			sec.encode_alg[idx] = SEC_ALG_WEP;
+-	/* if irq is 0, support only PIO */
+-	acdev->irq = platform_get_irq(pdev, 0);
+-	if (acdev->irq)
++	/*
++	 * If there's an error getting IRQ (or we do get IRQ0),
++	 * support only PIO
++	 */
++	ret = platform_get_irq(pdev, 0);
++	if (ret > 0) {
++		acdev->irq = ret;
+ 		irq_handler = arasan_cf_interrupt;
+-	else
++	} else	if (ret == -EPROBE_DEFER) {
++		return ret;
++	} else	{
+ 		quirk |= CF_BROKEN_MWDMA | CF_BROKEN_UDMA;
++	}
+ 
+ 	acdev->pbase = res->start;
+ 	acdev->vbase = devm_ioremap_nocache(&pdev->dev, res->start,
+-- 
+2.30.2
+
 
 
