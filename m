@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6320038ABA3
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B140338AB92
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241148AbhETL0N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:26:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43346 "EHLO mail.kernel.org"
+        id S240075AbhETLZ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:25:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241171AbhETLWZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:22:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AE10F61438;
-        Thu, 20 May 2021 10:11:44 +0000 (UTC)
+        id S240952AbhETLXq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:23:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8C6261D99;
+        Thu, 20 May 2021 10:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505505;
-        bh=Y/xh6Xavdcp1CPtWYiw5QqH7hCEQh/7VA2kWDA+2bj4=;
+        s=korg; t=1621505529;
+        bh=ZBymqGWVFeC6mz2Gi2Zf3T39esbhwQLJBbxSe594f6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3zLjwPfGJvQqdruoiFpqhmqe1slUpvdXC+da8PADEg+joYXB/sd7uXLKZBcSbKsJ
-         GT2WFqQ78L7peL+Jpf49EXcm6BABf1CEkK2ePRlCen4yvAINnaTDzX3DorhMkhJ2BD
-         EOgBI2kf06RedGfeCZjSg414cT7Lrjlbkic8OL8s=
+        b=smOvCVVhyb9DTqZfQjNDrkbgiOIRBIZK4KKWkaeiCdZWGzUw6lnPCQlCOlQePOgWq
+         83XevimnrJ/8ObSHCefD75tAp3NrThPQL1zYRpjX75llB1he3ba78za+frQbOeu7/e
+         fnxPDx2ZpRG0AKjORxQVk4uFekzgEmNiVYq2byF8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 148/190] sctp: Fix out-of-bounds warning in sctp_process_asconf_param()
-Date:   Thu, 20 May 2021 11:23:32 +0200
-Message-Id: <20210520092107.075901822@linuxfoundation.org>
+Subject: [PATCH 4.4 149/190] ASoC: rt286: Generalize support for ALC3263 codec
+Date:   Thu, 20 May 2021 11:23:33 +0200
+Message-Id: <20210520092107.107379187@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -43,42 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gustavo A. R. Silva <gustavoars@kernel.org>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit e5272ad4aab347dde5610c0aedb786219e3ff793 ]
+[ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
 
-Fix the following out-of-bounds warning:
+The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
+and Venue 11 Pro 7140. They require the same handling for the combo jack to
+work with a headset: GPIO pin 6 must be set.
 
-net/sctp/sm_make_chunk.c:3150:4: warning: 'memcpy' offset [17, 28] from the object at 'addr' is out of the bounds of referenced subobject 'v4' with type 'struct sockaddr_in' at offset 0 [-Warray-bounds]
+The HDA driver always sets this pin on the ALC3263, which it distinguishes
+by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
+(Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
+determine if Dell is the system vendor.
 
-This helps with the ongoing efforts to globally enable -Warray-bounds
-and get us closer to being able to tighten the FORTIFY_SOURCE routines
-on memcpy().
-
-Link: https://github.com/KSPP/linux/issues/109
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/sm_make_chunk.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/rt286.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/net/sctp/sm_make_chunk.c b/net/sctp/sm_make_chunk.c
-index e3e44237de1c..9de03d2e5da9 100644
---- a/net/sctp/sm_make_chunk.c
-+++ b/net/sctp/sm_make_chunk.c
-@@ -3119,7 +3119,7 @@ static __be16 sctp_process_asconf_param(struct sctp_association *asoc,
- 		 * primary.
- 		 */
- 		if (af->is_any(&addr))
--			memcpy(&addr.v4, sctp_source(asconf), sizeof(addr));
-+			memcpy(&addr, sctp_source(asconf), sizeof(addr));
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index af2ed774b552..63ed5b38b11f 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -1117,12 +1117,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
+ 	{ }
+ };
  
- 		peer = sctp_assoc_lookup_paddr(asoc, &addr);
- 		if (!peer)
+-static const struct dmi_system_id dmi_dell_dino[] = {
++static const struct dmi_system_id dmi_dell[] = {
+ 	{
+-		.ident = "Dell Dino",
++		.ident = "Dell",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
+ 		}
+ 	},
+ 	{ }
+@@ -1133,7 +1132,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ {
+ 	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
+ 	struct rt286_priv *rt286;
+-	int i, ret, val;
++	int i, ret, vendor_id;
+ 
+ 	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
+ 				GFP_KERNEL);
+@@ -1149,14 +1148,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	}
+ 
+ 	ret = regmap_read(rt286->regmap,
+-		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
++		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "I2C error %d\n", ret);
+ 		return ret;
+ 	}
+-	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
++	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
+ 		dev_err(&i2c->dev,
+-			"Device with ID register %#x is not rt286\n", val);
++			"Device with ID register %#x is not rt286\n",
++			vendor_id);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1180,8 +1180,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	if (pdata)
+ 		rt286->pdata = *pdata;
+ 
+-	if (dmi_check_system(force_combo_jack_table) ||
+-		dmi_check_system(dmi_dell_dino))
++	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
++		dmi_check_system(force_combo_jack_table))
+ 		rt286->pdata.cbj_en = true;
+ 
+ 	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
+@@ -1220,7 +1220,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
+ 
+-	if (dmi_check_system(dmi_dell_dino)) {
++	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
+ 		regmap_update_bits(rt286->regmap,
+ 			RT286_SET_GPIO_MASK, 0x40, 0x40);
+ 		regmap_update_bits(rt286->regmap,
 -- 
 2.30.2
 
