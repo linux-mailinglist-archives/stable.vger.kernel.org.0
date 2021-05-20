@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 549D038A9CC
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:05:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 533BB38AB3B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239791AbhETLGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
+        id S241132AbhETLVu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:21:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239946AbhETLE3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:04:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7354961D1C;
-        Thu, 20 May 2021 10:04:50 +0000 (UTC)
+        id S241006AbhETLTu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B479A6195C;
+        Thu, 20 May 2021 10:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505090;
-        bh=XxGGBWBfrbhWtYT8TV2T2lbojM3peR8A0GT50MPDk88=;
+        s=korg; t=1621505448;
+        bh=6rdUQUeVTP0airz7hksVZY3ye/GUxnnujGEhtTwlOR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Kpv4ONGkEk3ZRHAc5h+HjNp57UNZ83QMceETwCun5V26nMBdKgC6HooaJFPr90nbH
-         YJ/eNu9RmPXQiR2P1SsxRWvdZLfiSHxLjivgTu5sP6I/aV/sCo+w6GkywcpJBsHwnV
-         XMGaISPQzkT4N06hxQ7StaRHU0uySaQVlI9BVRys=
+        b=X+kL491nOok71kyOTezTrk3coe3+sL7mdlOhExk1i/SsmUq8wkZCjFuGNN8CJ0hIx
+         T25DFPiI0U+ygUovgLbbsRTckYdHMMnY5PzXuUQRuw455MlJWiklTDPNf8XCddNXxN
+         H5wQO5QilSAuXCqdKZ0N4TtqVP7JV5jHTIETDdo4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, Xie He <xie.he.0141@gmail.com>,
+        Martin Schiller <ms@dev.tdt.de>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 184/240] ASoC: rt286: Generalize support for ALC3263 codec
+Subject: [PATCH 4.4 112/190] net: lapbether: Prevent racing when checking whether the netif is running
 Date:   Thu, 20 May 2021 11:22:56 +0200
-Message-Id: <20210520092114.833647590@linuxfoundation.org>
+Message-Id: <20210520092105.895050162@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +41,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Ward <david.ward@gatech.edu>
+From: Xie He <xie.he.0141@gmail.com>
 
-[ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
+[ Upstream commit 5acd0cfbfbb5a688da1bfb1a2152b0c855115a35 ]
 
-The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
-and Venue 11 Pro 7140. They require the same handling for the combo jack to
-work with a headset: GPIO pin 6 must be set.
+There are two "netif_running" checks in this driver. One is in
+"lapbeth_xmit" and the other is in "lapbeth_rcv". They serve to make
+sure that the LAPB APIs called in these functions are called before
+"lapb_unregister" is called by the "ndo_stop" function.
 
-The HDA driver always sets this pin on the ALC3263, which it distinguishes
-by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
-(Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
-determine if Dell is the system vendor.
+However, these "netif_running" checks are unreliable, because it's
+possible that immediately after "netif_running" returns true, "ndo_stop"
+is called (which causes "lapb_unregister" to be called).
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
-Signed-off-by: David Ward <david.ward@gatech.edu>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This patch adds locking to make sure "lapbeth_xmit" and "lapbeth_rcv" can
+reliably check and ensure the netif is running while doing their work.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Xie He <xie.he.0141@gmail.com>
+Acked-by: Martin Schiller <ms@dev.tdt.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt286.c | 20 ++++++++++----------
- 1 file changed, 10 insertions(+), 10 deletions(-)
+ drivers/net/wan/lapbether.c | 32 +++++++++++++++++++++++++-------
+ 1 file changed, 25 insertions(+), 7 deletions(-)
 
-diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
-index 7899a2cdeb42..4a0ab620983d 100644
---- a/sound/soc/codecs/rt286.c
-+++ b/sound/soc/codecs/rt286.c
-@@ -1119,12 +1119,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
- 	{ }
+diff --git a/drivers/net/wan/lapbether.c b/drivers/net/wan/lapbether.c
+index 666bbacb8cb4..24daa1d0e9c5 100644
+--- a/drivers/net/wan/lapbether.c
++++ b/drivers/net/wan/lapbether.c
+@@ -56,6 +56,8 @@ struct lapbethdev {
+ 	struct list_head	node;
+ 	struct net_device	*ethdev;	/* link to ethernet device */
+ 	struct net_device	*axdev;		/* lapbeth device (lapb#) */
++	bool			up;
++	spinlock_t		up_lock;	/* Protects "up" */
  };
  
--static const struct dmi_system_id dmi_dell_dino[] = {
-+static const struct dmi_system_id dmi_dell[] = {
- 	{
--		.ident = "Dell Dino",
-+		.ident = "Dell",
- 		.matches = {
- 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
--			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
- 		}
- 	},
- 	{ }
-@@ -1135,7 +1134,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ static LIST_HEAD(lapbeth_devices);
+@@ -103,8 +105,9 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
+ 	rcu_read_lock();
+ 	lapbeth = lapbeth_get_x25_dev(dev);
+ 	if (!lapbeth)
+-		goto drop_unlock;
+-	if (!netif_running(lapbeth->axdev))
++		goto drop_unlock_rcu;
++	spin_lock_bh(&lapbeth->up_lock);
++	if (!lapbeth->up)
+ 		goto drop_unlock;
+ 
+ 	len = skb->data[0] + skb->data[1] * 256;
+@@ -119,11 +122,14 @@ static int lapbeth_rcv(struct sk_buff *skb, struct net_device *dev, struct packe
+ 		goto drop_unlock;
+ 	}
+ out:
++	spin_unlock_bh(&lapbeth->up_lock);
+ 	rcu_read_unlock();
+ 	return 0;
+ drop_unlock:
+ 	kfree_skb(skb);
+ 	goto out;
++drop_unlock_rcu:
++	rcu_read_unlock();
+ drop:
+ 	kfree_skb(skb);
+ 	return 0;
+@@ -151,13 +157,11 @@ static int lapbeth_data_indication(struct net_device *dev, struct sk_buff *skb)
+ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 				      struct net_device *dev)
  {
- 	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
- 	struct rt286_priv *rt286;
--	int i, ret, val;
-+	int i, ret, vendor_id;
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
  
- 	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
- 				GFP_KERNEL);
-@@ -1151,14 +1150,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
- 	}
+-	/*
+-	 * Just to be *really* sure not to send anything if the interface
+-	 * is down, the ethernet device may have gone.
+-	 */
+-	if (!netif_running(dev))
++	spin_lock_bh(&lapbeth->up_lock);
++	if (!lapbeth->up)
+ 		goto drop;
  
- 	ret = regmap_read(rt286->regmap,
--		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
-+		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
- 	if (ret != 0) {
- 		dev_err(&i2c->dev, "I2C error %d\n", ret);
- 		return ret;
+ 	/* There should be a pseudo header of 1 byte added by upper layers.
+@@ -188,6 +192,7 @@ static netdev_tx_t lapbeth_xmit(struct sk_buff *skb,
+ 		goto drop;
  	}
--	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
-+	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
- 		dev_err(&i2c->dev,
--			"Device with ID register %#x is not rt286\n", val);
-+			"Device with ID register %#x is not rt286\n",
-+			vendor_id);
+ out:
++	spin_unlock_bh(&lapbeth->up_lock);
+ 	return NETDEV_TX_OK;
+ drop:
+ 	kfree_skb(skb);
+@@ -279,6 +284,7 @@ static const struct lapb_register_struct lapbeth_callbacks = {
+  */
+ static int lapbeth_open(struct net_device *dev)
+ {
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
+ 
+ 	if ((err = lapb_register(dev, &lapbeth_callbacks)) != LAPB_OK) {
+@@ -286,13 +292,22 @@ static int lapbeth_open(struct net_device *dev)
  		return -ENODEV;
  	}
  
-@@ -1182,8 +1182,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
- 	if (pdata)
- 		rt286->pdata = *pdata;
++	spin_lock_bh(&lapbeth->up_lock);
++	lapbeth->up = true;
++	spin_unlock_bh(&lapbeth->up_lock);
++
+ 	return 0;
+ }
  
--	if (dmi_check_system(force_combo_jack_table) ||
--		dmi_check_system(dmi_dell_dino))
-+	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
-+		dmi_check_system(force_combo_jack_table))
- 		rt286->pdata.cbj_en = true;
+ static int lapbeth_close(struct net_device *dev)
+ {
++	struct lapbethdev *lapbeth = netdev_priv(dev);
+ 	int err;
  
- 	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
-@@ -1222,7 +1222,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
- 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
- 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
++	spin_lock_bh(&lapbeth->up_lock);
++	lapbeth->up = false;
++	spin_unlock_bh(&lapbeth->up_lock);
++
+ 	if ((err = lapb_unregister(dev)) != LAPB_OK)
+ 		pr_err("lapb_unregister error: %d\n", err);
  
--	if (dmi_check_system(dmi_dell_dino)) {
-+	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
- 		regmap_update_bits(rt286->regmap,
- 			RT286_SET_GPIO_MASK, 0x40, 0x40);
- 		regmap_update_bits(rt286->regmap,
+@@ -350,6 +365,9 @@ static int lapbeth_new_device(struct net_device *dev)
+ 	dev_hold(dev);
+ 	lapbeth->ethdev = dev;
+ 
++	lapbeth->up = false;
++	spin_lock_init(&lapbeth->up_lock);
++
+ 	rc = -EIO;
+ 	if (register_netdevice(ndev))
+ 		goto fail;
 -- 
 2.30.2
 
