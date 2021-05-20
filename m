@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C77E38A42C
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2212538A42D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235019AbhETKBr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:01:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59040 "EHLO mail.kernel.org"
+        id S235032AbhETKBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235288AbhETJ7r (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:59:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E7B8061876;
-        Thu, 20 May 2021 09:38:43 +0000 (UTC)
+        id S235291AbhETJ7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:59:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 278766162D;
+        Thu, 20 May 2021 09:38:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503524;
-        bh=JqtoyHvuHtPfaXbCoVRi4NDPKrtDhVqz3kqV4VGUEAg=;
+        s=korg; t=1621503526;
+        bh=8CW865KVytU24fiLS2p4+yfG6Txeuofcb6aQV21QHlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qThDZpvEp2vsM58xgHc+iq5vk5WgwdWXcQJmLqzWiCJoywlqOhcgg2Uxq5gDPvfHd
-         Dd+VXnSTxnvQVkilXIXwH+MvdpHCHBQ9PRd+nbMgs5OhCpZs+r5Zy4Zrtb7z1ae/NS
-         Mo7mGVnfYg7fFo9I3vtlyfxL6X7kg9u+UGlYewa0=
+        b=vWk34sMl0R9BjAU85Fd+gxmID8DiHHa2LaS1okr92UNjLRp6XVGo0aojux9U4yYcY
+         35cL/BZYvxNdu6cQ6Yay3ppF2Db2s4c2yC5z6eUM0ivKhNHCCJRcVdBysjAs54wzAi
+         LWYnwgzY3YH7AGLXWMnjG25JlrUwmanshmdS2vHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Zhou <zhou.jia2@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>, Takashi Iwai <tiwai@suse.de>,
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 253/425] ALSA: core: remove redundant spin_lock pair in snd_card_disconnect
-Date:   Thu, 20 May 2021 11:20:22 +0200
-Message-Id: <20210520092139.726296983@linuxfoundation.org>
+Subject: [PATCH 4.19 262/425] mac80211: bail out if cipher schemes are invalid
+Date:   Thu, 20 May 2021 11:20:31 +0200
+Message-Id: <20210520092140.061530159@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,38 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Zhou <zhou.jia2@zte.com.cn>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit abc21649b3e5c34b143bf86f0c78e33d5815e250 ]
+[ Upstream commit db878e27a98106a70315d264cc92230d84009e72 ]
 
-modification in commit 2a3f7221acdd ("ALSA: core: Fix card races between
-register and disconnect") resulting in this problem.
+If any of the cipher schemes specified by the driver are invalid, bail
+out and fail the registration rather than just warning.  Otherwise, we
+might later crash when we try to use the invalid cipher scheme, e.g.
+if the hdr_len is (significantly) less than the pn_offs + pn_len, we'd
+have an out-of-bounds access in RX validation.
 
-Fixes: 2a3f7221acdd ("ALSA: core: Fix card races between register and disconnect")
-Signed-off-by: Jia Zhou <zhou.jia2@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Link: https://lore.kernel.org/r/1616989007-34429-1-git-send-email-wang.yi59@zte.com.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 2475b1cc0d52 ("mac80211: add generic cipher scheme support")
+Link: https://lore.kernel.org/r/20210408143149.38a3a13a1b19.I6b7f5790fa0958ed8049cf02ac2a535c61e9bc96@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/mac80211/main.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/core/init.c b/sound/core/init.c
-index 16b7cc7aa66b..3eafa15006f8 100644
---- a/sound/core/init.c
-+++ b/sound/core/init.c
-@@ -405,10 +405,8 @@ int snd_card_disconnect(struct snd_card *card)
- 		return 0;
- 	}
- 	card->shutdown = 1;
--	spin_unlock(&card->files_lock);
+diff --git a/net/mac80211/main.c b/net/mac80211/main.c
+index f44d00f35fe7..e8c4e9c0c5a0 100644
+--- a/net/mac80211/main.c
++++ b/net/mac80211/main.c
+@@ -1080,8 +1080,11 @@ int ieee80211_register_hw(struct ieee80211_hw *hw)
+ 	if (local->hw.wiphy->max_scan_ie_len)
+ 		local->hw.wiphy->max_scan_ie_len -= local->scan_ies_len;
  
- 	/* replace file->f_op with special dummy operations */
--	spin_lock(&card->files_lock);
- 	list_for_each_entry(mfile, &card->files_list, list) {
- 		/* it's critical part, use endless loop */
- 		/* we have no room to fail */
+-	WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
+-					 local->hw.n_cipher_schemes));
++	if (WARN_ON(!ieee80211_cs_list_valid(local->hw.cipher_schemes,
++					     local->hw.n_cipher_schemes))) {
++		result = -EINVAL;
++		goto fail_workqueue;
++	}
+ 
+ 	result = ieee80211_init_cipher_suites(local);
+ 	if (result < 0)
 -- 
 2.30.2
 
