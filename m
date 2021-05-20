@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3E338AAE8
+	by mail.lfdr.de (Postfix) with ESMTP id 15F3E38AAE7
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240415AbhETLSi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239184AbhETLSi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 07:18:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39590 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39588 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239944AbhETLQf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:16:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E13761D67;
-        Thu, 20 May 2021 10:09:17 +0000 (UTC)
+        id S240488AbhETLQe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:16:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D0B761D69;
+        Thu, 20 May 2021 10:09:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505357;
-        bh=g6IBgH9k1AU6t67QxwQ1Nh8XnByBxwJzzVpT9p7ZfsE=;
+        s=korg; t=1621505359;
+        bh=c+BtpoNXJRkzS6snii+CAcxdQ6JuXuaTn74AuOTYr4Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kfqk0fV6hqZcfcq/hIcbzE5+8kQl8CkvgGpDIIauriRPkCcJSEbnWMVTcGpBFtQW3
-         /mDEA338HiZ0rg8OavLasAc/ewMhGKbjqUQT5UyA6DxEu3cYaZFycUukyjqV52CX9C
-         diNdf3p1Su/AnlOILdkjO4D04mHAW8Woc0/xkLR8=
+        b=gL4O2/fS0SuvGa2CQFDSKU8+imdDFzDw2lE+z2Oj1FdzY28Erv2LAXgtyxFpTDGEH
+         ZyMkqm0cublOOxXCQ6EyimFwacpexf1bYYDGLr29ZnoNY8eG3uykq0aqKk2ByOwT71
+         XuJOmHSIIN6HpzR13EEfpIDDKa0Sr3Rj0jGyfGLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 098/190] media: omap4iss: return error code when omap4iss_get() failed
-Date:   Thu, 20 May 2021 11:22:42 +0200
-Message-Id: <20210520092105.442733665@linuxfoundation.org>
+Subject: [PATCH 4.4 099/190] media: m88rs6000t: avoid potential out-of-bounds reads on arrays
+Date:   Thu, 20 May 2021 11:22:43 +0200
+Message-Id: <20210520092105.473603236@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -42,38 +40,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit 8938c48fa25b491842ece9eb38f0bea0fcbaca44 ]
+[ Upstream commit 9baa3d64e8e2373ddd11c346439e5dfccb2cbb0d ]
 
-If omap4iss_get() failed, it need return error code in iss_probe().
+There a 3 array for-loops that don't check the upper bounds of the
+index into arrays and this may lead to potential out-of-bounds
+reads.  Fix this by adding array size upper bounds checks to be
+full safe.
 
-Fixes: 59f0ad807681 ("[media] v4l: omap4iss: Add support for OMAP4...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Addresses-Coverity: ("Out-of-bounds read")
+
+Link: https://lore.kernel.org/linux-media/20201007121628.20676-1-colin.king@canonical.com
+Fixes: 333829110f1d ("[media] m88rs6000t: add new dvb-s/s2 tuner for integrated chip M88RS6000")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/omap4iss/iss.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/media/tuners/m88rs6000t.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/media/omap4iss/iss.c b/drivers/staging/media/omap4iss/iss.c
-index aa76ccda5b42..130d09d28e1d 100644
---- a/drivers/staging/media/omap4iss/iss.c
-+++ b/drivers/staging/media/omap4iss/iss.c
-@@ -1406,8 +1406,10 @@ static int iss_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto error;
+diff --git a/drivers/media/tuners/m88rs6000t.c b/drivers/media/tuners/m88rs6000t.c
+index 504bfbc4027a..f78caf3c2bbd 100644
+--- a/drivers/media/tuners/m88rs6000t.c
++++ b/drivers/media/tuners/m88rs6000t.c
+@@ -535,7 +535,7 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	PGA2_cri = PGA2_GC >> 2;
+ 	PGA2_crf = PGA2_GC & 0x03;
  
--	if (!omap4iss_get(iss))
-+	if (!omap4iss_get(iss)) {
-+		ret = -EINVAL;
- 		goto error;
-+	}
+-	for (i = 0; i <= RF_GC; i++)
++	for (i = 0; i <= RF_GC && i < ARRAY_SIZE(RFGS); i++)
+ 		RFG += RFGS[i];
  
- 	ret = iss_reset(iss);
- 	if (ret < 0)
+ 	if (RF_GC == 0)
+@@ -547,12 +547,12 @@ static int m88rs6000t_get_rf_strength(struct dvb_frontend *fe, u16 *strength)
+ 	if (RF_GC == 3)
+ 		RFG += 100;
+ 
+-	for (i = 0; i <= IF_GC; i++)
++	for (i = 0; i <= IF_GC && i < ARRAY_SIZE(IFGS); i++)
+ 		IFG += IFGS[i];
+ 
+ 	TIAG = TIA_GC * TIA_GS;
+ 
+-	for (i = 0; i <= BB_GC; i++)
++	for (i = 0; i <= BB_GC && i < ARRAY_SIZE(BBGS); i++)
+ 		BBG += BBGS[i];
+ 
+ 	PGA2G = PGA2_cri * PGA2_cri_GS + PGA2_crf * PGA2_crf_GS;
 -- 
 2.30.2
 
