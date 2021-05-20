@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF41438A0E7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EFA438A167
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231738AbhETJ0y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:26:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53038 "EHLO mail.kernel.org"
+        id S232282AbhETJbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:31:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231624AbhETJ0c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:26:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D63D461355;
-        Thu, 20 May 2021 09:25:10 +0000 (UTC)
+        id S231837AbhETJ3C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:29:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26691613C5;
+        Thu, 20 May 2021 09:27:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502711;
-        bh=m2noJKqKeW0U5wmwK56a/Dvf7G3056Cma/3oi2F6q9M=;
+        s=korg; t=1621502830;
+        bh=6ieyFlyfSapVajR5zSjbwnaHHoYjNS5mTloDETdWzXo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF0GgO5v/KoNnISCG4Wb3o4yShW1tpUOYSE0fKm3OW4wI48/IPqxrTwQIsROB1z6Z
-         kt/rKqVPAahBqSRL83KDhI0RodIq9zHWheEWSew8Shvz3bKFiiEla2GAtfepaCKk2W
-         p5TqgLg41gC2KQ05chuGChks9A5B52nE8T6b5PsI=
+        b=p4aE3CGkBx3d+saA4B0BIcLSMgNXXZNO5LA8uHw6UGgiVfatq5BfuookcbT5ZuRZ1
+         /0u67CM8Dab4KxqdyZg6oshGTmn4eXCi2P2AeOwfXSINswYj97ftVHO3Ia588l+ZTb
+         K3UbHlkh9fxei2J6vex+U+EEzrpU2uag9NtQpMRM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Fangrui Song <maskray@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
+        stable@vger.kernel.org,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 24/45] scripts/recordmcount.pl: Fix RISC-V regex for clang
-Date:   Thu, 20 May 2021 11:22:12 +0200
-Message-Id: <20210520092054.300978606@linuxfoundation.org>
+Subject: [PATCH 5.10 15/47] Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
+Date:   Thu, 20 May 2021 11:22:13 +0200
+Message-Id: <20210520092054.044650261@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,41 +42,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 2f095504f4b9cf75856d6a9cf90299cf75aa46c5 ]
+[ Upstream commit 65299e8bfb24774e6340e93ae49f6626598917c8 ]
 
-Clang can generate R_RISCV_CALL_PLT relocations to _mcount:
+Several users have been reporting that elants_i2c gives several errors
+during probe and that their touchscreen does not work on their Lenovo AMD
+based laptops with a touchscreen with a ELAN0001 ACPI hardware-id:
 
-$ llvm-objdump -dr build/riscv/init/main.o | rg mcount
-                000000000000000e:  R_RISCV_CALL_PLT     _mcount
-                000000000000004e:  R_RISCV_CALL_PLT     _mcount
+[    0.550596] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vcc33 not found, using dummy regulator
+[    0.551836] elants_i2c i2c-ELAN0001:00: i2c-ELAN0001:00 supply vccio not found, using dummy regulator
+[    0.560932] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.562427] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.595925] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.597974] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.621893] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (77 77 77 77): -121
+[    0.622504] elants_i2c i2c-ELAN0001:00: software reset failed: -121
+[    0.632650] elants_i2c i2c-ELAN0001:00: elants_i2c_send failed (4d 61 69 6e): -121
+[    0.634256] elants_i2c i2c-ELAN0001:00: boot failed: -121
+[    0.699212] elants_i2c i2c-ELAN0001:00: invalid 'hello' packet: 00 00 ff ff
+[    1.630506] elants_i2c i2c-ELAN0001:00: Failed to read fw id: -121
+[    1.645508] elants_i2c i2c-ELAN0001:00: unknown packet 00 00 ff ff
 
-After this, the __start_mcount_loc section is properly generated and
-function tracing still works.
+Despite these errors, the elants_i2c driver stays bound to the device
+(it returns 0 from its probe method despite the errors), blocking the
+i2c-hid driver from binding.
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1331
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Fangrui Song <maskray@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Manually unbinding the elants_i2c driver and binding the i2c-hid driver
+makes the touchscreen work.
+
+Check if the ACPI-fwnode for the touchscreen contains one of the i2c-hid
+compatiblity-id strings and if it has the I2C-HID spec's DSM to get the
+HID descriptor address, If it has both then make elants_i2c not bind,
+so that the i2c-hid driver can bind.
+
+This assumes that non of the (older) elan touchscreens which actually
+need the elants_i2c driver falsely advertise an i2c-hid compatiblity-id
++ DSM in their ACPI-fwnodes. If some of them actually do have this
+false advertising, then this change may lead to regressions.
+
+While at it also drop the unnecessary DEVICE_NAME prefixing of the
+"I2C check functionality error", dev_err already outputs the driver-name.
+
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=207759
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210405202756.16830-1-hdegoede@redhat.com
+
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/recordmcount.pl | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/input/touchscreen/elants_i2c.c | 44 ++++++++++++++++++++++++--
+ 1 file changed, 42 insertions(+), 2 deletions(-)
 
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index 867860ea57da..a36df04cfa09 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -392,7 +392,7 @@ if ($arch eq "x86_64") {
-     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
- } elsif ($arch eq "riscv") {
-     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
--    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL\\s_mcount\$";
-+    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
-     $type = ".quad";
-     $alignment = 2;
- } elsif ($arch eq "nds32") {
+diff --git a/drivers/input/touchscreen/elants_i2c.c b/drivers/input/touchscreen/elants_i2c.c
+index 50c348297e38..03a482535944 100644
+--- a/drivers/input/touchscreen/elants_i2c.c
++++ b/drivers/input/touchscreen/elants_i2c.c
+@@ -38,6 +38,7 @@
+ #include <linux/of.h>
+ #include <linux/gpio/consumer.h>
+ #include <linux/regulator/consumer.h>
++#include <linux/uuid.h>
+ #include <asm/unaligned.h>
+ 
+ /* Device, Driver information */
+@@ -1224,6 +1225,40 @@ static void elants_i2c_power_off(void *_data)
+ 	}
+ }
+ 
++#ifdef CONFIG_ACPI
++static const struct acpi_device_id i2c_hid_ids[] = {
++	{"ACPI0C50", 0 },
++	{"PNP0C50", 0 },
++	{ },
++};
++
++static const guid_t i2c_hid_guid =
++	GUID_INIT(0x3CDFF6F7, 0x4267, 0x4555,
++		  0xAD, 0x05, 0xB3, 0x0A, 0x3D, 0x89, 0x38, 0xDE);
++
++static bool elants_acpi_is_hid_device(struct device *dev)
++{
++	acpi_handle handle = ACPI_HANDLE(dev);
++	union acpi_object *obj;
++
++	if (acpi_match_device_ids(ACPI_COMPANION(dev), i2c_hid_ids))
++		return false;
++
++	obj = acpi_evaluate_dsm_typed(handle, &i2c_hid_guid, 1, 1, NULL, ACPI_TYPE_INTEGER);
++	if (obj) {
++		ACPI_FREE(obj);
++		return true;
++	}
++
++	return false;
++}
++#else
++static bool elants_acpi_is_hid_device(struct device *dev)
++{
++	return false;
++}
++#endif
++
+ static int elants_i2c_probe(struct i2c_client *client,
+ 			    const struct i2c_device_id *id)
+ {
+@@ -1232,9 +1267,14 @@ static int elants_i2c_probe(struct i2c_client *client,
+ 	unsigned long irqflags;
+ 	int error;
+ 
++	/* Don't bind to i2c-hid compatible devices, these are handled by the i2c-hid drv. */
++	if (elants_acpi_is_hid_device(&client->dev)) {
++		dev_warn(&client->dev, "This device appears to be an I2C-HID device, not binding\n");
++		return -ENODEV;
++	}
++
+ 	if (!i2c_check_functionality(client->adapter, I2C_FUNC_I2C)) {
+-		dev_err(&client->dev,
+-			"%s: i2c check functionality error\n", DEVICE_NAME);
++		dev_err(&client->dev, "I2C check functionality error\n");
+ 		return -ENXIO;
+ 	}
+ 
 -- 
 2.30.2
 
