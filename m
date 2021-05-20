@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A57438A9A4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15B3438AB12
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237033AbhETLFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
+        id S239077AbhETLUW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:20:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239365AbhETLB5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:01:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BF5161D10;
-        Thu, 20 May 2021 10:03:53 +0000 (UTC)
+        id S240613AbhETLTA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3977B61D6F;
+        Thu, 20 May 2021 10:10:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505033;
-        bh=fh02Oba5fs53fiOg+PgVr3aAD93ERAV/xbwbMvskzb4=;
+        s=korg; t=1621505408;
+        bh=bxCx1MAP2+M9YGiGyUZpSHuw78e7yD2VQk4Y+7qmHn4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uqw6wYcvSne73dtAlBpOg2bnKn8kBXUKZ9r8yca2Hxf17Sw4Yh2G8fXIUbr1kL7wv
-         8k7btHavymtwUgbt/NxGsT21ARLZ7ev7E8FwYcATBcPi9AvW1be+7iA/0MMqXR82NN
-         GME1VFAk4s1Pimo440LqZv9TbSznqFJMQ9/ho4bM=
+        b=U7kST1P6Owc1ro3/XH38syHVrindUTGFOSoVa2k7igsAmn8/SQ3MzDyAojFG8vveV
+         Yq5jY6jEX/EobfMAU2Lfe2+tBJya3CfOKXNFjMX4wF8E1C+D27WvAn7NAKOLbcsfQ6
+         fu76DmGIcsg0glMn7SlnpaIIN+JuKKGSeex5lpqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 193/240] PCI: Release OF node in pci_scan_device()s error path
-Date:   Thu, 20 May 2021 11:23:05 +0200
-Message-Id: <20210520092115.145414917@linuxfoundation.org>
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 122/190] i2c: jz4780: add IRQ check
+Date:   Thu, 20 May 2021 11:23:06 +0200
+Message-Id: <20210520092106.238198076@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-[ Upstream commit c99e755a4a4c165cad6effb39faffd0f3377c02d ]
+[ Upstream commit c5e5f7a8d931fb4beba245bdbc94734175fda9de ]
 
-In pci_scan_device(), if pci_setup_device() fails for any reason, the code
-will not release device's of_node by calling pci_release_of_node().  Fix
-that by calling the release function.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to devm_request_irq() (which
+takes *unsigned* IRQ #), causing it to fail with -EINVAL, overriding
+an original error code.  Stop calling devm_request_irq() with invalid
+IRQ #s.
 
-Fixes: 98d9f30c820d ("pci/of: Match PCI devices to OF nodes dynamically")
-Link: https://lore.kernel.org/r/20210124232826.1879-1-dmitry.baryshkov@linaro.org
-Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Fixes: ba92222ed63a ("i2c: jz4780: Add i2c bus controller driver for Ingenic JZ4780")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/probe.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/i2c/busses/i2c-jz4780.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/probe.c b/drivers/pci/probe.c
-index 19658873b4c1..ddf5ba63b195 100644
---- a/drivers/pci/probe.c
-+++ b/drivers/pci/probe.c
-@@ -1694,6 +1694,7 @@ static struct pci_dev *pci_scan_device(struct pci_bus *bus, int devfn)
- 	pci_set_of_node(dev);
+diff --git a/drivers/i2c/busses/i2c-jz4780.c b/drivers/i2c/busses/i2c-jz4780.c
+index ba3b94505c14..d80cee068bea 100644
+--- a/drivers/i2c/busses/i2c-jz4780.c
++++ b/drivers/i2c/busses/i2c-jz4780.c
+@@ -754,7 +754,10 @@ static int jz4780_i2c_probe(struct platform_device *pdev)
  
- 	if (pci_setup_device(dev)) {
-+		pci_release_of_node(dev);
- 		pci_bus_put(dev->bus);
- 		kfree(dev);
- 		return NULL;
+ 	jz4780_i2c_writew(i2c, JZ4780_I2C_INTM, 0x0);
+ 
+-	i2c->irq = platform_get_irq(pdev, 0);
++	ret = platform_get_irq(pdev, 0);
++	if (ret < 0)
++		goto err;
++	i2c->irq = ret;
+ 	ret = devm_request_irq(&pdev->dev, i2c->irq, jz4780_i2c_irq, 0,
+ 			       dev_name(&pdev->dev), i2c);
+ 	if (ret)
 -- 
 2.30.2
 
