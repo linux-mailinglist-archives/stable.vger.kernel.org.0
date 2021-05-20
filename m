@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6521B38A48C
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:05:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C26F38A481
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:04:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234723AbhETKGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:06:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38522 "EHLO mail.kernel.org"
+        id S234328AbhETKGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235217AbhETKDX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:03:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F43061423;
-        Thu, 20 May 2021 09:40:05 +0000 (UTC)
+        id S232315AbhETKEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D0F946142F;
+        Thu, 20 May 2021 09:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503606;
-        bh=D513QAe6+ds8yHQQ538gonVJ6YmkA0l+bGeNrXMecJ8=;
+        s=korg; t=1621503630;
+        bh=QLJjFypi65JDbScRZIz9INsFoQm67Ejt9XfgE9HuiH8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVb9+J0B+F7pmlJWAYy+zW1p/v4ThdL+xLn67EKWudc55Zw6sj16tuSxlrKPiMCuG
-         +ftLFsolOCtWiPVAayNh1LlCPULL31GJJny8jfXInC38O1gZVdCsHkG5bBDV/zu4Ev
-         I2f7R6OuHjlGrV0nCjDj4QhsfUeOZ2vVeKxo92Og=
+        b=nH2I+CjEhst8GfslcNp4FByYRPh+kPaBQncBEy8lYleiTlXDIYBULkxwlnX6PUrP7
+         2sQOQgiioRn4/m4ApYJCI0yW/HOgtpQXiAv2dubHuqjc1yP2XXngQ417c/Y7M6t2Uz
+         7v26iJ0ZPGwaZHo2X9LZcSScsDZyumDzQsu/Y7m8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Devesh Sharma <devesh.sharma@broadcom.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 290/425] RDMA/bnxt_re: Fix a double free in bnxt_qplib_alloc_res
-Date:   Thu, 20 May 2021 11:20:59 +0200
-Message-Id: <20210520092140.982238864@linuxfoundation.org>
+Subject: [PATCH 4.19 291/425] net:nfc:digital: Fix a double free in digital_tg_recv_dep_req
+Date:   Thu, 20 May 2021 11:21:00 +0200
+Message-Id: <20210520092141.015597662@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -44,41 +42,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 34b39efa5ae82fc0ad0acc27653c12a56328dbbe ]
+[ Upstream commit 75258586793efc521e5dd52a5bf6c7a4cf7002be ]
 
-In bnxt_qplib_alloc_res, it calls bnxt_qplib_alloc_dpi_tbl().  Inside
-bnxt_qplib_alloc_dpi_tbl, dpit->dbr_bar_reg_iomem is freed via
-pci_iounmap() in unmap_io error branch. After the callee returns err code,
-bnxt_qplib_alloc_res calls
-bnxt_qplib_free_res()->bnxt_qplib_free_dpi_tbl() in the fail branch. Then
-dpit->dbr_bar_reg_iomem is freed in the second time by pci_iounmap().
+In digital_tg_recv_dep_req, it calls nfc_tm_data_received(..,resp).
+If nfc_tm_data_received() failed, the callee will free the resp via
+kfree_skb() and return error. But in the exit branch, the resp
+will be freed again.
 
-My patch set dpit->dbr_bar_reg_iomem to NULL after it is freed by
-pci_iounmap() in the first time, to avoid the double free.
+My patch sets resp to NULL if nfc_tm_data_received() failed, to
+avoid the double free.
 
-Fixes: 1ac5a4047975 ("RDMA/bnxt_re: Add bnxt_re RoCE driver")
-Link: https://lore.kernel.org/r/20210426140614.6722-1-lyl2019@mail.ustc.edu.cn
+Fixes: 1c7a4c24fbfd9 ("NFC Digital: Add target NFC-DEP support")
 Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Acked-by: Devesh Sharma <devesh.sharma@broadcom.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/bnxt_re/qplib_res.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/nfc/digital_dep.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/infiniband/hw/bnxt_re/qplib_res.c b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-index 539a5d44e6db..655952a6c0e6 100644
---- a/drivers/infiniband/hw/bnxt_re/qplib_res.c
-+++ b/drivers/infiniband/hw/bnxt_re/qplib_res.c
-@@ -725,6 +725,7 @@ static int bnxt_qplib_alloc_dpi_tbl(struct bnxt_qplib_res     *res,
+diff --git a/net/nfc/digital_dep.c b/net/nfc/digital_dep.c
+index 4f9a973988b2..1eed0cf59190 100644
+--- a/net/nfc/digital_dep.c
++++ b/net/nfc/digital_dep.c
+@@ -1285,6 +1285,8 @@ static void digital_tg_recv_dep_req(struct nfc_digital_dev *ddev, void *arg,
+ 	}
  
- unmap_io:
- 	pci_iounmap(res->pdev, dpit->dbr_bar_reg_iomem);
-+	dpit->dbr_bar_reg_iomem = NULL;
- 	return -ENOMEM;
- }
+ 	rc = nfc_tm_data_received(ddev->nfc_dev, resp);
++	if (rc)
++		resp = NULL;
  
+ exit:
+ 	kfree_skb(ddev->chaining_skb);
 -- 
 2.30.2
 
