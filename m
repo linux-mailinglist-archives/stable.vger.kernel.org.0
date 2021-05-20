@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 821EB38A91D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 355AC38A764
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239119AbhETK5u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:57:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52024 "EHLO mail.kernel.org"
+        id S237411AbhETKhy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:37:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238761AbhETKzs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:55:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 134AE61CE5;
-        Thu, 20 May 2021 10:01:27 +0000 (UTC)
+        id S237825AbhETKfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:35:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0980A61C62;
+        Thu, 20 May 2021 09:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504888;
-        bh=h4oVZeCEfoj+K1QV0e9G89MhnUpYbCrEBM748xBcTko=;
+        s=korg; t=1621504433;
+        bh=S4EPmOGhWiuMWGNKe7t0Ij091sAS3B5qwwBRaUlda2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WsMhvr04De+SS0XF/yU3Flx2zWcPEWb7Leq4y2zAcBCho6cfO5nXgjzjMlTH8noI3
-         uMQGAF4Ba/wh019tf7cvBVqu5kUPJpD3EVo3NiGd/6L72+odQuEZFnpKi782/PZK1+
-         jLBWa8Xj7S0o3Np8/WKFrJCEhMEa3JTgTUZ7t4co=
+        b=l+D/30/LwbdC98aUn925bCmBfcO0+7IKBl2joIbVmDnyZYsuq3I9sS32xlZ9fL21P
+         oCmpe1YQZNJvdA2UCcBoAcCyAXStCzNkpo8xZA/vlrGQWbG49C1ws3zzTFsHfk8uN9
+         4AB6wJKpFnbSdBAYDxj7KQ36prtxdSLQhw8QksV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wang Wensheng <wangwensheng4@huawei.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 109/240] crypto: qat - fix error path in adf_isr_resource_alloc()
+Subject: [PATCH 4.14 209/323] IB/hfi1: Fix error return code in parse_platform_config()
 Date:   Thu, 20 May 2021 11:21:41 +0200
-Message-Id: <20210520092112.338541929@linuxfoundation.org>
+Message-Id: <20210520092127.290936006@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,68 +41,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Wang Wensheng <wangwensheng4@huawei.com>
 
-[ Upstream commit 83dc1173d73f80cbce2fee4d308f51f87b2f26ae ]
+[ Upstream commit 4c7d9c69adadfc31892c7e8e134deb3546552106 ]
 
-The function adf_isr_resource_alloc() is not unwinding correctly in case
-of error.
-This patch fixes the error paths and propagate the errors to the caller.
+Fix to return a negative error code from the error handling case instead
+of 0, as done elsewhere in this function.
 
-Fixes: 7afa232e76ce ("crypto: qat - Intel(R) QAT DH895xcc accelerator")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+Fixes: 7724105686e7 ("IB/hfi1: add driver files")
+Link: https://lore.kernel.org/r/20210408113140.103032-1-wangwensheng4@huawei.com
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 29 ++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/infiniband/hw/hfi1/firmware.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index 06d49017a52b..2c0be14309cf 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -330,19 +330,32 @@ int adf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
- 
- 	ret = adf_isr_alloc_msix_entry_table(accel_dev);
- 	if (ret)
--		return ret;
--	if (adf_enable_msix(accel_dev))
- 		goto err_out;
- 
--	if (adf_setup_bh(accel_dev))
--		goto err_out;
-+	ret = adf_enable_msix(accel_dev);
-+	if (ret)
-+		goto err_free_msix_table;
- 
--	if (adf_request_irqs(accel_dev))
--		goto err_out;
-+	ret = adf_setup_bh(accel_dev);
-+	if (ret)
-+		goto err_disable_msix;
-+
-+	ret = adf_request_irqs(accel_dev);
-+	if (ret)
-+		goto err_cleanup_bh;
- 
- 	return 0;
-+
-+err_cleanup_bh:
-+	adf_cleanup_bh(accel_dev);
-+
-+err_disable_msix:
-+	adf_disable_msix(&accel_dev->accel_pci_dev);
-+
-+err_free_msix_table:
-+	adf_isr_free_msix_entry_table(accel_dev);
-+
- err_out:
--	adf_isr_resource_free(accel_dev);
--	return -EFAULT;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(adf_isr_resource_alloc);
+diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
+index 5aea8f47e670..c54359376cda 100644
+--- a/drivers/infiniband/hw/hfi1/firmware.c
++++ b/drivers/infiniband/hw/hfi1/firmware.c
+@@ -1885,6 +1885,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
+ 			dd_dev_err(dd, "%s: Failed CRC check at offset %ld\n",
+ 				   __func__, (ptr -
+ 				   (u32 *)dd->platform_config.data));
++			ret = -EINVAL;
+ 			goto bail;
+ 		}
+ 		/* Jump the CRC DWORD */
 -- 
 2.30.2
 
