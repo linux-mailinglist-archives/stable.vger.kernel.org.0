@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1C1638A567
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:15:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35A3F38A560
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:14:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235541AbhETKQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47660 "EHLO mail.kernel.org"
+        id S235217AbhETKQG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:16:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236161AbhETKO3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:14:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F8F61972;
-        Thu, 20 May 2021 09:44:40 +0000 (UTC)
+        id S236154AbhETKO2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:14:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 81AC661969;
+        Thu, 20 May 2021 09:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503880;
-        bh=31IfYWV6K9GziwTk3t6vQNdd60MuemF/RY8rzmXM+p0=;
+        s=korg; t=1621503883;
+        bh=ilqyrJZLWX5vtcWYSj8gZZF9qtB2CvUPCXl+ANBzMw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xe2Z/eEbhsbCKatIgJjq4MqFe4ICT3B9G9FBXFScsHOGOv0c0YeM7BFQxsx6tDOfj
-         LlRFvVxjxe5LLPFO4aKZPUWAxhnwL+2Xzl6XADNFzMjR1zWyvrHlTGG6t94motg5s8
-         WAYGZd/LPGheJtprzGtIgn3IWlYDdBicb43DGiM4=
+        b=U8/wfNRKbybV/fmgVzyc/h8jS0zkwwN3tvXHDpJ2pR5hQTY4APoBciEiJSwez4cVo
+         QwpZ1QUmJupRkGjuJX/JC2bek4aZ74WinvcvJlM49nrzLFgXpSu3ZfwrOrKm9Ph3xe
+         28dbEAfH98tarmI0v0zcjiQb6m2VTZh50opf8zjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 421/425] ipv6: remove extra dev_hold() for fallback tunnels
-Date:   Thu, 20 May 2021 11:23:10 +0200
-Message-Id: <20210520092145.235912258@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Stancek <jstancek@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Subject: [PATCH 4.19 422/425] iomap: fix sub-page uptodate handling
+Date:   Thu, 20 May 2021 11:23:11 +0200
+Message-Id: <20210520092145.266430111@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,82 +42,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
+commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream.
 
-My previous commits added a dev_hold() in tunnels ndo_init(),
-but forgot to remove it from special functions setting up fallback tunnels.
+bio completions can race when a page spans more than one file system
+block.  Add a spinlock to synchronize marking the page uptodate.
 
-Fallback tunnels do call their respective ndo_init()
-
-This leads to various reports like :
-
-unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
-
-Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
-Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
+Reported-by: Jan Stancek <jstancek@redhat.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/ip6_gre.c    |    3 ---
- net/ipv6/ip6_tunnel.c |    1 -
- net/ipv6/ip6_vti.c    |    1 -
- net/ipv6/sit.c        |    1 -
- 4 files changed, 6 deletions(-)
+ fs/iomap.c            |   34 ++++++++++++++++++++++++----------
+ include/linux/iomap.h |    1 +
+ 2 files changed, 25 insertions(+), 10 deletions(-)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -392,7 +392,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
- 	if (!(nt->parms.o_flags & TUNNEL_SEQ))
- 		dev->features |= NETIF_F_LLTX;
+--- a/fs/iomap.c
++++ b/fs/iomap.c
+@@ -116,6 +116,7 @@ iomap_page_create(struct inode *inode, s
+ 	iop = kmalloc(sizeof(*iop), GFP_NOFS | __GFP_NOFAIL);
+ 	atomic_set(&iop->read_count, 0);
+ 	atomic_set(&iop->write_count, 0);
++	spin_lock_init(&iop->uptodate_lock);
+ 	bitmap_zero(iop->uptodate, PAGE_SIZE / SECTOR_SIZE);
  
--	dev_hold(dev);
- 	ip6gre_tunnel_link(ign, nt);
- 	return nt;
- 
-@@ -1546,8 +1545,6 @@ static void ip6gre_fb_tunnel_init(struct
- 	strcpy(tunnel->parms.name, dev->name);
- 
- 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
--
--	dev_hold(dev);
+ 	/*
+@@ -204,25 +205,38 @@ iomap_adjust_read_range(struct inode *in
  }
  
- static struct inet6_protocol ip6gre_protocol __read_mostly = {
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1909,7 +1909,6 @@ static int __net_init ip6_fb_tnl_dev_ini
- 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+ static void
+-iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
++iomap_iop_set_range_uptodate(struct page *page, unsigned off, unsigned len)
+ {
+ 	struct iomap_page *iop = to_iomap_page(page);
+ 	struct inode *inode = page->mapping->host;
+ 	unsigned first = off >> inode->i_blkbits;
+ 	unsigned last = (off + len - 1) >> inode->i_blkbits;
+-	unsigned int i;
+ 	bool uptodate = true;
++	unsigned long flags;
++	unsigned int i;
  
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
+-	if (iop) {
+-		for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
+-			if (i >= first && i <= last)
+-				set_bit(i, iop->uptodate);
+-			else if (!test_bit(i, iop->uptodate))
+-				uptodate = false;
+-		}
++	spin_lock_irqsave(&iop->uptodate_lock, flags);
++	for (i = 0; i < PAGE_SIZE / i_blocksize(inode); i++) {
++		if (i >= first && i <= last)
++			set_bit(i, iop->uptodate);
++		else if (!test_bit(i, iop->uptodate))
++			uptodate = false;
+ 	}
  
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/ip6_vti.c
-+++ b/net/ipv6/ip6_vti.c
-@@ -956,7 +956,6 @@ static int __net_init vti6_fb_tnl_dev_in
- 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
- 
- 	t->parms.proto = IPPROTO_IPV6;
--	dev_hold(dev);
- 
- 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
- 	return 0;
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1421,7 +1421,6 @@ static void __net_init ipip6_fb_tunnel_i
- 	iph->ihl		= 5;
- 	iph->ttl		= 64;
- 
--	dev_hold(dev);
- 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
+-	if (uptodate && !PageError(page))
++	if (uptodate)
++		SetPageUptodate(page);
++	spin_unlock_irqrestore(&iop->uptodate_lock, flags);
++}
++
++static void
++iomap_set_range_uptodate(struct page *page, unsigned off, unsigned len)
++{
++	if (PageError(page))
++		return;
++
++	if (page_has_private(page))
++		iomap_iop_set_range_uptodate(page, off, len);
++	else
+ 		SetPageUptodate(page);
  }
+ 
+--- a/include/linux/iomap.h
++++ b/include/linux/iomap.h
+@@ -108,6 +108,7 @@ struct iomap_ops {
+ struct iomap_page {
+ 	atomic_t		read_count;
+ 	atomic_t		write_count;
++	spinlock_t		uptodate_lock;
+ 	DECLARE_BITMAP(uptodate, PAGE_SIZE / 512);
+ };
  
 
 
