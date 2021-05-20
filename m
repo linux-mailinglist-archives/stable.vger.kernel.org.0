@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F385838A667
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B1A38A668
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:25:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236566AbhETK0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:26:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55848 "EHLO mail.kernel.org"
+        id S236587AbhETK0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236856AbhETKYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:24:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001AC61476;
-        Thu, 20 May 2021 09:49:32 +0000 (UTC)
+        id S236864AbhETKYi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:24:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 310F161C19;
+        Thu, 20 May 2021 09:49:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504173;
-        bh=Xtb75x+6vaCBMpeFqitC/PyP58tciQn/PQ7zTTMXx6M=;
+        s=korg; t=1621504175;
+        bh=QR5aBRGdFE0mJmURdhJkExodKp4G8vkyAhLsjs0tbTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OqUjFdnmAShMGaq+M5bRTUg0wGXK8JMrhmUqmcLzcqTJ/Y5HzW14VnJvKoHvelmE9
-         OiY2WzI6fnQlyQTzZWjci6cG0z/uKOWVsJvZT9e7eOOcttGgGF+8Yme01b7JJtf3/h
-         MRemo0wBpGVgF6teeVHM6Vi0boz3fUT5eWi3yrBk=
+        b=BDHRGMhsk4zA4vND6R1BFXtpHNQ9BRw9Dp/8287N1LzsRHDNgqRWJ/oLML/v7LbP0
+         tOZUtNfW/Y8jdygdK+UdWUgKrFmxDTRUEzCx1XEtO64ly4Lmn4wEdq2KHFz95BtB6q
+         QNdDe8SALMaY31zn79cLqGH4rkUt48t4UIeO5w0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
-        Zhao Heming <heming.zhao@suse.com>, Song Liu <song@kernel.org>
-Subject: [PATCH 4.14 124/323] md: md_open returns -EBUSY when entering racing area
-Date:   Thu, 20 May 2021 11:20:16 +0200
-Message-Id: <20210520092124.358628919@linuxfoundation.org>
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Stanislav Yakovlev <stas.yakovlev@gmail.com>,
+        Kalle Valo <kvalo@codeaurora.org>
+Subject: [PATCH 4.14 125/323] ipw2x00: potential buffer overflow in libipw_wx_set_encodeext()
+Date:   Thu, 20 May 2021 11:20:17 +0200
+Message-Id: <20210520092124.390078224@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -39,146 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhao Heming <heming.zhao@suse.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-commit 6a4db2a60306eb65bfb14ccc9fde035b74a4b4e7 upstream.
+commit 260a9ad9446723d4063ed802989758852809714d upstream.
 
-commit d3374825ce57 ("md: make devices disappear when they are no longer
-needed.") introduced protection between mddev creating & removing. The
-md_open shouldn't create mddev when all_mddevs list doesn't contain
-mddev. With currently code logic, there will be very easy to trigger
-soft lockup in non-preempt env.
+The "ext->key_len" is a u16 that comes from the user.  If it's over
+SCM_KEY_LEN (32) that could lead to memory corruption.
 
-This patch changes md_open returning from -ERESTARTSYS to -EBUSY, which
-will break the infinitely retry when md_open enter racing area.
-
-This patch is partly fix soft lockup issue, full fix needs mddev_find
-is split into two functions: mddev_find & mddev_find_or_alloc. And
-md_open should call new mddev_find (it only does searching job).
-
-For more detail, please refer with Christoph's "split mddev_find" patch
-in later commits.
-
-*** env ***
-kvm-qemu VM 2C1G with 2 iscsi luns
-kernel should be non-preempt
-
-*** script ***
-
-about trigger every time with below script
-
-```
-1  node1="mdcluster1"
-2  node2="mdcluster2"
-3
-4  mdadm -Ss
-5  ssh ${node2} "mdadm -Ss"
-6  wipefs -a /dev/sda /dev/sdb
-7  mdadm -CR /dev/md0 -b clustered -e 1.2 -n 2 -l mirror /dev/sda \
-   /dev/sdb --assume-clean
-8
-9  for i in {1..10}; do
-10    echo ==== $i ====;
-11
-12    echo "test  ...."
-13    ssh ${node2} "mdadm -A /dev/md0 /dev/sda /dev/sdb"
-14    sleep 1
-15
-16    echo "clean  ....."
-17    ssh ${node2} "mdadm -Ss"
-18 done
-```
-
-I use mdcluster env to trigger soft lockup, but it isn't mdcluster
-speical bug. To stop md array in mdcluster env will do more jobs than
-non-cluster array, which will leave enough time/gap to allow kernel to
-run md_open.
-
-*** stack ***
-
-```
-[  884.226509]  mddev_put+0x1c/0xe0 [md_mod]
-[  884.226515]  md_open+0x3c/0xe0 [md_mod]
-[  884.226518]  __blkdev_get+0x30d/0x710
-[  884.226520]  ? bd_acquire+0xd0/0xd0
-[  884.226522]  blkdev_get+0x14/0x30
-[  884.226524]  do_dentry_open+0x204/0x3a0
-[  884.226531]  path_openat+0x2fc/0x1520
-[  884.226534]  ? seq_printf+0x4e/0x70
-[  884.226536]  do_filp_open+0x9b/0x110
-[  884.226542]  ? md_release+0x20/0x20 [md_mod]
-[  884.226543]  ? seq_read+0x1d8/0x3e0
-[  884.226545]  ? kmem_cache_alloc+0x18a/0x270
-[  884.226547]  ? do_sys_open+0x1bd/0x260
-[  884.226548]  do_sys_open+0x1bd/0x260
-[  884.226551]  do_syscall_64+0x5b/0x1e0
-[  884.226554]  entry_SYSCALL_64_after_hwframe+0x44/0xa9
-```
-
-*** rootcause ***
-
-"mdadm -A" (or other array assemble commands) will start a daemon "mdadm
---monitor" by default. When "mdadm -Ss" is running, the stop action will
-wakeup "mdadm --monitor". The "--monitor" daemon will immediately get
-info from /proc/mdstat. This time mddev in kernel still exist, so
-/proc/mdstat still show md device, which makes "mdadm --monitor" to open
-/dev/md0.
-
-The previously "mdadm -Ss" is removing action, the "mdadm --monitor"
-open action will trigger md_open which is creating action. Racing is
-happening.
-
-```
-<thread 1>: "mdadm -Ss"
-md_release
-  mddev_put deletes mddev from all_mddevs
-  queue_work for mddev_delayed_delete
-  at this time, "/dev/md0" is still available for opening
-
-<thread 2>: "mdadm --monitor ..."
-md_open
- + mddev_find can't find mddev of /dev/md0, and create a new mddev and
- |    return.
- + trigger "if (mddev->gendisk != bdev->bd_disk)" and return
-      -ERESTARTSYS.
-```
-
-In non-preempt kernel, <thread 2> is occupying on current CPU. and
-mddev_delayed_delete which was created in <thread 1> also can't be
-schedule.
-
-In preempt kernel, it can also trigger above racing. But kernel doesn't
-allow one thread running on a CPU all the time. after <thread 2> running
-some time, the later "mdadm -A" (refer above script line 13) will call
-md_alloc to alloc a new gendisk for mddev. it will break md_open
-statement "if (mddev->gendisk != bdev->bd_disk)" and return 0 to caller,
-the soft lockup is broken.
-
+Fixes: e0d369d1d969 ("[PATCH] ieee82011: Added WE-18 support to default wireless extension handler")
 Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Zhao Heming <heming.zhao@suse.com>
-Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Acked-by: Stanislav Yakovlev <stas.yakovlev@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/YHaoA1i+8uT4ir4h@mwanda
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/wireless/intel/ipw2x00/libipw_wx.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/md/md.c b/drivers/md/md.c
-index 368cad6cd53a..464cca5d5952 100644
---- a/drivers/md/md.c
-+++ b/drivers/md/md.c
-@@ -7821,8 +7821,7 @@ static int md_open(struct block_device *bdev, fmode_t mode)
- 		/* Wait until bdev->bd_disk is definitely gone */
- 		if (work_pending(&mddev->del_work))
- 			flush_workqueue(md_misc_wq);
--		/* Then retry the open from the top */
--		return -ERESTARTSYS;
-+		return -EBUSY;
+--- a/drivers/net/wireless/intel/ipw2x00/libipw_wx.c
++++ b/drivers/net/wireless/intel/ipw2x00/libipw_wx.c
+@@ -649,8 +649,10 @@ int libipw_wx_set_encodeext(struct libip
  	}
- 	BUG_ON(mddev != bdev->bd_disk->private_data);
  
--- 
-2.31.1
-
+ 	if (ext->alg != IW_ENCODE_ALG_NONE) {
+-		memcpy(sec.keys[idx], ext->key, ext->key_len);
+-		sec.key_sizes[idx] = ext->key_len;
++		int key_len = clamp_val(ext->key_len, 0, SCM_KEY_LEN);
++
++		memcpy(sec.keys[idx], ext->key, key_len);
++		sec.key_sizes[idx] = key_len;
+ 		sec.flags |= (1 << idx);
+ 		if (ext->alg == IW_ENCODE_ALG_WEP) {
+ 			sec.encode_alg[idx] = SEC_ALG_WEP;
 
 
