@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BB5C38A7B3
+	by mail.lfdr.de (Postfix) with ESMTP id 54DCB38A7B4
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237599AbhETKlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
+        id S235236AbhETKly (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39950 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238322AbhETKjp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S238325AbhETKjp (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:39:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CE1D613E2;
-        Thu, 20 May 2021 09:55:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8CF9561C7D;
+        Thu, 20 May 2021 09:55:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504525;
-        bh=1rV6bTo8+MSqkosykBa/BVfO+1KSswGChwij4PbyuI0=;
+        s=korg; t=1621504527;
+        bh=GgrLl6uBq4OvXt0I0ec1fvwloYaMRa2/9eAwroYI6aM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vitaxhoWSpNsWXHGeGJGP7eUmmLur+1P1i/7+0c06AwJ79VifG/l+VRYL7SPWJ69e
-         7JRjOUn2bgqfDcoSdGNh6iGJWwG4/jsjGcevycJ9NrEE5Hk5cqigbFDhAqP3GIbTdP
-         rleeGesCQg4qX32DTRcOTKkzFwGRgCNP1sADc9UQ=
+        b=hzW9gyVkeBtoSw1CVXTXdTVdVDNu1WumvAUuNYIWRkCWRgNzLTavM8U7ru/XlhLq8
+         srcZHkit0i3Kk35n7zXdlDxJb6wj8dU5Sm4ZHNZLkyigiyZKQ+kiGpP18cVR8cN/FJ
+         SJr/h7JjHsLml6NavVI3/0UpdbOdFZiO3POJRcNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Hamer <marcel@solidxs.se>
-Subject: [PATCH 4.14 286/323] usb: dwc3: omap: improve extcon initialization
-Date:   Thu, 20 May 2021 11:22:58 +0200
-Message-Id: <20210520092130.022895967@linuxfoundation.org>
+        stable@vger.kernel.org, Maximilian Luz <luzmaximilian@gmail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 4.14 287/323] usb: xhci: Increase timeout for HC halt
+Date:   Thu, 20 May 2021 11:22:59 +0200
+Message-Id: <20210520092130.053097853@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -38,44 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marcel Hamer <marcel@solidxs.se>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit e17b02d4970913233d543c79c9c66e72cac05bdd upstream.
+commit ca09b1bea63ab83f4cca3a2ae8bc4f597ec28851 upstream.
 
-When extcon is used in combination with dwc3, it is assumed that the dwc3
-registers are untouched and as such are only configured if VBUS is valid
-or ID is tied to ground.
+On some devices (specifically the SC8180x based Surface Pro X with
+QCOM04A6) HC halt / xhci_halt() times out during boot. Manually binding
+the xhci-hcd driver at some point later does not exhibit this behavior.
+To work around this, double XHCI_MAX_HALT_USEC, which also resolves this
+issue.
 
-In case VBUS is not valid or ID is floating, the registers are not
-configured as such during driver initialization, causing a wrong
-default state during boot.
-
-If the registers are not in a default state, because they are for
-instance touched by a boot loader, this can cause for a kernel error.
-
-Signed-off-by: Marcel Hamer <marcel@solidxs.se>
-Link: https://lore.kernel.org/r/20210427122118.1948340-1-marcel@solidxs.se
-Cc: stable <stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210512080816.866037-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-omap.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/host/xhci-ext-caps.h |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/dwc3/dwc3-omap.c
-+++ b/drivers/usb/dwc3/dwc3-omap.c
-@@ -440,8 +440,13 @@ static int dwc3_omap_extcon_register(str
- 
- 		if (extcon_get_state(edev, EXTCON_USB) == true)
- 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_VALID);
-+		else
-+			dwc3_omap_set_mailbox(omap, OMAP_DWC3_VBUS_OFF);
+--- a/drivers/usb/host/xhci-ext-caps.h
++++ b/drivers/usb/host/xhci-ext-caps.h
+@@ -19,8 +19,9 @@
+  * along with this program; if not, write to the Free Software Foundation,
+  * Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+  */
+-/* Up to 16 ms to halt an HC */
+-#define XHCI_MAX_HALT_USEC	(16*1000)
 +
- 		if (extcon_get_state(edev, EXTCON_USB_HOST) == true)
- 			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_GROUND);
-+		else
-+			dwc3_omap_set_mailbox(omap, OMAP_DWC3_ID_FLOAT);
++/* HC should halt within 16 ms, but use 32 ms as some hosts take longer */
++#define XHCI_MAX_HALT_USEC	(32 * 1000)
+ /* HC not running - set to 1 when run/stop bit is cleared. */
+ #define XHCI_STS_HALT		(1<<0)
  
- 		omap->edev = edev;
- 	}
 
 
