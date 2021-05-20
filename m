@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6805738A75C
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E4D738A958
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237350AbhETKhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39796 "EHLO mail.kernel.org"
+        id S237456AbhETLBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237798AbhETKff (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2C30861C5E;
-        Thu, 20 May 2021 09:53:42 +0000 (UTC)
+        id S238911AbhETK4s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:56:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8496E61CEC;
+        Thu, 20 May 2021 10:01:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504422;
-        bh=akPnMkQUtdqx/NTYhnCpKZVLF2poA7uwvBLVWZJLPLk=;
+        s=korg; t=1621504915;
+        bh=VCeWx9cj7ZNOBCX6dz888h4NUz/rYWvMzGhPGq4Iq7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jgqd7roHA5MPFc/3Gn/qAyJSjDVwxxpY/uhvjBVxbkCrf9KW50iSt3O5FjdxmYPGQ
-         ok7MjRoRKtc8n1phJLB2NHEIUpgtBybHc1rF7ff/u643cJeKZGWixFN/TBQgijZQGD
-         uLUlyiUX183O6CD0LiTsrIWxa+twDw/OJM2Qjiow=
+        b=t3JgseJu/tWSIEbUIuPvv8hkF07DyShovg1j9WVR88u/OLjG774y11OWAoDSRzMaR
+         OoBNNIUj/Ct7r1KpzgnD6/SfQSZPf629oLnc+s2vd8NeXfeIqt/N+CapARuoJSuwhI
+         +zkoEmq4mTLGpHF8TiG4ZKzHo3tqZKUBG6vgNMqU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Tong Zhang <ztong0001@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 237/323] ALSA: hdsp: dont disable if not enabled
+        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 137/240] HID: plantronics: Workaround for double volume key presses
 Date:   Thu, 20 May 2021 11:22:09 +0200
-Message-Id: <20210520092128.293244619@linuxfoundation.org>
+Message-Id: <20210520092113.251732038@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tong Zhang <ztong0001@gmail.com>
+From: Maxim Mikityanskiy <maxtram95@gmail.com>
 
-[ Upstream commit 507cdb9adba006a7798c358456426e1aea3d9c4f ]
+[ Upstream commit f567d6ef8606fb427636e824c867229ecb5aefab ]
 
-hdsp wants to disable a not enabled pci device, which makes kernel
-throw a warning. Make sure the device is enabled before calling disable.
+Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
+for each volume key press. This patch adds a quirk to hid-plantronics
+for this product ID, which will ignore the second volume key press if
+it happens within 5 ms from the last one that was handled.
 
-[    1.758292] snd_hdsp 0000:00:03.0: disabling already-disabled device
-[    1.758327] WARNING: CPU: 0 PID: 180 at drivers/pci/pci.c:2146 pci_disable_device+0x91/0xb0
-[    1.766985] Call Trace:
-[    1.767121]  snd_hdsp_card_free+0x94/0xf0 [snd_hdsp]
-[    1.767388]  release_card_device+0x4b/0x80 [snd]
-[    1.767639]  device_release+0x3b/0xa0
-[    1.767838]  kobject_put+0x94/0x1b0
-[    1.768027]  put_device+0x13/0x20
-[    1.768207]  snd_card_free+0x61/0x90 [snd]
-[    1.768430]  snd_hdsp_probe+0x524/0x5e0 [snd_hdsp]
+The patch was tested on the mentioned model only, it shouldn't affect
+other models, however, this quirk might be needed for them too.
+Auto-repeat (when a key is held pressed) is not affected, because the
+rate is about 3 times per second, which is far less frequent than once
+in 5 ms.
 
-Suggested-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Tong Zhang <ztong0001@gmail.com>
-Link: https://lore.kernel.org/r/20210321153840.378226-2-ztong0001@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 81bb773faed7 ("HID: plantronics: Update to map volume up/down controls")
+Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/rme9652/hdsp.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/hid/hid-ids.h         |  1 +
+ drivers/hid/hid-plantronics.c | 60 +++++++++++++++++++++++++++++++++--
+ include/linux/hid.h           |  2 ++
+ 3 files changed, 61 insertions(+), 2 deletions(-)
 
-diff --git a/sound/pci/rme9652/hdsp.c b/sound/pci/rme9652/hdsp.c
-index e41bb4100306..edd359772f1f 100644
---- a/sound/pci/rme9652/hdsp.c
-+++ b/sound/pci/rme9652/hdsp.c
-@@ -5343,7 +5343,8 @@ static int snd_hdsp_free(struct hdsp *hdsp)
- 	if (hdsp->port)
- 		pci_release_regions(hdsp->pci);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index c4a53fc648e9..1f641870d860 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -816,6 +816,7 @@
+ #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
  
--	pci_disable_device(hdsp->pci);
-+	if (pci_is_enabled(hdsp->pci))
-+		pci_disable_device(hdsp->pci);
- 	return 0;
+ #define USB_VENDOR_ID_PLANTRONICS	0x047f
++#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
+ 
+ #define USB_VENDOR_ID_PANASONIC		0x04da
+ #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
+diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
+index 584b10d3fc3d..460711c1124a 100644
+--- a/drivers/hid/hid-plantronics.c
++++ b/drivers/hid/hid-plantronics.c
+@@ -16,6 +16,7 @@
+ 
+ #include <linux/hid.h>
+ #include <linux/module.h>
++#include <linux/jiffies.h>
+ 
+ #define PLT_HID_1_0_PAGE	0xffa00000
+ #define PLT_HID_2_0_PAGE	0xffa20000
+@@ -39,6 +40,16 @@
+ #define PLT_ALLOW_CONSUMER (field->application == HID_CP_CONSUMERCONTROL && \
+ 			    (usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER)
+ 
++#define PLT_QUIRK_DOUBLE_VOLUME_KEYS BIT(0)
++
++#define PLT_DOUBLE_KEY_TIMEOUT 5 /* ms */
++
++struct plt_drv_data {
++	unsigned long device_type;
++	unsigned long last_volume_key_ts;
++	u32 quirks;
++};
++
+ static int plantronics_input_mapping(struct hid_device *hdev,
+ 				     struct hid_input *hi,
+ 				     struct hid_field *field,
+@@ -46,7 +57,8 @@ static int plantronics_input_mapping(struct hid_device *hdev,
+ 				     unsigned long **bit, int *max)
+ {
+ 	unsigned short mapped_key;
+-	unsigned long plt_type = (unsigned long)hid_get_drvdata(hdev);
++	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
++	unsigned long plt_type = drv_data->device_type;
+ 
+ 	/* special case for PTT products */
+ 	if (field->application == HID_GD_JOYSTICK)
+@@ -108,6 +120,30 @@ mapped:
+ 	return 1;
  }
  
++static int plantronics_event(struct hid_device *hdev, struct hid_field *field,
++			     struct hid_usage *usage, __s32 value)
++{
++	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
++
++	if (drv_data->quirks & PLT_QUIRK_DOUBLE_VOLUME_KEYS) {
++		unsigned long prev_ts, cur_ts;
++
++		/* Usages are filtered in plantronics_usages. */
++
++		if (!value) /* Handle key presses only. */
++			return 0;
++
++		prev_ts = drv_data->last_volume_key_ts;
++		cur_ts = jiffies;
++		if (jiffies_to_msecs(cur_ts - prev_ts) <= PLT_DOUBLE_KEY_TIMEOUT)
++			return 1; /* Ignore the repeated key. */
++
++		drv_data->last_volume_key_ts = cur_ts;
++	}
++
++	return 0;
++}
++
+ static unsigned long plantronics_device_type(struct hid_device *hdev)
+ {
+ 	unsigned i, col_page;
+@@ -136,15 +172,24 @@ exit:
+ static int plantronics_probe(struct hid_device *hdev,
+ 			     const struct hid_device_id *id)
+ {
++	struct plt_drv_data *drv_data;
+ 	int ret;
+ 
++	drv_data = devm_kzalloc(&hdev->dev, sizeof(*drv_data), GFP_KERNEL);
++	if (!drv_data)
++		return -ENOMEM;
++
+ 	ret = hid_parse(hdev);
+ 	if (ret) {
+ 		hid_err(hdev, "parse failed\n");
+ 		goto err;
+ 	}
+ 
+-	hid_set_drvdata(hdev, (void *)plantronics_device_type(hdev));
++	drv_data->device_type = plantronics_device_type(hdev);
++	drv_data->quirks = id->driver_data;
++	drv_data->last_volume_key_ts = jiffies - msecs_to_jiffies(PLT_DOUBLE_KEY_TIMEOUT);
++
++	hid_set_drvdata(hdev, drv_data);
+ 
+ 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT |
+ 		HID_CONNECT_HIDINPUT_FORCE | HID_CONNECT_HIDDEV_FORCE);
+@@ -156,15 +201,26 @@ err:
+ }
+ 
+ static const struct hid_device_id plantronics_devices[] = {
++	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
++					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
++		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, plantronics_devices);
+ 
++static const struct hid_usage_id plantronics_usages[] = {
++	{ HID_CP_VOLUMEUP, EV_KEY, HID_ANY_ID },
++	{ HID_CP_VOLUMEDOWN, EV_KEY, HID_ANY_ID },
++	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
++};
++
+ static struct hid_driver plantronics_driver = {
+ 	.name = "plantronics",
+ 	.id_table = plantronics_devices,
++	.usage_table = plantronics_usages,
+ 	.input_mapping = plantronics_input_mapping,
++	.event = plantronics_event,
+ 	.probe = plantronics_probe,
+ };
+ module_hid_driver(plantronics_driver);
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index 981657075f05..41c372573a28 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -248,6 +248,8 @@ struct hid_item {
+ #define HID_CP_SELECTION	0x000c0080
+ #define HID_CP_MEDIASELECTION	0x000c0087
+ #define HID_CP_SELECTDISC	0x000c00ba
++#define HID_CP_VOLUMEUP		0x000c00e9
++#define HID_CP_VOLUMEDOWN	0x000c00ea
+ #define HID_CP_PLAYBACKSPEED	0x000c00f1
+ #define HID_CP_PROXIMITY	0x000c0109
+ #define HID_CP_SPEAKERSYSTEM	0x000c0160
 -- 
 2.30.2
 
