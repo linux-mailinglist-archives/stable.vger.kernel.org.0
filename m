@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71A7238AB8F
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 145E838AB91
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239925AbhETLZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S238957AbhETLZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 07:25:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44180 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:44410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241216AbhETLXZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:23:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BD74B61D93;
-        Thu, 20 May 2021 10:12:06 +0000 (UTC)
+        id S239151AbhETLXr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:23:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26E8D61D98;
+        Thu, 20 May 2021 10:12:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505527;
-        bh=Sz6EOdc7yV52bDWQgKlyk4LCblp+4sumZFTP9xmgSn8=;
+        s=korg; t=1621505531;
+        bh=ohp7rWeWY5eEJpqoG1zTg90+0OjjATPWPtYVKU5OirU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPkNYby0RVXZ0wF7o8zRXbxXwhnvftJ7ieCIVHdouibYWx1KeDJpsiN4ooKjGIXKJ
-         TLwdLGMW7ZuyP7KeXKXGkOPjoJRg43DQ2YEHouAnQJYsSuAFZjbib5nSMln5+C/V3U
-         doSVaqX/gTIQSA5wLEPZCkGAKf9boVRMIVr+7LIo=
+        b=f5l0SpI69si40RXx7dqL3KaxEy1zO0Yv/4ywXVSxuQsDrdXqKL9LOY6h6RsNc2Ng2
+         PpwxNL2PbUKqeMSSDbgS9I7U+afLyCC+kNgwLNs0kHbjMSiZfs+0k2rs+DtdE7IiCq
+         vn+yuxHvzQCrTbj/Q6SyLyyFes+3pjhFu38PQ1iI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 175/190] dm ioctl: fix out of bounds array access when no devices
-Date:   Thu, 20 May 2021 11:23:59 +0200
-Message-Id: <20210520092107.957446529@linuxfoundation.org>
+        stable@vger.kernel.org, "Rafael J. Wysocki" <rafael@kernel.org>,
+        syzbot+92340f7b2b4789907fdb@syzkaller.appspotmail.com
+Subject: [PATCH 4.4 176/190] kobject_uevent: remove warning in init_uevent_argv()
+Date:   Thu, 20 May 2021 11:24:00 +0200
+Message-Id: <20210520092107.990440721@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,39 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 4edbe1d7bcffcd6269f3b5eb63f710393ff2ec7a upstream.
+commit b4104180a2efb85f55e1ba1407885c9421970338 upstream.
 
-If there are not any dm devices, we need to zero the "dev" argument in
-the first structure dm_name_list. However, this can cause out of
-bounds write, because the "needed" variable is zero and len may be
-less than eight.
+syzbot can trigger the WARN() in init_uevent_argv() which isn't the
+nicest as the code does properly recover and handle the error.  So
+change the WARN() call to pr_warn() and provide some more information on
+what the buffer size that was needed.
 
-Fix this bug by reporting DM_BUFFER_FULL_FLAG if the result buffer is
-too small to hold the "nl->dev" value.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-[iwamatsu: Adjust context]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+Link: https://lore.kernel.org/r/20201107082206.GA19079@kroah.com
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: linux-kernel@vger.kernel.org
+Reported-by: syzbot+92340f7b2b4789907fdb@syzkaller.appspotmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210405094852.1348499-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-ioctl.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/kobject_uevent.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-ioctl.c
-+++ b/drivers/md/dm-ioctl.c
-@@ -524,7 +524,7 @@ static int list_devices(struct dm_ioctl
- 	 * Grab our output buffer.
- 	 */
- 	nl = get_result_buffer(param, param_size, &len);
--	if (len < needed) {
-+	if (len < needed || len < sizeof(nl->dev)) {
- 		param->flags |= DM_BUFFER_FULL_FLAG;
- 		goto out;
+--- a/lib/kobject_uevent.c
++++ b/lib/kobject_uevent.c
+@@ -128,12 +128,13 @@ static int kobj_usermode_filter(struct k
+ 
+ static int init_uevent_argv(struct kobj_uevent_env *env, const char *subsystem)
+ {
++	int buffer_size = sizeof(env->buf) - env->buflen;
+ 	int len;
+ 
+-	len = strlcpy(&env->buf[env->buflen], subsystem,
+-		      sizeof(env->buf) - env->buflen);
+-	if (len >= (sizeof(env->buf) - env->buflen)) {
+-		WARN(1, KERN_ERR "init_uevent_argv: buffer size too small\n");
++	len = strlcpy(&env->buf[env->buflen], subsystem, buffer_size);
++	if (len >= buffer_size) {
++		pr_warn("init_uevent_argv: buffer size of %d too small, needed %d\n",
++			buffer_size, len);
+ 		return -ENOMEM;
  	}
+ 
 
 
