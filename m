@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22EC738A6B5
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CBE0B38A466
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:04:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235982AbhETK34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:29:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
+        id S235641AbhETKFa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:05:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37296 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236818AbhETK21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FD1561C33;
-        Thu, 20 May 2021 09:50:58 +0000 (UTC)
+        id S235070AbhETKB5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:01:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C27206191A;
+        Thu, 20 May 2021 09:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504259;
-        bh=2kfCO7LXG39FlNWL8826sbcj1qX6DzeJ2z1Uf48pomU=;
+        s=korg; t=1621503586;
+        bh=ASGJPZPeFCP9rp26YdylwYW+y6pwyxyA0FP0Uh4iQzk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DbLpQLUaNkHQwmmhiudNW8LnW7v8rxXGHIhPTHM1TVkjR1+pqgAjWfvnW8Da/6FQl
-         Bnz0//TORhknHikmgB7UBN/pElyDjHqPEsquhZY00H2ICgnOlgdKvaSrm9rTFTSyhf
-         p8bB7keP2OGpl50h1O2naIQfXjVOOUwCDNj7FmKA=
+        b=K+orVuCN5GG0Tza9nX0Ev/Sn7T7VVLOXRWS/skj7u7wAUAI1O+0Xd5YQ+AeM/NP18
+         oVbLUEPvl4IO8L6NW1QhDUAzogCLS3NcjrHII3X/oeii6ldcq7W4L08dHUvI2OBKzy
+         S+JjjchERbbG+BiIvXybKrSPD5wOREg1WI1tgcv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        stable@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 163/323] staging: rtl8192u: Fix potential infinite loop
-Date:   Thu, 20 May 2021 11:20:55 +0200
-Message-Id: <20210520092125.691185703@linuxfoundation.org>
+Subject: [PATCH 4.19 287/425] arm64: dts: uniphier: Change phy-mode to RGMII-ID to enable delay pins for RTL8211E
+Date:   Thu, 20 May 2021 11:20:56 +0200
+Message-Id: <20210520092140.875643411@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
+References: <20210520092131.308959589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
 
-[ Upstream commit f9b9263a25dc3d2eaaa829e207434db6951ca7bc ]
+[ Upstream commit dcabb06bf127b3e0d3fbc94a2b65dd56c2725851 ]
 
-The for-loop iterates with a u8 loop counter i and compares this
-with the loop upper limit of riv->ieee80211->LinkDetectInfo.SlotNum
-that is a u16 type. There is a potential infinite loop if SlotNum
-is larger than the u8 loop counter. Fix this by making the loop
-counter the same type as SlotNum.
+UniPhier LD20 and PXs3 boards have RTL8211E ethernet phy, and the phy have
+the RX/TX delays of RGMII interface using pull-ups on the RXDLY and TXDLY
+pins.
 
-Addresses-Coverity: ("Infinite loop")
-Fixes: 8fc8598e61f6 ("Staging: Added Realtek rtl8192u driver to staging")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210407150308.496623-1-colin.king@canonical.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+After the commit bbc4d71d6354 ("net: phy: realtek: fix rtl8211e rx/tx
+delay config"), the delays are working correctly, however, "rgmii" means
+no delay and the phy doesn't work. So need to set the phy-mode to
+"rgmii-id" to show that RX/TX delays are enabled.
+
+Fixes: c73730ee4c9a ("arm64: dts: uniphier: add AVE ethernet node")
+Signed-off-by: Kunihiko Hayashi <hayashi.kunihiko@socionext.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/rtl8192u/r8192U_core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi | 2 +-
+ arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/rtl8192u/r8192U_core.c b/drivers/staging/rtl8192u/r8192U_core.c
-index b5941ae410d9..89ec4bb19e48 100644
---- a/drivers/staging/rtl8192u/r8192U_core.c
-+++ b/drivers/staging/rtl8192u/r8192U_core.c
-@@ -3418,7 +3418,7 @@ static void rtl819x_update_rxcounts(struct r8192_priv *priv, u32 *TotalRxBcnNum,
- 			     u32 *TotalRxDataNum)
- {
- 	u16			SlotIndex;
--	u8			i;
-+	u16			i;
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
+index caf112629caa..62429c412b33 100644
+--- a/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
++++ b/arch/arm64/boot/dts/socionext/uniphier-ld20.dtsi
+@@ -610,7 +610,7 @@
+ 			clocks = <&sys_clk 6>;
+ 			reset-names = "ether";
+ 			resets = <&sys_rst 6>;
+-			phy-mode = "rgmii";
++			phy-mode = "rgmii-id";
+ 			local-mac-address = [00 00 00 00 00 00];
+ 			socionext,syscon-phy-mode = <&soc_glue 0>;
  
- 	*TotalRxBcnNum = 0;
- 	*TotalRxDataNum = 0;
+diff --git a/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi b/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
+index 2a4cf427f5d3..8fe9a57b9562 100644
+--- a/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
++++ b/arch/arm64/boot/dts/socionext/uniphier-pxs3.dtsi
+@@ -416,7 +416,7 @@
+ 			clocks = <&sys_clk 6>;
+ 			reset-names = "ether";
+ 			resets = <&sys_rst 6>;
+-			phy-mode = "rgmii";
++			phy-mode = "rgmii-id";
+ 			local-mac-address = [00 00 00 00 00 00];
+ 			socionext,syscon-phy-mode = <&soc_glue 0>;
+ 
+@@ -437,7 +437,7 @@
+ 			clocks = <&sys_clk 7>;
+ 			reset-names = "ether";
+ 			resets = <&sys_rst 7>;
+-			phy-mode = "rgmii";
++			phy-mode = "rgmii-id";
+ 			local-mac-address = [00 00 00 00 00 00];
+ 			socionext,syscon-phy-mode = <&soc_glue 1>;
+ 
 -- 
 2.30.2
 
