@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 00CDF38A8DB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:53:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E349438A707
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239490AbhETKzE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:55:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52462 "EHLO mail.kernel.org"
+        id S237273AbhETKdb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:33:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237575AbhETKwJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:52:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E5D0D616E8;
-        Thu, 20 May 2021 10:00:10 +0000 (UTC)
+        id S237071AbhETKb1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:31:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C62361493;
+        Thu, 20 May 2021 09:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504811;
-        bh=lSdtHzYaRgOBT0gWw44EQQ3IskH5dXfvS34EW1mGgGs=;
+        s=korg; t=1621504318;
+        bh=cDsNEF8pfcgYPEdhQPiH+XfrzDWIabER0r31WivNClA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=moMv//HznK1Pe4+VSC8czsfuQxz+2E8C8gLkexOoEmz2rxBZ8lMA8d0fwIr3Cbgm5
-         PW8fwQ6ozbufRA32HudXZJXaiwfakoBcBwmVoVbQP9wDlmMELmGBIXC/hi7Dgz5+mo
-         VUZKhf3EnrwK/hFCoHh9IYl3EZMVjclDF/z6SRKQ=
+        b=HRQHDFRMMkaM4pNVMkfj5WX3G2GMuMIm/4/wfe0Q5QbMbZbeDRjurU/PhfKgRLwts
+         d3t0dO7tc/EZ7RlfaU69Me65RFtxAjLiwHscGhMODG7s+u7Hd1RiGYEXP0jcVd1bSS
+         KYTvrt/PJGTqov6OrQ96X+Vj27+gX8wCkMyohsPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Iago Abal <mail@iagoabal.eu>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 4.9 091/240] usb: gadget: pch_udc: Revert d3cb25a12138 completely
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 191/323] scsi: sni_53c710: Add IRQ check
 Date:   Thu, 20 May 2021 11:21:23 +0200
-Message-Id: <20210520092111.739156032@linuxfoundation.org>
+Message-Id: <20210520092126.665876488@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,83 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-commit 50a318cc9b54a36f00beadf77e578a50f3620477 upstream.
+[ Upstream commit 1160d61bc51e87e509cfaf9da50a0060f67b6de4 ]
 
-The commit d3cb25a12138 ("usb: gadget: udc: fix spin_lock in pch_udc")
-obviously was not thought through and had made the situation even worse
-than it was before. Two changes after almost reverted it. but a few
-leftovers have been left as it. With this revert d3cb25a12138 completely.
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #s), causing it to fail with -EINVAL (overridden by -ENODEV
+further below).  Stop calling request_irq() with the invalid IRQ #s.
 
-While at it, narrow down the scope of unlocked section to prevent
-potential race when prot_stall is assigned.
-
-Fixes: d3cb25a12138 ("usb: gadget: udc: fix spin_lock in pch_udc")
-Fixes: 9903b6bedd38 ("usb: gadget: pch-udc: fix lock")
-Fixes: 1d23d16a88e6 ("usb: gadget: pch_udc: reorder spin_[un]lock to avoid deadlock")
-Cc: Iago Abal <mail@iagoabal.eu>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210323153626.54908-5-andriy.shevchenko@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/8f4b8fa5-8251-b977-70a1-9099bcb4bb17@omprussia.ru
+Fixes: c27d85f3f3c5 ("[SCSI] SNI RM 53c710 driver")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/pch_udc.c |   17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ drivers/scsi/sni_53c710.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/udc/pch_udc.c
-+++ b/drivers/usb/gadget/udc/pch_udc.c
-@@ -604,18 +604,22 @@ static void pch_udc_reconnect(struct pch
- static inline void pch_udc_vbus_session(struct pch_udc_dev *dev,
- 					  int is_active)
- {
-+	unsigned long		iflags;
-+
-+	spin_lock_irqsave(&dev->lock, iflags);
- 	if (is_active) {
- 		pch_udc_reconnect(dev);
- 		dev->vbus_session = 1;
- 	} else {
- 		if (dev->driver && dev->driver->disconnect) {
--			spin_lock(&dev->lock);
-+			spin_unlock_irqrestore(&dev->lock, iflags);
- 			dev->driver->disconnect(&dev->gadget);
--			spin_unlock(&dev->lock);
-+			spin_lock_irqsave(&dev->lock, iflags);
- 		}
- 		pch_udc_set_disconnect(dev);
- 		dev->vbus_session = 0;
- 	}
-+	spin_unlock_irqrestore(&dev->lock, iflags);
- }
+diff --git a/drivers/scsi/sni_53c710.c b/drivers/scsi/sni_53c710.c
+index 3102a75984d3..aed91afb79b6 100644
+--- a/drivers/scsi/sni_53c710.c
++++ b/drivers/scsi/sni_53c710.c
+@@ -71,6 +71,7 @@ static int snirm710_probe(struct platform_device *dev)
+ 	struct NCR_700_Host_Parameters *hostdata;
+ 	struct Scsi_Host *host;
+ 	struct  resource *res;
++	int rc;
  
- /**
-@@ -1172,20 +1176,25 @@ static int pch_udc_pcd_selfpowered(struc
- static int pch_udc_pcd_pullup(struct usb_gadget *gadget, int is_on)
- {
- 	struct pch_udc_dev	*dev;
-+	unsigned long		iflags;
- 
- 	if (!gadget)
- 		return -EINVAL;
-+
- 	dev = container_of(gadget, struct pch_udc_dev, gadget);
-+
-+	spin_lock_irqsave(&dev->lock, iflags);
- 	if (is_on) {
- 		pch_udc_reconnect(dev);
- 	} else {
- 		if (dev->driver && dev->driver->disconnect) {
--			spin_lock(&dev->lock);
-+			spin_unlock_irqrestore(&dev->lock, iflags);
- 			dev->driver->disconnect(&dev->gadget);
--			spin_unlock(&dev->lock);
-+			spin_lock_irqsave(&dev->lock, iflags);
- 		}
- 		pch_udc_set_disconnect(dev);
- 	}
-+	spin_unlock_irqrestore(&dev->lock, iflags);
- 
- 	return 0;
- }
+ 	res = platform_get_resource(dev, IORESOURCE_MEM, 0);
+ 	if (!res)
+@@ -96,7 +97,9 @@ static int snirm710_probe(struct platform_device *dev)
+ 		goto out_kfree;
+ 	host->this_id = 7;
+ 	host->base = base;
+-	host->irq = platform_get_irq(dev, 0);
++	host->irq = rc = platform_get_irq(dev, 0);
++	if (rc < 0)
++		goto out_put_host;
+ 	if(request_irq(host->irq, NCR_700_intr, IRQF_SHARED, "snirm710", host)) {
+ 		printk(KERN_ERR "snirm710: request_irq failed!\n");
+ 		goto out_put_host;
+-- 
+2.30.2
+
 
 
