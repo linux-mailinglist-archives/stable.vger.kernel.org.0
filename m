@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD71A38A885
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66AC438A880
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238336AbhETKvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48312 "EHLO mail.kernel.org"
+        id S238349AbhETKvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48324 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238442AbhETKsl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:48:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BDF661CB7;
-        Thu, 20 May 2021 09:58:51 +0000 (UTC)
+        id S238093AbhETKsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:48:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CFEAE61CB9;
+        Thu, 20 May 2021 09:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504732;
-        bh=K414adILnCwidcvQb3gPQD1BmTcpxvdsNwWyokDk6ak=;
+        s=korg; t=1621504734;
+        bh=gl4LTxeDSpZKZS21MVfhx8fcKg+TJblp7rcu6FDOc1M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tx3xXALfRlTrKao0Hv66HB7V2elsnE9mKDNrpwgLdXKEXlfva5ugq0WeeBdkBQA7Z
-         T7c6Z7zMYG48zkut4HViq421U3tJ6nzSdCwJRjURBeqYrvOGzkf6XUpVc79PwkvuK4
-         tP0OvA1A07BxwWJxkldqeIt2/25LDofbeUq8ZYGQ=
+        b=GCxbPOT0dPzJm6LUw2R6kAhUvHmlHkoZ9rCr1VZSTa3ie5bsbFIdybDFX5S/NVkFQ
+         JSypzZ0Ag/tYuHkSbvIh7pginXzyxTQ+P8ejvQbUjNJiP8fHHyZ9aQPYGci7kS1qOo
+         PYiRVSvrOzZb/Su4tLEsUobvTDlxJIWnYgnAYuwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rosen Penev <rosenp@gmail.com>,
-        Tony Ambardar <Tony.Ambardar@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 055/240] powerpc: fix EDEADLOCK redefinition error in uapi/asm/errno.h
-Date:   Thu, 20 May 2021 11:20:47 +0200
-Message-Id: <20210520092110.528016458@linuxfoundation.org>
+        stable@vger.kernel.org, Yang Yang <yang.yang29@zte.com.cn>,
+        Joel Stanley <joel@jms.id.au>,
+        Richard Weinberger <richard@nod.at>
+Subject: [PATCH 4.9 056/240] jffs2: check the validity of dstlen in jffs2_zlib_compress()
+Date:   Thu, 20 May 2021 11:20:48 +0200
+Message-Id: <20210520092110.562848095@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -40,53 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Ambardar <tony.ambardar@gmail.com>
+From: Yang Yang <yang.yang29@zte.com.cn>
 
-commit 7de21e679e6a789f3729e8402bc440b623a28eae upstream.
+commit 90ada91f4610c5ef11bc52576516d96c496fc3f1 upstream.
 
-A few archs like powerpc have different errno.h values for macros
-EDEADLOCK and EDEADLK. In code including both libc and linux versions of
-errno.h, this can result in multiple definitions of EDEADLOCK in the
-include chain. Definitions to the same value (e.g. seen with mips) do
-not raise warnings, but on powerpc there are redefinitions changing the
-value, which raise warnings and errors (if using "-Werror").
+KASAN reports a BUG when download file in jffs2 filesystem.It is
+because when dstlen == 1, cpage_out will write array out of bounds.
+Actually, data will not be compressed in jffs2_zlib_compress() if
+data's length less than 4.
 
-Guard against these redefinitions to avoid build errors like the following,
-first seen cross-compiling libbpf v5.8.9 for powerpc using GCC 8.4.0 with
-musl 1.1.24:
+[  393.799778] BUG: KASAN: slab-out-of-bounds in jffs2_rtime_compress+0x214/0x2f0 at addr ffff800062e3b281
+[  393.809166] Write of size 1 by task tftp/2918
+[  393.813526] CPU: 3 PID: 2918 Comm: tftp Tainted: G    B           4.9.115-rt93-EMBSYS-CGEL-6.1.R6-dirty #1
+[  393.823173] Hardware name: LS1043A RDB Board (DT)
+[  393.827870] Call trace:
+[  393.830322] [<ffff20000808c700>] dump_backtrace+0x0/0x2f0
+[  393.835721] [<ffff20000808ca04>] show_stack+0x14/0x20
+[  393.840774] [<ffff2000086ef700>] dump_stack+0x90/0xb0
+[  393.845829] [<ffff20000827b19c>] kasan_object_err+0x24/0x80
+[  393.851402] [<ffff20000827b404>] kasan_report_error+0x1b4/0x4d8
+[  393.857323] [<ffff20000827bae8>] kasan_report+0x38/0x40
+[  393.862548] [<ffff200008279d44>] __asan_store1+0x4c/0x58
+[  393.867859] [<ffff2000084ce2ec>] jffs2_rtime_compress+0x214/0x2f0
+[  393.873955] [<ffff2000084bb3b0>] jffs2_selected_compress+0x178/0x2a0
+[  393.880308] [<ffff2000084bb530>] jffs2_compress+0x58/0x478
+[  393.885796] [<ffff2000084c5b34>] jffs2_write_inode_range+0x13c/0x450
+[  393.892150] [<ffff2000084be0b8>] jffs2_write_end+0x2a8/0x4a0
+[  393.897811] [<ffff2000081f3008>] generic_perform_write+0x1c0/0x280
+[  393.903990] [<ffff2000081f5074>] __generic_file_write_iter+0x1c4/0x228
+[  393.910517] [<ffff2000081f5210>] generic_file_write_iter+0x138/0x288
+[  393.916870] [<ffff20000829ec1c>] __vfs_write+0x1b4/0x238
+[  393.922181] [<ffff20000829ff00>] vfs_write+0xd0/0x238
+[  393.927232] [<ffff2000082a1ba8>] SyS_write+0xa0/0x110
+[  393.932283] [<ffff20000808429c>] __sys_trace_return+0x0/0x4
+[  393.937851] Object at ffff800062e3b280, in cache kmalloc-64 size: 64
+[  393.944197] Allocated:
+[  393.946552] PID = 2918
+[  393.948913]  save_stack_trace_tsk+0x0/0x220
+[  393.953096]  save_stack_trace+0x18/0x20
+[  393.956932]  kasan_kmalloc+0xd8/0x188
+[  393.960594]  __kmalloc+0x144/0x238
+[  393.963994]  jffs2_selected_compress+0x48/0x2a0
+[  393.968524]  jffs2_compress+0x58/0x478
+[  393.972273]  jffs2_write_inode_range+0x13c/0x450
+[  393.976889]  jffs2_write_end+0x2a8/0x4a0
+[  393.980810]  generic_perform_write+0x1c0/0x280
+[  393.985251]  __generic_file_write_iter+0x1c4/0x228
+[  393.990040]  generic_file_write_iter+0x138/0x288
+[  393.994655]  __vfs_write+0x1b4/0x238
+[  393.998228]  vfs_write+0xd0/0x238
+[  394.001543]  SyS_write+0xa0/0x110
+[  394.004856]  __sys_trace_return+0x0/0x4
+[  394.008684] Freed:
+[  394.010691] PID = 2918
+[  394.013051]  save_stack_trace_tsk+0x0/0x220
+[  394.017233]  save_stack_trace+0x18/0x20
+[  394.021069]  kasan_slab_free+0x88/0x188
+[  394.024902]  kfree+0x6c/0x1d8
+[  394.027868]  jffs2_sum_write_sumnode+0x2c4/0x880
+[  394.032486]  jffs2_do_reserve_space+0x198/0x598
+[  394.037016]  jffs2_reserve_space+0x3f8/0x4d8
+[  394.041286]  jffs2_write_inode_range+0xf0/0x450
+[  394.045816]  jffs2_write_end+0x2a8/0x4a0
+[  394.049737]  generic_perform_write+0x1c0/0x280
+[  394.054179]  __generic_file_write_iter+0x1c4/0x228
+[  394.058968]  generic_file_write_iter+0x138/0x288
+[  394.063583]  __vfs_write+0x1b4/0x238
+[  394.067157]  vfs_write+0xd0/0x238
+[  394.070470]  SyS_write+0xa0/0x110
+[  394.073783]  __sys_trace_return+0x0/0x4
+[  394.077612] Memory state around the buggy address:
+[  394.082404]  ffff800062e3b180: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+[  394.089623]  ffff800062e3b200: 00 00 00 00 00 00 00 00 fc fc fc fc fc fc fc fc
+[  394.096842] >ffff800062e3b280: 01 fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+[  394.104056]                    ^
+[  394.107283]  ffff800062e3b300: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[  394.114502]  ffff800062e3b380: fb fb fb fb fb fb fb fb fc fc fc fc fc fc fc fc
+[  394.121718] ==================================================================
 
-  In file included from ../../arch/powerpc/include/uapi/asm/errno.h:5,
-                   from ../../include/linux/err.h:8,
-                   from libbpf.c:29:
-  ../../include/uapi/asm-generic/errno.h:40: error: "EDEADLOCK" redefined [-Werror]
-   #define EDEADLOCK EDEADLK
-
-  In file included from toolchain-powerpc_8540_gcc-8.4.0_musl/include/errno.h:10,
-                   from libbpf.c:26:
-  toolchain-powerpc_8540_gcc-8.4.0_musl/include/bits/errno.h:58: note: this is the location of the previous definition
-   #define EDEADLOCK       58
-
-  cc1: all warnings being treated as errors
-
-Cc: Stable <stable@vger.kernel.org>
-Reported-by: Rosen Penev <rosenp@gmail.com>
-Signed-off-by: Tony Ambardar <Tony.Ambardar@gmail.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20200917135437.1238787-1-Tony.Ambardar@gmail.com
+Signed-off-by: Yang Yang <yang.yang29@zte.com.cn>
+Cc: Joel Stanley <joel@jms.id.au>
+Signed-off-by: Richard Weinberger <richard@nod.at>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/include/uapi/asm/errno.h |    1 +
- 1 file changed, 1 insertion(+)
+ fs/jffs2/compr_rtime.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/powerpc/include/uapi/asm/errno.h
-+++ b/arch/powerpc/include/uapi/asm/errno.h
-@@ -1,6 +1,7 @@
- #ifndef _ASM_POWERPC_ERRNO_H
- #define _ASM_POWERPC_ERRNO_H
+--- a/fs/jffs2/compr_rtime.c
++++ b/fs/jffs2/compr_rtime.c
+@@ -37,6 +37,9 @@ static int jffs2_rtime_compress(unsigned
+ 	int outpos = 0;
+ 	int pos=0;
  
-+#undef	EDEADLOCK
- #include <asm-generic/errno.h>
++	if (*dstlen <= 3)
++		return -1;
++
+ 	memset(positions,0,sizeof(positions));
  
- #undef	EDEADLOCK
+ 	while (pos < (*sourcelen) && outpos <= (*dstlen)-2) {
 
 
