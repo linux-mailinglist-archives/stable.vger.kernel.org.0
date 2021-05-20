@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEB2138A11D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5909338A165
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231897AbhETJ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:28:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54612 "EHLO mail.kernel.org"
+        id S232259AbhETJbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:31:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231949AbhETJ13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:27:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D742613AF;
-        Thu, 20 May 2021 09:26:08 +0000 (UTC)
+        id S232308AbhETJ3A (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:29:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5AD3613AE;
+        Thu, 20 May 2021 09:27:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502768;
-        bh=XfOG0g//+326VFrb4SwTXN4+EJDKWWQrZWubkNsbX/4=;
+        s=korg; t=1621502826;
+        bh=xo2BE0jRTsQlvSw0irHZvlNT7/Jy4g468u2AeXVwLzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NEqkAMHvR142nRRd1iN6wRe3GYDsblzpVG/U1RvlI4+MzYA0wo0I/bSflaxfv3Dde
-         taTwaCvsXPQD5aO0pOcmgwU/fsl5/PMJNbxaTOOI6LLipFpMhpRRODCpwwj3HzFrrI
-         DvNMNCt6ZTmyWl/TTFyn1kVBEyZyOXHI74fxCdDQ=
+        b=CY7mVauqzRX6vLRMhUe6DUYEGWP/CK9ov6MMxuMPH6/dOKv6E8bMqtAcA2ZYMGB32
+         EtFF463bdx2Nh9qWaBvCvBvyGUIwRXaiA2ZKHnVWoYe6O7O4JR3yNE/w0qbPfGpbAo
+         e77D4Hikp3a915fxRw9btpmH5iWtc4lSyafz//Qg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, Darren Powell <darren.powell@amd.com>,
+        Kenneth Feng <kenneth.feng@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 41/45] net: stmmac: Do not enable RX FIFO overflow interrupts
+Subject: [PATCH 5.10 31/47] amdgpu/pm: Prevent force of DCEFCLK on NAVI10 and SIENNA_CICHLID
 Date:   Thu, 20 May 2021 11:22:29 +0200
-Message-Id: <20210520092054.850459249@linuxfoundation.org>
+Message-Id: <20210520092054.548487797@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,92 +41,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yannick Vignon <yannick.vignon@nxp.com>
+From: Darren Powell <darren.powell@amd.com>
 
-[ Upstream commit 8a7cb245cf28cb3e541e0d6c8624b95d079e155b ]
+[ Upstream commit b117b3964f38a988cb79825950dbd607c02237f3 ]
 
-The RX FIFO overflows when the system is not able to process all received
-packets and they start accumulating (first in the DMA queue in memory,
-then in the FIFO). An interrupt is then raised for each overflowing packet
-and handled in stmmac_interrupt(). This is counter-productive, since it
-brings the system (or more likely, one CPU core) to its knees to process
-the FIFO overflow interrupts.
+Writing to dcefclk causes the gpu to become unresponsive, and requires a reboot.
+Patch ignores a .force_clk_levels(SMU_DCEFCLK) call and issues an
+info message.
 
-stmmac_interrupt() handles overflow interrupts by writing the rx tail ptr
-into the corresponding hardware register (according to the MAC spec, this
-has the effect of restarting the MAC DMA). However, without freeing any rx
-descriptors, the DMA stops right away, and another overflow interrupt is
-raised as the FIFO overflows again. Since the DMA is already restarted at
-the end of stmmac_rx_refill() after freeing descriptors, disabling FIFO
-overflow interrupts and the corresponding handling code has no side effect,
-and eliminates the interrupt storm when the RX FIFO overflows.
-
-Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
-Link: https://lore.kernel.org/r/20210506143312.20784-1-yannick.vignon@oss.nxp.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Darren Powell <darren.powell@amd.com>
+Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c  |  7 +------
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++------------
- 2 files changed, 3 insertions(+), 18 deletions(-)
+ drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c         | 5 ++++-
+ drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c | 4 +++-
+ 2 files changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-index 62aa0e95beb7..a7249e4071f1 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
-@@ -222,7 +222,7 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
- 				       u32 channel, int fifosz, u8 qmode)
- {
- 	unsigned int rqs = fifosz / 256 - 1;
--	u32 mtl_rx_op, mtl_rx_int;
-+	u32 mtl_rx_op;
- 
- 	mtl_rx_op = readl(ioaddr + MTL_CHAN_RX_OP_MODE(channel));
- 
-@@ -283,11 +283,6 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+index f2c8719b8395..52df6202a954 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c
+@@ -1110,7 +1110,6 @@ static int navi10_force_clk_levels(struct smu_context *smu,
+ 	case SMU_SOCCLK:
+ 	case SMU_MCLK:
+ 	case SMU_UCLK:
+-	case SMU_DCEFCLK:
+ 	case SMU_FCLK:
+ 		/* There is only 2 levels for fine grained DPM */
+ 		if (navi10_is_support_fine_grained_dpm(smu, clk_type)) {
+@@ -1130,6 +1129,10 @@ static int navi10_force_clk_levels(struct smu_context *smu,
+ 		if (ret)
+ 			return size;
+ 		break;
++	case SMU_DCEFCLK:
++		dev_info(smu->adev->dev,"Setting DCEFCLK min/max dpm level is not supported!\n");
++		break;
++
+ 	default:
+ 		break;
  	}
- 
- 	writel(mtl_rx_op, ioaddr + MTL_CHAN_RX_OP_MODE(channel));
--
--	/* Enable MTL RX overflow */
--	mtl_rx_int = readl(ioaddr + MTL_CHAN_INT_CTRL(channel));
--	writel(mtl_rx_int | MTL_RX_OVERFLOW_INT_EN,
--	       ioaddr + MTL_CHAN_INT_CTRL(channel));
- }
- 
- static void dwmac4_dma_tx_chan_op_mode(void __iomem *ioaddr, int mode,
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index c6f24abf6432..369d7cde3993 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -4168,7 +4168,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
- 	/* To handle GMAC own interrupts */
- 	if ((priv->plat->has_gmac) || xmac) {
- 		int status = stmmac_host_irq_status(priv, priv->hw, &priv->xstats);
--		int mtl_status;
- 
- 		if (unlikely(status)) {
- 			/* For LPI we need to save the tx status */
-@@ -4179,17 +4178,8 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
- 		}
- 
- 		for (queue = 0; queue < queues_count; queue++) {
--			struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
--
--			mtl_status = stmmac_host_mtl_irq_status(priv, priv->hw,
--								queue);
--			if (mtl_status != -EINVAL)
--				status |= mtl_status;
--
--			if (status & CORE_IRQ_MTL_RX_OVERFLOW)
--				stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
--						       rx_q->rx_tail_addr,
--						       queue);
-+			status = stmmac_host_mtl_irq_status(priv, priv->hw,
-+							    queue);
- 		}
- 
- 		/* PCS link status */
+diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+index 31da8fae6fa9..471bbb78884b 100644
+--- a/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
++++ b/drivers/gpu/drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c
+@@ -1018,7 +1018,6 @@ static int sienna_cichlid_force_clk_levels(struct smu_context *smu,
+ 	case SMU_SOCCLK:
+ 	case SMU_MCLK:
+ 	case SMU_UCLK:
+-	case SMU_DCEFCLK:
+ 	case SMU_FCLK:
+ 		/* There is only 2 levels for fine grained DPM */
+ 		if (sienna_cichlid_is_support_fine_grained_dpm(smu, clk_type)) {
+@@ -1038,6 +1037,9 @@ static int sienna_cichlid_force_clk_levels(struct smu_context *smu,
+ 		if (ret)
+ 			goto forec_level_out;
+ 		break;
++	case SMU_DCEFCLK:
++		dev_info(smu->adev->dev,"Setting DCEFCLK min/max dpm level is not supported!\n");
++		break;
+ 	default:
+ 		break;
+ 	}
 -- 
 2.30.2
 
