@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AFE638A268
+	by mail.lfdr.de (Postfix) with ESMTP id A4E1838A26A
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233462AbhETJlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41964 "EHLO mail.kernel.org"
+        id S233488AbhETJlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:41:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233407AbhETJjU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:39:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E6D61423;
-        Thu, 20 May 2021 09:31:17 +0000 (UTC)
+        id S233425AbhETJjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:39:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADC7E61436;
+        Thu, 20 May 2021 09:31:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503077;
-        bh=ORvfsTPWidhMijguO6X2vUt3yYaF9/7ZZj8+OK9Lx3k=;
+        s=korg; t=1621503080;
+        bh=1VaN4Wxy7xbn+C2cf9Zvz5TCuDW+FIp7vIehaSRNNas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H1h0sd3nLFq8jQsdxWu5sYyouITDj6SobP8czSQOok6Ga2bxW5PnveGcj1T6GXZlo
-         YVnBKCE6lNt6LjMn2xbz6AywpJDlNQovn/5Qqnz32a190cfW4hScY+2Br+LawS+B8V
-         y4PhaGmWqIZwLrrQOmmuuEObQVY2cEOFMhU34vCU=
+        b=dNEhaGrZ96vjJRergXvOQgNw48/EWWZtNDDjcmunHNnYB0+SccNAClShtgxz+ug5i
+         3sA/nY+KAaUgdR3HaWXNHw9TxanjFGrOmEhj+Um8gSjY+2VyTvI1ogZs2Fkz7NhrIj
+         zReB3EQAoLbb7x2RXXXM6Wr2UqzHk6ENZC2FBsx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Dinh Nguyen <dinguyen@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        Sebastian Reichel <sebastian.reichel@collabora.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 058/425] clk: socfpga: arria10: Fix memory leak of socfpga_clk on error return
-Date:   Thu, 20 May 2021 11:17:07 +0200
-Message-Id: <20210520092133.351402862@linuxfoundation.org>
+Subject: [PATCH 4.19 059/425] power: supply: generic-adc-battery: fix possible use-after-free in gab_remove()
+Date:   Thu, 20 May 2021 11:17:08 +0200
+Message-Id: <20210520092133.382349361@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,36 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 657d4d1934f75a2d978c3cf2086495eaa542e7a9 ]
+[ Upstream commit b6cfa007b3b229771d9588970adb4ab3e0487f49 ]
 
-There is an error return path that is not kfree'ing socfpga_clk leading
-to a memory leak. Fix this by adding in the missing kfree call.
+This driver's remove path calls cancel_delayed_work(). However, that
+function does not wait until the work function finishes. This means
+that the callback function may still be running after the driver's
+remove function has finished, which would result in a use-after-free.
 
-Addresses-Coverity: ("Resource leak")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Link: https://lore.kernel.org/r/20210406170115.430990-1-colin.king@canonical.com
-Acked-by: Dinh Nguyen <dinguyen@kernel.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fix by calling cancel_delayed_work_sync(), which ensures that
+the work is properly cancelled, no longer running, and unable
+to re-schedule itself.
+
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Signed-off-by: Sebastian Reichel <sebastian.reichel@collabora.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/socfpga/clk-gate-a10.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/power/supply/generic-adc-battery.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/clk/socfpga/clk-gate-a10.c b/drivers/clk/socfpga/clk-gate-a10.c
-index 36376c542055..637e26babf89 100644
---- a/drivers/clk/socfpga/clk-gate-a10.c
-+++ b/drivers/clk/socfpga/clk-gate-a10.c
-@@ -157,6 +157,7 @@ static void __init __socfpga_gate_init(struct device_node *node,
- 		if (IS_ERR(socfpga_clk->sys_mgr_base_addr)) {
- 			pr_err("%s: failed to find altr,sys-mgr regmap!\n",
- 					__func__);
-+			kfree(socfpga_clk);
- 			return;
- 		}
+diff --git a/drivers/power/supply/generic-adc-battery.c b/drivers/power/supply/generic-adc-battery.c
+index bc462d1ec963..97b0e873e87d 100644
+--- a/drivers/power/supply/generic-adc-battery.c
++++ b/drivers/power/supply/generic-adc-battery.c
+@@ -382,7 +382,7 @@ static int gab_remove(struct platform_device *pdev)
  	}
+ 
+ 	kfree(adc_bat->psy_desc.properties);
+-	cancel_delayed_work(&adc_bat->bat_work);
++	cancel_delayed_work_sync(&adc_bat->bat_work);
+ 	return 0;
+ }
+ 
 -- 
 2.30.2
 
