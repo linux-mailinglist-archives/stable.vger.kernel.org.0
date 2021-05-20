@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC9BB38A6D4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0712438A6D7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236458AbhETKbB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55738 "EHLO mail.kernel.org"
+        id S236288AbhETKbG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:31:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235683AbhETK2C (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2036361492;
-        Thu, 20 May 2021 09:50:47 +0000 (UTC)
+        id S236756AbhETK2J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:28:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58DF961C2D;
+        Thu, 20 May 2021 09:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504248;
-        bh=wuEv9uLP2+8BvOM9r0lSZMHS1SSZLXzGGyT9AoTcsCc=;
+        s=korg; t=1621504250;
+        bh=Mc5/Am/gSQnTwDB+AGtQYp0SdF8yNbgwY9M2PbwZwM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uPVESW81hd3oikIZVOIAC847scCFTBwzXlEcO4tvKSkzQDssdxxlTwg4hRk+pgrFF
-         55wW+gx/6PszULNsv3ZDxqmp/hbD7jdBF0zKaQGlTVzNtFGItgr80s7fqaILVa4zPY
-         s/lbVHAP3e7/lWf6DakphJxbfZA34U/tGP3auOmU=
+        b=wz3S5PuQ18f5rDrN5Mv2FwXrPJEM3hKsnPWllO9MnISG9iPMnLg/AW5cJq9qvhb+7
+         BeuL5FWuJy5xZdY5spmIhoQk6mubyhhrGsbZVs6A8XFVMz8Z8MVMLGXqBB7eSvD47C
+         FgPAUHIneBAi4cgPWc6NcjixgqxP9V9s++jQrMQM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Pan Bian <bianpan2016@163.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 158/323] bus: qcom: Put child node before return
-Date:   Thu, 20 May 2021 11:20:50 +0200
-Message-Id: <20210520092125.515547331@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 159/323] phy: marvell: ARMADA375_USBCLUSTER_PHY should not default to y, unconditionally
+Date:   Thu, 20 May 2021 11:20:51 +0200
+Message-Id: <20210520092125.555758783@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -41,41 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit ac6ad7c2a862d682bb584a4bc904d89fa7721af8 ]
+[ Upstream commit 6cb17707aad869de163d7bf42c253caf501be4e2 ]
 
-Put child node before return to fix potential reference count leak.
-Generally, the reference count of child is incremented and decremented
-automatically in the macro for_each_available_child_of_node() and should
-be decremented manually if the loop is broken in loop body.
+Merely enabling CONFIG_COMPILE_TEST should not enable additional code.
+To fix this, restrict the automatic enabling of ARMADA375_USBCLUSTER_PHY
+to MACH_ARMADA_375, and ask the user in case of compile-testing.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 335a12754808 ("bus: qcom: add EBI2 driver")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121114907.109267-1-bianpan2016@163.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: eee47538ec1f2619 ("phy: add support for USB cluster on the Armada 375 SoC")
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20210208150252.424706-1-geert+renesas@glider.be
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/qcom-ebi2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/phy/marvell/Kconfig | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bus/qcom-ebi2.c b/drivers/bus/qcom-ebi2.c
-index a6444244c411..bfb67aa00bec 100644
---- a/drivers/bus/qcom-ebi2.c
-+++ b/drivers/bus/qcom-ebi2.c
-@@ -357,8 +357,10 @@ static int qcom_ebi2_probe(struct platform_device *pdev)
+diff --git a/drivers/phy/marvell/Kconfig b/drivers/phy/marvell/Kconfig
+index 68e321225400..ed4d3904e53f 100644
+--- a/drivers/phy/marvell/Kconfig
++++ b/drivers/phy/marvell/Kconfig
+@@ -2,8 +2,8 @@
+ # Phy drivers for Marvell platforms
+ #
+ config ARMADA375_USBCLUSTER_PHY
+-	def_bool y
+-	depends on MACH_ARMADA_375 || COMPILE_TEST
++	bool "Armada 375 USB cluster PHY support" if COMPILE_TEST
++	default y if MACH_ARMADA_375
+ 	depends on OF && HAS_IOMEM
+ 	select GENERIC_PHY
  
- 		/* Figure out the chipselect */
- 		ret = of_property_read_u32(child, "reg", &csindex);
--		if (ret)
-+		if (ret) {
-+			of_node_put(child);
- 			return ret;
-+		}
- 
- 		if (csindex > 5) {
- 			dev_err(dev,
 -- 
 2.30.2
 
