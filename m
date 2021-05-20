@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD9C38A956
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33B9B38A7A0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238846AbhETLBH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:01:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S236349AbhETKlF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238971AbhETK5D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:57:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CC861CF3;
-        Thu, 20 May 2021 10:02:03 +0000 (UTC)
+        id S234813AbhETKiF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:38:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1032E61C6C;
+        Thu, 20 May 2021 09:54:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504923;
-        bh=YbVIz8Ibv02Yvf0tb5GKbY4pMdqT6P027w+wWsILNAE=;
+        s=korg; t=1621504488;
+        bh=dPx9z9fKQJ6K4YmTJcUomZVJhoMxNaHdCoO5HYefZCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Yc0zNIjbyByh2k8UdfbkLFMNf7OFEan7HsyR8yMMkamdXCQPInZIzZ14TlQg/jSVv
-         G9B+eIzzJEvdqNuSU8oetT2fbMwnyaC2fcSqVdYnoYxxOBycFHLC/MFWc/sHP9CtgU
-         MGC1/UOcpgPo7bqImXG4yesU9AWiT3eFGIq6/r8s=
+        b=eULwJoAg91lKSGSNCcbArjNBrhFaV573E6OqFVwCbmRVBbTxtPjSKxBMQuRFbEEOi
+         3zw4uIFuuaBzCyO5x+nf2j0m6N28AW9DqDMDd7T6M0krbiKdm2j4es91ygIKvobWG2
+         gz9Wdc20ZIh/Vx6qjH74oKRLuXGAOO8BYP+j5tlA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jia Zhou <zhou.jia2@zte.com.cn>,
-        Yi Wang <wang.yi59@zte.com.cn>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 141/240] ALSA: core: remove redundant spin_lock pair in snd_card_disconnect
+        stable@vger.kernel.org,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Subject: [PATCH 4.14 241/323] Bluetooth: initialize skb_queue_head at l2cap_chan_create()
 Date:   Thu, 20 May 2021 11:22:13 +0200
-Message-Id: <20210520092113.380345776@linuxfoundation.org>
+Message-Id: <20210520092128.439367429@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,38 +42,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia Zhou <zhou.jia2@zte.com.cn>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit abc21649b3e5c34b143bf86f0c78e33d5815e250 ]
+[ Upstream commit be8597239379f0f53c9710dd6ab551bbf535bec6 ]
 
-modification in commit 2a3f7221acdd ("ALSA: core: Fix card races between
-register and disconnect") resulting in this problem.
+syzbot is hitting "INFO: trying to register non-static key." message [1],
+for "struct l2cap_chan"->tx_q.lock spinlock is not yet initialized when
+l2cap_chan_del() is called due to e.g. timeout.
 
-Fixes: 2a3f7221acdd ("ALSA: core: Fix card races between register and disconnect")
-Signed-off-by: Jia Zhou <zhou.jia2@zte.com.cn>
-Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
-Link: https://lore.kernel.org/r/1616989007-34429-1-git-send-email-wang.yi59@zte.com.cn
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Since "struct l2cap_chan"->lock mutex is initialized at l2cap_chan_create()
+immediately after "struct l2cap_chan" is allocated using kzalloc(), let's
+as well initialize "struct l2cap_chan"->{tx_q,srej_q}.lock spinlocks there.
+
+[1] https://syzkaller.appspot.com/bug?extid=fadfba6a911f6bf71842
+
+Reported-and-tested-by: syzbot <syzbot+fadfba6a911f6bf71842@syzkaller.appspotmail.com>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/core/init.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/bluetooth/l2cap_core.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/sound/core/init.c b/sound/core/init.c
-index 02e96c580cb7..59377e579adb 100644
---- a/sound/core/init.c
-+++ b/sound/core/init.c
-@@ -406,10 +406,8 @@ int snd_card_disconnect(struct snd_card *card)
- 		return 0;
- 	}
- 	card->shutdown = 1;
--	spin_unlock(&card->files_lock);
+diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
+index b5a7d04066ec..460401349255 100644
+--- a/net/bluetooth/l2cap_core.c
++++ b/net/bluetooth/l2cap_core.c
+@@ -445,6 +445,8 @@ struct l2cap_chan *l2cap_chan_create(void)
+ 	if (!chan)
+ 		return NULL;
  
- 	/* replace file->f_op with special dummy operations */
--	spin_lock(&card->files_lock);
- 	list_for_each_entry(mfile, &card->files_list, list) {
- 		/* it's critical part, use endless loop */
- 		/* we have no room to fail */
++	skb_queue_head_init(&chan->tx_q);
++	skb_queue_head_init(&chan->srej_q);
+ 	mutex_init(&chan->lock);
+ 
+ 	/* Set default lock nesting level */
 -- 
 2.30.2
 
