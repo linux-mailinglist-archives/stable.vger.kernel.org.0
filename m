@@ -2,38 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A547138A1C6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 150D838A18A
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232607AbhETJe7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:34:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34686 "EHLO mail.kernel.org"
+        id S232201AbhETJb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:31:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231985AbhETJdA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:33:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4D1A613DA;
-        Thu, 20 May 2021 09:28:35 +0000 (UTC)
+        id S232020AbhETJaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:30:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51FE3613BE;
+        Thu, 20 May 2021 09:27:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502916;
-        bh=ouPUubX0podFZljV6MH3eWHq7jZEaHhpp8WTmiD8ZY8=;
+        s=korg; t=1621502847;
+        bh=D45tlCA9zXAvOAVRHqU/gLe6d0zvfzQUB7x9YvPdHRk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T17uZxTPJPxbWAZ+/5xQb7YTegaUyLn+0aFogut6IvJWKeS2J7fHv1ic9GNa0WlR1
-         pbmbIIusq5HVXWW+rHWlXDdK2bAMRBWlBFgeaP8Mr3s/IFFpj/XvnrZxZyiqtu432h
-         HfIqH0qLAt5HP5Nk08EBTmn5RVX2oLM9OZ4Mj8lI=
+        b=N10vsRbX0VD89zmifybOEwGCDlLZeCH7b7Cl8OpGfOKTbe5cggW8oNWzdWEhAxQIu
+         VeKebLRJhyRSXMcLenBkf8d2l02ZMQdb44xQNYaKakeLSO+WD6vvjhyQQsI7Jevl/T
+         RTpl/Txth6PNlh2SVzfiYrVG60jBtRz9jZRkZy2c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Raj Sarraf <rrs@debian.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
+        stable@vger.kernel.org, Zqiang <qiang.zhang@windriver.com>,
+        Andrew Halaney <ahalaney@redhat.com>,
+        Alexander Potapenko <glider@google.com>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Vijayanand Jitta <vjitta@codeaurora.org>,
+        Vinayak Menon <vinmenon@codeaurora.org>,
+        Yogesh Lal <ylal@codeaurora.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 16/37] um: Mark all kernel symbols as local
-Date:   Thu, 20 May 2021 11:22:37 +0200
-Message-Id: <20210520092052.811814581@linuxfoundation.org>
+Subject: [PATCH 5.10 40/47] lib: stackdepot: turn depot_lock spinlock to raw_spinlock
+Date:   Thu, 20 May 2021 11:22:38 +0200
+Message-Id: <20210520092054.837875234@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
-References: <20210520092052.265851579@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,109 +47,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
+[ Upstream commit 78564b9434878d686c5f88c4488b20cccbcc42bc ]
 
-Ritesh reported a bug [1] against UML, noting that it crashed on
-startup. The backtrace shows the following (heavily redacted):
+In RT system, the spin_lock will be replaced by sleepable rt_mutex lock,
+in __call_rcu(), disable interrupts before calling
+kasan_record_aux_stack(), will trigger this calltrace:
 
-(gdb) bt
-...
- #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
- #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
- #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
-...
- #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
-...
- #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
- #45 0x00007f8990968b85 in __getgrnam_r [...]
- #46 0x00007f89909d6b77 in grantpt [...]
- #47 0x00007f8990a9394e in __GI_openpty [...]
- #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
- #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
- #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
- #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
- #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
+  BUG: sleeping function called from invalid context at kernel/locking/rtmutex.c:951
+  in_atomic(): 0, irqs_disabled(): 1, non_block: 0, pid: 19, name: pgdatinit0
+  Call Trace:
+    ___might_sleep.cold+0x1b2/0x1f1
+    rt_spin_lock+0x3b/0xb0
+    stack_depot_save+0x1b9/0x440
+    kasan_save_stack+0x32/0x40
+    kasan_record_aux_stack+0xa5/0xb0
+    __call_rcu+0x117/0x880
+    __exit_signal+0xafb/0x1180
+    release_task+0x1d6/0x480
+    exit_notify+0x303/0x750
+    do_exit+0x678/0xcf0
+    kthread+0x364/0x4f0
+    ret_from_fork+0x22/0x30
 
-indicating that the UML function openpty_cb() calls openpty(),
-which internally calls __getgrnam_r(), which causes the nsswitch
-machinery to get started.
+Replace spinlock with raw_spinlock.
 
-This loads, through lots of indirection that I snipped, the
-libcom_err.so.2 library, which (in an unknown function, "??")
-calls sem_init().
-
-Now, of course it wants to get libpthread's sem_init(), since
-it's linked against libpthread. However, the dynamic linker
-looks up that symbol against the binary first, and gets the
-kernel's sem_init().
-
-Hajime Tazaki noted that "objcopy -L" can localize a symbol,
-so the dynamic linker wouldn't do the lookup this way. I tried,
-but for some reason that didn't seem to work.
-
-Doing the same thing in the linker script instead does seem to
-work, though I cannot entirely explain - it *also* works if I
-just add "VERSION { { global: *; }; }" instead, indicating that
-something else is happening that I don't really understand. It
-may be that explicitly doing that marks them with some kind of
-empty version, and that's different from the default.
-
-Explicitly marking them with a version breaks kallsyms, so that
-doesn't seem to be possible.
-
-Marking all the symbols as local seems correct, and does seem
-to address the issue, so do that. Also do it for static link,
-nsswitch libraries could still be loaded there.
-
-[1] https://bugs.debian.org/983379
-
-Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+Link: https://lkml.kernel.org/r/20210329084009.27013-1-qiang.zhang@windriver.com
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Reported-by: Andrew Halaney <ahalaney@redhat.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Gustavo A. R. Silva <gustavoars@kernel.org>
+Cc: Vijayanand Jitta <vjitta@codeaurora.org>
+Cc: Vinayak Menon <vinmenon@codeaurora.org>
+Cc: Yogesh Lal <ylal@codeaurora.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/dyn.lds.S | 6 ++++++
- arch/um/kernel/uml.lds.S | 6 ++++++
- 2 files changed, 12 insertions(+)
+ lib/stackdepot.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index f5001481010c..a82ec0113321 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+diff --git a/lib/stackdepot.c b/lib/stackdepot.c
+index 2caffc64e4c8..25bbac46605e 100644
+--- a/lib/stackdepot.c
++++ b/lib/stackdepot.c
+@@ -70,7 +70,7 @@ static void *stack_slabs[STACK_ALLOC_MAX_SLABS];
+ static int depot_index;
+ static int next_slab_inited;
+ static size_t depot_offset;
+-static DEFINE_SPINLOCK(depot_lock);
++static DEFINE_RAW_SPINLOCK(depot_lock);
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
+ static bool init_stack_slab(void **prealloc)
  {
-   PROVIDE (__executable_start = START);
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index 9f21443be2c9..85b404d068f4 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -7,6 +7,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
+@@ -281,7 +281,7 @@ depot_stack_handle_t stack_depot_save(unsigned long *entries,
+ 			prealloc = page_address(page);
+ 	}
  
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   /* This must contain the right address - not quite the default ELF one.*/
+-	spin_lock_irqsave(&depot_lock, flags);
++	raw_spin_lock_irqsave(&depot_lock, flags);
+ 
+ 	found = find_stack(*bucket, entries, nr_entries, hash);
+ 	if (!found) {
+@@ -305,7 +305,7 @@ depot_stack_handle_t stack_depot_save(unsigned long *entries,
+ 		WARN_ON(!init_stack_slab(&prealloc));
+ 	}
+ 
+-	spin_unlock_irqrestore(&depot_lock, flags);
++	raw_spin_unlock_irqrestore(&depot_lock, flags);
+ exit:
+ 	if (prealloc) {
+ 		/* Nobody used this memory, ok to free it. */
 -- 
 2.30.2
 
