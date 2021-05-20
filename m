@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6E1838A161
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEB2138A11D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232230AbhETJaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:30:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52996 "EHLO mail.kernel.org"
+        id S231897AbhETJ2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:28:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232016AbhETJ2p (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:28:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8672761261;
-        Thu, 20 May 2021 09:27:03 +0000 (UTC)
+        id S231949AbhETJ13 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:27:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D742613AF;
+        Thu, 20 May 2021 09:26:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502824;
-        bh=o2jXKpuhkJIfer2K8SU3B+OWR3J5Y6ya9LXAL2VJYtQ=;
+        s=korg; t=1621502768;
+        bh=XfOG0g//+326VFrb4SwTXN4+EJDKWWQrZWubkNsbX/4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k5HyU1We5T6nsx7TEhqCAxx3t3kULoQE91IPT+GPtFv1YSvEZK97ZJJDMKApBRjar
-         27j7of/YfnMadPMum0igHsiEBs3qUrSSVq6+xLm6PS7VvvoWkCTy4YAxyqcNUP1MZW
-         MVeakIV7eQwP4XMm/crSkLR+E6EeF++XouutM+is=
+        b=NEqkAMHvR142nRRd1iN6wRe3GYDsblzpVG/U1RvlI4+MzYA0wo0I/bSflaxfv3Dde
+         taTwaCvsXPQD5aO0pOcmgwU/fsl5/PMJNbxaTOOI6LLipFpMhpRRODCpwwj3HzFrrI
+         DvNMNCt6ZTmyWl/TTFyn1kVBEyZyOXHI74fxCdDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Bodo Stroesser <bostroesser@gmail.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Yannick Vignon <yannick.vignon@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 30/47] scsi: target: tcmu: Return from tcmu_handle_completions() if cmd_id not found
-Date:   Thu, 20 May 2021 11:22:28 +0200
-Message-Id: <20210520092054.519080934@linuxfoundation.org>
+Subject: [PATCH 5.12 41/45] net: stmmac: Do not enable RX FIFO overflow interrupts
+Date:   Thu, 20 May 2021 11:22:29 +0200
+Message-Id: <20210520092054.850459249@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bodo Stroesser <bostroesser@gmail.com>
+From: Yannick Vignon <yannick.vignon@nxp.com>
 
-[ Upstream commit 9814b55cde0588b6d9bc496cee43f87316cbc6f1 ]
+[ Upstream commit 8a7cb245cf28cb3e541e0d6c8624b95d079e155b ]
 
-If tcmu_handle_completions() finds an invalid cmd_id while looping over cmd
-responses from userspace it sets TCMU_DEV_BIT_BROKEN and breaks the
-loop. This means that it does further handling for the tcmu device.
+The RX FIFO overflows when the system is not able to process all received
+packets and they start accumulating (first in the DMA queue in memory,
+then in the FIFO). An interrupt is then raised for each overflowing packet
+and handled in stmmac_interrupt(). This is counter-productive, since it
+brings the system (or more likely, one CPU core) to its knees to process
+the FIFO overflow interrupts.
 
-Skip that handling by replacing 'break' with 'return'.
+stmmac_interrupt() handles overflow interrupts by writing the rx tail ptr
+into the corresponding hardware register (according to the MAC spec, this
+has the effect of restarting the MAC DMA). However, without freeing any rx
+descriptors, the DMA stops right away, and another overflow interrupt is
+raised as the FIFO overflows again. Since the DMA is already restarted at
+the end of stmmac_rx_refill() after freeing descriptors, disabling FIFO
+overflow interrupts and the corresponding handling code has no side effect,
+and eliminates the interrupt storm when the RX FIFO overflows.
 
-Additionally change tcmu_handle_completions() from unsigned int to bool,
-since the value used in return already is bool.
-
-Link: https://lore.kernel.org/r/20210423150123.24468-1-bostroesser@gmail.com
-Signed-off-by: Bodo Stroesser <bostroesser@gmail.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Yannick Vignon <yannick.vignon@nxp.com>
+Link: https://lore.kernel.org/r/20210506143312.20784-1-yannick.vignon@oss.nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_user.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c  |  7 +------
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c | 14 ++------------
+ 2 files changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/target/target_core_user.c b/drivers/target/target_core_user.c
-index 7d5814a95e1e..c6950f157b99 100644
---- a/drivers/target/target_core_user.c
-+++ b/drivers/target/target_core_user.c
-@@ -1391,7 +1391,7 @@ static int tcmu_run_tmr_queue(struct tcmu_dev *udev)
- 	return 1;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+index 62aa0e95beb7..a7249e4071f1 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c
+@@ -222,7 +222,7 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+ 				       u32 channel, int fifosz, u8 qmode)
+ {
+ 	unsigned int rqs = fifosz / 256 - 1;
+-	u32 mtl_rx_op, mtl_rx_int;
++	u32 mtl_rx_op;
+ 
+ 	mtl_rx_op = readl(ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+ 
+@@ -283,11 +283,6 @@ static void dwmac4_dma_rx_chan_op_mode(void __iomem *ioaddr, int mode,
+ 	}
+ 
+ 	writel(mtl_rx_op, ioaddr + MTL_CHAN_RX_OP_MODE(channel));
+-
+-	/* Enable MTL RX overflow */
+-	mtl_rx_int = readl(ioaddr + MTL_CHAN_INT_CTRL(channel));
+-	writel(mtl_rx_int | MTL_RX_OVERFLOW_INT_EN,
+-	       ioaddr + MTL_CHAN_INT_CTRL(channel));
  }
  
--static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
-+static bool tcmu_handle_completions(struct tcmu_dev *udev)
- {
- 	struct tcmu_mailbox *mb;
- 	struct tcmu_cmd *cmd;
-@@ -1434,7 +1434,7 @@ static unsigned int tcmu_handle_completions(struct tcmu_dev *udev)
- 			pr_err("cmd_id %u not found, ring is broken\n",
- 			       entry->hdr.cmd_id);
- 			set_bit(TCMU_DEV_BIT_BROKEN, &udev->flags);
--			break;
-+			return false;
+ static void dwmac4_dma_tx_chan_op_mode(void __iomem *ioaddr, int mode,
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index c6f24abf6432..369d7cde3993 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -4168,7 +4168,6 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
+ 	/* To handle GMAC own interrupts */
+ 	if ((priv->plat->has_gmac) || xmac) {
+ 		int status = stmmac_host_irq_status(priv, priv->hw, &priv->xstats);
+-		int mtl_status;
+ 
+ 		if (unlikely(status)) {
+ 			/* For LPI we need to save the tx status */
+@@ -4179,17 +4178,8 @@ static irqreturn_t stmmac_interrupt(int irq, void *dev_id)
  		}
  
- 		tcmu_handle_completion(cmd, entry);
+ 		for (queue = 0; queue < queues_count; queue++) {
+-			struct stmmac_rx_queue *rx_q = &priv->rx_queue[queue];
+-
+-			mtl_status = stmmac_host_mtl_irq_status(priv, priv->hw,
+-								queue);
+-			if (mtl_status != -EINVAL)
+-				status |= mtl_status;
+-
+-			if (status & CORE_IRQ_MTL_RX_OVERFLOW)
+-				stmmac_set_rx_tail_ptr(priv, priv->ioaddr,
+-						       rx_q->rx_tail_addr,
+-						       queue);
++			status = stmmac_host_mtl_irq_status(priv, priv->hw,
++							    queue);
+ 		}
+ 
+ 		/* PCS link status */
 -- 
 2.30.2
 
