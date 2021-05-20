@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 978D038A918
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A98D938A748
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238356AbhETK5b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:57:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
+        id S232666AbhETKgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60752 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239347AbhETKyu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:54:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3BA2F61CDF;
-        Thu, 20 May 2021 10:01:19 +0000 (UTC)
+        id S237065AbhETKdr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:33:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3AEA061C55;
+        Thu, 20 May 2021 09:53:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504879;
-        bh=nLaZ4mPuYunB74JpKyPuKjcu8B0IQppJM1qCRYgeFOs=;
+        s=korg; t=1621504391;
+        bh=o13Mt/lsms794xZ8ZPtyRv9zpO+Y43TGEBGBmRL6zhM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RJhBk24FT6rbSEHz3co3Apc5HY8Q8DtJEbxqYquppFpYO/GHwLTfZOHDuKbVU5Erv
-         J19vTJLj+uOsVXV88tpOAHyzVBZ1jYyFkCPfv/86Pi5cZIsogQyQXN9pgD3ciG90xF
-         08b4onofejPi6AbKtkNFeYshiOGYyQ2tpQu9zCV8=
+        b=jZrRYcvTGDwkmQLUVVWS9ge1WheayKYHHAv0LXtl75nwY+J7a6OZosUgKODw1jLKh
+         z6CnWD0BzcfFk0g2ub1x8gcAiEn1uOMT/7lAfU2XIGTQkpV30s0e/ATwVDV5EXyfRN
+         OVtzPiqFO/QcJ0nqdpkYLCC28ypEMf3D8itn+fWM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 123/240] media: omap4iss: return error code when omap4iss_get() failed
-Date:   Thu, 20 May 2021 11:21:55 +0200
-Message-Id: <20210520092112.798567270@linuxfoundation.org>
+Subject: [PATCH 4.14 224/323] powerpc/52xx: Fix an invalid ASM expression (addi used instead of add)
+Date:   Thu, 20 May 2021 11:21:56 +0200
+Message-Id: <20210520092127.822491042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit 8938c48fa25b491842ece9eb38f0bea0fcbaca44 ]
+[ Upstream commit 8a87a507714386efc39c3ae6fa24d4f79846b522 ]
 
-If omap4iss_get() failed, it need return error code in iss_probe().
+  AS      arch/powerpc/platforms/52xx/lite5200_sleep.o
+arch/powerpc/platforms/52xx/lite5200_sleep.S: Assembler messages:
+arch/powerpc/platforms/52xx/lite5200_sleep.S:184: Warning: invalid register expression
 
-Fixes: 59f0ad807681 ("[media] v4l: omap4iss: Add support for OMAP4...")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+In the following code, 'addi' is wrong, has to be 'add'
+
+	/* local udelay in sram is needed */
+  udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
+	mullw	r12, r12, r11
+	mftb	r13	/* start */
+	addi	r12, r13, r12 /* end */
+
+Fixes: ee983079ce04 ("[POWERPC] MPC5200 low power mode")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/cb4cec9131c8577803367f1699209a7e104cec2a.1619025821.git.christophe.leroy@csgroup.eu
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/media/omap4iss/iss.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/powerpc/platforms/52xx/lite5200_sleep.S | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/staging/media/omap4iss/iss.c b/drivers/staging/media/omap4iss/iss.c
-index c26c99fd4a24..1e10fe204d3b 100644
---- a/drivers/staging/media/omap4iss/iss.c
-+++ b/drivers/staging/media/omap4iss/iss.c
-@@ -1244,8 +1244,10 @@ static int iss_probe(struct platform_device *pdev)
- 	if (ret < 0)
- 		goto error;
- 
--	if (!omap4iss_get(iss))
-+	if (!omap4iss_get(iss)) {
-+		ret = -EINVAL;
- 		goto error;
-+	}
- 
- 	ret = iss_reset(iss);
- 	if (ret < 0)
+diff --git a/arch/powerpc/platforms/52xx/lite5200_sleep.S b/arch/powerpc/platforms/52xx/lite5200_sleep.S
+index 3a9969c429b3..054f927bfef9 100644
+--- a/arch/powerpc/platforms/52xx/lite5200_sleep.S
++++ b/arch/powerpc/platforms/52xx/lite5200_sleep.S
+@@ -181,7 +181,7 @@ sram_code:
+   udelay: /* r11 - tb_ticks_per_usec, r12 - usecs, overwrites r13 */
+ 	mullw	r12, r12, r11
+ 	mftb	r13	/* start */
+-	addi	r12, r13, r12 /* end */
++	add	r12, r13, r12 /* end */
+     1:
+ 	mftb	r13	/* current */
+ 	cmp	cr0, r13, r12
 -- 
 2.30.2
 
