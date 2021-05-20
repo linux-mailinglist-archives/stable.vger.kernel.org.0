@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED3B38A6D5
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 667C738A88C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236259AbhETKbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:31:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55788 "EHLO mail.kernel.org"
+        id S238404AbhETKvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49212 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236356AbhETK2J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:28:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 845E161C29;
-        Thu, 20 May 2021 09:50:52 +0000 (UTC)
+        id S238542AbhETKtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:49:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAABA61CBC;
+        Thu, 20 May 2021 09:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504253;
-        bh=h4oVZeCEfoj+K1QV0e9G89MhnUpYbCrEBM748xBcTko=;
+        s=korg; t=1621504745;
+        bh=tjkIxn5V8+0BzLdtAIO2twJtqa+6KImAIg9oC+bPsrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xPJRKjseQd0CPQpr2u8msWFwdrzPWhtT+SGENZEflik81K2uGaqd6JJFSo+sDAkNJ
-         lN1+muy5FAsKla7CrVIdDr484h/xAiH7DbWLr6nZXbnRpcQqXSjiphljTEUt0XAEaf
-         76Ax22YCnwc1Rf3eOtRDXUTp7KNkCsHYZARyrbcM=
+        b=k5a8z10VjsapXPvTs2meaHNSdXuTGFT+q+lxr+3V/10Rwiqm2PEmJKUuf6twvv8KS
+         XEE9GTRVHOL5JjsaT4osvWzKD2Z6/NkE6T641ipvRe66/ifuLfqXzhtHtXBgDHFYb3
+         7oKeuHTIvyV21Ls+uQJ4jeexBCpjR2gtxVZeb6F4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        Marco Chiappero <marco.chiappero@intel.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 160/323] crypto: qat - fix error path in adf_isr_resource_alloc()
-Date:   Thu, 20 May 2021 11:20:52 +0200
-Message-Id: <20210520092125.591553861@linuxfoundation.org>
+        syzbot+7f09440acc069a0d38ac@syzkaller.appspotmail.com,
+        Peilin Ye <yepeilin.cs@gmail.com>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Subject: [PATCH 4.9 061/240] media: dvbdev: Fix memory leak in dvb_media_device_free()
+Date:   Thu, 20 May 2021 11:20:53 +0200
+Message-Id: <20210520092110.731561447@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,70 +41,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+From: Peilin Ye <yepeilin.cs@gmail.com>
 
-[ Upstream commit 83dc1173d73f80cbce2fee4d308f51f87b2f26ae ]
+commit bf9a40ae8d722f281a2721779595d6df1c33a0bf upstream.
 
-The function adf_isr_resource_alloc() is not unwinding correctly in case
-of error.
-This patch fixes the error paths and propagate the errors to the caller.
+dvb_media_device_free() is leaking memory. Free `dvbdev->adapter->conn`
+before setting it to NULL, as documented in include/media/media-device.h:
+"The media_entity instance itself must be freed explicitly by the driver
+if required."
 
-Fixes: 7afa232e76ce ("crypto: qat - Intel(R) QAT DH895xcc accelerator")
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://syzkaller.appspot.com/bug?id=9bbe4b842c98f0ed05c5eed77a226e9de33bf298
+
+Link: https://lore.kernel.org/linux-media/20201211083039.521617-1-yepeilin.cs@gmail.com
+Cc: stable@vger.kernel.org
+Fixes: 0230d60e4661 ("[media] dvbdev: Add RF connector if needed")
+Reported-by: syzbot+7f09440acc069a0d38ac@syzkaller.appspotmail.com
+Signed-off-by: Peilin Ye <yepeilin.cs@gmail.com>
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/crypto/qat/qat_common/adf_isr.c | 29 ++++++++++++++++++-------
- 1 file changed, 21 insertions(+), 8 deletions(-)
+ drivers/media/dvb-core/dvbdev.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
-index 06d49017a52b..2c0be14309cf 100644
---- a/drivers/crypto/qat/qat_common/adf_isr.c
-+++ b/drivers/crypto/qat/qat_common/adf_isr.c
-@@ -330,19 +330,32 @@ int adf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
+--- a/drivers/media/dvb-core/dvbdev.c
++++ b/drivers/media/dvb-core/dvbdev.c
+@@ -216,6 +216,7 @@ static void dvb_media_device_free(struct
  
- 	ret = adf_isr_alloc_msix_entry_table(accel_dev);
- 	if (ret)
--		return ret;
--	if (adf_enable_msix(accel_dev))
- 		goto err_out;
- 
--	if (adf_setup_bh(accel_dev))
--		goto err_out;
-+	ret = adf_enable_msix(accel_dev);
-+	if (ret)
-+		goto err_free_msix_table;
- 
--	if (adf_request_irqs(accel_dev))
--		goto err_out;
-+	ret = adf_setup_bh(accel_dev);
-+	if (ret)
-+		goto err_disable_msix;
-+
-+	ret = adf_request_irqs(accel_dev);
-+	if (ret)
-+		goto err_cleanup_bh;
- 
- 	return 0;
-+
-+err_cleanup_bh:
-+	adf_cleanup_bh(accel_dev);
-+
-+err_disable_msix:
-+	adf_disable_msix(&accel_dev->accel_pci_dev);
-+
-+err_free_msix_table:
-+	adf_isr_free_msix_entry_table(accel_dev);
-+
- err_out:
--	adf_isr_resource_free(accel_dev);
--	return -EFAULT;
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(adf_isr_resource_alloc);
--- 
-2.30.2
-
+ 	if (dvbdev->adapter->conn) {
+ 		media_device_unregister_entity(dvbdev->adapter->conn);
++		kfree(dvbdev->adapter->conn);
+ 		dvbdev->adapter->conn = NULL;
+ 		kfree(dvbdev->adapter->conn_pads);
+ 		dvbdev->adapter->conn_pads = NULL;
 
 
