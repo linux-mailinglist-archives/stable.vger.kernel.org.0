@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7265838AB19
+	by mail.lfdr.de (Postfix) with ESMTP id BB52C38AB1A
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239625AbhETLUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S240328AbhETLUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 07:20:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37932 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240700AbhETLTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4022861D78;
-        Thu, 20 May 2021 10:10:19 +0000 (UTC)
+        id S240709AbhETLTK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E77A61D7C;
+        Thu, 20 May 2021 10:10:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505419;
-        bh=L700owuqNnrDur4amLaUtpvwjSeUO7C2Wa8E5QQUiBA=;
+        s=korg; t=1621505421;
+        bh=juhazvrhykIvwdvDqTpUC/7jj7cp0wM7mF0y57nMvqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1BXHZpAiPpbZZuZhdhI2l3FQ0S5VIJ65mIqvniQ7H5m8fsIz9o21w0qGkZBJw7o53
-         FcM9kaDeJ5myd86tJ+UmUPoGb3grtykSAcySFY8/k8mLLu5nJgpo4LGMZBvu+Oav70
-         +i9LYWqn2nv3iOu2kJVXuvtJeiIJh04V8Ni0dQmk=
+        b=opULxu4j07u1pPDLSX4pAGkHkTq8nijFE3LS8LEFIzXJAMLinF3QrvEKxctOYO6t9
+         iv6gE9jy3RV4M4YKoKOsZXScX4TeVID9fYc3NHhTDZSXifQSxns6zhHmM79I1yfNy+
+         AmY5EdF8+GPAN5sMl33wLfmdo9uZDGhFD2W6bA7g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-        Jorgen Hansen <jhansen@vmware.com>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 127/190] vsock/vmci: log once the failed queue pair allocation
-Date:   Thu, 20 May 2021 11:23:11 +0200
-Message-Id: <20210520092106.401451833@linuxfoundation.org>
+Subject: [PATCH 4.4 128/190] net: davinci_emac: Fix incorrect masking of tx and rx error channel
+Date:   Thu, 20 May 2021 11:23:12 +0200
+Message-Id: <20210520092106.431825378@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -41,48 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit e16edc99d658cd41c60a44cc14d170697aa3271f ]
+[ Upstream commit d83b8aa5207d81f9f6daec9888390f079cc5db3f ]
 
-VMCI feature is not supported in conjunction with the vSphere Fault
-Tolerance (FT) feature.
+The bit-masks used for the TXERRCH and RXERRCH (tx and rx error channels)
+are incorrect and always lead to a zero result. The mask values are
+currently the incorrect post-right shifted values, fix this by setting
+them to the currect values.
 
-VMware Tools can repeatedly try to create a vsock connection. If FT is
-enabled the kernel logs is flooded with the following messages:
+(I double checked these against the TMS320TCI6482 data sheet, section
+5.30, page 127 to ensure I had the correct mask values for the TXERRCH
+and RXERRCH fields in the MACSTATUS register).
 
-    qp_alloc_hypercall result = -20
-    Could not attach to queue pair with -20
-
-"qp_alloc_hypercall result = -20" was hidden by commit e8266c4c3307
-("VMCI: Stop log spew when qp allocation isn't possible"), but "Could
-not attach to queue pair with -20" is still there flooding the log.
-
-Since the error message can be useful in some cases, print it only once.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-Reviewed-by: Jorgen Hansen <jhansen@vmware.com>
+Addresses-Coverity: ("Operands don't affect result")
+Fixes: a6286ee630f6 ("net: Add TI DaVinci EMAC driver")
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/vmw_vsock/vmci_transport.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/net/ethernet/ti/davinci_emac.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 217810674c35..1f3f34b56840 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -593,8 +593,7 @@ vmci_transport_queue_pair_alloc(struct vmci_qp **qpair,
- 			       peer, flags, VMCI_NO_PRIVILEGE_FLAGS);
- out:
- 	if (err < 0) {
--		pr_err("Could not attach to queue pair with %d\n",
--		       err);
-+		pr_err_once("Could not attach to queue pair with %d\n", err);
- 		err = vmci_transport_error_to_vsock_error(err);
- 	}
+diff --git a/drivers/net/ethernet/ti/davinci_emac.c b/drivers/net/ethernet/ti/davinci_emac.c
+index e4c4747bdf32..e11f436b0726 100644
+--- a/drivers/net/ethernet/ti/davinci_emac.c
++++ b/drivers/net/ethernet/ti/davinci_emac.c
+@@ -183,11 +183,11 @@ static const char emac_version_string[] = "TI DaVinci EMAC Linux v6.1";
+ /* EMAC mac_status register */
+ #define EMAC_MACSTATUS_TXERRCODE_MASK	(0xF00000)
+ #define EMAC_MACSTATUS_TXERRCODE_SHIFT	(20)
+-#define EMAC_MACSTATUS_TXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_TXERRCH_MASK	(0x70000)
+ #define EMAC_MACSTATUS_TXERRCH_SHIFT	(16)
+ #define EMAC_MACSTATUS_RXERRCODE_MASK	(0xF000)
+ #define EMAC_MACSTATUS_RXERRCODE_SHIFT	(12)
+-#define EMAC_MACSTATUS_RXERRCH_MASK	(0x7)
++#define EMAC_MACSTATUS_RXERRCH_MASK	(0x700)
+ #define EMAC_MACSTATUS_RXERRCH_SHIFT	(8)
  
+ /* EMAC RX register masks */
 -- 
 2.30.2
 
