@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B18E638A1C1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B72A38A1C2
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232348AbhETJe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:34:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S232492AbhETJe6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:34:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33420 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231761AbhETJcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EE15613D8;
-        Thu, 20 May 2021 09:28:29 +0000 (UTC)
+        id S232707AbhETJcn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:32:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 82BDC613F0;
+        Thu, 20 May 2021 09:28:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502909;
-        bh=trgiaBG4kEh8rt00jC3X9zIWjcQ2Ue7UylSCEk2Qjkk=;
+        s=korg; t=1621502912;
+        bh=ILTr4Wen9gcQkgsGSnaYH+FUJ15G07fAEGN4yCgoz4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vcMeS70lGHLkgMUR9KcNEQLJgV8IPI39mjq14+fRSOy20Np+HEQ5W6xpbom47gdCn
-         fR9i/iSe9kUNjP3Z2xNtcqV3n03gc1WDxQnzLnj6P3MLv9ljs2TfEtxLxfW4uL/wn5
-         XrpH5YMW/CQrOGaIlvJoxfWrHK8ITj7CnsSZatHE=
+        b=TvNPCnZc5yINHduB7sPc+9uupbqewGYcuZ1edUjX5HOlZrkTQfGkRBcsieV2NsDRK
+         Y8nTjUR8VQF+4rKrk0ScGJiali0ZdqZh5nuyv73X+mlHpXd3dWxbzaQM2oT9i5neE2
+         H5Xanuq6ZzB8RBa/Iy3y8HoapcT9rjPrd7+UxaIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Eric Dumazet <edumazet@google.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux-foundation.org,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Nicolas Pitre <nico@fluxnic.net>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/37] virtio_net: Do not pull payload in skb->head
-Date:   Thu, 20 May 2021 11:22:29 +0200
-Message-Id: <20210520092052.538236629@linuxfoundation.org>
+Subject: [PATCH 5.4 09/37] ARM: 9058/1: cache-v7: refactor v7_invalidate_l1 to avoid clobbering r5/r6
+Date:   Thu, 20 May 2021 11:22:30 +0200
+Message-Id: <20210520092052.569715495@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
 References: <20210520092052.265851579@linuxfoundation.org>
@@ -44,117 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 0f6925b3e8da0dbbb52447ca8a8b42b371aac7db ]
+[ Upstream commit f9e7a99fb6b86aa6a00e53b34ee6973840e005aa ]
 
-Xuan Zhuo reported that commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") brought  a ~10% performance drop.
+The cache invalidation code in v7_invalidate_l1 can be tweaked to
+re-read the associativity from CCSIDR, and keep the way identifier
+component in a single register that is assigned in the outer loop. This
+way, we need 2 registers less.
 
-The reason for the performance drop was that GRO was forced
-to chain sk_buff (using skb_shinfo(skb)->frag_list), which
-uses more memory but also cause packet consumers to go over
-a lot of overhead handling all the tiny skbs.
+Given that the number of sets is typically much larger than the
+associativity, rearrange the code so that the outer loop has the fewer
+number of iterations, ensuring that the re-read of CCSIDR only occurs a
+handful of times in practice.
 
-It turns out that virtio_net page_to_skb() has a wrong strategy :
-It allocates skbs with GOOD_COPY_LEN (128) bytes in skb->head, then
-copies 128 bytes from the page, before feeding the packet to GRO stack.
+Fix the whitespace while at it, and update the comment to indicate that
+this code is no longer a clone of anything else.
 
-This was suboptimal before commit 3226b158e67c ("net: avoid 32 x truesize
-under-estimation for tiny skbs") because GRO was using 2 frags per MSS,
-meaning we were not packing MSS with 100% efficiency.
-
-Fix is to pull only the ethernet header in page_to_skb()
-
-Then, we change virtio_net_hdr_to_skb() to pull the missing
-headers, instead of assuming they were already pulled by callers.
-
-This fixes the performance regression, but could also allow virtio_net
-to accept packets with more than 128bytes of headers.
-
-Many thanks to Xuan Zhuo for his report, and his tests/help.
-
-Fixes: 3226b158e67c ("net: avoid 32 x truesize under-estimation for tiny skbs")
-Reported-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Link: https://www.spinics.net/lists/netdev/msg731397.html
-Co-Developed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: virtualization@lists.linux-foundation.org
-Acked-by: Jason Wang <jasowang@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: Nicolas Pitre <nico@fluxnic.net>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Russell King <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/virtio_net.c   | 10 +++++++---
- include/linux/virtio_net.h | 14 +++++++++-----
- 2 files changed, 16 insertions(+), 8 deletions(-)
+ arch/arm/mm/cache-v7.S | 51 +++++++++++++++++++++---------------------
+ 1 file changed, 25 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index b67460864b3c..d8ee001d8e8e 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -406,9 +406,13 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	offset += hdr_padded_len;
- 	p += hdr_padded_len;
+diff --git a/arch/arm/mm/cache-v7.S b/arch/arm/mm/cache-v7.S
+index 0ee8fc4b4672..8e69bf36a3ec 100644
+--- a/arch/arm/mm/cache-v7.S
++++ b/arch/arm/mm/cache-v7.S
+@@ -33,41 +33,40 @@ icache_size:
+  * processor.  We fix this by performing an invalidate, rather than a
+  * clean + invalidate, before jumping into the kernel.
+  *
+- * This function is cloned from arch/arm/mach-tegra/headsmp.S, and needs
+- * to be called for both secondary cores startup and primary core resume
+- * procedures.
++ * This function needs to be called for both secondary cores startup and
++ * primary core resume procedures.
+  */
+ ENTRY(v7_invalidate_l1)
+        mov     r0, #0
+        mcr     p15, 2, r0, c0, c0, 0
+        mrc     p15, 1, r0, c0, c0, 0
  
--	copy = len;
--	if (copy > skb_tailroom(skb))
--		copy = skb_tailroom(skb);
-+	/* Copy all frame if it fits skb->head, otherwise
-+	 * we let virtio_net_hdr_to_skb() and GRO pull headers as needed.
-+	 */
-+	if (len <= skb_tailroom(skb))
-+		copy = len;
-+	else
-+		copy = ETH_HLEN + metasize;
- 	skb_put_data(skb, p, copy);
+-       movw    r1, #0x7fff
+-       and     r2, r1, r0, lsr #13
++	movw	r3, #0x3ff
++	and	r3, r3, r0, lsr #3	@ 'Associativity' in CCSIDR[12:3]
++	clz	r1, r3			@ WayShift
++	mov	r2, #1
++	mov	r3, r3, lsl r1		@ NumWays-1 shifted into bits [31:...]
++	movs	r1, r2, lsl r1		@ #1 shifted left by same amount
++	moveq	r1, #1			@ r1 needs value > 0 even if only 1 way
  
- 	if (metasize) {
-diff --git a/include/linux/virtio_net.h b/include/linux/virtio_net.h
-index 98775d7fa696..b465f8f3e554 100644
---- a/include/linux/virtio_net.h
-+++ b/include/linux/virtio_net.h
-@@ -65,14 +65,18 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 	skb_reset_mac_header(skb);
+-       movw    r1, #0x3ff
++	and	r2, r0, #0x7
++	add	r2, r2, #4		@ SetShift
  
- 	if (hdr->flags & VIRTIO_NET_HDR_F_NEEDS_CSUM) {
--		u16 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
--		u16 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 start = __virtio16_to_cpu(little_endian, hdr->csum_start);
-+		u32 off = __virtio16_to_cpu(little_endian, hdr->csum_offset);
-+		u32 needed = start + max_t(u32, thlen, off + sizeof(__sum16));
-+
-+		if (!pskb_may_pull(skb, needed))
-+			return -EINVAL;
+-       and     r3, r1, r0, lsr #3      @ NumWays - 1
+-       add     r2, r2, #1              @ NumSets
++1:	movw	r4, #0x7fff
++	and	r0, r4, r0, lsr #13	@ 'NumSets' in CCSIDR[27:13]
  
- 		if (!skb_partial_csum_set(skb, start, off))
- 			return -EINVAL;
+-       and     r0, r0, #0x7
+-       add     r0, r0, #4      @ SetShift
+-
+-       clz     r1, r3          @ WayShift
+-       add     r4, r3, #1      @ NumWays
+-1:     sub     r2, r2, #1      @ NumSets--
+-       mov     r3, r4          @ Temp = NumWays
+-2:     subs    r3, r3, #1      @ Temp--
+-       mov     r5, r3, lsl r1
+-       mov     r6, r2, lsl r0
+-       orr     r5, r5, r6      @ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
+-       mcr     p15, 0, r5, c7, c6, 2
+-       bgt     2b
+-       cmp     r2, #0
+-       bgt     1b
+-       dsb     st
+-       isb
+-       ret     lr
++2:	mov	r4, r0, lsl r2		@ NumSet << SetShift
++	orr	r4, r4, r3		@ Reg = (Temp<<WayShift)|(NumSets<<SetShift)
++	mcr	p15, 0, r4, c7, c6, 2
++	subs	r0, r0, #1		@ Set--
++	bpl	2b
++	subs	r3, r3, r1		@ Way--
++	bcc	3f
++	mrc	p15, 1, r0, c0, c0, 0	@ re-read cache geometry from CCSIDR
++	b	1b
++3:	dsb	st
++	isb
++	ret	lr
+ ENDPROC(v7_invalidate_l1)
  
- 		p_off = skb_transport_offset(skb) + thlen;
--		if (p_off > skb_headlen(skb))
-+		if (!pskb_may_pull(skb, p_off))
- 			return -EINVAL;
- 	} else {
- 		/* gso packets without NEEDS_CSUM do not set transport_offset.
-@@ -102,14 +106,14 @@ static inline int virtio_net_hdr_to_skb(struct sk_buff *skb,
- 			}
- 
- 			p_off = keys.control.thoff + thlen;
--			if (p_off > skb_headlen(skb) ||
-+			if (!pskb_may_pull(skb, p_off) ||
- 			    keys.basic.ip_proto != ip_proto)
- 				return -EINVAL;
- 
- 			skb_set_transport_header(skb, keys.control.thoff);
- 		} else if (gso_type) {
- 			p_off = thlen;
--			if (p_off > skb_headlen(skb))
-+			if (!pskb_may_pull(skb, p_off))
- 				return -EINVAL;
- 		}
- 	}
+ /*
 -- 
 2.30.2
 
