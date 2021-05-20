@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2408E38A1F4
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DC4538A194
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232834AbhETJgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33340 "EHLO mail.kernel.org"
+        id S232632AbhETJcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:32:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54612 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232930AbhETJeb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:34:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2376B613AC;
-        Thu, 20 May 2021 09:29:12 +0000 (UTC)
+        id S232159AbhETJaZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:30:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25955613D6;
+        Thu, 20 May 2021 09:27:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502953;
-        bh=5DhxySL7063pAgKvp/yiw/t12YXnyXZ+n2NwaHkUb9c=;
+        s=korg; t=1621502856;
+        bh=p/ygo+1Wb6+E/Plt2HTQEAWZfAZPL1UudxQB/9P9TS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ILXGLSWEFj4xAY/ee0SGBgshAwTDI3oAJgqjVskamMYG9a+Unjb3nc9D/RchBZTzd
-         deAW394hdwiVFlC6Hu3tCJmRUFSvIXFDjcpcQ+Z8p8TW2/XoM4smReToZg40MOCsgS
-         BB999H3xuYLnjL3j9it2bGZcKffob7YQ5T0flrws=
+        b=FSDgS3IFKvy/O2/BhY16exRnFojmKOfLEQRnTKHPg2DIZRgKJKF4YYsAdlKn+YIvq
+         O+TwYGj6DccDH8QiByHkdUOozzxQILObUAZm2Pwds2MB/by2zSI61mi+eJjtFTQ6zQ
+         bziACDdxYbM3ZCdcrwaulCPpnBy3EpVcacy0iwC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 20/37] riscv: Workaround mcount name prior to clang-13
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 43/47] sit: proper dev_{hold|put} in ndo_[un]init methods
 Date:   Thu, 20 May 2021 11:22:41 +0200
-Message-Id: <20210520092052.944408167@linuxfoundation.org>
+Message-Id: <20210520092054.932664558@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
-References: <20210520092052.265851579@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,123 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 7ce04771503074a7de7f539cc43f5e1b385cb99b ]
+commit 6289a98f0817a4a457750d6345e754838eae9439 upstream.
 
-Prior to clang 13.0.0, the RISC-V name for the mcount symbol was
-"mcount", which differs from the GCC version of "_mcount", which results
-in the following errors:
+After adopting CONFIG_PCPU_DEV_REFCNT=n option, syzbot was able to trigger
+a warning [1]
 
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_level':
-main.c:(.text+0xe): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_start':
-main.c:(.text+0x4e): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `__traceiter_initcall_finish':
-main.c:(.text+0x92): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `.LBB32_28':
-main.c:(.text+0x30c): undefined reference to `mcount'
-riscv64-linux-gnu-ld: init/main.o: in function `free_initmem':
-main.c:(.text+0x54c): undefined reference to `mcount'
+Issue here is that:
 
-This has been corrected in https://reviews.llvm.org/D98881 but the
-minimum supported clang version is 10.0.1. To avoid build errors and to
-gain a working function tracer, adjust the name of the mcount symbol for
-older versions of clang in mount.S and recordmcount.pl.
+- all dev_put() should be paired with a corresponding prior dev_hold().
 
-Link: https://github.com/ClangBuiltLinux/linux/issues/1331
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- A driver doing a dev_put() in its ndo_uninit() MUST also
+  do a dev_hold() in its ndo_init(), only when ndo_init()
+  is returning 0.
+
+Otherwise, register_netdevice() would call ndo_uninit()
+in its error path and release a refcount too soon.
+
+Fixes: 919067cc845f ("net: add CONFIG_PCPU_DEV_REFCNT")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/include/asm/ftrace.h | 14 ++++++++++++--
- arch/riscv/kernel/mcount.S      | 10 +++++-----
- scripts/recordmcount.pl         |  2 +-
- 3 files changed, 18 insertions(+), 8 deletions(-)
+ net/ipv6/sit.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/arch/riscv/include/asm/ftrace.h b/arch/riscv/include/asm/ftrace.h
-index 02fbc175142e..693c3839a7df 100644
---- a/arch/riscv/include/asm/ftrace.h
-+++ b/arch/riscv/include/asm/ftrace.h
-@@ -10,9 +10,19 @@
- #endif
- #define HAVE_FUNCTION_GRAPH_RET_ADDR_PTR
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -218,8 +218,6 @@ static int ipip6_tunnel_create(struct ne
  
-+/*
-+ * Clang prior to 13 had "mcount" instead of "_mcount":
-+ * https://reviews.llvm.org/D98881
-+ */
-+#if defined(CONFIG_CC_IS_GCC) || CONFIG_CLANG_VERSION >= 130000
-+#define MCOUNT_NAME _mcount
-+#else
-+#define MCOUNT_NAME mcount
-+#endif
-+
- #define ARCH_SUPPORTS_FTRACE_OPS 1
- #ifndef __ASSEMBLY__
--void _mcount(void);
-+void MCOUNT_NAME(void);
- static inline unsigned long ftrace_call_adjust(unsigned long addr)
- {
- 	return addr;
-@@ -33,7 +43,7 @@ struct dyn_arch_ftrace {
-  * both auipc and jalr at the same time.
-  */
+ 	ipip6_tunnel_clone_6rd(dev, sitn);
  
--#define MCOUNT_ADDR		((unsigned long)_mcount)
-+#define MCOUNT_ADDR		((unsigned long)MCOUNT_NAME)
- #define JALR_SIGN_MASK		(0x00000800)
- #define JALR_OFFSET_MASK	(0x00000fff)
- #define AUIPC_OFFSET_MASK	(0xfffff000)
-diff --git a/arch/riscv/kernel/mcount.S b/arch/riscv/kernel/mcount.S
-index 8a5593ff9ff3..6d462681c9c0 100644
---- a/arch/riscv/kernel/mcount.S
-+++ b/arch/riscv/kernel/mcount.S
-@@ -47,8 +47,8 @@
+-	dev_hold(dev);
+-
+ 	ipip6_tunnel_link(sitn, t);
+ 	return 0;
  
- ENTRY(ftrace_stub)
- #ifdef CONFIG_DYNAMIC_FTRACE
--       .global _mcount
--       .set    _mcount, ftrace_stub
-+       .global MCOUNT_NAME
-+       .set    MCOUNT_NAME, ftrace_stub
- #endif
- 	ret
- ENDPROC(ftrace_stub)
-@@ -78,7 +78,7 @@ ENDPROC(return_to_handler)
- #endif
+@@ -1456,7 +1454,7 @@ static int ipip6_tunnel_init(struct net_
+ 		dev->tstats = NULL;
+ 		return err;
+ 	}
+-
++	dev_hold(dev);
+ 	return 0;
+ }
  
- #ifndef CONFIG_DYNAMIC_FTRACE
--ENTRY(_mcount)
-+ENTRY(MCOUNT_NAME)
- 	la	t4, ftrace_stub
- #ifdef CONFIG_FUNCTION_GRAPH_TRACER
- 	la	t0, ftrace_graph_return
-@@ -124,6 +124,6 @@ do_trace:
- 	jalr	t5
- 	RESTORE_ABI_STATE
- 	ret
--ENDPROC(_mcount)
-+ENDPROC(MCOUNT_NAME)
- #endif
--EXPORT_SYMBOL(_mcount)
-+EXPORT_SYMBOL(MCOUNT_NAME)
-diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
-index 857d5b70b1a9..4f84657f55c2 100755
---- a/scripts/recordmcount.pl
-+++ b/scripts/recordmcount.pl
-@@ -395,7 +395,7 @@ if ($arch eq "x86_64") {
-     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
- } elsif ($arch eq "riscv") {
-     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
--    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
-+    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_?mcount\$";
-     $type = ".quad";
-     $alignment = 2;
- } elsif ($arch eq "nds32") {
--- 
-2.30.2
-
 
 
