@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08AB38AA93
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:14:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DDD1638AA95
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:14:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239934AbhETLPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S239941AbhETLPT (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 07:15:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54234 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239429AbhETLNM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:13:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55ABE61D5B;
-        Thu, 20 May 2021 10:08:04 +0000 (UTC)
+        id S240014AbhETLNT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:13:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8751E60FEE;
+        Thu, 20 May 2021 10:08:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505284;
-        bh=KzcJ8OMuvknV5as+wohwTyokMG9MxOiKiHLUWaDu5VI=;
+        s=korg; t=1621505287;
+        bh=nGWRpsKjppsqCp8Uzxd5EPF1mpPji9rnT/6Vdsy2Z5s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kUnabxvyJdfuKdjNhV2nUbWuKncGZD9E2j2559Z4cepEdIDvBTLD3QOsRBQfsThub
-         WSNmN/W3zZam5rOg177y+2cCDv1BHF4YKRVO4D8/U5FutCdsgFYBpJBpfVl9a5BU8V
-         2RGsi/OtKOLKtWLtDVkRm3IxR50DKeMOi+Nqpf6A=
+        b=V2I3yRNwDNHh1LyloAg9IWziwBgy+cjh4EvOUAkI0qMt6TAvR+VT3u8vnekdx6BJ7
+         rU+0YGIPUyMqxSfCuJkXUkdqtFTfYp7tXnFNknKIppwEq3q0aL30zxtKV9GcjSSmMl
+         JoRNVL+A+cwrmvvChYnV3wO/PWWF6MPirdB0Uqms=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Konstantin Kharlamov <hi-angel@yandex.ru>,
-        Todd Brandt <todd.e.brandt@linux.intel.com>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>
-Subject: [PATCH 4.4 064/190] tracing: Restructure trace_clock_global() to never block
-Date:   Thu, 20 May 2021 11:22:08 +0200
-Message-Id: <20210520092104.276556081@linuxfoundation.org>
+        stable@vger.kernel.org, Heming Zhao <heming.zhao@suse.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>
+Subject: [PATCH 4.4 065/190] md: factor out a mddev_find_locked helper from mddev_find
+Date:   Thu, 20 May 2021 11:22:09 +0200
+Message-Id: <20210520092104.316576635@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -40,150 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (VMware) <rostedt@goodmis.org>
+From: Christoph Hellwig <hch@lst.de>
 
-commit aafe104aa9096827a429bc1358f8260ee565b7cc upstream.
+commit 8b57251f9a91f5e5a599de7549915d2d226cc3af upstream.
 
-It was reported that a fix to the ring buffer recursion detection would
-cause a hung machine when performing suspend / resume testing. The
-following backtrace was extracted from debugging that case:
-
-Call Trace:
- trace_clock_global+0x91/0xa0
- __rb_reserve_next+0x237/0x460
- ring_buffer_lock_reserve+0x12a/0x3f0
- trace_buffer_lock_reserve+0x10/0x50
- __trace_graph_return+0x1f/0x80
- trace_graph_return+0xb7/0xf0
- ? trace_clock_global+0x91/0xa0
- ftrace_return_to_handler+0x8b/0xf0
- ? pv_hash+0xa0/0xa0
- return_to_handler+0x15/0x30
- ? ftrace_graph_caller+0xa0/0xa0
- ? trace_clock_global+0x91/0xa0
- ? __rb_reserve_next+0x237/0x460
- ? ring_buffer_lock_reserve+0x12a/0x3f0
- ? trace_event_buffer_lock_reserve+0x3c/0x120
- ? trace_event_buffer_reserve+0x6b/0xc0
- ? trace_event_raw_event_device_pm_callback_start+0x125/0x2d0
- ? dpm_run_callback+0x3b/0xc0
- ? pm_ops_is_empty+0x50/0x50
- ? platform_get_irq_byname_optional+0x90/0x90
- ? trace_device_pm_callback_start+0x82/0xd0
- ? dpm_run_callback+0x49/0xc0
-
-With the following RIP:
-
-RIP: 0010:native_queued_spin_lock_slowpath+0x69/0x200
-
-Since the fix to the recursion detection would allow a single recursion to
-happen while tracing, this lead to the trace_clock_global() taking a spin
-lock and then trying to take it again:
-
-ring_buffer_lock_reserve() {
-  trace_clock_global() {
-    arch_spin_lock() {
-      queued_spin_lock_slowpath() {
-        /* lock taken */
-        (something else gets traced by function graph tracer)
-          ring_buffer_lock_reserve() {
-            trace_clock_global() {
-              arch_spin_lock() {
-                queued_spin_lock_slowpath() {
-                /* DEAD LOCK! */
-
-Tracing should *never* block, as it can lead to strange lockups like the
-above.
-
-Restructure the trace_clock_global() code to instead of simply taking a
-lock to update the recorded "prev_time" simply use it, as two events
-happening on two different CPUs that calls this at the same time, really
-doesn't matter which one goes first. Use a trylock to grab the lock for
-updating the prev_time, and if it fails, simply try again the next time.
-If it failed to be taken, that means something else is already updating
-it.
-
-Link: https://lkml.kernel.org/r/20210430121758.650b6e8a@gandalf.local.home
+Factor out a self-contained helper to just lookup a mddev by the dev_t
+"unit".
 
 Cc: stable@vger.kernel.org
-Tested-by: Konstantin Kharlamov <hi-angel@yandex.ru>
-Tested-by: Todd Brandt <todd.e.brandt@linux.intel.com>
-Fixes: b02414c8f045 ("ring-buffer: Fix recursion protection transitions between interrupt context") # started showing the problem
-Fixes: 14131f2f98ac3 ("tracing: implement trace_clock_*() APIs") # where the bug happened
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=212761
-Signed-off-by: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Reviewed-by: Heming Zhao <heming.zhao@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_clock.c |   48 ++++++++++++++++++++++++++++++---------------
- 1 file changed, 32 insertions(+), 16 deletions(-)
+ drivers/md/md.c |   32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
---- a/kernel/trace/trace_clock.c
-+++ b/kernel/trace/trace_clock.c
-@@ -93,33 +93,49 @@ u64 notrace trace_clock_global(void)
+--- a/drivers/md/md.c
++++ b/drivers/md/md.c
+@@ -515,6 +515,17 @@ void mddev_init(struct mddev *mddev)
+ }
+ EXPORT_SYMBOL_GPL(mddev_init);
+ 
++static struct mddev *mddev_find_locked(dev_t unit)
++{
++	struct mddev *mddev;
++
++	list_for_each_entry(mddev, &all_mddevs, all_mddevs)
++		if (mddev->unit == unit)
++			return mddev;
++
++	return NULL;
++}
++
+ static struct mddev *mddev_find(dev_t unit)
  {
- 	unsigned long flags;
- 	int this_cpu;
--	u64 now;
-+	u64 now, prev_time;
+ 	struct mddev *mddev, *new = NULL;
+@@ -526,13 +537,13 @@ static struct mddev *mddev_find(dev_t un
+ 	spin_lock(&all_mddevs_lock);
  
- 	local_irq_save(flags);
+ 	if (unit) {
+-		list_for_each_entry(mddev, &all_mddevs, all_mddevs)
+-			if (mddev->unit == unit) {
+-				mddev_get(mddev);
+-				spin_unlock(&all_mddevs_lock);
+-				kfree(new);
+-				return mddev;
+-			}
++		mddev = mddev_find_locked(unit);
++		if (mddev) {
++			mddev_get(mddev);
++			spin_unlock(&all_mddevs_lock);
++			kfree(new);
++			return mddev;
++		}
  
- 	this_cpu = raw_smp_processor_id();
--	now = sched_clock_cpu(this_cpu);
-+
- 	/*
--	 * If in an NMI context then dont risk lockups and return the
--	 * cpu_clock() time:
-+	 * The global clock "guarantees" that the events are ordered
-+	 * between CPUs. But if two events on two different CPUS call
-+	 * trace_clock_global at roughly the same time, it really does
-+	 * not matter which one gets the earlier time. Just make sure
-+	 * that the same CPU will always show a monotonic clock.
-+	 *
-+	 * Use a read memory barrier to get the latest written
-+	 * time that was recorded.
- 	 */
--	if (unlikely(in_nmi()))
--		goto out;
-+	smp_rmb();
-+	prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+	now = sched_clock_cpu(this_cpu);
+ 		if (new) {
+ 			list_add(&new->all_mddevs, &all_mddevs);
+@@ -558,12 +569,7 @@ static struct mddev *mddev_find(dev_t un
+ 				return NULL;
+ 			}
  
--	arch_spin_lock(&trace_clock_struct.lock);
-+	/* Make sure that now is always greater than prev_time */
-+	if ((s64)(now - prev_time) < 0)
-+		now = prev_time + 1;
- 
- 	/*
--	 * TODO: if this happens often then maybe we should reset
--	 * my_scd->clock to prev_time+1, to make sure
--	 * we start ticking with the local clock from now on?
-+	 * If in an NMI context then dont risk lockups and simply return
-+	 * the current time.
- 	 */
--	if ((s64)(now - trace_clock_struct.prev_time) < 0)
--		now = trace_clock_struct.prev_time + 1;
--
--	trace_clock_struct.prev_time = now;
--
--	arch_spin_unlock(&trace_clock_struct.lock);
-+	if (unlikely(in_nmi()))
-+		goto out;
- 
-+	/* Tracing can cause strange recursion, always use a try lock */
-+	if (arch_spin_trylock(&trace_clock_struct.lock)) {
-+		/* Reread prev_time in case it was already updated */
-+		prev_time = READ_ONCE(trace_clock_struct.prev_time);
-+		if ((s64)(now - prev_time) < 0)
-+			now = prev_time + 1;
-+
-+		trace_clock_struct.prev_time = now;
-+
-+		/* The unlock acts as the wmb for the above rmb */
-+		arch_spin_unlock(&trace_clock_struct.lock);
-+	}
-  out:
- 	local_irq_restore(flags);
- 
+-			is_free = 1;
+-			list_for_each_entry(mddev, &all_mddevs, all_mddevs)
+-				if (mddev->unit == dev) {
+-					is_free = 0;
+-					break;
+-				}
++			is_free = !mddev_find_locked(dev);
+ 		}
+ 		new->unit = dev;
+ 		new->md_minor = MINOR(dev);
 
 
