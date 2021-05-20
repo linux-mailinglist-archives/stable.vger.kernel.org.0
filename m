@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1052638AB1B
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 549D038A9CC
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:05:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240348AbhETLU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37934 "EHLO mail.kernel.org"
+        id S239791AbhETLGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240711AbhETLTK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:19:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9ED5361D7A;
-        Thu, 20 May 2021 10:10:23 +0000 (UTC)
+        id S239946AbhETLE3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7354961D1C;
+        Thu, 20 May 2021 10:04:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505424;
-        bh=X3SnReuXDsKphPexqYIEMg+WHYb1iuXlfu/gsByQGKk=;
+        s=korg; t=1621505090;
+        bh=XxGGBWBfrbhWtYT8TV2T2lbojM3peR8A0GT50MPDk88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t/0nCD+1ImE/G3hVcVC12AFOoYlNyvJQZLgD//0L3N3mRncs0NYnT9I6u4rB/gx3W
-         KzEn9U3jqcQyLLbgx5xyAYbuVNfO2png7a7CajJD0h8jpbV1Yk84/prkG2JX5lUQkA
-         gpbElO4RLFX4o1bgmR46BeLA703ccCXtW9baQupM=
+        b=Kpv4ONGkEk3ZRHAc5h+HjNp57UNZ83QMceETwCun5V26nMBdKgC6HooaJFPr90nbH
+         YJ/eNu9RmPXQiR2P1SsxRWvdZLfiSHxLjivgTu5sP6I/aV/sCo+w6GkywcpJBsHwnV
+         XMGaISPQzkT4N06hxQ7StaRHU0uySaQVlI9BVRys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 111/190] HID: plantronics: Workaround for double volume key presses
-Date:   Thu, 20 May 2021 11:22:55 +0200
-Message-Id: <20210520092105.864707827@linuxfoundation.org>
+        stable@vger.kernel.org, David Ward <david.ward@gatech.edu>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 184/240] ASoC: rt286: Generalize support for ALC3263 codec
+Date:   Thu, 20 May 2021 11:22:56 +0200
+Message-Id: <20210520092114.833647590@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,179 +41,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maxtram95@gmail.com>
+From: David Ward <david.ward@gatech.edu>
 
-[ Upstream commit f567d6ef8606fb427636e824c867229ecb5aefab ]
+[ Upstream commit aa2f9c12821e6a4ba1df4fb34a3dbc6a2a1ee7fe ]
 
-Plantronics Blackwire 3220 Series (047f:c056) sends HID reports twice
-for each volume key press. This patch adds a quirk to hid-plantronics
-for this product ID, which will ignore the second volume key press if
-it happens within 5 ms from the last one that was handled.
+The ALC3263 codec on the XPS 13 9343 is also found on the Latitude 13 7350
+and Venue 11 Pro 7140. They require the same handling for the combo jack to
+work with a headset: GPIO pin 6 must be set.
 
-The patch was tested on the mentioned model only, it shouldn't affect
-other models, however, this quirk might be needed for them too.
-Auto-repeat (when a key is held pressed) is not affected, because the
-rate is about 3 times per second, which is far less frequent than once
-in 5 ms.
+The HDA driver always sets this pin on the ALC3263, which it distinguishes
+by the codec vendor/device ID 0x10ec0288 and PCI subsystem vendor ID 0x1028
+(Dell). The ASoC driver does not use PCI, so adapt this check to use DMI to
+determine if Dell is the system vendor.
 
-Fixes: 81bb773faed7 ("HID: plantronics: Update to map volume up/down controls")
-Signed-off-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=150601
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=205961
+Signed-off-by: David Ward <david.ward@gatech.edu>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210418134658.4333-6-david.ward@gatech.edu
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h         |  1 +
- drivers/hid/hid-plantronics.c | 60 +++++++++++++++++++++++++++++++++--
- include/linux/hid.h           |  2 ++
- 3 files changed, 61 insertions(+), 2 deletions(-)
+ sound/soc/codecs/rt286.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 773452c6edfa..cbf13e993902 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -769,6 +769,7 @@
- #define USB_DEVICE_ID_ORTEK_WKB2000	0x2000
- 
- #define USB_VENDOR_ID_PLANTRONICS	0x047f
-+#define USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES	0xc056
- 
- #define USB_VENDOR_ID_PANASONIC		0x04da
- #define USB_DEVICE_ID_PANABOARD_UBT780	0x1044
-diff --git a/drivers/hid/hid-plantronics.c b/drivers/hid/hid-plantronics.c
-index 584b10d3fc3d..460711c1124a 100644
---- a/drivers/hid/hid-plantronics.c
-+++ b/drivers/hid/hid-plantronics.c
-@@ -16,6 +16,7 @@
- 
- #include <linux/hid.h>
- #include <linux/module.h>
-+#include <linux/jiffies.h>
- 
- #define PLT_HID_1_0_PAGE	0xffa00000
- #define PLT_HID_2_0_PAGE	0xffa20000
-@@ -39,6 +40,16 @@
- #define PLT_ALLOW_CONSUMER (field->application == HID_CP_CONSUMERCONTROL && \
- 			    (usage->hid & HID_USAGE_PAGE) == HID_UP_CONSUMER)
- 
-+#define PLT_QUIRK_DOUBLE_VOLUME_KEYS BIT(0)
-+
-+#define PLT_DOUBLE_KEY_TIMEOUT 5 /* ms */
-+
-+struct plt_drv_data {
-+	unsigned long device_type;
-+	unsigned long last_volume_key_ts;
-+	u32 quirks;
-+};
-+
- static int plantronics_input_mapping(struct hid_device *hdev,
- 				     struct hid_input *hi,
- 				     struct hid_field *field,
-@@ -46,7 +57,8 @@ static int plantronics_input_mapping(struct hid_device *hdev,
- 				     unsigned long **bit, int *max)
- {
- 	unsigned short mapped_key;
--	unsigned long plt_type = (unsigned long)hid_get_drvdata(hdev);
-+	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
-+	unsigned long plt_type = drv_data->device_type;
- 
- 	/* special case for PTT products */
- 	if (field->application == HID_GD_JOYSTICK)
-@@ -108,6 +120,30 @@ mapped:
- 	return 1;
- }
- 
-+static int plantronics_event(struct hid_device *hdev, struct hid_field *field,
-+			     struct hid_usage *usage, __s32 value)
-+{
-+	struct plt_drv_data *drv_data = hid_get_drvdata(hdev);
-+
-+	if (drv_data->quirks & PLT_QUIRK_DOUBLE_VOLUME_KEYS) {
-+		unsigned long prev_ts, cur_ts;
-+
-+		/* Usages are filtered in plantronics_usages. */
-+
-+		if (!value) /* Handle key presses only. */
-+			return 0;
-+
-+		prev_ts = drv_data->last_volume_key_ts;
-+		cur_ts = jiffies;
-+		if (jiffies_to_msecs(cur_ts - prev_ts) <= PLT_DOUBLE_KEY_TIMEOUT)
-+			return 1; /* Ignore the repeated key. */
-+
-+		drv_data->last_volume_key_ts = cur_ts;
-+	}
-+
-+	return 0;
-+}
-+
- static unsigned long plantronics_device_type(struct hid_device *hdev)
- {
- 	unsigned i, col_page;
-@@ -136,15 +172,24 @@ exit:
- static int plantronics_probe(struct hid_device *hdev,
- 			     const struct hid_device_id *id)
- {
-+	struct plt_drv_data *drv_data;
- 	int ret;
- 
-+	drv_data = devm_kzalloc(&hdev->dev, sizeof(*drv_data), GFP_KERNEL);
-+	if (!drv_data)
-+		return -ENOMEM;
-+
- 	ret = hid_parse(hdev);
- 	if (ret) {
- 		hid_err(hdev, "parse failed\n");
- 		goto err;
- 	}
- 
--	hid_set_drvdata(hdev, (void *)plantronics_device_type(hdev));
-+	drv_data->device_type = plantronics_device_type(hdev);
-+	drv_data->quirks = id->driver_data;
-+	drv_data->last_volume_key_ts = jiffies - msecs_to_jiffies(PLT_DOUBLE_KEY_TIMEOUT);
-+
-+	hid_set_drvdata(hdev, drv_data);
- 
- 	ret = hid_hw_start(hdev, HID_CONNECT_DEFAULT |
- 		HID_CONNECT_HIDINPUT_FORCE | HID_CONNECT_HIDDEV_FORCE);
-@@ -156,15 +201,26 @@ err:
- }
- 
- static const struct hid_device_id plantronics_devices[] = {
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS,
-+					 USB_DEVICE_ID_PLANTRONICS_BLACKWIRE_3220_SERIES),
-+		.driver_data = PLT_QUIRK_DOUBLE_VOLUME_KEYS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_PLANTRONICS, HID_ANY_ID) },
+diff --git a/sound/soc/codecs/rt286.c b/sound/soc/codecs/rt286.c
+index 7899a2cdeb42..4a0ab620983d 100644
+--- a/sound/soc/codecs/rt286.c
++++ b/sound/soc/codecs/rt286.c
+@@ -1119,12 +1119,11 @@ static const struct dmi_system_id force_combo_jack_table[] = {
  	{ }
  };
- MODULE_DEVICE_TABLE(hid, plantronics_devices);
  
-+static const struct hid_usage_id plantronics_usages[] = {
-+	{ HID_CP_VOLUMEUP, EV_KEY, HID_ANY_ID },
-+	{ HID_CP_VOLUMEDOWN, EV_KEY, HID_ANY_ID },
-+	{ HID_TERMINATOR, HID_TERMINATOR, HID_TERMINATOR }
-+};
-+
- static struct hid_driver plantronics_driver = {
- 	.name = "plantronics",
- 	.id_table = plantronics_devices,
-+	.usage_table = plantronics_usages,
- 	.input_mapping = plantronics_input_mapping,
-+	.event = plantronics_event,
- 	.probe = plantronics_probe,
- };
- module_hid_driver(plantronics_driver);
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index d93ba6014e3c..19c53b64e07a 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -246,6 +246,8 @@ struct hid_item {
- #define HID_CP_SELECTION	0x000c0080
- #define HID_CP_MEDIASELECTION	0x000c0087
- #define HID_CP_SELECTDISC	0x000c00ba
-+#define HID_CP_VOLUMEUP		0x000c00e9
-+#define HID_CP_VOLUMEDOWN	0x000c00ea
- #define HID_CP_PLAYBACKSPEED	0x000c00f1
- #define HID_CP_PROXIMITY	0x000c0109
- #define HID_CP_SPEAKERSYSTEM	0x000c0160
+-static const struct dmi_system_id dmi_dell_dino[] = {
++static const struct dmi_system_id dmi_dell[] = {
+ 	{
+-		.ident = "Dell Dino",
++		.ident = "Dell",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Dell Inc."),
+-			DMI_MATCH(DMI_PRODUCT_NAME, "XPS 13 9343")
+ 		}
+ 	},
+ 	{ }
+@@ -1135,7 +1134,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ {
+ 	struct rt286_platform_data *pdata = dev_get_platdata(&i2c->dev);
+ 	struct rt286_priv *rt286;
+-	int i, ret, val;
++	int i, ret, vendor_id;
+ 
+ 	rt286 = devm_kzalloc(&i2c->dev,	sizeof(*rt286),
+ 				GFP_KERNEL);
+@@ -1151,14 +1150,15 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	}
+ 
+ 	ret = regmap_read(rt286->regmap,
+-		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &val);
++		RT286_GET_PARAM(AC_NODE_ROOT, AC_PAR_VENDOR_ID), &vendor_id);
+ 	if (ret != 0) {
+ 		dev_err(&i2c->dev, "I2C error %d\n", ret);
+ 		return ret;
+ 	}
+-	if (val != RT286_VENDOR_ID && val != RT288_VENDOR_ID) {
++	if (vendor_id != RT286_VENDOR_ID && vendor_id != RT288_VENDOR_ID) {
+ 		dev_err(&i2c->dev,
+-			"Device with ID register %#x is not rt286\n", val);
++			"Device with ID register %#x is not rt286\n",
++			vendor_id);
+ 		return -ENODEV;
+ 	}
+ 
+@@ -1182,8 +1182,8 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	if (pdata)
+ 		rt286->pdata = *pdata;
+ 
+-	if (dmi_check_system(force_combo_jack_table) ||
+-		dmi_check_system(dmi_dell_dino))
++	if ((vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) ||
++		dmi_check_system(force_combo_jack_table))
+ 		rt286->pdata.cbj_en = true;
+ 
+ 	regmap_write(rt286->regmap, RT286_SET_AUDIO_POWER, AC_PWRST_D3);
+@@ -1222,7 +1222,7 @@ static int rt286_i2c_probe(struct i2c_client *i2c,
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL3, 0xf777, 0x4737);
+ 	regmap_update_bits(rt286->regmap, RT286_DEPOP_CTRL4, 0x00ff, 0x003f);
+ 
+-	if (dmi_check_system(dmi_dell_dino)) {
++	if (vendor_id == RT288_VENDOR_ID && dmi_check_system(dmi_dell)) {
+ 		regmap_update_bits(rt286->regmap,
+ 			RT286_SET_GPIO_MASK, 0x40, 0x40);
+ 		regmap_update_bits(rt286->regmap,
 -- 
 2.30.2
 
