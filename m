@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DB438A3C7
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 64A9638A428
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:00:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234605AbhETJ4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:56:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54308 "EHLO mail.kernel.org"
+        id S234931AbhETKB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234851AbhETJys (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:54:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91CCF613E8;
-        Thu, 20 May 2021 09:37:04 +0000 (UTC)
+        id S235215AbhETJ7a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:59:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B80D3617ED;
+        Thu, 20 May 2021 09:38:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503425;
-        bh=8csTBPhZNYEwpZ/JDNZfQoTGZl82h2J9l4/jiCn7/4I=;
+        s=korg; t=1621503522;
+        bh=sCBOWjPFlsAS3ZI4sQKtAA1bAk5Y6r/rQizYVdgRpKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FAF3KkZPmWGMwvpr4UBthCf71Sa7apYmUrVjk6NmD+/JB17aA3AgjtdDT2USgBBMe
-         vlBibNOJC0fSvvQJMlAnqw7/rlg8JruPg8QJH/t+DCIDhCdo3use4JQyY0J+lBaQWX
-         BsxKh7Av+fpzJBL3tix02ybcgO/6lorXTAu3Lx6k=
+        b=xG5yJo3et8ookWTNxcwfY0aooq82fMGdY3GGs4exSqEbEo7tudFdiU8fGViPNS0Os
+         ZGdNN+xHxIhqAEPDpVzyrEuJu9FgkY55bkuRL7zRzs8jr1ISgm8gUi1qRBqtL0s1zZ
+         Ztwj0y2k0QR43YXxShefHJzXPkXrsnc3+aS8yzLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oliver Neukum <oneukum@suse.com>,
-        Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 214/425] USB: cdc-acm: fix unprivileged TIOCCSERIAL
-Date:   Thu, 20 May 2021 11:19:43 +0200
-Message-Id: <20210520092138.456882105@linuxfoundation.org>
+Subject: [PATCH 4.19 215/425] tty: actually undefine superseded ASYNC flags
+Date:   Thu, 20 May 2021 11:19:44 +0200
+Message-Id: <20210520092138.488248820@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,44 +41,45 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit dd5619582d60007139f0447382d2839f4f9e339b ]
+[ Upstream commit d09845e98a05850a8094ea8fd6dd09a8e6824fff ]
 
-TIOCSSERIAL is a horrid, underspecified, legacy interface which for most
-serial devices is only useful for setting the close_delay and
-closing_wait parameters.
+Some kernel-internal ASYNC flags have been superseded by tty-port flags
+and should no longer be used by kernel drivers.
 
-A non-privileged user has only ever been able to set the since long
-deprecated ASYNC_SPD flags and trying to change any other *supported*
-feature should result in -EPERM being returned. Setting the current
-values for any supported features should return success.
+Fix the misspelled "__KERNEL__" compile guards which failed their sole
+purpose to break out-of-tree drivers that have not yet been updated.
 
-Fix the cdc-acm implementation which instead indicated that the
-TIOCSSERIAL ioctl was not even implemented when a non-privileged user
-set the current values.
-
-Fixes: ba2d8ce9db0a ("cdc-acm: implement TIOCSSERIAL to avoid blocking close(2)")
-Acked-by: Oliver Neukum <oneukum@suse.com>
+Fixes: 5c0517fefc92 ("tty: core: Undefine ASYNC_* flags superceded by TTY_PORT* flags")
 Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210408131602.27956-3-johan@kernel.org
+Link: https://lore.kernel.org/r/20210407095208.31838-2-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/class/cdc-acm.c | 2 --
- 1 file changed, 2 deletions(-)
+ include/uapi/linux/tty_flags.h | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/class/cdc-acm.c b/drivers/usb/class/cdc-acm.c
-index 7f4f21ba8efc..738de8c9c354 100644
---- a/drivers/usb/class/cdc-acm.c
-+++ b/drivers/usb/class/cdc-acm.c
-@@ -987,8 +987,6 @@ static int set_serial_info(struct acm *acm,
- 		if ((new_serial.close_delay != old_close_delay) ||
- 	            (new_serial.closing_wait != old_closing_wait))
- 			retval = -EPERM;
--		else
--			retval = -EOPNOTSUPP;
- 	} else {
- 		acm->port.close_delay  = close_delay;
- 		acm->port.closing_wait = closing_wait;
+diff --git a/include/uapi/linux/tty_flags.h b/include/uapi/linux/tty_flags.h
+index 900a32e63424..6a3ac496a56c 100644
+--- a/include/uapi/linux/tty_flags.h
++++ b/include/uapi/linux/tty_flags.h
+@@ -39,7 +39,7 @@
+  * WARNING: These flags are no longer used and have been superceded by the
+  *	    TTY_PORT_ flags in the iflags field (and not userspace-visible)
+  */
+-#ifndef _KERNEL_
++#ifndef __KERNEL__
+ #define ASYNCB_INITIALIZED	31 /* Serial port was initialized */
+ #define ASYNCB_SUSPENDED	30 /* Serial port is suspended */
+ #define ASYNCB_NORMAL_ACTIVE	29 /* Normal device is active */
+@@ -81,7 +81,7 @@
+ #define ASYNC_SPD_WARP		(ASYNC_SPD_HI|ASYNC_SPD_SHI)
+ #define ASYNC_SPD_MASK		(ASYNC_SPD_HI|ASYNC_SPD_VHI|ASYNC_SPD_SHI)
+ 
+-#ifndef _KERNEL_
++#ifndef __KERNEL__
+ /* These flags are no longer used (and were always masked from userspace) */
+ #define ASYNC_INITIALIZED	(1U << ASYNCB_INITIALIZED)
+ #define ASYNC_NORMAL_ACTIVE	(1U << ASYNCB_NORMAL_ACTIVE)
 -- 
 2.30.2
 
