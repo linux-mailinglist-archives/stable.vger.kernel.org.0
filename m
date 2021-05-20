@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B345F38A754
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AB94638A92D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238051AbhETKhQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39658 "EHLO mail.kernel.org"
+        id S239272AbhETK6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:58:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52614 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237693AbhETKfT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A22A61622;
-        Thu, 20 May 2021 09:53:30 +0000 (UTC)
+        id S231521AbhETK4V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:56:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 583FE61CE9;
+        Thu, 20 May 2021 10:01:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504411;
-        bh=2/Rl3W7X4b1oq6Dbm5G5YS7nPddJzKElO4sRm5F2M2c=;
+        s=korg; t=1621504901;
+        bh=3Gn753fkwrHl9WOyOxVbJ+VolEhzTSTT82586210nyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXbYW84ZJP87G02OYg4OO7IL2G/B4EMfaXtPJFX39ploPcWTl4xBRacVIFSAJolsD
-         VFRJy5yLAoce2wp5WQ8ccY0S6IPoGcSfCu1RkTe+vhr4GqsViUgJXqzbE40jwZK+VY
-         vDp0iesVnt6blsVcwIv1IgcJGEKZ2f+GrfQy4VPg=
+        b=zhzkJLrDtdtWI5pTf0FEsJU8gbM3Uxo+2Y8IaACtL8rB8RaaBB2dxi0LF2Q+dD9/e
+         rYKReXGoe7CWnSNorMlIiVv83GBVsksG5jSIHLmsOG8Am3a97SJPSLWQJ/DMz9cR+Q
+         E4RbSd6r9z+snSqKs7/B3JHTb61rtgjlAvgHn/qw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Alexandre TORGUE <alexandre.torgue@foss.st.com>,
-        Quentin Perret <qperret@google.com>
-Subject: [PATCH 4.14 232/323] Revert "fdt: Properly handle "no-map" field in the memory region"
+        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 132/240] scsi: jazz_esp: Add IRQ check
 Date:   Thu, 20 May 2021 11:22:04 +0200
-Message-Id: <20210520092128.112193143@linuxfoundation.org>
+Message-Id: <20210520092113.093762267@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,29 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Quentin Perret <qperret@google.com>
+From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
 
-This reverts commit 71bc5d496725f7f923904d2f41cd39e32c647fdf.
-It is not really a fix, and the backport misses dependencies, which
-breaks existing platforms.
+[ Upstream commit 38fca15c29db6ed06e894ac194502633e2a7d1fb ]
 
-Reported-by: Alexandre TORGUE <alexandre.torgue@foss.st.com>
-Signed-off-by: Quentin Perret <qperret@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The driver neglects to check the result of platform_get_irq()'s call and
+blithely passes the negative error codes to request_irq() (which takes
+*unsigned* IRQ #), causing it to fail with -EINVAL, overriding the real
+error code.  Stop calling request_irq() with the invalid IRQ #s.
+
+Link: https://lore.kernel.org/r/594aa9ae-2215-49f6-f73c-33bd38989912@omprussia.ru
+Fixes: 352e921f0dd4 ("[SCSI] jazz_esp: converted to use esp_core")
+Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/jazz_esp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -1213,7 +1213,7 @@ int __init __weak early_init_dt_reserve_
- 					phys_addr_t size, bool nomap)
- {
- 	if (nomap)
--		return memblock_mark_nomap(base, size);
-+		return memblock_remove(base, size);
- 	return memblock_reserve(base, size);
- }
+diff --git a/drivers/scsi/jazz_esp.c b/drivers/scsi/jazz_esp.c
+index 9aaa74e349cc..65f0dbfc3a45 100644
+--- a/drivers/scsi/jazz_esp.c
++++ b/drivers/scsi/jazz_esp.c
+@@ -170,7 +170,9 @@ static int esp_jazz_probe(struct platform_device *dev)
+ 	if (!esp->command_block)
+ 		goto fail_unmap_regs;
  
+-	host->irq = platform_get_irq(dev, 0);
++	host->irq = err = platform_get_irq(dev, 0);
++	if (err < 0)
++		goto fail_unmap_command_block;
+ 	err = request_irq(host->irq, scsi_esp_intr, IRQF_SHARED, "ESP", esp);
+ 	if (err < 0)
+ 		goto fail_unmap_command_block;
+-- 
+2.30.2
+
 
 
