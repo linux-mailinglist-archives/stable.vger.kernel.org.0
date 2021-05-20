@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4EA738AA9A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:14:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28D1338AA9B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:14:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240324AbhETLPV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:15:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55230 "EHLO mail.kernel.org"
+        id S240354AbhETLPX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:15:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55582 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240021AbhETLNU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:13:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E28C361428;
-        Thu, 20 May 2021 10:08:10 +0000 (UTC)
+        id S239525AbhETLNX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:13:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FDCD6121E;
+        Thu, 20 May 2021 10:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505291;
-        bh=CBe8NfCfielCR3DjqOZoEgmyEEGmR6WIYQD7l/nh8mI=;
+        s=korg; t=1621505293;
+        bh=QdV5bnJOeFklBnaoyUzVwmOrkL9ccU9dIhwypz1B5q8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gRlIxOQoHCbt+POcokPbJmheUKUDguKuddxIEkOA1szAWpbLefYpaRcvgYLBZnvax
-         fL1a1bSqDbm5+kUgIzzMvpfg8GnOdWcOQOyzSIo4d+hZfqjfeUOoUDwfOVBFIVrgW6
-         n/PpynxS4zU/iUExDkiG+R4P7oLar7ZT/JGM7Iik=
+        b=K1AbjdZAcddamRlwi8SHbHjdnFkpMbieLIPQpVQuneTqWHKgz0IYbBNOq8rzaZXx7
+         CFrVhU1xPMPw1qVbEHKjlHJMIErbwdMXph03xdYMFMsJyRvqk+7GgHfD1LpoYbz1w5
+         3970hy15Z6naWOfRRZx9KdrUHmuDcVUiSMIIebh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Stanislav Yakovlev <stas.yakovlev@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>
-Subject: [PATCH 4.4 067/190] ipw2x00: potential buffer overflow in libipw_wx_set_encodeext()
-Date:   Thu, 20 May 2021 11:22:11 +0200
-Message-Id: <20210520092104.391396925@linuxfoundation.org>
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 068/190] cfg80211: scan: drop entry from hidden_list on overflow
+Date:   Thu, 20 May 2021 11:22:12 +0200
+Message-Id: <20210520092104.423263007@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -40,38 +39,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 260a9ad9446723d4063ed802989758852809714d upstream.
+commit 010bfbe768f7ecc876ffba92db30432de4997e2a upstream.
 
-The "ext->key_len" is a u16 that comes from the user.  If it's over
-SCM_KEY_LEN (32) that could lead to memory corruption.
+If we overflow the maximum number of BSS entries and free the
+new entry, drop it from any hidden_list that it may have been
+added to in the code above or in cfg80211_combine_bsses().
 
-Fixes: e0d369d1d969 ("[PATCH] ieee82011: Added WE-18 support to default wireless extension handler")
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/20210416094212.5de7d1676ad7.Ied283b0bc5f504845e7d6ab90626bdfa68bb3dc0@changeid
 Cc: stable@vger.kernel.org
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Acked-by: Stanislav Yakovlev <stas.yakovlev@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/YHaoA1i+8uT4ir4h@mwanda
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ipw2x00/libipw_wx.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ net/wireless/scan.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/wireless/ipw2x00/libipw_wx.c
-+++ b/drivers/net/wireless/ipw2x00/libipw_wx.c
-@@ -649,8 +649,10 @@ int libipw_wx_set_encodeext(struct libip
- 	}
+--- a/net/wireless/scan.c
++++ b/net/wireless/scan.c
+@@ -954,6 +954,8 @@ cfg80211_bss_update(struct cfg80211_regi
  
- 	if (ext->alg != IW_ENCODE_ALG_NONE) {
--		memcpy(sec.keys[idx], ext->key, ext->key_len);
--		sec.key_sizes[idx] = ext->key_len;
-+		int key_len = clamp_val(ext->key_len, 0, SCM_KEY_LEN);
-+
-+		memcpy(sec.keys[idx], ext->key, key_len);
-+		sec.key_sizes[idx] = key_len;
- 		sec.flags |= (1 << idx);
- 		if (ext->alg == IW_ENCODE_ALG_WEP) {
- 			sec.encode_alg[idx] = SEC_ALG_WEP;
+ 		if (rdev->bss_entries >= bss_entries_limit &&
+ 		    !cfg80211_bss_expire_oldest(rdev)) {
++			if (!list_empty(&new->hidden_list))
++				list_del(&new->hidden_list);
+ 			kfree(new);
+ 			goto drop;
+ 		}
 
 
