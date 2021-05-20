@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AABB38A3E4
+	by mail.lfdr.de (Postfix) with ESMTP id CA36E38A3E6
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:57:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234915AbhETJ6F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:58:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59460 "EHLO mail.kernel.org"
+        id S234748AbhETJ6H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:58:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234079AbhETJ4D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:56:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D0CB61414;
-        Thu, 20 May 2021 09:37:33 +0000 (UTC)
+        id S234085AbhETJ4F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:56:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F70C61429;
+        Thu, 20 May 2021 09:37:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503453;
-        bh=c8P8LeUszkN7SkAFEGjXTiKZVA02/BoIlz5tI9gquVI=;
+        s=korg; t=1621503456;
+        bh=P9BN4Rczsk/qoRkcbsB+SQvF4dLql9l84+XijWgXAko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=n2McM5e6KmLq3Z9WNScFHELtmMZihzwSHFP+ky4vpkuStl5gyrADRGFKc1DUElj+o
-         EsDQXo5FhfFw2HvPUBeWU/vBdFuS1njrp/WXyHzxRv60l/mjftBFYJmtArLXszZx+w
-         y9ZlKDicrZyZ1cBFtzNt5PG8eMQW1kA4ErwyzSCE=
+        b=VvIpS6e+PlLMEKCcW1RlF6bHIbeRZPhy+KbNr77gQJsNSG4+fkXIZaTrqcpUUPB6C
+         G9Oh3FFdS67yfqiEba/wXDDkMdIjqgPqUoOAOG0ts/sQJ9HngT2ngHyHmkxjt/mkEK
+         j1e8HiTp6I2aRzL5CUBt4XoPyi06JDAN7dL3dOns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 229/425] drm/amdkfd: fix build error with AMD_IOMMU_V2=m
-Date:   Thu, 20 May 2021 11:19:58 +0200
-Message-Id: <20210520092138.963470218@linuxfoundation.org>
+        stable@vger.kernel.org, Masami Hiramatsu <mhiramat@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 230/425] x86/kprobes: Fix to check non boostable prefixes correctly
+Date:   Thu, 20 May 2021 11:19:59 +0200
+Message-Id: <20210520092138.995705276@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,101 +39,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Kuehling <Felix.Kuehling@amd.com>
+From: Masami Hiramatsu <mhiramat@kernel.org>
 
-[ Upstream commit 1e87068570a2cc4db5f95a881686add71729e769 ]
+[ Upstream commit 6dd3b8c9f58816a1354be39559f630cd1bd12159 ]
 
-Using 'imply AMD_IOMMU_V2' does not guarantee that the driver can link
-against the exported functions. If the GPU driver is built-in but the
-IOMMU driver is a loadable module, the kfd_iommu.c file is indeed
-built but does not work:
+There are 2 bugs in the can_boost() function because of using
+x86 insn decoder. Since the insn->opcode never has a prefix byte,
+it can not find CS override prefix in it. And the insn->attr is
+the attribute of the opcode, thus inat_is_address_size_prefix(
+insn->attr) always returns false.
 
-x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_bind_process_to_device':
-kfd_iommu.c:(.text+0x516): undefined reference to `amd_iommu_bind_pasid'
-x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_unbind_process':
-kfd_iommu.c:(.text+0x691): undefined reference to `amd_iommu_unbind_pasid'
-x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_suspend':
-kfd_iommu.c:(.text+0x966): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0x97f): undefined reference to `amd_iommu_set_invalid_ppr_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0x9a4): undefined reference to `amd_iommu_free_device'
-x86_64-linux-ld: drivers/gpu/drm/amd/amdkfd/kfd_iommu.o: in function `kfd_iommu_resume':
-kfd_iommu.c:(.text+0xa9a): undefined reference to `amd_iommu_init_device'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xadc): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xaff): undefined reference to `amd_iommu_set_invalid_ppr_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xc72): undefined reference to `amd_iommu_bind_pasid'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xe08): undefined reference to `amd_iommu_set_invalidate_ctx_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xe26): undefined reference to `amd_iommu_set_invalid_ppr_cb'
-x86_64-linux-ld: kfd_iommu.c:(.text+0xe42): undefined reference to `amd_iommu_free_device'
+Fix those by checking each prefix bytes with for_each_insn_prefix
+loop and getting the correct attribute for each prefix byte.
+Also, this removes unlikely, because this is a slow path.
 
-Use IS_REACHABLE to only build IOMMU-V2 support if the amd_iommu symbols
-are reachable by the amdkfd driver. Output a warning if they are not,
-because that may not be what the user was expecting.
-
-Fixes: 64d1c3a43a6f ("drm/amdkfd: Centralize IOMMUv2 code and make it conditional")
-Reported-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: a8d11cd0714f ("kprobes/x86: Consolidate insn decoder users for copying code")
+Signed-off-by: Masami Hiramatsu <mhiramat@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/161666691162.1120877.2808435205294352583.stgit@devnote2
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdkfd/kfd_iommu.c | 6 ++++++
- drivers/gpu/drm/amd/amdkfd/kfd_iommu.h | 9 +++++++--
- 2 files changed, 13 insertions(+), 2 deletions(-)
+ arch/x86/kernel/kprobes/core.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
-index 01494752c36a..f3a526ed8059 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.c
-@@ -20,6 +20,10 @@
-  * OTHER DEALINGS IN THE SOFTWARE.
-  */
- 
-+#include <linux/kconfig.h>
-+
-+#if IS_REACHABLE(CONFIG_AMD_IOMMU_V2)
-+
- #include <linux/printk.h>
- #include <linux/device.h>
- #include <linux/slab.h>
-@@ -366,3 +370,5 @@ int kfd_iommu_add_perf_counters(struct kfd_topology_device *kdev)
- 
- 	return 0;
- }
-+
-+#endif
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
-index dd23d9fdf6a8..afd420b01a0c 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_iommu.h
-@@ -23,7 +23,9 @@
- #ifndef __KFD_IOMMU_H__
- #define __KFD_IOMMU_H__
- 
--#if defined(CONFIG_AMD_IOMMU_V2_MODULE) || defined(CONFIG_AMD_IOMMU_V2)
-+#include <linux/kconfig.h>
-+
-+#if IS_REACHABLE(CONFIG_AMD_IOMMU_V2)
- 
- #define KFD_SUPPORT_IOMMU_V2
- 
-@@ -46,6 +48,9 @@ static inline int kfd_iommu_check_device(struct kfd_dev *kfd)
- }
- static inline int kfd_iommu_device_init(struct kfd_dev *kfd)
+diff --git a/arch/x86/kernel/kprobes/core.c b/arch/x86/kernel/kprobes/core.c
+index dfc3ab44bc5d..3334e1400345 100644
+--- a/arch/x86/kernel/kprobes/core.c
++++ b/arch/x86/kernel/kprobes/core.c
+@@ -170,6 +170,8 @@ NOKPROBE_SYMBOL(skip_prefixes);
+ int can_boost(struct insn *insn, void *addr)
  {
-+#if IS_MODULE(CONFIG_AMD_IOMMU_V2)
-+	WARN_ONCE(1, "iommu_v2 module is not usable by built-in KFD");
-+#endif
- 	return 0;
+ 	kprobe_opcode_t opcode;
++	insn_byte_t prefix;
++	int i;
+ 
+ 	if (search_exception_tables((unsigned long)addr))
+ 		return 0;	/* Page fault may occur on this address. */
+@@ -182,9 +184,14 @@ int can_boost(struct insn *insn, void *addr)
+ 	if (insn->opcode.nbytes != 1)
+ 		return 0;
+ 
+-	/* Can't boost Address-size override prefix */
+-	if (unlikely(inat_is_address_size_prefix(insn->attr)))
+-		return 0;
++	for_each_insn_prefix(insn, i, prefix) {
++		insn_attr_t attr;
++
++		attr = inat_get_opcode_attribute(prefix);
++		/* Can't boost Address-size override prefix and CS override prefix */
++		if (prefix == 0x2e || inat_is_address_size_prefix(attr))
++			return 0;
++	}
+ 
+ 	opcode = insn->opcode.bytes[0];
+ 
+@@ -209,8 +216,8 @@ int can_boost(struct insn *insn, void *addr)
+ 		/* clear and set flags are boostable */
+ 		return (opcode == 0xf5 || (0xf7 < opcode && opcode < 0xfe));
+ 	default:
+-		/* CS override prefix and call are not boostable */
+-		return (opcode != 0x2e && opcode != 0x9a);
++		/* call is not boostable */
++		return opcode != 0x9a;
+ 	}
  }
  
-@@ -73,6 +78,6 @@ static inline int kfd_iommu_add_perf_counters(struct kfd_topology_device *kdev)
- 	return 0;
- }
- 
--#endif /* defined(CONFIG_AMD_IOMMU_V2) */
-+#endif /* IS_REACHABLE(CONFIG_AMD_IOMMU_V2) */
- 
- #endif /* __KFD_IOMMU_H__ */
 -- 
 2.30.2
 
