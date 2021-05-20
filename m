@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C23E38A786
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6AD9C38A956
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234606AbhETKjt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:39:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39770 "EHLO mail.kernel.org"
+        id S238846AbhETLBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54416 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238064AbhETKhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAB3C6024A;
-        Thu, 20 May 2021 09:54:23 +0000 (UTC)
+        id S238971AbhETK5D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:57:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CC861CF3;
+        Thu, 20 May 2021 10:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504464;
-        bh=BbzLu1ivL34nJcNHeN2z0zIJWOV2cAWxbUzVSxiME2M=;
+        s=korg; t=1621504923;
+        bh=YbVIz8Ibv02Yvf0tb5GKbY4pMdqT6P027w+wWsILNAE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qsqhFigYqWkpPC8QAF/bARrdAljsZfKhZWK0/24fTUnzLyTAf38q13VlSlUU+WX9o
-         7w6AbojV7dPCdhpILoi8HAcpowoEDeFvscuoLL89Zv9EWddV+/l4LaJA7EcHeX+XeS
-         zHrjRkd//SJw7pda/LENtJWzshP0QmkMWe6C3dvc=
+        b=Yc0zNIjbyByh2k8UdfbkLFMNf7OFEan7HsyR8yMMkamdXCQPInZIzZ14TlQg/jSVv
+         G9B+eIzzJEvdqNuSU8oetT2fbMwnyaC2fcSqVdYnoYxxOBycFHLC/MFWc/sHP9CtgU
+         MGC1/UOcpgPo7bqImXG4yesU9AWiT3eFGIq6/r8s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
-        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
-        Alain Michaud <alainm@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
+        stable@vger.kernel.org, Jia Zhou <zhou.jia2@zte.com.cn>,
+        Yi Wang <wang.yi59@zte.com.cn>, Takashi Iwai <tiwai@suse.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 240/323] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
-Date:   Thu, 20 May 2021 11:22:12 +0200
-Message-Id: <20210520092128.407729935@linuxfoundation.org>
+Subject: [PATCH 4.9 141/240] ALSA: core: remove redundant spin_lock pair in snd_card_disconnect
+Date:   Thu, 20 May 2021 11:22:13 +0200
+Message-Id: <20210520092113.380345776@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,75 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Jia Zhou <zhou.jia2@zte.com.cn>
 
-[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
+[ Upstream commit abc21649b3e5c34b143bf86f0c78e33d5815e250 ]
 
-Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
-However, there is a flag CONF_NOT_COMPLETE which is set when
-creating the l2cap_chan. It is suggested that the flag should be
-cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
-is called, l2cap_chan is not yet ready. Therefore, we must set this
-flag as the default.
+modification in commit 2a3f7221acdd ("ALSA: core: Fix card races between
+register and disconnect") resulting in this problem.
 
-Example crash call trace:
-__dump_stack lib/dump_stack.c:15 [inline]
-dump_stack+0xc4/0x118 lib/dump_stack.c:56
-panic+0x1c6/0x38b kernel/panic.c:117
-__warn+0x170/0x1b9 kernel/panic.c:471
-warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
-debug_print_object+0x175/0x193 lib/debugobjects.c:260
-debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
-debug_timer_assert_init kernel/time/timer.c:629 [inline]
-debug_assert_init kernel/time/timer.c:677 [inline]
-del_timer+0x7c/0x179 kernel/time/timer.c:1034
-try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
-cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
-l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
-l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
-l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
-l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
-l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
-__sock_release+0xda/0x217 net/socket.c:580
-sock_close+0x1b/0x1f net/socket.c:1039
-__fput+0x322/0x55c fs/file_table.c:208
-____fput+0x17/0x19 fs/file_table.c:244
-task_work_run+0x19b/0x1d3 kernel/task_work.c:115
-exit_task_work include/linux/task_work.h:21 [inline]
-do_exit+0xe4c/0x204a kernel/exit.c:766
-do_group_exit+0x291/0x291 kernel/exit.c:891
-get_signal+0x749/0x1093 kernel/signal.c:2396
-do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
-exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
-prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
-syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
-int_ret_from_sys_call+0x25/0xa3
-
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
-Reviewed-by: Alain Michaud <alainm@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Fixes: 2a3f7221acdd ("ALSA: core: Fix card races between register and disconnect")
+Signed-off-by: Jia Zhou <zhou.jia2@zte.com.cn>
+Signed-off-by: Yi Wang <wang.yi59@zte.com.cn>
+Link: https://lore.kernel.org/r/1616989007-34429-1-git-send-email-wang.yi59@zte.com.cn
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/l2cap_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/init.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index df8cc639c46d..b5a7d04066ec 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -510,7 +510,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
- 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
- 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
- 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
-+
- 	chan->conf_state = 0;
-+	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
+diff --git a/sound/core/init.c b/sound/core/init.c
+index 02e96c580cb7..59377e579adb 100644
+--- a/sound/core/init.c
++++ b/sound/core/init.c
+@@ -406,10 +406,8 @@ int snd_card_disconnect(struct snd_card *card)
+ 		return 0;
+ 	}
+ 	card->shutdown = 1;
+-	spin_unlock(&card->files_lock);
  
- 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
- }
+ 	/* replace file->f_op with special dummy operations */
+-	spin_lock(&card->files_lock);
+ 	list_for_each_entry(mfile, &card->files_list, list) {
+ 		/* it's critical part, use endless loop */
+ 		/* we have no room to fail */
 -- 
 2.30.2
 
