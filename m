@@ -2,308 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEA4E38AFFA
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 15:29:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0164438B031
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 15:41:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235672AbhETNbQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 09:31:16 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41638 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231733AbhETNbQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 09:31:16 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6435AC061574
-        for <stable@vger.kernel.org>; Thu, 20 May 2021 06:29:55 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id gb21-20020a17090b0615b029015d1a863a91so5448198pjb.2
-        for <stable@vger.kernel.org>; Thu, 20 May 2021 06:29:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/EJXYWKBRlx0TOsGAmj59kPLdTr7Vnchme74OQ2GZJE=;
-        b=w6lJxrwMZdi977lUZmdZM745UnHkmzjMG+dt8alOJk4a/iVKF2keWCU+jXK3YJMgJ3
-         YMM2nq4CblfpOocgl10Hpxf5mbnb5mpFVe23lxOijuohP0X7ChKBxIDc+1jvCi8fArxF
-         FV24FvJLHozUJaHRKqqIOOSvbXqeCd+o0ya1H46mcOb54ztydEpozrRfZQDyFEGP8/XB
-         Y2S0jOClstlr0CwkHyXu4N0lz/mQDWZmGdTvY7wmBWAkTtNqZpteWIBcYf7iWU2BIi2j
-         0Np51SEnhzglCkHxp+s/B/1AsL+X832SA4aqfaJLQ02wbWa7syTtymcf+ri1rEeUY2uA
-         wXfA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/EJXYWKBRlx0TOsGAmj59kPLdTr7Vnchme74OQ2GZJE=;
-        b=JKjzlRcbkuFhZY1JwRiGOzYar8ESTwfIqbRq1v2ZL9a9f0BuUW3j+fnJE2Zi1N9EQq
-         28ZelfXVRZsKH4J1SfDr1/XIBIIbMoodBW/M2tGSygsTX9ThqasZE+UN60imeYlJoYme
-         86rKtlsP9BNC4rwkRTMS0IoMpt75C1PW/nrufhLGIamPFtzTl4hmj3CRB06j3DTWZR9/
-         ogAHJr75MO/VtKX7UblsuER5u6PR9qUb4dT5kHupg68Tp5R07T0++VA5TJIz2BYvvA54
-         rir2mIeQiKNtzZWc8VaeWg5MM72Ce8ZDsfn+2gIsb29yanveRVxz9wxvPVR4Oy0o5bVH
-         HAPQ==
-X-Gm-Message-State: AOAM530U1MOTNlbw/A+JSOCTwiWSP19lTmpwsPOxTSCssu4AoCdvUGai
-        dNJiWWsfDExBtgg4bqxUZ7twLDdoRD9S0iI3
-X-Google-Smtp-Source: ABdhPJxv0WXajVmemxpKwvDMR2k3fkOgV0jJE3uoZ1YQ/Thfkou70TbiH9ZiB1JDHJaKivoD7eZUUA==
-X-Received: by 2002:a17:902:e007:b029:ef:9dd2:be6 with SMTP id o7-20020a170902e007b02900ef9dd20be6mr5953823plo.12.1621517394624;
-        Thu, 20 May 2021 06:29:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b124sm2012837pfa.27.2021.05.20.06.29.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 20 May 2021 06:29:54 -0700 (PDT)
-Message-ID: <60a66452.1c69fb81.ce890.72c0@mx.google.com>
-Date:   Thu, 20 May 2021 06:29:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S238531AbhETNmu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 09:42:50 -0400
+Received: from sender4-of-o53.zoho.com ([136.143.188.53]:21371 "EHLO
+        sender4-of-o53.zoho.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S238175AbhETNmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 09:42:36 -0400
+ARC-Seal: i=1; a=rsa-sha256; t=1621518051; cv=none; 
+        d=zohomail.com; s=zohoarc; 
+        b=g366NAyIOHGUnmU1H63NB1lXwhcYXHlezQIRprstNF8Wtjt9iC/dczA9RagvoEs5ys621mpiRDd7x/v4cWWmtwC8YR5FIfYIzMZYqsxQzEx9Wr6ijIUPpYZn8MS/NWnsQsi9ud+tpVhTbjPtR//y9Nq4ZmXI8g53oKfIGDvK5fc=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+        t=1621518051; h=Content-Type:Cc:Date:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:To; 
+        bh=7VNeDRXRLa85jo7cthDYXanGoVHoiLzcwRL2eJbBc4Q=; 
+        b=NT/YbWWIGwaB810Ax5TA/0bAb/G3mAGqKXs617ByEW7UgVb0Ff5EAklvknryjULH2NGMpEWhvAKTXTRUVoIBgOKhAZkrCtu2CgqCUmCze3ct+H5S5HhGOzzkMDtx9/JZnBT4df4j+1dx//yaADH4EWzxa9DFs8qX13ehf5odse8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+        dkim=pass  header.i=anirudhrb.com;
+        spf=pass  smtp.mailfrom=mail@anirudhrb.com;
+        dmarc=pass header.from=<mail@anirudhrb.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1621518051;
+        s=zoho; d=anirudhrb.com; i=mail@anirudhrb.com;
+        h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:Content-Type:In-Reply-To;
+        bh=7VNeDRXRLa85jo7cthDYXanGoVHoiLzcwRL2eJbBc4Q=;
+        b=DhQR6BlcX/91j1pV697dRGRM60S+vbqLTUXQRJ257ZxRwhLgDvA6cXqImWdgFNPD
+        VZuxjfxgplf/s9w/0voP/XSRUPvKd/oLZy36qHm3JLp+KQ9GlWeN4MryAWdaKMZEmSj
+        xpOb2stWUt7eJQp8VED2Az3/0EMFGgWfZn2Ac05k=
+Received: from anirudhrb.com (106.51.110.115 [106.51.110.115]) by mx.zohomail.com
+        with SMTPS id 1621518046958980.6684477891203; Thu, 20 May 2021 06:40:46 -0700 (PDT)
+Date:   Thu, 20 May 2021 19:10:39 +0530
+From:   Anirudh Rayabharam <mail@anirudhrb.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel-mentees@lists.linuxfoundation.org,
+        kernel test robot <oliver.sang@intel.com>,
+        stable <stable@vger.kernel.org>,
+        linux-nvidia@lists.surfsouth.com, dri-devel@lists.freedesktop.org,
+        linux-fbdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        mail@anirudhrb.com, igormtorrente@gmail.com,
+        fero@drama.obuda.kando.hu
+Subject: Re: [PATCH] video: hgafb: correctly handle card detect failure
+ during probe
+Message-ID: <YKZm17dj4R1c2ns/@anirudhrb.com>
+References: <20210516192714.25823-1-mail@anirudhrb.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.232-324-g1d24b4234f5c
-X-Kernelci-Branch: linux-4.14.y
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-4.14.y baseline: 119 runs,
- 6 regressions (v4.14.232-324-g1d24b4234f5c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210516192714.25823-1-mail@anirudhrb.com>
+X-ZohoMailClient: External
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-4.14.y baseline: 119 runs, 6 regressions (v4.14.232-324-g1d=
-24b4234f5c)
-
-Regressions Summary
--------------------
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
-nel/v4.14.232-324-g1d24b4234f5c/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-4.14.y
-  Describe: v4.14.232-324-g1d24b4234f5c
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      1d24b4234f5c2196412d68265d318540065e3314 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxbb-p200      | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a6318f348b08f0dab3afd4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb=
--p200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a6318f348b08f0dab3a=
-fd5
-        failing since 414 days (last pass: v4.14.172-114-g734382e2d26e, fir=
-st fail: v4.14.174-131-g234ce78cac23) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-meson-gxm-q200       | arm64 | lab-baylibre  | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a63179727a39f2b1b3af9a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-=
-q200.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-=
-q200.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a63179727a39f2b1b3a=
-f9b
-        failing since 55 days (last pass: v4.14.226-44-gdbfdb55a0970, first=
- fail: v4.14.227) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-baylibre  | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a63175348b08f0dab3af97
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a63175348b08f0dab3a=
-f98
-        failing since 186 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-broonie   | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a6315a593aaf238cb3afac
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a6315a593aaf238cb3a=
-fad
-        failing since 186 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-cip       | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a63180348b08f0dab3afb6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
-m-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_ar=
-m-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a63180348b08f0dab3a=
-fb7
-        failing since 186 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =
-
-
-
-platform             | arch  | lab           | compiler | defconfig        =
-   | regressions
----------------------+-------+---------------+----------+------------------=
----+------------
-qemu_arm-versatilepb | arm   | lab-collabora | gcc-8    | versatile_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60a6319d77a4e0d434b3afb9
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
-32-324-g1d24b4234f5c/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60a6319d77a4e0d434b3a=
-fba
-        failing since 186 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
-t fail: v4.14.206-23-g520c3568920c8) =
-
- =20
+On Mon, May 17, 2021 at 12:57:14AM +0530, Anirudh Rayabharam wrote:
+> The return value of hga_card_detect() is not properly handled causing
+> the probe to succeed even though hga_card_detect() failed. Since probe
+> succeeds, hgafb_open() can be called which will end up operating on an
+> unmapped hga_vram. This results in an out-of-bounds access as reported
+> by kernel test robot [1].
+> 
+> To fix this, correctly detect failure of hga_card_detect() by checking
+> for a non-zero error code.
+> 
+> [1]: https://lore.kernel.org/lkml/20210516150019.GB25903@xsang-OptiPlex-9020/
+> 
+> Reported-by: kernel test robot <oliver.sang@intel.com>
+> Fixes: dc13cac4862c ("video: hgafb: fix potential NULL pointer dereference")
+
+Greg, this is one of the UMN fixes we did. So, do you want to take this
+patch into your tree?
+
+thanks!
+
+	- Anirudh.
+
+> Cc: stable <stable@vger.kernel.org>
+> Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+> ---
+>  drivers/video/fbdev/hgafb.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
+> index cc8e62ae93f6..bd3d07aa4f0e 100644
+> --- a/drivers/video/fbdev/hgafb.c
+> +++ b/drivers/video/fbdev/hgafb.c
+> @@ -558,7 +558,7 @@ static int hgafb_probe(struct platform_device *pdev)
+>  	int ret;
+>  
+>  	ret = hga_card_detect();
+> -	if (!ret)
+> +	if (ret)
+>  		return ret;
+>  
+>  	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
+> -- 
+> 2.26.2
+> 
