@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2145D38A444
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:02:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A2E4238A490
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:05:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235165AbhETKCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:02:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35610 "EHLO mail.kernel.org"
+        id S233592AbhETKGM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:06:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234057AbhETKA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234061AbhETKA0 (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:00:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63D9861420;
-        Thu, 20 May 2021 09:39:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A22E6186A;
+        Thu, 20 May 2021 09:39:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503550;
-        bh=4g5Ksq7J3CPdcx/Y67l1gRMpb1B1sW6V5oFKJblYYWo=;
+        s=korg; t=1621503553;
+        bh=VLrBjtSWclsCYcwSRoPvp4+8CLXfigEKiXL1HhuDylY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O4RlEGePGbyhjzxp+miGCH6ZzdK+7Po8jqXl1HZywyddOX2WZCwDFdi10SfShFL1H
-         y1hLwBdc3AhgxtB4vyb3he67TyqIzjg93oW9nqKKljIQBPCrecWwMKjvmMasxxO7S+
-         cysFccdgQ7QC59+scHu1wZvGIUBYGvaJa3qVq2fU=
+        b=fltOhMMN4708ETbo2x24FL0MV+vJ6isBzZCucQxGHuq7ycQH2zNXFRGPmgABkASBu
+         KcONG9o0LhB51eKeG3mPwydxmSAti4NXRQJRnBUAiCBgECIvYsFttqPASDA25J8LnK
+         /LDxxC+xT1TxvgPCllw2yj9KKMhixDWLir0P8iZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        stable@vger.kernel.org,
+        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
+        Liviu Dudau <Liviu.Dudau@arm.com>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 272/425] drm/i915/gvt: Fix error code in intel_gvt_init_device()
-Date:   Thu, 20 May 2021 11:20:41 +0200
-Message-Id: <20210520092140.378529869@linuxfoundation.org>
+Subject: [PATCH 4.19 273/425] MIPS: pci-legacy: stop using of_pci_range_to_resource
+Date:   Thu, 20 May 2021 11:20:42 +0200
+Message-Id: <20210520092140.413247436@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,66 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
 
-[ Upstream commit 329328ec6a87f2c1275f50d979d55513de458409 ]
+[ Upstream commit 3ecb9dc1581eebecaee56decac70e35365260866 ]
 
-The intel_gvt_init_vgpu_type_groups() function is only called from
-intel_gvt_init_device().  If it fails then the intel_gvt_init_device()
-prints the error code and propagates it back again.  That's a bug
-because false is zero/success.  The fix is to modify it to return zero
-or negative error codes and make everything consistent.
+Mirror commit aeba3731b150 ("powerpc/pci: Fix IO space breakage after
+of_pci_range_to_resource() change").
 
-Fixes: c5d71cb31723 ("drm/i915/gvt: Move vGPU type related code into gvt file")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
-Link: http://patchwork.freedesktop.org/patch/msgid/YHaFQtk/DIVYK1u5@mwanda
-Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Most MIPS platforms do not define PCI_IOBASE, nor implement
+pci_address_to_pio(). Moreover, IO_SPACE_LIMIT is 0xffff for most MIPS
+platforms. of_pci_range_to_resource passes the _start address_ of the IO
+range into pci_address_to_pio, which then checks it against
+IO_SPACE_LIMIT and fails, because for MIPS platforms that use
+pci-legacy (pci-lantiq, pci-rt3883, pci-mt7620), IO ranges start much
+higher than 0xffff.
+
+In fact, pci-mt7621 in staging already works around this problem, see
+commit 09dd629eeabb ("staging: mt7621-pci: fix io space and properly set
+resource limits")
+
+So just stop using of_pci_range_to_resource, which does not work for
+MIPS.
+
+Fixes PCI errors like:
+  pci_bus 0000:00: root bus resource [io  0xffffffff]
+
+Fixes: 0b0b0893d49b ("of/pci: Fix the conversion of IO ranges into IO resources")
+Signed-off-by: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
+Cc: Liviu Dudau <Liviu.Dudau@arm.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gvt/gvt.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/mips/pci/pci-legacy.c | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/i915/gvt/gvt.c b/drivers/gpu/drm/i915/gvt/gvt.c
-index 46c8b720e336..3e3876d141ce 100644
---- a/drivers/gpu/drm/i915/gvt/gvt.c
-+++ b/drivers/gpu/drm/i915/gvt/gvt.c
-@@ -128,7 +128,7 @@ static bool intel_get_gvt_attrs(struct attribute ***type_attrs,
- 	return true;
+diff --git a/arch/mips/pci/pci-legacy.c b/arch/mips/pci/pci-legacy.c
+index 3c3b1e6abb53..e8b0751d5b76 100644
+--- a/arch/mips/pci/pci-legacy.c
++++ b/arch/mips/pci/pci-legacy.c
+@@ -169,8 +169,13 @@ void pci_load_of_ranges(struct pci_controller *hose, struct device_node *node)
+ 			res = hose->mem_resource;
+ 			break;
+ 		}
+-		if (res != NULL)
+-			of_pci_range_to_resource(&range, node, res);
++		if (res != NULL) {
++			res->name = node->full_name;
++			res->flags = range.flags;
++			res->start = range.cpu_addr;
++			res->end = range.cpu_addr + range.size - 1;
++			res->parent = res->child = res->sibling = NULL;
++		}
+ 	}
  }
  
--static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
-+static int intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- {
- 	int i, j;
- 	struct intel_vgpu_type *type;
-@@ -146,7 +146,7 @@ static bool intel_gvt_init_vgpu_type_groups(struct intel_gvt *gvt)
- 		gvt_vgpu_type_groups[i] = group;
- 	}
- 
--	return true;
-+	return 0;
- 
- unwind:
- 	for (j = 0; j < i; j++) {
-@@ -154,7 +154,7 @@ unwind:
- 		kfree(group);
- 	}
- 
--	return false;
-+	return -ENOMEM;
- }
- 
- static void intel_gvt_cleanup_vgpu_type_groups(struct intel_gvt *gvt)
-@@ -416,7 +416,7 @@ int intel_gvt_init_device(struct drm_i915_private *dev_priv)
- 		goto out_clean_thread;
- 
- 	ret = intel_gvt_init_vgpu_type_groups(gvt);
--	if (ret == false) {
-+	if (ret) {
- 		gvt_err("failed to init vgpu type groups: %d\n", ret);
- 		goto out_clean_types;
- 	}
 -- 
 2.30.2
 
