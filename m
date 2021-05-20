@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC16E38A79A
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 449BB38A79B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237339AbhETKkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:40:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39660 "EHLO mail.kernel.org"
+        id S237345AbhETKkp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:40:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39658 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237734AbhETKil (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237731AbhETKil (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:38:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C02A61C71;
-        Thu, 20 May 2021 09:54:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 25DF061C7A;
+        Thu, 20 May 2021 09:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504499;
-        bh=olxwLQKUoh0pv7hlajAdGVNyIeCmb2yMv6GLGAzdL9c=;
+        s=korg; t=1621504501;
+        bh=pf4q7Vz/P4NkC7ZWOtLeCuVejZZZaIaYpAQ4N/mJNlM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXuBviGuzR6qq0xJoczMWa68My7HUW6WZ8Y5gCveYU0jvkpsopt3njgUJdFdLrhzX
-         j1+NjCU9Bfxd7xW0KTzDZPYtZWQNkXWC/wuHCZfC/waMV/iIm1fn+5ms3omFsy1eUp
-         2YzdDUjRy9GeImorrRYFS9K/u9Pxrchv9XvqIWDc=
+        b=kh7RgF1lIDQSaP05sLrlUb3t4YMheWZAZXM9DhX5b3ReA3SJHM8zJ36zQLRPKpYXS
+         3ssqa/pogub2N5VCpF4T8jdCydoagpYGn+H+K9GIO5BN5E7usp8GTT8Ec9sPYPZXgG
+         HoNu2GuBmnehlZV2ksf2unN3WaPEne1VSBMfOs9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        Hugh Dickins <hughd@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Nucca Chen <nuccachen@google.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        David Ahern <dsahern@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <jakub.kicinski@netronome.com>,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Jiri Pirko <jiri@mellanox.com>, Jiri Pirko <jiri@resnulli.us>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 272/323] ksm: fix potential missing rmap_item for stable_node
-Date:   Thu, 20 May 2021 11:22:44 +0200
-Message-Id: <20210520092129.548113494@linuxfoundation.org>
+Subject: [PATCH 4.14 273/323] net: fix nla_strcmp to handle more then one trailing null character
+Date:   Thu, 20 May 2021 11:22:45 +0200
+Message-Id: <20210520092129.580420942@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -42,55 +45,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Maciej Żenczykowski <maze@google.com>
 
-[ Upstream commit c89a384e2551c692a9fe60d093fd7080f50afc51 ]
+[ Upstream commit 2c16db6c92b0ee4aa61e88366df82169e83c3f7e ]
 
-When removing rmap_item from stable tree, STABLE_FLAG of rmap_item is
-cleared with head reserved.  So the following scenario might happen: For
-ksm page with rmap_item1:
+Android userspace has been using TCA_KIND with a char[IFNAMESIZ]
+many-null-terminated buffer containing the string 'bpf'.
 
-cmp_and_merge_page
-  stable_node->head = &migrate_nodes;
-  remove_rmap_item_from_tree, but head still equal to stable_node;
-  try_to_merge_with_ksm_page failed;
-  return;
+This works on 4.19 and ceases to work on 5.10.
 
-For the same ksm page with rmap_item2, stable node migration succeed this
-time.  The stable_node->head does not equal to migrate_nodes now.  For ksm
-page with rmap_item1 again:
+I'm not entirely sure what fixes tag to use, but I think the issue
+was likely introduced in the below mentioned 5.4 commit.
 
-cmp_and_merge_page
- stable_node->head != &migrate_nodes && rmap_item->head == stable_node
- return;
-
-We would miss the rmap_item for stable_node and might result in failed
-rmap_walk_ksm().  Fix this by set rmap_item->head to NULL when rmap_item
-is removed from stable tree.
-
-Link: https://lkml.kernel.org/r/20210330140228.45635-5-linmiaohe@huawei.com
-Fixes: 4146d2d673e8 ("ksm: make !merge_across_nodes migration safe")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Hugh Dickins <hughd@google.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: Nucca Chen <nuccachen@google.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: David Ahern <dsahern@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: Jakub Kicinski <jakub.kicinski@netronome.com>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Jiri Pirko <jiri@mellanox.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Fixes: 62794fc4fbf5 ("net_sched: add max len check for TCA_KIND")
+Change-Id: I66dc281f165a2858fc29a44869a270a2d698a82b
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/ksm.c | 1 +
- 1 file changed, 1 insertion(+)
+ lib/nlattr.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/ksm.c b/mm/ksm.c
-index 65d4bf52f543..6d3bc2723c9b 100644
---- a/mm/ksm.c
-+++ b/mm/ksm.c
-@@ -768,6 +768,7 @@ static void remove_rmap_item_from_tree(struct rmap_item *rmap_item)
- 		stable_node->rmap_hlist_len--;
+diff --git a/lib/nlattr.c b/lib/nlattr.c
+index 3d8295c85505..5cf179aeefe6 100644
+--- a/lib/nlattr.c
++++ b/lib/nlattr.c
+@@ -379,7 +379,7 @@ int nla_strcmp(const struct nlattr *nla, const char *str)
+ 	int attrlen = nla_len(nla);
+ 	int d;
  
- 		put_anon_vma(rmap_item->anon_vma);
-+		rmap_item->head = NULL;
- 		rmap_item->address &= PAGE_MASK;
+-	if (attrlen > 0 && buf[attrlen - 1] == '\0')
++	while (attrlen > 0 && buf[attrlen - 1] == '\0')
+ 		attrlen--;
  
- 	} else if (rmap_item->address & UNSTABLE_FLAG) {
+ 	d = attrlen - len;
 -- 
 2.30.2
 
