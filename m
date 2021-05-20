@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A9038A2C9
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:44:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D678638A2D1
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:45:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233501AbhETJpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:45:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47072 "EHLO mail.kernel.org"
+        id S233223AbhETJqG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:46:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231582AbhETJnp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:43:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EA2DE61448;
-        Thu, 20 May 2021 09:32:56 +0000 (UTC)
+        id S232871AbhETJnz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:43:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 27E81613EE;
+        Thu, 20 May 2021 09:32:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503177;
-        bh=gU/ZrlSGQCpZ8unKozdd6U/i+PtXxU+4cDcxs0AgTyc=;
+        s=korg; t=1621503179;
+        bh=zCJSUdRAVK1CtTx/Xj5sZCMuRoRx41PHOhsjE4LNn/E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GBwy773uyWF/DvOc0qLvYkPw4qAqGyNbPwvdjUicT6HBtux5XXIePLh6JXA2/O/ys
-         3SCerWn8HXDxSJXQjqmaHOipwd1KTN4ZUb9g3ZrYOCDPAa50k3rrf/rJpo9T2JH+cM
-         LceRvi6m/5cpdJjgMacXq3b6EPFIyv/c/GqQ/MJs=
+        b=vwAIizIAPnBdPbbSwVDqGRh83/09Y/5ttH3ch4wYXTaLYUXMETI0HxBgUkTu5vmTt
+         BPI6ZjXXn3dj/D9iJet/GXEsYScdFL+moEMUOS2HP42kMm4PDnZ8evcqQT1zHlfjos
+         MKi4Mx6TeHe0kZAU4DgcYclOkiVsSbBK54iAIuHo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
-        Jian Cai <jiancai@google.com>
-Subject: [PATCH 4.19 102/425] arm64: vdso: remove commas between macro name and arguments
-Date:   Thu, 20 May 2021 11:17:51 +0200
-Message-Id: <20210520092134.808939277@linuxfoundation.org>
+        stable@vger.kernel.org, stable@kernel.org,
+        Zhang Yi <yi.zhang@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.19 103/425] ext4: fix check to prevent false positive report of incorrect used inodes
+Date:   Thu, 20 May 2021 11:17:52 +0200
+Message-Id: <20210520092134.844048182@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -39,116 +40,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Cai <jiancai@google.com>
+From: Zhang Yi <yi.zhang@huawei.com>
 
-LLVM's integrated assembler appears to assume an argument with default
-value is passed whenever it sees a comma right after the macro name.
-It will be fine if the number of following arguments is one less than
-the number of parameters specified in the macro definition. Otherwise,
-it fails. For example, the following code works:
+commit a149d2a5cabbf6507a7832a1c4fd2593c55fd450 upstream.
 
-$ cat foo.s
-.macro  foo arg1=2, arg2=4
-        ldr r0, [r1, #\arg1]
-        ldr r0, [r1, #\arg2]
-.endm
+Commit <50122847007> ("ext4: fix check to prevent initializing reserved
+inodes") check the block group zero and prevent initializing reserved
+inodes. But in some special cases, the reserved inode may not all belong
+to the group zero, it may exist into the second group if we format
+filesystem below.
 
-foo, arg2=8
+  mkfs.ext4 -b 4096 -g 8192 -N 1024 -I 4096 /dev/sda
 
-$ llvm-mc -triple=armv7a -filetype=obj foo.s -o ias.o
-arm-linux-gnueabihf-objdump -dr ias.o
+So, it will end up triggering a false positive report of a corrupted
+file system. This patch fix it by avoid check reserved inodes if no free
+inode blocks will be zeroed.
 
-ias.o:     file format elf32-littlearm
-
-Disassembly of section .text:
-
-00000000 <.text>:
-   0: e5910001 ldr r0, [r1, #2]
-   4: e5910003 ldr r0, [r1, #8]
-
-While the the following code would fail:
-
-$ cat foo.s
-.macro  foo arg1=2, arg2=4
-        ldr r0, [r1, #\arg1]
-        ldr r0, [r1, #\arg2]
-.endm
-
-foo, arg1=2, arg2=8
-
-$ llvm-mc -triple=armv7a -filetype=obj foo.s -o ias.o
-foo.s:6:14: error: too many positional arguments
-foo, arg1=2, arg2=8
-
-This causes build failures as follows:
-
-arch/arm64/kernel/vdso/gettimeofday.S:230:24: error: too many positional
-arguments
- clock_gettime_return, shift=1
-                       ^
-arch/arm64/kernel/vdso/gettimeofday.S:253:24: error: too many positional
-arguments
- clock_gettime_return, shift=1
-                       ^
-arch/arm64/kernel/vdso/gettimeofday.S:274:24: error: too many positional
-arguments
- clock_gettime_return, shift=1
-
-This error is not in mainline because commit 28b1a824a4f4 ("arm64: vdso:
-Substitute gettimeofday() with C implementation") rewrote this assembler
-file in C as part of a 25 patch series that is unsuitable for stable.
-Just remove the comma in the clock_gettime_return invocations in 4.19 so
-that GNU as and LLVM's integrated assembler work the same.
-
-Link:
-https://github.com/ClangBuiltLinux/linux/issues/1349
-
-Suggested-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Jian Cai <jiancai@google.com>
+Cc: stable@kernel.org
+Fixes: 50122847007 ("ext4: fix check to prevent initializing reserved inodes")
+Signed-off-by: Zhang Yi <yi.zhang@huawei.com>
+Suggested-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210331121516.2243099-1-yi.zhang@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
-Changes v1 -> v2:
-  Keep the comma in the macro definition to be consistent with other
-  definitions.
+ fs/ext4/ialloc.c |   48 ++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 32 insertions(+), 16 deletions(-)
 
-Changes v2 -> v3:
-  Edit tags.
-
-Changes v3 -> v4:
-  Update the commit message based on Nathan's comments.
-
- arch/arm64/kernel/vdso/gettimeofday.S |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
-
---- a/arch/arm64/kernel/vdso/gettimeofday.S
-+++ b/arch/arm64/kernel/vdso/gettimeofday.S
-@@ -227,7 +227,7 @@ realtime:
- 	seqcnt_check fail=realtime
- 	get_ts_realtime res_sec=x10, res_nsec=x11, \
- 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
--	clock_gettime_return, shift=1
-+	clock_gettime_return shift=1
+--- a/fs/ext4/ialloc.c
++++ b/fs/ext4/ialloc.c
+@@ -1358,6 +1358,7 @@ int ext4_init_inode_table(struct super_b
+ 	handle_t *handle;
+ 	ext4_fsblk_t blk;
+ 	int num, ret = 0, used_blks = 0;
++	unsigned long used_inos = 0;
  
- 	ALIGN
- monotonic:
-@@ -250,7 +250,7 @@ monotonic:
- 		clock_nsec=x15, xtime_sec=x13, xtime_nsec=x14, nsec_to_sec=x9
+ 	/* This should not happen, but just to be sure check this */
+ 	if (sb_rdonly(sb)) {
+@@ -1388,22 +1389,37 @@ int ext4_init_inode_table(struct super_b
+ 	 * used inodes so we need to skip blocks with used inodes in
+ 	 * inode table.
+ 	 */
+-	if (!(gdp->bg_flags & cpu_to_le16(EXT4_BG_INODE_UNINIT)))
+-		used_blks = DIV_ROUND_UP((EXT4_INODES_PER_GROUP(sb) -
+-			    ext4_itable_unused_count(sb, gdp)),
+-			    sbi->s_inodes_per_block);
+-
+-	if ((used_blks < 0) || (used_blks > sbi->s_itb_per_group) ||
+-	    ((group == 0) && ((EXT4_INODES_PER_GROUP(sb) -
+-			       ext4_itable_unused_count(sb, gdp)) <
+-			      EXT4_FIRST_INO(sb)))) {
+-		ext4_error(sb, "Something is wrong with group %u: "
+-			   "used itable blocks: %d; "
+-			   "itable unused count: %u",
+-			   group, used_blks,
+-			   ext4_itable_unused_count(sb, gdp));
+-		ret = 1;
+-		goto err_out;
++	if (!(gdp->bg_flags & cpu_to_le16(EXT4_BG_INODE_UNINIT))) {
++		used_inos = EXT4_INODES_PER_GROUP(sb) -
++			    ext4_itable_unused_count(sb, gdp);
++		used_blks = DIV_ROUND_UP(used_inos, sbi->s_inodes_per_block);
++
++		/* Bogus inode unused count? */
++		if (used_blks < 0 || used_blks > sbi->s_itb_per_group) {
++			ext4_error(sb, "Something is wrong with group %u: "
++				   "used itable blocks: %d; "
++				   "itable unused count: %u",
++				   group, used_blks,
++				   ext4_itable_unused_count(sb, gdp));
++			ret = 1;
++			goto err_out;
++		}
++
++		used_inos += group * EXT4_INODES_PER_GROUP(sb);
++		/*
++		 * Are there some uninitialized inodes in the inode table
++		 * before the first normal inode?
++		 */
++		if ((used_blks != sbi->s_itb_per_group) &&
++		     (used_inos < EXT4_FIRST_INO(sb))) {
++			ext4_error(sb, "Something is wrong with group %u: "
++				   "itable unused count: %u; "
++				   "itables initialized count: %ld",
++				   group, ext4_itable_unused_count(sb, gdp),
++				   used_inos);
++			ret = 1;
++			goto err_out;
++		}
+ 	}
  
- 	add_ts sec=x10, nsec=x11, ts_sec=x3, ts_nsec=x4, nsec_to_sec=x9
--	clock_gettime_return, shift=1
-+	clock_gettime_return shift=1
- 
- 	ALIGN
- monotonic_raw:
-@@ -271,7 +271,7 @@ monotonic_raw:
- 		clock_nsec=x15, nsec_to_sec=x9
- 
- 	add_ts sec=x10, nsec=x11, ts_sec=x13, ts_nsec=x14, nsec_to_sec=x9
--	clock_gettime_return, shift=1
-+	clock_gettime_return shift=1
- 
- 	ALIGN
- realtime_coarse:
+ 	blk = ext4_inode_table(sb, gdp) + used_blks;
 
 
