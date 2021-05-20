@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B3B638A876
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2715C38A878
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:49:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237766AbhETKvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47942 "EHLO mail.kernel.org"
+        id S237971AbhETKvG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:51:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47944 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237589AbhETKsW (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S237866AbhETKsW (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:48:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D9F661411;
-        Thu, 20 May 2021 09:58:34 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A40161415;
+        Thu, 20 May 2021 09:58:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504714;
-        bh=AL7u/WMym1lYfDxy4MVtqLMV/bv2ffPUd+7yZssaMYs=;
+        s=korg; t=1621504716;
+        bh=/CncAhzPTjBPbmdbXKkNiHClkxizzGCCXUoVLQh2+CA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0jQDLfDuhexHRxqDmBSI6oOZCwQi2od3HIo2ZA5gd9ykCVpJx+j9fxZYsEyVkIIC5
-         xBtCgQ2iyF9/CNaXF3xMLw30BQUu8Vl/+dHywrlDRMb6i7ng+zGnhHxgKhZDaMUo/n
-         mDq3UPN9fVCz327gQ25RjjlxXhhHMWfp3+mUaspI=
+        b=Mq6SQQ7H4Nvn6VUEP2tos0uJYm7TSiUlDoLs/6tQaD9z0ZEG2G8lZ+xitN3dk1fTt
+         XwXE76nPLxEwFnV7I7/poN3nHszI9P4zmmAe4VHMB8Uq8MSfzfJ31wb0t6xmkY6tV7
+         yCEOIZIjskW0VT0tTciNj/1cxEXhGRewiOZbvdww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.9 048/240] ALSA: emu8000: Fix a use after free in snd_emu8000_create_mixer
-Date:   Thu, 20 May 2021 11:20:40 +0200
-Message-Id: <20210520092110.282103267@linuxfoundation.org>
+Subject: [PATCH 4.9 049/240] ALSA: sb: Fix two use after free in snd_sb_qsound_build
+Date:   Thu, 20 May 2021 11:20:41 +0200
+Message-Id: <20210520092110.317611779@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -41,41 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-commit 1c98f574403dbcf2eb832d5535a10d967333ef2d upstream.
+commit 4fb44dd2c1dda18606348acdfdb97e8759dde9df upstream.
 
-Our code analyzer reported a uaf.
+In snd_sb_qsound_build, snd_ctl_add(..,p->qsound_switch...) and
+snd_ctl_add(..,p->qsound_space..) are called. But the second
+arguments of snd_ctl_add() could be freed via snd_ctl_add_replace()
+->snd_ctl_free_one(). After the error code is returned,
+snd_sb_qsound_destroy(p) is called in __error branch.
 
-In snd_emu8000_create_mixer, the callee snd_ctl_add(..,emu->controls[i])
-calls snd_ctl_add_replace(.., kcontrol,..). Inside snd_ctl_add_replace(),
-if error happens, kcontrol will be freed by snd_ctl_free_one(kcontrol).
-Then emu->controls[i] points to a freed memory, and the execution comes
-to __error branch of snd_emu8000_create_mixer. The freed emu->controls[i]
-is used in snd_ctl_remove(card, emu->controls[i]).
+But in snd_sb_qsound_destroy(), the freed p->qsound_switch and
+p->qsound_space are still used by snd_ctl_remove().
 
-My patch set emu->controls[i] to NULL if snd_ctl_add() failed to avoid
-the uaf.
+My patch set p->qsound_switch and p->qsound_space to NULL if
+snd_ctl_add() failed to avoid the uaf bugs. But these codes need
+to further be improved with the code style.
 
 Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210426131129.4796-1-lyl2019@mail.ustc.edu.cn
+Link: https://lore.kernel.org/r/20210426145541.8070-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/emu8000.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/isa/sb/sb16_csp.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/sound/isa/sb/emu8000.c
-+++ b/sound/isa/sb/emu8000.c
-@@ -1042,8 +1042,10 @@ snd_emu8000_create_mixer(struct snd_card
+--- a/sound/isa/sb/sb16_csp.c
++++ b/sound/isa/sb/sb16_csp.c
+@@ -1059,10 +1059,14 @@ static int snd_sb_qsound_build(struct sn
  
- 	memset(emu->controls, 0, sizeof(emu->controls));
- 	for (i = 0; i < EMU8000_NUM_CONTROLS; i++) {
--		if ((err = snd_ctl_add(card, emu->controls[i] = snd_ctl_new1(mixer_defs[i], emu))) < 0)
-+		if ((err = snd_ctl_add(card, emu->controls[i] = snd_ctl_new1(mixer_defs[i], emu))) < 0) {
-+			emu->controls[i] = NULL;
- 			goto __error;
-+		}
- 	}
+ 	spin_lock_init(&p->q_lock);
+ 
+-	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0)
++	if ((err = snd_ctl_add(card, p->qsound_switch = snd_ctl_new1(&snd_sb_qsound_switch, p))) < 0) {
++		p->qsound_switch = NULL;
+ 		goto __error;
+-	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0)
++	}
++	if ((err = snd_ctl_add(card, p->qsound_space = snd_ctl_new1(&snd_sb_qsound_space, p))) < 0) {
++		p->qsound_space = NULL;
+ 		goto __error;
++	}
+ 
  	return 0;
  
 
