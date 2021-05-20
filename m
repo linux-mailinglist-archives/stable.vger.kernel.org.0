@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF67E38A129
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:27:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E03F38A0E0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbhETJ2p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:28:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52732 "EHLO mail.kernel.org"
+        id S231678AbhETJ0j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232021AbhETJ1n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:27:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 680CE613B6;
-        Thu, 20 May 2021 09:26:19 +0000 (UTC)
+        id S231614AbhETJ0X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0479661244;
+        Thu, 20 May 2021 09:25:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502779;
-        bh=ZS5OhBg/T4BfvVRuuVPob80P71kYOtIlYk1gRfrP6P8=;
+        s=korg; t=1621502702;
+        bh=SX3vtGdfkaIFSrcOF67/KYO8+uPemnaQDZtNcVxPI6k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W6xBV2Z+DZpwmdQrOsAFOuO+zkzfkiFdoeghU3kmkzplaNZMJR4D20YoqD6ByCk5I
-         kwsBdKjzBMmtQUXsYB/GBRBIOiYsoRdW04KsvTNACRhwPRlLd+uhUS/FtbVrfqDIuP
-         MknU08lhZAs/QrAPVO3IualdoI3qoFEX0ozEgJ8Q=
+        b=PDF8apJamlooskrTaGRbbxyAaiOnmrrVvkMkNLCcPxNw1J+8mgqVpWmqk46gMdkj1
+         /qO2BiUgG6sdNETd9IIhRxchIEDhpcRg+CMtBcL6A2V10ay06mjgTrIx4ZY5ezsL0/
+         JPF6bZJ8m+pWrDQKtdatVDaNCk73+FYBGG4An1JY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        stable@vger.kernel.org, Vidya Sagar <vidyas@nvidia.com>,
         Bjorn Helgaas <bhelgaas@google.com>,
-        Kuppuswamy Sathyanarayanan 
-        <sathyanarayanan.kuppuswamy@linux.intel.com>,
-        Robert Richter <rric@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/47] PCI: thunder: Fix compile testing
+Subject: [PATCH 5.12 20/45] PCI: tegra: Add Tegra194 MCFG quirks for ECAM errata
 Date:   Thu, 20 May 2021 11:22:08 +0200
-Message-Id: <20210520092053.887183963@linuxfoundation.org>
+Message-Id: <20210520092054.174680938@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,99 +40,206 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Vidya Sagar <vidyas@nvidia.com>
 
-[ Upstream commit 16f7ae5906dfbeff54f74ec75d0563bb3a87ab0b ]
+[ Upstream commit 7f100744749e4fe547dece3bb6557fae5f0a7252 ]
 
-Compile-testing these drivers is currently broken. Enabling it causes a
-couple of build failures though:
+The PCIe controller in Tegra194 SoC is not ECAM-compliant.  With the
+current hardware design, ECAM can be enabled only for one controller (the
+C5 controller) with bus numbers starting from 160 instead of 0. A different
+approach is taken to avoid this abnormal way of enabling ECAM for just one
+controller but to enable configuration space access for all the other
+controllers. In this approach, ops are added through MCFG quirk mechanism
+which access the configuration spaces by dynamically programming iATU
+(internal AddressTranslation Unit) to generate respective configuration
+accesses just like the way it is done in DesignWare core sub-system.
 
-  drivers/pci/controller/pci-thunder-ecam.c:119:30: error: shift count >= width of type [-Werror,-Wshift-count-overflow]
-  drivers/pci/controller/pci-thunder-pem.c:54:2: error: implicit declaration of function 'writeq' [-Werror,-Wimplicit-function-declaration]
-  drivers/pci/controller/pci-thunder-pem.c:392:8: error: implicit declaration of function 'acpi_get_rc_resources' [-Werror,-Wimplicit-function-declaration]
+This issue is specific to Tegra194 and it would be fixed in the future
+generations of Tegra SoCs.
 
-Fix them with the obvious one-line changes.
-
-Link: https://lore.kernel.org/r/20210308152501.2135937-2-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210416134537.19474-1-vidyas@nvidia.com
+Signed-off-by: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
-Reviewed-by: Kuppuswamy Sathyanarayanan <sathyanarayanan.kuppuswamy@linux.intel.com>
-Reviewed-by: Robert Richter <rric@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/pci-thunder-ecam.c |  2 +-
- drivers/pci/controller/pci-thunder-pem.c  | 13 +++++++------
- drivers/pci/pci.h                         |  6 ++++++
- 3 files changed, 14 insertions(+), 7 deletions(-)
+ drivers/acpi/pci_mcfg.c                    |   7 ++
+ drivers/pci/controller/dwc/Makefile        |   2 +-
+ drivers/pci/controller/dwc/pcie-tegra194.c | 102 +++++++++++++++++++++
+ include/linux/pci-ecam.h                   |   1 +
+ 4 files changed, 111 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/pci-thunder-ecam.c b/drivers/pci/controller/pci-thunder-ecam.c
-index 7e8835fee5f7..d79395881d76 100644
---- a/drivers/pci/controller/pci-thunder-ecam.c
-+++ b/drivers/pci/controller/pci-thunder-ecam.c
-@@ -116,7 +116,7 @@ static int thunder_ecam_p2_config_read(struct pci_bus *bus, unsigned int devfn,
- 	 * the config space access window.  Since we are working with
- 	 * the high-order 32 bits, shift everything down by 32 bits.
- 	 */
--	node_bits = (cfg->res.start >> 32) & (1 << 12);
-+	node_bits = upper_32_bits(cfg->res.start) & (1 << 12);
+diff --git a/drivers/acpi/pci_mcfg.c b/drivers/acpi/pci_mcfg.c
+index 95f23acd5b80..53cab975f612 100644
+--- a/drivers/acpi/pci_mcfg.c
++++ b/drivers/acpi/pci_mcfg.c
+@@ -116,6 +116,13 @@ static struct mcfg_fixup mcfg_quirks[] = {
+ 	THUNDER_ECAM_QUIRK(2, 12),
+ 	THUNDER_ECAM_QUIRK(2, 13),
  
- 	v |= node_bits;
- 	set_val(v, where, size, val);
-diff --git a/drivers/pci/controller/pci-thunder-pem.c b/drivers/pci/controller/pci-thunder-pem.c
-index 3f847969143e..4b12dd42bf23 100644
---- a/drivers/pci/controller/pci-thunder-pem.c
-+++ b/drivers/pci/controller/pci-thunder-pem.c
-@@ -12,6 +12,7 @@
- #include <linux/pci-acpi.h>
- #include <linux/pci-ecam.h>
++	{ "NVIDIA", "TEGRA194", 1, 0, MCFG_BUS_ANY, &tegra194_pcie_ops},
++	{ "NVIDIA", "TEGRA194", 1, 1, MCFG_BUS_ANY, &tegra194_pcie_ops},
++	{ "NVIDIA", "TEGRA194", 1, 2, MCFG_BUS_ANY, &tegra194_pcie_ops},
++	{ "NVIDIA", "TEGRA194", 1, 3, MCFG_BUS_ANY, &tegra194_pcie_ops},
++	{ "NVIDIA", "TEGRA194", 1, 4, MCFG_BUS_ANY, &tegra194_pcie_ops},
++	{ "NVIDIA", "TEGRA194", 1, 5, MCFG_BUS_ANY, &tegra194_pcie_ops},
++
+ #define XGENE_V1_ECAM_MCFG(rev, seg) \
+ 	{"APM   ", "XGENE   ", rev, seg, MCFG_BUS_ANY, \
+ 		&xgene_v1_pcie_ecam_ops }
+diff --git a/drivers/pci/controller/dwc/Makefile b/drivers/pci/controller/dwc/Makefile
+index a751553fa0db..dbb981876556 100644
+--- a/drivers/pci/controller/dwc/Makefile
++++ b/drivers/pci/controller/dwc/Makefile
+@@ -17,7 +17,6 @@ obj-$(CONFIG_PCIE_INTEL_GW) += pcie-intel-gw.o
+ obj-$(CONFIG_PCIE_KIRIN) += pcie-kirin.o
+ obj-$(CONFIG_PCIE_HISI_STB) += pcie-histb.o
+ obj-$(CONFIG_PCI_MESON) += pci-meson.o
+-obj-$(CONFIG_PCIE_TEGRA194) += pcie-tegra194.o
+ obj-$(CONFIG_PCIE_UNIPHIER) += pcie-uniphier.o
+ obj-$(CONFIG_PCIE_UNIPHIER_EP) += pcie-uniphier-ep.o
+ 
+@@ -34,4 +33,5 @@ obj-$(CONFIG_PCIE_UNIPHIER_EP) += pcie-uniphier-ep.o
+ ifdef CONFIG_PCI
+ obj-$(CONFIG_ARM64) += pcie-al.o
+ obj-$(CONFIG_ARM64) += pcie-hisi.o
++obj-$(CONFIG_ARM64) += pcie-tegra194.o
+ endif
+diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
+index 0e94190ca4e8..926a8def2e26 100644
+--- a/drivers/pci/controller/dwc/pcie-tegra194.c
++++ b/drivers/pci/controller/dwc/pcie-tegra194.c
+@@ -22,6 +22,8 @@
+ #include <linux/of_irq.h>
+ #include <linux/of_pci.h>
+ #include <linux/pci.h>
++#include <linux/pci-acpi.h>
++#include <linux/pci-ecam.h>
+ #include <linux/phy/phy.h>
+ #include <linux/pinctrl/consumer.h>
  #include <linux/platform_device.h>
-+#include <linux/io-64-nonatomic-lo-hi.h>
- #include "../pci.h"
+@@ -311,6 +313,104 @@ struct tegra_pcie_dw_of_data {
+ 	enum dw_pcie_device_mode mode;
+ };
  
- #if defined(CONFIG_PCI_HOST_THUNDER_PEM) || (defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS))
-@@ -315,9 +316,9 @@ static int thunder_pem_init(struct device *dev, struct pci_config_window *cfg,
- 	 * structure here for the BAR.
- 	 */
- 	bar4_start = res_pem->start + 0xf00000;
--	pem_pci->ea_entry[0] = (u32)bar4_start | 2;
--	pem_pci->ea_entry[1] = (u32)(res_pem->end - bar4_start) & ~3u;
--	pem_pci->ea_entry[2] = (u32)(bar4_start >> 32);
-+	pem_pci->ea_entry[0] = lower_32_bits(bar4_start) | 2;
-+	pem_pci->ea_entry[1] = lower_32_bits(res_pem->end - bar4_start) & ~3u;
-+	pem_pci->ea_entry[2] = upper_32_bits(bar4_start);
- 
- 	cfg->priv = pem_pci;
- 	return 0;
-@@ -325,9 +326,9 @@ static int thunder_pem_init(struct device *dev, struct pci_config_window *cfg,
- 
- #if defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS)
- 
--#define PEM_RES_BASE		0x87e0c0000000UL
--#define PEM_NODE_MASK		GENMASK(45, 44)
--#define PEM_INDX_MASK		GENMASK(26, 24)
-+#define PEM_RES_BASE		0x87e0c0000000ULL
-+#define PEM_NODE_MASK		GENMASK_ULL(45, 44)
-+#define PEM_INDX_MASK		GENMASK_ULL(26, 24)
- #define PEM_MIN_DOM_IN_NODE	4
- #define PEM_MAX_DOM_IN_NODE	10
- 
-diff --git a/drivers/pci/pci.h b/drivers/pci/pci.h
-index f86cae9aa1f4..09ebc134d0d7 100644
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -606,6 +606,12 @@ static inline int pci_dev_specific_reset(struct pci_dev *dev, int probe)
- #if defined(CONFIG_PCI_QUIRKS) && defined(CONFIG_ARM64)
- int acpi_get_rc_resources(struct device *dev, const char *hid, u16 segment,
- 			  struct resource *res);
-+#else
-+static inline int acpi_get_rc_resources(struct device *dev, const char *hid,
-+					u16 segment, struct resource *res)
++#if defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS)
++struct tegra194_pcie_ecam  {
++	void __iomem *config_base;
++	void __iomem *iatu_base;
++	void __iomem *dbi_base;
++};
++
++static int tegra194_acpi_init(struct pci_config_window *cfg)
 +{
-+	return -ENODEV;
++	struct device *dev = cfg->parent;
++	struct tegra194_pcie_ecam *pcie_ecam;
++
++	pcie_ecam = devm_kzalloc(dev, sizeof(*pcie_ecam), GFP_KERNEL);
++	if (!pcie_ecam)
++		return -ENOMEM;
++
++	pcie_ecam->config_base = cfg->win;
++	pcie_ecam->iatu_base = cfg->win + SZ_256K;
++	pcie_ecam->dbi_base = cfg->win + SZ_512K;
++	cfg->priv = pcie_ecam;
++
++	return 0;
 +}
++
++static void atu_reg_write(struct tegra194_pcie_ecam *pcie_ecam, int index,
++			  u32 val, u32 reg)
++{
++	u32 offset = PCIE_GET_ATU_OUTB_UNR_REG_OFFSET(index);
++
++	writel(val, pcie_ecam->iatu_base + offset + reg);
++}
++
++static void program_outbound_atu(struct tegra194_pcie_ecam *pcie_ecam,
++				 int index, int type, u64 cpu_addr,
++				 u64 pci_addr, u64 size)
++{
++	atu_reg_write(pcie_ecam, index, lower_32_bits(cpu_addr),
++		      PCIE_ATU_LOWER_BASE);
++	atu_reg_write(pcie_ecam, index, upper_32_bits(cpu_addr),
++		      PCIE_ATU_UPPER_BASE);
++	atu_reg_write(pcie_ecam, index, lower_32_bits(pci_addr),
++		      PCIE_ATU_LOWER_TARGET);
++	atu_reg_write(pcie_ecam, index, lower_32_bits(cpu_addr + size - 1),
++		      PCIE_ATU_LIMIT);
++	atu_reg_write(pcie_ecam, index, upper_32_bits(pci_addr),
++		      PCIE_ATU_UPPER_TARGET);
++	atu_reg_write(pcie_ecam, index, type, PCIE_ATU_CR1);
++	atu_reg_write(pcie_ecam, index, PCIE_ATU_ENABLE, PCIE_ATU_CR2);
++}
++
++static void __iomem *tegra194_map_bus(struct pci_bus *bus,
++				      unsigned int devfn, int where)
++{
++	struct pci_config_window *cfg = bus->sysdata;
++	struct tegra194_pcie_ecam *pcie_ecam = cfg->priv;
++	u32 busdev;
++	int type;
++
++	if (bus->number < cfg->busr.start || bus->number > cfg->busr.end)
++		return NULL;
++
++	if (bus->number == cfg->busr.start) {
++		if (PCI_SLOT(devfn) == 0)
++			return pcie_ecam->dbi_base + where;
++		else
++			return NULL;
++	}
++
++	busdev = PCIE_ATU_BUS(bus->number) | PCIE_ATU_DEV(PCI_SLOT(devfn)) |
++		 PCIE_ATU_FUNC(PCI_FUNC(devfn));
++
++	if (bus->parent->number == cfg->busr.start) {
++		if (PCI_SLOT(devfn) == 0)
++			type = PCIE_ATU_TYPE_CFG0;
++		else
++			return NULL;
++	} else {
++		type = PCIE_ATU_TYPE_CFG1;
++	}
++
++	program_outbound_atu(pcie_ecam, 0, type, cfg->res.start, busdev,
++			     SZ_256K);
++
++	return pcie_ecam->config_base + where;
++}
++
++const struct pci_ecam_ops tegra194_pcie_ops = {
++	.init		= tegra194_acpi_init,
++	.pci_ops	= {
++		.map_bus	= tegra194_map_bus,
++		.read		= pci_generic_config_read,
++		.write		= pci_generic_config_write,
++	}
++};
++#endif /* defined(CONFIG_ACPI) && defined(CONFIG_PCI_QUIRKS) */
++
++#ifdef CONFIG_PCIE_TEGRA194
++
+ static inline struct tegra_pcie_dw *to_tegra_pcie(struct dw_pcie *pci)
+ {
+ 	return container_of(pci, struct tegra_pcie_dw, pci);
+@@ -2311,3 +2411,5 @@ MODULE_DEVICE_TABLE(of, tegra_pcie_dw_of_match);
+ MODULE_AUTHOR("Vidya Sagar <vidyas@nvidia.com>");
+ MODULE_DESCRIPTION("NVIDIA PCIe host controller driver");
+ MODULE_LICENSE("GPL v2");
++
++#endif /* CONFIG_PCIE_TEGRA194 */
+diff --git a/include/linux/pci-ecam.h b/include/linux/pci-ecam.h
+index 65d3d83015c3..fbdadd4d8377 100644
+--- a/include/linux/pci-ecam.h
++++ b/include/linux/pci-ecam.h
+@@ -85,6 +85,7 @@ extern const struct pci_ecam_ops pci_thunder_ecam_ops; /* Cavium ThunderX 1.x */
+ extern const struct pci_ecam_ops xgene_v1_pcie_ecam_ops; /* APM X-Gene PCIe v1 */
+ extern const struct pci_ecam_ops xgene_v2_pcie_ecam_ops; /* APM X-Gene PCIe v2.x */
+ extern const struct pci_ecam_ops al_pcie_ops;	/* Amazon Annapurna Labs PCIe */
++extern const struct pci_ecam_ops tegra194_pcie_ops; /* Tegra194 PCIe */
  #endif
  
- u32 pci_rebar_get_possible_sizes(struct pci_dev *pdev, int bar);
+ #if IS_ENABLED(CONFIG_PCI_HOST_COMMON)
 -- 
 2.30.2
 
