@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42D6338A348
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:50:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD51738A352
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:50:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234034AbhETJvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52778 "EHLO mail.kernel.org"
+        id S234189AbhETJvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:51:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233993AbhETJtC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:49:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E00E61358;
-        Thu, 20 May 2021 09:34:56 +0000 (UTC)
+        id S234303AbhETJtO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:49:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 843C061480;
+        Thu, 20 May 2021 09:34:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503296;
-        bh=ZNFqcPHsVlDP099oWQK5aZnB2x+SN6vZ7XCZVSW9lGY=;
+        s=korg; t=1621503299;
+        bh=w0ODjGif2rcoZGNVI2RJdhui/zw658jsUrjRas3821E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aoA8YofXrzP+5M9IpovkzhHEdJ0sQF2VirN89LyC+eWUy99sKwCWuZicWZ7wHtkNy
-         OPEYm7WJZh5vtJi3f5K/xjyA3qiuP1hWXkdfVD1+UaeQYNu7+IJfcShtb33EpUGkYZ
-         Myev+ulen8t5ygsrgAMMfbIYGnxpxFFdpQoggENs=
+        b=JVX9c11eUqM2SEzgUm2Cfm5GaXFO/vT2F68XH7WHZaicj1FXKQ+p5myxjOBNNje36
+         /De9rfH10v7TYKq4Efy8xOWUYINpKiyYHqYhIOXl7hsiMhKCpT4okggTf4BCa6NIaa
+         7UZLmVvfdT1nQsioxJ6luqsi2uUzboh258J9WL+c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiko Carstens <hca@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
+        stable@vger.kernel.org, Claudio Imbrenda <imbrenda@linux.ibm.com>,
         David Hildenbrand <david@redhat.com>,
-        Janosch Frank <frankja@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>
-Subject: [PATCH 4.19 158/425] KVM: s390: fix guarded storage control register handling
-Date:   Thu, 20 May 2021 11:18:47 +0200
-Message-Id: <20210520092136.643894124@linuxfoundation.org>
+        Thomas Huth <thuth@redhat.com>,
+        Christian Borntraeger <borntraeger@de.ibm.com>
+Subject: [PATCH 4.19 159/425] KVM: s390: split kvm_s390_real_to_abs
+Date:   Thu, 20 May 2021 11:18:48 +0200
+Message-Id: <20210520092136.680792673@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,54 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Claudio Imbrenda <imbrenda@linux.ibm.com>
 
-commit 44bada28219031f9e8e86b84460606efa57b871e upstream.
+commit c5d1f6b531e68888cbe6718b3f77a60115d58b9c upstream.
 
-store_regs_fmt2() has an ordering problem: first the guarded storage
-facility is enabled on the local cpu, then preemption disabled, and
-then the STGSC (store guarded storage controls) instruction is
-executed.
+A new function _kvm_s390_real_to_abs will apply prefixing to a real address
+with a given prefix value.
 
-If the process gets scheduled away between enabling the guarded
-storage facility and before preemption is disabled, this might lead to
-a special operation exception and therefore kernel crash as soon as
-the process is scheduled back and the STGSC instruction is executed.
+The old kvm_s390_real_to_abs becomes now a wrapper around the new function.
 
-Fixes: 4e0b1ab72b8a ("KVM: s390: gs support for kvm guests")
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Reviewed-by: Christian Borntraeger <borntraeger@de.ibm.com>
+This is needed to avoid code duplication in vSIE.
+
+Signed-off-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
 Reviewed-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Janosch Frank <frankja@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Cc: <stable@vger.kernel.org> # 4.12
-Link: https://lore.kernel.org/r/20210415080127.1061275-1-hca@linux.ibm.com
+Reviewed-by: Thomas Huth <thuth@redhat.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210322140559.500716-2-imbrenda@linux.ibm.com
 Signed-off-by: Christian Borntraeger <borntraeger@de.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kvm/kvm-s390.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/s390/kvm/gaccess.h |   23 +++++++++++++++++------
+ 1 file changed, 17 insertions(+), 6 deletions(-)
 
---- a/arch/s390/kvm/kvm-s390.c
-+++ b/arch/s390/kvm/kvm-s390.c
-@@ -3624,16 +3624,16 @@ static void store_regs(struct kvm_vcpu *
- 	current->thread.fpu.fpc = vcpu->arch.host_fpregs.fpc;
- 	current->thread.fpu.regs = vcpu->arch.host_fpregs.regs;
- 	if (MACHINE_HAS_GS) {
-+		preempt_disable();
- 		__ctl_set_bit(2, 4);
- 		if (vcpu->arch.gs_enabled)
- 			save_gs_cb(current->thread.gs_cb);
--		preempt_disable();
- 		current->thread.gs_cb = vcpu->arch.host_gscb;
- 		restore_gs_cb(vcpu->arch.host_gscb);
--		preempt_enable();
- 		if (!vcpu->arch.host_gscb)
- 			__ctl_clear_bit(2, 4);
- 		vcpu->arch.host_gscb = NULL;
-+		preempt_enable();
- 	}
- 	/* SIE will save etoken directly into SDNX and therefore kvm_run */
+--- a/arch/s390/kvm/gaccess.h
++++ b/arch/s390/kvm/gaccess.h
+@@ -18,17 +18,14 @@
+ 
+ /**
+  * kvm_s390_real_to_abs - convert guest real address to guest absolute address
+- * @vcpu - guest virtual cpu
++ * @prefix - guest prefix
+  * @gra - guest real address
+  *
+  * Returns the guest absolute address that corresponds to the passed guest real
+- * address @gra of a virtual guest cpu by applying its prefix.
++ * address @gra of by applying the given prefix.
+  */
+-static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
+-						 unsigned long gra)
++static inline unsigned long _kvm_s390_real_to_abs(u32 prefix, unsigned long gra)
+ {
+-	unsigned long prefix  = kvm_s390_get_prefix(vcpu);
+-
+ 	if (gra < 2 * PAGE_SIZE)
+ 		gra += prefix;
+ 	else if (gra >= prefix && gra < prefix + 2 * PAGE_SIZE)
+@@ -37,6 +34,20 @@ static inline unsigned long kvm_s390_rea
  }
+ 
+ /**
++ * kvm_s390_real_to_abs - convert guest real address to guest absolute address
++ * @vcpu - guest virtual cpu
++ * @gra - guest real address
++ *
++ * Returns the guest absolute address that corresponds to the passed guest real
++ * address @gra of a virtual guest cpu by applying its prefix.
++ */
++static inline unsigned long kvm_s390_real_to_abs(struct kvm_vcpu *vcpu,
++						 unsigned long gra)
++{
++	return _kvm_s390_real_to_abs(kvm_s390_get_prefix(vcpu), gra);
++}
++
++/**
+  * _kvm_s390_logical_to_effective - convert guest logical to effective address
+  * @psw: psw of the guest
+  * @ga: guest logical address
 
 
