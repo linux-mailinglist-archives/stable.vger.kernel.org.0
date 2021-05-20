@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E9BB38AB3E
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3011B38A9BF
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241157AbhETLWR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:22:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41738 "EHLO mail.kernel.org"
+        id S239306AbhETLGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39636 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239731AbhETLUK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:20:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5928961D80;
-        Thu, 20 May 2021 10:10:54 +0000 (UTC)
+        id S238904AbhETLEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC7AF61D18;
+        Thu, 20 May 2021 10:04:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505454;
-        bh=TL5/raBl4V3mggEkUzIXLeXN+pFW1tGlv1AiYVBfIRc=;
+        s=korg; t=1621505082;
+        bh=FTzwyjt6Q+HO2/iZymre7bCZ/r3haZklXwZJ9kdhC/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IT7ihLf5GLu/mg3MFVnb+ZceNRtJu3NRz0c2luAOms2iOI97Wl3sxdqUjsOfY/yv4
-         GuXHveO7I/cNVNqEKTi395N2GQKoQiBzP9p5avixAa/tpXIKdeG/TNdQt2S7FZ/ocu
-         IKN6CJlaTUQDTXOzuORBwoyfCYxMMa12sSUgNOKI=
+        b=NT8ioos+ZJ1oyzxk/mEyo7rMDeEGS8AzMlsfxQHnnuQLTOMdcryY8WF8XWBxQBeg4
+         Qyp9P/hvCLOfGjRmZtRoYHRBmxq2J2GaAGIgpGqdmNwRz6x6hjlXQUdhBLP1IwNiEz
+         jz8Kmz1OyU3+nc1Xvr7SRu4+aK44PkuFEs50yEVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Archie Pusaka <apusaka@chromium.org>,
-        syzbot+338f014a98367a08a114@syzkaller.appspotmail.com,
-        Alain Michaud <alainm@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 141/190] Bluetooth: Set CONF_NOT_COMPLETE as l2cap_chan default
+        stable@vger.kernel.org, Tianping Fang <tianping.fang@mediatek.com>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 4.9 213/240] usb: core: hub: fix race condition about TRSMRCY of resume
 Date:   Thu, 20 May 2021 11:23:25 +0200
-Message-Id: <20210520092106.851085892@linuxfoundation.org>
+Message-Id: <20210520092115.829789969@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,77 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 3a9d54b1947ecea8eea9a902c0b7eb58a98add8a ]
+commit 975f94c7d6c306b833628baa9aec3f79db1eb3a1 upstream.
 
-Currently l2cap_chan_set_defaults() reset chan->conf_state to zero.
-However, there is a flag CONF_NOT_COMPLETE which is set when
-creating the l2cap_chan. It is suggested that the flag should be
-cleared when l2cap_chan is ready, but when l2cap_chan_set_defaults()
-is called, l2cap_chan is not yet ready. Therefore, we must set this
-flag as the default.
+This may happen if the port becomes resume status exactly
+when usb_port_resume() gets port status, it still need provide
+a TRSMCRY time before access the device.
 
-Example crash call trace:
-__dump_stack lib/dump_stack.c:15 [inline]
-dump_stack+0xc4/0x118 lib/dump_stack.c:56
-panic+0x1c6/0x38b kernel/panic.c:117
-__warn+0x170/0x1b9 kernel/panic.c:471
-warn_slowpath_fmt+0xc7/0xf8 kernel/panic.c:494
-debug_print_object+0x175/0x193 lib/debugobjects.c:260
-debug_object_assert_init+0x171/0x1bf lib/debugobjects.c:614
-debug_timer_assert_init kernel/time/timer.c:629 [inline]
-debug_assert_init kernel/time/timer.c:677 [inline]
-del_timer+0x7c/0x179 kernel/time/timer.c:1034
-try_to_grab_pending+0x81/0x2e5 kernel/workqueue.c:1230
-cancel_delayed_work+0x7c/0x1c4 kernel/workqueue.c:2929
-l2cap_clear_timer+0x1e/0x41 include/net/bluetooth/l2cap.h:834
-l2cap_chan_del+0x2d8/0x37e net/bluetooth/l2cap_core.c:640
-l2cap_chan_close+0x532/0x5d8 net/bluetooth/l2cap_core.c:756
-l2cap_sock_shutdown+0x806/0x969 net/bluetooth/l2cap_sock.c:1174
-l2cap_sock_release+0x64/0x14d net/bluetooth/l2cap_sock.c:1217
-__sock_release+0xda/0x217 net/socket.c:580
-sock_close+0x1b/0x1f net/socket.c:1039
-__fput+0x322/0x55c fs/file_table.c:208
-____fput+0x17/0x19 fs/file_table.c:244
-task_work_run+0x19b/0x1d3 kernel/task_work.c:115
-exit_task_work include/linux/task_work.h:21 [inline]
-do_exit+0xe4c/0x204a kernel/exit.c:766
-do_group_exit+0x291/0x291 kernel/exit.c:891
-get_signal+0x749/0x1093 kernel/signal.c:2396
-do_signal+0xa5/0xcdb arch/x86/kernel/signal.c:737
-exit_to_usermode_loop arch/x86/entry/common.c:243 [inline]
-prepare_exit_to_usermode+0xed/0x235 arch/x86/entry/common.c:277
-syscall_return_slowpath+0x3a7/0x3b3 arch/x86/entry/common.c:348
-int_ret_from_sys_call+0x25/0xa3
-
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reported-by: syzbot+338f014a98367a08a114@syzkaller.appspotmail.com
-Reviewed-by: Alain Michaud <alainm@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+CC: <stable@vger.kernel.org>
+Reported-by: Tianping Fang <tianping.fang@mediatek.com>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/20210512020738.52961-1-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_core.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/core/hub.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/l2cap_core.c b/net/bluetooth/l2cap_core.c
-index f2db50da8ce2..515f3e52f70a 100644
---- a/net/bluetooth/l2cap_core.c
-+++ b/net/bluetooth/l2cap_core.c
-@@ -499,7 +499,9 @@ void l2cap_chan_set_defaults(struct l2cap_chan *chan)
- 	chan->flush_to = L2CAP_DEFAULT_FLUSH_TO;
- 	chan->retrans_timeout = L2CAP_DEFAULT_RETRANS_TO;
- 	chan->monitor_timeout = L2CAP_DEFAULT_MONITOR_TO;
-+
- 	chan->conf_state = 0;
-+	set_bit(CONF_NOT_COMPLETE, &chan->conf_state);
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -3486,9 +3486,6 @@ int usb_port_resume(struct usb_device *u
+ 		 * sequence.
+ 		 */
+ 		status = hub_port_status(hub, port1, &portstatus, &portchange);
+-
+-		/* TRSMRCY = 10 msec */
+-		msleep(10);
+ 	}
  
- 	set_bit(FLAG_FORCE_ACTIVE, &chan->flags);
- }
--- 
-2.30.2
-
+  SuspendCleared:
+@@ -3503,6 +3500,9 @@ int usb_port_resume(struct usb_device *u
+ 				usb_clear_port_feature(hub->hdev, port1,
+ 						USB_PORT_FEAT_C_SUSPEND);
+ 		}
++
++		/* TRSMRCY = 10 msec */
++		msleep(10);
+ 	}
+ 
+ 	if (udev->persist_enabled)
 
 
