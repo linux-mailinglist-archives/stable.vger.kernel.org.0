@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D764C38A0CF
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:24:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E32F38A13C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:28:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231601AbhETJ0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52312 "EHLO mail.kernel.org"
+        id S231865AbhETJ3P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:29:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52818 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231563AbhETJ0I (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:26:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A3B561244;
-        Thu, 20 May 2021 09:24:46 +0000 (UTC)
+        id S232062AbhETJ16 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:27:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CCF56121E;
+        Thu, 20 May 2021 09:26:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502686;
-        bh=mkCBvt1/7W4P8EeI5YKbcvoKEMpNeqOd4JwgCcgdyFw=;
+        s=korg; t=1621502790;
+        bh=GGYeuE3Kf1KuUNPDu9rHsOC+PjsoL5g6WqM8hbssvJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qAxvOI4rlc7o+oCS0dqGuxW8kFLYwh+liP7mv80lkEMQd8ROmI6ABdR+BKBjiSm/3
-         I/oobo/hHnoia1cN/DUKu27e98B0FPD1cPPMJutA+zM1yQ+/5MjKjv5lsHiYkQ7+Y3
-         E+AMHEbWwFqF72RJVWqGnbMjfs/YRAHhkvWlmEy4=
+        b=oSYB7qWfoXN51XbmDSgk8ggK9hCMeBw4rDU+61iscl7tdo3NnQ/yP8JVS5b5429vx
+         PJIDoQ0AIUP62zqI8mkWbLElmEjbd8j6z8cpA0cyoL/TLyW0uS6qSVEhKqBdfdfS+l
+         CwNqBmMAl5EjPjyl4XLALBzOXUAxJMuLJxQxYJn4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 14/45] Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
+        stable@vger.kernel.org,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 04/47] kgdb: fix gcc-11 warning on indentation
 Date:   Thu, 20 May 2021 11:22:02 +0200
-Message-Id: <20210520092053.982070257@linuxfoundation.org>
+Message-Id: <20210520092053.702373767@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,127 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit e479187748a8f151a85116a7091c599b121fdea5 ]
+commit 40cc3a80bb42587db1e6ae21d6f3090582d33e89 upstream.
 
-Some buggy BIOS-es bring up the touchscreen-controller in a stuck
-state where it blocks the I2C bus. Specifically this happens on
-the Jumper EZpad 7 tablet model.
+gcc-11 starts warning about misleading indentation inside of macros:
 
-After much poking at this problem I have found that the following steps
-are necessary to unstuck the chip / bus:
+drivers/misc/kgdbts.c: In function ‘kgdbts_break_test’:
+drivers/misc/kgdbts.c:103:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
+  103 |         if (verbose > 1) \
+      |         ^~
+drivers/misc/kgdbts.c:200:9: note: in expansion of macro ‘v2printk’
+  200 |         v2printk("kgdbts: breakpoint complete\n");
+      |         ^~~~~~~~
+drivers/misc/kgdbts.c:105:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
+  105 |                 touch_nmi_watchdog();   \
+      |                 ^~~~~~~~~~~~~~~~~~
 
-1. Turn off the Silead chip.
-2. Try to do an I2C transfer with the chip, this will fail in response to
-   which the I2C-bus-driver will call: i2c_recover_bus() which will unstuck
-   the I2C-bus. Note the unstuck-ing of the I2C bus only works if we first
-   drop the chip of the bus by turning it off.
-3. Turn the chip back on.
+The code looks correct to me, so just reindent it for readability.
 
-On the x86/ACPI systems were this problem is seen, step 1. and 3. require
-making ACPI calls and dealing with ACPI Power Resources. This commit adds
-a workaround which runtime-suspends the chip to turn it off, leaving it up
-to the ACPI subsystem to deal with all the ACPI specific details.
-
-There is no good way to detect this bug, so the workaround gets activated
-by a new "silead,stuck-controller-bug" boolean device-property. Since this
-is only used on x86/ACPI, this will be set by model specific device-props
-set by drivers/platform/x86/touchscreen_dmi.c. Therefor this new
-device-property is not documented in the DT-bindings.
-
-Dmesg will contain the following messages on systems where the workaround
-is activated:
-
-[   54.309029] silead_ts i2c-MSSL1680:00: [Firmware Bug]: Stuck I2C bus: please ignore the next 'controller timed out' error
-[   55.373593] i2c_designware 808622C1:04: controller timed out
-[   55.582186] silead_ts i2c-MSSL1680:00: Silead chip ID: 0x80360000
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210405202745.16777-1-hdegoede@redhat.com
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
+Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20210322164308.827846-1-arnd@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/input/touchscreen/silead.c | 44 +++++++++++++++++++++++++++---
- 1 file changed, 40 insertions(+), 4 deletions(-)
+ drivers/misc/kgdbts.c |   26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/input/touchscreen/silead.c b/drivers/input/touchscreen/silead.c
-index 8fa2f3b7cfd8..e8b6c3137420 100644
---- a/drivers/input/touchscreen/silead.c
-+++ b/drivers/input/touchscreen/silead.c
-@@ -20,6 +20,7 @@
- #include <linux/input/mt.h>
- #include <linux/input/touchscreen.h>
- #include <linux/pm.h>
-+#include <linux/pm_runtime.h>
- #include <linux/irq.h>
- #include <linux/regulator/consumer.h>
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -95,19 +95,19 @@
  
-@@ -335,10 +336,8 @@ static int silead_ts_get_id(struct i2c_client *client)
+ #include <asm/sections.h>
  
- 	error = i2c_smbus_read_i2c_block_data(client, SILEAD_REG_ID,
- 					      sizeof(chip_id), (u8 *)&chip_id);
--	if (error < 0) {
--		dev_err(&client->dev, "Chip ID read error %d\n", error);
-+	if (error < 0)
- 		return error;
--	}
+-#define v1printk(a...) do { \
+-	if (verbose) \
+-		printk(KERN_INFO a); \
+-	} while (0)
+-#define v2printk(a...) do { \
+-	if (verbose > 1) \
+-		printk(KERN_INFO a); \
+-		touch_nmi_watchdog();	\
+-	} while (0)
+-#define eprintk(a...) do { \
+-		printk(KERN_ERR a); \
+-		WARN_ON(1); \
+-	} while (0)
++#define v1printk(a...) do {		\
++	if (verbose)			\
++		printk(KERN_INFO a);	\
++} while (0)
++#define v2printk(a...) do {		\
++	if (verbose > 1)		\
++		printk(KERN_INFO a);	\
++	touch_nmi_watchdog();		\
++} while (0)
++#define eprintk(a...) do {		\
++	printk(KERN_ERR a);		\
++	WARN_ON(1);			\
++} while (0)
+ #define MAX_CONFIG_LEN		40
  
- 	data->chip_id = le32_to_cpu(chip_id);
- 	dev_info(&client->dev, "Silead chip ID: 0x%8X", data->chip_id);
-@@ -351,12 +350,49 @@ static int silead_ts_setup(struct i2c_client *client)
- 	int error;
- 	u32 status;
- 
-+	/*
-+	 * Some buggy BIOS-es bring up the chip in a stuck state where it
-+	 * blocks the I2C bus. The following steps are necessary to
-+	 * unstuck the chip / bus:
-+	 * 1. Turn off the Silead chip.
-+	 * 2. Try to do an I2C transfer with the chip, this will fail in
-+	 *    response to which the I2C-bus-driver will call:
-+	 *    i2c_recover_bus() which will unstuck the I2C-bus. Note the
-+	 *    unstuck-ing of the I2C bus only works if we first drop the
-+	 *    chip off the bus by turning it off.
-+	 * 3. Turn the chip back on.
-+	 *
-+	 * On the x86/ACPI systems were this problem is seen, step 1. and
-+	 * 3. require making ACPI calls and dealing with ACPI Power
-+	 * Resources. The workaround below runtime-suspends the chip to
-+	 * turn it off, leaving it up to the ACPI subsystem to deal with
-+	 * this.
-+	 */
-+
-+	if (device_property_read_bool(&client->dev,
-+				      "silead,stuck-controller-bug")) {
-+		pm_runtime_set_active(&client->dev);
-+		pm_runtime_enable(&client->dev);
-+		pm_runtime_allow(&client->dev);
-+
-+		pm_runtime_suspend(&client->dev);
-+
-+		dev_warn(&client->dev, FW_BUG "Stuck I2C bus: please ignore the next 'controller timed out' error\n");
-+		silead_ts_get_id(client);
-+
-+		/* The forbid will also resume the device */
-+		pm_runtime_forbid(&client->dev);
-+		pm_runtime_disable(&client->dev);
-+	}
-+
- 	silead_ts_set_power(client, SILEAD_POWER_OFF);
- 	silead_ts_set_power(client, SILEAD_POWER_ON);
- 
- 	error = silead_ts_get_id(client);
--	if (error)
-+	if (error) {
-+		dev_err(&client->dev, "Chip ID read error %d\n", error);
- 		return error;
-+	}
- 
- 	error = silead_ts_init(client);
- 	if (error)
--- 
-2.30.2
-
+ static struct kgdb_io kgdbts_io_ops;
 
 
