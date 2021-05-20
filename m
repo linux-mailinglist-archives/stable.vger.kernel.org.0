@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA2E238A900
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4B1C438A6E6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238777AbhETK4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:56:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52442 "EHLO mail.kernel.org"
+        id S237304AbhETKbf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:31:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238416AbhETKyJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:54:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC92D61CD2;
-        Thu, 20 May 2021 10:00:52 +0000 (UTC)
+        id S237045AbhETK33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:29:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C01B61C3A;
+        Thu, 20 May 2021 09:51:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504853;
-        bh=8moV59Cohi3DoS4TU1+cHNWrTSf3MH8xlY9ZdeK9UGo=;
+        s=korg; t=1621504281;
+        bh=LdD+ZUYfvzHxZiSBwdzdSmm41ilw312hMDHiNRqdreY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=obD2omcP0cB/JZOFCh+2tUqOqy1Nnqdi/WSSWwR/DJGlkbwqvhXpBWeP5cHjfjzj9
-         oR7lHjvAeTsMFOdzbCzbJCzpUBBYYaH3nwIux104nG/TFBn8tEPFRLZblzxlMOpCqt
-         BfnjdosWSbX5YXyocwPbiEqkoo3XL7/LhPyUn1vY=
+        b=TxHxfevhTB3b5L9YwySApfdN74wxNsBDZKZTD2HH0sn8S3/nPgWRe3NhTnfpYuFIJ
+         hO+gEwrMZW/XBP/4qmwUGjZ9n5m2RaLcn5bhMfIHA05CFx5GInTgxO7z1DV0cj/XJP
+         uxfFdbBGilHqyNnWEKfuONian0KLXbVcb6x7sp0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 4.9 075/240] misc: vmw_vmci: explicitly initialize vmci_datagram payload
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 175/323] platform/x86: pmc_atom: Match all Beckhoff Automation baytrail boards with critclk_systems DMI table
 Date:   Thu, 20 May 2021 11:21:07 +0200
-Message-Id: <20210520092111.200567131@linuxfoundation.org>
+Message-Id: <20210520092126.116384324@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,92 +42,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
 
-commit b2192cfeba8481224da0a4ec3b4a7ccd80b1623b upstream.
+[ Upstream commit d21e5abd3a005253eb033090aab2e43bce090d89 ]
 
-KMSAN complains that vmci_check_host_caps() left the payload part of
-check_msg uninitialized.
+pmc_plt_clk* clocks are used for ethernet controllers, so need to stay
+turned on. This adds the affected board family to critclk_systems DMI
+table, so the clocks are marked as CLK_CRITICAL and not turned off.
 
-  =====================================================
-  BUG: KMSAN: uninit-value in kmsan_check_memory+0xd/0x10
-  CPU: 1 PID: 1 Comm: swapper/0 Tainted: G    B             5.11.0-rc7+ #4
-  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 02/27/2020
-  Call Trace:
-   dump_stack+0x21c/0x280
-   kmsan_report+0xfb/0x1e0
-   kmsan_internal_check_memory+0x202/0x520
-   kmsan_check_memory+0xd/0x10
-   iowrite8_rep+0x86/0x380
-   vmci_guest_probe_device+0xf0b/0x1e70
-   pci_device_probe+0xab3/0xe70
-   really_probe+0xd16/0x24d0
-   driver_probe_device+0x29d/0x3a0
-   device_driver_attach+0x25a/0x490
-   __driver_attach+0x78c/0x840
-   bus_for_each_dev+0x210/0x340
-   driver_attach+0x89/0xb0
-   bus_add_driver+0x677/0xc40
-   driver_register+0x485/0x8e0
-   __pci_register_driver+0x1ff/0x350
-   vmci_guest_init+0x3e/0x41
-   vmci_drv_init+0x1d6/0x43f
-   do_one_initcall+0x39c/0x9a0
-   do_initcall_level+0x1d7/0x259
-   do_initcalls+0x127/0x1cb
-   do_basic_setup+0x33/0x36
-   kernel_init_freeable+0x29a/0x3ed
-   kernel_init+0x1f/0x840
-   ret_from_fork+0x1f/0x30
+This replaces the previously listed boards with a match for the whole
+device family CBxx63. CBxx63 matches only baytrail devices.
+There are new affected boards that would otherwise need to be listed.
+There are unaffected boards in the family, but having the clocks
+turned on is not an issue.
 
-  Uninit was created at:
-   kmsan_internal_poison_shadow+0x5c/0xf0
-   kmsan_slab_alloc+0x8d/0xe0
-   kmem_cache_alloc+0x84f/0xe30
-   vmci_guest_probe_device+0xd11/0x1e70
-   pci_device_probe+0xab3/0xe70
-   really_probe+0xd16/0x24d0
-   driver_probe_device+0x29d/0x3a0
-   device_driver_attach+0x25a/0x490
-   __driver_attach+0x78c/0x840
-   bus_for_each_dev+0x210/0x340
-   driver_attach+0x89/0xb0
-   bus_add_driver+0x677/0xc40
-   driver_register+0x485/0x8e0
-   __pci_register_driver+0x1ff/0x350
-   vmci_guest_init+0x3e/0x41
-   vmci_drv_init+0x1d6/0x43f
-   do_one_initcall+0x39c/0x9a0
-   do_initcall_level+0x1d7/0x259
-   do_initcalls+0x127/0x1cb
-   do_basic_setup+0x33/0x36
-   kernel_init_freeable+0x29a/0x3ed
-   kernel_init+0x1f/0x840
-   ret_from_fork+0x1f/0x30
-
-  Bytes 28-31 of 36 are uninitialized
-  Memory access of size 36 starts at ffff8881675e5f00
-  =====================================================
-
-Fixes: 1f166439917b69d3 ("VMCI: guest side driver implementation.")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Link: https://lore.kernel.org/r/20210402121742.3917-2-penguin-kernel@I-love.SAKURA.ne.jp
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 648e921888ad ("clk: x86: Stop marking clocks as CLK_IS_CRITICAL")
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Signed-off-by: Steffen Dirkwinkel <s.dirkwinkel@beckhoff.com>
+Link: https://lore.kernel.org/r/20210412133006.397679-1-linux-kernel-dev@beckhoff.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/vmw_vmci/vmci_guest.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/pmc_atom.c | 28 ++--------------------------
+ 1 file changed, 2 insertions(+), 26 deletions(-)
 
---- a/drivers/misc/vmw_vmci/vmci_guest.c
-+++ b/drivers/misc/vmw_vmci/vmci_guest.c
-@@ -172,7 +172,7 @@ static int vmci_check_host_caps(struct p
- 				VMCI_UTIL_NUM_RESOURCES * sizeof(u32);
- 	struct vmci_datagram *check_msg;
- 
--	check_msg = kmalloc(msg_size, GFP_KERNEL);
-+	check_msg = kzalloc(msg_size, GFP_KERNEL);
- 	if (!check_msg) {
- 		dev_err(&pdev->dev, "%s: Insufficient memory\n", __func__);
- 		return -ENOMEM;
+diff --git a/drivers/platform/x86/pmc_atom.c b/drivers/platform/x86/pmc_atom.c
+index 92205b90c25c..d1d5ec3c0f14 100644
+--- a/drivers/platform/x86/pmc_atom.c
++++ b/drivers/platform/x86/pmc_atom.c
+@@ -453,34 +453,10 @@ static const struct dmi_system_id critclk_systems[] = {
+ 	},
+ 	{
+ 		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB3163",
++		.ident = "Beckhoff Baytrail",
+ 		.matches = {
+ 			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB3163"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB4063",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB4063"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB6263",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB6263"),
+-		},
+-	},
+-	{
+-		/* pmc_plt_clk* - are used for ethernet controllers */
+-		.ident = "Beckhoff CB6363",
+-		.matches = {
+-			DMI_MATCH(DMI_SYS_VENDOR, "Beckhoff Automation"),
+-			DMI_MATCH(DMI_BOARD_NAME, "CB6363"),
++			DMI_MATCH(DMI_PRODUCT_FAMILY, "CBxx63"),
+ 		},
+ 	},
+ 	{
+-- 
+2.30.2
+
 
 
