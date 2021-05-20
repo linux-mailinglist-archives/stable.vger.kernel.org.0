@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA9D138AA32
+	by mail.lfdr.de (Postfix) with ESMTP id 5F6C938AA31
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237089AbhETLKs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46522 "EHLO mail.kernel.org"
+        id S239266AbhETLKq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:10:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239521AbhETLIe (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S240133AbhETLIe (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 07:08:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5D4C61934;
-        Thu, 20 May 2021 10:06:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB2A861938;
+        Thu, 20 May 2021 10:06:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505179;
-        bh=6BL5n9GXke5xzYz4gBTpXlo5ncC3qECojOQv0ChdGaM=;
+        s=korg; t=1621505181;
+        bh=0S7vYDUwNt1IoWaKttqsjyKtFoinbW5kOAkwVCvy+dU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Tz3Fdycg+oOjJWuiVzPGE0uE+5ldPKECbvSasB+8iu5EpEkk3wKeVBJxhkeCDCszd
-         EIkhCO4X+oj8sVWdnR2TPxtg2PN/Z/alhNcaTOrYmFg8TRr8bkSx31WXIckD8fBT8c
-         TrYCVHxISVCNvAu287hQfZPl+H3dTj/0UCu80B70=
+        b=1+RsLZAvdfHQKlCerVtjpwTe9RE6OajA9p+wt6WiDzKpIkSSGwKSyyu7vP/jnLNC5
+         qpf8p1FpXCZ+FagkpyYULllssam2/PLgbS/ObS3bxGzl6K9x75gTlcC1z5DSk+PWiK
+         iCv6Blk7arNqxVibJi94U5LkYAX/FEpUrJ81dlG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Millikin <john@john-millikin.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Borislav Petkov <bp@suse.de>, Ard Biesheuvel <ardb@kernel.org>,
-        Sedat Dilek <sedat.dilek@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 018/190] x86/build: Propagate $(CLANG_FLAGS) to $(REALMODE_FLAGS)
-Date:   Thu, 20 May 2021 11:21:22 +0200
-Message-Id: <20210520092102.772574607@linuxfoundation.org>
+Subject: [PATCH 4.4 019/190] spi: dln2: Fix reference leak to master
+Date:   Thu, 20 May 2021 11:21:23 +0200
+Message-Id: <20210520092102.804414419@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -42,61 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Millikin <john@john-millikin.com>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 8abe7fc26ad8f28bfdf78adbed56acd1fa93f82d ]
+[ Upstream commit 9b844b087124c1538d05f40fda8a4fec75af55be ]
 
-When cross-compiling with Clang, the `$(CLANG_FLAGS)' variable
-contains additional flags needed to build C and assembly sources
-for the target platform. Normally this variable is automatically
-included in `$(KBUILD_CFLAGS)' via the top-level Makefile.
+Call spi_master_get() holds the reference count to master device, thus
+we need an additional spi_master_put() call to reduce the reference
+count, otherwise we will leak a reference to master.
 
-The x86 real-mode makefile builds `$(REALMODE_CFLAGS)' from a
-plain assignment and therefore drops the Clang flags. This causes
-Clang to not recognize x86-specific assembler directives:
+This commit fix it by removing the unnecessary spi_master_get().
 
-  arch/x86/realmode/rm/header.S:36:1: error: unknown directive
-  .type real_mode_header STT_OBJECT ; .size real_mode_header, .-real_mode_header
-  ^
-
-Explicit propagation of `$(CLANG_FLAGS)' to `$(REALMODE_CFLAGS)',
-which is inherited by real-mode make rules, fixes cross-compilation
-with Clang for x86 targets.
-
-Relevant flags:
-
-* `--target' sets the target architecture when cross-compiling. This
-  flag must be set for both compilation and assembly (`KBUILD_AFLAGS')
-  to support architecture-specific assembler directives.
-
-* `-no-integrated-as' tells clang to assemble with GNU Assembler
-  instead of its built-in LLVM assembler. This flag is set by default
-  unless `LLVM_IAS=1' is set, because the LLVM assembler can't yet
-  parse certain GNU extensions.
-
-Signed-off-by: John Millikin <john@john-millikin.com>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
-Tested-by: Sedat Dilek <sedat.dilek@gmail.com>
-Link: https://lkml.kernel.org/r/20210326000435.4785-2-nathan@kernel.org
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210409082955.2907950-1-weiyongjun1@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/Makefile | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/spi/spi-dln2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/Makefile b/arch/x86/Makefile
-index 2b3adb3008c3..c0045e3ad0f5 100644
---- a/arch/x86/Makefile
-+++ b/arch/x86/Makefile
-@@ -40,6 +40,7 @@ REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -ffreestanding
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -fno-stack-protector)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), -Wno-address-of-packed-member)
- REALMODE_CFLAGS += $(call __cc-option, $(CC), $(REALMODE_CFLAGS), $(cc_stack_align4))
-+REALMODE_CFLAGS += $(CLANG_FLAGS)
- export REALMODE_CFLAGS
+diff --git a/drivers/spi/spi-dln2.c b/drivers/spi/spi-dln2.c
+index 3b7d91d94fea..64b64174ce2f 100644
+--- a/drivers/spi/spi-dln2.c
++++ b/drivers/spi/spi-dln2.c
+@@ -781,7 +781,7 @@ exit_free_master:
  
- # BITS is used as extension for files which are available in a 32 bit
+ static int dln2_spi_remove(struct platform_device *pdev)
+ {
+-	struct spi_master *master = spi_master_get(platform_get_drvdata(pdev));
++	struct spi_master *master = platform_get_drvdata(pdev);
+ 	struct dln2_spi *dln2 = spi_master_get_devdata(master);
+ 
+ 	pm_runtime_disable(&pdev->dev);
 -- 
 2.30.2
 
