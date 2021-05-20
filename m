@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E198C38A919
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F5138A747
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:36:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239142AbhETK5d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:57:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54402 "EHLO mail.kernel.org"
+        id S236654AbhETKgk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:36:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239343AbhETKyt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:54:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11308616EB;
-        Thu, 20 May 2021 10:01:16 +0000 (UTC)
+        id S237249AbhETKdp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:33:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 091FA61C54;
+        Thu, 20 May 2021 09:53:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504877;
-        bh=p58Su/mXEqlLZWGxN//FzrObBgFLeTTpue4aC2N+oE8=;
+        s=korg; t=1621504389;
+        bh=dQVMyqFmdJZLV5KZ+KgQETcpsT3j27enl1PaykF2Az0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b236TGFT3F2NY+TDRYWnK23Ypo9A2k0erJ9OajzkAxZbWGDQEsAAeQgdM/jqdanaF
-         6XMgKcOgpFxMzlytUPCGBhl62TkfE2zs5tfB3XcFur8IUevsW8+hJV2PBO6EyCE26Z
-         7HGpa3bo7d5rrRnuLalGV4EySosKiN2M1hDdZ888=
+        b=RGAxf8HuDEeOT70lI8KefYqd6i36UJ8YsbPBF+AiucX+NzhQDayV3poexHgBy38l/
+         x7jMosq5gcfETNITSoRGzysztarKUHlUlMHJKQSXMxL1zee+WBHKHPpgfY+R0YvqOh
+         BXMO8GTX9odggxgsWpsuP5CBejMvgW51jDjyGBf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        stable@vger.kernel.org,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        Lorenzo Bianconi <lorenzo@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 122/240] media: vivid: fix assignment of dev->fbuf_out_flags
-Date:   Thu, 20 May 2021 11:21:54 +0200
-Message-Id: <20210520092112.767381792@linuxfoundation.org>
+Subject: [PATCH 4.14 223/323] ath9k: Fix error check in ath9k_hw_read_revisions() for PCI devices
+Date:   Thu, 20 May 2021 11:21:55 +0200
+Message-Id: <20210520092127.785891440@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Colin Ian King <colin.king@canonical.com>
+From: Toke Høiland-Jørgensen <toke@redhat.com>
 
-[ Upstream commit 5cde22fcc7271812a7944c47b40100df15908358 ]
+[ Upstream commit 7dd9a40fd6e0d0f1fd8e1931c007e080801dfdce ]
 
-Currently the chroma_flags and alpha_flags are being zero'd with a bit-wise
-mask and the following statement should be bit-wise or'ing in the new flag
-bits but instead is making a direct assignment.  Fix this by using the |=
-operator rather than an assignment.
+When the error check in ath9k_hw_read_revisions() was added, it checked for
+-EIO which is what ath9k_regread() in the ath9k_htc driver uses. However,
+for plain ath9k, the register read function uses ioread32(), which just
+returns -1 on error. So if such a read fails, it still gets passed through
+and ends up as a weird mac revision in the log output.
 
-Addresses-Coverity: ("Unused value")
+Fix this by changing ath9k_regread() to return -1 on error like ioread32()
+does, and fix the error check to look for that instead of -EIO.
 
-Fixes: ef834f7836ec ("[media] vivid: add the video capture and output parts")
-Signed-off-by: Colin Ian King <colin.king@canonical.com>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Fixes: 2f90c7e5d094 ("ath9k: Check for errors when reading SREV register")
+Signed-off-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Reviewed-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210326180819.142480-1-toke@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/platform/vivid/vivid-vid-out.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath9k/htc_drv_init.c | 2 +-
+ drivers/net/wireless/ath/ath9k/hw.c           | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/platform/vivid/vivid-vid-out.c b/drivers/media/platform/vivid/vivid-vid-out.c
-index 8fed2fbe91a9..f78caf72cb3e 100644
---- a/drivers/media/platform/vivid/vivid-vid-out.c
-+++ b/drivers/media/platform/vivid/vivid-vid-out.c
-@@ -1003,7 +1003,7 @@ int vivid_vid_out_s_fbuf(struct file *file, void *fh,
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/ath9k/htc_drv_init.c b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+index 66ef5cf16450..88e3b4a4de31 100644
+--- a/drivers/net/wireless/ath/ath9k/htc_drv_init.c
++++ b/drivers/net/wireless/ath/ath9k/htc_drv_init.c
+@@ -246,7 +246,7 @@ static unsigned int ath9k_regread(void *hw_priv, u32 reg_offset)
+ 	if (unlikely(r)) {
+ 		ath_dbg(common, WMI, "REGISTER READ FAILED: (0x%04x, %d)\n",
+ 			reg_offset, r);
+-		return -EIO;
++		return -1;
  	}
- 	dev->fbuf_out_flags &= ~(chroma_flags | alpha_flags);
--	dev->fbuf_out_flags = a->flags & (chroma_flags | alpha_flags);
-+	dev->fbuf_out_flags |= a->flags & (chroma_flags | alpha_flags);
- 	return 0;
- }
  
+ 	return be32_to_cpu(val);
+diff --git a/drivers/net/wireless/ath/ath9k/hw.c b/drivers/net/wireless/ath/ath9k/hw.c
+index 406b52f114f0..933d4f49d6b0 100644
+--- a/drivers/net/wireless/ath/ath9k/hw.c
++++ b/drivers/net/wireless/ath/ath9k/hw.c
+@@ -285,7 +285,7 @@ static bool ath9k_hw_read_revisions(struct ath_hw *ah)
+ 
+ 	srev = REG_READ(ah, AR_SREV);
+ 
+-	if (srev == -EIO) {
++	if (srev == -1) {
+ 		ath_err(ath9k_hw_common(ah),
+ 			"Failed to read SREV register");
+ 		return false;
 -- 
 2.30.2
 
