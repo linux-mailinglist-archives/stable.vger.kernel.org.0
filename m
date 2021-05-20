@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BD638A113
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:26:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABB1A38A15B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231341AbhETJ2J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:28:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52886 "EHLO mail.kernel.org"
+        id S232055AbhETJah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231908AbhETJ1V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:27:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 76E946124C;
-        Thu, 20 May 2021 09:25:59 +0000 (UTC)
+        id S231984AbhETJ2f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:28:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 113C9613AA;
+        Thu, 20 May 2021 09:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502759;
-        bh=5EPzffGvsdOFYPX4tm9bVja+aoL9dILhXUE4Y/w9V5Y=;
+        s=korg; t=1621502817;
+        bh=BgWX0d9h3klkaGXVA7a6ZgusKUgNUKaqRxDr0yosfq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vTjv4x8Gp25GyL3zSE2xa/e6p7obDWhdy40XQG8Y/Xh4pMhMlJLWpUPmWDzL2g77U
-         0ZBRBODan1ofvLC4crMgclSSiwKE8K19FLbENYum+bN6EtESqQ4IhRvsHz1oic8cma
-         zyXkIpCBFy0QWmlnhfdorzUsPMt6UcwladIKnd4Q=
+        b=bh7iFexLMiNJxPadqKcm1wMMWig/7svjSpn4SdkNC7kg+98q1P1ZhmI/D+j2Zo32l
+         lGPvRJCax7KRpqN9ML+HPKPjvBXk0TgVoyoq12zRf82CqptZlWjWQex7ypizBa+EZj
+         N20nOn1m7qmueafZovazgncUMQAPCSc81NeYq0eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
+        Ilya Dryomov <idryomov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 37/45] net:CXGB4: fix leak if sk_buff is not used
+Subject: [PATCH 5.10 27/47] ceph: fix fscache invalidation
 Date:   Thu, 20 May 2021 11:22:25 +0200
-Message-Id: <20210520092054.726023705@linuxfoundation.org>
+Message-Id: <20210520092054.426572911@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
-References: <20210520092053.516042993@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,68 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Íñigo Huguet <ihuguet@redhat.com>
+From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 52bfcdd87e83d9e69d22da5f26b1512ffc81deed ]
+[ Upstream commit 10a7052c7868bc7bc72d947f5aac6f768928db87 ]
 
-An sk_buff is allocated to send a flow control message, but it's not
-sent in all cases: in case the state is not appropiate to send it or if
-it can't be enqueued.
+Ensure that we invalidate the fscache whenever we invalidate the
+pagecache.
 
-In the first of these 2 cases, the sk_buff was discarded but not freed,
-producing a memory leak.
-
-Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/sge.c | 16 +++++++++-------
- 1 file changed, 9 insertions(+), 7 deletions(-)
+ fs/ceph/caps.c  | 1 +
+ fs/ceph/inode.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 256fae15e032..1e5f2edb70cf 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -2563,12 +2563,12 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
- 	spin_lock_bh(&eosw_txq->lock);
- 	if (tc != FW_SCHED_CLS_NONE) {
- 		if (eosw_txq->state != CXGB4_EO_STATE_CLOSED)
--			goto out_unlock;
-+			goto out_free_skb;
+diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
+index 576d01275bbd..e4fc99afa25a 100644
+--- a/fs/ceph/caps.c
++++ b/fs/ceph/caps.c
+@@ -1866,6 +1866,7 @@ static int try_nonblocking_invalidate(struct inode *inode)
+ 	u32 invalidating_gen = ci->i_rdcache_gen;
  
- 		next_state = CXGB4_EO_STATE_FLOWC_OPEN_SEND;
- 	} else {
- 		if (eosw_txq->state != CXGB4_EO_STATE_ACTIVE)
--			goto out_unlock;
-+			goto out_free_skb;
+ 	spin_unlock(&ci->i_ceph_lock);
++	ceph_fscache_invalidate(inode);
+ 	invalidate_mapping_pages(&inode->i_data, 0, -1);
+ 	spin_lock(&ci->i_ceph_lock);
  
- 		next_state = CXGB4_EO_STATE_FLOWC_CLOSE_SEND;
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index 2462a9a84b95..6bd2a6ced22a 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -1912,6 +1912,7 @@ static void ceph_do_invalidate_pages(struct inode *inode)
+ 	orig_gen = ci->i_rdcache_gen;
+ 	spin_unlock(&ci->i_ceph_lock);
+ 
++	ceph_fscache_invalidate(inode);
+ 	if (invalidate_inode_pages2(inode->i_mapping) < 0) {
+ 		pr_err("invalidate_pages %p fails\n", inode);
  	}
-@@ -2604,17 +2604,19 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
- 		eosw_txq_flush_pending_skbs(eosw_txq);
- 
- 	ret = eosw_txq_enqueue(eosw_txq, skb);
--	if (ret) {
--		dev_consume_skb_any(skb);
--		goto out_unlock;
--	}
-+	if (ret)
-+		goto out_free_skb;
- 
- 	eosw_txq->state = next_state;
- 	eosw_txq->flowc_idx = eosw_txq->pidx;
- 	eosw_txq_advance(eosw_txq, 1);
- 	ethofld_xmit(dev, eosw_txq);
- 
--out_unlock:
-+	spin_unlock_bh(&eosw_txq->lock);
-+	return 0;
-+
-+out_free_skb:
-+	dev_consume_skb_any(skb);
- 	spin_unlock_bh(&eosw_txq->lock);
- 	return ret;
- }
 -- 
 2.30.2
 
