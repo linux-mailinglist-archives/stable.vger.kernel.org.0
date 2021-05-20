@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3190D38AAE5
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23C6238A96C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238716AbhETLSh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:18:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36532 "EHLO mail.kernel.org"
+        id S239369AbhETLB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240106AbhETLQg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:16:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A453A61D66;
-        Thu, 20 May 2021 10:09:21 +0000 (UTC)
+        id S239618AbhETK76 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:59:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 675C26191C;
+        Thu, 20 May 2021 10:03:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505362;
-        bh=sRmKbQ9M9m/KHejh45A7L4tK3TePyZsP5DOxKt3eD4s=;
+        s=korg; t=1621504989;
+        bh=AMAJjQ9ujnVW2iJvR7jMrwqJOFWID0e5DYKKQR9xvCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J/WISTxIImgu98HpmPkCr6CkHzZBhH7o9vg6USyki54I3N3+WopfPs1M1ESvAbxIk
-         wEDSp+RALQWCtKVVGPZ1SE1O22YOUdHYFsCLs++v0fanXzlE8s8BsUGG9k1pSqiqXY
-         94b2Z87by04JyUY2wNjlMeoxS8u/fzQsGpgd/xKg=
+        b=q2oMMULWlr4hrpc79V9EPeSy8u40Pk4zic/+tBxUiTBtj+7cC6DrXQQO9QZBZxQbY
+         4LSKA2XXzXMocyKAftGpNHj0JldUHKmLhEy/ZtGLcINQ27hrLzQfdEZ1jBYiIOAi7C
+         JBZJnGJhytLHcQ3ok4hqlg90FzGJj17lR5ub/Vqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 100/190] pata_arasan_cf: fix IRQ check
+        stable@vger.kernel.org, Jonathan McDowell <noodles@earth.li>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 172/240] net: stmmac: Set FIFO sizes for ipq806x
 Date:   Thu, 20 May 2021 11:22:44 +0200
-Message-Id: <20210520092105.506011713@linuxfoundation.org>
+Message-Id: <20210520092114.427578636@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +40,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Jonathan McDowell <noodles@earth.li>
 
-[ Upstream commit c7e8f404d56b99c80990b19a402c3f640d74be05 ]
+[ Upstream commit e127906b68b49ddb3ecba39ffa36a329c48197d3 ]
 
-The driver's probe() method is written as if platform_get_irq() returns 0
-on error, while actually it returns a negative error code (with all the
-other values considered valid IRQs). Rewrite the driver's IRQ checking code
-to pass the positive IRQ #s to ata_host_activate(), propagate upstream
--EPROBE_DEFER, and set up the driver to polling mode on (negative) errors
-and IRQ0 (libata treats IRQ #0 as a polling mode anyway)...
+Commit eaf4fac47807 ("net: stmmac: Do not accept invalid MTU values")
+started using the TX FIFO size to verify what counts as a valid MTU
+request for the stmmac driver.  This is unset for the ipq806x variant.
+Looking at older patches for this it seems the RX + TXs buffers can be
+up to 8k, so set appropriately.
 
-Fixes: a480167b23ef ("pata_arasan_cf: Adding support for arasan compact flash host controller")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+(I sent this as an RFC patch in June last year, but received no replies.
+I've been running with this on my hardware (a MikroTik RB3011) since
+then with larger MTUs to support both the internal qca8k switch and
+VLANs with no problems. Without the patch it's impossible to set the
+larger MTU required to support this.)
+
+Signed-off-by: Jonathan McDowell <noodles@earth.li>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/ata/pata_arasan_cf.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/ata/pata_arasan_cf.c b/drivers/ata/pata_arasan_cf.c
-index 80fe0f6fed29..a6b1a7556d37 100644
---- a/drivers/ata/pata_arasan_cf.c
-+++ b/drivers/ata/pata_arasan_cf.c
-@@ -819,12 +819,19 @@ static int arasan_cf_probe(struct platform_device *pdev)
- 	else
- 		quirk = CF_BROKEN_UDMA; /* as it is on spear1340 */
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+index 1924788d28da..f4ff43a1b5ba 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-ipq806x.c
+@@ -363,6 +363,8 @@ static int ipq806x_gmac_probe(struct platform_device *pdev)
+ 	plat_dat->bsp_priv = gmac;
+ 	plat_dat->fix_mac_speed = ipq806x_gmac_fix_mac_speed;
+ 	plat_dat->multicast_filter_bins = 0;
++	plat_dat->tx_fifo_size = 8192;
++	plat_dat->rx_fifo_size = 8192;
  
--	/* if irq is 0, support only PIO */
--	acdev->irq = platform_get_irq(pdev, 0);
--	if (acdev->irq)
-+	/*
-+	 * If there's an error getting IRQ (or we do get IRQ0),
-+	 * support only PIO
-+	 */
-+	ret = platform_get_irq(pdev, 0);
-+	if (ret > 0) {
-+		acdev->irq = ret;
- 		irq_handler = arasan_cf_interrupt;
--	else
-+	} else	if (ret == -EPROBE_DEFER) {
-+		return ret;
-+	} else	{
- 		quirk |= CF_BROKEN_MWDMA | CF_BROKEN_UDMA;
-+	}
- 
- 	acdev->pbase = res->start;
- 	acdev->vbase = devm_ioremap_nocache(&pdev->dev, res->start,
+ 	err = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (err)
 -- 
 2.30.2
 
