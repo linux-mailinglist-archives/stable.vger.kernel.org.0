@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A4338A6ED
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E726E38A8B6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234477AbhETKbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:31:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60508 "EHLO mail.kernel.org"
+        id S239252AbhETKw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:52:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237186AbhETK3m (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:29:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D889661584;
-        Thu, 20 May 2021 09:51:40 +0000 (UTC)
+        id S239070AbhETKuw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:50:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 608C3616ED;
+        Thu, 20 May 2021 09:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504301;
-        bh=ViUhsG7ihVLMRZP+IwYEc5P+52bbMLlx7R4NnNka/no=;
+        s=korg; t=1621504795;
+        bh=xXX5McdmUxXqSOBkFsDc4M7sZeKPB7C/9OfsfQ9iiuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0IdAU+Rfiz0vkReOvhx/QxnzZVGgqRQMK4jaq52rDa0pNPNqt1vUQQxVWODpLury7
-         E7b44fGDveOwlp582tMuHZeonTrP9C+UzKP9doo/+Ky7dLBAd4MZ7t2ojl9BujV9Go
-         2VS6tn6NFn0aRFnQX2vFsmGUzWNrPQMJOHLNpmqc=
+        b=u9Kgup+1VDvBkDxNL9KuiWNtLVn9LmYjUfjOYCRnPXWlfBYwh2z+8Q1H3jPtGrsg6
+         p70O7cv0AwPf0YwcizY1tyjFJRy9RT9Cs8VOm8OqSli0lPoHzW3djYJQ/cInHOfEuu
+         jQY2fu0T+2BQ2sGA7+CY+X6nTTRl/WI/Sn2vBJ/o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 184/323] pata_ipx4xx_cf: fix IRQ check
-Date:   Thu, 20 May 2021 11:21:16 +0200
-Message-Id: <20210520092126.414017738@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Colin Ian King <colin.king@canonical.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 4.9 085/240] drm/radeon: fix copy of uninitialized variable back to userspace
+Date:   Thu, 20 May 2021 11:21:17 +0200
+Message-Id: <20210520092111.543899074@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Colin Ian King <colin.king@canonical.com>
 
-[ Upstream commit e379b40cc0f179403ce0b82b7e539f635a568da5 ]
+commit 8dbc2ccac5a65c5b57e3070e36a3dc97c7970d96 upstream.
 
-The driver's probe() method is written as if platform_get_irq() returns 0
-on error, while actually it returns a negative error code (with all the
-other values considered valid IRQs).  Rewrite the driver's IRQ checking
-code to pass the positive IRQ #s to ata_host_activate(), propagate errors
-upstream, and treat IRQ0 as error, returning -EINVAL, as the libata code
-treats 0  as  an indication that polling should be used anyway...
+Currently the ioctl command RADEON_INFO_SI_BACKEND_ENABLED_MASK can
+copy back uninitialised data in value_tmp that pointer *value points
+to. This can occur when rdev->family is less than CHIP_BONAIRE and
+less than CHIP_TAHITI.  Fix this by adding in a missing -EINVAL
+so that no invalid value is copied back to userspace.
 
-Fixes: 0df0d0a0ea9f ("[libata] ARM: add ixp4xx PATA driver")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Addresses-Coverity: ("Uninitialized scalar variable)
+Cc: stable@vger.kernel.org # 3.13+
+Fixes: 439a1cfffe2c ("drm/radeon: expose render backend mask to the userspace")
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Colin Ian King <colin.king@canonical.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/pata_ixp4xx_cf.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/radeon/radeon_kms.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/ata/pata_ixp4xx_cf.c b/drivers/ata/pata_ixp4xx_cf.c
-index 0b0d93065f5a..867621f8c387 100644
---- a/drivers/ata/pata_ixp4xx_cf.c
-+++ b/drivers/ata/pata_ixp4xx_cf.c
-@@ -169,8 +169,12 @@ static int ixp4xx_pata_probe(struct platform_device *pdev)
- 		return -ENOMEM;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq)
-+	if (irq > 0)
- 		irq_set_irq_type(irq, IRQ_TYPE_EDGE_RISING);
-+	else if (irq < 0)
-+		return irq;
-+	else
-+		return -EINVAL;
- 
- 	/* Setup expansion bus chip selects */
- 	*data->cs0_cfg = data->cs0_bits;
--- 
-2.30.2
-
+--- a/drivers/gpu/drm/radeon/radeon_kms.c
++++ b/drivers/gpu/drm/radeon/radeon_kms.c
+@@ -506,6 +506,7 @@ static int radeon_info_ioctl(struct drm_
+ 			*value = rdev->config.si.backend_enable_mask;
+ 		} else {
+ 			DRM_DEBUG_KMS("BACKEND_ENABLED_MASK is si+ only!\n");
++			return -EINVAL;
+ 		}
+ 		break;
+ 	case RADEON_INFO_MAX_SCLK:
 
 
