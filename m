@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EF23438A7F8
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:45:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16FAA38A7B6
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237948AbhETKpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:45:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44316 "EHLO mail.kernel.org"
+        id S235151AbhETKl7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:41:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237452AbhETKnN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:43:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 01894613C5;
-        Thu, 20 May 2021 09:56:39 +0000 (UTC)
+        id S238205AbhETKjl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:39:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C891B613AF;
+        Thu, 20 May 2021 09:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504600;
-        bh=4G73B3b8NwKnKkSi7L4+RgtOexBqFsZKbLz+cYPJpr4=;
+        s=korg; t=1621504521;
+        bh=NbHsWF4toT2TuevvL7bKcFylbLteqHQtL3Dy47Am6cc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyopWPilzNVQK9K7YjC9n/SK89NS5L2o7yGZXbidAE59ePsB183G7uVbyv4fuIyTt
-         VMmcRU6/WTL3wzeMkVox7mSC5Xx/MntZEj4WVmqHtSeQ8mYuXwh+MjBeyg3s1U20BQ
-         xFZQERxodbuW/Lj4r6mYzJpxR4VkKzIOj+QpItmI=
+        b=H1nohm8NkaMShwXUNFms1MWi4GL7q6QkFkRQicN5+2+z/1GYk2lRYn11RaKxFF7ti
+         bA1gGzl+sZHUSn3TIqpJbWLo4V8YuPishcjWcbADfxpB3q5uXNp7z1lOVSIxjPFNRG
+         mLMHmcuNxjs+W/RXTlP7GC/F7Ia9Wpo2gPHSZy8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 275/323] netfilter: nftables: avoid overflows in nft_hash_buckets()
-Date:   Thu, 20 May 2021 11:22:47 +0200
-Message-Id: <20210520092129.651638763@linuxfoundation.org>
+        stable@vger.kernel.org, Shahab Vahedi <shahab@synopsys.com>,
+        Vineet Gupta <vgupta@synopsys.com>
+Subject: [PATCH 4.14 276/323] ARC: entry: fix off-by-one error in syscall number validation
+Date:   Thu, 20 May 2021 11:22:48 +0200
+Message-Id: <20210520092129.683163037@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -41,76 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Vineet Gupta <vgupta@synopsys.com>
 
-[ Upstream commit a54754ec9891830ba548e2010c889e3c8146e449 ]
+commit 3433adc8bd09fc9f29b8baddf33b4ecd1ecd2cdc upstream.
 
-Number of buckets being stored in 32bit variables, we have to
-ensure that no overflows occur in nft_hash_buckets()
+We have NR_syscall syscalls from [0 .. NR_syscall-1].
+However the check for invalid syscall number is "> NR_syscall" as
+opposed to >=. This off-by-one error erronesously allows "NR_syscall"
+to be treated as valid syscall causeing out-of-bounds access into
+syscall-call table ensuing a crash (holes within syscall table have a
+invalid-entry handler but this is beyond the array implementing the
+table).
 
-syzbot injected a size == 0x40000000 and reported:
+This problem showed up on v5.6 kernel when testing glibc 2.33 (v5.10
+kernel capable, includng faccessat2 syscall 439). The v5.6 kernel has
+NR_syscalls=439 (0 to 438). Due to the bug, 439 passed by glibc was
+not handled as -ENOSYS but processed leading to a crash.
 
-UBSAN: shift-out-of-bounds in ./include/linux/log2.h:57:13
-shift exponent 64 is too large for 64-bit type 'long unsigned int'
-CPU: 1 PID: 29539 Comm: syz-executor.4 Not tainted 5.12.0-rc7-syzkaller #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x141/0x1d7 lib/dump_stack.c:120
- ubsan_epilogue+0xb/0x5a lib/ubsan.c:148
- __ubsan_handle_shift_out_of_bounds.cold+0xb1/0x181 lib/ubsan.c:327
- __roundup_pow_of_two include/linux/log2.h:57 [inline]
- nft_hash_buckets net/netfilter/nft_set_hash.c:411 [inline]
- nft_hash_estimate.cold+0x19/0x1e net/netfilter/nft_set_hash.c:652
- nft_select_set_ops net/netfilter/nf_tables_api.c:3586 [inline]
- nf_tables_newset+0xe62/0x3110 net/netfilter/nf_tables_api.c:4322
- nfnetlink_rcv_batch+0xa09/0x24b0 net/netfilter/nfnetlink.c:488
- nfnetlink_rcv_skb_batch net/netfilter/nfnetlink.c:612 [inline]
- nfnetlink_rcv+0x3af/0x420 net/netfilter/nfnetlink.c:630
- netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
- netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
- netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
- sock_sendmsg_nosec net/socket.c:654 [inline]
- sock_sendmsg+0xcf/0x120 net/socket.c:674
- ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
- ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
- __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
- do_syscall_64+0x2d/0x70 arch/x86/entry/common.c:46
-
-Fixes: 0ed6389c483d ("netfilter: nf_tables: rename set implementations")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://github.com/foss-for-synopsys-dwc-arc-processors/linux/issues/48
+Reported-by: Shahab Vahedi <shahab@synopsys.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Vineet Gupta <vgupta@synopsys.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_set_hash.c | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ arch/arc/kernel/entry.S |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_set_hash.c b/net/netfilter/nft_set_hash.c
-index 73f8f99b1193..a8daa80143ef 100644
---- a/net/netfilter/nft_set_hash.c
-+++ b/net/netfilter/nft_set_hash.c
-@@ -364,9 +364,17 @@ static void nft_rhash_destroy(const struct nft_set *set)
- 				    (void *)set);
- }
+--- a/arch/arc/kernel/entry.S
++++ b/arch/arc/kernel/entry.S
+@@ -169,7 +169,7 @@ tracesys:
  
-+/* Number of buckets is stored in u32, so cap our result to 1U<<31 */
-+#define NFT_MAX_BUCKETS (1U << 31)
-+
- static u32 nft_hash_buckets(u32 size)
- {
--	return roundup_pow_of_two(size * 4 / 3);
-+	u64 val = div_u64((u64)size * 4, 3);
-+
-+	if (val >= NFT_MAX_BUCKETS)
-+		return NFT_MAX_BUCKETS;
-+
-+	return roundup_pow_of_two(val);
- }
+ 	; Do the Sys Call as we normally would.
+ 	; Validate the Sys Call number
+-	cmp     r8,  NR_syscalls
++	cmp     r8,  NR_syscalls - 1
+ 	mov.hi  r0, -ENOSYS
+ 	bhi     tracesys_exit
  
- static bool nft_rhash_estimate(const struct nft_set_desc *desc, u32 features,
--- 
-2.30.2
-
+@@ -252,7 +252,7 @@ ENTRY(EV_Trap)
+ 	;============ Normal syscall case
+ 
+ 	; syscall num shd not exceed the total system calls avail
+-	cmp     r8,  NR_syscalls
++	cmp     r8,  NR_syscalls - 1
+ 	mov.hi  r0, -ENOSYS
+ 	bhi     .Lret_from_system_call
+ 
 
 
