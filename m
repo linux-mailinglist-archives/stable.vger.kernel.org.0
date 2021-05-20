@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9852538A2EF
+	by mail.lfdr.de (Postfix) with ESMTP id E1ADB38A2F0
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:46:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234024AbhETJrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:47:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48598 "EHLO mail.kernel.org"
+        id S233924AbhETJr0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:47:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233208AbhETJpW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:45:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03FA561454;
-        Thu, 20 May 2021 09:33:29 +0000 (UTC)
+        id S233209AbhETJpX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:45:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 383CE613D4;
+        Thu, 20 May 2021 09:33:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503210;
-        bh=MnI57VyR5o7WvbngTL0WOgK3QGV4M5pF1EDV+8pmI9Q=;
+        s=korg; t=1621503212;
+        bh=jlHOIqEnKSZfx+DKjSDVsODchpEeE+sFQmL6i7It2I0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WZRd7QyXUQO4TVTO3V2Px4hQBANn/gimIWPjvjtMtiSb/bBuHTr6/0hHZfpe2ch28
-         d/HiGLb0YvpvdsosTRc/sgPMsDjqTQSO6CuCuMvZQW+LjGs1YMpSYXgVzYWUnJegR6
-         vJODd/WDtEaxQfUU4ZZZW+BFbgl0836vXzAXNynk=
+        b=ohfRxvEKu4Dfjg+LeOPkiBnQiRBZGhja9u2gX8aAkqUIXVK+ftPYBgaVraOaAIWeL
+         ShhR/wVVdRr5OMJucyVQIULIn0kQk0r+H1sNf25skygsoyxSjnor3eN6O1KkEQbyGZ
+         8DT6B8LgLyQ0ukU7mIzpjfbIWDUAiYtix2rUxDSM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
         Jessica Yu <jeyu@kernel.org>
-Subject: [PATCH 4.19 119/425] modules: mark ref_module static
-Date:   Thu, 20 May 2021 11:18:08 +0200
-Message-Id: <20210520092135.353180705@linuxfoundation.org>
+Subject: [PATCH 4.19 120/425] modules: mark find_symbol static
+Date:   Thu, 20 May 2021 11:18:09 +0200
+Message-Id: <20210520092135.383802887@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -41,59 +41,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-commit 7ef5264de773279b9f23b6cc8afb5addb30e970b upstream.
+commit 773110470e2fa3839523384ae014f8a723c4d178 upstream.
 
-ref_module isn't used anywhere outside of module.c.
+find_symbol is only used in module.c.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Jessica Yu <jeyu@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/module.h |    1 -
- kernel/module.c        |    6 ++----
- 2 files changed, 2 insertions(+), 5 deletions(-)
+ include/linux/module.h |   11 -----------
+ kernel/module.c        |    3 +--
+ 2 files changed, 1 insertion(+), 13 deletions(-)
 
 --- a/include/linux/module.h
 +++ b/include/linux/module.h
-@@ -604,7 +604,6 @@ static inline void __module_get(struct m
- #define symbol_put_addr(p) do { } while (0)
+@@ -538,17 +538,6 @@ struct symsearch {
+ };
  
- #endif /* CONFIG_MODULE_UNLOAD */
--int ref_module(struct module *a, struct module *b);
- 
- /* This is a #define so the string doesn't get put in every .o file */
- #define module_name(mod)			\
+ /*
+- * Search for an exported symbol by name.
+- *
+- * Must be called with module_mutex held or preemption disabled.
+- */
+-const struct kernel_symbol *find_symbol(const char *name,
+-					struct module **owner,
+-					const s32 **crc,
+-					bool gplok,
+-					bool warn);
+-
+-/*
+  * Walk the exported symbol table
+  *
+  * Must be called with module_mutex held or preemption disabled.
 --- a/kernel/module.c
 +++ b/kernel/module.c
-@@ -851,7 +851,7 @@ static int add_module_usage(struct modul
+@@ -568,7 +568,7 @@ static bool find_symbol_in_section(const
+ 
+ /* Find a symbol and return it, along with, (optional) crc and
+  * (optional) module which owns it.  Needs preempt disabled or module_mutex. */
+-const struct kernel_symbol *find_symbol(const char *name,
++static const struct kernel_symbol *find_symbol(const char *name,
+ 					struct module **owner,
+ 					const s32 **crc,
+ 					bool gplok,
+@@ -591,7 +591,6 @@ const struct kernel_symbol *find_symbol(
+ 	pr_debug("Failed to find symbol %s\n", name);
+ 	return NULL;
  }
+-EXPORT_SYMBOL_GPL(find_symbol);
  
- /* Module a uses b: caller needs module_mutex() */
--int ref_module(struct module *a, struct module *b)
-+static int ref_module(struct module *a, struct module *b)
- {
- 	int err;
- 
-@@ -870,7 +870,6 @@ int ref_module(struct module *a, struct
- 	}
- 	return 0;
- }
--EXPORT_SYMBOL_GPL(ref_module);
- 
- /* Clear the unload stuff of the module. */
- static void module_unload_free(struct module *mod)
-@@ -1151,11 +1150,10 @@ static inline void module_unload_free(st
- {
- }
- 
--int ref_module(struct module *a, struct module *b)
-+static int ref_module(struct module *a, struct module *b)
- {
- 	return strong_try_module_get(b);
- }
--EXPORT_SYMBOL_GPL(ref_module);
- 
- static inline int module_unload_init(struct module *mod)
- {
+ /*
+  * Search for module by name: must hold module_mutex (or preempt disabled
 
 
