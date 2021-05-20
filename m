@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEC1638AB47
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0BC238A9D0
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:05:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239402AbhETLWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
+        id S239869AbhETLGh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:06:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240465AbhETLUg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:20:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7991B61D84;
-        Thu, 20 May 2021 10:11:09 +0000 (UTC)
+        id S239993AbhETLEe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:04:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB8861D1E;
+        Thu, 20 May 2021 10:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505469;
-        bh=ZpKop7a3TUJCeE4gnzgdKitIvMnEbF0gqyaNlowowLA=;
+        s=korg; t=1621505097;
+        bh=FJkQtf+tZ/efU95vBBAf9ObQNRM7Retkze9er/C6rKE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFv6j/8lnq3g0pCP61pgpbhebHZrwgDK9zPq39bGvE9cGD4isjglpkMDg+95oXuIM
-         6UqAcfyXbvxKDT8O8uAcKM8t05jit4yRlTgzq/yx7kNsQV1Q+HXS1ql718ipfc6GBp
-         V+8xYV3NM+5zrz21kQ7MRjXtPSy92+fisiFNUa00=
+        b=hYpQQVPyAM5KuI/Sd67OjRXyliryToQxmLPG+plMIkHoB7aznxRuu36G+JIrteeG7
+         Ow/GmDKw1omiZ6j95MizvhOYdrLm5tq6fkH58NGT0s95UC/QBNAXnvTXJTvy4rF0uP
+         /sjgc6oIsMma8Q3l0o5YsKrbjt0Wx9W42e2xkO1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
+        Kees Cook <keescook@chromium.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 115/190] nfc: pn533: prevent potential memory corruption
+Subject: [PATCH 4.9 187/240] wl3501_cs: Fix out-of-bounds warnings in wl3501_send_pkt
 Date:   Thu, 20 May 2021 11:22:59 +0200
-Message-Id: <20210520092106.004568090@linuxfoundation.org>
+Message-Id: <20210520092114.927511850@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Gustavo A. R. Silva <gustavoars@kernel.org>
 
-[ Upstream commit ca4d4c34ae9aa5c3c0da76662c5e549d2fc0cc86 ]
+[ Upstream commit 820aa37638a252b57967bdf4038a514b1ab85d45 ]
 
-If the "type_a->nfcid_len" is too large then it would lead to memory
-corruption in pn533_target_found_type_a() when we do:
+Fix the following out-of-bounds warnings by enclosing structure members
+daddr and saddr into new struct addr, in structures wl3501_md_req and
+wl3501_md_ind:
 
-	memcpy(nfc_tgt->nfcid1, tgt_type_a->nfcid_data, nfc_tgt->nfcid1_len);
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
+arch/x86/include/asm/string_32.h:182:25: warning: '__builtin_memcpy' offset [18, 23] from the object at 'sig' is out of the bounds of referenced subobject 'daddr' with type 'u8[6]' {aka 'unsigned char[6]'} at offset 11 [-Warray-bounds]
 
-Fixes: c3b1e1e8a76f ("NFC: Export NFCID1 from pn533")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Refactor the code, accordingly:
+
+$ pahole -C wl3501_md_req drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_req {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         pri;                  /*     8     1 */
+	u8                         service_class;        /*     9     1 */
+	struct {
+		u8                 daddr[6];             /*    10     6 */
+		u8                 saddr[6];             /*    16     6 */
+	} addr;                                          /*    10    12 */
+
+	/* size: 22, cachelines: 1, members: 8 */
+	/* last cacheline: 22 bytes */
+};
+
+$ pahole -C wl3501_md_ind drivers/net/wireless/wl3501_cs.o
+struct wl3501_md_ind {
+	u16                        next_blk;             /*     0     2 */
+	u8                         sig_id;               /*     2     1 */
+	u8                         routing;              /*     3     1 */
+	u16                        data;                 /*     4     2 */
+	u16                        size;                 /*     6     2 */
+	u8                         reception;            /*     8     1 */
+	u8                         pri;                  /*     9     1 */
+	u8                         service_class;        /*    10     1 */
+	struct {
+		u8                 daddr[6];             /*    11     6 */
+		u8                 saddr[6];             /*    17     6 */
+	} addr;                                          /*    11    12 */
+
+	/* size: 24, cachelines: 1, members: 9 */
+	/* padding: 1 */
+	/* last cacheline: 24 bytes */
+};
+
+The problem is that the original code is trying to copy data into a
+couple of arrays adjacent to each other in a single call to memcpy().
+Now that a new struct _addr_ enclosing those two adjacent arrays
+is introduced, memcpy() doesn't overrun the length of &sig.daddr[0]
+and &sig.daddr, because the address of the new struct object _addr_
+is used, instead.
+
+This helps with the ongoing efforts to globally enable -Warray-bounds
+and get us closer to being able to tighten the FORTIFY_SOURCE routines
+on memcpy().
+
+Link: https://github.com/KSPP/linux/issues/109
+Reported-by: kernel test robot <lkp@intel.com>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/d260fe56aed7112bff2be5b4d152d03ad7b78e78.1618442265.git.gustavoars@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nfc/pn533.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/wl3501.h    | 12 ++++++++----
+ drivers/net/wireless/wl3501_cs.c | 10 ++++++----
+ 2 files changed, 14 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/nfc/pn533.c b/drivers/nfc/pn533.c
-index bb3d5ea9869c..001c12867e43 100644
---- a/drivers/nfc/pn533.c
-+++ b/drivers/nfc/pn533.c
-@@ -1250,6 +1250,9 @@ static bool pn533_target_type_a_is_valid(struct pn533_target_type_a *type_a,
- 	if (PN533_TYPE_A_SEL_CASCADE(type_a->sel_res) != 0)
- 		return false;
+diff --git a/drivers/net/wireless/wl3501.h b/drivers/net/wireless/wl3501.h
+index 3fbfd19818f1..ba2a36cfb1c8 100644
+--- a/drivers/net/wireless/wl3501.h
++++ b/drivers/net/wireless/wl3501.h
+@@ -470,8 +470,10 @@ struct wl3501_md_req {
+ 	u16	size;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
-+	if (type_a->nfcid_len > NFC_NFCID1_MAXSIZE)
-+		return false;
-+
- 	return true;
- }
+ struct wl3501_md_ind {
+@@ -483,8 +485,10 @@ struct wl3501_md_ind {
+ 	u8	reception;
+ 	u8	pri;
+ 	u8	service_class;
+-	u8	daddr[ETH_ALEN];
+-	u8	saddr[ETH_ALEN];
++	struct {
++		u8	daddr[ETH_ALEN];
++		u8	saddr[ETH_ALEN];
++	} addr;
+ };
  
+ struct wl3501_md_confirm {
+diff --git a/drivers/net/wireless/wl3501_cs.c b/drivers/net/wireless/wl3501_cs.c
+index 932f3f81e8cf..f49a44581ede 100644
+--- a/drivers/net/wireless/wl3501_cs.c
++++ b/drivers/net/wireless/wl3501_cs.c
+@@ -468,6 +468,7 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 	struct wl3501_md_req sig = {
+ 		.sig_id = WL3501_SIG_MD_REQ,
+ 	};
++	size_t sig_addr_len = sizeof(sig.addr);
+ 	u8 *pdata = (char *)data;
+ 	int rc = -EIO;
+ 
+@@ -483,9 +484,9 @@ static int wl3501_send_pkt(struct wl3501_card *this, u8 *data, u16 len)
+ 			goto out;
+ 		}
+ 		rc = 0;
+-		memcpy(&sig.daddr[0], pdata, 12);
+-		pktlen = len - 12;
+-		pdata += 12;
++		memcpy(&sig.addr, pdata, sig_addr_len);
++		pktlen = len - sig_addr_len;
++		pdata += sig_addr_len;
+ 		sig.data = bf;
+ 		if (((*pdata) * 256 + (*(pdata + 1))) > 1500) {
+ 			u8 addr4[ETH_ALEN] = {
+@@ -979,7 +980,8 @@ static inline void wl3501_md_ind_interrupt(struct net_device *dev,
+ 	} else {
+ 		skb->dev = dev;
+ 		skb_reserve(skb, 2); /* IP headers on 16 bytes boundaries */
+-		skb_copy_to_linear_data(skb, (unsigned char *)&sig.daddr, 12);
++		skb_copy_to_linear_data(skb, (unsigned char *)&sig.addr,
++					sizeof(sig.addr));
+ 		wl3501_receive(this, skb->data, pkt_len);
+ 		skb_put(skb, pkt_len);
+ 		skb->protocol	= eth_type_trans(skb, dev);
 -- 
 2.30.2
 
