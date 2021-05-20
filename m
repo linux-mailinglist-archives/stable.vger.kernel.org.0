@@ -2,31 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 021E638A663
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FCC38A665
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:25:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236089AbhETK0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:26:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54242 "EHLO mail.kernel.org"
+        id S234819AbhETK02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236802AbhETKYc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:24:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B8D661465;
-        Thu, 20 May 2021 09:49:28 +0000 (UTC)
+        id S236814AbhETKYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C114561C18;
+        Thu, 20 May 2021 09:49:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504169;
-        bh=rAj/I9XrTXvfC4kGNOHuq0EJVGXRQGbCyUpSWlKL1ew=;
+        s=korg; t=1621504171;
+        bh=7VcG0lWkhYG2Zht8kzAcgvLD5mz/r4+3sgLPA3nHlW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QI5Vzu1toseJ0o3ji23/AypPNTWPPNnUZIhKq/0LGtotXlqwOkBsnEhlqKws9D1af
-         PrtYUqrWKBY35JKLwXyzo0KV+BLdQ2MuQAwZXC93sD3Rv6RSIbTU2V6XlqLNIfkXTH
-         w7qkeZU5qsIptEEmY/lJBbt+IdZ7NhpJlfhafhSw=
+        b=T/nVsHBcIkonHaBnQ61JjsXIY+lbpdb/isV48VVKd3M/REcjT24c3a1+FpdkL3UM9
+         PWJQb/m6me3wB9mhtGfjkfRm2uzmdfD+2EIjQIN+g3ILm/xC0H7AKKdCKul0UbTsfl
+         +nyEZwymiTuwFIvNmUtKpthPUX/x35IAhsHSrNUc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 4.14 122/323] md: split mddev_find
-Date:   Thu, 20 May 2021 11:20:14 +0200
-Message-Id: <20210520092124.289317712@linuxfoundation.org>
+        stable@vger.kernel.org, Heming Zhao <heming.zhao@suse.com>,
+        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>
+Subject: [PATCH 4.14 123/323] md: factor out a mddev_find_locked helper from mddev_find
+Date:   Thu, 20 May 2021 11:20:15 +0200
+Message-Id: <20210520092124.326124153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -40,72 +41,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-commit 65aa97c4d2bfd76677c211b9d03ef05a98c6d68e upstream.
+commit 8b57251f9a91f5e5a599de7549915d2d226cc3af upstream.
 
-Split mddev_find into a simple mddev_find that just finds an existing
-mddev by the unit number, and a more complicated mddev_find that deals
-with find or allocating a mddev.
+Factor out a self-contained helper to just lookup a mddev by the dev_t
+"unit".
 
-This turns out to fix this bug reported by Zhao Heming.
-
------------------------------ snip ------------------------------
-commit d3374825ce57 ("md: make devices disappear when they are no longer
-needed.") introduced protection between mddev creating & removing. The
-md_open shouldn't create mddev when all_mddevs list doesn't contain
-mddev. With currently code logic, there will be very easy to trigger
-soft lockup in non-preempt env.
-
+Cc: stable@vger.kernel.org
+Reviewed-by: Heming Zhao <heming.zhao@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/md.c |   24 +++++++++++++++++++-----
- 1 file changed, 19 insertions(+), 5 deletions(-)
+ drivers/md/md.c |   32 +++++++++++++++++++-------------
+ 1 file changed, 19 insertions(+), 13 deletions(-)
 
 --- a/drivers/md/md.c
 +++ b/drivers/md/md.c
-@@ -570,6 +570,22 @@ EXPORT_SYMBOL_GPL(mddev_init);
+@@ -568,6 +568,17 @@ void mddev_init(struct mddev *mddev)
+ }
+ EXPORT_SYMBOL_GPL(mddev_init);
  
- static struct mddev *mddev_find(dev_t unit)
- {
++static struct mddev *mddev_find_locked(dev_t unit)
++{
 +	struct mddev *mddev;
 +
-+	if (MAJOR(unit) != MD_MAJOR)
-+		unit &= ~((1 << MdpMinorShift) - 1);
++	list_for_each_entry(mddev, &all_mddevs, all_mddevs)
++		if (mddev->unit == unit)
++			return mddev;
 +
-+	spin_lock(&all_mddevs_lock);
-+	mddev = mddev_find_locked(unit);
-+	if (mddev)
-+		mddev_get(mddev);
-+	spin_unlock(&all_mddevs_lock);
-+
-+	return mddev;
++	return NULL;
 +}
 +
-+static struct mddev *mddev_find_or_alloc(dev_t unit)
-+{
- 	struct mddev *mddev, *new = NULL;
+ static struct mddev *mddev_find(dev_t unit)
+ {
+ 	struct mddev *mddev;
+@@ -595,13 +606,13 @@ static struct mddev *mddev_find_or_alloc
+ 	spin_lock(&all_mddevs_lock);
  
- 	if (unit && MAJOR(unit) != MD_MAJOR)
-@@ -5276,7 +5292,7 @@ static int md_alloc(dev_t dev, char *nam
- 	 * writing to /sys/module/md_mod/parameters/new_array.
- 	 */
- 	static DEFINE_MUTEX(disks_mutex);
--	struct mddev *mddev = mddev_find(dev);
-+	struct mddev *mddev = mddev_find_or_alloc(dev);
- 	struct gendisk *disk;
- 	int partitioned;
- 	int shift;
-@@ -6126,11 +6142,9 @@ static void autorun_devices(int part)
+ 	if (unit) {
+-		list_for_each_entry(mddev, &all_mddevs, all_mddevs)
+-			if (mddev->unit == unit) {
+-				mddev_get(mddev);
+-				spin_unlock(&all_mddevs_lock);
+-				kfree(new);
+-				return mddev;
+-			}
++		mddev = mddev_find_locked(unit);
++		if (mddev) {
++			mddev_get(mddev);
++			spin_unlock(&all_mddevs_lock);
++			kfree(new);
++			return mddev;
++		}
  
- 		md_probe(dev, NULL, NULL);
- 		mddev = mddev_find(dev);
--		if (!mddev || !mddev->gendisk) {
--			if (mddev)
--				mddev_put(mddev);
-+		if (!mddev)
- 			break;
--		}
-+
- 		if (mddev_lock(mddev))
- 			pr_warn("md: %s locked, cannot run\n", mdname(mddev));
- 		else if (mddev->raid_disks || mddev->major_version
+ 		if (new) {
+ 			list_add(&new->all_mddevs, &all_mddevs);
+@@ -627,12 +638,7 @@ static struct mddev *mddev_find_or_alloc
+ 				return NULL;
+ 			}
+ 
+-			is_free = 1;
+-			list_for_each_entry(mddev, &all_mddevs, all_mddevs)
+-				if (mddev->unit == dev) {
+-					is_free = 0;
+-					break;
+-				}
++			is_free = !mddev_find_locked(dev);
+ 		}
+ 		new->unit = dev;
+ 		new->md_minor = MINOR(dev);
 
 
