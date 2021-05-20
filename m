@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70B0138A54D
+	by mail.lfdr.de (Postfix) with ESMTP id B9B8638A54E
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:14:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235423AbhETKPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:15:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47742 "EHLO mail.kernel.org"
+        id S235006AbhETKPo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:15:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235907AbhETKMz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:12:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A2FA661978;
-        Thu, 20 May 2021 09:44:04 +0000 (UTC)
+        id S235914AbhETKM5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:12:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA58C6196A;
+        Thu, 20 May 2021 09:44:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503845;
-        bh=Lpq4Yp0P9usPQ2Fhgl0JwM+bC+1n/ZpVwxoqJAW/Wlc=;
+        s=korg; t=1621503847;
+        bh=H1R+rLLmIe7smj8gAMNssW7E/wdXH7IoIX0djuumc5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Otjq2l45alE44FET+isktsrnZli91UvobGGQi+7YvA5Y1kZxzfGR3xMNQCvV42Ti+
-         RXFNzXlLnFervvbonQ2VByByhy2FsSgPGn76JhhYl1YgMYdoLAj/7dT2QPovXgrr8r
-         uxXFMZYUYhVhKsOlScv/6XQl98HanlH8giRT9EdM=
+        b=FhdxCiItXX0JiWMoeHr7wrytw4YvIZbVSFBsjsO5Nlz/4eRawcDxxXkYzhkgVooDK
+         4eEFSthpLgFceTmFdfH3X9D85fu1ROTlNuoBwTwW6R4jbhCgIM9O2R8mxt+iKtn6Bl
+         MuIfRZ7SbjrqzSIsZA/+0KT+UedLebE65cbKMaQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 371/425] ACPI: scan: Fix a memory leak in an error handling path
-Date:   Thu, 20 May 2021 11:22:20 +0200
-Message-Id: <20210520092143.594590376@linuxfoundation.org>
+        stable@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Hannes Reinecke <hare@suse.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 372/425] blk-mq: Swap two calls in blk_mq_exit_queue()
+Date:   Thu, 20 May 2021 11:22:21 +0200
+Message-Id: <20210520092143.624731783@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -42,36 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 0c8bd174f0fc131bc9dfab35cd8784f59045da87 ]
+[ Upstream commit 630ef623ed26c18a457cdc070cf24014e50129c2 ]
 
-If 'acpi_device_set_name()' fails, we must free
-'acpi_device_bus_id->bus_id' or there is a (potential) memory leak.
+If a tag set is shared across request queues (e.g. SCSI LUNs) then the
+block layer core keeps track of the number of active request queues in
+tags->active_queues. blk_mq_tag_busy() and blk_mq_tag_idle() update that
+atomic counter if the hctx flag BLK_MQ_F_TAG_QUEUE_SHARED is set. Make
+sure that blk_mq_exit_queue() calls blk_mq_tag_idle() before that flag is
+cleared by blk_mq_del_queue_tag_set().
 
-Fixes: eb50aaf960e3 ("ACPI: scan: Use unique number for instance_no")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Christoph Hellwig <hch@infradead.org>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Hannes Reinecke <hare@suse.com>
+Fixes: 0d2602ca30e4 ("blk-mq: improve support for shared tags maps")
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210513171529.7977-1-bvanassche@acm.org
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/scan.c | 1 +
- 1 file changed, 1 insertion(+)
+ block/blk-mq.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/acpi/scan.c b/drivers/acpi/scan.c
-index d3c551bdc2da..1e7e2c438acf 100644
---- a/drivers/acpi/scan.c
-+++ b/drivers/acpi/scan.c
-@@ -705,6 +705,7 @@ int acpi_device_add(struct acpi_device *device,
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -2673,10 +2673,12 @@ EXPORT_SYMBOL(blk_mq_init_allocated_queu
+ /* tags can _not_ be used after returning from blk_mq_exit_queue */
+ void blk_mq_exit_queue(struct request_queue *q)
+ {
+-	struct blk_mq_tag_set	*set = q->tag_set;
++	struct blk_mq_tag_set *set = q->tag_set;
  
- 		result = acpi_device_set_name(device, acpi_device_bus_id);
- 		if (result) {
-+			kfree_const(acpi_device_bus_id->bus_id);
- 			kfree(acpi_device_bus_id);
- 			goto err_unlock;
- 		}
--- 
-2.30.2
-
+-	blk_mq_del_queue_tag_set(q);
++	/* Checks hctx->flags & BLK_MQ_F_TAG_QUEUE_SHARED. */
+ 	blk_mq_exit_hw_queues(q, set, set->nr_hw_queues);
++	/* May clear BLK_MQ_F_TAG_QUEUE_SHARED in hctx->flags. */
++	blk_mq_del_queue_tag_set(q);
+ }
+ 
+ /* Basically redo blk_mq_init_queue with queue frozen */
 
 
