@@ -2,35 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C4838AB9D
+	by mail.lfdr.de (Postfix) with ESMTP id DB57138AB9F
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S240960AbhETL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S241071AbhETL0K (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 07:26:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43846 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S241482AbhETLYl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:24:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D8EA61D9A;
-        Thu, 20 May 2021 10:12:41 +0000 (UTC)
+        id S241496AbhETLYm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:24:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA81761DA5;
+        Thu, 20 May 2021 10:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505562;
-        bh=B08XQdZsXV1T/oI57zEIlsFiVrb7DYI4hDq7kMxA6Fw=;
+        s=korg; t=1621505564;
+        bh=kdGN/GxL3qoE126bZmTDcDRYjFggnFYreX40g8U+iv0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cA7HlEQ5764r79G845Q49VUewxk3jXRiXb7e+X0CMvwvUL2BJOVmoi/efEy+JhoHU
-         OqrMyKCRetTjdABm9uYLOA6A+1bTszTYBaSMNwbZ6RRfgPxe+JyWknS6jDXJclT/du
-         1meFUlODvf22xOvOmrkrsipXV3LZKbDmG6CBfZzw=
+        b=OdfoNEFnIXip+ZXeQMb/tOGvc6rEZwXUfCz8BwWRLaj3JWDaYwm+7QdcaqAObrIqA
+         BRw5E2FjabTIjV73rOlONlwPtB+j0m6/6d0Z54JKNozpRfbkTkPX8wJvFx/RWGh5DI
+         a3eZ3/1/1iH9oi+ejt1E1ig/OGbpchK67tyQYLI8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ritesh Raj Sarraf <rrs@debian.org>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Anton Ivanov <anton.ivanov@cambridgegreys.com>,
-        Richard Weinberger <richard@nod.at>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 184/190] um: Mark all kernel symbols as local
-Date:   Thu, 20 May 2021 11:24:08 +0200
-Message-Id: <20210520092108.252496447@linuxfoundation.org>
+        stable@vger.kernel.org, Hui Wang <hui.wang@canonical.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 185/190] ALSA: hda: generic: change the DAC ctl name for LO+SPK or LO+HP
+Date:   Thu, 20 May 2021 11:24:09 +0200
+Message-Id: <20210520092108.283445357@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
 References: <20210520092102.149300807@linuxfoundation.org>
@@ -42,111 +39,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit d5027ca63e0e778b641cf23e3f5c6d6212cf412b ]
+[ Upstream commit f48652bbe3ae62ba2835a396b7e01f063e51c4cd ]
 
-Ritesh reported a bug [1] against UML, noting that it crashed on
-startup. The backtrace shows the following (heavily redacted):
+Without this change, the DAC ctl's name could be changed only when
+the machine has both Speaker and Headphone, but we met some machines
+which only has Lineout and Headhpone, and the Lineout and Headphone
+share the Audio Mixer0 and DAC0, the ctl's name is set to "Front".
 
-(gdb) bt
-...
- #26 0x0000000060015b5d in sem_init () at ipc/sem.c:268
- #27 0x00007f89906d92f7 in ?? () from /lib/x86_64-linux-gnu/libcom_err.so.2
- #28 0x00007f8990ab8fb2 in call_init (...) at dl-init.c:72
-...
- #40 0x00007f89909bf3a6 in nss_load_library (...) at nsswitch.c:359
-...
- #44 0x00007f8990895e35 in _nss_compat_getgrnam_r (...) at nss_compat/compat-grp.c:486
- #45 0x00007f8990968b85 in __getgrnam_r [...]
- #46 0x00007f89909d6b77 in grantpt [...]
- #47 0x00007f8990a9394e in __GI_openpty [...]
- #48 0x00000000604a1f65 in openpty_cb (...) at arch/um/os-Linux/sigio.c:407
- #49 0x00000000604a58d0 in start_idle_thread (...) at arch/um/os-Linux/skas/process.c:598
- #50 0x0000000060004a3d in start_uml () at arch/um/kernel/skas/process.c:45
- #51 0x00000000600047b2 in linux_main (...) at arch/um/kernel/um_arch.c:334
- #52 0x000000006000574f in main (...) at arch/um/os-Linux/main.c:144
+On most of machines, the "Front" is used for Speaker only or Lineout
+only, but on this machine it is shared by Lineout and Headphone,
+This introduces an issue in the pipewire and pulseaudio, suppose users
+want the Headphone to be on and the Speaker/Lineout to be off, they
+could turn off the "Front", this works on most of the machines, but on
+this machine, the "Front" couldn't be turned off otherwise the
+headphone will be off too. Here we do some change to let the ctl's
+name change to "Headphone+LO" on this machine, and pipewire and
+pulseaudio already could handle "Headphone+LO" and "Speaker+LO".
+(https://gitlab.freedesktop.org/pipewire/pipewire/-/issues/747)
 
-indicating that the UML function openpty_cb() calls openpty(),
-which internally calls __getgrnam_r(), which causes the nsswitch
-machinery to get started.
-
-This loads, through lots of indirection that I snipped, the
-libcom_err.so.2 library, which (in an unknown function, "??")
-calls sem_init().
-
-Now, of course it wants to get libpthread's sem_init(), since
-it's linked against libpthread. However, the dynamic linker
-looks up that symbol against the binary first, and gets the
-kernel's sem_init().
-
-Hajime Tazaki noted that "objcopy -L" can localize a symbol,
-so the dynamic linker wouldn't do the lookup this way. I tried,
-but for some reason that didn't seem to work.
-
-Doing the same thing in the linker script instead does seem to
-work, though I cannot entirely explain - it *also* works if I
-just add "VERSION { { global: *; }; }" instead, indicating that
-something else is happening that I don't really understand. It
-may be that explicitly doing that marks them with some kind of
-empty version, and that's different from the default.
-
-Explicitly marking them with a version breaks kallsyms, so that
-doesn't seem to be possible.
-
-Marking all the symbols as local seems correct, and does seem
-to address the issue, so do that. Also do it for static link,
-nsswitch libraries could still be loaded there.
-
-[1] https://bugs.debian.org/983379
-
-Reported-by: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Acked-By: Anton Ivanov <anton.ivanov@cambridgegreys.com>
-Tested-By: Ritesh Raj Sarraf <rrs@debian.org>
-Signed-off-by: Richard Weinberger <richard@nod.at>
+BugLink: http://bugs.launchpad.net/bugs/804178
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210504073917.22406-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/um/kernel/dyn.lds.S | 6 ++++++
- arch/um/kernel/uml.lds.S | 6 ++++++
- 2 files changed, 12 insertions(+)
+ sound/pci/hda/hda_generic.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/arch/um/kernel/dyn.lds.S b/arch/um/kernel/dyn.lds.S
-index adde088aeeff..d837636ec823 100644
---- a/arch/um/kernel/dyn.lds.S
-+++ b/arch/um/kernel/dyn.lds.S
-@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
- 
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
+--- a/sound/pci/hda/hda_generic.c
++++ b/sound/pci/hda/hda_generic.c
+@@ -1182,11 +1182,17 @@ static const char *get_line_out_pfx(stru
+ 		*index = ch;
+ 		return "Headphone";
+ 	case AUTO_PIN_LINE_OUT:
+-		/* This deals with the case where we have two DACs and
+-		 * one LO, one HP and one Speaker */
+-		if (!ch && cfg->speaker_outs && cfg->hp_outs) {
+-			bool hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+-			bool spk_lo_shared = !path_has_mixer(codec, spec->speaker_paths[0], ctl_type);
++		/* This deals with the case where one HP or one Speaker or
++		 * one HP + one Speaker need to share the DAC with LO
++		 */
++		if (!ch) {
++			bool hp_lo_shared = false, spk_lo_shared = false;
 +
- SECTIONS
- {
-   PROVIDE (__executable_start = START);
-diff --git a/arch/um/kernel/uml.lds.S b/arch/um/kernel/uml.lds.S
-index 6899195602b7..09620aa953ca 100644
---- a/arch/um/kernel/uml.lds.S
-+++ b/arch/um/kernel/uml.lds.S
-@@ -6,6 +6,12 @@ OUTPUT_ARCH(ELF_ARCH)
- ENTRY(_start)
- jiffies = jiffies_64;
- 
-+VERSION {
-+  {
-+    local: *;
-+  };
-+}
-+
- SECTIONS
- {
-   /* This must contain the right address - not quite the default ELF one.*/
--- 
-2.30.2
-
++			if (cfg->speaker_outs)
++				spk_lo_shared = !path_has_mixer(codec,
++								spec->speaker_paths[0],	ctl_type);
++			if (cfg->hp_outs)
++				hp_lo_shared = !path_has_mixer(codec, spec->hp_paths[0], ctl_type);
+ 			if (hp_lo_shared && spk_lo_shared)
+ 				return spec->vmaster_mute.hook ? "PCM" : "Master";
+ 			if (hp_lo_shared)
 
 
