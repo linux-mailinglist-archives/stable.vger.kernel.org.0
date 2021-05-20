@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DAB638B31B
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 17:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B37E138B31E
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 17:24:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231801AbhETPZQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 11:25:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46336 "EHLO mail.kernel.org"
+        id S232274AbhETPZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 11:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232502AbhETPYm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 11:24:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92A746121E;
-        Thu, 20 May 2021 15:23:19 +0000 (UTC)
+        id S232338AbhETPYw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 11:24:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE4F961355;
+        Thu, 20 May 2021 15:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621524200;
-        bh=gZr3jE0qB4ZIAFkTvLY/aBzhjk6gM5Wzg6jicSXAPgw=;
+        s=korg; t=1621524211;
+        bh=QrE46utVIX7kzC/tkMpgx+FTSdomngoTTyDd+BOYU7g=;
         h=From:To:Cc:Subject:Date:From;
-        b=vWsxa475yQaSRbrrpIsZutjV39JQwNiYMMLD3e4kAE0HVuvhoqOBhTEFAz1sAnPxh
-         0xZ9pCFlc6lqQBPv6uSk0trt2kzSYyRowFtqBRUic/BOMlAaQ9EFmsf/xwzIdZPviv
-         91tgjX8ojvkgY+6+fY7V7YkoluqM8uDUJYY9IUCQ=
+        b=C8iGc5hAP993ely3dVWsrZP7wqRtjAJWTIvrnsxIsWB2uHLAWelEeF4/tGJnaWadD
+         RFqx7gmPsTtGSswyIz4HhGf7wFk/vxEdhvW1VzA0Zy6BQbjdJCm0MU3eJk04HCUlhr
+         p+lozBXPFslZp/lrm2QD87MJEuoAq03TnkzYYeV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,19 +27,19 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.10 00/45] 5.10.39-rc2 review
-Date:   Thu, 20 May 2021 17:23:18 +0200
-Message-Id: <20210520152240.517446848@linuxfoundation.org>
+Subject: [PATCH 5.12 00/43] 5.12.6-rc2 review
+Date:   Thu, 20 May 2021 17:23:29 +0200
+Message-Id: <20210520152254.218537944@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.6-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Branch: linux-5.12.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.39-rc2
+X-KernelTest-Version: 5.12.6-rc2
 X-KernelTest-Deadline: 2021-05-22T15:22+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -47,18 +47,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.39 release.
-There are 45 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 5.12.6 release.
+There are 43 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Sat, 22 May 2021 15:22:29 +0000.
+Responses should be made by Sat, 22 May 2021 15:22:43 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.6-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
 and the diffstat can be found below.
 
 thanks,
@@ -69,13 +69,7 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.39-rc2
-
-Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-    scripts: switch explicitly to Python 3
-
-Finn Behrens <me@kloenk.de>
-    tweewide: Fix most Shebang lines
+    Linux 5.12.6-rc2
 
 Eric Dumazet <edumazet@google.com>
     ipv6: remove extra dev_hold() for fallback tunnels
@@ -149,7 +143,7 @@ Nathan Chancellor <nathan@kernel.org>
 Prashant Malani <pmalani@chromium.org>
     platform/chrome: cros_ec_typec: Add DP mode check
 
-Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Manivannan Sadhasivam <mani@kernel.org>
     ARM: 9075/1: kernel: Fix interrupted SMC calls
 
 Johannes Berg <johannes.berg@intel.com>
@@ -157,6 +151,12 @@ Johannes Berg <johannes.berg@intel.com>
 
 Johannes Berg <johannes.berg@intel.com>
     um: Mark all kernel symbols as local
+
+Chuck Lever <chuck.lever@oracle.com>
+    svcrdma: Don't leak send_ctxt on Send errors
+
+Yi Chen <chenyi77@huawei.com>
+    f2fs: fix to avoid NULL pointer dereference
 
 Trond Myklebust <trond.myklebust@hammerspace.com>
     NFS: NFS_INO_REVAL_PAGECACHE should mark the change attribute invalid
@@ -173,6 +173,9 @@ Dinghao Liu <dinghao.liu@zju.edu.cn>
 Feilong Lin <linfeilong@huawei.com>
     ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
 
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: Fix fscache invalidation in nfs_set_cache_invalid()
+
 louis.wang <liang26812@gmail.com>
     ARM: 9066/1: ftrace: pause/unpause function graph tracer in cpu_suspend()
 
@@ -181,15 +184,6 @@ Gustavo Pimentel <Gustavo.Pimentel@synopsys.com>
 
 Arnd Bergmann <arnd@arndb.de>
     PCI: thunder: Fix compile testing
-
-Eric Dumazet <edumazet@google.com>
-    virtio_net: Do not pull payload in skb->head
-
-Arnd Bergmann <arnd@arndb.de>
-    isdn: capi: fix mismatched prototypes
-
-Kaixu Xia <kaixuxia@tencent.com>
-    cxgb4: Fix the -Wmisleading-indentation warning
 
 Arnd Bergmann <arnd@arndb.de>
     usb: sl811-hcd: improve misleading indentation
@@ -211,16 +205,10 @@ Arnd Bergmann <arnd@arndb.de>
 
 Diffstat:
 
- Documentation/sphinx/parse-headers.pl              |   2 +-
- Documentation/target/tcm_mod_builder.py            |   2 +-
- Documentation/trace/postprocess/decode_msr.py      |   2 +-
- .../postprocess/trace-pagealloc-postprocess.pl     |   2 +-
- .../trace/postprocess/trace-vmscan-postprocess.pl  |   2 +-
  Makefile                                           |   4 +-
  arch/arm/kernel/asm-offsets.c                      |   3 +
  arch/arm/kernel/smccc-call.S                       |  11 +-
  arch/arm/kernel/suspend.c                          |  19 +++-
- arch/ia64/scripts/unwcheck.py                      |   2 +-
  arch/riscv/include/asm/ftrace.h                    |  14 ++-
  arch/riscv/kernel/mcount.S                         |  10 +-
  arch/riscv/kernel/vdso/Makefile                    |  12 +--
@@ -238,13 +226,10 @@ Diffstat:
  drivers/gpu/drm/i915/display/intel_dp.c            |  13 ++-
  drivers/input/touchscreen/elants_i2c.c             |  44 +++++++-
  drivers/input/touchscreen/silead.c                 |  44 +++++++-
- drivers/isdn/capi/kcapi.c                          |   4 +-
  drivers/misc/kgdbts.c                              |  26 ++---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_debugfs.c |   2 +-
  drivers/net/ethernet/chelsio/cxgb4/sge.c           |  16 +--
  drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c   |   7 +-
  drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  14 +--
- drivers/net/virtio_net.c                           |  10 +-
  drivers/net/wireless/cisco/airo.c                  | 117 ++++++++++++---------
  drivers/nvme/target/admin-cmd.c                    |   6 +-
  drivers/pci/controller/dwc/pcie-tegra194.c         |   2 +-
@@ -262,8 +247,8 @@ Diffstat:
  fs/ceph/inode.c                                    |  13 ++-
  fs/ceph/mds_client.c                               |   7 ++
  fs/ceph/super.h                                    |  24 +++++
- fs/nfs/inode.c                                     |   3 +-
- include/linux/virtio_net.h                         |  14 ++-
+ fs/f2fs/segment.c                                  |   5 +-
+ fs/nfs/inode.c                                     |   7 +-
  lib/stackdepot.c                                   |   6 +-
  net/bridge/br_netlink.c                            |   5 +-
  net/hsr/hsr_forward.c                              |   4 +
@@ -271,28 +256,9 @@ Diffstat:
  net/ipv6/ip6_tunnel.c                              |   3 +-
  net/ipv6/ip6_vti.c                                 |   1 -
  net/ipv6/sit.c                                     |   5 +-
- scripts/bloat-o-meter                              |   2 +-
- scripts/config                                     |   2 +-
- scripts/diffconfig                                 |   2 +-
- scripts/get_abi.pl                                 |   2 +-
+ net/sunrpc/xprtrdma/svc_rdma_sendto.c              |   8 +-
  scripts/recordmcount.pl                            |   2 +-
- scripts/show_delta                                 |   2 +-
- scripts/sphinx-pre-install                         |   2 +-
- scripts/split-man.pl                               |   2 +-
- scripts/tracing/draw_functrace.py                  |   2 +-
  sound/pci/hda/hda_generic.c                        |  16 ++-
- tools/perf/python/tracepoint.py                    |   2 +-
- tools/perf/python/twatch.py                        |   2 +-
- .../x86/intel_pstate_tracer/intel_pstate_tracer.py |   2 +-
- tools/testing/ktest/compare-ktest-sample.pl        |   2 +-
- tools/testing/kunit/kunit.py                       |   2 +-
- tools/testing/kunit/kunit_tool_test.py             |   2 +-
- tools/testing/selftests/bpf/test_offload.py        |   2 +-
- .../net/mlxsw/sharedbuffer_configuration.py        |   2 +-
- tools/testing/selftests/kselftest/prefix.pl        |   2 +-
- tools/testing/selftests/net/devlink_port_split.py  |   2 +-
- tools/testing/selftests/tc-testing/tdc_batch.py    |   2 +-
- .../testing/selftests/tc-testing/tdc_multibatch.py |   2 +-
- 82 files changed, 508 insertions(+), 231 deletions(-)
+ 54 files changed, 473 insertions(+), 201 deletions(-)
 
 
