@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4559638A2A2
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:44:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7678938A2A7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:44:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232561AbhETJno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:43:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41074 "EHLO mail.kernel.org"
+        id S233534AbhETJnz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:43:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232572AbhETJlr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:41:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8F6A6143F;
-        Thu, 20 May 2021 09:32:12 +0000 (UTC)
+        id S233320AbhETJmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:42:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDC2C61444;
+        Thu, 20 May 2021 09:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503133;
-        bh=sGuh6FpfdCkaxqSiTUXsNLiZAthPMV08zFJIjP2npdI=;
+        s=korg; t=1621503135;
+        bh=SYlE30wYHz6hoXRJYV9/E8DRKDkO1zINApCXxlEA6H0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CrWyNTHA5UKQpucjpLb7Ausmi9gwT3mrDaL8O7L9exulbdZsFCs34YWRA7WJvyPmx
-         GYZ/qr8ZZsDo8Bp1D8wwyCgsMrZg7X3fQUbH8CM6TL8zvIcjtngveYnlCET0Dw8rZ5
-         AXBSmp/sq7tvwtXnOhR6ohG+V62Zrzf2i+oVJjaA=
+        b=Nh4mahgV6UYcTTfVAdi+s8XMDNO2XW0hvC2xJd088vQgDddVkwFSRF70MtyRR8nyf
+         j29R0ZOSbqYLv9aH2vyQw6oPoiA4YyEStV8FVosIzM9xmXrmRIEjoi6gOtrKQzs4EJ
+         nCEM5/RXl0sxBjFGd+ZPPuTbySGx4JVh2xMhNjaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chao Yu <yuchao0@huawei.com>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Subject: [PATCH 4.19 084/425] f2fs: fix to avoid out-of-bounds memory access
-Date:   Thu, 20 May 2021 11:17:33 +0200
-Message-Id: <20210520092134.208581913@linuxfoundation.org>
+        stable@vger.kernel.org, Ido Schimmel <idosch@nvidia.com>,
+        Petr Machata <petrm@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 085/425] mlxsw: spectrum_mr: Update egress RIF list before routes action
+Date:   Thu, 20 May 2021 11:17:34 +0200
+Message-Id: <20210520092134.241737944@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,58 +40,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <yuchao0@huawei.com>
+From: Ido Schimmel <idosch@nvidia.com>
 
-commit b862676e371715456c9dade7990c8004996d0d9e upstream.
+commit cbaf3f6af9c268caf558c8e7ec52bcb35c5455dd upstream.
 
-butt3rflyh4ck <butterflyhuangxx@gmail.com> reported a bug found by
-syzkaller fuzzer with custom modifications in 5.12.0-rc3+ [1]:
+Each multicast route that is forwarding packets (as opposed to trapping
+them) points to a list of egress router interfaces (RIFs) through which
+packets are replicated.
 
- dump_stack+0xfa/0x151 lib/dump_stack.c:120
- print_address_description.constprop.0.cold+0x82/0x32c mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report.cold+0x7c/0xd8 mm/kasan/report.c:416
- f2fs_test_bit fs/f2fs/f2fs.h:2572 [inline]
- current_nat_addr fs/f2fs/node.h:213 [inline]
- get_next_nat_page fs/f2fs/node.c:123 [inline]
- __flush_nat_entry_set fs/f2fs/node.c:2888 [inline]
- f2fs_flush_nat_entries+0x258e/0x2960 fs/f2fs/node.c:2991
- f2fs_write_checkpoint+0x1372/0x6a70 fs/f2fs/checkpoint.c:1640
- f2fs_issue_checkpoint+0x149/0x410 fs/f2fs/checkpoint.c:1807
- f2fs_sync_fs+0x20f/0x420 fs/f2fs/super.c:1454
- __sync_filesystem fs/sync.c:39 [inline]
- sync_filesystem fs/sync.c:67 [inline]
- sync_filesystem+0x1b5/0x260 fs/sync.c:48
- generic_shutdown_super+0x70/0x370 fs/super.c:448
- kill_block_super+0x97/0xf0 fs/super.c:1394
+A route's action can transition from trap to forward when a RIF is
+created for one of the route's egress virtual interfaces (eVIF). When
+this happens, the route's action is first updated and only later the
+list of egress RIFs is committed to the device.
 
-The root cause is, if nat entry in checkpoint journal area is corrupted,
-e.g. nid of journalled nat entry exceeds max nid value, during checkpoint,
-once it tries to flush nat journal to NAT area, get_next_nat_page() may
-access out-of-bounds memory on nat_bitmap due to it uses wrong nid value
-as bitmap offset.
+This results in the route pointing to an invalid list. In case the list
+pointer is out of range (due to uninitialized memory), the device will
+complain:
 
-[1] https://lore.kernel.org/lkml/CAFcO6XOMWdr8pObek6eN6-fs58KG9doRFadgJj-FnF-1x43s2g@mail.gmail.com/T/#u
+mlxsw_spectrum2 0000:06:00.0: EMAD reg access failed (tid=5733bf490000905c,reg_id=300f(pefa),type=write,status=7(bad parameter))
 
-Reported-and-tested-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-Signed-off-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Fix this by first committing the list of egress RIFs to the device and
+only later update the route's action.
+
+Note that a fix is not needed in the reverse function (i.e.,
+mlxsw_sp_mr_route_evif_unresolve()), as there the route's action is
+first updated and only later the RIF is removed from the list.
+
+Cc: stable@vger.kernel.org
+Fixes: c011ec1bbfd6 ("mlxsw: spectrum: Add the multicast routing offloading logic")
+Signed-off-by: Ido Schimmel <idosch@nvidia.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20210506072308.3834303-1-idosch@idosch.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/node.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c |   30 +++++++++++-----------
+ 1 file changed, 15 insertions(+), 15 deletions(-)
 
---- a/fs/f2fs/node.c
-+++ b/fs/f2fs/node.c
-@@ -2654,6 +2654,9 @@ static void remove_nats_in_journal(struc
- 		struct f2fs_nat_entry raw_ne;
- 		nid_t nid = le32_to_cpu(nid_in_journal(journal, i));
+--- a/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
++++ b/drivers/net/ethernet/mellanox/mlxsw/spectrum_mr.c
+@@ -524,6 +524,16 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 	u16 erif_index = 0;
+ 	int err;
  
-+		if (f2fs_check_nid_range(sbi, nid))
-+			continue;
++	/* Add the eRIF */
++	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
++		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
++		err = mr->mr_ops->route_erif_add(mlxsw_sp,
++						 rve->mr_route->route_priv,
++						 erif_index);
++		if (err)
++			return err;
++	}
 +
- 		raw_ne = nat_in_journal(journal, i);
+ 	/* Update the route action, as the new eVIF can be a tunnel or a pimreg
+ 	 * device which will require updating the action.
+ 	 */
+@@ -533,17 +543,7 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 						      rve->mr_route->route_priv,
+ 						      route_action);
+ 		if (err)
+-			return err;
+-	}
+-
+-	/* Add the eRIF */
+-	if (mlxsw_sp_mr_vif_valid(rve->mr_vif)) {
+-		erif_index = mlxsw_sp_rif_index(rve->mr_vif->rif);
+-		err = mr->mr_ops->route_erif_add(mlxsw_sp,
+-						 rve->mr_route->route_priv,
+-						 erif_index);
+-		if (err)
+-			goto err_route_erif_add;
++			goto err_route_action_update;
+ 	}
  
- 		ne = __lookup_nat_cache(nm_i, nid);
+ 	/* Update the minimum MTU */
+@@ -561,14 +561,14 @@ mlxsw_sp_mr_route_evif_resolve(struct ml
+ 	return 0;
+ 
+ err_route_min_mtu_update:
+-	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
+-		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
+-					   erif_index);
+-err_route_erif_add:
+ 	if (route_action != rve->mr_route->route_action)
+ 		mr->mr_ops->route_action_update(mlxsw_sp,
+ 						rve->mr_route->route_priv,
+ 						rve->mr_route->route_action);
++err_route_action_update:
++	if (mlxsw_sp_mr_vif_valid(rve->mr_vif))
++		mr->mr_ops->route_erif_del(mlxsw_sp, rve->mr_route->route_priv,
++					   erif_index);
+ 	return err;
+ }
+ 
 
 
