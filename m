@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F38938A155
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF41438A0E7
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:25:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231751AbhETJaW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:30:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54400 "EHLO mail.kernel.org"
+        id S231738AbhETJ0y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:26:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231912AbhETJ2U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:28:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EAEBB6101E;
-        Thu, 20 May 2021 09:26:45 +0000 (UTC)
+        id S231624AbhETJ0c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:26:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D63D461355;
+        Thu, 20 May 2021 09:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502806;
-        bh=OnVCr+m0wmDeu1RhxUiLx+50TxRwvDXIHStP5MLTU7w=;
+        s=korg; t=1621502711;
+        bh=m2noJKqKeW0U5wmwK56a/Dvf7G3056Cma/3oi2F6q9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwDZL+c+QMPbuNBeuIyA8j1QthziSDQByM72Mi8saYRyBX/xC65z0wdEu+fd0WJ4y
-         iKUFe0OJr6WiaOgiiQcNTt8L9EKZ5VpJeC3D2N/IJjOocnqOhZ6HwlOK9P3eWUt2S3
-         Gd1zXE29OwwORDZ4W3RHD40BMqiU28KEMMbu+E5M=
+        b=mF0GgO5v/KoNnISCG4Wb3o4yShW1tpUOYSE0fKm3OW4wI48/IPqxrTwQIsROB1z6Z
+         kt/rKqVPAahBqSRL83KDhI0RodIq9zHWheEWSew8Shvz3bKFiiEla2GAtfepaCKk2W
+         p5TqgLg41gC2KQ05chuGChks9A5B52nE8T6b5PsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dinghao Liu <dinghao.liu@zju.edu.cn>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Thierry Reding <treding@nvidia.com>,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Fangrui Song <maskray@google.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 14/47] PCI: tegra: Fix runtime PM imbalance in pex_ep_event_pex_rst_deassert()
+Subject: [PATCH 5.12 24/45] scripts/recordmcount.pl: Fix RISC-V regex for clang
 Date:   Thu, 20 May 2021 11:22:12 +0200
-Message-Id: <20210520092054.013591562@linuxfoundation.org>
+Message-Id: <20210520092054.300978606@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
-References: <20210520092053.559923764@linuxfoundation.org>
+In-Reply-To: <20210520092053.516042993@linuxfoundation.org>
+References: <20210520092053.516042993@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dinghao Liu <dinghao.liu@zju.edu.cn>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 5859c926d1f052ee61b5815b14658875c14f6243 ]
+[ Upstream commit 2f095504f4b9cf75856d6a9cf90299cf75aa46c5 ]
 
-pm_runtime_get_sync() will increase the runtime PM counter
-even it returns an error. Thus a pairing decrement is needed
-to prevent refcount leak. Fix this by replacing this API with
-pm_runtime_resume_and_get(), which will not change the runtime
-PM counter on error.
+Clang can generate R_RISCV_CALL_PLT relocations to _mcount:
 
-Link: https://lore.kernel.org/r/20210408072700.15791-1-dinghao.liu@zju.edu.cn
-Signed-off-by: Dinghao Liu <dinghao.liu@zju.edu.cn>
-Signed-off-by: Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>
-Acked-by: Thierry Reding <treding@nvidia.com>
+$ llvm-objdump -dr build/riscv/init/main.o | rg mcount
+                000000000000000e:  R_RISCV_CALL_PLT     _mcount
+                000000000000004e:  R_RISCV_CALL_PLT     _mcount
+
+After this, the __start_mcount_loc section is properly generated and
+function tracing still works.
+
+Link: https://github.com/ClangBuiltLinux/linux/issues/1331
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Fangrui Song <maskray@google.com>
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/controller/dwc/pcie-tegra194.c | 2 +-
+ scripts/recordmcount.pl | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/controller/dwc/pcie-tegra194.c b/drivers/pci/controller/dwc/pcie-tegra194.c
-index f920e7efe118..d788f4d7f9aa 100644
---- a/drivers/pci/controller/dwc/pcie-tegra194.c
-+++ b/drivers/pci/controller/dwc/pcie-tegra194.c
-@@ -1660,7 +1660,7 @@ static void pex_ep_event_pex_rst_deassert(struct tegra_pcie_dw *pcie)
- 	if (pcie->ep_state == EP_STATE_ENABLED)
- 		return;
- 
--	ret = pm_runtime_get_sync(dev);
-+	ret = pm_runtime_resume_and_get(dev);
- 	if (ret < 0) {
- 		dev_err(dev, "Failed to get runtime sync for PCIe dev: %d\n",
- 			ret);
+diff --git a/scripts/recordmcount.pl b/scripts/recordmcount.pl
+index 867860ea57da..a36df04cfa09 100755
+--- a/scripts/recordmcount.pl
++++ b/scripts/recordmcount.pl
+@@ -392,7 +392,7 @@ if ($arch eq "x86_64") {
+     $mcount_regex = "^\\s*([0-9a-fA-F]+):.*\\s_mcount\$";
+ } elsif ($arch eq "riscv") {
+     $function_regex = "^([0-9a-fA-F]+)\\s+<([^.0-9][0-9a-zA-Z_\\.]+)>:";
+-    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL\\s_mcount\$";
++    $mcount_regex = "^\\s*([0-9a-fA-F]+):\\sR_RISCV_CALL(_PLT)?\\s_mcount\$";
+     $type = ".quad";
+     $alignment = 2;
+ } elsif ($arch eq "nds32") {
 -- 
 2.30.2
 
