@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 355AC38A764
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:40:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3146B38A926
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237411AbhETKhy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:37:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39842 "EHLO mail.kernel.org"
+        id S239199AbhETK62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237825AbhETKfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0980A61C62;
-        Thu, 20 May 2021 09:53:52 +0000 (UTC)
+        id S237704AbhETK4Z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:56:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CA116141C;
+        Thu, 20 May 2021 10:01:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504433;
-        bh=S4EPmOGhWiuMWGNKe7t0Ij091sAS3B5qwwBRaUlda2k=;
+        s=korg; t=1621504912;
+        bh=JmDvZXWy+Jc27NKZWL+WoDK+hpW72GjNPlnBBdJAO+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l+D/30/LwbdC98aUn925bCmBfcO0+7IKBl2joIbVmDnyZYsuq3I9sS32xlZ9fL21P
-         oCmpe1YQZNJvdA2UCcBoAcCyAXStCzNkpo8xZA/vlrGQWbG49C1ws3zzTFsHfk8uN9
-         4AB6wJKpFnbSdBAYDxj7KQ36prtxdSLQhw8QksV0=
+        b=Le9IXu3W9myjEOdBJzUpRaEkIOhzvwjqBwAmuai7Ekd0PyaQQEYJUmr5+zUCOrPRy
+         LZUXwZBfo8zC3pOGr/Shx8k3bRa8jSWJ5D02alMmbOgsovkh8rhE75dJoZ1OArK+6x
+         UUyHghouJQ/b05JDN/f16WnQzwhJ5Ym0rmx6dJEM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wang Wensheng <wangwensheng4@huawei.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Lv Yunlong <lyl2019@mail.ustc.edu.cn>,
+        Miquel Raynal <miquel.raynal@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 209/323] IB/hfi1: Fix error return code in parse_platform_config()
-Date:   Thu, 20 May 2021 11:21:41 +0200
-Message-Id: <20210520092127.290936006@linuxfoundation.org>
+Subject: [PATCH 4.9 110/240] mtd: rawnand: gpmi: Fix a double free in gpmi_nand_init
+Date:   Thu, 20 May 2021 11:21:42 +0200
+Message-Id: <20210520092112.376419100@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wang Wensheng <wangwensheng4@huawei.com>
+From: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
 
-[ Upstream commit 4c7d9c69adadfc31892c7e8e134deb3546552106 ]
+[ Upstream commit 076de75de1e53160e9b099f75872c1f9adf41a0b ]
 
-Fix to return a negative error code from the error handling case instead
-of 0, as done elsewhere in this function.
+If the callee gpmi_alloc_dma_buffer() failed to alloc memory for
+this->raw_buffer, gpmi_free_dma_buffer() will be called to free
+this->auxiliary_virt. But this->auxiliary_virt is still a non-NULL
+and valid ptr.
 
-Fixes: 7724105686e7 ("IB/hfi1: add driver files")
-Link: https://lore.kernel.org/r/20210408113140.103032-1-wangwensheng4@huawei.com
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wang Wensheng <wangwensheng4@huawei.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Then gpmi_alloc_dma_buffer() returns err and gpmi_free_dma_buffer()
+is called again to free this->auxiliary_virt in err_out. This causes
+a double free.
+
+As gpmi_free_dma_buffer() has already called in gpmi_alloc_dma_buffer's
+error path, so it should return err directly instead of releasing the dma
+buffer again.
+
+Fixes: 4d02423e9afe6 ("mtd: nand: gpmi: Fix gpmi_nand_init() error path")
+Signed-off-by: Lv Yunlong <lyl2019@mail.ustc.edu.cn>
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210403060905.5251-1-lyl2019@mail.ustc.edu.cn
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/firmware.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/mtd/nand/gpmi-nand/gpmi-nand.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/firmware.c b/drivers/infiniband/hw/hfi1/firmware.c
-index 5aea8f47e670..c54359376cda 100644
---- a/drivers/infiniband/hw/hfi1/firmware.c
-+++ b/drivers/infiniband/hw/hfi1/firmware.c
-@@ -1885,6 +1885,7 @@ int parse_platform_config(struct hfi1_devdata *dd)
- 			dd_dev_err(dd, "%s: Failed CRC check at offset %ld\n",
- 				   __func__, (ptr -
- 				   (u32 *)dd->platform_config.data));
-+			ret = -EINVAL;
- 			goto bail;
- 		}
- 		/* Jump the CRC DWORD */
+diff --git a/drivers/mtd/nand/gpmi-nand/gpmi-nand.c b/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
+index f4a99e91c250..c43bd945d93a 100644
+--- a/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
++++ b/drivers/mtd/nand/gpmi-nand/gpmi-nand.c
+@@ -2020,7 +2020,7 @@ static int gpmi_nand_init(struct gpmi_nand_data *this)
+ 	this->bch_geometry.auxiliary_size = 128;
+ 	ret = gpmi_alloc_dma_buffer(this);
+ 	if (ret)
+-		goto err_out;
++		return ret;
+ 
+ 	ret = nand_scan_ident(mtd, GPMI_IS_MX6(this) ? 2 : 1, NULL);
+ 	if (ret)
 -- 
 2.30.2
 
