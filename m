@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 340BF38A9E1
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77B0238AB9B
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238200AbhETLHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:07:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59406 "EHLO mail.kernel.org"
+        id S240836AbhETL0E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:26:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43606 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235259AbhETLFA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:05:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD69761D2B;
-        Thu, 20 May 2021 10:05:05 +0000 (UTC)
+        id S241425AbhETLY3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:24:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B9D361D94;
+        Thu, 20 May 2021 10:12:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505106;
-        bh=XmQgosihI8PMEqg8GdiqdEf8AdIq18xjlc027afweOY=;
+        s=korg; t=1621505557;
+        bh=X98kDD5YzeB93LeO0GdNS9gBYB4waJOgja3tMwkSTDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHhg5TUmzCzMck29dN03xBba3ljoPvfrfHmQfSotjrwYZ36n9AIPyfgXFVJNTbvHH
-         duH1QTw/yJXeuNCD9GAzUoGvE1Lb1m5C8Btu14aPIDpa+4rKfQHUDib2Q8dlWkCmKh
-         VL8nsXVm9mO3U4fu7Iu8vk4Xinxh6QHxOR1b7SPE=
+        b=zZGIVcTxr6A3VD7MmWBpcBRraEUd8pih/i63e2tPbKz3SHL5FZRjYv6g+bkLIBRdZ
+         4XppUeLSjyYXKDmvEHw7OcNA45b042UXNFiNM6WvDsbEuvg9X7JXzIPtUAwOpWtZHA
+         OuQWnIp2YFGloIoHjNSGy8LEg4vu6Me4sPDrULqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Arnd Bergmann <arnd@arndb.de>
-Subject: [PATCH 4.9 226/240] kgdb: fix gcc-11 warning on indentation
-Date:   Thu, 20 May 2021 11:23:38 +0200
-Message-Id: <20210520092116.303133897@linuxfoundation.org>
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 155/190] NFS: Deal correctly with attribute generation counter overflow
+Date:   Thu, 20 May 2021 11:23:39 +0200
+Message-Id: <20210520092107.293744130@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 40cc3a80bb42587db1e6ae21d6f3090582d33e89 upstream.
+[ Upstream commit 9fdbfad1777cb4638f489eeb62d85432010c0031 ]
 
-gcc-11 starts warning about misleading indentation inside of macros:
+We need to use unsigned long subtraction and then convert to signed in
+order to deal correcly with C overflow rules.
 
-drivers/misc/kgdbts.c: In function ‘kgdbts_break_test’:
-drivers/misc/kgdbts.c:103:9: error: this ‘if’ clause does not guard... [-Werror=misleading-indentation]
-  103 |         if (verbose > 1) \
-      |         ^~
-drivers/misc/kgdbts.c:200:9: note: in expansion of macro ‘v2printk’
-  200 |         v2printk("kgdbts: breakpoint complete\n");
-      |         ^~~~~~~~
-drivers/misc/kgdbts.c:105:17: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the ‘if’
-  105 |                 touch_nmi_watchdog();   \
-      |                 ^~~~~~~~~~~~~~~~~~
-
-The code looks correct to me, so just reindent it for readability.
-
-Fixes: e8d31c204e36 ("kgdb: add kgdb internal test suite")
-Acked-by: Daniel Thompson <daniel.thompson@linaro.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20210322164308.827846-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f5062003465c ("NFS: Set an attribute barrier on all updates")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c |   26 +++++++++++++-------------
- 1 file changed, 13 insertions(+), 13 deletions(-)
+ fs/nfs/inode.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -105,19 +105,19 @@
- #include <linux/module.h>
- #include <asm/sections.h>
+diff --git a/fs/nfs/inode.c b/fs/nfs/inode.c
+index b15236641191..0d7b8c6e1de8 100644
+--- a/fs/nfs/inode.c
++++ b/fs/nfs/inode.c
+@@ -1430,10 +1430,10 @@ EXPORT_SYMBOL_GPL(_nfs_display_fhandle);
+  */
+ static int nfs_inode_attrs_need_update(const struct inode *inode, const struct nfs_fattr *fattr)
+ {
+-	const struct nfs_inode *nfsi = NFS_I(inode);
++	unsigned long attr_gencount = NFS_I(inode)->attr_gencount;
  
--#define v1printk(a...) do { \
--	if (verbose) \
--		printk(KERN_INFO a); \
--	} while (0)
--#define v2printk(a...) do { \
--	if (verbose > 1) \
--		printk(KERN_INFO a); \
--		touch_nmi_watchdog();	\
--	} while (0)
--#define eprintk(a...) do { \
--		printk(KERN_ERR a); \
--		WARN_ON(1); \
--	} while (0)
-+#define v1printk(a...) do {		\
-+	if (verbose)			\
-+		printk(KERN_INFO a);	\
-+} while (0)
-+#define v2printk(a...) do {		\
-+	if (verbose > 1)		\
-+		printk(KERN_INFO a);	\
-+	touch_nmi_watchdog();		\
-+} while (0)
-+#define eprintk(a...) do {		\
-+	printk(KERN_ERR a);		\
-+	WARN_ON(1);			\
-+} while (0)
- #define MAX_CONFIG_LEN		40
+-	return ((long)fattr->gencount - (long)nfsi->attr_gencount) > 0 ||
+-		((long)nfsi->attr_gencount - (long)nfs_read_attr_generation_counter() > 0);
++	return (long)(fattr->gencount - attr_gencount) > 0 ||
++	       (long)(attr_gencount - nfs_read_attr_generation_counter()) > 0;
+ }
  
- static struct kgdb_io kgdbts_io_ops;
+ /*
+@@ -1849,7 +1849,7 @@ static int nfs_update_inode(struct inode *inode, struct nfs_fattr *fattr)
+ 			nfsi->attrtimeo_timestamp = now;
+ 		}
+ 		/* Set the barrier to be more recent than this fattr */
+-		if ((long)fattr->gencount - (long)nfsi->attr_gencount > 0)
++		if ((long)(fattr->gencount - nfsi->attr_gencount) > 0)
+ 			nfsi->attr_gencount = fattr->gencount;
+ 	}
+ 
+-- 
+2.30.2
+
 
 
