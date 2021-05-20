@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C27E238A4AB
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:06:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1307E38A4B5
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:07:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235031AbhETKHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39968 "EHLO mail.kernel.org"
+        id S235188AbhETKIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:08:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234064AbhETKFf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:05:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D054661934;
-        Thu, 20 May 2021 09:41:20 +0000 (UTC)
+        id S235251AbhETKFy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:05:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12F8F61940;
+        Thu, 20 May 2021 09:41:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503681;
-        bh=MoNE5TdHtVhNeiNQ4xXY/QAYw1oAoxX2YRfxijPrFpw=;
+        s=korg; t=1621503683;
+        bh=5YYTS+ekkw4/VDtnMfSf7Hw+arHBnODbBygJOJzL3EU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IICCYzkEZ+HNZAt3+uOTJKKLYLoxOA3OXjUFUYrZCxYVQyzf2sidM9sD3Src5evzf
-         mCVkjxild+6kB8/nsyZpNd/AwVpsTW+PtJ6XOgwBi/pKK7Uw5gWfv4bPY6hwdbTnyg
-         qyMfeusnc5UcKkT816gR01c5Z0zi3KMNeWNr61BI=
+        b=OWkYshwzc3fHdxYCMleOUWCgPY0PAGdTc41tAMYwL6DAB9FbDBT+OiTgkiRrfmxrZ
+         d5xzcu2Uu0COdVges5dnqF39t0D7PA467TuuO/kiXc2zkMAI7KEBgWldtuYoH0LMrS
+         O8n+v/4Cy4OQsNHdJKNUalcB5b7lYD0lECsChFcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+959223586843e69a2674@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
         Xin Long <lucien.xin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 297/425] Revert "net/sctp: fix race condition in sctp_destroy_sock"
-Date:   Thu, 20 May 2021 11:21:06 +0200
-Message-Id: <20210520092141.210540800@linuxfoundation.org>
+Subject: [PATCH 4.19 298/425] sctp: delay auto_asconf init until binding the first addr
+Date:   Thu, 20 May 2021 11:21:07 +0200
+Message-Id: <20210520092141.242817008@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -43,78 +42,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit 01bfe5e8e428b475982a98a46cca5755726f3f7f upstream.
+commit 34e5b01186858b36c4d7c87e1a025071e8e2401f upstream.
 
-This reverts commit b166a20b07382b8bc1dcee2a448715c9c2c81b5b.
+As Or Cohen described:
 
-This one has to be reverted as it introduced a dead lock, as
-syzbot reported:
+  If sctp_destroy_sock is called without sock_net(sk)->sctp.addr_wq_lock
+  held and sp->do_auto_asconf is true, then an element is removed
+  from the auto_asconf_splist without any proper locking.
 
-       CPU0                    CPU1
-       ----                    ----
-  lock(&net->sctp.addr_wq_lock);
-                               lock(slock-AF_INET6);
-                               lock(&net->sctp.addr_wq_lock);
-  lock(slock-AF_INET6);
+  This can happen in the following functions:
+  1. In sctp_accept, if sctp_sock_migrate fails.
+  2. In inet_create or inet6_create, if there is a bpf program
+     attached to BPF_CGROUP_INET_SOCK_CREATE which denies
+     creation of the sctp socket.
 
-CPU0 is the thread of sctp_addr_wq_timeout_handler(), and CPU1
-is that of sctp_close().
+This patch is to fix it by moving the auto_asconf init out of
+sctp_init_sock(), by which inet_create()/inet6_create() won't
+need to operate it in sctp_destroy_sock() when calling
+sk_common_release().
 
-The original issue this commit fixed will be fixed in the next
-patch.
+It also makes more sense to do auto_asconf init while binding the
+first addr, as auto_asconf actually requires an ANY addr bind,
+see it in sctp_addr_wq_timeout_handler().
 
-Reported-by: syzbot+959223586843e69a2674@syzkaller.appspotmail.com
+This addresses CVE-2021-23133.
+
+Fixes: 610236587600 ("bpf: Add new cgroup attach type to enable sock modifications")
+Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/socket.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
+ net/sctp/socket.c |   31 +++++++++++++++++--------------
+ 1 file changed, 17 insertions(+), 14 deletions(-)
 
 --- a/net/sctp/socket.c
 +++ b/net/sctp/socket.c
-@@ -1569,9 +1569,11 @@ static void sctp_close(struct sock *sk,
+@@ -375,6 +375,18 @@ static struct sctp_af *sctp_sockaddr_af(
+ 	return af;
+ }
  
- 	/* Supposedly, no process has access to the socket, but
- 	 * the net layers still may.
-+	 * Also, sctp_destroy_sock() needs to be called with addr_wq_lock
-+	 * held and that should be grabbed before socket lock.
- 	 */
--	local_bh_disable();
--	bh_lock_sock(sk);
-+	spin_lock_bh(&net->sctp.addr_wq_lock);
-+	bh_lock_sock_nested(sk);
++static void sctp_auto_asconf_init(struct sctp_sock *sp)
++{
++	struct net *net = sock_net(&sp->inet.sk);
++
++	if (net->sctp.default_auto_asconf) {
++		spin_lock(&net->sctp.addr_wq_lock);
++		list_add_tail(&sp->auto_asconf_list, &net->sctp.auto_asconf_splist);
++		spin_unlock(&net->sctp.addr_wq_lock);
++		sp->do_auto_asconf = 1;
++	}
++}
++
+ /* Bind a local address either to an endpoint or to an association.  */
+ static int sctp_do_bind(struct sock *sk, union sctp_addr *addr, int len)
+ {
+@@ -437,8 +449,10 @@ static int sctp_do_bind(struct sock *sk,
+ 	}
  
- 	/* Hold the sock, since sk_common_release() will put sock_put()
- 	 * and we have just a little more cleanup.
-@@ -1580,7 +1582,7 @@ static void sctp_close(struct sock *sk,
- 	sk_common_release(sk);
+ 	/* Refresh ephemeral port.  */
+-	if (!bp->port)
++	if (!bp->port) {
+ 		bp->port = inet_sk(sk)->inet_num;
++		sctp_auto_asconf_init(sp);
++	}
  
- 	bh_unlock_sock(sk);
--	local_bh_enable();
-+	spin_unlock_bh(&net->sctp.addr_wq_lock);
- 
- 	sock_put(sk);
- 
-@@ -4774,6 +4776,9 @@ static int sctp_init_sock(struct sock *s
+ 	/* Add the address to the bind address list.
+ 	 * Use GFP_ATOMIC since BHs will be disabled.
+@@ -4776,19 +4790,6 @@ static int sctp_init_sock(struct sock *s
  	sk_sockets_allocated_inc(sk);
  	sock_prot_inuse_add(net, sk->sk_prot, 1);
  
-+	/* Nothing can fail after this block, otherwise
-+	 * sctp_destroy_sock() will be called without addr_wq_lock held
-+	 */
- 	if (net->sctp.default_auto_asconf) {
- 		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_add_tail(&sp->auto_asconf_list,
-@@ -4808,9 +4813,7 @@ static void sctp_destroy_sock(struct soc
+-	/* Nothing can fail after this block, otherwise
+-	 * sctp_destroy_sock() will be called without addr_wq_lock held
+-	 */
+-	if (net->sctp.default_auto_asconf) {
+-		spin_lock(&sock_net(sk)->sctp.addr_wq_lock);
+-		list_add_tail(&sp->auto_asconf_list,
+-		    &net->sctp.auto_asconf_splist);
+-		sp->do_auto_asconf = 1;
+-		spin_unlock(&sock_net(sk)->sctp.addr_wq_lock);
+-	} else {
+-		sp->do_auto_asconf = 0;
+-	}
+-
+ 	local_bh_enable();
  
- 	if (sp->do_auto_asconf) {
- 		sp->do_auto_asconf = 0;
--		spin_lock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 		list_del(&sp->auto_asconf_list);
--		spin_unlock_bh(&sock_net(sk)->sctp.addr_wq_lock);
- 	}
- 	sctp_endpoint_free(sp->ep);
- 	local_bh_disable();
+ 	return 0;
+@@ -8848,6 +8849,8 @@ static void sctp_sock_migrate(struct soc
+ 	sctp_bind_addr_dup(&newsp->ep->base.bind_addr,
+ 				&oldsp->ep->base.bind_addr, GFP_KERNEL);
+ 
++	sctp_auto_asconf_init(newsp);
++
+ 	/* Move any messages in the old socket's receive queue that are for the
+ 	 * peeled off association to the new socket's receive queue.
+ 	 */
 
 
