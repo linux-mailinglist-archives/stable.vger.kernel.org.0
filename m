@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E034538A6F3
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:35:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DAD438A8B5
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:52:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236984AbhETKcZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:32:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58206 "EHLO mail.kernel.org"
+        id S238651AbhETKw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:52:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236838AbhETKaY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:30:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7568361483;
-        Thu, 20 May 2021 09:51:47 +0000 (UTC)
+        id S237089AbhETKuy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:50:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FFF961CC1;
+        Thu, 20 May 2021 09:59:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504307;
-        bh=9yT1C6ivptOcf1SjqlhFfhMlKdmn6jgeBZ4gfhiVVPs=;
+        s=korg; t=1621504798;
+        bh=tNZUhuPzW4Zgn+AhyZ19YbyS9dXYOA1YWfSWXpYzYEo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfE+SHbVZHI73Iv8AK82CPuUvjjqcItvApfgp4G4fD8Znf0FMSF47iGtMGUpA5+0B
-         j03LYcg8kK1EQERcF93hIwgWwiDXZ+lFYPobj1XGAadL3/Cjkm3si5wo/5u0gMDZaA
-         A3vvvN8j47cwuweOgEsckkN9QEVyxvNPT+6iwovo=
+        b=XE0v7qC566zEinN0cZHdaeTUF9JJsGuyZeMRP/ifO0Js3eSgx27eMbpFum6fYX4Hu
+         kO7ok0Bjx1GcGFpCAVwVuJcVCVajw692n9hX4aAX+SDwvGGbUuR1R8pxy9DmIjr2NS
+         8Mh3zqd8PnGP9twfafqM/I1mR6CHypn/C47au7/M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sergey Shtylyov <s.shtylyov@omprussia.ru>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 186/323] ata: libahci_platform: fix IRQ check
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 086/240] ALSA: hda/realtek: Re-order ALC882 Acer quirk table entries
 Date:   Thu, 20 May 2021 11:21:18 +0200
-Message-Id: <20210520092126.484950441@linuxfoundation.org>
+Message-Id: <20210520092111.576717408@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +38,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Shtylyov <s.shtylyov@omprussia.ru>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit b30d0040f06159de97ad9c0b1536f47250719d7d ]
+commit b265047ac56bad8c4f3d0c8bf9cb4e828ee0d28e upstream.
 
-Iff platform_get_irq() returns 0, ahci_platform_init_host() would return 0
-early (as if the call was successful). Override IRQ0 with -EINVAL instead
-as the 'libata' regards 0 as "no IRQ" (thus polling) anyway...
+Just re-order the alc882_fixup_tbl[] entries for Acer devices for
+avoiding the oversight of the duplicated or unapplied item in future.
+No functional changes.
 
-Fixes: c034640a32f8 ("ata: libahci: properly propagate return value of platform_get_irq()")
-Signed-off-by: Sergey Shtylyov <s.shtylyov@omprussia.ru>
-Link: https://lore.kernel.org/r/4448c8cc-331f-2915-0e17-38ea34e251c8@omprussia.ru
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Also Cc-to-stable for the further patch applications.
+
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428112704.23967-2-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libahci_platform.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/pci/hda/patch_realtek.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/ata/libahci_platform.c b/drivers/ata/libahci_platform.c
-index 5929672b809e..19d495244ce8 100644
---- a/drivers/ata/libahci_platform.c
-+++ b/drivers/ata/libahci_platform.c
-@@ -518,11 +518,13 @@ int ahci_platform_init_host(struct platform_device *pdev,
- 	int i, irq, n_ports, rc;
- 
- 	irq = platform_get_irq(pdev, 0);
--	if (irq <= 0) {
-+	if (irq < 0) {
- 		if (irq != -EPROBE_DEFER)
- 			dev_err(dev, "no irq\n");
- 		return irq;
- 	}
-+	if (!irq)
-+		return -EINVAL;
- 
- 	hpriv->irq = irq;
- 
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -2219,13 +2219,13 @@ static const struct snd_pci_quirk alc882
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0146, "Acer Aspire 6935G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_8930G),
++	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
++		      ALC882_FIXUP_ACER_ASPIRE_4930G),
++	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x015e, "Acer Aspire 6930G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0166, "Acer Aspire 6530G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0142, "Acer Aspire 7730G",
+-		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+-	SND_PCI_QUIRK(0x1025, 0x0155, "Packard-Bell M5120", ALC882_FIXUP_PB_M5210),
+ 	SND_PCI_QUIRK(0x1025, 0x021e, "Acer Aspire 5739G",
+ 		      ALC882_FIXUP_ACER_ASPIRE_4930G),
+ 	SND_PCI_QUIRK(0x1025, 0x0259, "Acer Aspire 5935", ALC889_FIXUP_DAC_ROUTE),
 
 
