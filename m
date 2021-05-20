@@ -2,69 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A35A7389FE9
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D82E389FEF
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 10:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230469AbhETIgu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 04:36:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39760 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230102AbhETIgt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 04:36:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3286D60FF1;
-        Thu, 20 May 2021 08:35:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621499728;
-        bh=q+8wduanb4Jo4JMb/D1qBxfnNcKebB9UnUXN7kyOgQ8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=xPTf54uFzMmW3XjRP2RQ04pxVBJVc/XfYCAHUClEKv98yrrFDGQj5zqBTUsqWwwPL
-         DDD//0bT2BTLQYBr2oJCiQ/7IMr8/wU0TNjr2a5D8Du0uBPzm4EyPULttDT42ZDGNW
-         Xzq1LMcm4uw1T7G6gfPxQuyP2NvJcMSQMNGJXd+A=
-Date:   Thu, 20 May 2021 10:35:26 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Cc:     stable@vger.kernel.org, sashal@kernel.org,
-        Colin Ian King <colin.king@canonical.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: Re: [PATCH for 4.4, 4,9] iio: tsl2583: Fix division by a zero lux_val
-Message-ID: <YKYfTmGyEO0xneX6@kroah.com>
-References: <20210518032846.37859-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+        id S231182AbhETIhk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 04:37:40 -0400
+Received: from wnew3-smtp.messagingengine.com ([64.147.123.17]:36967 "EHLO
+        wnew3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230102AbhETIhj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 20 May 2021 04:37:39 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailnew.west.internal (Postfix) with ESMTP id ABA4B1B83;
+        Thu, 20 May 2021 04:36:17 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Thu, 20 May 2021 04:36:18 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=o1DjTJWgM6tI8DPk/ukCWHIxuL5
+        WQ36Hmn4F+Omn2gE=; b=EfmBFZJuVqarI01IkARBLgCBP3+Qh/TFv6j63ajlXbQ
+        bM6/QY6OvpXS1wk/45R5vqwuJBCAcFWNlIt1Nr30FLEjHOilrFzwY13HwZGe0re8
+        jdPC4Wkx6lpVGBZmzPjLn+tP06g/FjqbGANErugpgGOQUyn9ynuyPAcM+hU5blDQ
+        Ap6YdBE+voi5QIqjhDXNoxLsqgdSVOXuNx/HRv0wcQ3gAthr4EgHzkpxCpCVs5Mx
+        V+rkxFZi5QceZxbE3+kWyznZXsrtj465Mu5Xv/lJ79qolQU0pQgCxcXZLMy9Nut9
+        U/DoX/runOqbbPT3hGQJnUJ7Gw2SeIauakR9lvKuMKQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=o1DjTJ
+        WgM6tI8DPk/ukCWHIxuL5WQ36Hmn4F+Omn2gE=; b=g51lblhwEGgxy5aYP5QYY0
+        RSY7SZy1C/Sv2PxCcqebXyt3w8rrP6CtRV328Dwu9c7jcF+OHN7aCN4/DWkhzSvO
+        4SOz7EIOMwuorL3OeYjH4K10JeZvofs08OQ0VBVrISsldL/piujMRb8hnGW4roxh
+        aPvI40KB0hKrjL5DBdCiY2cLyTM4vrD2ut4VXp8t9cu2I/M0hSEG5/wM9U7kopKv
+        3YbhdLurZczgRLMN51x1/AUZujUK6UPn3WZyu8hNbuUgp/5wupm8+M1aJTz+1rzs
+        caWNfo1ECEDcZ8hcPH78DVl7Ux+yKeevshuXADUsispV3cOtjtou2LubSQdJixDA
+        ==
+X-ME-Sender: <xms:gB-mYPcQkRjdUbyvMPsy7YOdj4Pv5szthHE4GZPjhKqPWVAfJ6ulkA>
+    <xme:gB-mYFM_rOiqU-nnk9ycbZIYI2IHlUWleB0bIHDjVZbS6iipypv5hcUz8VS8V5Hoo
+    jqCPP5NLNjz2g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejuddgtdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdortddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevhefgje
+    eitdfffefhvdegleeigeejgeeiffekieffjeeflefhieegtefhudejueenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:gB-mYIjgHySLxpmEurETaNCi0j2dXiH9GxTN0hoBwDfUycFTiWDC1A>
+    <xmx:gB-mYA82kDcn_B8vQBc32vr3xgmz5LcEbYWVqc1Obz1oukep969u-w>
+    <xmx:gB-mYLtCEE3sEJPQa8koj29LGYeMPpt6nbAyo8XGVMapRGaAzbw_2g>
+    <xmx:gR-mYPH4xvPkwEnGHj7RFKIS3-Yi8DMRWd6Y1nKcOt-siNI35SO5RWxH5kY>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Thu, 20 May 2021 04:36:16 -0400 (EDT)
+Date:   Thu, 20 May 2021 10:36:13 +0200
+From:   Greg KH <greg@kroah.com>
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     stable@vger.kernel.org, linux-xfs@vger.kernel.org,
+        Christoph Hellwig <hch@lst.de>,
+        Jan Stancek <jstancek@redhat.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        "Darrick J . Wong" <darrick.wong@oracle.com>
+Subject: Re: [PATCH 4.19] iomap: fix sub-page uptodate handling
+Message-ID: <YKYffZMzHeuxCCiE@kroah.com>
+References: <20210517165724.3150255-1-willy@infradead.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210518032846.37859-1-nobuhiro1.iwamatsu@toshiba.co.jp>
+In-Reply-To: <20210517165724.3150255-1-willy@infradead.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, May 18, 2021 at 12:28:46PM +0900, Nobuhiro Iwamatsu wrote:
-> From: Colin Ian King <colin.king@canonical.com>
+On Mon, May 17, 2021 at 05:57:24PM +0100, Matthew Wilcox (Oracle) wrote:
+> From: Christoph Hellwig <hch@lst.de>
 > 
-> commit af0e1871d79cfbb91f732d2c6fa7558e45c31038 upstream.
+> commit 1cea335d1db1ce6ab71b3d2f94a807112b738a0f upstream
 > 
-> The lux_val returned from tsl2583_get_lux can potentially be zero,
-> so check for this to avoid a division by zero and an overflowed
-> gain_trim_val.
+> bio completions can race when a page spans more than one file system
+> block.  Add a spinlock to synchronize marking the page uptodate.
 > 
-> Fixes clang scan-build warning:
-> 
-> drivers/iio/light/tsl2583.c:345:40: warning: Either the
-> condition 'lux_val<0' is redundant or there is division
-> by zero at line 345. [zerodivcond]
-> 
-> Fixes: ac4f6eee8fe8 ("staging: iio: TAOS tsl258x: Device driver")
-> Signed-off-by: Colin Ian King <colin.king@canonical.com>
-> Cc: <Stable@vger.kernel.org>
-> Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-> [iwamatsu: Change file path.]
-> Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
+> Fixes: 9dc55f1389f9 ("iomap: add support for sub-pagesize buffered I/O without buffer heads")
+> Reported-by: Jan Stancek <jstancek@redhat.com>
+> Signed-off-by: Christoph Hellwig <hch@lst.de>
+> Reviewed-by: Dave Chinner <dchinner@redhat.com>
+> Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+> Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 > ---
->  drivers/staging/iio/light/tsl2583.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
+>  fs/iomap.c            | 34 ++++++++++++++++++++++++----------
+>  include/linux/iomap.h |  1 +
+>  2 files changed, 25 insertions(+), 10 deletions(-)
 
-This only applied to 4.4.y, not 4.9.y, can you provide a new backport
-for that tree?
-
-thanks,
+Now queued up, thnaks.
 
 greg k-h
