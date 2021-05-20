@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA79738AB5D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7070438A9E9
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:06:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S241093AbhETLXq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:23:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44408 "EHLO mail.kernel.org"
+        id S239008AbhETLHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38340 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S240971AbhETLVp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:21:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDD0A61D8F;
-        Thu, 20 May 2021 10:11:24 +0000 (UTC)
+        id S239136AbhETLFg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:05:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70A7361D24;
+        Thu, 20 May 2021 10:05:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505485;
-        bh=TCw6IzIBlq8q+GKZ9gdle9bWfo09GoqckjT9I6Ml+eg=;
+        s=korg; t=1621505112;
+        bh=FQzU1ywP14McHhXd/bP7dyfK9IQrVfQ81ynkrpqJyN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RdimsMC6xtJWD3K2rl5Oep3W7yLuldx/S/qY3N1+i3HUrHKwohBgoDZVZlmrtGVW+
-         xwCf5GayPehN1Qc0ty6iL7e/34vIQaj0dnb3kcpQe2mwyoG7vSh677vuy+S6YYJfq1
-         bb+eKgNAn35r/7XcYwJqswkudWQLfv9F1K6uoDoU=
+        b=yEjbjR0GYxTox4rP7Cpp1PLBMRlSe2EdpUEgbUvbfbQAIlkEBXnp0TTxVMqKZX/GV
+         b4vSSObNeyZ06+k4iag1fPR6JbsINPVfvQVlaM6fhg35W41vd/phTLSklxUHt//mCn
+         SVdOFi5cbsAMpJwX9dPRDkPyQwMsJMMVKXzRKk9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 157/190] NFSv4.2 fix handling of sr_eof in SEEKs reply
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 229/240] isdn: capi: fix mismatched prototypes
 Date:   Thu, 20 May 2021 11:23:41 +0200
-Message-Id: <20210520092107.357813500@linuxfoundation.org>
+Message-Id: <20210520092116.397874920@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
-References: <20210520092102.149300807@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <kolga@netapp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 73f5c88f521a630ea1628beb9c2d48a2e777a419 ]
+commit 5ee7d4c7fbc9d3119a20b1c77d34003d1f82ac26 upstream.
 
-Currently the client ignores the value of the sr_eof of the SEEK
-operation. According to the spec, if the server didn't find the
-requested extent and reached the end of the file, the server
-would return sr_eof=true. In case the request for DATA and no
-data was found (ie in the middle of the hole), then the lseek
-expects that ENXIO would be returned.
+gcc-11 complains about a prototype declaration that is different
+from the function definition:
 
-Fixes: 1c6dcbe5ceff8 ("NFS: Implement SEEK")
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+drivers/isdn/capi/kcapi.c:724:44: error: argument 2 of type ‘u8 *’ {aka ‘unsigned char *’} declared as a pointer [-Werror=array-parameter=]
+  724 | u16 capi20_get_manufacturer(u32 contr, u8 *buf)
+      |                                        ~~~~^~~
+In file included from drivers/isdn/capi/kcapi.c:13:
+drivers/isdn/capi/kcapi.h:62:43: note: previously declared as an array ‘u8[64]’ {aka ‘unsigned char[64]’}
+   62 | u16 capi20_get_manufacturer(u32 contr, u8 buf[CAPI_MANUFACTURER_LEN]);
+      |                                        ~~~^~~~~~~~~~~~~~~~~~~~~~~~~~
+drivers/isdn/capi/kcapi.c:790:38: error: argument 2 of type ‘u8 *’ {aka ‘unsigned char *’} declared as a pointer [-Werror=array-parameter=]
+  790 | u16 capi20_get_serial(u32 contr, u8 *serial)
+      |                                  ~~~~^~~~~~
+In file included from drivers/isdn/capi/kcapi.c:13:
+drivers/isdn/capi/kcapi.h:64:37: note: previously declared as an array ‘u8[8]’ {aka ‘unsigned char[8]’}
+   64 | u16 capi20_get_serial(u32 contr, u8 serial[CAPI_SERIAL_LEN]);
+      |                                  ~~~^~~~~~~~~~~~~~~~~~~~~~~
+
+Change the definition to make them match.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs42proc.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/isdn/capi/kcapi.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/nfs42proc.c b/fs/nfs/nfs42proc.c
-index 7f1a0fb8c493..31cc6f3d992d 100644
---- a/fs/nfs/nfs42proc.c
-+++ b/fs/nfs/nfs42proc.c
-@@ -168,7 +168,10 @@ static loff_t _nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
- 	if (status)
- 		return status;
+--- a/drivers/isdn/capi/kcapi.c
++++ b/drivers/isdn/capi/kcapi.c
+@@ -845,7 +845,7 @@ EXPORT_SYMBOL(capi20_put_message);
+  * Return value: CAPI result code
+  */
  
--	return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
-+	if (whence == SEEK_DATA && res.sr_eof)
-+		return -NFS4ERR_NXIO;
-+	else
-+		return vfs_setpos(filep, res.sr_offset, inode->i_sb->s_maxbytes);
- }
+-u16 capi20_get_manufacturer(u32 contr, u8 *buf)
++u16 capi20_get_manufacturer(u32 contr, u8 buf[CAPI_MANUFACTURER_LEN])
+ {
+ 	struct capi_ctr *ctr;
+ 	u16 ret;
+@@ -915,7 +915,7 @@ EXPORT_SYMBOL(capi20_get_version);
+  * Return value: CAPI result code
+  */
  
- loff_t nfs42_proc_llseek(struct file *filep, loff_t offset, int whence)
--- 
-2.30.2
-
+-u16 capi20_get_serial(u32 contr, u8 *serial)
++u16 capi20_get_serial(u32 contr, u8 serial[CAPI_SERIAL_LEN])
+ {
+ 	struct capi_ctr *ctr;
+ 	u16 ret;
 
 
