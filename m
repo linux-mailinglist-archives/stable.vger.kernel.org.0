@@ -2,263 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B37E138B31E
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 17:24:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC5BB38B32C
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 17:25:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbhETPZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 11:25:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46408 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232338AbhETPYw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 11:24:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BE4F961355;
-        Thu, 20 May 2021 15:23:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621524211;
-        bh=QrE46utVIX7kzC/tkMpgx+FTSdomngoTTyDd+BOYU7g=;
-        h=From:To:Cc:Subject:Date:From;
-        b=C8iGc5hAP993ely3dVWsrZP7wqRtjAJWTIvrnsxIsWB2uHLAWelEeF4/tGJnaWadD
-         RFqx7gmPsTtGSswyIz4HhGf7wFk/vxEdhvW1VzA0Zy6BQbjdJCm0MU3eJk04HCUlhr
-         p+lozBXPFslZp/lrm2QD87MJEuoAq03TnkzYYeV4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.12 00/43] 5.12.6-rc2 review
-Date:   Thu, 20 May 2021 17:23:29 +0200
-Message-Id: <20210520152254.218537944@linuxfoundation.org>
-X-Mailer: git-send-email 2.31.1
+        id S231816AbhETP0c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 11:26:32 -0400
+Received: from mail-dm6nam11on2089.outbound.protection.outlook.com ([40.107.223.89]:27873
+        "EHLO NAM11-DM6-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S235367AbhETPZ7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 11:25:59 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=kYis3BrjqoTqeNqlX4s0CEMElpNGCfCT4kAj9DWmAU2YOzppj7HjieNmdK9Yh0CU0LZmldOAA+Jw1s9St2ZrgWil/5M18Z9SO5O4JPbPcEt9EYQsSHXWaNrwElAkrJIf/VsWffsb5yq+WJ+o79j9f4B7PId9lmP42zupIItJJ1//oDHVbkfWX5/8F12rKDBPIai4XJ+clpHeWDNZpHTkJtWgUi6bwxTn8XSJVxKKJ5onj6TL0uILcQGYBu+ziCqDXihEsTVEa+k9hVbkW1AdWEU/2Gq7uKQlAu9MxRLAEZG9ECfQSR6u1lYcLtxJbRTMgvNYnQ0YbQKOXcXQG6MRsA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kxJ03e5w0J6mg5zhGYbpVqQLQJmjit5EN5xXfm+qia8=;
+ b=QbavBWQte+i9Za3wt5n1cpd0zVW4FWRiP64tcCumqpAo43BvS/GHB/SBDcNYpCsdj8G+332u4fHqRzQtZxbdKudidV4mlZmRTn5sHD1a87JHMpCSxwxFm4K55cpHYkxEUThjWjgJfDemC/VH6HrAmUxie17Ctn2xSheqGWuqxKcLMPhc3+LxniIvU98UHjZyfbVQCYYp0Ws+fDq63F4s4n+XniLxNlGJdJxWP3dxKU2zab6hH+Gueu/7S/oRqEv3BTXMOMh8tk1g+ULT4VvEBc32tgAg5m4kF5WPF7yP/BEv8dYs05PoxlMY2cEqcloGXIHuBWwh+2sjyr7A9XdE3A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.35) smtp.rcpttodomain=linuxfoundation.org
+ smtp.mailfrom=nvidia.com; dmarc=pass (p=none sp=none pct=100) action=none
+ header.from=nvidia.com; dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=kxJ03e5w0J6mg5zhGYbpVqQLQJmjit5EN5xXfm+qia8=;
+ b=Pguos7BSKVWz2hQP9XbZu0MSKH6f/WnENYIt/xjR8PqVPKQZXiX4D9XBocxmkqCjX42BkScdtwLpLJ/KzUFzAgTVHTJlgvBs7czIX8QGpiscrrW+ERN4/COA8H/O1klNFq535ZrJAaXe4hUpNLBd1y5HXKS4V7gPYCBEmmvvzg66pNM9OoelL83orKmrWFJGcKB5RXsso++jbxD0ti8346oks8fwwF0QXl5MT4shmoXsPEvkYih9aSDWlCpUMUcEUpz9LchI7DM7KL0mcoOIxVKLxID5FWfu8faRXOy+3PJnPY2JGnlCwDFyOrRXF0ecueen0ZCYt5OHikQ7SDbFhA==
+Received: from DS7PR05CA0016.namprd05.prod.outlook.com (2603:10b6:5:3b9::21)
+ by BN6PR1201MB0257.namprd12.prod.outlook.com (2603:10b6:405:4e::20) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4129.28; Thu, 20 May
+ 2021 15:24:35 +0000
+Received: from DM6NAM11FT059.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:5:3b9:cafe::c1) by DS7PR05CA0016.outlook.office365.com
+ (2603:10b6:5:3b9::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.14 via Frontend
+ Transport; Thu, 20 May 2021 15:24:35 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.35)
+ smtp.mailfrom=nvidia.com; linuxfoundation.org; dkim=none (message not signed)
+ header.d=none;linuxfoundation.org; dmarc=pass action=none
+ header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.35 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.35; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.35) by
+ DM6NAM11FT059.mail.protection.outlook.com (10.13.172.92) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4129.25 via Frontend Transport; Thu, 20 May 2021 15:24:35 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL111.nvidia.com
+ (172.20.187.18) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 20 May
+ 2021 15:24:34 +0000
+Received: from HQMAIL105.nvidia.com (172.20.187.12) by HQMAIL105.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Thu, 20 May
+ 2021 15:24:34 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.12) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Thu, 20 May 2021 15:24:34 +0000
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.14 000/323] 4.14.233-rc1 review
+In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
+References: <20210520092120.115153432@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.6-rc2.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.12.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.12.6-rc2
-X-KernelTest-Deadline: 2021-05-22T15:22+00:00
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Message-ID: <9060bb7d40a54d7cad81f39d50e51374@HQMAIL105.nvidia.com>
+Date:   Thu, 20 May 2021 15:24:34 +0000
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 69d324ff-753c-4430-c291-08d91ba3601b
+X-MS-TrafficTypeDiagnostic: BN6PR1201MB0257:
+X-Microsoft-Antispam-PRVS: <BN6PR1201MB0257A7C609F9EA1AD1373421D92A9@BN6PR1201MB0257.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: BqJytGGU2a5wNJE1e3d+AcKhKAqMXgNkKpjwTXY8HcD5Exxq/VjLJ8+1l+z4I5GHJthMbsdmTN58IgNQkwh3zKUDPu8b1x0EoWEKJjyI69mZhQ40bVf2K7bFBxp4Tp8cSI3ASBwPW/HnLRkqDvhAfsG8HPwk/iDLs31AiDoUoK1hzSm8wmdiaAf33qHi/nVX+C/z3M6WAb7QzbdPonvTqU1j22JlZDr5Sg91RLsxC7dazdPYvD2yvxqNbT1BXGheGd7eXu2yHnrcKtKLHJ0QCSY8HiRUbPU4Y/bQJ08AVmSbyKpeQX2+OILr+t2bXPBheqaxaBvbHViRVsmMFDD3zvZAMdAz+h0JnajM8IstQhPfQNSuXnoKlBpjy3czpL6+b/WPMm4CgE0hO8kFb2/2NbECjjE/FAB7+xGw9cO2t/FZicQK/IWO1pvZaioOj8YsB550iTKwlAxGkkfziCs5RQIs/jB1RzcrKZsvbbu20kt4MAioX9i6N5s04XqNnBuboruY7ZiqbKYH+s8R+j3OjQ93bi01012Ml8wZtGH4NRINL4spm2JlKkRoBv86iQGgYdFBTXaaye0HYsQrCG1Py58tQAl5KgI0bbID8qNKr0posvW4m7XuvEu4Hpy+llEII1KxD+s0487h5eXkq0VG/iOXi8pNEWstlggKodo8BHKABXU3PlpTVn/E96fjjPuPpJTcCgLBSy8E4z/2+e1DnFDgMAv9s/rfaELSHlQej4pBja6GIJefTV2j7WgO5gKHvvbN3CgWNWCl1ISMci0QvQ==
+X-Forefront-Antispam-Report: CIP:216.228.112.35;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid02.nvidia.com;CAT:NONE;SFS:(4636009)(39860400002)(346002)(396003)(136003)(376002)(36840700001)(46966006)(108616005)(24736004)(36860700001)(478600001)(82310400003)(966005)(8676002)(47076005)(70206006)(426003)(186003)(6916009)(8936002)(4326008)(86362001)(70586007)(5660300002)(26005)(2906002)(7636003)(356005)(82740400003)(336012)(54906003)(316002)(7416002)(36906005);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2021 15:24:35.4587
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 69d324ff-753c-4430-c291-08d91ba3601b
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.35];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: DM6NAM11FT059.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BN6PR1201MB0257
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.12.6 release.
-There are 43 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+On Thu, 20 May 2021 11:18:12 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.233 release.
+> There are 323 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 22 May 2021 09:20:38 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.233-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Responses should be made by Sat, 22 May 2021 15:22:43 +0000.
-Anything received after that time might be too late.
+All tests passing for Tegra ...
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.6-rc2.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-and the diffstat can be found below.
+Test results for stable-v4.14:
+    8 builds:	8 pass, 0 fail
+    16 boots:	16 pass, 0 fail
+    32 tests:	32 pass, 0 fail
 
-thanks,
+Linux version:	4.14.233-rc1-g7c5a6946da44
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra210-p2371-2180, tegra30-cardhu-a04
 
-greg k-h
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.12.6-rc2
-
-Eric Dumazet <edumazet@google.com>
-    ipv6: remove extra dev_hold() for fallback tunnels
-
-Eric Dumazet <edumazet@google.com>
-    ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods
-
-Eric Dumazet <edumazet@google.com>
-    sit: proper dev_{hold|put} in ndo_[un]init methods
-
-Eric Dumazet <edumazet@google.com>
-    ip6_gre: proper dev_{hold|put} in ndo_[un]init methods
-
-Yannick Vignon <yannick.vignon@nxp.com>
-    net: stmmac: Do not enable RX FIFO overflow interrupts
-
-Zqiang <qiang.zhang@windriver.com>
-    lib: stackdepot: turn depot_lock spinlock to raw_spinlock
-
-yangerkun <yangerkun@huawei.com>
-    block: reexpand iov_iter after read/write
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda: generic: change the DAC ctl name for LO+SPK or LO+HP
-
-Íñigo Huguet <ihuguet@redhat.com>
-    net:CXGB4: fix leak if sk_buff is not used
-
-Hans de Goede <hdegoede@redhat.com>
-    gpiolib: acpi: Add quirk to ignore EC wakeups on Dell Venue 10 Pro 5055
-
-Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-    drm/amd/display: Fix two cursor duplication when using overlay
-
-Keith Busch <kbusch@kernel.org>
-    nvmet: remove unsupported command noise
-
-Phillip Potter <phil@philpotter.co.uk>
-    net: hsr: check skb can contain struct hsr_ethhdr in fill_frame_info
-
-Zhang Zhengming <zhangzhengming@huawei.com>
-    bridge: Fix possible races between assigning rx_handler_data and setting IFF_BRIDGE_PORT bit
-
-Darren Powell <darren.powell@amd.com>
-    amdgpu/pm: Prevent force of DCEFCLK on NAVI10 and SIENNA_CICHLID
-
-Bodo Stroesser <bostroesser@gmail.com>
-    scsi: target: tcmu: Return from tcmu_handle_completions() if cmd_id not found
-
-Jeff Layton <jlayton@kernel.org>
-    ceph: don't allow access to MDS-private inodes
-
-Jeff Layton <jlayton@kernel.org>
-    ceph: don't clobber i_snap_caps on non-I_NEW inode
-
-Jeff Layton <jlayton@kernel.org>
-    ceph: fix fscache invalidation
-
-James Smart <jsmart2021@gmail.com>
-    scsi: lpfc: Fix illegal memory access on Abort IOCBs
-
-Nathan Chancellor <nathan@kernel.org>
-    riscv: Workaround mcount name prior to clang-13
-
-Nathan Chancellor <nathan@kernel.org>
-    scripts/recordmcount.pl: Fix RISC-V regex for clang
-
-Nathan Chancellor <nathan@kernel.org>
-    riscv: Use $(LD) instead of $(CC) to link vDSO
-
-Prashant Malani <pmalani@chromium.org>
-    platform/chrome: cros_ec_typec: Add DP mode check
-
-Manivannan Sadhasivam <mani@kernel.org>
-    ARM: 9075/1: kernel: Fix interrupted SMC calls
-
-Johannes Berg <johannes.berg@intel.com>
-    um: Disable CONFIG_GCOV with MODULES
-
-Johannes Berg <johannes.berg@intel.com>
-    um: Mark all kernel symbols as local
-
-Chuck Lever <chuck.lever@oracle.com>
-    svcrdma: Don't leak send_ctxt on Send errors
-
-Yi Chen <chenyi77@huawei.com>
-    f2fs: fix to avoid NULL pointer dereference
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS: NFS_INO_REVAL_PAGECACHE should mark the change attribute invalid
-
-Hans de Goede <hdegoede@redhat.com>
-    Input: silead - add workaround for x86 BIOS-es which bring the chip up in a stuck state
-
-Hans de Goede <hdegoede@redhat.com>
-    Input: elants_i2c - do not bind to i2c-hid compatible ACPI instantiated devices
-
-Dinghao Liu <dinghao.liu@zju.edu.cn>
-    PCI: tegra: Fix runtime PM imbalance in pex_ep_event_pex_rst_deassert()
-
-Feilong Lin <linfeilong@huawei.com>
-    ACPI / hotplug / PCI: Fix reference count leak in enable_slot()
-
-Trond Myklebust <trond.myklebust@hammerspace.com>
-    NFS: Fix fscache invalidation in nfs_set_cache_invalid()
-
-louis.wang <liang26812@gmail.com>
-    ARM: 9066/1: ftrace: pause/unpause function graph tracer in cpu_suspend()
-
-Gustavo Pimentel <Gustavo.Pimentel@synopsys.com>
-    dmaengine: dw-edma: Fix crash on loading/unloading driver
-
-Arnd Bergmann <arnd@arndb.de>
-    PCI: thunder: Fix compile testing
-
-Arnd Bergmann <arnd@arndb.de>
-    usb: sl811-hcd: improve misleading indentation
-
-Arnd Bergmann <arnd@arndb.de>
-    kgdb: fix gcc-11 warning on indentation
-
-Arnd Bergmann <arnd@arndb.de>
-    airo: work around stack usage warning
-
-Linus Torvalds <torvalds@linux-foundation.org>
-    drm/i915/display: fix compiler warning about array overrun
-
-Arnd Bergmann <arnd@arndb.de>
-    x86/msr: Fix wr/rdmsr_safe_regs_on_cpu() prototypes
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |   4 +-
- arch/arm/kernel/asm-offsets.c                      |   3 +
- arch/arm/kernel/smccc-call.S                       |  11 +-
- arch/arm/kernel/suspend.c                          |  19 +++-
- arch/riscv/include/asm/ftrace.h                    |  14 ++-
- arch/riscv/kernel/mcount.S                         |  10 +-
- arch/riscv/kernel/vdso/Makefile                    |  12 +--
- arch/um/Kconfig.debug                              |   1 +
- arch/um/kernel/Makefile                            |   1 -
- arch/um/kernel/dyn.lds.S                           |   6 ++
- arch/um/kernel/gmon_syms.c                         |  16 ---
- arch/um/kernel/uml.lds.S                           |   6 ++
- arch/x86/lib/msr-smp.c                             |   4 +-
- drivers/dma/dw-edma/dw-edma-core.c                 |  11 +-
- drivers/gpio/gpiolib-acpi.c                        |  14 +++
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c  |  51 +++++++++
- drivers/gpu/drm/amd/pm/swsmu/smu11/navi10_ppt.c    |   5 +-
- .../drm/amd/pm/swsmu/smu11/sienna_cichlid_ppt.c    |   4 +-
- drivers/gpu/drm/i915/display/intel_dp.c            |  13 ++-
- drivers/input/touchscreen/elants_i2c.c             |  44 +++++++-
- drivers/input/touchscreen/silead.c                 |  44 +++++++-
- drivers/misc/kgdbts.c                              |  26 ++---
- drivers/net/ethernet/chelsio/cxgb4/sge.c           |  16 +--
- drivers/net/ethernet/stmicro/stmmac/dwmac4_dma.c   |   7 +-
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c  |  14 +--
- drivers/net/wireless/cisco/airo.c                  | 117 ++++++++++++---------
- drivers/nvme/target/admin-cmd.c                    |   6 +-
- drivers/pci/controller/dwc/pcie-tegra194.c         |   2 +-
- drivers/pci/controller/pci-thunder-ecam.c          |   2 +-
- drivers/pci/controller/pci-thunder-pem.c           |  13 +--
- drivers/pci/hotplug/acpiphp_glue.c                 |   1 +
- drivers/pci/pci.h                                  |   6 ++
- drivers/platform/chrome/cros_ec_typec.c            |   5 +
- drivers/scsi/lpfc/lpfc_sli.c                       |  11 +-
- drivers/target/target_core_user.c                  |   4 +-
- drivers/usb/host/sl811-hcd.c                       |   9 +-
- fs/block_dev.c                                     |  20 +++-
- fs/ceph/caps.c                                     |   1 +
- fs/ceph/export.c                                   |   8 ++
- fs/ceph/inode.c                                    |  13 ++-
- fs/ceph/mds_client.c                               |   7 ++
- fs/ceph/super.h                                    |  24 +++++
- fs/f2fs/segment.c                                  |   5 +-
- fs/nfs/inode.c                                     |   7 +-
- lib/stackdepot.c                                   |   6 +-
- net/bridge/br_netlink.c                            |   5 +-
- net/hsr/hsr_forward.c                              |   4 +
- net/ipv6/ip6_gre.c                                 |   7 +-
- net/ipv6/ip6_tunnel.c                              |   3 +-
- net/ipv6/ip6_vti.c                                 |   1 -
- net/ipv6/sit.c                                     |   5 +-
- net/sunrpc/xprtrdma/svc_rdma_sendto.c              |   8 +-
- scripts/recordmcount.pl                            |   2 +-
- sound/pci/hda/hda_generic.c                        |  16 ++-
- 54 files changed, 473 insertions(+), 201 deletions(-)
-
-
+Jon
