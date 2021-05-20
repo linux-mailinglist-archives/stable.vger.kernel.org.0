@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 843B038A905
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:57:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 821EB38A91D
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:58:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237634AbhETK4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:56:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52608 "EHLO mail.kernel.org"
+        id S239119AbhETK5u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:57:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52024 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238989AbhETKyW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:54:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D24FD6141E;
-        Thu, 20 May 2021 10:01:03 +0000 (UTC)
+        id S238761AbhETKzs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:55:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 134AE61CE5;
+        Thu, 20 May 2021 10:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504864;
-        bh=wuEv9uLP2+8BvOM9r0lSZMHS1SSZLXzGGyT9AoTcsCc=;
+        s=korg; t=1621504888;
+        bh=h4oVZeCEfoj+K1QV0e9G89MhnUpYbCrEBM748xBcTko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ScKRz3YBgE3piz+hr4n9Oe8ygxSHH1TZ4Xx7FJ7sSpvjuprBqXPOp+BcO9LexPfaJ
-         dpM/VJuS3QTEl7IsMfhj/ODYV50Go9Lk5yzwgduM1rbb23NXILn750phjk2cfYQTv3
-         7SGKNrP2M+XjpSj0tUlsQ0QDDAETMtbUfncg6c9c=
+        b=WsMhvr04De+SS0XF/yU3Flx2zWcPEWb7Leq4y2zAcBCho6cfO5nXgjzjMlTH8noI3
+         uMQGAF4Ba/wh019tf7cvBVqu5kUPJpD3EVo3NiGd/6L72+odQuEZFnpKi782/PZK1+
+         jLBWa8Xj7S0o3Np8/WKFrJCEhMEa3JTgTUZ7t4co=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linus Walleij <linus.walleij@linaro.org>,
-        Pan Bian <bianpan2016@163.com>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
+        stable@vger.kernel.org,
+        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
+        Marco Chiappero <marco.chiappero@intel.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 108/240] bus: qcom: Put child node before return
-Date:   Thu, 20 May 2021 11:21:40 +0200
-Message-Id: <20210520092112.305287969@linuxfoundation.org>
+Subject: [PATCH 4.9 109/240] crypto: qat - fix error path in adf_isr_resource_alloc()
+Date:   Thu, 20 May 2021 11:21:41 +0200
+Message-Id: <20210520092112.338541929@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
 References: <20210520092108.587553970@linuxfoundation.org>
@@ -41,41 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pan Bian <bianpan2016@163.com>
+From: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
 
-[ Upstream commit ac6ad7c2a862d682bb584a4bc904d89fa7721af8 ]
+[ Upstream commit 83dc1173d73f80cbce2fee4d308f51f87b2f26ae ]
 
-Put child node before return to fix potential reference count leak.
-Generally, the reference count of child is incremented and decremented
-automatically in the macro for_each_available_child_of_node() and should
-be decremented manually if the loop is broken in loop body.
+The function adf_isr_resource_alloc() is not unwinding correctly in case
+of error.
+This patch fixes the error paths and propagate the errors to the caller.
 
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Fixes: 335a12754808 ("bus: qcom: add EBI2 driver")
-Signed-off-by: Pan Bian <bianpan2016@163.com>
-Link: https://lore.kernel.org/r/20210121114907.109267-1-bianpan2016@163.com
-Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Fixes: 7afa232e76ce ("crypto: qat - Intel(R) QAT DH895xcc accelerator")
+Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Reviewed-by: Marco Chiappero <marco.chiappero@intel.com>
+Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/qcom-ebi2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/crypto/qat/qat_common/adf_isr.c | 29 ++++++++++++++++++-------
+ 1 file changed, 21 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/bus/qcom-ebi2.c b/drivers/bus/qcom-ebi2.c
-index a6444244c411..bfb67aa00bec 100644
---- a/drivers/bus/qcom-ebi2.c
-+++ b/drivers/bus/qcom-ebi2.c
-@@ -357,8 +357,10 @@ static int qcom_ebi2_probe(struct platform_device *pdev)
+diff --git a/drivers/crypto/qat/qat_common/adf_isr.c b/drivers/crypto/qat/qat_common/adf_isr.c
+index 06d49017a52b..2c0be14309cf 100644
+--- a/drivers/crypto/qat/qat_common/adf_isr.c
++++ b/drivers/crypto/qat/qat_common/adf_isr.c
+@@ -330,19 +330,32 @@ int adf_isr_resource_alloc(struct adf_accel_dev *accel_dev)
  
- 		/* Figure out the chipselect */
- 		ret = of_property_read_u32(child, "reg", &csindex);
--		if (ret)
-+		if (ret) {
-+			of_node_put(child);
- 			return ret;
-+		}
+ 	ret = adf_isr_alloc_msix_entry_table(accel_dev);
+ 	if (ret)
+-		return ret;
+-	if (adf_enable_msix(accel_dev))
+ 		goto err_out;
  
- 		if (csindex > 5) {
- 			dev_err(dev,
+-	if (adf_setup_bh(accel_dev))
+-		goto err_out;
++	ret = adf_enable_msix(accel_dev);
++	if (ret)
++		goto err_free_msix_table;
+ 
+-	if (adf_request_irqs(accel_dev))
+-		goto err_out;
++	ret = adf_setup_bh(accel_dev);
++	if (ret)
++		goto err_disable_msix;
++
++	ret = adf_request_irqs(accel_dev);
++	if (ret)
++		goto err_cleanup_bh;
+ 
+ 	return 0;
++
++err_cleanup_bh:
++	adf_cleanup_bh(accel_dev);
++
++err_disable_msix:
++	adf_disable_msix(&accel_dev->accel_pci_dev);
++
++err_free_msix_table:
++	adf_isr_free_msix_entry_table(accel_dev);
++
+ err_out:
+-	adf_isr_resource_free(accel_dev);
+-	return -EFAULT;
++	return ret;
+ }
+ EXPORT_SYMBOL_GPL(adf_isr_resource_alloc);
 -- 
 2.30.2
 
