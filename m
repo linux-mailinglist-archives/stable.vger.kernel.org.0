@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2430A38AA1D
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:09:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAAFB38AB99
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:26:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238544AbhETLK0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:10:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37896 "EHLO mail.kernel.org"
+        id S240811AbhETL0D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:26:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43468 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235618AbhETLHN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:07:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1D9461D26;
-        Thu, 20 May 2021 10:05:51 +0000 (UTC)
+        id S241380AbhETLYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:24:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD6A861970;
+        Thu, 20 May 2021 10:12:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505152;
-        bh=DxXPoU4nmCj8bRLhnv8Q1DKdGo+gIGPorYOkRXJSt0M=;
+        s=korg; t=1621505551;
+        bh=xjvGfYWMOWJ3i3GSrinS+hz0zbRt1YtHImF2AmIsz9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kTKjI11cgJfi3l/rn1dHCnZpIW+2RtQ4ySrBULjsD9K7rXKOvpv9Lf/kNGdZZiBGe
-         IjAYEV0gD2lpZniFbB+YMq7pG2gHiEYDYULRHgXuBPDv3w7vyohIR3G1X4qRwKEj2p
-         onX7zGtK3sz/jRz5+1uMru1OKKbLQ/0fS+d45QfU=
+        b=1QgEIH0TiPpBn2uSQkFHjF+kL52aWL75d3cOqACU/eDlRuDqGr0MmVflWlry4kMEd
+         ZsIPBxfat8MVTUvnpCRBzQ62AqNCQSYi6hELN5kwCdfGvMYmB4ak2eOSs4vt42t/gR
+         LE01jblXAWsvyD7Q7ukNtlM9Ng6kbXD4QqR+97Fk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Ingo Molnar <mingo@kernel.org>
-Subject: [PATCH 4.9 224/240] x86/msr: Fix wr/rdmsr_safe_regs_on_cpu() prototypes
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 152/190] powerpc/iommu: Annotate nested lock for lockdep
 Date:   Thu, 20 May 2021 11:23:36 +0200
-Message-Id: <20210520092116.235551046@linuxfoundation.org>
+Message-Id: <20210520092107.201761373@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +40,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 396a66aa1172ef2b78c21651f59b40b87b2e5e1e upstream.
+[ Upstream commit cc7130bf119add37f36238343a593b71ef6ecc1e ]
 
-gcc-11 warns about mismatched prototypes here:
+The IOMMU table is divided into pools for concurrent mappings and each
+pool has a separate spinlock. When taking the ownership of an IOMMU group
+to pass through a device to a VM, we lock these spinlocks which triggers
+a false negative warning in lockdep (below).
 
-  arch/x86/lib/msr-smp.c:255:51: error: argument 2 of type ‘u32 *’ {aka ‘unsigned int *’} declared as a pointer [-Werror=array-parameter=]
-    255 | int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-        |                                              ~~~~~^~~~
-  arch/x86/include/asm/msr.h:347:50: note: previously declared as an array ‘u32[8]’ {aka ‘unsigned int[8]’}
+This fixes it by annotating the large pool's spinlock as a nest lock
+which makes lockdep not complaining when locking nested locks if
+the nest lock is locked already.
 
-GCC is right here - fix up the types.
+===
+WARNING: possible recursive locking detected
+5.11.0-le_syzkaller_a+fstn1 #100 Not tainted
+--------------------------------------------
+qemu-system-ppc/4129 is trying to acquire lock:
+c0000000119bddb0 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
 
-[ mingo: Twiddled the changelog. ]
+but task is already holding lock:
+c0000000119bdd30 (&(p->lock)/1){....}-{2:2}, at: iommu_take_ownership+0xac/0x1e0
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20210322164541.912261-1-arnd@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(&(p->lock)/1);
+  lock(&(p->lock)/1);
+===
+
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210301063653.51003-1-aik@ozlabs.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/lib/msr-smp.c |    4 ++--
+ arch/powerpc/kernel/iommu.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/lib/msr-smp.c
-+++ b/arch/x86/lib/msr-smp.c
-@@ -239,7 +239,7 @@ static void __wrmsr_safe_regs_on_cpu(voi
- 	rv->err = wrmsr_safe_regs(rv->regs);
- }
+diff --git a/arch/powerpc/kernel/iommu.c b/arch/powerpc/kernel/iommu.c
+index 4c9b5970af37..282ad1930593 100644
+--- a/arch/powerpc/kernel/iommu.c
++++ b/arch/powerpc/kernel/iommu.c
+@@ -1019,7 +1019,7 @@ int iommu_take_ownership(struct iommu_table *tbl)
  
--int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-+int rdmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8])
- {
- 	int err;
- 	struct msr_regs_info rv;
-@@ -252,7 +252,7 @@ int rdmsr_safe_regs_on_cpu(unsigned int
- }
- EXPORT_SYMBOL(rdmsr_safe_regs_on_cpu);
+ 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
+ 	for (i = 0; i < tbl->nr_pools; i++)
+-		spin_lock(&tbl->pools[i].lock);
++		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
  
--int wrmsr_safe_regs_on_cpu(unsigned int cpu, u32 *regs)
-+int wrmsr_safe_regs_on_cpu(unsigned int cpu, u32 regs[8])
- {
- 	int err;
- 	struct msr_regs_info rv;
+ 	if (tbl->it_offset == 0)
+ 		clear_bit(0, tbl->it_map);
+@@ -1048,7 +1048,7 @@ void iommu_release_ownership(struct iommu_table *tbl)
+ 
+ 	spin_lock_irqsave(&tbl->large_pool.lock, flags);
+ 	for (i = 0; i < tbl->nr_pools; i++)
+-		spin_lock(&tbl->pools[i].lock);
++		spin_lock_nest_lock(&tbl->pools[i].lock, &tbl->large_pool.lock);
+ 
+ 	memset(tbl->it_map, 0, sz);
+ 
+-- 
+2.30.2
+
 
 
