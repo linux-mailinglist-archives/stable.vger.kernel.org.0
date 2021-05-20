@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C15438A651
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:24:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D9B7638A64F
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:24:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235975AbhETKZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235928AbhETKZp (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 20 May 2021 06:25:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55680 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55682 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236604AbhETKYV (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236605AbhETKYV (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:24:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A05F161AC0;
-        Thu, 20 May 2021 09:49:06 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CC8C561A2B;
+        Thu, 20 May 2021 09:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504147;
-        bh=5I85wcDe0+tu8kRv34Vd5ogkqy9/kT8uNV8rcXe5NBc=;
+        s=korg; t=1621504149;
+        bh=AEtUL+1aobeMG5FJpxMXI8SYQHa0ydB1YzuOROKDAUQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SivyFesKDnhE+jEaHT5OF3PA6vgnjpGO43xUTg7fGoYW/m76jzEeJF+jpnBNINFRh
-         NzSpeekP3F4buS9sPI4Ry+Y7Vg7/l2rHHrTyBbyqoV6ybhe0T5/6vuRz9FFdbUs4BP
-         3pAGJgMvoj8HNtTZRwXGGB5JF5gQspjFeAqwI4ZY=
+        b=aePU3xjaVVdXLiSOzP92ft/vY9gk/V/Gg6q5O6NhZU/I8pbHU0GRFNGutpbuEA1Re
+         /ezCh2X2I+r/nTtE3gxAMoSeNMJkCX7Noo/GLHs8thlBKhfj1qN/7TIeRoHu1J/0Hu
+         25wDfHlgump0klJBAaNSPuwK4zwoJljf8K/jxiOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.14 113/323] bluetooth: eliminate the potential race condition when removing the HCI controller
-Date:   Thu, 20 May 2021 11:20:05 +0200
-Message-Id: <20210520092123.971935784@linuxfoundation.org>
+        stable@vger.kernel.org, Or Cohen <orcohen@paloaltonetworks.com>,
+        Nadav Markus <nmarkus@paloaltonetworks.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 114/323] net/nfc: fix use-after-free llcp_sock_bind/connect
+Date:   Thu, 20 May 2021 11:20:06 +0200
+Message-Id: <20210520092124.004883706@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
 References: <20210520092120.115153432@linuxfoundation.org>
@@ -39,53 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Or Cohen <orcohen@paloaltonetworks.com>
 
-commit e2cb6b891ad2b8caa9131e3be70f45243df82a80 upstream.
+commit c61760e6940dd4039a7f5e84a6afc9cdbf4d82b6 upstream.
 
-There is a possible race condition vulnerability between issuing a HCI
-command and removing the cont.  Specifically, functions hci_req_sync()
-and hci_dev_do_close() can race each other like below:
+Commits 8a4cd82d ("nfc: fix refcount leak in llcp_sock_connect()")
+and c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
+fixed a refcount leak bug in bind/connect but introduced a
+use-after-free if the same local is assigned to 2 different sockets.
 
-thread-A in hci_req_sync()      |   thread-B in hci_dev_do_close()
-                                |   hci_req_sync_lock(hdev);
-test_bit(HCI_UP, &hdev->flags); |
-...                             |   test_and_clear_bit(HCI_UP, &hdev->flags)
-hci_req_sync_lock(hdev);        |
-                                |
-In this commit we alter the sequence in function hci_req_sync(). Hence,
-the thread-A cannot issue th.
+This can be triggered by the following simple program:
+    int sock1 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
+    int sock2 = socket( AF_NFC, SOCK_STREAM, NFC_SOCKPROTO_LLCP );
+    memset( &addr, 0, sizeof(struct sockaddr_nfc_llcp) );
+    addr.sa_family = AF_NFC;
+    addr.nfc_protocol = NFC_PROTO_NFC_DEP;
+    bind( sock1, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
+    bind( sock2, (struct sockaddr*) &addr, sizeof(struct sockaddr_nfc_llcp) )
+    close(sock1);
+    close(sock2);
 
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Fixes: 7c6a329e4447 ("[Bluetooth] Fix regression from using default link policy")
+Fix this by assigning NULL to llcp_sock->local after calling
+nfc_llcp_local_put.
+
+This addresses CVE-2021-23134.
+
+Reported-by: Or Cohen <orcohen@paloaltonetworks.com>
+Reported-by: Nadav Markus <nmarkus@paloaltonetworks.com>
+Fixes: c33b1cc62 ("nfc: fix refcount leak in llcp_sock_bind()")
+Signed-off-by: Or Cohen <orcohen@paloaltonetworks.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_request.c |   12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ net/nfc/llcp_sock.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/bluetooth/hci_request.c
-+++ b/net/bluetooth/hci_request.c
-@@ -277,12 +277,16 @@ int hci_req_sync(struct hci_dev *hdev, i
- {
- 	int ret;
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -121,12 +121,14 @@ static int llcp_sock_bind(struct socket
+ 					  GFP_KERNEL);
+ 	if (!llcp_sock->service_name) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		ret = -ENOMEM;
+ 		goto put_dev;
+ 	}
+ 	llcp_sock->ssap = nfc_llcp_get_sdp_ssap(local, llcp_sock);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		kfree(llcp_sock->service_name);
+ 		llcp_sock->service_name = NULL;
+ 		ret = -EADDRINUSE;
+@@ -722,6 +724,7 @@ static int llcp_sock_connect(struct sock
+ 	llcp_sock->ssap = nfc_llcp_get_local_ssap(local);
+ 	if (llcp_sock->ssap == LLCP_SAP_MAX) {
+ 		nfc_llcp_local_put(llcp_sock->local);
++		llcp_sock->local = NULL;
+ 		ret = -ENOMEM;
+ 		goto put_dev;
+ 	}
+@@ -760,6 +763,7 @@ static int llcp_sock_connect(struct sock
+ sock_unlink:
+ 	nfc_llcp_put_ssap(local, llcp_sock->ssap);
+ 	nfc_llcp_local_put(llcp_sock->local);
++	llcp_sock->local = NULL;
  
--	if (!test_bit(HCI_UP, &hdev->flags))
--		return -ENETDOWN;
--
- 	/* Serialize all requests */
- 	hci_req_sync_lock(hdev);
--	ret = __hci_req_sync(hdev, req, opt, timeout, hci_status);
-+	/* check the state after obtaing the lock to protect the HCI_UP
-+	 * against any races from hci_dev_do_close when the controller
-+	 * gets removed.
-+	 */
-+	if (test_bit(HCI_UP, &hdev->flags))
-+		ret = __hci_req_sync(hdev, req, opt, timeout, hci_status);
-+	else
-+		ret = -ENETDOWN;
- 	hci_req_sync_unlock(hdev);
- 
- 	return ret;
+ 	nfc_llcp_sock_unlink(&local->connecting_sockets, sk);
+ 	kfree(llcp_sock->service_name);
 
 
