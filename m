@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 81A4F38A9B2
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:04:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08B0238AB31
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S238879AbhETLFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 07:05:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37896 "EHLO mail.kernel.org"
+        id S240850AbhETLVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:21:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38992 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S239330AbhETLDY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 07:03:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 436BC6192A;
-        Thu, 20 May 2021 10:04:24 +0000 (UTC)
+        id S240888AbhETLTg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 07:19:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 094CB613E3;
+        Thu, 20 May 2021 10:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621505064;
-        bh=kb1ynkQ5/wcwO1Ud1Tlj2ve5xOmgIWuw9bwjfwVthkA=;
+        s=korg; t=1621505439;
+        bh=K4Gxbu8Li8VuMOhLddDQQmmtlV8IRL45B30dXYpG75g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NUAV1430UoHQht8j7mGoQegAGt2LtOZIf9RGJdQYCNawF90oo+MwsWefocg4ewZU/
-         5I82gP4QKQwpIeuTBiP/42XyEYn+6gwYF5L06pmS0NiLAhJgWYqoAl9HcE36Rd7tT2
-         Wm5/tYZ35NpmkTDrWkn7LQ9dvFBIxc24y5QQQEzY=
+        b=VEwlEEO4fNwVzNvAmQQhPeEBg4+PArT+DH/8ttMv0O06eo9CZrdHgVJA3LexVqayM
+         9OnezD3YB1CMsPixqQBJs3m4gexTZ01q30ExXfmqA0kUfkCO7vf0S+57lQTScfERIT
+         4Sg9ex0QrBpyvAsZm1aZTLlCo8GDnbx1D4xJcxSc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 4.9 206/240] powerpc/64s: Fix crashes when toggling entry flush barrier
-Date:   Thu, 20 May 2021 11:23:18 +0200
-Message-Id: <20210520092115.569397610@linuxfoundation.org>
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 135/190] fs: dlm: fix debugfs dump
+Date:   Thu, 20 May 2021 11:23:19 +0200
+Message-Id: <20210520092106.661300839@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
-References: <20210520092108.587553970@linuxfoundation.org>
+In-Reply-To: <20210520092102.149300807@linuxfoundation.org>
+References: <20210520092102.149300807@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,78 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Alexander Aring <aahringo@redhat.com>
 
-commit aec86b052df6541cc97c5fca44e5934cbea4963b upstream.
+[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
 
-The entry flush mitigation can be enabled/disabled at runtime via a
-debugfs file (entry_flush), which causes the kernel to patch itself to
-enable/disable the relevant mitigations.
+This patch fixes the following message which randomly pops up during
+glocktop call:
 
-However depending on which mitigation we're using, it may not be safe to
-do that patching while other CPUs are active. For example the following
-crash:
+seq_file: buggy .next function table_seq_next did not update position index
 
-  sleeper[15639]: segfault (11) at c000000000004c20 nip c000000000004c20 lr c000000000004c20
+The issue is that seq_read_iter() in fs/seq_file.c also needs an
+increment of the index in an non next record case as well which this
+patch fixes otherwise seq_read_iter() will print out the above message.
 
-Shows that we returned to userspace with a corrupted LR that points into
-the kernel, due to executing the partially patched call to the fallback
-entry flush (ie. we missed the LR restore).
-
-Fix it by doing the patching under stop machine. The CPUs that aren't
-doing the patching will be spinning in the core of the stop machine
-logic. That is currently sufficient for our purposes, because none of
-the patching we do is to that code or anywhere in the vicinity.
-
-Fixes: f79643787e0a ("powerpc/64s: flush L1D on kernel entry")
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210506044959.1298123-2-mpe@ellerman.id.au
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/lib/feature-fixups.c |   17 ++++++++++++++++-
- 1 file changed, 16 insertions(+), 1 deletion(-)
+ fs/dlm/debug_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/powerpc/lib/feature-fixups.c
-+++ b/arch/powerpc/lib/feature-fixups.c
-@@ -17,6 +17,7 @@
- #include <linux/kernel.h>
- #include <linux/string.h>
- #include <linux/init.h>
-+#include <linux/stop_machine.h>
- #include <asm/cputable.h>
- #include <asm/code-patching.h>
- #include <asm/page.h>
-@@ -282,8 +283,9 @@ void do_uaccess_flush_fixups(enum l1d_fl
- 						: "unknown");
- }
+diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
+index eea64912c9c0..3b79c0284a30 100644
+--- a/fs/dlm/debug_fs.c
++++ b/fs/dlm/debug_fs.c
+@@ -545,6 +545,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
  
--void do_entry_flush_fixups(enum l1d_flush_type types)
-+static int __do_entry_flush_fixups(void *data)
- {
-+	enum l1d_flush_type types = *(enum l1d_flush_type *)data;
- 	unsigned int instrs[3], *dest;
- 	long *start, *end;
- 	int i;
-@@ -334,6 +336,19 @@ void do_entry_flush_fixups(enum l1d_flus
- 							: "ori type" :
- 		(types &  L1D_FLUSH_MTTRIG)     ? "mttrig type"
- 						: "unknown");
-+
-+	return 0;
-+}
-+
-+void do_entry_flush_fixups(enum l1d_flush_type types)
-+{
-+	/*
-+	 * The call to the fallback flush can not be safely patched in/out while
-+	 * other CPUs are executing it. So call __do_entry_flush_fixups() on one
-+	 * CPU while all other CPUs spin in the stop machine core with interrupts
-+	 * hard disabled.
-+	 */
-+	stop_machine(__do_entry_flush_fixups, &types, NULL);
- }
- 
- void do_rfi_flush_fixups(enum l1d_flush_type types)
+ 		if (bucket >= ls->ls_rsbtbl_size) {
+ 			kfree(ri);
++			++*pos;
+ 			return NULL;
+ 		}
+ 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
+-- 
+2.30.2
+
 
 
