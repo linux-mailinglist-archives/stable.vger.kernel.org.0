@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E2838A513
+	by mail.lfdr.de (Postfix) with ESMTP id C8AFC38A514
 	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:11:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235870AbhETKMq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:12:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42254 "EHLO mail.kernel.org"
+        id S235895AbhETKMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 06:12:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235232AbhETKKp (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235003AbhETKKp (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 20 May 2021 06:10:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7BCFF613E6;
-        Thu, 20 May 2021 09:43:04 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B27E061430;
+        Thu, 20 May 2021 09:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621503784;
-        bh=thtMWAu/g9Td6d41CbMMnj6SGAcNDMFyXqlOBiSQkE4=;
+        s=korg; t=1621503787;
+        bh=7Mgm5EcgwS7AKEICTD2r2wBc7lYcmB3GC2BND3acPqQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eZj9QEIakIIXVpqkAaCqz0PaCb4NjxIyhIrXBFWoHUCfYkPNX4aDh/il0a/knwldg
-         a3ZBigCtome/HboZw2N/eyOM4paE1bNJfDlUEkIuTCCTuwbQxD9lXxKJFVVfMZ4Bg9
-         WcYQ2fMjUc5KR304gjxjLYZLUy0tjAmyp17swFFs=
+        b=FUcPdd+w9lyW9kklD9UkuoLm23qoSyCg/dp/KDvtBFhJJx+1yygop+H99ZWcm2MhD
+         F3n0BRramkLjntT8M52yQK7XnRnP0zFGXZ1Bc3jDR5vx3M5SeCf+2d92Bte0TXi3+r
+         hIKnJ2QccRGEXmFocYJ73gzreKNcuOnTVMyLpR4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        stable@vger.kernel.org, Sandeep Singh <sandeep.singh@amd.com>,
         Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 379/425] xhci: Do not use GFP_KERNEL in (potentially) atomic context
-Date:   Thu, 20 May 2021 11:22:28 +0200
-Message-Id: <20210520092143.848852364@linuxfoundation.org>
+Subject: [PATCH 4.19 380/425] xhci: Add reset resume quirk for AMD xhci controller.
+Date:   Thu, 20 May 2021 11:22:29 +0200
+Message-Id: <20210520092143.881478239@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 References: <20210520092131.308959589@linuxfoundation.org>
@@ -40,58 +39,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Sandeep Singh <sandeep.singh@amd.com>
 
-commit dda32c00c9a0fa103b5d54ef72c477b7aa993679 upstream.
+commit 3c128781d8da463761495aaf8898c9ecb4e71528 upstream.
 
-'xhci_urb_enqueue()' is passed a 'mem_flags' argument, because "URBs may be
-submitted in interrupt context" (see comment related to 'usb_submit_urb()'
-in 'drivers/usb/core/urb.c')
+One of AMD xhci controller require reset on resume.
+Occasionally AMD xhci controller does not respond to
+Stop endpoint command.
+Once the issue happens controller goes into bad state
+and in that case controller needs to be reset.
 
-So this flag should be used in all the calling chain.
-Up to now, 'xhci_check_maxpacket()' which is only called from
-'xhci_urb_enqueue()', uses GFP_KERNEL.
-
-Be safe and pass the mem_flags to this function as well.
-
-Fixes: ddba5cd0aeff ("xhci: Use command structures when queuing commands on the command ring")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Sandeep Singh <sandeep.singh@amd.com>
 Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512080816.866037-4-mathias.nyman@linux.intel.com
+Link: https://lore.kernel.org/r/20210512080816.866037-6-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/usb/host/xhci-pci.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci.c
-+++ b/drivers/usb/host/xhci.c
-@@ -1374,7 +1374,7 @@ static int xhci_configure_endpoint(struc
-  * we need to issue an evaluate context command and wait on it.
-  */
- static int xhci_check_maxpacket(struct xhci_hcd *xhci, unsigned int slot_id,
--		unsigned int ep_index, struct urb *urb)
-+		unsigned int ep_index, struct urb *urb, gfp_t mem_flags)
- {
- 	struct xhci_container_ctx *out_ctx;
- 	struct xhci_input_control_ctx *ctrl_ctx;
-@@ -1405,7 +1405,7 @@ static int xhci_check_maxpacket(struct x
- 		 * changes max packet sizes.
- 		 */
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -144,8 +144,10 @@ static void xhci_pci_quirks(struct devic
+ 	    (pdev->device == 0x15e0 || pdev->device == 0x15e1))
+ 		xhci->quirks |= XHCI_SNPS_BROKEN_SUSPEND;
  
--		command = xhci_alloc_command(xhci, true, GFP_KERNEL);
-+		command = xhci_alloc_command(xhci, true, mem_flags);
- 		if (!command)
- 			return -ENOMEM;
+-	if (pdev->vendor == PCI_VENDOR_ID_AMD && pdev->device == 0x15e5)
++	if (pdev->vendor == PCI_VENDOR_ID_AMD && pdev->device == 0x15e5) {
+ 		xhci->quirks |= XHCI_DISABLE_SPARSE;
++		xhci->quirks |= XHCI_RESET_ON_RESUME;
++	}
  
-@@ -1502,7 +1502,7 @@ static int xhci_urb_enqueue(struct usb_h
- 		 */
- 		if (urb->dev->speed == USB_SPEED_FULL) {
- 			ret = xhci_check_maxpacket(xhci, slot_id,
--					ep_index, urb);
-+					ep_index, urb, mem_flags);
- 			if (ret < 0) {
- 				xhci_urb_free_priv(urb_priv);
- 				urb->hcpriv = NULL;
+ 	if (pdev->vendor == PCI_VENDOR_ID_AMD)
+ 		xhci->quirks |= XHCI_TRUST_TX_LENGTH;
 
 
