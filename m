@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F031738A1F6
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:35:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ECD2E38A199
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 11:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232951AbhETJgl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 05:36:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34676 "EHLO mail.kernel.org"
+        id S232677AbhETJce (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 05:32:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232500AbhETJen (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 05:34:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86DEE61401;
-        Thu, 20 May 2021 09:29:17 +0000 (UTC)
+        id S232457AbhETJag (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 05:30:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A01061355;
+        Thu, 20 May 2021 09:27:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621502958;
-        bh=6xE87fb93+R24VnrhjQvU4MC3YwFzRjAut5ARQywGzg=;
+        s=korg; t=1621502861;
+        bh=WGlhU5+VJI3wPyKwKyLsjgW80yqtHjVHrQ0vkJJTi3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w47a2GVl0lHiVnhk85zgDotJYSSNERxjl8pezHUT86pVLfHw6/9e5a2XeuSWBOT/f
-         8l2H5AodPYEWapq6+g7LhiUTc8ySDT0eeS82Dqmsnbwrbrmfx5vHWKlJiwglDkxfOn
-         WI7qMq0bbYAg6CASjKDsZm65IXbQOmKuuwMCwvGs=
+        b=zVnGzrebrHUeDMGThYY5ydMAii1Cvp2/OJo88rQwOvJniCxm/ObZm0la+RW1V/9VZ
+         g6oz1ekFfUKulV1SRHoN3f6WGT6DFDlod85O9UtmgEYkb0EyfiLIhaApGS+jlwZgcs
+         dTichBNgLHaBp51uzQcbWj5F1VAhxD9xktSxAhAY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 22/37] ceph: fix fscache invalidation
+        stable@vger.kernel.org, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 45/47] ipv6: remove extra dev_hold() for fallback tunnels
 Date:   Thu, 20 May 2021 11:22:43 +0200
-Message-Id: <20210520092053.006342427@linuxfoundation.org>
+Message-Id: <20210520092054.994713306@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
-References: <20210520092052.265851579@linuxfoundation.org>
+In-Reply-To: <20210520092053.559923764@linuxfoundation.org>
+References: <20210520092053.559923764@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 10a7052c7868bc7bc72d947f5aac6f768928db87 ]
+commit 0d7a7b2014b1a499a0fe24c9f3063d7856b5aaaf upstream.
 
-Ensure that we invalidate the fscache whenever we invalidate the
-pagecache.
+My previous commits added a dev_hold() in tunnels ndo_init(),
+but forgot to remove it from special functions setting up fallback tunnels.
 
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fallback tunnels do call their respective ndo_init()
+
+This leads to various reports like :
+
+unregister_netdevice: waiting for ip6gre0 to become free. Usage count = 2
+
+Fixes: 48bb5697269a ("ip6_tunnel: sit: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 6289a98f0817 ("sit: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 40cb881b5aaa ("ip6_vti: proper dev_{hold|put} in ndo_[un]init methods")
+Fixes: 7f700334be9a ("ip6_gre: proper dev_{hold|put} in ndo_[un]init methods")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ceph/caps.c  | 1 +
- fs/ceph/inode.c | 1 +
- 2 files changed, 2 insertions(+)
+ net/ipv6/ip6_gre.c    |    3 ---
+ net/ipv6/ip6_tunnel.c |    1 -
+ net/ipv6/ip6_vti.c    |    1 -
+ net/ipv6/sit.c        |    1 -
+ 4 files changed, 6 deletions(-)
 
-diff --git a/fs/ceph/caps.c b/fs/ceph/caps.c
-index 22833fa5bb58..a6047caf77ec 100644
---- a/fs/ceph/caps.c
-+++ b/fs/ceph/caps.c
-@@ -1780,6 +1780,7 @@ static int try_nonblocking_invalidate(struct inode *inode)
- 	u32 invalidating_gen = ci->i_rdcache_gen;
+--- a/net/ipv6/ip6_gre.c
++++ b/net/ipv6/ip6_gre.c
+@@ -387,7 +387,6 @@ static struct ip6_tnl *ip6gre_tunnel_loc
+ 	if (!(nt->parms.o_flags & TUNNEL_SEQ))
+ 		dev->features |= NETIF_F_LLTX;
  
- 	spin_unlock(&ci->i_ceph_lock);
-+	ceph_fscache_invalidate(inode);
- 	invalidate_mapping_pages(&inode->i_data, 0, -1);
- 	spin_lock(&ci->i_ceph_lock);
+-	dev_hold(dev);
+ 	ip6gre_tunnel_link(ign, nt);
+ 	return nt;
  
-diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
-index 660a878e20ef..5beebbbb42f0 100644
---- a/fs/ceph/inode.c
-+++ b/fs/ceph/inode.c
-@@ -1875,6 +1875,7 @@ static void ceph_do_invalidate_pages(struct inode *inode)
- 	orig_gen = ci->i_rdcache_gen;
- 	spin_unlock(&ci->i_ceph_lock);
+@@ -1539,8 +1538,6 @@ static void ip6gre_fb_tunnel_init(struct
+ 	strcpy(tunnel->parms.name, dev->name);
  
-+	ceph_fscache_invalidate(inode);
- 	if (invalidate_inode_pages2(inode->i_mapping) < 0) {
- 		pr_err("invalidate_pages %p fails\n", inode);
- 	}
--- 
-2.30.2
-
+ 	tunnel->hlen		= sizeof(struct ipv6hdr) + 4;
+-
+-	dev_hold(dev);
+ }
+ 
+ static struct inet6_protocol ip6gre_protocol __read_mostly = {
+--- a/net/ipv6/ip6_tunnel.c
++++ b/net/ipv6/ip6_tunnel.c
+@@ -1956,7 +1956,6 @@ static int __net_init ip6_fb_tnl_dev_ini
+ 	struct ip6_tnl_net *ip6n = net_generic(net, ip6_tnl_net_id);
+ 
+ 	t->parms.proto = IPPROTO_IPV6;
+-	dev_hold(dev);
+ 
+ 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
+ 	return 0;
+--- a/net/ipv6/ip6_vti.c
++++ b/net/ipv6/ip6_vti.c
+@@ -962,7 +962,6 @@ static int __net_init vti6_fb_tnl_dev_in
+ 	struct vti6_net *ip6n = net_generic(net, vti6_net_id);
+ 
+ 	t->parms.proto = IPPROTO_IPV6;
+-	dev_hold(dev);
+ 
+ 	rcu_assign_pointer(ip6n->tnls_wc[0], t);
+ 	return 0;
+--- a/net/ipv6/sit.c
++++ b/net/ipv6/sit.c
+@@ -1470,7 +1470,6 @@ static void __net_init ipip6_fb_tunnel_i
+ 	iph->ihl		= 5;
+ 	iph->ttl		= 64;
+ 
+-	dev_hold(dev);
+ 	rcu_assign_pointer(sitn->tunnels_wc[0], tunnel);
+ }
+ 
 
 
