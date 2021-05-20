@@ -2,42 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8A5838A799
-	for <lists+stable@lfdr.de>; Thu, 20 May 2021 12:41:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 934C238A967
+	for <lists+stable@lfdr.de>; Thu, 20 May 2021 13:01:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237307AbhETKkm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 20 May 2021 06:40:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39656 "EHLO mail.kernel.org"
+        id S239029AbhETLBp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 20 May 2021 07:01:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57122 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237633AbhETKil (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 20 May 2021 06:38:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8636561C74;
-        Thu, 20 May 2021 09:54:54 +0000 (UTC)
+        id S239566AbhETK7p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 20 May 2021 06:59:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D338561D06;
+        Thu, 20 May 2021 10:03:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621504495;
-        bh=oLqyPXjbn46F/aH0DDTO79sqvHyzA1kLxaWkql05L0U=;
+        s=korg; t=1621504985;
+        bh=rkX6z2dPoS2cqSstGb9735JhgAFXr7gdHa10h8sCZ04=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dF469EaEF7TPMXco3pKxPepKcKyAUEdG9YD454FqitgesY++z2M6uw+AJ2V0nAWsg
-         uPFZcDPtzN9fqWCWRHN7hm90rzDVtCJyDW/erqpAe99vihuP306QxzLHpwQI+pDR/v
-         xvnVBqfCK2GiGQK342PMCYghyZDkxRa/5Rg0UqcU=
+        b=ak9PEN0/QrDcA6x+AhUGq62XMJZj+aiI/NdfQlHXeq8zuAlN/7Dq0FQLAljos3YAl
+         jAiDOdWgT30usG5sZ09hO2LxzpEiGMY8WCqTGsVloKFbkeXXmQli+wSFxBWNNrE6Xq
+         hgSUq66SQvg9gdzrVWEsNcMWb7C5cInlHviA43pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
-        "Kirill A. Shutemov" <kirill.shutemov@linux.intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Ebru Akagunduz <ebru.akagunduz@gmail.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Rik van Riel <riel@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
+        David Teigland <teigland@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 270/323] khugepaged: fix wrong result value for trace_mm_collapse_huge_page_isolate()
+Subject: [PATCH 4.9 170/240] fs: dlm: fix debugfs dump
 Date:   Thu, 20 May 2021 11:22:42 +0200
-Message-Id: <20210520092129.480155306@linuxfoundation.org>
+Message-Id: <20210520092114.359205151@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210520092120.115153432@linuxfoundation.org>
-References: <20210520092120.115153432@linuxfoundation.org>
+In-Reply-To: <20210520092108.587553970@linuxfoundation.org>
+References: <20210520092108.587553970@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,60 +40,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaohe Lin <linmiaohe@huawei.com>
+From: Alexander Aring <aahringo@redhat.com>
 
-[ Upstream commit 74e579bf231a337ab3786d59e64bc94f45ca7b3f ]
+[ Upstream commit 92c48950b43f4a767388cf87709d8687151a641f ]
 
-In writable and !referenced case, the result value should be
-SCAN_LACK_REFERENCED_PAGE for trace_mm_collapse_huge_page_isolate()
-instead of default 0 (SCAN_FAIL) here.
+This patch fixes the following message which randomly pops up during
+glocktop call:
 
-Link: https://lkml.kernel.org/r/20210306032947.35921-5-linmiaohe@huawei.com
-Fixes: 7d2eba0557c1 ("mm: add tracepoint for scanning pages")
-Signed-off-by: Miaohe Lin <linmiaohe@huawei.com>
-Acked-by: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
-Cc: Dan Carpenter <dan.carpenter@oracle.com>
-Cc: Ebru Akagunduz <ebru.akagunduz@gmail.com>
-Cc: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Rik van Riel <riel@redhat.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+seq_file: buggy .next function table_seq_next did not update position index
+
+The issue is that seq_read_iter() in fs/seq_file.c also needs an
+increment of the index in an non next record case as well which this
+patch fixes otherwise seq_read_iter() will print out the above message.
+
+Signed-off-by: Alexander Aring <aahringo@redhat.com>
+Signed-off-by: David Teigland <teigland@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/khugepaged.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/dlm/debug_fs.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 349b4782d9f4..f426d42d629d 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -597,17 +597,17 @@ static int __collapse_huge_page_isolate(struct vm_area_struct *vma,
- 		    mmu_notifier_test_young(vma->vm_mm, address))
- 			referenced++;
- 	}
--	if (likely(writable)) {
--		if (likely(referenced)) {
--			result = SCAN_SUCCEED;
--			trace_mm_collapse_huge_page_isolate(page, none_or_zero,
--							    referenced, writable, result);
--			return 1;
--		}
--	} else {
-+
-+	if (unlikely(!writable)) {
- 		result = SCAN_PAGE_RO;
-+	} else if (unlikely(!referenced)) {
-+		result = SCAN_LACK_REFERENCED_PAGE;
-+	} else {
-+		result = SCAN_SUCCEED;
-+		trace_mm_collapse_huge_page_isolate(page, none_or_zero,
-+						    referenced, writable, result);
-+		return 1;
- 	}
--
- out:
- 	release_pte_pages(pte, _pte);
- 	trace_mm_collapse_huge_page_isolate(page, none_or_zero,
+diff --git a/fs/dlm/debug_fs.c b/fs/dlm/debug_fs.c
+index 466f7d60edc2..fabce23fdbac 100644
+--- a/fs/dlm/debug_fs.c
++++ b/fs/dlm/debug_fs.c
+@@ -545,6 +545,7 @@ static void *table_seq_next(struct seq_file *seq, void *iter_ptr, loff_t *pos)
+ 
+ 		if (bucket >= ls->ls_rsbtbl_size) {
+ 			kfree(ri);
++			++*pos;
+ 			return NULL;
+ 		}
+ 		tree = toss ? &ls->ls_rsbtbl[bucket].toss : &ls->ls_rsbtbl[bucket].keep;
 -- 
 2.30.2
 
