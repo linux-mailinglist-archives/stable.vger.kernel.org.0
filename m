@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CE9A38BDDA
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 07:23:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 415D938BDF4
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 07:47:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230406AbhEUFZC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 01:25:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59314 "EHLO
+        id S233812AbhEUFsO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 01:48:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230176AbhEUFZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 01:25:02 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82AB3C061574
-        for <stable@vger.kernel.org>; Thu, 20 May 2021 22:23:39 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id l4so28626982ejc.10
-        for <stable@vger.kernel.org>; Thu, 20 May 2021 22:23:39 -0700 (PDT)
+        with ESMTP id S233880AbhEUFsN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 01:48:13 -0400
+Received: from mail-ej1-x636.google.com (mail-ej1-x636.google.com [IPv6:2a00:1450:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87500C061574
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 22:46:50 -0700 (PDT)
+Received: by mail-ej1-x636.google.com with SMTP id lz27so28696823ejb.11
+        for <stable@vger.kernel.org>; Thu, 20 May 2021 22:46:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=mime-version:references:in-reply-to:from:date:message-id:subject:to
          :cc:content-transfer-encoding;
-        bh=6Pu9OKZH4OqgD2+pMd/e1QNIreaf+pm8UlgvYX0fZ5w=;
-        b=U5BEe3O6zjWT0JLJGatCONCJ5rfUDb7/T21/f7Jn3pTHOT8ZeY0R0s6vVw31ItVEp6
-         KaRLt68UqeRmGoCEsgHyx8qN6799WJaN+X7/KQY9pboMnRi8cw0fjGC5BKX/YdDG98IC
-         m+EihlMtmgdfR3qG+680tCRtb6/LV0734ly7wrUQxLgfPv1dlgxvfbGffzuDnOpaOHd0
-         ZT3eaOUG01oWbW/8awoz1LOs9mqWXzixcFOXgQoekL8g3myA4h7RFYj+gMs9imY7yHZm
-         ar0KH9NLyAbnId1RsuSspWs2WLt074Tj1lQjMnk159A1mG4JZe8N9+QHXizaIt9ndHxh
-         b3rQ==
+        bh=sSSVkkFFUQ6Cskr/VZlEF5ZDg9jXTSgymxzbW89Kiq8=;
+        b=rWpnCoVX79LejXTQWqRMyqbhUunXquUI+AGuSHwMVVRzTnzzEte/YYG4mt4nm+BbkG
+         +pJpu+xyTFkXz61TBhDHhl5oz/7NO6n7fYI12JNUvu0lZtxCvWUfRs9JHdysFLIMokhR
+         dvNTLFs4Spv4RgaeAXXArcOmpRaDMcsDkVD+5ErTsdYNjbIlBsp0zyBmv07T3RoeNbXJ
+         SDbbcnlhNqCdK9h5Mi4OHV6AzBcrIMfWtTikmO/iisgAaqqQ/Y3gS+XUSJdjj00REqHE
+         vR3KgdWBH7XF1RE5SfXt+XKy6NoUSH3lV0QUs3lL2veKXv1Bd97n55AUoW1u4d+wEPjE
+         ijrA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:mime-version:references:in-reply-to:from:date
          :message-id:subject:to:cc:content-transfer-encoding;
-        bh=6Pu9OKZH4OqgD2+pMd/e1QNIreaf+pm8UlgvYX0fZ5w=;
-        b=ovq+KW4SNBe8LrqbOoLp8FSZG2CUMS/V54NxY+L+sgNkxq+D+WKFe7SVON+wvs2yCE
-         mxWvfda9/4LQxASmfdVYuVWYdPW66smlS1hBoLJM1rWfwypoVHxX+TlEh8OUugaZDWK0
-         ValDLbM1l4XjLFYeUPDgRFzO8yZEr7yiEzXL2JMOuN6kiEjCWBiD8nRASnLlqhA7zRtB
-         OgIT99GH0qL4jCbHEQkfVfU/tqnDKbDAlCVOzFHooEsB2FXk4261UJCCb1es8nQcuP74
-         tJznmaMJb+RzJhf77ciDHwAPuHXMI7LQbXR4+T5YN1J4oz9cbT8eoJ5y8M1BN3Am3ioF
-         NhjA==
-X-Gm-Message-State: AOAM531mRq9+jtK2Nnh3902iH0pMpB4kkt7o0/Yi65PmzBnxPeznov0R
-        XFKTL/FMMw+TPICz1tNsIoZ6RdcIEpUUqu43w2wyOQ==
-X-Google-Smtp-Source: ABdhPJz3F/dE07QvRWSh5dsyHL1J+wl9nvaCqLseX0b8QQO9d2q+uEZJqaTO/eh+pofiqzG1C+XCp4vAwV3803XwC8U=
-X-Received: by 2002:a17:906:4e59:: with SMTP id g25mr8445733ejw.133.1621574617939;
- Thu, 20 May 2021 22:23:37 -0700 (PDT)
+        bh=sSSVkkFFUQ6Cskr/VZlEF5ZDg9jXTSgymxzbW89Kiq8=;
+        b=d6fFX2uh96OxX5DbId4Uh/LI3pdIiHDHTGy7VKrY4mA026lb0MaGQ3niO7+RuHt7la
+         ZJFQ4ET0omJeliEB7VbUE2xUScnQM28XAsup83y529s/RZh/uigITKc6o8p+bqVDLv8J
+         UGe5T5PlT3OhSGHKwVKFaHAq0r6Dj3N1ziIoOabCsxr/RvtoMlBfsF023fadAN1UsNth
+         nc9l1AM+i89Ix3wOASds+2gyxSOVfC3XbXLG/i2B5O5LFUPwV1fFoz5lxFBWGPT0RupA
+         akyJtglYe8UD0q/x7ocgokb4ilaBLoJJRg21Nrg8xePQ9WcB7FkvJYfLjIM/Q5FvvYSG
+         Io7A==
+X-Gm-Message-State: AOAM533bYy7OPyeyva4y8YHxswcxhPx+JZKZLGJUmKyBPaweqj0bUN02
+        c50tt8/UJpBw+xDqKQO468wSwnufNyqnwcQEplBYDA==
+X-Google-Smtp-Source: ABdhPJxBmGa9E5PI0i1vwkylcCRl2T5RaPGVBpD1QAymGJH3vdSV48CFT0KsGYp5f5zWF6Zh3P3QaFZSZfwl3Lhn/Io=
+X-Received: by 2002:a17:906:4089:: with SMTP id u9mr8510056ejj.18.1621576007982;
+ Thu, 20 May 2021 22:46:47 -0700 (PDT)
 MIME-Version: 1.0
-References: <20210520092052.265851579@linuxfoundation.org>
-In-Reply-To: <20210520092052.265851579@linuxfoundation.org>
+References: <20210520092131.308959589@linuxfoundation.org>
+In-Reply-To: <20210520092131.308959589@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 21 May 2021 10:53:26 +0530
-Message-ID: <CA+G9fYvpCtdExtHqhv2K0+O3dxCVs5BaujkTYs6Ed7fKmqfNvw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/37] 5.4.121-rc1 review
+Date:   Fri, 21 May 2021 11:16:36 +0530
+Message-ID: <CA+G9fYs-sz=sgn_=yp39r+OqjDf_XtzvUeoQ4FgCujsmehnxPQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/425] 4.19.191-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     open list <linux-kernel@vger.kernel.org>,
         Shuah Khan <shuah@kernel.org>,
@@ -66,11 +66,11 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 20 May 2021 at 14:58, Greg Kroah-Hartman
+On Thu, 20 May 2021 at 15:01, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.121 release.
-> There are 37 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.191 release.
+> There are 425 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -78,11 +78,11 @@ On Thu, 20 May 2021 at 14:58, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.121-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.191-rc1.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
+-rc.git linux-4.19.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -95,41 +95,36 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.4.121-rc1
+* kernel: 4.19.191-rc1
 * git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
 rc.git
-* git branch: linux-5.4.y
-* git commit: d1968aee6ca982be479b6584d449c4d9b749f244
-* git describe: v5.4.120-38-gd1968aee6ca9
+* git branch: linux-4.19.y
+* git commit: 06c717b4df3acb666920610a100d04ebdc485e6c
+* git describe: v4.19.190-426-g06c717b4df3a
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
-20-38-gd1968aee6ca9
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.190-426-g06c717b4df3a
 
-## No regressions (compared to v5.4.120)
+## No regressions (compared to v4.19.190-393-g3423fd68b29e)
 
-## No fixes (compared to v5.4.120)
+## No fixes (compared to v4.19.190-393-g3423fd68b29e)
 
 ## Test result summary
- total: 77107, pass: 62518, fail: 1864, skip: 11921, xfail: 804,
+ total: 67254, pass: 53425, fail: 2253, skip: 10797, xfail: 779,
 
 ## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 192 total, 192 passed, 0 failed
-* arm64: 26 total, 26 passed, 0 failed
+* arm: 97 total, 97 passed, 0 failed
+* arm64: 25 total, 25 passed, 0 failed
 * dragonboard-410c: 1 total, 1 passed, 0 failed
 * hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 15 total, 15 passed, 0 failed
+* i386: 14 total, 14 passed, 0 failed
 * juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
+* mips: 39 total, 39 passed, 0 failed
 * s390: 9 total, 9 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
 * sparc: 9 total, 9 passed, 0 failed
 * x15: 1 total, 1 passed, 0 failed
 * x86: 1 total, 1 passed, 0 failed
-* x86_64: 26 total, 26 passed, 0 failed
+* x86_64: 15 total, 15 passed, 0 failed
 
 ## Test suites summary
 * fwts
@@ -192,6 +187,8 @@ https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.1=
 * kselftest-tpm2
 * kselftest-user
 * kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
 * kselftest-x86
 * kselftest-zram
 * kvm-unit-tests
