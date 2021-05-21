@@ -2,152 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D67A638CCB1
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 19:51:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 268F238CCD1
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 19:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237614AbhEURwY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 13:52:24 -0400
-Received: from so254-9.mailgun.net ([198.61.254.9]:52553 "EHLO
-        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237087AbhEURwV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 13:52:21 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1621619458; h=Message-ID: References: In-Reply-To: Reply-To:
- Subject: Cc: To: From: Date: Content-Transfer-Encoding: Content-Type:
- MIME-Version: Sender; bh=kQaQKFs6n4n0HHe6bOtHoF4nMeAkLmDV9FsNtdNYbos=;
- b=CANqLwcD+RmYhkBN66TGP+Mll4QHRzbFoR9C9cTX2S7RJ1yO3t8bwILu0vjWG5St5BJ07ylP
- a5+GQERx2OuutJglPkXaBzo83uej+x8oiA574WTh+zYeZgoQ0smaK+acB2FNdyoNpBvye56V
- YpCDBGWbaCRk1v9YI4MIAlNEvNg=
-X-Mailgun-Sending-Ip: 198.61.254.9
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n03.prod.us-east-1.postgun.com with SMTP id
- 60a7f2ee0d60c09896f3136e (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 21 May 2021 17:50:38
- GMT
-Sender: bbhatt=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 3AA29C43147; Fri, 21 May 2021 17:50:36 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,
-        URIBL_BLOCKED autolearn=unavailable autolearn_force=no version=3.4.0
-Received: from mail.codeaurora.org (localhost.localdomain [127.0.0.1])
-        (using TLSv1 with cipher ECDHE-RSA-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        (Authenticated sender: bbhatt)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 6C85FC4338A;
-        Fri, 21 May 2021 17:50:34 +0000 (UTC)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII;
- format=flowed
-Content-Transfer-Encoding: 7bit
-Date:   Fri, 21 May 2021 10:50:33 -0700
-From:   Bhaumik Bhatt <bbhatt@codeaurora.org>
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Pavel Machek <pavel@denx.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        id S237556AbhEUSBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 14:01:09 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33000 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231531AbhEUSBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 14:01:08 -0400
+Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5372EC061574
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 10:59:45 -0700 (PDT)
+Received: by mail-pj1-x1035.google.com with SMTP id o17-20020a17090a9f91b029015cef5b3c50so7744707pjp.4
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 10:59:45 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=WvnbS4IVZhECF51z6O+EfBBe87ZTqf6cbpg5WnJxJSc=;
+        b=dRa+q4djh2zWgsZsG80B8J00y/BYlEh4KnODAALlDl6ALDWnGO2ZWZvDRGfrs948mW
+         IdQF3TyoEgErcIHsHN/PQIcBxYgYdxfvYktPTaZJ6arZDaRW7Wxqid4ZxuyunuxU39Kk
+         rsYiltUpO/o400ktq/z/L2SyyiawsfLpXN4xg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=WvnbS4IVZhECF51z6O+EfBBe87ZTqf6cbpg5WnJxJSc=;
+        b=t8izR3jco461Vzzv/3ojRKV6qjj0nLmbPPN4WSTep3ciBXx/m4VY0dwnRb1XD0YEca
+         6SjCmO1DDNApOKm/ZJqd4cJG8XQ6BSXq/RVNbKqZuxXDlKpN3Wl6HV/d3e/OKcYNerzG
+         X3hMbow1DsxTTMRrEybCHjE8IMYjSa8LbWFVuOSQXPnuwHeM08kRPnHCeo+3hqzaNI37
+         9FVIXx+dQhPa17dK2c9BS89XGRgaeEF7cNsKRxeozCvV9S4SSBI8+s8+SeMS/FicULHV
+         s96LUx57ncMfyXy43+rmH6IYn56yVGCt9VDP+NsIMwO+jZkD2Wk6z94+Rchm1xo3q9pF
+         0UcQ==
+X-Gm-Message-State: AOAM532U8EnqrqVeaZS32L0k/4gk4S9vjCvK/jsYCCsaXwKPafIjNYJG
+        mps1triTwbQmkivWrXpAv+9ANg==
+X-Google-Smtp-Source: ABdhPJzBxhmutnAM94ho9VxOqH7WslOekEyezmP+aJAEVSUnTsp8WNLP0bzekNRAJeF64PcP78udBg==
+X-Received: by 2002:a17:90a:9d88:: with SMTP id k8mr12209792pjp.64.1621619984833;
+        Fri, 21 May 2021 10:59:44 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id s5sm206280pjo.10.2021.05.21.10.59.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 May 2021 10:59:44 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     x86@kernel.org, Sami Tolvanen <samitolvanen@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>
+Cc:     Kees Cook <keescook@chromium.org>,
+        clang-built-linux@googlegroups.com,
+        Anthony Ruhier <aruhier@mailbox.org>,
         linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Hemant Kumar <hemantk@codeaurora.org>, quic_jhugo@quicinc.com
-Subject: Re: [PATCH 5.10 002/299] bus: mhi: core: Clear configuration from
- channel context during reset
-Organization: Qualcomm Innovation Center, Inc.
-Reply-To: bbhatt@codeaurora.org
-Mail-Reply-To: bbhatt@codeaurora.org
-In-Reply-To: <20210511061623.GA8651@thinkpad>
-References: <20210510102004.821838356@linuxfoundation.org>
- <20210510102004.900838842@linuxfoundation.org> <20210510205650.GA17966@amd>
- <20210511061623.GA8651@thinkpad>
-Message-ID: <64a8ebbdc9fc7de48b25b9e2bc896d47@codeaurora.org>
-X-Sender: bbhatt@codeaurora.org
-User-Agent: Roundcube Webmail/1.3.9
+        "H. Peter Anvin" <hpa@zytor.com>
+Subject: Re: [PATCH] x86: Fix location of '-plugin-opt=' flags
+Date:   Fri, 21 May 2021 10:59:10 -0700
+Message-Id: <162161994470.2028902.331062863146834934.b4-ty@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210518190106.60935-1-nathan@kernel.org>
+References: <20210518190106.60935-1-nathan@kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2021-05-10 11:17 PM, Manivannan Sadhasivam wrote:
-> Hi Pavel,
+On Tue, 18 May 2021 12:01:06 -0700, Nathan Chancellor wrote:
+> Commit b33fff07e3e3 ("x86, build: allow LTO to be selected") added a
+> couple of '-plugin-opt=' flags to KBUILD_LDFLAGS because the code model
+> and stack alignment are not stored in LLVM bitcode. However, these flags
+> were added to KBUILD_LDFLAGS prior to the emulation flag assignment,
+> which uses ':=', so they were overwritten and never added to $(LD)
+> invocations. The absence of these flags caused misalignment issues in
+> the AMDGPU driver when compiling with CONFIG_LTO_CLANG, resulting in
+> general protection faults.
 > 
-> On Mon, May 10, 2021 at 10:56:50PM +0200, Pavel Machek wrote:
->> Hi!
->> 
->> > From: Bhaumik Bhatt <bbhatt@codeaurora.org>
->> >
->> > commit 47705c08465931923e2f2b506986ca0bdf80380d upstream.
->> >
->> > When clearing up the channel context after client drivers are
->> > done using channels, the configuration is currently not being
->> > reset entirely. Ensure this is done to appropriately handle
->> > issues where clients unaware of the context state end up calling
->> > functions which expect a context.
->> 
->> > +++ b/drivers/bus/mhi/core/init.c
->> > @@ -544,6 +544,7 @@ void mhi_deinit_chan_ctxt(struct mhi_con
->> > +	u32 tmp;
->> > @@ -554,7 +555,19 @@ void mhi_deinit_chan_ctxt(struct mhi_con
->> ...
->> > +	tmp = chan_ctxt->chcfg;
->> > +	tmp &= ~CHAN_CTX_CHSTATE_MASK;
->> > +	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
->> > +	chan_ctxt->chcfg = tmp;
->> > +
->> > +	/* Update to all cores */
->> > +	smp_wmb();
->> >  }
->> 
->> This is really interesting code; author was careful to make sure chcfg
->> is updated atomically, but C compiler is free to undo that. Plus, this
->> will make all kinds of checkers angry.
->> 
->> Does the file need to use READ_ONCE and WRITE_ONCE?
->> 
-> 
-> Thanks for looking into this.
-> 
-> I agree that the order could be mangled between chcfg read & write and
-> using READ_ONCE & WRITE_ONCE seems to be a good option.
-> 
-> Bhaumik, can you please submit a patch and tag stable?
-> 
-> Thanks,
-> Mani
-> 
->> Best regards,
->> 								Pavel
->> --
->> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
->> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+> [...]
 
-Hi Pavel/Mani,
+(I've slightly adjusted the title.)
 
-Hemant and I went over this patch and we noticed this particular 
-function is
-already being called with the channel mutex lock held. This would take 
-care of
-the atomicity and we also probably don't need the smp_wmb() barrier as 
-the mutex
-unlock will implicitly take care of it.
+Applied to for-next/clang/features, thanks!
 
-To the point of compiler re-ordering, we would need some help to 
-understand the
-purpose of READ_ONCE()/WRITE_ONCE() for these dependent statements:
+[1/1] x86: lto: Fix location of '-plugin-opt=' flags
+      https://git.kernel.org/kees/c/5d6c8592ee5f
 
-> +	tmp = chan_ctxt->chcfg;
-> +	tmp &= ~CHAN_CTX_CHSTATE_MASK;
-> +	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
-> +	chan_ctxt->chcfg = tmp;
+-- 
+Kees Cook
 
-Since RMW operation means that the chan_ctxt->chcfg is copied to a local
-variable (tmp) and the _same_ is being written back to chan_ctxt->chcfg, 
-can
-compiler reorder these dependent statements and cause a different 
-result?
-
-Thanks,
-Bhaumik
----
-The Qualcomm Innovation Center, Inc. is a member of the Code Aurora 
-Forum,
-a Linux Foundation Collaborative Project
