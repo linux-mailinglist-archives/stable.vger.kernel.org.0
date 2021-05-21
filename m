@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0A1438C828
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 15:31:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0991638C82D
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 15:33:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234422AbhEUNdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 09:33:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47910 "EHLO mail.kernel.org"
+        id S234749AbhEUNeU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 09:34:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233143AbhEUNdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 May 2021 09:33:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A00096023D;
-        Fri, 21 May 2021 13:31:57 +0000 (UTC)
+        id S231601AbhEUNeT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 May 2021 09:34:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F34A2610CB;
+        Fri, 21 May 2021 13:32:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621603917;
-        bh=Il0NJuHMbBcpy+zchLo6gEH5+9R6BpMwY5I2nbfdy1I=;
+        s=k20201202; t=1621603976;
+        bh=Rn+wTokD0xjQeGvVUvsRGt44Ve3Prl0d2vf0pLTXhpI=;
         h=From:To:Cc:Subject:Date:From;
-        b=M4+GRoc+jqmzyHM3SmSaww5WIv4H+mC0Zso/LdmefBsW5rD8jrubBURkYH/wH5yRr
-         KVvW9u6NUo5LruC7oWK4BeZJqEa4FboJwwhzIhTdo68rWQxQF2zL1yyh2Ez6LuDGAY
-         BY0m9fCFuP83n6w0LGuBpTV5xYSJpq0nGHUVdF0yoO5wAks8l8j+Z7X0ZMx+M6qwPM
-         5ZgZjK41mHDKVPe2ZYweJjcqd2YAq25aNM0SjRd9BvXU3juVD2hh1nU18He40KzHbo
-         /aa9jQYJd2mjPTKIIci83vzFlSIkngwHByLT4riorkGzQMfzZQtlmx4AXp12V56dj5
-         0gTbygAhXWZVQ==
+        b=pv0hfh50Zemq6yDRyDu41l+dhIBT0hDlgN++nm0I5dMaaFalcv+Mdn8GoUs1KAdOZ
+         iAO/j3Or9akONb819HYlVr2K+jm7O/iEwSS8LBxaiUyJEr389ibJuwLkLMCb9JDf2h
+         InPWPrjZ8ewNhIYHAtAjRVg0dlgp3s4y/WD/q5+vY6/+DwZaNQe9HLbiA7LLwadE1w
+         dT+6U1t6I8FxWuUOUz7FQYWc7M1oDyESvJ3MHaHwOk+gW5BoCyA22nzGvp1N/F9tzU
+         ZdcZETPR3JIC+qaFd0bhwx4tj8aa61wUPuOtH51HxoitJiL99E3TZ9QmZYWAu+jYLJ
+         yVlV4rQ9FHt5A==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1lk5Fu-0004XY-QY; Fri, 21 May 2021 15:31:58 +0200
+        id 1lk5Gr-0004Z8-4O; Fri, 21 May 2021 15:32:57 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Johan Hovold <johan@kernel.org>
 Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] USB: trancevibrator: fix control-request direction
-Date:   Fri, 21 May 2021 15:31:09 +0200
-Message-Id: <20210521133109.17396-1-johan@kernel.org>
+        stable@vger.kernel.org
+Subject: [PATCH] USB: serial: quatech2: fix control-request directions
+Date:   Fri, 21 May 2021 15:32:31 +0200
+Message-Id: <20210521133231.17488-1-johan@kernel.org>
 X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -44,32 +44,38 @@ The direction of the pipe argument must match the request-type direction
 bit or control requests may fail depending on the host-controller-driver
 implementation.
 
-Fix the set-speed request which erroneously used USB_DIR_IN and update
-the default timeout argument to match (same value).
+Fix the two QT2_FLUSH_DEVICE requests which erroneously used
+usb_rcvctrlpipe().
 
-Fixes: 5638e4d92e77 ("USB: add PlayStation 2 Trance Vibrator driver")
-Cc: stable@vger.kernel.org      # 2.6.19
+Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
+Cc: stable@vger.kernel.org      # 3.5
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
- drivers/usb/misc/trancevibrator.c | 4 ++--
+ drivers/usb/serial/quatech2.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/usb/misc/trancevibrator.c b/drivers/usb/misc/trancevibrator.c
-index a3dfc77578ea..26baba3ab7d7 100644
---- a/drivers/usb/misc/trancevibrator.c
-+++ b/drivers/usb/misc/trancevibrator.c
-@@ -61,9 +61,9 @@ static ssize_t speed_store(struct device *dev, struct device_attribute *attr,
- 	/* Set speed */
- 	retval = usb_control_msg(tv->udev, usb_sndctrlpipe(tv->udev, 0),
- 				 0x01, /* vendor request: set speed */
--				 USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_OTHER,
-+				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
- 				 tv->speed, /* speed value */
--				 0, NULL, 0, USB_CTRL_GET_TIMEOUT);
-+				 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		tv->speed = old;
- 		dev_dbg(&tv->udev->dev, "retval = %d\n", retval);
+diff --git a/drivers/usb/serial/quatech2.c b/drivers/usb/serial/quatech2.c
+index 3b5f2032ecdb..a9ff3904375f 100644
+--- a/drivers/usb/serial/quatech2.c
++++ b/drivers/usb/serial/quatech2.c
+@@ -416,7 +416,7 @@ static void qt2_close(struct usb_serial_port *port)
+ 
+ 	/* flush the port transmit buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 1,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
+@@ -426,7 +426,7 @@ static void qt2_close(struct usb_serial_port *port)
+ 
+ 	/* flush the port receive buffer */
+ 	i = usb_control_msg(serial->dev,
+-			    usb_rcvctrlpipe(serial->dev, 0),
++			    usb_sndctrlpipe(serial->dev, 0),
+ 			    QT2_FLUSH_DEVICE, 0x40, 0,
+ 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+ 
 -- 
 2.26.3
 
