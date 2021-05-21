@@ -2,149 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B48C38C11C
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 09:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71FCF38C1E0
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 10:32:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232045AbhEUH5N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 03:57:13 -0400
-Received: from ex13-edg-ou-002.vmware.com ([208.91.0.190]:20199 "EHLO
-        EX13-EDG-OU-002.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S231301AbhEUH5N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 03:57:13 -0400
-Received: from sc9-mailhost3.vmware.com (10.113.161.73) by
- EX13-EDG-OU-002.vmware.com (10.113.208.156) with Microsoft SMTP Server id
- 15.0.1156.6; Fri, 21 May 2021 00:55:46 -0700
-Received: from localhost.localdomain (unknown [10.118.101.147])
-        by sc9-mailhost3.vmware.com (Postfix) with ESMTP id E58882042B;
-        Fri, 21 May 2021 00:55:49 -0700 (PDT)
-From:   Alexey Makhalov <amakhalov@vmware.com>
-To:     "Theodore Y . Ts'o" <tytso@mit.edu>
-CC:     <linux-ext4@vger.kernel.org>, <stable@vger.kernel.org>,
-        Andreas Dilger <adilger.kernel@dilger.ca>,
-        Alexey Makhalov <amakhalov@vmware.com>
-Subject: [PATCH v2] ext4: fix memory leak in ext4_fill_super
-Date:   Fri, 21 May 2021 07:55:33 +0000
-Message-ID: <20210521075533.95732-1-amakhalov@vmware.com>
-X-Mailer: git-send-email 2.14.2
-In-Reply-To: <459B4724-842E-4B47-B2E7-D29805431E69@vmware.com>
-References: <459B4724-842E-4B47-B2E7-D29805431E69@vmware.com>
-MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX13-EDG-OU-002.vmware.com: amakhalov@vmware.com does not
- designate permitted sender hosts)
+        id S232103AbhEUIdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 04:33:44 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45466 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232095AbhEUIdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 04:33:43 -0400
+Received: from mail-qk1-x749.google.com (mail-qk1-x749.google.com [IPv6:2607:f8b0:4864:20::749])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0730C061574
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 01:32:20 -0700 (PDT)
+Received: by mail-qk1-x749.google.com with SMTP id s123-20020a3777810000b02902e9adec2313so15565593qkc.4
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 01:32:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=eNYE7zpSOCj7plZZAyS+5aDrL5u+MfadoSDP0vm8/WQ=;
+        b=XraWczXc5cxxOBDBtVGGfGFtPPc7wcCkrF3GfJOY2jod0PMBW5S0idtcykIynrztOj
+         /8GPrUQbzqot1wTmeVWAetIzkEZC1/S5Vu+rB42C87I91OCbcj4/QLTjHI/aPfJDdCTP
+         EKWcZBs9XSVgYlFXMB5dMLRsOVyVLy1EghdzRqGbvvRj7PdWjT2UdYdOPZixtq183drw
+         ZFueMNvZ81RSFOJAehdyIKbW1168dtTXlz3Sfc+dU3I7Xj+0sk4N9kJkIhPwY56OJTjE
+         0sotraP2uChwuL7Oo1h5ZZT6BV+qihPMQ9SFXO73vCLDONZnkh/H0+3yWIa8J4paZ8pA
+         5BCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=eNYE7zpSOCj7plZZAyS+5aDrL5u+MfadoSDP0vm8/WQ=;
+        b=R4gwBAjNANaRw7uY6rBubOuRNjXFzgQG0QZLczf9glWnXe69pLBFvIjP7whzVii/Pm
+         E5bk5T417tpuOeB06Qzsk7JweQYCp7pdNyfhFCfeqH6vyLHAz6y/l9tx9ZcIT4ofIJCw
+         j+wNkx00Qs80iBFsD1SgtVZ1Uzg3ypumE17kD8cKGE6dyhdU3gTNeV6le6SauvN2rfNn
+         H6VtP/K0X919JPaTK2+U6ejJ8cvStcnnt860cvm35LweeTm31Dj3aiD6lYEfDNZFVfJv
+         OczTBKNE7xeNGOex5zpw5B+ECnqGSkBLcGQoH3IwnOweThfIL5euhwLTWWeOdKLHfppX
+         XGXw==
+X-Gm-Message-State: AOAM531s4U8UI6dt+NnrQSKSWjK5XpitMiaNyiQVLSbBVcAGJxRO1fbE
+        70QLl3t/NcR6M57q1MEj15uSRRE2Mw==
+X-Google-Smtp-Source: ABdhPJxOtHW/s436pbUSNtX/1MJ9ezmdnT2dciQSffLNozLx/dfNTPZEQC900wdnfyRocBsiRRPvt7cIHg==
+X-Received: from elver.muc.corp.google.com ([2a00:79e0:15:13:a932:cdd6:7230:17ba])
+ (user=elver job=sendgmr) by 2002:a0c:dc07:: with SMTP id s7mr11433864qvk.26.1621585939685;
+ Fri, 21 May 2021 01:32:19 -0700 (PDT)
+Date:   Fri, 21 May 2021 10:32:09 +0200
+Message-Id: <20210521083209.3740269-1-elver@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.31.1.818.g46aad6cb9e-goog
+Subject: [PATCH] kfence: use TASK_IDLE when awaiting allocation
+From:   Marco Elver <elver@google.com>
+To:     elver@google.com, akpm@linux-foundation.org
+Cc:     glider@google.com, dvyukov@google.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        kasan-dev@googlegroups.com, Mel Gorman <mgorman@suse.de>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I've recently discovered that doing infinite loop of
-  systemctl start <ext4_on_lvm>.mount, and
-  systemctl stop <ext4_on_lvm>.mount
-linearly increases percpu allocator memory consumption.
-In several hours, it might lead to system instability by
-consuming most of the memory.
+Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
+allocation counts towards load. However, for KFENCE, this does not make
+any sense, since there is no busy work we're awaiting.
 
-During debugging it was found that most of active percpu
-allocations are from /system.slice/<ext4_on_lvm>.mount
-memory cgroups (created by systemd for each mount). All
-of these cgroups are in dying state with refcount equal
-to 2. And most interesting that each mount/umount itera-
-tion creates exactly one dying memory cgroup.
+Instead, use TASK_IDLE via wait_event_idle() to not count towards load.
 
-Tracking down the remaining refcounts showed that it was
-charged from ext4_fill_super(). And the page is always
-0 index in the page cache mapping.
-
-The issue was hidden behind initial super block read using
-logical blocksize from bdev and adjusting blocksize later
-after reading actual block size from superblock.
-If blocksizes differ, sb_set_blocksize() will kill current
-buffers and page cache by using kill_bdev(). And then super
-block will be reread again but using correct blocksize this
-time. sb_set_blocksize() didn't fully free superblock page
-and buffers as buffer pointed by bh variable remained busy.
-So buffer and its page remains in the memory (leak). Super
-block reread logic does not happen when ext4 filesystem is
-on physical partition as blocksize is correct for initial
-superblock read.
-
-brelse(bh), where bh is a buffer head of superblock page,
-must be called and bh references must be released before
-kill_bdev(). kill_bdev() subfunctions (see callstack below)
-won't be able to free not released buffer (even if it's
-clean) and superblock page won't be freed as well.
-
-callstack:
-kill_bdev()
-->truncate_inode_pages()
-  ->truncate_inode_pages_range()
-    ->truncate_cleanup_page()
-      ->do_invalidatepage
-        ->block_invalidatepage()
-	  ->try_to_release_page() == fail to release
-	    ->try_to_free_buffers() == fail to free
-	      ->drop_buffers()
-	        ->buffer_busy() == yes
-
-Incorrect order of brelse() and kill_bdev() in ext4_fill_super()
-was introduced by commit ce40733ce93d ("ext4: Check for return
-value from sb_set_blocksize") 13 years ago! Thanks to memory
-hungry percpu, it was easy to detect this issue now.
-
-Fix this by moving the brelse() before sb_set_blocksize() and
-add a comment about the dependency.
-
-In addition, fix similar issue under failed_mount: label (in
-the same function) about incorrect order of ext4_blkdev_remove()
-vs brelse() introduced by commit ac27a0ec112a ("ext4: initial
-copy of files from ext3")
-
-Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-Cc: stable@vger.kernel.org
-Fixes: ce40733ce93d ("ext4: Check for return value from sb_set_blocksize")
-Fixes: ac27a0ec112a ("ext4: initial copy of files from ext3")
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: Andreas Dilger <adilger.kernel@dilger.ca>
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1185565
+Fixes: 407f1d8c1b5f ("kfence: await for allocation using wait_event")
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: <stable@vger.kernel.org> # v5.12+
 ---
- fs/ext4/super.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ mm/kfence/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/super.c b/fs/ext4/super.c
-index b9693680463a..6c8f68309834 100644
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -4451,14 +4451,20 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
+diff --git a/mm/kfence/core.c b/mm/kfence/core.c
+index e18fbbd5d9b4..4d21ac44d5d3 100644
+--- a/mm/kfence/core.c
++++ b/mm/kfence/core.c
+@@ -627,10 +627,10 @@ static void toggle_allocation_gate(struct work_struct *work)
+ 		 * During low activity with no allocations we might wait a
+ 		 * while; let's avoid the hung task warning.
+ 		 */
+-		wait_event_timeout(allocation_wait, atomic_read(&kfence_allocation_gate),
+-				   sysctl_hung_task_timeout_secs * HZ / 2);
++		wait_event_idle_timeout(allocation_wait, atomic_read(&kfence_allocation_gate),
++					sysctl_hung_task_timeout_secs * HZ / 2);
+ 	} else {
+-		wait_event(allocation_wait, atomic_read(&kfence_allocation_gate));
++		wait_event_idle(allocation_wait, atomic_read(&kfence_allocation_gate));
  	}
  
- 	if (sb->s_blocksize != blocksize) {
-+		/*
-+		 * bh must be released before kill_bdev(), otherwise
-+		 * it won't be freed and its page also. kill_bdev()
-+		 * is called by sb_set_blocksize().
-+		 */
-+		brelse(bh);
- 		/* Validate the filesystem blocksize */
- 		if (!sb_set_blocksize(sb, blocksize)) {
- 			ext4_msg(sb, KERN_ERR, "bad block size %d",
- 					blocksize);
-+			bh = NULL;
- 			goto failed_mount;
- 		}
- 
--		brelse(bh);
- 		logical_sb_block = sb_block * EXT4_MIN_BLOCK_SIZE;
- 		offset = do_div(logical_sb_block, blocksize);
- 		bh = ext4_sb_bread_unmovable(sb, logical_sb_block);
-@@ -5178,8 +5184,9 @@ static int ext4_fill_super(struct super_block *sb, void *data, int silent)
- 		kfree(get_qf_name(sb, sbi, i));
- #endif
- 	fscrypt_free_dummy_policy(&sbi->s_dummy_enc_policy);
--	ext4_blkdev_remove(sbi);
-+	/* ext4_blkdev_remove() calls kill_bdev(), release bh before it. */
- 	brelse(bh);
-+	ext4_blkdev_remove(sbi);
- out_fail:
- 	sb->s_fs_info = NULL;
- 	kfree(sbi->s_blockgroup_lock);
+ 	/* Disable static key and reset timer. */
 -- 
-2.14.2
+2.31.1.818.g46aad6cb9e-goog
 
