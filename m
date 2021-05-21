@@ -2,143 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC1E38CAA9
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 18:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D17338CB23
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 18:35:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237247AbhEUQNg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 12:13:36 -0400
-Received: from ex13-edg-ou-001.vmware.com ([208.91.0.189]:6839 "EHLO
-        EX13-EDG-OU-001.vmware.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S236522AbhEUQNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 12:13:35 -0400
-Received: from sc9-mailhost1.vmware.com (10.113.161.71) by
- EX13-EDG-OU-001.vmware.com (10.113.208.155) with Microsoft SMTP Server id
- 15.0.1156.6; Fri, 21 May 2021 09:12:06 -0700
-Received: from smtpclient.apple (unknown [10.200.196.160])
-        by sc9-mailhost1.vmware.com (Postfix) with ESMTP id 2F13F20446;
-        Fri, 21 May 2021 09:12:12 -0700 (PDT)
-From:   Alexey Makhalov <amakhalov@vmware.com>
-Message-ID: <D3ECB26C-F77D-43CB-AE6F-F6919ED6CCB9@vmware.com>
-Content-Type: multipart/signed;
-        boundary="Apple-Mail=_8E632069-FAA9-4C7C-A864-41C39A5A7FD3";
-        protocol="application/pgp-signature"; micalg=pgp-sha256
-MIME-Version: 1.0 (Mac OS X Mail 14.0 \(3654.80.0.2.43\))
-Subject: Re: [PATCH] ext4: fix memory leak in ext4_fill_super
-Date:   Fri, 21 May 2021 09:12:09 -0700
-In-Reply-To: <YKfDrcEfu7Gp0dGi@mit.edu>
-CC:     <linux-ext4@vger.kernel.org>, <stable@vger.kernel.org>,
-        Andreas Dilger <adilger.kernel@dilger.ca>
-To:     "Theodore Y. Ts'o" <tytso@mit.edu>
-References: <20210428221928.38960-1-amakhalov@vmware.com>
- <YKc6fidMj95TZp2w@mit.edu> <459B4724-842E-4B47-B2E7-D29805431E69@vmware.com>
- <YKfDrcEfu7Gp0dGi@mit.edu>
-X-Mailer: Apple Mail (2.3654.80.0.2.43)
-Received-SPF: None (EX13-EDG-OU-001.vmware.com: amakhalov@vmware.com does not
- designate permitted sender hosts)
+        id S237571AbhEUQhD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 12:37:03 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:58180 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234855AbhEUQhC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 12:37:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621614939;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=HZlyA2fykG9/ItrhE3JKOBw8IERquxE+qww/yqJgdxs=;
+        b=EVfldzmQF9/pbQH14Jf0HlPngBLovtyTmD8ZCgV8811pFuiY8pkBHboHU9+9fcekdnWDto
+        i3jdznWHjri4+wbb4zSmxx937rk0oQ8aFwqDGO/bkqMq36eMT0ZKFKfRqdN25zFMJ+9OPA
+        e7/FZT8q/3Q78vF+G/9AjASkq5Gjl2M=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-60-nriD3aWLNDK0n9nMY9sEnA-1; Fri, 21 May 2021 12:35:35 -0400
+X-MC-Unique: nriD3aWLNDK0n9nMY9sEnA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 96A621020C3A;
+        Fri, 21 May 2021 16:35:33 +0000 (UTC)
+Received: from dhcp-27-174.brq.redhat.com (unknown [10.40.192.49])
+        by smtp.corp.redhat.com (Postfix) with SMTP id 9143E6A03D;
+        Fri, 21 May 2021 16:35:28 +0000 (UTC)
+Received: by dhcp-27-174.brq.redhat.com (nbSMTP-1.00) for uid 1000
+        oleg@redhat.com; Fri, 21 May 2021 18:35:33 +0200 (CEST)
+Date:   Fri, 21 May 2021 18:35:27 +0200
+From:   Oleg Nesterov <oleg@redhat.com>
+To:     akpm@linux-foundation.org
+Cc:     bp@suse.de, davidchao@google.com, jenhaochen@google.com,
+        jkosina@suse.cz, josh@joshtriplett.org, liumartin@google.com,
+        mhocko@suse.cz, mingo@redhat.com, mm-commits@vger.kernel.org,
+        nathan@kernel.org, ndesaulniers@google.com,
+        paulmck@linux.vnet.ibm.com, peterz@infradead.org, pmladek@suse.com,
+        rostedt@goodmis.org, stable@vger.kernel.org, tglx@linutronix.de,
+        tj@kernel.org, vbabka@suse.cz, linux-kernel@vger.kernel.org
+Subject: Re: +
+ kthread-fix-kthread_mod_delayed_work-vs-kthread_cancel_delayed_work_sync-race.patch
+ added to -mm tree
+Message-ID: <20210521163526.GA17916@redhat.com>
+References: <20210520214737.MrGGKbPrJ%akpm@linux-foundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210520214737.MrGGKbPrJ%akpm@linux-foundation.org>
+User-Agent: Mutt/1.5.24 (2015-08-30)
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
---Apple-Mail=_8E632069-FAA9-4C7C-A864-41C39A5A7FD3
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain;
-	charset=utf-8
+On 05/20, Andrew Morton wrote:
+>
+> --- a/kernel/kthread.c~kthread-fix-kthread_mod_delayed_work-vs-kthread_cancel_delayed_work_sync-race
+> +++ a/kernel/kthread.c
+> @@ -1181,6 +1181,19 @@ bool kthread_mod_delayed_work(struct kth
+>  		goto out;
+>
+>  	ret = __kthread_cancel_work(work, true, &flags);
+> +
+> +	/*
+> +	 * Canceling could run in parallel from kthread_cancel_delayed_work_sync
+> +	 * and change work's canceling count as the spinlock is released and regain
+> +	 * in __kthread_cancel_work so we need to check the count again. Otherwise,
+> +	 * we might incorrectly queue the dwork and further cause
+> +	 * cancel_delayed_work_sync thread waiting for flush dwork endlessly.
+> +	 */
+> +	if (work->canceling) {
+> +		ret = false;
+> +		goto out;
+> +	}
+> +
+>  fast_queue:
+>  	__kthread_queue_delayed_work(worker, dwork, delay);
 
-Sounds good! Thanks for the guidance and v3) =E2=80=94Alexey
+Never looked at this code before, can't review...
 
-> On May 21, 2021, at 7:29 AM, Theodore Y. Ts'o <tytso@mit.edu> wrote:
->=20
-> On Fri, May 21, 2021 at 12:43:46AM -0700, Alexey Makhalov wrote:
->> Hi Ted,
->>=20
->> Good point! This paragraph can be just dropped as the next one
->> describes the issue with superblock re-read. Will send v2 shortly.
->=20
-> Thanks; for what it's worth, I'm going to be editing the commit
-> description anyway; it's really helpful during the patch review to
-> understand how you found the problem, and how to reproduce it.
-> However, the commit description when it lands upstream will include a
-> link to this mail thread on lore.kernel.org, and so including a long
-> stack trace isn't really necessary.
->=20
-> I'm going to cut it down to something like this:
->=20
-> ------------------------------
-> ext4: fix memory leak in ext4_fill_super
->=20
-> Buffer head references must be released before calling kill_bdev();
-> otherwise the buffer head (and its page referenced by b_data) will not
-> be freed by kill_bdev, and subsequently that bh will be leaked.
->=20
-> If blocksizes differ, sb_set_blocksize() will kill current buffers and
-> page cache by using kill_bdev(). And then super block will be reread
-> again but using correct blocksize this time. sb_set_blocksize() didn't
-> fully free superblock page and buffer head, and being busy, they were
-> not freed and instead leaked.
->=20
-> This can easily be reproduced by calling an infinite loop of:
->=20
->  systemctl start <ext4_on_lvm>.mount, and
->  systemctl stop <ext4_on_lvm>.mount
->=20
-> ... since systemd creates a cgroup for each slice which it mounts, and
-> the bh leak get amplified by a dying memory cgroup that also never
-> gets freed, and memory consumption is much more easily noticed.
->=20
-> Signed-off-by: Alexey Makhalov <amakhalov@vmware.com>
-> Cc: stable@vger.kernel.org
-> Link: =
-https://nam04.safelinks.protection.outlook.com/?url=3Dhttps%3A%2F%2Flore.k=
-ernel.org%2Fr%2F459B4724-842E-4B47-B2E7-D29805431E69%40vmware.com&amp;data=
-=3D04%7C01%7Camakhalov%40vmware.com%7Ce5ae2270f1134d9a3cce08d91c64cb26%7Cb=
-39138ca3cee4b4aa4d6cd83d9dd62f0%7C0%7C1%7C637572041508854286%7CUnknown%7CT=
-WFpbGZsb3d8eyJWIjoiMC4wLjAwMDAiLCJQIjoiV2luMzIiLCJBTiI6Ik1haWwiLCJXVCI6Mn0=
-%3D%7C3000&amp;sdata=3D%2Fa%2FqTcBfL1tYkIq0byM46DXmpxTFOraAly2Ib9sbghE%3D&=
-amp;reserved=3D0
-> Fixes: ce40733ce93d ("ext4: Check for return value from =
-sb_set_blocksize")
-> Fixes: ac27a0ec112a ("ext4: initial copy of files from ext3")
-> Signed-off-by: "Theodore Ts'o" <tytso@mit.edu>
-> Cc: Andreas Dilger <adilger.kernel@dilger.ca>
-> ------------------------------
->=20
-> The commit description above is 18 lines (exclusive of trailers and
-> headers) versus 71 lines, and is much more to the point for someone
-> who might be doing code archeology via "git log".
->=20
-> When submitting this as a patch, you can either use a separate cover
-> letter (git format-patch --cover-letter) or including the explanation
-> after the --- in the diff, so that it disappears before the commit is
-> added via "git am".  But it's not that hard for me to rework a commit
-> description, so I'll take care of it for this patch; no need to send a
-> V3.
->=20
-> Cheers,
->=20
-> 					- Ted
+but note that another caller of __kthread_queue_delayed_work() needs to
+check work->canceling too. So perhaps we should simply add queuing_blocked()
+into __kthread_queue_delayed_work() ?
 
+Something like below, uncompiled/untested, most probably incorrect.
 
---Apple-Mail=_8E632069-FAA9-4C7C-A864-41C39A5A7FD3
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="signature.asc"
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Message signed with OpenPGP
+Either way, this comment
 
------BEGIN PGP SIGNATURE-----
+	 * Return: %true if @dwork was pending and its timer was modified,
+	 * %false otherwise.
 
-iQIzBAEBCAAdFiEEQe6bu7hIFElmsM7CGW4w8WwwaSUFAmCn29kACgkQGW4w8Www
-aSWibA//RbCDAXmr84gyrkKt0PeNjoJkyzvO9efyIt3y1x4j56JvpPSzc+Di7kyb
-e2NTJrLr0biHJdkvBuLJIrAp5nmesf0JBCiQe2zM3LfmRY3GDjj3ZcHkSaBjK+Lo
-rZJuiRbZ+NBhP1A2X5RbXNwr8YHl4lkEqE1yqxXvKUMDj2ZjOcg6OWNDtp1P5z9e
-VGdF7JCqTMsXlDUQQsTzGT60qvWvt4UCGZIAEt0J1cbB7fg3qFqLxLPgGijq44Vf
-VJwibbtWQivCZ4LIW3i6UF5MAZiHbavlcUVzRvROmRQysBOTLXr47Oov2VZuXAOb
-rJIG+mEaTK5awT71yIWstLAlZhk6nZT2kgTCEVRfUQEg/p0Ysklm6t9MXmyyYpqL
-ErNBu6PX5yGTTmsqw/wcuGIVbgv5TZ4dyTVVJJH3Qyxo/7CBEIygja4xmlyVP72D
-EPHBzSrMRZnMzoHl5mDGzGuthFN/aZFtN4gJSqHKGUZEby8huAO+kwKcrkaxbMZZ
-TNKkGIdEZrtmDRnQLS3cipl3bmVx6xEP6X0X3rIruLrwV5/6WN44upmh3YOBe83C
-kJYuS/Q7bYrEff0mOfQcPbItzSARv7do5xl39szjPkf8I/M3ZDhqUK0SklXOdpWV
-1aYPXD/Cm+Yo2rgkmeDP4FoiqJj9sRvFoHu/ANCtMouSQhme1lc=
-=bZBa
------END PGP SIGNATURE-----
+above kthread_mod_delayed_work looks obviously wrong. Currently it returns
+true if this work was pending. With your patch it returns true if it was
+pending and not canceling.
 
---Apple-Mail=_8E632069-FAA9-4C7C-A864-41C39A5A7FD3--
+With the patch below it returns true if the work was (re)queued successfully,
+and this makes more sense to me. But again, I can easily misread this code.
+
+In any case, even if my patch is correct, I won't insist, your fix is
+much simpler.
+
+Oleg.
+
+--- x/kernel/kthread.c
++++ x/kernel/kthread.c
+@@ -977,7 +977,7 @@ void kthread_delayed_work_timer_fn(struc
+ }
+ EXPORT_SYMBOL(kthread_delayed_work_timer_fn);
+ 
+-static void __kthread_queue_delayed_work(struct kthread_worker *worker,
++static bool __kthread_queue_delayed_work(struct kthread_worker *worker,
+ 					 struct kthread_delayed_work *dwork,
+ 					 unsigned long delay)
+ {
+@@ -987,6 +987,9 @@ static void __kthread_queue_delayed_work
+ 	WARN_ON_FUNCTION_MISMATCH(timer->function,
+ 				  kthread_delayed_work_timer_fn);
+ 
++	if (queuing_blocked(worker, work))
++		return false;
++
+ 	/*
+ 	 * If @delay is 0, queue @dwork->work immediately.  This is for
+ 	 * both optimization and correctness.  The earliest @timer can
+@@ -995,7 +998,7 @@ static void __kthread_queue_delayed_work
+ 	 */
+ 	if (!delay) {
+ 		kthread_insert_work(worker, work, &worker->work_list);
+-		return;
++		return true;
+ 	}
+ 
+ 	/* Be paranoid and try to detect possible races already now. */
+@@ -1005,6 +1008,7 @@ static void __kthread_queue_delayed_work
+ 	work->worker = worker;
+ 	timer->expires = jiffies + delay;
+ 	add_timer(timer);
++	return true;
+ }
+ 
+ /**
+@@ -1028,16 +1032,12 @@ bool kthread_queue_delayed_work(struct k
+ {
+ 	struct kthread_work *work = &dwork->work;
+ 	unsigned long flags;
+-	bool ret = false;
++	bool ret;
+ 
+ 	raw_spin_lock_irqsave(&worker->lock, flags);
+-
+-	if (!queuing_blocked(worker, work)) {
+-		__kthread_queue_delayed_work(worker, dwork, delay);
+-		ret = true;
+-	}
+-
++	ret = __kthread_queue_delayed_work(worker, dwork, delay);
+ 	raw_spin_unlock_irqrestore(&worker->lock, flags);
++
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(kthread_queue_delayed_work);
+@@ -1180,9 +1180,9 @@ bool kthread_mod_delayed_work(struct kth
+ 	if (work->canceling)
+ 		goto out;
+ 
+-	ret = __kthread_cancel_work(work, true, &flags);
++	__kthread_cancel_work(work, true, &flags);
+ fast_queue:
+-	__kthread_queue_delayed_work(worker, dwork, delay);
++	ret = __kthread_queue_delayed_work(worker, dwork, delay);
+ out:
+ 	raw_spin_unlock_irqrestore(&worker->lock, flags);
+ 	return ret;
+
