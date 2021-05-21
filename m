@@ -2,98 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 723E638BD64
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 06:25:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52A6C38BD77
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 06:36:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S239024AbhEUE0k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 00:26:40 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46090 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S238633AbhEUE0j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 00:26:39 -0400
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 247EDC061574;
-        Thu, 20 May 2021 21:25:16 -0700 (PDT)
-Received: by mail-pj1-x102e.google.com with SMTP id h20-20020a17090aa894b029015db8f3969eso5858253pjq.3;
-        Thu, 20 May 2021 21:25:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=YInGmwtN+gHNeJbff1aTTrGySsHgiB3luVCQXcJiocE=;
-        b=eooEX9XzMsFo2wFwyUbiJ7EqLcn/KI9iwBubbiPU5/io7tbF40Lpy41Tk+AXOPjRtx
-         rV7+uyeLtcpwYQWaBatboLYzfKsNW4gpv7MQxsHJJ/bvLeAJcqMa/ex4ezUbixZuJiCr
-         sNK+ZDpmR0qIUhY9mZc36fD+erimiTZKittAZyByV+kwbdlBlYAvnQZ4N1+3rqM1/mP5
-         AnQfqOEQNgRKgRUERLFG0Z2Y9kUX0bntYcWdyUZMj4xUdft+hMwbJSchz7EuojpB+seB
-         mZbgmDCV5RPPiaLKA22Tkuvmj9C98BsbvBVMQt842zaqjec0VhUw2NoG2RxINsVG6Ps7
-         xMeg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=YInGmwtN+gHNeJbff1aTTrGySsHgiB3luVCQXcJiocE=;
-        b=VvO36OQWi6o+P0Y/oT8YQCGpW+yguqC4XJaDAc+MXqMbXTydT3lk7UYuUMB3VX35hu
-         j1voU9UccMwbOdfy3qRDawvA5P+xdT5GBiIU1dJXsa85WZ7VJdltPP6dKLnO8G8AXTMO
-         tidb/gDNCR5Z1Hux64oiJchD8k6p0SoJ/PMgvPDJ0+aZcWQHedA6BG8Ia1PyRI8/bU2O
-         2YBYGzuF5YioUjoxvyj+PeF8ig5G56CL47KSQwBUuTe8aEJnUWtN+e8RxAe0Zhe25cFy
-         bRSKBmt7/PwNI1cD4QOxdkAPPgNZzEg5qLzXe2mNRhEEucVUii+zn4pyI2DUZg3D3AdH
-         Z0Fg==
-X-Gm-Message-State: AOAM533uz9yyrd4sIDHPR4WAz3GmrrP3Qyra3LVQGvraX0iKiRoESlZP
-        4PYkoVYE7L3LGj7drzIOZquHKekRmTw=
-X-Google-Smtp-Source: ABdhPJy3WVmBg/Pmc6soyaj0LyXC1lCfl1Ib70RaJcjTjM+fHasJMUCl93dfwFdPhcg1WKids4aL6w==
-X-Received: by 2002:a17:902:cec3:b029:f6:276b:a2b1 with SMTP id d3-20020a170902cec3b02900f6276ba2b1mr6447568plg.71.1621571115269;
-        Thu, 20 May 2021 21:25:15 -0700 (PDT)
-Received: from [10.230.29.202] ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id o24sm3155878pgl.55.2021.05.20.21.25.09
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 20 May 2021 21:25:14 -0700 (PDT)
-Subject: Re: [PATCH 5.10 00/45] 5.10.39-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel@vger.kernel.org
-Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        stable@vger.kernel.org
-References: <20210520152240.517446848@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-Message-ID: <28a13d4c-4d44-d051-f201-c5e0547e3e23@gmail.com>
-Date:   Thu, 20 May 2021 21:25:06 -0700
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Firefox/78.0 Thunderbird/78.10.2
+        id S234731AbhEUEhq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 00:37:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48066 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232873AbhEUEhq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 May 2021 00:37:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4484D613C4;
+        Fri, 21 May 2021 04:36:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621571783;
+        bh=Z7uNG1HK0lJJT+DGWcQ7x0X2hs4P50aBRqtRAz88beQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=IiSZqAt/En5x/B/FyPoO4c0jGWWn3i+zYcxet7EU5gPQk9nB0NgrK7H0beGId0oJ/
+         gaFVWoOebnQQOZicigpuvQTVX1J++BuLkfjr9u4bAVwdFMAsS7axMugcNVC4ZVvNQj
+         br8k6vyC8AKHF1vLFhi2FiD46+pHgCB0OqpV5G/I=
+Date:   Fri, 21 May 2021 06:36:17 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@ucw.cz>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Masahiro Yamada <masahiroy@kernel.org>
+Subject: Re: [PATCH 4.19 425/425] scripts: switch explicitly to Python 3
+Message-ID: <YKc4wSgWcnGh3Bbq@kroah.com>
+References: <20210520092131.308959589@linuxfoundation.org>
+ <20210520092145.369052506@linuxfoundation.org>
+ <20210520203625.GA6187@amd>
 MIME-Version: 1.0
-In-Reply-To: <20210520152240.517446848@linuxfoundation.org>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210520203625.GA6187@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 5/20/2021 8:23 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.39 release.
-> There are 45 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Thu, May 20, 2021 at 10:36:26PM +0200, Pavel Machek wrote:
+> Hi!
 > 
-> Responses should be made by Sat, 22 May 2021 15:22:29 +0000.
-> Anything received after that time might be too late.
+> > From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+> > 
+> > commit 51839e29cb5954470ea4db7236ef8c3d77a6e0bb upstream.
+> > 
+> > Some distributions are about to switch to Python 3 support only.
+> > This means that /usr/bin/python, which is Python 2, is not available
+> > anymore. Hence, switch scripts to use Python 3 explicitly.
 > 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
+> I'd say this is unsuitable for -stable.
 > 
-> thanks,
-> 
-> greg k-h
+> Old distributions may not have python3 installed, and we should not
+> change this dependency in the middle of the series.
 
+What distro that was released in 2017 (the year 4.14.0 was released) did
+not have python3 on it?
 
-On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
+> Python is not listed in Documentation/Changes . Perhaps it should be?
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
--- 
-Florian
+It's not required to build/boot, just these helper scripts.
+
+thanks,
+
+greg k-h
