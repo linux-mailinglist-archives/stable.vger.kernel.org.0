@@ -2,90 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F05B38C630
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 14:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5520138C674
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 14:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229512AbhEUMGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 08:06:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbhEUMGw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 08:06:52 -0400
-Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F62C061574;
-        Fri, 21 May 2021 05:05:25 -0700 (PDT)
-Received: by mail-pf1-x42b.google.com with SMTP id y15so3371266pfn.13;
-        Fri, 21 May 2021 05:05:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=IKvYYqLsxyKEeUsDvRss4bF9+AV45aa77OTQUmH4lC8=;
-        b=TyN8xCQ5ia1zkspm9pr6RVukeqMus3yIVRgciDcF+G7WiU6LxkA6eDhAYWCgP7l5+P
-         vdsMw7JWNwFQS477nZZ0q3DFO3PHb07opbDhthpVxWXGf0TOfh6zqhRoxtazMIrdhqtl
-         8nN0AxWBZjkbtdb/aogwgkW1Cp+aFVIy4agaSRwMDXC3QLnXsb2hYLnE/5cWgaQWYU3a
-         KDOAj7aQDDcvD5Qi/Kw16xjXJQTzfL2JNLCVrR1nY4j3i7wiTzBe6lZRFPzCXZqluZir
-         il48tCWaEujSGwoRtACg1f8tcTghma/yW4CIJzFwkPMZMl63T+aNrVCs48iGg7QenDpn
-         RG0w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=IKvYYqLsxyKEeUsDvRss4bF9+AV45aa77OTQUmH4lC8=;
-        b=DDaTNcQ5S6rKFcn5cspIi8qcWeU5h6xYZwTxm/uJyD7JweYLbp3nAPP3XRxbnhXNbg
-         QXE4Reibz5DD3ULqt7L7IR1Z//pIjWaWNeLpQkbuppC14rJcMlxoUElebFWlmoSIQAS/
-         wEtBhUmQGnl0H+hmP29//XTSkhKTriU9nT6s1k/39tmFGruHdsEvPjQt6yngdZALujPR
-         7kcizFYhnFLhgNB0m4bHKpR8uWG+vbYq5Ox2qVhQnRw7AvUdAcb/1Q/C0eFJGq40hQwS
-         kAnTWM5qKx+WRyaQDQd5DlhIIOenYevd809QYlu01ABfXmb++FidS2rw4a8aiY8Av+sP
-         O7jg==
-X-Gm-Message-State: AOAM530rqs4wGTeTs1Eu7pC+y9q3Lzq3O7arBQVVDlp95qInPVhlBvVG
-        foxv1g/2aq1tYC35mOuiX1N/vw+cLJVlPa4KLbzRAA==
-X-Google-Smtp-Source: ABdhPJz7G3bh3cPagwj+TXJS/806MkPr9FwaWLaq4gSH1wCJQP67CeCAB2ShPNoR0kB/a3y7T0aAbg==
-X-Received: by 2002:a63:d014:: with SMTP id z20mr9509259pgf.428.1621598724767;
-        Fri, 21 May 2021 05:05:24 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id s16sm4566005pga.5.2021.05.21.05.05.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 21 May 2021 05:05:24 -0700 (PDT)
-Message-ID: <60a7a204.1c69fb81.c0176.f54f@mx.google.com>
-Date:   Fri, 21 May 2021 05:05:24 -0700 (PDT)
-X-Google-Original-Date: Fri, 21 May 2021 12:05:22 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210520152240.517446848@linuxfoundation.org>
-Subject: RE: [PATCH 5.10 00/45] 5.10.39-rc2 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S232203AbhEUM1m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 08:27:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55074 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232820AbhEUM1k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 May 2021 08:27:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3D5666108B;
+        Fri, 21 May 2021 12:26:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621599977;
+        bh=lBl8OI2qUbmeyobk00PDOPtfn8qtMX/wy+ubtSEIWgY=;
+        h=Subject:To:From:Date:From;
+        b=qJCbwKxt4vOfNZrWuGyiTfK3XR+w+vGcwEe8koOOF4Iw3mGfwXqRBQzcC1HMfC/ry
+         VbzVaK9NaNHXFmnUKGMrjkHBzl/7RA/v+RG/RVwu5QRkzs2mqsRQ8IlVEKLeNgBk9V
+         iun2XCYR87JQYhcxPFyHmWSAhrj38uJG81ze/CB0=
+Subject: patch "USB: usbfs: Don't WARN about excessively large memory allocations" added to usb-linus
+To:     stern@rowland.harvard.edu, akpm@linux-foundation.org,
+        gregkh@linuxfoundation.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Fri, 21 May 2021 14:26:15 +0200
+Message-ID: <162159997575179@kroah.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 20 May 2021 17:23:18 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.10.39 release.
-> There are 45 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 22 May 2021 15:22:29 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-5.10.39-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+This is a note to let you know that I've just added the patch titled
+
+    USB: usbfs: Don't WARN about excessively large memory allocations
+
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 4f2629ea67e7225c3fd292c7fe4f5b3c9d6392de Mon Sep 17 00:00:00 2001
+From: Alan Stern <stern@rowland.harvard.edu>
+Date: Tue, 18 May 2021 16:18:35 -0400
+Subject: USB: usbfs: Don't WARN about excessively large memory allocations
+
+Syzbot found that the kernel generates a WARNing if the user tries to
+submit a bulk transfer through usbfs with a buffer that is way too
+large.  This isn't a bug in the kernel; it's merely an invalid request
+from the user and the usbfs code does handle it correctly.
+
+In theory the same thing can happen with async transfers, or with the
+packet descriptor table for isochronous transfers.
+
+To prevent the MM subsystem from complaining about these bad
+allocation requests, add the __GFP_NOWARN flag to the kmalloc calls
+for these buffers.
+
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+882a85c0c8ec4a3e2281@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210518201835.GA1140918@rowland.harvard.edu
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/core/devio.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/usb/core/devio.c b/drivers/usb/core/devio.c
+index 533236366a03..2218941d35a3 100644
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1218,7 +1218,12 @@ static int do_proc_bulk(struct usb_dev_state *ps,
+ 	ret = usbfs_increase_memory_usage(len1 + sizeof(struct urb));
+ 	if (ret)
+ 		return ret;
+-	tbuf = kmalloc(len1, GFP_KERNEL);
++
++	/*
++	 * len1 can be almost arbitrarily large.  Don't WARN if it's
++	 * too big, just fail the request.
++	 */
++	tbuf = kmalloc(len1, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!tbuf) {
+ 		ret = -ENOMEM;
+ 		goto done;
+@@ -1696,7 +1701,7 @@ static int proc_do_submiturb(struct usb_dev_state *ps, struct usbdevfs_urb *uurb
+ 	if (num_sgs) {
+ 		as->urb->sg = kmalloc_array(num_sgs,
+ 					    sizeof(struct scatterlist),
+-					    GFP_KERNEL);
++					    GFP_KERNEL | __GFP_NOWARN);
+ 		if (!as->urb->sg) {
+ 			ret = -ENOMEM;
+ 			goto error;
+@@ -1731,7 +1736,7 @@ static int proc_do_submiturb(struct usb_dev_state *ps, struct usbdevfs_urb *uurb
+ 					(uurb_start - as->usbm->vm_start);
+ 		} else {
+ 			as->urb->transfer_buffer = kmalloc(uurb->buffer_length,
+-					GFP_KERNEL);
++					GFP_KERNEL | __GFP_NOWARN);
+ 			if (!as->urb->transfer_buffer) {
+ 				ret = -ENOMEM;
+ 				goto error;
+-- 
+2.31.1
+
 
