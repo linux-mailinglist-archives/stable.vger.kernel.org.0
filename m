@@ -2,103 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D93838C57D
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 13:13:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9103F38C588
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 13:18:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbhEULOx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 07:14:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47404 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230104AbhEULOw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 May 2021 07:14:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AA60E613CC;
-        Fri, 21 May 2021 11:13:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621595610;
-        bh=tVJKLUUWLmpTliwEPxW4z5hSZ3Un+OgMh+H8JiK4GxU=;
-        h=Subject:To:From:Date:From;
-        b=pVXLXzNR/b7OA1UyBMazfe6w2lsjCMgvLN6mqE5y5vdNEw2Y+YXgQKknFWCACvKHV
-         ZG9MCpV3oOXaCrKfHgNhDdpweApv1Hw29adHQB4eLzVRGBetm4uRJ/Jl5x6KdRd8p+
-         CKat/vkKbMqwHuoomF/0AlGTrAL8S2aKjiVwrPXU=
-Subject: patch "debugfs: fix security_locked_down() call for SELinux" added to driver-core-linus
-To:     omosnace@redhat.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 21 May 2021 13:13:27 +0200
-Message-ID: <162159560726173@kroah.com>
+        id S234404AbhEULTX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 07:19:23 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54678 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234600AbhEULTV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 07:19:21 -0400
+Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34AE8C061763
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 04:17:58 -0700 (PDT)
+Received: by mail-oo1-xc31.google.com with SMTP id s1-20020a4ac1010000b02901cfd9170ce2so4490895oop.12
+        for <stable@vger.kernel.org>; Fri, 21 May 2021 04:17:58 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=EcIp8WA1WHrJEqMIlaVs2ij19F6h1FeNiLm8T3GjEDY=;
+        b=gFmVEQZvD+AQHMdUJsoBv5RTf3kX2ozOsQ823fwsAf3l6XUyw97ke6ACIhTPJKpBgh
+         wW9mdj6xBW9Aezn1Mzr+2ehoSfa27rNt5CGgwMz29mEoI4kptCCYhxnwOhTAdw5MlKZJ
+         hl/Vvobs56pvLesJ9xjlrYHVK4njrrcGWDkBP0o7mryY2zfOzCab22xSH2X6p5SCDH1d
+         2uUQ0lUt0PltMWGXkqOQwRUDnHdY7aX2wWwJOuaO6XWNCU3PFTAiZfDRAoYV8FjRhHU5
+         hpWGlwDegjoE4JaCzJY5K7RBY3lu7LGkASVYncb5IR2I1J+V9qAxv1CpRW2SrrKd7Aqo
+         g+1A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=EcIp8WA1WHrJEqMIlaVs2ij19F6h1FeNiLm8T3GjEDY=;
+        b=LtHO7Lw2/ckmtrcLZgpijM4xWF/gele6JUucxm8fPwq7OU9Sq7H49XSYHpIL3o+LAt
+         qkrML2yQomg94mH9aeNXyDkO8NUGiaLHaHFNLX4zp8CHfgr0GUO4NLC6H0JKyDAJMlcz
+         K+sxqLYSmN2mtuvl2B25At5U2gU4WW8T5uvHbth/KCD0YsFAwfLT+UoO9bUX2XUR1AFP
+         +T4yud+X1ztqejMjP86Po8oYlKpimahe53h9dS7uiYELU6tVvacWYQ79uSEYmNG1ehfM
+         jJZh/fnRQI4hMucQIXZVUCf0dD2es/oO2I4fkuJt/GjDvIluSSMv+6vgEfKxP0rqGRQV
+         ci1Q==
+X-Gm-Message-State: AOAM5311WyfJfX/bap/L8rGvZ1nJeOF2b011VIYMyD+xQQuu+BToheFa
+        2D9qp3WVyiUXbe8HmzuF4LjhHLfwDIW5Qi6eHm3whQ==
+X-Google-Smtp-Source: ABdhPJw8SJYXkQFKjdyvexxkcKn4vgnDN+xTtCy93UoM3eGHgFr6VjCvHqXfF8ZFZBoC62/obPHq3PSJt/HRt1kic/Q=
+X-Received: by 2002:a4a:cf15:: with SMTP id l21mr6404487oos.36.1621595876593;
+ Fri, 21 May 2021 04:17:56 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20210521083209.3740269-1-elver@google.com> <20210521093715.1813-1-hdanton@sina.com>
+In-Reply-To: <20210521093715.1813-1-hdanton@sina.com>
+From:   Marco Elver <elver@google.com>
+Date:   Fri, 21 May 2021 13:17:44 +0200
+Message-ID: <CANpmjNMD58SJPeVnKrx1=mXoudPZFs+HoCsVujYomCtZ5K+DKQ@mail.gmail.com>
+Subject: Re: [PATCH] kfence: use TASK_IDLE when awaiting allocation
+To:     Hillf Danton <hdanton@sina.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        Alexander Potapenko <glider@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        LKML <linux-kernel@vger.kernel.org>,
+        Linux Memory Management List <linux-mm@kvack.org>,
+        kasan-dev <kasan-dev@googlegroups.com>,
+        Mel Gorman <mgorman@suse.de>, stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, 21 May 2021 at 11:37, Hillf Danton <hdanton@sina.com> wrote:
+> On Fri, 21 May 2021 10:32:09 +0200 Marco Elver wrote:
+> >Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
+> >allocation counts towards load. However, for KFENCE, this does not make
+> >any sense, since there is no busy work we're awaiting.
+>
+> Because of a blocking wq callback, kfence_timer should be queued on a
+> unbound workqueue in the first place. Feel free to add a followup to
+> replace system_power_efficient_wq with system_unbound_wq if it makes
+> sense to you that kfence behaves as correctly as expected independent of
+> CONFIG_WQ_POWER_EFFICIENT_DEFAULT given "system_power_efficient_wq is
+> identical to system_wq if 'wq_power_efficient' is disabled."
 
-This is a note to let you know that I've just added the patch titled
-
-    debugfs: fix security_locked_down() call for SELinux
-
-to my driver-core git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/driver-core.git
-in the driver-core-linus branch.
-
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 5881fa8dc2de9697a89451f6518e8b3a796c09c6 Mon Sep 17 00:00:00 2001
-From: Ondrej Mosnacek <omosnace@redhat.com>
-Date: Fri, 7 May 2021 14:53:04 +0200
-Subject: debugfs: fix security_locked_down() call for SELinux
-
-When (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)) is zero, then
-the SELinux implementation of the locked_down hook might report a denial
-even though the operation would actually be allowed.
-
-To fix this, make sure that security_locked_down() is called only when
-the return value will be taken into account (i.e. when changing one of
-the problematic attributes).
-
-Note: this was introduced by commit 5496197f9b08 ("debugfs: Restrict
-debugfs when the kernel is locked down"), but it didn't matter at that
-time, as the SELinux support came in later.
-
-Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Link: https://lore.kernel.org/r/20210507125304.144394-1-omosnace@redhat.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/debugfs/inode.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
-
-diff --git a/fs/debugfs/inode.c b/fs/debugfs/inode.c
-index 1d252164d97b..8129a430d789 100644
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -45,10 +45,13 @@ static unsigned int debugfs_allow __ro_after_init = DEFAULT_DEBUGFS_ALLOW_BITS;
- static int debugfs_setattr(struct user_namespace *mnt_userns,
- 			   struct dentry *dentry, struct iattr *ia)
- {
--	int ret = security_locked_down(LOCKDOWN_DEBUGFS);
-+	int ret;
- 
--	if (ret && (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)))
--		return ret;
-+	if (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)) {
-+		ret = security_locked_down(LOCKDOWN_DEBUGFS);
-+		if (ret)
-+			return ret;
-+	}
- 	return simple_setattr(&init_user_ns, dentry, ia);
- }
- 
--- 
-2.31.1
-
-
+Thanks for pointing it out -- I think this makes sense, let's just use
+the unbound wq unconditionally. Since it's independent of this patch,
+I've sent it separately:
+https://lkml.kernel.org/r/20210521111630.472579-1-elver@google.com
