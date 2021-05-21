@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F0A8038CF63
+	by mail.lfdr.de (Postfix) with ESMTP id 8398C38CF62
 	for <lists+stable@lfdr.de>; Fri, 21 May 2021 22:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229455AbhEUUzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 16:55:13 -0400
-Received: from mx0a-00069f02.pphosted.com ([205.220.165.32]:23494 "EHLO
-        mx0a-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229550AbhEUUzM (ORCPT
+        id S229555AbhEUUzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 16:55:12 -0400
+Received: from mx0b-00069f02.pphosted.com ([205.220.177.32]:52720 "EHLO
+        mx0b-00069f02.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229455AbhEUUzM (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 16:55:12 -0400
-Received: from pps.filterd (m0246627.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14LKgj5E007546;
-        Fri, 21 May 2021 20:53:41 GMT
+Received: from pps.filterd (m0246631.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14LKfmS2022923;
+        Fri, 21 May 2021 20:53:43 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references : content-type :
  mime-version; s=corp-2020-01-29;
- bh=Qqe5MJiSqR1PBVzwd+cudDiMzceymzpnr+mZoC13gRo=;
- b=mWVGShGpbvSW/WB9b2T/Q8OW3B1YPBc0Mma2TJmH7gaBDAMoOIBfv6yo/yFNOlAk2Usr
- 7S2RyPxD/qP92VLupOCGga5IQEjCmyrfPRQdBDHbQQENXoNi+UDtI3yJE+Ue/wgrZgUd
- dR4qIGlSBrctsNxyWgKMd9jNQT+iEGVMYfJeG0TXwYr83XIZWWuwwLyyZIGpx/3wfTwO
- qPBexVqpYmnUzBrmOjUpEZ1D/SqpYCYB2tlk0DRMC/+syoQeASXDzUtArTtZUaJAxn/4
- /9UamJyevK9LRyd+Hu8R4qglX8Mf4I8bBjNCmj9mtTVTKmFeD5nBI1ieKD4ABLYXnoLY Yg== 
-Received: from oracle.com (aserp3030.oracle.com [141.146.126.71])
-        by mx0b-00069f02.pphosted.com with ESMTP id 38n4uts2j8-1
+ bh=/IMNQnzKUfPs3Ryq4n2hm7JpJ1waqXTSB9/b4lfyxVs=;
+ b=Oqwv752bAQ13Ny63Y/Mb8tE3KRczYY4uh+tz9HwHukAhhODN5E+IRRHTidByUNm6lcJq
+ 9T16c3LerzdrIImFQZUl+xXWrlii/YOGbO8BV57WfqQVvZlVg/mYTHOyHNGhdbfr5sOr
+ 51em0wez7DupKPoa4ZO7ZNY7wOyhS7Z1+gQ2j/pRWNkEaxTMt+8M6oeSTarMgzSKTUlX
+ 3tCDhUJmo5OkQrzkBc8+oG0Y8Des8PKOULETz/rPiaoPvoDKYGKVbwZ9dieo44tG0xTj
+ JL+6i2trx8d0RZP2bRz5RcbZ+pkOYNr2JOP4n1ah3BkqM4qusRUuyBqys4vYgULnKND7 Vg== 
+Received: from oracle.com (aserp3020.oracle.com [141.146.126.70])
+        by mx0b-00069f02.pphosted.com with ESMTP id 38n3dg13n2-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 May 2021 20:53:41 +0000
-Received: from aserp3030.oracle.com (aserp3030.oracle.com [127.0.0.1])
-        by pps.podrdrct (8.16.0.36/8.16.0.36) with SMTP id 14LKj6i6107409;
-        Fri, 21 May 2021 20:53:40 GMT
-Received: from nam04-dm6-obe.outbound.protection.outlook.com (mail-dm6nam08lp2043.outbound.protection.outlook.com [104.47.73.43])
-        by aserp3030.oracle.com with ESMTP id 38meej2cwh-1
+        Fri, 21 May 2021 20:53:42 +0000
+Received: from aserp3020.oracle.com (aserp3020.oracle.com [127.0.0.1])
+        by pps.podrdrct (8.16.0.36/8.16.0.36) with SMTP id 14LKrgkY061285;
+        Fri, 21 May 2021 20:53:42 GMT
+Received: from nam04-dm6-obe.outbound.protection.outlook.com (mail-dm6nam08lp2046.outbound.protection.outlook.com [104.47.73.46])
+        by aserp3020.oracle.com with ESMTP id 38nry3sys8-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 21 May 2021 20:53:39 +0000
+        Fri, 21 May 2021 20:53:42 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=lyfksbIkdDYnIy0JUteVePGj3vDabTIOR8wSAV8Gm1/m5Yzea8k8B/9RV16DnBLK5Gb8e58NJVZH8Ap1HQgGBcRZWfapt1j/59kVPbfm7sfgotsyObq8uX5+aHlqYK7UOZTGwKFgBJAFXGG8o1wZc+c8FoBy2tFvcMzPkLqxd3Q9dPb+6scpvUIyeO1fGIspV/A/4Ufxb1G4GLDEfVb9hVWBKQgd1LIZArDW8kBr/KoLbZ2LFJsFuebiK6F2ccGgpubo+RPuv+Fw15iu6acchS1QvMwCUU2HRd42Xc54ILVwza1uWT3P+KKJtAH9igAYNb2siLa9W/zouqNvAMTt6A==
+ b=i/Bfl9zk9z8wsfw80cyTNDvwQABHzQw6T1jvVoqaKtUpEA0teIZPXxn+zW7iEJp/LxmTtQp1gVih9SjmDNO5Vnwdl42dbyyZlGzAWZdVR6tsRpzMb9cS9CNGIq4soXNUZnDWxwQ01UzPAVSWlkN7EmQXqJKkFnzm2XJHKgegU8zaMjKzovox3aMOBK1P04TIotSX6w85fR5dGWpufyestRASx7Sq4NKIjMoeaMIVdiWdp16GhCcw5acEHmWBp0lQi5P0VcZdVN3ZYx4hxt9IhOvIIFM0HCvPDXjG0E8C4TH7hGdQ5HvdMQ0xCQhAq7tX/O9CQ1V3+7BCW/72zKB2eA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Qqe5MJiSqR1PBVzwd+cudDiMzceymzpnr+mZoC13gRo=;
- b=OqD7ACOeLeNU9PyEFPWjR52+e1IOeYYT8DxM2P1H3I6cczZvLpfzxzSRygVp1TDIxjtoFb7/5Mh0X4s8eHSQrrFFA7WaoOxp7sUwgFFCpC+DHymM1f2tgz7XOov5cQ5rTmPWkaJSyv4viRXoCuO9/MGuwoOFDU8xd9/1Cp5VRWh3g4M33jyEbS6Z7tdbCZUFx87I4sZatpAeJdulkK0k995DRQTstNKAcgQVhoy3xhJHSkrtd1CfWThpqHixLF27aEdZ/fElEJQdEfgOunYiDDtA+MVf9NdhwfDlwWzWsn8LvHoAopNbyeFS6cWoms7gaBBfGraBpfDj0PBQFDOW0g==
+ bh=/IMNQnzKUfPs3Ryq4n2hm7JpJ1waqXTSB9/b4lfyxVs=;
+ b=L/IiWuoF1dzuqm6UkZ+SPh/g0I5aOkrrH8f4Ul/UAb9kRHj8/g7modE+eRCeF/uJTZBIwiVi6NeWXURBTRSRi0supztIgfnESPknKa3G/ifbVISbY5je0D9Qcxwco5DgPENmDGO4QSTe+YRhhvCDQ7iKtJPdvKKOXkhmKrAbCdJsgVit7yraSObC/lU9FuUci+eXNKbmo0x7HFznKEYeQ35sicshPQuOzMLaVuU3g5yU8rv8ER32f5P3ZGA0SFTpuxRpXQS0Ej1d9kH+FnFoEtXOZNXSD4Z8p8AZeVjyvG5nSH72iml5b/SOck3LcBM+2C5SbThSYgfaER8TSQARlw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=Qqe5MJiSqR1PBVzwd+cudDiMzceymzpnr+mZoC13gRo=;
- b=VNzaNBIVZ/5cw2lxNzcfJNpK1UAEocBb1goEPrrOy26NpH+EoegYrCs6ovxxVUoFDY5E8TVN6sfxIZ7BScfEiyA9njR87h54vwek4VQ0coEe7NCm/aa2/67UYEwDOpE8Tv37SxnJJMho4di9rJuGYr/A8AAuy+tZHfln3fJ0/po=
+ bh=/IMNQnzKUfPs3Ryq4n2hm7JpJ1waqXTSB9/b4lfyxVs=;
+ b=BhH5vAXouvbMYkm/8CAXHQcnKsLYdviet3yzD4wfJRhID9uE1Y1B3+KhCaOG8p/sKyWy3jkupu+jp+0CRYBFz7iHKBFHPmTXxAjOwt5XfY5nDqBcicEN0C/fm5ksI/4Mi839rhEvp4NXPptd+0uoplmzBEOZpV0mezJv1cKBTyQ=
 Authentication-Results: linuxfoundation.org; dkim=none (message not signed)
  header.d=none;linuxfoundation.org; dmarc=none action=none
  header.from=oracle.com;
@@ -56,11 +56,11 @@ Received: from DM6PR10MB3851.namprd10.prod.outlook.com (2603:10b6:5:1fb::17)
  by DM6PR10MB4364.namprd10.prod.outlook.com (2603:10b6:5:223::12) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23; Fri, 21 May
- 2021 20:53:38 +0000
+ 2021 20:53:40 +0000
 Received: from DM6PR10MB3851.namprd10.prod.outlook.com
  ([fe80::e490:f9ff:f8f3:c1e6]) by DM6PR10MB3851.namprd10.prod.outlook.com
  ([fe80::e490:f9ff:f8f3:c1e6%7]) with mapi id 15.20.4150.023; Fri, 21 May 2021
- 20:53:38 +0000
+ 20:53:40 +0000
 From:   George Kennedy <george.kennedy@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     george.kennedy@oracle.com, stable@vger.kernel.org, daniel@ffwll.ch,
@@ -69,9 +69,9 @@ Cc:     george.kennedy@oracle.com, stable@vger.kernel.org, daniel@ffwll.ch,
         tomi.valkeinen@ti.com, vegard.nossum@oracle.com,
         dhaval.giani@oracle.com, dan.carpenter@oracle.com,
         dvyukov@google.com
-Subject: [PATCH 5.4.y 1/2] drm: Initialize struct drm_crtc_state.no_vblank from device settings
-Date:   Fri, 21 May 2021 15:53:19 -0500
-Message-Id: <1621630400-22972-2-git-send-email-george.kennedy@oracle.com>
+Subject: [PATCH 5.4.y 2/2] drm/atomic-helper: reset vblank on crtc reset
+Date:   Fri, 21 May 2021 15:53:20 -0500
+Message-Id: <1621630400-22972-3-git-send-email-george.kennedy@oracle.com>
 X-Mailer: git-send-email 1.8.3.1
 In-Reply-To: <1621630400-22972-1-git-send-email-george.kennedy@oracle.com>
 References: <1621630400-22972-1-git-send-email-george.kennedy@oracle.com>
@@ -82,267 +82,351 @@ X-ClientProxiedBy: BYAPR07CA0078.namprd07.prod.outlook.com
  (2603:10b6:5:1fb::17)
 MIME-Version: 1.0
 X-MS-Exchange-MessageSentRepresentingType: 1
-Received: from dhcp-10-152-13-169.usdhcp.oraclecorp.com.com (209.17.40.39) by BYAPR07CA0078.namprd07.prod.outlook.com (2603:10b6:a03:12b::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23 via Frontend Transport; Fri, 21 May 2021 20:53:35 +0000
+Received: from dhcp-10-152-13-169.usdhcp.oraclecorp.com.com (209.17.40.39) by BYAPR07CA0078.namprd07.prod.outlook.com (2603:10b6:a03:12b::19) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23 via Frontend Transport; Fri, 21 May 2021 20:53:38 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: b1395b22-a9ea-46c7-f6fc-08d91c9a81d1
+X-MS-Office365-Filtering-Correlation-Id: 4b969c3b-2f5d-4dc4-015a-08d91c9a832a
 X-MS-TrafficTypeDiagnostic: DM6PR10MB4364:
 X-MS-Exchange-Transport-Forked: True
-X-Microsoft-Antispam-PRVS: <DM6PR10MB436433CAE5514C859741FE3EE6299@DM6PR10MB4364.namprd10.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:5797;
+X-Microsoft-Antispam-PRVS: <DM6PR10MB436454907548AB03BCCD3FDAE6299@DM6PR10MB4364.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:10000;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: tbndPstdS/mCLPAI4eWnjx1rQAOHZTLabmfa94Zm2FoMJUsF/PBzuRt/EFZLSayzge3EXr3QCxVXxVChY81Qyu+hJJOf6KOLNXVuyboG4OSL087X6ZGhK6COTJ82L7uN8UDgDwBmi6SV3JFbotnUS4rvYSTwnbdLaPsDrT0QZeYlVGIqN/O/g0smiVQlJkzOHktjBGThPhUu683WC2Nit4fjYUMhYPdbDNheKmHpW+CYhh2w7ZYBDEhRXSTZVLsN3XBeB+FRDrrkvTfLv36eYbxeQ229OabdBfQN5HWt8mGj0M7aU7GncJMndgnU78S9/Fl4Wr2y8flwVYAa+2t3k0/bYULG3WtKWpgyc8TtDJphTOhCmXtJpw+X5lGcAeAv8LjWMORdnudNULzdzDjDZeeX1ZV9M/g2+8LfCLzgLXTLFv6qepVgjRy/dVJCMgtk8Dhpvl6LMeFyCuIKFseWYd2iZtaEmAFYl4aYACVxcEI2WsC0XCXBg0ohf44zuyzw+afz/H0EVZ9jUB3qYMaglZlwivgW93KQEsnKNiuCxae8ml91/Z4OiFl9k1sXrsp1XG9i7Ey1zvkCufQN7lWA9Sbrm6IPizvDREPao7LJVk6FzMF4X8hEupe+5r7roa5ePX4dTrJlM1AyTi950So/7RmrfNkFTHSpUlxfSxv40SW36DXZjjLfMGOhPzoUxLNB
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB3851.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(346002)(396003)(39860400002)(366004)(376002)(38350700002)(7416002)(6486002)(38100700002)(6512007)(6916009)(6506007)(83380400001)(36756003)(316002)(4326008)(44832011)(186003)(6666004)(66556008)(66946007)(66476007)(2616005)(2906002)(16526019)(8676002)(966005)(8936002)(956004)(52116002)(5660300002)(86362001)(478600001)(26005);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?h+i5h7NLbbGB+m3lNzKSl/XpeUqrIVmDqBl9nesTXYhmC9Lxua8L0YZFFmYP?=
- =?us-ascii?Q?taoLsFiR0HHcfZMjn5aYMKTDy1vx6qklKiVtGIHmZ39dc3qC4WeKY4h499Vf?=
- =?us-ascii?Q?AM1Lz3rU39z1tesl7nHOEmOrikdWcNGVUrp0dJwyE5MSHELVsRu4ejLZUVSs?=
- =?us-ascii?Q?ucC83DxGkFZxc+Ucu1/oYmHJONJMrr13L+EAVxsRSRYzbodndDKxFfSZBSsl?=
- =?us-ascii?Q?NleqGB1c3LwYM4KnYqkVXkMhY2GiPkqevY04Lx106E4Ah28rsEY3P9rjhnlI?=
- =?us-ascii?Q?Z6vePL+akhKlDLlXcKlxYsDfrXv7HnfjoXM1UAphFkbmWyNwgW8cr8V/Fl1c?=
- =?us-ascii?Q?x4tuoSCHR77W2tMCjzWYEblLy2qe4MRSe0Wh8vamp8lWgbDuRurNHXO4QBEF?=
- =?us-ascii?Q?7eCgbnfT+lsmnMJuCx3nsLSRGMgw3egAbvETFgBaKnFvZxj9GeXGt0PnDBH/?=
- =?us-ascii?Q?5A/9VAG47wIkG2JDJK0aWuyaig4b3C2i88KuK8EWL98M8rGqx6tk5zlxkhMx?=
- =?us-ascii?Q?R5JZ84FEjeE95S05L7tQdpZw+qh/EnPP0G3BjHDWsfafc7vYvrsE3s+m8zC7?=
- =?us-ascii?Q?zc4AHSEmXjtbRmjdtszf09fggGz+okF8Qtp7FnNmrbuGWVL9N3uI6sEWP4Be?=
- =?us-ascii?Q?dNJznwce3GOUQp+Drq0AnQYtu0OZzVPr0GyaY5Mhew2Ej1srhzXR90uoRFqq?=
- =?us-ascii?Q?umdsXNrAFgbF+wqPHQLQBT0Xaff8bAmSXnmCZCj0thHUg9Qh2nibM3C2I4ul?=
- =?us-ascii?Q?LBDeB80O98rXyLmqafcQW7cZB/9ZsVI/T+oYKiaLt6zZX8qYCCNf6l0wqxsa?=
- =?us-ascii?Q?CXjvu3iXYJ3omDM24z1OHFsxWLNlrDeO4trT+BzJydAzbt9qsVvZyUn0osI8?=
- =?us-ascii?Q?plzTCabe0Ad5MPwwvEfdAZtquQyVrpV19lEKNXQjlzxaUPYTpxSeBKL4T0VR?=
- =?us-ascii?Q?ncdtlrWutrM6YpubAhj4VQWtn26Sg0sHcPtFpy45qGWwqPniDS2/P2JN9krQ?=
- =?us-ascii?Q?9h197WMY1wYzWAoht37ApLn5YtRPj2gywp5m3KtOWTei2v9BapyVYSkNlhxU?=
- =?us-ascii?Q?N6baYZ/668O7+b8T270IcqZ8slS3nu+1HNCbjqVodFTWx8w2N1s4hpNbcgN0?=
- =?us-ascii?Q?VKxGvTRHBtDlj9MrIEkr/Wd4BwxNeuRDY+SiFN1zYaCUTvZ3IKXScLRfW4zC?=
- =?us-ascii?Q?JzOoqsSA+/1TbAENAcc7esefdym1LFW4F52xJ+1KBMZhRTQlMJrJwYwGaswk?=
- =?us-ascii?Q?z+CIHEBkvDWq7UNCjkJvoPHZ6PeefkD984D//DdYoRmCgRis/8ZR0OGMaXpT?=
- =?us-ascii?Q?nOWEXGhaQsBwZUa8k7YHsvRq?=
+X-Microsoft-Antispam-Message-Info: ilYbWR6inqHMW0lfHlY0C/5qDazSFtB6xgiFvSCAOtYGoP9A1BO7sta73UsXDgaqcA6m+md7/ItywB9GNabEqWphvFhernWB+HH6/A17H3zwu40HG/7ALYQw3BoXbAcvZopPMdNzqKvjsso7lhAvG5jPCYNyVNxZwh9CukakNrVUvXGhGo4tNt82wbQy93n/P2tKRZPoEs5cBzEfx8v5SU4gZTF/DsqniXiYovwwEgeuDEGrcXLJ4dMIxHFqqeG6Y5BW17ctpjqTgGAI5yrm82T4eHA1am3x/MEvhPbTrMBLcWOTUglDrHuN/ES0VAXtCKlfbk5LJF+/zvm/mVMo5Nt5F4x001GeyQ8owI4U3Y6yv8gRdVFffxjhXzh9Rw4ggcLiVdSdhMBngX6HB6Z0jWhdMPZeNcqaoFwRW7aBUUSus5/OUn5fvCktyBEP0iuQbBVxHaKi/CpYHGTFrlVCqBbY0AgE3ePA4iJvoPQ+8i+EOg1pU8QsNBK3gUJELEBwIFb8/ZN1FbQXAtBlO1KrIkkKxW7U2B8i2eDPTRSs2kSqNaa+ip5vd8n5n/qAWnaV3c75iUZ6fLk5lVkENemUXH46+/bCfXeZvsE8ZnRSgaxnjFx9i5JO+x7fPqebJTOgqPHj1moGX7UVp8TGElZ8wq+vUlSydaNm+vfnn/gdAwlpXKlIPEFneK3aefZzzNjDWXC8z4ytyUrOwEiBlAC/xeIrUd5lehWv7LTJGZ/82o55AkPgp59+MrBzu0PKAxdEELsYf9j3sVV63eJ4O1P/ZkvM7k+3TMdnyKIp97cUezs=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM6PR10MB3851.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(136003)(346002)(396003)(39860400002)(366004)(376002)(38350700002)(7416002)(6486002)(38100700002)(6512007)(6916009)(6506007)(83380400001)(36756003)(316002)(4326008)(44832011)(186003)(30864003)(6666004)(66556008)(66946007)(66476007)(2616005)(2906002)(16526019)(8676002)(966005)(8936002)(956004)(52116002)(5660300002)(86362001)(478600001)(26005)(99710200001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?us-ascii?Q?iX2JaVqq7uALoiGFo4Ys2Kw+hQw7bQvNJ/mtw0OcGpi3iSSbinlgw7MVzScF?=
+ =?us-ascii?Q?drRXGhvsWsFZx7e2cjvt2OBvwawfkPOS/PTRdXwLGr3Qmi7J0aSNN1HjB5qk?=
+ =?us-ascii?Q?Qls40pMs6B7vo0qpcQetawrfmsaRSsVI1n5hufvrT2DPBDdfZvnUSqCkRueF?=
+ =?us-ascii?Q?VZ4GZCIr7mTZPjd6Whh4vzyiM6vOee8uT0RSWBt8dYIf/iZACUvM81G7+qAB?=
+ =?us-ascii?Q?dni3Suih0xrCIhS8Ly3g0obgfPcDdxfddRemHqYVteyedhD2dSkLnBf3wFUA?=
+ =?us-ascii?Q?36YkoitZsE1CtbAcszm7nBI/3+24E+YziL1S16MhDUzdX3NpBE96exUgtZrO?=
+ =?us-ascii?Q?UgDR7fG6Wosb+PbtMTHsPrpsRzB4LzuR0vff5tNA5SHhabRsKJnSsIMJZgAD?=
+ =?us-ascii?Q?C2yxsNtkhvE79LiYWnoHCHEZ9bqvbj0BIdPAek/2aZT/ehUUro9P0kyRyl6i?=
+ =?us-ascii?Q?eXTMOPT1kD5nF2oMmUsF+/nr54juMwtWMwAH7M7CuizVWbav6oRNRc0EUKh6?=
+ =?us-ascii?Q?ZUYIbiJVF0VZN1OngCHHBbmiA9ClQtH2q0jC56CXefFZa/dib/Ya4UkAnul6?=
+ =?us-ascii?Q?haXyGxjMk5ceYTyaVAFEDf2uWGdljcfLOB2RwbGoosfggukWCmVytZ0pGiyi?=
+ =?us-ascii?Q?Q9EXYSeuGrZXkUeOvI/0GxXD9B3hycxJFXu1P9yJc8EggsWEEaOzi7gYlhW9?=
+ =?us-ascii?Q?Xv9FnopxGH+zUuFAniv4Lj4dBXuBv/WFDtwLulsqRUTjgXQ40TYkqAt4ebld?=
+ =?us-ascii?Q?fBs/RtOxYsIdPvoF0+ieFZTvBkKdpo/KXP5FQxaMV7Cla4CT9wKn1YjrTiYV?=
+ =?us-ascii?Q?3jTpUh3T0198tPweR7nLamE1N9bqDFE5BGOgPO6aEMi3S5WtIJHz53lciUOW?=
+ =?us-ascii?Q?/caO9lCNKBeJhOGA2VdSdCcaGKuC6U73vw26LH16LluRy7EuqK6anO5twp9w?=
+ =?us-ascii?Q?kPyfJZUjLChG2wqSAtMahrKNMFwFsNUIeyTtovbwz+9EnQnVfcgLNAdt+LNf?=
+ =?us-ascii?Q?t0T0MXHoflAwOdZi2/UlmQGQ3BKGvhSvW5Bc6B1+6MFWVQ70LIlv5vSVrNkR?=
+ =?us-ascii?Q?zcYoALUy3UZlOcJFtTXZec7CTzkPkrri2CxVghRsaiEOEsXlnbpLJr7zUrNC?=
+ =?us-ascii?Q?iVWl5TZ0EintboVdkF/7AApwXlO0n1fqmUKOqAIY8/65k6tQl6oO8e9pB+ji?=
+ =?us-ascii?Q?NwK2NAhS4E/+AwhgBRT3ibu7qtpMMTTOz7xZceeb7FHxVdln7+LhyHXFsM2l?=
+ =?us-ascii?Q?dyliYf7YFPa2YRoHDNtHPZNC+FCDP9r45zUmCiE/LirUKiDjwQHyDl9rnV3+?=
+ =?us-ascii?Q?LRcAkPebKd34Kg+blbSK8TuS?=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b1395b22-a9ea-46c7-f6fc-08d91c9a81d1
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4b969c3b-2f5d-4dc4-015a-08d91c9a832a
 X-MS-Exchange-CrossTenant-AuthSource: DM6PR10MB3851.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 May 2021 20:53:37.9387
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 21 May 2021 20:53:40.1744
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: eMJMShjWLwAMpdj//GlVa8LxGG1RXf+GPyQ4Tr865FC3JVfyozIOLOjUIKBm7GiGoYrHCE2eGkeUmRehi/wGKBGw5aB77dO5mwSASrPgjgE=
+X-MS-Exchange-CrossTenant-UserPrincipalName: V69nKAB48tcyxf/doEnHPO/zx2K2c9C0YMRwRULXcDhsRaaq2KfIOR1nKt0yb3Jsg877x4gIi5ayoQ9IoxjPyrdxfyqc/GxCeEzzVZBiP8s=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR10MB4364
 X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9991 signatures=668682
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 mlxlogscore=999 adultscore=0
- phishscore=0 malwarescore=0 bulkscore=0 spamscore=0 suspectscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
- definitions=main-2105210113
-X-Proofpoint-GUID: lMojeWJfE2p3UkAcAMJChmSp5DgspwJH
-X-Proofpoint-ORIG-GUID: lMojeWJfE2p3UkAcAMJChmSp5DgspwJH
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 suspectscore=0
+ malwarescore=0 mlxlogscore=999 adultscore=0 mlxscore=0 spamscore=0
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105210113
+X-Proofpoint-ORIG-GUID: VCdv8o_D8oQBuUvyKLEI_TaoUSdfdPnK
+X-Proofpoint-GUID: VCdv8o_D8oQBuUvyKLEI_TaoUSdfdPnK
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Zimmermann <tzimmermann@suse.de>
+From: Daniel Vetter <daniel.vetter@ffwll.ch>
 
-At the end of a commit, atomic helpers can generate a fake VBLANK event
-automatically. Originally implemented for writeback connectors, the
-functionality can be used by any driver and/or hardware without proper
-VBLANK interrupt.
+Only when vblanks are supported ofc.
 
-The patch updates the documentation to make this behaviour official:
-settings struct drm_crtc_state.no_vblank to true enables automatic
-generation of fake VBLANK events.
+Some drivers do this already, but most unfortunately missed it. This
+opens up bugs after driver load, before the crtc is enabled for the
+first time. syzbot spotted this when loading vkms as a secondary
+output. Given how many drivers are buggy it's best to solve this once
+and for all in shared helper code.
 
-The new interface drm_dev_has_vblank() returns true if vblanking has
-been initialized for a device, or false otherwise. Atomic helpers use
-this function when initializing no_vblank in the CRTC state in
-drm_atomic_helper_check_modeset(). If vblanking has been initialized
-for a device, no_blank is disabled. Otherwise it's enabled. Hence,
-atomic helpers will automatically send out fake VBLANK events with any
-driver that did not initialize vblanking.
+Aside from moving the few existing calls to drm_crtc_vblank_reset into
+helpers (i915 doesn't use helpers, so keeps its own) I think the
+regression risk is minimal: atomic helpers already rely on drivers
+calling drm_crtc_vblank_on/off correctly in their hooks when they
+support vblanks. And driver that's failing to handle vblanks after
+this is missing those calls already, and vblanks could only work by
+accident when enabling a CRTC for the first time right after boot.
 
-v5:
-	* more precise documentation and commit message
-v4:
-	* replace drm_crtc_has_vblank() with drm_dev_has_vblank()
-	* add drm_dev_has_vblank() in this patch
-	* move driver changes into separate patches
-v3:
-	* squash all related changes patches into this patch
+Big thanks to Tetsuo for helping track down what's going wrong here.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Acked-by: Gerd Hoffmann <kraxel@redhat.com>
-Reviewed-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20200129120531.6891-2-tzimmermann@suse.de
-(cherry picked from commit 7beb691f1e6f349c9df3384a85e7a53c5601aaaf)
+There's only a few drivers which already had the necessary call and
+needed some updating:
+- komeda, atmel and tidss also needed to be changed to call
+  __drm_atomic_helper_crtc_reset() intead of open coding it
+- tegra and msm even had it in the same place already, just code
+  motion, and malidp already uses __drm_atomic_helper_crtc_reset().
+- Laurent noticed that rcar-du and omap open-code their crtc reset and
+  hence would actually be broken by this patch now. So fix them up by
+  reusing the helpers, which brings the drm_crtc_vblank_reset() back.
+
+Only call left is in i915, which doesn't use drm_mode_config_reset,
+but has its own fastboot infrastructure. So that's the only case where
+we actually want this in the driver still.
+
+I've also reviewed all other drivers which set up vblank support with
+drm_vblank_init. After the previous patch fixing mxsfb all atomic
+drivers do call drm_crtc_vblank_on/off as they should, the remaining
+drivers are either legacy kms or legacy dri1 drivers, so not affected
+by this change to atomic helpers.
+
+v2: Use the drm_dev_has_vblank() helper.
+
+v3: Laurent pointed out that omap and rcar-du used drm_crtc_vblank_off
+instead of drm_crtc_vblank_reset. Adjust them too.
+
+v4: Laurent noticed that rcar-du and omap open-code their crtc reset
+and hence would actually be broken by this patch now. So fix them up
+by reusing the helpers, which brings the drm_crtc_vblank_reset() back.
+
+v5: also mention rcar-du and ompadrm in the proper commit message
+above (Laurent).
+
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Acked-by: Maxime Ripard <mripard@kernel.org>
+Cc: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Boris Brezillon <boris.brezillon@collabora.com>
+Acked-by: Liviu Dudau <liviu.dudau@arm.com>
+Acked-by: Thierry Reding <treding@nvidia.com>
+Link: https://syzkaller.appspot.com/bug?id=0ba17d70d062b2595e1f061231474800f076c7cb
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Reported-by: syzbot+0871b14ca2e2fb64f6e3@syzkaller.appspotmail.com
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: "James (Qian) Wang" <james.qian.wang@arm.com>
+Cc: Liviu Dudau <liviu.dudau@arm.com>
+Cc: Mihail Atanassov <mihail.atanassov@arm.com>
+Cc: Brian Starkey <brian.starkey@arm.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>
+Cc: Boris Brezillon <bbrezillon@kernel.org>
+Cc: Nicolas Ferre <nicolas.ferre@microchip.com>
+Cc: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Cc: Ludovic Desroches <ludovic.desroches@microchip.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Maxime Ripard <mripard@kernel.org>
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Daniel Vetter <daniel@ffwll.ch>
+Cc: Thierry Reding <thierry.reding@gmail.com>
+Cc: Jonathan Hunter <jonathanh@nvidia.com>
+Cc: Jyri Sarha <jsarha@ti.com>
+Cc: Tomi Valkeinen <tomi.valkeinen@ti.com>
+Cc: Rob Clark <robdclark@gmail.com>
+Cc: Sean Paul <seanpaul@chromium.org>
+Cc: Brian Masney <masneyb@onstation.org>
+Cc: Emil Velikov <emil.velikov@collabora.com>
+Cc: zhengbin <zhengbin13@huawei.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-tegra@vger.kernel.org
+Cc: Kieran Bingham <kieran.bingham+renesas@ideasonboard.com>
+Cc: linux-arm-kernel@lists.infradead.org
+Cc: linux-renesas-soc@vger.kernel.org
+Signed-off-by: Daniel Vetter <daniel.vetter@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20200612160056.2082681-1-daniel.vetter@ffwll.ch
+(cherry picked from commit 51f644b40b4b794b28b982fdd5d0dd8ee63f9272)
 Signed-off-by: George Kennedy <george.kennedy@oracle.com>
----
- drivers/gpu/drm/drm_atomic_helper.c | 10 +++++++++-
- drivers/gpu/drm/drm_vblank.c        | 28 ++++++++++++++++++++++++++++
- include/drm/drm_crtc.h              | 34 +++++++++++++++++++++++++++-------
- include/drm/drm_simple_kms_helper.h |  7 +++++--
- include/drm/drm_vblank.h            |  1 +
- 5 files changed, 70 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/drm_atomic_helper.c b/drivers/gpu/drm/drm_atomic_helper.c
-index 5e906ea..9a5eb76 100644
---- a/drivers/gpu/drm/drm_atomic_helper.c
-+++ b/drivers/gpu/drm/drm_atomic_helper.c
-@@ -588,6 +588,7 @@ static enum drm_mode_status mode_valid_path(struct drm_connector *connector,
-  * &drm_crtc_state.connectors_changed is set when a connector is added or
-  * removed from the crtc.  &drm_crtc_state.active_changed is set when
-  * &drm_crtc_state.active changes, which is used for DPMS.
-+ * &drm_crtc_state.no_vblank is set from the result of drm_dev_has_vblank().
-  * See also: drm_atomic_crtc_needs_modeset()
-  *
-  * IMPORTANT:
-@@ -654,6 +655,11 @@ static enum drm_mode_status mode_valid_path(struct drm_connector *connector,
+Conflicts:
+	drivers/gpu/drm/tidss/tidss_crtc.c
+	drivers/gpu/drm/tidss/tidss_kms.c
+---
+ drivers/gpu/drm/arm/display/komeda/komeda_crtc.c | 7 ++-----
+ drivers/gpu/drm/arm/malidp_drv.c                 | 1 -
+ drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c   | 7 ++-----
+ drivers/gpu/drm/drm_atomic_state_helper.c        | 4 ++++
+ drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c        | 2 --
+ drivers/gpu/drm/omapdrm/omap_crtc.c              | 8 +++++---
+ drivers/gpu/drm/omapdrm/omap_drv.c               | 4 ----
+ drivers/gpu/drm/rcar-du/rcar_du_crtc.c           | 6 +-----
+ drivers/gpu/drm/tegra/dc.c                       | 1 -
+ 9 files changed, 14 insertions(+), 26 deletions(-)
+
+diff --git a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+index 52c4256..d301e55 100644
+--- a/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
++++ b/drivers/gpu/drm/arm/display/komeda/komeda_crtc.c
+@@ -440,10 +440,8 @@ static void komeda_crtc_reset(struct drm_crtc *crtc)
+ 	crtc->state = NULL;
  
- 			return -EINVAL;
- 		}
-+
-+		if (drm_dev_has_vblank(dev))
-+			new_crtc_state->no_vblank = false;
-+		else
-+			new_crtc_state->no_vblank = true;
+ 	state = kzalloc(sizeof(*state), GFP_KERNEL);
+-	if (state) {
+-		crtc->state = &state->base;
+-		crtc->state->crtc = crtc;
+-	}
++	if (state)
++		__drm_atomic_helper_crtc_reset(crtc, &state->base);
+ }
+ 
+ static struct drm_crtc_state *
+@@ -564,7 +562,6 @@ static int komeda_crtc_add(struct komeda_kms_dev *kms,
+ 		return err;
+ 
+ 	drm_crtc_helper_add(crtc, &komeda_crtc_helper_funcs);
+-	drm_crtc_vblank_reset(crtc);
+ 
+ 	crtc->port = kcrtc->master->of_output_port;
+ 
+diff --git a/drivers/gpu/drm/arm/malidp_drv.c b/drivers/gpu/drm/arm/malidp_drv.c
+index 333b88a..566b183 100644
+--- a/drivers/gpu/drm/arm/malidp_drv.c
++++ b/drivers/gpu/drm/arm/malidp_drv.c
+@@ -865,7 +865,6 @@ static int malidp_bind(struct device *dev)
+ 	drm->irq_enabled = true;
+ 
+ 	ret = drm_vblank_init(drm, drm->mode_config.num_crtc);
+-	drm_crtc_vblank_reset(&malidp->crtc);
+ 	if (ret < 0) {
+ 		DRM_ERROR("failed to initialise vblank\n");
+ 		goto vblank_fail;
+diff --git a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+index 1098513..ce246b9 100644
+--- a/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
++++ b/drivers/gpu/drm/atmel-hlcdc/atmel_hlcdc_crtc.c
+@@ -411,10 +411,8 @@ static void atmel_hlcdc_crtc_reset(struct drm_crtc *crtc)
  	}
  
- 	ret = handle_conflicting_encoders(state, false);
-@@ -2202,7 +2208,9 @@ void drm_atomic_helper_wait_for_dependencies(struct drm_atomic_state *old_state)
-  * when a job is queued, and any change to the pipeline that does not touch the
-  * connector is leading to timeouts when calling
-  * drm_atomic_helper_wait_for_vblanks() or
-- * drm_atomic_helper_wait_for_flip_done().
-+ * drm_atomic_helper_wait_for_flip_done(). In addition to writeback
-+ * connectors, this function can also fake VBLANK events for CRTCs without
-+ * VBLANK interrupt.
-  *
-  * This is part of the atomic helper support for nonblocking commits, see
-  * drm_atomic_helper_setup_commit() for an overview.
-diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-index 552ec82..c98ed814 100644
---- a/drivers/gpu/drm/drm_vblank.c
-+++ b/drivers/gpu/drm/drm_vblank.c
-@@ -69,6 +69,12 @@
-  * &drm_driver.max_vblank_count. In that case the vblank core only disables the
-  * vblanks after a timer has expired, which can be configured through the
-  * ``vblankoffdelay`` module parameter.
-+ *
-+ * Drivers for hardware without support for vertical-blanking interrupts
-+ * must not call drm_vblank_init(). For such drivers, atomic helpers will
-+ * automatically generate fake vblank events as part of the display update.
-+ * This functionality also can be controlled by the driver by enabling and
-+ * disabling struct drm_crtc_state.no_vblank.
-  */
+ 	state = kzalloc(sizeof(*state), GFP_KERNEL);
+-	if (state) {
+-		crtc->state = &state->base;
+-		crtc->state->crtc = crtc;
+-	}
++	if (state)
++		__drm_atomic_helper_crtc_reset(crtc, &state->base);
+ }
  
- /* Retry timestamp calculation up to 3 times to satisfy
-@@ -489,6 +495,28 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
- EXPORT_SYMBOL(drm_vblank_init);
+ static struct drm_crtc_state *
+@@ -528,7 +526,6 @@ int atmel_hlcdc_crtc_create(struct drm_device *dev)
+ 	}
  
- /**
-+ * drm_dev_has_vblank - test if vblanking has been initialized for
-+ *                      a device
-+ * @dev: the device
-+ *
-+ * Drivers may call this function to test if vblank support is
-+ * initialized for a device. For most hardware this means that vblanking
-+ * can also be enabled.
-+ *
-+ * Atomic helpers use this function to initialize
-+ * &drm_crtc_state.no_vblank. See also drm_atomic_helper_check_modeset().
-+ *
-+ * Returns:
-+ * True if vblanking has been initialized for the given device, false
-+ * otherwise.
-+ */
-+bool drm_dev_has_vblank(const struct drm_device *dev)
-+{
-+	return dev->num_crtcs != 0;
-+}
-+EXPORT_SYMBOL(drm_dev_has_vblank);
+ 	drm_crtc_helper_add(&crtc->base, &lcdc_crtc_helper_funcs);
+-	drm_crtc_vblank_reset(&crtc->base);
+ 
+ 	drm_mode_crtc_set_gamma_size(&crtc->base, ATMEL_HLCDC_CLUT_SIZE);
+ 	drm_crtc_enable_color_mgmt(&crtc->base, 0, false,
+diff --git a/drivers/gpu/drm/drm_atomic_state_helper.c b/drivers/gpu/drm/drm_atomic_state_helper.c
+index d0a937f..9c16936 100644
+--- a/drivers/gpu/drm/drm_atomic_state_helper.c
++++ b/drivers/gpu/drm/drm_atomic_state_helper.c
+@@ -31,6 +31,7 @@
+ #include <drm/drm_device.h>
+ #include <drm/drm_plane.h>
+ #include <drm/drm_print.h>
++#include <drm/drm_vblank.h>
+ #include <drm/drm_writeback.h>
+ 
+ #include <linux/slab.h>
+@@ -76,6 +77,9 @@
+ 	if (crtc_state)
+ 		crtc_state->crtc = crtc;
+ 
++	if (drm_dev_has_vblank(crtc->dev))
++		drm_crtc_vblank_reset(crtc);
 +
-+/**
-  * drm_crtc_vblank_waitqueue - get vblank waitqueue for the CRTC
-  * @crtc: which CRTC's vblank waitqueue to retrieve
-  *
-diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
-index 408b6f4..ebcce95 100644
---- a/include/drm/drm_crtc.h
-+++ b/include/drm/drm_crtc.h
-@@ -175,12 +175,25 @@ struct drm_crtc_state {
- 	 * @no_vblank:
- 	 *
- 	 * Reflects the ability of a CRTC to send VBLANK events. This state
--	 * usually depends on the pipeline configuration, and the main usuage
--	 * is CRTCs feeding a writeback connector operating in oneshot mode.
--	 * In this case the VBLANK event is only generated when a job is queued
--	 * to the writeback connector, and we want the core to fake VBLANK
--	 * events when this part of the pipeline hasn't changed but others had
--	 * or when the CRTC and connectors are being disabled.
-+	 * usually depends on the pipeline configuration. If set to true, DRM
-+	 * atomic helpers will send out a fake VBLANK event during display
-+	 * updates after all hardware changes have been committed. This is
-+	 * implemented in drm_atomic_helper_fake_vblank().
-+	 *
-+	 * One usage is for drivers and/or hardware without support for VBLANK
-+	 * interrupts. Such drivers typically do not initialize vblanking
-+	 * (i.e., call drm_vblank_init() with the number of CRTCs). For CRTCs
-+	 * without initialized vblanking, this field is set to true in
-+	 * drm_atomic_helper_check_modeset(), and a fake VBLANK event will be
-+	 * send out on each update of the display pipeline by
-+	 * drm_atomic_helper_fake_vblank().
-+	 *
-+	 * Another usage is CRTCs feeding a writeback connector operating in
-+	 * oneshot mode. In this case the fake VBLANK event is only generated
-+	 * when a job is queued to the writeback connector, and we want the
-+	 * core to fake VBLANK events when this part of the pipeline hasn't
-+	 * changed but others had or when the CRTC and connectors are being
-+	 * disabled.
- 	 *
- 	 * __drm_atomic_helper_crtc_duplicate_state() will not reset the value
- 	 * from the current state, the CRTC driver is then responsible for
-@@ -336,7 +349,14 @@ struct drm_crtc_state {
- 	 *  - Events for disabled CRTCs are not allowed, and drivers can ignore
- 	 *    that case.
- 	 *
--	 * This can be handled by the drm_crtc_send_vblank_event() function,
-+	 * For very simple hardware without VBLANK interrupt, enabling
-+	 * &struct drm_crtc_state.no_vblank makes DRM's atomic commit helpers
-+	 * send a fake VBLANK event at the end of the display update after all
-+	 * hardware changes have been applied. See
-+	 * drm_atomic_helper_fake_vblank().
-+	 *
-+	 * For more complex hardware this
-+	 * can be handled by the drm_crtc_send_vblank_event() function,
- 	 * which the driver should call on the provided event upon completion of
- 	 * the atomic commit. Note that if the driver supports vblank signalling
- 	 * and timestamping the vblank counters and timestamps must agree with
-diff --git a/include/drm/drm_simple_kms_helper.h b/include/drm/drm_simple_kms_helper.h
-index 4d89cd0..df615eb 100644
---- a/include/drm/drm_simple_kms_helper.h
-+++ b/include/drm/drm_simple_kms_helper.h
-@@ -100,8 +100,11 @@ struct drm_simple_display_pipe_funcs {
- 	 * This is the function drivers should submit the
- 	 * &drm_pending_vblank_event from. Using either
- 	 * drm_crtc_arm_vblank_event(), when the driver supports vblank
--	 * interrupt handling, or drm_crtc_send_vblank_event() directly in case
--	 * the hardware lacks vblank support entirely.
-+	 * interrupt handling, or drm_crtc_send_vblank_event() for more
-+	 * complex case. In case the hardware lacks vblank support entirely,
-+	 * drivers can set &struct drm_crtc_state.no_vblank in
-+	 * &struct drm_simple_display_pipe_funcs.check and let DRM's
-+	 * atomic helper fake a vblank event.
- 	 */
- 	void (*update)(struct drm_simple_display_pipe *pipe,
- 		       struct drm_plane_state *old_plane_state);
-diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-index 9fe4ba8..2559fb9 100644
---- a/include/drm/drm_vblank.h
-+++ b/include/drm/drm_vblank.h
-@@ -195,6 +195,7 @@ struct drm_vblank_crtc {
- };
+ 	crtc->state = crtc_state;
+ }
+ EXPORT_SYMBOL(__drm_atomic_helper_crtc_reset);
+diff --git a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+index 3951468..dbfd113 100644
+--- a/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
++++ b/drivers/gpu/drm/msm/disp/mdp5/mdp5_crtc.c
+@@ -1043,8 +1043,6 @@ static void mdp5_crtc_reset(struct drm_crtc *crtc)
+ 		mdp5_crtc_destroy_state(crtc, crtc->state);
  
- int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs);
-+bool drm_dev_has_vblank(const struct drm_device *dev);
- u64 drm_crtc_vblank_count(struct drm_crtc *crtc);
- u64 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
- 				   ktime_t *vblanktime);
+ 	__drm_atomic_helper_crtc_reset(crtc, &mdp5_cstate->base);
+-
+-	drm_crtc_vblank_reset(crtc);
+ }
+ 
+ static const struct drm_crtc_funcs mdp5_crtc_funcs = {
+diff --git a/drivers/gpu/drm/omapdrm/omap_crtc.c b/drivers/gpu/drm/omapdrm/omap_crtc.c
+index f5e1880..cfeb424 100644
+--- a/drivers/gpu/drm/omapdrm/omap_crtc.c
++++ b/drivers/gpu/drm/omapdrm/omap_crtc.c
+@@ -698,14 +698,16 @@ static int omap_crtc_atomic_get_property(struct drm_crtc *crtc,
+ 
+ static void omap_crtc_reset(struct drm_crtc *crtc)
+ {
++	struct omap_crtc_state *state;
++
+ 	if (crtc->state)
+ 		__drm_atomic_helper_crtc_destroy_state(crtc->state);
+ 
+ 	kfree(crtc->state);
+-	crtc->state = kzalloc(sizeof(struct omap_crtc_state), GFP_KERNEL);
+ 
+-	if (crtc->state)
+-		crtc->state->crtc = crtc;
++	state = kzalloc(sizeof(*state), GFP_KERNEL);
++	if (state)
++		__drm_atomic_helper_crtc_reset(crtc, &state->base);
+ }
+ 
+ static struct drm_crtc_state *
+diff --git a/drivers/gpu/drm/omapdrm/omap_drv.c b/drivers/gpu/drm/omapdrm/omap_drv.c
+index 2983c00..672b0d3 100644
+--- a/drivers/gpu/drm/omapdrm/omap_drv.c
++++ b/drivers/gpu/drm/omapdrm/omap_drv.c
+@@ -557,7 +557,6 @@ static int omapdrm_init(struct omap_drm_private *priv, struct device *dev)
+ {
+ 	const struct soc_device_attribute *soc;
+ 	struct drm_device *ddev;
+-	unsigned int i;
+ 	int ret;
+ 
+ 	DBG("%s", dev_name(dev));
+@@ -604,9 +603,6 @@ static int omapdrm_init(struct omap_drm_private *priv, struct device *dev)
+ 		goto err_cleanup_modeset;
+ 	}
+ 
+-	for (i = 0; i < priv->num_pipes; i++)
+-		drm_crtc_vblank_off(priv->pipes[i].crtc);
+-
+ 	omap_fbdev_init(ddev);
+ 
+ 	drm_kms_helper_poll_init(ddev);
+diff --git a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+index 2da46e3..6d0280c 100644
+--- a/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
++++ b/drivers/gpu/drm/rcar-du/rcar_du_crtc.c
+@@ -910,8 +910,7 @@ static void rcar_du_crtc_reset(struct drm_crtc *crtc)
+ 	state->crc.source = VSP1_DU_CRC_NONE;
+ 	state->crc.index = 0;
+ 
+-	crtc->state = &state->state;
+-	crtc->state->crtc = crtc;
++	__drm_atomic_helper_crtc_reset(crtc, &state->state);
+ }
+ 
+ static int rcar_du_crtc_enable_vblank(struct drm_crtc *crtc)
+@@ -1196,9 +1195,6 @@ int rcar_du_crtc_create(struct rcar_du_group *rgrp, unsigned int swindex,
+ 
+ 	drm_crtc_helper_add(crtc, &crtc_helper_funcs);
+ 
+-	/* Start with vertical blanking interrupt reporting disabled. */
+-	drm_crtc_vblank_off(crtc);
+-
+ 	/* Register the interrupt handler. */
+ 	if (rcar_du_has(rcdu, RCAR_DU_FEATURE_CRTC_IRQ_CLOCK)) {
+ 		/* The IRQ's are associated with the CRTC (sw)index. */
+diff --git a/drivers/gpu/drm/tegra/dc.c b/drivers/gpu/drm/tegra/dc.c
+index 617cbe4..75c7068 100644
+--- a/drivers/gpu/drm/tegra/dc.c
++++ b/drivers/gpu/drm/tegra/dc.c
+@@ -1166,7 +1166,6 @@ static void tegra_crtc_reset(struct drm_crtc *crtc)
+ 		tegra_crtc_atomic_destroy_state(crtc, crtc->state);
+ 
+ 	__drm_atomic_helper_crtc_reset(crtc, &state->base);
+-	drm_crtc_vblank_reset(crtc);
+ }
+ 
+ static struct drm_crtc_state *
 -- 
 1.8.3.1
 
