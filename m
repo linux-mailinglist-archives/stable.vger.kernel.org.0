@@ -2,81 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9103F38C588
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 13:18:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F05B38C630
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 14:05:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234404AbhEULTX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 07:19:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54678 "EHLO
+        id S229512AbhEUMGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 08:06:55 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37164 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234600AbhEULTV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 07:19:21 -0400
-Received: from mail-oo1-xc31.google.com (mail-oo1-xc31.google.com [IPv6:2607:f8b0:4864:20::c31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34AE8C061763
-        for <stable@vger.kernel.org>; Fri, 21 May 2021 04:17:58 -0700 (PDT)
-Received: by mail-oo1-xc31.google.com with SMTP id s1-20020a4ac1010000b02901cfd9170ce2so4490895oop.12
-        for <stable@vger.kernel.org>; Fri, 21 May 2021 04:17:58 -0700 (PDT)
+        with ESMTP id S229507AbhEUMGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 21 May 2021 08:06:52 -0400
+Received: from mail-pf1-x42b.google.com (mail-pf1-x42b.google.com [IPv6:2607:f8b0:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F62C061574;
+        Fri, 21 May 2021 05:05:25 -0700 (PDT)
+Received: by mail-pf1-x42b.google.com with SMTP id y15so3371266pfn.13;
+        Fri, 21 May 2021 05:05:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=EcIp8WA1WHrJEqMIlaVs2ij19F6h1FeNiLm8T3GjEDY=;
-        b=gFmVEQZvD+AQHMdUJsoBv5RTf3kX2ozOsQ823fwsAf3l6XUyw97ke6ACIhTPJKpBgh
-         wW9mdj6xBW9Aezn1Mzr+2ehoSfa27rNt5CGgwMz29mEoI4kptCCYhxnwOhTAdw5MlKZJ
-         hl/Vvobs56pvLesJ9xjlrYHVK4njrrcGWDkBP0o7mryY2zfOzCab22xSH2X6p5SCDH1d
-         2uUQ0lUt0PltMWGXkqOQwRUDnHdY7aX2wWwJOuaO6XWNCU3PFTAiZfDRAoYV8FjRhHU5
-         hpWGlwDegjoE4JaCzJY5K7RBY3lu7LGkASVYncb5IR2I1J+V9qAxv1CpRW2SrrKd7Aqo
-         g+1A==
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=IKvYYqLsxyKEeUsDvRss4bF9+AV45aa77OTQUmH4lC8=;
+        b=TyN8xCQ5ia1zkspm9pr6RVukeqMus3yIVRgciDcF+G7WiU6LxkA6eDhAYWCgP7l5+P
+         vdsMw7JWNwFQS477nZZ0q3DFO3PHb07opbDhthpVxWXGf0TOfh6zqhRoxtazMIrdhqtl
+         8nN0AxWBZjkbtdb/aogwgkW1Cp+aFVIy4agaSRwMDXC3QLnXsb2hYLnE/5cWgaQWYU3a
+         KDOAj7aQDDcvD5Qi/Kw16xjXJQTzfL2JNLCVrR1nY4j3i7wiTzBe6lZRFPzCXZqluZir
+         il48tCWaEujSGwoRtACg1f8tcTghma/yW4CIJzFwkPMZMl63T+aNrVCs48iGg7QenDpn
+         RG0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=EcIp8WA1WHrJEqMIlaVs2ij19F6h1FeNiLm8T3GjEDY=;
-        b=LtHO7Lw2/ckmtrcLZgpijM4xWF/gele6JUucxm8fPwq7OU9Sq7H49XSYHpIL3o+LAt
-         qkrML2yQomg94mH9aeNXyDkO8NUGiaLHaHFNLX4zp8CHfgr0GUO4NLC6H0JKyDAJMlcz
-         K+sxqLYSmN2mtuvl2B25At5U2gU4WW8T5uvHbth/KCD0YsFAwfLT+UoO9bUX2XUR1AFP
-         +T4yud+X1ztqejMjP86Po8oYlKpimahe53h9dS7uiYELU6tVvacWYQ79uSEYmNG1ehfM
-         jJZh/fnRQI4hMucQIXZVUCf0dD2es/oO2I4fkuJt/GjDvIluSSMv+6vgEfKxP0rqGRQV
-         ci1Q==
-X-Gm-Message-State: AOAM5311WyfJfX/bap/L8rGvZ1nJeOF2b011VIYMyD+xQQuu+BToheFa
-        2D9qp3WVyiUXbe8HmzuF4LjhHLfwDIW5Qi6eHm3whQ==
-X-Google-Smtp-Source: ABdhPJw8SJYXkQFKjdyvexxkcKn4vgnDN+xTtCy93UoM3eGHgFr6VjCvHqXfF8ZFZBoC62/obPHq3PSJt/HRt1kic/Q=
-X-Received: by 2002:a4a:cf15:: with SMTP id l21mr6404487oos.36.1621595876593;
- Fri, 21 May 2021 04:17:56 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210521083209.3740269-1-elver@google.com> <20210521093715.1813-1-hdanton@sina.com>
-In-Reply-To: <20210521093715.1813-1-hdanton@sina.com>
-From:   Marco Elver <elver@google.com>
-Date:   Fri, 21 May 2021 13:17:44 +0200
-Message-ID: <CANpmjNMD58SJPeVnKrx1=mXoudPZFs+HoCsVujYomCtZ5K+DKQ@mail.gmail.com>
-Subject: Re: [PATCH] kfence: use TASK_IDLE when awaiting allocation
-To:     Hillf Danton <hdanton@sina.com>
-Cc:     Andrew Morton <akpm@linux-foundation.org>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Linux Memory Management List <linux-mm@kvack.org>,
-        kasan-dev <kasan-dev@googlegroups.com>,
-        Mel Gorman <mgorman@suse.de>, stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=IKvYYqLsxyKEeUsDvRss4bF9+AV45aa77OTQUmH4lC8=;
+        b=DDaTNcQ5S6rKFcn5cspIi8qcWeU5h6xYZwTxm/uJyD7JweYLbp3nAPP3XRxbnhXNbg
+         QXE4Reibz5DD3ULqt7L7IR1Z//pIjWaWNeLpQkbuppC14rJcMlxoUElebFWlmoSIQAS/
+         wEtBhUmQGnl0H+hmP29//XTSkhKTriU9nT6s1k/39tmFGruHdsEvPjQt6yngdZALujPR
+         7kcizFYhnFLhgNB0m4bHKpR8uWG+vbYq5Ox2qVhQnRw7AvUdAcb/1Q/C0eFJGq40hQwS
+         kAnTWM5qKx+WRyaQDQd5DlhIIOenYevd809QYlu01ABfXmb++FidS2rw4a8aiY8Av+sP
+         O7jg==
+X-Gm-Message-State: AOAM530rqs4wGTeTs1Eu7pC+y9q3Lzq3O7arBQVVDlp95qInPVhlBvVG
+        foxv1g/2aq1tYC35mOuiX1N/vw+cLJVlPa4KLbzRAA==
+X-Google-Smtp-Source: ABdhPJz7G3bh3cPagwj+TXJS/806MkPr9FwaWLaq4gSH1wCJQP67CeCAB2ShPNoR0kB/a3y7T0aAbg==
+X-Received: by 2002:a63:d014:: with SMTP id z20mr9509259pgf.428.1621598724767;
+        Fri, 21 May 2021 05:05:24 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id s16sm4566005pga.5.2021.05.21.05.05.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 21 May 2021 05:05:24 -0700 (PDT)
+Message-ID: <60a7a204.1c69fb81.c0176.f54f@mx.google.com>
+Date:   Fri, 21 May 2021 05:05:24 -0700 (PDT)
+X-Google-Original-Date: Fri, 21 May 2021 12:05:22 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210520152240.517446848@linuxfoundation.org>
+Subject: RE: [PATCH 5.10 00/45] 5.10.39-rc2 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 21 May 2021 at 11:37, Hillf Danton <hdanton@sina.com> wrote:
-> On Fri, 21 May 2021 10:32:09 +0200 Marco Elver wrote:
-> >Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
-> >allocation counts towards load. However, for KFENCE, this does not make
-> >any sense, since there is no busy work we're awaiting.
->
-> Because of a blocking wq callback, kfence_timer should be queued on a
-> unbound workqueue in the first place. Feel free to add a followup to
-> replace system_power_efficient_wq with system_unbound_wq if it makes
-> sense to you that kfence behaves as correctly as expected independent of
-> CONFIG_WQ_POWER_EFFICIENT_DEFAULT given "system_power_efficient_wq is
-> identical to system_wq if 'wq_power_efficient' is disabled."
+On Thu, 20 May 2021 17:23:18 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.10.39 release.
+> There are 45 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 22 May 2021 15:22:29 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.39-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Thanks for pointing it out -- I think this makes sense, let's just use
-the unbound wq unconditionally. Since it's independent of this patch,
-I've sent it separately:
-https://lkml.kernel.org/r/20210521111630.472579-1-elver@google.com
+5.10.39-rc2 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
+
