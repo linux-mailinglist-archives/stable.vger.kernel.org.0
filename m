@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7AD5238C675
-	for <lists+stable@lfdr.de>; Fri, 21 May 2021 14:26:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EEAAF38C676
+	for <lists+stable@lfdr.de>; Fri, 21 May 2021 14:26:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232292AbhEUM1u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 21 May 2021 08:27:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55138 "EHLO mail.kernel.org"
+        id S232820AbhEUM1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 21 May 2021 08:27:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229457AbhEUM1t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 21 May 2021 08:27:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C6906108B;
-        Fri, 21 May 2021 12:26:25 +0000 (UTC)
+        id S229457AbhEUM1v (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 21 May 2021 08:27:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C86A5613B6;
+        Fri, 21 May 2021 12:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621599986;
-        bh=883ngX+0QqCsT+RVRNEdZ+EKJGalroB0CuyhKUrFV7A=;
+        s=korg; t=1621599988;
+        bh=4anekDOfgmvQ/XFQAJAZKH3jDLoY12HNPcWAJqdcThU=;
         h=Subject:To:From:Date:From;
-        b=TKpdf6q6LIqDEQ4SpU5QrPtSlRx5/mUD2tVu2bgnXWu/IiUf8p2jOljkPXDBMsIjz
-         JYa8uuoc8V8KLKLN9m3kogHMxbkeqa8/OxDNsVOY+Gmv66OB6K2D3Vd+c8NaSqq2n+
-         OeSUfkFaMXHUWspdwLlvZkEW46SngXnx8ZDIebig=
-Subject: patch "usb: dwc3: gadget: Properly track pending and queued SG" added to usb-linus
-To:     Thinh.Nguyen@synopsys.com, balbi@kernel.org,
-        gregkh@linuxfoundation.org, m.grzeschik@pengutronix.de,
+        b=YCRHd6sLmnxUvEtpDLg6am5Wi7Mqsd3IkXSHRmaX+w8eRnTe1GZh8YuQWTMkVLosT
+         dgWSJF3E0mbeyxYopABAraYnPaHgx31ypyHTXStI3SWUEcBB3JxG1s8EVg6VKeyG0l
+         Vv6PCRwr3AEvm3UJ4m8Q+bPw7LxxHpj32JuuhDxQ=
+Subject: patch "misc/uss720: fix memory leak in uss720_probe" added to usb-linus
+To:     mudongliangabcd@gmail.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 21 May 2021 14:26:16 +0200
-Message-ID: <162159997637163@kroah.com>
+Date:   Fri, 21 May 2021 14:26:17 +0200
+Message-ID: <1621599977185168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3: gadget: Properly track pending and queued SG
+    misc/uss720: fix memory leak in uss720_probe
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -52,90 +51,55 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 25dda9fc56bd90d45f9a4516bcfa5211e61b4290 Mon Sep 17 00:00:00 2001
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Date: Wed, 12 May 2021 20:17:09 -0700
-Subject: usb: dwc3: gadget: Properly track pending and queued SG
+From dcb4b8ad6a448532d8b681b5d1a7036210b622de Mon Sep 17 00:00:00 2001
+From: Dongliang Mu <mudongliangabcd@gmail.com>
+Date: Fri, 14 May 2021 20:43:48 +0800
+Subject: misc/uss720: fix memory leak in uss720_probe
 
-The driver incorrectly uses req->num_pending_sgs to track both the
-number of pending and queued SG entries. It only prepares the next
-request if the previous is done, and it doesn't update num_pending_sgs
-until there is TRB completion interrupt. This may starve the controller
-of more TRBs until the num_pending_sgs is decremented.
+uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
+Fix this by decreasing the refcount of usbdev by usb_put_dev.
 
-Fix this by decrementing the num_pending_sgs after they are queued and
-properly track both num_mapped_sgs and num_queued_sgs.
+BUG: memory leak
+unreferenced object 0xffff888101113800 (size 2048):
+  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
+    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
+  backtrace:
+    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
+    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
+    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
+    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
+    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
+    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
+    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
+    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
+    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
+    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-Fixes: c96e6725db9d ("usb: dwc3: gadget: Correct the logic for queuing sgs")
-Cc: <stable@vger.kernel.org>
-Reported-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Tested-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/ba24591dbcaad8f244a3e88bd449bb7205a5aec3.1620874069.git.Thinh.Nguyen@synopsys.com
+Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/usb/misc/uss720.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 49ca5da5e279..612825a39f82 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1244,6 +1244,7 @@ static int dwc3_prepare_trbs_sg(struct dwc3_ep *dep,
- 			req->start_sg = sg_next(s);
+diff --git a/drivers/usb/misc/uss720.c b/drivers/usb/misc/uss720.c
+index b5d661644263..748139d26263 100644
+--- a/drivers/usb/misc/uss720.c
++++ b/drivers/usb/misc/uss720.c
+@@ -736,6 +736,7 @@ static int uss720_probe(struct usb_interface *intf,
+ 	parport_announce_port(pp);
  
- 		req->num_queued_sgs++;
-+		req->num_pending_sgs--;
+ 	usb_set_intfdata(intf, pp);
++	usb_put_dev(usbdev);
+ 	return 0;
  
- 		/*
- 		 * The number of pending SG entries may not correspond to the
-@@ -1251,7 +1252,7 @@ static int dwc3_prepare_trbs_sg(struct dwc3_ep *dep,
- 		 * don't include unused SG entries.
- 		 */
- 		if (length == 0) {
--			req->num_pending_sgs -= req->request.num_mapped_sgs - req->num_queued_sgs;
-+			req->num_pending_sgs = 0;
- 			break;
- 		}
- 
-@@ -2873,15 +2874,15 @@ static int dwc3_gadget_ep_reclaim_trb_sg(struct dwc3_ep *dep,
- 	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
- 	struct scatterlist *sg = req->sg;
- 	struct scatterlist *s;
--	unsigned int pending = req->num_pending_sgs;
-+	unsigned int num_queued = req->num_queued_sgs;
- 	unsigned int i;
- 	int ret = 0;
- 
--	for_each_sg(sg, s, pending, i) {
-+	for_each_sg(sg, s, num_queued, i) {
- 		trb = &dep->trb_pool[dep->trb_dequeue];
- 
- 		req->sg = sg_next(s);
--		req->num_pending_sgs--;
-+		req->num_queued_sgs--;
- 
- 		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
- 				trb, event, status, true);
-@@ -2904,7 +2905,7 @@ static int dwc3_gadget_ep_reclaim_trb_linear(struct dwc3_ep *dep,
- 
- static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
- {
--	return req->num_pending_sgs == 0;
-+	return req->num_pending_sgs == 0 && req->num_queued_sgs == 0;
- }
- 
- static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
-@@ -2913,7 +2914,7 @@ static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
- {
- 	int ret;
- 
--	if (req->num_pending_sgs)
-+	if (req->request.num_mapped_sgs)
- 		ret = dwc3_gadget_ep_reclaim_trb_sg(dep, req, event,
- 				status);
- 	else
+ probe_abort:
 -- 
 2.31.1
 
