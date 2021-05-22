@@ -2,31 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A328F38D44F
-	for <lists+stable@lfdr.de>; Sat, 22 May 2021 09:50:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B535738D44E
+	for <lists+stable@lfdr.de>; Sat, 22 May 2021 09:50:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbhEVHv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 May 2021 03:51:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
+        id S230128AbhEVHv5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 May 2021 03:51:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35140 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230114AbhEVHv7 (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 22 May 2021 03:51:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 51179611CB;
-        Sat, 22 May 2021 07:50:34 +0000 (UTC)
+        id S230114AbhEVHv4 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 22 May 2021 03:51:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D6756120D;
+        Sat, 22 May 2021 07:50:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621669834;
-        bh=cOi1Bu0tpX/E6jNHqRqpWOJ/2k7X8ksP+zuaU4qmjNs=;
+        s=korg; t=1621669832;
+        bh=VgXTx4PzElnsLgeSyhPK1AM4VZsj2R5pVN/oz3Ct768=;
         h=Subject:To:From:Date:From;
-        b=GzDZXQFye89ZjLlUWhxY6irjN+sZEnHx8ellIkSe1FTXxhXmjdZm/C5KAohkJu1Gy
-         ocXjGzxUZF2DW5O8WHkMgGbIevofnNpvPyXdjbI1N2zazUyzoZdSG1mEm9GRxzjhyd
-         KsHOTJdE0sb7JXIYZEpfghVz7ffykX9nMt0qsYes=
-Subject: patch "iio: dac: ad5770r: Put fwnode in error case during ->probe()" added to staging-linus
-To:     andy.shevchenko@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, alexandru.tachici@analog.com,
-        ardeleanalex@gmail.com
+        b=Jc8X+LAlFXGCNsz7ytwUgqsuGSE5K5vwOKe4C5wBAbQ7h3oqLl2vzs/U50v1mRDQP
+         lHPEaBKm+q2jYU4DLLA0iOaOLZA4lLN5xZlR2FxjrB5Wo3X0yKS1jfMiDRHnIX4mc3
+         /WUbSZu4f7Ace+K7DwA9r/b6O+APS2ow3L7/FTXM=
+Subject: patch "iio: adc: ad7768-1: Fix too small buffer passed to" added to staging-linus
+To:     Jonathan.Cameron@huawei.com, Stable@vger.kernel.org,
+        andy.shevchenko@gmail.com
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 22 May 2021 09:50:20 +0200
-Message-ID: <16216698203987@kroah.com>
+Message-ID: <1621669820100154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -37,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: dac: ad5770r: Put fwnode in error case during ->probe()
+    iio: adc: ad7768-1: Fix too small buffer passed to
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -52,64 +51,53 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 98b7b0ca0828907dbb706387c11356a45463e2ea Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andy.shevchenko@gmail.com>
-Date: Mon, 10 May 2021 12:56:49 +0300
-Subject: iio: dac: ad5770r: Put fwnode in error case during ->probe()
+From a1caeebab07e9d72eec534489f47964782b93ba9 Mon Sep 17 00:00:00 2001
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Date: Sat, 1 May 2021 17:53:13 +0100
+Subject: iio: adc: ad7768-1: Fix too small buffer passed to
+ iio_push_to_buffers_with_timestamp()
 
-device_for_each_child_node() bumps a reference counting of a returned variable.
-We have to balance it whenever we return to the caller.
+Add space for the timestamp to be inserted.  Also ensure correct
+alignment for passing to iio_push_to_buffers_with_timestamp()
 
-Fixes: cbbb819837f6 ("iio: dac: ad5770r: Add AD5770R support")
-Cc: Alexandru Tachici <alexandru.tachici@analog.com>
-Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Link: https://lore.kernel.org/r/20210510095649.3302835-1-andy.shevchenko@gmail.com
-Cc: <Stable@vger.kernel.org>
+Fixes: a5f8c7da3dbe ("iio: adc: Add AD7768-1 ADC basic support")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501165314.511954-2-jic23@kernel.org
+Cc: <Stable@vger.kernel.org>
 ---
- drivers/iio/dac/ad5770r.c | 16 +++++++++++-----
- 1 file changed, 11 insertions(+), 5 deletions(-)
+ drivers/iio/adc/ad7768-1.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/iio/dac/ad5770r.c b/drivers/iio/dac/ad5770r.c
-index 7ab2ccf90863..8107f7bbbe3c 100644
---- a/drivers/iio/dac/ad5770r.c
-+++ b/drivers/iio/dac/ad5770r.c
-@@ -524,23 +524,29 @@ static int ad5770r_channel_config(struct ad5770r_state *st)
- 	device_for_each_child_node(&st->spi->dev, child) {
- 		ret = fwnode_property_read_u32(child, "num", &num);
- 		if (ret)
--			return ret;
--		if (num >= AD5770R_MAX_CHANNELS)
--			return -EINVAL;
-+			goto err_child_out;
-+		if (num >= AD5770R_MAX_CHANNELS) {
-+			ret = -EINVAL;
-+			goto err_child_out;
-+		}
+diff --git a/drivers/iio/adc/ad7768-1.c b/drivers/iio/adc/ad7768-1.c
+index c945f1349623..60f21fed6dcb 100644
+--- a/drivers/iio/adc/ad7768-1.c
++++ b/drivers/iio/adc/ad7768-1.c
+@@ -167,6 +167,10 @@ struct ad7768_state {
+ 	 * transfer buffers to live in their own cache lines.
+ 	 */
+ 	union {
++		struct {
++			__be32 chan;
++			s64 timestamp;
++		} scan;
+ 		__be32 d32;
+ 		u8 d8[2];
+ 	} data ____cacheline_aligned;
+@@ -469,11 +473,11 @@ static irqreturn_t ad7768_trigger_handler(int irq, void *p)
  
- 		ret = fwnode_property_read_u32_array(child,
- 						     "adi,range-microamp",
- 						     tmp, 2);
- 		if (ret)
--			return ret;
-+			goto err_child_out;
+ 	mutex_lock(&st->lock);
  
- 		min = tmp[0] / 1000;
- 		max = tmp[1] / 1000;
- 		ret = ad5770r_store_output_range(st, min, max, num);
- 		if (ret)
--			return ret;
-+			goto err_child_out;
- 	}
+-	ret = spi_read(st->spi, &st->data.d32, 3);
++	ret = spi_read(st->spi, &st->data.scan.chan, 3);
+ 	if (ret < 0)
+ 		goto err_unlock;
  
-+	return 0;
-+
-+err_child_out:
-+	fwnode_handle_put(child);
- 	return ret;
- }
+-	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.d32,
++	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.scan,
+ 					   iio_get_time_ns(indio_dev));
  
+ 	iio_trigger_notify_done(indio_dev->trig);
 -- 
 2.31.1
 
