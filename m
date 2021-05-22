@@ -2,30 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6486238D44D
-	for <lists+stable@lfdr.de>; Sat, 22 May 2021 09:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A328F38D44F
+	for <lists+stable@lfdr.de>; Sat, 22 May 2021 09:50:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230125AbhEVHvy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 May 2021 03:51:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35108 "EHLO mail.kernel.org"
+        id S230137AbhEVHv7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 22 May 2021 03:51:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230114AbhEVHvy (ORCPT <rfc822;Stable@vger.kernel.org>);
-        Sat, 22 May 2021 03:51:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E51C861244;
-        Sat, 22 May 2021 07:50:29 +0000 (UTC)
+        id S230114AbhEVHv7 (ORCPT <rfc822;Stable@vger.kernel.org>);
+        Sat, 22 May 2021 03:51:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51179611CB;
+        Sat, 22 May 2021 07:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621669830;
-        bh=uTV11IcDzqbra5DR3bW/3XJOIFy34VE0IXPfkwhF8FI=;
+        s=korg; t=1621669834;
+        bh=cOi1Bu0tpX/E6jNHqRqpWOJ/2k7X8ksP+zuaU4qmjNs=;
         h=Subject:To:From:Date:From;
-        b=vcQqBDrEMFdKvynJfsx0FeApEBzyHo1Evgtw6Ac5jPybZPbVFtilM9Iu7qN4RCoTF
-         xpmw4+fZLh2qinr8vgQpAsETbfOMoJWUEpeH+4h0M0heDbgCZtUQ5Sh/ca0XoWU/Wy
-         /uybxmwB+OhHTfrJemZrcmCs0YPsIQTyyMny7VuI=
-Subject: patch "staging: iio: cdc: ad7746: avoid overwrite of num_channels" added to staging-linus
-To:     lucas.p.stankus@gmail.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=GzDZXQFye89ZjLlUWhxY6irjN+sZEnHx8ellIkSe1FTXxhXmjdZm/C5KAohkJu1Gy
+         ocXjGzxUZF2DW5O8WHkMgGbIevofnNpvPyXdjbI1N2zazUyzoZdSG1mEm9GRxzjhyd
+         KsHOTJdE0sb7JXIYZEpfghVz7ffykX9nMt0qsYes=
+Subject: patch "iio: dac: ad5770r: Put fwnode in error case during ->probe()" added to staging-linus
+To:     andy.shevchenko@gmail.com, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org, alexandru.tachici@analog.com,
+        ardeleanalex@gmail.com
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 22 May 2021 09:50:19 +0200
-Message-ID: <162166981925589@kroah.com>
+Date:   Sat, 22 May 2021 09:50:20 +0200
+Message-ID: <16216698203987@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +37,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    staging: iio: cdc: ad7746: avoid overwrite of num_channels
+    iio: dac: ad5770r: Put fwnode in error case during ->probe()
 
 to my staging git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/staging.git
@@ -51,36 +52,64 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 04f5b9f539ce314f758d919a14dc7a669f3b7838 Mon Sep 17 00:00:00 2001
-From: Lucas Stankus <lucas.p.stankus@gmail.com>
-Date: Tue, 11 May 2021 17:54:18 -0300
-Subject: staging: iio: cdc: ad7746: avoid overwrite of num_channels
+From 98b7b0ca0828907dbb706387c11356a45463e2ea Mon Sep 17 00:00:00 2001
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
+Date: Mon, 10 May 2021 12:56:49 +0300
+Subject: iio: dac: ad5770r: Put fwnode in error case during ->probe()
 
-AD7745 devices don't have the CIN2 pins and therefore can't handle related
-channels. Forcing the number of AD7746 channels may lead to enabling more
-channels than what the hardware actually supports.
-Avoid num_channels being overwritten after first assignment.
+device_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-Signed-off-by: Lucas Stankus <lucas.p.stankus@gmail.com>
-Fixes: 83e416f458d53 ("staging: iio: adc: Replace, rewrite ad7745 from scratch.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fixes: cbbb819837f6 ("iio: dac: ad5770r: Add AD5770R support")
+Cc: Alexandru Tachici <alexandru.tachici@analog.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/20210510095649.3302835-1-andy.shevchenko@gmail.com
 Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/staging/iio/cdc/ad7746.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/dac/ad5770r.c | 16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/staging/iio/cdc/ad7746.c b/drivers/staging/iio/cdc/ad7746.c
-index dfd71e99e872..eab534dc4bcc 100644
---- a/drivers/staging/iio/cdc/ad7746.c
-+++ b/drivers/staging/iio/cdc/ad7746.c
-@@ -700,7 +700,6 @@ static int ad7746_probe(struct i2c_client *client,
- 		indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	else
- 		indio_dev->num_channels =  ARRAY_SIZE(ad7746_channels) - 2;
--	indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	indio_dev->modes = INDIO_DIRECT_MODE;
+diff --git a/drivers/iio/dac/ad5770r.c b/drivers/iio/dac/ad5770r.c
+index 7ab2ccf90863..8107f7bbbe3c 100644
+--- a/drivers/iio/dac/ad5770r.c
++++ b/drivers/iio/dac/ad5770r.c
+@@ -524,23 +524,29 @@ static int ad5770r_channel_config(struct ad5770r_state *st)
+ 	device_for_each_child_node(&st->spi->dev, child) {
+ 		ret = fwnode_property_read_u32(child, "num", &num);
+ 		if (ret)
+-			return ret;
+-		if (num >= AD5770R_MAX_CHANNELS)
+-			return -EINVAL;
++			goto err_child_out;
++		if (num >= AD5770R_MAX_CHANNELS) {
++			ret = -EINVAL;
++			goto err_child_out;
++		}
  
- 	if (pdata) {
+ 		ret = fwnode_property_read_u32_array(child,
+ 						     "adi,range-microamp",
+ 						     tmp, 2);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
+ 
+ 		min = tmp[0] / 1000;
+ 		max = tmp[1] / 1000;
+ 		ret = ad5770r_store_output_range(st, min, max, num);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
+ 	}
+ 
++	return 0;
++
++err_child_out:
++	fwnode_handle_put(child);
+ 	return ret;
+ }
+ 
 -- 
 2.31.1
 
