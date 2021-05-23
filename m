@@ -2,90 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB7238D85A
-	for <lists+stable@lfdr.de>; Sun, 23 May 2021 04:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0AC938DA38
+	for <lists+stable@lfdr.de>; Sun, 23 May 2021 10:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbhEWCrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 22 May 2021 22:47:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40778 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231495AbhEWCrP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 22 May 2021 22:47:15 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A0C9C06138A
-        for <stable@vger.kernel.org>; Sat, 22 May 2021 19:45:49 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id 10so17982701pfl.1
-        for <stable@vger.kernel.org>; Sat, 22 May 2021 19:45:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=kQdUw3i+6qH8wFbd5nMBYnK83/wdZDOwLJNKJGHXsj0=;
-        b=fpn18oPM6RIf1AMR5ZWpyJeeBER/NanNQyNlOf2w2iYmrZ9lXJIfGKSMn7faSEN5RU
-         TO3xTaOKh93kuhFdibL2zBFdoyOVuqoGO0dhkwNZnl01OyLsT2hHTDa37h085TF1R5TC
-         MY3B5lYIYJ9EUYsnF9Yx5o9j6cCL2MlZwbg9MSAoQwoRXcVj50gBfctZu1JMaw077d21
-         5rdrMrpypQvf4r/8Vy24MQY6MELqXuWwls+ZPiKM4DVS0vX1qKCR2dOt9aVmJBPr6FIp
-         5EVZUFcXeSaFnuHqZbTBGnpwyThYQAgvZtQjTHw9ALEw/e1OmJTGp++InaN8WGVIM+F0
-         4DDw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=kQdUw3i+6qH8wFbd5nMBYnK83/wdZDOwLJNKJGHXsj0=;
-        b=X9A62YP5BipIj8L/5cPSO8r6S96Pzy6X6aS6salAuKQ4CHt0TUAocuOhU71ckUfR96
-         vHHKcrGh9UaxLsIjoWzhfyC4Vhn8Hyr/vDGm936hbYo7seVxRfd7W4OjBdtWggIfEzut
-         4So5y2H9gYXI/5QHFZKowIrXmwbheh11u79NsqMrImhYS0TnJsDcsOzNdyjvTefVGpix
-         dO+vO7FK2cvtzQcWK23/xVFLENRHlLBIGgTWWFdi1Sj1ekFs7lpWiUDi0aG60gPnwVge
-         laW9vipzghbJYJiVQeSxjdd/y7h9oGNwyIBGt4syBpgWGLQopbiWZij4TU86nZEsfd2S
-         btDQ==
-X-Gm-Message-State: AOAM530BEKiWvVbT6q3ee4NlNuZNREQvhEieUSreWeq4oQBLbW0ZXbIH
-        e+WK/AcjnYVj5sU1Lv2emTDht4uugW3DMP0q2kMBOA==
-X-Google-Smtp-Source: ABdhPJwgBkyP397O0+9s9cKSsRDOY4ZvePTqlUHuWy+35wC/4F3ltLJqeZ04WYbdApqDYJMFSzshuEx6Zi0uoohw04o=
-X-Received: by 2002:a05:6a00:2493:b029:2c4:b6dd:d389 with SMTP id
- c19-20020a056a002493b02902c4b6ddd389mr17975096pfv.2.1621737948711; Sat, 22
- May 2021 19:45:48 -0700 (PDT)
+        id S231679AbhEWIWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 23 May 2021 04:22:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40868 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231599AbhEWIWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 23 May 2021 04:22:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF82C61263;
+        Sun, 23 May 2021 08:21:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621758074;
+        bh=MICF+Uu1HkhetRxQCscJNaBrHSc35hE+tXwnn6k6VUE=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BxQGlTsr5rBXr9k0Gh1xiDMJaKVu8hEpBcU8BD75BH1RlSMLE5q/MOipnZP80e3S3
+         ZA3H/dO78sbvmjI/DZxaUPTPHLc5yrVGjiyxI3dIh1NlDue3adN5ruhgORXE+qYoSD
+         iXLMxUIrvdCuVo+I9ACpjjz7Qd9cuVeSacORuac8=
+Date:   Sun, 23 May 2021 10:21:10 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Marc Kleine-Budde <mkl@pengutronix.de>
+Cc:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Francois Gervais <fgervais@distech-controls.com>,
+        linux-rtc@vger.kernel.org,
+        Michael McCormick <michael.mccormick@enatel.net>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/1] rtc: pcf85063: fallback to parent of_node
+Message-ID: <YKoQds5N0dP2Gjg5@kroah.com>
+References: <20210310211026.27299-1-fgervais@distech-controls.com>
+ <161861118020.865088.6364463756780633947.b4-ty@bootlin.com>
+ <20210522153636.ymyyq4vtzz2dq5k2@pengutronix.de>
 MIME-Version: 1.0
-References: <20210521233952.236434-1-mike.kravetz@oracle.com>
-In-Reply-To: <20210521233952.236434-1-mike.kravetz@oracle.com>
-From:   Muchun Song <songmuchun@bytedance.com>
-Date:   Sun, 23 May 2021 10:45:11 +0800
-Message-ID: <CAMZfGtVnGMu9SU8U+aXp6YKz0p1pBxcYy4OMpNftpkxTbJBM8w@mail.gmail.com>
-Subject: Re: [External] [PATCH] userfaultfd: hugetlbfs: fix new flag usage in
- error path
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     Linux Memory Management List <linux-mm@kvack.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        Oscar Salvador <osalvador@suse.de>,
-        Michal Hocko <mhocko@suse.com>,
-        Naoya Horiguchi <n-horiguchi@ah.jp.nec.com>,
-        David Hildenbrand <david@redhat.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Mina Almasry <almasrymina@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        linux- stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210522153636.ymyyq4vtzz2dq5k2@pengutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, May 22, 2021 at 7:40 AM Mike Kravetz <mike.kravetz@oracle.com> wrote:
->
-> In commit d6995da31122 ("hugetlb: use page.private for hugetlb specific
-> page flags") the use of PagePrivate to indicate a reservation count
-> should be restored at free time was changed to the hugetlb specific flag
-> HPageRestoreReserve.  Changes to a userfaultfd error path as well as a
-> VM_BUG_ON() in remove_inode_hugepages() were overlooked.
->
-> Users could see incorrect hugetlb reserve counts if they experience an
-> error with a UFFDIO_COPY operation.  Specifically, this would be the
-> result of an unlikely copy_huge_page_from_user error.  There is not an
-> increased chance of hitting the VM_BUG_ON.
->
-> Fixes: d6995da31122 ("hugetlb: use page.private for hugetlb specific page flags")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+On Sat, May 22, 2021 at 05:36:36PM +0200, Marc Kleine-Budde wrote:
+> Hello Greg,
+> 
+> On 17.04.2021 00:16:40, Alexandre Belloni wrote:
+> > On Wed, 10 Mar 2021 16:10:26 -0500, Francois Gervais wrote:
+> > > The rtc device node is always or at the very least can possibly be NULL.
+> > > 
+> > > Since v5.12-rc1-dontuse/3c9ea42802a1fbf7ef29660ff8c6e526c58114f6 this
+> > > will lead to a NULL pointer dereference.
+> > > 
+> > > To fix this we fallback to using the parent node which is the i2c client
+> > > node as set by devm_rtc_allocate_device().
+> > > 
+> > > [...]
+> > 
+> > Applied, thanks!
+> > 
+> > [1/1] rtc: pcf85063: fallback to parent of_node
+> >       commit: 03531606ef4cda25b629f500d1ffb6173b805c05
+> > 
+> > I made the fallback unconditionnal because this should have been that way from
+> > the beginning as you point out.
+> 
+> can you queue this for stable, as it causes a NULL Pointer deref with
+> (at least) v5.12.
 
-Reviewed-by: Muchun Song <songmuchun@bytedance.com>
+After it hits Linus's tree, let stable@vger.kernel.org know the id and
+we will glad to add it to the stable trees.
 
-Thanks Mike.
+thanks,
+
+greg k-h
