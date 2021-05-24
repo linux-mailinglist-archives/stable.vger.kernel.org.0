@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C383B38EDB5
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:39:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 52AB038EEE6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233509AbhEXPlF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
+        id S234715AbhEXPze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233875AbhEXPiu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:38:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4033961402;
-        Mon, 24 May 2021 15:33:40 +0000 (UTC)
+        id S234990AbhEXPy4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C04FC61883;
+        Mon, 24 May 2021 15:40:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870420;
-        bh=8Pc6/+iZw0Ip+WPzob1jaCDN8GJ6Kzbg0KsNJ8f9xjw=;
+        s=korg; t=1621870810;
+        bh=7lLBXv9BP03ERrxVJnmTM4KK2HhTSH6JzRQruoxNAD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdHPA/Qq3chqgj/xs1981DwXTAt0Ht+vFtb1YZcxPAhrtulOe1nyHE0xTUZ/C1G5m
-         fCz130iJ0cYHkdMlJACwCWYHUbKKWU9T5/Wa3gtIxToWq3NaT5dXtt8jX/fJpmWfIL
-         xDUvD7tcZGL0Ot4m+Fa4gLF1UrdHEd5xhhO9IRzw=
+        b=EzEEPPZBb6aWwObF558gSpEwBhFEfRexH85twIfgx3GSibeeaoNsABzMSoh+XiJZW
+         Mknk/8fwnacyB7oLz5/CL/RemnZWZen0Po9cVZhOg8DUImG4hp6clfLqzRQcF9Oep0
+         8tW9Zkolrq0PKBkKPmoSMintt/iz6r/ZNMu3F6hw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 08/37] ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 017/104] nvme-fc: clear q_live at beginning of association teardown
 Date:   Mon, 24 May 2021 17:25:12 +0200
-Message-Id: <20210524152324.470902757@linuxfoundation.org>
+Message-Id: <20210524152333.397056264@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: James Smart <jsmart2021@gmail.com>
 
-commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f upstream.
+[ Upstream commit a7d139145a6640172516b193abf6d2398620aa14 ]
 
-Mackie d.2 has an extension card for IEEE 1394 communication, which uses
-BridgeCo DM1000 ASIC. On the other hand, Mackie d.4 Pro has built-in
-function for IEEE 1394 communication by Oxford Semiconductor OXFW971,
-according to schematic diagram available in Mackie website. Although I
-misunderstood that Mackie d.2 Pro would be also a model with OXFW971,
-it's wrong. Mackie d.2 Pro is a model which includes the extension card
-as factory settings.
+The __nvmf_check_ready() routine used to bounce all filesystem io if the
+controller state isn't LIVE.  However, a later patch changed the logic so
+that it rejection ends up being based on the Q live check.  The FC
+transport has a slightly different sequence from rdma and tcp for
+shutting down queues/marking them non-live.  FC marks its queue non-live
+after aborting all ios and waiting for their termination, leaving a
+rather large window for filesystem io to continue to hit the transport.
+Unfortunately this resulted in filesystem I/O or applications seeing I/O
+errors.
 
-This commit fixes entries in Kconfig and comment in ALSA OXFW driver.
+Change the FC transport to mark the queues non-live at the first sign of
+teardown for the association (when I/O is initially terminated).
 
-Cc: <stable@vger.kernel.org>
-Fixes: fd6f4b0dc167 ("ALSA: bebob: Add skelton for BeBoB based devices")
-Fixes: ec4dba5053e1 ("ALSA: oxfw: Add support for Behringer/Mackie devices")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-3-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 73a5379937ec ("nvme-fabrics: allow to queue requests for live queues")
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/Kconfig       |    4 ++--
- sound/firewire/bebob/bebob.c |    2 +-
- sound/firewire/oxfw/oxfw.c   |    1 -
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/nvme/host/fc.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -37,7 +37,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx 1640i (former model)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.2 pro/d.4 pro
-+	   * Mackie(Loud) d.4 pro
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -83,7 +83,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option)
-+	  * Mackie d.2 (FireWire Option) and d.2 Pro
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -414,7 +414,7 @@ static const struct ieee1394_device_id b
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	/* Mackie, d.2 (Firewire Option) */
-+	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -406,7 +406,6 @@ static const struct ieee1394_device_id o
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.2 pro:				Unknown
- 	 *  d.4 pro:				Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 41257daf7464..a0bcec33b020 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2460,6 +2460,18 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+ static void
+ __nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
+ {
++	int q;
++
++	/*
++	 * if aborting io, the queues are no longer good, mark them
++	 * all as not live.
++	 */
++	if (ctrl->ctrl.queue_count > 1) {
++		for (q = 1; q < ctrl->ctrl.queue_count; q++)
++			clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[q].flags);
++	}
++	clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[0].flags);
++
+ 	/*
+ 	 * If io queues are present, stop them and terminate all outstanding
+ 	 * ios on them. As FC allocates FC exchange for each io, the
+-- 
+2.30.2
+
 
 
