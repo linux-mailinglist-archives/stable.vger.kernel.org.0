@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 686EE38EFF0
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8721238EFF8
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbhEXQA2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:00:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
+        id S234556AbhEXQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234086AbhEXP7i (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:59:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E1D761977;
-        Mon, 24 May 2021 15:45:28 +0000 (UTC)
+        id S235601AbhEXP7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A14776197B;
+        Mon, 24 May 2021 15:45:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871128;
-        bh=ixhFpQz0nlCLsTx+AGp7ZLRmJh2P0VlBJgxy83FfUmE=;
+        s=korg; t=1621871131;
+        bh=ySwN1vJxApLi8y0eY292G8HYXaeIbbwM7aDyxINP+h4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m/f8wWn8P4/UEkgDd19ivg9+KKbBx67TOqsYPbX8i4jYgEMgt0ZzZMdIoX1PdOEX0
-         Tl8MdCer+7Kxr2CoujD2/YmpNw0Iq/6E3Qbap54Db8RfT2euUqljE0tykvvEo5/Z8g
-         L/dSANEgwKmlTjwdB0P61yS/Arxn72trxjWwku7A=
+        b=YaMuty5GFQoQB6g2OKWMMRduQMZOapDbolsTDRaEeUxW4tlTYq3qVObXCf1xtFz3k
+         GSD0ahZUuyAJAoxsXi+UAiRpf6usg/elIzCaMFMK9xlTxn5MVfA7eCyn7FKxluFAIg
+         EmBtrIXzF1Z9F0qAsJq2cP1OwhzmvauJ8n4arYuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christian Hewitt <christianshewitt@gmail.com>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.12 086/127] mmc: meson-gx: also check SD_IO_RW_EXTENDED for scatterlist size alignment
-Date:   Mon, 24 May 2021 17:26:43 +0200
-Message-Id: <20210524152337.767670885@linuxfoundation.org>
+        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Subject: [PATCH 5.12 087/127] gpio: tegra186: Dont set parent IRQ affinity
+Date:   Mon, 24 May 2021 17:26:44 +0200
+Message-Id: <20210524152337.800955781@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -41,43 +40,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Jon Hunter <jonathanh@nvidia.com>
 
-commit 9b81354d7ebc1fd17f666a168dcabf27dae290bd upstream.
+commit bdbe871ef0caa660e16461a2a94579d9f9ef7ba4 upstream.
 
-The brcmfmac driver can generate a scatterlist from a skb with each packets
-not aligned to the block size. This is not supported by the Amlogic Descriptor
-dma engine where each descriptor must match a multiple of the block size.
+When hotplugging CPUs on Tegra186 and Tegra194 errors such as the
+following are seen ...
 
-The sg list is valid, since the sum of the sg buffers is a multiple of the
-block size, but we must discard those when in SD_IO_RW_EXTENDED mode since
-SDIO block mode can be used under the hood even with data->blocks == 1.
+ IRQ63: set affinity failed(-22).
+ IRQ65: set affinity failed(-22).
+ IRQ66: set affinity failed(-22).
+ IRQ67: set affinity failed(-22).
 
-Those transfers are very rare, thus can be replaced by a bounce buffer
-without real performance loss.
+Looking at the /proc/interrupts the above are all interrupts associated
+with GPIOs. The reason why these error messages occur is because there
+is no 'parent_data' associated with any of the GPIO interrupts and so
+tegra186_irq_set_affinity() simply returns -EINVAL.
 
-Fixes: 7412dee9f1fd ("mmc: meson-gx: replace WARN_ONCE with dev_warn_once about scatterlist size alignment in block mode")
-Cc: stable@vger.kernel.org
-Reported-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Link: https://lore.kernel.org/r/20210426175559.3110575-2-narmstrong@baylibre.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+To understand why there is no 'parent_data' it is first necessary to
+understand that in addition to the GPIO interrupts being routed to the
+interrupt controller (GIC), the interrupts for some GPIOs are also
+routed to the Tegra Power Management Controller (PMC) to wake up the
+system from low power states. In order to configure GPIO events as
+wake events in the PMC, the PMC is configured as IRQ parent domain
+for the GPIO IRQ domain. Originally the GIC was the IRQ parent domain
+of the PMC and although this was working, this started causing issues
+once commit 64a267e9a41c ("irqchip/gic: Configure SGIs as standard
+interrupts") was added, because technically, the GIC is not a parent
+of the PMC. Commit c351ab7bf2a5 ("soc/tegra: pmc: Don't create fake
+interrupt hierarchy levels") fixed this by severing the IRQ domain
+hierarchy for the Tegra GPIOs and hence, there may be no IRQ parent
+domain for the GPIOs.
+
+The GPIO controllers on Tegra186 and Tegra194 have either one or six
+interrupt lines to the interrupt controller. For GPIO controllers with
+six interrupts, the mapping of the GPIO interrupt to the controller
+interrupt is configurable within the GPIO controller. Currently a
+default mapping is used, however, it could be possible to use the
+set affinity callback for the Tegra186 GPIO driver to do something a
+bit more interesting. Currently, because interrupts for all GPIOs are
+have the same mapping and any attempts to configure the affinity for
+a given GPIO can conflict with another that shares the same IRQ, for
+now it is simpler to just remove set affinity support and this avoids
+the above warnings being seen.
+
+Cc: <stable@vger.kernel.org>
+Fixes: c4e1f7d92cd6 ("gpio: tegra186: Set affinity callback to parent")
+Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/meson-gx-mmc.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/gpio/gpio-tegra186.c |   11 -----------
+ 1 file changed, 11 deletions(-)
 
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -236,7 +236,8 @@ static void meson_mmc_get_transfer_mode(
- 	if (host->dram_access_quirk)
- 		return;
+--- a/drivers/gpio/gpio-tegra186.c
++++ b/drivers/gpio/gpio-tegra186.c
+@@ -444,16 +444,6 @@ static int tegra186_irq_set_wake(struct
+ 	return 0;
+ }
  
--	if (data->blocks > 1) {
-+	/* SD_IO_RW_EXTENDED (CMD53) can also use block mode under the hood */
-+	if (data->blocks > 1 || mrq->cmd->opcode == SD_IO_RW_EXTENDED) {
- 		/*
- 		 * In block mode DMA descriptor format, "length" field indicates
- 		 * number of blocks and there is no way to pass DMA size that
+-static int tegra186_irq_set_affinity(struct irq_data *data,
+-				     const struct cpumask *dest,
+-				     bool force)
+-{
+-	if (data->parent_data)
+-		return irq_chip_set_affinity_parent(data, dest, force);
+-
+-	return -EINVAL;
+-}
+-
+ static void tegra186_gpio_irq(struct irq_desc *desc)
+ {
+ 	struct tegra_gpio *gpio = irq_desc_get_handler_data(desc);
+@@ -700,7 +690,6 @@ static int tegra186_gpio_probe(struct pl
+ 	gpio->intc.irq_unmask = tegra186_irq_unmask;
+ 	gpio->intc.irq_set_type = tegra186_irq_set_type;
+ 	gpio->intc.irq_set_wake = tegra186_irq_set_wake;
+-	gpio->intc.irq_set_affinity = tegra186_irq_set_affinity;
+ 
+ 	irq = &gpio->gpio.irq;
+ 	irq->chip = &gpio->intc;
 
 
