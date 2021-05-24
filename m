@@ -2,62 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4991E38E72C
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 15:14:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68DD438E614
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 14:01:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232456AbhEXNP2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 09:15:28 -0400
-Received: from mbox.abcom.al ([217.73.143.249]:56610 "EHLO mbox.abcom.al"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232401AbhEXNP2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 09:15:28 -0400
-Received: from localhost (localhost [127.0.0.1])
-        by mbox.abcom.al (Postfix) with ESMTP id 9EBCC121D3F06;
-        Mon, 24 May 2021 13:52:24 +0200 (CEST)
-Received: from mbox.abcom.al ([127.0.0.1])
-        by localhost (mbox.abcom.al [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id d-bTOk1laZaI; Mon, 24 May 2021 13:52:24 +0200 (CEST)
-Received: from localhost (localhost [127.0.0.1])
-        by mbox.abcom.al (Postfix) with ESMTP id 28957124B322A;
-        Mon, 24 May 2021 13:52:21 +0200 (CEST)
-DKIM-Filter: OpenDKIM Filter v2.10.3 mbox.abcom.al 28957124B322A
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=abcom.al;
-        s=0F3BA0EE-D5D4-11E8-9596-F9115129F2F4; t=1621857141;
-        bh=HuNbWpD0Q63mERpLCwbu3ipIgUOcLd5VzVGqOBW/NWs=;
-        h=MIME-Version:To:From:Date:Message-Id;
-        b=HrK5r9V+U0P/dUI+pccqnrQD9jSs8W+j2OeaNL4RfbqNrv5boNVmVTGg3q1pX8Z4o
-         mBpzBANk1e1yUCdtFd9XzQu0EOwelTO7XzA0ZEZpikl9tFAi2aM1ds4r2r4/iXiDUp
-         1hSbVkGSPcBoXuoHSudKEnLd9mwlRUj8YKprs4BFvKzGiGE1rAxN91T0TfrRIDD3z+
-         ZtXK5Vlj+/IXKB3CTFtH5SQXDygIMMmruMtjDqMBW4wIQvaVNI9LLob9QhDPewzk4x
-         cPW/9+zsncAHaP2XGt0/D6Ixra826B4UG4ssEAcgibjUV0fgpR8v6j/1OQfZq/6W6Q
-         VnezXQHFa3EbA==
-X-Virus-Scanned: amavisd-new at mbox.abcom.al
-Received: from mbox.abcom.al ([127.0.0.1])
-        by localhost (mbox.abcom.al [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id KjQ0qMfi-ZyF; Mon, 24 May 2021 13:52:21 +0200 (CEST)
-Received: from [10.116.179.222] (unknown [105.12.1.179])
-        by mbox.abcom.al (Postfix) with ESMTPSA id 1EA78E1784A9;
-        Mon, 24 May 2021 13:52:06 +0200 (CEST)
-Content-Type: text/plain; charset="utf-8"
+        id S232934AbhEXMCu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 08:02:50 -0400
+Received: from new4-smtp.messagingengine.com ([66.111.4.230]:44305 "EHLO
+        new4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232819AbhEXMCY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 08:02:24 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailnew.nyi.internal (Postfix) with ESMTP id 5796F58270C;
+        Mon, 24 May 2021 08:00:56 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 24 May 2021 08:00:56 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm3; bh=9b68iKsk8DPJHoYxXOYWybMr7+T
+        fDaS+j0bppFnZpLo=; b=aYxbuGTfofOqjr3l46ffYuGleIRL9XBMhQT9Zgknwgw
+        26NkeNlothDsGmm8UFEZmbC+pKj3pmmsMdvMsNNcbq2zPbYxcjxAb7tpLZu82mVE
+        O/EHyv/z8hMS3yhLHIufw1U1MYjzY5hPEH2uflSCkBXwCThXDRgsrx9R5dt4PBms
+        5JJlgeFs4/jd+O1Rn2PSON4UBWvpiOTeVDLWdlmZTDBuY+py9ADefYRG6W41HKVF
+        fG7wd9888EWenY7VaqPCI7XN8C5qUHZxSKs/aPHP8WI+o+L9z33VGny19xj4GfsL
+        vURJYFnKkHrkEYdf+wAtdXaoZMhVtLxar6e0BLVrJ3w==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=9b68iK
+        sk8DPJHoYxXOYWybMr7+TfDaS+j0bppFnZpLo=; b=EpqzaZa8hQY2XMl+bD4Ibs
+        5J6Vx3hDVHqcdvcNMW8piRtpH0jcqRY3Os4gGw/ygc9Ue3EDY+ZGeaMttHDw9ciJ
+        09La2Xqx/wwAwsCJcAol9yS9QLLCN9I0IF7b6O9k17OO78KXEtu069hJROzdpt/g
+        3/V+2952OmNHIF/VqPdc/rRa9+cqwPjje6Beqw7F9oVxOc0Z+vPuDmZijV2Mi1Ac
+        iSMzezWYvVFQe/UBgvC3dAsnyjYW2SdO3TZ1Ti6SyXiUFcSld9G5Ibp8bujTtOij
+        gyd6TB0DeFCOKA4aK/aIj+kuiU0jUua8KrPV/ulBca0yepvFhHsGahk44NTtHA8g
+        ==
+X-ME-Sender: <xms:d5WrYLCt6JBEFXq5dMXTK_K1Q3FLgT31oN4r4jvVxsWpYdRzh2sMhw>
+    <xme:d5WrYBgwVMUKI1qPW2FOMwhRCGrI4CWiJcTRDO2pR4nI12yvgQDgdvITGSUaKwxL_
+    olHgkLdI1pLXA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledggeekucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgvghcu
+    mffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeevueehje
+    fgfffgiedvudekvdektdelleelgefhleejieeugeegveeuuddukedvteenucfkphepkeef
+    rdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrih
+    hlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:d5WrYGlijsWGTkjJsz5c8gLwDWUyzsmaUSUivmTlzpiqr6F_oM71dg>
+    <xmx:d5WrYNyouRWKitd-ArnyUUpxd_X5AfNFLeJGgqx16xtp0wSxBgmYYw>
+    <xmx:d5WrYARS1ryrICK-Xz-tJKA-ewqwE7h5Ph_p_hAkTQKHVSNbjYDu9Q>
+    <xmx:eJWrYCD5kumaSPNhpAhDiLvUVssdoO1Xu-KGyHyCq4R9iZDe2TpjIQ>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 24 May 2021 08:00:54 -0400 (EDT)
+Date:   Mon, 24 May 2021 14:00:41 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
+        dri-devel <dri-devel@lists.freedesktop.org>,
+        Linux Fbdev development list <linux-fbdev@vger.kernel.org>
+Subject: Re: [PATCH AUTOSEL 5.12 5/5] tty: vt: always invoke
+ vc->vc_sw->con_resize callback
+Message-ID: <YKuVaUJFp0K929k+@kroah.com>
+References: <20210518010940.1485417-1-sashal@kernel.org>
+ <20210518010940.1485417-5-sashal@kernel.org>
+ <CAHk-=whw9_rp0NYTsCqcGnUkcV5Qgv7FTxADtPrdq4KFmsj+Lg@mail.gmail.com>
+ <YKNUl/f/c8HfF6dS@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Wichtige Mitteilung
-To:     Recipients <mtodo@abcom.al>
-From:   "William Kruger" <mtodo@abcom.al>
-Date:   Mon, 24 May 2021 04:51:46 -0700
-Reply-To: williamkrugeroffice@gmail.com
-Message-Id: <20210524115207.1EA78E1784A9@mbox.abcom.al>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YKNUl/f/c8HfF6dS@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Ich hei=C3=9Fe William Kruger. Ich habe einen Jackpot mit einem Preisgeld v=
-on 168 Millionen Dollar gewonnen.
+On Tue, May 18, 2021 at 07:45:59AM +0200, Greg KH wrote:
+> On Mon, May 17, 2021 at 06:35:24PM -0700, Linus Torvalds wrote:
+> > On Mon, May 17, 2021 at 6:09 PM Sasha Levin <sashal@kernel.org> wrote:
+> > >
+> > > From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+> > >
+> > > [ Upstream commit ffb324e6f874121f7dce5bdae5e05d02baae7269 ]
+> > 
+> > So I think the commit is fine, and yes, it should be applied to
+> > stable, but it's one of those "there were three different patches in
+> > as many days to fix the problem, and this is the right one, but maybe
+> > stable should hold off for a while to see that there aren't any
+> > problem reports".
+> > 
+> > I don't think there will be any problems from this, but while the
+> > patch is tiny, it's conceptually quite a big change to something that
+> > people haven't really touched for a long time.
+> > 
+> > So use your own judgement, but it might be a good idea to wait a week
+> > before backporting this to see if anything screams.
+> 
+> I was going to wait a few weeks for this, and the other vt patches that
+> were marked with cc: stable@ before queueing them up.
 
-Ich spende =E2=82=AC 850,000.00 EUR, um die Menschheit zu unterst=C3=BCtzen.
+I have now queued all of these up.
 
-Antworten Sie zur=C3=BCck, um weitere Informationen zu erhalten.
-
-Freundliche Gr=C3=BC=C3=9Fe
-William Kruger
+greg k-h
