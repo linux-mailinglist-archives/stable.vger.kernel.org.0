@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24D3238EECB
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E3F038EFAC
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234062AbhEXPzT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
+        id S233450AbhEXP6z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234762AbhEXPyR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E88B6142A;
-        Mon, 24 May 2021 15:39:43 +0000 (UTC)
+        id S234255AbhEXP6D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 943F861960;
+        Mon, 24 May 2021 15:43:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870784;
-        bh=CDRMBNjaStc0Wy7yYEz1n1EtEWzMYRWonj//RK82c3s=;
+        s=korg; t=1621871040;
+        bh=oIaaE+lymUrXstD0xnY07JxPAhOLYAqdHuB9GSYkgWk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=miqslYpa5XHzVDoGbXHwC0t8vigybL2jp5WblqfCF1Z5r7HwvVdIed2cthmaUmkJE
-         06QeZOiilM4CM/bVY5vJTlNNCUsOiaE/nVXz5tqljsniKVb/gkbkl5+J0qbzUESHP5
-         1WJygN/LVCLT9eYT8fob3aC5keudbKJmhRQaJ3Ag=
+        b=yBGKjWUnHjQeZjyF/v7Moj4oK4y0KKVjqsnOBz6ftxM1lqTSR0ns2c1kmNZ0qVJuZ
+         vTTaDDfiqgrpNCqbCjD2LcslnHFQWXrZhaunSbHWY2yfw6cwwrjlyPrjrFTPWAEZK8
+         0g2qShezaMuwPC9SZgk3c4T5RESEvdv9kE/TPSEY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Hsin-Yi Wang <hsinyi@chromium.org>
-Subject: [PATCH 5.10 033/104] misc: eeprom: at24: check suspend status before disable regulator
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Javed Hasan <jhasan@marvell.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 011/127] scsi: qedf: Add pointer checks in qedf_update_link_speed()
 Date:   Mon, 24 May 2021 17:25:28 +0200
-Message-Id: <20210524152333.924476885@linuxfoundation.org>
+Message-Id: <20210524152335.237280989@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hsin-Yi Wang <hsinyi@chromium.org>
+From: Javed Hasan <jhasan@marvell.com>
 
-commit 2962484dfef8dbb7f9059822bc26ce8a04d0e47c upstream.
+[ Upstream commit 73578af92a0fae6609b955fcc9113e50e413c80f ]
 
-cd5676db0574 ("misc: eeprom: at24: support pm_runtime control") disables
-regulator in runtime suspend. If runtime suspend is called before
-regulator disable, it will results in regulator unbalanced disabling.
+The following trace was observed:
 
-Fixes: cd5676db0574 ("misc: eeprom: at24: support pm_runtime control")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Hsin-Yi Wang <hsinyi@chromium.org>
-Link: https://lore.kernel.org/r/20210420133050.377209-1-hsinyi@chromium.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ [   14.042059] Call Trace:
+ [   14.042061]  <IRQ>
+ [   14.042068]  qedf_link_update+0x144/0x1f0 [qedf]
+ [   14.042117]  qed_link_update+0x5c/0x80 [qed]
+ [   14.042135]  qed_mcp_handle_link_change+0x2d2/0x410 [qed]
+ [   14.042155]  ? qed_set_ptt+0x70/0x80 [qed]
+ [   14.042170]  ? qed_set_ptt+0x70/0x80 [qed]
+ [   14.042186]  ? qed_rd+0x13/0x40 [qed]
+ [   14.042205]  qed_mcp_handle_events+0x437/0x690 [qed]
+ [   14.042221]  ? qed_set_ptt+0x70/0x80 [qed]
+ [   14.042239]  qed_int_sp_dpc+0x3a6/0x3e0 [qed]
+ [   14.042245]  tasklet_action_common.isra.14+0x5a/0x100
+ [   14.042250]  __do_softirq+0xe4/0x2f8
+ [   14.042253]  irq_exit+0xf7/0x100
+ [   14.042255]  do_IRQ+0x7f/0xd0
+ [   14.042257]  common_interrupt+0xf/0xf
+ [   14.042259]  </IRQ>
+
+API qedf_link_update() is getting called from QED but by that time
+shost_data is not initialised. This results in a NULL pointer dereference
+when we try to dereference shost_data while updating supported_speeds.
+
+Add a NULL pointer check before dereferencing shost_data.
+
+Link: https://lore.kernel.org/r/20210512072533.23618-1-jhasan@marvell.com
+Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/eeprom/at24.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/scsi/qedf/qedf_main.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/eeprom/at24.c
-+++ b/drivers/misc/eeprom/at24.c
-@@ -763,7 +763,8 @@ static int at24_probe(struct i2c_client
- 	at24->nvmem = devm_nvmem_register(dev, &nvmem_config);
- 	if (IS_ERR(at24->nvmem)) {
- 		pm_runtime_disable(dev);
--		regulator_disable(at24->vcc_reg);
-+		if (!pm_runtime_status_suspended(dev))
-+			regulator_disable(at24->vcc_reg);
- 		return PTR_ERR(at24->nvmem);
- 	}
+diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
+index cec27f2ef70d..e5076f09d5ed 100644
+--- a/drivers/scsi/qedf/qedf_main.c
++++ b/drivers/scsi/qedf/qedf_main.c
+@@ -536,7 +536,9 @@ static void qedf_update_link_speed(struct qedf_ctx *qedf,
+ 	if (linkmode_intersects(link->supported_caps, sup_caps))
+ 		lport->link_supported_speeds |= FC_PORTSPEED_20GBIT;
  
-@@ -774,7 +775,8 @@ static int at24_probe(struct i2c_client
- 	err = at24_read(at24, 0, &test_byte, 1);
- 	if (err) {
- 		pm_runtime_disable(dev);
--		regulator_disable(at24->vcc_reg);
-+		if (!pm_runtime_status_suspended(dev))
-+			regulator_disable(at24->vcc_reg);
- 		return -ENODEV;
- 	}
+-	fc_host_supported_speeds(lport->host) = lport->link_supported_speeds;
++	if (lport->host && lport->host->shost_data)
++		fc_host_supported_speeds(lport->host) =
++			lport->link_supported_speeds;
+ }
  
+ static void qedf_bw_update(void *dev)
+-- 
+2.30.2
+
 
 
