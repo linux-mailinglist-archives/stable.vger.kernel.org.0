@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 89A9C38EF1C
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D17AA38EFE5
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235179AbhEXP4G (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
+        id S235841AbhEXQAP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233430AbhEXPzK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6425E610A6;
-        Mon, 24 May 2021 15:41:36 +0000 (UTC)
+        id S234798AbhEXP71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B526145F;
+        Mon, 24 May 2021 15:45:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870896;
-        bh=z/0ZIzRTAXnsmjvowKRG/KFQdJ1tm7t7WH8MCLSYgok=;
+        s=korg; t=1621871113;
+        bh=7KfIVN9pHpu0B/eBNxr7NuZtnIQ0ibfV+1Q4rIUF92A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZDF8DTnXZpoNRGbIcx596S1QhuMZtTBYI0r6/5A8ib4ACjJYJNfZ+UunzRFTzY30s
-         sI4nAR6/xvYvUM6CmdUZ/4ELm0mtZOJeK/k84uqOwsLOcsS9LMyBZXxCfqigLkHk00
-         mBd8HKITKiGSlArXWz4QviXzzktNCR3lkvCw7rkc=
+        b=O/onWhWzYYny1gdvncIBjS3NKGcrHMNG6MXELyFADCyT9vwOE/siF9qTpJE8YEiAt
+         eFxCqRJclgiXEjPhPAsAAVm/Uh2/H77dBx1h3SRl9kRI36tidNGQwg4jmnPf6NDyQr
+         HZgv7pwvhpQwLd025jrkTOI7FxTlRQ8oHt1TCcro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Subject: [PATCH 5.10 083/104] Revert "media: rcar_drif: fix a memory disclosure"
-Date:   Mon, 24 May 2021 17:26:18 +0200
-Message-Id: <20210524152335.602551401@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Subject: [PATCH 5.12 062/127] uio_hv_generic: Fix another memory leak in error handling paths
+Date:   Mon, 24 May 2021 17:26:19 +0200
+Message-Id: <20210524152336.928538044@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,43 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 3e465fc3846734e9489273d889f19cc17b4cf4bd upstream.
+commit 0b0226be3a52dadd965644bc52a807961c2c26df upstream.
 
-This reverts commit d39083234c60519724c6ed59509a2129fd2aed41.
+Memory allocated by 'vmbus_alloc_ring()' at the beginning of the probe
+function is never freed in the error handling path.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Add the missing 'vmbus_free_ring()' call.
 
-Upon review, it was determined that this commit is not needed at all as
-the media core already prevents memory disclosure on this codepath, so
-just drop the extra memset happening here.
+Note that it is already freed in the .remove function.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
-Fixes: d39083234c60 ("media: rcar_drif: fix a memory disclosure")
+Fixes: cdfa835c6e5e ("uio_hv_generic: defer opening vmbus until first use")
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-4-gregkh@linuxfoundation.org
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Link: https://lore.kernel.org/r/0d86027b8eeed8e6360bc3d52bcdb328ff9bdca1.1620544055.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/platform/rcar_drif.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/uio/uio_hv_generic.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/media/platform/rcar_drif.c
-+++ b/drivers/media/platform/rcar_drif.c
-@@ -915,7 +915,6 @@ static int rcar_drif_g_fmt_sdr_cap(struc
- {
- 	struct rcar_drif_sdr *sdr = video_drvdata(file);
+--- a/drivers/uio/uio_hv_generic.c
++++ b/drivers/uio/uio_hv_generic.c
+@@ -291,7 +291,7 @@ hv_uio_probe(struct hv_device *dev,
+ 	pdata->recv_buf = vzalloc(RECV_BUFFER_SIZE);
+ 	if (pdata->recv_buf == NULL) {
+ 		ret = -ENOMEM;
+-		goto fail_close;
++		goto fail_free_ring;
+ 	}
  
--	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
- 	f->fmt.sdr.pixelformat = sdr->fmt->pixelformat;
- 	f->fmt.sdr.buffersize = sdr->fmt->buffersize;
+ 	ret = vmbus_establish_gpadl(channel, pdata->recv_buf,
+@@ -351,6 +351,8 @@ hv_uio_probe(struct hv_device *dev,
  
+ fail_close:
+ 	hv_uio_cleanup(dev, pdata);
++fail_free_ring:
++	vmbus_free_ring(dev->channel);
+ 
+ 	return ret;
+ }
 
 
