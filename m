@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC57638EE8E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3511738EDBD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbhEXPwC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:52:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38624 "EHLO mail.kernel.org"
+        id S234038AbhEXPlX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:41:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234830AbhEXPuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D976148E;
-        Mon, 24 May 2021 15:38:01 +0000 (UTC)
+        id S234146AbhEXPjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BA31A61420;
+        Mon, 24 May 2021 15:33:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870682;
-        bh=/1Yh/HBLKb6KqicjCCwW7ViIO/vqvPEuwUkgWk8PZ6A=;
+        s=korg; t=1621870427;
+        bh=aNOCDNl4Nwk6cB4xfBZkqrMwit3VkEhdXsg9HCEXt8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RlbziZOy5PMVq04J3FEVDC4xNUtlAbbfT+zj0A8vz9k1Xpi5lii+7GNf7DSwl38L4
-         SQlLrU6PtjB3EYuN0s7qSqqt5G1Zsf4I0z9hpZuaWGSzQzQHMwICYqMfB3fLEVg7JT
-         v817qrbwg9msrJOqrxeJyAKUukGgQNfgRmznKrws=
+        b=YEj9Yo5e/PUeGgrIr38mIvTS0HeZcloeja2BUz6ezYAA0vHClCWZC0yxoSj4R/Pdb
+         IPRhu98atahklMwLnbdhrMgU0cH68QR4JNlAS9Q9GAU7Pz1iPFICRxDVvsPDT/ZVei
+         vbIUr2DYWWLP+l/zfhbrMe6SnDKari6VkOOSkAqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 26/71] Revert "ALSA: sb8: add a check for request_region"
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 28/37] Revert "niu: fix missing checks of niu_pci_eeprom_read"
 Date:   Mon, 24 May 2021 17:25:32 +0200
-Message-Id: <20210524152327.310700972@linuxfoundation.org>
+Message-Id: <20210524152325.118330809@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,9 +42,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 94f88309f201821073f57ae6005caefa61bf7b7e upstream.
+commit 7930742d6a0ff091c85b92ef4e076432d8d8cb79 upstream.
 
-This reverts commit dcd0feac9bab901d5739de51b3f69840851f8919.
+This reverts commit 26fd962bde0b15e54234fe762d86bc0349df1de4.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -53,33 +54,49 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original commit message for this change was incorrect as the code
-path can never result in a NULL dereference, alluding to the fact that
-whatever tool was used to "find this" is broken.  It's just an optional
-resource reservation, so removing this check is fine.
+The change here was incorrect.  While it is nice to check if
+niu_pci_eeprom_read() succeeded or not when using the data, any error
+that might have happened was not propagated upwards properly, causing
+the kernel to assume that these reads were successful, which results in
+invalid data in the buffer that was to contain the successfully read
+data.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Takashi Iwai <tiwai@suse.de>
-Fixes: dcd0feac9bab ("ALSA: sb8: add a check for request_region")
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Fixes: 26fd962bde0b ("niu: fix missing checks of niu_pci_eeprom_read")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-35-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-23-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/sb8.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/net/ethernet/sun/niu.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/sound/isa/sb/sb8.c
-+++ b/sound/isa/sb/sb8.c
-@@ -96,10 +96,6 @@ static int snd_sb8_probe(struct device *
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8117,8 +8117,6 @@ static int niu_pci_vpd_scan_props(struct
+ 		start += 3;
  
- 	/* block the 0x388 port to avoid PnP conflicts */
- 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
--	if (!acard->fm_res) {
--		err = -EBUSY;
--		goto _err;
--	}
+ 		prop_len = niu_pci_eeprom_read(np, start + 4);
+-		if (prop_len < 0)
+-			return prop_len;
+ 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
+ 		if (err < 0)
+ 			return err;
+@@ -8163,12 +8161,8 @@ static int niu_pci_vpd_scan_props(struct
+ 			netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
+ 				     namebuf, prop_len);
+-			for (i = 0; i < prop_len; i++) {
+-				err = niu_pci_eeprom_read(np, off + i);
+-				if (err >= 0)
+-					*prop_buf = err;
+-				++prop_buf;
+-			}
++			for (i = 0; i < prop_len; i++)
++				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
+ 		}
  
- 	if (port[dev] != SNDRV_AUTO_PORT) {
- 		if ((err = snd_sbdsp_create(card, port[dev], irq[dev],
+ 		start += len;
 
 
