@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B79D838EFA1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 57A8338EE7F
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235372AbhEXP6q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:58:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
+        id S233274AbhEXPvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:51:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235397AbhEXP5z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D5F4613BF;
-        Mon, 24 May 2021 15:43:46 +0000 (UTC)
+        id S234616AbhEXPtQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:49:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6EA61411;
+        Mon, 24 May 2021 15:37:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871027;
-        bh=AwsFzr+m3jBYFBPWOAogj6ndrKrIURfhbUoGlk+sfDw=;
+        s=korg; t=1621870664;
+        bh=GAs2Hp6sPQgDfb9jEbHoGvMc0DED6/h7IzDjbdWBZcc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k49rxTkAKRf+XxxYVIe2RZzPCeWBX5VR8owyQOIGyj15uCV557J9BK912VwMPZ/CO
-         EHgLOkTsP7OXE6kNfRl446EW7CCyB2n8NlcBvBRIOIACfN+RcqbLn0YzC9pEzaA8dd
-         XLG4x0s7SwScc4RHODN7W5C4oRp8HKc62kDT9ojg=
+        b=scx+s44PfkYzD0z5NO6mGllYGYWHJbgkfPLdape+RFt0S2nzBsQ1iNcGxGr1Iqj93
+         2G9+kZilcjzRto0RLoEu/+0UyuseUIf9pyR916KH5ClPePEcJtONhtNq16EicyTZiH
+         Ycbu3B8uph/LIcisPMbr5tJuVTHOPcj12PzT+jpY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH 5.12 038/127] btrfs: zoned: fix parallel compressed writes
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Tyler Hicks <code@tyhicks.com>
+Subject: [PATCH 5.4 49/71] Revert "ecryptfs: replace BUG_ON with error handling code"
 Date:   Mon, 24 May 2021 17:25:55 +0200
-Message-Id: <20210524152336.139215075@linuxfoundation.org>
+Message-Id: <20210524152328.055547774@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,136 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 764c7c9a464b68f7c6a5a9ec0b923176a05e8e8f upstream.
+commit e1436df2f2550bc89d832ffd456373fdf5d5b5d7 upstream.
 
-When multiple processes write data to the same block group on a
-compressed zoned filesystem, the underlying device could report I/O
-errors and data corruption is possible.
+This reverts commit 2c2a7552dd6465e8fde6bc9cccf8d66ed1c1eb72.
 
-This happens because on a zoned file system, compressed data writes
-where sent to the device via a REQ_OP_WRITE instead of a
-REQ_OP_ZONE_APPEND operation. But with REQ_OP_WRITE and parallel
-submission it cannot be guaranteed that the data is always submitted
-aligned to the underlying zone's write pointer.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-The change to using REQ_OP_ZONE_APPEND instead of REQ_OP_WRITE on a
-zoned filesystem is non intrusive on a regular file system or when
-submitting to a conventional zone on a zoned filesystem, as it is
-guarded by btrfs_use_zone_append.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Reported-by: David Sterba <dsterba@suse.com>
-Fixes: 9d294a685fbc ("btrfs: zoned: enable to mount ZONED incompat flag")
-CC: stable@vger.kernel.org # 5.12.x: e380adfc213a13: btrfs: zoned: pass start block to btrfs_use_zone_append
-CC: stable@vger.kernel.org # 5.12.x
-Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+The original commit log for this change was incorrect, no "error
+handling code" was added, things will blow up just as badly as before if
+any of these cases ever were true.  As this BUG_ON() never fired, and
+most of these checks are "obviously" never going to be true, let's just
+revert to the original code for now until this gets unwound to be done
+correctly in the future.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Fixes: 2c2a7552dd64 ("ecryptfs: replace BUG_ON with error handling code")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Tyler Hicks <code@tyhicks.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-49-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/compression.c |   42 ++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 38 insertions(+), 4 deletions(-)
+ fs/ecryptfs/crypto.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/compression.c
-+++ b/fs/btrfs/compression.c
-@@ -28,6 +28,7 @@
- #include "compression.h"
- #include "extent_io.h"
- #include "extent_map.h"
-+#include "zoned.h"
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -311,10 +311,8 @@ static int crypt_scatterlist(struct ecry
+ 	struct extent_crypt_result ecr;
+ 	int rc = 0;
  
- static const char* const btrfs_compress_types[] = { "", "zlib", "lzo", "zstd" };
- 
-@@ -349,6 +350,7 @@ static void end_compressed_bio_write(str
- 	 */
- 	inode = cb->inode;
- 	cb->compressed_pages[0]->mapping = cb->inode->i_mapping;
-+	btrfs_record_physical_zoned(inode, cb->start, bio);
- 	btrfs_writepage_endio_finish_ordered(cb->compressed_pages[0],
- 			cb->start, cb->start + cb->len - 1,
- 			bio->bi_status == BLK_STS_OK);
-@@ -401,6 +403,8 @@ blk_status_t btrfs_submit_compressed_wri
- 	u64 first_byte = disk_start;
- 	blk_status_t ret;
- 	int skip_sum = inode->flags & BTRFS_INODE_NODATASUM;
-+	const bool use_append = btrfs_use_zone_append(inode, disk_start);
-+	const unsigned int bio_op = use_append ? REQ_OP_ZONE_APPEND : REQ_OP_WRITE;
- 
- 	WARN_ON(!PAGE_ALIGNED(start));
- 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
-@@ -418,10 +422,31 @@ blk_status_t btrfs_submit_compressed_wri
- 	cb->nr_pages = nr_pages;
- 
- 	bio = btrfs_bio_alloc(first_byte);
--	bio->bi_opf = REQ_OP_WRITE | write_flags;
-+	bio->bi_opf = bio_op | write_flags;
- 	bio->bi_private = cb;
- 	bio->bi_end_io = end_compressed_bio_write;
- 
-+	if (use_append) {
-+		struct extent_map *em;
-+		struct map_lookup *map;
-+		struct block_device *bdev;
-+
-+		em = btrfs_get_chunk_map(fs_info, disk_start, PAGE_SIZE);
-+		if (IS_ERR(em)) {
-+			kfree(cb);
-+			bio_put(bio);
-+			return BLK_STS_NOTSUPP;
-+		}
-+
-+		map = em->map_lookup;
-+		/* We only support single profile for now */
-+		ASSERT(map->num_stripes == 1);
-+		bdev = map->stripes[0].dev->bdev;
-+
-+		bio_set_dev(bio, bdev);
-+		free_extent_map(em);
-+	}
-+
- 	if (blkcg_css) {
- 		bio->bi_opf |= REQ_CGROUP_PUNT;
- 		kthread_associate_blkcg(blkcg_css);
-@@ -432,6 +457,7 @@ blk_status_t btrfs_submit_compressed_wri
- 	bytes_left = compressed_len;
- 	for (pg_index = 0; pg_index < cb->nr_pages; pg_index++) {
- 		int submit = 0;
-+		int len;
- 
- 		page = compressed_pages[pg_index];
- 		page->mapping = inode->vfs_inode.i_mapping;
-@@ -439,9 +465,13 @@ blk_status_t btrfs_submit_compressed_wri
- 			submit = btrfs_bio_fits_in_stripe(page, PAGE_SIZE, bio,
- 							  0);
- 
-+		if (pg_index == 0 && use_append)
-+			len = bio_add_zone_append_page(bio, page, PAGE_SIZE, 0);
-+		else
-+			len = bio_add_page(bio, page, PAGE_SIZE, 0);
-+
- 		page->mapping = NULL;
--		if (submit || bio_add_page(bio, page, PAGE_SIZE, 0) <
--		    PAGE_SIZE) {
-+		if (submit || len < PAGE_SIZE) {
- 			/*
- 			 * inc the count before we submit the bio so
- 			 * we know the end IO handler won't happen before
-@@ -465,11 +495,15 @@ blk_status_t btrfs_submit_compressed_wri
- 			}
- 
- 			bio = btrfs_bio_alloc(first_byte);
--			bio->bi_opf = REQ_OP_WRITE | write_flags;
-+			bio->bi_opf = bio_op | write_flags;
- 			bio->bi_private = cb;
- 			bio->bi_end_io = end_compressed_bio_write;
- 			if (blkcg_css)
- 				bio->bi_opf |= REQ_CGROUP_PUNT;
-+			/*
-+			 * Use bio_add_page() to ensure the bio has at least one
-+			 * page.
-+			 */
- 			bio_add_page(bio, page, PAGE_SIZE, 0);
- 		}
- 		if (bytes_left < PAGE_SIZE) {
+-	if (!crypt_stat || !crypt_stat->tfm
+-	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
+-		return -EINVAL;
+-
++	BUG_ON(!crypt_stat || !crypt_stat->tfm
++	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED));
+ 	if (unlikely(ecryptfs_verbosity > 0)) {
+ 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
+ 				crypt_stat->key_size);
 
 
