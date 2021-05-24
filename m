@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6EA038EE53
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE31538EE55
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234165AbhEXPsa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        id S233594AbhEXPsb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:48:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234276AbhEXPq3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234261AbhEXPq3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:46:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 795E261476;
-        Mon, 24 May 2021 15:36:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7B256147F;
+        Mon, 24 May 2021 15:36:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870601;
-        bh=PDp0/U3qKwYq3omsYJ3iKxZ9x4fs5OC9Obq63S0Ywt0=;
+        s=korg; t=1621870604;
+        bh=0zbZCP3phUaU5a1L7/gCDpOPdFmi+WQB4reSSK6zJ88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qOZ+oCBlSh+5QA8YYHB7GMwHsDcI11HBgz1S+tz2ssOTPUXp9wwIg2WAbYcc9MAPq
-         wyhJyn9HBU5HppRG9rensSzLijixE9J9VUcWnBtPMZkZNi2nPW5TKuWLLRnZTfWc2J
-         K4ZdCBz49ji1fsfCNnzcKhufdKPMijQMDnCAxd5g=
+        b=KvLDrvw+7FXr17WsQ00gcMoSEz4Xsf04+L9gsarrxTVLB7xK+AT9gQzvXKjpoppIf
+         33HbO1HiBUgdVhXf2Bkl/ZmpPk/mcsHMilVAXP/264VXj2S90ZHyEljxpbgita6JUV
+         yVSNFxI7GSZw1PfnT1BC0g13EHP/RmsBAjqp5ywY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,9 +27,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Bernard Metzler <bmt@zurich.ibm.com>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 03/71] RDMA/siw: Properly check send and receive CQ pointers
-Date:   Mon, 24 May 2021 17:25:09 +0200
-Message-Id: <20210524152326.562771396@linuxfoundation.org>
+Subject: [PATCH 5.4 04/71] RDMA/siw: Release xarray entry
+Date:   Mon, 24 May 2021 17:25:10 +0200
+Message-Id: <20210524152326.601492578@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
 References: <20210524152326.447759938@linuxfoundation.org>
@@ -43,58 +43,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Leon Romanovsky <leonro@nvidia.com>
 
-[ Upstream commit a568814a55a0e82bbc7c7b51333d0c38e8fb5520 ]
+[ Upstream commit a3d83276d98886879b5bf7b30b7c29882754e4df ]
 
-The check for the NULL of pointer received from container_of() is
-incorrect by definition as it points to some offset from NULL.
+The xarray entry is allocated in siw_qp_add(), but release was
+missed in case zero-sized SQ was discovered.
 
-Change such check with proper NULL check of SIW QP attributes.
-
-Fixes: 303ae1cdfdf7 ("rdma/siw: application interface")
-Link: https://lore.kernel.org/r/a7535a82925f6f4c1f062abaa294f3ae6e54bdd2.1620560310.git.leonro@nvidia.com
+Fixes: 661f385961f0 ("RDMA/siw: Fix handling of zero-sized Read and Receive Queues.")
+Link: https://lore.kernel.org/r/f070b59d5a1114d5a4e830346755c2b3f141cde5.1620560472.git.leonro@nvidia.com
 Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
 Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/siw/siw_verbs.c | 9 +++------
- 1 file changed, 3 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/siw/siw_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
-index 2c3704f0f10f..daa71469269e 100644
+index daa71469269e..b9ca54e372b4 100644
 --- a/drivers/infiniband/sw/siw/siw_verbs.c
 +++ b/drivers/infiniband/sw/siw/siw_verbs.c
-@@ -314,7 +314,6 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
- 	struct siw_ucontext *uctx =
- 		rdma_udata_to_drv_context(udata, struct siw_ucontext,
- 					  base_ucontext);
--	struct siw_cq *scq = NULL, *rcq = NULL;
- 	unsigned long flags;
- 	int num_sqe, num_rqe, rv = 0;
- 
-@@ -353,10 +352,8 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
+@@ -397,7 +397,7 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
+ 	else {
+ 		/* Zero sized SQ is not supported */
  		rv = -EINVAL;
- 		goto err_out;
+-		goto err_out;
++		goto err_out_xa;
  	}
--	scq = to_siw_cq(attrs->send_cq);
--	rcq = to_siw_cq(attrs->recv_cq);
- 
--	if (!scq || (!rcq && !attrs->srq)) {
-+	if (!attrs->send_cq || (!attrs->recv_cq && !attrs->srq)) {
- 		siw_dbg(base_dev, "send CQ or receive CQ invalid\n");
- 		rv = -EINVAL;
- 		goto err_out;
-@@ -423,8 +420,8 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
- 		}
- 	}
- 	qp->pd = pd;
--	qp->scq = scq;
--	qp->rcq = rcq;
-+	qp->scq = to_siw_cq(attrs->send_cq);
-+	qp->rcq = to_siw_cq(attrs->recv_cq);
- 
- 	if (attrs->srq) {
- 		/*
+ 	if (num_rqe)
+ 		num_rqe = roundup_pow_of_two(num_rqe);
 -- 
 2.30.2
 
