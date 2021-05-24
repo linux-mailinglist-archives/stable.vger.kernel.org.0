@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85C8538EE0B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D77F38EDB6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbhEXPpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:45:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56500 "EHLO mail.kernel.org"
+        id S233675AbhEXPlK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:41:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233683AbhEXPmd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:42:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29FAA61407;
-        Mon, 24 May 2021 15:35:03 +0000 (UTC)
+        id S234014AbhEXPjG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:39:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F33F61432;
+        Mon, 24 May 2021 15:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870503;
-        bh=3iOAUpIunq8o5uXAQzDcoek9kBPjKvTpZGYDo5alVaY=;
+        s=korg; t=1621870438;
+        bh=QZ30t+MKU3DCIDBaL96ONqEHSTHbyu3sKGvIJPTmEHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sI6ZB9XnXl66Ns/rliT9u0r6I6rEQo2Go19cEO7F2dgw0DAWQVjRxm5bN2m5HzWD1
-         njfLU26c1Rt9zjgcWMPlC9cgiMfhxvhGFfhsMdP8keFY/oaooYmtgqAo55A4jWgwFd
-         x2as1KrecWo55q+7AS1mS4JR8Wh4H/cX8ZHybCBE=
+        b=qSEfulA7QIwJzlH42oye4rNSYj1W6xmI5cWlZEj6w99wQatrbb/YgbWmu+XG8hDQJ
+         +whnsZ64uHF6+BSaQZqIO4h2yb7poUR38lw9Q/4Uo0tiCjET+xIbkmQGq+H73zrAaO
+         TU6WEgWCGZjcliefALPRs/NgOJI+OoTaN5DZryeM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 26/49] Revert "net: stmicro: fix a missing check of clk_prepare"
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Tom Seewald <tseewald@gmail.com>
+Subject: [PATCH 4.14 33/37] qlcnic: Add null check after calling netdev_alloc_skb
 Date:   Mon, 24 May 2021 17:25:37 +0200
-Message-Id: <20210524152325.227655392@linuxfoundation.org>
+Message-Id: <20210524152325.288499404@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Tom Seewald <tseewald@gmail.com>
 
-commit bee1b0511844c8c79fccf1f2b13472393b6b91f7 upstream.
+commit 84460f01cba382553199bc1361f69a872d5abed4 upstream.
 
-This reverts commit f86a3b83833e7cfe558ca4d70b64ebc48903efec.
+The function qlcnic_dl_lb_test() currently calls netdev_alloc_skb()
+without checking afterwards that the allocation succeeded. Fix this by
+checking if the skb is NULL and returning an error in such a case.
+Breaking out of the loop if the skb is NULL is not correct as no error
+would be reported to the caller and no message would be printed for the
+user.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit causes a memory leak when it is trying to claim it
-is properly handling errors.  Revert this change and fix it up properly
-in a follow-on commit.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
 Cc: David S. Miller <davem@davemloft.net>
-Fixes: f86a3b83833e ("net: stmicro: fix a missing check of clk_prepare")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-21-gregkh@linuxfoundation.org
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-26-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-@@ -59,9 +59,7 @@ static int sun7i_gmac_init(struct platfo
- 		gmac->clk_enabled = 1;
- 	} else {
- 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
--		ret = clk_prepare(gmac->tx_clk);
--		if (ret)
--			return ret;
-+		clk_prepare(gmac->tx_clk);
- 	}
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1047,6 +1047,8 @@ int qlcnic_do_lb_test(struct qlcnic_adap
  
- 	return 0;
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
++		if (!skb)
++			goto error;
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
+@@ -1070,6 +1072,7 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+ 			cnt++;
+ 	}
+ 	if (cnt != i) {
++error:
+ 		dev_err(&adapter->pdev->dev,
+ 			"LB Test: failed, TX[%d], RX[%d]\n", i, cnt);
+ 		if (mode != QLCNIC_ILB_MODE)
 
 
