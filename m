@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 349F938EE58
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C15EA38ED3B
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234228AbhEXPse (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
+        id S233682AbhEXPfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50532 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232491AbhEXPqb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:46:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55EF16140F;
-        Mon, 24 May 2021 15:36:52 +0000 (UTC)
+        id S233546AbhEXPdm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 427EE613F7;
+        Mon, 24 May 2021 15:31:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870612;
-        bh=Cuyg/IxfLuZEAsmq3uvQPTnKrYdadnKL3OZJibpH/Wc=;
+        s=korg; t=1621870300;
+        bh=VrVZ8Guok2XCiKcaAiYzrkzge76b4ZYUoA/h9DVqsG0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TGE6BCZSa5f53DBNWNbzi1uMQnIPAiOtnLYKNkQtEKQek6aFBImtOoOh6ZVBUO1zp
-         gKvBmD5GpmBMlKondnocAJkH4ZlEumPnx2pDtUooGinWW1oQYfha6UcxM4jFDvDBQN
-         4SEgXix7wjUrCJELvzSJlqvmtjGwasqwzM+sa7b4=
+        b=lrMVds7S6rcMFELyo/kdsFw4j6DzE5Tw6TJR2yg9gsRnyzZRpYe4UtddPx8EGaum0
+         KmF3plumaVbbdDPHZ01mKRLAUR8TDPbiW1P+eDMd6vhdmZBfrSbr6lMa4H6gVUwqFX
+         ucE/W4LnYWkVgXjzgcipd0Uc0dD/Fq2NF5ooQ3I0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 08/71] RDMA/mlx5: Recover from fatal event in dual port mode
+        stable@vger.kernel.org,
+        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 4.4 31/31] tty: vt: always invoke vc->vc_sw->con_resize callback
 Date:   Mon, 24 May 2021 17:25:14 +0200
-Message-Id: <20210524152326.730511190@linuxfoundation.org>
+Message-Id: <20210524152323.935039070@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-[ Upstream commit 97f30d324ce6645a4de4ffb71e4ae9b8ca36ff04 ]
+commit ffb324e6f874121f7dce5bdae5e05d02baae7269 upstream.
 
-When there is fatal event on the slave port, the device is marked as not
-active. We need to mark it as active again when the slave is recovered to
-regain full functionality.
+syzbot is reporting OOB write at vga16fb_imageblit() [1], for
+resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
+requested rows/columns fit the amount of memory reserved for the graphical
+screen if current mode is KD_GRAPHICS.
 
-Fixes: d69a24e03659 ("IB/mlx5: Move IB event processing onto a workqueue")
-Link: https://lore.kernel.org/r/8906754455bb23019ef223c725d2c0d38acfb80b.1620711734.git.leonro@nvidia.com
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+----------
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <sys/ioctl.h>
+  #include <linux/kd.h>
+  #include <linux/vt.h>
+
+  int main(int argc, char *argv[])
+  {
+        const int fd = open("/dev/char/4:1", O_RDWR);
+        struct vt_sizes vt = { 0x4100, 2 };
+
+        ioctl(fd, KDSETMODE, KD_GRAPHICS);
+        ioctl(fd, VT_RESIZE, &vt);
+        ioctl(fd, KDSETMODE, KD_TEXT);
+        return 0;
+  }
+----------
+
+Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
+KD_GRAPHICS check from resize_screen() to fbcon_resize().
+
+Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
+Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/main.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/tty/vt/vt.c           |    2 +-
+ drivers/video/console/fbcon.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/mlx5/main.c b/drivers/infiniband/hw/mlx5/main.c
-index e2656b68ec22..a173737cb022 100644
---- a/drivers/infiniband/hw/mlx5/main.c
-+++ b/drivers/infiniband/hw/mlx5/main.c
-@@ -6879,6 +6879,7 @@ static void *mlx5_ib_add_slave_port(struct mlx5_core_dev *mdev)
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -826,7 +826,7 @@ static inline int resize_screen(struct v
+ 	/* Resizes the resolution of the display adapater */
+ 	int err = 0;
  
- 		if (bound) {
- 			rdma_roce_rescan_device(&dev->ib_dev);
-+			mpi->ibdev->ib_active = true;
- 			break;
- 		}
- 	}
--- 
-2.30.2
-
+-	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
++	if (vc->vc_sw->con_resize)
+ 		err = vc->vc_sw->con_resize(vc, width, height, user);
+ 
+ 	return err;
+--- a/drivers/video/console/fbcon.c
++++ b/drivers/video/console/fbcon.c
+@@ -1986,7 +1986,7 @@ static int fbcon_resize(struct vc_data *
+ 			return -EINVAL;
+ 
+ 		DPRINTK("resize now %ix%i\n", var.xres, var.yres);
+-		if (CON_IS_VISIBLE(vc)) {
++		if (CON_IS_VISIBLE(vc) && vc->vc_mode == KD_TEXT) {
+ 			var.activate = FB_ACTIVATE_NOW |
+ 				FB_ACTIVATE_FORCE;
+ 			fb_set_var(info, &var);
 
 
