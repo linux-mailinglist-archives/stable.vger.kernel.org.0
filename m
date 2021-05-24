@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA85138EE51
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AF8138EF0A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234075AbhEXPs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
+        id S234902AbhEXPzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38648 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234130AbhEXPqZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:46:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 26F4D613DF;
-        Mon, 24 May 2021 15:36:37 +0000 (UTC)
+        id S234652AbhEXPyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CA8D613F5;
+        Mon, 24 May 2021 15:39:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870597;
-        bh=NiEMGs9KAlbYIJQaLiRTAX+r6pdL8YyvuX7Ly8mfcPw=;
+        s=korg; t=1621870777;
+        bh=B2YmaOLZ8sUvAHqkfhLKExSdVVQsHbEQlSclP+9YIOg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzR9rIN7qiyJK0KZ8Jf9aID/Bw13laXJYRuB1EhOnCXUuaV5ieC/l2IOeZzd88+xD
-         qN+jUP4lroQBJGEh9d29mloYMTjsIVNvG7MBXOVIMnxvlfEgukzS6/tRZUH5Ir7mKd
-         LOPQOy8UYbb/pultLKC79plwsxbX0LOwVgPRZkwU=
+        b=ldYX8n9SOk97UPEIOBjeUTST3H2Oe/Iqr1pJt4DwPDiHzxGqFeLWKF+BFjBErblPF
+         0kg5fBhZgfFSIZpkrDOLllgbRfrwd9r+fM068QJlynosbor1703A+Z0EX//biPM3/u
+         Ak+ga+T9Hpz12o06yhRB/lE6NKTXWf9jqxEE9SB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>
-Subject: [PATCH 5.4 19/71] ALSA: intel8x0: Dont update period unless prepared
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 030/104] powerpc: Fix early setup to make early_ioremap() work
 Date:   Mon, 24 May 2021 17:25:25 +0200
-Message-Id: <20210524152327.083896423@linuxfoundation.org>
+Message-Id: <20210524152333.811212934@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,72 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit c1f0616124c455c5c762b6f123e40bba5df759e6 upstream.
+[ Upstream commit e2f5efd0f0e229bd110eab513e7c0331d61a4649 ]
 
-The interrupt handler of intel8x0 calls snd_intel8x0_update() whenever
-the hardware sets the corresponding status bit for each stream.  This
-works fine for most cases as long as the hardware behaves properly.
-But when the hardware gives a wrong bit set, this leads to a zero-
-division Oops, and reportedly, this seems what happened on a VM.
+The immediate problem is that after commit
+0bd3f9e953bd ("powerpc/legacy_serial: Use early_ioremap()") the kernel
+silently reboots on some systems.
 
-For fixing the crash, this patch adds a internal flag indicating that
-the stream is ready to be updated, and check it (as well as the flag
-being in suspended) to ignore such spurious update.
+The reason is that early_ioremap() returns broken addresses as it uses
+slot_virt[] array which initialized with offsets from FIXADDR_TOP ==
+IOREMAP_END+FIXADDR_SIZE == KERN_IO_END - FIXADDR_SIZ + FIXADDR_SIZE ==
+__kernel_io_end which is 0 when early_ioremap_setup() is called.
+__kernel_io_end is initialized little bit later in early_init_mmu().
 
-Cc: <stable@vger.kernel.org>
-Reported-and-tested-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Link: https://lore.kernel.org/r/s5h5yzi7uh0.wl-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+This fixes the initialization by swapping early_ioremap_setup() and
+early_init_mmu().
+
+Fixes: 265c3491c4bc ("powerpc: Add support for GENERIC_EARLY_IOREMAP")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Drop unrelated cleanup & cleanup change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210520032919.358935-1-aik@ozlabs.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/intel8x0.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/powerpc/kernel/setup_64.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/intel8x0.c
-+++ b/sound/pci/intel8x0.c
-@@ -354,6 +354,7 @@ struct ichdev {
- 	unsigned int ali_slot;			/* ALI DMA slot */
- 	struct ac97_pcm *pcm;
- 	int pcm_open_flag;
-+	unsigned int prepared:1;
- 	unsigned int suspended: 1;
- };
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index 3b871ecb3a92..3f8426bccd16 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -368,11 +368,11 @@ void __init early_setup(unsigned long dt_ptr)
+ 	apply_feature_fixups();
+ 	setup_feature_keys();
  
-@@ -714,6 +715,9 @@ static inline void snd_intel8x0_update(s
- 	int status, civ, i, step;
- 	int ack = 0;
+-	early_ioremap_setup();
+-
+ 	/* Initialize the hash table or TLB handling */
+ 	early_init_mmu();
  
-+	if (!ichdev->prepared || ichdev->suspended)
-+		return;
++	early_ioremap_setup();
 +
- 	spin_lock_irqsave(&chip->reg_lock, flags);
- 	status = igetbyte(chip, port + ichdev->roff_sr);
- 	civ = igetbyte(chip, port + ICH_REG_OFF_CIV);
-@@ -907,6 +911,7 @@ static int snd_intel8x0_hw_params(struct
- 	if (ichdev->pcm_open_flag) {
- 		snd_ac97_pcm_close(ichdev->pcm);
- 		ichdev->pcm_open_flag = 0;
-+		ichdev->prepared = 0;
- 	}
- 	err = snd_ac97_pcm_open(ichdev->pcm, params_rate(hw_params),
- 				params_channels(hw_params),
-@@ -928,6 +933,7 @@ static int snd_intel8x0_hw_free(struct s
- 	if (ichdev->pcm_open_flag) {
- 		snd_ac97_pcm_close(ichdev->pcm);
- 		ichdev->pcm_open_flag = 0;
-+		ichdev->prepared = 0;
- 	}
- 	return snd_pcm_lib_free_pages(substream);
- }
-@@ -1002,6 +1008,7 @@ static int snd_intel8x0_pcm_prepare(stru
- 			ichdev->pos_shift = (runtime->sample_bits > 16) ? 2 : 1;
- 	}
- 	snd_intel8x0_setup_periods(chip, ichdev);
-+	ichdev->prepared = 1;
- 	return 0;
- }
- 
+ 	/*
+ 	 * After firmware and early platform setup code has set things up,
+ 	 * we note the SPR values for configurable control/performance
+-- 
+2.30.2
+
 
 
