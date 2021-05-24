@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D61C38E9F0
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:50:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70D8A38E9FC
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:50:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232960AbhEXOv4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:51:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55548 "EHLO mail.kernel.org"
+        id S233277AbhEXOwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:52:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233761AbhEXOtz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:49:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F293561261;
-        Mon, 24 May 2021 14:47:37 +0000 (UTC)
+        id S233769AbhEXOt4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:49:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E65D61402;
+        Mon, 24 May 2021 14:47:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867658;
-        bh=PzC1/aHqCfv71WlG8DDX9grk2xusdWHpo+JrJJTeOp8=;
+        s=k20201202; t=1621867659;
+        bh=haT+nh+kmWbPnjVh7+weBFsfIRCnUk46FOTKXK4PLWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fJgh0CeeDBoCgym8Pu3y2ErIIw9syTChWyemsQDGHbO8knf/Zx/3PTjz2ZzP53XoK
-         735yc9dhMYdmJRILds+o0ngaKVXIANmkH5osExHZDir8KbNdT6t5vogHPhGDioP4uy
-         uge7R+n7CLszYtkeTCtTAHqNyrDhRIzq+nPARpklSdPzG/VcREgiTOdeOuzZKacKnA
-         OnPLADgt8P/V7qdagaA9heAS1u1GRH49kROkTCrOzBHrsyFFEjOJwq7BCC5OCYLdrP
-         18sf71YwsOPdb2cveCMkvz8crvsglqw2RQFiE94sskV5VPMNbldM6dLLZcUBjlE+eU
-         f8y16lZ1Vc0iA==
+        b=EcAh6ythLeD3b68qPEtRO3v0muZg6Xo0M5Ej4E2RsPO2HP9osszLJAcA6/zhiH2Jr
+         TOkRS7tSQ46TS2C5nGpYz922z7ZOWyh19sx3sNLx0gDGFSWY4hL3yMi1qWD8G16QBP
+         EuhjPvS9/8SZUTK7vyDg6Hyy7XgzmTHvFU2qt0ebCL/rHYGZ6yWB65jEl1C9gGVakm
+         yZsyqkWHP0rfjwUWWwstB54E3lSjfvrOYlJWEBIRKEk3yR1YdTIscW7iRRk3NA4KSW
+         v6wTMxsSCyidMe2msjoTHMwmJRYQTFhhqybUY4/e6ty224pZ4hOb9JqB0t7ZT5Ii8s
+         53nMKGTgBGjAg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 60/63] drm/amdgpu: stop touching sched.ready in the backend
-Date:   Mon, 24 May 2021 10:46:17 -0400
-Message-Id: <20210524144620.2497249-60-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 61/63] platform/x86: touchscreen_dmi: Add info for the Chuwi Hi10 Pro (CWI529) tablet
+Date:   Mon, 24 May 2021 10:46:18 -0400
+Message-Id: <20210524144620.2497249-61-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,97 +42,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit a2b4785f01280a4291edb9fda69032fc2e4bfd3f ]
+[ Upstream commit e68671e9e1275dfdda333c3e83b6d28963af16b6 ]
 
-This unfortunately comes up in regular intervals and breaks
-GPU reset for the engine in question.
+Add touchscreen info for the Chuwi Hi10 Pro (CWI529) tablet. This includes
+info for getting the firmware directly from the UEFI, so that the user does
+not need to manually install the firmware in /lib/firmware/silead.
 
-The sched.ready flag controls if an engine can't get working
-during hw_init, but should never be set to false during hw_fini.
+This change will make the touchscreen on these devices work OOTB,
+without requiring any manual setup.
 
-v2: squash in unused variable fix (Alex)
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210520093228.7439-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c | 2 --
- drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c | 2 --
- drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 5 -----
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c  | 8 +-------
- 4 files changed, 1 insertion(+), 16 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 35 ++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-index c6724a0e0c43..dc947c8ffe21 100644
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-@@ -198,8 +198,6 @@ static int jpeg_v2_5_hw_fini(void *handle)
- 		if (adev->jpeg.cur_state != AMD_PG_STATE_GATE &&
- 		      RREG32_SOC15(JPEG, i, mmUVD_JRBC_STATUS))
- 			jpeg_v2_5_set_powergating_state(adev, AMD_PG_STATE_GATE);
--
--		ring->sched.ready = false;
- 	}
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 5e4eb3b36d70..8618c44106c2 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -115,6 +115,32 @@ static const struct ts_dmi_data chuwi_hi10_plus_data = {
+ 	.properties     = chuwi_hi10_plus_props,
+ };
  
- 	return 0;
-diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-index e8fbb2a0de34..1d354245678d 100644
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-@@ -166,8 +166,6 @@ static int jpeg_v3_0_hw_fini(void *handle)
- 	      RREG32_SOC15(JPEG, 0, mmUVD_JRBC_STATUS))
- 		jpeg_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
- 
--	ring->sched.ready = false;
--
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-index 690a5090475a..32c6aa03d267 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-@@ -470,11 +470,6 @@ static void sdma_v5_2_gfx_stop(struct amdgpu_device *adev)
- 		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
- 		WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_IB_CNTL), ib_cntl);
- 	}
--
--	sdma0->sched.ready = false;
--	sdma1->sched.ready = false;
--	sdma2->sched.ready = false;
--	sdma3->sched.ready = false;
- }
- 
- /**
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index 9b844e9fb16f..ebbc04ff5da0 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -368,7 +368,7 @@ static int vcn_v3_0_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	struct amdgpu_ring *ring;
--	int i, j;
-+	int i;
- 
- 	for (i = 0; i < adev->vcn.num_vcn_inst; ++i) {
- 		if (adev->vcn.harvest_config & (1 << i))
-@@ -383,12 +383,6 @@ static int vcn_v3_0_hw_fini(void *handle)
- 				vcn_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
- 			}
- 		}
--		ring->sched.ready = false;
--
--		for (j = 0; j < adev->vcn.num_enc_rings; ++j) {
--			ring = &adev->vcn.inst[i].ring_enc[j];
--			ring->sched.ready = false;
--		}
- 	}
- 
- 	return 0;
++static const struct property_entry chuwi_hi10_pro_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 8),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 8),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1912),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1272),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-pro.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct ts_dmi_data chuwi_hi10_pro_data = {
++	.embedded_fw = {
++		.name	= "silead/gsl1680-chuwi-hi10-pro.fw",
++		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
++		.length	= 42504,
++		.sha256	= { 0xdb, 0x92, 0x68, 0xa8, 0xdb, 0x81, 0x31, 0x00,
++			    0x1f, 0x58, 0x89, 0xdb, 0x19, 0x1b, 0x15, 0x8c,
++			    0x05, 0x14, 0xf4, 0x95, 0xba, 0x15, 0x45, 0x98,
++			    0x42, 0xa3, 0xbb, 0x65, 0xe3, 0x30, 0xa5, 0x93 },
++	},
++	.acpi_name      = "MSSL1680:00",
++	.properties     = chuwi_hi10_pro_props,
++};
++
+ static const struct property_entry chuwi_vi8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+@@ -889,6 +915,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+ 		},
+ 	},
++	{
++		/* Chuwi Hi10 Prus (CWI597) */
++		.driver_data = (void *)&chuwi_hi10_pro_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
 -- 
 2.30.2
 
