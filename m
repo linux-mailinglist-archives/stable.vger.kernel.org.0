@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 07F2A38EE97
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A82D38F009
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234485AbhEXPwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:52:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
+        id S234819AbhEXQA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234899AbhEXPuN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E213061621;
-        Mon, 24 May 2021 15:38:18 +0000 (UTC)
+        id S234568AbhEXP62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2138B61959;
+        Mon, 24 May 2021 15:44:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870699;
-        bh=qhD0BZqeu27jr8v2vR77dTcRsazvYX0eWy1cx0Jai9Q=;
+        s=korg; t=1621871059;
+        bh=z2eIPfHlRvsODbuIyZGha1jLAqD9QuYkyOP1+L8sMN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oOG+hdJFSB7omTHg+5PTcPZSGw/BxrhTEbvg+KY9rggHHxyiI6vGV/nyl14Fe4/cO
-         vqoOa8i5lF0rwkhlxh79eIqG2uV7rcgVsE61d+yVjTYqUMXY1uBZp4HgzqBNx4zs+K
-         Pe2+NrsVDluwQ8Cou+L7zuN+Pbj0wXiW+w9qh3cU=
+        b=HbJGbtdxeRGPMI2KNeaC0UVA+B8X134BJR4NGBhYUlU3mrPL7q90tnA2tvgLgDWGP
+         q9sufoogtV0fQJNsBBNFXQNwPjdFz+yBP8pfr3KQ//qEy5JHyIlTXN1qbgL55/K7G8
+         fJ/mkH7+cTdlJ76HNVGUy9RqLxSrQsUVIQhIyNTg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 66/71] vgacon: Record video mode changes with VT_RESIZEX
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 055/127] ALSA: hda/realtek: Fix silent headphone output on ASUS UX430UA
 Date:   Mon, 24 May 2021 17:26:12 +0200
-Message-Id: <20210524152328.592972403@linuxfoundation.org>
+Message-Id: <20210524152336.700961953@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +38,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
+commit 8eedd3a70a70f51fa963f3ad7fa97afd0c75bd44 upstream.
 
-Fix an issue with VGA console font size changes made after the initial
-video text mode has been changed with a user tool like `svgatextmode'
-calling the VT_RESIZEX ioctl.  As it stands in that case the original
-screen geometry continues being used to validate further VT resizing.
+It was reported that the headphone output on ASUS UX430UA (SSID
+1043:1740) with ALC295 codec is silent while the speaker works.
+After the investigation, it turned out that the DAC assignment has to
+be fixed on this machine; unlike others, it expects DAC 0x02 to be
+assigned to the speaker pin 0x07 while DAC 0x03 to headphone pin
+0x21.
 
-Consequently when the video adapter is firstly reprogrammed from the
-original say 80x25 text mode using a 9x16 character cell (720x400 pixel
-resolution) to say 80x37 text mode and the same character cell (720x592
-pixel resolution), and secondly the CRTC character cell updated to 9x8
-(by loading a suitable font with the KD_FONT_OP_SET request of the
-KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
-and only upper half of the screen is used for the VT, with the lower
-half showing rubbish corresponding to whatever happens to be there in
-the video memory that maps to that part of the screen.  Of course the
-proportions change according to text mode geometries and font sizes
-chosen.
+This patch provides a fixup for the fixed DAC/pin mapping for this
+device.
 
-Address the problem then, by updating the text mode geometry defaults
-rather than checking against them whenever the VT is resized via a user
-ioctl.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
-Cc: stable@vger.kernel.org # v2.6.24+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212933
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210504082057.6913-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ sound/pci/hda/patch_realtek.c |   18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -1106,12 +1106,20 @@ static int vgacon_resize(struct vc_data
- 	if ((width << 1) * height > vga_vram_size)
- 		return -EINVAL;
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -5720,6 +5720,18 @@ static void alc_fixup_tpt470_dacs(struct
+ 		spec->gen.preferred_dacs = preferred_pairs;
+ }
  
-+	if (user) {
-+		/*
-+		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
-+		 * the video mode!  Set the new defaults then and go away.
-+		 */
-+		screen_info.orig_video_cols = width;
-+		screen_info.orig_video_lines = height;
-+		vga_default_font_height = c->vc_font.height;
-+		return 0;
-+	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
- 	    c->vc_font.height)
--		/* let svgatextmode tinker with video timings and
--		   return success */
--		return (user) ? 0 : -EINVAL;
-+		return -EINVAL;
++static void alc295_fixup_asus_dacs(struct hda_codec *codec,
++				   const struct hda_fixup *fix, int action)
++{
++	static const hda_nid_t preferred_pairs[] = {
++		0x17, 0x02, 0x21, 0x03, 0
++	};
++	struct alc_spec *spec = codec->spec;
++
++	if (action == HDA_FIXUP_ACT_PRE_PROBE)
++		spec->gen.preferred_dacs = preferred_pairs;
++}
++
+ static void alc_shutup_dell_xps13(struct hda_codec *codec)
+ {
+ 	struct alc_spec *spec = codec->spec;
+@@ -6520,6 +6532,7 @@ enum {
+ 	ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST,
+ 	ALC256_FIXUP_ACER_HEADSET_MIC,
+ 	ALC285_FIXUP_IDEAPAD_S740_COEF,
++	ALC295_FIXUP_ASUS_DACS,
+ };
  
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
- 		vgacon_doresize(c, width, height);
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -8047,6 +8060,10 @@ static const struct hda_fixup alc269_fix
+ 		.chained = true,
+ 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
+ 	},
++	[ALC295_FIXUP_ASUS_DACS] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc295_fixup_asus_dacs,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8245,6 +8262,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
+ 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
+ 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
++	SND_PCI_QUIRK(0x1043, 0x1740, "ASUS UX430UA", ALC295_FIXUP_ASUS_DACS),
+ 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
+ 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
 
 
