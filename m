@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6732838EBE5
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2E438EBDF
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233385AbhEXPIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:08:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37846 "EHLO mail.kernel.org"
+        id S234455AbhEXPHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:07:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38150 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234729AbhEXPEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5682061606;
-        Mon, 24 May 2021 14:50:52 +0000 (UTC)
+        id S234784AbhEXPFB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:05:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 99FD961406;
+        Mon, 24 May 2021 14:50:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867853;
-        bh=GQydZjDT4wPdUn9WToJFxN5ZGS2Al09Z1XjGbD6BL0k=;
+        s=k20201202; t=1621867854;
+        bh=xtLMumVgtJEQDYmH/yfxN1UxvNic+puxMIyGP/3wjBg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kujjdqiwzt0kqwiOctewb1+QiOgxWRz8ib3yn5pZCAJoJoHsCd4H9qVi7t5VFrq/j
-         uR6hfnG0Dh3d86Il2d6WAY5heiTx/SeRuCjPQBVBzYNoyhmkrL02pC7iuzaqraDDG9
-         NkvXvLBlBgmQRt0eqALjJuy0mZseBdKooyuq0pTmjGv6Ev/aWdOsB1xy6Uqp6G0b7P
-         6TqUfnWT3kNyFiOjnnfX4pKOUKlfSk8lWB12vzFcXxHotRRVwBuKQ7DEzFH+dE/wiT
-         v3Pxc01L64EIVlS18t1T5OHvw2UGvd8RYRkt0WnZxWvzf0FKtk5dNXskZ1uLGPZ8d1
-         XOC8lsIop3DCQ==
+        b=bmPuz6Vr476fbDb4BKXtGzIvpGA9f8x77gPv8RzDivfC4gM+4MOPLh6FXv5ZAoY9h
+         Vlf3u6vKkE/4fIzLI6lUC7gnThc49LdO97wNKiQ9Fw+bcWlXbj22h06AzgxPiCXeJ9
+         CNiejh5vUOfHyYKNdgRHY0NmGnqBehKqRWqVzZNN8uoL68po+5wJzbEVLRnvEd3pwE
+         JVMyEJM0kl+TA05rHAHDN9ZKYH3ZxA59gQ5ItMGD6Ix3jlVGARDsJCMFMwHPuYPdc0
+         4ZSbyM/2bWHThsiCC6yK4IZL2noClNwhYGyq6sqOegeTS1NkYcFPHMqFKDIMxIYCgi
+         KYC5XV+MYzWIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        libertas-dev@lists.infradead.org, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/21] libertas: register sysfs groups properly
-Date:   Mon, 24 May 2021 10:50:29 -0400
-Message-Id: <20210524145040.2499322-10-sashal@kernel.org>
+Cc:     Alaa Emad <alaaemadhossney.ae@gmail.com>,
+        Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/21] media: dvb: Add check on sp8870_readreg return
+Date:   Mon, 24 May 2021 10:50:30 -0400
+Message-Id: <20210524145040.2499322-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145040.2499322-1-sashal@kernel.org>
 References: <20210524145040.2499322-1-sashal@kernel.org>
@@ -44,92 +44,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Alaa Emad <alaaemadhossney.ae@gmail.com>
 
-[ Upstream commit 7e79b38fe9a403b065ac5915465f620a8fb3de84 ]
+[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
 
-The libertas driver was trying to register sysfs groups "by hand" which
-causes them to be created _after_ the device is initialized and
-announced to userspace, which causes races and can prevent userspace
-tools from seeing the sysfs files correctly.
+The function sp8870_readreg returns a negative value when i2c_transfer
+fails so properly check for this and return the error if it happens.
 
-Fix this up by using the built-in sysfs_groups pointers in struct
-net_device which were created for this very reason, fixing the race
-condition, and properly allowing for any error that might have occured
-to be handled properly.
-
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-54-gregkh@linuxfoundation.org
+Cc: Sean Young <sean@mess.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/mesh.c | 28 +++-----------------
- 1 file changed, 4 insertions(+), 24 deletions(-)
+ drivers/media/dvb-frontends/sp8870.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/mesh.c b/drivers/net/wireless/marvell/libertas/mesh.c
-index b0cb16ef8d1d..b313c78e2154 100644
---- a/drivers/net/wireless/marvell/libertas/mesh.c
-+++ b/drivers/net/wireless/marvell/libertas/mesh.c
-@@ -793,19 +793,6 @@ static const struct attribute_group mesh_ie_group = {
- 	.attrs = mesh_ie_attrs,
- };
+diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
+index 04454cb78467..a5782d1133df 100644
+--- a/drivers/media/dvb-frontends/sp8870.c
++++ b/drivers/media/dvb-frontends/sp8870.c
+@@ -293,7 +293,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
+ 	sp8870_writereg(state, 0xc05, reg0xc05);
  
--static void lbs_persist_config_init(struct net_device *dev)
--{
--	int ret;
--	ret = sysfs_create_group(&(dev->dev.kobj), &boot_opts_group);
--	ret = sysfs_create_group(&(dev->dev.kobj), &mesh_ie_group);
--}
--
--static void lbs_persist_config_remove(struct net_device *dev)
--{
--	sysfs_remove_group(&(dev->dev.kobj), &boot_opts_group);
--	sysfs_remove_group(&(dev->dev.kobj), &mesh_ie_group);
--}
--
+ 	// read status reg in order to clear pending irqs
+-	sp8870_readreg(state, 0x200);
++	err = sp8870_readreg(state, 0x200);
++	if (err < 0)
++		return err;
  
- /***************************************************************************
-  * Initializing and starting, stopping mesh
-@@ -1005,6 +992,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
- 	SET_NETDEV_DEV(priv->mesh_dev, priv->dev->dev.parent);
- 
- 	mesh_dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
-+	mesh_dev->sysfs_groups[0] = &lbs_mesh_attr_group;
-+	mesh_dev->sysfs_groups[1] = &boot_opts_group;
-+	mesh_dev->sysfs_groups[2] = &mesh_ie_group;
-+
- 	/* Register virtual mesh interface */
- 	ret = register_netdev(mesh_dev);
- 	if (ret) {
-@@ -1012,19 +1003,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
- 		goto err_free_netdev;
- 	}
- 
--	ret = sysfs_create_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
--	if (ret)
--		goto err_unregister;
--
--	lbs_persist_config_init(mesh_dev);
--
- 	/* Everything successful */
- 	ret = 0;
- 	goto done;
- 
--err_unregister:
--	unregister_netdev(mesh_dev);
--
- err_free_netdev:
- 	free_netdev(mesh_dev);
- 
-@@ -1045,8 +1027,6 @@ void lbs_remove_mesh(struct lbs_private *priv)
- 
- 	netif_stop_queue(mesh_dev);
- 	netif_carrier_off(mesh_dev);
--	sysfs_remove_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
--	lbs_persist_config_remove(mesh_dev);
- 	unregister_netdev(mesh_dev);
- 	priv->mesh_dev = NULL;
- 	kfree(mesh_dev->ieee80211_ptr);
+ 	// system controller start
+ 	sp8870_microcontroller_start(state);
 -- 
 2.30.2
 
