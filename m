@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B886338F025
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BDB8C38F04A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233645AbhEXQBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:01:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41116 "EHLO mail.kernel.org"
+        id S235985AbhEXQCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235215AbhEXQA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:00:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E60E61469;
-        Mon, 24 May 2021 15:46:09 +0000 (UTC)
+        id S235998AbhEXQBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DC4BF61490;
+        Mon, 24 May 2021 15:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871170;
-        bh=sTz6XrR3syPDSWyg/TB/3cIFmLu+NQdSjbLs1Aee43c=;
+        s=korg; t=1621871194;
+        bh=FIA/5K/kG1WwB9DXMHcoqy2r/9XvjKvqQCAY6qlo/MU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q3f8WTzg55MEKgGlYickI5B5wXt9k9I9ydlfiwDuGdcp+iYxCBWg276d3uOb21YpC
-         HJl6uTeHoGY3rctE/DqCId5WdOgRQQyIy9g2BHSPpjsvNtU89HlbYILSD38dHfjN33
-         t6ClzD3d6kM2cqOnCyElgW3UdTWK6/f7nA94Nt3A=
+        b=w7z3Q6WJ8FUNT3iITdHjFS0933jt0hkBQLyZj7lc8AIt9ICqmfWV6WwPu/4koevbg
+         B1Re/nfBPWOKK0AJgRzBwKEQ1KWHkVxG9PPm6NOGqe+JYpZ47KP3cCWnmH00bPzPmy
+         Ys82lUecmjiNT0KeIcQq5pb/VuPOD7uKVg4m+raA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: [PATCH 5.12 098/127] Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
-Date:   Mon, 24 May 2021 17:26:55 +0200
-Message-Id: <20210524152338.172754887@linuxfoundation.org>
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 5.12 099/127] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
+Date:   Mon, 24 May 2021 17:26:56 +0200
+Message-Id: <20210524152338.211887276@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -41,43 +41,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8d1beda5f11953ffe135a5213287f0b25b4da41b upstream.
+commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
 
-This reverts commit 248b57015f35c94d4eae2fdd8c6febf5cd703900.
+This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
 correct or not.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit does not properly unwind if there is an error
-condition so it needs to be reverted at this point in time.
+Upon review, it was determined that this commit is not needed at all so
+just revert it.  Also, the call to lm80_init_client() was not properly
+handled, so if error handling is needed in the lm80_probe() function,
+then it should be done properly, not half-baked like the commit being
+reverted here did.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
 Cc: stable <stable@vger.kernel.org>
-Fixes: 248b57015f35 ("leds: lp5523: fix a missing check of return value of lp55xx_read")
-Link: https://lore.kernel.org/r/20210503115736.2104747-9-gregkh@linuxfoundation.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/leds/leds-lp5523.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/hwmon/lm80.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/drivers/leds/leds-lp5523.c
-+++ b/drivers/leds/leds-lp5523.c
-@@ -305,9 +305,7 @@ static int lp5523_init_program_engine(st
+--- a/drivers/hwmon/lm80.c
++++ b/drivers/hwmon/lm80.c
+@@ -596,7 +596,6 @@ static int lm80_probe(struct i2c_client
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
+ 	struct lm80_data *data;
+-	int rv;
  
- 	/* Let the programs run for couple of ms and check the engine status */
- 	usleep_range(3000, 6000);
--	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
--	if (ret)
--		return ret;
-+	lp55xx_read(chip, LP5523_REG_STATUS, &status);
- 	status &= LP5523_ENG_STATUS_MASK;
+ 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
+ 	if (!data)
+@@ -609,14 +608,8 @@ static int lm80_probe(struct i2c_client
+ 	lm80_init_client(client);
  
- 	if (status != LP5523_ENG_STATUS_MASK) {
+ 	/* A few vars need to be filled upon startup */
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][0] = rv;
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][1] = rv;
++	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
++	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+ 
+ 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
+ 							   data, lm80_groups);
 
 
