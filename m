@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5278838EE7A
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75B8438EF29
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233734AbhEXPvF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33924 "EHLO mail.kernel.org"
+        id S234927AbhEXP4L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234155AbhEXPsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:48:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 79C3B613DB;
-        Mon, 24 May 2021 15:37:33 +0000 (UTC)
+        id S234318AbhEXPz2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A8DE613FC;
+        Mon, 24 May 2021 15:41:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870653;
-        bh=4HOjAGHMT/mLxQ+ZWKE9kSuVmLG91trN+tFHhEclEC8=;
+        s=korg; t=1621870907;
+        bh=i4wAM3elN/z5Vsa8a3mnqbLfx3fRITuI3zFmbTOua8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g3WsAozDOH/wN7jxBdiVfSLxWxOot56ra2s+aICjUcEs7cZgWJ8hz0ZOmF2R8ARdb
-         lFqhGurQB6lGcJGwe7khEMhITzj5gb6BwtEx6QueM5/txtr0L3FgX+tKdXhe4imbiF
-         IscJs3b5mOgNOlMNtCa+HX3uzoBKQSe5o5Ywwd40=
+        b=DwyZvqo0Bq7Smx1Aza6kzsYWa+xR1ReWFlUKzuVQYdGfb3K0sME5mcIEBiMh3oMNL
+         kQQxnpUs/ajYjJdmBlfhlunRjMylgEhEcirFlgWsGuSKeKsys/2+jd7835oOCyCWg8
+         B8ZxqQtWZE+R8ZOfigpbMoAnK/loWxxCIr5XX9rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 5.4 44/71] Revert "video: hgafb: fix potential NULL pointer dereference"
+        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 055/104] x86/sev-es: Move sev_es_put_ghcb() in prep for follow on patch
 Date:   Mon, 24 May 2021 17:25:50 +0200
-Message-Id: <20210524152327.897822188@linuxfoundation.org>
+Message-Id: <20210524152334.676899619@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Tom Lendacky <thomas.lendacky@amd.com>
 
-commit 58c0cc2d90f1e37c4eb63ae7f164c83830833f78 upstream.
+commit fea63d54f7a3e74f8ab489a8b82413a29849a594 upstream.
 
-This reverts commit ec7f6aad57ad29e4e66cc2e18e1e1599ddb02542.
+Move the location of sev_es_put_ghcb() in preparation for an update to it
+in a follow-on patch. This will better highlight the changes being made
+to the function.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+No functional change.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This patch "looks" correct, but the driver keeps on running and will
-fail horribly right afterward if this error condition ever trips.
-
-So points for trying to resolve an issue, but a huge NEGATIVE value for
-providing a "fake" fix for the problem as nothing actually got resolved
-at all.  I'll go fix this up properly...
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Fixes: ec7f6aad57ad ("video: hgafb: fix potential NULL pointer dereference")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-39-gregkh@linuxfoundation.org
+Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org
+Link: https://lkml.kernel.org/r/8c07662ec17d3d82e5c53841a1d9e766d3bdbab6.1621273353.git.thomas.lendacky@amd.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/hgafb.c |    2 --
- 1 file changed, 2 deletions(-)
+ arch/x86/kernel/sev-es.c |   36 ++++++++++++++++++------------------
+ 1 file changed, 18 insertions(+), 18 deletions(-)
 
---- a/drivers/video/fbdev/hgafb.c
-+++ b/drivers/video/fbdev/hgafb.c
-@@ -285,8 +285,6 @@ static int hga_card_detect(void)
- 	hga_vram_len  = 0x08000;
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -209,24 +209,6 @@ static __always_inline struct ghcb *sev_
+ 	return ghcb;
+ }
  
- 	hga_vram = ioremap(0xb0000, hga_vram_len);
--	if (!hga_vram)
--		goto error;
+-static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
+-{
+-	struct sev_es_runtime_data *data;
+-	struct ghcb *ghcb;
+-
+-	data = this_cpu_read(runtime_data);
+-	ghcb = &data->ghcb_page;
+-
+-	if (state->ghcb) {
+-		/* Restore GHCB from Backup */
+-		*ghcb = *state->ghcb;
+-		data->backup_ghcb_active = false;
+-		state->ghcb = NULL;
+-	} else {
+-		data->ghcb_active = false;
+-	}
+-}
+-
+ /* Needed in vc_early_forward_exception */
+ void do_early_exception(struct pt_regs *regs, int trapnr);
  
- 	if (request_region(0x3b0, 12, "hgafb"))
- 		release_io_ports = 1;
+@@ -434,6 +416,24 @@ static enum es_result vc_slow_virt_to_ph
+ /* Include code shared with pre-decompression boot stage */
+ #include "sev-es-shared.c"
+ 
++static __always_inline void sev_es_put_ghcb(struct ghcb_state *state)
++{
++	struct sev_es_runtime_data *data;
++	struct ghcb *ghcb;
++
++	data = this_cpu_read(runtime_data);
++	ghcb = &data->ghcb_page;
++
++	if (state->ghcb) {
++		/* Restore GHCB from Backup */
++		*ghcb = *state->ghcb;
++		data->backup_ghcb_active = false;
++		state->ghcb = NULL;
++	} else {
++		data->ghcb_active = false;
++	}
++}
++
+ void noinstr __sev_es_nmi_complete(void)
+ {
+ 	struct ghcb_state state;
 
 
