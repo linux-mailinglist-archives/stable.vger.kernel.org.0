@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1108E38EBAD
+	by mail.lfdr.de (Postfix) with ESMTP id 86C5E38EBAE
 	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234059AbhEXPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233765AbhEXPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 11:06:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37282 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37284 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233861AbhEXPCH (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234006AbhEXPCH (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:02:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E6CC56157E;
-        Mon, 24 May 2021 14:50:17 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33B6C6148E;
+        Mon, 24 May 2021 14:50:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867818;
-        bh=4X+qKwinM8RjPAHDzR4ouNhnxhl35w/PAyuJlGpdFAQ=;
+        s=k20201202; t=1621867820;
+        bh=VHyJePAyYhLaCiPGvFQJSh66K3zPSB0orscaqg9bJV4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8FHCQ7gz5zdrW78xUhi8/ZVijAmkUT2typ0y7LJNAxa6xqEwuSJDdsNHwYLp40Qe
-         RKxSDdn1gdivcu9E2AtR4QtYoezYiq9I48MiwYf2YeTjk4HkoHyKalRulnSL+DTtXF
-         xJw4q83AKMeyQCGZ171WiQI2ADntEFYG1SpyQFKK38Vn+PXbK5JfmIJ/6t6W3An/2Y
-         EhUpbxPLr/q41b7+m3BUaqxMfSkOVOX5lakQR9TjKgsLUYJvetd3Li4TvxQW+GbazR
-         JLoKlYqjAVI8kD1dCg7LMeX8lYL+d0JFpt7uxkZqr4GzLqkEW4tihAaK5seyWmu61K
-         tVz7Xd2keHMJA==
+        b=mZFATz/xIhxTr977B22KXA7UTkjFJf+igrmakq+++JyWvP6tlaXz0umozmbBpVRjI
+         TEHCeL7E+KE2f+Gut8byDEZaZwOlHx3VUm9BO70LUIOv70Ezv5CJRR2IOJ2YiL0y2a
+         Pt+I2LYvy+yRDMUIeQroLuxCdN1rr6TrPR4M3LGe53UBcI7tvPj8/oc9J9K3Aql7W1
+         /Y2Mb65PNJCcKdiSfQJiEvUyFl4s1lS1QlcJQnhZlBwdyL05LOvPkpOdaWL8/kDAPr
+         JUFZY8XmrQEYxZBB7oRq7/TmqGjGnRqO8B1czjwPiqm/2w4xLomtG5SkapS9lom80i
+         b6ppYQjnTUmbw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
+Cc:     Phillip Potter <phil@philpotter.co.uk>,
+        Vinod Koul <vkoul@kernel.org>, Sinan Kaya <okaya@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 08/25] ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()
-Date:   Mon, 24 May 2021 10:49:51 -0400
-Message-Id: <20210524145008.2499049-8-sashal@kernel.org>
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 09/25] dmaengine: qcom_hidma: comment platform_driver_register call
+Date:   Mon, 24 May 2021 10:49:52 -0400
+Message-Id: <20210524145008.2499049-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145008.2499049-1-sashal@kernel.org>
 References: <20210524145008.2499049-1-sashal@kernel.org>
@@ -43,59 +45,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit fc6a6521556c8250e356ddc6a3f2391aa62dc976 ]
+[ Upstream commit 4df2a8b0ad634d98a67e540a4e18a60f943e7d9f ]
 
-ath6kl_wmi_cmd_send could fail, so let's return its error code upstream.
+Place a comment in hidma_mgmt_init explaining why success must
+currently be assumed, due to the cleanup issue that would need to
+be considered were this module ever to be unloadable or were this
+platform_driver_register call ever to fail.
 
-Signed-off-by: Kangjie Lu <kjlu@umn.edu>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Acked-By: Sinan Kaya <okaya@kernel.org>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-52-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/ath/ath6kl/debug.c | 5 ++++-
- drivers/net/wireless/ath/ath6kl/wmi.c   | 4 +---
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/dma/qcom/hidma_mgmt.c | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/debug.c b/drivers/net/wireless/ath/ath6kl/debug.c
-index 4e94b22eaada..4d1f6d44e88c 100644
---- a/drivers/net/wireless/ath/ath6kl/debug.c
-+++ b/drivers/net/wireless/ath/ath6kl/debug.c
-@@ -1027,14 +1027,17 @@ static ssize_t ath6kl_lrssi_roam_write(struct file *file,
- {
- 	struct ath6kl *ar = file->private_data;
- 	unsigned long lrssi_roam_threshold;
-+	int ret;
+diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
+index d64edeb6771a..f9640e37b139 100644
+--- a/drivers/dma/qcom/hidma_mgmt.c
++++ b/drivers/dma/qcom/hidma_mgmt.c
+@@ -423,6 +423,20 @@ static int __init hidma_mgmt_init(void)
+ 		hidma_mgmt_of_populate_channels(child);
+ 	}
+ #endif
++	/*
++	 * We do not check for return value here, as it is assumed that
++	 * platform_driver_register must not fail. The reason for this is that
++	 * the (potential) hidma_mgmt_of_populate_channels calls above are not
++	 * cleaned up if it does fail, and to do this work is quite
++	 * complicated. In particular, various calls of of_address_to_resource,
++	 * of_irq_to_resource, platform_device_register_full, of_dma_configure,
++	 * and of_msi_configure which then call other functions and so on, must
++	 * be cleaned up - this is not a trivial exercise.
++	 *
++	 * Currently, this module is not intended to be unloaded, and there is
++	 * no module_exit function defined which does the needed cleanup. For
++	 * this reason, we have to assume success here.
++	 */
+ 	platform_driver_register(&hidma_mgmt_driver);
  
- 	if (kstrtoul_from_user(user_buf, count, 0, &lrssi_roam_threshold))
- 		return -EINVAL;
- 
- 	ar->lrssi_roam_threshold = lrssi_roam_threshold;
- 
--	ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
-+	ret = ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
- 
-+	if (ret)
-+		return ret;
- 	return count;
- }
- 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index 987ebae8ea0e..183259e26bd1 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -776,10 +776,8 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
- 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
- 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
- 
--	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
-+	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
- 			    NO_SYNC_WMIFLAG);
--
--	return 0;
- }
- 
- int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
+ 	return 0;
 -- 
 2.30.2
 
