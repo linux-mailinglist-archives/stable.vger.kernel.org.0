@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FBEB38EE4A
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A60D038EEDD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233401AbhEXPsI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33874 "EHLO mail.kernel.org"
+        id S234590AbhEXPzb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233744AbhEXPqL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:46:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F26C56108E;
-        Mon, 24 May 2021 15:36:34 +0000 (UTC)
+        id S234482AbhEXPyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EED0F61864;
+        Mon, 24 May 2021 15:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870595;
-        bh=pzldK/ODVQn7pBn2K65hBAv2hXuUOjSPmxb6eH4ybLo=;
+        s=korg; t=1621870775;
+        bh=cG/u0ecpLWFSF8qKb3rOJa9NE8S+uaKzysE4Sf1jNa0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDWhd85mYEcpVZhdnPmc9D+cuzo8Mg1qmelT1uX5R+gLJqc+dfS71lsf09q2fqCjI
-         CKPbDtdMwSv6/PmN91hQiF5h7lhNxoj80xOMEyjNolO0Jej8kayU+go031FWo/W6zf
-         IoHLy7gcj6OaZYZMG7zhpxh1wppmqewZPfRzLnRY=
+        b=mozlxobQ1BwD/Rt8Qm+SpbaqHWkmipUEqP1mVPIZzGRNQ9sYq+WKaXUZ3vMB4qa79
+         /tYhCC720YuJllHy0itEzorbVD9MN2XO+PBpVN+VyT5unXkWXg1TVS8wn1pxxth0Nj
+         pLW1yafeiO9tqlL98PAKDJDy7WCk6GdALDMD2xXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 18/71] ALSA: dice: fix stream format for TC Electronic Konnekt Live at high sampling transfer frequency
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Zqiang <qiang.zhang@windriver.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 029/104] locking/mutex: clear MUTEX_FLAGS if wait_list is empty due to signal
 Date:   Mon, 24 May 2021 17:25:24 +0200
-Message-Id: <20210524152327.052940887@linuxfoundation.org>
+Message-Id: <20210524152333.777812739@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +40,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Zqiang <qiang.zhang@windriver.com>
 
-commit 4c6fe8c547e3c9e8c15dabdd23c569ee0df3adb1 upstream.
+[ Upstream commit 3a010c493271f04578b133de977e0e5dd2848cea ]
 
-At high sampling transfer frequency, TC Electronic Konnekt Live
-transfers/receives 6 audio data frames in multi bit linear audio data
-channel of data block in CIP payload. Current hard-coded stream format
-is wrong.
+When a interruptible mutex locker is interrupted by a signal
+without acquiring this lock and removed from the wait queue.
+if the mutex isn't contended enough to have a waiter
+put into the wait queue again, the setting of the WAITER
+bit will force mutex locker to go into the slowpath to
+acquire the lock every time, so if the wait queue is empty,
+the WAITER bit need to be clear.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f1f0f330b1d0 ("ALSA: dice: add parameters of stream formats for models produced by TC Electronic")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210518012612.37268-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 040a0a371005 ("mutex: Add support for wound/wait style locks")
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210517034005.30828-1-qiang.zhang@windriver.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/dice/dice-tcelectronic.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ kernel/locking/mutex-debug.c |  4 ++--
+ kernel/locking/mutex-debug.h |  2 +-
+ kernel/locking/mutex.c       | 18 +++++++++++++-----
+ kernel/locking/mutex.h       |  4 +---
+ 4 files changed, 17 insertions(+), 11 deletions(-)
 
---- a/sound/firewire/dice/dice-tcelectronic.c
-+++ b/sound/firewire/dice/dice-tcelectronic.c
-@@ -38,8 +38,8 @@ static const struct dice_tc_spec konnekt
- };
+diff --git a/kernel/locking/mutex-debug.c b/kernel/locking/mutex-debug.c
+index a7276aaf2abc..db9301591e3f 100644
+--- a/kernel/locking/mutex-debug.c
++++ b/kernel/locking/mutex-debug.c
+@@ -57,7 +57,7 @@ void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 	task->blocked_on = waiter;
+ }
  
- static const struct dice_tc_spec konnekt_live = {
--	.tx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
--	.rx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
-+	.tx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
-+	.rx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
- 	.has_midi = true,
- };
+-void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 			 struct task_struct *task)
+ {
+ 	DEBUG_LOCKS_WARN_ON(list_empty(&waiter->list));
+@@ -65,7 +65,7 @@ void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 	DEBUG_LOCKS_WARN_ON(task->blocked_on != waiter);
+ 	task->blocked_on = NULL;
  
+-	list_del_init(&waiter->list);
++	INIT_LIST_HEAD(&waiter->list);
+ 	waiter->task = NULL;
+ }
+ 
+diff --git a/kernel/locking/mutex-debug.h b/kernel/locking/mutex-debug.h
+index 1edd3f45a4ec..53e631e1d76d 100644
+--- a/kernel/locking/mutex-debug.h
++++ b/kernel/locking/mutex-debug.h
+@@ -22,7 +22,7 @@ extern void debug_mutex_free_waiter(struct mutex_waiter *waiter);
+ extern void debug_mutex_add_waiter(struct mutex *lock,
+ 				   struct mutex_waiter *waiter,
+ 				   struct task_struct *task);
+-extern void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++extern void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 				struct task_struct *task);
+ extern void debug_mutex_unlock(struct mutex *lock);
+ extern void debug_mutex_init(struct mutex *lock, const char *name,
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index 2c25b830203c..15ac7c4bb111 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -204,7 +204,7 @@ static inline bool __mutex_waiter_is_first(struct mutex *lock, struct mutex_wait
+  * Add @waiter to a given location in the lock wait_list and set the
+  * FLAG_WAITERS flag if it's the first waiter.
+  */
+-static void __sched
++static void
+ __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 		   struct list_head *list)
+ {
+@@ -215,6 +215,16 @@ __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 		__mutex_set_flag(lock, MUTEX_FLAG_WAITERS);
+ }
+ 
++static void
++__mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter)
++{
++	list_del(&waiter->list);
++	if (likely(list_empty(&lock->wait_list)))
++		__mutex_clear_flag(lock, MUTEX_FLAGS);
++
++	debug_mutex_remove_waiter(lock, waiter, current);
++}
++
+ /*
+  * Give up ownership to a specific task, when @task = NULL, this is equivalent
+  * to a regular unlock. Sets PICKUP on a handoff, clears HANDOF, preserves
+@@ -1071,9 +1081,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 			__ww_mutex_check_waiters(lock, ww_ctx);
+ 	}
+ 
+-	mutex_remove_waiter(lock, &waiter, current);
+-	if (likely(list_empty(&lock->wait_list)))
+-		__mutex_clear_flag(lock, MUTEX_FLAGS);
++	__mutex_remove_waiter(lock, &waiter);
+ 
+ 	debug_mutex_free_waiter(&waiter);
+ 
+@@ -1090,7 +1098,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 
+ err:
+ 	__set_current_state(TASK_RUNNING);
+-	mutex_remove_waiter(lock, &waiter, current);
++	__mutex_remove_waiter(lock, &waiter);
+ err_early_kill:
+ 	spin_unlock(&lock->wait_lock);
+ 	debug_mutex_free_waiter(&waiter);
+diff --git a/kernel/locking/mutex.h b/kernel/locking/mutex.h
+index 1c2287d3fa71..f0c710b1d192 100644
+--- a/kernel/locking/mutex.h
++++ b/kernel/locking/mutex.h
+@@ -10,12 +10,10 @@
+  * !CONFIG_DEBUG_MUTEXES case. Most of them are NOPs:
+  */
+ 
+-#define mutex_remove_waiter(lock, waiter, task) \
+-		__list_del((waiter)->list.prev, (waiter)->list.next)
+-
+ #define debug_mutex_wake_waiter(lock, waiter)		do { } while (0)
+ #define debug_mutex_free_waiter(waiter)			do { } while (0)
+ #define debug_mutex_add_waiter(lock, waiter, ti)	do { } while (0)
++#define debug_mutex_remove_waiter(lock, waiter, ti)     do { } while (0)
+ #define debug_mutex_unlock(lock)			do { } while (0)
+ #define debug_mutex_init(lock, name, key)		do { } while (0)
+ 
+-- 
+2.30.2
+
 
 
