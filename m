@@ -2,277 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C53038E251
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 10:32:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2076F38E252
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 10:32:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232313AbhEXIeC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 04:34:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36040 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232306AbhEXIeC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 04:34:02 -0400
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9DABC061574
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 01:32:33 -0700 (PDT)
-Received: by mail-pg1-x535.google.com with SMTP id f22so18636481pgb.9
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 01:32:33 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=saf7Cdt5MVITPriwIi02Fpqg9wysdCeCFoVKgFZa1L4=;
-        b=mE7rKIJZwb2OcZ2Hx7au1SWJH4QN7gM5OWWqStGA6L06XPPG5gQKTSeaZodGSzLOip
-         9ubTbmGqimOj6kUjytpOCgJnmU67uGm4lhKBSRpZ4tz6ROBLHBacvxZyq6EeFG3SOA65
-         Zx4mRgqQCuMYHStDjVsmEFn6cAjELw2fJI2XT6zs+Gbm4dOTRjj6aH146QLbM2OPnJbC
-         XE6/6b+SLKndLrtQZ+v7hEd+TLL8/zGuEcY3anlNTLq+gnvnPOKk4H5ncVKtst+//xyI
-         Rz9Z02o8h//kTbkZv47Z1X+q1lfXnf1VcGeMn7aqVWFaXlgA8QqBHJPt7GTmLqwt0fa+
-         Yidg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=saf7Cdt5MVITPriwIi02Fpqg9wysdCeCFoVKgFZa1L4=;
-        b=cay6rDara12g1tWzvkkgDDsrr2uUKG/Icpklyi69YYmXO6/chHid0nkE+6yb7Ht9Mc
-         Z2IvJUaiB4aDDKsLJTBmkneJ41iJHR7/MZeza3J1tTR77DvpeQZSJLge80qG5IOfAJSW
-         OsEMnLjSG8U6P3RKZD4jcg0SyElp2dvAl9j/g7YTDgi7Y3MKYeNKSuTzWRtmePptw9O4
-         nDbEdLBoR9E1PFH0RwtK41en2qsIxHeY20+DzEjAQzUtR3o4KvyKQ4nwj22iq9KkzWU9
-         9ffJ6DQ6CfUZE2E0y2fcZ6tNGYDrBsr+xiS9w54HcTMFKRujynvErSoYErdGQeU4CRPg
-         F6cQ==
-X-Gm-Message-State: AOAM531ukCfdTL90aPNyCOPvPEu8DxT3A7VSLySSlpfmp4fO/ALOheMv
-        iPrL2cqbnfnDSvnHOLAoE6o0KmAGgmYuc8Y6
-X-Google-Smtp-Source: ABdhPJwbqKkVDPU+MPUb/jdpDA7nCkoolxORc/TtyjhZ6wTXBbIYbqJYWdKuUMt3dfvOn5tMRcTfsA==
-X-Received: by 2002:a05:6a00:124d:b029:2e7:d663:e5bd with SMTP id u13-20020a056a00124db02902e7d663e5bdmr8347954pfi.21.1621845153000;
-        Mon, 24 May 2021 01:32:33 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l1sm9470565pjt.40.2021.05.24.01.32.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 May 2021 01:32:32 -0700 (PDT)
-Message-ID: <60ab64a0.1c69fb81.b203d.fdb3@mx.google.com>
-Date:   Mon, 24 May 2021 01:32:32 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S232349AbhEXIeI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 04:34:08 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:54949 "EHLO
+        forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232318AbhEXIeH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 04:34:07 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D715619409C6;
+        Mon, 24 May 2021 04:32:39 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 24 May 2021 04:32:39 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=E22HuV
+        KTRE0tlWpqviqCaeuPtk1y6/c4G9RIm7pJnFM=; b=fmsM7Jw8QKZxF6Qa+3mN7d
+        leFYuRBrijKnEgIwCEglvWItOFpuykBxhXsEu6DcLijNvBsLjOs/6oZtCTZM/8I+
+        bVbeLmQFQyJPSQ0QrcURaJ7gUD9GzTAkwBthRUE1cwe2hInl8tksdUafVlB85Njr
+        ZpBzHeCFzCIXakbNGe9nmyqxXjTvp0A68Cob1DWHghutsGLg0KpvfmEiq+xfEiNs
+        EBhTxnv5rHgto4De0E17EN4+nIxDL7Pwt0ZzWLfdYRhlPskaBYs4K3JV9xxzCwEy
+        v2yjr9K4YbK71rhDh2DSUsmBkwHk6y0+dcmLda4abR6ylZgn6tzA6Ab5qCPDJDvQ
+        ==
+X-ME-Sender: <xms:p2SrYOBmZiPs0G33PuIbqVqXZzkMmWWcmXrmXK-MVMp2LCf3Tkg95w>
+    <xme:p2SrYIgpfXEO06DOpleDLqSgwFE3WmLDAxY_3BMtIX--WY5j0JTjhIzC9vtr7J1Ry
+    3sVZaIay05_Gw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledgtdehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:p2SrYBk3W_aor3qh3AlZA1lfNZPcdn3_VoFoNVT7EGzcC6xBFClJAg>
+    <xmx:p2SrYMxXRpZRg6h9Xz5rhxwtzqpH-r0mykFnS1aJhqUTPu2IlVZspg>
+    <xmx:p2SrYDRuKENc7ByMmySx9vpvk3qd_S8E1OC5mWP9xsDAJP1DqRJu_g>
+    <xmx:p2SrYKIQbI-5-sKRVdnUlEAUjYfSj5sJOFDa7oXEWvXxvxjtWsw7zg>
+Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
+        by mail.messagingengine.com (Postfix) with ESMTPA;
+        Mon, 24 May 2021 04:32:39 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: avoid RCU stalls while running delayed iputs" failed to apply to 4.19-stable tree
+To:     josef@toxicpanda.com, dsterba@suse.com, riel@surriel.com
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 24 May 2021 10:32:36 +0200
+Message-ID: <1621845156199253@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.190-434-g7549be3766e0
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 109 runs,
- 5 regressions (v4.19.190-434-g7549be3766e0)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 109 runs, 5 regressions (v4.19.190-434-g7549=
-be3766e0)
 
-Regressions Summary
--------------------
+The patch below does not apply to the 4.19-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
+thanks,
 
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+greg k-h
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+------------------ original commit in Linus's tree ------------------
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+From 71795ee590111e3636cc3c148289dfa9fa0a5fc3 Mon Sep 17 00:00:00 2001
+From: Josef Bacik <josef@toxicpanda.com>
+Date: Thu, 29 Apr 2021 10:51:34 -0400
+Subject: [PATCH] btrfs: avoid RCU stalls while running delayed iputs
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+Generally a delayed iput is added when we might do the final iput, so
+usually we'll end up sleeping while processing the delayed iputs
+naturally.  However there's no guarantee of this, especially for small
+files.  In production we noticed 5 instances of RCU stalls while testing
+a kernel release overnight across 1000 machines, so this is relatively
+common:
 
+  host count: 5
+  rcu: INFO: rcu_sched self-detected stall on CPU
+  rcu: ....: (20998 ticks this GP) idle=59e/1/0x4000000000000002 softirq=12333372/12333372 fqs=3208
+   	(t=21031 jiffies g=27810193 q=41075) NMI backtrace for cpu 1
+  CPU: 1 PID: 1713 Comm: btrfs-cleaner Kdump: loaded Not tainted 5.6.13-0_fbk12_rc1_5520_gec92bffc1ec9 #1
+  Call Trace:
+    <IRQ> dump_stack+0x50/0x70
+    nmi_cpu_backtrace.cold.6+0x30/0x65
+    ? lapic_can_unplug_cpu.cold.30+0x40/0x40
+    nmi_trigger_cpumask_backtrace+0xba/0xca
+    rcu_dump_cpu_stacks+0x99/0xc7
+    rcu_sched_clock_irq.cold.90+0x1b2/0x3a3
+    ? trigger_load_balance+0x5c/0x200
+    ? tick_sched_do_timer+0x60/0x60
+    ? tick_sched_do_timer+0x60/0x60
+    update_process_times+0x24/0x50
+    tick_sched_timer+0x37/0x70
+    __hrtimer_run_queues+0xfe/0x270
+    hrtimer_interrupt+0xf4/0x210
+    smp_apic_timer_interrupt+0x5e/0x120
+    apic_timer_interrupt+0xf/0x20 </IRQ>
+   RIP: 0010:queued_spin_lock_slowpath+0x17d/0x1b0
+   RSP: 0018:ffffc9000da5fe48 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+   RAX: 0000000000000000 RBX: ffff889fa81d0cd8 RCX: 0000000000000029
+   RDX: ffff889fff86c0c0 RSI: 0000000000080000 RDI: ffff88bfc2da7200
+   RBP: ffff888f2dcdd768 R08: 0000000001040000 R09: 0000000000000000
+   R10: 0000000000000001 R11: ffffffff82a55560 R12: ffff88bfc2da7200
+   R13: 0000000000000000 R14: ffff88bff6c2a360 R15: ffffffff814bd870
+   ? kzalloc.constprop.57+0x30/0x30
+   list_lru_add+0x5a/0x100
+   inode_lru_list_add+0x20/0x40
+   iput+0x1c1/0x1f0
+   run_delayed_iput_locked+0x46/0x90
+   btrfs_run_delayed_iputs+0x3f/0x60
+   cleaner_kthread+0xf2/0x120
+   kthread+0x10b/0x130
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.190-434-g7549be3766e0/plan/baseline/
+Fix this by adding a cond_resched_lock() to the loop processing delayed
+iputs so we can avoid these sort of stalls.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.190-434-g7549be3766e0
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      7549be3766e0a7d5ea8653bbe14a1fbd1ca0d7a4 =
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 
+diff --git a/fs/btrfs/inode.c b/fs/btrfs/inode.c
+index 69fcdf8f0b1c..095e452f59f0 100644
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3246,6 +3246,7 @@ void btrfs_run_delayed_iputs(struct btrfs_fs_info *fs_info)
+ 		inode = list_first_entry(&fs_info->delayed_iputs,
+ 				struct btrfs_inode, delayed_iput);
+ 		run_delayed_iput_locked(fs_info, inode);
++		cond_resched_lock(&fs_info->delayed_iput_lock);
+ 	}
+ 	spin_unlock(&fs_info->delayed_iput_lock);
+ }
 
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-panda                | arm  | lab-collabora   | gcc-8    | omap2plus_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab32fdb826b47caab3afc3
-
-  Results:     4 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-pan=
-da.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.emerg: https://kernelci.org/test/case/id/60ab32fdb826b47=
-caab3afca
-        new failure (last pass: v4.19.190-433-ga1bcf11cef15)
-        2 lines
-
-    2021-05-24 05:00:41.109000+00:00  kern  :emerg : BUG: spinlock bad magi=
-c on CPU#0, kworker/0:2/119
-    2021-05-24 05:00:41.118000+00:00  kern  :emerg :  lock: emif_lock+0x0/0=
-xffffed34 [emif], .magic: dead4ead, .owner: <none>/-1, .owner_cpu: -1   =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab320db9b8e775c0b3afab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab320db9b8e775c0b3a=
-fac
-        failing since 191 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab32197b102b1836b3afa6
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-=
-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab32197b102b1836b3a=
-fa7
-        failing since 191 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab4ddd179742143cb3afab
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qem=
-u_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab4ddd179742143cb3a=
-fac
-        failing since 191 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab3077f4bc0e022eb3afe4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.190=
--434-g7549be3766e0/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-q=
-emu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab3077f4bc0e022eb3a=
-fe5
-        failing since 191 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
