@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AF6738EE1F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B96538EFAE
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233874AbhEXPpj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:45:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33674 "EHLO mail.kernel.org"
+        id S234720AbhEXP65 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234292AbhEXPoB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:44:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 422FE613D6;
-        Mon, 24 May 2021 15:35:38 +0000 (UTC)
+        id S235485AbhEXP6J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD6D061965;
+        Mon, 24 May 2021 15:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870538;
-        bh=N5v77R3utnKw2z74f53HzJ+I31xmGE+lU/R+tbwO5Rg=;
+        s=korg; t=1621871042;
+        bh=tLit2fks7rXXXfgitzjpcmmAtQRcj2PjNJMhFUkd6tk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzwfEf/ewVT+ER6+s2wnZuf1TEcGGgJCvP1ITYOTj5WvzbRgPhaPMmSraDHzt4b5J
-         0YbdqBXHVlieMnM6YPEsvnUc6/WdflMZOgWuKRn3++ZJInzuFNi0d21+h4+TWLdSJ+
-         iiy1MIGEi8pd9GbW7WfJtHjZnFaLCTjuYT4FOWQU=
+        b=YTyXTemCURanICd3XqwzeKq3q+0aE11NJwh84fls6R3N4zr6lvP+BxRud671bJkLF
+         aAZIZgbKBG+sJC4z7qxlDTyGZpUWoCGIWviqRhzKXWA3hPgFd1QbI31EbWlgjbdFvR
+         UdB4x8glORcyjw1s5T+GZLC06NntIdhfxnOuMuwU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 18/49] ALSA: hda/realtek: Add some CLOVE SSIDs of ALC293
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 012/127] scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
 Date:   Mon, 24 May 2021 17:25:29 +0200
-Message-Id: <20210524152324.974875385@linuxfoundation.org>
+Message-Id: <20210524152335.270424557@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +42,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: PeiSen Hou <pshou@realtek.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 1d5cfca286178ce81fb0c8a5f5777ef123cd69e4 upstream.
+[ Upstream commit 5cb289bf2d7c34ca1abd794ce116c4f19185a1d4 ]
 
-Fix "use as headset mic, without its own jack detect" problen.
+Fix to return a negative error code from the error handling case instead of
+0 as done elsewhere in this function.
 
-Signed-off-by: PeiSen Hou <pshou@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/d0746eaf29f248a5acc30313e3ba4f99@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210514090952.6715-1-thunder.leizhen@huawei.com
+Fixes: a9083016a531 ("[SCSI] qla2xxx: Add ISP82XX support.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/scsi/qla2xxx/qla_nx.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -7169,12 +7169,19 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x50b8, "Clevo NK50SZ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50d5, "Clevo NP50D5", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f0, "Clevo NH50A[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f2, "Clevo NH50E[PR]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f3, "Clevo NH58DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f5, "Clevo NH55EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f6, "Clevo NH55DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x5101, "Clevo S510WU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x5157, "Clevo W517GU1", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x51a1, "Clevo NS50MU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70a1, "Clevo NB70T[HJK]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70b3, "Clevo NK70SB", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f2, "Clevo NH79EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f3, "Clevo NH77DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f4, "Clevo NH77EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f6, "Clevo NH77DPQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8228, "Clevo NR40BU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8520, "Clevo NH50D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8521, "Clevo NH77D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-@@ -7192,9 +7199,17 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x8a51, "Clevo NH70RCQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8d50, "Clevo NH55RCQ-M", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x951d, "Clevo N950T[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x9600, "Clevo N960K[PR]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x961d, "Clevo N960S[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x971d, "Clevo N970T[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0xa500, "Clevo NL53RU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xa600, "Clevo NL5XNU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb018, "Clevo NP50D[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb019, "Clevo NH77D[BE]Q", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb022, "Clevo NH77D[DC][QW]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc018, "Clevo NP50D[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc019, "Clevo NH77D[BE]Q", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc022, "Clevo NH77[DC][QW]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
- 	SND_PCI_QUIRK(0x17aa, 0x1048, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
+diff --git a/drivers/scsi/qla2xxx/qla_nx.c b/drivers/scsi/qla2xxx/qla_nx.c
+index 0677295957bc..615e44af1ca6 100644
+--- a/drivers/scsi/qla2xxx/qla_nx.c
++++ b/drivers/scsi/qla2xxx/qla_nx.c
+@@ -1063,7 +1063,8 @@ qla82xx_write_flash_dword(struct qla_hw_data *ha, uint32_t flashaddr,
+ 		return ret;
+ 	}
+ 
+-	if (qla82xx_flash_set_write_enable(ha))
++	ret = qla82xx_flash_set_write_enable(ha);
++	if (ret < 0)
+ 		goto done_write;
+ 
+ 	qla82xx_wr_32(ha, QLA82XX_ROMUSB_ROM_WDATA, data);
+-- 
+2.30.2
+
 
 
