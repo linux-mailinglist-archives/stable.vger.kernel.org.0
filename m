@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFDCB38EB1B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:00:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2B80438EB2D
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:00:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233783AbhEXPAm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:00:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34440 "EHLO mail.kernel.org"
+        id S233396AbhEXPBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:01:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34530 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234202AbhEXO5E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:57:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5042D6144E;
-        Mon, 24 May 2021 14:49:17 +0000 (UTC)
+        id S233550AbhEXO5H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:57:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 533C16144F;
+        Mon, 24 May 2021 14:49:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867757;
-        bh=7DCn1g24tfuBhifxLIxCDG9xA8Au61kv3QYF9m3PP5Q=;
+        s=k20201202; t=1621867759;
+        bh=Rscp51ovqLmDUNfUFa2XZ7mpfE6USMATUbLjCF+mfnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3jJdEdMZsv6aC45Uypoxh8O+YzdUL2I1ynXptne+bfJLQnfp8EEDuzLYGVlKfBxC
-         Q/iyavI0qTkdjI56PtUY+MVjccsaYb5x5lhtCf3ru7pXBHJhWpRb8xJBN0b9in/Mx/
-         PfT9D+f4DTbu5AIbCDevEU5+SEZsBPwp245eceiQxc78oSy47wJQuP160pSWumv8+p
-         jRXXeSp07R4oJwgDP/RXORPgbvTM7ZYgtNyxUVyve4wlbRt37CTOqRgzz/ptghSo3R
-         WhB4xPp9hMVd37bDt1aM2C/tMf8vqY1rKelRNBc7BFqFemtTcBXG8KHxUXRMJ7WubB
-         todXdIPsm0aYw==
+        b=b29O+V7brJ30NXRCJPBCK0cAuUKyFtBZBYWGSjlVVwuqrCRTt2UpuRjJr+QZhMH3F
+         dt2fYIy6/I5U3m29v3gCgTTzvsRiCY3frOiuRmfmpFf2K5fi2Glj3ngh8cyfz4VUWF
+         3baHJrGGmEpiSO6uIOdISC/UapFgUpWeCd2G6BgsvXCpJHnKGXJrMFvO5oe2dtFadR
+         XDyNBpzd5VW4nyXsO6fA//UIeFzFH4t4pSwGeJ8kyZ/7X3hxovDb1jalvCoqP5FaCq
+         dROD9FZuihkD1V0XXQZhHpyNUw3mLRVcL04MvDouJkVg8Z+CP9eFTURNtOGlKhmET9
+         BzJFZeARH7uDw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tom Seewald <tseewald@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.4 12/52] char: hpet: add checks after calling ioremap
-Date:   Mon, 24 May 2021 10:48:22 -0400
-Message-Id: <20210524144903.2498518-12-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kangjie Lu <kjlu@umn.edu>, Takashi Iwai <tiwai@suse.de>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.4 13/52] Revert "ALSA: gus: add a check of the status of snd_ctl_add"
+Date:   Mon, 24 May 2021 10:48:23 -0400
+Message-Id: <20210524144903.2498518-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144903.2498518-1-sashal@kernel.org>
 References: <20210524144903.2498518-1-sashal@kernel.org>
@@ -42,44 +42,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
+[ Upstream commit 1dacca7fa1ebea47d38d20cd2df37094805d2649 ]
 
-The function hpet_resources() calls ioremap() two times, but in both
-cases it does not check if ioremap() returned a null pointer. Fix this
-by adding null pointer checks and returning an appropriate error.
+This reverts commit 0f25e000cb4398081748e54f62a902098aa79ec1.
 
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit did nothing if there was an error, except to print
+out a message, which is pointless.  So remove the commit as it gives a
+"false sense of doing something".
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210503115736.2104747-33-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ sound/isa/gus/gus_main.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index 3e31740444f1..d390ab5e51d3 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -969,6 +969,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 	if (ACPI_SUCCESS(status)) {
- 		hdp->hd_phys_address = addr.address.minimum;
- 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+diff --git a/sound/isa/gus/gus_main.c b/sound/isa/gus/gus_main.c
+index af6b4d89d695..39911a637e80 100644
+--- a/sound/isa/gus/gus_main.c
++++ b/sound/isa/gus/gus_main.c
+@@ -77,17 +77,8 @@ static const struct snd_kcontrol_new snd_gus_joystick_control = {
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
-@@ -982,6 +984,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 		hdp->hd_phys_address = fixmem32->address;
- 		hdp->hd_address = ioremap(fixmem32->address,
- 						HPET_RANGE_SIZE);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+ static void snd_gus_init_control(struct snd_gus_card *gus)
+ {
+-	int ret;
+-
+-	if (!gus->ace_flag) {
+-		ret =
+-			snd_ctl_add(gus->card,
+-					snd_ctl_new1(&snd_gus_joystick_control,
+-						gus));
+-		if (ret)
+-			snd_printk(KERN_ERR "gus: snd_ctl_add failed: %d\n",
+-					ret);
+-	}
++	if (!gus->ace_flag)
++		snd_ctl_add(gus->card, snd_ctl_new1(&snd_gus_joystick_control, gus));
+ }
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
+ /*
 -- 
 2.30.2
 
