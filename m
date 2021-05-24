@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08A8238E9C6
+	by mail.lfdr.de (Postfix) with ESMTP id E888538E9C9
 	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:49:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233221AbhEXOuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54958 "EHLO mail.kernel.org"
+        id S233168AbhEXOuz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:50:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233092AbhEXOtH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:49:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 034D9613B0;
-        Mon, 24 May 2021 14:47:23 +0000 (UTC)
+        id S233620AbhEXOtL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:49:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E79D613F5;
+        Mon, 24 May 2021 14:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867644;
-        bh=33hYYdS6ROlukWpaKbzYi+gd68ggtvRYwXpGSTdqiag=;
+        s=k20201202; t=1621867646;
+        bh=Kji/SL/Q169iv2cO8f5kc2sJ612BTBImf1Vd4mVPAxk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MgcBtssTPPsXLCQGktzGYsx94zQLXKCzHSKCIB3oGGe9XLg4o8cepmBfljGXs7W0W
-         bMn+poQjikRxEjBJ01IMjGkMiKXkyyuG2x4IeTwXOejsSp/xmSVbKLNjJKoKfePSsx
-         SZB/vSBUrijA/u37D2w6KNOy8965m/FAuvXkSas1Y/bVQSNiM8FuTESEKS6yuE3HAV
-         cPF9Q+CH5XJvrDg0colcccTPFhR0rnSDUXcaiwsOeOUnkiBHoj6RNyF3z/Pbf4TvOg
-         Yz80LlCJEsvQ1Xus3lywP3Vhb7CbsjbpSJagdjORrAkF6vqsjuMaTUTQT0WvRNq5sH
-         Ovo/EpqMIm3OA==
+        b=Mz3QIJsZlc10A+jNuqhU19FCejAH61nIpyhn5ifRJj/07iwshC9Lw5BoaIZhCeDR+
+         QKOa4DOTqRUjaMRAOt+3lwgOA6uz6PRonJbNsvw7zo0wht/k8D51wGX3n/kopM6zMv
+         Ewr5+aAuYnu4aLwpgpM4iBCFSqruYxHV4LBc+9NvrWiNaf3PjBMWD5Nr8oebZzOQVR
+         o4KNJjbT5Wt04E9fdntUMXbKSIHP0Y0mz3mQHS03yH5BY9tK1tdIKQl10Ax8mL6Y+t
+         7vygjpfAa01K+biSvDXPivnrikTnOct2wDZ6KCCSvbKO/2/5KVLtn4c8t1jFmAgCs5
+         5eZJVyJpVa0EA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Filipe Manana <fdmanana@suse.com>,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Anand Jain <anand.jain@oracle.com>,
+Cc:     Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 49/63] btrfs: release path before starting transaction when cloning inline extent
-Date:   Mon, 24 May 2021 10:46:06 -0400
-Message-Id: <20210524144620.2497249-49-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 50/63] btrfs: do not BUG_ON in link_to_fixup_dir
+Date:   Mon, 24 May 2021 10:46:07 -0400
+Message-Id: <20210524144620.2497249-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -44,152 +42,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 6416954ca75baed71640bf3828625bf165fb9b5e ]
+[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
 
-When cloning an inline extent there are a few cases, such as when we have
-an implicit hole at file offset 0, where we start a transaction while
-holding a read lock on a leaf. Starting the transaction results in a call
-to sb_start_intwrite(), which results in doing a read lock on a percpu
-semaphore. Lockdep doesn't like this and complains about it:
+While doing error injection testing I got the following panic
 
-  [46.580704] ======================================================
-  [46.580752] WARNING: possible circular locking dependency detected
-  [46.580799] 5.13.0-rc1 #28 Not tainted
-  [46.580832] ------------------------------------------------------
-  [46.580877] cloner/3835 is trying to acquire lock:
-  [46.580918] c00000001301d638 (sb_internal#2){.+.+}-{0:0}, at: clone_copy_inline_extent+0xe4/0x5a0
-  [46.581167]
-  [46.581167] but task is already holding lock:
-  [46.581217] c000000007fa2550 (btrfs-tree-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x70/0x1d0
-  [46.581293]
-  [46.581293] which lock already depends on the new lock.
-  [46.581293]
-  [46.581351]
-  [46.581351] the existing dependency chain (in reverse order) is:
-  [46.581410]
-  [46.581410] -> #1 (btrfs-tree-00){++++}-{3:3}:
-  [46.581464]        down_read_nested+0x68/0x200
-  [46.581536]        __btrfs_tree_read_lock+0x70/0x1d0
-  [46.581577]        btrfs_read_lock_root_node+0x88/0x200
-  [46.581623]        btrfs_search_slot+0x298/0xb70
-  [46.581665]        btrfs_set_inode_index+0xfc/0x260
-  [46.581708]        btrfs_new_inode+0x26c/0x950
-  [46.581749]        btrfs_create+0xf4/0x2b0
-  [46.581782]        lookup_open.isra.57+0x55c/0x6a0
-  [46.581855]        path_openat+0x418/0xd20
-  [46.581888]        do_filp_open+0x9c/0x130
-  [46.581920]        do_sys_openat2+0x2ec/0x430
-  [46.581961]        do_sys_open+0x90/0xc0
-  [46.581993]        system_call_exception+0x3d4/0x410
-  [46.582037]        system_call_common+0xec/0x278
-  [46.582078]
-  [46.582078] -> #0 (sb_internal#2){.+.+}-{0:0}:
-  [46.582135]        __lock_acquire+0x1e90/0x2c50
-  [46.582176]        lock_acquire+0x2b4/0x5b0
-  [46.582263]        start_transaction+0x3cc/0x950
-  [46.582308]        clone_copy_inline_extent+0xe4/0x5a0
-  [46.582353]        btrfs_clone+0x5fc/0x880
-  [46.582388]        btrfs_clone_files+0xd8/0x1c0
-  [46.582434]        btrfs_remap_file_range+0x3d8/0x590
-  [46.582481]        do_clone_file_range+0x10c/0x270
-  [46.582558]        vfs_clone_file_range+0x1b0/0x310
-  [46.582605]        ioctl_file_clone+0x90/0x130
-  [46.582651]        do_vfs_ioctl+0x874/0x1ac0
-  [46.582697]        sys_ioctl+0x6c/0x120
-  [46.582733]        system_call_exception+0x3d4/0x410
-  [46.582777]        system_call_common+0xec/0x278
-  [46.582822]
-  [46.582822] other info that might help us debug this:
-  [46.582822]
-  [46.582888]  Possible unsafe locking scenario:
-  [46.582888]
-  [46.582942]        CPU0                    CPU1
-  [46.582984]        ----                    ----
-  [46.583028]   lock(btrfs-tree-00);
-  [46.583062]                                lock(sb_internal#2);
-  [46.583119]                                lock(btrfs-tree-00);
-  [46.583174]   lock(sb_internal#2);
-  [46.583212]
-  [46.583212]  *** DEADLOCK ***
-  [46.583212]
-  [46.583266] 6 locks held by cloner/3835:
-  [46.583299]  #0: c00000001301d448 (sb_writers#12){.+.+}-{0:0}, at: ioctl_file_clone+0x90/0x130
-  [46.583382]  #1: c00000000f6d3768 (&sb->s_type->i_mutex_key#15){+.+.}-{3:3}, at: lock_two_nondirectories+0x58/0xc0
-  [46.583477]  #2: c00000000f6d72a8 (&sb->s_type->i_mutex_key#15/4){+.+.}-{3:3}, at: lock_two_nondirectories+0x9c/0xc0
-  [46.583574]  #3: c00000000f6d7138 (&ei->i_mmap_lock){+.+.}-{3:3}, at: btrfs_remap_file_range+0xd0/0x590
-  [46.583657]  #4: c00000000f6d35f8 (&ei->i_mmap_lock/1){+.+.}-{3:3}, at: btrfs_remap_file_range+0xe0/0x590
-  [46.583743]  #5: c000000007fa2550 (btrfs-tree-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x70/0x1d0
-  [46.583828]
-  [46.583828] stack backtrace:
-  [46.583872] CPU: 1 PID: 3835 Comm: cloner Not tainted 5.13.0-rc1 #28
-  [46.583931] Call Trace:
-  [46.583955] [c0000000167c7200] [c000000000c1ee78] dump_stack+0xec/0x144 (unreliable)
-  [46.584052] [c0000000167c7240] [c000000000274058] print_circular_bug.isra.32+0x3a8/0x400
-  [46.584123] [c0000000167c72e0] [c0000000002741f4] check_noncircular+0x144/0x190
-  [46.584191] [c0000000167c73b0] [c000000000278fc0] __lock_acquire+0x1e90/0x2c50
-  [46.584259] [c0000000167c74f0] [c00000000027aa94] lock_acquire+0x2b4/0x5b0
-  [46.584317] [c0000000167c75e0] [c000000000a0d6cc] start_transaction+0x3cc/0x950
-  [46.584388] [c0000000167c7690] [c000000000af47a4] clone_copy_inline_extent+0xe4/0x5a0
-  [46.584457] [c0000000167c77c0] [c000000000af525c] btrfs_clone+0x5fc/0x880
-  [46.584514] [c0000000167c7990] [c000000000af5698] btrfs_clone_files+0xd8/0x1c0
-  [46.584583] [c0000000167c7a00] [c000000000af5b58] btrfs_remap_file_range+0x3d8/0x590
-  [46.584652] [c0000000167c7ae0] [c0000000005d81dc] do_clone_file_range+0x10c/0x270
-  [46.584722] [c0000000167c7b40] [c0000000005d84f0] vfs_clone_file_range+0x1b0/0x310
-  [46.584793] [c0000000167c7bb0] [c00000000058bf80] ioctl_file_clone+0x90/0x130
-  [46.584861] [c0000000167c7c10] [c00000000058c894] do_vfs_ioctl+0x874/0x1ac0
-  [46.584922] [c0000000167c7d10] [c00000000058db4c] sys_ioctl+0x6c/0x120
-  [46.584978] [c0000000167c7d60] [c0000000000364a4] system_call_exception+0x3d4/0x410
-  [46.585046] [c0000000167c7e10] [c00000000000d45c] system_call_common+0xec/0x278
-  [46.585114] --- interrupt: c00 at 0x7ffff7e22990
-  [46.585160] NIP:  00007ffff7e22990 LR: 00000001000010ec CTR: 0000000000000000
-  [46.585224] REGS: c0000000167c7e80 TRAP: 0c00   Not tainted  (5.13.0-rc1)
-  [46.585280] MSR:  800000000280f033 <SF,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 28000244  XER: 00000000
-  [46.585374] IRQMASK: 0
-  [46.585374] GPR00: 0000000000000036 00007fffffffdec0 00007ffff7f17100 0000000000000004
-  [46.585374] GPR04: 000000008020940d 00007fffffffdf40 0000000000000000 0000000000000000
-  [46.585374] GPR08: 0000000000000004 0000000000000000 0000000000000000 0000000000000000
-  [46.585374] GPR12: 0000000000000000 00007ffff7ffa940 0000000000000000 0000000000000000
-  [46.585374] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
-  [46.585374] GPR20: 0000000000000000 000000009123683e 00007fffffffdf40 0000000000000000
-  [46.585374] GPR24: 0000000000000000 0000000000000000 0000000000000000 0000000000000004
-  [46.585374] GPR28: 0000000100030260 0000000100030280 0000000000000003 000000000000005f
-  [46.585919] NIP [00007ffff7e22990] 0x7ffff7e22990
-  [46.585964] LR [00000001000010ec] 0x1000010ec
-  [46.586010] --- interrupt: c00
+  kernel BUG at fs/btrfs/tree-log.c:1862!
+  invalid opcode: 0000 [#1] SMP NOPTI
+  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
+  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
+  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
+  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
+  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
+  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
+  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
+  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
+  Call Trace:
+   replay_one_buffer+0x409/0x470
+   ? btree_read_extent_buffer_pages+0xd0/0x110
+   walk_up_log_tree+0x157/0x1e0
+   walk_log_tree+0xa6/0x1d0
+   btrfs_recover_log_trees+0x1da/0x360
+   ? replay_one_extent+0x7b0/0x7b0
+   open_ctree+0x1486/0x1720
+   btrfs_mount_root.cold+0x12/0xea
+   ? __kmalloc_track_caller+0x12f/0x240
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   vfs_kern_mount.part.0+0x71/0xb0
+   btrfs_mount+0x10d/0x380
+   ? vfs_parse_fs_string+0x4d/0x90
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   path_mount+0x433/0xa10
+   __x64_sys_mount+0xe3/0x120
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-This should be a false positive, as both locks are acquired in read mode.
-Nevertheless, we don't need to hold a leaf locked when we start the
-transaction, so just release the leaf (path) before starting it.
+We can get -EIO or any number of legitimate errors from
+btrfs_search_slot(), panicing here is not the appropriate response.  The
+error path for this code handles errors properly, simply return the
+error.
 
-Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Link: https://lore.kernel.org/linux-btrfs/20210513214404.xks77p566fglzgum@riteshh-domain/
-Reviewed-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
 Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/reflink.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/btrfs/tree-log.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
-index 0abbf050580d..53ee17f5e382 100644
---- a/fs/btrfs/reflink.c
-+++ b/fs/btrfs/reflink.c
-@@ -285,6 +285,11 @@ static int clone_copy_inline_extent(struct inode *dst,
- 	ret = btrfs_inode_set_file_extent_range(BTRFS_I(dst), 0, aligned_end);
- out:
- 	if (!ret && !trans) {
-+		/*
-+		 * Release path before starting a new transaction so we don't
-+		 * hold locks that would confuse lockdep.
-+		 */
-+		btrfs_release_path(path);
- 		/*
- 		 * No transaction here means we copied the inline extent into a
- 		 * page of the destination inode.
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 47e76e79b3d6..847acbd6d3ea 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1858,8 +1858,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
+ 	} else if (ret == -EEXIST) {
+ 		ret = 0;
+-	} else {
+-		BUG(); /* Logic Error */
+ 	}
+ 	iput(inode);
+ 
 -- 
 2.30.2
 
