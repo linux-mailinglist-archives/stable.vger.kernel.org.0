@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8760038F051
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01B5338F052
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236053AbhEXQCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46886 "EHLO mail.kernel.org"
+        id S234824AbhEXQCh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:02:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235771AbhEXQBH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:01:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B26A16198F;
-        Mon, 24 May 2021 15:46:44 +0000 (UTC)
+        id S235800AbhEXQBK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:01:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC6B61991;
+        Mon, 24 May 2021 15:46:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871205;
-        bh=rPa9JMf/kZyU7scOwDIvcoEWlcMNk9xlF9uJcHZIQD0=;
+        s=korg; t=1621871207;
+        bh=+nPiw6xVU6hNfmq6v7MeBK/V0yme+EwadyF3lBeU0Hs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tsojlkTCn0ROcBkuuInZm12r/YLwlTbCRiyPx6afj0a0O48wZgeL194Nzwt2Vs4sr
-         PRRrXYTcsFiIhgxW/QmT9f8BOSNaoCxALmgDE5F94eD1yD3418z0upvaQj9cUtzh46
-         SmFeLTzgExh/eiq5f0z7AQmk8QTyIklQMnf2dtEA=
+        b=jZbc3upJgFH8gWSRVDsSrKRbUm8/GyQn6d22TYwqrLy9ietswp4u58c8fRwT4gvJx
+         5+UdkU/FDh9sbeahVK7o+tK9HTst2cvlwSAnc1t9ZTNmfGJgchC0x2AdxGMvEygMMQ
+         WZUcX/kvRYAUfXizR4uWFe35Z2enX4RpQNYfyUmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.12 121/127] tty: vt: always invoke vc->vc_sw->con_resize callback
-Date:   Mon, 24 May 2021 17:27:18 +0200
-Message-Id: <20210524152338.960290090@linuxfoundation.org>
+        Manuel Bentele <development@manuel-bentele.de>,
+        Simon Rettberg <simon.rettberg@rz.uni-freiburg.de>,
+        Dave Airlie <airlied@redhat.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>
+Subject: [PATCH 5.12 122/127] drm/i915/gt: Disable HiZ Raw Stall Optimization on broken gen7
+Date:   Mon, 24 May 2021 17:27:19 +0200
+Message-Id: <20210524152338.999803726@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -41,71 +43,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Simon Rettberg <simon.rettberg@rz.uni-freiburg.de>
 
-commit ffb324e6f874121f7dce5bdae5e05d02baae7269 upstream.
+commit 023dfa9602f561952c0e19d74f66614a56d7e57a upstream.
 
-syzbot is reporting OOB write at vga16fb_imageblit() [1], for
-resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
-requested rows/columns fit the amount of memory reserved for the graphical
-screen if current mode is KD_GRAPHICS.
+When resetting CACHE_MODE registers, don't enable HiZ Raw Stall
+Optimization on Ivybridge GT1 and Baytrail, as it causes severe glitches
+when rendering any kind of 3D accelerated content.
+This optimization is disabled on these platforms by default according to
+official documentation from 01.org.
 
-----------
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  #include <linux/kd.h>
-  #include <linux/vt.h>
-
-  int main(int argc, char *argv[])
-  {
-        const int fd = open("/dev/char/4:1", O_RDWR);
-        struct vt_sizes vt = { 0x4100, 2 };
-
-        ioctl(fd, KDSETMODE, KD_GRAPHICS);
-        ioctl(fd, VT_RESIZE, &vt);
-        ioctl(fd, KDSETMODE, KD_TEXT);
-        return 0;
-  }
-----------
-
-Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
-KD_GRAPHICS check from resize_screen() to fbcon_resize().
-
-Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
-Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: ef99a60ffd9b ("drm/i915/gt: Clear CACHE_MODE prior to clearing residuals")
+BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/3081
+BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/3404
+BugLink: https://gitlab.freedesktop.org/drm/intel/-/issues/3071
+Reviewed-by: Manuel Bentele <development@manuel-bentele.de>
+Signed-off-by: Simon Rettberg <simon.rettberg@rz.uni-freiburg.de>
+Reviewed-by: Dave Airlie <airlied@redhat.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+[Rodrigo removed invalid Fixes line]
+Link: https://patchwork.freedesktop.org/patch/msgid/20210426161124.2b7fd708@dellnichtsogutkiste
+(cherry picked from commit 929b734ad34b717d6a1b8de97f53bb5616040147)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c              |    2 +-
- drivers/video/fbdev/core/fbcon.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/gen7_renderclear.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1171,7 +1171,7 @@ static inline int resize_screen(struct v
- 	/* Resizes the resolution of the display adapater */
- 	int err = 0;
- 
--	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
-+	if (vc->vc_sw->con_resize)
- 		err = vc->vc_sw->con_resize(vc, width, height, user);
- 
- 	return err;
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2019,7 +2019,7 @@ static int fbcon_resize(struct vc_data *
- 			return -EINVAL;
- 
- 		pr_debug("resize now %ix%i\n", var.xres, var.yres);
--		if (con_is_visible(vc)) {
-+		if (con_is_visible(vc) && vc->vc_mode == KD_TEXT) {
- 			var.activate = FB_ACTIVATE_NOW |
- 				FB_ACTIVATE_FORCE;
- 			fb_set_var(info, &var);
+--- a/drivers/gpu/drm/i915/gt/gen7_renderclear.c
++++ b/drivers/gpu/drm/i915/gt/gen7_renderclear.c
+@@ -397,7 +397,10 @@ static void emit_batch(struct i915_vma *
+ 	gen7_emit_pipeline_invalidate(&cmds);
+ 	batch_add(&cmds, MI_LOAD_REGISTER_IMM(2));
+ 	batch_add(&cmds, i915_mmio_reg_offset(CACHE_MODE_0_GEN7));
+-	batch_add(&cmds, 0xffff0000);
++	batch_add(&cmds, 0xffff0000 |
++			((IS_IVB_GT1(i915) || IS_VALLEYVIEW(i915)) ?
++			 HIZ_RAW_STALL_OPT_DISABLE :
++			 0));
+ 	batch_add(&cmds, i915_mmio_reg_offset(CACHE_MODE_1));
+ 	batch_add(&cmds, 0xffff0000 | PIXEL_SUBSPAN_COLLECT_OPT_DISABLE);
+ 	gen7_emit_pipeline_invalidate(&cmds);
 
 
