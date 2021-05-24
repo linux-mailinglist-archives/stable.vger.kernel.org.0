@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 85ED038EE59
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 261B838EEE3
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234252AbhEXPsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33990 "EHLO mail.kernel.org"
+        id S234683AbhEXPzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233797AbhEXPqc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:46:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7900B6140E;
-        Mon, 24 May 2021 15:36:54 +0000 (UTC)
+        id S234860AbhEXPyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A9D5617ED;
+        Mon, 24 May 2021 15:39:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870614;
-        bh=n3h+C+wVsGdNeqInQVjAiGNNQInOR2ABJybVHtVRBgo=;
+        s=korg; t=1621870795;
+        bh=lVF9Ze/S06Eg1A+PMOGSpVDkwzSF0NNTQ75Reo2VATk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V+hLYYVyPxV+HqEe4dEMx5KvM/bvRlmvCCVdBKHuypHqaJk+SYeWw2CYVc6cAFH49
-         9aXdIuCiCxoSNTOUPF6LsWzClqfd3oYtXmZaVhj2ooJzihee1yKoVcpb1V9C0eHpu/
-         5SQ1i2vFJ0j7ScDRG5LQV7SjkswMxQ9rJw2q9BaU=
+        b=0OK8IHh/8EkTiN/Ea0hqcbp0kef6MXZ8OWdjR/o05oP/YwGeTkM4Wx8irL+LsjAk9
+         WjoGTjqBNRm3q6drJ3CWQ28LigHtKyUCEfQOllwwx4OlyNU1yeyI+DCdG2+poPLYf1
+         Y7dVd+c5MNMK08Rrvz556OGIW08h0bsj/6Tex3Y4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org,
+        Mario Limonciello <mario.limonciello@outlook.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mark Gross <mgross@linux.intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/71] RDMA/core: Dont access cm_id after its destruction
+Subject: [PATCH 5.10 020/104] platform/x86: dell-smbios-wmi: Fix oops on rmmod dell_smbios
 Date:   Mon, 24 May 2021 17:25:15 +0200
-Message-Id: <20210524152326.761251858@linuxfoundation.org>
+Message-Id: <20210524152333.495739224@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,96 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 889d916b6f8a48b8c9489fffcad3b78eedd01a51 ]
+[ Upstream commit 3a53587423d25c87af4b4126a806a0575104b45e ]
 
-restrack should only be attached to a cm_id while the ID has a valid
-device pointer. It is set up when the device is first loaded, but not
-cleared when the device is removed. There is also two copies of the device
-pointer, one private and one in the public API, and these were left out of
-sync.
+init_dell_smbios_wmi() only registers the dell_smbios_wmi_driver on systems
+where the Dell WMI interface is supported. While exit_dell_smbios_wmi()
+unregisters it unconditionally, this leads to the following oops:
 
-Make everything go to NULL together and manipulate restrack right around
-the device assignments.
+[  175.722921] ------------[ cut here ]------------
+[  175.722925] Unexpected driver unregister!
+[  175.722939] WARNING: CPU: 1 PID: 3630 at drivers/base/driver.c:194 driver_unregister+0x38/0x40
+...
+[  175.723089] Call Trace:
+[  175.723094]  cleanup_module+0x5/0xedd [dell_smbios]
+...
+[  175.723148] ---[ end trace 064c34e1ad49509d ]---
 
-Found by syzcaller:
-BUG: KASAN: wild-memory-access in __list_del include/linux/list.h:112 [inline]
-BUG: KASAN: wild-memory-access in __list_del_entry include/linux/list.h:135 [inline]
-BUG: KASAN: wild-memory-access in list_del include/linux/list.h:146 [inline]
-BUG: KASAN: wild-memory-access in cma_cancel_listens drivers/infiniband/core/cma.c:1767 [inline]
-BUG: KASAN: wild-memory-access in cma_cancel_operation drivers/infiniband/core/cma.c:1795 [inline]
-BUG: KASAN: wild-memory-access in cma_cancel_operation+0x1f4/0x4b0 drivers/infiniband/core/cma.c:1783
-Write of size 8 at addr dead000000000108 by task syz-executor716/334
+Make the unregister happen on the same condition the register happens
+to fix this.
 
-CPU: 0 PID: 334 Comm: syz-executor716 Not tainted 5.11.0+ #271
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
-rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-Call Trace:
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0xbe/0xf9 lib/dump_stack.c:120
- __kasan_report mm/kasan/report.c:400 [inline]
- kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
- __list_del include/linux/list.h:112 [inline]
- __list_del_entry include/linux/list.h:135 [inline]
- list_del include/linux/list.h:146 [inline]
- cma_cancel_listens drivers/infiniband/core/cma.c:1767 [inline]
- cma_cancel_operation drivers/infiniband/core/cma.c:1795 [inline]
- cma_cancel_operation+0x1f4/0x4b0 drivers/infiniband/core/cma.c:1783
- _destroy_id+0x29/0x460 drivers/infiniband/core/cma.c:1862
- ucma_close_id+0x36/0x50 drivers/infiniband/core/ucma.c:185
- ucma_destroy_private_ctx+0x58d/0x5b0 drivers/infiniband/core/ucma.c:576
- ucma_close+0x91/0xd0 drivers/infiniband/core/ucma.c:1797
- __fput+0x169/0x540 fs/file_table.c:280
- task_work_run+0xb7/0x100 kernel/task_work.c:140
- exit_task_work include/linux/task_work.h:30 [inline]
- do_exit+0x7da/0x17f0 kernel/exit.c:825
- do_group_exit+0x9e/0x190 kernel/exit.c:922
- __do_sys_exit_group kernel/exit.c:933 [inline]
- __se_sys_exit_group kernel/exit.c:931 [inline]
- __x64_sys_exit_group+0x2d/0x30 kernel/exit.c:931
- do_syscall_64+0x2d/0x40 arch/x86/entry/common.c:46
- entry_SYSCALL_64_after_hwframe+0x44/0xa9
-
-Fixes: 255d0c14b375 ("RDMA/cma: rdma_bind_addr() leaks a cma_dev reference count")
-Link: https://lore.kernel.org/r/3352ee288fe34f2b44220457a29bfc0548686363.1620711734.git.leonro@nvidia.com
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Mario Limonciello <mario.limonciello@outlook.com>
+Fixes: 1a258e670434 ("platform/x86: dell-smbios-wmi: Add new WMI dispatcher driver")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@outlook.com>
+Reviewed-by: Mark Gross <mgross@linux.intel.com>
+Link: https://lore.kernel.org/r/20210518125027.21824-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/core/cma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/platform/x86/dell-smbios-wmi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index ecac62a7b59e..92428990f0cc 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -530,6 +530,7 @@ static void cma_release_dev(struct rdma_id_private *id_priv)
- 	list_del(&id_priv->list);
- 	cma_deref_dev(id_priv->cma_dev);
- 	id_priv->cma_dev = NULL;
-+	id_priv->id.device = NULL;
- 	if (id_priv->id.route.addr.dev_addr.sgid_attr) {
- 		rdma_put_gid_attr(id_priv->id.route.addr.dev_addr.sgid_attr);
- 		id_priv->id.route.addr.dev_addr.sgid_attr = NULL;
-@@ -1871,6 +1872,7 @@ void rdma_destroy_id(struct rdma_cm_id *id)
- 				iw_destroy_cm_id(id_priv->cm_id.iw);
- 		}
- 		cma_leave_mc_groups(id_priv);
-+		rdma_restrack_del(&id_priv->res);
- 		cma_release_dev(id_priv);
- 	}
+diff --git a/drivers/platform/x86/dell-smbios-wmi.c b/drivers/platform/x86/dell-smbios-wmi.c
+index 27a298b7c541..c97bd4a45242 100644
+--- a/drivers/platform/x86/dell-smbios-wmi.c
++++ b/drivers/platform/x86/dell-smbios-wmi.c
+@@ -271,7 +271,8 @@ int init_dell_smbios_wmi(void)
  
-@@ -3580,7 +3582,7 @@ int rdma_listen(struct rdma_cm_id *id, int backlog)
- 	}
+ void exit_dell_smbios_wmi(void)
+ {
+-	wmi_driver_unregister(&dell_smbios_wmi_driver);
++	if (wmi_supported)
++		wmi_driver_unregister(&dell_smbios_wmi_driver);
+ }
  
- 	id_priv->backlog = backlog;
--	if (id->device) {
-+	if (id_priv->cma_dev) {
- 		if (rdma_cap_ib_cm(id->device, 1)) {
- 			ret = cma_ib_listen(id_priv);
- 			if (ret)
+ MODULE_DEVICE_TABLE(wmi, dell_smbios_wmi_id_table);
 -- 
 2.30.2
 
