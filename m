@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8721238EFF8
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AEE5938EFF6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234556AbhEXQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235566AbhEXQAj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 12:00:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235601AbhEXP7s (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235600AbhEXP7s (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:59:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A14776197B;
-        Mon, 24 May 2021 15:45:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CE6FA6195F;
+        Mon, 24 May 2021 15:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871131;
-        bh=ySwN1vJxApLi8y0eY292G8HYXaeIbbwM7aDyxINP+h4=;
+        s=korg; t=1621871133;
+        bh=7hmAbfphgOyVL13LgGdGnRzOmIHoIxlzSnUWIOJjmdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YaMuty5GFQoQB6g2OKWMMRduQMZOapDbolsTDRaEeUxW4tlTYq3qVObXCf1xtFz3k
-         GSD0ahZUuyAJAoxsXi+UAiRpf6usg/elIzCaMFMK9xlTxn5MVfA7eCyn7FKxluFAIg
-         EmBtrIXzF1Z9F0qAsJq2cP1OwhzmvauJ8n4arYuI=
+        b=D7aSZ2Ghce6QHz3u8cXF/Qjex4um1dyzMgn0DXuvH9yODeCEvj/Fx0iFoG+kx0ggk
+         EOIzC1NJLO8EwNuWRxYX2rW6V5qZxc0m/q67skVeAEiQJLuDp3q/inJHqak7oMgKPW
+         KJ3RHy0GXV4idXxjKJK48XvkWShfE79VUeKwG734=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Hunter <jonathanh@nvidia.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Subject: [PATCH 5.12 087/127] gpio: tegra186: Dont set parent IRQ affinity
-Date:   Mon, 24 May 2021 17:26:44 +0200
-Message-Id: <20210524152337.800955781@linuxfoundation.org>
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.12 088/127] xen-pciback: redo VF placement in the virtual topology
+Date:   Mon, 24 May 2021 17:26:45 +0200
+Message-Id: <20210524152337.838032017@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -40,86 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jon Hunter <jonathanh@nvidia.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit bdbe871ef0caa660e16461a2a94579d9f9ef7ba4 upstream.
+commit 4ba50e7c423c29639878c00573288869aa627068 upstream.
 
-When hotplugging CPUs on Tegra186 and Tegra194 errors such as the
-following are seen ...
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
- IRQ63: set affinity failed(-22).
- IRQ65: set affinity failed(-22).
- IRQ66: set affinity failed(-22).
- IRQ67: set affinity failed(-22).
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
-Looking at the /proc/interrupts the above are all interrupts associated
-with GPIOs. The reason why these error messages occur is because there
-is no 'parent_data' associated with any of the GPIO interrupts and so
-tegra186_irq_set_affinity() simply returns -EINVAL.
-
-To understand why there is no 'parent_data' it is first necessary to
-understand that in addition to the GPIO interrupts being routed to the
-interrupt controller (GIC), the interrupts for some GPIOs are also
-routed to the Tegra Power Management Controller (PMC) to wake up the
-system from low power states. In order to configure GPIO events as
-wake events in the PMC, the PMC is configured as IRQ parent domain
-for the GPIO IRQ domain. Originally the GIC was the IRQ parent domain
-of the PMC and although this was working, this started causing issues
-once commit 64a267e9a41c ("irqchip/gic: Configure SGIs as standard
-interrupts") was added, because technically, the GIC is not a parent
-of the PMC. Commit c351ab7bf2a5 ("soc/tegra: pmc: Don't create fake
-interrupt hierarchy levels") fixed this by severing the IRQ domain
-hierarchy for the Tegra GPIOs and hence, there may be no IRQ parent
-domain for the GPIOs.
-
-The GPIO controllers on Tegra186 and Tegra194 have either one or six
-interrupt lines to the interrupt controller. For GPIO controllers with
-six interrupts, the mapping of the GPIO interrupt to the controller
-interrupt is configurable within the GPIO controller. Currently a
-default mapping is used, however, it could be possible to use the
-set affinity callback for the Tegra186 GPIO driver to do something a
-bit more interesting. Currently, because interrupts for all GPIOs are
-have the same mapping and any attempts to configure the affinity for
-a given GPIO can conflict with another that shares the same IRQ, for
-now it is simpler to just remove set affinity support and this avoids
-the above warnings being seen.
-
-Cc: <stable@vger.kernel.org>
-Fixes: c4e1f7d92cd6 ("gpio: tegra186: Set affinity callback to parent")
-Signed-off-by: Jon Hunter <jonathanh@nvidia.com>
-Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-tegra186.c |   11 -----------
- 1 file changed, 11 deletions(-)
+ drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/gpio/gpio-tegra186.c
-+++ b/drivers/gpio/gpio-tegra186.c
-@@ -444,16 +444,6 @@ static int tegra186_irq_set_wake(struct
- 	return 0;
- }
- 
--static int tegra186_irq_set_affinity(struct irq_data *data,
--				     const struct cpumask *dest,
--				     bool force)
--{
--	if (data->parent_data)
--		return irq_chip_set_affinity_parent(data, dest, force);
--
--	return -EINVAL;
--}
--
- static void tegra186_gpio_irq(struct irq_desc *desc)
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -70,7 +70,7 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
  {
- 	struct tegra_gpio *gpio = irq_desc_get_handler_data(desc);
-@@ -700,7 +690,6 @@ static int tegra186_gpio_probe(struct pl
- 	gpio->intc.irq_unmask = tegra186_irq_unmask;
- 	gpio->intc.irq_set_type = tegra186_irq_set_type;
- 	gpio->intc.irq_set_wake = tegra186_irq_set_wake;
--	gpio->intc.irq_set_affinity = tegra186_irq_set_affinity;
+-	int err = 0, slot, func = -1;
++	int err = 0, slot, func = PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
  
- 	irq = &gpio->gpio.irq;
- 	irq->chip = &gpio->intc;
+@@ -95,22 +95,25 @@ static int __xen_pcibk_add_pci_dev(struc
+ 
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+ 
+ 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+ 
+ 			if (match_slot(dev, t->dev)) {
+ 				dev_info(&dev->dev, "vpci: assign to virtual slot %d func %d\n",
+-					 slot, PCI_FUNC(dev->devfn));
++					 slot, func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func = PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				 slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
+ 		}
+ 	}
 
 
