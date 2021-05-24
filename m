@@ -2,35 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CB6F38EE68
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51D5E38EFAB
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234114AbhEXPun (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:50:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
+        id S234203AbhEXP6y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234469AbhEXPrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:47:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C7A7F61401;
-        Mon, 24 May 2021 15:36:58 +0000 (UTC)
+        id S234242AbhEXP6C (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49366613CB;
+        Mon, 24 May 2021 15:43:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870619;
-        bh=6uPdLOtWDwPTg23SaBpdldN7cAfKsfp4eOLSq3ZdXgY=;
+        s=korg; t=1621871037;
+        bh=3l6pymyl+oPTyVTGM7doMqP4IkPWHoeq1NoWfbaslgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gMC2REM6uBGJVuVnLU9+u9R4PK9z/qbu3WemjcM5S/lqq9gkQP0N4I5IwweaT7W/7
-         pTr3hP24nh1lEUK+ZHM0EpzSPecZmhcWANNUrC5KrN/rkibVmSfPtbijPWE79kifgg
-         viscRPBTipQ1v0saTD+vDmPT0dA+xdc3rC9HSjP0=
+        b=MxoEVidpVD8f/WqaYPf/K097P/PnLXoXrBHesBlLCHRTvMdB2/aqQqSVcbkZG7/7P
+         UAYLPFEaV3CY3cKnSzMwnXR435KRFXHwXSoBLrwhpJe15/vSbhbOc9UVaGUDj2Row+
+         NGDkFOu79gsmNy//nca7lUzMcVlMV6pB/4WQg4CQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 21/71] ALSA: dice: fix stream format at middle sampling rate for Alesis iO 26
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 010/127] scsi: ufs: core: Increase the usable queue depth
 Date:   Mon, 24 May 2021 17:25:27 +0200
-Message-Id: <20210524152327.148984069@linuxfoundation.org>
+Message-Id: <20210524152335.205174543@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +46,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Bart Van Assche <bvanassche@acm.org>
 
-commit 1b6604896e78969baffc1b6cc6bc175f95929ac4 upstream.
+[ Upstream commit d0b2b70eb12e9ffaf95e11b16b230a4e015a536c ]
 
-Alesis iO 26 FireWire has two pairs of digital optical interface. It
-delivers PCM frames from the interfaces by second isochronous packet
-streaming. Although both of the interfaces are available at 44.1/48.0
-kHz, first one of them is only available at 88.2/96.0 kHz. It reduces
-the number of PCM samples to 4 in Multi Bit Linear Audio data channel
-of data blocks on the second isochronous packet streaming.
+With the current implementation of the UFS driver active_queues is 1
+instead of 0 if all UFS request queues are idle. That causes
+hctx_may_queue() to divide the queue depth by 2 when queueing a request and
+hence reduces the usable queue depth.
 
-This commit fixes hardcoded stream formats.
+The shared tag set code in the block layer keeps track of the number of
+active request queues. blk_mq_tag_busy() is called before a request is
+queued onto a hwq and blk_mq_tag_idle() is called some time after the hwq
+became idle. blk_mq_tag_idle() is called from inside blk_mq_timeout_work().
+Hence, blk_mq_tag_idle() is only called if a timer is associated with each
+request that is submitted to a request queue that shares a tag set with
+another request queue.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Adds a blk_mq_start_request() call in ufshcd_exec_dev_cmd(). This doubles
+the queue depth on my test setup from 16 to 32.
+
+In addition to increasing the usable queue depth, also fix the
+documentation of the 'timeout' parameter in the header above
+ufshcd_exec_dev_cmd().
+
+Link: https://lore.kernel.org/r/20210513164912.5683-1-bvanassche@acm.org
+Fixes: 7252a3603015 ("scsi: ufs: Avoid busy-waiting by eliminating tag conflicts")
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Bean Huo <beanhuo@micron.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/dice/dice-alesis.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/ufs/ufshcd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/dice/dice-alesis.c
-+++ b/sound/firewire/dice/dice-alesis.c
-@@ -16,7 +16,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
- static const unsigned int
- alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
- 	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
--	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
-+	{16, 4, 0},	/* Tx1 = ADAT1 + ADAT2 (available at low rate). */
- };
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 0c71a159d08f..e1e510882ff4 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2849,7 +2849,7 @@ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
+  * ufshcd_exec_dev_cmd - API for sending device management requests
+  * @hba: UFS hba
+  * @cmd_type: specifies the type (NOP, Query...)
+- * @timeout: time in seconds
++ * @timeout: timeout in milliseconds
+  *
+  * NOTE: Since there is only one available tag for device management commands,
+  * it is expected you hold the hba->dev_cmd.lock mutex.
+@@ -2879,6 +2879,9 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
+ 	}
+ 	tag = req->tag;
+ 	WARN_ON_ONCE(!ufshcd_valid_tag(hba, tag));
++	/* Set the timeout such that the SCSI error handler is not activated. */
++	req->timeout = msecs_to_jiffies(2 * timeout);
++	blk_mq_start_request(req);
  
- int snd_dice_detect_alesis_formats(struct snd_dice *dice)
+ 	init_completion(&wait);
+ 	lrbp = &hba->lrb[tag];
+-- 
+2.30.2
+
 
 
