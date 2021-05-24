@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A1838EE8F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3483C38EE07
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233339AbhEXPwF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:52:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38642 "EHLO mail.kernel.org"
+        id S234967AbhEXPpM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56262 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234858AbhEXPuC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C48AA61585;
-        Mon, 24 May 2021 15:38:03 +0000 (UTC)
+        id S233519AbhEXPmG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:42:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7489561406;
+        Mon, 24 May 2021 15:34:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870684;
-        bh=cm7Tes5q7JSWslAR3+hzlASBI9+ebVmkT1VG5UktXy4=;
+        s=korg; t=1621870494;
+        bh=4y53AlV7J/GunMYGYqM0s5l56bGEUAVQa7NrzwKwNJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAqeHlS9Ivtq2BXXSKe++kIEFZMzY3/iyTBRYIDyEkbL3z+WkiOWgnXROAm8Jn3LF
-         /GnykuEXwnEfc7DAEu0/EGnpxxdVjxClKT88sAaB3rRJbqqkK1pc3dRPIGnHc+dv0k
-         rC/Et4AmIxrNSkqwO+RjJXDr3ulo9bbvrzxhUB8s=
+        b=o/B1ukvzqJjtgZYXslkxfq81StNAUPoHobeS6eejxBDwi3RXXCQycQNp8XCWSjK04
+         4eXSFzlGrp2+cXa3EiQcW8jf1/bq/qnvuBA3KGQxuuxvr67ap0qjZ4Qv/jp4VsdEx/
+         7QYfiYzgo17bWb9qWv4b2tbV+qSTaO7c2gAPbcJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 27/71] ALSA: firewire-lib: fix check for the size of isochronous packet payload
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 4.19 22/49] xen-pciback: reconfigure also from backend watch handler
 Date:   Mon, 24 May 2021 17:25:33 +0200
-Message-Id: <20210524152327.343017478@linuxfoundation.org>
+Message-Id: <20210524152325.097641429@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,53 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 395f41e2cdac63e7581fb9574e5ac0f02556e34a upstream.
+commit c81d3d24602540f65256f98831d0a25599ea6b87 upstream.
 
-The check for size of isochronous packet payload just cares of the size of
-IR context payload without the size of CIP header.
+When multiple PCI devices get assigned to a guest right at boot, libxl
+incrementally populates the backend tree. The writes for the first of
+the devices trigger the backend watch. In turn xen_pcibk_setup_backend()
+will set the XenBus state to Initialised, at which point no further
+reconfigures would happen unless a device got hotplugged. Arrange for
+reconfigure to also get triggered from the backend watch handler.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f11453c7cc01 ("ALSA: firewire-lib: use 16 bytes IR context header to separate CIP header")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-4-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/2337cbd6-94b9-4187-9862-c03ea12e0c61@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/amdtp-stream.c |   14 ++++++++++----
- 1 file changed, 10 insertions(+), 4 deletions(-)
+ drivers/xen/xen-pciback/xenbus.c |   22 +++++++++++++++++-----
+ 1 file changed, 17 insertions(+), 5 deletions(-)
 
---- a/sound/firewire/amdtp-stream.c
-+++ b/sound/firewire/amdtp-stream.c
-@@ -617,18 +617,24 @@ static int parse_ir_ctx_header(struct am
- 			       unsigned int *syt, unsigned int index)
- {
- 	const __be32 *cip_header;
-+	unsigned int cip_header_size;
- 	int err;
+--- a/drivers/xen/xen-pciback/xenbus.c
++++ b/drivers/xen/xen-pciback/xenbus.c
+@@ -358,7 +358,8 @@ out:
+ 	return err;
+ }
  
- 	*payload_length = be32_to_cpu(ctx_header[0]) >> ISO_DATA_LENGTH_SHIFT;
--	if (*payload_length > s->ctx_data.tx.ctx_header_size +
--					s->ctx_data.tx.max_ctx_payload_length) {
-+
-+	if (!(s->flags & CIP_NO_HEADER))
-+		cip_header_size = 8;
-+	else
-+		cip_header_size = 0;
-+
-+	if (*payload_length > cip_header_size + s->ctx_data.tx.max_ctx_payload_length) {
- 		dev_err(&s->unit->device,
- 			"Detect jumbo payload: %04x %04x\n",
--			*payload_length, s->ctx_data.tx.max_ctx_payload_length);
-+			*payload_length, cip_header_size + s->ctx_data.tx.max_ctx_payload_length);
- 		return -EIO;
+-static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
++static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev,
++				 enum xenbus_state state)
+ {
+ 	int err = 0;
+ 	int num_devs;
+@@ -372,9 +373,7 @@ static int xen_pcibk_reconfigure(struct
+ 	dev_dbg(&pdev->xdev->dev, "Reconfiguring device ...\n");
+ 
+ 	mutex_lock(&pdev->dev_lock);
+-	/* Make sure we only reconfigure once */
+-	if (xenbus_read_driver_state(pdev->xdev->nodename) !=
+-	    XenbusStateReconfiguring)
++	if (xenbus_read_driver_state(pdev->xdev->nodename) != state)
+ 		goto out;
+ 
+ 	err = xenbus_scanf(XBT_NIL, pdev->xdev->nodename, "num_devs", "%d",
+@@ -499,6 +498,10 @@ static int xen_pcibk_reconfigure(struct
+ 		}
  	}
  
--	if (!(s->flags & CIP_NO_HEADER)) {
-+	if (cip_header_size > 0) {
- 		cip_header = ctx_header + 2;
- 		err = check_cip_header(s, cip_header, *payload_length,
- 				       data_blocks, data_block_counter, syt);
++	if (state != XenbusStateReconfiguring)
++		/* Make sure we only reconfigure once. */
++		goto out;
++
+ 	err = xenbus_switch_state(pdev->xdev, XenbusStateReconfigured);
+ 	if (err) {
+ 		xenbus_dev_fatal(pdev->xdev, err,
+@@ -524,7 +527,7 @@ static void xen_pcibk_frontend_changed(s
+ 		break;
+ 
+ 	case XenbusStateReconfiguring:
+-		xen_pcibk_reconfigure(pdev);
++		xen_pcibk_reconfigure(pdev, XenbusStateReconfiguring);
+ 		break;
+ 
+ 	case XenbusStateConnected:
+@@ -663,6 +666,15 @@ static void xen_pcibk_be_watch(struct xe
+ 		xen_pcibk_setup_backend(pdev);
+ 		break;
+ 
++	case XenbusStateInitialised:
++		/*
++		 * We typically move to Initialised when the first device was
++		 * added. Hence subsequent devices getting added may need
++		 * reconfiguring.
++		 */
++		xen_pcibk_reconfigure(pdev, XenbusStateInitialised);
++		break;
++
+ 	default:
+ 		break;
+ 	}
 
 
