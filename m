@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AE6FD38EEFA
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF7E38EE08
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235049AbhEXPzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38642 "EHLO mail.kernel.org"
+        id S233756AbhEXPpN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235008AbhEXPy4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED3066191B;
-        Mon, 24 May 2021 15:40:11 +0000 (UTC)
+        id S233408AbhEXPmH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:42:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F32C61405;
+        Mon, 24 May 2021 15:34:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870812;
-        bh=6uPdLOtWDwPTg23SaBpdldN7cAfKsfp4eOLSq3ZdXgY=;
+        s=korg; t=1621870497;
+        bh=vLvbMIWdfwnXUTlhB8Wi4OmoRGO+WAEiiJNDqF7oISw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a7ABEu59Ny1drFB1BltKZsJ/h63hzH7z4Gekf3bjNCOAnc4zHY6m9EuJsUfHZCWYR
-         8rbuEAks77SasghZ3kiZHiVwCGgrx6M/KEdhi7nxD8OTfZ9ZCIXnTpDkooe38l3X+3
-         CUlBDF4aN/G6M4oG/JtH09TQCZdR9AOtq6fGxU/A=
+        b=W+/ftyvRAtl2GKKFSJWdNUJLmdWTfBSpoa5PCp6vw7ykxgrAEk04UumLihB+bdZTl
+         nt4bSI3REJhjBTSnjFDUgXrt7+mrzc1IbPo8Dn9LZylc4Xy7SiiCPl6IU/wDt6hgt0
+         LJpWGKoEr4hKFvlfry+njIQ8gV7SugFSJ4xlfHLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 038/104] ALSA: dice: fix stream format at middle sampling rate for Alesis iO 26
-Date:   Mon, 24 May 2021 17:25:33 +0200
-Message-Id: <20210524152334.094681399@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.19 23/49] dm snapshot: fix a crash when an origin has no snapshots
+Date:   Mon, 24 May 2021 17:25:34 +0200
+Message-Id: <20210524152325.127651543@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-commit 1b6604896e78969baffc1b6cc6bc175f95929ac4 upstream.
+commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
 
-Alesis iO 26 FireWire has two pairs of digital optical interface. It
-delivers PCM frames from the interfaces by second isochronous packet
-streaming. Although both of the interfaces are available at 44.1/48.0
-kHz, first one of them is only available at 88.2/96.0 kHz. It reduces
-the number of PCM samples to 4 in Multi Bit Linear Audio data channel
-of data blocks on the second isochronous packet streaming.
+If an origin target has no snapshots, o->split_boundary is set to 0.
+This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
 
-This commit fixes hardcoded stream formats.
+Fix this by initializing chunk_size, and in turn split_boundary, to
+rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
+into "unsigned" type.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-2-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Reported-by: Michael Tokarev <mjt@tls.msk.ru>
+Tested-by: Michael Tokarev <mjt@tls.msk.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/dice/dice-alesis.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/md/dm-snap.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/sound/firewire/dice/dice-alesis.c
-+++ b/sound/firewire/dice/dice-alesis.c
-@@ -16,7 +16,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
- static const unsigned int
- alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
- 	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
--	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
-+	{16, 4, 0},	/* Tx1 = ADAT1 + ADAT2 (available at low rate). */
- };
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -794,12 +794,11 @@ static int dm_add_exception(void *contex
+ static uint32_t __minimum_chunk_size(struct origin *o)
+ {
+ 	struct dm_snapshot *snap;
+-	unsigned chunk_size = 0;
++	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
  
- int snd_dice_detect_alesis_formats(struct snd_dice *dice)
+ 	if (o)
+ 		list_for_each_entry(snap, &o->snapshots, list)
+-			chunk_size = min_not_zero(chunk_size,
+-						  snap->store->chunk_size);
++			chunk_size = min(chunk_size, snap->store->chunk_size);
+ 
+ 	return (uint32_t) chunk_size;
+ }
 
 
