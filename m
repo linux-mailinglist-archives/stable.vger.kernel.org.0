@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D51538EEA9
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A582B38EEF7
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234719AbhEXPxr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:53:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
+        id S235018AbhEXPzn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233454AbhEXPu4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0A896141F;
-        Mon, 24 May 2021 15:38:31 +0000 (UTC)
+        id S235297AbhEXPzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 780736192A;
+        Mon, 24 May 2021 15:40:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870712;
-        bh=8Fc8KHRbYELJMHUzT3bl6rJhu3JG5Bk4W8LjYl8wVKM=;
+        s=korg; t=1621870857;
+        bh=7hmAbfphgOyVL13LgGdGnRzOmIHoIxlzSnUWIOJjmdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vESSRH9AY0r3P8HVewTHJydJu7IJmLKDIxzTz0zGqTeGJa+KHJeFFVpr25VICKFyw
-         cLVMGsMPLJVN8ZEa2X5n4Jx6hhfihJfXm3eX/04Ytj6xpUc60XE+hcyG9MdgY1mrzG
-         EjfIke401ggRISsDCUnKe+J0YVUBTm8I6VcCbgaA=
+        b=NatkCyzBl4tasTUza6q6ImYRtbppobyqYPTmFd6q1oJ2Jkaz2ixXS/6+R49SwbxU5
+         gXNNmGvKW0CoJqGjacPOCKj4/7iMuX6K1+H30w8B3FusceN+FS9Eultv0gQIKvjZcM
+         Hdg1LjRMrPRYn/qfZ+uwiub1+VBYa9Ww/koJGIAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 56/71] Revert "qlcnic: Avoid potential NULL pointer dereference"
+        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.10 067/104] xen-pciback: redo VF placement in the virtual topology
 Date:   Mon, 24 May 2021 17:26:02 +0200
-Message-Id: <20210524152328.278273377@linuxfoundation.org>
+Message-Id: <20210524152335.074372417@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +40,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit b95b57dfe7a142bf2446548eb7f49340fd73e78b upstream.
+commit 4ba50e7c423c29639878c00573288869aa627068 upstream.
 
-This reverts commit 5bf7295fe34a5251b1d241b9736af4697b590670.
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This commit does not properly detect if an error happens because the
-logic after this loop will not detect that there was a failed
-allocation.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: 5bf7295fe34a ("qlcnic: Avoid potential NULL pointer dereference")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-25-gregkh@linuxfoundation.org
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1048,8 +1048,6 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -70,7 +70,7 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
+ {
+-	int err = 0, slot, func = -1;
++	int err = 0, slot, func = PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
--		if (!skb)
--			break;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
+@@ -95,22 +95,25 @@ static int __xen_pcibk_add_pci_dev(struc
+ 
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+ 
+ 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+ 
+ 			if (match_slot(dev, t->dev)) {
+ 				dev_info(&dev->dev, "vpci: assign to virtual slot %d func %d\n",
+-					 slot, PCI_FUNC(dev->devfn));
++					 slot, func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func = PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
+ 				 slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
+ 		}
+ 	}
 
 
