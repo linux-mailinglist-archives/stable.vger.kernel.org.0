@@ -2,38 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 594F738EEF9
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EF20438EE11
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235041AbhEXPzo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
+        id S233629AbhEXPp0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235304AbhEXPzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBED16192B;
-        Mon, 24 May 2021 15:41:01 +0000 (UTC)
+        id S234167AbhEXPnJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:43:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C436D6144E;
+        Mon, 24 May 2021 15:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870862;
-        bh=C+lh8KxiIEcHRnF8UVTrCETUejZU7TtyF3yTbjfQ5UQ=;
+        s=korg; t=1621870525;
+        bh=MWJ2Zz2Yel3zVBoC8jYfA9RGWuteaSKbd/b/YE8ezTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BzkHvzJqljwb4d3r6LTGHh3OsQ3GJzhi/Cwj2fnZ5Wraumj9dshkSbrZ2lrtttfWa
-         TeR7bzn0zYdgW015+RgadeaZE0/EhKL/2tEmvMG+zMeQa4TVsr9TrHNRW7/ertwrMc
-         KyQDBkRDfDtJiHnhypaz8Fr6UUv8Snm6LVykIEn0=
+        b=ko8HZ1PtrtTJWOoyIv3q10zFB6XqnqXOvIcO7D9JB4y3o0h0tH3nqXeNW/MUDALox
+         L93dqWpISzgMX6u9fMrI3yYfqp+Tqrr5v40sPQ7em21VpuwcfAlK9FAWfD/N3/vu0N
+         3MJhFWtb5SSnmtyTI8Y6wbobQt2RDU6/sUZmXjek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 051/104] Revert "rapidio: fix a NULL pointer dereference when create_workqueue() fails"
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Mauro Carvalho Chehab <mchehab@kernel.org>,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+Subject: [PATCH 4.19 35/49] Revert "media: rcar_drif: fix a memory disclosure"
 Date:   Mon, 24 May 2021 17:25:46 +0200
-Message-Id: <20210524152334.535265782@linuxfoundation.org>
+Message-Id: <20210524152325.510677822@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,50 +45,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 5e68b86c7b7c059c0f0ec4bf8adabe63f84a61eb upstream.
+commit 3e465fc3846734e9489273d889f19cc17b4cf4bd upstream.
 
-This reverts commit 23015b22e47c5409620b1726a677d69e5cd032ba.
+This reverts commit d39083234c60519724c6ed59509a2129fd2aed41.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
 correct or not.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit has a memory leak on the error path here, it does
-not clean up everything properly.
+Upon review, it was determined that this commit is not needed at all as
+the media core already prevents memory disclosure on this codepath, so
+just drop the extra memset happening here.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: 23015b22e47c ("rapidio: fix a NULL pointer dereference when create_workqueue() fails")
+Cc: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>
+Fixes: d39083234c60 ("media: rcar_drif: fix a memory disclosure")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-45-gregkh@linuxfoundation.org
+Reviewed-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-4-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rapidio/rio_cm.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/media/platform/rcar_drif.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2138,14 +2138,6 @@ static int riocm_add_mport(struct device
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
- 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
--	if (!cm->rx_wq) {
--		riocm_error("failed to allocate IBMBOX_%d on %s",
--			    cmbox, mport->name);
--		rio_release_outb_mbox(mport, cmbox);
--		kfree(cm);
--		return -ENOMEM;
--	}
--
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+--- a/drivers/media/platform/rcar_drif.c
++++ b/drivers/media/platform/rcar_drif.c
+@@ -912,7 +912,6 @@ static int rcar_drif_g_fmt_sdr_cap(struc
+ {
+ 	struct rcar_drif_sdr *sdr = video_drvdata(file);
  
- 	cm->tx_slot = 0;
+-	memset(f->fmt.sdr.reserved, 0, sizeof(f->fmt.sdr.reserved));
+ 	f->fmt.sdr.pixelformat = sdr->fmt->pixelformat;
+ 	f->fmt.sdr.buffersize = sdr->fmt->buffersize;
+ 
 
 
