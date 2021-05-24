@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3E538ED36
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2228038ED53
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233615AbhEXPe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:34:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50522 "EHLO mail.kernel.org"
+        id S232865AbhEXPg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233524AbhEXPdk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:33:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CA38E613F9;
-        Mon, 24 May 2021 15:31:34 +0000 (UTC)
+        id S233878AbhEXPec (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E360F61405;
+        Mon, 24 May 2021 15:31:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870295;
-        bh=PtR8MXR8hstar5fCiHpNWjS75+NhdGctlARPHuDvDHQ=;
+        s=korg; t=1621870316;
+        bh=Nw8V2DfsiF3lunap2Awy8h9mfGQg0ElLDoFn4mNSw8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fg0VujFGkj/ifSdc94rveqn6Tbb1YG9Np+JVExc5hz4U1sO7E4uC3ztAPa3rpy4oM
-         yO8c9knsqqKOnUPIvrC1T656L0Bmn9dden4rUjHurb/oEbRRXUh13+dxe3NHKozQU6
-         ffeb1Z44SPUKqhAobXj5PMpdFq3q+Ufx7oL95jYQ=
+        b=RqVRDTwmxNLgecvDpt2xYZnN+CM+6vcL/IQgUl70mj5z8zsJ2dg19nNP5u/iYb8vo
+         +MMnkNiqZXM1vatBGuB3ctOC+wpK8Tzbbr6r/eWu31Ud3pIP8rqkN9regn5re15XhU
+         ynGf2/mM4z9eFBDyiHS9MdZ3Mby0CQO3gXcpLb7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.4 09/31] dm snapshot: fix a crash when an origin has no snapshots
+        stable@vger.kernel.org,
+        syzbot+6bb23a5d5548b93c94aa@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.9 07/36] ALSA: usb-audio: Validate MS endpoint descriptors
 Date:   Mon, 24 May 2021 17:24:52 +0200
-Message-Id: <20210524152323.230689914@linuxfoundation.org>
+Message-Id: <20210524152324.400120947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
-References: <20210524152322.919918360@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
+commit e84749a78dc82bc545f12ce009e3dbcc2c5a8a91 upstream.
 
-If an origin target has no snapshots, o->split_boundary is set to 0.
-This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+snd_usbmidi_get_ms_info() may access beyond the border when a
+malformed descriptor is passed.  This patch adds the sanity checks of
+the given MS endpoint descriptors, and skips invalid ones.
 
-Fix this by initializing chunk_size, and in turn split_boundary, to
-rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
-into "unsigned" type.
-
-Reported-by: Michael Tokarev <mjt@tls.msk.ru>
-Tested-by: Michael Tokarev <mjt@tls.msk.ru>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: syzbot+6bb23a5d5548b93c94aa@syzkaller.appspotmail.com
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210510150659.17710-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-snap.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ sound/usb/midi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -789,12 +789,11 @@ static int dm_add_exception(void *contex
- static uint32_t __minimum_chunk_size(struct origin *o)
- {
- 	struct dm_snapshot *snap;
--	unsigned chunk_size = 0;
-+	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
- 
- 	if (o)
- 		list_for_each_entry(snap, &o->snapshots, list)
--			chunk_size = min_not_zero(chunk_size,
--						  snap->store->chunk_size);
-+			chunk_size = min(chunk_size, snap->store->chunk_size);
- 
- 	return (uint32_t) chunk_size;
- }
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1867,8 +1867,12 @@ static int snd_usbmidi_get_ms_info(struc
+ 		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
+ 		if (!ms_ep)
+ 			continue;
++		if (ms_ep->bLength <= sizeof(*ms_ep))
++			continue;
+ 		if (ms_ep->bNumEmbMIDIJack > 0x10)
+ 			continue;
++		if (ms_ep->bLength < sizeof(*ms_ep) + ms_ep->bNumEmbMIDIJack)
++			continue;
+ 		if (usb_endpoint_dir_out(ep)) {
+ 			if (endpoints[epidx].out_ep) {
+ 				if (++epidx >= MIDI_MAX_ENDPOINTS) {
 
 
