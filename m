@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 49A2938EE57
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5CA2138ED86
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233298AbhEXPsd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:48:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33952 "EHLO mail.kernel.org"
+        id S234081AbhEXPif (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:38:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234141AbhEXPqa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:46:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2FA0A61480;
-        Mon, 24 May 2021 15:36:50 +0000 (UTC)
+        id S233378AbhEXPgr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:36:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFCD061417;
+        Mon, 24 May 2021 15:32:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870610;
-        bh=ygiuHxg9vCCzqyxiwByGyk+UO4v5+YH2UpUoEb3vkBk=;
+        s=korg; t=1621870375;
+        bh=TNxXa//VQgKbqojkS+8vIrKVZ1my+B8M9BNV93vhruU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWLRQ0YMYuidNCTHzwtt3so+h9YKnxVrYu7soZBQoY7VBjFJPrG8z1zj0hmQdZZjT
-         f3o92pr+BY8GSaX63SVPB0ty3tqo+Ix5V1w7/RUUc3zGtUnoOpJdH1Wtcqt35E1jKz
-         Gd6DuJmbKfOLCgdE3PBLuT6Iws+GPPAQ38ju7rho=
+        b=crFQbRsvqtV8W83UrWQXsb06FMMR7rx445ePTt21eSrxD2f9uLlrMwcZCmloCt/MQ
+         s9jHi3wtZJ1XMI1RFEtrM6i6ptNjleX12H/a9h/moB34tKqCRWI+TUSUzClt3wziaz
+         5o+uw7sopfPqCuFRl4oAZJ6m4EIri5h+pcwyRvC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 07/71] scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
+        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 28/36] net: stmicro: handle clk_prepare() failure during init
 Date:   Mon, 24 May 2021 17:25:13 +0200
-Message-Id: <20210524152326.699930491@linuxfoundation.org>
+Message-Id: <20210524152325.070890429@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,40 +39,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 5cb289bf2d7c34ca1abd794ce116c4f19185a1d4 ]
+commit 0c32a96d000f260b5ebfabb4145a86ae1cd71847 upstream.
 
-Fix to return a negative error code from the error handling case instead of
-0 as done elsewhere in this function.
+In case clk_prepare() fails, capture and propagate the error code up the
+stack. If regulator_enable() was called earlier, properly unwind it by
+calling regulator_disable().
 
-Link: https://lore.kernel.org/r/20210514090952.6715-1-thunder.leizhen@huawei.com
-Fixes: a9083016a531 ("[SCSI] qla2xxx: Add ISP82XX support.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-22-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_nx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_nx.c b/drivers/scsi/qla2xxx/qla_nx.c
-index c855d013ba8a..de567a025133 100644
---- a/drivers/scsi/qla2xxx/qla_nx.c
-+++ b/drivers/scsi/qla2xxx/qla_nx.c
-@@ -1113,7 +1113,8 @@ qla82xx_write_flash_dword(struct qla_hw_data *ha, uint32_t flashaddr,
- 		return ret;
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+@@ -39,7 +39,7 @@ struct sunxi_priv_data {
+ static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
+ {
+ 	struct sunxi_priv_data *gmac = priv;
+-	int ret;
++	int ret = 0;
+ 
+ 	if (gmac->regulator) {
+ 		ret = regulator_enable(gmac->regulator);
+@@ -59,10 +59,12 @@ static int sun7i_gmac_init(struct platfo
+ 		gmac->clk_enabled = 1;
+ 	} else {
+ 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
+-		clk_prepare(gmac->tx_clk);
++		ret = clk_prepare(gmac->tx_clk);
++		if (ret && gmac->regulator)
++			regulator_disable(gmac->regulator);
  	}
  
--	if (qla82xx_flash_set_write_enable(ha))
-+	ret = qla82xx_flash_set_write_enable(ha);
-+	if (ret < 0)
- 		goto done_write;
+-	return 0;
++	return ret;
+ }
  
- 	qla82xx_wr_32(ha, QLA82XX_ROMUSB_ROM_WDATA, data);
--- 
-2.30.2
-
+ static void sun7i_gmac_exit(struct platform_device *pdev, void *priv)
 
 
