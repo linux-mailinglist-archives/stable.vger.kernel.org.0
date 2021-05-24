@@ -2,94 +2,229 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4943838E730
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 15:14:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B248838E73D
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 15:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232462AbhEXNQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 09:16:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232483AbhEXNQP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 09:16:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B506861260;
-        Mon, 24 May 2021 13:14:46 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621862087;
-        bh=ErXCnsou/FZKZVgLgLLBodNkDwpHwFzUvtXSOtcKm8c=;
-        h=Subject:To:From:Date:From;
-        b=lSRzXVO/KYyvii3JN3Fe4scVUVVCkcfY/lcsnKu6kNWQGMRIHwMj3nNEQlWW/5k66
-         uIivM03phIITNWo/JpQ2OquQlX1lfZNwgQrGG5XPZJBEvFy5QyjlNH76lSsDT4jFjy
-         t3q0hl3sFb71P/8bKUHV1RlSOo/kLkHmHH371R78=
-Subject: patch "usb: typec: tcpm: Respond Not_Supported if no snk_vdo" added to usb-linus
-To:     kyletso@google.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, linux@roeck-us.net,
-        stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 May 2021 15:14:37 +0200
-Message-ID: <162186207715525@kroah.com>
+        id S232483AbhEXNSe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 09:18:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44478 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232401AbhEXNSe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 09:18:34 -0400
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E61C061574
+        for <stable@vger.kernel.org>; Mon, 24 May 2021 06:17:06 -0700 (PDT)
+Received: by mail-pg1-x52a.google.com with SMTP id q15so20063206pgg.12
+        for <stable@vger.kernel.org>; Mon, 24 May 2021 06:17:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=KTkc+6nHyhF+dnua4l0FbG4jxqKU9Ny/OYOnVEQS4io=;
+        b=wIJVuIn8OAtQjKHGj3svhK+fSCDTxHu4VzJNR+GkvoksA5pdI6+kjVRb1oiFzs+oaP
+         I9DKor9OUbLTNqsMTFbjEvqyODn5A9WyCQvTiOdYaY3GOQXlsoGAujVIwBnKJR6Ys8++
+         e9RC578DehtKn5RLl6C1hY1cATk+ZbHSleYcKQ0XatlFb3qV/FqhK6+XmgRS4mK1AL+p
+         3c0MgaW1BlaZJfyAvWhVq5yq+Uy8eNDfq5e09rPtFj8VgGLijdBUbHuWZgLK3U+cn3ey
+         lhLPZFNnN/U4o3rt/b+89K7YqblJNv0RUFBvBNypimNL2yDDbDSbpx+BUwYZh4jO3vl1
+         etJA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=KTkc+6nHyhF+dnua4l0FbG4jxqKU9Ny/OYOnVEQS4io=;
+        b=FZ1W4L4p2Ua/w6NnRiTwUSYHe1R17wmOUa1CX+uXmm16CnX8K+MOd/DBRyPk0B1FtE
+         NF+JtikdzOWGyOoNTK2rgB4d84VR5gZV8/pi73UZ+KSZNjJqh0+a+1tiUKHqu4cC+D85
+         ktrWq+gE1nktQphyXNjEk7HETzDWGhfgPVemkDHkvHVfh8g83cU/dFWslheN1fluT6LM
+         6ZkCBzAZEs3ioIxrYdWqlbxMjslkRpRYZZXj9NjLSYV9Zy9fp4UrIMjS5/QMuU412Zv9
+         G8ayl/RxRcmXpLl0t4f1o55HtoM2Qt3c9FSaRRFDP563mjbTjQDOtIueVSicbKID8NZC
+         JcyA==
+X-Gm-Message-State: AOAM5323rHioyAMuk2bzMUscrpOgt8Ux9WNySVQAw/tTPruGIY/izZnA
+        C0ZaJxvBPp0ufnirft6m3a3Aazw7RmSPunj1
+X-Google-Smtp-Source: ABdhPJzlv8ejOaMsMELBTNsH2LN4ybt0DRpWbz8VW3YmY5rPpd+xEodeCNmjhQioXziCCxpASlDmxQ==
+X-Received: by 2002:a63:205b:: with SMTP id r27mr13794839pgm.95.1621862225907;
+        Mon, 24 May 2021 06:17:05 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id r13sm10956316pfl.191.2021.05.24.06.17.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 May 2021 06:17:05 -0700 (PDT)
+Message-ID: <60aba751.1c69fb81.ae95f.432c@mx.google.com>
+Date:   Mon, 24 May 2021 06:17:05 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.233
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.14.y baseline: 85 runs, 4 regressions (v4.14.233)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.14.y baseline: 85 runs, 4 regressions (v4.14.233)
 
-This is a note to let you know that I've just added the patch titled
+Regressions Summary
+-------------------
 
-    usb: typec: tcpm: Respond Not_Supported if no snk_vdo
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qcom-qdf2400         | arm64 | lab-linaro-lkft | gcc-8    | defconfig      =
+     | 1          =
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a20dcf53ea9836387b229c4878f9559cf1b55b71 Mon Sep 17 00:00:00 2001
-From: Kyle Tso <kyletso@google.com>
-Date: Sun, 23 May 2021 09:58:55 +0800
-Subject: usb: typec: tcpm: Respond Not_Supported if no snk_vdo
-
-If snk_vdo is not populated from fwnode, it implies the port does not
-support responding to SVDM commands. Not_Supported Message shall be sent
-if the contract is in PD3. And for PD2, the port shall ignore the
-commands.
-
-Fixes: 193a68011fdc ("staging: typec: tcpm: Respond to Discover Identity commands")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Kyle Tso <kyletso@google.com>
-Link: https://lore.kernel.org/r/20210523015855.1785484-3-kyletso@google.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/typec/tcpm/tcpm.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 6ea5df3782cf..9ce8c9af4da5 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2430,7 +2430,10 @@ static void tcpm_pd_data_request(struct tcpm_port *port,
- 					   NONE_AMS);
- 		break;
- 	case PD_DATA_VENDOR_DEF:
--		tcpm_handle_vdm_request(port, msg->payload, cnt);
-+		if (tcpm_vdm_ams(port) || port->nr_snk_vdo)
-+			tcpm_handle_vdm_request(port, msg->payload, cnt);
-+		else if (port->negotiated_rev > PD_REV20)
-+			tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
- 		break;
- 	case PD_DATA_BIST:
- 		port->bist_request = le32_to_cpu(msg->payload[0]);
--- 
-2.31.1
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
 
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.233/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.233
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      96afcb20f36f07683aaa342e592ea8ec76fd1fa6 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qcom-qdf2400         | arm64 | lab-linaro-lkft | gcc-8    | defconfig      =
+     | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ab7436b404085858b3afc7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm64/defconfig/gcc-8/lab-linaro-lkft/baseline-qcom-qdf2400.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm64/defconfig/gcc-8/lab-linaro-lkft/baseline-qcom-qdf2400.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ab7436b404085858b3a=
+fc8
+        new failure (last pass: v4.14.232-324-g7c5a6946da44) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ab7628b9ca29f4f0b3afa9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ab7628b9ca29f4f0b3a=
+faa
+        failing since 190 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ab76055be96c8d99b3af98
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ab76055be96c8d99b3a=
+f99
+        failing since 190 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch  | lab             | compiler | defconfig      =
+     | regressions
+---------------------+-------+-----------------+----------+----------------=
+-----+------------
+qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
+nfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ab79e4281a2d1cd8b3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+33/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ab79e4281a2d1cd8b3a=
+f98
+        failing since 190 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =20
