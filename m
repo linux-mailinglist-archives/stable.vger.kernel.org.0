@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C48238EE2D
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:45:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A892738EEEC
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbhEXPqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:46:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        id S234851AbhEXPzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234605AbhEXPo0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:44:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 186AD61455;
-        Mon, 24 May 2021 15:36:01 +0000 (UTC)
+        id S235215AbhEXPzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2293661439;
+        Mon, 24 May 2021 15:40:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870562;
-        bh=y8tKCc8MNmhJbgdeqlnUMymJi7u75jq1rEAUQ5u/ucY=;
+        s=korg; t=1621870840;
+        bh=Hkib7HmFjpGuga3aSoohJ7gDsBbzsy2qgzCm9wjyFXM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiB+I/FFH5Uwu/nQHzG86B2qeDN8GvvCkr42JjF16al5GJOiqI6Ik1sWqsoMNRQ4k
-         XZmbGzDWu+SxQlM8elNpe+H73TtAGHaEq1TPelqV/Vk7mZgkH5B8tvtUksXiBy4ybQ
-         XryXstM4NzMhsFzgeNwxUbSbbdwclXbl0NVukP54=
+        b=wPskC09HPch+Wx0pMNASQTiw/rbBgbAedXUYG4gMvlThzpIvhBsEpOD4xWsAXjNDF
+         /jM4knnJEyiokCiYPYV618D5+PEXAfFPblzB4eYbjmz6clVy8h4tE8mg2olHP8aYW0
+         IO7jt/YCHnRiwBHtHwTK7pND3jwCu8fIsaHSCXPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Phillip Potter <phil@philpotter.co.uk>
-Subject: [PATCH 4.19 43/49] leds: lp5523: check return value of lp5xx_read and jump to cleanup code
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
+        Borislav Petkov <bp@suse.de>
+Subject: [PATCH 5.10 059/104] x86/sev-es: Forward page-faults which happen during emulation
 Date:   Mon, 24 May 2021 17:25:54 +0200
-Message-Id: <20210524152325.760708853@linuxfoundation.org>
+Message-Id: <20210524152334.813884395@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit 6647f7a06eb030a2384ec71f0bb2e78854afabfe upstream.
+commit c25bbdb564060adaad5c3a8a10765c13487ba6a3 upstream.
 
-Check return value of lp5xx_read and if non-zero, jump to code at end of
-the function, causing lp5523_stop_all_engines to be executed before
-returning the error value up the call chain. This fixes the original
-commit (248b57015f35) which was reverted due to the University of Minnesota
-problems.
+When emulating guest instructions for MMIO or IOIO accesses, the #VC
+handler might get a page-fault and will not be able to complete. Forward
+the page-fault in this case to the correct handler instead of killing
+the machine.
 
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-10-gregkh@linuxfoundation.org
+Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lkml.kernel.org/r/20210519135251.30093-3-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/leds/leds-lp5523.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ arch/x86/kernel/sev-es.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/leds/leds-lp5523.c
-+++ b/drivers/leds/leds-lp5523.c
-@@ -318,7 +318,9 @@ static int lp5523_init_program_engine(st
- 
- 	/* Let the programs run for couple of ms and check the engine status */
- 	usleep_range(3000, 6000);
--	lp55xx_read(chip, LP5523_REG_STATUS, &status);
-+	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
-+	if (ret)
-+		goto out;
- 	status &= LP5523_ENG_STATUS_MASK;
- 
- 	if (status != LP5523_ENG_STATUS_MASK) {
+--- a/arch/x86/kernel/sev-es.c
++++ b/arch/x86/kernel/sev-es.c
+@@ -1269,6 +1269,10 @@ static __always_inline void vc_forward_e
+ 	case X86_TRAP_UD:
+ 		exc_invalid_op(ctxt->regs);
+ 		break;
++	case X86_TRAP_PF:
++		write_cr2(ctxt->fi.cr2);
++		exc_page_fault(ctxt->regs, error_code);
++		break;
+ 	case X86_TRAP_AC:
+ 		exc_alignment_check(ctxt->regs, error_code);
+ 		break;
 
 
