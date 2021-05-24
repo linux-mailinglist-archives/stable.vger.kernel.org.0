@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F33D938EDBF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1767D38EE8C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233213AbhEXPl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56938 "EHLO mail.kernel.org"
+        id S233147AbhEXPv6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:51:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233695AbhEXPi5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:38:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 958EC6141B;
-        Mon, 24 May 2021 15:33:44 +0000 (UTC)
+        id S234789AbhEXPtu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:49:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6F7F661584;
+        Mon, 24 May 2021 15:37:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870425;
-        bh=jOnDoxmspj9SjDmdYXhqZUq8W3p4xYiZD0ZTkhyPojU=;
+        s=korg; t=1621870679;
+        bh=r7k6GJg9G3wZjlx+z1jxZXHJDXc4TMUpHOUdmR6D5A0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GN54h1yLCotiQFBM+vMVsPBQdmE2b3CUuqiGADQ9ilr00ENOzf5aFK0eUSMPaz4CQ
-         ITfmuIcXaoM2BiE/Ek5rrP+u1zodtZXd1/14fV6t76g6p6QRwdNHbMXvCmShlGFEze
-         8Dgr+JGCgSZZKDgNRWU78SL0q3h3/P+XHtcmo13M=
+        b=SjhKwFOVfUMu91DgHq+efuDPe/M9luTh6fPlqIlMHUp+FY+dYbZNzxIyUXAEc7BJW
+         yhyGsdA9G7al69ff9xMiAOpDq3cytqqXDIv9KeRG0RDl0lZZg6RmyvVedu4e4TXJsx
+         0mieZqG4MfAwGkl/g0udUdSJoQyZNjP3XKT/eK1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 27/37] Revert "qlcnic: Avoid potential NULL pointer dereference"
+        stable@vger.kernel.org, Daniel Cordova A <danesc87@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 25/71] ALSA: hda: fixup headset for ASUS GU502 laptop
 Date:   Mon, 24 May 2021 17:25:31 +0200
-Message-Id: <20210524152325.087562451@linuxfoundation.org>
+Message-Id: <20210524152327.279082842@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +39,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Daniel Cordova A <danesc87@gmail.com>
 
-commit b95b57dfe7a142bf2446548eb7f49340fd73e78b upstream.
+commit c1b55029493879f5bd585ff79f326e71f0bc05e3 upstream.
 
-This reverts commit 5bf7295fe34a5251b1d241b9736af4697b590670.
+The GU502 requires a few steps to make headset i/o works properly:
+pincfg, verbs to unmute headphone out and callback to toggle output
+between speakers and headphone using jack.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This commit does not properly detect if an error happens because the
-logic after this loop will not detect that there was a failed
-allocation.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: 5bf7295fe34a ("qlcnic: Avoid potential NULL pointer dereference")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-25-gregkh@linuxfoundation.org
+Signed-off-by: Daniel Cordova A <danesc87@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210507173116.12043-1-danesc87@gmail.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    2 --
- 1 file changed, 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |   62 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 62 insertions(+)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1047,8 +1047,6 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6120,6 +6120,35 @@ static void alc294_fixup_gx502_hp(struct
+ 	}
+ }
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
--		if (!skb)
--			break;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
++static void alc294_gu502_toggle_output(struct hda_codec *codec,
++				       struct hda_jack_callback *cb)
++{
++	/* Windows sets 0x10 to 0x8420 for Node 0x20 which is
++	 * responsible from changes between speakers and headphones
++	 */
++	if (snd_hda_jack_detect_state(codec, 0x21) == HDA_JACK_PRESENT)
++		alc_write_coef_idx(codec, 0x10, 0x8420);
++	else
++		alc_write_coef_idx(codec, 0x10, 0x0a20);
++}
++
++static void alc294_fixup_gu502_hp(struct hda_codec *codec,
++				  const struct hda_fixup *fix, int action)
++{
++	if (!is_jack_detectable(codec, 0x21))
++		return;
++
++	switch (action) {
++	case HDA_FIXUP_ACT_PRE_PROBE:
++		snd_hda_jack_detect_enable_callback(codec, 0x21,
++				alc294_gu502_toggle_output);
++		break;
++	case HDA_FIXUP_ACT_INIT:
++		alc294_gu502_toggle_output(codec, NULL);
++		break;
++	}
++}
++
+ static void  alc285_fixup_hp_gpio_amp_init(struct hda_codec *codec,
+ 			      const struct hda_fixup *fix, int action)
+ {
+@@ -6316,6 +6345,9 @@ enum {
+ 	ALC294_FIXUP_ASUS_GX502_HP,
+ 	ALC294_FIXUP_ASUS_GX502_PINS,
+ 	ALC294_FIXUP_ASUS_GX502_VERBS,
++	ALC294_FIXUP_ASUS_GU502_HP,
++	ALC294_FIXUP_ASUS_GU502_PINS,
++	ALC294_FIXUP_ASUS_GU502_VERBS,
+ 	ALC285_FIXUP_HP_GPIO_LED,
+ 	ALC285_FIXUP_HP_MUTE_LED,
+ 	ALC236_FIXUP_HP_MUTE_LED,
+@@ -7540,6 +7572,35 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc294_fixup_gx502_hp,
+ 	},
++	[ALC294_FIXUP_ASUS_GU502_PINS] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x19, 0x01a11050 }, /* rear HP mic */
++			{ 0x1a, 0x01a11830 }, /* rear external mic */
++			{ 0x21, 0x012110f0 }, /* rear HP out */
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_GU502_VERBS
++	},
++	[ALC294_FIXUP_ASUS_GU502_VERBS] = {
++		.type = HDA_FIXUP_VERBS,
++		.v.verbs = (const struct hda_verb[]) {
++			/* set 0x15 to HP-OUT ctrl */
++			{ 0x15, AC_VERB_SET_PIN_WIDGET_CONTROL, 0xc0 },
++			/* unmute the 0x15 amp */
++			{ 0x15, AC_VERB_SET_AMP_GAIN_MUTE, 0xb000 },
++			/* set 0x1b to HP-OUT */
++			{ 0x1b, AC_VERB_SET_PIN_WIDGET_CONTROL, 0x24 },
++			{ }
++		},
++		.chained = true,
++		.chain_id = ALC294_FIXUP_ASUS_GU502_HP
++	},
++	[ALC294_FIXUP_ASUS_GU502_HP] = {
++		.type = HDA_FIXUP_FUNC,
++		.v.func = alc294_fixup_gu502_hp,
++	},
+ 	[ALC294_FIXUP_ASUS_COEF_1B] = {
+ 		.type = HDA_FIXUP_VERBS,
+ 		.v.verbs = (const struct hda_verb[]) {
+@@ -7971,6 +8032,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
+ 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
+ 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
++	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
+ 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
+ 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
 
 
