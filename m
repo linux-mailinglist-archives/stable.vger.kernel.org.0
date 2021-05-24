@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2629A38ED17
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3441D38ED56
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232812AbhEXPdj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:33:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
+        id S233519AbhEXPga (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233233AbhEXPcl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:32:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8BB3F613CB;
-        Mon, 24 May 2021 15:30:53 +0000 (UTC)
+        id S233066AbhEXPed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E69A6140A;
+        Mon, 24 May 2021 15:32:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870254;
-        bh=15oc/WjcNzfjmfguWvMxeJ7cZRbaFID4/OV0DFsxLz0=;
+        s=korg; t=1621870320;
+        bh=66DK00cfMraeU8Qxk2uVkIHsod0JpJCQcU7w9QKOs64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=svtKAvRZZ8pc3g7/alJ4JNkHN6uRvMozNYgUPTw3LfkrkLASEGUGZhfsI2HrBd76o
-         IzWdulPR1/AJBILmMlR8iNV26j0gQklP7zzpIw8ChmK9XtllV6LkqdRbTGUbkSIHYI
-         kXE6sqce9U3geTS9pFUFbbtRMbGfPBmQPYWZakZo=
+        b=2wJWpHKf9jfHZ2PwuCRPnysdXFN9KNHYVU26k2pkJenHWCgCjtEWoxVv6FJOp/jfV
+         RCevGpGSh7WTpl9RHVjhd5v2JaDQO7XMFB4UzPEHmljn41twYo1qzsAjXpRKZIi5W+
+         XkqVtms9SVYpExDVoeFNJwuyJd5bWaDJIwffveAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 4.4 19/31] cdrom: gdrom: initialize global variable at init time
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Subject: [PATCH 4.9 17/36] Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
 Date:   Mon, 24 May 2021 17:25:02 +0200
-Message-Id: <20210524152323.549540750@linuxfoundation.org>
+Message-Id: <20210524152324.719732027@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
-References: <20210524152322.919918360@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 9183f01b5e6e32eb3f17b5f3f8d5ad5ac9786c49 upstream.
+commit 8d1beda5f11953ffe135a5213287f0b25b4da41b upstream.
 
-As Peter points out, if we were to disconnect and then reconnect this
-driver from a device, the "global" state of the device would contain odd
-values and could cause problems.  Fix this up by just initializing the
-whole thing to 0 at probe() time.
+This reverts commit 248b57015f35c94d4eae2fdd8c6febf5cd703900.
 
-Ideally this would be a per-device variable, but given the age and the
-total lack of users of it, that would require a lot of s/./->/g changes
-for really no good reason.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Reported-by: Peter Rosin <peda@axentia.se>
-Cc: Jens Axboe <axboe@kernel.dk>
-Reviewed-by: Peter Rosin <peda@axentia.se>
-Link: https://lore.kernel.org/r/YJP2j6AU82MqEY2M@kroah.com
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit does not properly unwind if there is an error
+condition so it needs to be reverted at this point in time.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 248b57015f35 ("leds: lp5523: fix a missing check of return value of lp55xx_read")
+Link: https://lore.kernel.org/r/20210503115736.2104747-9-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cdrom/gdrom.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/leds/leds-lp5523.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/cdrom/gdrom.c
-+++ b/drivers/cdrom/gdrom.c
-@@ -773,6 +773,13 @@ static int probe_gdrom_setupqueue(void)
- static int probe_gdrom(struct platform_device *devptr)
- {
- 	int err;
-+
-+	/*
-+	 * Ensure our "one" device is initialized properly in case of previous
-+	 * usages of it
-+	 */
-+	memset(&gd, 0, sizeof(gd));
-+
- 	/* Start the device */
- 	if (gdrom_execute_diagnostic() != 1) {
- 		pr_warning("ATA Probe for GDROM failed\n");
-@@ -867,7 +874,7 @@ static struct platform_driver gdrom_driv
- static int __init init_gdrom(void)
- {
- 	int rc;
--	gd.toc = NULL;
-+
- 	rc = platform_driver_register(&gdrom_driver);
- 	if (rc)
- 		return rc;
+--- a/drivers/leds/leds-lp5523.c
++++ b/drivers/leds/leds-lp5523.c
+@@ -318,9 +318,7 @@ static int lp5523_init_program_engine(st
+ 
+ 	/* Let the programs run for couple of ms and check the engine status */
+ 	usleep_range(3000, 6000);
+-	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
+-	if (ret)
+-		return ret;
++	lp55xx_read(chip, LP5523_REG_STATUS, &status);
+ 	status &= LP5523_ENG_STATUS_MASK;
+ 
+ 	if (status != LP5523_ENG_STATUS_MASK) {
 
 
