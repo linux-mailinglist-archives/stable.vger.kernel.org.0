@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0ED9338EFD6
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C79838EFD8
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235722AbhEXP75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
+        id S233484AbhEXP76 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:59:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235729AbhEXP7J (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235755AbhEXP7J (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:59:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A723C6195D;
-        Mon, 24 May 2021 15:44:51 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D8EEF61963;
+        Mon, 24 May 2021 15:44:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871092;
-        bh=2eixtHJtGhNm7iHprTMw6XRac/mdtTXk6JyXaKcgtyk=;
+        s=korg; t=1621871094;
+        bh=AverE+4Aa7g78zpNJxtYS0wKkTAxqk0TcopGG5HvzAk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaR+9q9Ip1/2NJe+ZAxMCLWorTsIN2zaAX3b3zKiNCW9K3d3KWKqpVuqSIVQnjSRJ
-         Z6Fq2OybZZ2JecnCoyKcDougiVNyWSqymR+t8nhGbxLrl6E3UVEekPbjAqD/YE5S6N
-         R5LvIQ+PLO/l/sw1YXhLOHDl9+ywCnBH89WTAd+s=
+        b=tvAHjxU/4x4JhKdzGpkp4vws/R+3eNdUFyX16uXSIpDRTz1/R6cIlQYvweJRk1Q/+
+         wxxP1pMn4XAYnTWDOhoungW/xS6wrpyQl3DbzY7VmHt+OURDIUKC13ST5yEshpYUQT
+         dKpXB1O9vxj0oHLXeTJKv1ezImUYYTqukUFCkoZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Lendacky <thomas.lendacky@amd.com>,
+        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
         Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.12 070/127] x86/sev-es: Invalidate the GHCB after completing VMGEXIT
-Date:   Mon, 24 May 2021 17:26:27 +0200
-Message-Id: <20210524152337.219129168@linuxfoundation.org>
+Subject: [PATCH 5.12 071/127] x86/sev-es: Dont return NULL from sev_es_get_ghcb()
+Date:   Mon, 24 May 2021 17:26:28 +0200
+Message-Id: <20210524152337.257933360@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -39,52 +39,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+From: Joerg Roedel <jroedel@suse.de>
 
-commit a50c5bebc99c525e7fbc059988c6a5ab8680cb76 upstream.
+commit b250f2f7792d15bcde98e0456781e2835556d5fa upstream.
 
-Since the VMGEXIT instruction can be issued from userspace, invalidate
-the GHCB after performing VMGEXIT processing in the kernel.
+sev_es_get_ghcb() is called from several places but only one of them
+checks the return value. The reaction to returning NULL is always the
+same: calling panic() and kill the machine.
 
-Invalidation is only required after userspace is available, so call
-vc_ghcb_invalidate() from sev_es_put_ghcb(). Update vc_ghcb_invalidate()
-to additionally clear the GHCB exit code so that it is always presented
-as 0 when VMGEXIT has been issued by anything else besides the kernel.
+Instead of adding checks to all call sites, move the panic() into the
+function itself so that it will no longer return NULL.
 
-Fixes: 0786138c78e79 ("x86/sev-es: Add a Runtime #VC Exception Handler")
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/5a8130462e4f0057ee1184509cd056eedd78742b.1621273353.git.thomas.lendacky@amd.com
+Cc: stable@vger.kernel.org # v5.10+
+Link: https://lkml.kernel.org/r/20210519135251.30093-2-joro@8bytes.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/sev-es-shared.c |    1 +
- arch/x86/kernel/sev-es.c        |    5 +++++
- 2 files changed, 6 insertions(+)
+ arch/x86/kernel/sev-es.c |   25 ++++++++++++-------------
+ 1 file changed, 12 insertions(+), 13 deletions(-)
 
---- a/arch/x86/kernel/sev-es-shared.c
-+++ b/arch/x86/kernel/sev-es-shared.c
-@@ -63,6 +63,7 @@ static bool sev_es_negotiate_protocol(vo
- 
- static __always_inline void vc_ghcb_invalidate(struct ghcb *ghcb)
- {
-+	ghcb->save.sw_exit_code = 0;
- 	memset(ghcb->save.valid_bitmap, 0, sizeof(ghcb->save.valid_bitmap));
- }
- 
 --- a/arch/x86/kernel/sev-es.c
 +++ b/arch/x86/kernel/sev-es.c
-@@ -430,6 +430,11 @@ static __always_inline void sev_es_put_g
- 		data->backup_ghcb_active = false;
- 		state->ghcb = NULL;
- 	} else {
-+		/*
-+		 * Invalidate the GHCB so a VMGEXIT instruction issued
-+		 * from userspace won't appear to be valid.
-+		 */
-+		vc_ghcb_invalidate(ghcb);
- 		data->ghcb_active = false;
- 	}
- }
+@@ -191,8 +191,18 @@ static __always_inline struct ghcb *sev_
+ 	if (unlikely(data->ghcb_active)) {
+ 		/* GHCB is already in use - save its contents */
+ 
+-		if (unlikely(data->backup_ghcb_active))
+-			return NULL;
++		if (unlikely(data->backup_ghcb_active)) {
++			/*
++			 * Backup-GHCB is also already in use. There is no way
++			 * to continue here so just kill the machine. To make
++			 * panic() work, mark GHCBs inactive so that messages
++			 * can be printed out.
++			 */
++			data->ghcb_active        = false;
++			data->backup_ghcb_active = false;
++
++			panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
++		}
+ 
+ 		/* Mark backup_ghcb active before writing to it */
+ 		data->backup_ghcb_active = true;
+@@ -1262,7 +1272,6 @@ static __always_inline bool on_vc_fallba
+  */
+ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_communication)
+ {
+-	struct sev_es_runtime_data *data = this_cpu_read(runtime_data);
+ 	irqentry_state_t irq_state;
+ 	struct ghcb_state state;
+ 	struct es_em_ctxt ctxt;
+@@ -1288,16 +1297,6 @@ DEFINE_IDTENTRY_VC_SAFE_STACK(exc_vmm_co
+ 	 */
+ 
+ 	ghcb = sev_es_get_ghcb(&state);
+-	if (!ghcb) {
+-		/*
+-		 * Mark GHCBs inactive so that panic() is able to print the
+-		 * message.
+-		 */
+-		data->ghcb_active        = false;
+-		data->backup_ghcb_active = false;
+-
+-		panic("Unable to handle #VC exception! GHCB and Backup GHCB are already in use");
+-	}
+ 
+ 	vc_ghcb_invalidate(ghcb);
+ 	result = vc_init_em_ctxt(&ctxt, regs, error_code);
 
 
