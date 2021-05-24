@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A74038E98F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:48:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE12D38E997
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:48:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233167AbhEXOtl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:49:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55384 "EHLO mail.kernel.org"
+        id S233752AbhEXOtw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:49:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233016AbhEXOsi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:48:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0553613EC;
-        Mon, 24 May 2021 14:47:09 +0000 (UTC)
+        id S233226AbhEXOsm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:48:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C32F5613EE;
+        Mon, 24 May 2021 14:47:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867630;
-        bh=/5mkWMxrniQRM0OIO+l/RFMqZzon2mnA8svi+4FOsBY=;
+        s=k20201202; t=1621867631;
+        bh=HJ7qAgUp3pfDTGdMoTByNj0yMeZBO441FzbToT+maD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MMzHn+P6W+jEDLw4bT7Jp0vwzfdTKjH2XfY4jdM0aLkJoABm4gmUuAQOHFc7jD1tM
-         CbxyJxgVj1qoRAA4q4ZmbPPNKnEXAxMQRyIpQBqLYAby0hp9QI9v5zlrW/JS8Or0Dh
-         b8TB/wSXbNk2Re7xKbCfLYcw4hNfwNxy4Gue3Mo5Kj8Tooww0JH+MWT/Hmv+7f2Gpy
-         DbNkEqxqtMiw0x+leGuOf0prVmHbj9NiVjVBSZRWJXCwwIuGCuSwO8Nw6+6xUOpYC0
-         kAkjPjMd0DJHeW2NLlYYCQTeviQtLq2bM+7Ikd8DaakiNlQhM6vFHgwMZoH79mMlvW
-         XxU4JHGiirv6w==
+        b=dJfEpFPYx8x2dSmwIRSfr8qHqT+HSQ00UQWK912LAoj9DnBWQgyX5Hv8Yue7CiVhG
+         qWgfuhwzl+Pp5Qbokz+WvWyhy5l/659h7OITHIxOPAgSNZtfcMu2X+GLk34ZVCG0ZI
+         GlDMdRWPaSz5D5BQ/lKBMvmBBeoK4UrAVFwL2T4IUl27yALY1nnyT152dmGjWbWzap
+         9MHoPaASRISFOLKzaTWy275xGb87OoA+4o+aNA8WTLZqwy6Ty7c4owUA20Au/6eMlo
+         9zlVsxDF4+2FtfYHT2zMBhd/klWa8ksfOvP0CSrxDQbQ6CdaTsqg4kmIxGmFUsg3Oh
+         +tlhGBeQ+QWig==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 38/63] media: gspca: properly check for errors in po1030_probe()
-Date:   Mon, 24 May 2021 10:45:55 -0400
-Message-Id: <20210524144620.2497249-38-sashal@kernel.org>
+        Kangjie Lu <kjlu@umn.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 39/63] Revert "net: liquidio: fix a NULL pointer dereference"
+Date:   Mon, 24 May 2021 10:45:56 -0400
+Message-Id: <20210524144620.2497249-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -44,48 +45,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+[ Upstream commit 4fd798a5a89114c1892574c50f2aebd49bc5b4f5 ]
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+This reverts commit fe543b2f174f34a7a751aa08b334fe6b105c4569.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+While the original commit does keep the immediate "NULL dereference"
+from happening, it does not properly propagate the error back to the
+callers, AND it does not fix this same identical issue in the
+drivers/net/ethernet/cavium/liquidio/lio_vf_main.c for some reason.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-65-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/cavium/liquidio/lio_main.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index 7bdbb8065146..8fd99ceee4b6 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -155,6 +155,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
- {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+index 7c5af4beedc6..6fa570068648 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+@@ -1166,11 +1166,6 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	sc = (struct octeon_soft_command *)
+ 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+ 					  16, 0);
+-	if (!sc) {
+-		netif_info(lio, rx_err, lio->netdev,
+-			   "Failed to allocate octeon_soft_command\n");
+-		return;
+-	}
  
- 	if (force_sensor) {
-@@ -173,10 +174,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
- 		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
- 	}
+ 	ncmd = (union octnet_cmd *)sc->virtdptr;
  
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
 -- 
 2.30.2
 
