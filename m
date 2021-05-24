@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7135D38EFC7
+	by mail.lfdr.de (Postfix) with ESMTP id C795738EFC8
 	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235259AbhEXP7b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40474 "EHLO mail.kernel.org"
+        id S235412AbhEXP7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:59:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41116 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235580AbhEXP6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C47B61978;
-        Mon, 24 May 2021 15:44:38 +0000 (UTC)
+        id S235623AbhEXP6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CAC7261975;
+        Mon, 24 May 2021 15:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871079;
-        bh=7PxR9ovQEYCrhRqNfAM5PNlPcbvO8Qr4DQMXlflW7xU=;
+        s=korg; t=1621871081;
+        bh=zcj1N2YsNW4jSa0/pwPpHGaac4BQZlaVdlLqA796S/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qx5jI2Wck5hCcXP6wUp4fgFN8mebBWVlEy5zV+dP60HY/l1gQtBIO3Rjy2FdrfFvv
-         6hyrToJbCrRhFVcm13Y45bzl03Ux6CvkJ508Ka8C7e0OnEizYugDauEeiSSNR/VCbt
-         jZwSoL0CXvNKZKvDsCFPrBsPnqY68gl3RjdAKG+Y=
+        b=wNfXws2ge6LNSKQozFpgUlBvqldqUtRT2YDsAo64rg9TXBjQ9MY+6T1r+sGAikVj5
+         S+854vhxwWWvGYvDqvE+lpB8G14Qzoj8uJhJkrRpk22q7TkIZfba5ESltE1x1p7i26
+         Xh+Oryo2wDaJ4y+XprlY6KjY4/q+yhZya4KgsSD0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 051/127] Revert "ALSA: sb8: add a check for request_region"
-Date:   Mon, 24 May 2021 17:26:08 +0200
-Message-Id: <20210524152336.572385888@linuxfoundation.org>
+Subject: [PATCH 5.12 052/127] ALSA: firewire-lib: fix check for the size of isochronous packet payload
+Date:   Mon, 24 May 2021 17:26:09 +0200
+Message-Id: <20210524152336.601810437@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -39,47 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 94f88309f201821073f57ae6005caefa61bf7b7e upstream.
+commit 395f41e2cdac63e7581fb9574e5ac0f02556e34a upstream.
 
-This reverts commit dcd0feac9bab901d5739de51b3f69840851f8919.
+The check for size of isochronous packet payload just cares of the size of
+IR context payload without the size of CIP header.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit message for this change was incorrect as the code
-path can never result in a NULL dereference, alluding to the fact that
-whatever tool was used to "find this" is broken.  It's just an optional
-resource reservation, so removing this check is fine.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Takashi Iwai <tiwai@suse.de>
-Fixes: dcd0feac9bab ("ALSA: sb8: add a check for request_region")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-35-gregkh@linuxfoundation.org
+Cc: <stable@vger.kernel.org>
+Fixes: f11453c7cc01 ("ALSA: firewire-lib: use 16 bytes IR context header to separate CIP header")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210513125652.110249-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/isa/sb/sb8.c |    4 ----
- 1 file changed, 4 deletions(-)
+ sound/firewire/amdtp-stream.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/sound/isa/sb/sb8.c
-+++ b/sound/isa/sb/sb8.c
-@@ -95,10 +95,6 @@ static int snd_sb8_probe(struct device *
+--- a/sound/firewire/amdtp-stream.c
++++ b/sound/firewire/amdtp-stream.c
+@@ -633,18 +633,24 @@ static int parse_ir_ctx_header(struct am
+ 			       unsigned int *syt, unsigned int packet_index, unsigned int index)
+ {
+ 	const __be32 *cip_header;
++	unsigned int cip_header_size;
+ 	int err;
  
- 	/* block the 0x388 port to avoid PnP conflicts */
- 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
--	if (!acard->fm_res) {
--		err = -EBUSY;
--		goto _err;
--	}
+ 	*payload_length = be32_to_cpu(ctx_header[0]) >> ISO_DATA_LENGTH_SHIFT;
+-	if (*payload_length > s->ctx_data.tx.ctx_header_size +
+-					s->ctx_data.tx.max_ctx_payload_length) {
++
++	if (!(s->flags & CIP_NO_HEADER))
++		cip_header_size = 8;
++	else
++		cip_header_size = 0;
++
++	if (*payload_length > cip_header_size + s->ctx_data.tx.max_ctx_payload_length) {
+ 		dev_err(&s->unit->device,
+ 			"Detect jumbo payload: %04x %04x\n",
+-			*payload_length, s->ctx_data.tx.max_ctx_payload_length);
++			*payload_length, cip_header_size + s->ctx_data.tx.max_ctx_payload_length);
+ 		return -EIO;
+ 	}
  
- 	if (port[dev] != SNDRV_AUTO_PORT) {
- 		if ((err = snd_sbdsp_create(card, port[dev], irq[dev],
+-	if (!(s->flags & CIP_NO_HEADER)) {
++	if (cip_header_size > 0) {
+ 		cip_header = ctx_header + 2;
+ 		err = check_cip_header(s, cip_header, *payload_length,
+ 				       data_blocks, data_block_counter, syt);
 
 
