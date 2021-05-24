@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29CC638EED9
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E686338EE2E
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:45:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234325AbhEXPz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
+        id S233297AbhEXPqe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:46:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235254AbhEXPzD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 92B976191E;
-        Mon, 24 May 2021 15:40:46 +0000 (UTC)
+        id S234661AbhEXPoa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:44:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91AE86145F;
+        Mon, 24 May 2021 15:36:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870847;
-        bh=AAcJsTldw5MU9B+iIwXZdw35+5OS4Xr1gn8baVaQPMI=;
+        s=korg; t=1621870569;
+        bh=qhD0BZqeu27jr8v2vR77dTcRsazvYX0eWy1cx0Jai9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OwXv8Sec2q4973rjbqgI3QXZQ1uPcm12Q10j9VafSG4QvRZHcJ6f03Idm0XRgMM9i
-         MWmbTkbzCAFBEvHBICQ7wvsMGYxCo7X5jZTFgW4xod+nPDLbE2dIa2ZwbUQd0s+QAx
-         5+6XDceZjCKsiF++48ouRrYBnIGWAy9EEqvRBCxg=
+        b=rFr+mca4yqnowk88HKEU9JCdxUyZnuDFFYnWgzAVL44bPgqyUw71O5WrUxGbB1MIC
+         y4jdzqX3jnm9T67nREERuidB7f4FE30qHeVid96Z3T7EsxJpwMKkzMa+Qeoks9mZE3
+         EUBfPpQo0S9/qkkktNdREWgkyHX/RiUJvAhNVPjk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Guchun Chen <guchun.chen@amd.com>,
-        Kenneth Feng <kenneth.feng@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 062/104] drm/amdgpu: update gc golden setting for Navi12
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 46/49] vgacon: Record video mode changes with VT_RESIZEX
 Date:   Mon, 24 May 2021 17:25:57 +0200
-Message-Id: <20210524152334.908315540@linuxfoundation.org>
+Message-Id: <20210524152325.857253151@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guchun Chen <guchun.chen@amd.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit 99c45ba5799d6b938bd9bd20edfeb6f3e3e039b9 upstream.
+commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
 
-Current golden setting is out of date.
+Fix an issue with VGA console font size changes made after the initial
+video text mode has been changed with a user tool like `svgatextmode'
+calling the VT_RESIZEX ioctl.  As it stands in that case the original
+screen geometry continues being used to validate further VT resizing.
 
-Signed-off-by: Guchun Chen <guchun.chen@amd.com>
-Reviewed-by: Kenneth Feng <kenneth.feng@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Consequently when the video adapter is firstly reprogrammed from the
+original say 80x25 text mode using a 9x16 character cell (720x400 pixel
+resolution) to say 80x37 text mode and the same character cell (720x592
+pixel resolution), and secondly the CRTC character cell updated to 9x8
+(by loading a suitable font with the KD_FONT_OP_SET request of the
+KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
+and only upper half of the screen is used for the VT, with the lower
+half showing rubbish corresponding to whatever happens to be there in
+the video memory that maps to that part of the screen.  Of course the
+proportions change according to text mode geometries and font sizes
+chosen.
+
+Address the problem then, by updating the text mode geometry defaults
+rather than checking against them whenever the VT is resized via a user
+ioctl.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
+Cc: stable@vger.kernel.org # v2.6.24+
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/video/console/vgacon.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/gfx_v10_0.c
-@@ -1334,9 +1334,10 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG, 0xffffffff, 0x20000000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG2, 0xffffffff, 0x00000420),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG3, 0xffffffff, 0x00000200),
--	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG4, 0xffffffff, 0x04800000),
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DEBUG4, 0xffffffff, 0x04900000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_DFSM_TILES_IN_FLIGHT, 0x0000ffff, 0x0000003f),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmDB_LAST_OF_BURST_CONFIG, 0xffffffff, 0x03860204),
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGB_ADDR_CONFIG, 0x0c1800ff, 0x00000044),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGCR_GENERAL_CNTL, 0x1ff0ffff, 0x00000500),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGE_PRIV_CONTROL, 0x00007fff, 0x000001fe),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmGL1_PIPE_STEER, 0xffffffff, 0xe4e4e4e4),
-@@ -1354,12 +1355,13 @@ static const struct soc15_reg_golden gol
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_ENHANCE_2, 0x00000820, 0x00000820),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmPA_SC_LINE_STIPPLE_STATE, 0x0000ff0f, 0x00000000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmRMI_SPARE, 0xffffffff, 0xffff3101),
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSPI_CONFIG_CNTL_1, 0x001f0000, 0x00070104),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_ALU_CLK_CTRL, 0xffffffff, 0xffffffff),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_ARB_CONFIG, 0x00000133, 0x00000130),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmSQ_LDS_CLK_CTRL, 0xffffffff, 0xffffffff),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmTA_CNTL_AUX, 0xfff7ffff, 0x01030000),
- 	SOC15_REG_GOLDEN_VALUE(GC, 0, mmTCP_CNTL, 0xffdf80ff, 0x479c0010),
--	SOC15_REG_GOLDEN_VALUE(GC, 0, mmUTCL1_CTRL, 0xffffffff, 0x00800000)
-+	SOC15_REG_GOLDEN_VALUE(GC, 0, mmUTCL1_CTRL, 0xffffffff, 0x00c00000)
- };
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -1106,12 +1106,20 @@ static int vgacon_resize(struct vc_data
+ 	if ((width << 1) * height > vga_vram_size)
+ 		return -EINVAL;
  
- static void gfx_v10_rlcg_wreg(struct amdgpu_device *adev, u32 offset, u32 v)
++	if (user) {
++		/*
++		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
++		 * the video mode!  Set the new defaults then and go away.
++		 */
++		screen_info.orig_video_cols = width;
++		screen_info.orig_video_lines = height;
++		vga_default_font_height = c->vc_font.height;
++		return 0;
++	}
+ 	if (width % 2 || width > screen_info.orig_video_cols ||
+ 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
+ 	    c->vc_font.height)
+-		/* let svgatextmode tinker with video timings and
+-		   return success */
+-		return (user) ? 0 : -EINVAL;
++		return -EINVAL;
+ 
+ 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
+ 		vgacon_doresize(c, width, height);
 
 
