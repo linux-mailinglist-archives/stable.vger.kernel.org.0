@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A86938ED4E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41DAC38ED34
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233866AbhEXPgV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:36:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50500 "EHLO mail.kernel.org"
+        id S233413AbhEXPez (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233883AbhEXPec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 68E4E613F6;
-        Mon, 24 May 2021 15:31:49 +0000 (UTC)
+        id S233498AbhEXPdj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B629613E4;
+        Mon, 24 May 2021 15:31:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870309;
-        bh=BHmX+3MSs8DrwrmdsxqilJN75gfvTJiFcyAeYjNUK7s=;
+        s=korg; t=1621870288;
+        bh=876at4fVsVkH9wRjydP+IqwmEyIOzmfMTCElk/R6EXk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jDJoqPszxVtGJmTnEfiF3mzHlYgfohCIEUJ/7G8Ojy/3Nr1yUYNV4OAJI4sxeG9UO
-         nL/z68QmwbN90ftFoLku72TVtQQKnneBnjSZpdppcVYHAmT17rnEHNxncShjq3Hd3f
-         7Kl++6cP2q5e9RmGHOdZjp6aWZ9F/e6iiadlWxRU=
+        b=U+qAyCt3BGBaYVah0Co0yZNEDmj5pFCMtIoSMPd6ENcc0Eo2xi91wUD6B68qN0HVZ
+         yfZK2UTrJ6kunPjjIfiBABl6yrEvLrt02931WRdD65aZHCqqV5z05sS9acB/lt8iAz
+         mljz5/X0Ui1/a1Ih3oeSJDlFOCLVUOfG2CAZlJw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Simon Marchi <simon.marchi@efficios.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Pedro Alves <palves@redhat.com>,
-        Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 04/36] ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 06/31] ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
 Date:   Mon, 24 May 2021 17:24:49 +0200
-Message-Id: <20210524152324.308628167@linuxfoundation.org>
+Message-Id: <20210524152323.129175796@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,161 +39,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit dbb5afad100a828c97e012c6106566d99f041db6 ]
+commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f upstream.
 
-Suppose we have 2 threads, the group-leader L and a sub-theread T,
-both parked in ptrace_stop(). Debugger tries to resume both threads
-and does
+Mackie d.2 has an extension card for IEEE 1394 communication, which uses
+BridgeCo DM1000 ASIC. On the other hand, Mackie d.4 Pro has built-in
+function for IEEE 1394 communication by Oxford Semiconductor OXFW971,
+according to schematic diagram available in Mackie website. Although I
+misunderstood that Mackie d.2 Pro would be also a model with OXFW971,
+it's wrong. Mackie d.2 Pro is a model which includes the extension card
+as factory settings.
 
-	ptrace(PTRACE_CONT, T);
-	ptrace(PTRACE_CONT, L);
+This commit fixes entries in Kconfig and comment in ALSA OXFW driver.
 
-If the sub-thread T execs in between, the 2nd PTRACE_CONT doesn not
-resume the old leader L, it resumes the post-exec thread T which was
-actually now stopped in PTHREAD_EVENT_EXEC. In this case the
-PTHREAD_EVENT_EXEC event is lost, and the tracer can't know that the
-tracee changed its pid.
-
-This patch makes ptrace() fail in this case until debugger does wait()
-and consumes PTHREAD_EVENT_EXEC which reports old_pid. This affects all
-ptrace requests except the "asynchronous" PTRACE_INTERRUPT/KILL.
-
-The patch doesn't add the new PTRACE_ option to not complicate the API,
-and I _hope_ this won't cause any noticeable regression:
-
-	- If debugger uses PTRACE_O_TRACEEXEC and the thread did an exec
-	  and the tracer does a ptrace request without having consumed
-	  the exec event, it's 100% sure that the thread the ptracer
-	  thinks it is targeting does not exist anymore, or isn't the
-	  same as the one it thinks it is targeting.
-
-	- To some degree this patch adds nothing new. In the scenario
-	  above ptrace(L) can fail with -ESRCH if it is called after the
-	  execing sub-thread wakes the leader up and before it "steals"
-	  the leader's pid.
-
-Test-case:
-
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <errno.h>
-	#include <pthread.h>
-	#include <assert.h>
-
-	void *tf(void *arg)
-	{
-		execve("/usr/bin/true", NULL, NULL);
-		assert(0);
-
-		return NULL;
-	}
-
-	int main(void)
-	{
-		int leader = fork();
-		if (!leader) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-			for (;;)
-				pause();
-
-			return 0;
-		}
-
-		waitpid(leader, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, leader, 0,
-				PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
-		waitpid(leader, NULL, 0);
-
-		ptrace(PTRACE_CONT, leader, 0,0);
-		waitpid(leader, NULL, 0);
-
-		int status, thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != leader);
-		assert(status == 0x80137f);
-
-		ptrace(PTRACE_CONT, thread, 0,0);
-		/*
-		 * waitid() because waitpid(leader, &status, WNOWAIT) does not
-		 * report status. Why ????
-		 *
-		 * Why WEXITED? because we have another kernel problem connected
-		 * to mt-exec.
-		 */
-		siginfo_t info;
-		assert(waitid(P_PID, leader, &info, WSTOPPED|WEXITED|WNOWAIT) == 0);
-		assert(info.si_pid == leader && info.si_status == 0x0405);
-
-		/* OK, it sleeps in ptrace(PTRACE_EVENT_EXEC == 0x04) */
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == -1);
-		assert(errno == ESRCH);
-
-		assert(leader == waitpid(leader, &status, WNOHANG));
-		assert(status == 0x04057f);
-
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == 0);
-
-		return 0;
-	}
-
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Acked-by: Pedro Alves <palves@redhat.com>
-Acked-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: fd6f4b0dc167 ("ALSA: bebob: Add skelton for BeBoB based devices")
+Fixes: ec4dba5053e1 ("ALSA: oxfw: Add support for Behringer/Mackie devices")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210513125652.110249-3-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/ptrace.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ sound/firewire/Kconfig       |    4 ++--
+ sound/firewire/bebob/bebob.c |    2 +-
+ sound/firewire/oxfw/oxfw.c   |    1 -
+ 3 files changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index ea3370e205fb..4f10223bc7b0 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -159,6 +159,21 @@ void __ptrace_unlink(struct task_struct *child)
- 	spin_unlock(&child->sighand->siglock);
- }
+--- a/sound/firewire/Kconfig
++++ b/sound/firewire/Kconfig
+@@ -36,7 +36,7 @@ config SND_OXFW
+ 	   * Mackie(Loud) Onyx-i series (former models)
+ 	   * Mackie(Loud) Onyx Satellite
+ 	   * Mackie(Loud) Tapco Link.Firewire
+-	   * Mackie(Loud) d.2 pro/d.4 pro
++	   * Mackie(Loud) d.4 pro
+ 	   * Mackie(Loud) U.420/U.420d
+ 	   * TASCAM FireOne
  
-+static bool looks_like_a_spurious_pid(struct task_struct *task)
-+{
-+	if (task->exit_code != ((PTRACE_EVENT_EXEC << 8) | SIGTRAP))
-+		return false;
-+
-+	if (task_pid_vnr(task) == task->ptrace_message)
-+		return false;
-+	/*
-+	 * The tracee changed its pid but the PTRACE_EVENT_EXEC event
-+	 * was not wait()'ed, most probably debugger targets the old
-+	 * leader which was destroyed in de_thread().
-+	 */
-+	return true;
-+}
-+
- /* Ensure that nothing can wake it up, even SIGKILL */
- static bool ptrace_freeze_traced(struct task_struct *task)
- {
-@@ -169,7 +184,8 @@ static bool ptrace_freeze_traced(struct task_struct *task)
- 		return ret;
- 
- 	spin_lock_irq(&task->sighand->siglock);
--	if (task_is_traced(task) && !__fatal_signal_pending(task)) {
-+	if (task_is_traced(task) && !looks_like_a_spurious_pid(task) &&
-+	    !__fatal_signal_pending(task)) {
- 		task->state = __TASK_TRACED;
- 		ret = true;
- 	}
--- 
-2.30.2
-
+@@ -91,7 +91,7 @@ config SND_BEBOB
+ 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
+ 	  * BridgeCo RDAudio1/Audio5
+ 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
+-	  * Mackie d.2 (FireWire Option)
++	  * Mackie d.2 (FireWire Option) and d.2 Pro
+ 	  * Stanton FinalScratch 2 (ScratchAmp)
+ 	  * Tascam IF-FW/DM
+ 	  * Behringer XENIX UFX 1204/1604
+--- a/sound/firewire/bebob/bebob.c
++++ b/sound/firewire/bebob/bebob.c
+@@ -362,7 +362,7 @@ static const struct ieee1394_device_id b
+ 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
+ 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
+ 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
+-	/* Mackie, d.2 (Firewire Option) */
++	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
+ 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
+ 	/* Stanton, ScratchAmp */
+ 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
+--- a/sound/firewire/oxfw/oxfw.c
++++ b/sound/firewire/oxfw/oxfw.c
+@@ -320,7 +320,6 @@ static const struct ieee1394_device_id o
+ 	 *  Onyx-i series (former models):	0x081216
+ 	 *  Mackie Onyx Satellite:		0x00200f
+ 	 *  Tapco LINK.firewire 4x6:		0x000460
+-	 *  d.2 pro:				Unknown
+ 	 *  d.4 pro:				Unknown
+ 	 *  U.420:				Unknown
+ 	 *  U.420d:				Unknown
 
 
