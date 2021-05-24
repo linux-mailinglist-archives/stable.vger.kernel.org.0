@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 21C3438EEA1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E53CB38F023
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234611AbhEXPwk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:52:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
+        id S234919AbhEXQBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:01:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233642AbhEXPuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9BAA61627;
-        Mon, 24 May 2021 15:38:29 +0000 (UTC)
+        id S234833AbhEXQA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9C066146D;
+        Mon, 24 May 2021 15:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870710;
-        bh=9J3fCZzdSY+SR9R8CzFmZdWGLQ8dBqCuYG2SLz4FRFY=;
+        s=korg; t=1621871168;
+        bh=XCt114qiNhLnTdPz6qVXnm6+12wngqJVV6L5zOEzmO0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKN6ZPQe+do39Wrgky559jDdI4b4w/AOofhjFvy+M7SObWQx7JaO2y2eXTtbSBOka
-         O0lS+FD7tgvD+VLixIrgvPTXbl/q9eFTJrBE+//bcHndD8K9MYiUeUBZW9698thQos
-         jnG8oFNNb2QXpo0LZhNLx6vo9piEEDKQIGve2BTc=
+        b=xP5dztCHvk3pIrIsE5nRy5HOROaJ3reNy8dqfqxKKnrL9oEvMRcatfKgxQgFCBZON
+         BnLSEsvBf/WKQmyk4tddcq1AwCThqsNmEI1OMecLPFaxokwev4fUbTFGVKeUKGSz/E
+         us6nLWHjNY+YNsJ9aX5D+oTRwV813OMa04ikuU1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Zubin Mithra <zsm@chromium.org>
-Subject: [PATCH 5.4 71/71] Bluetooth: L2CAP: Fix handling LE modes by L2CAP_OPTIONS
+        stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        =?UTF-8?q?Martin=20=C3=85gren?= <martin.agren@gmail.com>
+Subject: [PATCH 5.12 060/127] uio/uio_pci_generic: fix return value changed in refactoring
 Date:   Mon, 24 May 2021 17:26:17 +0200
-Message-Id: <20210524152328.751081397@linuxfoundation.org>
+Message-Id: <20210524152336.865935428@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+From: Martin Ågren <martin.agren@gmail.com>
 
-commit b86b0b150fed840c376145383ef5105116c81b0c upstream.
+commit 156ed0215ef365604f2382d5164c36d3a1cfd98f upstream.
 
-L2CAP_OPTIONS shall only be used with BR/EDR modes.
+Commit ef84928cff58 ("uio/uio_pci_generic: use device-managed function
+equivalents") was able to simplify various error paths thanks to no
+longer having to clean up on the way out. Some error paths were dropped,
+others were simplified. In one of those simplifications, the return
+value was accidentally changed from -ENODEV to -ENOMEM. Restore the old
+return value.
 
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Zubin Mithra <zsm@chromium.org>
+Fixes: ef84928cff58 ("uio/uio_pci_generic: use device-managed function equivalents")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Martin Ågren <martin.agren@gmail.com>
+Link: https://lore.kernel.org/r/20210422192240.1136373-1-martin.agren@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/l2cap_sock.c |   24 ++++++++++++++++++++----
- 1 file changed, 20 insertions(+), 4 deletions(-)
+ drivers/uio/uio_pci_generic.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/l2cap_sock.c
-+++ b/net/bluetooth/l2cap_sock.c
-@@ -426,6 +426,20 @@ static int l2cap_sock_getsockopt_old(str
- 			break;
- 		}
+--- a/drivers/uio/uio_pci_generic.c
++++ b/drivers/uio/uio_pci_generic.c
+@@ -82,7 +82,7 @@ static int probe(struct pci_dev *pdev,
+ 	}
  
-+		/* Only BR/EDR modes are supported here */
-+		switch (chan->mode) {
-+		case L2CAP_MODE_BASIC:
-+		case L2CAP_MODE_ERTM:
-+		case L2CAP_MODE_STREAMING:
-+			break;
-+		default:
-+			err = -EINVAL;
-+			break;
-+		}
-+
-+		if (err < 0)
-+			break;
-+
- 		memset(&opts, 0, sizeof(opts));
- 		opts.imtu     = chan->imtu;
- 		opts.omtu     = chan->omtu;
-@@ -685,10 +699,8 @@ static int l2cap_sock_setsockopt_old(str
- 			break;
- 		}
+ 	if (pdev->irq && !pci_intx_mask_supported(pdev))
+-		return -ENOMEM;
++		return -ENODEV;
  
--		chan->mode = opts.mode;
--		switch (chan->mode) {
--		case L2CAP_MODE_LE_FLOWCTL:
--			break;
-+		/* Only BR/EDR modes are supported here */
-+		switch (opts.mode) {
- 		case L2CAP_MODE_BASIC:
- 			clear_bit(CONF_STATE2_DEVICE, &chan->conf_state);
- 			break;
-@@ -702,6 +714,10 @@ static int l2cap_sock_setsockopt_old(str
- 			break;
- 		}
- 
-+		if (err < 0)
-+			break;
-+
-+		chan->mode = opts.mode;
- 		chan->imtu = opts.imtu;
- 		chan->omtu = opts.omtu;
- 		chan->fcs  = opts.fcs;
+ 	gdev = devm_kzalloc(&pdev->dev, sizeof(struct uio_pci_generic_dev), GFP_KERNEL);
+ 	if (!gdev)
 
 
