@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E6DC38ED81
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC8CA38ED2A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233594AbhEXPi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:38:28 -0400
+        id S233120AbhEXPek (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:40 -0400
 Received: from mail.kernel.org ([198.145.29.99]:51396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233267AbhEXPgc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:36:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52F8A61418;
-        Mon, 24 May 2021 15:32:50 +0000 (UTC)
+        id S233488AbhEXPdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C6F26044F;
+        Mon, 24 May 2021 15:31:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870370;
-        bh=JcxVFKDU4gEX9O9BbO2qPk70r7MNtDFiSttP3s94KYs=;
+        s=korg; t=1621870275;
+        bh=Wjlwndu3maWl4Pu3r737cwkled+6HVuNMWTYCHealns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iDc0iVvszsc8gK2qsoj0VC9C/pOQafhWB38akbRpYY29tt360MhFqJF6qPR4fLYbM
-         Gf6THrUq09RctgPEBohZn67OgEW0YSRwNrR3gEgy/XYV9md4B+LhgQiCCvGpr9Pm2T
-         P3rmzXbxQFslSr7jYo1jNwZU64Y01l8IRV/47hVs=
+        b=H207GthHm48d3YltkGWNA0f0OSE9D1EMcDDM6kcaxVoTemB9pj+7ZLg3R0RuILjZR
+         W9JlJ0KwM1//bqN4JL9B7r/D4dpRtTa9mIUvK7bfl+CoJkhpic7hsdUzju0cK96JKb
+         Au2/ZmsO43WC8GyOZllOXHq3IwPFM8ykCR4+K3kU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 26/36] Revert "niu: fix missing checks of niu_pci_eeprom_read"
+        stable@vger.kernel.org, Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Subject: [PATCH 4.4 28/31] video: hgafb: fix potential NULL pointer dereference
 Date:   Mon, 24 May 2021 17:25:11 +0200
-Message-Id: <20210524152325.011037049@linuxfoundation.org>
+Message-Id: <20210524152323.833888129@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 7930742d6a0ff091c85b92ef4e076432d8d8cb79 upstream.
+commit dc13cac4862cc68ec74348a80b6942532b7735fa upstream.
 
-This reverts commit 26fd962bde0b15e54234fe762d86bc0349df1de4.
+The return of ioremap if not checked, and can lead to a NULL to be
+assigned to hga_vram. Potentially leading to a NULL pointer
+dereference.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+The fix adds code to deal with this case in the error label and
+changes how the hgafb_probe handles the return of hga_card_detect.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The change here was incorrect.  While it is nice to check if
-niu_pci_eeprom_read() succeeded or not when using the data, any error
-that might have happened was not propagated upwards properly, causing
-the kernel to assume that these reads were successful, which results in
-invalid data in the buffer that was to contain the successfully read
-data.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: 26fd962bde0b ("niu: fix missing checks of niu_pci_eeprom_read")
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-23-gregkh@linuxfoundation.org
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-40-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ drivers/video/fbdev/hgafb.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8119,8 +8119,6 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
  
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
--		if (prop_len < 0)
--			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8165,12 +8163,8 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++) {
--				err = niu_pci_eeprom_read(np, off + i);
--				if (err >= 0)
--					*prop_buf = err;
--				++prop_buf;
--			}
-+			for (i = 0; i < prop_len; i++)
-+				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
- 		}
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		return -ENOMEM;
  
- 		start += len;
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
+@@ -344,13 +346,18 @@ static int hga_card_detect(void)
+ 			hga_type_name = "Hercules";
+ 			break;
+ 	}
+-	return 1;
++	return 0;
+ error:
+ 	if (release_io_ports)
+ 		release_region(0x3b0, 12);
+ 	if (release_io_port)
+ 		release_region(0x3bf, 1);
+-	return 0;
++
++	iounmap(hga_vram);
++
++	pr_err("hgafb: HGA card not detected.\n");
++
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -548,13 +555,11 @@ static struct fb_ops hgafb_ops = {
+ static int hgafb_probe(struct platform_device *pdev)
+ {
+ 	struct fb_info *info;
++	int ret;
+ 
+-	if (! hga_card_detect()) {
+-		printk(KERN_INFO "hgafb: HGA card not detected.\n");
+-		if (hga_vram)
+-			iounmap(hga_vram);
+-		return -EINVAL;
+-	}
++	ret = hga_card_detect();
++	if (!ret)
++		return ret;
+ 
+ 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
+ 		hga_type_name, hga_vram_len/1024);
 
 
