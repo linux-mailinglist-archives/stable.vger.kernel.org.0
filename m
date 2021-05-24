@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ABD6738EF6B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AAE9338EDBE
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235138AbhEXP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:57:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
+        id S232548AbhEXPlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:41:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235378AbhEXP4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:56:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4060361407;
-        Mon, 24 May 2021 15:42:52 +0000 (UTC)
+        id S233527AbhEXPjB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:39:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3FE761422;
+        Mon, 24 May 2021 15:33:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870972;
-        bh=h5m1Bw3ZqV1GlCUjR/qFL1tEOn3C05FJTooMv0LOidA=;
+        s=korg; t=1621870429;
+        bh=30UboduEteUD7DbeI9zlzKBdoN62rm3KX0iqz8akjow=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jY5cHz7n95+A/v9RWnIhRv7S+jAVDOriY9AMYa4k6WUu+nSydN2xYh2dQFK5BGJCl
-         WjokfpIGrHHvXt9to9L7Rrm/NMGZiFCQW7ytoXhw8gxGbyreOcHXlb6NBD81Itbctg
-         2NqirnaLSOkmM12eQPbrhzqZI6FA5w184GzXNydY=
+        b=0hC1UzCy204Y7nkjbyCFh2n9REQX0xAfniExnQdPq83aWBXVMU4+CIqF4yVLbcCPo
+         ozzWRLmKpeZVNz0Hvj7bgHlhMu21/rAl3DBA1u4Nv9E3gmbNtYvpMossey9eTjknx1
+         JZZhxv9MlgrKmrt5GIHm8bfA3T2dpyxfU3T0Gy1U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
-        Zhu Yanjun <zyjzyj2000@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 015/127] RDMA/rxe: Return CQE error if invalid lkey was supplied
-Date:   Mon, 24 May 2021 17:25:32 +0200
-Message-Id: <20210524152335.375154107@linuxfoundation.org>
+        stable@vger.kernel.org, Du Cheng <ducheng2@gmail.com>,
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.14 29/37] ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+Date:   Mon, 24 May 2021 17:25:33 +0200
+Message-Id: <20210524152325.157686496@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,102 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-[ Upstream commit dc07628bd2bbc1da768e265192c28ebd301f509d ]
+commit e6e337708c22f80824b82d4af645f20715730ad0 upstream.
 
-RXE is missing update of WQE status in LOCAL_WRITE failures.  This caused
-the following kernel panic if someone sent an atomic operation with an
-explicitly wrong lkey.
+niu_pci_eeprom_read() may fail, so add checks to its return value and
+propagate the error up the callstack.
 
-[leonro@vm ~]$ mkt test
-test_atomic_invalid_lkey (tests.test_atomic.AtomicTest) ...
- WARNING: CPU: 5 PID: 263 at drivers/infiniband/sw/rxe/rxe_comp.c:740 rxe_completer+0x1a6d/0x2e30 [rdma_rxe]
- Modules linked in: crc32_generic rdma_rxe ip6_udp_tunnel udp_tunnel rdma_ucm rdma_cm ib_umad ib_ipoib iw_cm ib_cm mlx5_ib ib_uverbs ib_core mlx5_core ptp pps_core
- CPU: 5 PID: 263 Comm: python3 Not tainted 5.13.0-rc1+ #2936
- Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
- RIP: 0010:rxe_completer+0x1a6d/0x2e30 [rdma_rxe]
- Code: 03 0f 8e 65 0e 00 00 3b 93 10 06 00 00 0f 84 82 0a 00 00 4c 89 ff 4c 89 44 24 38 e8 2d 74 a9 e1 4c 8b 44 24 38 e9 1c f5 ff ff <0f> 0b e9 0c e8 ff ff b8 05 00 00 00 41 bf 05 00 00 00 e9 ab e7 ff
- RSP: 0018:ffff8880158af090 EFLAGS: 00010246
- RAX: 0000000000000000 RBX: ffff888016a78000 RCX: ffffffffa0cf1652
- RDX: 1ffff9200004b442 RSI: 0000000000000004 RDI: ffffc9000025a210
- RBP: dffffc0000000000 R08: 00000000ffffffea R09: ffff88801617740b
- R10: ffffed1002c2ee81 R11: 0000000000000007 R12: ffff88800f3b63e8
- R13: ffff888016a78008 R14: ffffc9000025a180 R15: 000000000000000c
- FS:  00007f88b622a740(0000) GS:ffff88806d540000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007f88b5a1fa10 CR3: 000000000d848004 CR4: 0000000000370ea0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  rxe_do_task+0x130/0x230 [rdma_rxe]
-  rxe_rcv+0xb11/0x1df0 [rdma_rxe]
-  rxe_loopback+0x157/0x1e0 [rdma_rxe]
-  rxe_responder+0x5532/0x7620 [rdma_rxe]
-  rxe_do_task+0x130/0x230 [rdma_rxe]
-  rxe_rcv+0x9c8/0x1df0 [rdma_rxe]
-  rxe_loopback+0x157/0x1e0 [rdma_rxe]
-  rxe_requester+0x1efd/0x58c0 [rdma_rxe]
-  rxe_do_task+0x130/0x230 [rdma_rxe]
-  rxe_post_send+0x998/0x1860 [rdma_rxe]
-  ib_uverbs_post_send+0xd5f/0x1220 [ib_uverbs]
-  ib_uverbs_write+0x847/0xc80 [ib_uverbs]
-  vfs_write+0x1c5/0x840
-  ksys_write+0x176/0x1d0
-  do_syscall_64+0x3f/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
+An examination of the callstack up to niu_pci_eeprom_read shows that:
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/11e7b553f3a6f5371c6bb3f57c494bb52b88af99.1620711734.git.leonro@nvidia.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Acked-by: Zhu Yanjun <zyjzyj2000@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+niu_pci_eeprom_read() // returns int
+    niu_pci_vpd_scan_props() // returns int
+        niu_pci_vpd_fetch() // returns *void*
+            niu_get_invariants() // returns int
+
+since niu_pci_vpd_fetch() returns void which breaks the bubbling up,
+change its return type to int so that error is propagated upwards.
+
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-24-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/sw/rxe/rxe_comp.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/net/ethernet/sun/niu.c |   34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_comp.c b/drivers/infiniband/sw/rxe/rxe_comp.c
-index a612b335baa0..06b556169867 100644
---- a/drivers/infiniband/sw/rxe/rxe_comp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_comp.c
-@@ -346,13 +346,15 @@ static inline enum comp_state do_read(struct rxe_qp *qp,
- 	ret = copy_data(qp->pd, IB_ACCESS_LOCAL_WRITE,
- 			&wqe->dma, payload_addr(pkt),
- 			payload_size(pkt), to_mr_obj, NULL);
--	if (ret)
-+	if (ret) {
-+		wqe->status = IB_WC_LOC_PROT_ERR;
- 		return COMPST_ERROR;
-+	}
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8117,6 +8117,8 @@ static int niu_pci_vpd_scan_props(struct
+ 		start += 3;
  
- 	if (wqe->dma.resid == 0 && (pkt->mask & RXE_END_MASK))
- 		return COMPST_COMP_ACK;
--	else
--		return COMPST_UPDATE_COMP;
-+
-+	return COMPST_UPDATE_COMP;
+ 		prop_len = niu_pci_eeprom_read(np, start + 4);
++		if (prop_len < 0)
++			return prop_len;
+ 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
+ 		if (err < 0)
+ 			return err;
+@@ -8161,8 +8163,12 @@ static int niu_pci_vpd_scan_props(struct
+ 			netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
+ 				     namebuf, prop_len);
+-			for (i = 0; i < prop_len; i++)
+-				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
++			for (i = 0; i < prop_len; i++) {
++				err =  niu_pci_eeprom_read(np, off + i);
++				if (err < 0)
++					return err;
++				*prop_buf++ = err;
++			}
+ 		}
+ 
+ 		start += len;
+@@ -8172,14 +8178,14 @@ static int niu_pci_vpd_scan_props(struct
  }
  
- static inline enum comp_state do_atomic(struct rxe_qp *qp,
-@@ -366,10 +368,12 @@ static inline enum comp_state do_atomic(struct rxe_qp *qp,
- 	ret = copy_data(qp->pd, IB_ACCESS_LOCAL_WRITE,
- 			&wqe->dma, &atomic_orig,
- 			sizeof(u64), to_mr_obj, NULL);
--	if (ret)
-+	if (ret) {
-+		wqe->status = IB_WC_LOC_PROT_ERR;
- 		return COMPST_ERROR;
--	else
--		return COMPST_COMP_ACK;
-+	}
-+
-+	return COMPST_COMP_ACK;
+ /* ESPC_PIO_EN_ENABLE must be set */
+-static void niu_pci_vpd_fetch(struct niu *np, u32 start)
++static int niu_pci_vpd_fetch(struct niu *np, u32 start)
+ {
+ 	u32 offset;
+ 	int err;
+ 
+ 	err = niu_pci_eeprom_read16_swp(np, start + 1);
+ 	if (err < 0)
+-		return;
++		return err;
+ 
+ 	offset = err + 3;
+ 
+@@ -8188,12 +8194,14 @@ static void niu_pci_vpd_fetch(struct niu
+ 		u32 end;
+ 
+ 		err = niu_pci_eeprom_read(np, here);
++		if (err < 0)
++			return err;
+ 		if (err != 0x90)
+-			return;
++			return -EINVAL;
+ 
+ 		err = niu_pci_eeprom_read16_swp(np, here + 1);
+ 		if (err < 0)
+-			return;
++			return err;
+ 
+ 		here = start + offset + 3;
+ 		end = start + offset + err;
+@@ -8201,9 +8209,12 @@ static void niu_pci_vpd_fetch(struct niu
+ 		offset += err;
+ 
+ 		err = niu_pci_vpd_scan_props(np, here, end);
+-		if (err < 0 || err == 1)
+-			return;
++		if (err < 0)
++			return err;
++		if (err == 1)
++			return -EINVAL;
+ 	}
++	return 0;
  }
  
- static void make_send_cqe(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
--- 
-2.30.2
-
+ /* ESPC_PIO_EN_ENABLE must be set */
+@@ -9294,8 +9305,11 @@ static int niu_get_invariants(struct niu
+ 		offset = niu_pci_vpd_offset(np);
+ 		netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 			     "%s() VPD offset [%08x]\n", __func__, offset);
+-		if (offset)
+-			niu_pci_vpd_fetch(np, offset);
++		if (offset) {
++			err = niu_pci_vpd_fetch(np, offset);
++			if (err < 0)
++				return err;
++		}
+ 		nw64(ESPC_PIO_EN, 0);
+ 
+ 		if (np->flags & NIU_FLAGS_VPD_VALID) {
 
 
