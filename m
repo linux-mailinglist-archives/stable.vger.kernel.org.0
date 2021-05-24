@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40FE338EF36
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEFD438EFDD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235322AbhEXP4Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S235062AbhEXQAE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235017AbhEXPzn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B92F461937;
-        Mon, 24 May 2021 15:42:02 +0000 (UTC)
+        id S235783AbhEXP7K (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB29E6144F;
+        Mon, 24 May 2021 15:45:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870923;
-        bh=ZUaj5SOFutdqYpNzA6M0QxgrGmtIh+F732VxQK797ZU=;
+        s=korg; t=1621871105;
+        bh=WG1NXLp8LD315tqu5BuRcUtXWwveUUwUbSnMh7d7p7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P4E08OLLzviyuxANR4DtYIprZf2S/+pxgo+CVnAO341wufztrby1NQmMWPwd4vcxx
-         jDfP6Fx72d/Nm0frMG6gzfaGRFatwCQ+EwPCr+KeHn/TEDcz63939zc46cCLqnNkfA
-         8R5jrFdSH+8d4YllIPjvZC5/cYN3vtTYqHSuRNm0=
+        b=G/ggzB4vAOAUy6yoJRs1IQUc/Z4hP/ams8RaITR+7H7DKmiZuMxefCqunRkr/oNTx
+         uaRPVRLuMPoRhyLA6kEmhTK+W5MTRXzsfTTlC77lXuLoSrlzJ873hNula3nXiau/fZ
+         wHjyKHa4vKm9o9HQYW7m3eGwVlEzDo6ZHOZHsUKs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 097/104] vt: Fix character height handling with VT_RESIZEX
-Date:   Mon, 24 May 2021 17:26:32 +0200
-Message-Id: <20210524152336.068332187@linuxfoundation.org>
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.12 076/127] drm/radeon: use the dummy page for GART if needed
+Date:   Mon, 24 May 2021 17:26:33 +0200
+Message-Id: <20210524152337.423141123@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,225 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Christian König <christian.koenig@amd.com>
 
-commit 860dafa902595fb5f1d23bbcce1215188c3341e6 upstream.
+commit 0c8df343c200529e6b9820bdfed01814140f75e4 upstream.
 
-Restore the original intent of the VT_RESIZEX ioctl's `v_clin' parameter
-which is the number of pixel rows per character (cell) rather than the
-height of the font used.
+Imported BOs don't have a pagelist any more.
 
-For framebuffer devices the two values are always the same, because the
-former is inferred from the latter one.  For VGA used as a true text
-mode device these two parameters are independent from each other: the
-number of pixel rows per character is set in the CRT controller, while
-font height is in fact hardwired to 32 pixel rows and fonts of heights
-below that value are handled by padding their data with blanks when
-loaded to hardware for use by the character generator.  One can change
-the setting in the CRT controller and it will update the screen contents
-accordingly regardless of the font loaded.
-
-The `v_clin' parameter is used by the `vgacon' driver to set the height
-of the character cell and then the cursor position within.  Make the
-parameter explicit then, by defining a new `vc_cell_height' struct
-member of `vc_data', set it instead of `vc_font.height' from `v_clin' in
-the VT_RESIZEX ioctl, and then use it throughout the `vgacon' driver
-except where actual font data is accessed which as noted above is
-independent from the CRTC setting.
-
-This way the framebuffer console driver is free to ignore the `v_clin'
-parameter as irrelevant, as it always should have, avoiding any issues
-attempts to give the parameter a meaning there could have caused, such
-as one that has led to commit 988d0763361b ("vt_ioctl: make VT_RESIZEX
-behave like VT_RESIZE"):
-
- "syzbot is reporting UAF/OOB read at bit_putcs()/soft_cursor() [1][2],
-  for vt_resizex() from ioctl(VT_RESIZEX) allows setting font height
-  larger than actual font height calculated by con_font_set() from
-  ioctl(PIO_FONT). Since fbcon_set_font() from con_font_set() allocates
-  minimal amount of memory based on actual font height calculated by
-  con_font_set(), use of vt_resizex() can cause UAF/OOB read for font
-  data."
-
-The problem first appeared around Linux 2.5.66 which predates our repo
-history, but the origin could be identified with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
-as commit 9736a3546de7 ("Merge with Linux 2.5.66."), where VT_RESIZEX
-code in `vt_ioctl' was updated as follows:
-
- 		if (clin)
--			video_font_height = clin;
-+			vc->vc_font.height = clin;
-
-making the parameter apply to framebuffer devices as well, perhaps due
-to the use of "font" in the name of the original `video_font_height'
-variable.  Use "cell" in the new struct member then to avoid ambiguity.
-
-
-[1] https://syzkaller.appspot.com/bug?id=32577e96d88447ded2d3b76d71254fb855245837
-[2] https://syzkaller.appspot.com/bug?id=6b8355d27b2b94fb5cedf4655e3a59162d9e48e3
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 0575ff3d33cd ("drm/radeon: stop using pages with drm_prime_sg_to_page_addr_arrays v2")
+CC: stable@vger.kernel.org # 5.12
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt_ioctl.c      |    6 ++---
- drivers/video/console/vgacon.c |   44 ++++++++++++++++++++---------------------
- include/linux/console_struct.h |    1 
- 3 files changed, 26 insertions(+), 25 deletions(-)
+ drivers/gpu/drm/radeon/radeon_gart.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -806,17 +806,17 @@ static int vt_resizex(struct vc_data *vc
- 		if (vcp) {
- 			int ret;
- 			int save_scan_lines = vcp->vc_scan_lines;
--			int save_font_height = vcp->vc_font.height;
-+			int save_cell_height = vcp->vc_cell_height;
+--- a/drivers/gpu/drm/radeon/radeon_gart.c
++++ b/drivers/gpu/drm/radeon/radeon_gart.c
+@@ -301,7 +301,8 @@ int radeon_gart_bind(struct radeon_devic
+ 	p = t / (PAGE_SIZE / RADEON_GPU_PAGE_SIZE);
  
- 			if (v.v_vlin)
- 				vcp->vc_scan_lines = v.v_vlin;
- 			if (v.v_clin)
--				vcp->vc_font.height = v.v_clin;
-+				vcp->vc_cell_height = v.v_clin;
- 			vcp->vc_resize_user = 1;
- 			ret = vc_resize(vcp, v.v_cols, v.v_rows);
- 			if (ret) {
- 				vcp->vc_scan_lines = save_scan_lines;
--				vcp->vc_font.height = save_font_height;
-+				vcp->vc_cell_height = save_cell_height;
- 				console_unlock();
- 				return ret;
- 			}
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -384,7 +384,7 @@ static void vgacon_init(struct vc_data *
- 		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
- 
- 	c->vc_scan_lines = vga_scan_lines;
--	c->vc_font.height = vga_video_font_height;
-+	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
- 	c->vc_complement_mask = 0x7700;
- 	if (vga_512_chars)
- 		c->vc_hi_font_mask = 0x0800;
-@@ -519,32 +519,32 @@ static void vgacon_cursor(struct vc_data
- 		switch (CUR_SIZE(c->vc_cursor_type)) {
- 		case CUR_UNDERLINE:
- 			vgacon_set_cursor_size(c->state.x,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 2 : 3),
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_TWO_THIRDS:
- 			vgacon_set_cursor_size(c->state.x,
--					       c->vc_font.height / 3,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height / 3,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_LOWER_THIRD:
- 			vgacon_set_cursor_size(c->state.x,
--					       (c->vc_font.height * 2) / 3,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       (c->vc_cell_height * 2) / 3,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_LOWER_HALF:
- 			vgacon_set_cursor_size(c->state.x,
--					       c->vc_font.height / 2,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height / 2,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_NONE:
-@@ -555,7 +555,7 @@ static void vgacon_cursor(struct vc_data
- 			break;
- 		default:
- 			vgacon_set_cursor_size(c->state.x, 1,
--					       c->vc_font.height);
-+					       c->vc_cell_height);
- 			break;
- 		}
- 		break;
-@@ -566,13 +566,13 @@ static int vgacon_doresize(struct vc_dat
- 		unsigned int width, unsigned int height)
- {
- 	unsigned long flags;
--	unsigned int scanlines = height * c->vc_font.height;
-+	unsigned int scanlines = height * c->vc_cell_height;
- 	u8 scanlines_lo = 0, r7 = 0, vsync_end = 0, mode, max_scan;
- 
- 	raw_spin_lock_irqsave(&vga_lock, flags);
- 
- 	vgacon_xres = width * VGA_FONTWIDTH;
--	vgacon_yres = height * c->vc_font.height;
-+	vgacon_yres = height * c->vc_cell_height;
- 	if (vga_video_type >= VIDEO_TYPE_VGAC) {
- 		outb_p(VGA_CRTC_MAX_SCAN, vga_video_port_reg);
- 		max_scan = inb_p(vga_video_port_val);
-@@ -627,9 +627,9 @@ static int vgacon_doresize(struct vc_dat
- static int vgacon_switch(struct vc_data *c)
- {
- 	int x = c->vc_cols * VGA_FONTWIDTH;
--	int y = c->vc_rows * c->vc_font.height;
-+	int y = c->vc_rows * c->vc_cell_height;
- 	int rows = screen_info.orig_video_lines * vga_default_font_height/
--		c->vc_font.height;
-+		c->vc_cell_height;
- 	/*
- 	 * We need to save screen size here as it's the only way
- 	 * we can spot the screen has been resized and we need to
-@@ -1060,7 +1060,7 @@ static int vgacon_adjust_height(struct v
- 				cursor_size_lastto = 0;
- 				c->vc_sw->con_cursor(c, CM_DRAW);
- 			}
--			c->vc_font.height = fontheight;
-+			c->vc_font.height = c->vc_cell_height = fontheight;
- 			vc_resize(c, 0, rows);	/* Adjust console size */
- 		}
- 	}
-@@ -1115,12 +1115,12 @@ static int vgacon_resize(struct vc_data
- 		 */
- 		screen_info.orig_video_cols = width;
- 		screen_info.orig_video_lines = height;
--		vga_default_font_height = c->vc_font.height;
-+		vga_default_font_height = c->vc_cell_height;
- 		return 0;
- 	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
--	    c->vc_font.height)
-+	    c->vc_cell_height)
- 		return -EINVAL;
- 
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
---- a/include/linux/console_struct.h
-+++ b/include/linux/console_struct.h
-@@ -101,6 +101,7 @@ struct vc_data {
- 	unsigned int	vc_rows;
- 	unsigned int	vc_size_row;		/* Bytes per row */
- 	unsigned int	vc_scan_lines;		/* # of scan lines */
-+	unsigned int	vc_cell_height;		/* CRTC character cell height */
- 	unsigned long	vc_origin;		/* [!] Start of real screen */
- 	unsigned long	vc_scr_end;		/* [!] End of real screen */
- 	unsigned long	vc_visible_origin;	/* [!] Top of visible window */
+ 	for (i = 0; i < pages; i++, p++) {
+-		rdev->gart.pages[p] = pagelist[i];
++		rdev->gart.pages[p] = pagelist ? pagelist[i] :
++			rdev->dummy_page.page;
+ 		page_base = dma_addr[i];
+ 		for (j = 0; j < (PAGE_SIZE / RADEON_GPU_PAGE_SIZE); j++, t++) {
+ 			page_entry = radeon_gart_get_page_entry(page_base, flags);
 
 
