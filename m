@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E9A38EA58
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5234B38EA5A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233263AbhEXOzA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233438AbhEXOzA (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 10:55:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54354 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:55618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233254AbhEXOv5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:51:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 849256140E;
-        Mon, 24 May 2021 14:48:05 +0000 (UTC)
+        id S233428AbhEXOwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:52:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B20B4613D2;
+        Mon, 24 May 2021 14:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867686;
-        bh=YMUIRBqPsKnP1v3cJ/Dw9pNi02k97cYZ5bin7a9UhRc=;
+        s=k20201202; t=1621867687;
+        bh=L6/9C92JDBgplMtoVklmzjavKJBt2S6f6PqJFK2r8qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ibRtWlLyF2+9hZer6U46cMD6URd4cCaO07NPd2uHxWp4/2jEzeSTtbR+MJX4Ay6vN
-         ne92e/vtaOw2RvEmf6vS6JeryUBmkAjbJ+GPoKq/LNcTYnDOOvNB4Ok98c4SJfeFMH
-         0WghiGzVv7a+vwKbHBBCHP1BxG68h9FsGot01X5D1S+2EXO9cm1lWQmOSJuwsjgs+C
-         vMn1fRBsd4VMR33OqDrXmF+e97gYxj2aGKBFSjB5b1sBxl2GBl80FXZFK4QefblsX0
-         nNBzcu+o92mOs53NDgvu22P/xt6k9XeW9pjcI27JX0/3ypriL/FsrHzT8sotPhXxyS
-         r41FfN3NUlM6w==
+        b=afEJRuxcOlWzqUg8tQ38H7pZ634h/bC9fwvpEcFTkxIEGL2oeE2zzbCcLNnprmD1b
+         QkkmTVHUgN7zkXgTZkQ5y+pUS5WDrMFQN3EfO9M+VI8ZENyzLWvehf6lzXcpDTV0O5
+         rV/xtuaqOwSZ+AmAHFM3IEhliybnUd6MI7QuZWTReJ7xQCOjHXkYLdmWMTsN/hWfXr
+         yjBStp1n8KGRpTYxCb+dYOqs8OcYM3Hi6EkenefraAe5sLRRhujvi3g67RadFph/ND
+         ja30wE/5y1i9lobGr/O6eBKwZlFbNhFjYUv+afFf4/dMhNt/vOoBmwaw4BYPYXFDtW
+         S67BnHRRYEhRg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Aditya Pakki <pakki001@umn.edu>, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 18/62] Revert "ALSA: usx2y: Fix potential NULL pointer dereference"
-Date:   Mon, 24 May 2021 10:46:59 -0400
-Message-Id: <20210524144744.2497894-18-sashal@kernel.org>
+        Kangjie Lu <kjlu@umn.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 19/62] Revert "isdn: mISDNinfineon: fix potential NULL pointer dereference"
+Date:   Mon, 24 May 2021 10:47:00 -0400
+Message-Id: <20210524144744.2497894-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
 References: <20210524144744.2497894-1-sashal@kernel.org>
@@ -44,9 +45,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 4667a6fc1777ce071504bab570d3599107f4790f ]
+[ Upstream commit abd7bca23bd4247124265152d00ffd4b2b0d6877 ]
 
-This reverts commit a2c6433ee5a35a8de6d563f6512a26f87835ea0f.
+This reverts commit d721fe99f6ada070ae8fc0ec3e01ce5a42def0d9.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -56,35 +57,39 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original patch was incorrect, and would leak memory if the error
-path the patch added was hit.
+The original commit was incorrect, it should have never have used
+"unlikely()" and if it ever does trigger, resources are left grabbed.
 
-Cc: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210503115736.2104747-37-gregkh@linuxfoundation.org
+Given there are no users for this code around, I'll just revert this and
+leave it "as is" as the odds that ioremap() will ever fail here is
+horrendiously low.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-41-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/usx2y/usb_stream.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/sound/usb/usx2y/usb_stream.c b/sound/usb/usx2y/usb_stream.c
-index 091c071b270a..6bba17bf689a 100644
---- a/sound/usb/usx2y/usb_stream.c
-+++ b/sound/usb/usx2y/usb_stream.c
-@@ -91,12 +91,7 @@ static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
- 
- 	for (u = 0; u < USB_STREAM_NURBS; ++u) {
- 		sk->inurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
--		if (!sk->inurb[u])
--			return -ENOMEM;
--
- 		sk->outurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
--		if (!sk->outurb[u])
--			return -ENOMEM;
- 	}
- 
- 	if (init_pipe_urbs(sk, use_packsize, sk->inurb, indata, dev, in_pipe) ||
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index a16c7a2a7f3d..fa9c491f9c38 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -697,11 +697,8 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO) {
++		if (hw->ci->addr_mode == AM_MEMIO)
+ 			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+-			if (unlikely(!hw->addr.p))
+-				return -ENOMEM;
+-		}
+ 		hw->addr.mode = hw->ci->addr_mode;
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
 -- 
 2.30.2
 
