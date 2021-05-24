@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01D438EEDB
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA77738EEDC
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234212AbhEXPza (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234572AbhEXPza (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 11:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:39394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233534AbhEXPxU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:53:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ABEFF6162B;
-        Mon, 24 May 2021 15:39:19 +0000 (UTC)
+        id S234270AbhEXPxY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:53:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BCEFE616ED;
+        Mon, 24 May 2021 15:39:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870760;
-        bh=9uYcpEkl6Y2VmtvXHF8096ybcTnmf3Nq6Wx78k+rnLQ=;
+        s=korg; t=1621870762;
+        bh=M4ClGbD1NzJyWMQwlZFkBuYmcXpvY89/4jfmfBQpjGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fb9XXTxEg21dKDm35ng9887T2tHT9zyaS3X39+3SViPs2W2/1f21L3aFtuq57KwUU
-         jlzs1JLMq88BzvJdbo1TrXnAyEaMWrlF8igRfs1fCG7AjNn7jziWKmMi6NNCwfB1ca
-         OkioynSDSZMJofWaGtLvYMfFo7RvVmPlUqW2mF3Y=
+        b=pZOCiy3JXH3YtAGnKXGaNfnoafjbBLs2vgHoMILNB0giYWwQSAFQM2uU8e1jQvoMX
+         fJLX88+Wg3yRTNCbXEta9cLYk326bnpx2mMgla41nKG1ozBTsUTmQr9nC2c5J1Yfmd
+         +4UFN0K511wazCE4RSNz/S/LJeKcSE/T6vYH/BZg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+36a7f280de4e11c6f04e@syzkaller.appspotmail.com,
-        Leon Romanovsky <leonro@nvidia.com>,
-        Zhu Yanjun <zyjzyj2000@gmail.com>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Avri Altman <avri.altman@wdc.com>,
+        Stanley Chu <stanley.chu@mediatek.com>,
+        Bean Huo <beanhuo@micron.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/104] RDMA/rxe: Clear all QP fields if creation failed
-Date:   Mon, 24 May 2021 17:25:02 +0200
-Message-Id: <20210524152333.086604092@linuxfoundation.org>
+Subject: [PATCH 5.10 008/104] scsi: ufs: core: Increase the usable queue depth
+Date:   Mon, 24 May 2021 17:25:03 +0200
+Message-Id: <20210524152333.116702685@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
 References: <20210524152332.844251980@linuxfoundation.org>
@@ -43,115 +46,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leon Romanovsky <leonro@nvidia.com>
+From: Bart Van Assche <bvanassche@acm.org>
 
-[ Upstream commit 67f29896fdc83298eed5a6576ff8f9873f709228 ]
+[ Upstream commit d0b2b70eb12e9ffaf95e11b16b230a4e015a536c ]
 
-rxe_qp_do_cleanup() relies on valid pointer values in QP for the properly
-created ones, but in case rxe_qp_from_init() failed it was filled with
-garbage and caused tot the following error.
+With the current implementation of the UFS driver active_queues is 1
+instead of 0 if all UFS request queues are idle. That causes
+hctx_may_queue() to divide the queue depth by 2 when queueing a request and
+hence reduces the usable queue depth.
 
-  refcount_t: underflow; use-after-free.
-  WARNING: CPU: 1 PID: 12560 at lib/refcount.c:28 refcount_warn_saturate+0x1d1/0x1e0 lib/refcount.c:28
-  Modules linked in:
-  CPU: 1 PID: 12560 Comm: syz-executor.4 Not tainted 5.12.0-syzkaller #0
-  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
-  RIP: 0010:refcount_warn_saturate+0x1d1/0x1e0 lib/refcount.c:28
-  Code: e9 db fe ff ff 48 89 df e8 2c c2 ea fd e9 8a fe ff ff e8 72 6a a7 fd 48 c7 c7 e0 b2 c1 89 c6 05 dc 3a e6 09 01 e8 ee 74 fb 04 <0f> 0b e9 af fe ff ff 0f 1f 84 00 00 00 00 00 41 56 41 55 41 54 55
-  RSP: 0018:ffffc900097ceba8 EFLAGS: 00010286
-  RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-  RDX: 0000000000040000 RSI: ffffffff815bb075 RDI: fffff520012f9d67
-  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
-  R10: ffffffff815b4eae R11: 0000000000000000 R12: ffff8880322a4800
-  R13: ffff8880322a4940 R14: ffff888033044e00 R15: 0000000000000000
-  FS:  00007f6eb2be3700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fdbe5d41000 CR3: 000000001d181000 CR4: 00000000001506e0
-  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  Call Trace:
-   __refcount_sub_and_test include/linux/refcount.h:283 [inline]
-   __refcount_dec_and_test include/linux/refcount.h:315 [inline]
-   refcount_dec_and_test include/linux/refcount.h:333 [inline]
-   kref_put include/linux/kref.h:64 [inline]
-   rxe_qp_do_cleanup+0x96f/0xaf0 drivers/infiniband/sw/rxe/rxe_qp.c:805
-   execute_in_process_context+0x37/0x150 kernel/workqueue.c:3327
-   rxe_elem_release+0x9f/0x180 drivers/infiniband/sw/rxe/rxe_pool.c:391
-   kref_put include/linux/kref.h:65 [inline]
-   rxe_create_qp+0x2cd/0x310 drivers/infiniband/sw/rxe/rxe_verbs.c:425
-   _ib_create_qp drivers/infiniband/core/core_priv.h:331 [inline]
-   ib_create_named_qp+0x2ad/0x1370 drivers/infiniband/core/verbs.c:1231
-   ib_create_qp include/rdma/ib_verbs.h:3644 [inline]
-   create_mad_qp+0x177/0x2d0 drivers/infiniband/core/mad.c:2920
-   ib_mad_port_open drivers/infiniband/core/mad.c:3001 [inline]
-   ib_mad_init_device+0xd6f/0x1400 drivers/infiniband/core/mad.c:3092
-   add_client_context+0x405/0x5e0 drivers/infiniband/core/device.c:717
-   enable_device_and_get+0x1cd/0x3b0 drivers/infiniband/core/device.c:1331
-   ib_register_device drivers/infiniband/core/device.c:1413 [inline]
-   ib_register_device+0x7c7/0xa50 drivers/infiniband/core/device.c:1365
-   rxe_register_device+0x3d5/0x4a0 drivers/infiniband/sw/rxe/rxe_verbs.c:1147
-   rxe_add+0x12fe/0x16d0 drivers/infiniband/sw/rxe/rxe.c:247
-   rxe_net_add+0x8c/0xe0 drivers/infiniband/sw/rxe/rxe_net.c:503
-   rxe_newlink drivers/infiniband/sw/rxe/rxe.c:269 [inline]
-   rxe_newlink+0xb7/0xe0 drivers/infiniband/sw/rxe/rxe.c:250
-   nldev_newlink+0x30e/0x550 drivers/infiniband/core/nldev.c:1555
-   rdma_nl_rcv_msg+0x36d/0x690 drivers/infiniband/core/netlink.c:195
-   rdma_nl_rcv_skb drivers/infiniband/core/netlink.c:239 [inline]
-   rdma_nl_rcv+0x2ee/0x430 drivers/infiniband/core/netlink.c:259
-   netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
-   netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
-   netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
-   sock_sendmsg_nosec net/socket.c:654 [inline]
-   sock_sendmsg+0xcf/0x120 net/socket.c:674
-   ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
-   ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
-   __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
-   do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+The shared tag set code in the block layer keeps track of the number of
+active request queues. blk_mq_tag_busy() is called before a request is
+queued onto a hwq and blk_mq_tag_idle() is called some time after the hwq
+became idle. blk_mq_tag_idle() is called from inside blk_mq_timeout_work().
+Hence, blk_mq_tag_idle() is only called if a timer is associated with each
+request that is submitted to a request queue that shares a tag set with
+another request queue.
 
-Fixes: 8700e3e7c485 ("Soft RoCE driver")
-Link: https://lore.kernel.org/r/7bf8d548764d406dbbbaf4b574960ebfd5af8387.1620717918.git.leonro@nvidia.com
-Reported-by: syzbot+36a7f280de4e11c6f04e@syzkaller.appspotmail.com
-Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
-Reviewed-by: Zhu Yanjun <zyjzyj2000@gmail.com>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Adds a blk_mq_start_request() call in ufshcd_exec_dev_cmd(). This doubles
+the queue depth on my test setup from 16 to 32.
+
+In addition to increasing the usable queue depth, also fix the
+documentation of the 'timeout' parameter in the header above
+ufshcd_exec_dev_cmd().
+
+Link: https://lore.kernel.org/r/20210513164912.5683-1-bvanassche@acm.org
+Fixes: 7252a3603015 ("scsi: ufs: Avoid busy-waiting by eliminating tag conflicts")
+Cc: Can Guo <cang@codeaurora.org>
+Cc: Alim Akhtar <alim.akhtar@samsung.com>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Stanley Chu <stanley.chu@mediatek.com>
+Cc: Bean Huo <beanhuo@micron.com>
+Cc: Adrian Hunter <adrian.hunter@intel.com>
+Reviewed-by: Can Guo <cang@codeaurora.org>
+Signed-off-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/sw/rxe/rxe_qp.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/scsi/ufs/ufshcd.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
-index 656a5b4be847..1e716fe7014c 100644
---- a/drivers/infiniband/sw/rxe/rxe_qp.c
-+++ b/drivers/infiniband/sw/rxe/rxe_qp.c
-@@ -231,6 +231,7 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
- 	if (err) {
- 		vfree(qp->sq.queue->buf);
- 		kfree(qp->sq.queue);
-+		qp->sq.queue = NULL;
- 		return err;
+diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
+index 08d4d40c510e..854c96e63007 100644
+--- a/drivers/scsi/ufs/ufshcd.c
++++ b/drivers/scsi/ufs/ufshcd.c
+@@ -2768,7 +2768,7 @@ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
+  * ufshcd_exec_dev_cmd - API for sending device management requests
+  * @hba: UFS hba
+  * @cmd_type: specifies the type (NOP, Query...)
+- * @timeout: time in seconds
++ * @timeout: timeout in milliseconds
+  *
+  * NOTE: Since there is only one available tag for device management commands,
+  * it is expected you hold the hba->dev_cmd.lock mutex.
+@@ -2798,6 +2798,9 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
  	}
+ 	tag = req->tag;
+ 	WARN_ON_ONCE(!ufshcd_valid_tag(hba, tag));
++	/* Set the timeout such that the SCSI error handler is not activated. */
++	req->timeout = msecs_to_jiffies(2 * timeout);
++	blk_mq_start_request(req);
  
-@@ -284,6 +285,7 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
- 		if (err) {
- 			vfree(qp->rq.queue->buf);
- 			kfree(qp->rq.queue);
-+			qp->rq.queue = NULL;
- 			return err;
- 		}
- 	}
-@@ -344,6 +346,11 @@ int rxe_qp_from_init(struct rxe_dev *rxe, struct rxe_qp *qp, struct rxe_pd *pd,
- err2:
- 	rxe_queue_cleanup(qp->sq.queue);
- err1:
-+	qp->pd = NULL;
-+	qp->rcq = NULL;
-+	qp->scq = NULL;
-+	qp->srq = NULL;
-+
- 	if (srq)
- 		rxe_drop_ref(srq);
- 	rxe_drop_ref(scq);
+ 	init_completion(&wait);
+ 	lrbp = &hba->lrb[tag];
 -- 
 2.30.2
 
