@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D922D38EA0B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:50:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08EAF38EA1E
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:53:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233634AbhEXOwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:52:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54806 "EHLO mail.kernel.org"
+        id S233288AbhEXOw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:52:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233492AbhEXOuT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:50:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A930A6140D;
-        Mon, 24 May 2021 14:47:47 +0000 (UTC)
+        id S233550AbhEXOu0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:50:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8A27613FC;
+        Mon, 24 May 2021 14:47:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867668;
-        bh=29yBi7z/CJIiEuekGlfUeyaZL3+2djxDR7+tD7HwhU0=;
+        s=k20201202; t=1621867669;
+        bh=sVg6SB/8K3yyZdgO0ZP29Rf+pPOA/vY5LIPQHKTVJMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X46QwoLQCKA/QLslmUwF088tys+Qqp0ZKBsJf3eEee/vx2bVdhOFbogImYxWm/fba
-         E4oiMVA7p83EQ66QvSeFB+bfYIOoE+8SW79hax9RBeD6DbVxgZaKH6zqE7a8r7DsdD
-         lVR4fApFjD5lmcvsug5XukaVhH0U8fbUMJZca4FdQiJG4GtRWWrvBk9QFJcgqYck4y
-         mavTM9+bHJZkGOl/7s0tpwkSsmYQW1I8pYp6qh1c7KxnpKyoaOpVaELPNKJtm/rlje
-         7QFr1ZCcZkXQEBsFuoeoHGwZfYYEBdHDWr9oo28fr7PSwGCTvubFnBAr+nefcZ2rsM
-         F6yRK4DYugvOA==
+        b=Wd+6W075RBz+rlQ7GKFZwszm6ncgRCbOoxFr61gPjEF8fzslb48jw951ZJYhlY58r
+         sXo1zce+yj1idQe47w2F8l8+V/gQYlLpOKOceZpyFXBIp2+wv+0zasjbHvddLbNb7z
+         PM9fWDYBzJrP2mVwuKw9zBPAVESAZw3gd8RSo/DhsFdUqV58skm/OvIPlAhmIPSp3U
+         L/VNzrQgvikoNWNwNNKUE6BY2WVIh2zxbzh7aFwSS2Dybt+2+gzOVk627r/4Cd5f4b
+         A1KVSfsS+M3sd7gkVZzQ3nI8bqYKRnvkko/LAO1gmj0iSehQp+284nT4lTNQ6yeJaZ
+         i4PQobXEKd/gg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        linux-crypto@vger.kernel.org,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 03/62] Revert "crypto: cavium/nitrox - add an error message to explain the failure of pci_request_mem_regions"
-Date:   Mon, 24 May 2021 10:46:44 -0400
-Message-Id: <20210524144744.2497894-3-sashal@kernel.org>
+        Kangjie Lu <kjlu@umn.edu>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 04/62] Revert "media: usb: gspca: add a missed check for goto_low_power"
+Date:   Mon, 24 May 2021 10:46:45 -0400
+Message-Id: <20210524144744.2497894-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
 References: <20210524144744.2497894-1-sashal@kernel.org>
@@ -47,49 +45,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 6a3239a738d86c5e9b5aad17fefe2c2bfd6ced83 ]
+[ Upstream commit fd013265e5b5576a74a033920d6c571e08d7c423 ]
 
-This reverts commit 9fcddaf2e28d779cb946d23838ba6d50f299aa80 as it was
-submitted under a fake name and we can not knowingly accept anonymous
-contributions to the repository.
+This reverts commit 5b711870bec4dc9a6d705d41e127e73944fa3650.
 
-This commit was part of a submission "test" to the Linux kernel
-community by some "researchers" at umn.edu.  As outlined at:
-	https://www-users.cs.umn.edu/%7Ekjlu/papers/full-disclosure.pdf
-it was done so as an attempt to submit a known-buggy patch to see if it
-could get by our review.  However, the submission turned out to actually
-be correct, and not have a bug in it as the author did not understand
-how the PCI driver model works at all, and so the submission was
-accepted.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-As this change is of useless consequence, there is no loss of
-functionality in reverting it.
+Upon review, this commit was found to do does nothing useful as a user
+can do nothing with this information and if an error did happen, the
+code would continue on as before.  Because of this, just revert it.
 
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Cc: linux-crypto@vger.kernel.org
-Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Link: https://lore.kernel.org/r/YIkTi9a3nnL50wMq@kroah.com
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-7-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/cavium/nitrox/nitrox_main.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/media/usb/gspca/cpia1.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/crypto/cavium/nitrox/nitrox_main.c b/drivers/crypto/cavium/nitrox/nitrox_main.c
-index 9d14be97e381..cee2a2713038 100644
---- a/drivers/crypto/cavium/nitrox/nitrox_main.c
-+++ b/drivers/crypto/cavium/nitrox/nitrox_main.c
-@@ -451,7 +451,6 @@ static int nitrox_probe(struct pci_dev *pdev,
- 	err = pci_request_mem_regions(pdev, nitrox_driver_name);
- 	if (err) {
- 		pci_disable_device(pdev);
--		dev_err(&pdev->dev, "Failed to request mem regions!\n");
- 		return err;
- 	}
- 	pci_set_master(pdev);
+diff --git a/drivers/media/usb/gspca/cpia1.c b/drivers/media/usb/gspca/cpia1.c
+index a4f7431486f3..d93d384286c1 100644
+--- a/drivers/media/usb/gspca/cpia1.c
++++ b/drivers/media/usb/gspca/cpia1.c
+@@ -1424,7 +1424,6 @@ static int sd_config(struct gspca_dev *gspca_dev,
+ {
+ 	struct sd *sd = (struct sd *) gspca_dev;
+ 	struct cam *cam;
+-	int ret;
+ 
+ 	sd->mainsFreq = FREQ_DEF == V4L2_CID_POWER_LINE_FREQUENCY_60HZ;
+ 	reset_camera_params(gspca_dev);
+@@ -1436,10 +1435,7 @@ static int sd_config(struct gspca_dev *gspca_dev,
+ 	cam->cam_mode = mode;
+ 	cam->nmodes = ARRAY_SIZE(mode);
+ 
+-	ret = goto_low_power(gspca_dev);
+-	if (ret)
+-		gspca_err(gspca_dev, "Cannot go to low power mode: %d\n",
+-			  ret);
++	goto_low_power(gspca_dev);
+ 	/* Check the firmware version. */
+ 	sd->params.version.firmwareVersion = 0;
+ 	get_version_information(gspca_dev);
 -- 
 2.30.2
 
