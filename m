@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8C438EEFF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C985D38EF60
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235128AbhEXPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
+        id S234875AbhEXP5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234917AbhEXPyx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5058261878;
-        Mon, 24 May 2021 15:40:03 +0000 (UTC)
+        id S233578AbhEXP4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EAD261405;
+        Mon, 24 May 2021 15:42:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870803;
-        bh=QEy0KRw8VajZyTOxPvZTSchBWwsGca12LIzpS3tWvsE=;
+        s=korg; t=1621870961;
+        bh=UvQ6AgjPJSCs2l15bid02zYssvvGbw/RJWx9BhiEHGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RsEWIcY38VnRZZesrD9prqdwPBQmfVf4VOz9NrNKNUN1x3+aptaUDM5peY7vWRhrc
-         T4Cn7Q8x/H8g9CQTNkjwJJ+vz7Ft9wCzNTPwAAcJSIrT8BbU3XoSy4LB+R5Yhekf68
-         LwqnGyjXwpcAeknKp+G9UZw8GdQO/eKB7Mw8my4g=
+        b=ctUCtD2LCNi6sVjgY4pPValHqSBqtV4lrx7tLXs2Grz5vNEiwFYF6Ph7b5Ny6Ih6E
+         WiqQmUOojS6H8SGy3fvLOvarwRLidwhKjBtVGbH5ilCisI3tr1uBgGsfeuNjt//no8
+         zj/Q4XR4PLZDkH1vz/seHQYPuCXb2uCPs5o/T7LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
-        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stafford Horne <shorne@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/104] powerpc/pseries: Fix hcall tracing recursion in pv queued spinlocks
+Subject: [PATCH 5.12 002/127] openrisc: Fix a memory leak
 Date:   Mon, 24 May 2021 17:25:19 +0200
-Message-Id: <20210524152333.623908902@linuxfoundation.org>
+Message-Id: <20210524152334.945748623@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,150 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 2c8c89b95831f46a2fb31a8d0fef4601694023ce ]
+[ Upstream commit c019d92457826bb7b2091c86f36adb5de08405f9 ]
 
-The paravit queued spinlock slow path adds itself to the queue then
-calls pv_wait to wait for the lock to become free. This is implemented
-by calling H_CONFER to donate cycles.
+'setup_find_cpu_node()' take a reference on the node it returns.
+This reference must be decremented when not needed anymore, or there will
+be a leak.
 
-When hcall tracing is enabled, this H_CONFER call can lead to a spin
-lock being taken in the tracing code, which will result in the lock to
-be taken again, which will also go to the slow path because it queues
-behind itself and so won't ever make progress.
+Add the missing 'of_node_put(cpu)'.
 
-An example trace of a deadlock:
+Note that 'setup_cpuinfo()' that also calls this function already has a
+correct 'of_node_put(cpu)' at its end.
 
-  __pv_queued_spin_lock_slowpath
-  trace_clock_global
-  ring_buffer_lock_reserve
-  trace_event_buffer_lock_reserve
-  trace_event_buffer_reserve
-  trace_event_raw_event_hcall_exit
-  __trace_hcall_exit
-  plpar_hcall_norets_trace
-  __pv_queued_spin_lock_slowpath
-  trace_clock_global
-  ring_buffer_lock_reserve
-  trace_event_buffer_lock_reserve
-  trace_event_buffer_reserve
-  trace_event_raw_event_rcu_dyntick
-  rcu_irq_exit
-  irq_exit
-  __do_irq
-  call_do_irq
-  do_IRQ
-  hardware_interrupt_common_virt
-
-Fix this by introducing plpar_hcall_norets_notrace(), and using that to
-make SPLPAR virtual processor dispatching hcalls by the paravirt
-spinlock code.
-
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20210508101455.1578318-2-npiggin@gmail.com
+Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/include/asm/hvcall.h       |  3 +++
- arch/powerpc/include/asm/paravirt.h     | 22 +++++++++++++++++++---
- arch/powerpc/platforms/pseries/hvCall.S | 10 ++++++++++
- arch/powerpc/platforms/pseries/lpar.c   |  3 +--
- 4 files changed, 33 insertions(+), 5 deletions(-)
+ arch/openrisc/kernel/setup.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/powerpc/include/asm/hvcall.h b/arch/powerpc/include/asm/hvcall.h
-index c1fbccb04390..3e8e19f5746c 100644
---- a/arch/powerpc/include/asm/hvcall.h
-+++ b/arch/powerpc/include/asm/hvcall.h
-@@ -437,6 +437,9 @@
-  */
- long plpar_hcall_norets(unsigned long opcode, ...);
- 
-+/* Variant which does not do hcall tracing */
-+long plpar_hcall_norets_notrace(unsigned long opcode, ...);
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 2416a9f91533..c6f9e7b9f7cb 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -278,6 +278,8 @@ void calibrate_delay(void)
+ 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
+ 		loops_per_jiffy / (500000 / HZ),
+ 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
 +
- /**
-  * plpar_hcall: - Make a pseries hypervisor call
-  * @opcode: The hypervisor call to make.
-diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
-index 9362c94fe3aa..588bfb9a0579 100644
---- a/arch/powerpc/include/asm/paravirt.h
-+++ b/arch/powerpc/include/asm/paravirt.h
-@@ -24,19 +24,35 @@ static inline u32 yield_count_of(int cpu)
- 	return be32_to_cpu(yield_count);
++	of_node_put(cpu);
  }
  
-+/*
-+ * Spinlock code confers and prods, so don't trace the hcalls because the
-+ * tracing code takes spinlocks which can cause recursion deadlocks.
-+ *
-+ * These calls are made while the lock is not held: the lock slowpath yields if
-+ * it can not acquire the lock, and unlock slow path might prod if a waiter has
-+ * yielded). So this may not be a problem for simple spin locks because the
-+ * tracing does not technically recurse on the lock, but we avoid it anyway.
-+ *
-+ * However the queued spin lock contended path is more strictly ordered: the
-+ * H_CONFER hcall is made after the task has queued itself on the lock, so then
-+ * recursing on that lock will cause the task to then queue up again behind the
-+ * first instance (or worse: queued spinlocks use tricks that assume a context
-+ * never waits on more than one spinlock, so such recursion may cause random
-+ * corruption in the lock code).
-+ */
- static inline void yield_to_preempted(int cpu, u32 yield_count)
- {
--	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
-+	plpar_hcall_norets_notrace(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
- }
- 
- static inline void prod_cpu(int cpu)
- {
--	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
-+	plpar_hcall_norets_notrace(H_PROD, get_hard_smp_processor_id(cpu));
- }
- 
- static inline void yield_to_any(void)
- {
--	plpar_hcall_norets(H_CONFER, -1, 0);
-+	plpar_hcall_norets_notrace(H_CONFER, -1, 0);
- }
- #else
- static inline bool is_shared_processor(void)
-diff --git a/arch/powerpc/platforms/pseries/hvCall.S b/arch/powerpc/platforms/pseries/hvCall.S
-index 2136e42833af..8a2b8d64265b 100644
---- a/arch/powerpc/platforms/pseries/hvCall.S
-+++ b/arch/powerpc/platforms/pseries/hvCall.S
-@@ -102,6 +102,16 @@ END_FTR_SECTION(0, 1);						\
- #define HCALL_BRANCH(LABEL)
- #endif
- 
-+_GLOBAL_TOC(plpar_hcall_norets_notrace)
-+	HMT_MEDIUM
-+
-+	mfcr	r0
-+	stw	r0,8(r1)
-+	HVSC				/* invoke the hypervisor */
-+	lwz	r0,8(r1)
-+	mtcrf	0xff,r0
-+	blr				/* return r3 = status */
-+
- _GLOBAL_TOC(plpar_hcall_norets)
- 	HMT_MEDIUM
- 
-diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
-index 764170fdb0f7..1c3ac0f66336 100644
---- a/arch/powerpc/platforms/pseries/lpar.c
-+++ b/arch/powerpc/platforms/pseries/lpar.c
-@@ -1827,8 +1827,7 @@ void hcall_tracepoint_unregfunc(void)
- 
- /*
-  * Since the tracing code might execute hcalls we need to guard against
-- * recursion. One example of this are spinlocks calling H_YIELD on
-- * shared processor partitions.
-+ * recursion.
-  */
- static DEFINE_PER_CPU(unsigned int, hcall_trace_depth);
- 
+ void __init setup_arch(char **cmdline_p)
 -- 
 2.30.2
 
