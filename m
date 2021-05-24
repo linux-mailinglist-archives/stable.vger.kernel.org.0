@@ -2,160 +2,199 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 983E438F06E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:02:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 882F638ED37
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235716AbhEXQDN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:03:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52682 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235864AbhEXQCZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 12:02:25 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89C48C04C4AC
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 08:13:36 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id gb21-20020a17090b0615b029015d1a863a91so11417196pjb.2
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 08:13:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=h8ec80TByf3DbbxwJPijgKiDjyx46Va2KV7MomRk1xs=;
-        b=p9lCuHG+GnpSTB5rdPfhlLzt7iqVwyjriVG0kqgly9rDhdwaVJ0p5UIQyXhk982fgV
-         LoWaaISXVCA5kdq05+2ExHxjky5u7CsR9FEwna9Y9d7CI2FuGNAcxEDFtV+e7Xm3ddRW
-         sYrmt4Rt+gbWNW5gq2oJdOdoMQ7hJB84jg/NapJvDQqXEzxlXJU+k+tfMIIXHCToHoC3
-         NekoKS/2eUmBMCWvdrJztGInZp3Qon++fv1K5Jr5kUTFresoJ4DnNR2nZ2m5kPrKxOxx
-         AvsS2v0J+zgSvpERexWpVafJPhaVkO1vj1AHPEiJu/CgCVqKYRpiQO7fYazVLat7c6zl
-         2MSA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=h8ec80TByf3DbbxwJPijgKiDjyx46Va2KV7MomRk1xs=;
-        b=XYOcriiUdCMbwFet6uaURdtDeW38J643bWwqYCB4vDj0odjba80pDxFS+HHTmfQ4T8
-         T5BHi7z60IbVlvUcRKyb6uQsVli2IrTha1B0YS3YinolpErA/Pfr4zGZXlhup+MahObF
-         RtG0LEUElFspSf0CH9gBZW4yvfeoNnr6Kxq5njaYNYMmF0r51KSDwhAfX8F1K8x9TBqU
-         OZ/4iCFwNBoCej8n90RWLP7XFRQosBx+zwP2W1oEaExP4hHOj/y/M7bnFI6lZtzdki5H
-         dc7dYGOLUS1pNFPs20u0IW6FT/IwMsO83wIoXxNTdz7euhuPGrv7hhVj8KM4R0IBlHQt
-         5Jjw==
-X-Gm-Message-State: AOAM532/dyWOsMt6FsJb3wtjgUYz9b4w+VnUoYx5w53tFaVK05IQVGXm
-        bLgzpn6gArrRYxTEMznsXm9jW6O2cqDw1CNV
-X-Google-Smtp-Source: ABdhPJzqRznzdskmIsqlq2B4cvFUTxuCicLEUR//9l5CB7tT8dYafCAoGcbxHqIti04vWqFWW6dFWw==
-X-Received: by 2002:a17:902:222:b029:f5:c251:a6ad with SMTP id 31-20020a1709020222b02900f5c251a6admr24052149plc.84.1621869215865;
-        Mon, 24 May 2021 08:13:35 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i5sm7501189pgr.54.2021.05.24.08.13.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 24 May 2021 08:13:35 -0700 (PDT)
-Message-ID: <60abc29f.1c69fb81.d6484.7dd9@mx.google.com>
-Date:   Mon, 24 May 2021 08:13:35 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233651AbhEXPe4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233527AbhEXPdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 161B4613F3;
+        Mon, 24 May 2021 15:31:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1621870298;
+        bh=sxHF9u8X4s/tujxDufRWWDRa3/f0rWst6hprUmo+Z3w=;
+        h=From:To:Cc:Subject:Date:From;
+        b=wTSpW4NZczwBpcXkveIbT6JM8LNkyqLO8Y8xlvfzicTinG7KUYOjSJdQn4O+ImEu1
+         YaqoEXsxFK52JKU4aPT3CD4Noyh4h1O1uevm7bdslLD8D9xUYTuX1hpfmJifs8Iov1
+         1Ymoc6EDjTSO+18orGfMbGvfYe18VedrQru3Eiug=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/31] 4.4.270-rc1 review
+Date:   Mon, 24 May 2021 17:24:43 +0200
+Message-Id: <20210524152322.919918360@linuxfoundation.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.12.6-95-gbb1483055945
-X-Kernelci-Branch: queue/5.12
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.12 baseline: 110 runs,
- 2 regressions (v5.12.6-95-gbb1483055945)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.270-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.270-rc1
+X-KernelTest-Deadline: 2021-05-26T15:23+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 110 runs, 2 regressions (v5.12.6-95-gbb14830=
-55945)
+This is the start of the stable review cycle for the 4.4.270 release.
+There are 31 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Regressions Summary
--------------------
+Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
+Anything received after that time might be too late.
 
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.270-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
+thanks,
+
+greg k-h
+
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.270-rc1
+
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tty: vt: always invoke vc->vc_sw->con_resize callback
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    vt: Fix character height handling with VT_RESIZEX
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    vgacon: Record video mode changes with VT_RESIZEX
+
+Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+    video: hgafb: fix potential NULL pointer dereference
+
+Tom Seewald <tseewald@gmail.com>
+    qlcnic: Add null check after calling netdev_alloc_skb
+
+Phillip Potter <phil@philpotter.co.uk>
+    leds: lp5523: check return value of lp5xx_read and jump to cleanup code
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    net: rtlwifi: properly check for alloc_workqueue() failure
+
+Anirudh Rayabharam <mail@anirudhrb.com>
+    net: stmicro: handle clk_prepare() failure during init
+
+Du Cheng <ducheng2@gmail.com>
+    ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "niu: fix missing checks of niu_pci_eeprom_read"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "qlcnic: Avoid potential NULL pointer dereference"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "rtlwifi: fix a potential NULL pointer dereference"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    cdrom: gdrom: initialize global variable at init time
+
+Atul Gopinathan <atulgopinathan@gmail.com>
+    cdrom: gdrom: deallocate struct gdrom_unit fields in remove_gdrom
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "gdrom: fix a memory leak bug"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "ecryptfs: replace BUG_ON with error handling code"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "video: imsttfb: fix potential NULL pointer dereferences"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "net: stmicro: fix a missing check of clk_prepare"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "video: hgafb: fix potential NULL pointer dereference"
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm snapshot: fix crash with transient storage and zero chunk size
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm snapshot: fix a crash when an origin has no snapshots
+
+Jan Beulich <jbeulich@suse.com>
+    xen-pciback: reconfigure also from backend watch handler
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "ALSA: sb8: add a check for request_region"
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Validate MS endpoint descriptors
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: fix memory leak in smb2_copychunk_range
+
+Oleg Nesterov <oleg@redhat.com>
+    ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
+
+Zhen Lei <thunder.leizhen@huawei.com>
+    scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    openrisc: Fix a memory leak
 
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.6-95-gbb1483055945/plan/baseline/
+-------------
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.6-95-gbb1483055945
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      bb1483055945147d3f924f7c2b0530e48e31f758 =
+Diffstat:
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab8e51481869681bb3af97
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.6-9=
-5-gbb1483055945/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.6-9=
-5-gbb1483055945/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-r=
-pi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+ Makefile                                           |  4 +-
+ arch/openrisc/kernel/setup.c                       |  2 +
+ drivers/cdrom/gdrom.c                              | 13 +++--
+ drivers/hwmon/lm80.c                               | 11 +----
+ drivers/leds/leds-lp5523.c                         |  2 +-
+ drivers/md/dm-snap.c                               |  6 +--
+ .../net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c    |  3 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c  |  8 ++--
+ drivers/net/ethernet/sun/niu.c                     | 32 ++++++++-----
+ drivers/net/wireless/realtek/rtlwifi/base.c        | 19 ++++----
+ drivers/scsi/qla2xxx/qla_nx.c                      |  3 +-
+ drivers/tty/vt/vt.c                                |  2 +-
+ drivers/tty/vt/vt_ioctl.c                          |  6 +--
+ drivers/video/console/fbcon.c                      |  2 +-
+ drivers/video/console/vgacon.c                     | 56 ++++++++++++----------
+ drivers/video/fbdev/hgafb.c                        | 21 ++++----
+ drivers/video/fbdev/imsttfb.c                      |  5 --
+ drivers/xen/xen-pciback/xenbus.c                   | 22 +++++++--
+ fs/cifs/smb2ops.c                                  |  2 +
+ fs/ecryptfs/crypto.c                               |  6 +--
+ include/linux/console_struct.h                     |  1 +
+ kernel/ptrace.c                                    | 18 ++++++-
+ sound/firewire/Kconfig                             |  4 +-
+ sound/firewire/bebob/bebob.c                       |  2 +-
+ sound/firewire/oxfw/oxfw.c                         |  1 -
+ sound/isa/sb/sb8.c                                 |  4 --
+ sound/usb/midi.c                                   |  4 ++
+ 27 files changed, 152 insertions(+), 107 deletions(-)
 
 
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab8e51481869681bb3a=
-f98
-        new failure (last pass: v5.12.5-79-g3f03da12545f) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60ab90cd498901cfb4b3afbe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.6-9=
-5-gbb1483055945/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.6-9=
-5-gbb1483055945/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60ab90cd498901cfb4b3a=
-fbf
-        new failure (last pass: v5.12.5-44-ga4238f2183a8) =
-
- =20
