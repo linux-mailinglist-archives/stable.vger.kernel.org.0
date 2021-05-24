@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1C2138EBB5
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 693E038EBB6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233569AbhEXPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:06:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37814 "EHLO mail.kernel.org"
+        id S233426AbhEXPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:06:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233963AbhEXPCu (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233945AbhEXPCu (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:02:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 862F861466;
-        Mon, 24 May 2021 14:50:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAD3F613F9;
+        Mon, 24 May 2021 14:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867826;
-        bh=OM0tZT06vTC/AJtNAz4TRFPhTCe0YWjeKkByYYgJLyg=;
+        s=k20201202; t=1621867827;
+        bh=6ojWN7MjokRzrhXaTS7naqgOE5nUzbyfaJtwki3P4lE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tx1TsIJ3QuwgZZkDHpgZxpeFlyHouIC2Qzj4U8fisvCnF1RMmmNFYw5bCJc6olvm8
-         wwMS4oshDx5wXRIg7ca4VIcIpG+e+LMEROnelRV+d5eYwSGQeTyi/GXNZv/WyZjrXz
-         UUGqJwkAhGQhtD7Vv9WYuENHF51S1mcm5XxXHlVK/Obq8/AbBZ1KdFARHNrmf2TQ60
-         e5pfl1inqhgZUJuWyft9sP6QL+3LR2wXkrCPWM4C7ADYQjYMYKtSbvErvIug9fLZbl
-         VUjZ8/u4JCAbKSiXcQ/mTFI96++sNB9ZB0cHPVf+6i/rQSpStHjsJQkx2vOlzk3HJK
-         Zcp/k880qs+Fw==
+        b=LqFlLW8iF+62Qc4az+AdcEhwRdmlFRZIPJCfLT2jAp/OuNDVChFYU1d+W/EzVXCPp
+         iWqZ3mGuCUg4CrR9fXs36sGHvK1qt9DVuPgD37VjBHSxTxhCzeVnlPAHBjylZ2UmxA
+         gjk0ISxSMgbXjoLf/4QPfF3l9xMh3eVE2S+4cRosPD+vreHQt1cwHH1tWQUKzLHcem
+         L36xkGpIMz0NpgmZdcJ8Nn8yG08beRsFs+ppTZTe2oXjgKbmdI4MMy08VYHmJcuLkl
+         g0luiF4QBJ3l6YVmIi7ruscF4d632YTlUabMZRwm9WoUK0stEI3mQry6kq9Fb+Ilsh
+         KLZhaoWanVFCQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Aditya Pakki <pakki001@umn.edu>,
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 14/25] media: gspca: mt9m111: Check write_bridge for timeout
-Date:   Mon, 24 May 2021 10:49:57 -0400
-Message-Id: <20210524145008.2499049-14-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 15/25] media: gspca: properly check for errors in po1030_probe()
+Date:   Mon, 24 May 2021 10:49:58 -0400
+Message-Id: <20210524145008.2499049-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145008.2499049-1-sashal@kernel.org>
 References: <20210524145008.2499049-1-sashal@kernel.org>
@@ -43,56 +42,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 656025850074f5c1ba2e05be37bda57ba2b8d491 ]
+[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
 
-In mt9m111_probe, m5602_write_bridge can timeout and return a negative
-error value. The fix checks for this error and passes it upstream.
+If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
+initialize the device but return the error to the calling funtion.
 
-Signed-off-by: Aditya Pakki <pakki001@umn.edu>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-index c9947c4a0f63..5f7216c3e34d 100644
---- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-@@ -199,7 +199,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
- int mt9m111_probe(struct sd *sd)
+diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+index 37d2891e5f5b..81d8eb72ac41 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
++++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+@@ -159,6 +159,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
+ int po1030_probe(struct sd *sd)
  {
- 	u8 data[2] = {0x00, 0x00};
--	int i;
-+	int i, err;
+ 	u8 dev_id_h = 0, i;
++	int err;
  	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
  	if (force_sensor) {
-@@ -217,15 +217,17 @@ int mt9m111_probe(struct sd *sd)
- 	/* Do the preinit */
- 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
- 		if (preinit_mt9m111[i][0] == BRIDGE) {
--			m5602_write_bridge(sd,
--				preinit_mt9m111[i][1],
--				preinit_mt9m111[i][2]);
-+			err = m5602_write_bridge(sd,
-+					preinit_mt9m111[i][1],
-+					preinit_mt9m111[i][2]);
- 		} else {
- 			data[0] = preinit_mt9m111[i][2];
- 			data[1] = preinit_mt9m111[i][3];
+@@ -177,10 +178,13 @@ int po1030_probe(struct sd *sd)
+ 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
+ 		u8 data = preinit_po1030[i][2];
+ 		if (preinit_po1030[i][0] == SENSOR)
 -			m5602_write_sensor(sd,
--				preinit_mt9m111[i][1], data, 2);
-+			err = m5602_write_sensor(sd,
-+					preinit_mt9m111[i][1], data, 2);
- 		}
+-				preinit_po1030[i][1], &data, 1);
++			err = m5602_write_sensor(sd, preinit_po1030[i][1],
++						 &data, 1);
+ 		else
+-			m5602_write_bridge(sd, preinit_po1030[i][1], data);
++			err = m5602_write_bridge(sd, preinit_po1030[i][1],
++						 data);
 +		if (err < 0)
 +			return err;
  	}
  
- 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
+ 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
 -- 
 2.30.2
 
