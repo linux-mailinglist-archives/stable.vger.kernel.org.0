@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8346438ED8C
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2187938ED5A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233414AbhEXPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:39:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
+        id S233351AbhEXPgm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233988AbhEXPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:36:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 660A2613DB;
-        Mon, 24 May 2021 15:33:03 +0000 (UTC)
+        id S233144AbhEXPej (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE589613B0;
+        Mon, 24 May 2021 15:32:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870383;
-        bh=6L8WzktFjCYIak5wKTESUj9MXN/emiR3fNTG/0ZC2iw=;
+        s=korg; t=1621870327;
+        bh=mMX5HUHTtWOlzHb1E9m+WAkJkVryMLyaA+OR+Mk+fqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=erPBpPtSX8kaiT6bduLb0WxYRbX3JACJsfDeM/rnXo/BygEKSHPZY/EIi1IryBgO7
-         BcGgS0TVHZvCSFy3PQoojrjAUZ9cr1SY2UTrCnyXwjzrwCOPD32C4bdnCTG1gAJ2ue
-         iED17hPlFud1FjQ7T0MHP5E4aD4Vljc+TLfg6m2w=
+        b=aBBtIQGRUOQwR3sQeY3NzAeuuLuUsWaaMws1vfLXhtOPZnzLL/hykgmyg1atNMAcW
+         2ts4OMlOn+nt+KSmkOA/DATna9LAV29MNbuqAne3JT9Wn2141YL3giHpdPmrPlJxpV
+         nAnK0RhEbAbD4I5HOslGKccRGIG6fUzn6RVQewhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Stafford Horne <shorne@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/37] openrisc: Fix a memory leak
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Tyler Hicks <code@tyhicks.com>
+Subject: [PATCH 4.9 20/36] Revert "ecryptfs: replace BUG_ON with error handling code"
 Date:   Mon, 24 May 2021 17:25:05 +0200
-Message-Id: <20210524152324.250462464@linuxfoundation.org>
+Message-Id: <20210524152324.810794391@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -43,42 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit c019d92457826bb7b2091c86f36adb5de08405f9 ]
+commit e1436df2f2550bc89d832ffd456373fdf5d5b5d7 upstream.
 
-'setup_find_cpu_node()' take a reference on the node it returns.
-This reference must be decremented when not needed anymore, or there will
-be a leak.
+This reverts commit 2c2a7552dd6465e8fde6bc9cccf8d66ed1c1eb72.
 
-Add the missing 'of_node_put(cpu)'.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Note that 'setup_cpuinfo()' that also calls this function already has a
-correct 'of_node_put(cpu)' at its end.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The original commit log for this change was incorrect, no "error
+handling code" was added, things will blow up just as badly as before if
+any of these cases ever were true.  As this BUG_ON() never fired, and
+most of these checks are "obviously" never going to be true, let's just
+revert to the original code for now until this gets unwound to be done
+correctly in the future.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Fixes: 2c2a7552dd64 ("ecryptfs: replace BUG_ON with error handling code")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Tyler Hicks <code@tyhicks.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-49-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/openrisc/kernel/setup.c | 2 ++
- 1 file changed, 2 insertions(+)
+ fs/ecryptfs/crypto.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index dbf5ee95a0d5..b29aa3237e76 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -260,6 +260,8 @@ void calibrate_delay(void)
- 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
- 		loops_per_jiffy / (500000 / HZ),
- 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
-+
-+	of_node_put(cpu);
- }
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -339,10 +339,8 @@ static int crypt_scatterlist(struct ecry
+ 	struct extent_crypt_result ecr;
+ 	int rc = 0;
  
- void __init setup_arch(char **cmdline_p)
--- 
-2.30.2
-
+-	if (!crypt_stat || !crypt_stat->tfm
+-	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
+-		return -EINVAL;
+-
++	BUG_ON(!crypt_stat || !crypt_stat->tfm
++	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED));
+ 	if (unlikely(ecryptfs_verbosity > 0)) {
+ 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
+ 				crypt_stat->key_size);
 
 
