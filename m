@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54F4C38F080
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:07:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54B5238F056
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236205AbhEXQDj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:03:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
+        id S235171AbhEXQCn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:02:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235892AbhEXQCe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:02:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 736B26140C;
-        Mon, 24 May 2021 15:50:43 +0000 (UTC)
+        id S235114AbhEXQBV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:01:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E335E6199D;
+        Mon, 24 May 2021 15:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871443;
-        bh=OKwBig0ASc3vb2AN3l1PWnwwMPSAFQCEJt5p9LTtmgc=;
+        s=korg; t=1621871213;
+        bh=0RDdkCaJj6/IcUKHMH65D/oFfPHyie12c+wiDxaTcWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SKSCEjiYmx039UL6bhXKITLl8jexJhCBeF2+QdDZAwBYBtN/U3hbWtkyr/zVwmvY+
-         89QNwQl4xK9K3+EIu0K+R7UkaSykWdPciSyn+ApB2QFxTOEnLPTQGZVIXB3T+nUat+
-         oAHF2O3yT4Eg2yjIzrJXlPInfQHBy3wDE5/uaqck=
+        b=H8XEj3meM74m8Sc1J7va5Ya7jghx+xcv5kTz/EiRmZaXvyjQ6jYsl+HRW8hZSB42Z
+         HGOPdZE8RXM7nkrRit9Sl9z93b9U9wEXDYeryotBtgw6LK68MVcYCIqmYA7Nj++9CR
+         uilkshDsG91C4SmF2k5liT+6KD2TtYOTDmQ4/hO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.12 124/127] x86/Xen: swap NX determination and GDT setup on BSP
-Date:   Mon, 24 May 2021 17:27:21 +0200
-Message-Id: <20210524152339.064067288@linuxfoundation.org>
+        stable@vger.kernel.org, Martin Wilck <mwilck@suse.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Hannes Reinecke <hare@suse.de>
+Subject: [PATCH 5.12 125/127] nvme-multipath: fix double initialization of ANA state
+Date:   Mon, 24 May 2021 17:27:22 +0200
+Message-Id: <20210524152339.094749326@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -40,53 +42,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit ae897fda4f507e4b239f0bdfd578b3688ca96fb4 upstream.
+commit 5e1f689913a4498e3081093670ef9d85b2c60920 upstream.
 
-xen_setup_gdt(), via xen_load_gdt_boot(), wants to adjust page tables.
-For this to work when NX is not available, x86_configure_nx() needs to
-be called first.
+nvme_init_identify and thus nvme_mpath_init can be called multiple
+times and thus must not overwrite potentially initialized or in-use
+fields.  Split out a helper for the basic initialization when the
+controller is initialized and make sure the init_identify path does
+not blindly change in-use data structures.
 
-[jgross] Note that this is a revert of 36104cb9012a82e73 ("x86/xen:
-Delay get_cpu_cap until stack canary is established"), which is possible
-now that we no longer support running as PV guest in 32-bit mode.
-
-Cc: <stable.vger.kernel.org> # 5.9
-Fixes: 36104cb9012a82e73 ("x86/xen: Delay get_cpu_cap until stack canary is established")
-Reported-by: Olaf Hering <olaf@aepfle.de>
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Fixes: 0d0b660f214d ("nvme: add ANA support")
+Reported-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/12a866b0-9e89-59f7-ebeb-a2a6cec0987a@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/xen/enlighten_pv.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvme/host/core.c      |    3 +-
+ drivers/nvme/host/multipath.c |   55 ++++++++++++++++++++++--------------------
+ drivers/nvme/host/nvme.h      |    8 ++++--
+ 3 files changed, 37 insertions(+), 29 deletions(-)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1276,16 +1276,16 @@ asmlinkage __visible void __init xen_sta
- 	/* Get mfn list */
- 	xen_build_dynamic_phys_to_machine();
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3190,7 +3190,7 @@ int nvme_init_identify(struct nvme_ctrl
+ 		ctrl->hmmaxd = le16_to_cpu(id->hmmaxd);
+ 	}
  
-+	/* Work out if we support NX */
-+	get_cpu_cap(&boot_cpu_data);
-+	x86_configure_nx();
+-	ret = nvme_mpath_init(ctrl, id);
++	ret = nvme_mpath_init_identify(ctrl, id);
+ 	kfree(id);
+ 
+ 	if (ret < 0)
+@@ -4580,6 +4580,7 @@ int nvme_init_ctrl(struct nvme_ctrl *ctr
+ 		min(default_ps_max_latency_us, (unsigned long)S32_MAX));
+ 
+ 	nvme_fault_inject_init(&ctrl->fault_inject, dev_name(ctrl->device));
++	nvme_mpath_init_ctrl(ctrl);
+ 
+ 	return 0;
+ out_free_name:
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -709,9 +709,18 @@ void nvme_mpath_remove_disk(struct nvme_
+ 	put_disk(head->disk);
+ }
+ 
+-int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
++void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl)
+ {
+-	int error;
++	mutex_init(&ctrl->ana_lock);
++	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
++	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
++}
 +
- 	/*
- 	 * Set up kernel GDT and segment registers, mainly so that
- 	 * -fstack-protector code can be executed.
- 	 */
- 	xen_setup_gdt(0);
++int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
++{
++	size_t max_transfer_size = ctrl->max_hw_sectors << SECTOR_SHIFT;
++	size_t ana_log_size;
++	int error = 0;
  
--	/* Work out if we support NX */
--	get_cpu_cap(&boot_cpu_data);
--	x86_configure_nx();
+ 	/* check if multipath is enabled and we have the capability */
+ 	if (!multipath || !ctrl->subsys ||
+@@ -723,37 +732,31 @@ int nvme_mpath_init(struct nvme_ctrl *ct
+ 	ctrl->nanagrpid = le32_to_cpu(id->nanagrpid);
+ 	ctrl->anagrpmax = le32_to_cpu(id->anagrpmax);
+ 
+-	mutex_init(&ctrl->ana_lock);
+-	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
+-	ctrl->ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
+-		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc);
+-	ctrl->ana_log_size += ctrl->max_namespaces * sizeof(__le32);
 -
- 	/* Determine virtual and physical address sizes */
- 	get_cpu_address_sizes(&boot_cpu_data);
+-	if (ctrl->ana_log_size > ctrl->max_hw_sectors << SECTOR_SHIFT) {
++	ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
++		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc) +
++		ctrl->max_namespaces * sizeof(__le32);
++	if (ana_log_size > max_transfer_size) {
+ 		dev_err(ctrl->device,
+-			"ANA log page size (%zd) larger than MDTS (%d).\n",
+-			ctrl->ana_log_size,
+-			ctrl->max_hw_sectors << SECTOR_SHIFT);
++			"ANA log page size (%zd) larger than MDTS (%zd).\n",
++			ana_log_size, max_transfer_size);
+ 		dev_err(ctrl->device, "disabling ANA support.\n");
+-		return 0;
++		goto out_uninit;
+ 	}
+-
+-	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
+-	if (!ctrl->ana_log_buf) {
+-		error = -ENOMEM;
+-		goto out;
++	if (ana_log_size > ctrl->ana_log_size) {
++		nvme_mpath_stop(ctrl);
++		kfree(ctrl->ana_log_buf);
++		ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
++		if (!ctrl->ana_log_buf)
++			return -ENOMEM;
+ 	}
+-
++	ctrl->ana_log_size = ana_log_size;
+ 	error = nvme_read_ana_log(ctrl);
+ 	if (error)
+-		goto out_free_ana_log_buf;
++		goto out_uninit;
+ 	return 0;
+-out_free_ana_log_buf:
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = NULL;
+-out:
++
++out_uninit:
++	nvme_mpath_uninit(ctrl);
+ 	return error;
+ }
  
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -668,7 +668,8 @@ void nvme_kick_requeue_lists(struct nvme
+ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl,struct nvme_ns_head *head);
+ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head);
+-int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
++int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
++void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
+ void nvme_mpath_stop(struct nvme_ctrl *ctrl);
+ bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
+@@ -742,7 +743,10 @@ static inline void nvme_mpath_check_last
+ static inline void nvme_trace_bio_complete(struct request *req)
+ {
+ }
+-static inline int nvme_mpath_init(struct nvme_ctrl *ctrl,
++static inline void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl)
++{
++}
++static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
+ 		struct nvme_id_ctrl *id)
+ {
+ 	if (ctrl->subsys->cmic & (1 << 3))
 
 
