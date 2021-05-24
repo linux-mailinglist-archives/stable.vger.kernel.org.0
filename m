@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 555FD38EE2A
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:45:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C124638EF96
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232107AbhEXPq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:46:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33896 "EHLO mail.kernel.org"
+        id S234897AbhEXP62 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234570AbhEXPoY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:44:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FA256144F;
-        Mon, 24 May 2021 15:35:55 +0000 (UTC)
+        id S235136AbhEXP51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:57:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E169061953;
+        Mon, 24 May 2021 15:43:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870556;
-        bh=TNxXa//VQgKbqojkS+8vIrKVZ1my+B8M9BNV93vhruU=;
+        s=korg; t=1621871018;
+        bh=kNTEj5zBvkI/7YAJ9QJOgb1fSb78jcpXW6MHyOJMBDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/+xddu3guULuNQ/A8XKPHzEN3XqcUw/18hANiIRntjZacnGwmR80LlSkW1QsjSZd
-         PiYaG5XTeKdGL82+xl599ML+VxXji5KWW2zhoXaMxEbYM4GU5GzfSsSfik5rPXqQfU
-         yaKCGBzpKr66fi8g4sA3m1rK0oBVeYM12IOkaE1E=
+        b=ovqgJHEK/Yz+0tIbI5C+yv2Hr9Men5idrNjl4nMP5LtHmwau01i9KSzyU83nnW4u+
+         39sXqQbFb9REL4WeIxiY26oXUR5grUEVcRj7G12T69GOLmHacVXpr4PLhrAyRcUnj7
+         si6qY++vZl9eVfpMVJSuzSeEPefuMx7WJ1isMpyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 40/49] net: stmicro: handle clk_prepare() failure during init
+        stable@vger.kernel.org, Alexey Kardashevskiy <aik@ozlabs.ru>,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 034/127] powerpc: Fix early setup to make early_ioremap() work
 Date:   Mon, 24 May 2021 17:25:51 +0200
-Message-Id: <20210524152325.664910387@linuxfoundation.org>
+Message-Id: <20210524152336.006587324@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,48 +41,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Alexey Kardashevskiy <aik@ozlabs.ru>
 
-commit 0c32a96d000f260b5ebfabb4145a86ae1cd71847 upstream.
+[ Upstream commit e2f5efd0f0e229bd110eab513e7c0331d61a4649 ]
 
-In case clk_prepare() fails, capture and propagate the error code up the
-stack. If regulator_enable() was called earlier, properly unwind it by
-calling regulator_disable().
+The immediate problem is that after commit
+0bd3f9e953bd ("powerpc/legacy_serial: Use early_ioremap()") the kernel
+silently reboots on some systems.
 
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-22-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The reason is that early_ioremap() returns broken addresses as it uses
+slot_virt[] array which initialized with offsets from FIXADDR_TOP ==
+IOREMAP_END+FIXADDR_SIZE == KERN_IO_END - FIXADDR_SIZ + FIXADDR_SIZE ==
+__kernel_io_end which is 0 when early_ioremap_setup() is called.
+__kernel_io_end is initialized little bit later in early_init_mmu().
+
+This fixes the initialization by swapping early_ioremap_setup() and
+early_init_mmu().
+
+Fixes: 265c3491c4bc ("powerpc: Add support for GENERIC_EARLY_IOREMAP")
+Signed-off-by: Alexey Kardashevskiy <aik@ozlabs.ru>
+Reviewed-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+[mpe: Drop unrelated cleanup & cleanup change log]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210520032919.358935-1-aik@ozlabs.ru
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/setup_64.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-@@ -39,7 +39,7 @@ struct sunxi_priv_data {
- static int sun7i_gmac_init(struct platform_device *pdev, void *priv)
- {
- 	struct sunxi_priv_data *gmac = priv;
--	int ret;
-+	int ret = 0;
+diff --git a/arch/powerpc/kernel/setup_64.c b/arch/powerpc/kernel/setup_64.c
+index 830fee91b2d9..c914fe8a2c67 100644
+--- a/arch/powerpc/kernel/setup_64.c
++++ b/arch/powerpc/kernel/setup_64.c
+@@ -369,11 +369,11 @@ void __init early_setup(unsigned long dt_ptr)
+ 	apply_feature_fixups();
+ 	setup_feature_keys();
  
- 	if (gmac->regulator) {
- 		ret = regulator_enable(gmac->regulator);
-@@ -59,10 +59,12 @@ static int sun7i_gmac_init(struct platfo
- 		gmac->clk_enabled = 1;
- 	} else {
- 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
--		clk_prepare(gmac->tx_clk);
-+		ret = clk_prepare(gmac->tx_clk);
-+		if (ret && gmac->regulator)
-+			regulator_disable(gmac->regulator);
- 	}
+-	early_ioremap_setup();
+-
+ 	/* Initialize the hash table or TLB handling */
+ 	early_init_mmu();
  
--	return 0;
-+	return ret;
- }
- 
- static void sun7i_gmac_exit(struct platform_device *pdev, void *priv)
++	early_ioremap_setup();
++
+ 	/*
+ 	 * After firmware and early platform setup code has set things up,
+ 	 * we note the SPR values for configurable control/performance
+-- 
+2.30.2
+
 
 
