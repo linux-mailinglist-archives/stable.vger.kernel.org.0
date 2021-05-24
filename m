@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B63CA38EF76
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CC0A238EE65
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235416AbhEXP5z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:57:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
+        id S233882AbhEXPuj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:50:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233148AbhEXP4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:56:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 21C8A613B6;
-        Mon, 24 May 2021 15:43:02 +0000 (UTC)
+        id S234471AbhEXPrP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:47:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24DEB61414;
+        Mon, 24 May 2021 15:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870983;
-        bh=UaJTUP9vSwhaor5B3Ksj/UGX8v9gBy3zGKcvbV9+OGM=;
+        s=korg; t=1621870623;
+        bh=T+ER7xmjAML+VI4Qx/E1mYgGjFQ7SR8l6//dqmn/e7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CAMRRYbdL1AJOkwCYd9CLNpoIEyip5qzNAvcWg8CY/GYp4s1YcaEJE9GPANNqymmA
-         PJkd5u50umiZcnQ8d+DzwaW7JdLwMbONTa7V21InKuRInxguHF4TaUH30PpHeiVXK4
-         67H5b2qZRUO/5NI6NjY6/HQUrV4oIckkTi8beLs8=
+        b=nJRcjDEEYmvblaVKGrDvBzsFIGp8+fS8ImAb2PU2+KKeBPbyljbS0/IHgLgx3zW7z
+         jsHjGXkUi0rf5jpgnqb5Z9g03mdnAfqYqCllOQ03uyY3500ls7CbXSw0gtav4rK0g/
+         ajTs6RWrujnbk3Ue32SXZ3P7lynaRcklVcdwAKbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 020/127] nvme-fc: clear q_live at beginning of association teardown
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 31/71] ALSA: hda/realtek: Add fixup for HP OMEN laptop
 Date:   Mon, 24 May 2021 17:25:37 +0200
-Message-Id: <20210524152335.540349481@linuxfoundation.org>
+Message-Id: <20210524152327.470837120@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,59 +38,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Smart <jsmart2021@gmail.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit a7d139145a6640172516b193abf6d2398620aa14 ]
+commit 5d84b5318d860c9d80ca5dfae0e971ede53b4921 upstream.
 
-The __nvmf_check_ready() routine used to bounce all filesystem io if the
-controller state isn't LIVE.  However, a later patch changed the logic so
-that it rejection ends up being based on the Q live check.  The FC
-transport has a slightly different sequence from rdma and tcp for
-shutting down queues/marking them non-live.  FC marks its queue non-live
-after aborting all ios and waiting for their termination, leaving a
-rather large window for filesystem io to continue to hit the transport.
-Unfortunately this resulted in filesystem I/O or applications seeing I/O
-errors.
+HP OMEN dc0019-ur with codec SSID 103c:84da requires the pin config
+overrides and the existing mic/mute LED setup.  This patch implements
+those in the fixup table.
 
-Change the FC transport to mark the queues non-live at the first sign of
-teardown for the association (when I/O is initially terminated).
-
-Fixes: 73a5379937ec ("nvme-fabrics: allow to queue requests for live queues")
-Signed-off-by: James Smart <jsmart2021@gmail.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212733
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210504121832.4558-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/fc.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/pci/hda/patch_realtek.c |   23 +++++++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 6ffa8de2a0d7..5eee603bc249 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2460,6 +2460,18 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
- static void
- __nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
- {
-+	int q;
-+
-+	/*
-+	 * if aborting io, the queues are no longer good, mark them
-+	 * all as not live.
-+	 */
-+	if (ctrl->ctrl.queue_count > 1) {
-+		for (q = 1; q < ctrl->ctrl.queue_count; q++)
-+			clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[q].flags);
-+	}
-+	clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[0].flags);
-+
- 	/*
- 	 * If io queues are present, stop them and terminate all outstanding
- 	 * ios on them. As FC allocates FC exchange for each io, the
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -6390,6 +6390,7 @@ enum {
+ 	ALC256_FIXUP_ASUS_HPE,
+ 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
+ 	ALC295_FIXUP_ASUS_DACS,
++	ALC295_FIXUP_HP_OMEN,
+ };
+ 
+ static const struct hda_fixup alc269_fixups[] = {
+@@ -7859,6 +7860,26 @@ static const struct hda_fixup alc269_fix
+ 		.type = HDA_FIXUP_FUNC,
+ 		.v.func = alc295_fixup_asus_dacs,
+ 	},
++	[ALC295_FIXUP_HP_OMEN] = {
++		.type = HDA_FIXUP_PINS,
++		.v.pins = (const struct hda_pintbl[]) {
++			{ 0x12, 0xb7a60130 },
++			{ 0x13, 0x40000000 },
++			{ 0x14, 0x411111f0 },
++			{ 0x16, 0x411111f0 },
++			{ 0x17, 0x90170110 },
++			{ 0x18, 0x411111f0 },
++			{ 0x19, 0x02a11030 },
++			{ 0x1a, 0x411111f0 },
++			{ 0x1b, 0x04a19030 },
++			{ 0x1d, 0x40600001 },
++			{ 0x1e, 0x411111f0 },
++			{ 0x21, 0x03211020 },
++			{}
++		},
++		.chained = true,
++		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
++	},
+ };
+ 
+ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
+@@ -8009,6 +8030,7 @@ static const struct snd_pci_quirk alc269
+ 	SND_PCI_QUIRK(0x103c, 0x82c0, "HP G3 mini premium", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
+ 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
++	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
+ 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
+ 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
+ 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
+@@ -8413,6 +8435,7 @@ static const struct hda_model_fixup alc2
+ 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
+ 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
+ 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
++	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
+ 	{}
+ };
+ #define ALC225_STANDARD_PINS \
 
 
