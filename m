@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26F0638EEC8
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 791BD38EDAD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:39:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233999AbhEXPzS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38714 "EHLO mail.kernel.org"
+        id S234053AbhEXPkf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:40:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234733AbhEXPyQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E57961422;
-        Mon, 24 May 2021 15:39:41 +0000 (UTC)
+        id S234075AbhEXPib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:38:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB7D9613F9;
+        Mon, 24 May 2021 15:33:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870781;
-        bh=MQPWFhuDBxFHafnOD0b0OKwcznXauzBzgd4vPtxUXgI=;
+        s=korg; t=1621870416;
+        bh=eEKu4rUipG99VsW2aieIlLdvMnpIWxopf7nGFOwMgBE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pY/KooBtyoHQXWXvKvyEyFISJEujmFKRluZw2R9bCmvwgGE7n+OwMTNIz0Xw2Q3AA
-         yjkwEmkV2+46Z1E5j8sQdt6SATHIS6980HPDBPSmXSAGqD7D/1UKQTOfc2r0impBTZ
-         QFhBCsfutIcJWdl2ohzg1MSneRaYbkx/IkOcmqrM=
+        b=moJ/Il4a1/irXbpz5+5sQ6Q8B0m+as1E1UcX0ACnPVplwR8ID0MmEi4unMV5TzVG/
+         QeMcxBfdq/m8gasuknDh4SKoEMYknIl08kCB9KqnLipguAfiIv5PLJGkI2qnSnG52f
+         w8RvGdX0iEw4wJKyx7ow6fzLspCyNg8HK+iy81Mw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.10 032/104] cifs: fix memory leak in smb2_copychunk_range
-Date:   Mon, 24 May 2021 17:25:27 +0200
-Message-Id: <20210524152333.881710396@linuxfoundation.org>
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.14 24/37] cdrom: gdrom: initialize global variable at init time
+Date:   Mon, 24 May 2021 17:25:28 +0200
+Message-Id: <20210524152324.994931391@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d201d7631ca170b038e7f8921120d05eec70d7c5 upstream.
+commit 9183f01b5e6e32eb3f17b5f3f8d5ad5ac9786c49 upstream.
 
-When using smb2_copychunk_range() for large ranges we will
-run through several iterations of a loop calling SMB2_ioctl()
-but never actually free the returned buffer except for the final
-iteration.
-This leads to memory leaks everytime a large copychunk is requested.
+As Peter points out, if we were to disconnect and then reconnect this
+driver from a device, the "global" state of the device would contain odd
+values and could cause problems.  Fix this up by just initializing the
+whole thing to 0 at probe() time.
 
-Fixes: 9bf0c9cd4314 ("CIFS: Fix SMB2/SMB3 Copy offload support (refcopy) for large files")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Ideally this would be a per-device variable, but given the age and the
+total lack of users of it, that would require a lot of s/./->/g changes
+for really no good reason.
+
+Reported-by: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Link: https://lore.kernel.org/r/YJP2j6AU82MqEY2M@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/cdrom/gdrom.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1764,6 +1764,8 @@ smb2_copychunk_range(const unsigned int
- 			cpu_to_le32(min_t(u32, len, tcon->max_bytes_chunk));
- 
- 		/* Request server copy to target from src identified by key */
-+		kfree(retbuf);
-+		retbuf = NULL;
- 		rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid, FSCTL_SRV_COPYCHUNK_WRITE,
- 			true /* is_fsctl */, (char *)pcchunk,
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -775,6 +775,13 @@ static int probe_gdrom_setupqueue(void)
+ static int probe_gdrom(struct platform_device *devptr)
+ {
+ 	int err;
++
++	/*
++	 * Ensure our "one" device is initialized properly in case of previous
++	 * usages of it
++	 */
++	memset(&gd, 0, sizeof(gd));
++
+ 	/* Start the device */
+ 	if (gdrom_execute_diagnostic() != 1) {
+ 		pr_warning("ATA Probe for GDROM failed\n");
+@@ -874,7 +881,7 @@ static struct platform_driver gdrom_driv
+ static int __init init_gdrom(void)
+ {
+ 	int rc;
+-	gd.toc = NULL;
++
+ 	rc = platform_driver_register(&gdrom_driver);
+ 	if (rc)
+ 		return rc;
 
 
