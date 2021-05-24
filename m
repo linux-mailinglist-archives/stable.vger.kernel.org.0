@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B294838F028
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4618438F032
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236045AbhEXQB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
+        id S235274AbhEXQBu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:01:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47354 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233468AbhEXQA2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:00:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 368D061987;
-        Mon, 24 May 2021 15:46:12 +0000 (UTC)
+        id S235550AbhEXQAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AA126145D;
+        Mon, 24 May 2021 15:46:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871172;
-        bh=fapQ2AtFga6aNrcEJb+wEG7H7bM5nXFUvbE7ZcNabB8=;
+        s=korg; t=1621871174;
+        bh=jOnDoxmspj9SjDmdYXhqZUq8W3p4xYiZD0ZTkhyPojU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rDSbR39lMWzzAEN6uGBu6iPTPZconfEJPcQHSy1yDQYyYm4u+6Fhs0cctVdlYWZ2X
-         WkhgVhNempKJX3ZS2A0F+7zZfhjZ8cmbt5yu9yG6u3tY11LBQbEQ2kxZYFAy8qzhvL
-         QpP3rc8XwjKb8lyHAgpVjI9U4ohXzdo/RTc4ciBI=
+        b=WuVBHltyESXO3ut9QVKpYOlBM134UxQovPFpbcspfiWA2FGvTw4isuJKcUOZgYZMb
+         3frMmUban4tDsW0xv13SmFPJ9ncWihQry0SiXh6HxRYP0C7DPeVJ186A7fKdP8f+j/
+         rgUzLkagftHWHWRSt7xAbeiePvaaadFYvGHk+7nE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Bryan Brattlof <hello@bryanbrattlof.com>
-Subject: [PATCH 5.12 107/127] Revert "rtlwifi: fix a potential NULL pointer dereference"
-Date:   Mon, 24 May 2021 17:27:04 +0200
-Message-Id: <20210524152338.471650533@linuxfoundation.org>
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 108/127] Revert "qlcnic: Avoid potential NULL pointer dereference"
+Date:   Mon, 24 May 2021 17:27:05 +0200
+Message-Id: <20210524152338.504677352@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -42,9 +41,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 68c5634c4a7278672a3bed00eb5646884257c413 upstream.
+commit b95b57dfe7a142bf2446548eb7f49340fd73e78b upstream.
 
-This reverts commit 765976285a8c8db3f0eb7f033829a899d0c2786e.
+This reverts commit 5bf7295fe34a5251b1d241b9736af4697b590670.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -54,37 +53,30 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-This commit is not correct, it should not have used unlikely() and is
-not propagating the error properly to the calling function, so it should
-be reverted at this point in time.  Also, if the check failed, the
-work queue was still assumed to be allocated, so further accesses would
-have continued to fail, meaning this patch does nothing to solve the
-root issues at all.
+This commit does not properly detect if an error happens because the
+logic after this loop will not detect that there was a failed
+allocation.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Bryan Brattlof <hello@bryanbrattlof.com>
-Fixes: 765976285a8c ("rtlwifi: fix a potential NULL pointer dereference")
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Fixes: 5bf7295fe34a ("qlcnic: Avoid potential NULL pointer dereference")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-13-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-25-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -452,11 +452,6 @@ static void _rtl_init_deferred_work(stru
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
- 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
--	if (unlikely(!rtlpriv->works.rtl_wq)) {
--		pr_err("Failed to allocate work queue\n");
--		return;
--	}
--
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1047,8 +1047,6 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+ 
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
+-		if (!skb)
+-			break;
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
 
 
