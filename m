@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 57A8338EE7F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C110638EE3F
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbhEXPvI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38434 "EHLO mail.kernel.org"
+        id S234484AbhEXPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:47:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33936 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234616AbhEXPtQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:49:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D6EA61411;
-        Mon, 24 May 2021 15:37:44 +0000 (UTC)
+        id S234631AbhEXPo1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:44:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4150D61452;
+        Mon, 24 May 2021 15:36:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870664;
-        bh=GAs2Hp6sPQgDfb9jEbHoGvMc0DED6/h7IzDjbdWBZcc=;
+        s=korg; t=1621870564;
+        bh=spKPCrO0sL/Gh3g1hk1TvU51aq5+aqlImPb+KmLLB0U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=scx+s44PfkYzD0z5NO6mGllYGYWHJbgkfPLdape+RFt0S2nzBsQ1iNcGxGr1Iqj93
-         2G9+kZilcjzRto0RLoEu/+0UyuseUIf9pyR916KH5ClPePEcJtONhtNq16EicyTZiH
-         Ycbu3B8uph/LIcisPMbr5tJuVTHOPcj12PzT+jpY=
+        b=SjWPflEtIHCbNcU4V44kQAdXKLRzxt697qeKFJlY9VAXvqzkCRzmVO2IcSmr338ox
+         nMArdJHHcO7FhBljzY8kCTlFPgRPDwUqmu14LpSMwaOZVjSd3GuFiLeAqioNwtckhB
+         YUat59bikoW7h5JgzUMDyPPPwH5/td4FEjDOO4NM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Tyler Hicks <code@tyhicks.com>
-Subject: [PATCH 5.4 49/71] Revert "ecryptfs: replace BUG_ON with error handling code"
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Tom Seewald <tseewald@gmail.com>
+Subject: [PATCH 4.19 44/49] qlcnic: Add null check after calling netdev_alloc_skb
 Date:   Mon, 24 May 2021 17:25:55 +0200
-Message-Id: <20210524152328.055547774@linuxfoundation.org>
+Message-Id: <20210524152325.791989205@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Tom Seewald <tseewald@gmail.com>
 
-commit e1436df2f2550bc89d832ffd456373fdf5d5b5d7 upstream.
+commit 84460f01cba382553199bc1361f69a872d5abed4 upstream.
 
-This reverts commit 2c2a7552dd6465e8fde6bc9cccf8d66ed1c1eb72.
+The function qlcnic_dl_lb_test() currently calls netdev_alloc_skb()
+without checking afterwards that the allocation succeeded. Fix this by
+checking if the skb is NULL and returning an error in such a case.
+Breaking out of the loop if the skb is NULL is not correct as no error
+would be reported to the caller and no message would be printed for the
+user.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit log for this change was incorrect, no "error
-handling code" was added, things will blow up just as badly as before if
-any of these cases ever were true.  As this BUG_ON() never fired, and
-most of these checks are "obviously" never going to be true, let's just
-revert to the original code for now until this gets unwound to be done
-correctly in the future.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Fixes: 2c2a7552dd64 ("ecryptfs: replace BUG_ON with error handling code")
+Cc: David S. Miller <davem@davemloft.net>
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Tyler Hicks <code@tyhicks.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-49-gregkh@linuxfoundation.org
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-26-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ecryptfs/crypto.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ecryptfs/crypto.c
-+++ b/fs/ecryptfs/crypto.c
-@@ -311,10 +311,8 @@ static int crypt_scatterlist(struct ecry
- 	struct extent_crypt_result ecr;
- 	int rc = 0;
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1048,6 +1048,8 @@ int qlcnic_do_lb_test(struct qlcnic_adap
  
--	if (!crypt_stat || !crypt_stat->tfm
--	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
--		return -EINVAL;
--
-+	BUG_ON(!crypt_stat || !crypt_stat->tfm
-+	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED));
- 	if (unlikely(ecryptfs_verbosity > 0)) {
- 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
- 				crypt_stat->key_size);
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
++		if (!skb)
++			goto error;
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
+@@ -1071,6 +1073,7 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+ 			cnt++;
+ 	}
+ 	if (cnt != i) {
++error:
+ 		dev_err(&adapter->pdev->dev,
+ 			"LB Test: failed, TX[%d], RX[%d]\n", i, cnt);
+ 		if (mode != QLCNIC_ILB_MODE)
 
 
