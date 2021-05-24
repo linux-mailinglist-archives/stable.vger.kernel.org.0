@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 078AB38EEF8
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B63CA38EF76
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235031AbhEXPzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38714 "EHLO mail.kernel.org"
+        id S235416AbhEXP5z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235062AbhEXPy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED3D361920;
-        Mon, 24 May 2021 15:40:24 +0000 (UTC)
+        id S233148AbhEXP4l (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 21C8A613B6;
+        Mon, 24 May 2021 15:43:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870825;
-        bh=/ZMCnfVgzjPi3wZ+cuTJLw8G9D5HUinA54l12UnUAtE=;
+        s=korg; t=1621870983;
+        bh=UaJTUP9vSwhaor5B3Ksj/UGX8v9gBy3zGKcvbV9+OGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=khJs4c227m/zv9ecAp4IQnwxxbzk244iDPlIFJgLuxR4N3jzXiIpt6p+2by87oQ7X
-         JwQa53th3AmGcEumbm+T56v8+1yQ4vpTJF7wezlw4idA0Q2PSVgBpWeV0DVNGWzRo1
-         rhQkDP+6GoYRK5GEEZwXyPz+EMITEWfYNDQ7YVHQ=
+        b=CAMRRYbdL1AJOkwCYd9CLNpoIEyip5qzNAvcWg8CY/GYp4s1YcaEJE9GPANNqymmA
+         PJkd5u50umiZcnQ8d+DzwaW7JdLwMbONTa7V21InKuRInxguHF4TaUH30PpHeiVXK4
+         67H5b2qZRUO/5NI6NjY6/HQUrV4oIckkTi8beLs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Cordova A <danesc87@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 042/104] ALSA: hda: fixup headset for ASUS GU502 laptop
+        stable@vger.kernel.org, James Smart <jsmart2021@gmail.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Hannes Reinecke <hare@suse.de>, Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 020/127] nvme-fc: clear q_live at beginning of association teardown
 Date:   Mon, 24 May 2021 17:25:37 +0200
-Message-Id: <20210524152334.221335949@linuxfoundation.org>
+Message-Id: <20210524152335.540349481@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,114 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Cordova A <danesc87@gmail.com>
+From: James Smart <jsmart2021@gmail.com>
 
-commit c1b55029493879f5bd585ff79f326e71f0bc05e3 upstream.
+[ Upstream commit a7d139145a6640172516b193abf6d2398620aa14 ]
 
-The GU502 requires a few steps to make headset i/o works properly:
-pincfg, verbs to unmute headphone out and callback to toggle output
-between speakers and headphone using jack.
+The __nvmf_check_ready() routine used to bounce all filesystem io if the
+controller state isn't LIVE.  However, a later patch changed the logic so
+that it rejection ends up being based on the Q live check.  The FC
+transport has a slightly different sequence from rdma and tcp for
+shutting down queues/marking them non-live.  FC marks its queue non-live
+after aborting all ios and waiting for their termination, leaving a
+rather large window for filesystem io to continue to hit the transport.
+Unfortunately this resulted in filesystem I/O or applications seeing I/O
+errors.
 
-Signed-off-by: Daniel Cordova A <danesc87@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210507173116.12043-1-danesc87@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Change the FC transport to mark the queues non-live at the first sign of
+teardown for the association (when I/O is initially terminated).
+
+Fixes: 73a5379937ec ("nvme-fabrics: allow to queue requests for live queues")
+Signed-off-by: James Smart <jsmart2021@gmail.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c |   62 ++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 62 insertions(+)
+ drivers/nvme/host/fc.c | 12 ++++++++++++
+ 1 file changed, 12 insertions(+)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6232,6 +6232,35 @@ static void alc294_fixup_gx502_hp(struct
- 	}
- }
- 
-+static void alc294_gu502_toggle_output(struct hda_codec *codec,
-+				       struct hda_jack_callback *cb)
-+{
-+	/* Windows sets 0x10 to 0x8420 for Node 0x20 which is
-+	 * responsible from changes between speakers and headphones
-+	 */
-+	if (snd_hda_jack_detect_state(codec, 0x21) == HDA_JACK_PRESENT)
-+		alc_write_coef_idx(codec, 0x10, 0x8420);
-+	else
-+		alc_write_coef_idx(codec, 0x10, 0x0a20);
-+}
-+
-+static void alc294_fixup_gu502_hp(struct hda_codec *codec,
-+				  const struct hda_fixup *fix, int action)
-+{
-+	if (!is_jack_detectable(codec, 0x21))
-+		return;
-+
-+	switch (action) {
-+	case HDA_FIXUP_ACT_PRE_PROBE:
-+		snd_hda_jack_detect_enable_callback(codec, 0x21,
-+				alc294_gu502_toggle_output);
-+		break;
-+	case HDA_FIXUP_ACT_INIT:
-+		alc294_gu502_toggle_output(codec, NULL);
-+		break;
-+	}
-+}
-+
- static void  alc285_fixup_hp_gpio_amp_init(struct hda_codec *codec,
- 			      const struct hda_fixup *fix, int action)
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 6ffa8de2a0d7..5eee603bc249 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2460,6 +2460,18 @@ nvme_fc_terminate_exchange(struct request *req, void *data, bool reserved)
+ static void
+ __nvme_fc_abort_outstanding_ios(struct nvme_fc_ctrl *ctrl, bool start_queues)
  {
-@@ -6449,6 +6478,9 @@ enum {
- 	ALC294_FIXUP_ASUS_GX502_HP,
- 	ALC294_FIXUP_ASUS_GX502_PINS,
- 	ALC294_FIXUP_ASUS_GX502_VERBS,
-+	ALC294_FIXUP_ASUS_GU502_HP,
-+	ALC294_FIXUP_ASUS_GU502_PINS,
-+	ALC294_FIXUP_ASUS_GU502_VERBS,
- 	ALC285_FIXUP_HP_GPIO_LED,
- 	ALC285_FIXUP_HP_MUTE_LED,
- 	ALC236_FIXUP_HP_GPIO_LED,
-@@ -7687,6 +7719,35 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc294_fixup_gx502_hp,
- 	},
-+	[ALC294_FIXUP_ASUS_GU502_PINS] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x19, 0x01a11050 }, /* rear HP mic */
-+			{ 0x1a, 0x01a11830 }, /* rear external mic */
-+			{ 0x21, 0x012110f0 }, /* rear HP out */
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_GU502_VERBS
-+	},
-+	[ALC294_FIXUP_ASUS_GU502_VERBS] = {
-+		.type = HDA_FIXUP_VERBS,
-+		.v.verbs = (const struct hda_verb[]) {
-+			/* set 0x15 to HP-OUT ctrl */
-+			{ 0x15, AC_VERB_SET_PIN_WIDGET_CONTROL, 0xc0 },
-+			/* unmute the 0x15 amp */
-+			{ 0x15, AC_VERB_SET_AMP_GAIN_MUTE, 0xb000 },
-+			/* set 0x1b to HP-OUT */
-+			{ 0x1b, AC_VERB_SET_PIN_WIDGET_CONTROL, 0x24 },
-+			{ }
-+		},
-+		.chained = true,
-+		.chain_id = ALC294_FIXUP_ASUS_GU502_HP
-+	},
-+	[ALC294_FIXUP_ASUS_GU502_HP] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc294_fixup_gu502_hp,
-+	},
- 	[ALC294_FIXUP_ASUS_COEF_1B] = {
- 		.type = HDA_FIXUP_VERBS,
- 		.v.verbs = (const struct hda_verb[]) {
-@@ -8198,6 +8259,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1ccd, "ASUS X555UB", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x1d4e, "ASUS TM420", ALC256_FIXUP_ASUS_HPE),
- 	SND_PCI_QUIRK(0x1043, 0x1e11, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA502),
-+	SND_PCI_QUIRK(0x1043, 0x1e51, "ASUS Zephyrus M15", ALC294_FIXUP_ASUS_GU502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x1e8e, "ASUS Zephyrus G15", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x1f11, "ASUS Zephyrus G14", ALC289_FIXUP_ASUS_GA401),
- 	SND_PCI_QUIRK(0x1043, 0x3030, "ASUS ZN270IE", ALC256_FIXUP_ASUS_AIO_GPIO2),
++	int q;
++
++	/*
++	 * if aborting io, the queues are no longer good, mark them
++	 * all as not live.
++	 */
++	if (ctrl->ctrl.queue_count > 1) {
++		for (q = 1; q < ctrl->ctrl.queue_count; q++)
++			clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[q].flags);
++	}
++	clear_bit(NVME_FC_Q_LIVE, &ctrl->queues[0].flags);
++
+ 	/*
+ 	 * If io queues are present, stop them and terminate all outstanding
+ 	 * ios on them. As FC allocates FC exchange for each io, the
+-- 
+2.30.2
+
 
 
