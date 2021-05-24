@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8E2038EF16
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B28F138EF11
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233405AbhEXP4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
+        id S234968AbhEXP4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235463AbhEXPzJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDE426192F;
-        Mon, 24 May 2021 15:41:18 +0000 (UTC)
+        id S235420AbhEXPzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1456D61934;
+        Mon, 24 May 2021 15:41:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870879;
-        bh=FIA/5K/kG1WwB9DXMHcoqy2r/9XvjKvqQCAY6qlo/MU=;
+        s=korg; t=1621870881;
+        bh=3QGc/LvIFFdbXuhpfjbxySzcVz5xSVM25npG30qL/VU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XgWC6m6A3rY2YmuzMZZxmE3fQ/NZ95f41uYSrOaW9psU5elU9UpYTg83Cu1XJ0MtH
-         MQW76OP9eiE5+1Itkugkdh/REE8Dbe9mlZxeGSJNKYAOX2yKAI96BkrC+Imwj1zWPl
-         engeSoYmgz5nWPbiGzgGjbUKgN5AvUz+devsVd90=
+        b=r1IAw3FPjCRC0HZU1kaSrz/DCItj8SVOwSou+bp+g1euVZV1trs18kipcCf8mawVa
+         MF6CaChA+u2LMxiwavl4oY2f4QyyLs3dt96Ppo5dS7oZXE668uyrjsdCMVRNI1UJKM
+         5w8AUr1EQZ3raOOMtYymQUdAlxJTMmqXGs3aQyzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 5.10 076/104] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
-Date:   Mon, 24 May 2021 17:26:11 +0200
-Message-Id: <20210524152335.375762582@linuxfoundation.org>
+        Aditya Pakki <pakki001@umn.edu>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 5.10 077/104] Revert "video: imsttfb: fix potential NULL pointer dereferences"
+Date:   Mon, 24 May 2021 17:26:12 +0200
+Message-Id: <20210524152335.407553942@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
 References: <20210524152332.844251980@linuxfoundation.org>
@@ -41,56 +44,52 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
+commit ed04fe8a0e87d7b5ea17d47f4ac9ec962b24814a upstream.
 
-This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
+This reverts commit 1d84353d205a953e2381044953b7fa31c8c9702d.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
 correct or not.
 
-Upon review, it was determined that this commit is not needed at all so
-just revert it.  Also, the call to lm80_init_client() was not properly
-handled, so if error handling is needed in the lm80_probe() function,
-then it should be done properly, not half-baked like the commit being
-reverted here did.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit here, while technically correct, did not fully
+handle all of the reported issues that the commit stated it was fixing,
+so revert it until it can be "fixed" fully.
+
+Note, ioremap() probably will never fail for old hardware like this, and
+if anyone actually used this hardware (a PowerMac era PCI display card),
+they would not be using fbdev anymore.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Finn Thain <fthain@telegraphics.com.au>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Fixes: 1d84353d205a ("video: imsttfb: fix potential NULL pointer dereferences")
 Cc: stable <stable@vger.kernel.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-67-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hwmon/lm80.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/video/fbdev/imsttfb.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/hwmon/lm80.c
-+++ b/drivers/hwmon/lm80.c
-@@ -596,7 +596,6 @@ static int lm80_probe(struct i2c_client
- 	struct device *dev = &client->dev;
- 	struct device *hwmon_dev;
- 	struct lm80_data *data;
--	int rv;
- 
- 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
- 	if (!data)
-@@ -609,14 +608,8 @@ static int lm80_probe(struct i2c_client
- 	lm80_init_client(client);
- 
- 	/* A few vars need to be filled upon startup */
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][0] = rv;
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][1] = rv;
-+	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
-+	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
- 
- 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
- 							   data, lm80_groups);
+--- a/drivers/video/fbdev/imsttfb.c
++++ b/drivers/video/fbdev/imsttfb.c
+@@ -1512,11 +1512,6 @@ static int imsttfb_probe(struct pci_dev
+ 	info->fix.smem_start = addr;
+ 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
+ 					    0x400000 : 0x800000);
+-	if (!info->screen_base) {
+-		release_mem_region(addr, size);
+-		framebuffer_release(info);
+-		return -ENOMEM;
+-	}
+ 	info->fix.mmio_start = addr + 0x800000;
+ 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
+ 	par->cmap_regs_phys = addr + 0x840000;
 
 
