@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B78038E40D
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 12:30:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F13138E40E
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 12:31:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232426AbhEXKcQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 06:32:16 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:44829 "EHLO
+        id S232513AbhEXKdB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 06:33:01 -0400
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:32867 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232445AbhEXKcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 06:32:15 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 05A7C19408FC;
-        Mon, 24 May 2021 06:30:47 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Mon, 24 May 2021 06:30:47 -0400
+        by vger.kernel.org with ESMTP id S232445AbhEXKdB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 06:33:01 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 46200194032B;
+        Mon, 24 May 2021 06:31:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Mon, 24 May 2021 06:31:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=mXukFG
-        g8CJ3Bvi619+pmuIabQsFe1J168jF/Pl8CEOU=; b=p6MWYRxeDYC1YjYLTR5prd
-        hrbxXdige9uLt+brUn1/gWqbfeuIBEEMicoeBrNW4ORz5gh/1mHn/nYtX2U3PudL
-        +4eChQwerUeo9lmL/ivh//M6DZK6L+Y1mta7+Nr4e/8B7M5WlWIowkSafer9ZoSY
-        FKXhggxAIjM0tJTgDj2FiQ88F5kSDxBTjtzBxRqxLLBm4aB+eSwxwdGXDI9dNTQx
-        /zw+vVSyY7J51norsYyh7srO6aYgjbrnBVeOYuGTnagwycH8SlPFE8tAXe2rKaV0
-        y2ONo2ztzVI3E70SOd7SDaUKuLy3RklpvuzPqTG18PNCvFyuBJYmZ2ua2AVTRtOQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=KEbOZf
+        2N+SeOoWwSVAeKlRK4wEAK1mU8pVh/wcjrjyU=; b=PS3QZCue/csi+JiNJXZq9U
+        2n4h7mFmHL+KBeAeU1PTLWwp2ePcn1GIUQz1bkLL4F+D12PIek1IqjLePOY17Sqg
+        4kumWyxatSZ7CQ8N7KSe4M5129sgGi5wyhLhnkcQEoDeeq+vv48NGDLHKzQSOfpb
+        N9vLWUg8pET0iz6E1FlERxnowl6lM4ijMpv4qQKaWswRoj8bFkQzP+IyZsvsMrOY
+        3fxgGAdaqC7pNe105UiX7r+W8iJGAITqaj0ECHjaS1x/tQw03VLLR/D3b8DlI407
+        yfLoPq/GRHaS+dSvd1Y9bnLlY0N8jz6RpA3kgVPHk4HcqJnjdHh35+1nw0vS7JBQ
         ==
-X-ME-Sender: <xms:VoCrYOs6CdT6kn3M6drDqIgK9TOkyaGNe_96WIr6EtA0nDmf1nKZwg>
-    <xme:VoCrYDdUd_Wn5jedPKbu74l1UQFfGvED6himbqr-W37J3Crbb6yQRM-J90TQVHyYL
-    ZrMpNK23s0eRw>
+X-ME-Sender: <xms:hICrYHhNjdbZMCsj7ovmmD83bx9Xb7_7vDOQdy2hGWHq-VTdiHceQw>
+    <xme:hICrYEDoWRBse0fHkTDrFdTNWW9s5YxEROP04NvzLVm2jcZz9QYeyVa_Ebf35e44h
+    eDsMyc8tyF3GQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledgfedtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:VoCrYJydjAWe2diUt35PreGsjJL0xMyqMGugWsjvkZAfKRS5kV3Mvw>
-    <xmx:VoCrYJOvLIuwIBaFM6eCcsWfvxDMNrw_qH7b_N5ofa-afxyljAlXiA>
-    <xmx:VoCrYO-XjPkveGrWbXtqLKyA0Z0lRyt1gBnjhcHZ6tr4jDCMhcg9pw>
-    <xmx:V4CrYAIU06DNnObI9k5g3tCPhQ57kI4C4FqJsiCqjSpFpMXtpLYadA>
+X-ME-Proxy: <xmx:hICrYHG7UU8FohZDCjLHnB9zQj3WWPd0Byr2W_CiKNh5KPIZXwi-gg>
+    <xmx:hICrYETBQ0M8qqrT2TLqBpD7z0bBbcnYvgKkMlb5vwOcqQ3fn3zKgw>
+    <xmx:hICrYEwmcOJU0QpsD3MthegJG7fbawly3j1lkajez28qxt3Jhzwm_A>
+    <xmx:hYCrYBox8AYH-PUvF-HjNZv-qzlFXUJjIO98eBXIxSko5HRJOWE9og>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 24 May 2021 06:30:46 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: meson-gx: make replace WARN_ONCE with dev_warn_once" failed to apply to 4.14-stable tree
-To:     narmstrong@baylibre.com, christianshewitt@gmail.com,
-        martin.blumenstingl@googlemail.com, ulf.hansson@linaro.org
+        Mon, 24 May 2021 06:31:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] xen-pciback: redo VF placement in the virtual topology" failed to apply to 4.4-stable tree
+To:     jbeulich@suse.com, boris.ostrovsky@oracle.com, jgross@suse.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 May 2021 12:30:34 +0200
-Message-ID: <1621852234180115@kroah.com>
+Date:   Mon, 24 May 2021 12:31:31 +0200
+Message-ID: <1621852291138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,42 +70,79 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cabb1bb60e88ccaaa122ba01862403cd44e8e8f8 Mon Sep 17 00:00:00 2001
-From: Neil Armstrong <narmstrong@baylibre.com>
-Date: Mon, 26 Apr 2021 19:55:58 +0200
-Subject: [PATCH] mmc: meson-gx: make replace WARN_ONCE with dev_warn_once
- about scatterlist offset alignment
+From 4ba50e7c423c29639878c00573288869aa627068 Mon Sep 17 00:00:00 2001
+From: Jan Beulich <jbeulich@suse.com>
+Date: Tue, 18 May 2021 18:13:42 +0200
+Subject: [PATCH] xen-pciback: redo VF placement in the virtual topology
 
-Some drivers like ath10k can sometimg give an sg buffer with an offset whose alignment
-is not compatible with the Amlogic DMA descriptor engine requirements.
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
-Simply replace with dev_warn_once() to inform user this should be fixed to avoid
-degraded performance.
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
-This should be ultimately fixed in ath10k, but since it's only a performance issue
-the warning should be removed.
-
-Fixes: 79ed05e329c3 ("mmc: meson-gx: add support for descriptor chain mode")
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
 Cc: stable@vger.kernel.org
-Reported-by: Christian Hewitt <christianshewitt@gmail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Acked-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://lore.kernel.org/r/20210426175559.3110575-1-narmstrong@baylibre.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 
-diff --git a/drivers/mmc/host/meson-gx-mmc.c b/drivers/mmc/host/meson-gx-mmc.c
-index b8b771b643cc..1c61f0f24c09 100644
---- a/drivers/mmc/host/meson-gx-mmc.c
-+++ b/drivers/mmc/host/meson-gx-mmc.c
-@@ -258,7 +258,9 @@ static void meson_mmc_get_transfer_mode(struct mmc_host *mmc,
- 	for_each_sg(data->sg, sg, data->sg_len, i) {
- 		/* check for 8 byte alignment */
- 		if (sg->offset % 8) {
--			WARN_ONCE(1, "unaligned scatterlist buffer\n");
-+			dev_warn_once(mmc_dev(mmc),
-+				      "unaligned sg offset %u, disabling descriptor DMA for transfer\n",
-+				      sg->offset);
- 			return;
+diff --git a/drivers/xen/xen-pciback/vpci.c b/drivers/xen/xen-pciback/vpci.c
+index 4162d0e7e00d..cc7450f2b2a9 100644
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -70,7 +70,7 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
+ {
+-	int err = 0, slot, func = -1;
++	int err = 0, slot, func = PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
+ 
+@@ -95,22 +95,25 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
+ 
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+ 
+ 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+ 
+ 			if (match_slot(dev, t->dev)) {
+ 				dev_info(&dev->dev, "vpci: assign to virtual slot %d func %d\n",
+-					 slot, PCI_FUNC(dev->devfn));
++					 slot, func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func = PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_device *pdev,
+ 				 slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
  		}
  	}
 
