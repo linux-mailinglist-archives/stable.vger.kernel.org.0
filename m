@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 95D8338EBBF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94B2438EBC1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234263AbhEXPHK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:07:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37248 "EHLO mail.kernel.org"
+        id S234282AbhEXPHL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:07:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233720AbhEXPDl (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233735AbhEXPDl (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:03:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD61361481;
-        Mon, 24 May 2021 14:50:35 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4696161477;
+        Mon, 24 May 2021 14:50:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867836;
-        bh=FK3fUDXpICiejRWxVpW85Y1P4eQTuIDtcgzrL8ccIio=;
+        s=k20201202; t=1621867838;
+        bh=seJzjGs9sZ6zHofGNTUjuqpT4Swidg4xyrcoyTpbhH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T/3xxxXvt9nE5KRLuwrAinX9ge/38OgDtMFYC7TdoueFv1kRbVA9M3BSxUWEIDrVL
-         T7yFtWlmyavoCykjeeMh1cNtIfBBeoSV2cifVpisTDw0GJylDMmcC2jW7qA0Fdh32g
-         G31FufslB6GmW32f69B67Jl51pycF/upo3WkN6EYhLQJSkC50W7cql0m1DjoVOGFbR
-         +hIBUxKR01ZsSjAE0C3tPZxRLq2TSsrQED5xSbVd7f6kzt5I1ekAEmpYKAqKbk06ze
-         i2nHE5iVx/9hb+tdfzy/sPa7xxed+y5HZGB10f/6VLWIVVU8BAxAAsJmcw/KzR03UC
-         D5hK45ff8p0hQ==
+        b=QCd5AturtuDd/gnYJBC4GcRDuqDCYs8DmcywDX75d9ab2dhY00JkZH1UU6eGxHJGC
+         MpHzwOcAUfJTvNXc5sH51/LUAvPrwcooAQShbgjVUafR6/5biVkmSuiWAp0ny3Z14c
+         CwbJUGBkjL5E4mTfjWt92tqBl4qfjA5C8BAvj1gviCDGd/D33wns2RyuJpnYcT0mSo
+         UApwqa+pA1nZ+OK6FYrGXNgd5Xzi10CCP0ELKPHrT+9q1U2aqt4lXR794LD68qSGAz
+         jIHdyIDk9MSBgXea0qztajtz7v7ANH9/Di4zFxk0JoGnNTYKdctqGfAd6y+Bkgf74E
+         gCKLNnsA8qSfA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Park <Chris.Park@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Stylon Wang <stylon.wang@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     Jingwen Chen <Jingwen.Chen2@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 4.19 23/25] drm/amd/display: Disconnect non-DP with no EDID
-Date:   Mon, 24 May 2021 10:50:06 -0400
-Message-Id: <20210524145008.2499049-23-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 24/25] drm/amd/amdgpu: fix refcount leak
+Date:   Mon, 24 May 2021 10:50:07 -0400
+Message-Id: <20210524145008.2499049-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145008.2499049-1-sashal@kernel.org>
 References: <20210524145008.2499049-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -46,61 +45,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Park <Chris.Park@amd.com>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-[ Upstream commit 080039273b126eeb0185a61c045893a25dbc046e ]
+[ Upstream commit fa7e6abc75f3d491bc561734312d065dc9dc2a77 ]
 
 [Why]
-Active DP dongles return no EDID when dongle
-is connected, but VGA display is taken out.
-Current driver behavior does not remove the
-active display when this happens, and this is
-a gap between dongle DTP and dongle behavior.
+the gem object rfb->base.obj[0] is get according to num_planes
+in amdgpufb_create, but is not put according to num_planes
 
 [How]
-For active DP dongles and non-DP scenario,
-disconnect sink on detection when no EDID
-is read due to timeout.
+put rfb->base.obj[0] in amdgpu_fbdev_destroy according to num_planes
 
-Signed-off-by: Chris Park <Chris.Park@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Stylon Wang <stylon.wang@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_link.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-index e3bedf4cc9c0..c9c81090d580 100644
---- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
-@@ -768,6 +768,24 @@ bool dc_link_detect(struct dc_link *link, enum dc_detect_reason reason)
- 			    dc_is_dvi_signal(link->connector_signal)) {
- 				if (prev_sink != NULL)
- 					dc_sink_release(prev_sink);
-+				link_disconnect_sink(link);
-+
-+				return false;
-+			}
-+			/*
-+			 * Abort detection for DP connectors if we have
-+			 * no EDID and connector is active converter
-+			 * as there are no display downstream
-+			 *
-+			 */
-+			if (dc_is_dp_sst_signal(link->connector_signal) &&
-+				(link->dpcd_caps.dongle_type ==
-+						DISPLAY_DONGLE_DP_VGA_CONVERTER ||
-+				link->dpcd_caps.dongle_type ==
-+						DISPLAY_DONGLE_DP_DVI_CONVERTER)) {
-+				if (prev_sink)
-+					dc_sink_release(prev_sink);
-+				link_disconnect_sink(link);
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+index 69c5d22f29bd..d55ff59584c8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+@@ -297,10 +297,13 @@ static int amdgpufb_create(struct drm_fb_helper *helper,
+ static int amdgpu_fbdev_destroy(struct drm_device *dev, struct amdgpu_fbdev *rfbdev)
+ {
+ 	struct amdgpu_framebuffer *rfb = &rfbdev->rfb;
++	int i;
  
- 				return false;
- 			}
+ 	drm_fb_helper_unregister_fbi(&rfbdev->helper);
+ 
+ 	if (rfb->base.obj[0]) {
++		for (i = 0; i < rfb->base.format->num_planes; i++)
++			drm_gem_object_put(rfb->base.obj[0]);
+ 		amdgpufb_destroy_pinned_object(rfb->base.obj[0]);
+ 		rfb->base.obj[0] = NULL;
+ 		drm_framebuffer_unregister_private(&rfb->base);
 -- 
 2.30.2
 
