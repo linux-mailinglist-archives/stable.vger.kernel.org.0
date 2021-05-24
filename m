@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FE3438EEC1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C961638ED62
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbhEXPzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38432 "EHLO mail.kernel.org"
+        id S233989AbhEXPg5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234584AbhEXPwj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:52:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 02881616E9;
-        Mon, 24 May 2021 15:39:10 +0000 (UTC)
+        id S232829AbhEXPe4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3AC4613C8;
+        Mon, 24 May 2021 15:32:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870751;
-        bh=Nzy5gzh1VjtU/TboU9DQW5QUBfsY8+VumZ6IfEyhaZM=;
+        s=korg; t=1621870340;
+        bh=ZP1z6xfZ4sra0aSKN20GNNlBCH2m0BhCbrHOQLCUcJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsmVacnEztaF78uOOZk0Cymc8Sdbg2ALBEvxWUwdVEAgA8fKWVMW0Z2uNa36D8NkP
-         K1ycn+ymyWUGhm/l1oDwtcZrk+TAwNKf5DJ6/ufeBvZsQkf1k4ElU4YnFqL0fgiVyc
-         IgTEZGzbyGvyzvoWBlPDiKmeMHURgsCT5TEHWYkQ=
+        b=jxMY+jA0ClVYNcwTusj/ogDimx19oPZf/2l8YrtYq+8R5Llm52EJIS8obkybWHyBa
+         u0EqB9hc4w+8nrhZjASMIfzCVp1REa2Xf0HEUn0R5zCCjvw2BY/9R6qlhqlCHMtSTL
+         LCu4W95LObOoqZRFmtg64ZP1H8vjzuXI6LOQBdw0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>,
-        Rijo Thomas <Rijo-john.Thomas@amd.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Jens Wiklander <jens.wiklander@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 003/104] tee: amdtee: unload TA only when its refcount becomes 0
+        stable@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.9 13/36] dm snapshot: fix a crash when an origin has no snapshots
 Date:   Mon, 24 May 2021 17:24:58 +0200
-Message-Id: <20210524152332.956110123@linuxfoundation.org>
+Message-Id: <20210524152324.601677945@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,285 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rijo Thomas <Rijo-john.Thomas@amd.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit 9f015b3765bf593b3ed5d3b588e409dc0ffa9f85 ]
+commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
 
-Same Trusted Application (TA) can be loaded in multiple TEE contexts.
+If an origin target has no snapshots, o->split_boundary is set to 0.
+This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
 
-If it is a single instance TA, the TA should not get unloaded from AMD
-Secure Processor, while it is still in use in another TEE context.
+Fix this by initializing chunk_size, and in turn split_boundary, to
+rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
+into "unsigned" type.
 
-Therefore reference count TA and unload it when the count becomes zero.
-
-Fixes: 757cc3e9ff1d ("tee: add AMD-TEE driver")
-Reviewed-by: Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>
-Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
-Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Michael Tokarev <mjt@tls.msk.ru>
+Tested-by: Michael Tokarev <mjt@tls.msk.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tee/amdtee/amdtee_private.h | 13 ++++
- drivers/tee/amdtee/call.c           | 94 ++++++++++++++++++++++++++---
- drivers/tee/amdtee/core.c           | 15 +++--
- 3 files changed, 106 insertions(+), 16 deletions(-)
+ drivers/md/dm-snap.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tee/amdtee/amdtee_private.h b/drivers/tee/amdtee/amdtee_private.h
-index 337c8d82f74e..6d0f7062bb87 100644
---- a/drivers/tee/amdtee/amdtee_private.h
-+++ b/drivers/tee/amdtee/amdtee_private.h
-@@ -21,6 +21,7 @@
- #define TEEC_SUCCESS			0x00000000
- #define TEEC_ERROR_GENERIC		0xFFFF0000
- #define TEEC_ERROR_BAD_PARAMETERS	0xFFFF0006
-+#define TEEC_ERROR_OUT_OF_MEMORY	0xFFFF000C
- #define TEEC_ERROR_COMMUNICATION	0xFFFF000E
- 
- #define TEEC_ORIGIN_COMMS		0x00000002
-@@ -93,6 +94,18 @@ struct amdtee_shm_data {
- 	u32     buf_id;
- };
- 
-+/**
-+ * struct amdtee_ta_data - Keeps track of all TAs loaded in AMD Secure
-+ *			   Processor
-+ * @ta_handle:	Handle to TA loaded in TEE
-+ * @refcount:	Reference count for the loaded TA
-+ */
-+struct amdtee_ta_data {
-+	struct list_head list_node;
-+	u32 ta_handle;
-+	u32 refcount;
-+};
-+
- #define LOWER_TWO_BYTE_MASK	0x0000FFFF
- 
- /**
-diff --git a/drivers/tee/amdtee/call.c b/drivers/tee/amdtee/call.c
-index 096dd4d92d39..07f36ac834c8 100644
---- a/drivers/tee/amdtee/call.c
-+++ b/drivers/tee/amdtee/call.c
-@@ -121,15 +121,69 @@ static int amd_params_to_tee_params(struct tee_param *tee, u32 count,
- 	return ret;
- }
- 
-+static DEFINE_MUTEX(ta_refcount_mutex);
-+static struct list_head ta_list = LIST_HEAD_INIT(ta_list);
-+
-+static u32 get_ta_refcount(u32 ta_handle)
-+{
-+	struct amdtee_ta_data *ta_data;
-+	u32 count = 0;
-+
-+	/* Caller must hold a mutex */
-+	list_for_each_entry(ta_data, &ta_list, list_node)
-+		if (ta_data->ta_handle == ta_handle)
-+			return ++ta_data->refcount;
-+
-+	ta_data = kzalloc(sizeof(*ta_data), GFP_KERNEL);
-+	if (ta_data) {
-+		ta_data->ta_handle = ta_handle;
-+		ta_data->refcount = 1;
-+		count = ta_data->refcount;
-+		list_add(&ta_data->list_node, &ta_list);
-+	}
-+
-+	return count;
-+}
-+
-+static u32 put_ta_refcount(u32 ta_handle)
-+{
-+	struct amdtee_ta_data *ta_data;
-+	u32 count = 0;
-+
-+	/* Caller must hold a mutex */
-+	list_for_each_entry(ta_data, &ta_list, list_node)
-+		if (ta_data->ta_handle == ta_handle) {
-+			count = --ta_data->refcount;
-+			if (count == 0) {
-+				list_del(&ta_data->list_node);
-+				kfree(ta_data);
-+				break;
-+			}
-+		}
-+
-+	return count;
-+}
-+
- int handle_unload_ta(u32 ta_handle)
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -788,12 +788,11 @@ static int dm_add_exception(void *contex
+ static uint32_t __minimum_chunk_size(struct origin *o)
  {
- 	struct tee_cmd_unload_ta cmd = {0};
--	u32 status;
-+	u32 status, count;
- 	int ret;
+ 	struct dm_snapshot *snap;
+-	unsigned chunk_size = 0;
++	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
  
- 	if (!ta_handle)
- 		return -EINVAL;
+ 	if (o)
+ 		list_for_each_entry(snap, &o->snapshots, list)
+-			chunk_size = min_not_zero(chunk_size,
+-						  snap->store->chunk_size);
++			chunk_size = min(chunk_size, snap->store->chunk_size);
  
-+	mutex_lock(&ta_refcount_mutex);
-+
-+	count = put_ta_refcount(ta_handle);
-+
-+	if (count) {
-+		pr_debug("unload ta: not unloading %u count %u\n",
-+			 ta_handle, count);
-+		ret = -EBUSY;
-+		goto unlock;
-+	}
-+
- 	cmd.ta_handle = ta_handle;
- 
- 	ret = psp_tee_process_cmd(TEE_CMD_ID_UNLOAD_TA, (void *)&cmd,
-@@ -137,8 +191,12 @@ int handle_unload_ta(u32 ta_handle)
- 	if (!ret && status != 0) {
- 		pr_err("unload ta: status = 0x%x\n", status);
- 		ret = -EBUSY;
-+	} else {
-+		pr_debug("unloaded ta handle %u\n", ta_handle);
- 	}
- 
-+unlock:
-+	mutex_unlock(&ta_refcount_mutex);
- 	return ret;
+ 	return (uint32_t) chunk_size;
  }
- 
-@@ -340,7 +398,8 @@ int handle_open_session(struct tee_ioctl_open_session_arg *arg, u32 *info,
- 
- int handle_load_ta(void *data, u32 size, struct tee_ioctl_open_session_arg *arg)
- {
--	struct tee_cmd_load_ta cmd = {0};
-+	struct tee_cmd_unload_ta unload_cmd = {};
-+	struct tee_cmd_load_ta load_cmd = {};
- 	phys_addr_t blob;
- 	int ret;
- 
-@@ -353,21 +412,36 @@ int handle_load_ta(void *data, u32 size, struct tee_ioctl_open_session_arg *arg)
- 		return -EINVAL;
- 	}
- 
--	cmd.hi_addr = upper_32_bits(blob);
--	cmd.low_addr = lower_32_bits(blob);
--	cmd.size = size;
-+	load_cmd.hi_addr = upper_32_bits(blob);
-+	load_cmd.low_addr = lower_32_bits(blob);
-+	load_cmd.size = size;
- 
--	ret = psp_tee_process_cmd(TEE_CMD_ID_LOAD_TA, (void *)&cmd,
--				  sizeof(cmd), &arg->ret);
-+	mutex_lock(&ta_refcount_mutex);
-+
-+	ret = psp_tee_process_cmd(TEE_CMD_ID_LOAD_TA, (void *)&load_cmd,
-+				  sizeof(load_cmd), &arg->ret);
- 	if (ret) {
- 		arg->ret_origin = TEEC_ORIGIN_COMMS;
- 		arg->ret = TEEC_ERROR_COMMUNICATION;
--	} else {
--		set_session_id(cmd.ta_handle, 0, &arg->session);
-+	} else if (arg->ret == TEEC_SUCCESS) {
-+		ret = get_ta_refcount(load_cmd.ta_handle);
-+		if (!ret) {
-+			arg->ret_origin = TEEC_ORIGIN_COMMS;
-+			arg->ret = TEEC_ERROR_OUT_OF_MEMORY;
-+
-+			/* Unload the TA on error */
-+			unload_cmd.ta_handle = load_cmd.ta_handle;
-+			psp_tee_process_cmd(TEE_CMD_ID_UNLOAD_TA,
-+					    (void *)&unload_cmd,
-+					    sizeof(unload_cmd), &ret);
-+		} else {
-+			set_session_id(load_cmd.ta_handle, 0, &arg->session);
-+		}
- 	}
-+	mutex_unlock(&ta_refcount_mutex);
- 
- 	pr_debug("load TA: TA handle = 0x%x, RO = 0x%x, ret = 0x%x\n",
--		 cmd.ta_handle, arg->ret_origin, arg->ret);
-+		 load_cmd.ta_handle, arg->ret_origin, arg->ret);
- 
- 	return 0;
- }
-diff --git a/drivers/tee/amdtee/core.c b/drivers/tee/amdtee/core.c
-index 8a6a8f30bb42..da6b88e80dc0 100644
---- a/drivers/tee/amdtee/core.c
-+++ b/drivers/tee/amdtee/core.c
-@@ -59,10 +59,9 @@ static void release_session(struct amdtee_session *sess)
- 			continue;
- 
- 		handle_close_session(sess->ta_handle, sess->session_info[i]);
-+		handle_unload_ta(sess->ta_handle);
- 	}
- 
--	/* Unload Trusted Application once all sessions are closed */
--	handle_unload_ta(sess->ta_handle);
- 	kfree(sess);
- }
- 
-@@ -224,8 +223,6 @@ static void destroy_session(struct kref *ref)
- 	struct amdtee_session *sess = container_of(ref, struct amdtee_session,
- 						   refcount);
- 
--	/* Unload the TA from TEE */
--	handle_unload_ta(sess->ta_handle);
- 	mutex_lock(&session_list_mutex);
- 	list_del(&sess->list_node);
- 	mutex_unlock(&session_list_mutex);
-@@ -238,7 +235,7 @@ int amdtee_open_session(struct tee_context *ctx,
- {
- 	struct amdtee_context_data *ctxdata = ctx->data;
- 	struct amdtee_session *sess = NULL;
--	u32 session_info;
-+	u32 session_info, ta_handle;
- 	size_t ta_size;
- 	int rc, i;
- 	void *ta;
-@@ -259,11 +256,14 @@ int amdtee_open_session(struct tee_context *ctx,
- 	if (arg->ret != TEEC_SUCCESS)
- 		goto out;
- 
-+	ta_handle = get_ta_handle(arg->session);
-+
- 	mutex_lock(&session_list_mutex);
- 	sess = alloc_session(ctxdata, arg->session);
- 	mutex_unlock(&session_list_mutex);
- 
- 	if (!sess) {
-+		handle_unload_ta(ta_handle);
- 		rc = -ENOMEM;
- 		goto out;
- 	}
-@@ -277,6 +277,7 @@ int amdtee_open_session(struct tee_context *ctx,
- 
- 	if (i >= TEE_NUM_SESSIONS) {
- 		pr_err("reached maximum session count %d\n", TEE_NUM_SESSIONS);
-+		handle_unload_ta(ta_handle);
- 		kref_put(&sess->refcount, destroy_session);
- 		rc = -ENOMEM;
- 		goto out;
-@@ -289,12 +290,13 @@ int amdtee_open_session(struct tee_context *ctx,
- 		spin_lock(&sess->lock);
- 		clear_bit(i, sess->sess_mask);
- 		spin_unlock(&sess->lock);
-+		handle_unload_ta(ta_handle);
- 		kref_put(&sess->refcount, destroy_session);
- 		goto out;
- 	}
- 
- 	sess->session_info[i] = session_info;
--	set_session_id(sess->ta_handle, i, &arg->session);
-+	set_session_id(ta_handle, i, &arg->session);
- out:
- 	free_pages((u64)ta, get_order(ta_size));
- 	return rc;
-@@ -329,6 +331,7 @@ int amdtee_close_session(struct tee_context *ctx, u32 session)
- 
- 	/* Close the session */
- 	handle_close_session(ta_handle, session_info);
-+	handle_unload_ta(ta_handle);
- 
- 	kref_put(&sess->refcount, destroy_session);
- 
--- 
-2.30.2
-
 
 
