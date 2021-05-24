@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1FC238ED8A
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F1138EDE1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbhEXPiv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:38:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
+        id S233148AbhEXPnM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:43:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232803AbhEXPgy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:36:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D96B361411;
-        Mon, 24 May 2021 15:32:56 +0000 (UTC)
+        id S233795AbhEXPlF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:41:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1953161445;
+        Mon, 24 May 2021 15:34:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870377;
-        bh=S1CN5MyHtZ9OSrpusCrkNbNf9yJ1kB5dvIQ0K/iCqlo=;
+        s=korg; t=1621870475;
+        bh=FYDHKdwx/ZJXrParken6+8Uf79G7ZRvNqHFHXX8v6dk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bRw0wwKYsPgh2M/iVQ+SYHn3eX39zA5ebd7fJ/9lPo7YTmTi3bFfdmCSUBmQtyc7q
-         nmMi8rGfdNXt67b2TM5w8UZGjx7ncqHexMv50p08SZtehrchHirGWsfQx5KZL34L0H
-         gM97PjxKhbipYfuLcy1HJKL5Q2a1B8sSYRF4AZHc=
+        b=iSvU9oCf8YkpJuDV4vkO8QpLlxrmhrcNik5n2BaJV9K96e1hVJxfpgLutfR6+4v+f
+         J2PzY1l8339XxD155K9TbZIgrL3V26cK1FiUK5mWKDkPb6RUVVbtLLUq9wQ5mXmnSG
+         S188RUPeU1trDNSdUFFvPj0xqkhelrfeoa5n9hs4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        Bryan Brattlof <hello@bryanbrattlof.com>
-Subject: [PATCH 4.9 29/36] net: rtlwifi: properly check for alloc_workqueue() failure
+        stable@vger.kernel.org,
+        syzbot+36a7f280de4e11c6f04e@syzkaller.appspotmail.com,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 03/49] RDMA/rxe: Clear all QP fields if creation failed
 Date:   Mon, 24 May 2021 17:25:14 +0200
-Message-Id: <20210524152325.101577356@linuxfoundation.org>
+Message-Id: <20210524152324.494349294@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,70 +43,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 30b0e0ee9d02b97b68705c46b41444786effc40c upstream.
+[ Upstream commit 67f29896fdc83298eed5a6576ff8f9873f709228 ]
 
-If alloc_workqueue() fails, properly catch this and propagate the error
-to the calling functions, so that the devuce initialization will
-properly error out.
+rxe_qp_do_cleanup() relies on valid pointer values in QP for the properly
+created ones, but in case rxe_qp_from_init() failed it was filled with
+garbage and caused tot the following error.
 
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Bryan Brattlof <hello@bryanbrattlof.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-14-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  refcount_t: underflow; use-after-free.
+  WARNING: CPU: 1 PID: 12560 at lib/refcount.c:28 refcount_warn_saturate+0x1d1/0x1e0 lib/refcount.c:28
+  Modules linked in:
+  CPU: 1 PID: 12560 Comm: syz-executor.4 Not tainted 5.12.0-syzkaller #0
+  Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/01/2011
+  RIP: 0010:refcount_warn_saturate+0x1d1/0x1e0 lib/refcount.c:28
+  Code: e9 db fe ff ff 48 89 df e8 2c c2 ea fd e9 8a fe ff ff e8 72 6a a7 fd 48 c7 c7 e0 b2 c1 89 c6 05 dc 3a e6 09 01 e8 ee 74 fb 04 <0f> 0b e9 af fe ff ff 0f 1f 84 00 00 00 00 00 41 56 41 55 41 54 55
+  RSP: 0018:ffffc900097ceba8 EFLAGS: 00010286
+  RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+  RDX: 0000000000040000 RSI: ffffffff815bb075 RDI: fffff520012f9d67
+  RBP: 0000000000000003 R08: 0000000000000000 R09: 0000000000000000
+  R10: ffffffff815b4eae R11: 0000000000000000 R12: ffff8880322a4800
+  R13: ffff8880322a4940 R14: ffff888033044e00 R15: 0000000000000000
+  FS:  00007f6eb2be3700(0000) GS:ffff8880b9d00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fdbe5d41000 CR3: 000000001d181000 CR4: 00000000001506e0
+  DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  Call Trace:
+   __refcount_sub_and_test include/linux/refcount.h:283 [inline]
+   __refcount_dec_and_test include/linux/refcount.h:315 [inline]
+   refcount_dec_and_test include/linux/refcount.h:333 [inline]
+   kref_put include/linux/kref.h:64 [inline]
+   rxe_qp_do_cleanup+0x96f/0xaf0 drivers/infiniband/sw/rxe/rxe_qp.c:805
+   execute_in_process_context+0x37/0x150 kernel/workqueue.c:3327
+   rxe_elem_release+0x9f/0x180 drivers/infiniband/sw/rxe/rxe_pool.c:391
+   kref_put include/linux/kref.h:65 [inline]
+   rxe_create_qp+0x2cd/0x310 drivers/infiniband/sw/rxe/rxe_verbs.c:425
+   _ib_create_qp drivers/infiniband/core/core_priv.h:331 [inline]
+   ib_create_named_qp+0x2ad/0x1370 drivers/infiniband/core/verbs.c:1231
+   ib_create_qp include/rdma/ib_verbs.h:3644 [inline]
+   create_mad_qp+0x177/0x2d0 drivers/infiniband/core/mad.c:2920
+   ib_mad_port_open drivers/infiniband/core/mad.c:3001 [inline]
+   ib_mad_init_device+0xd6f/0x1400 drivers/infiniband/core/mad.c:3092
+   add_client_context+0x405/0x5e0 drivers/infiniband/core/device.c:717
+   enable_device_and_get+0x1cd/0x3b0 drivers/infiniband/core/device.c:1331
+   ib_register_device drivers/infiniband/core/device.c:1413 [inline]
+   ib_register_device+0x7c7/0xa50 drivers/infiniband/core/device.c:1365
+   rxe_register_device+0x3d5/0x4a0 drivers/infiniband/sw/rxe/rxe_verbs.c:1147
+   rxe_add+0x12fe/0x16d0 drivers/infiniband/sw/rxe/rxe.c:247
+   rxe_net_add+0x8c/0xe0 drivers/infiniband/sw/rxe/rxe_net.c:503
+   rxe_newlink drivers/infiniband/sw/rxe/rxe.c:269 [inline]
+   rxe_newlink+0xb7/0xe0 drivers/infiniband/sw/rxe/rxe.c:250
+   nldev_newlink+0x30e/0x550 drivers/infiniband/core/nldev.c:1555
+   rdma_nl_rcv_msg+0x36d/0x690 drivers/infiniband/core/netlink.c:195
+   rdma_nl_rcv_skb drivers/infiniband/core/netlink.c:239 [inline]
+   rdma_nl_rcv+0x2ee/0x430 drivers/infiniband/core/netlink.c:259
+   netlink_unicast_kernel net/netlink/af_netlink.c:1312 [inline]
+   netlink_unicast+0x533/0x7d0 net/netlink/af_netlink.c:1338
+   netlink_sendmsg+0x856/0xd90 net/netlink/af_netlink.c:1927
+   sock_sendmsg_nosec net/socket.c:654 [inline]
+   sock_sendmsg+0xcf/0x120 net/socket.c:674
+   ____sys_sendmsg+0x6e8/0x810 net/socket.c:2350
+   ___sys_sendmsg+0xf3/0x170 net/socket.c:2404
+   __sys_sendmsg+0xe5/0x1b0 net/socket.c:2433
+   do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/7bf8d548764d406dbbbaf4b574960ebfd5af8387.1620717918.git.leonro@nvidia.com
+Reported-by: syzbot+36a7f280de4e11c6f04e@syzkaller.appspotmail.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c |   16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_qp.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -454,9 +454,14 @@ static void _rtl_init_mac80211(struct ie
+diff --git a/drivers/infiniband/sw/rxe/rxe_qp.c b/drivers/infiniband/sw/rxe/rxe_qp.c
+index 8a22ab8b29e9..41c9ede98c26 100644
+--- a/drivers/infiniband/sw/rxe/rxe_qp.c
++++ b/drivers/infiniband/sw/rxe/rxe_qp.c
+@@ -250,6 +250,7 @@ static int rxe_qp_init_req(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 	if (err) {
+ 		vfree(qp->sq.queue->buf);
+ 		kfree(qp->sq.queue);
++		qp->sq.queue = NULL;
+ 		return err;
  	}
- }
  
--static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
-+static int _rtl_init_deferred_work(struct ieee80211_hw *hw)
- {
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-+	struct workqueue_struct *wq;
+@@ -303,6 +304,7 @@ static int rxe_qp_init_resp(struct rxe_dev *rxe, struct rxe_qp *qp,
+ 		if (err) {
+ 			vfree(qp->rq.queue->buf);
+ 			kfree(qp->rq.queue);
++			qp->rq.queue = NULL;
+ 			return err;
+ 		}
+ 	}
+@@ -363,6 +365,11 @@ int rxe_qp_from_init(struct rxe_dev *rxe, struct rxe_qp *qp, struct rxe_pd *pd,
+ err2:
+ 	rxe_queue_cleanup(qp->sq.queue);
+ err1:
++	qp->pd = NULL;
++	qp->rcq = NULL;
++	qp->scq = NULL;
++	qp->srq = NULL;
 +
-+	wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
-+	if (!wq)
-+		return -ENOMEM;
- 
- 	/* <1> timer */
- 	setup_timer(&rtlpriv->works.watchdog_timer,
-@@ -465,7 +470,8 @@ static void _rtl_init_deferred_work(stru
- 		    rtl_easy_concurrent_retrytimer_callback, (unsigned long)hw);
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
--	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
-+	rtlpriv->works.rtl_wq = wq;
-+
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  (void *)rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
-@@ -476,7 +482,7 @@ static void _rtl_init_deferred_work(stru
- 			  (void *)rtl_swlps_rfon_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.fwevt_wq,
- 			  (void *)rtl_fwevt_wq_callback);
--
-+	return 0;
- }
- 
- void rtl_deinit_deferred_work(struct ieee80211_hw *hw)
-@@ -568,9 +574,7 @@ int rtl_init_core(struct ieee80211_hw *h
- 	rtlmac->link_state = MAC80211_NOLINK;
- 
- 	/* <6> init deferred work */
--	_rtl_init_deferred_work(hw);
--
--	return 0;
-+	return _rtl_init_deferred_work(hw);
- }
- EXPORT_SYMBOL_GPL(rtl_init_core);
- 
+ 	if (srq)
+ 		rxe_drop_ref(srq);
+ 	rxe_drop_ref(scq);
+-- 
+2.30.2
+
 
 
