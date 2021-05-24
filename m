@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C903138EBD1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 572F938EC34
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:12:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233751AbhEXPIb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:08:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40044 "EHLO mail.kernel.org"
+        id S233236AbhEXPMr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:12:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235167AbhEXPGJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:06:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 67CD76147E;
-        Mon, 24 May 2021 14:51:11 +0000 (UTC)
+        id S233481AbhEXPGO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:06:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 988356162B;
+        Mon, 24 May 2021 14:51:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867872;
-        bh=AkeUFwF6WPQBnzhsbWzH49A8ilmrlY6UJS1l6fLaMEc=;
+        s=k20201202; t=1621867873;
+        bh=JB+XAR5JtrB+x/U79H63DAkfAF0TATzHm4+NdNpp6qI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N5dDrjrvKwVIBbDIn3aazMBqVuFxudolEfb58iz1hk8uL5YVxLDO75gX+KfKs4Vdv
-         VLSDdFuwba9SGsFFSLydjH0T3d7coc6MNzOl3HO4FsviHOm74Dk5U2RyRAkELuj+xN
-         SfCA0UojGQX9viezyJZ6r6jSUuK8ukk+2G2mcB4uqA44QfCwqhqiONEpmCLJ8Qbs6N
-         yfCD+3b+mdPT5O8FcC8gJSb6IdqhoEuiUEDGe/09KlfARvv+Lc4hiaE9JnjLJPlhOI
-         uV/bPR1yveazbGh6FkxHqk5k46BRskGQztyHDX/xMNDudW1QF5USC34XzNpCSdd7dS
-         gTvvUTYNWhhFw==
+        b=sEBwOpA8eYsCV6Dzt+UOAn8vUJ4/47YV1U9xVij3Wx0zBa1hlLYeZvfuO8QNOd0ri
+         NzPccWWWa5vJlMorQlL69mZftNCqZbmVPVKimqNUnRUBQDJ4e1zMZNkJ3bLkrMvl2E
+         o7+uq2eYJg7AHAp9L3RHKLPURXX//fds3nKWgSexu9sKJipqlLmaVSgpwGPvdUgwYz
+         +CIvoD2hcv7bB3SertskbLMXs6I8e+xvQa6Tjw3XK+UVn5WibecJNJ5VivqA+lOHQq
+         9Bx7v9DrLfmFULOxxp9xLUTSTRMW5Xz2+liIzASkEWvQ3yVmMTPBWOyinqq1+1SASs
+         IVcBCa3YwUsTQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Du Cheng <ducheng2@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
+Cc:     Tom Seewald <tseewald@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 04/19] net: caif: remove BUG_ON(dev == NULL) in caif_xmit
-Date:   Mon, 24 May 2021 10:50:51 -0400
-Message-Id: <20210524145106.2499571-4-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.9 05/19] char: hpet: add checks after calling ioremap
+Date:   Mon, 24 May 2021 10:50:52 -0400
+Message-Id: <20210524145106.2499571-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145106.2499571-1-sashal@kernel.org>
 References: <20210524145106.2499571-1-sashal@kernel.org>
@@ -43,78 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Tom Seewald <tseewald@gmail.com>
 
-[ Upstream commit 65a67792e3416f7c5d7daa47d99334cbb19a7449 ]
+[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
 
-The condition of dev == NULL is impossible in caif_xmit(), hence it is
-for the removal.
+The function hpet_resources() calls ioremap() two times, but in both
+cases it does not check if ioremap() returned a null pointer. Fix this
+by adding null pointer checks and returning an appropriate error.
 
-Explanation:
-The static caif_xmit() is only called upon via a function pointer
-`ndo_start_xmit` defined in include/linux/netdevice.h:
-```
-struct net_device_ops {
-    ...
-    netdev_tx_t     (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev);
-    ...
-}
-```
-
-The exhausive list of call points are:
-```
-drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c
-    dev->netdev_ops->ndo_start_xmit(skb, dev);
-    ^                                    ^
-
-drivers/infiniband/ulp/opa_vnic/opa_vnic_netdev.c
-    struct opa_vnic_adapter *adapter = opa_vnic_priv(netdev);
-			     ^                       ^
-    return adapter->rn_ops->ndo_start_xmit(skb, netdev); // adapter would crash first
-	   ^                                    ^
-
-drivers/usb/gadget/function/f_ncm.c
-    ncm->netdev->netdev_ops->ndo_start_xmit(NULL, ncm->netdev);
-	      ^                                   ^
-
-include/linux/netdevice.h
-static inline netdev_tx_t __netdev_start_xmit(...
-{
-    return ops->ndo_start_xmit(skb, dev);
-				    ^
-}
-
-    const struct net_device_ops *ops = dev->netdev_ops;
-				       ^
-    rc = __netdev_start_xmit(ops, skb, dev, more);
-				       ^
-```
-
-In each of the enumerated scenarios, it is impossible for the NULL-valued dev to
-reach the caif_xmit() without crashing the kernel earlier, therefore `BUG_ON(dev ==
-NULL)` is rather useless, hence the removal.
-
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-20-gregkh@linuxfoundation.org
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/caif/caif_serial.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/char/hpet.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-index c2dea4916e5d..32834dad0b83 100644
---- a/drivers/net/caif/caif_serial.c
-+++ b/drivers/net/caif/caif_serial.c
-@@ -281,7 +281,6 @@ static int caif_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct ser_device *ser;
+diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+index bedfd2412ec1..7975ddd40b35 100644
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -976,6 +976,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
+ 	if (ACPI_SUCCESS(status)) {
+ 		hdp->hd_phys_address = addr.address.minimum;
+ 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
++		if (!hdp->hd_address)
++			return AE_ERROR;
  
--	BUG_ON(dev == NULL);
- 	ser = netdev_priv(dev);
+ 		if (hpet_is_known(hdp)) {
+ 			iounmap(hdp->hd_address);
+@@ -989,6 +991,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
+ 		hdp->hd_phys_address = fixmem32->address;
+ 		hdp->hd_address = ioremap(fixmem32->address,
+ 						HPET_RANGE_SIZE);
++		if (!hdp->hd_address)
++			return AE_ERROR;
  
- 	/* Send flow off once, on high water mark */
+ 		if (hpet_is_known(hdp)) {
+ 			iounmap(hdp->hd_address);
 -- 
 2.30.2
 
