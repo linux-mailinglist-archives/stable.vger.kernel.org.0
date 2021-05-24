@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B8A038EEEF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDDE438EE94
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234872AbhEXPzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S233936AbhEXPwL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:52:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235299AbhEXPzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4432261928;
-        Mon, 24 May 2021 15:40:55 +0000 (UTC)
+        id S234886AbhEXPuJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:50:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7325361601;
+        Mon, 24 May 2021 15:38:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870855;
-        bh=b/BDRKremjjVFpeY76yHO0t1RAC3L1f5mSxxV4dJYyA=;
+        s=korg; t=1621870692;
+        bh=9oI81erNlKlKLn2S3XrnyettLJ88ElqyKnjbIIG0GYw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o0Z0KfjljIo8wELmZqSnSW7GepBQ3K+K9R4g8QpQR8ETcAOVySTOJEvcfzlklQzgA
-         C0vQmyK4pofo9BQZoKK32Psptx0aF1h/4tsQnFHrsRX8JijiFzx9b1v248X3wshyf9
-         xLn8ujtiXdvPC9K4u49Isoe2prRee3NMVbYnlTaA=
+        b=E4V3zKRP4cerwXF5T/ULMCUqAS9mJ8H4YqvQ0f1ZDaciYCCeXQ8BksbXVgs0r+43j
+         2jQZh4/hDp+S1kWMWu+MYtuVHmVl3p6yGs+IaDSwkParxgoe81aKLlOxsSz+jfbBDa
+         iMq2/obTLo/EYWL0YJ3GoOoKwd1yf4/D59bjKQlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Beer <dlbeer@gmail.com>,
-        Ben Chuang <benchuanggli@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.10 066/104] mmc: sdhci-pci-gli: increase 1.8V regulator wait
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Bryan Brattlof <hello@bryanbrattlof.com>
+Subject: [PATCH 5.4 55/71] Revert "rtlwifi: fix a potential NULL pointer dereference"
 Date:   Mon, 24 May 2021 17:26:01 +0200
-Message-Id: <20210524152335.042714036@linuxfoundation.org>
+Message-Id: <20210524152328.245952292@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Beer <dlbeer@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit a1149a6c06ee094a6e62886b0c0e8e66967a728a upstream.
+commit 68c5634c4a7278672a3bed00eb5646884257c413 upstream.
 
-Inserting an SD-card on an Intel NUC10i3FNK4 (which contains a GL9755)
-results in the message:
+This reverts commit 765976285a8c8db3f0eb7f033829a899d0c2786e.
 
-    mmc0: 1.8V regulator output did not become stable
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Following this message, some cards work (sometimes), but most cards fail
-with EILSEQ. This behaviour is observed on Debian 10 running kernel
-4.19.188, but also with 5.8.18 and 5.11.15.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-The driver currently waits 5ms after switching on the 1.8V regulator for
-it to become stable. Increasing this to 10ms gets rid of the warning
-about stability, but most cards still fail. Increasing it to 20ms gets
-some cards working (a 32GB Samsung micro SD works, a 128GB ADATA
-doesn't). At 50ms, the ADATA works most of the time, and at 100ms both
-cards work reliably.
+This commit is not correct, it should not have used unlikely() and is
+not propagating the error properly to the calling function, so it should
+be reverted at this point in time.  Also, if the check failed, the
+work queue was still assumed to be allocated, so further accesses would
+have continued to fail, meaning this patch does nothing to solve the
+root issues at all.
 
-Signed-off-by: Daniel Beer <dlbeer@gmail.com>
-Acked-by: Ben Chuang <benchuanggli@gmail.com>
-Fixes: e51df6ce668a ("mmc: host: sdhci-pci: Add Genesys Logic GL975x support")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210424081652.GA16047@nyquist.nev
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Bryan Brattlof <hello@bryanbrattlof.com>
+Fixes: 765976285a8c ("rtlwifi: fix a potential NULL pointer dereference")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-13-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/host/sdhci-pci-gli.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/base.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/mmc/host/sdhci-pci-gli.c
-+++ b/drivers/mmc/host/sdhci-pci-gli.c
-@@ -555,8 +555,13 @@ static void sdhci_gli_voltage_switch(str
- 	 *
- 	 * Wait 5ms after set 1.8V signal enable in Host Control 2 register
- 	 * to ensure 1.8V signal enable bit is set by GL9750/GL9755.
-+	 *
-+	 * ...however, the controller in the NUC10i3FNK4 (a 9755) requires
-+	 * slightly longer than 5ms before the control register reports that
-+	 * 1.8V is ready, and far longer still before the card will actually
-+	 * work reliably.
- 	 */
--	usleep_range(5000, 5500);
-+	usleep_range(100000, 110000);
- }
- 
- static void sdhci_gl9750_reset(struct sdhci_host *host, u8 mask)
+--- a/drivers/net/wireless/realtek/rtlwifi/base.c
++++ b/drivers/net/wireless/realtek/rtlwifi/base.c
+@@ -448,11 +448,6 @@ static void _rtl_init_deferred_work(stru
+ 	/* <2> work queue */
+ 	rtlpriv->works.hw = hw;
+ 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
+-	if (unlikely(!rtlpriv->works.rtl_wq)) {
+-		pr_err("Failed to allocate work queue\n");
+-		return;
+-	}
+-
+ 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
+ 			  (void *)rtl_watchdog_wq_callback);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
 
 
