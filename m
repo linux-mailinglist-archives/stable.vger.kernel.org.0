@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F79838EF0B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D4C38EE24
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234866AbhEXPzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
+        id S233416AbhEXPpt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234458AbhEXPyI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C3EE36141B;
-        Mon, 24 May 2021 15:39:32 +0000 (UTC)
+        id S234458AbhEXPoT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:44:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE27E61459;
+        Mon, 24 May 2021 15:35:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870773;
-        bh=h8SDQxAQR6aARdv6g//rvHxQQXax+farRV5g6s586Is=;
+        s=korg; t=1621870547;
+        bh=tywuVpsBa54mstaL/qFQ2+4aWD6/O9g35IwRrgFX5HM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hb6B4DrjVXCc8YGB7XY3412TJeif2Zk7T+5jFmfCXDZ/QQPMN7Y5zXb6hLgjpFT3H
-         6j3BjsGUPRKHFfD657Ex4KXzLMYGUGtc5UGS+4oUd/Gh7+KDIGQIETplWPKno1RVyq
-         DduhWH1jWu9bLvk7bYENgUJVVK+Gld4iKv10mrNk=
+        b=tLtR3aZlqGu3wJydQHFIiSOn9Fp3P+k98vlZx8Srh870fCwJIqQEcNgFeC1eUliDE
+         BSep7yOmhSR8a9eEihOztOYIF3ucsLwv2nlNtz/awVKwJe5CawuCwTFW9MTW85m3K3
+         1Bj2Wj45ATJZuE+nywCP8WhkTBHgvYpjAQHNAohM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/104] locking/lockdep: Correct calling tracepoints
+        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 12/49] ALSA: line6: Fix racy initialization of LINE6 MIDI
 Date:   Mon, 24 May 2021 17:25:23 +0200
-Message-Id: <20210524152333.747260779@linuxfoundation.org>
+Message-Id: <20210524152324.783224297@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,56 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Yan <leo.yan@linaro.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 89e70d5c583c55088faa2201d397ee30a15704aa ]
+commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
 
-The commit eb1f00237aca ("lockdep,trace: Expose tracepoints") reverses
-tracepoints for lock_contended() and lock_acquired(), thus the ftrace
-log shows the wrong locking sequence that "acquired" event is prior to
-"contended" event:
+The initialization of MIDI devices that are found on some LINE6
+drivers are currently done in a racy way; namely, the MIDI buffer
+instance is allocated and initialized in each private_init callback
+while the communication with the interface is already started via
+line6_init_cap_control() call before that point.  This may lead to
+Oops in line6_data_received() when a spurious event is received, as
+reported by syzkaller.
 
-  <idle>-0       [001] d.s3 20803.501685: lock_acquire: 0000000008b91ab4 &sg_policy->update_lock
-  <idle>-0       [001] d.s3 20803.501686: lock_acquired: 0000000008b91ab4 &sg_policy->update_lock
-  <idle>-0       [001] d.s3 20803.501689: lock_contended: 0000000008b91ab4 &sg_policy->update_lock
-  <idle>-0       [001] d.s3 20803.501690: lock_release: 0000000008b91ab4 &sg_policy->update_lock
+This patch moves the MIDI initialization to line6_init_cap_control()
+as well instead of the too-lately-called private_init for avoiding the
+race.  Also this reduces slightly more lines, so it's a win-win
+change.
 
-This patch fixes calling tracepoints for lock_contended() and
-lock_acquired().
-
-Fixes: eb1f00237aca ("lockdep,trace: Expose tracepoints")
-Signed-off-by: Leo Yan <leo.yan@linaro.org>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210512120937.90211-1-leo.yan@linaro.org
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
+Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
+Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
+Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/locking/lockdep.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ sound/usb/line6/driver.c |    4 ++++
+ sound/usb/line6/pod.c    |    5 -----
+ sound/usb/line6/variax.c |    6 ------
+ 3 files changed, 4 insertions(+), 11 deletions(-)
 
-diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
-index 38d7c03e694c..858b96b438ce 100644
---- a/kernel/locking/lockdep.c
-+++ b/kernel/locking/lockdep.c
-@@ -5664,7 +5664,7 @@ void lock_contended(struct lockdep_map *lock, unsigned long ip)
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -705,6 +705,10 @@ static int line6_init_cap_control(struct
+ 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
+ 		if (!line6->buffer_message)
+ 			return -ENOMEM;
++
++		ret = line6_init_midi(line6);
++		if (ret < 0)
++			return ret;
+ 	} else {
+ 		ret = line6_hwdep_init(line6);
+ 		if (ret < 0)
+--- a/sound/usb/line6/pod.c
++++ b/sound/usb/line6/pod.c
+@@ -420,11 +420,6 @@ static int pod_init(struct usb_line6 *li
+ 	if (err < 0)
+ 		return err;
+ 
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initialize PCM subsystem: */
+ 	err = line6_init_pcm(line6, &pod_pcm_properties);
+ 	if (err < 0)
+--- a/sound/usb/line6/variax.c
++++ b/sound/usb/line6/variax.c
+@@ -217,7 +217,6 @@ static int variax_init(struct usb_line6
+ 		       const struct usb_device_id *id)
  {
- 	unsigned long flags;
+ 	struct usb_line6_variax *variax = (struct usb_line6_variax *) line6;
+-	int err;
  
--	trace_lock_acquired(lock, ip);
-+	trace_lock_contended(lock, ip);
+ 	line6->process_message = line6_variax_process_message;
+ 	line6->disconnect = line6_variax_disconnect;
+@@ -233,11 +232,6 @@ static int variax_init(struct usb_line6
+ 	if (variax->buffer_activate == NULL)
+ 		return -ENOMEM;
  
- 	if (unlikely(!lock_stat || !lockdep_enabled()))
- 		return;
-@@ -5682,7 +5682,7 @@ void lock_acquired(struct lockdep_map *lock, unsigned long ip)
- {
- 	unsigned long flags;
- 
--	trace_lock_contended(lock, ip);
-+	trace_lock_acquired(lock, ip);
- 
- 	if (unlikely(!lock_stat || !lockdep_enabled()))
- 		return;
--- 
-2.30.2
-
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(&variax->line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initiate startup procedure: */
+ 	variax_startup1(variax);
+ 	return 0;
 
 
