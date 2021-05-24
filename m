@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 96D4C38EE24
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C69C138EF7A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233416AbhEXPpt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:45:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
+        id S234008AbhEXP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234458AbhEXPoT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:44:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE27E61459;
-        Mon, 24 May 2021 15:35:46 +0000 (UTC)
+        id S234392AbhEXP4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D6DA261446;
+        Mon, 24 May 2021 15:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870547;
-        bh=tywuVpsBa54mstaL/qFQ2+4aWD6/O9g35IwRrgFX5HM=;
+        s=korg; t=1621870992;
+        bh=+eUnc1haDTfcnX2Q572vSfKjYuhHi08mfvKabmkoIWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tLtR3aZlqGu3wJydQHFIiSOn9Fp3P+k98vlZx8Srh870fCwJIqQEcNgFeC1eUliDE
-         BSep7yOmhSR8a9eEihOztOYIF3ucsLwv2nlNtz/awVKwJe5CawuCwTFW9MTW85m3K3
-         1Bj2Wj45ATJZuE+nywCP8WhkTBHgvYpjAQHNAohM=
+        b=w9KRPPpOzpP6iUHK9u0qpKb14uPKYSIfHvNMiTn792sIMM2O1sj+uCocgERAMfK1e
+         1rAImrkehwgERUbh8piG/2PTTGrX6zTZUaS0RxUqBb/6UW0lM5XPWxDIMPIIXk/4Qi
+         SXeolBnDM1ZAS6eIYp3941aWMtp452SVHLTcVnzM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 12/49] ALSA: line6: Fix racy initialization of LINE6 MIDI
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 006/127] RDMA/siw: Release xarray entry
 Date:   Mon, 24 May 2021 17:25:23 +0200
-Message-Id: <20210524152324.783224297@linuxfoundation.org>
+Message-Id: <20210524152335.069576086@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
+[ Upstream commit a3d83276d98886879b5bf7b30b7c29882754e4df ]
 
-The initialization of MIDI devices that are found on some LINE6
-drivers are currently done in a racy way; namely, the MIDI buffer
-instance is allocated and initialized in each private_init callback
-while the communication with the interface is already started via
-line6_init_cap_control() call before that point.  This may lead to
-Oops in line6_data_received() when a spurious event is received, as
-reported by syzkaller.
+The xarray entry is allocated in siw_qp_add(), but release was
+missed in case zero-sized SQ was discovered.
 
-This patch moves the MIDI initialization to line6_init_cap_control()
-as well instead of the too-lately-called private_init for avoiding the
-race.  Also this reduces slightly more lines, so it's a win-win
-change.
-
-Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
-Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
-Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
-Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 661f385961f0 ("RDMA/siw: Fix handling of zero-sized Read and Receive Queues.")
+Link: https://lore.kernel.org/r/f070b59d5a1114d5a4e830346755c2b3f141cde5.1620560472.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/line6/driver.c |    4 ++++
- sound/usb/line6/pod.c    |    5 -----
- sound/usb/line6/variax.c |    6 ------
- 3 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/infiniband/sw/siw/siw_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -705,6 +705,10 @@ static int line6_init_cap_control(struct
- 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
- 		if (!line6->buffer_message)
- 			return -ENOMEM;
-+
-+		ret = line6_init_midi(line6);
-+		if (ret < 0)
-+			return ret;
- 	} else {
- 		ret = line6_hwdep_init(line6);
- 		if (ret < 0)
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -420,11 +420,6 @@ static int pod_init(struct usb_line6 *li
- 	if (err < 0)
- 		return err;
- 
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(line6);
--	if (err < 0)
--		return err;
--
- 	/* initialize PCM subsystem: */
- 	err = line6_init_pcm(line6, &pod_pcm_properties);
- 	if (err < 0)
---- a/sound/usb/line6/variax.c
-+++ b/sound/usb/line6/variax.c
-@@ -217,7 +217,6 @@ static int variax_init(struct usb_line6
- 		       const struct usb_device_id *id)
- {
- 	struct usb_line6_variax *variax = (struct usb_line6_variax *) line6;
--	int err;
- 
- 	line6->process_message = line6_variax_process_message;
- 	line6->disconnect = line6_variax_disconnect;
-@@ -233,11 +232,6 @@ static int variax_init(struct usb_line6
- 	if (variax->buffer_activate == NULL)
- 		return -ENOMEM;
- 
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(&variax->line6);
--	if (err < 0)
--		return err;
--
- 	/* initiate startup procedure: */
- 	variax_startup1(variax);
- 	return 0;
+diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
+index d1859c56a6db..8a00c06e5f56 100644
+--- a/drivers/infiniband/sw/siw/siw_verbs.c
++++ b/drivers/infiniband/sw/siw/siw_verbs.c
+@@ -375,7 +375,7 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
+ 	else {
+ 		/* Zero sized SQ is not supported */
+ 		rv = -EINVAL;
+-		goto err_out;
++		goto err_out_xa;
+ 	}
+ 	if (num_rqe)
+ 		num_rqe = roundup_pow_of_two(num_rqe);
+-- 
+2.30.2
+
 
 
