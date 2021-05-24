@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B53738EF43
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C68B38F01C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234459AbhEXP4l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S235273AbhEXQBK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:01:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234811AbhEXPzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEA6F61441;
-        Mon, 24 May 2021 15:42:23 +0000 (UTC)
+        id S235263AbhEXQAQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8953A61985;
+        Mon, 24 May 2021 15:46:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870944;
-        bh=w8AofuxdJMLE8NjVCLMel5ry4/86pey5fHiGwP8Fn14=;
+        s=korg; t=1621871164;
+        bh=aQU06NP4TbAS94hxCLLE0B5GUPZTGRoMn+HDYln3HX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19lNW/oD/tFZl93IyRNmun+z98zZp6ZSacMrJHR1yLV2fN3BVzKKzdmxJxXPPZZFm
-         1ub+ck4f2evJSZuRJt/XSpUQ6rB9jNtvIwFvAQ8vUkNKSEbmHlG1D+zokZgmUE+QjR
-         B0Tj2jxw/ycpK5ZPD+zP6s7WkVyF2E47o3XcoPdc=
+        b=PLpGbIFyrq4dVLbBPN57qL2vnTTPWCl4BnxiXAhLaQ7cnlUkKPfNDTEsYmqkpGu08
+         zzRHKwy+09po29kqBpJhnoq17AsUVBA6B1tXunIgIKIhbQvwQF2PRCNUdwIsGJrwx/
+         KcyKDz6OA1QZtchzP9LY7rAMbGTY4m+G3e25u+ZI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        Bryan Brattlof <hello@bryanbrattlof.com>
-Subject: [PATCH 5.10 090/104] net: rtlwifi: properly check for alloc_workqueue() failure
+        stable@vger.kernel.org, Anthony Ruhier <aruhier@mailbox.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: [PATCH 5.12 068/127] x86/build: Fix location of -plugin-opt= flags
 Date:   Mon, 24 May 2021 17:26:25 +0200
-Message-Id: <20210524152335.833159627@linuxfoundation.org>
+Message-Id: <20210524152337.153392028@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 30b0e0ee9d02b97b68705c46b41444786effc40c upstream.
+commit 0024430e920f2900654ad83cd081cf52e02a3ef5 upstream.
 
-If alloc_workqueue() fails, properly catch this and propagate the error
-to the calling functions, so that the devuce initialization will
-properly error out.
+Commit b33fff07e3e3 ("x86, build: allow LTO to be selected") added a
+couple of '-plugin-opt=' flags to KBUILD_LDFLAGS because the code model
+and stack alignment are not stored in LLVM bitcode.
 
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Bryan Brattlof <hello@bryanbrattlof.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-14-gregkh@linuxfoundation.org
+However, these flags were added to KBUILD_LDFLAGS prior to the
+emulation flag assignment, which uses ':=', so they were overwritten
+and never added to $(LD) invocations.
+
+The absence of these flags caused misalignment issues in the
+AMDGPU driver when compiling with CONFIG_LTO_CLANG, resulting in
+general protection faults.
+
+Shuffle the assignment below the initial one so that the flags are
+properly passed along and all of the linker flags stay together.
+
+At the same time, avoid any future issues with clobbering flags by
+changing the emulation flag assignment to '+=' since KBUILD_LDFLAGS is
+already defined with ':=' in the main Makefile before being exported for
+modification here as a result of commit:
+
+  ce99d0bf312d ("kbuild: clear LDFLAGS in the top Makefile")
+
+Fixes: b33fff07e3e3 ("x86, build: allow LTO to be selected")
+Reported-by: Anthony Ruhier <aruhier@mailbox.org>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Tested-by: Anthony Ruhier <aruhier@mailbox.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1374
+Link: https://lore.kernel.org/r/20210518190106.60935-1-nathan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ arch/x86/Makefile |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -440,9 +440,14 @@ static void rtl_watchdog_wq_callback(str
- static void rtl_fwevt_wq_callback(struct work_struct *work);
- static void rtl_c2hcmd_wq_callback(struct work_struct *work);
+--- a/arch/x86/Makefile
++++ b/arch/x86/Makefile
+@@ -170,11 +170,6 @@ ifeq ($(ACCUMULATE_OUTGOING_ARGS), 1)
+ 	KBUILD_CFLAGS += $(call cc-option,-maccumulate-outgoing-args,)
+ endif
  
--static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
-+static int _rtl_init_deferred_work(struct ieee80211_hw *hw)
- {
- 	struct rtl_priv *rtlpriv = rtl_priv(hw);
-+	struct workqueue_struct *wq;
-+
-+	wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
-+	if (!wq)
-+		return -ENOMEM;
- 
- 	/* <1> timer */
- 	timer_setup(&rtlpriv->works.watchdog_timer,
-@@ -451,7 +456,8 @@ static void _rtl_init_deferred_work(stru
- 		    rtl_easy_concurrent_retrytimer_callback, 0);
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
--	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
-+	rtlpriv->works.rtl_wq = wq;
-+
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
-@@ -461,6 +467,7 @@ static void _rtl_init_deferred_work(stru
- 			  rtl_swlps_rfon_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.fwevt_wq, rtl_fwevt_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.c2hcmd_wq, rtl_c2hcmd_wq_callback);
-+	return 0;
- }
- 
- void rtl_deinit_deferred_work(struct ieee80211_hw *hw, bool ips_wq)
-@@ -560,9 +567,7 @@ int rtl_init_core(struct ieee80211_hw *h
- 	rtlmac->link_state = MAC80211_NOLINK;
- 
- 	/* <6> init deferred work */
--	_rtl_init_deferred_work(hw);
+-ifdef CONFIG_LTO_CLANG
+-KBUILD_LDFLAGS	+= -plugin-opt=-code-model=kernel \
+-		   -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
+-endif
 -
--	return 0;
-+	return _rtl_init_deferred_work(hw);
- }
- EXPORT_SYMBOL_GPL(rtl_init_core);
+ # Workaround for a gcc prelease that unfortunately was shipped in a suse release
+ KBUILD_CFLAGS += -Wno-sign-compare
+ #
+@@ -194,7 +189,12 @@ ifdef CONFIG_RETPOLINE
+   endif
+ endif
  
+-KBUILD_LDFLAGS := -m elf_$(UTS_MACHINE)
++KBUILD_LDFLAGS += -m elf_$(UTS_MACHINE)
++
++ifdef CONFIG_LTO_CLANG
++KBUILD_LDFLAGS	+= -plugin-opt=-code-model=kernel \
++		   -plugin-opt=-stack-alignment=$(if $(CONFIG_X86_32),4,8)
++endif
+ 
+ ifdef CONFIG_X86_NEED_RELOCS
+ LDFLAGS_vmlinux := --emit-relocs --discard-none
 
 
