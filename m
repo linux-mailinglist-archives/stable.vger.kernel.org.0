@@ -2,103 +2,224 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8994A38EEC7
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C3D38ED94
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:38:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233950AbhEXPzR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
+        id S233872AbhEXPjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:39:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51536 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232911AbhEXPxg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:53:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0B4F613F9;
-        Mon, 24 May 2021 15:39:23 +0000 (UTC)
+        id S234021AbhEXPhM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:37:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EABC61376;
+        Mon, 24 May 2021 15:33:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870764;
-        bh=PhFm7ALNNG4FJCbcGTUtO3K/7tninEJiovqLt4vCB+I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TA6nCo0/1X8sy90Q7Hwf/2/E0MHuh8hlAeBnncjkdOazvbWeshDt9R2HGRoBNe6mH
-         6AV813Qyb/9Pzc6tPlTdh6WjR6/Xr6T/3dICqHa/Wt5MOG5N47ZrPelO/tc/gWLyWo
-         L1QmO2TPB3ngXqMN2/2gkr6dCMkJZRfnJKWuHWtc=
+        s=korg; t=1621870394;
+        bh=oIOFgsy//zNsgFCmLkvEcfbJ/S/RcF2FgREe8iO8rOE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nCP75SPqQQpSfsX78dtH6+aJjoA1jKcJY+TdC7iINRG7K/mW8MpB2w4Euw2+2wPFB
+         YMtjmcd/DPw4QwibQH4MXZQram4fqatnce7hpmL7164sUi9OQO0aTisHs6R1aZJyw3
+         4z1rXJNcfheXgfYT2fUCfwZIvM9rTvp4kZfP+2vI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/104] scsi: qedf: Add pointer checks in qedf_update_link_speed()
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.14 00/37] 4.14.234-rc1 review
 Date:   Mon, 24 May 2021 17:25:04 +0200
-Message-Id: <20210524152333.146154252@linuxfoundation.org>
+Message-Id: <20210524152324.199089755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
-User-Agent: quilt/0.66
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.234-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.14.234-rc1
+X-KernelTest-Deadline: 2021-05-26T15:23+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+This is the start of the stable review cycle for the 4.14.234 release.
+There are 37 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 73578af92a0fae6609b955fcc9113e50e413c80f ]
+Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
+Anything received after that time might be too late.
 
-The following trace was observed:
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.234-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+and the diffstat can be found below.
 
- [   14.042059] Call Trace:
- [   14.042061]  <IRQ>
- [   14.042068]  qedf_link_update+0x144/0x1f0 [qedf]
- [   14.042117]  qed_link_update+0x5c/0x80 [qed]
- [   14.042135]  qed_mcp_handle_link_change+0x2d2/0x410 [qed]
- [   14.042155]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042170]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042186]  ? qed_rd+0x13/0x40 [qed]
- [   14.042205]  qed_mcp_handle_events+0x437/0x690 [qed]
- [   14.042221]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042239]  qed_int_sp_dpc+0x3a6/0x3e0 [qed]
- [   14.042245]  tasklet_action_common.isra.14+0x5a/0x100
- [   14.042250]  __do_softirq+0xe4/0x2f8
- [   14.042253]  irq_exit+0xf7/0x100
- [   14.042255]  do_IRQ+0x7f/0xd0
- [   14.042257]  common_interrupt+0xf/0xf
- [   14.042259]  </IRQ>
+thanks,
 
-API qedf_link_update() is getting called from QED but by that time
-shost_data is not initialised. This results in a NULL pointer dereference
-when we try to dereference shost_data while updating supported_speeds.
+greg k-h
 
-Add a NULL pointer check before dereferencing shost_data.
+-------------
+Pseudo-Shortlog of commits:
 
-Link: https://lore.kernel.org/r/20210512072533.23618-1-jhasan@marvell.com
-Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/scsi/qedf/qedf_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.14.234-rc1
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index 46d185cb9ea8..a464d0a4f465 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -536,7 +536,9 @@ static void qedf_update_link_speed(struct qedf_ctx *qedf,
- 	if (linkmode_intersects(link->supported_caps, sup_caps))
- 		lport->link_supported_speeds |= FC_PORTSPEED_20GBIT;
- 
--	fc_host_supported_speeds(lport->host) = lport->link_supported_speeds;
-+	if (lport->host && lport->host->shost_data)
-+		fc_host_supported_speeds(lport->host) =
-+			lport->link_supported_speeds;
- }
- 
- static void qedf_bw_update(void *dev)
--- 
-2.30.2
+Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+    tty: vt: always invoke vc->vc_sw->con_resize callback
 
+Maciej W. Rozycki <macro@orcam.me.uk>
+    vt: Fix character height handling with VT_RESIZEX
+
+Maciej W. Rozycki <macro@orcam.me.uk>
+    vgacon: Record video mode changes with VT_RESIZEX
+
+Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+    video: hgafb: fix potential NULL pointer dereference
+
+Tom Seewald <tseewald@gmail.com>
+    qlcnic: Add null check after calling netdev_alloc_skb
+
+Phillip Potter <phil@philpotter.co.uk>
+    leds: lp5523: check return value of lp5xx_read and jump to cleanup code
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    net: rtlwifi: properly check for alloc_workqueue() failure
+
+Anirudh Rayabharam <mail@anirudhrb.com>
+    net: stmicro: handle clk_prepare() failure during init
+
+Du Cheng <ducheng2@gmail.com>
+    ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "niu: fix missing checks of niu_pci_eeprom_read"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "qlcnic: Avoid potential NULL pointer dereference"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "rtlwifi: fix a potential NULL pointer dereference"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "media: rcar_drif: fix a memory disclosure"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    cdrom: gdrom: initialize global variable at init time
+
+Atul Gopinathan <atulgopinathan@gmail.com>
+    cdrom: gdrom: deallocate struct gdrom_unit fields in remove_gdrom
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "gdrom: fix a memory leak bug"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "ecryptfs: replace BUG_ON with error handling code"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "video: imsttfb: fix potential NULL pointer dereferences"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "net: stmicro: fix a missing check of clk_prepare"
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "video: hgafb: fix potential NULL pointer dereference"
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm snapshot: fix crash with transient storage and zero chunk size
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm snapshot: fix a crash when an origin has no snapshots
+
+Jan Beulich <jbeulich@suse.com>
+    xen-pciback: reconfigure also from backend watch handler
+
+Anirudh Rayabharam <mail@anirudhrb.com>
+    rapidio: handle create_workqueue() failure
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "rapidio: fix a NULL pointer dereference when create_workqueue() fails"
+
+Hui Wang <hui.wang@canonical.com>
+    ALSA: hda/realtek: reset eapd coeff to default value for alc287
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Revert "ALSA: sb8: add a check for request_region"
+
+Takashi Sakamoto <o-takashi@sakamocchi.jp>
+    ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: usb-audio: Validate MS endpoint descriptors
+
+Takashi Iwai <tiwai@suse.de>
+    ALSA: line6: Fix racy initialization of LINE6 MIDI
+
+Ronnie Sahlberg <lsahlber@redhat.com>
+    cifs: fix memory leak in smb2_copychunk_range
+
+Oleg Nesterov <oleg@redhat.com>
+    ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
+
+Zhen Lei <thunder.leizhen@huawei.com>
+    scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
+
+Leon Romanovsky <leonro@nvidia.com>
+    RDMA/rxe: Clear all QP fields if creation failed
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    openrisc: Fix a memory leak
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                           |  4 +-
+ arch/openrisc/kernel/setup.c                       |  2 +
+ drivers/cdrom/gdrom.c                              | 13 +++--
+ drivers/hwmon/lm80.c                               | 11 +----
+ drivers/infiniband/sw/rxe/rxe_qp.c                 |  7 +++
+ drivers/leds/leds-lp5523.c                         |  2 +-
+ drivers/md/dm-snap.c                               |  6 +--
+ drivers/media/platform/rcar_drif.c                 |  1 -
+ .../net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c    |  3 +-
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c  |  8 ++--
+ drivers/net/ethernet/sun/niu.c                     | 32 ++++++++-----
+ drivers/net/wireless/realtek/rtlwifi/base.c        | 19 ++++----
+ drivers/rapidio/rio_cm.c                           | 17 ++++---
+ drivers/scsi/qla2xxx/qla_nx.c                      |  3 +-
+ drivers/tty/vt/vt.c                                |  2 +-
+ drivers/tty/vt/vt_ioctl.c                          |  6 +--
+ drivers/video/console/vgacon.c                     | 56 ++++++++++++----------
+ drivers/video/fbdev/core/fbcon.c                   |  2 +-
+ drivers/video/fbdev/hgafb.c                        | 21 ++++----
+ drivers/video/fbdev/imsttfb.c                      |  5 --
+ drivers/xen/xen-pciback/xenbus.c                   | 22 +++++++--
+ fs/cifs/smb2ops.c                                  |  2 +
+ fs/ecryptfs/crypto.c                               |  6 +--
+ include/linux/console_struct.h                     |  1 +
+ kernel/ptrace.c                                    | 18 ++++++-
+ sound/firewire/Kconfig                             |  4 +-
+ sound/firewire/bebob/bebob.c                       |  2 +-
+ sound/firewire/oxfw/oxfw.c                         |  1 -
+ sound/isa/sb/sb8.c                                 |  4 --
+ sound/pci/hda/patch_realtek.c                      |  5 +-
+ sound/usb/line6/driver.c                           |  4 ++
+ sound/usb/line6/pod.c                              |  5 --
+ sound/usb/line6/variax.c                           |  6 ---
+ sound/usb/midi.c                                   |  4 ++
+ 34 files changed, 175 insertions(+), 129 deletions(-)
 
 
