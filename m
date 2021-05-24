@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 11D3438EFBF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D1B438EEA8
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234554AbhEXP70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S234279AbhEXPxg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:53:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235249AbhEXP6q (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E43E661964;
-        Mon, 24 May 2021 15:44:29 +0000 (UTC)
+        id S232676AbhEXPu5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:50:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 407586162A;
+        Mon, 24 May 2021 15:38:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871070;
-        bh=TM2KUuyDB8NaJB2CiidIrsob6FcjUAVXJa3HAnIJwWg=;
+        s=korg; t=1621870716;
+        bh=tZJpO8rTLY+OhH39EUkaPSIT96N6/9lr6M+6xKRx964=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/Lug29zecaaMVC/WNQ0F2YNvgJWh6IK+PlsEaDMCMzrrg6dadupY3QEDXViuHpLy
-         79aqu7jzCaPE/sso3kharRBV9AOVtdgwEnCwkPwq8VPzYNkSoQsoHmW0eKCZMFLLr+
-         F2XGSAsrtuDqjB5OnWqp1hrW/B9khciotcGWtKTM=
+        b=hgrxf2o9OKfkGeSgLAhvKFzgmfgVri6QblaChFV7v0VJ+h2GMSVOWEDs1todCNezK
+         tV7RurSdpEK0aXkYGiHNR48EdtR2DVkH5r/KzG8PRbfEK6wNcR/ADyzYGbza9uuwdD
+         H2KYmHKOFJpoQJK4Lt7Out1txvbez9BbqrFvO6QY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 047/127] ALSA: firewire-lib: fix calculation for size of IR context payload
+        stable@vger.kernel.org, Du Cheng <ducheng2@gmail.com>,
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 58/71] ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
 Date:   Mon, 24 May 2021 17:26:04 +0200
-Message-Id: <20210524152336.438862305@linuxfoundation.org>
+Message-Id: <20210524152328.342138032@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,55 +40,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Du Cheng <ducheng2@gmail.com>
 
-commit 1be4f21d9984fa9835fae5411a29465dc5aece6f upstream.
+commit e6e337708c22f80824b82d4af645f20715730ad0 upstream.
 
-The quadlets for CIP header is handled as a part of IR context header,
-thus it doesn't join in IR context payload. However current calculation
-includes the quadlets in IR context payload.
+niu_pci_eeprom_read() may fail, so add checks to its return value and
+propagate the error up the callstack.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f11453c7cc01 ("ALSA: firewire-lib: use 16 bytes IR context header to separate CIP header")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-5-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+An examination of the callstack up to niu_pci_eeprom_read shows that:
+
+niu_pci_eeprom_read() // returns int
+    niu_pci_vpd_scan_props() // returns int
+        niu_pci_vpd_fetch() // returns *void*
+            niu_get_invariants() // returns int
+
+since niu_pci_vpd_fetch() returns void which breaks the bubbling up,
+change its return type to int so that error is propagated upwards.
+
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-24-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/amdtp-stream.c |   13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/sun/niu.c |   34 ++++++++++++++++++++++++----------
+ 1 file changed, 24 insertions(+), 10 deletions(-)
 
---- a/sound/firewire/amdtp-stream.c
-+++ b/sound/firewire/amdtp-stream.c
-@@ -1068,23 +1068,22 @@ static int amdtp_stream_start(struct amd
- 		s->data_block_counter = 0;
- 	}
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8097,6 +8097,8 @@ static int niu_pci_vpd_scan_props(struct
+ 		start += 3;
  
--	/* initialize packet buffer */
-+	// initialize packet buffer.
-+	max_ctx_payload_size = amdtp_stream_get_max_payload(s);
- 	if (s->direction == AMDTP_IN_STREAM) {
- 		dir = DMA_FROM_DEVICE;
- 		type = FW_ISO_CONTEXT_RECEIVE;
--		if (!(s->flags & CIP_NO_HEADER))
-+		if (!(s->flags & CIP_NO_HEADER)) {
-+			max_ctx_payload_size -= 8;
- 			ctx_header_size = IR_CTX_HEADER_SIZE_CIP;
--		else
-+		} else {
- 			ctx_header_size = IR_CTX_HEADER_SIZE_NO_CIP;
--
--		max_ctx_payload_size = amdtp_stream_get_max_payload(s) -
--				       ctx_header_size;
+ 		prop_len = niu_pci_eeprom_read(np, start + 4);
++		if (prop_len < 0)
++			return prop_len;
+ 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
+ 		if (err < 0)
+ 			return err;
+@@ -8141,8 +8143,12 @@ static int niu_pci_vpd_scan_props(struct
+ 			netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
+ 				     namebuf, prop_len);
+-			for (i = 0; i < prop_len; i++)
+-				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
++			for (i = 0; i < prop_len; i++) {
++				err =  niu_pci_eeprom_read(np, off + i);
++				if (err < 0)
++					return err;
++				*prop_buf++ = err;
++			}
+ 		}
+ 
+ 		start += len;
+@@ -8152,14 +8158,14 @@ static int niu_pci_vpd_scan_props(struct
+ }
+ 
+ /* ESPC_PIO_EN_ENABLE must be set */
+-static void niu_pci_vpd_fetch(struct niu *np, u32 start)
++static int niu_pci_vpd_fetch(struct niu *np, u32 start)
+ {
+ 	u32 offset;
+ 	int err;
+ 
+ 	err = niu_pci_eeprom_read16_swp(np, start + 1);
+ 	if (err < 0)
+-		return;
++		return err;
+ 
+ 	offset = err + 3;
+ 
+@@ -8168,12 +8174,14 @@ static void niu_pci_vpd_fetch(struct niu
+ 		u32 end;
+ 
+ 		err = niu_pci_eeprom_read(np, here);
++		if (err < 0)
++			return err;
+ 		if (err != 0x90)
+-			return;
++			return -EINVAL;
+ 
+ 		err = niu_pci_eeprom_read16_swp(np, here + 1);
+ 		if (err < 0)
+-			return;
++			return err;
+ 
+ 		here = start + offset + 3;
+ 		end = start + offset + err;
+@@ -8181,9 +8189,12 @@ static void niu_pci_vpd_fetch(struct niu
+ 		offset += err;
+ 
+ 		err = niu_pci_vpd_scan_props(np, here, end);
+-		if (err < 0 || err == 1)
+-			return;
++		if (err < 0)
++			return err;
++		if (err == 1)
++			return -EINVAL;
+ 	}
++	return 0;
+ }
+ 
+ /* ESPC_PIO_EN_ENABLE must be set */
+@@ -9274,8 +9285,11 @@ static int niu_get_invariants(struct niu
+ 		offset = niu_pci_vpd_offset(np);
+ 		netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 			     "%s() VPD offset [%08x]\n", __func__, offset);
+-		if (offset)
+-			niu_pci_vpd_fetch(np, offset);
++		if (offset) {
++			err = niu_pci_vpd_fetch(np, offset);
++			if (err < 0)
++				return err;
 +		}
- 	} else {
- 		dir = DMA_TO_DEVICE;
- 		type = FW_ISO_CONTEXT_TRANSMIT;
- 		ctx_header_size = 0;	// No effect for IT context.
+ 		nw64(ESPC_PIO_EN, 0);
  
--		max_ctx_payload_size = amdtp_stream_get_max_payload(s);
- 		if (!(s->flags & CIP_NO_HEADER))
- 			max_ctx_payload_size -= IT_PKT_HEADER_SIZE_CIP;
- 	}
+ 		if (np->flags & NIU_FLAGS_VPD_VALID) {
 
 
