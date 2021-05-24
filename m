@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 758D538EE3E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2600D38EECF
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233683AbhEXPrc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:47:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35146 "EHLO mail.kernel.org"
+        id S234142AbhEXPzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233823AbhEXPph (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:45:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E90A861469;
-        Mon, 24 May 2021 15:36:25 +0000 (UTC)
+        id S234934AbhEXPyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E83C6187E;
+        Mon, 24 May 2021 15:40:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870586;
-        bh=+Ry8OFtRQ6R/dls8cjldcYfjKLo1G6vnoM5kpwSEqFE=;
+        s=korg; t=1621870808;
+        bh=3Tr08Y78fD2cRH+schCpVdrD0QHHKQyBNwEkv7fNgL8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o4+Q93m8iq8WQ41mnW1ZYs/E4n0c5PeSDK5vRrINNe9jK/MofgASU2ZHUTxHA5SK5
-         usxvbIeaolKXXjiffVvgn762SBdyemUGlasK8QYFZLT7zEyD91TU3g/QcQeSDH/pvW
-         G/eC0OkQ72/AiCyWc65o732boXq6Eeg3KTbED4No=
+        b=VdW0AXISlRPLWB7YDcviH18SRsF+c7QJ2h/iLwMA+NZxVTv1dYaKoFPoSPD8LDhh+
+         bE1K6cgjJ7vSlr5wMo/JqEihU2wdcwSRtq374N4D6n2C1emeUWnfIgTxU648yEgzTJ
+         VtAtmqe95aSnV1EjPFeqUuGQ+CRP8D39drXMP7qU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.com>,
         Daniel Wagner <dwagner@suse.de>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 14/71] nvmet: seset ns->file when open fails
-Date:   Mon, 24 May 2021 17:25:20 +0200
-Message-Id: <20210524152326.925729819@linuxfoundation.org>
+Subject: [PATCH 5.10 026/104] nvmet: seset ns->file when open fails
+Date:   Mon, 24 May 2021 17:25:21 +0200
+Message-Id: <20210524152333.685566656@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 5 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
-index 05453f5d1448..6ca17a0babae 100644
+index 0abbefd9925e..b57599724448 100644
 --- a/drivers/nvme/target/io-cmd-file.c
 +++ b/drivers/nvme/target/io-cmd-file.c
-@@ -38,9 +38,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
+@@ -49,9 +49,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
  
  	ns->file = filp_open(ns->device_path, flags, 0);
  	if (IS_ERR(ns->file)) {
@@ -92,7 +92,7 @@ index 05453f5d1448..6ca17a0babae 100644
 +		return ret;
  	}
  
- 	ret = vfs_getattr(&ns->file->f_path,
+ 	ret = nvmet_file_ns_revalidate(ns);
 -- 
 2.30.2
 
