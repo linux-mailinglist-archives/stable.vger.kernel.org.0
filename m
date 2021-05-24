@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FD638EED6
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABD6738EF6B
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234112AbhEXPz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S235138AbhEXP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235211AbhEXPzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C41C961430;
-        Mon, 24 May 2021 15:40:35 +0000 (UTC)
+        id S235378AbhEXP4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4060361407;
+        Mon, 24 May 2021 15:42:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870836;
-        bh=MTf65CjRn4pimJ0YQqAOZWp680x6htRBMF1uX8Kmrns=;
+        s=korg; t=1621870972;
+        bh=h5m1Bw3ZqV1GlCUjR/qFL1tEOn3C05FJTooMv0LOidA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tmpR1jk8I6DFVgziS2qbyufbVpSSBtKyEX3DpHwMZ2nRQ0+4H+/8FOFNlQIo2SA2D
-         83gfWcBqtPhBtIt2oHr/68Ln2EEQESNKu7hBF5BMiccdVixGSRrAwNeLo/VZC/hQw3
-         qno7jWQKiMlt26k+ti8Xt9Q81B8/XpYVE/hpaO1k=
+        b=jY5cHz7n95+A/v9RWnIhRv7S+jAVDOriY9AMYa4k6WUu+nSydN2xYh2dQFK5BGJCl
+         WjokfpIGrHHvXt9to9L7Rrm/NMGZiFCQW7ytoXhw8gxGbyreOcHXlb6NBD81Itbctg
+         2NqirnaLSOkmM12eQPbrhzqZI6FA5w184GzXNydY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 037/104] ALSA: line6: Fix racy initialization of LINE6 MIDI
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Zhu Yanjun <zyjzyj2000@gmail.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 015/127] RDMA/rxe: Return CQE error if invalid lkey was supplied
 Date:   Mon, 24 May 2021 17:25:32 +0200
-Message-Id: <20210524152334.064032900@linuxfoundation.org>
+Message-Id: <20210524152335.375154107@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +41,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
+[ Upstream commit dc07628bd2bbc1da768e265192c28ebd301f509d ]
 
-The initialization of MIDI devices that are found on some LINE6
-drivers are currently done in a racy way; namely, the MIDI buffer
-instance is allocated and initialized in each private_init callback
-while the communication with the interface is already started via
-line6_init_cap_control() call before that point.  This may lead to
-Oops in line6_data_received() when a spurious event is received, as
-reported by syzkaller.
+RXE is missing update of WQE status in LOCAL_WRITE failures.  This caused
+the following kernel panic if someone sent an atomic operation with an
+explicitly wrong lkey.
 
-This patch moves the MIDI initialization to line6_init_cap_control()
-as well instead of the too-lately-called private_init for avoiding the
-race.  Also this reduces slightly more lines, so it's a win-win
-change.
+[leonro@vm ~]$ mkt test
+test_atomic_invalid_lkey (tests.test_atomic.AtomicTest) ...
+ WARNING: CPU: 5 PID: 263 at drivers/infiniband/sw/rxe/rxe_comp.c:740 rxe_completer+0x1a6d/0x2e30 [rdma_rxe]
+ Modules linked in: crc32_generic rdma_rxe ip6_udp_tunnel udp_tunnel rdma_ucm rdma_cm ib_umad ib_ipoib iw_cm ib_cm mlx5_ib ib_uverbs ib_core mlx5_core ptp pps_core
+ CPU: 5 PID: 263 Comm: python3 Not tainted 5.13.0-rc1+ #2936
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:rxe_completer+0x1a6d/0x2e30 [rdma_rxe]
+ Code: 03 0f 8e 65 0e 00 00 3b 93 10 06 00 00 0f 84 82 0a 00 00 4c 89 ff 4c 89 44 24 38 e8 2d 74 a9 e1 4c 8b 44 24 38 e9 1c f5 ff ff <0f> 0b e9 0c e8 ff ff b8 05 00 00 00 41 bf 05 00 00 00 e9 ab e7 ff
+ RSP: 0018:ffff8880158af090 EFLAGS: 00010246
+ RAX: 0000000000000000 RBX: ffff888016a78000 RCX: ffffffffa0cf1652
+ RDX: 1ffff9200004b442 RSI: 0000000000000004 RDI: ffffc9000025a210
+ RBP: dffffc0000000000 R08: 00000000ffffffea R09: ffff88801617740b
+ R10: ffffed1002c2ee81 R11: 0000000000000007 R12: ffff88800f3b63e8
+ R13: ffff888016a78008 R14: ffffc9000025a180 R15: 000000000000000c
+ FS:  00007f88b622a740(0000) GS:ffff88806d540000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 00007f88b5a1fa10 CR3: 000000000d848004 CR4: 0000000000370ea0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  rxe_do_task+0x130/0x230 [rdma_rxe]
+  rxe_rcv+0xb11/0x1df0 [rdma_rxe]
+  rxe_loopback+0x157/0x1e0 [rdma_rxe]
+  rxe_responder+0x5532/0x7620 [rdma_rxe]
+  rxe_do_task+0x130/0x230 [rdma_rxe]
+  rxe_rcv+0x9c8/0x1df0 [rdma_rxe]
+  rxe_loopback+0x157/0x1e0 [rdma_rxe]
+  rxe_requester+0x1efd/0x58c0 [rdma_rxe]
+  rxe_do_task+0x130/0x230 [rdma_rxe]
+  rxe_post_send+0x998/0x1860 [rdma_rxe]
+  ib_uverbs_post_send+0xd5f/0x1220 [ib_uverbs]
+  ib_uverbs_write+0x847/0xc80 [ib_uverbs]
+  vfs_write+0x1c5/0x840
+  ksys_write+0x176/0x1d0
+  do_syscall_64+0x3f/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
-Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
-Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
-Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8700e3e7c485 ("Soft RoCE driver")
+Link: https://lore.kernel.org/r/11e7b553f3a6f5371c6bb3f57c494bb52b88af99.1620711734.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Acked-by: Zhu Yanjun <zyjzyj2000@gmail.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/line6/driver.c |    4 ++++
- sound/usb/line6/pod.c    |    5 -----
- sound/usb/line6/variax.c |    6 ------
- 3 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/infiniband/sw/rxe/rxe_comp.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -699,6 +699,10 @@ static int line6_init_cap_control(struct
- 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
- 		if (!line6->buffer_message)
- 			return -ENOMEM;
+diff --git a/drivers/infiniband/sw/rxe/rxe_comp.c b/drivers/infiniband/sw/rxe/rxe_comp.c
+index a612b335baa0..06b556169867 100644
+--- a/drivers/infiniband/sw/rxe/rxe_comp.c
++++ b/drivers/infiniband/sw/rxe/rxe_comp.c
+@@ -346,13 +346,15 @@ static inline enum comp_state do_read(struct rxe_qp *qp,
+ 	ret = copy_data(qp->pd, IB_ACCESS_LOCAL_WRITE,
+ 			&wqe->dma, payload_addr(pkt),
+ 			payload_size(pkt), to_mr_obj, NULL);
+-	if (ret)
++	if (ret) {
++		wqe->status = IB_WC_LOC_PROT_ERR;
+ 		return COMPST_ERROR;
++	}
+ 
+ 	if (wqe->dma.resid == 0 && (pkt->mask & RXE_END_MASK))
+ 		return COMPST_COMP_ACK;
+-	else
+-		return COMPST_UPDATE_COMP;
 +
-+		ret = line6_init_midi(line6);
-+		if (ret < 0)
-+			return ret;
- 	} else {
- 		ret = line6_hwdep_init(line6);
- 		if (ret < 0)
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -376,11 +376,6 @@ static int pod_init(struct usb_line6 *li
- 	if (err < 0)
- 		return err;
++	return COMPST_UPDATE_COMP;
+ }
  
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(line6);
--	if (err < 0)
--		return err;
--
- 	/* initialize PCM subsystem: */
- 	err = line6_init_pcm(line6, &pod_pcm_properties);
- 	if (err < 0)
---- a/sound/usb/line6/variax.c
-+++ b/sound/usb/line6/variax.c
-@@ -159,7 +159,6 @@ static int variax_init(struct usb_line6
- 		       const struct usb_device_id *id)
- {
- 	struct usb_line6_variax *variax = line6_to_variax(line6);
--	int err;
+ static inline enum comp_state do_atomic(struct rxe_qp *qp,
+@@ -366,10 +368,12 @@ static inline enum comp_state do_atomic(struct rxe_qp *qp,
+ 	ret = copy_data(qp->pd, IB_ACCESS_LOCAL_WRITE,
+ 			&wqe->dma, &atomic_orig,
+ 			sizeof(u64), to_mr_obj, NULL);
+-	if (ret)
++	if (ret) {
++		wqe->status = IB_WC_LOC_PROT_ERR;
+ 		return COMPST_ERROR;
+-	else
+-		return COMPST_COMP_ACK;
++	}
++
++	return COMPST_COMP_ACK;
+ }
  
- 	line6->process_message = line6_variax_process_message;
- 	line6->disconnect = line6_variax_disconnect;
-@@ -172,11 +171,6 @@ static int variax_init(struct usb_line6
- 	if (variax->buffer_activate == NULL)
- 		return -ENOMEM;
- 
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(&variax->line6);
--	if (err < 0)
--		return err;
--
- 	/* initiate startup procedure: */
- 	schedule_delayed_work(&line6->startup_work,
- 			      msecs_to_jiffies(VARIAX_STARTUP_DELAY1));
+ static void make_send_cqe(struct rxe_qp *qp, struct rxe_send_wqe *wqe,
+-- 
+2.30.2
+
 
 
