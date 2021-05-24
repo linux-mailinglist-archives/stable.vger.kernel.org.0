@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BFADD38EE6A
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7C738EDC6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233872AbhEXPuo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:50:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33560 "EHLO mail.kernel.org"
+        id S233158AbhEXPmC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:42:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234461AbhEXPrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:47:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C2DA61415;
-        Mon, 24 May 2021 15:37:05 +0000 (UTC)
+        id S233740AbhEXPj5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:39:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CA2AF61435;
+        Mon, 24 May 2021 15:33:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870625;
-        bh=il5dChJjhFtRvXPyUfOQ5OG42G5UnANpeqwOXJFXj4E=;
+        s=korg; t=1621870440;
+        bh=Wjlwndu3maWl4Pu3r737cwkled+6HVuNMWTYCHealns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d5v+U6LT51cyMe1FoBgqWlhA1UuVyLnz5floJKYQpJbur3JA2EXb575Tyd38yePDq
-         PfOHzc4y7jS1Y8yHSUZJl3UsKNGw6D4aEAedWvlH2oDBhAycs12DbNq1ENmNpZpjs6
-         5dvYUG2xSehQ14xXXBBoF+nQgwhpvsxTXRfp5tBQ=
+        b=b4BAOXCVFrntiYR5wwZUg0WuRY/qW9XjksQmFfqkOeXVrCdf2Tv7BdS6e7lUlpnbo
+         +0L9ILqJ4gsGbbn/TXbS5GanyKmwUPWWJtEnCd5OUhtBfxBR/UwDw+FkSFcS4ju12a
+         +q/IYhvBMqU40y5nrnJWaB7xlNYvDtBmU2r6tfeY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 32/71] ALSA: hda/realtek: Add fixup for HP Spectre x360 15-df0xxx
+        stable@vger.kernel.org, Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Subject: [PATCH 4.14 34/37] video: hgafb: fix potential NULL pointer dereference
 Date:   Mon, 24 May 2021 17:25:38 +0200
-Message-Id: <20210524152327.506934903@linuxfoundation.org>
+Message-Id: <20210524152325.321554753@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elia Devito <eliadevito@gmail.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit f2be77fee648ddd6d0d259d3527344ba0120e314 upstream.
+commit dc13cac4862cc68ec74348a80b6942532b7735fa upstream.
 
-Fixup to enable all 4 speaker on HP Spectre x360 15-df0xxx and probably
-on similar models.
+The return of ioremap if not checked, and can lead to a NULL to be
+assigned to hga_vram. Potentially leading to a NULL pointer
+dereference.
 
-0x14 pin config override is required to enable all speakers and
-alc285-speaker2-to-dac1 fixup to enable volume adjustment.
+The fix adds code to deal with this case in the error label and
+changes how the hgafb_probe handles the return of hga_card_detect.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=189331
-Signed-off-by: Elia Devito <eliadevito@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210511124651.4802-1-eliadevito@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-40-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/video/fbdev/hgafb.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6391,6 +6391,7 @@ enum {
- 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 	ALC295_FIXUP_ASUS_DACS,
- 	ALC295_FIXUP_HP_OMEN,
-+	ALC285_FIXUP_HP_SPECTRE_X360,
- };
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7880,6 +7881,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
- 	},
-+	[ALC285_FIXUP_HP_SPECTRE_X360] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x14, 0x90170110 }, /* enable top speaker */
-+			{}
-+		},
-+		.chained = true,
-+		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1,
-+	},
- };
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		return -ENOMEM;
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8032,6 +8042,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8729, "HP", ALC285_FIXUP_HP_GPIO_LED),
-@@ -8436,6 +8447,7 @@ static const struct hda_model_fixup alc2
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
- 	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
-+	{.id = ALC285_FIXUP_HP_SPECTRE_X360, .name = "alc285-hp-spectre-x360"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
+@@ -344,13 +346,18 @@ static int hga_card_detect(void)
+ 			hga_type_name = "Hercules";
+ 			break;
+ 	}
+-	return 1;
++	return 0;
+ error:
+ 	if (release_io_ports)
+ 		release_region(0x3b0, 12);
+ 	if (release_io_port)
+ 		release_region(0x3bf, 1);
+-	return 0;
++
++	iounmap(hga_vram);
++
++	pr_err("hgafb: HGA card not detected.\n");
++
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -548,13 +555,11 @@ static struct fb_ops hgafb_ops = {
+ static int hgafb_probe(struct platform_device *pdev)
+ {
+ 	struct fb_info *info;
++	int ret;
+ 
+-	if (! hga_card_detect()) {
+-		printk(KERN_INFO "hgafb: HGA card not detected.\n");
+-		if (hga_vram)
+-			iounmap(hga_vram);
+-		return -EINVAL;
+-	}
++	ret = hga_card_detect();
++	if (!ret)
++		return ret;
+ 
+ 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
+ 		hga_type_name, hga_vram_len/1024);
 
 
