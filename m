@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8732D38EABC
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:56:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 29F9538EAB9
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:56:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233833AbhEXO5U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:57:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33398 "EHLO mail.kernel.org"
+        id S233810AbhEXO5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:57:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234238AbhEXOyw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:54:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 37EB36128B;
-        Mon, 24 May 2021 14:48:43 +0000 (UTC)
+        id S234248AbhEXOyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:54:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 680F2613C8;
+        Mon, 24 May 2021 14:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867724;
-        bh=1/KlnCRWtF0vKGhkPgGjzun0pYQzldw/2erBmmt1otM=;
+        s=k20201202; t=1621867725;
+        bh=doQ1LmqNleSxsQi1VCGVjxzzYZd28IP7SrKVauBGhgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bzKX99iU6UrXRhWhljJaw4FZ4QbKw/FAhdC+bE+n1lCzx7sN6IS2ptrOaoOajHoZ6
-         ISs6UOoNJjCZGIuTS+BP6GKyVPCviJh+IR13W89D1Yf4QQVYIL9jQ7wbHVN+0zc082
-         /Z7ojZK6eMqJKdeEdRWLF3TEyyzhcleYlzH/3KoFowK5dGFlZp7a1xqi3F9TsixSOY
-         yAOuEp+HYTufkCpvnJ7UqUXjSJhLOn+ZEHhhDuv+X659XbUwdpRX1N674PaH/dMEf1
-         ikO9BGf7gtNQCNWwJvdRqKSQUUqvx0MMJuH7P61EaWQ3wG+W2bdecf9fihjzOP2i2b
-         odt33o1w4XH7g==
+        b=CA0kI9Pfx1UDpWWk+Y4tGWAPnigGXhyB6rfZ77d8Kneh/sleMrTAjg6sUdBW1/S2K
+         f5VA756gYjAZH6kJj8/BkUMHOS1LknCvuhYXN6JyXoUXLXf5rtwK09gsCe7zlDZXW4
+         w4PfbkVW+nggAdm6li3gN7mdkhVvrsVzwluQW50hhKjOM5a4eRAmN4o/rJsg91kC4v
+         rhukrYj2yIcP3iIBZMBhNzUbmOiH3Q8BTf4dPlctfDZN/PlXjNdydiuGDyx9GabJOU
+         FmRSv+InlYStmACAMVbj+8w8p9iIxEfNUGk4vmikvZHhyu0/UH2Tm0eq5w5ll1lt+M
+         0iKUhTfET7URQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ajish Koshy <ajish.koshy@microchip.com>,
-        Viswas G <viswas.g@microchip.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 48/62] scsi: pm80xx: Fix drives missing during rmmod/insmod loop
-Date:   Mon, 24 May 2021 10:47:29 -0400
-Message-Id: <20210524144744.2497894-48-sashal@kernel.org>
+Cc:     Filipe Manana <fdmanana@suse.com>,
+        Ritesh Harjani <riteshh@linux.ibm.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 49/62] btrfs: release path before starting transaction when cloning inline extent
+Date:   Mon, 24 May 2021 10:47:30 -0400
+Message-Id: <20210524144744.2497894-49-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
 References: <20210524144744.2497894-1-sashal@kernel.org>
@@ -43,119 +44,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ajish Koshy <ajish.koshy@microchip.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit d1acd81bd6eb685aa9fef25624fb36d297f6404e ]
+[ Upstream commit 6416954ca75baed71640bf3828625bf165fb9b5e ]
 
-When driver is loaded after rmmod some drives are not showing up during
-discovery.
+When cloning an inline extent there are a few cases, such as when we have
+an implicit hole at file offset 0, where we start a transaction while
+holding a read lock on a leaf. Starting the transaction results in a call
+to sb_start_intwrite(), which results in doing a read lock on a percpu
+semaphore. Lockdep doesn't like this and complains about it:
 
-SATA drives are directly attached to the controller connected phys.  During
-device discovery, the IDENTIFY command (qc timeout (cmd 0xec)) is timing out
-during revalidation. This will trigger abort from host side and controller
-successfully aborts the command and returns success. Post this successful
-abort response ATA library decides to mark the disk as NODEV.
+  [46.580704] ======================================================
+  [46.580752] WARNING: possible circular locking dependency detected
+  [46.580799] 5.13.0-rc1 #28 Not tainted
+  [46.580832] ------------------------------------------------------
+  [46.580877] cloner/3835 is trying to acquire lock:
+  [46.580918] c00000001301d638 (sb_internal#2){.+.+}-{0:0}, at: clone_copy_inline_extent+0xe4/0x5a0
+  [46.581167]
+  [46.581167] but task is already holding lock:
+  [46.581217] c000000007fa2550 (btrfs-tree-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x70/0x1d0
+  [46.581293]
+  [46.581293] which lock already depends on the new lock.
+  [46.581293]
+  [46.581351]
+  [46.581351] the existing dependency chain (in reverse order) is:
+  [46.581410]
+  [46.581410] -> #1 (btrfs-tree-00){++++}-{3:3}:
+  [46.581464]        down_read_nested+0x68/0x200
+  [46.581536]        __btrfs_tree_read_lock+0x70/0x1d0
+  [46.581577]        btrfs_read_lock_root_node+0x88/0x200
+  [46.581623]        btrfs_search_slot+0x298/0xb70
+  [46.581665]        btrfs_set_inode_index+0xfc/0x260
+  [46.581708]        btrfs_new_inode+0x26c/0x950
+  [46.581749]        btrfs_create+0xf4/0x2b0
+  [46.581782]        lookup_open.isra.57+0x55c/0x6a0
+  [46.581855]        path_openat+0x418/0xd20
+  [46.581888]        do_filp_open+0x9c/0x130
+  [46.581920]        do_sys_openat2+0x2ec/0x430
+  [46.581961]        do_sys_open+0x90/0xc0
+  [46.581993]        system_call_exception+0x3d4/0x410
+  [46.582037]        system_call_common+0xec/0x278
+  [46.582078]
+  [46.582078] -> #0 (sb_internal#2){.+.+}-{0:0}:
+  [46.582135]        __lock_acquire+0x1e90/0x2c50
+  [46.582176]        lock_acquire+0x2b4/0x5b0
+  [46.582263]        start_transaction+0x3cc/0x950
+  [46.582308]        clone_copy_inline_extent+0xe4/0x5a0
+  [46.582353]        btrfs_clone+0x5fc/0x880
+  [46.582388]        btrfs_clone_files+0xd8/0x1c0
+  [46.582434]        btrfs_remap_file_range+0x3d8/0x590
+  [46.582481]        do_clone_file_range+0x10c/0x270
+  [46.582558]        vfs_clone_file_range+0x1b0/0x310
+  [46.582605]        ioctl_file_clone+0x90/0x130
+  [46.582651]        do_vfs_ioctl+0x874/0x1ac0
+  [46.582697]        sys_ioctl+0x6c/0x120
+  [46.582733]        system_call_exception+0x3d4/0x410
+  [46.582777]        system_call_common+0xec/0x278
+  [46.582822]
+  [46.582822] other info that might help us debug this:
+  [46.582822]
+  [46.582888]  Possible unsafe locking scenario:
+  [46.582888]
+  [46.582942]        CPU0                    CPU1
+  [46.582984]        ----                    ----
+  [46.583028]   lock(btrfs-tree-00);
+  [46.583062]                                lock(sb_internal#2);
+  [46.583119]                                lock(btrfs-tree-00);
+  [46.583174]   lock(sb_internal#2);
+  [46.583212]
+  [46.583212]  *** DEADLOCK ***
+  [46.583212]
+  [46.583266] 6 locks held by cloner/3835:
+  [46.583299]  #0: c00000001301d448 (sb_writers#12){.+.+}-{0:0}, at: ioctl_file_clone+0x90/0x130
+  [46.583382]  #1: c00000000f6d3768 (&sb->s_type->i_mutex_key#15){+.+.}-{3:3}, at: lock_two_nondirectories+0x58/0xc0
+  [46.583477]  #2: c00000000f6d72a8 (&sb->s_type->i_mutex_key#15/4){+.+.}-{3:3}, at: lock_two_nondirectories+0x9c/0xc0
+  [46.583574]  #3: c00000000f6d7138 (&ei->i_mmap_lock){+.+.}-{3:3}, at: btrfs_remap_file_range+0xd0/0x590
+  [46.583657]  #4: c00000000f6d35f8 (&ei->i_mmap_lock/1){+.+.}-{3:3}, at: btrfs_remap_file_range+0xe0/0x590
+  [46.583743]  #5: c000000007fa2550 (btrfs-tree-00){++++}-{3:3}, at: __btrfs_tree_read_lock+0x70/0x1d0
+  [46.583828]
+  [46.583828] stack backtrace:
+  [46.583872] CPU: 1 PID: 3835 Comm: cloner Not tainted 5.13.0-rc1 #28
+  [46.583931] Call Trace:
+  [46.583955] [c0000000167c7200] [c000000000c1ee78] dump_stack+0xec/0x144 (unreliable)
+  [46.584052] [c0000000167c7240] [c000000000274058] print_circular_bug.isra.32+0x3a8/0x400
+  [46.584123] [c0000000167c72e0] [c0000000002741f4] check_noncircular+0x144/0x190
+  [46.584191] [c0000000167c73b0] [c000000000278fc0] __lock_acquire+0x1e90/0x2c50
+  [46.584259] [c0000000167c74f0] [c00000000027aa94] lock_acquire+0x2b4/0x5b0
+  [46.584317] [c0000000167c75e0] [c000000000a0d6cc] start_transaction+0x3cc/0x950
+  [46.584388] [c0000000167c7690] [c000000000af47a4] clone_copy_inline_extent+0xe4/0x5a0
+  [46.584457] [c0000000167c77c0] [c000000000af525c] btrfs_clone+0x5fc/0x880
+  [46.584514] [c0000000167c7990] [c000000000af5698] btrfs_clone_files+0xd8/0x1c0
+  [46.584583] [c0000000167c7a00] [c000000000af5b58] btrfs_remap_file_range+0x3d8/0x590
+  [46.584652] [c0000000167c7ae0] [c0000000005d81dc] do_clone_file_range+0x10c/0x270
+  [46.584722] [c0000000167c7b40] [c0000000005d84f0] vfs_clone_file_range+0x1b0/0x310
+  [46.584793] [c0000000167c7bb0] [c00000000058bf80] ioctl_file_clone+0x90/0x130
+  [46.584861] [c0000000167c7c10] [c00000000058c894] do_vfs_ioctl+0x874/0x1ac0
+  [46.584922] [c0000000167c7d10] [c00000000058db4c] sys_ioctl+0x6c/0x120
+  [46.584978] [c0000000167c7d60] [c0000000000364a4] system_call_exception+0x3d4/0x410
+  [46.585046] [c0000000167c7e10] [c00000000000d45c] system_call_common+0xec/0x278
+  [46.585114] --- interrupt: c00 at 0x7ffff7e22990
+  [46.585160] NIP:  00007ffff7e22990 LR: 00000001000010ec CTR: 0000000000000000
+  [46.585224] REGS: c0000000167c7e80 TRAP: 0c00   Not tainted  (5.13.0-rc1)
+  [46.585280] MSR:  800000000280f033 <SF,VEC,VSX,EE,PR,FP,ME,IR,DR,RI,LE>  CR: 28000244  XER: 00000000
+  [46.585374] IRQMASK: 0
+  [46.585374] GPR00: 0000000000000036 00007fffffffdec0 00007ffff7f17100 0000000000000004
+  [46.585374] GPR04: 000000008020940d 00007fffffffdf40 0000000000000000 0000000000000000
+  [46.585374] GPR08: 0000000000000004 0000000000000000 0000000000000000 0000000000000000
+  [46.585374] GPR12: 0000000000000000 00007ffff7ffa940 0000000000000000 0000000000000000
+  [46.585374] GPR16: 0000000000000000 0000000000000000 0000000000000000 0000000000000000
+  [46.585374] GPR20: 0000000000000000 000000009123683e 00007fffffffdf40 0000000000000000
+  [46.585374] GPR24: 0000000000000000 0000000000000000 0000000000000000 0000000000000004
+  [46.585374] GPR28: 0000000100030260 0000000100030280 0000000000000003 000000000000005f
+  [46.585919] NIP [00007ffff7e22990] 0x7ffff7e22990
+  [46.585964] LR [00000001000010ec] 0x1000010ec
+  [46.586010] --- interrupt: c00
 
-To overcome this, inside pm8001_scan_start() after phy_start() call, add get
-start response and wait for few milliseconds to trigger next phy start.
-This millisecond delay will give sufficient time for the controller state
-machine to accept next phy start.
+This should be a false positive, as both locks are acquired in read mode.
+Nevertheless, we don't need to hold a leaf locked when we start the
+transaction, so just release the leaf (path) before starting it.
 
-Link: https://lore.kernel.org/r/20210505120103.24497-1-ajish.koshy@microchip.com
-Signed-off-by: Ajish Koshy <ajish.koshy@microchip.com>
-Signed-off-by: Viswas G <viswas.g@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Reported-by: Ritesh Harjani <riteshh@linux.ibm.com>
+Link: https://lore.kernel.org/linux-btrfs/20210513214404.xks77p566fglzgum@riteshh-domain/
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/pm8001/pm8001_hwi.c  | 10 ++++++----
- drivers/scsi/pm8001/pm8001_init.c |  2 +-
- drivers/scsi/pm8001/pm8001_sas.c  |  7 ++++++-
- drivers/scsi/pm8001/pm80xx_hwi.c  | 12 ++++++------
- 4 files changed, 19 insertions(+), 12 deletions(-)
+ fs/btrfs/reflink.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/scsi/pm8001/pm8001_hwi.c b/drivers/scsi/pm8001/pm8001_hwi.c
-index 355d1c5f2194..2114d2dd3501 100644
---- a/drivers/scsi/pm8001/pm8001_hwi.c
-+++ b/drivers/scsi/pm8001/pm8001_hwi.c
-@@ -3703,11 +3703,13 @@ static int mpi_hw_event(struct pm8001_hba_info *pm8001_ha, void* piomb)
- 	case HW_EVENT_PHY_START_STATUS:
- 		pm8001_dbg(pm8001_ha, MSG, "HW_EVENT_PHY_START_STATUS status = %x\n",
- 			   status);
--		if (status == 0) {
-+		if (status == 0)
- 			phy->phy_state = 1;
--			if (pm8001_ha->flags == PM8001F_RUN_TIME &&
--					phy->enable_completion != NULL)
--				complete(phy->enable_completion);
-+
-+		if (pm8001_ha->flags == PM8001F_RUN_TIME &&
-+				phy->enable_completion != NULL) {
-+			complete(phy->enable_completion);
-+			phy->enable_completion = NULL;
- 		}
- 		break;
- 	case HW_EVENT_SAS_PHY_UP:
-diff --git a/drivers/scsi/pm8001/pm8001_init.c b/drivers/scsi/pm8001/pm8001_init.c
-index 7657d68e12d5..0c0c886c7371 100644
---- a/drivers/scsi/pm8001/pm8001_init.c
-+++ b/drivers/scsi/pm8001/pm8001_init.c
-@@ -1139,8 +1139,8 @@ static int pm8001_pci_probe(struct pci_dev *pdev,
- 		goto err_out_shost;
- 	}
- 	list_add_tail(&pm8001_ha->list, &hba_list);
--	scsi_scan_host(pm8001_ha->shost);
- 	pm8001_ha->flags = PM8001F_RUN_TIME;
-+	scsi_scan_host(pm8001_ha->shost);
- 	return 0;
- 
- err_out_shost:
-diff --git a/drivers/scsi/pm8001/pm8001_sas.c b/drivers/scsi/pm8001/pm8001_sas.c
-index 474468df2a78..39de9a9360d3 100644
---- a/drivers/scsi/pm8001/pm8001_sas.c
-+++ b/drivers/scsi/pm8001/pm8001_sas.c
-@@ -264,12 +264,17 @@ void pm8001_scan_start(struct Scsi_Host *shost)
- 	int i;
- 	struct pm8001_hba_info *pm8001_ha;
- 	struct sas_ha_struct *sha = SHOST_TO_SAS_HA(shost);
-+	DECLARE_COMPLETION_ONSTACK(completion);
- 	pm8001_ha = sha->lldd_ha;
- 	/* SAS_RE_INITIALIZATION not available in SPCv/ve */
- 	if (pm8001_ha->chip_id == chip_8001)
- 		PM8001_CHIP_DISP->sas_re_init_req(pm8001_ha);
--	for (i = 0; i < pm8001_ha->chip->n_phy; ++i)
-+	for (i = 0; i < pm8001_ha->chip->n_phy; ++i) {
-+		pm8001_ha->phy[i].enable_completion = &completion;
- 		PM8001_CHIP_DISP->phy_start_req(pm8001_ha, i);
-+		wait_for_completion(&completion);
-+		msleep(300);
-+	}
- }
- 
- int pm8001_scan_finished(struct Scsi_Host *shost, unsigned long time)
-diff --git a/drivers/scsi/pm8001/pm80xx_hwi.c b/drivers/scsi/pm8001/pm80xx_hwi.c
-index 27b354860a16..a203a4fc2674 100644
---- a/drivers/scsi/pm8001/pm80xx_hwi.c
-+++ b/drivers/scsi/pm8001/pm80xx_hwi.c
-@@ -3432,13 +3432,13 @@ static int mpi_phy_start_resp(struct pm8001_hba_info *pm8001_ha, void *piomb)
- 	pm8001_dbg(pm8001_ha, INIT,
- 		   "phy start resp status:0x%x, phyid:0x%x\n",
- 		   status, phy_id);
--	if (status == 0) {
-+	if (status == 0)
- 		phy->phy_state = PHY_LINK_DOWN;
--		if (pm8001_ha->flags == PM8001F_RUN_TIME &&
--				phy->enable_completion != NULL) {
--			complete(phy->enable_completion);
--			phy->enable_completion = NULL;
--		}
-+
-+	if (pm8001_ha->flags == PM8001F_RUN_TIME &&
-+			phy->enable_completion != NULL) {
-+		complete(phy->enable_completion);
-+		phy->enable_completion = NULL;
- 	}
- 	return 0;
- 
+diff --git a/fs/btrfs/reflink.c b/fs/btrfs/reflink.c
+index c4f87df53283..eeb66e797e0b 100644
+--- a/fs/btrfs/reflink.c
++++ b/fs/btrfs/reflink.c
+@@ -281,6 +281,11 @@ static int clone_copy_inline_extent(struct inode *dst,
+ 	ret = btrfs_inode_set_file_extent_range(BTRFS_I(dst), 0, aligned_end);
+ out:
+ 	if (!ret && !trans) {
++		/*
++		 * Release path before starting a new transaction so we don't
++		 * hold locks that would confuse lockdep.
++		 */
++		btrfs_release_path(path);
+ 		/*
+ 		 * No transaction here means we copied the inline extent into a
+ 		 * page of the destination inode.
 -- 
 2.30.2
 
