@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CDC2E38EF41
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0C038EFE8
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233156AbhEXP4j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39394 "EHLO mail.kernel.org"
+        id S233805AbhEXQAQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40474 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234792AbhEXPzy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BAB46142F;
-        Mon, 24 May 2021 15:42:17 +0000 (UTC)
+        id S234863AbhEXP71 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E2E5261477;
+        Mon, 24 May 2021 15:45:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870937;
-        bh=9jW5E5FsQGcrO2qsi4g2HM0gupFU/sDofvrZVbVMKsY=;
+        s=korg; t=1621871120;
+        bh=cNH/ocZTYnc7E4L3KwtJ0nosH89FB7NhLrNwG6ebksk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c+LwUsBTnOt31m61GWUhjkfXwGqPMcLic8CVIgVrnzAbab769WJiXGxVPcXzgH5YZ
-         KOZ8s0RCBuuJQgjR+//zLg707avS+VGUWEGjZ+10iLv1ZRt9Yg25mP/xdcRLrdHDvc
-         qiZqV/CXfU0oWcwl39WrSPSzfxJgXzHeclmtOWvE=
+        b=zLd/D2p4TA4ViP8ZnTowsKI7U9ue1fmKmo3s7hHKrFxBn/hqQnwYLFX/DQGrbAME7
+         p0McWv+KLAJJtxU7dQjIBwk8Uyd4DGgtAriY7Ig1SiI5EkbyyDTtKDpfwzU12+apaM
+         ZyUoMg0wup2Eu9l1TQ33D1bybIa3iUBP1Z13xnx0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 104/104] x86/boot/compressed/64: Check SEV encryption in the 32-bit boot-path
+        stable@vger.kernel.org, "Dmitry V. Levin" <ldv@altlinux.org>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.12 082/127] powerpc/64s/syscall: Use pt_regs.trap to distinguish syscall ABI difference between sc and scv syscalls
 Date:   Mon, 24 May 2021 17:26:39 +0200
-Message-Id: <20210524152336.300687440@linuxfoundation.org>
+Message-Id: <20210524152337.621853041@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,134 +40,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit fef81c86262879d4b1176ef51a834c15b805ebb9 upstream.
+commit 5665bc35c1ed917ac8fd06cb651317bb47a65b10 upstream.
 
-Check whether the hypervisor reported the correct C-bit when running
-as an SEV guest. Using a wrong C-bit position could be used to leak
-sensitive data from the guest to the hypervisor.
+The sc and scv 0 system calls have different ABI conventions, and
+ptracers need to know which system call type is being used if they want
+to look at the syscall registers.
 
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Link: https://lkml.kernel.org/r/20210312123824.306-8-joro@8bytes.org
+Document that pt_regs.trap can be used for this, and fix one in-tree user
+to work with scv 0 syscalls.
+
+Fixes: 7fa95f9adaee ("powerpc/64s: system call support for scv/rfscv instructions")
+Cc: stable@vger.kernel.org # v5.9+
+Reported-by: "Dmitry V. Levin" <ldv@altlinux.org>
+Suggested-by: "Dmitry V. Levin" <ldv@altlinux.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210520111931.2597127-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/boot/compressed/head_64.S |   85 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 85 insertions(+)
+ Documentation/powerpc/syscall64-abi.rst       |   10 +++++++++
+ tools/testing/selftests/seccomp/seccomp_bpf.c |   27 +++++++++++++++++---------
+ 2 files changed, 28 insertions(+), 9 deletions(-)
 
---- a/arch/x86/boot/compressed/head_64.S
-+++ b/arch/x86/boot/compressed/head_64.S
-@@ -172,11 +172,21 @@ SYM_FUNC_START(startup_32)
- 	 */
- 	call	get_sev_encryption_bit
- 	xorl	%edx, %edx
-+#ifdef	CONFIG_AMD_MEM_ENCRYPT
- 	testl	%eax, %eax
- 	jz	1f
- 	subl	$32, %eax	/* Encryption bit is always above bit 31 */
- 	bts	%eax, %edx	/* Set encryption mask for page tables */
-+	/*
-+	 * Mark SEV as active in sev_status so that startup32_check_sev_cbit()
-+	 * will do a check. The sev_status memory will be fully initialized
-+	 * with the contents of MSR_AMD_SEV_STATUS later in
-+	 * set_sev_encryption_mask(). For now it is sufficient to know that SEV
-+	 * is active.
-+	 */
-+	movl	$1, rva(sev_status)(%ebp)
- 1:
-+#endif
+--- a/Documentation/powerpc/syscall64-abi.rst
++++ b/Documentation/powerpc/syscall64-abi.rst
+@@ -109,6 +109,16 @@ auxiliary vector.
  
- 	/* Initialize Page tables to 0 */
- 	leal	rva(pgtable)(%ebx), %edi
-@@ -261,6 +271,9 @@ SYM_FUNC_START(startup_32)
- 	movl	%esi, %edx
- 1:
- #endif
-+	/* Check if the C-bit position is correct when SEV is active */
-+	call	startup32_check_sev_cbit
-+
- 	pushl	$__KERNEL_CS
- 	pushl	%eax
+ scv 0 syscalls will always behave as PPC_FEATURE2_HTM_NOSC.
  
-@@ -787,6 +800,78 @@ SYM_DATA_END(loaded_image_proto)
- #endif
++ptrace
++------
++When ptracing system calls (PTRACE_SYSCALL), the pt_regs.trap value contains
++the system call type that can be used to distinguish between sc and scv 0
++system calls, and the different register conventions can be accounted for.
++
++If the value of (pt_regs.trap & 0xfff0) is 0xc00 then the system call was
++performed with the sc instruction, if it is 0x3000 then the system call was
++performed with the scv 0 instruction.
++
+ vsyscall
+ ========
  
- /*
-+ * Check for the correct C-bit position when the startup_32 boot-path is used.
-+ *
-+ * The check makes use of the fact that all memory is encrypted when paging is
-+ * disabled. The function creates 64 bits of random data using the RDRAND
-+ * instruction. RDRAND is mandatory for SEV guests, so always available. If the
-+ * hypervisor violates that the kernel will crash right here.
-+ *
-+ * The 64 bits of random data are stored to a memory location and at the same
-+ * time kept in the %eax and %ebx registers. Since encryption is always active
-+ * when paging is off the random data will be stored encrypted in main memory.
-+ *
-+ * Then paging is enabled. When the C-bit position is correct all memory is
-+ * still mapped encrypted and comparing the register values with memory will
-+ * succeed. An incorrect C-bit position will map all memory unencrypted, so that
-+ * the compare will use the encrypted random data and fail.
-+ */
-+	__HEAD
-+	.code32
-+SYM_FUNC_START(startup32_check_sev_cbit)
-+#ifdef CONFIG_AMD_MEM_ENCRYPT
-+	pushl	%eax
-+	pushl	%ebx
-+	pushl	%ecx
-+	pushl	%edx
-+
-+	/* Check for non-zero sev_status */
-+	movl	rva(sev_status)(%ebp), %eax
-+	testl	%eax, %eax
-+	jz	4f
-+
-+	/*
-+	 * Get two 32-bit random values - Don't bail out if RDRAND fails
-+	 * because it is better to prevent forward progress if no random value
-+	 * can be gathered.
-+	 */
-+1:	rdrand	%eax
-+	jnc	1b
-+2:	rdrand	%ebx
-+	jnc	2b
-+
-+	/* Store to memory and keep it in the registers */
-+	movl	%eax, rva(sev_check_data)(%ebp)
-+	movl	%ebx, rva(sev_check_data+4)(%ebp)
-+
-+	/* Enable paging to see if encryption is active */
-+	movl	%cr0, %edx			 /* Backup %cr0 in %edx */
-+	movl	$(X86_CR0_PG | X86_CR0_PE), %ecx /* Enable Paging and Protected mode */
-+	movl	%ecx, %cr0
-+
-+	cmpl	%eax, rva(sev_check_data)(%ebp)
-+	jne	3f
-+	cmpl	%ebx, rva(sev_check_data+4)(%ebp)
-+	jne	3f
-+
-+	movl	%edx, %cr0	/* Restore previous %cr0 */
-+
-+	jmp	4f
-+
-+3:	/* Check failed - hlt the machine */
-+	hlt
-+	jmp	3b
-+
-+4:
-+	popl	%edx
-+	popl	%ecx
-+	popl	%ebx
-+	popl	%eax
-+#endif
-+	ret
-+SYM_FUNC_END(startup32_check_sev_cbit)
-+
-+/*
-  * Stack and heap for uncompression
-  */
- 	.bss
+--- a/tools/testing/selftests/seccomp/seccomp_bpf.c
++++ b/tools/testing/selftests/seccomp/seccomp_bpf.c
+@@ -1753,16 +1753,25 @@ TEST_F(TRACE_poke, getpid_runs_normally)
+ # define SYSCALL_RET_SET(_regs, _val)				\
+ 	do {							\
+ 		typeof(_val) _result = (_val);			\
+-		/*						\
+-		 * A syscall error is signaled by CR0 SO bit	\
+-		 * and the code is stored as a positive value.	\
+-		 */						\
+-		if (_result < 0) {				\
+-			SYSCALL_RET(_regs) = -_result;		\
+-			(_regs).ccr |= 0x10000000;		\
+-		} else {					\
++		if ((_regs.trap & 0xfff0) == 0x3000) {		\
++			/*					\
++			 * scv 0 system call uses -ve result	\
++			 * for error, so no need to adjust.	\
++			 */					\
+ 			SYSCALL_RET(_regs) = _result;		\
+-			(_regs).ccr &= ~0x10000000;		\
++		} else {					\
++			/*					\
++			 * A syscall error is signaled by the	\
++			 * CR0 SO bit and the code is stored as	\
++			 * a positive value.			\
++			 */					\
++			if (_result < 0) {			\
++				SYSCALL_RET(_regs) = -_result;	\
++				(_regs).ccr |= 0x10000000;	\
++			} else {				\
++				SYSCALL_RET(_regs) = _result;	\
++				(_regs).ccr &= ~0x10000000;	\
++			}					\
+ 		}						\
+ 	} while (0)
+ # define SYSCALL_RET_SET_ON_PTRACE_EXIT
 
 
