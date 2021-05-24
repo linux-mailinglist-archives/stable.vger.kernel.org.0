@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 318E838EFCD
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BC22238EE99
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234299AbhEXP7i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41136 "EHLO mail.kernel.org"
+        id S234487AbhEXPwY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:52:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234921AbhEXP65 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2CB516197C;
-        Mon, 24 May 2021 15:44:45 +0000 (UTC)
+        id S234906AbhEXPuN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:50:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B944861603;
+        Mon, 24 May 2021 15:38:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871085;
-        bh=i3Be1xhdB470r73Y7vpHs48dUE99IAGvNPj3Y1bxEEo=;
+        s=korg; t=1621870697;
+        bh=Wjlwndu3maWl4Pu3r737cwkled+6HVuNMWTYCHealns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HngIqRQCDG1mlkZNWRnUjYhD0dyWUgU/PkWlA4+NbwR7RF8GbOvXKRd34m59iyw0o
-         V/3J6ZHmRnNBmrW5tz62nG0O6eRDhS1W1PDUyCJNoO7lDLOAQ9XrG8Z36YqJGNQ5TX
-         5NY87n3P/gDtn+pRDkpKHa+vEcFqv0343kF0cFt4=
+        b=E1A1/OfbvD5v4dhnKe/ds3jaPHAfML/YTfB7QodFhZMkHHHG5aEPwsyQ2X4mBiN1t
+         tyC0NCMOcb7N5SUoazm+vObTC/w6PlKG8kMMpNtO/WcTPpAcgvM2xcea0SVMeuL0b/
+         UvkazrntN1sf30wTL0BYo3bi1PciS5sL//NjjKZA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, PeiSen Hou <pshou@realtek.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 054/127] ALSA: hda/realtek: Add some CLOVE SSIDs of ALC293
+        stable@vger.kernel.org, Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Subject: [PATCH 5.4 65/71] video: hgafb: fix potential NULL pointer dereference
 Date:   Mon, 24 May 2021 17:26:11 +0200
-Message-Id: <20210524152336.670812510@linuxfoundation.org>
+Message-Id: <20210524152328.557978171@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: PeiSen Hou <pshou@realtek.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 1d5cfca286178ce81fb0c8a5f5777ef123cd69e4 upstream.
+commit dc13cac4862cc68ec74348a80b6942532b7735fa upstream.
 
-Fix "use as headset mic, without its own jack detect" problen.
+The return of ioremap if not checked, and can lead to a NULL to be
+assigned to hga_vram. Potentially leading to a NULL pointer
+dereference.
 
-Signed-off-by: PeiSen Hou <pshou@realtek.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/d0746eaf29f248a5acc30313e3ba4f99@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The fix adds code to deal with this case in the error label and
+changes how the hgafb_probe handles the return of hga_card_detect.
+
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-40-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   15 +++++++++++++++
- 1 file changed, 15 insertions(+)
+ drivers/video/fbdev/hgafb.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -8319,12 +8319,19 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x50b8, "Clevo NK50SZ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50d5, "Clevo NP50D5", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f0, "Clevo NH50A[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f2, "Clevo NH50E[PR]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x50f3, "Clevo NH58DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f5, "Clevo NH55EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x50f6, "Clevo NH55DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x5101, "Clevo S510WU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x5157, "Clevo W517GU1", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x51a1, "Clevo NS50MU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70a1, "Clevo NB70T[HJK]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x70b3, "Clevo NK70SB", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f2, "Clevo NH79EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f3, "Clevo NH77DPQ", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f4, "Clevo NH77EPY", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x70f6, "Clevo NH77DPQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8228, "Clevo NR40BU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8520, "Clevo NH50D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8521, "Clevo NH77D[CD]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-@@ -8342,9 +8349,17 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1558, 0x8a51, "Clevo NH70RCQ-Y", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x8d50, "Clevo NH55RCQ-M", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x951d, "Clevo N950T[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0x9600, "Clevo N960K[PR]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x961d, "Clevo N960S[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0x971d, "Clevo N970T[CDF]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x1558, 0xa500, "Clevo NL53RU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xa600, "Clevo NL5XNU", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb018, "Clevo NP50D[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb019, "Clevo NH77D[BE]Q", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xb022, "Clevo NH77D[DC][QW]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc018, "Clevo NP50D[BE]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc019, "Clevo NH77D[BE]Q", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
-+	SND_PCI_QUIRK(0x1558, 0xc022, "Clevo NH77[DC][QW]", ALC293_FIXUP_SYSTEM76_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x17aa, 0x1036, "Lenovo P520", ALC233_FIXUP_LENOVO_MULTI_CODECS),
- 	SND_PCI_QUIRK(0x17aa, 0x1048, "ThinkCentre Station", ALC283_FIXUP_HEADSET_MIC),
- 	SND_PCI_QUIRK(0x17aa, 0x20f2, "Thinkpad SL410/510", ALC269_FIXUP_SKU_IGNORE),
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
+ 
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		return -ENOMEM;
+ 
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
+@@ -344,13 +346,18 @@ static int hga_card_detect(void)
+ 			hga_type_name = "Hercules";
+ 			break;
+ 	}
+-	return 1;
++	return 0;
+ error:
+ 	if (release_io_ports)
+ 		release_region(0x3b0, 12);
+ 	if (release_io_port)
+ 		release_region(0x3bf, 1);
+-	return 0;
++
++	iounmap(hga_vram);
++
++	pr_err("hgafb: HGA card not detected.\n");
++
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -548,13 +555,11 @@ static struct fb_ops hgafb_ops = {
+ static int hgafb_probe(struct platform_device *pdev)
+ {
+ 	struct fb_info *info;
++	int ret;
+ 
+-	if (! hga_card_detect()) {
+-		printk(KERN_INFO "hgafb: HGA card not detected.\n");
+-		if (hga_vram)
+-			iounmap(hga_vram);
+-		return -EINVAL;
+-	}
++	ret = hga_card_detect();
++	if (!ret)
++		return ret;
+ 
+ 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
+ 		hga_type_name, hga_vram_len/1024);
 
 
