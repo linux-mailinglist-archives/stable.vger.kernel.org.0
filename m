@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B2FA38E95B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:47:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 72DCE38E960
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:47:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233044AbhEXOso (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:48:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54448 "EHLO mail.kernel.org"
+        id S233510AbhEXOsu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:48:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233260AbhEXOsU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:48:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 31438613B0;
-        Mon, 24 May 2021 14:46:51 +0000 (UTC)
+        id S233272AbhEXOsV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:48:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 703B7613D6;
+        Mon, 24 May 2021 14:46:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867612;
-        bh=v6OOnt1SXHiN/AItB/mVsWX4OlFRu1mfmCztys9CYok=;
+        s=k20201202; t=1621867613;
+        bh=jI99WAe9RVtRbs+Gt1kQRnnslk5QCXfmsL4bZR6wSPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IaCG0fTIBOgnWEA0QCnPVUOs1OhPOiuGf11rnHnADSHLFEBr8lLnJFyTacQZyu6d6
-         vTOmEkHIfeL2/s5/oYlXV8gn9jZm8V5UIPAH7xOj2VyF4pZKLe0ean9CjAiUoWKZno
-         b5pcbQujx+jMhTba77PjwTze5QhRfluYmVKDVVug8F/YaUJRQGhM7+ijDYUtUVvwvm
-         SwVu//EZdVPg+jQZ+n9dlKzmf1X8GWhDB/Ro+Y0HnrH2y/x5+PrCGE/be4E7pW+GPr
-         LdKd/+9N60AXAcWmRHpiJKUdqa588kq/M1cKYThk8yjd7FyGfR38NOUq10E+YdFPhB
-         Ebf/Z92r5fs6Q==
+        b=SVqqIMiJXNn21AZmnDorWO69n3ucX/aWuW/SB7KeUnJO+USDaqaMs5FuIMUQ+DRkm
+         LDIXlXSKWZQ67o4cuvyp/fwp5dod4dmm3SJp7lfKUPY8zFaN2l4u0KVDjG8haVBGUI
+         Se/rPhqsmoJbTVBuYfOBWDnt7bH3kIonaituHHBVDPKpcTIDio6ATuN3/pweoPB/IH
+         1j159utqOoLcdSCJmNktxsC8yK0zgWpTGrVSjVf3MUWZ4UkHJN9D7MNKYbQwamBI4o
+         Uo4/Hr2gOKO7HCYlNkVJy+H2Bpf05L1r+1f6XH+cPm6mJ5QumRNcl0/6oWxBlVG+zc
+         EABhPR9SrZ4Lg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Phillip Potter <phil@philpotter.co.uk>,
-        "David S . Miller" <davem@davemloft.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 24/63] isdn: mISDN: correctly handle ph_info allocation failure in hfcsusb_ph_info
-Date:   Mon, 24 May 2021 10:45:41 -0400
-Message-Id: <20210524144620.2497249-24-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Aditya Pakki <pakki001@umn.edu>, Vinod Koul <vkoul@kernel.org>,
+        Sinan Kaya <okaya@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        linux-arm-kernel@lists.infradead.org,
+        linux-arm-msm@vger.kernel.org, dmaengine@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 25/63] Revert "dmaengine: qcom_hidma: Check for driver register failure"
+Date:   Mon, 24 May 2021 10:45:42 -0400
+Message-Id: <20210524144620.2497249-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -43,101 +44,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 5265db2ccc735e2783b790d6c19fb5cee8c025ed ]
+[ Upstream commit 43ed0fcf613a87dd0221ec72d1ade4d6544f2ffc ]
 
-Modify return type of hfcusb_ph_info to int, so that we can pass error
-value up the call stack when allocation of ph_info fails. Also change
-three of four call sites to actually account for the memory failure.
-The fourth, in ph_state_nt, is infeasible to change as it is in turn
-called by ph_state which is used as a function pointer argument to
-mISDN_initdchannel, which would necessitate changing its signature
-and updating all the places where it is used (too many).
+This reverts commit a474b3f0428d6b02a538aa10b3c3b722751cb382.
 
-Fixes original flawed commit (38d22659803a) from the University of
-Minnesota.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-48-gregkh@linuxfoundation.org
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original change is NOT correct, as it does not correctly unwind from
+the resources that was allocated before the call to
+platform_driver_register().
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Acked-By: Sinan Kaya <okaya@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-51-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/hfcsusb.c | 18 ++++++++++--------
- 1 file changed, 10 insertions(+), 8 deletions(-)
+ drivers/dma/qcom/hidma_mgmt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
-index 4bb470d3963d..cd5642cef01f 100644
---- a/drivers/isdn/hardware/mISDN/hfcsusb.c
-+++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
-@@ -46,7 +46,7 @@ static void hfcsusb_start_endpoint(struct hfcsusb *hw, int channel);
- static void hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel);
- static int  hfcsusb_setup_bch(struct bchannel *bch, int protocol);
- static void deactivate_bchannel(struct bchannel *bch);
--static void hfcsusb_ph_info(struct hfcsusb *hw);
-+static int  hfcsusb_ph_info(struct hfcsusb *hw);
+diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
+index 806ca02c52d7..fe87b01f7a4e 100644
+--- a/drivers/dma/qcom/hidma_mgmt.c
++++ b/drivers/dma/qcom/hidma_mgmt.c
+@@ -418,8 +418,9 @@ static int __init hidma_mgmt_init(void)
+ 		hidma_mgmt_of_populate_channels(child);
+ 	}
+ #endif
+-	return platform_driver_register(&hidma_mgmt_driver);
++	platform_driver_register(&hidma_mgmt_driver);
  
- /* start next background transfer for control channel */
- static void
-@@ -241,7 +241,7 @@ hfcusb_l2l1B(struct mISDNchannel *ch, struct sk_buff *skb)
-  * send full D/B channel status information
-  * as MPH_INFORMATION_IND
-  */
--static void
-+static int
- hfcsusb_ph_info(struct hfcsusb *hw)
- {
- 	struct ph_info *phi;
-@@ -249,6 +249,9 @@ hfcsusb_ph_info(struct hfcsusb *hw)
- 	int i;
- 
- 	phi = kzalloc(struct_size(phi, bch, dch->dev.nrbchan), GFP_ATOMIC);
-+	if (!phi)
-+		return -ENOMEM;
-+
- 	phi->dch.ch.protocol = hw->protocol;
- 	phi->dch.ch.Flags = dch->Flags;
- 	phi->dch.state = dch->state;
-@@ -260,6 +263,8 @@ hfcsusb_ph_info(struct hfcsusb *hw)
- 	_queue_data(&dch->dev.D, MPH_INFORMATION_IND, MISDN_ID_ANY,
- 		    struct_size(phi, bch, dch->dev.nrbchan), phi, GFP_ATOMIC);
- 	kfree(phi);
-+
 +	return 0;
  }
- 
- /*
-@@ -344,8 +349,7 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
- 			ret = l1_event(dch->l1, hh->prim);
- 		break;
- 	case MPH_INFORMATION_REQ:
--		hfcsusb_ph_info(hw);
--		ret = 0;
-+		ret = hfcsusb_ph_info(hw);
- 		break;
- 	}
- 
-@@ -400,8 +404,7 @@ hfc_l1callback(struct dchannel *dch, u_int cmd)
- 			       hw->name, __func__, cmd);
- 		return -1;
- 	}
--	hfcsusb_ph_info(hw);
--	return 0;
-+	return hfcsusb_ph_info(hw);
- }
- 
- static int
-@@ -743,8 +746,7 @@ hfcsusb_setup_bch(struct bchannel *bch, int protocol)
- 			handle_led(hw, (bch->nr == 1) ? LED_B1_OFF :
- 				   LED_B2_OFF);
- 	}
--	hfcsusb_ph_info(hw);
--	return 0;
-+	return hfcsusb_ph_info(hw);
- }
- 
- static void
+ module_init(hidma_mgmt_init);
+ MODULE_LICENSE("GPL v2");
 -- 
 2.30.2
 
