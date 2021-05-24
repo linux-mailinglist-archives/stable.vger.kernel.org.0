@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF51838EE77
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 435CC38EF20
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233638AbhEXPvD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33936 "EHLO mail.kernel.org"
+        id S235084AbhEXP4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234091AbhEXPs3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:48:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 220606157F;
-        Mon, 24 May 2021 15:37:28 +0000 (UTC)
+        id S233991AbhEXPzT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB43F613F6;
+        Mon, 24 May 2021 15:41:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870649;
-        bh=3tr2OMRnQcEEYAL6cEE519vtoioTcnPkV1HS//zF48Q=;
+        s=korg; t=1621870903;
+        bh=eSo3u7S8Y8x03P5HuFzkqcHPD8cByTV/ijpy0qViCm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Wehs7P9f1T00R5ylYFg3QEzxi9yyR+2HfcjnzL6cfk1snv4goanNYExZC0lCq9y4
-         mWGmVuRw7rIY/uP/5gLw/EF9a2vNxwAC3w/KttiIN7FvOzNgncflQg88I0IhHrbiHE
-         en+FHtrNzswfXJJoEg8IfuWrocacflGfQxTrOPOo=
+        b=YdkskQtXOCv2swJnsKdcJxwS0GlcravoZraUJ0WcQx0ZnoZRfF7TxnW9mqFrcMXa7
+         ssw7VG+WGAQebCYYqL1RTieZOYHa77aVXUcazVGh+rmuOv9rwry+ywaBrYClQJrGtz
+         Qh71zKSPaUhtINTZQOWTG4GiFVEsHK8eW5+/G6tM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
-        Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 42/71] dm snapshot: fix a crash when an origin has no snapshots
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 5.10 053/104] Revert "serial: mvebu-uart: Fix to avoid a potential NULL pointer dereference"
 Date:   Mon, 24 May 2021 17:25:48 +0200
-Message-Id: <20210524152327.835078212@linuxfoundation.org>
+Message-Id: <20210524152334.604507033@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,43 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
+commit 754f39158441f4c0d7a8255209dd9a939f08ce80 upstream.
 
-If an origin target has no snapshots, o->split_boundary is set to 0.
-This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+This reverts commit 32f47179833b63de72427131169809065db6745e.
 
-Fix this by initializing chunk_size, and in turn split_boundary, to
-rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
-into "unsigned" type.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Reported-by: Michael Tokarev <mjt@tls.msk.ru>
-Tested-by: Michael Tokarev <mjt@tls.msk.ru>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Upon review, this commit was found to be not be needed at all as the
+change was useless because this function can only be called when
+of_match_device matched on something.  So it should be reverted.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 32f47179833b ("serial: mvebu-uart: Fix to avoid a potential NULL pointer dereference")
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-6-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-snap.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/mvebu-uart.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -854,12 +854,11 @@ static int dm_add_exception(void *contex
- static uint32_t __minimum_chunk_size(struct origin *o)
- {
- 	struct dm_snapshot *snap;
--	unsigned chunk_size = 0;
-+	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -818,9 +818,6 @@ static int mvebu_uart_probe(struct platf
+ 		return -EINVAL;
+ 	}
  
- 	if (o)
- 		list_for_each_entry(snap, &o->snapshots, list)
--			chunk_size = min_not_zero(chunk_size,
--						  snap->store->chunk_size);
-+			chunk_size = min(chunk_size, snap->store->chunk_size);
- 
- 	return (uint32_t) chunk_size;
- }
+-	if (!match)
+-		return -ENODEV;
+-
+ 	/* Assume that all UART ports have a DT alias or none has */
+ 	id = of_alias_get_id(pdev->dev.of_node, "serial");
+ 	if (!pdev->dev.of_node || id < 0)
 
 
