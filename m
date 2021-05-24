@@ -2,224 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C3D38ED94
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:38:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C81D838ED57
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233872AbhEXPjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:39:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51536 "EHLO mail.kernel.org"
+        id S233527AbhEXPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234021AbhEXPhM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:37:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EABC61376;
-        Mon, 24 May 2021 15:33:14 +0000 (UTC)
+        id S232797AbhEXPee (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96559613AD;
+        Mon, 24 May 2021 15:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870394;
-        bh=oIOFgsy//zNsgFCmLkvEcfbJ/S/RcF2FgREe8iO8rOE=;
-        h=From:To:Cc:Subject:Date:From;
-        b=nCP75SPqQQpSfsX78dtH6+aJjoA1jKcJY+TdC7iINRG7K/mW8MpB2w4Euw2+2wPFB
-         YMtjmcd/DPw4QwibQH4MXZQram4fqatnce7hpmL7164sUi9OQO0aTisHs6R1aZJyw3
-         4z1rXJNcfheXgfYT2fUCfwZIvM9rTvp4kZfP+2vI=
+        s=korg; t=1621870325;
+        bh=iLjv2BpjEpxLxEfUWOFHpbFCb3/nWsauqU8ooJ9BEsU=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=F4WMrfTTbKn8bParmgs/HguvdEOTQ/bGpHQdUfKOqjfTZyTK1WLpLve5rGqOXp8jW
+         XxsON4INHiovEi2XbsCNqUew+swD9K4O7yYiSmpcjLt5jGwwZRKrFY92/OOvnicIfU
+         FcgeOEl247k96ecxa4EokxcznTlPKWl0avNlrNYc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/37] 4.14.234-rc1 review
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Aditya Pakki <pakki001@umn.edu>,
+        Finn Thain <fthain@telegraphics.com.au>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Rob Herring <robh@kernel.org>
+Subject: [PATCH 4.9 19/36] Revert "video: imsttfb: fix potential NULL pointer dereferences"
 Date:   Mon, 24 May 2021 17:25:04 +0200
-Message-Id: <20210524152324.199089755@linuxfoundation.org>
+Message-Id: <20210524152324.780323540@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.234-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.234-rc1
-X-KernelTest-Deadline: 2021-05-26T15:23+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.234 release.
-There are 37 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
-Anything received after that time might be too late.
+commit ed04fe8a0e87d7b5ea17d47f4ac9ec962b24814a upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.234-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
-and the diffstat can be found below.
+This reverts commit 1d84353d205a953e2381044953b7fa31c8c9702d.
 
-thanks,
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-greg k-h
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
--------------
-Pseudo-Shortlog of commits:
+The original commit here, while technically correct, did not fully
+handle all of the reported issues that the commit stated it was fixing,
+so revert it until it can be "fixed" fully.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.234-rc1
+Note, ioremap() probably will never fail for old hardware like this, and
+if anyone actually used this hardware (a PowerMac era PCI display card),
+they would not be using fbdev anymore.
 
-Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-    tty: vt: always invoke vc->vc_sw->con_resize callback
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Finn Thain <fthain@telegraphics.com.au>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
+Reviewed-by: Rob Herring <robh@kernel.org>
+Fixes: 1d84353d205a ("video: imsttfb: fix potential NULL pointer dereferences")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-67-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/video/fbdev/imsttfb.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
-Maciej W. Rozycki <macro@orcam.me.uk>
-    vt: Fix character height handling with VT_RESIZEX
-
-Maciej W. Rozycki <macro@orcam.me.uk>
-    vgacon: Record video mode changes with VT_RESIZEX
-
-Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
-    video: hgafb: fix potential NULL pointer dereference
-
-Tom Seewald <tseewald@gmail.com>
-    qlcnic: Add null check after calling netdev_alloc_skb
-
-Phillip Potter <phil@philpotter.co.uk>
-    leds: lp5523: check return value of lp5xx_read and jump to cleanup code
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    net: rtlwifi: properly check for alloc_workqueue() failure
-
-Anirudh Rayabharam <mail@anirudhrb.com>
-    net: stmicro: handle clk_prepare() failure during init
-
-Du Cheng <ducheng2@gmail.com>
-    ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "niu: fix missing checks of niu_pci_eeprom_read"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "qlcnic: Avoid potential NULL pointer dereference"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "rtlwifi: fix a potential NULL pointer dereference"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "media: rcar_drif: fix a memory disclosure"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    cdrom: gdrom: initialize global variable at init time
-
-Atul Gopinathan <atulgopinathan@gmail.com>
-    cdrom: gdrom: deallocate struct gdrom_unit fields in remove_gdrom
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "gdrom: fix a memory leak bug"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "ecryptfs: replace BUG_ON with error handling code"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "video: imsttfb: fix potential NULL pointer dereferences"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "net: stmicro: fix a missing check of clk_prepare"
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "video: hgafb: fix potential NULL pointer dereference"
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm snapshot: fix crash with transient storage and zero chunk size
-
-Mikulas Patocka <mpatocka@redhat.com>
-    dm snapshot: fix a crash when an origin has no snapshots
-
-Jan Beulich <jbeulich@suse.com>
-    xen-pciback: reconfigure also from backend watch handler
-
-Anirudh Rayabharam <mail@anirudhrb.com>
-    rapidio: handle create_workqueue() failure
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "rapidio: fix a NULL pointer dereference when create_workqueue() fails"
-
-Hui Wang <hui.wang@canonical.com>
-    ALSA: hda/realtek: reset eapd coeff to default value for alc287
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Revert "ALSA: sb8: add a check for request_region"
-
-Takashi Sakamoto <o-takashi@sakamocchi.jp>
-    ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: usb-audio: Validate MS endpoint descriptors
-
-Takashi Iwai <tiwai@suse.de>
-    ALSA: line6: Fix racy initialization of LINE6 MIDI
-
-Ronnie Sahlberg <lsahlber@redhat.com>
-    cifs: fix memory leak in smb2_copychunk_range
-
-Oleg Nesterov <oleg@redhat.com>
-    ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
-
-Zhen Lei <thunder.leizhen@huawei.com>
-    scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
-
-Leon Romanovsky <leonro@nvidia.com>
-    RDMA/rxe: Clear all QP fields if creation failed
-
-Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-    openrisc: Fix a memory leak
-
-
--------------
-
-Diffstat:
-
- Makefile                                           |  4 +-
- arch/openrisc/kernel/setup.c                       |  2 +
- drivers/cdrom/gdrom.c                              | 13 +++--
- drivers/hwmon/lm80.c                               | 11 +----
- drivers/infiniband/sw/rxe/rxe_qp.c                 |  7 +++
- drivers/leds/leds-lp5523.c                         |  2 +-
- drivers/md/dm-snap.c                               |  6 +--
- drivers/media/platform/rcar_drif.c                 |  1 -
- .../net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c    |  3 +-
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c  |  8 ++--
- drivers/net/ethernet/sun/niu.c                     | 32 ++++++++-----
- drivers/net/wireless/realtek/rtlwifi/base.c        | 19 ++++----
- drivers/rapidio/rio_cm.c                           | 17 ++++---
- drivers/scsi/qla2xxx/qla_nx.c                      |  3 +-
- drivers/tty/vt/vt.c                                |  2 +-
- drivers/tty/vt/vt_ioctl.c                          |  6 +--
- drivers/video/console/vgacon.c                     | 56 ++++++++++++----------
- drivers/video/fbdev/core/fbcon.c                   |  2 +-
- drivers/video/fbdev/hgafb.c                        | 21 ++++----
- drivers/video/fbdev/imsttfb.c                      |  5 --
- drivers/xen/xen-pciback/xenbus.c                   | 22 +++++++--
- fs/cifs/smb2ops.c                                  |  2 +
- fs/ecryptfs/crypto.c                               |  6 +--
- include/linux/console_struct.h                     |  1 +
- kernel/ptrace.c                                    | 18 ++++++-
- sound/firewire/Kconfig                             |  4 +-
- sound/firewire/bebob/bebob.c                       |  2 +-
- sound/firewire/oxfw/oxfw.c                         |  1 -
- sound/isa/sb/sb8.c                                 |  4 --
- sound/pci/hda/patch_realtek.c                      |  5 +-
- sound/usb/line6/driver.c                           |  4 ++
- sound/usb/line6/pod.c                              |  5 --
- sound/usb/line6/variax.c                           |  6 ---
- sound/usb/midi.c                                   |  4 ++
- 34 files changed, 175 insertions(+), 129 deletions(-)
+--- a/drivers/video/fbdev/imsttfb.c
++++ b/drivers/video/fbdev/imsttfb.c
+@@ -1516,11 +1516,6 @@ static int imsttfb_probe(struct pci_dev
+ 	info->fix.smem_start = addr;
+ 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
+ 					    0x400000 : 0x800000);
+-	if (!info->screen_base) {
+-		release_mem_region(addr, size);
+-		framebuffer_release(info);
+-		return -ENOMEM;
+-	}
+ 	info->fix.mmio_start = addr + 0x800000;
+ 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
+ 	par->cmap_regs_phys = addr + 0x840000;
 
 
