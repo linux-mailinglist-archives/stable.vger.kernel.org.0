@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC8038EEED
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 594F738EEF9
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234854AbhEXPzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
+        id S235041AbhEXPzo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235212AbhEXPzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFE826142D;
-        Mon, 24 May 2021 15:40:37 +0000 (UTC)
+        id S235304AbhEXPzF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CBED16192B;
+        Mon, 24 May 2021 15:41:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870838;
-        bh=0/p0tc9WrNj0jr3ZyF9G/zdESfFGAEkfgCe3qd7ps5w=;
+        s=korg; t=1621870862;
+        bh=C+lh8KxiIEcHRnF8UVTrCETUejZU7TtyF3yTbjfQ5UQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wu7Xdl5pNvze3MNDFWUDfrGAp++6thau2mW7BrLXf4Abx2toJ8p9w+lvnGhMEEW25
-         ZwBqw383sKPdZPB4VTXqXs0F+Qu9tjBOy8GwgEZw03A9jeNuq2RMG/wDymyAzahw8w
-         k1j0Dw2yRDS5ghR9bdKzNmzsrFecJwqTdt2+mzWU=
+        b=BzkHvzJqljwb4d3r6LTGHh3OsQ3GJzhi/Cwj2fnZ5Wraumj9dshkSbrZ2lrtttfWa
+         TeR7bzn0zYdgW015+RgadeaZE0/EhKL/2tEmvMG+zMeQa4TVsr9TrHNRW7/ertwrMc
+         KyQDBkRDfDtJiHnhypaz8Fr6UUv8Snm6LVykIEn0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 5.10 050/104] uio_hv_generic: Fix a memory leak in error handling paths
-Date:   Mon, 24 May 2021 17:25:45 +0200
-Message-Id: <20210524152334.503712061@linuxfoundation.org>
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 051/104] Revert "rapidio: fix a NULL pointer dereference when create_workqueue() fails"
+Date:   Mon, 24 May 2021 17:25:46 +0200
+Message-Id: <20210524152334.535265782@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
 References: <20210524152332.844251980@linuxfoundation.org>
@@ -39,50 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 3ee098f96b8b6c1a98f7f97915f8873164e6af9d upstream.
+commit 5e68b86c7b7c059c0f0ec4bf8adabe63f84a61eb upstream.
 
-If 'vmbus_establish_gpadl()' fails, the (recv|send)_gpadl will not be
-updated and 'hv_uio_cleanup()' in the error handling path will not be
-able to free the corresponding buffer.
+This reverts commit 23015b22e47c5409620b1726a677d69e5cd032ba.
 
-In such a case, we need to free the buffer explicitly.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Fixes: cdfa835c6e5e ("uio_hv_generic: defer opening vmbus until first use")
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit has a memory leak on the error path here, it does
+not clean up everything properly.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 23015b22e47c ("rapidio: fix a NULL pointer dereference when create_workqueue() fails")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4fdaff557deef6f0475d02ba7922ddbaa1ab08a6.1620544055.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20210503115736.2104747-45-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/uio/uio_hv_generic.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/rapidio/rio_cm.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/drivers/uio/uio_hv_generic.c
-+++ b/drivers/uio/uio_hv_generic.c
-@@ -296,8 +296,10 @@ hv_uio_probe(struct hv_device *dev,
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -2138,14 +2138,6 @@ static int riocm_add_mport(struct device
+ 	mutex_init(&cm->rx_lock);
+ 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+ 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
+-	if (!cm->rx_wq) {
+-		riocm_error("failed to allocate IBMBOX_%d on %s",
+-			    cmbox, mport->name);
+-		rio_release_outb_mbox(mport, cmbox);
+-		kfree(cm);
+-		return -ENOMEM;
+-	}
+-
+ 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
  
- 	ret = vmbus_establish_gpadl(channel, pdata->recv_buf,
- 				    RECV_BUFFER_SIZE, &pdata->recv_gpadl);
--	if (ret)
-+	if (ret) {
-+		vfree(pdata->recv_buf);
- 		goto fail_close;
-+	}
- 
- 	/* put Global Physical Address Label in name */
- 	snprintf(pdata->recv_name, sizeof(pdata->recv_name),
-@@ -316,8 +318,10 @@ hv_uio_probe(struct hv_device *dev,
- 
- 	ret = vmbus_establish_gpadl(channel, pdata->send_buf,
- 				    SEND_BUFFER_SIZE, &pdata->send_gpadl);
--	if (ret)
-+	if (ret) {
-+		vfree(pdata->send_buf);
- 		goto fail_close;
-+	}
- 
- 	snprintf(pdata->send_name, sizeof(pdata->send_name),
- 		 "send:%u", pdata->send_gpadl);
+ 	cm->tx_slot = 0;
 
 
