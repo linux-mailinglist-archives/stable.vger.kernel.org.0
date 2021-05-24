@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB72438EE7E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C48238EE2D
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:45:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233783AbhEXPvH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38432 "EHLO mail.kernel.org"
+        id S233887AbhEXPqd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:46:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234617AbhEXPtQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:49:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23BC561376;
-        Mon, 24 May 2021 15:37:42 +0000 (UTC)
+        id S234605AbhEXPo0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:44:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 186AD61455;
+        Mon, 24 May 2021 15:36:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870662;
-        bh=3QGc/LvIFFdbXuhpfjbxySzcVz5xSVM25npG30qL/VU=;
+        s=korg; t=1621870562;
+        bh=y8tKCc8MNmhJbgdeqlnUMymJi7u75jq1rEAUQ5u/ucY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ESpJV7tVr9vvAxyi2vxS+2xWkIpKIyxPPA02HwhvSOv9jVbYhbSRhxfHrHmhRFJls
-         fB/7JVYKHYzT4owmC71dQOrixmT/+E6kD9VtWtuylv0oBg+ymj2mZmhnJ7s9yIs2eO
-         7aHWkkQaEgeig42JXQJt/0IyZUm1IV/Up9vC31dY=
+        b=JiB+I/FFH5Uwu/nQHzG86B2qeDN8GvvCkr42JjF16al5GJOiqI6Ik1sWqsoMNRQ4k
+         XZmbGzDWu+SxQlM8elNpe+H73TtAGHaEq1TPelqV/Vk7mZgkH5B8tvtUksXiBy4ybQ
+         XryXstM4NzMhsFzgeNwxUbSbbdwclXbl0NVukP54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 5.4 48/71] Revert "video: imsttfb: fix potential NULL pointer dereferences"
+        stable@vger.kernel.org,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
+        Phillip Potter <phil@philpotter.co.uk>
+Subject: [PATCH 4.19 43/49] leds: lp5523: check return value of lp5xx_read and jump to cleanup code
 Date:   Mon, 24 May 2021 17:25:54 +0200
-Message-Id: <20210524152328.025318252@linuxfoundation.org>
+Message-Id: <20210524152325.760708853@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit ed04fe8a0e87d7b5ea17d47f4ac9ec962b24814a upstream.
+commit 6647f7a06eb030a2384ec71f0bb2e78854afabfe upstream.
 
-This reverts commit 1d84353d205a953e2381044953b7fa31c8c9702d.
+Check return value of lp5xx_read and if non-zero, jump to code at end of
+the function, causing lp5523_stop_all_engines to be executed before
+returning the error value up the call chain. This fixes the original
+commit (248b57015f35) which was reverted due to the University of Minnesota
+problems.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit here, while technically correct, did not fully
-handle all of the reported issues that the commit stated it was fixing,
-so revert it until it can be "fixed" fully.
-
-Note, ioremap() probably will never fail for old hardware like this, and
-if anyone actually used this hardware (a PowerMac era PCI display card),
-they would not be using fbdev anymore.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Finn Thain <fthain@telegraphics.com.au>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Fixes: 1d84353d205a ("video: imsttfb: fix potential NULL pointer dereferences")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-67-gregkh@linuxfoundation.org
+Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-10-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/imsttfb.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/leds/leds-lp5523.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/imsttfb.c
-+++ b/drivers/video/fbdev/imsttfb.c
-@@ -1512,11 +1512,6 @@ static int imsttfb_probe(struct pci_dev
- 	info->fix.smem_start = addr;
- 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
- 					    0x400000 : 0x800000);
--	if (!info->screen_base) {
--		release_mem_region(addr, size);
--		framebuffer_release(info);
--		return -ENOMEM;
--	}
- 	info->fix.mmio_start = addr + 0x800000;
- 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
- 	par->cmap_regs_phys = addr + 0x840000;
+--- a/drivers/leds/leds-lp5523.c
++++ b/drivers/leds/leds-lp5523.c
+@@ -318,7 +318,9 @@ static int lp5523_init_program_engine(st
+ 
+ 	/* Let the programs run for couple of ms and check the engine status */
+ 	usleep_range(3000, 6000);
+-	lp55xx_read(chip, LP5523_REG_STATUS, &status);
++	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
++	if (ret)
++		goto out;
+ 	status &= LP5523_ENG_STATUS_MASK;
+ 
+ 	if (status != LP5523_ENG_STATUS_MASK) {
 
 
