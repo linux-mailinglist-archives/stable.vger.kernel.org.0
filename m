@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9181838EFC2
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74C1638EEAB
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234564AbhEXP71 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S233827AbhEXPxy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:53:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235579AbhEXP6t (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4348961971;
-        Mon, 24 May 2021 15:44:34 +0000 (UTC)
+        id S234188AbhEXPvd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:51:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 91FDE6162C;
+        Mon, 24 May 2021 15:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871074;
-        bh=FSdIMv0t6WOVMg1tM4ISl7GWaij0K9e0QSsNCjkQ1Pc=;
+        s=korg; t=1621870721;
+        bh=MpWRxG7I+/VrDH92dYHO/81/4SPP3cft1Qn8DSyizvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fk7a14eBgNfAhUusJ8rQkG+o6TwXXlQM1mEIee46Tn4mqx3CtIc5SPbnwGwq/vUvB
-         XzlPLMXd9sDuwcRcLoGO/UZQlgR+OQVWSwoe79hvC11QWMeniMRmNhVqzfnziTRbzA
-         uOyM+a3M0S714LX6WM6xw4mdcl1xZMBpXZ3rXbr4=
+        b=BJCWSQiaYA452D3DNsRTrr4MfctE235mmy5rEmho6l1x7AaXYq0k+olus2Jn+fgbz
+         N6VrqpSvbm0COIBzSfBg8cdB6UHBdJCnDOjjv2ES1ft+yQhKZHcRaQUJrrF8cebt08
+         yX9ATFx3fsY+iD5i2b9uiwxEHUOUA4SDpLicecdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 049/127] ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
+        stable@vger.kernel.org, Avri Altman <avri.altman@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Phillip Potter <phil@philpotter.co.uk>
+Subject: [PATCH 5.4 60/71] scsi: ufs: handle cleanup correctly on devm_reset_control_get error
 Date:   Mon, 24 May 2021 17:26:06 +0200
-Message-Id: <20210524152336.505521048@linuxfoundation.org>
+Message-Id: <20210524152328.403765715@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,73 +40,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f upstream.
+commit 2f4a784f40f8d337d6590e2e93f46429052e15ac upstream.
 
-Mackie d.2 has an extension card for IEEE 1394 communication, which uses
-BridgeCo DM1000 ASIC. On the other hand, Mackie d.4 Pro has built-in
-function for IEEE 1394 communication by Oxford Semiconductor OXFW971,
-according to schematic diagram available in Mackie website. Although I
-misunderstood that Mackie d.2 Pro would be also a model with OXFW971,
-it's wrong. Mackie d.2 Pro is a model which includes the extension card
-as factory settings.
+Move ufshcd_set_variant call in ufs_hisi_init_common to common error
+section at end of the function, and then jump to this from the error
+checking statements for both devm_reset_control_get and
+ufs_hisi_get_resource. This fixes the original commit (63a06181d7ce)
+which was reverted due to the University of Minnesota problems.
 
-This commit fixes entries in Kconfig and comment in ALSA OXFW driver.
-
-Cc: <stable@vger.kernel.org>
-Fixes: fd6f4b0dc167 ("ALSA: bebob: Add skelton for BeBoB based devices")
-Fixes: ec4dba5053e1 ("ALSA: oxfw: Add support for Behringer/Mackie devices")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-3-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Suggested-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-32-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/Kconfig       |    4 ++--
- sound/firewire/bebob/bebob.c |    2 +-
- sound/firewire/oxfw/oxfw.c   |    1 -
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ drivers/scsi/ufs/ufs-hisi.c |   17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -38,7 +38,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx 1640i (former model)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.2 pro/d.4 pro
-+	   * Mackie(Loud) d.4 pro
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
- 	   * Stanton Controllers & Systems 1 Deck/Mixer
-@@ -84,7 +84,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option)
-+	  * Mackie d.2 (FireWire Option) and d.2 Pro
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -387,7 +387,7 @@ static const struct ieee1394_device_id b
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	/* Mackie, d.2 (Firewire Option) */
-+	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -355,7 +355,6 @@ static const struct ieee1394_device_id o
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.2 pro:				Unknown
- 	 *  d.4 pro:				Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
+--- a/drivers/scsi/ufs/ufs-hisi.c
++++ b/drivers/scsi/ufs/ufs-hisi.c
+@@ -481,17 +481,24 @@ static int ufs_hisi_init_common(struct u
+ 	host->hba = hba;
+ 	ufshcd_set_variant(hba, host);
+ 
+-	host->rst  = devm_reset_control_get(dev, "rst");
++	host->rst = devm_reset_control_get(dev, "rst");
++	if (IS_ERR(host->rst)) {
++		dev_err(dev, "%s: failed to get reset control\n", __func__);
++		err = PTR_ERR(host->rst);
++		goto error;
++	}
+ 
+ 	ufs_hisi_set_pm_lvl(hba);
+ 
+ 	err = ufs_hisi_get_resource(host);
+-	if (err) {
+-		ufshcd_set_variant(hba, NULL);
+-		return err;
+-	}
++	if (err)
++		goto error;
+ 
+ 	return 0;
++
++error:
++	ufshcd_set_variant(hba, NULL);
++	return err;
+ }
+ 
+ static int ufs_hi3660_init(struct ufs_hba *hba)
 
 
