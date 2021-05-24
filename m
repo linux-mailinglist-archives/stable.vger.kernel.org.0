@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B5538EB77
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:02:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D31638EB75
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:02:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233917AbhEXPDV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:03:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38186 "EHLO mail.kernel.org"
+        id S234447AbhEXPDP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:03:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234716AbhEXPBI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:01:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8F54A6147F;
-        Mon, 24 May 2021 14:50:06 +0000 (UTC)
+        id S233326AbhEXPBJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:01:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6688614A7;
+        Mon, 24 May 2021 14:50:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867807;
-        bh=akenY2+nrnz0yRofVdRHzxhKQS7tviJ6AFW4Q7dwg0w=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6uSDwfDNM1D+V6fPYQLpAvulCPBYb9KlmbHFhkdEQ68Sr+lcgcaa783zud8bThvz
-         PmcdehJ0eJDQNiMRjM+cA+1/jQj+//WfqEmiIciHrP+Ao1KyH3UGnBPbiQUwvIzkvI
-         kJK1h2W+ziiWl98tkmzPaDm6OCGFKBzB6WjSFM+jmJoYccHkQFbzZRFvwIW4mZxNdG
-         dvO8ouzpcq9X216iKbK1xqJ7OQdC5Jhoi0nVT0e4bUeueEQOJHOa7hzJISbO4AmTDy
-         Iplrmq8G1QIn5JoC74XCaJ/ERruH5X/POksw+zZPlpCpWRFZPF2qZdr9zTyZB6fH41
-         V+RPHrpcgMXYw==
+        s=k20201202; t=1621867810;
+        bh=TD042Atec4F9ZBJai4TbAhVmwzi2hnS8ajipd8FJQ0E=;
+        h=From:To:Cc:Subject:Date:From;
+        b=IM9WV/RcTrs/tekrLCnF8FPXQoDlHHobfTAqrzCwPMByYHn5w60VOmpxNUDj6Q8FI
+         I7l0dKXB61og+lc+cfh4NRd5fawBIxCWVgmozsHMfDVlQ3w4JpsnP4wKF2gxkdTeWG
+         7xL7LONtQjDObOIohHw04V9SKSc+583Phf/+8LtCtX+3BO9/W5f/31Zf8CbTpF2fOv
+         v3r9PbSI7+uV516ItTiGflQDcoZUdA9+F7tTmF0vdY9v6MoydA65fz1x8suJuvHD+k
+         XUy3gR5zeQGXs40+UDZkcIzxQJsPeg0V1MB3S2efIj+88ZwegvpMm2Z4j9EScnpBMv
+         JWVmjiMc5WPcw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lang Yu <Lang.Yu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=83nig?= <christian.koenig@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.4 52/52] drm/amd/amdgpu: fix a potential deadlock in gpu reset
-Date:   Mon, 24 May 2021 10:49:02 -0400
-Message-Id: <20210524144903.2498518-52-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 01/25] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+Date:   Mon, 24 May 2021 10:49:44 -0400
+Message-Id: <20210524145008.2499049-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210524144903.2498518-1-sashal@kernel.org>
-References: <20210524144903.2498518-1-sashal@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 X-stable: review
@@ -46,89 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Yu <Lang.Yu@amd.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 9c2876d56f1ce9b6b2072f1446fb1e8d1532cb3d ]
+[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
 
-When amdgpu_ib_ring_tests failed, the reset logic called
-amdgpu_device_ip_suspend twice, then deadlock occurred.
-Deadlock log:
+hp_accel can take almost two seconds to resume on some HP laptops.
 
-[  805.655192] amdgpu 0000:04:00.0: amdgpu: ib ring test failed (-110).
-[  806.290952] [drm] free PSP TMR buffer
+The bottleneck is on evaluating _INI, which is only needed to run once.
 
-[  806.319406] ============================================
-[  806.320315] WARNING: possible recursive locking detected
-[  806.321225] 5.11.0-custom #1 Tainted: G        W  OEL
-[  806.322135] --------------------------------------------
-[  806.323043] cat/2593 is trying to acquire lock:
-[  806.323825] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.325668]
-               but task is already holding lock:
-[  806.326664] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.328430]
-               other info that might help us debug this:
-[  806.329539]  Possible unsafe locking scenario:
+Resolve the issue by only invoking _INI when it's necessary. Namely, on
+probe and on hibernation restore.
 
-[  806.330549]        CPU0
-[  806.330983]        ----
-[  806.331416]   lock(&adev->dm.dc_lock);
-[  806.332086]   lock(&adev->dm.dc_lock);
-[  806.332738]
-                *** DEADLOCK ***
-
-[  806.333747]  May be due to missing lock nesting notation
-
-[  806.334899] 3 locks held by cat/2593:
-[  806.335537]  #0: ffff888100d3f1b8 (&attr->mutex){+.+.}-{3:3}, at: simple_attr_read+0x4e/0x110
-[  806.337009]  #1: ffff888136b1fd78 (&adev->reset_sem){++++}-{3:3}, at: amdgpu_device_lock_adev+0x42/0x94 [amdgpu]
-[  806.339018]  #2: ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.340869]
-               stack backtrace:
-[  806.341621] CPU: 6 PID: 2593 Comm: cat Tainted: G        W  OEL    5.11.0-custom #1
-[  806.342921] Hardware name: AMD Celadon-CZN/Celadon-CZN, BIOS WLD0C23N_Weekly_20_12_2 12/23/2020
-[  806.344413] Call Trace:
-[  806.344849]  dump_stack+0x93/0xbd
-[  806.345435]  __lock_acquire.cold+0x18a/0x2cf
-[  806.346179]  lock_acquire+0xca/0x390
-[  806.346807]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.347813]  __mutex_lock+0x9b/0x930
-[  806.348454]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.349434]  ? amdgpu_device_indirect_rreg+0x58/0x70 [amdgpu]
-[  806.350581]  ? _raw_spin_unlock_irqrestore+0x47/0x50
-[  806.351437]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.352437]  ? rcu_read_lock_sched_held+0x4f/0x80
-[  806.353252]  ? rcu_read_lock_sched_held+0x4f/0x80
-[  806.354064]  mutex_lock_nested+0x1b/0x20
-[  806.354747]  ? mutex_lock_nested+0x1b/0x20
-[  806.355457]  dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.356427]  ? soc15_common_set_clockgating_state+0x17d/0x19 [amdgpu]
-[  806.357736]  amdgpu_device_ip_suspend_phase1+0x78/0xd0 [amdgpu]
-[  806.360394]  amdgpu_device_ip_suspend+0x21/0x70 [amdgpu]
-[  806.362926]  amdgpu_device_pre_asic_reset+0xb3/0x270 [amdgpu]
-[  806.365560]  amdgpu_device_gpu_recover.cold+0x679/0x8eb [amdgpu]
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Acked-by: Christian KÃnig <christian.koenig@amd.com>
-Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
+Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
+ drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 3b3fc9a426e9..765f9a6c4640 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -3704,7 +3704,6 @@ static int amdgpu_do_asic_reset(struct amdgpu_hive_info *hive,
- 			r = amdgpu_ib_ring_tests(tmp_adev);
- 			if (r) {
- 				dev_err(tmp_adev->dev, "ib ring test failed (%d).\n", r);
--				r = amdgpu_device_ip_suspend(tmp_adev);
- 				need_full_reset = true;
- 				r = -EAGAIN;
- 				goto end;
+diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
+index c439c827eea8..0ef759671b54 100644
+--- a/drivers/misc/lis3lv02d/lis3lv02d.h
++++ b/drivers/misc/lis3lv02d/lis3lv02d.h
+@@ -284,6 +284,7 @@ struct lis3lv02d {
+ 	int			regs_size;
+ 	u8                      *reg_cache;
+ 	bool			regs_stored;
++	bool			init_required;
+ 	u8                      odr_mask;  /* ODR bit mask */
+ 	u8			whoami;    /* indicates measurement precision */
+ 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
+diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
+index 7b12abe86b94..9c3c83ef445b 100644
+--- a/drivers/platform/x86/hp_accel.c
++++ b/drivers/platform/x86/hp_accel.c
+@@ -101,6 +101,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
+ static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
+ {
+ 	struct acpi_device *dev = lis3->bus_priv;
++	if (!lis3->init_required)
++		return 0;
++
+ 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
+ 				 NULL, NULL) != AE_OK)
+ 		return -EINVAL;
+@@ -367,6 +370,7 @@ static int lis3lv02d_add(struct acpi_device *device)
+ 	}
+ 
+ 	/* call the core layer do its init */
++	lis3_dev.init_required = true;
+ 	ret = lis3lv02d_init_device(&lis3_dev);
+ 	if (ret)
+ 		return ret;
+@@ -414,11 +418,27 @@ static int lis3lv02d_suspend(struct device *dev)
+ 
+ static int lis3lv02d_resume(struct device *dev)
+ {
++	lis3_dev.init_required = false;
++	lis3lv02d_poweron(&lis3_dev);
++	return 0;
++}
++
++static int lis3lv02d_restore(struct device *dev)
++{
++	lis3_dev.init_required = true;
+ 	lis3lv02d_poweron(&lis3_dev);
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
++static const struct dev_pm_ops hp_accel_pm = {
++	.suspend = lis3lv02d_suspend,
++	.resume = lis3lv02d_resume,
++	.freeze = lis3lv02d_suspend,
++	.thaw = lis3lv02d_resume,
++	.poweroff = lis3lv02d_suspend,
++	.restore = lis3lv02d_restore,
++};
++
+ #define HP_ACCEL_PM (&hp_accel_pm)
+ #else
+ #define HP_ACCEL_PM NULL
 -- 
 2.30.2
 
