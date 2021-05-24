@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B91138EF58
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1DF838EDCE
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234995AbhEXP5B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:57:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41186 "EHLO mail.kernel.org"
+        id S233662AbhEXPmH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:42:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234869AbhEXP4L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:56:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A8FD613AD;
-        Mon, 24 May 2021 15:42:38 +0000 (UTC)
+        id S233805AbhEXPkU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:40:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64BB661434;
+        Mon, 24 May 2021 15:34:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870959;
-        bh=1SMwyDng7lVQ3vcQmXgSdTFqqnN1o5Il25/4jLXy67s=;
+        s=korg; t=1621870453;
+        bh=bkijXBVEuJerTV88teLlvM6UvUapCXn4lYlZn5veHJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmMYyBpQbK0QOuT6LPBuEqWJCRxePPj1U54tZcsTVt5jsmv63QPB5I6MC67tPJRlU
-         /teFtiyzKVm7bEmWKcV/HArON8O70cKGmbdxuim3ImJCbeMTN5x4xt378Is9w/ZNEh
-         K1q+ToVAV+XN/IzO7gfJssU8VUQvJ66F5KyE8/8Y=
+        b=xzm0ZabpWyx79tKi+UA0EtoFSobflTRk3yanXRAZfQGoNTb7S5UorAPVwRCYMQn9R
+         of8jvo8HrQoseOCwj6ILTW7V9qUq1XEull3BXqCS3HyjqUtKzaMQyfa8xWAIbHFkc/
+         Dmh3qJvQNDuG6pOhpQLDKS9hIWhLP9Gseu7TCwUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 001/127] firmware: arm_scpi: Prevent the ternary sign expansion bug
+        stable@vger.kernel.org, Michael Tokarev <mjt@tls.msk.ru>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Mike Snitzer <snitzer@redhat.com>
+Subject: [PATCH 4.14 14/37] dm snapshot: fix a crash when an origin has no snapshots
 Date:   Mon, 24 May 2021 17:25:18 +0200
-Message-Id: <20210524152334.914594978@linuxfoundation.org>
+Message-Id: <20210524152324.676643600@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,49 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Mikulas Patocka <mpatocka@redhat.com>
 
-[ Upstream commit d9cd78edb2e6b7e26747c0ec312be31e7ef196fe ]
+commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
 
-How the type promotion works in ternary expressions is a bit tricky.
-The problem is that scpi_clk_get_val() returns longs, "ret" is a int
-which holds a negative error code, and le32_to_cpu() is an unsigned int.
-We want the negative error code to be cast to a negative long.  But
-because le32_to_cpu() is an u32 then "ret" is type promoted to u32 and
-becomes a high positive and then it is promoted to long and it is still
-a high positive value.
+If an origin target has no snapshots, o->split_boundary is set to 0.
+This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
 
-Fix this by getting rid of the ternary.
+Fix this by initializing chunk_size, and in turn split_boundary, to
+rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
+into "unsigned" type.
 
-Link: https://lore.kernel.org/r/YIE7pdqV/h10tEAK@mwanda
-Fixes: 8cb7cf56c9fe ("firmware: add support for ARM System Control and Power Interface(SCPI) protocol")
-Reviewed-by: Cristian Marussi <cristian.marussi@arm.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-[sudeep.holla: changed to return 0 as clock rate on error]
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Michael Tokarev <mjt@tls.msk.ru>
+Tested-by: Michael Tokarev <mjt@tls.msk.ru>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scpi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/md/dm-snap.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/firmware/arm_scpi.c b/drivers/firmware/arm_scpi.c
-index d0dee37ad522..4ceba5ef7895 100644
---- a/drivers/firmware/arm_scpi.c
-+++ b/drivers/firmware/arm_scpi.c
-@@ -552,8 +552,10 @@ static unsigned long scpi_clk_get_val(u16 clk_id)
+--- a/drivers/md/dm-snap.c
++++ b/drivers/md/dm-snap.c
+@@ -793,12 +793,11 @@ static int dm_add_exception(void *contex
+ static uint32_t __minimum_chunk_size(struct origin *o)
+ {
+ 	struct dm_snapshot *snap;
+-	unsigned chunk_size = 0;
++	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
  
- 	ret = scpi_send_message(CMD_GET_CLOCK_VALUE, &le_clk_id,
- 				sizeof(le_clk_id), &rate, sizeof(rate));
-+	if (ret)
-+		return 0;
+ 	if (o)
+ 		list_for_each_entry(snap, &o->snapshots, list)
+-			chunk_size = min_not_zero(chunk_size,
+-						  snap->store->chunk_size);
++			chunk_size = min(chunk_size, snap->store->chunk_size);
  
--	return ret ? ret : le32_to_cpu(rate);
-+	return le32_to_cpu(rate);
+ 	return (uint32_t) chunk_size;
  }
- 
- static int scpi_clk_set_val(u16 clk_id, unsigned long rate)
--- 
-2.30.2
-
 
 
