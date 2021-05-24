@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4618438F032
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5540038F030
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235274AbhEXQBu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:01:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47354 "EHLO mail.kernel.org"
+        id S235366AbhEXQBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:01:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235550AbhEXQAj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:00:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AA126145D;
-        Mon, 24 May 2021 15:46:14 +0000 (UTC)
+        id S235226AbhEXQAi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 812F86198A;
+        Mon, 24 May 2021 15:46:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871174;
-        bh=jOnDoxmspj9SjDmdYXhqZUq8W3p4xYiZD0ZTkhyPojU=;
+        s=korg; t=1621871177;
+        bh=DbW5kA7WRlHGQ/9lZV98JCYkuTrvvHAaZvCk8gp2stU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuVBHltyESXO3ut9QVKpYOlBM134UxQovPFpbcspfiWA2FGvTw4isuJKcUOZgYZMb
-         3frMmUban4tDsW0xv13SmFPJ9ncWihQry0SiXh6HxRYP0C7DPeVJ186A7fKdP8f+j/
-         rgUzLkagftHWHWRSt7xAbeiePvaaadFYvGHk+7nE=
+        b=X5qM98BG65aVUH/J0cqJt5P9EepPDVlam/SdT1US1w5VnG6CBn/0dzOcUCO7FY07P
+         ol109Yk+VUo5EIxf338cPsSD1I68Qms8KRkEzgMbVjUeDIiTdQW78dkE+JEgdxslQR
+         zo77nOvqIFFQeNpwtULbctSuqcBJ+cgzoIJ9rAFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Shannon Nelson <shannon.lee.nelson@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 108/127] Revert "qlcnic: Avoid potential NULL pointer dereference"
-Date:   Mon, 24 May 2021 17:27:05 +0200
-Message-Id: <20210524152338.504677352@linuxfoundation.org>
+Subject: [PATCH 5.12 109/127] Revert "niu: fix missing checks of niu_pci_eeprom_read"
+Date:   Mon, 24 May 2021 17:27:06 +0200
+Message-Id: <20210524152338.540152981@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -41,9 +42,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b95b57dfe7a142bf2446548eb7f49340fd73e78b upstream.
+commit 7930742d6a0ff091c85b92ef4e076432d8d8cb79 upstream.
 
-This reverts commit 5bf7295fe34a5251b1d241b9736af4697b590670.
+This reverts commit 26fd962bde0b15e54234fe762d86bc0349df1de4.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -53,30 +54,49 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-This commit does not properly detect if an error happens because the
-logic after this loop will not detect that there was a failed
-allocation.
+The change here was incorrect.  While it is nice to check if
+niu_pci_eeprom_read() succeeded or not when using the data, any error
+that might have happened was not propagated upwards properly, causing
+the kernel to assume that these reads were successful, which results in
+invalid data in the buffer that was to contain the successfully read
+data.
 
-Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
 Cc: David S. Miller <davem@davemloft.net>
-Fixes: 5bf7295fe34a ("qlcnic: Avoid potential NULL pointer dereference")
+Fixes: 26fd962bde0b ("niu: fix missing checks of niu_pci_eeprom_read")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-25-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-23-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/sun/niu.c |   10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1047,8 +1047,6 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+--- a/drivers/net/ethernet/sun/niu.c
++++ b/drivers/net/ethernet/sun/niu.c
+@@ -8097,8 +8097,6 @@ static int niu_pci_vpd_scan_props(struct
+ 		start += 3;
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
--		if (!skb)
--			break;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
+ 		prop_len = niu_pci_eeprom_read(np, start + 4);
+-		if (prop_len < 0)
+-			return prop_len;
+ 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
+ 		if (err < 0)
+ 			return err;
+@@ -8143,12 +8141,8 @@ static int niu_pci_vpd_scan_props(struct
+ 			netif_printk(np, probe, KERN_DEBUG, np->dev,
+ 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
+ 				     namebuf, prop_len);
+-			for (i = 0; i < prop_len; i++) {
+-				err = niu_pci_eeprom_read(np, off + i);
+-				if (err >= 0)
+-					*prop_buf = err;
+-				++prop_buf;
+-			}
++			for (i = 0; i < prop_len; i++)
++				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
+ 		}
+ 
+ 		start += len;
 
 
