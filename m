@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BF3338E40B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 12:30:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 51CCB38E40C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 12:30:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232476AbhEXKcP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232422AbhEXKcP (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 06:32:15 -0400
-Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:36425 "EHLO
+Received: from forward2-smtp.messagingengine.com ([66.111.4.226]:55047 "EHLO
         forward2-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232422AbhEXKcL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 06:32:11 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A0D3C19402DF;
-        Mon, 24 May 2021 06:30:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Mon, 24 May 2021 06:30:43 -0400
+        by vger.kernel.org with ESMTP id S232426AbhEXKcP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 06:32:15 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 541161940295;
+        Mon, 24 May 2021 06:30:45 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 24 May 2021 06:30:45 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=APZ/ct
-        /IfUX7JotbH6j90fZjjwtCzdFhTMRJ1WsVxeY=; b=gJ4S/Fz4tfZO4gREK0sQWf
-        uO7pXL5aj4FvsDqouT7K0Ojz1Qkn/8bzCntHblsrVRmT+ThwH/lSS8A+l/OFJ7zj
-        NX7EYHKY4h9L+sElYBOS895LXr/R/9QFRDL6BCkDdrYxZa9GgffbYtlT8KfnyzRf
-        ig9tU5hKq40tWYssvBAh6tOc262FHfk5puWI4FKInkY6FwRcFca0xVi99kdYfBe9
-        IUv7jdzY8xksIUmaAO7h1u6OQQoHn/Ggm5H8mJvdrZ1zFepMXs1n0eKN+UH71Sr2
-        rxbblh6YfwebUR41jrCTrbWT7xQ7VcjyPs0ZubkyQnPgBST3laNl5LsTiuPlpTBw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=rVbmwH
+        ZFYzLl/DMeWop9QFUFmgLaQar4MHdxa5qoKbk=; b=v2/Q3pIbIY4C9ZnP5B4Mt+
+        5YLnntnCas4V7bk3rC4iJqX24dcEzH3X8DLmDwB2KRfGrHaOCpHGpWr4wiq28b+q
+        jR1UefOIfHs4zYoREz90si2XF/ENnCyE40iu0i2mNha4XYEpJwSjAc9rkYMMQOjI
+        Dlw27cEPhDkTv6rRfM533e7qjUSPpLFNBEpSUB8DXSXR8du0WZZz+W07XRHkOS7H
+        vagptee5EiRNbpe/04GZIrTVkJbczfxVYbdOq+c82JH4WGHCLik49TtWazlPslxm
+        PvaXDWGeNmW4WS9HMTWqNMNqMoMo4iXzoIZ9iZgCuEvbj0fKv8gCtNliH9KyOAhg
         ==
-X-ME-Sender: <xms:U4CrYFtqFDi1Rq1Jtnf0ymi76JMVgv-IiehjFqNkshTWdQnvmlyccw>
-    <xme:U4CrYOcmGXZaUoNgkAEsclxGko8OG9wcJYKg26xl2sc9ze8qYgH0c59U0fWutoavF
-    -E6SOKIhejXCg>
+X-ME-Sender: <xms:VYCrYK8idtYdV9-ZRToTuG6DqlCHVkJMZjiZJahU779B8c-7_eunug>
+    <xme:VYCrYKsawHZAdWCRvaYSYPh3vz8loqJyCVKOshDVP1hjz2Kdq6dH_RnACGoXbuExI
+    bsrj0W65YRzMQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledgfedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledgfedtucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:U4CrYIxy_QdT1LH5J7H0bgyf9aNwkC8xv5K8yAVtcIwPLdQ19r-DOQ>
-    <xmx:U4CrYMP5xmEpiC1lXL1rr4BzYt0PoArAcFw0dcSdqZKFNp0Ksgd0_w>
-    <xmx:U4CrYF9OJfx5bFBgVr8qMFV5y-5exJCi0UredWv0hWKg1bwyQl2ULg>
-    <xmx:U4CrYHIoAr6roJKTlCQkrAkKJaOlaJUj-jO9YE19iwBTFMSr1BlwBA>
+X-ME-Proxy: <xmx:VYCrYABVxf44kT92bFJ8E0kpHlaAozKdABuaWdp6xTBioqx4jQaZzQ>
+    <xmx:VYCrYCedRmX1jJnM0lMF-VO4ITrs9izgHI_WAKpRDgwdvfWapUWjWg>
+    <xmx:VYCrYPO3eX5DixY_O3q2abbd2jFXQczQ6mylEL8s_I03VdWRKgiWRw>
+    <xmx:VYCrYIaw2iYaZr8dXdg3KRq-qCX8jbSChpGdNVcn1xWiRaZ0IiZydg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 24 May 2021 06:30:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mmc: meson-gx: make replace WARN_ONCE with dev_warn_once" failed to apply to 4.19-stable tree
+        Mon, 24 May 2021 06:30:44 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mmc: meson-gx: make replace WARN_ONCE with dev_warn_once" failed to apply to 5.4-stable tree
 To:     narmstrong@baylibre.com, christianshewitt@gmail.com,
         martin.blumenstingl@googlemail.com, ulf.hansson@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Mon, 24 May 2021 12:30:33 +0200
-Message-ID: <16218522338758@kroah.com>
+Message-ID: <1621852233137243@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
