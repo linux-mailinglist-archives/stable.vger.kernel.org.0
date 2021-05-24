@@ -2,40 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20A3638EDEF
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 379EE38ED79
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234184AbhEXPnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57772 "EHLO mail.kernel.org"
+        id S233843AbhEXPiT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:38:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234248AbhEXPl6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:41:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA9C861456;
-        Mon, 24 May 2021 15:34:43 +0000 (UTC)
+        id S233881AbhEXPgW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:36:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 192176140F;
+        Mon, 24 May 2021 15:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870484;
-        bh=dvRhylMM555JA8EOpyrJQdp6quiVFeZiBnuhqqBa5fY=;
+        s=korg; t=1621870355;
+        bh=98wRBNLBzd4db1Bd/DlbUqjH+bZ4Vk7SYTJYePNOnKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TE/AqwgwjfJmXucgHHo4Httc6aZAjKxS/BlSyna4ikhowm6+RUm8Ny2pNHyMqpctt
-         aSmjf8mhTRGgfk852BcqQbjjdIkI6WKBuHMKeP9Mbw/juO8Qe0T1dtpwmfdEqycsKo
-         o6/aarsO/pUZJzqEZyXpzadBVdgsCfL/R/+ziH6E=
+        b=e0Cq4DYpeNw1KouJ/Z+38eQjQG6i0CmLr7F4C8I79FGLQ9EAFcM7szm8IQ0Z+aeG/
+         KInTb1pfK5qkSDVddrPjd2cpsNjXdqxda0BSInjRA5OD5rf54p85Jq7mAT1enhcSC6
+         Sg2YpzJuzKpNWESJdJz+AsBmK/cOsxDt7ZCdHayg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Oleg Nesterov <oleg@redhat.com>,
-        Simon Marchi <simon.marchi@efficios.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Pedro Alves <palves@redhat.com>,
-        Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 07/49] ptrace: make ptrace() fail if the tracee changed its pid unexpectedly
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.9 33/36] vgacon: Record video mode changes with VT_RESIZEX
 Date:   Mon, 24 May 2021 17:25:18 +0200
-Message-Id: <20210524152324.620321932@linuxfoundation.org>
+Message-Id: <20210524152325.224791457@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,161 +39,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oleg Nesterov <oleg@redhat.com>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-[ Upstream commit dbb5afad100a828c97e012c6106566d99f041db6 ]
+commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
 
-Suppose we have 2 threads, the group-leader L and a sub-theread T,
-both parked in ptrace_stop(). Debugger tries to resume both threads
-and does
+Fix an issue with VGA console font size changes made after the initial
+video text mode has been changed with a user tool like `svgatextmode'
+calling the VT_RESIZEX ioctl.  As it stands in that case the original
+screen geometry continues being used to validate further VT resizing.
 
-	ptrace(PTRACE_CONT, T);
-	ptrace(PTRACE_CONT, L);
+Consequently when the video adapter is firstly reprogrammed from the
+original say 80x25 text mode using a 9x16 character cell (720x400 pixel
+resolution) to say 80x37 text mode and the same character cell (720x592
+pixel resolution), and secondly the CRTC character cell updated to 9x8
+(by loading a suitable font with the KD_FONT_OP_SET request of the
+KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
+and only upper half of the screen is used for the VT, with the lower
+half showing rubbish corresponding to whatever happens to be there in
+the video memory that maps to that part of the screen.  Of course the
+proportions change according to text mode geometries and font sizes
+chosen.
 
-If the sub-thread T execs in between, the 2nd PTRACE_CONT doesn not
-resume the old leader L, it resumes the post-exec thread T which was
-actually now stopped in PTHREAD_EVENT_EXEC. In this case the
-PTHREAD_EVENT_EXEC event is lost, and the tracer can't know that the
-tracee changed its pid.
+Address the problem then, by updating the text mode geometry defaults
+rather than checking against them whenever the VT is resized via a user
+ioctl.
 
-This patch makes ptrace() fail in this case until debugger does wait()
-and consumes PTHREAD_EVENT_EXEC which reports old_pid. This affects all
-ptrace requests except the "asynchronous" PTRACE_INTERRUPT/KILL.
-
-The patch doesn't add the new PTRACE_ option to not complicate the API,
-and I _hope_ this won't cause any noticeable regression:
-
-	- If debugger uses PTRACE_O_TRACEEXEC and the thread did an exec
-	  and the tracer does a ptrace request without having consumed
-	  the exec event, it's 100% sure that the thread the ptracer
-	  thinks it is targeting does not exist anymore, or isn't the
-	  same as the one it thinks it is targeting.
-
-	- To some degree this patch adds nothing new. In the scenario
-	  above ptrace(L) can fail with -ESRCH if it is called after the
-	  execing sub-thread wakes the leader up and before it "steals"
-	  the leader's pid.
-
-Test-case:
-
-	#include <stdio.h>
-	#include <unistd.h>
-	#include <signal.h>
-	#include <sys/ptrace.h>
-	#include <sys/wait.h>
-	#include <errno.h>
-	#include <pthread.h>
-	#include <assert.h>
-
-	void *tf(void *arg)
-	{
-		execve("/usr/bin/true", NULL, NULL);
-		assert(0);
-
-		return NULL;
-	}
-
-	int main(void)
-	{
-		int leader = fork();
-		if (!leader) {
-			kill(getpid(), SIGSTOP);
-
-			pthread_t th;
-			pthread_create(&th, NULL, tf, NULL);
-			for (;;)
-				pause();
-
-			return 0;
-		}
-
-		waitpid(leader, NULL, WSTOPPED);
-
-		ptrace(PTRACE_SEIZE, leader, 0,
-				PTRACE_O_TRACECLONE | PTRACE_O_TRACEEXEC);
-		waitpid(leader, NULL, 0);
-
-		ptrace(PTRACE_CONT, leader, 0,0);
-		waitpid(leader, NULL, 0);
-
-		int status, thread = waitpid(-1, &status, 0);
-		assert(thread > 0 && thread != leader);
-		assert(status == 0x80137f);
-
-		ptrace(PTRACE_CONT, thread, 0,0);
-		/*
-		 * waitid() because waitpid(leader, &status, WNOWAIT) does not
-		 * report status. Why ????
-		 *
-		 * Why WEXITED? because we have another kernel problem connected
-		 * to mt-exec.
-		 */
-		siginfo_t info;
-		assert(waitid(P_PID, leader, &info, WSTOPPED|WEXITED|WNOWAIT) == 0);
-		assert(info.si_pid == leader && info.si_status == 0x0405);
-
-		/* OK, it sleeps in ptrace(PTRACE_EVENT_EXEC == 0x04) */
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == -1);
-		assert(errno == ESRCH);
-
-		assert(leader == waitpid(leader, &status, WNOHANG));
-		assert(status == 0x04057f);
-
-		assert(ptrace(PTRACE_CONT, leader, 0,0) == 0);
-
-		return 0;
-	}
-
-Signed-off-by: Oleg Nesterov <oleg@redhat.com>
-Reported-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Acked-by: Pedro Alves <palves@redhat.com>
-Acked-by: Simon Marchi <simon.marchi@efficios.com>
-Acked-by: Jan Kratochvil <jan.kratochvil@redhat.com>
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
+Cc: stable@vger.kernel.org # v2.6.24+
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/ptrace.c | 18 +++++++++++++++++-
- 1 file changed, 17 insertions(+), 1 deletion(-)
+ drivers/video/console/vgacon.c |   14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/ptrace.c b/kernel/ptrace.c
-index ecdb7402072f..af74e843221b 100644
---- a/kernel/ptrace.c
-+++ b/kernel/ptrace.c
-@@ -163,6 +163,21 @@ void __ptrace_unlink(struct task_struct *child)
- 	spin_unlock(&child->sighand->siglock);
- }
+--- a/drivers/video/console/vgacon.c
++++ b/drivers/video/console/vgacon.c
+@@ -1174,12 +1174,20 @@ static int vgacon_resize(struct vc_data
+ 	if ((width << 1) * height > vga_vram_size)
+ 		return -EINVAL;
  
-+static bool looks_like_a_spurious_pid(struct task_struct *task)
-+{
-+	if (task->exit_code != ((PTRACE_EVENT_EXEC << 8) | SIGTRAP))
-+		return false;
-+
-+	if (task_pid_vnr(task) == task->ptrace_message)
-+		return false;
-+	/*
-+	 * The tracee changed its pid but the PTRACE_EVENT_EXEC event
-+	 * was not wait()'ed, most probably debugger targets the old
-+	 * leader which was destroyed in de_thread().
-+	 */
-+	return true;
-+}
-+
- /* Ensure that nothing can wake it up, even SIGKILL */
- static bool ptrace_freeze_traced(struct task_struct *task)
- {
-@@ -173,7 +188,8 @@ static bool ptrace_freeze_traced(struct task_struct *task)
- 		return ret;
++	if (user) {
++		/*
++		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
++		 * the video mode!  Set the new defaults then and go away.
++		 */
++		screen_info.orig_video_cols = width;
++		screen_info.orig_video_lines = height;
++		vga_default_font_height = c->vc_font.height;
++		return 0;
++	}
+ 	if (width % 2 || width > screen_info.orig_video_cols ||
+ 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
+ 	    c->vc_font.height)
+-		/* let svgatextmode tinker with video timings and
+-		   return success */
+-		return (user) ? 0 : -EINVAL;
++		return -EINVAL;
  
- 	spin_lock_irq(&task->sighand->siglock);
--	if (task_is_traced(task) && !__fatal_signal_pending(task)) {
-+	if (task_is_traced(task) && !looks_like_a_spurious_pid(task) &&
-+	    !__fatal_signal_pending(task)) {
- 		task->state = __TASK_TRACED;
- 		ret = true;
- 	}
--- 
-2.30.2
-
+ 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
+ 		vgacon_doresize(c, width, height);
 
 
