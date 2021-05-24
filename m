@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41DAC38ED34
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EAAA38ED38
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233413AbhEXPez (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:34:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
+        id S233109AbhEXPe5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233498AbhEXPdj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:33:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B629613E4;
-        Mon, 24 May 2021 15:31:28 +0000 (UTC)
+        id S233528AbhEXPdk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 75D83613F4;
+        Mon, 24 May 2021 15:31:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870288;
-        bh=876at4fVsVkH9wRjydP+IqwmEyIOzmfMTCElk/R6EXk=;
+        s=korg; t=1621870290;
+        bh=LyOy+xlsooxbKqYUi7vUL9d6aQqlJNqEBv3mbHSy47o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+qAyCt3BGBaYVah0Co0yZNEDmj5pFCMtIoSMPd6ENcc0Eo2xi91wUD6B68qN0HVZ
-         yfZK2UTrJ6kunPjjIfiBABl6yrEvLrt02931WRdD65aZHCqqV5z05sS9acB/lt8iAz
-         mljz5/X0Ui1/a1Ih3oeSJDlFOCLVUOfG2CAZlJw8=
+        b=f6x+rEgJgKqMOr1YcyWfId9WTDw/VNurh8+r/7a5fDBWzIps5HVzabQviB/b55z9z
+         NsFjTF8X8mAwqY6pC9XQ+i81ZtCeFvYXaEyfHXLYudGSzTL/fP17J0ERGsXWQ+ukUu
+         N6kyfC97geF+O1jpwVhb1SSHDqWUTI9j8K6AFzmQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.4 06/31] ALSA: bebob/oxfw: fix Kconfig entry for Mackie d.2 Pro
-Date:   Mon, 24 May 2021 17:24:49 +0200
-Message-Id: <20210524152323.129175796@linuxfoundation.org>
+Subject: [PATCH 4.4 07/31] Revert "ALSA: sb8: add a check for request_region"
+Date:   Mon, 24 May 2021 17:24:50 +0200
+Message-Id: <20210524152323.163207726@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
 References: <20210524152322.919918360@linuxfoundation.org>
@@ -39,73 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 0edabdfe89581669609eaac5f6a8d0ae6fe95e7f upstream.
+commit 94f88309f201821073f57ae6005caefa61bf7b7e upstream.
 
-Mackie d.2 has an extension card for IEEE 1394 communication, which uses
-BridgeCo DM1000 ASIC. On the other hand, Mackie d.4 Pro has built-in
-function for IEEE 1394 communication by Oxford Semiconductor OXFW971,
-according to schematic diagram available in Mackie website. Although I
-misunderstood that Mackie d.2 Pro would be also a model with OXFW971,
-it's wrong. Mackie d.2 Pro is a model which includes the extension card
-as factory settings.
+This reverts commit dcd0feac9bab901d5739de51b3f69840851f8919.
 
-This commit fixes entries in Kconfig and comment in ALSA OXFW driver.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Cc: <stable@vger.kernel.org>
-Fixes: fd6f4b0dc167 ("ALSA: bebob: Add skelton for BeBoB based devices")
-Fixes: ec4dba5053e1 ("ALSA: oxfw: Add support for Behringer/Mackie devices")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-3-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit message for this change was incorrect as the code
+path can never result in a NULL dereference, alluding to the fact that
+whatever tool was used to "find this" is broken.  It's just an optional
+resource reservation, so removing this check is fine.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Takashi Iwai <tiwai@suse.de>
+Fixes: dcd0feac9bab ("ALSA: sb8: add a check for request_region")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-35-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/Kconfig       |    4 ++--
- sound/firewire/bebob/bebob.c |    2 +-
- sound/firewire/oxfw/oxfw.c   |    1 -
- 3 files changed, 3 insertions(+), 4 deletions(-)
+ sound/isa/sb/sb8.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/sound/firewire/Kconfig
-+++ b/sound/firewire/Kconfig
-@@ -36,7 +36,7 @@ config SND_OXFW
- 	   * Mackie(Loud) Onyx-i series (former models)
- 	   * Mackie(Loud) Onyx Satellite
- 	   * Mackie(Loud) Tapco Link.Firewire
--	   * Mackie(Loud) d.2 pro/d.4 pro
-+	   * Mackie(Loud) d.4 pro
- 	   * Mackie(Loud) U.420/U.420d
- 	   * TASCAM FireOne
+--- a/sound/isa/sb/sb8.c
++++ b/sound/isa/sb/sb8.c
+@@ -111,10 +111,6 @@ static int snd_sb8_probe(struct device *
  
-@@ -91,7 +91,7 @@ config SND_BEBOB
- 	  * PreSonus FIREBOX/FIREPOD/FP10/Inspire1394
- 	  * BridgeCo RDAudio1/Audio5
- 	  * Mackie Onyx 1220/1620/1640 (FireWire I/O Card)
--	  * Mackie d.2 (FireWire Option)
-+	  * Mackie d.2 (FireWire Option) and d.2 Pro
- 	  * Stanton FinalScratch 2 (ScratchAmp)
- 	  * Tascam IF-FW/DM
- 	  * Behringer XENIX UFX 1204/1604
---- a/sound/firewire/bebob/bebob.c
-+++ b/sound/firewire/bebob/bebob.c
-@@ -362,7 +362,7 @@ static const struct ieee1394_device_id b
- 	SND_BEBOB_DEV_ENTRY(VEN_BRIDGECO, 0x00010049, &spec_normal),
- 	/* Mackie, Onyx 1220/1620/1640 (Firewire I/O Card) */
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE2, 0x00010065, &spec_normal),
--	/* Mackie, d.2 (Firewire Option) */
-+	// Mackie, d.2 (Firewire option card) and d.2 Pro (the card is built-in).
- 	SND_BEBOB_DEV_ENTRY(VEN_MACKIE1, 0x00010067, &spec_normal),
- 	/* Stanton, ScratchAmp */
- 	SND_BEBOB_DEV_ENTRY(VEN_STANTON, 0x00000001, &spec_normal),
---- a/sound/firewire/oxfw/oxfw.c
-+++ b/sound/firewire/oxfw/oxfw.c
-@@ -320,7 +320,6 @@ static const struct ieee1394_device_id o
- 	 *  Onyx-i series (former models):	0x081216
- 	 *  Mackie Onyx Satellite:		0x00200f
- 	 *  Tapco LINK.firewire 4x6:		0x000460
--	 *  d.2 pro:				Unknown
- 	 *  d.4 pro:				Unknown
- 	 *  U.420:				Unknown
- 	 *  U.420d:				Unknown
+ 	/* block the 0x388 port to avoid PnP conflicts */
+ 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+-	if (!acard->fm_res) {
+-		err = -EBUSY;
+-		goto _err;
+-	}
+ 
+ 	if (port[dev] != SNDRV_AUTO_PORT) {
+ 		if ((err = snd_sbdsp_create(card, port[dev], irq[dev],
 
 
