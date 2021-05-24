@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B7A338EE6B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3558638EED2
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233630AbhEXPuq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:50:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33674 "EHLO mail.kernel.org"
+        id S234177AbhEXPzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233582AbhEXPrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:47:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7800061417;
-        Mon, 24 May 2021 15:37:07 +0000 (UTC)
+        id S235094AbhEXPy6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FC5061876;
+        Mon, 24 May 2021 15:40:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870627;
-        bh=0/p0tc9WrNj0jr3ZyF9G/zdESfFGAEkfgCe3qd7ps5w=;
+        s=korg; t=1621870829;
+        bh=zcj1N2YsNW4jSa0/pwPpHGaac4BQZlaVdlLqA796S/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GZ2UKmFTtiM8RJtgOrm3UI0WkPaHfzqJbnRGHw8MmpmNOaQ65HKoAl1tpdgWZHHA9
-         XdYTkOGQ9cbNrk4qkxJL8rC7AtSv7GxqSe1pBeuV7vJ1VB0F+PGqCXLjqTAMEn+Qqy
-         O61TmgRRcAQYZLpE2KzDNcPA8aE7Xnlqq+wdxCn4=
+        b=I35Eo/NAL/b84ddQaFMfY910147e3AYBT2FPH5o9lGvUODCbmjS8Yv1WBKSvGK/s2
+         KVd9NHt9JhmJIJ3RShp0lsxnR6VEkq04cSP2mw4cMh/DEcQgRE70TdVvFqWojVq09W
+         vLbwNkwm/sgkOY+XLmdahnXpK3E+vywY+jjFM0Jk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 5.4 33/71] uio_hv_generic: Fix a memory leak in error handling paths
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 044/104] ALSA: firewire-lib: fix check for the size of isochronous packet payload
 Date:   Mon, 24 May 2021 17:25:39 +0200
-Message-Id: <20210524152327.538000879@linuxfoundation.org>
+Message-Id: <20210524152334.281414775@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,50 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 3ee098f96b8b6c1a98f7f97915f8873164e6af9d upstream.
+commit 395f41e2cdac63e7581fb9574e5ac0f02556e34a upstream.
 
-If 'vmbus_establish_gpadl()' fails, the (recv|send)_gpadl will not be
-updated and 'hv_uio_cleanup()' in the error handling path will not be
-able to free the corresponding buffer.
+The check for size of isochronous packet payload just cares of the size of
+IR context payload without the size of CIP header.
 
-In such a case, we need to free the buffer explicitly.
-
-Fixes: cdfa835c6e5e ("uio_hv_generic: defer opening vmbus until first use")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/4fdaff557deef6f0475d02ba7922ddbaa1ab08a6.1620544055.git.christophe.jaillet@wanadoo.fr
+Cc: <stable@vger.kernel.org>
+Fixes: f11453c7cc01 ("ALSA: firewire-lib: use 16 bytes IR context header to separate CIP header")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210513125652.110249-4-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/uio/uio_hv_generic.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ sound/firewire/amdtp-stream.c |   14 ++++++++++----
+ 1 file changed, 10 insertions(+), 4 deletions(-)
 
---- a/drivers/uio/uio_hv_generic.c
-+++ b/drivers/uio/uio_hv_generic.c
-@@ -296,8 +296,10 @@ hv_uio_probe(struct hv_device *dev,
+--- a/sound/firewire/amdtp-stream.c
++++ b/sound/firewire/amdtp-stream.c
+@@ -633,18 +633,24 @@ static int parse_ir_ctx_header(struct am
+ 			       unsigned int *syt, unsigned int packet_index, unsigned int index)
+ {
+ 	const __be32 *cip_header;
++	unsigned int cip_header_size;
+ 	int err;
  
- 	ret = vmbus_establish_gpadl(channel, pdata->recv_buf,
- 				    RECV_BUFFER_SIZE, &pdata->recv_gpadl);
--	if (ret)
-+	if (ret) {
-+		vfree(pdata->recv_buf);
- 		goto fail_close;
-+	}
+ 	*payload_length = be32_to_cpu(ctx_header[0]) >> ISO_DATA_LENGTH_SHIFT;
+-	if (*payload_length > s->ctx_data.tx.ctx_header_size +
+-					s->ctx_data.tx.max_ctx_payload_length) {
++
++	if (!(s->flags & CIP_NO_HEADER))
++		cip_header_size = 8;
++	else
++		cip_header_size = 0;
++
++	if (*payload_length > cip_header_size + s->ctx_data.tx.max_ctx_payload_length) {
+ 		dev_err(&s->unit->device,
+ 			"Detect jumbo payload: %04x %04x\n",
+-			*payload_length, s->ctx_data.tx.max_ctx_payload_length);
++			*payload_length, cip_header_size + s->ctx_data.tx.max_ctx_payload_length);
+ 		return -EIO;
+ 	}
  
- 	/* put Global Physical Address Label in name */
- 	snprintf(pdata->recv_name, sizeof(pdata->recv_name),
-@@ -316,8 +318,10 @@ hv_uio_probe(struct hv_device *dev,
- 
- 	ret = vmbus_establish_gpadl(channel, pdata->send_buf,
- 				    SEND_BUFFER_SIZE, &pdata->send_gpadl);
--	if (ret)
-+	if (ret) {
-+		vfree(pdata->send_buf);
- 		goto fail_close;
-+	}
- 
- 	snprintf(pdata->send_name, sizeof(pdata->send_name),
- 		 "send:%u", pdata->send_gpadl);
+-	if (!(s->flags & CIP_NO_HEADER)) {
++	if (cip_header_size > 0) {
+ 		cip_header = ctx_header + 2;
+ 		err = check_cip_header(s, cip_header, *payload_length,
+ 				       data_blocks, data_block_counter, syt);
 
 
