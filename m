@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E39C338EDE4
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55B0338EEE1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233430AbhEXPnN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
+        id S234631AbhEXPzc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233759AbhEXPlD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:41:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4611761447;
-        Mon, 24 May 2021 15:34:37 +0000 (UTC)
+        id S234863AbhEXPyr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C86696186A;
+        Mon, 24 May 2021 15:39:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870477;
-        bh=sSVrUpd8vfMePinF/nqk40JVEeWxY/Dw/HFksC8EMiA=;
+        s=korg; t=1621870797;
+        bh=vdoP4yMYzxFXHcybiFzw8eogToT0ph495trWNwqm/ek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SkHRD2FlLvh6X+6v6cZmWAPwBXBJqY+Bj1/jeaBAGV4f8C52eoPqOHIaHHs3b8Y1G
-         hA5DKUIGf0Wy/FjvK0n7lyzTrBtrKk3IdXBpp56mNZEDGhNUiI/NrCG1CosOFsKhYZ
-         6uzfkVc8NM4x8nz7ZDXJZyG6TDJ74owOseciBMcM=
+        b=uqRhff6ZlwbPla2IjeOjlbuljhAQvEy5uV+LWa7Tnj8LAuaf1QTjZt3Sbdf1Tg2F6
+         sQ1DNFxAV8APLOdD9sA0N3LlchGjxHbv4VrYlARgtQkk9z3c/e4/FeMYV0wBqR9aNp
+         7SSWA+G36e17rOwGTGv3mm3fxBFbHA4TiAGSywuY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Yishai Hadas <yishaih@nvidia.com>,
+        Maor Gottlieb <maorg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/49] scsi: qla2xxx: Fix error return code in qla82xx_write_flash_dword()
-Date:   Mon, 24 May 2021 17:25:15 +0200
-Message-Id: <20210524152324.525872576@linuxfoundation.org>
+Subject: [PATCH 5.10 021/104] RDMA/mlx5: Fix query DCT via DEVX
+Date:   Mon, 24 May 2021 17:25:16 +0200
+Message-Id: <20210524152333.526920968@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +42,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Maor Gottlieb <maorg@nvidia.com>
 
-[ Upstream commit 5cb289bf2d7c34ca1abd794ce116c4f19185a1d4 ]
+[ Upstream commit cfa3b797118eda7d68f9ede9b1a0279192aca653 ]
 
-Fix to return a negative error code from the error handling case instead of
-0 as done elsewhere in this function.
+When executing DEVX command to query QP object, we need to take the QP
+type from the mlx5_ib_qp struct which hold the driver specific QP types as
+well, such as DC.
 
-Link: https://lore.kernel.org/r/20210514090952.6715-1-thunder.leizhen@huawei.com
-Fixes: a9083016a531 ("[SCSI] qla2xxx: Add ISP82XX support.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 34613eb1d2ad ("IB/mlx5: Enable modify and query verbs objects via DEVX")
+Link: https://lore.kernel.org/r/6eee15d63f09bb70787488e0cf96216e2957f5aa.1621413654.git.leonro@nvidia.com
+Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
+Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_nx.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/infiniband/hw/mlx5/devx.c | 6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/qla2xxx/qla_nx.c b/drivers/scsi/qla2xxx/qla_nx.c
-index 3007eecfa509..7451355f20e0 100644
---- a/drivers/scsi/qla2xxx/qla_nx.c
-+++ b/drivers/scsi/qla2xxx/qla_nx.c
-@@ -1107,7 +1107,8 @@ qla82xx_write_flash_dword(struct qla_hw_data *ha, uint32_t flashaddr,
- 		return ret;
+diff --git a/drivers/infiniband/hw/mlx5/devx.c b/drivers/infiniband/hw/mlx5/devx.c
+index efb9ec99b68b..06a873257619 100644
+--- a/drivers/infiniband/hw/mlx5/devx.c
++++ b/drivers/infiniband/hw/mlx5/devx.c
+@@ -559,9 +559,8 @@ static bool devx_is_valid_obj_id(struct uverbs_attr_bundle *attrs,
+ 	case UVERBS_OBJECT_QP:
+ 	{
+ 		struct mlx5_ib_qp *qp = to_mqp(uobj->object);
+-		enum ib_qp_type	qp_type = qp->ibqp.qp_type;
+ 
+-		if (qp_type == IB_QPT_RAW_PACKET ||
++		if (qp->type == IB_QPT_RAW_PACKET ||
+ 		    (qp->flags & IB_QP_CREATE_SOURCE_QPN)) {
+ 			struct mlx5_ib_raw_packet_qp *raw_packet_qp =
+ 							 &qp->raw_packet_qp;
+@@ -578,10 +577,9 @@ static bool devx_is_valid_obj_id(struct uverbs_attr_bundle *attrs,
+ 					       sq->tisn) == obj_id);
+ 		}
+ 
+-		if (qp_type == MLX5_IB_QPT_DCT)
++		if (qp->type == MLX5_IB_QPT_DCT)
+ 			return get_enc_obj_id(MLX5_CMD_OP_CREATE_DCT,
+ 					      qp->dct.mdct.mqp.qpn) == obj_id;
+-
+ 		return get_enc_obj_id(MLX5_CMD_OP_CREATE_QP,
+ 				      qp->ibqp.qp_num) == obj_id;
  	}
- 
--	if (qla82xx_flash_set_write_enable(ha))
-+	ret = qla82xx_flash_set_write_enable(ha);
-+	if (ret < 0)
- 		goto done_write;
- 
- 	qla82xx_wr_32(ha, QLA82XX_ROMUSB_ROM_WDATA, data);
 -- 
 2.30.2
 
