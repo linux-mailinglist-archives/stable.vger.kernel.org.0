@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 039DC38ED31
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 88DE238ED92
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:38:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233440AbhEXPex (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:34:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50500 "EHLO mail.kernel.org"
+        id S234167AbhEXPjD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:39:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233234AbhEXPdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:33:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 69ED0613DB;
-        Mon, 24 May 2021 15:31:04 +0000 (UTC)
+        id S233513AbhEXPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:36:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 377CF6141D;
+        Mon, 24 May 2021 15:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870264;
-        bh=Wcu1d9Mug0WrHSlaZvr6VdvPqy1pPkbAFqQgwV4UK3E=;
+        s=korg; t=1621870381;
+        bh=XHYPZJ9WXzLB6L2N7zgeqXGZs7Z4Kofy3XAQaQOe2DA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3ChjgpT9iTsNcc+Sf9ONPocmUSG74HHiFOTe9twj9vokLT+73vF1li9YZw9pofwp
-         WWeJE328Ty7LFYU8uOJ8WmSyVh55UkXqVy3BCq4H8YPi9QG/OUlZ+7AOT73ClcoVus
-         rSgrr3tDz1FzWKEYnPdNURQHuE57LGpoFXU/LKFY=
+        b=sdE2yteXlcYuHPRt0IFZpOYxztHcQg7jthMIf0tfDvpcsJQi9awQa0ZpKQrfw8UlF
+         DbIiwVGpSwN1QWcvrPoznBv39rrcnpfA67MaRRWPaJAqHOC+lC2tC86rWepVR7qLW5
+         prnoAySrh5HQGpgvdBXrWzxZnupqEY5dNiXdkz2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Du Cheng <ducheng2@gmail.com>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 23/31] ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        Peter Rosin <peda@axentia.se>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.9 21/36] Revert "gdrom: fix a memory leak bug"
 Date:   Mon, 24 May 2021 17:25:06 +0200
-Message-Id: <20210524152323.681213510@linuxfoundation.org>
+Message-Id: <20210524152324.841767227@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
-References: <20210524152322.919918360@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,121 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit e6e337708c22f80824b82d4af645f20715730ad0 upstream.
+commit 257343d3ed557f11d580d0b7c515dc154f64a42b upstream.
 
-niu_pci_eeprom_read() may fail, so add checks to its return value and
-propagate the error up the callstack.
+This reverts commit 093c48213ee37c3c3ff1cf5ac1aa2a9d8bc66017.
 
-An examination of the callstack up to niu_pci_eeprom_read shows that:
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-niu_pci_eeprom_read() // returns int
-    niu_pci_vpd_scan_props() // returns int
-        niu_pci_vpd_fetch() // returns *void*
-            niu_get_invariants() // returns int
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-since niu_pci_vpd_fetch() returns void which breaks the bubbling up,
-change its return type to int so that error is propagated upwards.
+Because of this, all submissions from this group must be reverted from
+the kernel tree and will need to be re-reviewed again to determine if
+they actually are a valid fix.  Until that work is complete, remove this
+change to ensure that no problems are being introduced into the
+codebase.
 
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
+Cc: Wenwen Wang <wang6495@umn.edu>
+Cc: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: 093c48213ee3 ("gdrom: fix a memory leak bug")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-24-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-27-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |   34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/cdrom/gdrom.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8119,6 +8119,8 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
- 
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
-+		if (prop_len < 0)
-+			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8163,8 +8165,12 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++)
--				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
-+			for (i = 0; i < prop_len; i++) {
-+				err =  niu_pci_eeprom_read(np, off + i);
-+				if (err < 0)
-+					return err;
-+				*prop_buf++ = err;
-+			}
- 		}
- 
- 		start += len;
-@@ -8174,14 +8180,14 @@ static int niu_pci_vpd_scan_props(struct
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -882,7 +882,6 @@ static void __exit exit_gdrom(void)
+ 	platform_device_unregister(pd);
+ 	platform_driver_unregister(&gdrom_driver);
+ 	kfree(gd.toc);
+-	kfree(gd.cd_info);
  }
  
- /* ESPC_PIO_EN_ENABLE must be set */
--static void niu_pci_vpd_fetch(struct niu *np, u32 start)
-+static int niu_pci_vpd_fetch(struct niu *np, u32 start)
- {
- 	u32 offset;
- 	int err;
- 
- 	err = niu_pci_eeprom_read16_swp(np, start + 1);
- 	if (err < 0)
--		return;
-+		return err;
- 
- 	offset = err + 3;
- 
-@@ -8190,12 +8196,14 @@ static void niu_pci_vpd_fetch(struct niu
- 		u32 end;
- 
- 		err = niu_pci_eeprom_read(np, here);
-+		if (err < 0)
-+			return err;
- 		if (err != 0x90)
--			return;
-+			return -EINVAL;
- 
- 		err = niu_pci_eeprom_read16_swp(np, here + 1);
- 		if (err < 0)
--			return;
-+			return err;
- 
- 		here = start + offset + 3;
- 		end = start + offset + err;
-@@ -8203,9 +8211,12 @@ static void niu_pci_vpd_fetch(struct niu
- 		offset += err;
- 
- 		err = niu_pci_vpd_scan_props(np, here, end);
--		if (err < 0 || err == 1)
--			return;
-+		if (err < 0)
-+			return err;
-+		if (err == 1)
-+			return -EINVAL;
- 	}
-+	return 0;
- }
- 
- /* ESPC_PIO_EN_ENABLE must be set */
-@@ -9298,8 +9309,11 @@ static int niu_get_invariants(struct niu
- 		offset = niu_pci_vpd_offset(np);
- 		netif_printk(np, probe, KERN_DEBUG, np->dev,
- 			     "%s() VPD offset [%08x]\n", __func__, offset);
--		if (offset)
--			niu_pci_vpd_fetch(np, offset);
-+		if (offset) {
-+			err = niu_pci_vpd_fetch(np, offset);
-+			if (err < 0)
-+				return err;
-+		}
- 		nw64(ESPC_PIO_EN, 0);
- 
- 		if (np->flags & NIU_FLAGS_VPD_VALID) {
+ module_init(init_gdrom);
 
 
