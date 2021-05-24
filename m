@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1252B38EE1E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCB1E38EE0E
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233840AbhEXPph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S233482AbhEXPpX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234081AbhEXPnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:43:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E14AB613B0;
-        Mon, 24 May 2021 15:35:13 +0000 (UTC)
+        id S234094AbhEXPnG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:43:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42E136144B;
+        Mon, 24 May 2021 15:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870514;
-        bh=3ctF/2MKSV8si6spw2r6srfUaoErhN2JNMcTgTnI9D4=;
+        s=korg; t=1621870518;
+        bh=J2hRgjcqHwwKOaAQY1NXUiYhUUmHXXp0YzhfGjhnjW4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F11ckea44Zm4Y/toUR9pxj8iydQZhL0ko3OaM5GkjE8uZ0tIFfx9COlA2YbGs88gQ
-         DQWI5FvdQiW/Lejq7tTXDEHD0bvP3j+awbVjekfgtVx3iWR6Y7sbPeWCMclAR3gTOF
-         blYjufar5u6C5XVeYHlNi5f2lKl/z3WUPZW5/4xw=
+        b=cw6xMGLeHgOCW2d3NZV9SAGm8COGNtbtTVPSnYMN1o6XubxpmOHrL3Nj39//zTacr
+         iN4pxFFqFCorWXbwaMdTVtYWkpQRS8SDJq61DSknQOG5+m38rdLkT8FKZa30ef/LII
+         gQjs6jlTR5NXqkiLnkodc8BqA5Mc92PZXewOZMPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Avri Altman <avri.altman@wdc.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.19 31/49] Revert "scsi: ufs: fix a missing check of devm_reset_control_get"
-Date:   Mon, 24 May 2021 17:25:42 +0200
-Message-Id: <20210524152325.390700096@linuxfoundation.org>
+        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
+        Peter Rosin <peda@axentia.se>, Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 4.19 32/49] Revert "gdrom: fix a memory leak bug"
+Date:   Mon, 24 May 2021 17:25:43 +0200
+Message-Id: <20210524152325.420239334@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
 References: <20210524152324.382084875@linuxfoundation.org>
@@ -42,9 +41,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 4d427b408c4c2ff1676966c72119a3a559f8e39b upstream.
+commit 257343d3ed557f11d580d0b7c515dc154f64a42b upstream.
 
-This reverts commit 63a06181d7ce169d09843645c50fea1901bc9f0a.
+This reverts commit 093c48213ee37c3c3ff1cf5ac1aa2a9d8bc66017.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -54,33 +53,32 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original commit is incorrect, it does not properly clean up on the
-error path, so I'll keep the revert and fix it up properly with a
-follow-on patch.
+Because of this, all submissions from this group must be reverted from
+the kernel tree and will need to be re-reviewed again to determine if
+they actually are a valid fix.  Until that work is complete, remove this
+change to ensure that no problems are being introduced into the
+codebase.
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Fixes: 63a06181d7ce ("scsi: ufs: fix a missing check of devm_reset_control_get")
+Cc: Wenwen Wang <wang6495@umn.edu>
+Cc: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Fixes: 093c48213ee3 ("gdrom: fix a memory leak bug")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-31-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-27-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufs-hisi.c |    4 ----
- 1 file changed, 4 deletions(-)
+ drivers/cdrom/gdrom.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/scsi/ufs/ufs-hisi.c
-+++ b/drivers/scsi/ufs/ufs-hisi.c
-@@ -544,10 +544,6 @@ static int ufs_hisi_init_common(struct u
- 	ufshcd_set_variant(hba, host);
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -889,7 +889,6 @@ static void __exit exit_gdrom(void)
+ 	platform_device_unregister(pd);
+ 	platform_driver_unregister(&gdrom_driver);
+ 	kfree(gd.toc);
+-	kfree(gd.cd_info);
+ }
  
- 	host->rst  = devm_reset_control_get(dev, "rst");
--	if (IS_ERR(host->rst)) {
--		dev_err(dev, "%s: failed to get reset control\n", __func__);
--		return PTR_ERR(host->rst);
--	}
- 
- 	ufs_hisi_set_pm_lvl(hba);
- 
+ module_init(init_gdrom);
 
 
