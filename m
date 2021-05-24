@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7FB8E38EF30
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6800338F017
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234765AbhEXP4T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
+        id S234915AbhEXQBG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:01:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234790AbhEXPzh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 63B5D61448;
-        Mon, 24 May 2021 15:41:58 +0000 (UTC)
+        id S235262AbhEXQAO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3951961463;
+        Mon, 24 May 2021 15:45:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870918;
-        bh=tZJpO8rTLY+OhH39EUkaPSIT96N6/9lr6M+6xKRx964=;
+        s=korg; t=1621871157;
+        bh=o+GyRoW6tVYJFg5ygPEDk8ouNulvrjmiE7rvNFCY9mc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0eTvzLCZZk3S/a/9XoI7t3wSGLnPAgSoIREs15HFN1TThuh6aIOX6CDJr570AL3WK
-         pZZmsoPNko3gspiGpTNrGmbjJ3gOQ9lZddg+ijd7MUKZFhdKeR00HDVkrKulUZMWjI
-         KJsxMtxiKg/3IusN44Csyh7m79On+URARnr5WzlI=
+        b=L978vHcN8qmTdpG7sGB4URTiEjGrasbOEJvI4sjbwgFD5Gzul+AzsCWGNVAi1KfbK
+         Ji3uoCm5PlNiYFwXTZDT+WLLRg1L+gfTuO/boprws4omoLi295ukZHPO91uL9QQUc6
+         GuaeJ7M5ALVq35QoabVL92dKiK34WV9RFs+Q1vVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Du Cheng <ducheng2@gmail.com>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 087/104] ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+        stable@vger.kernel.org, Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 5.12 065/127] rapidio: handle create_workqueue() failure
 Date:   Mon, 24 May 2021 17:26:22 +0200
-Message-Id: <20210524152335.735652748@linuxfoundation.org>
+Message-Id: <20210524152337.053607627@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,121 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit e6e337708c22f80824b82d4af645f20715730ad0 upstream.
+commit 69ce3ae36dcb03cdf416b0862a45369ddbf50fdf upstream.
 
-niu_pci_eeprom_read() may fail, so add checks to its return value and
-propagate the error up the callstack.
+In case create_workqueue() fails, release all resources and return -ENOMEM
+to caller to avoid potential NULL pointer deref later. Move up the
+create_workequeue() call to return early and avoid unwinding the call to
+riocm_rx_fill().
 
-An examination of the callstack up to niu_pci_eeprom_read shows that:
-
-niu_pci_eeprom_read() // returns int
-    niu_pci_vpd_scan_props() // returns int
-        niu_pci_vpd_fetch() // returns *void*
-            niu_get_invariants() // returns int
-
-since niu_pci_vpd_fetch() returns void which breaks the bubbling up,
-change its return type to int so that error is propagated upwards.
-
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-24-gregkh@linuxfoundation.org
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-46-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |   34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/rapidio/rio_cm.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8097,6 +8097,8 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
- 
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
-+		if (prop_len < 0)
-+			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8141,8 +8143,12 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++)
--				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
-+			for (i = 0; i < prop_len; i++) {
-+				err =  niu_pci_eeprom_read(np, off + i);
-+				if (err < 0)
-+					return err;
-+				*prop_buf++ = err;
-+			}
- 		}
- 
- 		start += len;
-@@ -8152,14 +8158,14 @@ static int niu_pci_vpd_scan_props(struct
- }
- 
- /* ESPC_PIO_EN_ENABLE must be set */
--static void niu_pci_vpd_fetch(struct niu *np, u32 start)
-+static int niu_pci_vpd_fetch(struct niu *np, u32 start)
- {
- 	u32 offset;
- 	int err;
- 
- 	err = niu_pci_eeprom_read16_swp(np, start + 1);
- 	if (err < 0)
--		return;
-+		return err;
- 
- 	offset = err + 3;
- 
-@@ -8168,12 +8174,14 @@ static void niu_pci_vpd_fetch(struct niu
- 		u32 end;
- 
- 		err = niu_pci_eeprom_read(np, here);
-+		if (err < 0)
-+			return err;
- 		if (err != 0x90)
--			return;
-+			return -EINVAL;
- 
- 		err = niu_pci_eeprom_read16_swp(np, here + 1);
- 		if (err < 0)
--			return;
-+			return err;
- 
- 		here = start + offset + 3;
- 		end = start + offset + err;
-@@ -8181,9 +8189,12 @@ static void niu_pci_vpd_fetch(struct niu
- 		offset += err;
- 
- 		err = niu_pci_vpd_scan_props(np, here, end);
--		if (err < 0 || err == 1)
--			return;
-+		if (err < 0)
-+			return err;
-+		if (err == 1)
-+			return -EINVAL;
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -2127,6 +2127,14 @@ static int riocm_add_mport(struct device
+ 		return -ENODEV;
  	}
-+	return 0;
- }
  
- /* ESPC_PIO_EN_ENABLE must be set */
-@@ -9274,8 +9285,11 @@ static int niu_get_invariants(struct niu
- 		offset = niu_pci_vpd_offset(np);
- 		netif_printk(np, probe, KERN_DEBUG, np->dev,
- 			     "%s() VPD offset [%08x]\n", __func__, offset);
--		if (offset)
--			niu_pci_vpd_fetch(np, offset);
-+		if (offset) {
-+			err = niu_pci_vpd_fetch(np, offset);
-+			if (err < 0)
-+				return err;
-+		}
- 		nw64(ESPC_PIO_EN, 0);
++	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
++	if (!cm->rx_wq) {
++		rio_release_inb_mbox(mport, cmbox);
++		rio_release_outb_mbox(mport, cmbox);
++		kfree(cm);
++		return -ENOMEM;
++	}
++
+ 	/*
+ 	 * Allocate and register inbound messaging buffers to be ready
+ 	 * to receive channel and system management requests
+@@ -2137,7 +2145,6 @@ static int riocm_add_mport(struct device
+ 	cm->rx_slots = RIOCM_RX_RING_SIZE;
+ 	mutex_init(&cm->rx_lock);
+ 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+-	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
+ 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
  
- 		if (np->flags & NIU_FLAGS_VPD_VALID) {
+ 	cm->tx_slot = 0;
 
 
