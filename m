@@ -2,46 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2096C38EAE2
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:57:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BBE938EADA
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233655AbhEXO6h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:58:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34052 "EHLO mail.kernel.org"
+        id S233205AbhEXO6Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:58:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34062 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233593AbhEXO4S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:56:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B9C126143C;
-        Mon, 24 May 2021 14:49:00 +0000 (UTC)
+        id S233411AbhEXO4U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:56:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6422E6143F;
+        Mon, 24 May 2021 14:49:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867741;
-        bh=HEYbWVopiiv8JhXlkj0mpt1+zBK4clPd/uzpkSwxRNY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PPGblG98hGjM3NdUtRryZygObihav2acYtOSpE7Ikegax9ixUEkzf1buIFnsaVkmI
-         624IabPZTdlzA0MSyuSgrOF2sa3egE3uD9kTdLuTsnt9XI40NjC/k5vQUKvFQrugZV
-         bIocSaQnjE3j18idGftr25DrAbKu8mr3DH7yebBeiMFAWZ3HkPO7jzkVpp+cHIKAGd
-         MArs1QekMKX/wqgFq65Uuvj6n0NJy77lx2/NKtP8MveNsnP5ESD7DtMTlyvM5wvg+K
-         lLzcWaJBMXXbLKkXslAGlQ6rvOZHA8rh2FRp1XzXD9bYH29voeOYNUjS2VWqg33eHL
-         JWO+xzPGXOiPw==
+        s=k20201202; t=1621867745;
+        bh=kkVSjk1U8Ku8B+7k7+q5r/pmkxm5p2g+022ezqC0WD4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NjqzoBT4k/4Uf9aUmXx+ZFkAyVXl0LDdexI2jtAEfksRfMpDg9cIjbduhbumehtKj
+         RENXKSbetN4daKM7yIj0i9gePLKgrW1lCBFlz3LGkwvL7hcMrVJEWcAOCmBvgim1Pw
+         YynB2JZA9XArkN0oSuihdwusLEFX8K7qqY2gQi+VM0fTtaXRjcHQE3chx6EiD2bLYa
+         cjT9Oe97vBRKkLu+01T0SoQZlBSmF2pGDOWZEZWUjH9FcudxORc47BGclcb2Q+nPjf
+         0fCcj+WH7URV8mfzKJutafFgMAVfHC2Xfi89f+atm9QwF+FggQtzcWkrBl+yxRgvai
+         BJIZdl3VhhNTw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 62/62] linux/bits.h: fix compilation error with GENMASK
-Date:   Mon, 24 May 2021 10:47:43 -0400
-Message-Id: <20210524144744.2497894-62-sashal@kernel.org>
+Cc:     Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 01/52] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+Date:   Mon, 24 May 2021 10:48:11 -0400
+Message-Id: <20210524144903.2498518-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
-References: <20210524144744.2497894-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -49,131 +43,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit f747e6667ebb2ffb8133486c9cd19800d72b0d98 ]
+[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
 
-GENMASK() has an input check which uses __builtin_choose_expr() to
-enable a compile time sanity check of its inputs if they are known at
-compile time.
+hp_accel can take almost two seconds to resume on some HP laptops.
 
-However, it turns out that __builtin_constant_p() does not always return
-a compile time constant [0].  It was thought this problem was fixed with
-gcc 4.9 [1], but apparently this is not the case [2].
+The bottleneck is on evaluating _INI, which is only needed to run once.
 
-Switch to use __is_constexpr() instead which always returns a compile time
-constant, regardless of its inputs.
+Resolve the issue by only invoking _INI when it's necessary. Namely, on
+probe and on hibernation restore.
 
-Link: https://lore.kernel.org/lkml/42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk [0]
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19449 [1]
-Link: https://lore.kernel.org/lkml/1ac7bbc2-45d9-26ed-0b33-bf382b8d858b@I-love.SAKURA.ne.jp [2]
-Link: https://lkml.kernel.org/r/20210511203716.117010-1-rikard.falkeborn@gmail.com
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
+Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bits.h        |  2 +-
- include/linux/const.h       |  8 ++++++++
- include/linux/minmax.h      | 10 ++--------
- tools/include/linux/bits.h  |  2 +-
- tools/include/linux/const.h |  8 ++++++++
- 5 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
+ drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/bits.h b/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/include/linux/bits.h
-+++ b/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
+diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
+index 1b0c99883c57..c008eecfdfe8 100644
+--- a/drivers/misc/lis3lv02d/lis3lv02d.h
++++ b/drivers/misc/lis3lv02d/lis3lv02d.h
+@@ -271,6 +271,7 @@ struct lis3lv02d {
+ 	int			regs_size;
+ 	u8                      *reg_cache;
+ 	bool			regs_stored;
++	bool			init_required;
+ 	u8                      odr_mask;  /* ODR bit mask */
+ 	u8			whoami;    /* indicates measurement precision */
+ 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
+diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
+index 799cbe2ffcf3..8c0867bda828 100644
+--- a/drivers/platform/x86/hp_accel.c
++++ b/drivers/platform/x86/hp_accel.c
+@@ -88,6 +88,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
+ static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
+ {
+ 	struct acpi_device *dev = lis3->bus_priv;
++	if (!lis3->init_required)
++		return 0;
++
+ 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
+ 				 NULL, NULL) != AE_OK)
+ 		return -EINVAL;
+@@ -356,6 +359,7 @@ static int lis3lv02d_add(struct acpi_device *device)
+ 	}
+ 
+ 	/* call the core layer do its init */
++	lis3_dev.init_required = true;
+ 	ret = lis3lv02d_init_device(&lis3_dev);
+ 	if (ret)
+ 		return ret;
+@@ -403,11 +407,27 @@ static int lis3lv02d_suspend(struct device *dev)
+ 
+ static int lis3lv02d_resume(struct device *dev)
+ {
++	lis3_dev.init_required = false;
++	lis3lv02d_poweron(&lis3_dev);
++	return 0;
++}
++
++static int lis3lv02d_restore(struct device *dev)
++{
++	lis3_dev.init_required = true;
+ 	lis3lv02d_poweron(&lis3_dev);
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
++static const struct dev_pm_ops hp_accel_pm = {
++	.suspend = lis3lv02d_suspend,
++	.resume = lis3lv02d_resume,
++	.freeze = lis3lv02d_suspend,
++	.thaw = lis3lv02d_resume,
++	.poweroff = lis3lv02d_suspend,
++	.restore = lis3lv02d_restore,
++};
++
+ #define HP_ACCEL_PM (&hp_accel_pm)
  #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/include/linux/const.h b/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/include/linux/const.h
-+++ b/include/linux/const.h
-@@ -3,4 +3,12 @@
- 
- #include <vdso/const.h>
- 
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
-diff --git a/include/linux/minmax.h b/include/linux/minmax.h
-index c0f57b0c64d9..5433c08fcc68 100644
---- a/include/linux/minmax.h
-+++ b/include/linux/minmax.h
-@@ -2,6 +2,8 @@
- #ifndef _LINUX_MINMAX_H
- #define _LINUX_MINMAX_H
- 
-+#include <linux/const.h>
-+
- /*
-  * min()/max()/clamp() macros must accomplish three things:
-  *
-@@ -17,14 +19,6 @@
- #define __typecheck(x, y) \
- 	(!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
- 
--/*
-- * This returns a constant expression while determining if an argument is
-- * a constant expression, most importantly without evaluating the argument.
-- * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-- */
--#define __is_constexpr(x) \
--	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
--
- #define __no_side_effects(x, y) \
- 		(__is_constexpr(x) && __is_constexpr(y))
- 
-diff --git a/tools/include/linux/bits.h b/tools/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/tools/include/linux/bits.h
-+++ b/tools/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
- #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/tools/include/linux/const.h b/tools/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/tools/include/linux/const.h
-+++ b/tools/include/linux/const.h
-@@ -3,4 +3,12 @@
- 
- #include <vdso/const.h>
- 
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
+ #define HP_ACCEL_PM NULL
 -- 
 2.30.2
 
