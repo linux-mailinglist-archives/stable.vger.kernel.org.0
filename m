@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0241938F081
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:07:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E66F638EFB9
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236209AbhEXQDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:03:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46882 "EHLO mail.kernel.org"
+        id S233555AbhEXP7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:59:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235997AbhEXQCd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:02:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25C4561376;
-        Mon, 24 May 2021 15:50:39 +0000 (UTC)
+        id S234957AbhEXP6S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DF2A61403;
+        Mon, 24 May 2021 15:44:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871439;
-        bh=Z87IyYhw8VNqCVTMOSBY3ZV/P8EfPVu5Q8WRoURoiCc=;
+        s=korg; t=1621871050;
+        bh=ujS6+AO+XAcdFa+GUrip4FpOdS7vybzWPAzKfivKkIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xeLDyw+50gaSeWdUskKabkWJnJ9BBcr24X34BhiUmr+6zlHKGlbtVnPmK3jBFFRkc
-         TNZbPj9vRS2RZCouFWNpZgn83pPt0tnXFW56WUrXjb6bMGqPQ5FFLoMe5CTXJyf1LF
-         zYhdfLP/dlOyMZy3zuylIr6bZIlYAKHGVcBcn48o=
+        b=DuVfsDg9rsn+DH9HPzi1Nas5HYOYJJSjbVGXp8BeEeA+gZihE6qggJVZx8KVu7K9u
+         9rCs5p+mQMy1DkY6iDAMr7WFG0XBle9Z4CYw8DkX/tJDHFvhXWOZPYyJG+jmDac/5W
+         5VnMyyQOd4aBLzVE35vDiJZ7yYj2pB4aTt/VC3Vs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
-        Jan Beulich <jbeulich@suse.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 49/49] x86/Xen: swap NX determination and GDT setup on BSP
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>
+Subject: [PATCH 5.12 043/127] ALSA: intel8x0: Dont update period unless prepared
 Date:   Mon, 24 May 2021 17:26:00 +0200
-Message-Id: <20210524152325.958181984@linuxfoundation.org>
+Message-Id: <20210524152336.302332286@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +39,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit ae897fda4f507e4b239f0bdfd578b3688ca96fb4 upstream.
+commit c1f0616124c455c5c762b6f123e40bba5df759e6 upstream.
 
-xen_setup_gdt(), via xen_load_gdt_boot(), wants to adjust page tables.
-For this to work when NX is not available, x86_configure_nx() needs to
-be called first.
+The interrupt handler of intel8x0 calls snd_intel8x0_update() whenever
+the hardware sets the corresponding status bit for each stream.  This
+works fine for most cases as long as the hardware behaves properly.
+But when the hardware gives a wrong bit set, this leads to a zero-
+division Oops, and reportedly, this seems what happened on a VM.
 
-[jgross] Note that this is a revert of 36104cb9012a82e73 ("x86/xen:
-Delay get_cpu_cap until stack canary is established"), which is possible
-now that we no longer support running as PV guest in 32-bit mode.
+For fixing the crash, this patch adds a internal flag indicating that
+the stream is ready to be updated, and check it (as well as the flag
+being in suspended) to ignore such spurious update.
 
-Cc: <stable.vger.kernel.org> # 5.9
-Fixes: 36104cb9012a82e73 ("x86/xen: Delay get_cpu_cap until stack canary is established")
-Reported-by: Olaf Hering <olaf@aepfle.de>
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Juergen Gross <jgross@suse.com>
+Cc: <stable@vger.kernel.org>
+Reported-and-tested-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Link: https://lore.kernel.org/r/s5h5yzi7uh0.wl-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-Link: https://lore.kernel.org/r/12a866b0-9e89-59f7-ebeb-a2a6cec0987a@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
 ---
- arch/x86/xen/enlighten_pv.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ sound/pci/intel8x0.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/arch/x86/xen/enlighten_pv.c
-+++ b/arch/x86/xen/enlighten_pv.c
-@@ -1246,16 +1246,16 @@ asmlinkage __visible void __init xen_sta
- 	/* Get mfn list */
- 	xen_build_dynamic_phys_to_machine();
+--- a/sound/pci/intel8x0.c
++++ b/sound/pci/intel8x0.c
+@@ -331,6 +331,7 @@ struct ichdev {
+ 	unsigned int ali_slot;			/* ALI DMA slot */
+ 	struct ac97_pcm *pcm;
+ 	int pcm_open_flag;
++	unsigned int prepared:1;
+ 	unsigned int suspended: 1;
+ };
  
-+	/* Work out if we support NX */
-+	get_cpu_cap(&boot_cpu_data);
-+	x86_configure_nx();
+@@ -691,6 +692,9 @@ static inline void snd_intel8x0_update(s
+ 	int status, civ, i, step;
+ 	int ack = 0;
+ 
++	if (!ichdev->prepared || ichdev->suspended)
++		return;
 +
- 	/*
- 	 * Set up kernel GDT and segment registers, mainly so that
- 	 * -fstack-protector code can be executed.
- 	 */
- 	xen_setup_gdt(0);
- 
--	/* Work out if we support NX */
--	get_cpu_cap(&boot_cpu_data);
--	x86_configure_nx();
--
- 	/* Determine virtual and physical address sizes */
- 	get_cpu_address_sizes(&boot_cpu_data);
+ 	spin_lock_irqsave(&chip->reg_lock, flags);
+ 	status = igetbyte(chip, port + ichdev->roff_sr);
+ 	civ = igetbyte(chip, port + ICH_REG_OFF_CIV);
+@@ -881,6 +885,7 @@ static int snd_intel8x0_hw_params(struct
+ 	if (ichdev->pcm_open_flag) {
+ 		snd_ac97_pcm_close(ichdev->pcm);
+ 		ichdev->pcm_open_flag = 0;
++		ichdev->prepared = 0;
+ 	}
+ 	err = snd_ac97_pcm_open(ichdev->pcm, params_rate(hw_params),
+ 				params_channels(hw_params),
+@@ -902,6 +907,7 @@ static int snd_intel8x0_hw_free(struct s
+ 	if (ichdev->pcm_open_flag) {
+ 		snd_ac97_pcm_close(ichdev->pcm);
+ 		ichdev->pcm_open_flag = 0;
++		ichdev->prepared = 0;
+ 	}
+ 	return 0;
+ }
+@@ -976,6 +982,7 @@ static int snd_intel8x0_pcm_prepare(stru
+ 			ichdev->pos_shift = (runtime->sample_bits > 16) ? 2 : 1;
+ 	}
+ 	snd_intel8x0_setup_periods(chip, ichdev);
++	ichdev->prepared = 1;
+ 	return 0;
+ }
  
 
 
