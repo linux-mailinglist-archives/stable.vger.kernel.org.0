@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E4338EC2F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:12:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F9B238EBCD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:07:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233109AbhEXPMh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:12:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40006 "EHLO mail.kernel.org"
+        id S234628AbhEXPIU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:08:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235006AbhEXPFl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:05:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3E2361584;
-        Mon, 24 May 2021 14:51:02 +0000 (UTC)
+        id S235087AbhEXPFu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:05:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A5433615A0;
+        Mon, 24 May 2021 14:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867863;
-        bh=GvlQdk9QCCLzZXEPL977abyqEv1/ZvCdrDypFc/1g1o=;
+        s=k20201202; t=1621867864;
+        bh=VrtYBmNnianniO00dxS8V0QD4bR7ffHy19vt9sjE4yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kuydetMmhvVRo3sxS+Z98kB9wqlV/0U7g/N5ExmaHgJPVDxRM2MIkSZ7uRhBw1lL7
-         8UtYwgdS8tTficgAEFevxIwcb08HTwRY7wgw50ars/r9faCpiPo19caucbzqbjtIIY
-         0W7SssD5CYMi5A8PmFpG8Genb7VP7iIa8wG6U/8ZaeFlEILYOwKqptXhPy3EjR05/a
-         5nsI2S4qdD3jpI7bPThpcTtmCJnT5ptlNGKf+/CJTzHcFaQSJP8xd3YC92GI+b9Iy2
-         NFCL0ziykRM+PTeMG1/AbPPPWsdnSiXH5pg4tpdF01Pxddj3BQAr55mIaoQhh0GBrl
-         ZRT8ZxfEqba9g==
+        b=UeC5+kwAFVCmWdNnbXkidHYTmxGoVfe9rHQS2GWKiPRW54hQS4FFnhWNRmmTdRPy0
+         sjTMVWW09pNqE9eWubG92qaIlmrUXZO2jogF39OCFSaCShBYxelqqtJZ5YlHACaPwQ
+         E8n4kpZPVPppm46k1N2T4+4B7+vXb6tNoFOdqJcUrQmLXNhtIwKblfJyqUTf8B4WJj
+         E/L2qU4yIKDttmfeyO9XQmF0w331XmLXp0x5cxkrk5q3C5V1r3sL+3IJwhkPNvse/q
+         lCaC1pmzSdbrPywTs66xzaaL2n1pqduqhgNZksQGU/8RSq3dbWd4JtyzbCnMvufscn
+         ODB8n5Ek+Lprw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 19/21] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
-Date:   Mon, 24 May 2021 10:50:38 -0400
-Message-Id: <20210524145040.2499322-19-sashal@kernel.org>
+Cc:     Steve French <stfrench@microsoft.com>,
+        Stefan Metzmacher <metze@samba.org>,
+        Shyam Prasad N <sprasad@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, linux-cifs@vger.kernel.org,
+        samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 4.14 20/21] SMB3: incorrect file id in requests compounded with open
+Date:   Mon, 24 May 2021 10:50:39 -0400
+Message-Id: <20210524145040.2499322-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145040.2499322-1-sashal@kernel.org>
 References: <20210524145040.2499322-1-sashal@kernel.org>
@@ -43,36 +44,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Steve French <stfrench@microsoft.com>
 
-[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
+[ Upstream commit c0d46717b95735b0eacfddbcca9df37a49de9c7a ]
 
-The intel_punit_ipc driver might be compiled as a module.
-When udev handles the event of the devices appearing
-the intel_punit_ipc module is missing.
+See MS-SMB2 3.2.4.1.4, file ids in compounded requests should be set to
+0xFFFFFFFFFFFFFFFF (we were treating it as u32 not u64 and setting
+it incorrectly).
 
-Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
-
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Reported-by: Stefan Metzmacher <metze@samba.org>
+Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_punit_ipc.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/cifs/smb2pdu.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
-index b7dfe06261f1..9865d11eda75 100644
---- a/drivers/platform/x86/intel_punit_ipc.c
-+++ b/drivers/platform/x86/intel_punit_ipc.c
-@@ -330,6 +330,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
- 	{ "INT34D4", 0 },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
- 
- static struct platform_driver intel_punit_ipc_driver = {
- 	.probe = intel_punit_ipc_probe,
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 2097b5fd51ba..77a9aeaf2cb1 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -2518,10 +2518,10 @@ smb2_new_read_req(void **buf, unsigned int *total_len,
+ 			 * Related requests use info from previous read request
+ 			 * in chain.
+ 			 */
+-			shdr->SessionId = 0xFFFFFFFF;
++			shdr->SessionId = 0xFFFFFFFFFFFFFFFF;
+ 			shdr->TreeId = 0xFFFFFFFF;
+-			req->PersistentFileId = 0xFFFFFFFF;
+-			req->VolatileFileId = 0xFFFFFFFF;
++			req->PersistentFileId = 0xFFFFFFFFFFFFFFFF;
++			req->VolatileFileId = 0xFFFFFFFFFFFFFFFF;
+ 		}
+ 	}
+ 	if (remaining_bytes > io_parms->length)
 -- 
 2.30.2
 
