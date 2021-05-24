@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D06738ED77
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:36:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E8C438EEFF
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233795AbhEXPiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:38:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51348 "EHLO mail.kernel.org"
+        id S235128AbhEXPzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38928 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233557AbhEXPgW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:36:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44B526140C;
-        Mon, 24 May 2021 15:32:37 +0000 (UTC)
+        id S234917AbhEXPyx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5058261878;
+        Mon, 24 May 2021 15:40:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870357;
-        bh=v5FzXMrEItZHTXdhGMrhQ4ZETejy1JPC1B22zDLmhIA=;
+        s=korg; t=1621870803;
+        bh=QEy0KRw8VajZyTOxPvZTSchBWwsGca12LIzpS3tWvsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCMJlNPvyTtilncD8AD63xVg8uZyQAkP256ZhkvmIp86Xct68cd0ZXh3ra7SytepF
-         9jVueHWm2diVHJOUsPwwiTYa13X3f8z4lF0jgDwJlbaEj0XFpYHNnkj2HOXyU19fVj
-         cM5UD6ocQazCNYAkztJ34rg8L/HCPDNtq4T+halg=
+        b=RsEWIcY38VnRZZesrD9prqdwPBQmfVf4VOz9NrNKNUN1x3+aptaUDM5peY7vWRhrc
+         T4Cn7Q8x/H8g9CQTNkjwJJ+vz7Ft9wCzNTPwAAcJSIrT8BbU3XoSy4LB+R5Yhekf68
+         LwqnGyjXwpcAeknKp+G9UZw8GdQO/eKB7Mw8my4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 34/36] vt: Fix character height handling with VT_RESIZEX
+        stable@vger.kernel.org, Nicholas Piggin <npiggin@gmail.com>,
+        "Naveen N. Rao" <naveen.n.rao@linux.vnet.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 024/104] powerpc/pseries: Fix hcall tracing recursion in pv queued spinlocks
 Date:   Mon, 24 May 2021 17:25:19 +0200
-Message-Id: <20210524152325.255882461@linuxfoundation.org>
+Message-Id: <20210524152333.623908902@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,225 +41,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit 860dafa902595fb5f1d23bbcce1215188c3341e6 upstream.
+[ Upstream commit 2c8c89b95831f46a2fb31a8d0fef4601694023ce ]
 
-Restore the original intent of the VT_RESIZEX ioctl's `v_clin' parameter
-which is the number of pixel rows per character (cell) rather than the
-height of the font used.
+The paravit queued spinlock slow path adds itself to the queue then
+calls pv_wait to wait for the lock to become free. This is implemented
+by calling H_CONFER to donate cycles.
 
-For framebuffer devices the two values are always the same, because the
-former is inferred from the latter one.  For VGA used as a true text
-mode device these two parameters are independent from each other: the
-number of pixel rows per character is set in the CRT controller, while
-font height is in fact hardwired to 32 pixel rows and fonts of heights
-below that value are handled by padding their data with blanks when
-loaded to hardware for use by the character generator.  One can change
-the setting in the CRT controller and it will update the screen contents
-accordingly regardless of the font loaded.
+When hcall tracing is enabled, this H_CONFER call can lead to a spin
+lock being taken in the tracing code, which will result in the lock to
+be taken again, which will also go to the slow path because it queues
+behind itself and so won't ever make progress.
 
-The `v_clin' parameter is used by the `vgacon' driver to set the height
-of the character cell and then the cursor position within.  Make the
-parameter explicit then, by defining a new `vc_cell_height' struct
-member of `vc_data', set it instead of `vc_font.height' from `v_clin' in
-the VT_RESIZEX ioctl, and then use it throughout the `vgacon' driver
-except where actual font data is accessed which as noted above is
-independent from the CRTC setting.
+An example trace of a deadlock:
 
-This way the framebuffer console driver is free to ignore the `v_clin'
-parameter as irrelevant, as it always should have, avoiding any issues
-attempts to give the parameter a meaning there could have caused, such
-as one that has led to commit 988d0763361b ("vt_ioctl: make VT_RESIZEX
-behave like VT_RESIZE"):
+  __pv_queued_spin_lock_slowpath
+  trace_clock_global
+  ring_buffer_lock_reserve
+  trace_event_buffer_lock_reserve
+  trace_event_buffer_reserve
+  trace_event_raw_event_hcall_exit
+  __trace_hcall_exit
+  plpar_hcall_norets_trace
+  __pv_queued_spin_lock_slowpath
+  trace_clock_global
+  ring_buffer_lock_reserve
+  trace_event_buffer_lock_reserve
+  trace_event_buffer_reserve
+  trace_event_raw_event_rcu_dyntick
+  rcu_irq_exit
+  irq_exit
+  __do_irq
+  call_do_irq
+  do_IRQ
+  hardware_interrupt_common_virt
 
- "syzbot is reporting UAF/OOB read at bit_putcs()/soft_cursor() [1][2],
-  for vt_resizex() from ioctl(VT_RESIZEX) allows setting font height
-  larger than actual font height calculated by con_font_set() from
-  ioctl(PIO_FONT). Since fbcon_set_font() from con_font_set() allocates
-  minimal amount of memory based on actual font height calculated by
-  con_font_set(), use of vt_resizex() can cause UAF/OOB read for font
-  data."
+Fix this by introducing plpar_hcall_norets_notrace(), and using that to
+make SPLPAR virtual processor dispatching hcalls by the paravirt
+spinlock code.
 
-The problem first appeared around Linux 2.5.66 which predates our repo
-history, but the origin could be identified with the old MIPS/Linux repo
-also at: <git://git.kernel.org/pub/scm/linux/kernel/git/ralf/linux.git>
-as commit 9736a3546de7 ("Merge with Linux 2.5.66."), where VT_RESIZEX
-code in `vt_ioctl' was updated as follows:
-
- 		if (clin)
--			video_font_height = clin;
-+			vc->vc_font.height = clin;
-
-making the parameter apply to framebuffer devices as well, perhaps due
-to the use of "font" in the name of the original `video_font_height'
-variable.  Use "cell" in the new struct member then to avoid ambiguity.
-
-
-[1] https://syzkaller.appspot.com/bug?id=32577e96d88447ded2d3b76d71254fb855245837
-[2] https://syzkaller.appspot.com/bug?id=6b8355d27b2b94fb5cedf4655e3a59162d9e48e3
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org # v2.6.12+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Reviewed-by: Naveen N. Rao <naveen.n.rao@linux.vnet.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20210508101455.1578318-2-npiggin@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/vt/vt_ioctl.c      |    6 ++---
- drivers/video/console/vgacon.c |   44 ++++++++++++++++++++---------------------
- include/linux/console_struct.h |    1 
- 3 files changed, 26 insertions(+), 25 deletions(-)
+ arch/powerpc/include/asm/hvcall.h       |  3 +++
+ arch/powerpc/include/asm/paravirt.h     | 22 +++++++++++++++++++---
+ arch/powerpc/platforms/pseries/hvCall.S | 10 ++++++++++
+ arch/powerpc/platforms/pseries/lpar.c   |  3 +--
+ 4 files changed, 33 insertions(+), 5 deletions(-)
 
---- a/drivers/tty/vt/vt_ioctl.c
-+++ b/drivers/tty/vt/vt_ioctl.c
-@@ -898,17 +898,17 @@ int vt_ioctl(struct tty_struct *tty,
- 			if (vcp) {
- 				int ret;
- 				int save_scan_lines = vcp->vc_scan_lines;
--				int save_font_height = vcp->vc_font.height;
-+				int save_cell_height = vcp->vc_cell_height;
+diff --git a/arch/powerpc/include/asm/hvcall.h b/arch/powerpc/include/asm/hvcall.h
+index c1fbccb04390..3e8e19f5746c 100644
+--- a/arch/powerpc/include/asm/hvcall.h
++++ b/arch/powerpc/include/asm/hvcall.h
+@@ -437,6 +437,9 @@
+  */
+ long plpar_hcall_norets(unsigned long opcode, ...);
  
- 				if (v.v_vlin)
- 					vcp->vc_scan_lines = v.v_vlin;
- 				if (v.v_clin)
--					vcp->vc_font.height = v.v_clin;
-+					vcp->vc_cell_height = v.v_clin;
- 				vcp->vc_resize_user = 1;
- 				ret = vc_resize(vcp, v.v_cols, v.v_rows);
- 				if (ret) {
- 					vcp->vc_scan_lines = save_scan_lines;
--					vcp->vc_font.height = save_font_height;
-+					vcp->vc_cell_height = save_cell_height;
- 					console_unlock();
- 					return ret;
- 				}
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -434,7 +434,7 @@ static void vgacon_init(struct vc_data *
- 		vc_resize(c, vga_video_num_columns, vga_video_num_lines);
++/* Variant which does not do hcall tracing */
++long plpar_hcall_norets_notrace(unsigned long opcode, ...);
++
+ /**
+  * plpar_hcall: - Make a pseries hypervisor call
+  * @opcode: The hypervisor call to make.
+diff --git a/arch/powerpc/include/asm/paravirt.h b/arch/powerpc/include/asm/paravirt.h
+index 9362c94fe3aa..588bfb9a0579 100644
+--- a/arch/powerpc/include/asm/paravirt.h
++++ b/arch/powerpc/include/asm/paravirt.h
+@@ -24,19 +24,35 @@ static inline u32 yield_count_of(int cpu)
+ 	return be32_to_cpu(yield_count);
+ }
  
- 	c->vc_scan_lines = vga_scan_lines;
--	c->vc_font.height = vga_video_font_height;
-+	c->vc_font.height = c->vc_cell_height = vga_video_font_height;
- 	c->vc_complement_mask = 0x7700;
- 	if (vga_512_chars)
- 		c->vc_hi_font_mask = 0x0800;
-@@ -572,32 +572,32 @@ static void vgacon_cursor(struct vc_data
- 		switch (c->vc_cursor_type & 0x0f) {
- 		case CUR_UNDERLINE:
- 			vgacon_set_cursor_size(c->vc_x,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 2 : 3),
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_TWO_THIRDS:
- 			vgacon_set_cursor_size(c->vc_x,
--					       c->vc_font.height / 3,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height / 3,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_LOWER_THIRD:
- 			vgacon_set_cursor_size(c->vc_x,
--					       (c->vc_font.height * 2) / 3,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       (c->vc_cell_height * 2) / 3,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_LOWER_HALF:
- 			vgacon_set_cursor_size(c->vc_x,
--					       c->vc_font.height / 2,
--					       c->vc_font.height -
--					       (c->vc_font.height <
-+					       c->vc_cell_height / 2,
-+					       c->vc_cell_height -
-+					       (c->vc_cell_height <
- 						10 ? 1 : 2));
- 			break;
- 		case CUR_NONE:
-@@ -608,7 +608,7 @@ static void vgacon_cursor(struct vc_data
- 			break;
- 		default:
- 			vgacon_set_cursor_size(c->vc_x, 1,
--					       c->vc_font.height);
-+					       c->vc_cell_height);
- 			break;
- 		}
- 		break;
-@@ -619,13 +619,13 @@ static int vgacon_doresize(struct vc_dat
- 		unsigned int width, unsigned int height)
++/*
++ * Spinlock code confers and prods, so don't trace the hcalls because the
++ * tracing code takes spinlocks which can cause recursion deadlocks.
++ *
++ * These calls are made while the lock is not held: the lock slowpath yields if
++ * it can not acquire the lock, and unlock slow path might prod if a waiter has
++ * yielded). So this may not be a problem for simple spin locks because the
++ * tracing does not technically recurse on the lock, but we avoid it anyway.
++ *
++ * However the queued spin lock contended path is more strictly ordered: the
++ * H_CONFER hcall is made after the task has queued itself on the lock, so then
++ * recursing on that lock will cause the task to then queue up again behind the
++ * first instance (or worse: queued spinlocks use tricks that assume a context
++ * never waits on more than one spinlock, so such recursion may cause random
++ * corruption in the lock code).
++ */
+ static inline void yield_to_preempted(int cpu, u32 yield_count)
  {
- 	unsigned long flags;
--	unsigned int scanlines = height * c->vc_font.height;
-+	unsigned int scanlines = height * c->vc_cell_height;
- 	u8 scanlines_lo = 0, r7 = 0, vsync_end = 0, mode, max_scan;
+-	plpar_hcall_norets(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
++	plpar_hcall_norets_notrace(H_CONFER, get_hard_smp_processor_id(cpu), yield_count);
+ }
  
- 	raw_spin_lock_irqsave(&vga_lock, flags);
- 
- 	vgacon_xres = width * VGA_FONTWIDTH;
--	vgacon_yres = height * c->vc_font.height;
-+	vgacon_yres = height * c->vc_cell_height;
- 	if (vga_video_type >= VIDEO_TYPE_VGAC) {
- 		outb_p(VGA_CRTC_MAX_SCAN, vga_video_port_reg);
- 		max_scan = inb_p(vga_video_port_val);
-@@ -680,9 +680,9 @@ static int vgacon_doresize(struct vc_dat
- static int vgacon_switch(struct vc_data *c)
+ static inline void prod_cpu(int cpu)
  {
- 	int x = c->vc_cols * VGA_FONTWIDTH;
--	int y = c->vc_rows * c->vc_font.height;
-+	int y = c->vc_rows * c->vc_cell_height;
- 	int rows = screen_info.orig_video_lines * vga_default_font_height/
--		c->vc_font.height;
-+		c->vc_cell_height;
- 	/*
- 	 * We need to save screen size here as it's the only way
- 	 * we can spot the screen has been resized and we need to
-@@ -1120,7 +1120,7 @@ static int vgacon_adjust_height(struct v
- 				cursor_size_lastto = 0;
- 				c->vc_sw->con_cursor(c, CM_DRAW);
- 			}
--			c->vc_font.height = fontheight;
-+			c->vc_font.height = c->vc_cell_height = fontheight;
- 			vc_resize(c, 0, rows);	/* Adjust console size */
- 		}
- 	}
-@@ -1181,12 +1181,12 @@ static int vgacon_resize(struct vc_data
- 		 */
- 		screen_info.orig_video_cols = width;
- 		screen_info.orig_video_lines = height;
--		vga_default_font_height = c->vc_font.height;
-+		vga_default_font_height = c->vc_cell_height;
- 		return 0;
- 	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
--	    c->vc_font.height)
-+	    c->vc_cell_height)
- 		return -EINVAL;
+-	plpar_hcall_norets(H_PROD, get_hard_smp_processor_id(cpu));
++	plpar_hcall_norets_notrace(H_PROD, get_hard_smp_processor_id(cpu));
+ }
  
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
---- a/include/linux/console_struct.h
-+++ b/include/linux/console_struct.h
-@@ -61,6 +61,7 @@ struct vc_data {
- 	unsigned int	vc_rows;
- 	unsigned int	vc_size_row;		/* Bytes per row */
- 	unsigned int	vc_scan_lines;		/* # of scan lines */
-+	unsigned int	vc_cell_height;		/* CRTC character cell height */
- 	unsigned long	vc_origin;		/* [!] Start of real screen */
- 	unsigned long	vc_scr_end;		/* [!] End of real screen */
- 	unsigned long	vc_visible_origin;	/* [!] Top of visible window */
+ static inline void yield_to_any(void)
+ {
+-	plpar_hcall_norets(H_CONFER, -1, 0);
++	plpar_hcall_norets_notrace(H_CONFER, -1, 0);
+ }
+ #else
+ static inline bool is_shared_processor(void)
+diff --git a/arch/powerpc/platforms/pseries/hvCall.S b/arch/powerpc/platforms/pseries/hvCall.S
+index 2136e42833af..8a2b8d64265b 100644
+--- a/arch/powerpc/platforms/pseries/hvCall.S
++++ b/arch/powerpc/platforms/pseries/hvCall.S
+@@ -102,6 +102,16 @@ END_FTR_SECTION(0, 1);						\
+ #define HCALL_BRANCH(LABEL)
+ #endif
+ 
++_GLOBAL_TOC(plpar_hcall_norets_notrace)
++	HMT_MEDIUM
++
++	mfcr	r0
++	stw	r0,8(r1)
++	HVSC				/* invoke the hypervisor */
++	lwz	r0,8(r1)
++	mtcrf	0xff,r0
++	blr				/* return r3 = status */
++
+ _GLOBAL_TOC(plpar_hcall_norets)
+ 	HMT_MEDIUM
+ 
+diff --git a/arch/powerpc/platforms/pseries/lpar.c b/arch/powerpc/platforms/pseries/lpar.c
+index 764170fdb0f7..1c3ac0f66336 100644
+--- a/arch/powerpc/platforms/pseries/lpar.c
++++ b/arch/powerpc/platforms/pseries/lpar.c
+@@ -1827,8 +1827,7 @@ void hcall_tracepoint_unregfunc(void)
+ 
+ /*
+  * Since the tracing code might execute hcalls we need to guard against
+- * recursion. One example of this are spinlocks calling H_YIELD on
+- * shared processor partitions.
++ * recursion.
+  */
+ static DEFINE_PER_CPU(unsigned int, hcall_trace_depth);
+ 
+-- 
+2.30.2
+
 
 
