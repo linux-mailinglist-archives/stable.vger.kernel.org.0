@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2BBD38EFA4
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B79D838EFA1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234941AbhEXP6r (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:58:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S235372AbhEXP6q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234527AbhEXP5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235397AbhEXP5z (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 24 May 2021 11:57:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 686486138C;
-        Mon, 24 May 2021 15:43:44 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D5F4613BF;
+        Mon, 24 May 2021 15:43:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871024;
-        bh=D131zHAiby8X8SHnX+LhTQ0lsA8n00mVrFDGhRW5LDw=;
+        s=korg; t=1621871027;
+        bh=AwsFzr+m3jBYFBPWOAogj6ndrKrIURfhbUoGlk+sfDw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jBa+YopGQ55wB9jp2dx/Tv8NXhYxwB3NqMlMIbkoWFOrAcjnOb+Pb8iYxTNGkeANK
-         0Sy/xR3ONQmzxW8MULO4GQRBi7PrOJlD+doFOV2mEpilJEHZOjYfgpEYEY/OPcJr6Z
-         DnsF+LIDuvhKCSeodUketvrbMnci9EhkglDmx4zw=
+        b=k49rxTkAKRf+XxxYVIe2RZzPCeWBX5VR8owyQOIGyj15uCV557J9BK912VwMPZ/CO
+         EHgLOkTsP7OXE6kNfRl446EW7CCyB2n8NlcBvBRIOIACfN+RcqbLn0YzC9pEzaA8dd
+         XLG4x0s7SwScc4RHODN7W5C4oRp8HKc62kDT9ojg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 037/127] btrfs: zoned: pass start block to btrfs_use_zone_append
-Date:   Mon, 24 May 2021 17:25:54 +0200
-Message-Id: <20210524152336.106395864@linuxfoundation.org>
+        stable@vger.kernel.org, David Sterba <dsterba@suse.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: [PATCH 5.12 038/127] btrfs: zoned: fix parallel compressed writes
+Date:   Mon, 24 May 2021 17:25:55 +0200
+Message-Id: <20210524152336.139215075@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -42,87 +41,134 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 
-commit e380adfc213a13677993c0e35cb48f5a8e61ebb0 upstream.
+commit 764c7c9a464b68f7c6a5a9ec0b923176a05e8e8f upstream.
 
-btrfs_use_zone_append only needs the passed in extent_map's block_start
-member, so there's no need to pass in the full extent map.
+When multiple processes write data to the same block group on a
+compressed zoned filesystem, the underlying device could report I/O
+errors and data corruption is possible.
 
-This also enables the use of btrfs_use_zone_append in places where we only
-have a start byte but no extent_map.
+This happens because on a zoned file system, compressed data writes
+where sent to the device via a REQ_OP_WRITE instead of a
+REQ_OP_ZONE_APPEND operation. But with REQ_OP_WRITE and parallel
+submission it cannot be guaranteed that the data is always submitted
+aligned to the underlying zone's write pointer.
 
+The change to using REQ_OP_ZONE_APPEND instead of REQ_OP_WRITE on a
+zoned filesystem is non intrusive on a regular file system or when
+submitting to a conventional zone on a zoned filesystem, as it is
+guarded by btrfs_use_zone_append.
+
+Reported-by: David Sterba <dsterba@suse.com>
+Fixes: 9d294a685fbc ("btrfs: zoned: enable to mount ZONED incompat flag")
+CC: stable@vger.kernel.org # 5.12.x: e380adfc213a13: btrfs: zoned: pass start block to btrfs_use_zone_append
+CC: stable@vger.kernel.org # 5.12.x
 Signed-off-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/extent_io.c |    2 +-
- fs/btrfs/inode.c     |    2 +-
- fs/btrfs/zoned.c     |    4 ++--
- fs/btrfs/zoned.h     |    5 ++---
- 4 files changed, 6 insertions(+), 7 deletions(-)
+ fs/btrfs/compression.c |   42 ++++++++++++++++++++++++++++++++++++++----
+ 1 file changed, 38 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3762,7 +3762,7 @@ static noinline_for_stack int __extent_w
- 		/* Note that em_end from extent_map_end() is exclusive */
- 		iosize = min(em_end, end + 1) - cur;
+--- a/fs/btrfs/compression.c
++++ b/fs/btrfs/compression.c
+@@ -28,6 +28,7 @@
+ #include "compression.h"
+ #include "extent_io.h"
+ #include "extent_map.h"
++#include "zoned.h"
  
--		if (btrfs_use_zone_append(inode, em))
-+		if (btrfs_use_zone_append(inode, em->block_start))
- 			opf = REQ_OP_ZONE_APPEND;
+ static const char* const btrfs_compress_types[] = { "", "zlib", "lzo", "zstd" };
  
- 		free_extent_map(em);
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -7782,7 +7782,7 @@ static int btrfs_dio_iomap_begin(struct
- 	iomap->bdev = fs_info->fs_devices->latest_bdev;
- 	iomap->length = len;
+@@ -349,6 +350,7 @@ static void end_compressed_bio_write(str
+ 	 */
+ 	inode = cb->inode;
+ 	cb->compressed_pages[0]->mapping = cb->inode->i_mapping;
++	btrfs_record_physical_zoned(inode, cb->start, bio);
+ 	btrfs_writepage_endio_finish_ordered(cb->compressed_pages[0],
+ 			cb->start, cb->start + cb->len - 1,
+ 			bio->bi_status == BLK_STS_OK);
+@@ -401,6 +403,8 @@ blk_status_t btrfs_submit_compressed_wri
+ 	u64 first_byte = disk_start;
+ 	blk_status_t ret;
+ 	int skip_sum = inode->flags & BTRFS_INODE_NODATASUM;
++	const bool use_append = btrfs_use_zone_append(inode, disk_start);
++	const unsigned int bio_op = use_append ? REQ_OP_ZONE_APPEND : REQ_OP_WRITE;
  
--	if (write && btrfs_use_zone_append(BTRFS_I(inode), em))
-+	if (write && btrfs_use_zone_append(BTRFS_I(inode), em->block_start))
- 		iomap->flags |= IOMAP_F_ZONE_APPEND;
+ 	WARN_ON(!PAGE_ALIGNED(start));
+ 	cb = kmalloc(compressed_bio_size(fs_info, compressed_len), GFP_NOFS);
+@@ -418,10 +422,31 @@ blk_status_t btrfs_submit_compressed_wri
+ 	cb->nr_pages = nr_pages;
  
- 	free_extent_map(em);
---- a/fs/btrfs/zoned.c
-+++ b/fs/btrfs/zoned.c
-@@ -1278,7 +1278,7 @@ void btrfs_free_redirty_list(struct btrf
- 	spin_unlock(&trans->releasing_ebs_lock);
- }
+ 	bio = btrfs_bio_alloc(first_byte);
+-	bio->bi_opf = REQ_OP_WRITE | write_flags;
++	bio->bi_opf = bio_op | write_flags;
+ 	bio->bi_private = cb;
+ 	bio->bi_end_io = end_compressed_bio_write;
  
--bool btrfs_use_zone_append(struct btrfs_inode *inode, struct extent_map *em)
-+bool btrfs_use_zone_append(struct btrfs_inode *inode, u64 start)
- {
- 	struct btrfs_fs_info *fs_info = inode->root->fs_info;
- 	struct btrfs_block_group *cache;
-@@ -1293,7 +1293,7 @@ bool btrfs_use_zone_append(struct btrfs_
- 	if (!is_data_inode(&inode->vfs_inode))
- 		return false;
++	if (use_append) {
++		struct extent_map *em;
++		struct map_lookup *map;
++		struct block_device *bdev;
++
++		em = btrfs_get_chunk_map(fs_info, disk_start, PAGE_SIZE);
++		if (IS_ERR(em)) {
++			kfree(cb);
++			bio_put(bio);
++			return BLK_STS_NOTSUPP;
++		}
++
++		map = em->map_lookup;
++		/* We only support single profile for now */
++		ASSERT(map->num_stripes == 1);
++		bdev = map->stripes[0].dev->bdev;
++
++		bio_set_dev(bio, bdev);
++		free_extent_map(em);
++	}
++
+ 	if (blkcg_css) {
+ 		bio->bi_opf |= REQ_CGROUP_PUNT;
+ 		kthread_associate_blkcg(blkcg_css);
+@@ -432,6 +457,7 @@ blk_status_t btrfs_submit_compressed_wri
+ 	bytes_left = compressed_len;
+ 	for (pg_index = 0; pg_index < cb->nr_pages; pg_index++) {
+ 		int submit = 0;
++		int len;
  
--	cache = btrfs_lookup_block_group(fs_info, em->block_start);
-+	cache = btrfs_lookup_block_group(fs_info, start);
- 	ASSERT(cache);
- 	if (!cache)
- 		return false;
---- a/fs/btrfs/zoned.h
-+++ b/fs/btrfs/zoned.h
-@@ -47,7 +47,7 @@ void btrfs_calc_zone_unusable(struct btr
- void btrfs_redirty_list_add(struct btrfs_transaction *trans,
- 			    struct extent_buffer *eb);
- void btrfs_free_redirty_list(struct btrfs_transaction *trans);
--bool btrfs_use_zone_append(struct btrfs_inode *inode, struct extent_map *em);
-+bool btrfs_use_zone_append(struct btrfs_inode *inode, u64 start);
- void btrfs_record_physical_zoned(struct inode *inode, u64 file_offset,
- 				 struct bio *bio);
- void btrfs_rewrite_logical_zoned(struct btrfs_ordered_extent *ordered);
-@@ -146,8 +146,7 @@ static inline void btrfs_redirty_list_ad
- 					  struct extent_buffer *eb) { }
- static inline void btrfs_free_redirty_list(struct btrfs_transaction *trans) { }
+ 		page = compressed_pages[pg_index];
+ 		page->mapping = inode->vfs_inode.i_mapping;
+@@ -439,9 +465,13 @@ blk_status_t btrfs_submit_compressed_wri
+ 			submit = btrfs_bio_fits_in_stripe(page, PAGE_SIZE, bio,
+ 							  0);
  
--static inline bool btrfs_use_zone_append(struct btrfs_inode *inode,
--					 struct extent_map *em)
-+static inline bool btrfs_use_zone_append(struct btrfs_inode *inode, u64 start)
- {
- 	return false;
- }
++		if (pg_index == 0 && use_append)
++			len = bio_add_zone_append_page(bio, page, PAGE_SIZE, 0);
++		else
++			len = bio_add_page(bio, page, PAGE_SIZE, 0);
++
+ 		page->mapping = NULL;
+-		if (submit || bio_add_page(bio, page, PAGE_SIZE, 0) <
+-		    PAGE_SIZE) {
++		if (submit || len < PAGE_SIZE) {
+ 			/*
+ 			 * inc the count before we submit the bio so
+ 			 * we know the end IO handler won't happen before
+@@ -465,11 +495,15 @@ blk_status_t btrfs_submit_compressed_wri
+ 			}
+ 
+ 			bio = btrfs_bio_alloc(first_byte);
+-			bio->bi_opf = REQ_OP_WRITE | write_flags;
++			bio->bi_opf = bio_op | write_flags;
+ 			bio->bi_private = cb;
+ 			bio->bi_end_io = end_compressed_bio_write;
+ 			if (blkcg_css)
+ 				bio->bi_opf |= REQ_CGROUP_PUNT;
++			/*
++			 * Use bio_add_page() to ensure the bio has at least one
++			 * page.
++			 */
+ 			bio_add_page(bio, page, PAGE_SIZE, 0);
+ 		}
+ 		if (bytes_left < PAGE_SIZE) {
 
 
