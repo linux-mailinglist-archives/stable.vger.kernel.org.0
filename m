@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CE34C38EED3
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E530638EE70
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234080AbhEXPzX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38650 "EHLO mail.kernel.org"
+        id S233800AbhEXPu4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:50:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235014AbhEXPy5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:54:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 257216191D;
-        Mon, 24 May 2021 15:40:13 +0000 (UTC)
+        id S234540AbhEXPrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:47:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F2203614A7;
+        Mon, 24 May 2021 15:37:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870814;
-        bh=z2eIPfHlRvsODbuIyZGha1jLAqD9QuYkyOP1+L8sMN8=;
+        s=korg; t=1621870634;
+        bh=eSo3u7S8Y8x03P5HuFzkqcHPD8cByTV/ijpy0qViCm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eBxWVO0Du4ZoSMGuAw40MQ0FgrojdUVSclnihd/u0A2IPwYmvL0vHEUyUFpamCG3x
-         59wfFk5BHPKe1PNuBVFL0zyRKZJl/PapOYzq2d2aHKQfJNQdF1J4jbyuPlvxby+wqD
-         ng4NvfYhH9hl3ELZYxiOP3B7zUAJdh540aV89Y8Q=
+        b=eInpxNMq1O9iroEKfg+4YCjgBZikY7Gk3pRSFgJvHeXWHauRUqme52tFfpovaUwmt
+         eBFYWpGm8C7KCKeEarw9cQN5S527nDPYhvBSRMASAxBHNR3vBypjbhQINasIZljZvs
+         OCNQ/m8f9424K0NgZ3vCd1/BKIXBtXZCPGsHbPoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 047/104] ALSA: hda/realtek: Fix silent headphone output on ASUS UX430UA
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 5.4 36/71] Revert "serial: mvebu-uart: Fix to avoid a potential NULL pointer dereference"
 Date:   Mon, 24 May 2021 17:25:42 +0200
-Message-Id: <20210524152334.392116907@linuxfoundation.org>
+Message-Id: <20210524152327.646343220@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,76 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 8eedd3a70a70f51fa963f3ad7fa97afd0c75bd44 upstream.
+commit 754f39158441f4c0d7a8255209dd9a939f08ce80 upstream.
 
-It was reported that the headphone output on ASUS UX430UA (SSID
-1043:1740) with ALC295 codec is silent while the speaker works.
-After the investigation, it turned out that the DAC assignment has to
-be fixed on this machine; unlike others, it expects DAC 0x02 to be
-assigned to the speaker pin 0x07 while DAC 0x03 to headphone pin
-0x21.
+This reverts commit 32f47179833b63de72427131169809065db6745e.
 
-This patch provides a fixup for the fixed DAC/pin mapping for this
-device.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212933
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210504082057.6913-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Upon review, this commit was found to be not be needed at all as the
+change was useless because this function can only be called when
+of_match_device matched on something.  So it should be reverted.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 32f47179833b ("serial: mvebu-uart: Fix to avoid a potential NULL pointer dereference")
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-6-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/tty/serial/mvebu-uart.c |    3 ---
+ 1 file changed, 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -5720,6 +5720,18 @@ static void alc_fixup_tpt470_dacs(struct
- 		spec->gen.preferred_dacs = preferred_pairs;
- }
+--- a/drivers/tty/serial/mvebu-uart.c
++++ b/drivers/tty/serial/mvebu-uart.c
+@@ -818,9 +818,6 @@ static int mvebu_uart_probe(struct platf
+ 		return -EINVAL;
+ 	}
  
-+static void alc295_fixup_asus_dacs(struct hda_codec *codec,
-+				   const struct hda_fixup *fix, int action)
-+{
-+	static const hda_nid_t preferred_pairs[] = {
-+		0x17, 0x02, 0x21, 0x03, 0
-+	};
-+	struct alc_spec *spec = codec->spec;
-+
-+	if (action == HDA_FIXUP_ACT_PRE_PROBE)
-+		spec->gen.preferred_dacs = preferred_pairs;
-+}
-+
- static void alc_shutup_dell_xps13(struct hda_codec *codec)
- {
- 	struct alc_spec *spec = codec->spec;
-@@ -6520,6 +6532,7 @@ enum {
- 	ALC255_FIXUP_ACER_LIMIT_INT_MIC_BOOST,
- 	ALC256_FIXUP_ACER_HEADSET_MIC,
- 	ALC285_FIXUP_IDEAPAD_S740_COEF,
-+	ALC295_FIXUP_ASUS_DACS,
- };
- 
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8047,6 +8060,10 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_THINKPAD_ACPI,
- 	},
-+	[ALC295_FIXUP_ASUS_DACS] = {
-+		.type = HDA_FIXUP_FUNC,
-+		.v.func = alc295_fixup_asus_dacs,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8245,6 +8262,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x1043, 0x1427, "Asus Zenbook UX31E", ALC269VB_FIXUP_ASUS_ZENBOOK),
- 	SND_PCI_QUIRK(0x1043, 0x1517, "Asus Zenbook UX31A", ALC269VB_FIXUP_ASUS_ZENBOOK_UX31A),
- 	SND_PCI_QUIRK(0x1043, 0x16e3, "ASUS UX50", ALC269_FIXUP_STEREO_DMIC),
-+	SND_PCI_QUIRK(0x1043, 0x1740, "ASUS UX430UA", ALC295_FIXUP_ASUS_DACS),
- 	SND_PCI_QUIRK(0x1043, 0x17d1, "ASUS UX431FL", ALC294_FIXUP_ASUS_DUAL_SPK),
- 	SND_PCI_QUIRK(0x1043, 0x1881, "ASUS Zephyrus S/M", ALC294_FIXUP_ASUS_GX502_PINS),
- 	SND_PCI_QUIRK(0x1043, 0x18b1, "Asus MJ401TA", ALC256_FIXUP_ASUS_HEADSET_MIC),
+-	if (!match)
+-		return -ENODEV;
+-
+ 	/* Assume that all UART ports have a DT alias or none has */
+ 	id = of_alias_get_id(pdev->dev.of_node, "serial");
+ 	if (!pdev->dev.of_node || id < 0)
 
 
