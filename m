@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6381438ED27
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D447C38ED2C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbhEXPeh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:34:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
+        id S233426AbhEXPep (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50508 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233469AbhEXPdg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:33:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E787F613EA;
-        Mon, 24 May 2021 15:31:23 +0000 (UTC)
+        id S233495AbhEXPdi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EDD2613EE;
+        Mon, 24 May 2021 15:31:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870284;
-        bh=KRrJAdxoYL0QCt6u4SSirQA78U2D4mC3usFw8C+NznA=;
+        s=korg; t=1621870286;
+        bh=juXUqX3oQgJZbmuZs/lnioYXmjCRrwegEWdCvlnUyaI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NLD1xk7Cb3R/tIGHBxYGuHIsTQa3I3NU/JRo8uvgJo9a0pltLFFDoQOfjrKya/eQV
-         V8zgDH8wkRDz3PD+LhHhffIX5jYP7gY6ahjP4L8ht0wpDsHTkITBeW8RScjple788V
-         Mx77BX0345QIRj9O9lNmDYSKLULA9moj8+nVQxTM=
+        b=ELp7rvZHYxRFTlSTgxcwfTAq2TgHUaoOqpUN6fLWizNmnYP57c+mtxDMiNhl1aE+Q
+         rruMd9cyj/rAMgvB0+lsvMQHw4OK9IJK05soj1Va0NtvVkskgBQDqPhtT2vP187tq/
+         JuxGreYk010ucJCLkAvYcIFFd5Fr4cv2m53mwZ20=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.4 04/31] cifs: fix memory leak in smb2_copychunk_range
-Date:   Mon, 24 May 2021 17:24:47 +0200
-Message-Id: <20210524152323.061291491@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+6bb23a5d5548b93c94aa@syzkaller.appspotmail.com,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.4 05/31] ALSA: usb-audio: Validate MS endpoint descriptors
+Date:   Mon, 24 May 2021 17:24:48 +0200
+Message-Id: <20210524152323.092134248@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
 References: <20210524152322.919918360@linuxfoundation.org>
@@ -40,36 +40,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit d201d7631ca170b038e7f8921120d05eec70d7c5 upstream.
+commit e84749a78dc82bc545f12ce009e3dbcc2c5a8a91 upstream.
 
-When using smb2_copychunk_range() for large ranges we will
-run through several iterations of a loop calling SMB2_ioctl()
-but never actually free the returned buffer except for the final
-iteration.
-This leads to memory leaks everytime a large copychunk is requested.
+snd_usbmidi_get_ms_info() may access beyond the border when a
+malformed descriptor is passed.  This patch adds the sanity checks of
+the given MS endpoint descriptors, and skips invalid ones.
 
-Fixes: 9bf0c9cd4314 ("CIFS: Fix SMB2/SMB3 Copy offload support (refcopy) for large files")
+Reported-by: syzbot+6bb23a5d5548b93c94aa@syzkaller.appspotmail.com
 Cc: <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Link: https://lore.kernel.org/r/20210510150659.17710-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/usb/midi.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -619,6 +619,8 @@ smb2_clone_range(const unsigned int xid,
- 			cpu_to_le32(min_t(u32, len, tcon->max_bytes_chunk));
- 
- 		/* Request server copy to target from src identified by key */
-+		kfree(retbuf);
-+		retbuf = NULL;
- 		rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid, FSCTL_SRV_COPYCHUNK_WRITE,
- 			true /* is_fsctl */, (char *)pcchunk,
+--- a/sound/usb/midi.c
++++ b/sound/usb/midi.c
+@@ -1865,8 +1865,12 @@ static int snd_usbmidi_get_ms_info(struc
+ 		ms_ep = find_usb_ms_endpoint_descriptor(hostep);
+ 		if (!ms_ep)
+ 			continue;
++		if (ms_ep->bLength <= sizeof(*ms_ep))
++			continue;
+ 		if (ms_ep->bNumEmbMIDIJack > 0x10)
+ 			continue;
++		if (ms_ep->bLength < sizeof(*ms_ep) + ms_ep->bNumEmbMIDIJack)
++			continue;
+ 		if (usb_endpoint_dir_out(ep)) {
+ 			if (endpoints[epidx].out_ep) {
+ 				if (++epidx >= MIDI_MAX_ENDPOINTS) {
 
 
