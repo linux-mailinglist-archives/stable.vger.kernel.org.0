@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC0A238EE65
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 85C8538EE0B
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233882AbhEXPuj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:50:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
+        id S233355AbhEXPpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234471AbhEXPrP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:47:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 24DEB61414;
-        Mon, 24 May 2021 15:37:03 +0000 (UTC)
+        id S233683AbhEXPmd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:42:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29FAA61407;
+        Mon, 24 May 2021 15:35:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870623;
-        bh=T+ER7xmjAML+VI4Qx/E1mYgGjFQ7SR8l6//dqmn/e7k=;
+        s=korg; t=1621870503;
+        bh=3iOAUpIunq8o5uXAQzDcoek9kBPjKvTpZGYDo5alVaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJRcjDEEYmvblaVKGrDvBzsFIGp8+fS8ImAb2PU2+KKeBPbyljbS0/IHgLgx3zW7z
-         jsHjGXkUi0rf5jpgnqb5Z9g03mdnAfqYqCllOQ03uyY3500ls7CbXSw0gtav4rK0g/
-         ajTs6RWrujnbk3Ue32SXZ3P7lynaRcklVcdwAKbg=
+        b=sI6ZB9XnXl66Ns/rliT9u0r6I6rEQo2Go19cEO7F2dgw0DAWQVjRxm5bN2m5HzWD1
+         njfLU26c1Rt9zjgcWMPlC9cgiMfhxvhGFfhsMdP8keFY/oaooYmtgqAo55A4jWgwFd
+         x2as1KrecWo55q+7AS1mS4JR8Wh4H/cX8ZHybCBE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 31/71] ALSA: hda/realtek: Add fixup for HP OMEN laptop
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 26/49] Revert "net: stmicro: fix a missing check of clk_prepare"
 Date:   Mon, 24 May 2021 17:25:37 +0200
-Message-Id: <20210524152327.470837120@linuxfoundation.org>
+Message-Id: <20210524152325.227655392@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,75 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 5d84b5318d860c9d80ca5dfae0e971ede53b4921 upstream.
+commit bee1b0511844c8c79fccf1f2b13472393b6b91f7 upstream.
 
-HP OMEN dc0019-ur with codec SSID 103c:84da requires the pin config
-overrides and the existing mic/mute LED setup.  This patch implements
-those in the fixup table.
+This reverts commit f86a3b83833e7cfe558ca4d70b64ebc48903efec.
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=212733
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210504121832.4558-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit causes a memory leak when it is trying to claim it
+is properly handling errors.  Revert this change and fix it up properly
+in a follow-on commit.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Fixes: f86a3b83833e ("net: stmicro: fix a missing check of clk_prepare")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-21-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   23 +++++++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6390,6 +6390,7 @@ enum {
- 	ALC256_FIXUP_ASUS_HPE,
- 	ALC285_FIXUP_THINKPAD_NO_BASS_SPK_HEADSET_JACK,
- 	ALC295_FIXUP_ASUS_DACS,
-+	ALC295_FIXUP_HP_OMEN,
- };
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+@@ -59,9 +59,7 @@ static int sun7i_gmac_init(struct platfo
+ 		gmac->clk_enabled = 1;
+ 	} else {
+ 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
+-		ret = clk_prepare(gmac->tx_clk);
+-		if (ret)
+-			return ret;
++		clk_prepare(gmac->tx_clk);
+ 	}
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -7859,6 +7860,26 @@ static const struct hda_fixup alc269_fix
- 		.type = HDA_FIXUP_FUNC,
- 		.v.func = alc295_fixup_asus_dacs,
- 	},
-+	[ALC295_FIXUP_HP_OMEN] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x12, 0xb7a60130 },
-+			{ 0x13, 0x40000000 },
-+			{ 0x14, 0x411111f0 },
-+			{ 0x16, 0x411111f0 },
-+			{ 0x17, 0x90170110 },
-+			{ 0x18, 0x411111f0 },
-+			{ 0x19, 0x02a11030 },
-+			{ 0x1a, 0x411111f0 },
-+			{ 0x1b, 0x04a19030 },
-+			{ 0x1d, 0x40600001 },
-+			{ 0x1e, 0x411111f0 },
-+			{ 0x21, 0x03211020 },
-+			{}
-+		},
-+		.chained = true,
-+		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
-+	},
- };
- 
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8009,6 +8030,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x82c0, "HP G3 mini premium", ALC221_FIXUP_HP_MIC_NO_PRESENCE),
- 	SND_PCI_QUIRK(0x103c, 0x83b9, "HP Spectre x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
-@@ -8413,6 +8435,7 @@ static const struct hda_model_fixup alc2
- 	{.id = ALC298_FIXUP_SAMSUNG_HEADPHONE_VERY_QUIET, .name = "alc298-samsung-headphone"},
- 	{.id = ALC255_FIXUP_XIAOMI_HEADSET_MIC, .name = "alc255-xiaomi-headset"},
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
-+	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+ 	return 0;
 
 
