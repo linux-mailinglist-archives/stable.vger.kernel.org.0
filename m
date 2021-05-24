@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 06A3B38EDD1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E32338ED26
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:33:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233358AbhEXPmR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:42:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58368 "EHLO mail.kernel.org"
+        id S232789AbhEXPeg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:34:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233009AbhEXPk2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:40:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B725D61423;
-        Mon, 24 May 2021 15:34:17 +0000 (UTC)
+        id S233450AbhEXPdd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:33:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 15BC361132;
+        Mon, 24 May 2021 15:31:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870458;
-        bh=GiFo+j/eaoh4G+oxXE8pCQfSHUeJLxULqf52JcMWLy8=;
+        s=korg; t=1621870273;
+        bh=N88cGBSbrGgPPXU1Ft5g7cEtoFlL6nPE9ju7VKWQKvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k+FY/4UMGGKjIo8VBTq6ydaqBp+MsYgy5Bg+oK9gvYvjyeM0ExRg62iI4SuijsRha
-         0PvkC8c+itz4YRB/aLqlvDTxeJmB7wz/iJnbWga2AeQOMtBgcgSkR+s03/+YV8XM42
-         2WrPiwRYcMzPgnYEp8bg7rHHWpf346ZRKOb2tB40=
+        b=DiBvVVwfgC2lPsVM7K/AlkFWG1vuQrDstnZjJfOtRa7FfPAn5Oj+TL5LtNbOu4GpI
+         mvJauffJgk9DjxkSVxY2zMbu/UpmaiO6y7EVhN/WRr9aQozO536eVs7HrelJYJ2Ufe
+         xIWdJi6q2xjsWpRZWg7uIadCzTsq2c1NY26ubvjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.14 06/37] ALSA: line6: Fix racy initialization of LINE6 MIDI
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Tom Seewald <tseewald@gmail.com>
+Subject: [PATCH 4.4 27/31] qlcnic: Add null check after calling netdev_alloc_skb
 Date:   Mon, 24 May 2021 17:25:10 +0200
-Message-Id: <20210524152324.408860425@linuxfoundation.org>
+Message-Id: <20210524152323.801161887@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,85 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Tom Seewald <tseewald@gmail.com>
 
-commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
+commit 84460f01cba382553199bc1361f69a872d5abed4 upstream.
 
-The initialization of MIDI devices that are found on some LINE6
-drivers are currently done in a racy way; namely, the MIDI buffer
-instance is allocated and initialized in each private_init callback
-while the communication with the interface is already started via
-line6_init_cap_control() call before that point.  This may lead to
-Oops in line6_data_received() when a spurious event is received, as
-reported by syzkaller.
+The function qlcnic_dl_lb_test() currently calls netdev_alloc_skb()
+without checking afterwards that the allocation succeeded. Fix this by
+checking if the skb is NULL and returning an error in such a case.
+Breaking out of the loop if the skb is NULL is not correct as no error
+would be reported to the caller and no message would be printed for the
+user.
 
-This patch moves the MIDI initialization to line6_init_cap_control()
-as well instead of the too-lately-called private_init for avoiding the
-race.  Also this reduces slightly more lines, so it's a win-win
-change.
-
-Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
-Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
-Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
-Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Cc: David S. Miller <davem@davemloft.net>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-26-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/line6/driver.c |    4 ++++
- sound/usb/line6/pod.c    |    5 -----
- sound/usb/line6/variax.c |    6 ------
- 3 files changed, 4 insertions(+), 11 deletions(-)
+ drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/sound/usb/line6/driver.c
-+++ b/sound/usb/line6/driver.c
-@@ -698,6 +698,10 @@ static int line6_init_cap_control(struct
- 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
- 		if (!line6->buffer_message)
- 			return -ENOMEM;
-+
-+		ret = line6_init_midi(line6);
-+		if (ret < 0)
-+			return ret;
- 	} else {
- 		ret = line6_hwdep_init(line6);
- 		if (ret < 0)
---- a/sound/usb/line6/pod.c
-+++ b/sound/usb/line6/pod.c
-@@ -421,11 +421,6 @@ static int pod_init(struct usb_line6 *li
- 	if (err < 0)
- 		return err;
+--- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
++++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
+@@ -1038,6 +1038,8 @@ int qlcnic_do_lb_test(struct qlcnic_adap
  
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(line6);
--	if (err < 0)
--		return err;
--
- 	/* initialize PCM subsystem: */
- 	err = line6_init_pcm(line6, &pod_pcm_properties);
- 	if (err < 0)
---- a/sound/usb/line6/variax.c
-+++ b/sound/usb/line6/variax.c
-@@ -217,7 +217,6 @@ static int variax_init(struct usb_line6
- 		       const struct usb_device_id *id)
- {
- 	struct usb_line6_variax *variax = (struct usb_line6_variax *) line6;
--	int err;
- 
- 	line6->process_message = line6_variax_process_message;
- 	line6->disconnect = line6_variax_disconnect;
-@@ -233,11 +232,6 @@ static int variax_init(struct usb_line6
- 	if (variax->buffer_activate == NULL)
- 		return -ENOMEM;
- 
--	/* initialize MIDI subsystem: */
--	err = line6_init_midi(&variax->line6);
--	if (err < 0)
--		return err;
--
- 	/* initiate startup procedure: */
- 	variax_startup1(variax);
- 	return 0;
+ 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
+ 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
++		if (!skb)
++			goto error;
+ 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
+ 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
+ 		adapter->ahw->diag_cnt = 0;
+@@ -1061,6 +1063,7 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+ 			cnt++;
+ 	}
+ 	if (cnt != i) {
++error:
+ 		dev_err(&adapter->pdev->dev,
+ 			"LB Test: failed, TX[%d], RX[%d]\n", i, cnt);
+ 		if (mode != QLCNIC_ILB_MODE)
 
 
