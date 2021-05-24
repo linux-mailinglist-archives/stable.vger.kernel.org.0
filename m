@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6237138EDB9
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC3B938EE21
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233756AbhEXPlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56932 "EHLO mail.kernel.org"
+        id S233897AbhEXPpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234144AbhEXPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C780613F5;
-        Mon, 24 May 2021 15:33:42 +0000 (UTC)
+        id S234331AbhEXPoG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:44:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FB0D61403;
+        Mon, 24 May 2021 15:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870422;
-        bh=4rY4OaBQ2UoxGJOQ/MMnVhwQexIRIz3IAWbEqdKFhz8=;
+        s=korg; t=1621870543;
+        bh=vRPb5bbdFlXhDT9/MX5I0AwXk6wBI1jLoV7lvKlY5pw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x1WaAsJ1fLr98edSnlSteEnKtEQ87RRxaEzvwVFarmhfSPQd8qSViMIa9gGhTvBjv
-         MupjxNJo7BBq9tRoOkTb8sfAktng5ZGiDl9xioK3rLrfuk8SP1LZfLlHXZsqs216a7
-         oD19j3RiBLeYKT4Tn+IwJblgGDXlFjb7OMfZtPwU=
+        b=2fQW1wfTolvmFvArC7ij5W3D9Sr7QAcyXl64yT+O+6A8NJ91zne+gEycAo5288F2c
+         mjGpe0KqhAAHX5IJ/r5qXzK1EQYWJLXxcU4vwheVcfppUb7hXhlEcKyMK/RHqXHhBx
+         FCl4xGmmyv8NJqeXefRxpA8OtzEVetkhr/6+JW5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Bryan Brattlof <hello@bryanbrattlof.com>
-Subject: [PATCH 4.14 26/37] Revert "rtlwifi: fix a potential NULL pointer dereference"
-Date:   Mon, 24 May 2021 17:25:30 +0200
-Message-Id: <20210524152325.055159078@linuxfoundation.org>
+        stable@vger.kernel.org, Alexandre Bounine <alex.bou9@gmail.com>,
+        Matt Porter <mporter@kernel.crashing.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Anirudh Rayabharam <mail@anirudhrb.com>
+Subject: [PATCH 4.19 20/49] rapidio: handle create_workqueue() failure
+Date:   Mon, 24 May 2021 17:25:31 +0200
+Message-Id: <20210524152325.035108781@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit 68c5634c4a7278672a3bed00eb5646884257c413 upstream.
+commit 69ce3ae36dcb03cdf416b0862a45369ddbf50fdf upstream.
 
-This reverts commit 765976285a8c8db3f0eb7f033829a899d0c2786e.
+In case create_workqueue() fails, release all resources and return -ENOMEM
+to caller to avoid potential NULL pointer deref later. Move up the
+create_workequeue() call to return early and avoid unwinding the call to
+riocm_rx_fill().
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This commit is not correct, it should not have used unlikely() and is
-not propagating the error properly to the calling function, so it should
-be reverted at this point in time.  Also, if the check failed, the
-work queue was still assumed to be allocated, so further accesses would
-have continued to fail, meaning this patch does nothing to solve the
-root issues at all.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Cc: Bryan Brattlof <hello@bryanbrattlof.com>
-Fixes: 765976285a8c ("rtlwifi: fix a potential NULL pointer dereference")
+Cc: Alexandre Bounine <alex.bou9@gmail.com>
+Cc: Matt Porter <mporter@kernel.crashing.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-13-gregkh@linuxfoundation.org
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-46-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtlwifi/base.c |    5 -----
- 1 file changed, 5 deletions(-)
+ drivers/rapidio/rio_cm.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/realtek/rtlwifi/base.c
-+++ b/drivers/net/wireless/realtek/rtlwifi/base.c
-@@ -468,11 +468,6 @@ static void _rtl_init_deferred_work(stru
- 	/* <2> work queue */
- 	rtlpriv->works.hw = hw;
- 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
--	if (unlikely(!rtlpriv->works.rtl_wq)) {
--		pr_err("Failed to allocate work queue\n");
--		return;
--	}
--
- 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
- 			  (void *)rtl_watchdog_wq_callback);
- 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
+--- a/drivers/rapidio/rio_cm.c
++++ b/drivers/rapidio/rio_cm.c
+@@ -2136,6 +2136,14 @@ static int riocm_add_mport(struct device
+ 		return -ENODEV;
+ 	}
+ 
++	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
++	if (!cm->rx_wq) {
++		rio_release_inb_mbox(mport, cmbox);
++		rio_release_outb_mbox(mport, cmbox);
++		kfree(cm);
++		return -ENOMEM;
++	}
++
+ 	/*
+ 	 * Allocate and register inbound messaging buffers to be ready
+ 	 * to receive channel and system management requests
+@@ -2146,7 +2154,6 @@ static int riocm_add_mport(struct device
+ 	cm->rx_slots = RIOCM_RX_RING_SIZE;
+ 	mutex_init(&cm->rx_lock);
+ 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
+-	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
+ 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+ 
+ 	cm->tx_slot = 0;
 
 
