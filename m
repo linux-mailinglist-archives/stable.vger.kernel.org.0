@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D706038F047
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B00DB38F04C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235357AbhEXQC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:02:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S235993AbhEXQCb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:02:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235565AbhEXQBA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:01:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B911461988;
-        Mon, 24 May 2021 15:46:31 +0000 (UTC)
+        id S235726AbhEXQBC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:01:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E45561428;
+        Mon, 24 May 2021 15:46:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871192;
-        bh=QZ30t+MKU3DCIDBaL96ONqEHSTHbyu3sKGvIJPTmEHo=;
+        s=korg; t=1621871196;
+        bh=lhNgDj3KtkOpUurf8b7CEb9jf+yWwYHexxmYfMEsj8g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7gRtOPNtzl5hY3AjMLi3+0IOo/sJH5tiE2newCSw3FBb86tLfYd6BGCJ/SCirfTp
-         HOtrexUpd7Xw70iQftt8EJaxc0U3B9pi9eL0XWbpYEqfM0UnCFMA0Hw6FWFKRPiTEM
-         eVWlTPnIA4kIdu9+Aowf/+JMD8bVhRQrB/jomn34=
+        b=Hjnks45W12Oq0bbeVYOGjqUxmp54D5IXt3ZkhJzSC5Pzpm5ecKk8RAZpHVh9GQWq4
+         nup7HP04ISj+9rZe5YJM7j2TFWDwPYs5YCwjSLcQ2Tl71ghDpFYHTl+0ELfzRbLgBp
+         IdUdy8RzxC72lJdCkx6+hVcm86cJUnCspcyDQ5DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Tom Seewald <tseewald@gmail.com>
-Subject: [PATCH 5.12 116/127] qlcnic: Add null check after calling netdev_alloc_skb
-Date:   Mon, 24 May 2021 17:27:13 +0200
-Message-Id: <20210524152338.784750752@linuxfoundation.org>
+        stable@vger.kernel.org, Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
+        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
+        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Subject: [PATCH 5.12 117/127] video: hgafb: fix potential NULL pointer dereference
+Date:   Mon, 24 May 2021 17:27:14 +0200
+Message-Id: <20210524152338.823597793@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -39,44 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
 
-commit 84460f01cba382553199bc1361f69a872d5abed4 upstream.
+commit dc13cac4862cc68ec74348a80b6942532b7735fa upstream.
 
-The function qlcnic_dl_lb_test() currently calls netdev_alloc_skb()
-without checking afterwards that the allocation succeeded. Fix this by
-checking if the skb is NULL and returning an error in such a case.
-Breaking out of the loop if the skb is NULL is not correct as no error
-would be reported to the caller and no message would be printed for the
-user.
+The return of ioremap if not checked, and can lead to a NULL to be
+assigned to hga_vram. Potentially leading to a NULL pointer
+dereference.
 
-Cc: David S. Miller <davem@davemloft.net>
+The fix adds code to deal with this case in the error label and
+changes how the hgafb_probe handles the return of hga_card_detect.
+
+Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
+Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-26-gregkh@linuxfoundation.org
+Signed-off-by: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-40-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/video/fbdev/hgafb.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
---- a/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-+++ b/drivers/net/ethernet/qlogic/qlcnic/qlcnic_ethtool.c
-@@ -1047,6 +1047,8 @@ int qlcnic_do_lb_test(struct qlcnic_adap
+--- a/drivers/video/fbdev/hgafb.c
++++ b/drivers/video/fbdev/hgafb.c
+@@ -285,6 +285,8 @@ static int hga_card_detect(void)
+ 	hga_vram_len  = 0x08000;
  
- 	for (i = 0; i < QLCNIC_NUM_ILB_PKT; i++) {
- 		skb = netdev_alloc_skb(adapter->netdev, QLCNIC_ILB_PKT_SIZE);
-+		if (!skb)
-+			goto error;
- 		qlcnic_create_loopback_buff(skb->data, adapter->mac_addr);
- 		skb_put(skb, QLCNIC_ILB_PKT_SIZE);
- 		adapter->ahw->diag_cnt = 0;
-@@ -1070,6 +1072,7 @@ int qlcnic_do_lb_test(struct qlcnic_adap
- 			cnt++;
+ 	hga_vram = ioremap(0xb0000, hga_vram_len);
++	if (!hga_vram)
++		return -ENOMEM;
+ 
+ 	if (request_region(0x3b0, 12, "hgafb"))
+ 		release_io_ports = 1;
+@@ -344,13 +346,18 @@ static int hga_card_detect(void)
+ 			hga_type_name = "Hercules";
+ 			break;
  	}
- 	if (cnt != i) {
-+error:
- 		dev_err(&adapter->pdev->dev,
- 			"LB Test: failed, TX[%d], RX[%d]\n", i, cnt);
- 		if (mode != QLCNIC_ILB_MODE)
+-	return 1;
++	return 0;
+ error:
+ 	if (release_io_ports)
+ 		release_region(0x3b0, 12);
+ 	if (release_io_port)
+ 		release_region(0x3bf, 1);
+-	return 0;
++
++	iounmap(hga_vram);
++
++	pr_err("hgafb: HGA card not detected.\n");
++
++	return -EINVAL;
+ }
+ 
+ /**
+@@ -548,13 +555,11 @@ static const struct fb_ops hgafb_ops = {
+ static int hgafb_probe(struct platform_device *pdev)
+ {
+ 	struct fb_info *info;
++	int ret;
+ 
+-	if (! hga_card_detect()) {
+-		printk(KERN_INFO "hgafb: HGA card not detected.\n");
+-		if (hga_vram)
+-			iounmap(hga_vram);
+-		return -EINVAL;
+-	}
++	ret = hga_card_detect();
++	if (!ret)
++		return ret;
+ 
+ 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
+ 		hga_type_name, hga_vram_len/1024);
 
 
