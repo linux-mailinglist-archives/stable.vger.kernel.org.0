@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 669AB38F011
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FBC38F013
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:59:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236003AbhEXQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236008AbhEXQBC (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 24 May 2021 12:01:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46680 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235676AbhEXQAE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:00:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 78ECF61461;
-        Mon, 24 May 2021 15:45:48 +0000 (UTC)
+        id S235751AbhEXQAJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:00:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FDF561465;
+        Mon, 24 May 2021 15:45:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871148;
-        bh=AcoVqIUKAS83PBtxU0e3MSBpKP24FUWomHUDJy5W7Tc=;
+        s=korg; t=1621871151;
+        bh=5mib4CZtgWgB8CCMyhXcqN7oYJH/iNBMul8UDElOprg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W7AUsz+BDiuRZxS33ePZT39rW1YBB/Blh456vcvZT8JNlnUL6Xri7WC+lqZOG94yW
-         BuNkbYn5AYRqFw+0rOTnrqQXL677BkOpIjQnuZE8KTczhOMEcRiaagAHoAUMKVRZ0S
-         sgv0pQtecn7IyailxdKfR2N7vT6Q9IWQ/ZzTrCm4=
+        b=hPjj0ok6ZbgCTFfYRUD2ygl8ZwvU80NiXVbR9RUA0FdN6AvKFd860vqNqvHK6NR0L
+         3TSYWv0f2NcRuF5LkMCq3yKP4hdPHGd0IyEmdWCaa+TOkXxRnTqsjcLkLfJtCPdSnZ
+         T9BstwoT2sxVNTyZjcqv8986TQjpyj67qcuYLpSY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.12 094/127] dm snapshot: fix crash with transient storage and zero chunk size
-Date:   Mon, 24 May 2021 17:26:51 +0200
-Message-Id: <20210524152338.035594414@linuxfoundation.org>
+        stable@vger.kernel.org, Marco Elver <elver@google.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Miguel Ojeda <ojeda@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        "Paul E. McKenney" <paulmck@kernel.org>
+Subject: [PATCH 5.12 095/127] kcsan: Fix debugfs initcall return type
+Date:   Mon, 24 May 2021 17:26:52 +0200
+Message-Id: <20210524152338.068283646@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -39,41 +41,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit c699a0db2d62e3bbb7f0bf35c87edbc8d23e3062 upstream.
+commit 976aac5f882989e4f6c1b3a7224819bf0e801c6a upstream.
 
-The following commands will crash the kernel:
+clang with CONFIG_LTO_CLANG points out that an initcall function should
+return an 'int' due to the changes made to the initcall macros in commit
+3578ad11f3fb ("init: lto: fix PREL32 relocations"):
 
-modprobe brd rd_size=1048576
-dmsetup create o --table "0 `blockdev --getsize /dev/ram0` snapshot-origin /dev/ram0"
-dmsetup create s --table "0 `blockdev --getsize /dev/ram0` snapshot /dev/ram0 /dev/ram1 N 0"
+kernel/kcsan/debugfs.c:274:15: error: returning 'void' from a function with incompatible result type 'int'
+late_initcall(kcsan_debugfs_init);
+~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
+include/linux/init.h:292:46: note: expanded from macro 'late_initcall'
+ #define late_initcall(fn)               __define_initcall(fn, 7)
 
-The reason is that when we test for zero chunk size, we jump to the label
-bad_read_metadata without setting the "r" variable. The function
-snapshot_ctr destroys all the structures and then exits with "r == 0". The
-kernel then crashes because it falsely believes that snapshot_ctr
-succeeded.
-
-In order to fix the bug, we set the variable "r" to -EINVAL.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Fixes: e36299efe7d7 ("kcsan, debugfs: Move debugfs file creation out of early init")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-snap.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/kcsan/debugfs.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -1407,6 +1407,7 @@ static int snapshot_ctr(struct dm_target
+--- a/kernel/kcsan/debugfs.c
++++ b/kernel/kcsan/debugfs.c
+@@ -261,9 +261,10 @@ static const struct file_operations debu
+ 	.release = single_release
+ };
  
- 	if (!s->store->chunk_size) {
- 		ti->error = "Chunk size not set";
-+		r = -EINVAL;
- 		goto bad_read_metadata;
- 	}
+-static void __init kcsan_debugfs_init(void)
++static int __init kcsan_debugfs_init(void)
+ {
+ 	debugfs_create_file("kcsan", 0644, NULL, NULL, &debugfs_ops);
++	return 0;
+ }
  
+ late_initcall(kcsan_debugfs_init);
 
 
