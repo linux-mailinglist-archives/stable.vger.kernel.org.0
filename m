@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25BF638EDA4
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:38:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EE4D38EF95
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233672AbhEXPkR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:40:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        id S235111AbhEXP61 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232974AbhEXPiV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:38:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C03361425;
-        Mon, 24 May 2021 15:33:24 +0000 (UTC)
+        id S234769AbhEXP50 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:57:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B33D461952;
+        Mon, 24 May 2021 15:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870405;
-        bh=jz5lJpbrtEPhliG6O76iXaB5fHjt4HN2bNwhoy5SiXE=;
+        s=korg; t=1621871016;
+        bh=g4WznfC1RMud/RVC4tEowcseFD//o/MAWnIuwiNWWSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=im1bUHfV7FFETRZEtmANdXg+qz9bGVPmCkCMX9Yn8br4kI8bALJlHxO6joQdl1FW+
-         cn4DCVvhMrVio7pXMX3+UfvZAxszFNdRQ+hDvXvo0JeuVmc7AKLaxS9UC5ZYdf20BD
-         DuUx1NB5x29qn7KoatwVzCOc3v8jE9AAqivfWvRA=
+        b=RvpJcJ8QvGn/KzgY8DDk77QNT3g5kGJQ/p8Is2qKawvIxPoZVeFnNGLqxv68R/Owj
+         3PmH7x/3e3XExwnjvMHES6lujEt/WiA3iwqZ0dJSSxQhOFu+gJwYoWfc9+f1n7cfkM
+         XV1qprxreLgQ8VVEO3f1TX3WLvpuolY4AUjd/Xvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Guenter Roeck <linux@roeck-us.net>
-Subject: [PATCH 4.14 19/37] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
-Date:   Mon, 24 May 2021 17:25:23 +0200
-Message-Id: <20210524152324.833261636@linuxfoundation.org>
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 007/127] RDMA/core: Prevent divide-by-zero error triggered by the user
+Date:   Mon, 24 May 2021 17:25:24 +0200
+Message-Id: <20210524152335.108504796@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,58 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
+[ Upstream commit 54d87913f147a983589923c7f651f97de9af5be1 ]
 
-This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
+The user_entry_size is supplied by the user and later used as a
+denominator to calculate number of entries. The zero supplied by the user
+will trigger the following divide-by-zero error:
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+ divide error: 0000 [#1] SMP KASAN PTI
+ CPU: 4 PID: 497 Comm: c_repro Not tainted 5.13.0-rc1+ #281
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:ib_uverbs_handler_UVERBS_METHOD_QUERY_GID_TABLE+0x1b1/0x510
+ Code: 87 59 03 00 00 e8 9f ab 1e ff 48 8d bd a8 00 00 00 e8 d3 70 41 ff 44 0f b7 b5 a8 00 00 00 e8 86 ab 1e ff 31 d2 4c 89 f0 31 ff <49> f7 f5 48 89 d6 48 89 54 24 10 48 89 04 24 e8 1b ad 1e ff 48 8b
+ RSP: 0018:ffff88810416f828 EFLAGS: 00010246
+ RAX: 0000000000000008 RBX: 1ffff1102082df09 RCX: ffffffff82183f3d
+ RDX: 0000000000000000 RSI: ffff888105f2da00 RDI: 0000000000000000
+ RBP: ffff88810416fa98 R08: 0000000000000001 R09: ffffed102082df5f
+ R10: ffff88810416faf7 R11: ffffed102082df5e R12: 0000000000000000
+ R13: 0000000000000000 R14: 0000000000000008 R15: ffff88810416faf0
+ FS:  00007f5715efa740(0000) GS:ffff88811a700000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000020000840 CR3: 000000010c2e0001 CR4: 0000000000370ea0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  ? ib_uverbs_handler_UVERBS_METHOD_INFO_HANDLES+0x4b0/0x4b0
+  ib_uverbs_cmd_verbs+0x1546/0x1940
+  ib_uverbs_ioctl+0x186/0x240
+  __x64_sys_ioctl+0x38a/0x1220
+  do_syscall_64+0x3f/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Upon review, it was determined that this commit is not needed at all so
-just revert it.  Also, the call to lm80_init_client() was not properly
-handled, so if error handling is needed in the lm80_probe() function,
-then it should be done properly, not half-baked like the commit being
-reverted here did.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9f85cbe50aa0 ("RDMA/uverbs: Expose the new GID query API to user space")
+Link: https://lore.kernel.org/r/b971cc70a8b240a8b5eda33c99fa0558a0071be2.1620657876.git.leonro@nvidia.com
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/lm80.c |   11 ++---------
- 1 file changed, 2 insertions(+), 9 deletions(-)
+ drivers/infiniband/core/uverbs_std_types_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/hwmon/lm80.c
-+++ b/drivers/hwmon/lm80.c
-@@ -630,7 +630,6 @@ static int lm80_probe(struct i2c_client
- 	struct device *dev = &client->dev;
- 	struct device *hwmon_dev;
- 	struct lm80_data *data;
--	int rv;
+diff --git a/drivers/infiniband/core/uverbs_std_types_device.c b/drivers/infiniband/core/uverbs_std_types_device.c
+index 9ec6971056fa..a03021d94e11 100644
+--- a/drivers/infiniband/core/uverbs_std_types_device.c
++++ b/drivers/infiniband/core/uverbs_std_types_device.c
+@@ -331,6 +331,9 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QUERY_GID_TABLE)(
+ 	if (ret)
+ 		return ret;
  
- 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
- 	if (!data)
-@@ -643,14 +642,8 @@ static int lm80_probe(struct i2c_client
- 	lm80_init_client(client);
- 
- 	/* A few vars need to be filled upon startup */
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][0] = rv;
--	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
--	if (rv < 0)
--		return rv;
--	data->fan[f_min][1] = rv;
-+	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
-+	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
- 
- 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
- 							   data, lm80_groups);
++	if (!user_entry_size)
++		return -EINVAL;
++
+ 	max_entries = uverbs_attr_ptr_get_array_size(
+ 		attrs, UVERBS_ATTR_QUERY_GID_TABLE_RESP_ENTRIES,
+ 		user_entry_size);
+-- 
+2.30.2
+
 
 
