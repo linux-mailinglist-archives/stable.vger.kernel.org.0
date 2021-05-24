@@ -2,42 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA77738EEDC
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A28F38ED54
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234572AbhEXPza (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39394 "EHLO mail.kernel.org"
+        id S233454AbhEXPg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51454 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234270AbhEXPxY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:53:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BCEFE616ED;
-        Mon, 24 May 2021 15:39:21 +0000 (UTC)
+        id S233150AbhEXPed (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:34:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AAC06140B;
+        Mon, 24 May 2021 15:32:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870762;
-        bh=M4ClGbD1NzJyWMQwlZFkBuYmcXpvY89/4jfmfBQpjGw=;
+        s=korg; t=1621870322;
+        bh=jz5lJpbrtEPhliG6O76iXaB5fHjt4HN2bNwhoy5SiXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZOCiy3JXH3YtAGnKXGaNfnoafjbBLs2vgHoMILNB0giYWwQSAFQM2uU8e1jQvoMX
-         fJLX88+Wg3yRTNCbXEta9cLYk326bnpx2mMgla41nKG1ozBTsUTmQr9nC2c5J1Yfmd
-         +4UFN0K511wazCE4RSNz/S/LJeKcSE/T6vYH/BZg=
+        b=xVrXLaZqMuaYhRvULWIeQglxT8BufFKk1B2zHkuPIhYPXzRpMXjwjESQwQ/jIc06k
+         d2wp7LZHMOmPcVrWNerMERgB9ees8LJKmqW+ducIh6iHBdMleKVGUkwK2mgSDgsHLQ
+         LMG8WwFNVbRQ6J7caAbCsSCZfSF19hjOqdga5rdY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Can Guo <cang@codeaurora.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Avri Altman <avri.altman@wdc.com>,
-        Stanley Chu <stanley.chu@mediatek.com>,
-        Bean Huo <beanhuo@micron.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        Bart Van Assche <bvanassche@acm.org>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/104] scsi: ufs: core: Increase the usable queue depth
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.9 18/36] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
 Date:   Mon, 24 May 2021 17:25:03 +0200
-Message-Id: <20210524152333.116702685@linuxfoundation.org>
+Message-Id: <20210524152324.751577446@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
+References: <20210524152324.158146731@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,71 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bart Van Assche <bvanassche@acm.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit d0b2b70eb12e9ffaf95e11b16b230a4e015a536c ]
+commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
 
-With the current implementation of the UFS driver active_queues is 1
-instead of 0 if all UFS request queues are idle. That causes
-hctx_may_queue() to divide the queue depth by 2 when queueing a request and
-hence reduces the usable queue depth.
+This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
 
-The shared tag set code in the block layer keeps track of the number of
-active request queues. blk_mq_tag_busy() is called before a request is
-queued onto a hwq and blk_mq_tag_idle() is called some time after the hwq
-became idle. blk_mq_tag_idle() is called from inside blk_mq_timeout_work().
-Hence, blk_mq_tag_idle() is only called if a timer is associated with each
-request that is submitted to a request queue that shares a tag set with
-another request queue.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Adds a blk_mq_start_request() call in ufshcd_exec_dev_cmd(). This doubles
-the queue depth on my test setup from 16 to 32.
+Upon review, it was determined that this commit is not needed at all so
+just revert it.  Also, the call to lm80_init_client() was not properly
+handled, so if error handling is needed in the lm80_probe() function,
+then it should be done properly, not half-baked like the commit being
+reverted here did.
 
-In addition to increasing the usable queue depth, also fix the
-documentation of the 'timeout' parameter in the header above
-ufshcd_exec_dev_cmd().
-
-Link: https://lore.kernel.org/r/20210513164912.5683-1-bvanassche@acm.org
-Fixes: 7252a3603015 ("scsi: ufs: Avoid busy-waiting by eliminating tag conflicts")
-Cc: Can Guo <cang@codeaurora.org>
-Cc: Alim Akhtar <alim.akhtar@samsung.com>
-Cc: Avri Altman <avri.altman@wdc.com>
-Cc: Stanley Chu <stanley.chu@mediatek.com>
-Cc: Bean Huo <beanhuo@micron.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Reviewed-by: Can Guo <cang@codeaurora.org>
-Signed-off-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/ufs/ufshcd.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hwmon/lm80.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufshcd.c b/drivers/scsi/ufs/ufshcd.c
-index 08d4d40c510e..854c96e63007 100644
---- a/drivers/scsi/ufs/ufshcd.c
-+++ b/drivers/scsi/ufs/ufshcd.c
-@@ -2768,7 +2768,7 @@ static int ufshcd_wait_for_dev_cmd(struct ufs_hba *hba,
-  * ufshcd_exec_dev_cmd - API for sending device management requests
-  * @hba: UFS hba
-  * @cmd_type: specifies the type (NOP, Query...)
-- * @timeout: time in seconds
-+ * @timeout: timeout in milliseconds
-  *
-  * NOTE: Since there is only one available tag for device management commands,
-  * it is expected you hold the hba->dev_cmd.lock mutex.
-@@ -2798,6 +2798,9 @@ static int ufshcd_exec_dev_cmd(struct ufs_hba *hba,
- 	}
- 	tag = req->tag;
- 	WARN_ON_ONCE(!ufshcd_valid_tag(hba, tag));
-+	/* Set the timeout such that the SCSI error handler is not activated. */
-+	req->timeout = msecs_to_jiffies(2 * timeout);
-+	blk_mq_start_request(req);
+--- a/drivers/hwmon/lm80.c
++++ b/drivers/hwmon/lm80.c
+@@ -630,7 +630,6 @@ static int lm80_probe(struct i2c_client
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
+ 	struct lm80_data *data;
+-	int rv;
  
- 	init_completion(&wait);
- 	lrbp = &hba->lrb[tag];
--- 
-2.30.2
-
+ 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
+ 	if (!data)
+@@ -643,14 +642,8 @@ static int lm80_probe(struct i2c_client
+ 	lm80_init_client(client);
+ 
+ 	/* A few vars need to be filled upon startup */
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][0] = rv;
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][1] = rv;
++	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
++	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+ 
+ 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
+ 							   data, lm80_groups);
 
 
