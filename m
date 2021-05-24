@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 693E038EBB6
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB5038EBBB
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233426AbhEXPGt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:06:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37846 "EHLO mail.kernel.org"
+        id S234040AbhEXPGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:06:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233945AbhEXPCu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:02:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAD3F613F9;
-        Mon, 24 May 2021 14:50:26 +0000 (UTC)
+        id S233686AbhEXPDA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:03:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D528F61463;
+        Mon, 24 May 2021 14:50:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867827;
-        bh=6ojWN7MjokRzrhXaTS7naqgOE5nUzbyfaJtwki3P4lE=;
+        s=k20201202; t=1621867828;
+        bh=vhhxpzbKU/r5BRm8W5nj/mHAZi+NTOQ/VaGwI6zNK00=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LqFlLW8iF+62Qc4az+AdcEhwRdmlFRZIPJCfLT2jAp/OuNDVChFYU1d+W/EzVXCPp
-         iWqZ3mGuCUg4CrR9fXs36sGHvK1qt9DVuPgD37VjBHSxTxhCzeVnlPAHBjylZ2UmxA
-         gjk0ISxSMgbXjoLf/4QPfF3l9xMh3eVE2S+4cRosPD+vreHQt1cwHH1tWQUKzLHcem
-         L36xkGpIMz0NpgmZdcJ8Nn8yG08beRsFs+ppTZTe2oXjgKbmdI4MMy08VYHmJcuLkl
-         g0luiF4QBJ3l6YVmIi7ruscF4d632YTlUabMZRwm9WoUK0stEI3mQry6kq9Fb+Ilsh
-         KLZhaoWanVFCQ==
+        b=akJPnrApJZ7vBxejm9hSc5PvO/L4ibJOq5Ux5iD0RxeKsjim7OW/38garI3ZuF92L
+         sOHYBO59m3SqrTrTaI+JHaHPuLwNcAa5nWJhwS3gFulNMTA5t7VeIIodaSXQoA1mZg
+         7y9mJDN/lAi2Qs6HMo1cBbdKB+h7Jyepqp++7j3tDkoQFHcoOLU3l7MwzydXFZyYoM
+         ZlGXJyDzs2OfrzQ4xl4fsEYRYW7OJcvYZOq/mqHpcGuvcrsIrwdSHyzmyE59NVMBU8
+         I1n+ePRhMhkjoOeCvMlZ3B871ynOfuIShvWonPfcr4XAl+ye7e+PAIOUxsFm3dbf0H
+         XCk6Na3ASD8Bw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 15/25] media: gspca: properly check for errors in po1030_probe()
-Date:   Mon, 24 May 2021 10:49:58 -0400
-Message-Id: <20210524145008.2499049-15-sashal@kernel.org>
+        Peter Rosin <peda@axentia.se>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 16/25] cdrom: gdrom: initialize global variable at init time
+Date:   Mon, 24 May 2021 10:49:59 -0400
+Message-Id: <20210524145008.2499049-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145008.2499049-1-sashal@kernel.org>
 References: <20210524145008.2499049-1-sashal@kernel.org>
@@ -44,48 +44,54 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+[ Upstream commit 9183f01b5e6e32eb3f17b5f3f8d5ad5ac9786c49 ]
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+As Peter points out, if we were to disconnect and then reconnect this
+driver from a device, the "global" state of the device would contain odd
+values and could cause problems.  Fix this up by just initializing the
+whole thing to 0 at probe() time.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Ideally this would be a per-device variable, but given the age and the
+total lack of users of it, that would require a lot of s/./->/g changes
+for really no good reason.
+
+Reported-by: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Link: https://lore.kernel.org/r/YJP2j6AU82MqEY2M@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/cdrom/gdrom.c | 9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index 37d2891e5f5b..81d8eb72ac41 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -159,6 +159,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
+diff --git a/drivers/cdrom/gdrom.c b/drivers/cdrom/gdrom.c
+index 72cd96a8eb19..5474357beb23 100644
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -775,6 +775,13 @@ static int probe_gdrom_setupqueue(void)
+ static int probe_gdrom(struct platform_device *devptr)
  {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
- 
- 	if (force_sensor) {
-@@ -177,10 +178,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
- 		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
- 	}
- 
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
+ 	int err;
++
++	/*
++	 * Ensure our "one" device is initialized properly in case of previous
++	 * usages of it
++	 */
++	memset(&gd, 0, sizeof(gd));
++
+ 	/* Start the device */
+ 	if (gdrom_execute_diagnostic() != 1) {
+ 		pr_warning("ATA Probe for GDROM failed\n");
+@@ -872,7 +879,7 @@ static struct platform_driver gdrom_driver = {
+ static int __init init_gdrom(void)
+ {
+ 	int rc;
+-	gd.toc = NULL;
++
+ 	rc = platform_driver_register(&gdrom_driver);
+ 	if (rc)
+ 		return rc;
 -- 
 2.30.2
 
