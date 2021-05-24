@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A3BC38ED61
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2518738EEC0
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233984AbhEXPg4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:36:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51548 "EHLO mail.kernel.org"
+        id S233512AbhEXPzN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233494AbhEXPe4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 98BA5613CB;
-        Mon, 24 May 2021 15:32:17 +0000 (UTC)
+        id S234589AbhEXPwi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:52:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C97F9613F8;
+        Mon, 24 May 2021 15:39:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870338;
-        bh=e83ixzFhwqcm//uNVLg944pU45V0gzbbaEJ2HEppjKQ=;
+        s=korg; t=1621870749;
+        bh=UvQ6AgjPJSCs2l15bid02zYssvvGbw/RJWx9BhiEHGc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bUxMAe8sAAmvNm83R59jbcZg9ylQyb31Bg/CeNZFgioxJRxyEnGoXYSt3FiUSfLxW
-         maadQ8dvzSiFYAiCvXVaRHIpcqyUBNyK40Est3ao4i+67SWJ4TNCBwsxpMBCB6oeGH
-         A08vJQ09k3nbtDS8l1An3nAoPS8UfSM8oMKKyD70=
+        b=xlfSRMUYXb3SL9kBU2/kOxA+3jB9QpdonMApPbPG/n1kCB9kT7W3H5Uf3UuJ1zgjn
+         uRqPUfxXQqqcS8vtgNykZnhEJLLq/IP09awE7GFaV5Nzo1/34h5w/pYbozOv1f5Oxe
+         uBJc8JpCzvo0B2l482bPB4Zk1QXPIVZdLyIpKRBA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.9 12/36] xen-pciback: reconfigure also from backend watch handler
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 002/104] openrisc: Fix a memory leak
 Date:   Mon, 24 May 2021 17:24:57 +0200
-Message-Id: <20210524152324.571062366@linuxfoundation.org>
+Message-Id: <20210524152332.921612666@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +41,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit c81d3d24602540f65256f98831d0a25599ea6b87 upstream.
+[ Upstream commit c019d92457826bb7b2091c86f36adb5de08405f9 ]
 
-When multiple PCI devices get assigned to a guest right at boot, libxl
-incrementally populates the backend tree. The writes for the first of
-the devices trigger the backend watch. In turn xen_pcibk_setup_backend()
-will set the XenBus state to Initialised, at which point no further
-reconfigures would happen unless a device got hotplugged. Arrange for
-reconfigure to also get triggered from the backend watch handler.
+'setup_find_cpu_node()' take a reference on the node it returns.
+This reference must be decremented when not needed anymore, or there will
+be a leak.
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/2337cbd6-94b9-4187-9862-c03ea12e0c61@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Add the missing 'of_node_put(cpu)'.
+
+Note that 'setup_cpuinfo()' that also calls this function already has a
+correct 'of_node_put(cpu)' at its end.
+
+Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/xenbus.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ arch/openrisc/kernel/setup.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/xen/xen-pciback/xenbus.c
-+++ b/drivers/xen/xen-pciback/xenbus.c
-@@ -357,7 +357,8 @@ out:
- 	return err;
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index 2416a9f91533..c6f9e7b9f7cb 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -278,6 +278,8 @@ void calibrate_delay(void)
+ 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
+ 		loops_per_jiffy / (500000 / HZ),
+ 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
++
++	of_node_put(cpu);
  }
  
--static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
-+static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev,
-+				 enum xenbus_state state)
- {
- 	int err = 0;
- 	int num_devs;
-@@ -371,9 +372,7 @@ static int xen_pcibk_reconfigure(struct
- 	dev_dbg(&pdev->xdev->dev, "Reconfiguring device ...\n");
- 
- 	mutex_lock(&pdev->dev_lock);
--	/* Make sure we only reconfigure once */
--	if (xenbus_read_driver_state(pdev->xdev->nodename) !=
--	    XenbusStateReconfiguring)
-+	if (xenbus_read_driver_state(pdev->xdev->nodename) != state)
- 		goto out;
- 
- 	err = xenbus_scanf(XBT_NIL, pdev->xdev->nodename, "num_devs", "%d",
-@@ -500,6 +499,10 @@ static int xen_pcibk_reconfigure(struct
- 		}
- 	}
- 
-+	if (state != XenbusStateReconfiguring)
-+		/* Make sure we only reconfigure once. */
-+		goto out;
-+
- 	err = xenbus_switch_state(pdev->xdev, XenbusStateReconfigured);
- 	if (err) {
- 		xenbus_dev_fatal(pdev->xdev, err,
-@@ -525,7 +528,7 @@ static void xen_pcibk_frontend_changed(s
- 		break;
- 
- 	case XenbusStateReconfiguring:
--		xen_pcibk_reconfigure(pdev);
-+		xen_pcibk_reconfigure(pdev, XenbusStateReconfiguring);
- 		break;
- 
- 	case XenbusStateConnected:
-@@ -664,6 +667,15 @@ static void xen_pcibk_be_watch(struct xe
- 		xen_pcibk_setup_backend(pdev);
- 		break;
- 
-+	case XenbusStateInitialised:
-+		/*
-+		 * We typically move to Initialised when the first device was
-+		 * added. Hence subsequent devices getting added may need
-+		 * reconfiguring.
-+		 */
-+		xen_pcibk_reconfigure(pdev, XenbusStateInitialised);
-+		break;
-+
- 	default:
- 		break;
- 	}
+ void __init setup_arch(char **cmdline_p)
+-- 
+2.30.2
+
 
 
