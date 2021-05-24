@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E9D038EDB7
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1433238EF7C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233725AbhEXPlM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
+        id S234099AbhEXP56 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233603AbhEXPjF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:39:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 746476142E;
-        Mon, 24 May 2021 15:33:55 +0000 (UTC)
+        id S235423AbhEXP4i (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E8AC061209;
+        Mon, 24 May 2021 15:43:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870435;
-        bh=y8tKCc8MNmhJbgdeqlnUMymJi7u75jq1rEAUQ5u/ucY=;
+        s=korg; t=1621870981;
+        bh=UFlC+LfaNg5QCjGzHQJXyOwrWTkb6L1wA1OyiI1Ofv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EOkv6SMKAVyNBasmcfvDrP0RDqlgmV9pO0IP7mbelcI826AXYnrH2mg9eG9/mkOfZ
-         6CHrUS6DmYLaqChExMuPBTxpqeSCO22kjQJJNa2sJ3Vo1W1YpZakHgGQ+kYuLM3Hed
-         jTbAHRY0a4A9UXEU1mrtcLNe+ll9TX47wTKdQ5qM=
+        b=QOI8eO57kAimySRnYte07bfLxqyl5yz3vD/SjUOPTmJ+BrUEZqayoQtL3l3f1A4Rc
+         Ls1Hbhe2qn+77fO8SFcvoE8tuUofPchAY2r1o1vMyHx9p80U/0a9AeQn+0v4yqUMFD
+         d8fA9mIasStTLgx3ziakfU/xSUCW7Rc9yV5T2rqs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>,
-        Phillip Potter <phil@philpotter.co.uk>
-Subject: [PATCH 4.14 32/37] leds: lp5523: check return value of lp5xx_read and jump to cleanup code
+        stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 019/127] nvme-tcp: rerun io_work if req_list is not empty
 Date:   Mon, 24 May 2021 17:25:36 +0200
-Message-Id: <20210524152325.255677803@linuxfoundation.org>
+Message-Id: <20210524152335.509055269@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Keith Busch <kbusch@kernel.org>
 
-commit 6647f7a06eb030a2384ec71f0bb2e78854afabfe upstream.
+[ Upstream commit a0fdd1418007f83565d3f2e04b47923ba93a9b8c ]
 
-Check return value of lp5xx_read and if non-zero, jump to code at end of
-the function, causing lp5523_stop_all_engines to be executed before
-returning the error value up the call chain. This fixes the original
-commit (248b57015f35) which was reverted due to the University of Minnesota
-problems.
+A possible race condition exists where the request to send data is
+enqueued from nvme_tcp_handle_r2t()'s will not be observed by
+nvme_tcp_send_all() if it happens to be running. The driver relies on
+io_work to send the enqueued request when it is runs again, but the
+concurrently running nvme_tcp_send_all() may not have released the
+send_mutex at that time. If no future commands are enqueued to re-kick
+the io_work, the request will timeout in the SEND_H2C state, resulting
+in a timeout error like:
 
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-10-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  nvme nvme0: queue 1: timeout request 0x3 type 6
+
+Ensure the io_work continues to run as long as the req_list is not empty.
+
+Fixes: db5ad6b7f8cdd ("nvme-tcp: try to send request in queue_rq context")
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/leds/leds-lp5523.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/nvme/host/tcp.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/leds/leds-lp5523.c
-+++ b/drivers/leds/leds-lp5523.c
-@@ -318,7 +318,9 @@ static int lp5523_init_program_engine(st
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index d7d7c81d0701..f8ef1faaf5e4 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1137,7 +1137,8 @@ static void nvme_tcp_io_work(struct work_struct *w)
+ 				pending = true;
+ 			else if (unlikely(result < 0))
+ 				break;
+-		}
++		} else
++			pending = !llist_empty(&queue->req_list);
  
- 	/* Let the programs run for couple of ms and check the engine status */
- 	usleep_range(3000, 6000);
--	lp55xx_read(chip, LP5523_REG_STATUS, &status);
-+	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
-+	if (ret)
-+		goto out;
- 	status &= LP5523_ENG_STATUS_MASK;
- 
- 	if (status != LP5523_ENG_STATUS_MASK) {
+ 		result = nvme_tcp_try_recv(queue);
+ 		if (result > 0)
+-- 
+2.30.2
+
 
 
