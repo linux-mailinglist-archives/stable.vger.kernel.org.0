@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E710138EEAA
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7AB238EFBA
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234048AbhEXPxw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:53:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
+        id S233992AbhEXP7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:59:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234405AbhEXPuz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1578B61629;
-        Mon, 24 May 2021 15:38:33 +0000 (UTC)
+        id S234920AbhEXP6X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:58:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EE7CE61459;
+        Mon, 24 May 2021 15:44:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870714;
-        bh=DbW5kA7WRlHGQ/9lZV98JCYkuTrvvHAaZvCk8gp2stU=;
+        s=korg; t=1621871057;
+        bh=6uPdLOtWDwPTg23SaBpdldN7cAfKsfp4eOLSq3ZdXgY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ooUq07X17TOMdCf/ov7jl4gtJ1p6BQD1O5fOO22S3axjAcsEREXJ13eg4jBb4UeUt
-         ogvzkHTz1mShXgA4ljbvcMt7Cm8xGiDtw/QW01uhMPKDYY3wKIW8/6kKxY280EDf3p
-         qZCkS/DYZPa2y2tL2Ek0/op6krVNG7zvyEd/B8A0=
+        b=rq/UHO10Mi+Z7IO+Syzw8AVsbBwKzpwrUhy1fvwkNJuim1IrvD1Y9ojhdVMRdDsod
+         IFIPLmcXS/D2DCyqdGxDtK7SZ8p+kDdZi5EMgTTvU2tfuSHKjOAz/xkp5HjGPvfnyG
+         Lm+gEyF6aFSsGYL1NG6Zd71sL9qRCsqcPTp8MVAg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 57/71] Revert "niu: fix missing checks of niu_pci_eeprom_read"
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 046/127] ALSA: dice: fix stream format at middle sampling rate for Alesis iO 26
 Date:   Mon, 24 May 2021 17:26:03 +0200
-Message-Id: <20210524152328.311298807@linuxfoundation.org>
+Message-Id: <20210524152336.400366751@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 7930742d6a0ff091c85b92ef4e076432d8d8cb79 upstream.
+commit 1b6604896e78969baffc1b6cc6bc175f95929ac4 upstream.
 
-This reverts commit 26fd962bde0b15e54234fe762d86bc0349df1de4.
+Alesis iO 26 FireWire has two pairs of digital optical interface. It
+delivers PCM frames from the interfaces by second isochronous packet
+streaming. Although both of the interfaces are available at 44.1/48.0
+kHz, first one of them is only available at 88.2/96.0 kHz. It reduces
+the number of PCM samples to 4 in Multi Bit Linear Audio data channel
+of data blocks on the second isochronous packet streaming.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+This commit fixes hardcoded stream formats.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The change here was incorrect.  While it is nice to check if
-niu_pci_eeprom_read() succeeded or not when using the data, any error
-that might have happened was not propagated upwards properly, causing
-the kernel to assume that these reads were successful, which results in
-invalid data in the buffer that was to contain the successfully read
-data.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: 26fd962bde0b ("niu: fix missing checks of niu_pci_eeprom_read")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-23-gregkh@linuxfoundation.org
+Cc: <stable@vger.kernel.org>
+Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210513125652.110249-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ sound/firewire/dice/dice-alesis.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8097,8 +8097,6 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
+--- a/sound/firewire/dice/dice-alesis.c
++++ b/sound/firewire/dice/dice-alesis.c
+@@ -16,7 +16,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
+ static const unsigned int
+ alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
+ 	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
+-	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
++	{16, 4, 0},	/* Tx1 = ADAT1 + ADAT2 (available at low rate). */
+ };
  
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
--		if (prop_len < 0)
--			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8143,12 +8141,8 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++) {
--				err = niu_pci_eeprom_read(np, off + i);
--				if (err >= 0)
--					*prop_buf = err;
--				++prop_buf;
--			}
-+			for (i = 0; i < prop_len; i++)
-+				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
- 		}
- 
- 		start += len;
+ int snd_dice_detect_alesis_formats(struct snd_dice *dice)
 
 
