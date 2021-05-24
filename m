@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2F9C38EE44
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F79838EF0B
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234600AbhEXPrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:47:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35248 "EHLO mail.kernel.org"
+        id S234866AbhEXPzz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38646 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233728AbhEXPpk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:45:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7EB86145D;
-        Mon, 24 May 2021 15:36:30 +0000 (UTC)
+        id S234458AbhEXPyI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:54:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C3EE36141B;
+        Mon, 24 May 2021 15:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870591;
-        bh=GjSwwbWBpgFUSfZvxfDxsNL4iYVYyyqu5793WvmOiZY=;
+        s=korg; t=1621870773;
+        bh=h8SDQxAQR6aARdv6g//rvHxQQXax+farRV5g6s586Is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xHMYdsdVNbFfY3MdfoOwvfK2l0hmD6CDxvmClffjDStRQFB2GbPxbmHAas4K/ZbAf
-         bW8o3H//yT/o1aS/pLd/mfYD9+NMYXZL73dMjHoXtqlzqlVjYdeCsCeQBSDFXXUmhZ
-         1L6vapuxKWpG+Jyb1fpM3ZRS47TaQavs0huc4KPg=
+        b=Hb6B4DrjVXCc8YGB7XY3412TJeif2Zk7T+5jFmfCXDZ/QQPMN7Y5zXb6hLgjpFT3H
+         6j3BjsGUPRKHFfD657Ex4KXzLMYGUGtc5UGS+4oUd/Gh7+KDIGQIETplWPKno1RVyq
+         DduhWH1jWu9bLvk7bYENgUJVVK+Gld4iKv10mrNk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.4 16/71] btrfs: avoid RCU stalls while running delayed iputs
-Date:   Mon, 24 May 2021 17:25:22 +0200
-Message-Id: <20210524152326.990039852@linuxfoundation.org>
+        stable@vger.kernel.org, Leo Yan <leo.yan@linaro.org>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 028/104] locking/lockdep: Correct calling tracepoints
+Date:   Mon, 24 May 2021 17:25:23 +0200
+Message-Id: <20210524152333.747260779@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +40,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Leo Yan <leo.yan@linaro.org>
 
-commit 71795ee590111e3636cc3c148289dfa9fa0a5fc3 upstream.
+[ Upstream commit 89e70d5c583c55088faa2201d397ee30a15704aa ]
 
-Generally a delayed iput is added when we might do the final iput, so
-usually we'll end up sleeping while processing the delayed iputs
-naturally.  However there's no guarantee of this, especially for small
-files.  In production we noticed 5 instances of RCU stalls while testing
-a kernel release overnight across 1000 machines, so this is relatively
-common:
+The commit eb1f00237aca ("lockdep,trace: Expose tracepoints") reverses
+tracepoints for lock_contended() and lock_acquired(), thus the ftrace
+log shows the wrong locking sequence that "acquired" event is prior to
+"contended" event:
 
-  host count: 5
-  rcu: INFO: rcu_sched self-detected stall on CPU
-  rcu: ....: (20998 ticks this GP) idle=59e/1/0x4000000000000002 softirq=12333372/12333372 fqs=3208
-   	(t=21031 jiffies g=27810193 q=41075) NMI backtrace for cpu 1
-  CPU: 1 PID: 1713 Comm: btrfs-cleaner Kdump: loaded Not tainted 5.6.13-0_fbk12_rc1_5520_gec92bffc1ec9 #1
-  Call Trace:
-    <IRQ> dump_stack+0x50/0x70
-    nmi_cpu_backtrace.cold.6+0x30/0x65
-    ? lapic_can_unplug_cpu.cold.30+0x40/0x40
-    nmi_trigger_cpumask_backtrace+0xba/0xca
-    rcu_dump_cpu_stacks+0x99/0xc7
-    rcu_sched_clock_irq.cold.90+0x1b2/0x3a3
-    ? trigger_load_balance+0x5c/0x200
-    ? tick_sched_do_timer+0x60/0x60
-    ? tick_sched_do_timer+0x60/0x60
-    update_process_times+0x24/0x50
-    tick_sched_timer+0x37/0x70
-    __hrtimer_run_queues+0xfe/0x270
-    hrtimer_interrupt+0xf4/0x210
-    smp_apic_timer_interrupt+0x5e/0x120
-    apic_timer_interrupt+0xf/0x20 </IRQ>
-   RIP: 0010:queued_spin_lock_slowpath+0x17d/0x1b0
-   RSP: 0018:ffffc9000da5fe48 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
-   RAX: 0000000000000000 RBX: ffff889fa81d0cd8 RCX: 0000000000000029
-   RDX: ffff889fff86c0c0 RSI: 0000000000080000 RDI: ffff88bfc2da7200
-   RBP: ffff888f2dcdd768 R08: 0000000001040000 R09: 0000000000000000
-   R10: 0000000000000001 R11: ffffffff82a55560 R12: ffff88bfc2da7200
-   R13: 0000000000000000 R14: ffff88bff6c2a360 R15: ffffffff814bd870
-   ? kzalloc.constprop.57+0x30/0x30
-   list_lru_add+0x5a/0x100
-   inode_lru_list_add+0x20/0x40
-   iput+0x1c1/0x1f0
-   run_delayed_iput_locked+0x46/0x90
-   btrfs_run_delayed_iputs+0x3f/0x60
-   cleaner_kthread+0xf2/0x120
-   kthread+0x10b/0x130
+  <idle>-0       [001] d.s3 20803.501685: lock_acquire: 0000000008b91ab4 &sg_policy->update_lock
+  <idle>-0       [001] d.s3 20803.501686: lock_acquired: 0000000008b91ab4 &sg_policy->update_lock
+  <idle>-0       [001] d.s3 20803.501689: lock_contended: 0000000008b91ab4 &sg_policy->update_lock
+  <idle>-0       [001] d.s3 20803.501690: lock_release: 0000000008b91ab4 &sg_policy->update_lock
 
-Fix this by adding a cond_resched_lock() to the loop processing delayed
-iputs so we can avoid these sort of stalls.
+This patch fixes calling tracepoints for lock_contended() and
+lock_acquired().
 
-CC: stable@vger.kernel.org # 4.9+
-Reviewed-by: Rik van Riel <riel@surriel.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: eb1f00237aca ("lockdep,trace: Expose tracepoints")
+Signed-off-by: Leo Yan <leo.yan@linaro.org>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210512120937.90211-1-leo.yan@linaro.org
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/inode.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/locking/lockdep.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -3571,6 +3571,7 @@ void btrfs_run_delayed_iputs(struct btrf
- 		inode = list_first_entry(&fs_info->delayed_iputs,
- 				struct btrfs_inode, delayed_iput);
- 		run_delayed_iput_locked(fs_info, inode);
-+		cond_resched_lock(&fs_info->delayed_iput_lock);
- 	}
- 	spin_unlock(&fs_info->delayed_iput_lock);
- }
+diff --git a/kernel/locking/lockdep.c b/kernel/locking/lockdep.c
+index 38d7c03e694c..858b96b438ce 100644
+--- a/kernel/locking/lockdep.c
++++ b/kernel/locking/lockdep.c
+@@ -5664,7 +5664,7 @@ void lock_contended(struct lockdep_map *lock, unsigned long ip)
+ {
+ 	unsigned long flags;
+ 
+-	trace_lock_acquired(lock, ip);
++	trace_lock_contended(lock, ip);
+ 
+ 	if (unlikely(!lock_stat || !lockdep_enabled()))
+ 		return;
+@@ -5682,7 +5682,7 @@ void lock_acquired(struct lockdep_map *lock, unsigned long ip)
+ {
+ 	unsigned long flags;
+ 
+-	trace_lock_contended(lock, ip);
++	trace_lock_acquired(lock, ip);
+ 
+ 	if (unlikely(!lock_stat || !lockdep_enabled()))
+ 		return;
+-- 
+2.30.2
+
 
 
