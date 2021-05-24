@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDE7D38EDF3
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FBEB38EE4A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233282AbhEXPn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        id S233401AbhEXPsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233299AbhEXPmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:42:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C4AE61444;
-        Mon, 24 May 2021 15:34:52 +0000 (UTC)
+        id S233744AbhEXPqL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:46:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F26C56108E;
+        Mon, 24 May 2021 15:36:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870492;
-        bh=6uPdLOtWDwPTg23SaBpdldN7cAfKsfp4eOLSq3ZdXgY=;
+        s=korg; t=1621870595;
+        bh=pzldK/ODVQn7pBn2K65hBAv2hXuUOjSPmxb6eH4ybLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a6RPEbMC2ADUdmYsW6143uNXWsYw4o4oQwk06DorxMAZnrbgi7o0eLYHqCoXwicQ/
-         VPQCjYIsC+l2bXEmV6KtX9PrkXCJlohL9H8M/wMPXABevL5kAaxKuazapaEfItwJ7o
-         l2w3/nY8WU3Vy6WY43XPtkfBbn0EkbsI9uEwv0Xc=
+        b=rDWhd85mYEcpVZhdnPmc9D+cuzo8Mg1qmelT1uX5R+gLJqc+dfS71lsf09q2fqCjI
+         CKPbDtdMwSv6/PmN91hQiF5h7lhNxoj80xOMEyjNolO0Jej8kayU+go031FWo/W6zf
+         IoHLy7gcj6OaZYZMG7zhpxh1wppmqewZPfRzLnRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
         Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 4.19 13/49] ALSA: dice: fix stream format at middle sampling rate for Alesis iO 26
+Subject: [PATCH 5.4 18/71] ALSA: dice: fix stream format for TC Electronic Konnekt Live at high sampling transfer frequency
 Date:   Mon, 24 May 2021 17:25:24 +0200
-Message-Id: <20210524152324.813467449@linuxfoundation.org>
+Message-Id: <20210524152327.052940887@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,37 +41,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 1b6604896e78969baffc1b6cc6bc175f95929ac4 upstream.
+commit 4c6fe8c547e3c9e8c15dabdd23c569ee0df3adb1 upstream.
 
-Alesis iO 26 FireWire has two pairs of digital optical interface. It
-delivers PCM frames from the interfaces by second isochronous packet
-streaming. Although both of the interfaces are available at 44.1/48.0
-kHz, first one of them is only available at 88.2/96.0 kHz. It reduces
-the number of PCM samples to 4 in Multi Bit Linear Audio data channel
-of data blocks on the second isochronous packet streaming.
-
-This commit fixes hardcoded stream formats.
+At high sampling transfer frequency, TC Electronic Konnekt Live
+transfers/receives 6 audio data frames in multi bit linear audio data
+channel of data block in CIP payload. Current hard-coded stream format
+is wrong.
 
 Cc: <stable@vger.kernel.org>
-Fixes: 28b208f600a3 ("ALSA: dice: add parameters of stream formats for models produced by Alesis")
+Fixes: f1f0f330b1d0 ("ALSA: dice: add parameters of stream formats for models produced by TC Electronic")
 Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210513125652.110249-2-o-takashi@sakamocchi.jp
+Link: https://lore.kernel.org/r/20210518012612.37268-1-o-takashi@sakamocchi.jp
 Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/dice/dice-alesis.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/firewire/dice/dice-tcelectronic.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/firewire/dice/dice-alesis.c
-+++ b/sound/firewire/dice/dice-alesis.c
-@@ -16,7 +16,7 @@ alesis_io14_tx_pcm_chs[MAX_STREAMS][SND_
- static const unsigned int
- alesis_io26_tx_pcm_chs[MAX_STREAMS][SND_DICE_RATE_MODE_COUNT] = {
- 	{10, 10, 4},	/* Tx0 = Analog + S/PDIF. */
--	{16, 8, 0},	/* Tx1 = ADAT1 + ADAT2. */
-+	{16, 4, 0},	/* Tx1 = ADAT1 + ADAT2 (available at low rate). */
+--- a/sound/firewire/dice/dice-tcelectronic.c
++++ b/sound/firewire/dice/dice-tcelectronic.c
+@@ -38,8 +38,8 @@ static const struct dice_tc_spec konnekt
  };
  
- int snd_dice_detect_alesis_formats(struct snd_dice *dice)
+ static const struct dice_tc_spec konnekt_live = {
+-	.tx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
+-	.rx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
++	.tx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
++	.rx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
+ 	.has_midi = true,
+ };
+ 
 
 
