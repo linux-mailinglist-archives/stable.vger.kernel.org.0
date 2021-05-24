@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E3F038EFAC
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 77A8638EE74
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233450AbhEXP6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:58:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41116 "EHLO mail.kernel.org"
+        id S233631AbhEXPu5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:50:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234255AbhEXP6D (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 943F861960;
-        Mon, 24 May 2021 15:43:59 +0000 (UTC)
+        id S234073AbhEXPs0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:48:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A0AAE6140C;
+        Mon, 24 May 2021 15:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871040;
-        bh=oIaaE+lymUrXstD0xnY07JxPAhOLYAqdHuB9GSYkgWk=;
+        s=korg; t=1621870643;
+        bh=r+qOUP8I1x0Uf3zaMaSpwtVegyi7cRYHHzO84PIlcko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yBGKjWUnHjQeZjyF/v7Moj4oK4y0KKVjqsnOBz6ftxM1lqTSR0ns2c1kmNZ0qVJuZ
-         vTTaDDfiqgrpNCqbCjD2LcslnHFQWXrZhaunSbHWY2yfw6cwwrjlyPrjrFTPWAEZK8
-         0g2qShezaMuwPC9SZgk3c4T5RESEvdv9kE/TPSEY=
+        b=GRkp8SRpPCkP+QA+VMJO1uMreQhk/OKAzv105Xm0r9oLgMAu+xiK4JTSM6WLCSuS0
+         9O28OXoYQ7jVI8GBGsEpk2SPZ+x3pf3wZcRusCwtvrW7AmkgEP/Wp1UkCkb7/tOGjC
+         686agVVyPOPQnFvydbj/5l/PkvOd09e8DWfeORVE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
-        Javed Hasan <jhasan@marvell.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 011/127] scsi: qedf: Add pointer checks in qedf_update_link_speed()
+        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 22/71] ALSA: firewire-lib: fix calculation for size of IR context payload
 Date:   Mon, 24 May 2021 17:25:28 +0200
-Message-Id: <20210524152335.237280989@linuxfoundation.org>
+Message-Id: <20210524152327.185524929@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,63 +39,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 73578af92a0fae6609b955fcc9113e50e413c80f ]
+commit 1be4f21d9984fa9835fae5411a29465dc5aece6f upstream.
 
-The following trace was observed:
+The quadlets for CIP header is handled as a part of IR context header,
+thus it doesn't join in IR context payload. However current calculation
+includes the quadlets in IR context payload.
 
- [   14.042059] Call Trace:
- [   14.042061]  <IRQ>
- [   14.042068]  qedf_link_update+0x144/0x1f0 [qedf]
- [   14.042117]  qed_link_update+0x5c/0x80 [qed]
- [   14.042135]  qed_mcp_handle_link_change+0x2d2/0x410 [qed]
- [   14.042155]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042170]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042186]  ? qed_rd+0x13/0x40 [qed]
- [   14.042205]  qed_mcp_handle_events+0x437/0x690 [qed]
- [   14.042221]  ? qed_set_ptt+0x70/0x80 [qed]
- [   14.042239]  qed_int_sp_dpc+0x3a6/0x3e0 [qed]
- [   14.042245]  tasklet_action_common.isra.14+0x5a/0x100
- [   14.042250]  __do_softirq+0xe4/0x2f8
- [   14.042253]  irq_exit+0xf7/0x100
- [   14.042255]  do_IRQ+0x7f/0xd0
- [   14.042257]  common_interrupt+0xf/0xf
- [   14.042259]  </IRQ>
-
-API qedf_link_update() is getting called from QED but by that time
-shost_data is not initialised. This results in a NULL pointer dereference
-when we try to dereference shost_data while updating supported_speeds.
-
-Add a NULL pointer check before dereferencing shost_data.
-
-Link: https://lore.kernel.org/r/20210512072533.23618-1-jhasan@marvell.com
-Fixes: 61d8658b4a43 ("scsi: qedf: Add QLogic FastLinQ offload FCoE driver framework.")
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Fixes: f11453c7cc01 ("ALSA: firewire-lib: use 16 bytes IR context header to separate CIP header")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210513125652.110249-5-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qedf/qedf_main.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/firewire/amdtp-stream.c |   13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/scsi/qedf/qedf_main.c b/drivers/scsi/qedf/qedf_main.c
-index cec27f2ef70d..e5076f09d5ed 100644
---- a/drivers/scsi/qedf/qedf_main.c
-+++ b/drivers/scsi/qedf/qedf_main.c
-@@ -536,7 +536,9 @@ static void qedf_update_link_speed(struct qedf_ctx *qedf,
- 	if (linkmode_intersects(link->supported_caps, sup_caps))
- 		lport->link_supported_speeds |= FC_PORTSPEED_20GBIT;
+--- a/sound/firewire/amdtp-stream.c
++++ b/sound/firewire/amdtp-stream.c
+@@ -932,23 +932,22 @@ static int amdtp_stream_start(struct amd
+ 		s->ctx_data.rx.last_syt_offset = TICKS_PER_CYCLE;
+ 	}
  
--	fc_host_supported_speeds(lport->host) = lport->link_supported_speeds;
-+	if (lport->host && lport->host->shost_data)
-+		fc_host_supported_speeds(lport->host) =
-+			lport->link_supported_speeds;
- }
+-	/* initialize packet buffer */
++	// initialize packet buffer.
++	max_ctx_payload_size = amdtp_stream_get_max_payload(s);
+ 	if (s->direction == AMDTP_IN_STREAM) {
+ 		dir = DMA_FROM_DEVICE;
+ 		type = FW_ISO_CONTEXT_RECEIVE;
+-		if (!(s->flags & CIP_NO_HEADER))
++		if (!(s->flags & CIP_NO_HEADER)) {
++			max_ctx_payload_size -= 8;
+ 			ctx_header_size = IR_CTX_HEADER_SIZE_CIP;
+-		else
++		} else {
+ 			ctx_header_size = IR_CTX_HEADER_SIZE_NO_CIP;
+-
+-		max_ctx_payload_size = amdtp_stream_get_max_payload(s) -
+-				       ctx_header_size;
++		}
+ 	} else {
+ 		dir = DMA_TO_DEVICE;
+ 		type = FW_ISO_CONTEXT_TRANSMIT;
+ 		ctx_header_size = 0;	// No effect for IT context.
  
- static void qedf_bw_update(void *dev)
--- 
-2.30.2
-
+-		max_ctx_payload_size = amdtp_stream_get_max_payload(s);
+ 		if (!(s->flags & CIP_NO_HEADER))
+ 			max_ctx_payload_size -= IT_PKT_HEADER_SIZE_CIP;
+ 	}
 
 
