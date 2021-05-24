@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C67F538EDDE
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9418038EDC8
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233954AbhEXPnJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56972 "EHLO mail.kernel.org"
+        id S233171AbhEXPmD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:42:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233789AbhEXPlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:41:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E21F76143C;
-        Mon, 24 May 2021 15:34:32 +0000 (UTC)
+        id S233535AbhEXPkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:40:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2ABD761437;
+        Mon, 24 May 2021 15:34:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870473;
-        bh=QrQ/JGAKmysykO5mHHJg3cAq/LSn7kZZ+2IwrYyvqKc=;
+        s=korg; t=1621870444;
+        bh=zCvAvct2Ojp/i7VFU458b/363KYlf4jd53mI2464BuE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z6UPIKdeKLgYopGZ9QZQZ5214wDs1rj5xcAZKUCYq8esjk+adp3aUsfg0THcjysoZ
-         Y9UsiYuEDfJOmDT2NKTIfEaNzKhnIoUcr/ln0D2gtW0hD6dp88cx3cFT2t4nId+ACn
-         fQTn4bVoBbetkckyQ7JNLA9jSd0HkbbsMxwPptos=
+        b=zFng4Lbjj1REubvsUsbGCpgCyh0e+s25XDvvvsWhMDpz8f0oZV+bMLEnElQoJYaw/
+         uv2ZfQpunMXr8Msu28pqeWzjHyOdlEYa99cMd20lRr6NHQ3wTOOGJGetN8hnal6jEP
+         vHnsmYAs/nFKH2ttXmD1wbJbegwxuGqjuFhN2XXM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Stafford Horne <shorne@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 02/49] openrisc: Fix a memory leak
-Date:   Mon, 24 May 2021 17:25:13 +0200
-Message-Id: <20210524152324.462991762@linuxfoundation.org>
+        stable@vger.kernel.org, Kailang Yang <kailang@realtek.com>,
+        Hui Wang <hui.wang@canonical.com>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.14 10/37] ALSA: hda/realtek: reset eapd coeff to default value for alc287
+Date:   Mon, 24 May 2021 17:25:14 +0200
+Message-Id: <20210524152324.538660701@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit c019d92457826bb7b2091c86f36adb5de08405f9 ]
+commit 8822702f6e4c8917c83ba79e0ebf2c8c218910d4 upstream.
 
-'setup_find_cpu_node()' take a reference on the node it returns.
-This reference must be decremented when not needed anymore, or there will
-be a leak.
+Ubuntu users reported an audio bug on the Lenovo Yoga Slim 7 14IIL05,
+he installed dual OS (Windows + Linux), if he booted to the Linux
+from Windows, the Speaker can't work well, it has crackling noise,
+if he poweroff the machine first after Windows, the Speaker worked
+well.
 
-Add the missing 'of_node_put(cpu)'.
+Before rebooting or shutdown from Windows, the Windows changes the
+codec eapd coeff value, but the BIOS doesn't re-initialize its value,
+when booting into the Linux from Windows, the eapd coeff value is not
+correct. To fix it, set the codec default value to that coeff register
+in the alsa driver.
 
-Note that 'setup_cpuinfo()' that also calls this function already has a
-correct 'of_node_put(cpu)' at its end.
-
-Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+BugLink: http://bugs.launchpad.net/bugs/1925057
+Suggested-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Link: https://lore.kernel.org/r/20210507024452.8300-1-hui.wang@canonical.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/openrisc/kernel/setup.c | 2 ++
- 1 file changed, 2 insertions(+)
+ sound/pci/hda/patch_realtek.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
-index 9d28ab14d139..f3a7375ac3cd 100644
---- a/arch/openrisc/kernel/setup.c
-+++ b/arch/openrisc/kernel/setup.c
-@@ -281,6 +281,8 @@ void calibrate_delay(void)
- 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
- 		loops_per_jiffy / (500000 / HZ),
- 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
-+
-+	of_node_put(cpu);
- }
- 
- void __init setup_arch(char **cmdline_p)
--- 
-2.30.2
-
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -341,7 +341,6 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0282:
+ 	case 0x10ec0283:
+ 	case 0x10ec0286:
+-	case 0x10ec0287:
+ 	case 0x10ec0288:
+ 	case 0x10ec0285:
+ 	case 0x10ec0298:
+@@ -352,6 +351,10 @@ static void alc_fill_eapd_coef(struct hd
+ 	case 0x10ec0275:
+ 		alc_update_coef_idx(codec, 0xe, 0, 1<<0);
+ 		break;
++	case 0x10ec0287:
++		alc_update_coef_idx(codec, 0x10, 1<<9, 0);
++		alc_write_coef_idx(codec, 0x8, 0x4ab7);
++		break;
+ 	case 0x10ec0293:
+ 		alc_update_coef_idx(codec, 0xa, 1<<13, 0);
+ 		break;
 
 
