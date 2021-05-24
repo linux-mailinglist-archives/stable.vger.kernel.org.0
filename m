@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0309E38ED60
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 679C838ED04
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:31:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233979AbhEXPgz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:36:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51512 "EHLO mail.kernel.org"
+        id S232627AbhEXPcn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:32:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233594AbhEXPey (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43BA36138C;
-        Mon, 24 May 2021 15:32:13 +0000 (UTC)
+        id S232517AbhEXPcI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:32:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 576CE6128B;
+        Mon, 24 May 2021 15:30:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870333;
-        bh=gAC8X44v/DAW6Ft4kgj+eMny2o3mMGv0TRRVGZTyjj0=;
+        s=korg; t=1621870238;
+        bh=3iOAUpIunq8o5uXAQzDcoek9kBPjKvTpZGYDo5alVaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wF2OcdwJRKEeCYzLXAqaW7KyjbQNknM1c2xxRdotG9GWfmK7ch73/lhiuha1+8Z6e
-         eRCC0G4BBfpdZb2hQp5DejrMyA9tqheI+D2p717am7qPIkAOIyMaiKCk9WrijVBOAw
-         1PlaQdPIqhgNjcQfz7Lnk0E3Ng6Ng7CJ3g97pjLE=
+        b=yPIVcFqBD6QgmgBjhcwKG6D3LG7TtbSLovW3R0Nvvt/FlsnFWlz+/QRhDdFFlcPzR
+         h08u1PDV74nxZ0td62GGMq9kfNBpTlZCJGJzZlMWY1ce4KqYwSWMK7tZv4dBNyLhct
+         EAqKPo2bYmtbv/Ti58DZseCFh2J/sSPYEg1eFrk4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 10/36] Revert "rapidio: fix a NULL pointer dereference when create_workqueue() fails"
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 12/31] Revert "net: stmicro: fix a missing check of clk_prepare"
 Date:   Mon, 24 May 2021 17:24:55 +0200
-Message-Id: <20210524152324.501549476@linuxfoundation.org>
+Message-Id: <20210524152323.323447103@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,9 +41,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 5e68b86c7b7c059c0f0ec4bf8adabe63f84a61eb upstream.
+commit bee1b0511844c8c79fccf1f2b13472393b6b91f7 upstream.
 
-This reverts commit 23015b22e47c5409620b1726a677d69e5cd032ba.
+This reverts commit f86a3b83833e7cfe558ca4d70b64ebc48903efec.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -56,38 +53,32 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original commit has a memory leak on the error path here, it does
-not clean up everything properly.
+The original commit causes a memory leak when it is trying to claim it
+is properly handling errors.  Revert this change and fix it up properly
+in a follow-on commit.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Fixes: 23015b22e47c ("rapidio: fix a NULL pointer dereference when create_workqueue() fails")
+Cc: David S. Miller <davem@davemloft.net>
+Fixes: f86a3b83833e ("net: stmicro: fix a missing check of clk_prepare")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-45-gregkh@linuxfoundation.org
+Link: https://lore.kernel.org/r/20210503115736.2104747-21-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/rapidio/rio_cm.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2147,14 +2147,6 @@ static int riocm_add_mport(struct device
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
- 	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
--	if (!cm->rx_wq) {
--		riocm_error("failed to allocate IBMBOX_%d on %s",
--			    cmbox, mport->name);
--		rio_release_outb_mbox(mport, cmbox);
--		kfree(cm);
--		return -ENOMEM;
--	}
--
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
+@@ -59,9 +59,7 @@ static int sun7i_gmac_init(struct platfo
+ 		gmac->clk_enabled = 1;
+ 	} else {
+ 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
+-		ret = clk_prepare(gmac->tx_clk);
+-		if (ret)
+-			return ret;
++		clk_prepare(gmac->tx_clk);
+ 	}
  
- 	cm->tx_slot = 0;
+ 	return 0;
 
 
