@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C81D838ED57
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8346438ED8C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:37:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233527AbhEXPgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:36:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51440 "EHLO mail.kernel.org"
+        id S233414AbhEXPjA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:39:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232797AbhEXPee (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96559613AD;
-        Mon, 24 May 2021 15:32:04 +0000 (UTC)
+        id S233988AbhEXPg5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:36:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 660A2613DB;
+        Mon, 24 May 2021 15:33:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870325;
-        bh=iLjv2BpjEpxLxEfUWOFHpbFCb3/nWsauqU8ooJ9BEsU=;
+        s=korg; t=1621870383;
+        bh=6L8WzktFjCYIak5wKTESUj9MXN/emiR3fNTG/0ZC2iw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F4WMrfTTbKn8bParmgs/HguvdEOTQ/bGpHQdUfKOqjfTZyTK1WLpLve5rGqOXp8jW
-         XxsON4INHiovEi2XbsCNqUew+swD9K4O7yYiSmpcjLt5jGwwZRKrFY92/OOvnicIfU
-         FcgeOEl247k96ecxa4EokxcznTlPKWl0avNlrNYc=
+        b=erPBpPtSX8kaiT6bduLb0WxYRbX3JACJsfDeM/rnXo/BygEKSHPZY/EIi1IryBgO7
+         BcGgS0TVHZvCSFy3PQoojrjAUZ9cr1SY2UTrCnyXwjzrwCOPD32C4bdnCTG1gAJ2ue
+         iED17hPlFud1FjQ7T0MHP5E4aD4Vljc+TLfg6m2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Finn Thain <fthain@telegraphics.com.au>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Rob Herring <robh@kernel.org>
-Subject: [PATCH 4.9 19/36] Revert "video: imsttfb: fix potential NULL pointer dereferences"
-Date:   Mon, 24 May 2021 17:25:04 +0200
-Message-Id: <20210524152324.780323540@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 01/37] openrisc: Fix a memory leak
+Date:   Mon, 24 May 2021 17:25:05 +0200
+Message-Id: <20210524152324.250462464@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -42,54 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit ed04fe8a0e87d7b5ea17d47f4ac9ec962b24814a upstream.
+[ Upstream commit c019d92457826bb7b2091c86f36adb5de08405f9 ]
 
-This reverts commit 1d84353d205a953e2381044953b7fa31c8c9702d.
+'setup_find_cpu_node()' take a reference on the node it returns.
+This reference must be decremented when not needed anymore, or there will
+be a leak.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Add the missing 'of_node_put(cpu)'.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+Note that 'setup_cpuinfo()' that also calls this function already has a
+correct 'of_node_put(cpu)' at its end.
 
-The original commit here, while technically correct, did not fully
-handle all of the reported issues that the commit stated it was fixing,
-so revert it until it can be "fixed" fully.
-
-Note, ioremap() probably will never fail for old hardware like this, and
-if anyone actually used this hardware (a PowerMac era PCI display card),
-they would not be using fbdev anymore.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Finn Thain <fthain@telegraphics.com.au>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Reviewed-by: Rob Herring <robh@kernel.org>
-Fixes: 1d84353d205a ("video: imsttfb: fix potential NULL pointer dereferences")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-67-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9d02a4283e9c ("OpenRISC: Boot code")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/imsttfb.c |    5 -----
- 1 file changed, 5 deletions(-)
+ arch/openrisc/kernel/setup.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/video/fbdev/imsttfb.c
-+++ b/drivers/video/fbdev/imsttfb.c
-@@ -1516,11 +1516,6 @@ static int imsttfb_probe(struct pci_dev
- 	info->fix.smem_start = addr;
- 	info->screen_base = (__u8 *)ioremap(addr, par->ramdac == IBM ?
- 					    0x400000 : 0x800000);
--	if (!info->screen_base) {
--		release_mem_region(addr, size);
--		framebuffer_release(info);
--		return -ENOMEM;
--	}
- 	info->fix.mmio_start = addr + 0x800000;
- 	par->dc_regs = ioremap(addr + 0x800000, 0x1000);
- 	par->cmap_regs_phys = addr + 0x840000;
+diff --git a/arch/openrisc/kernel/setup.c b/arch/openrisc/kernel/setup.c
+index dbf5ee95a0d5..b29aa3237e76 100644
+--- a/arch/openrisc/kernel/setup.c
++++ b/arch/openrisc/kernel/setup.c
+@@ -260,6 +260,8 @@ void calibrate_delay(void)
+ 	pr_cont("%lu.%02lu BogoMIPS (lpj=%lu)\n",
+ 		loops_per_jiffy / (500000 / HZ),
+ 		(loops_per_jiffy / (5000 / HZ)) % 100, loops_per_jiffy);
++
++	of_node_put(cpu);
+ }
+ 
+ void __init setup_arch(char **cmdline_p)
+-- 
+2.30.2
+
 
 
