@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AAE9338EDBE
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3450138EF6C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232548AbhEXPlZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
+        id S235005AbhEXP51 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233527AbhEXPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E3FE761422;
-        Mon, 24 May 2021 15:33:48 +0000 (UTC)
+        id S234557AbhEXP4b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6585461457;
+        Mon, 24 May 2021 15:42:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870429;
-        bh=30UboduEteUD7DbeI9zlzKBdoN62rm3KX0iqz8akjow=;
+        s=korg; t=1621870974;
+        bh=vf1coNbYQp2Fl7VwcfI2tqUoLExfsfhtsgdG0UjBLkU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0hC1UzCy204Y7nkjbyCFh2n9REQX0xAfniExnQdPq83aWBXVMU4+CIqF4yVLbcCPo
-         ozzWRLmKpeZVNz0Hvj7bgHlhMu21/rAl3DBA1u4Nv9E3gmbNtYvpMossey9eTjknx1
-         JZZhxv9MlgrKmrt5GIHm8bfA3T2dpyxfU3T0Gy1U=
+        b=k/4xLZx89IWGoMxzMjwZIAwXbeMi5q7s8vYOmvsAxamOZrypYpoYWikbCUpcSpm7W
+         efv1W+ChRIvcINTgMaLhSDPqQqh6AuYk5ohchDy9sxxItlYTUrpUEy/1JFv1DBvwvH
+         MvL6eMhpzWXnoW/o6RqGJx55kF42Uuqzq4IsOvA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Du Cheng <ducheng2@gmail.com>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 29/37] ethernet: sun: niu: fix missing checks of niu_pci_eeprom_read()
+        stable@vger.kernel.org, Shay Drory <shayd@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 016/127] RDMA/core: Dont access cm_id after its destruction
 Date:   Mon, 24 May 2021 17:25:33 +0200
-Message-Id: <20210524152325.157686496@linuxfoundation.org>
+Message-Id: <20210524152335.406314882@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,121 +41,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Du Cheng <ducheng2@gmail.com>
+From: Shay Drory <shayd@nvidia.com>
 
-commit e6e337708c22f80824b82d4af645f20715730ad0 upstream.
+[ Upstream commit 889d916b6f8a48b8c9489fffcad3b78eedd01a51 ]
 
-niu_pci_eeprom_read() may fail, so add checks to its return value and
-propagate the error up the callstack.
+restrack should only be attached to a cm_id while the ID has a valid
+device pointer. It is set up when the device is first loaded, but not
+cleared when the device is removed. There is also two copies of the device
+pointer, one private and one in the public API, and these were left out of
+sync.
 
-An examination of the callstack up to niu_pci_eeprom_read shows that:
+Make everything go to NULL together and manipulate restrack right around
+the device assignments.
 
-niu_pci_eeprom_read() // returns int
-    niu_pci_vpd_scan_props() // returns int
-        niu_pci_vpd_fetch() // returns *void*
-            niu_get_invariants() // returns int
+Found by syzcaller:
+BUG: KASAN: wild-memory-access in __list_del include/linux/list.h:112 [inline]
+BUG: KASAN: wild-memory-access in __list_del_entry include/linux/list.h:135 [inline]
+BUG: KASAN: wild-memory-access in list_del include/linux/list.h:146 [inline]
+BUG: KASAN: wild-memory-access in cma_cancel_listens drivers/infiniband/core/cma.c:1767 [inline]
+BUG: KASAN: wild-memory-access in cma_cancel_operation drivers/infiniband/core/cma.c:1795 [inline]
+BUG: KASAN: wild-memory-access in cma_cancel_operation+0x1f4/0x4b0 drivers/infiniband/core/cma.c:1783
+Write of size 8 at addr dead000000000108 by task syz-executor716/334
 
-since niu_pci_vpd_fetch() returns void which breaks the bubbling up,
-change its return type to int so that error is propagated upwards.
+CPU: 0 PID: 334 Comm: syz-executor716 Not tainted 5.11.0+ #271
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS
+rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ __dump_stack lib/dump_stack.c:79 [inline]
+ dump_stack+0xbe/0xf9 lib/dump_stack.c:120
+ __kasan_report mm/kasan/report.c:400 [inline]
+ kasan_report.cold+0x5f/0xd5 mm/kasan/report.c:413
+ __list_del include/linux/list.h:112 [inline]
+ __list_del_entry include/linux/list.h:135 [inline]
+ list_del include/linux/list.h:146 [inline]
+ cma_cancel_listens drivers/infiniband/core/cma.c:1767 [inline]
+ cma_cancel_operation drivers/infiniband/core/cma.c:1795 [inline]
+ cma_cancel_operation+0x1f4/0x4b0 drivers/infiniband/core/cma.c:1783
+ _destroy_id+0x29/0x460 drivers/infiniband/core/cma.c:1862
+ ucma_close_id+0x36/0x50 drivers/infiniband/core/ucma.c:185
+ ucma_destroy_private_ctx+0x58d/0x5b0 drivers/infiniband/core/ucma.c:576
+ ucma_close+0x91/0xd0 drivers/infiniband/core/ucma.c:1797
+ __fput+0x169/0x540 fs/file_table.c:280
+ task_work_run+0xb7/0x100 kernel/task_work.c:140
+ exit_task_work include/linux/task_work.h:30 [inline]
+ do_exit+0x7da/0x17f0 kernel/exit.c:825
+ do_group_exit+0x9e/0x190 kernel/exit.c:922
+ __do_sys_exit_group kernel/exit.c:933 [inline]
+ __se_sys_exit_group kernel/exit.c:931 [inline]
+ __x64_sys_exit_group+0x2d/0x30 kernel/exit.c:931
+ do_syscall_64+0x2d/0x40 arch/x86/entry/common.c:46
+ entry_SYSCALL_64_after_hwframe+0x44/0xa9
 
-Signed-off-by: Du Cheng <ducheng2@gmail.com>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-24-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 255d0c14b375 ("RDMA/cma: rdma_bind_addr() leaks a cma_dev reference count")
+Link: https://lore.kernel.org/r/3352ee288fe34f2b44220457a29bfc0548686363.1620711734.git.leonro@nvidia.com
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/sun/niu.c |   34 ++++++++++++++++++++++++----------
- 1 file changed, 24 insertions(+), 10 deletions(-)
+ drivers/infiniband/core/cma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8117,6 +8117,8 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
- 
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
-+		if (prop_len < 0)
-+			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8161,8 +8163,12 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++)
--				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
-+			for (i = 0; i < prop_len; i++) {
-+				err =  niu_pci_eeprom_read(np, off + i);
-+				if (err < 0)
-+					return err;
-+				*prop_buf++ = err;
-+			}
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index 6ac07911a17b..5b9022a8c9ec 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -482,6 +482,7 @@ static void cma_release_dev(struct rdma_id_private *id_priv)
+ 	list_del(&id_priv->list);
+ 	cma_dev_put(id_priv->cma_dev);
+ 	id_priv->cma_dev = NULL;
++	id_priv->id.device = NULL;
+ 	if (id_priv->id.route.addr.dev_addr.sgid_attr) {
+ 		rdma_put_gid_attr(id_priv->id.route.addr.dev_addr.sgid_attr);
+ 		id_priv->id.route.addr.dev_addr.sgid_attr = NULL;
+@@ -1864,6 +1865,7 @@ static void _destroy_id(struct rdma_id_private *id_priv,
+ 				iw_destroy_cm_id(id_priv->cm_id.iw);
  		}
- 
- 		start += len;
-@@ -8172,14 +8178,14 @@ static int niu_pci_vpd_scan_props(struct
- }
- 
- /* ESPC_PIO_EN_ENABLE must be set */
--static void niu_pci_vpd_fetch(struct niu *np, u32 start)
-+static int niu_pci_vpd_fetch(struct niu *np, u32 start)
- {
- 	u32 offset;
- 	int err;
- 
- 	err = niu_pci_eeprom_read16_swp(np, start + 1);
- 	if (err < 0)
--		return;
-+		return err;
- 
- 	offset = err + 3;
- 
-@@ -8188,12 +8194,14 @@ static void niu_pci_vpd_fetch(struct niu
- 		u32 end;
- 
- 		err = niu_pci_eeprom_read(np, here);
-+		if (err < 0)
-+			return err;
- 		if (err != 0x90)
--			return;
-+			return -EINVAL;
- 
- 		err = niu_pci_eeprom_read16_swp(np, here + 1);
- 		if (err < 0)
--			return;
-+			return err;
- 
- 		here = start + offset + 3;
- 		end = start + offset + err;
-@@ -8201,9 +8209,12 @@ static void niu_pci_vpd_fetch(struct niu
- 		offset += err;
- 
- 		err = niu_pci_vpd_scan_props(np, here, end);
--		if (err < 0 || err == 1)
--			return;
-+		if (err < 0)
-+			return err;
-+		if (err == 1)
-+			return -EINVAL;
+ 		cma_leave_mc_groups(id_priv);
++		rdma_restrack_del(&id_priv->res);
+ 		cma_release_dev(id_priv);
  	}
-+	return 0;
+ 
+@@ -1877,7 +1879,6 @@ static void _destroy_id(struct rdma_id_private *id_priv,
+ 	kfree(id_priv->id.route.path_rec);
+ 
+ 	put_net(id_priv->id.route.addr.dev_addr.net);
+-	rdma_restrack_del(&id_priv->res);
+ 	kfree(id_priv);
  }
  
- /* ESPC_PIO_EN_ENABLE must be set */
-@@ -9294,8 +9305,11 @@ static int niu_get_invariants(struct niu
- 		offset = niu_pci_vpd_offset(np);
- 		netif_printk(np, probe, KERN_DEBUG, np->dev,
- 			     "%s() VPD offset [%08x]\n", __func__, offset);
--		if (offset)
--			niu_pci_vpd_fetch(np, offset);
-+		if (offset) {
-+			err = niu_pci_vpd_fetch(np, offset);
-+			if (err < 0)
-+				return err;
-+		}
- 		nw64(ESPC_PIO_EN, 0);
+@@ -3740,7 +3741,7 @@ int rdma_listen(struct rdma_cm_id *id, int backlog)
+ 	}
  
- 		if (np->flags & NIU_FLAGS_VPD_VALID) {
+ 	id_priv->backlog = backlog;
+-	if (id->device) {
++	if (id_priv->cma_dev) {
+ 		if (rdma_cap_ib_cm(id->device, 1)) {
+ 			ret = cma_ib_listen(id_priv);
+ 			if (ret)
+-- 
+2.30.2
+
 
 
