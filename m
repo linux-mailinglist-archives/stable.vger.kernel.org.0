@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EEBF538EDDC
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F9B038EE42
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234137AbhEXPnI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56968 "EHLO mail.kernel.org"
+        id S234507AbhEXPrf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:47:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233783AbhEXPlE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:41:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8A5C861442;
-        Mon, 24 May 2021 15:34:28 +0000 (UTC)
+        id S233363AbhEXPpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:45:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 207F66146D;
+        Mon, 24 May 2021 15:36:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870469;
-        bh=/gpb6fmUgW9Nxnbc7m9rX/qShVly9KPG7W6YvQMouIA=;
+        s=korg; t=1621870588;
+        bh=y4gE5u2iTP1KQezPI+ihblRALTW23y/htA7AjUmTlmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gQevEP2HTYqD+Lsji+hlD+pquXjUUV+qszMK4vHBMmz75ep0S/gXiB0liIyDzeD3I
-         +ACA9d9OV3iL8HmyLJH4PXLHszPVQ2WGQYFANcV5SeE6zs9n/glYeRJ1BlJ6CAZd/L
-         CZGxTuxjI3rzWEutgDQ3mBQmCsZb4aefU5iFmos0=
+        b=SUCt+/kGE9K6IKVHsiz0f/ULMZTQ/EUzjeMpUBGUfadh1boiCD4lGiRmgtB6/KsWX
+         dmP4toK90zK9naE47G4LVsQ+O7Oth5R5mv0tz17grD4pyBLy3yq5mIDYg14EkLoeLv
+         Q8OxhcSYvCO9CfZLpXx1yATEXO5p3t/9BhGUl5Mo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 4.19 10/49] cifs: fix memory leak in smb2_copychunk_range
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Zqiang <qiang.zhang@windriver.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 15/71] locking/mutex: clear MUTEX_FLAGS if wait_list is empty due to signal
 Date:   Mon, 24 May 2021 17:25:21 +0200
-Message-Id: <20210524152324.723822973@linuxfoundation.org>
+Message-Id: <20210524152326.958132034@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Zqiang <qiang.zhang@windriver.com>
 
-commit d201d7631ca170b038e7f8921120d05eec70d7c5 upstream.
+[ Upstream commit 3a010c493271f04578b133de977e0e5dd2848cea ]
 
-When using smb2_copychunk_range() for large ranges we will
-run through several iterations of a loop calling SMB2_ioctl()
-but never actually free the returned buffer except for the final
-iteration.
-This leads to memory leaks everytime a large copychunk is requested.
+When a interruptible mutex locker is interrupted by a signal
+without acquiring this lock and removed from the wait queue.
+if the mutex isn't contended enough to have a waiter
+put into the wait queue again, the setting of the WAITER
+bit will force mutex locker to go into the slowpath to
+acquire the lock every time, so if the wait queue is empty,
+the WAITER bit need to be clear.
 
-Fixes: 9bf0c9cd4314 ("CIFS: Fix SMB2/SMB3 Copy offload support (refcopy) for large files")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 040a0a371005 ("mutex: Add support for wound/wait style locks")
+Suggested-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Zqiang <qiang.zhang@windriver.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20210517034005.30828-1-qiang.zhang@windriver.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ kernel/locking/mutex-debug.c |  4 ++--
+ kernel/locking/mutex-debug.h |  2 +-
+ kernel/locking/mutex.c       | 18 +++++++++++++-----
+ kernel/locking/mutex.h       |  4 +---
+ 4 files changed, 17 insertions(+), 11 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1174,6 +1174,8 @@ smb2_copychunk_range(const unsigned int
- 			cpu_to_le32(min_t(u32, len, tcon->max_bytes_chunk));
+diff --git a/kernel/locking/mutex-debug.c b/kernel/locking/mutex-debug.c
+index 771d4ca96dda..4fe40910f471 100644
+--- a/kernel/locking/mutex-debug.c
++++ b/kernel/locking/mutex-debug.c
+@@ -57,7 +57,7 @@ void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 	task->blocked_on = waiter;
+ }
  
- 		/* Request server copy to target from src identified by key */
-+		kfree(retbuf);
-+		retbuf = NULL;
- 		rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid, FSCTL_SRV_COPYCHUNK_WRITE,
- 			true /* is_fsctl */, (char *)pcchunk,
+-void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 			 struct task_struct *task)
+ {
+ 	DEBUG_LOCKS_WARN_ON(list_empty(&waiter->list));
+@@ -65,7 +65,7 @@ void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 	DEBUG_LOCKS_WARN_ON(task->blocked_on != waiter);
+ 	task->blocked_on = NULL;
+ 
+-	list_del_init(&waiter->list);
++	INIT_LIST_HEAD(&waiter->list);
+ 	waiter->task = NULL;
+ }
+ 
+diff --git a/kernel/locking/mutex-debug.h b/kernel/locking/mutex-debug.h
+index 1edd3f45a4ec..53e631e1d76d 100644
+--- a/kernel/locking/mutex-debug.h
++++ b/kernel/locking/mutex-debug.h
+@@ -22,7 +22,7 @@ extern void debug_mutex_free_waiter(struct mutex_waiter *waiter);
+ extern void debug_mutex_add_waiter(struct mutex *lock,
+ 				   struct mutex_waiter *waiter,
+ 				   struct task_struct *task);
+-extern void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
++extern void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 				struct task_struct *task);
+ extern void debug_mutex_unlock(struct mutex *lock);
+ extern void debug_mutex_init(struct mutex *lock, const char *name,
+diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
+index 07a9f9f46e03..c0c7784f074b 100644
+--- a/kernel/locking/mutex.c
++++ b/kernel/locking/mutex.c
+@@ -204,7 +204,7 @@ static inline bool __mutex_waiter_is_first(struct mutex *lock, struct mutex_wait
+  * Add @waiter to a given location in the lock wait_list and set the
+  * FLAG_WAITERS flag if it's the first waiter.
+  */
+-static void __sched
++static void
+ __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 		   struct list_head *list)
+ {
+@@ -215,6 +215,16 @@ __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
+ 		__mutex_set_flag(lock, MUTEX_FLAG_WAITERS);
+ }
+ 
++static void
++__mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter)
++{
++	list_del(&waiter->list);
++	if (likely(list_empty(&lock->wait_list)))
++		__mutex_clear_flag(lock, MUTEX_FLAGS);
++
++	debug_mutex_remove_waiter(lock, waiter, current);
++}
++
+ /*
+  * Give up ownership to a specific task, when @task = NULL, this is equivalent
+  * to a regular unlock. Sets PICKUP on a handoff, clears HANDOF, preserves
+@@ -1071,9 +1081,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 			__ww_mutex_check_waiters(lock, ww_ctx);
+ 	}
+ 
+-	mutex_remove_waiter(lock, &waiter, current);
+-	if (likely(list_empty(&lock->wait_list)))
+-		__mutex_clear_flag(lock, MUTEX_FLAGS);
++	__mutex_remove_waiter(lock, &waiter);
+ 
+ 	debug_mutex_free_waiter(&waiter);
+ 
+@@ -1090,7 +1098,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ 
+ err:
+ 	__set_current_state(TASK_RUNNING);
+-	mutex_remove_waiter(lock, &waiter, current);
++	__mutex_remove_waiter(lock, &waiter);
+ err_early_kill:
+ 	spin_unlock(&lock->wait_lock);
+ 	debug_mutex_free_waiter(&waiter);
+diff --git a/kernel/locking/mutex.h b/kernel/locking/mutex.h
+index 1c2287d3fa71..f0c710b1d192 100644
+--- a/kernel/locking/mutex.h
++++ b/kernel/locking/mutex.h
+@@ -10,12 +10,10 @@
+  * !CONFIG_DEBUG_MUTEXES case. Most of them are NOPs:
+  */
+ 
+-#define mutex_remove_waiter(lock, waiter, task) \
+-		__list_del((waiter)->list.prev, (waiter)->list.next)
+-
+ #define debug_mutex_wake_waiter(lock, waiter)		do { } while (0)
+ #define debug_mutex_free_waiter(waiter)			do { } while (0)
+ #define debug_mutex_add_waiter(lock, waiter, ti)	do { } while (0)
++#define debug_mutex_remove_waiter(lock, waiter, ti)     do { } while (0)
+ #define debug_mutex_unlock(lock)			do { } while (0)
+ #define debug_mutex_init(lock, name, key)		do { } while (0)
+ 
+-- 
+2.30.2
+
 
 
