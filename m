@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F184F38EFBB
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E061938EEA2
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:53:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234320AbhEXP7Y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45006 "EHLO mail.kernel.org"
+        id S234421AbhEXPwl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:52:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235562AbhEXP6d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 677C66195A;
-        Mon, 24 May 2021 15:44:23 +0000 (UTC)
+        id S233525AbhEXPuh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:50:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43E4461623;
+        Mon, 24 May 2021 15:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871063;
-        bh=ZUTBNKxxxfq9G9Y4cC7y7d4x5/l8iXdOoffAoaWCkKs=;
+        s=korg; t=1621870703;
+        bh=CrtzNuv8rmWtIa9BCzud4rm4wY50FiTl/tCmJhw7PDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GJ7LjRgfscxpJ6+G0ilolAcEPHXZ7ns8PwLvTtSyK1VDV0XY8toSOHp+VTdcYjumz
-         iKEqD5MpMW8jdMzTVJFsZ7dy/OE+kT3od+frCFLVzEPqfXk8nq66Mo/8HTyIQhZGRU
-         kYp9ikLvkmlDLxEI0OidgZ/3d8mnRzkkF+Ygfa58=
+        b=Ob0Q5OrrHYhQfgJb9wwP0c32VHo89F8hR07eBIfEu2z22zp43xnfQ0wadt9HXyQKd
+         Yj/AhOPctfFb9Al7Th1YMSl285tKTBzyuKpJoU5yMfkQbmHkwNbo/HUA+3zIFKEghu
+         xKbPdMgwT2B0aUb26kZtlg4BlLqRyJCsEp04zGQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Elia Devito <eliadevito@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 057/127] ALSA: hda/realtek: Add fixup for HP Spectre x360 15-df0xxx
+        stable@vger.kernel.org,
+        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 5.4 68/71] tty: vt: always invoke vc->vc_sw->con_resize callback
 Date:   Mon, 24 May 2021 17:26:14 +0200
-Message-Id: <20210524152336.771338275@linuxfoundation.org>
+Message-Id: <20210524152328.656485882@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Elia Devito <eliadevito@gmail.com>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit f2be77fee648ddd6d0d259d3527344ba0120e314 upstream.
+commit ffb324e6f874121f7dce5bdae5e05d02baae7269 upstream.
 
-Fixup to enable all 4 speaker on HP Spectre x360 15-df0xxx and probably
-on similar models.
+syzbot is reporting OOB write at vga16fb_imageblit() [1], for
+resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
+requested rows/columns fit the amount of memory reserved for the graphical
+screen if current mode is KD_GRAPHICS.
 
-0x14 pin config override is required to enable all speakers and
-alc285-speaker2-to-dac1 fixup to enable volume adjustment.
+----------
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <sys/ioctl.h>
+  #include <linux/kd.h>
+  #include <linux/vt.h>
 
-BugLink: https://bugzilla.kernel.org/show_bug.cgi?id=189331
-Signed-off-by: Elia Devito <eliadevito@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210511124651.4802-1-eliadevito@gmail.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+  int main(int argc, char *argv[])
+  {
+        const int fd = open("/dev/char/4:1", O_RDWR);
+        struct vt_sizes vt = { 0x4100, 2 };
+
+        ioctl(fd, KDSETMODE, KD_GRAPHICS);
+        ioctl(fd, VT_RESIZE, &vt);
+        ioctl(fd, KDSETMODE, KD_TEXT);
+        return 0;
+  }
+----------
+
+Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
+KD_GRAPHICS check from resize_screen() to fbcon_resize().
+
+Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
+Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/tty/vt/vt.c              |    2 +-
+ drivers/video/fbdev/core/fbcon.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -6534,6 +6534,7 @@ enum {
- 	ALC285_FIXUP_IDEAPAD_S740_COEF,
- 	ALC295_FIXUP_ASUS_DACS,
- 	ALC295_FIXUP_HP_OMEN,
-+	ALC285_FIXUP_HP_SPECTRE_X360,
- };
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -1166,7 +1166,7 @@ static inline int resize_screen(struct v
+ 	/* Resizes the resolution of the display adapater */
+ 	int err = 0;
  
- static const struct hda_fixup alc269_fixups[] = {
-@@ -8085,6 +8086,15 @@ static const struct hda_fixup alc269_fix
- 		.chained = true,
- 		.chain_id = ALC269_FIXUP_HP_LINE1_MIC1_LED,
- 	},
-+	[ALC285_FIXUP_HP_SPECTRE_X360] = {
-+		.type = HDA_FIXUP_PINS,
-+		.v.pins = (const struct hda_pintbl[]) {
-+			{ 0x14, 0x90170110 }, /* enable top speaker */
-+			{}
-+		},
-+		.chained = true,
-+		.chain_id = ALC285_FIXUP_SPEAKER2_TO_DAC1,
-+	},
- };
+-	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
++	if (vc->vc_sw->con_resize)
+ 		err = vc->vc_sw->con_resize(vc, width, height, user);
  
- static const struct snd_pci_quirk alc269_fixup_tbl[] = {
-@@ -8245,6 +8255,7 @@ static const struct snd_pci_quirk alc269
- 	SND_PCI_QUIRK(0x103c, 0x8497, "HP Envy x360", ALC269_FIXUP_HP_MUTE_LED_MIC3),
- 	SND_PCI_QUIRK(0x103c, 0x84da, "HP OMEN dc0019-ur", ALC295_FIXUP_HP_OMEN),
- 	SND_PCI_QUIRK(0x103c, 0x84e7, "HP Pavilion 15", ALC269_FIXUP_HP_MUTE_LED_MIC3),
-+	SND_PCI_QUIRK(0x103c, 0x8519, "HP Spectre x360 15-df0xxx", ALC285_FIXUP_HP_SPECTRE_X360),
- 	SND_PCI_QUIRK(0x103c, 0x869d, "HP", ALC236_FIXUP_HP_MUTE_LED),
- 	SND_PCI_QUIRK(0x103c, 0x86c7, "HP Envy AiO 32", ALC274_FIXUP_HP_ENVY_GPIO),
- 	SND_PCI_QUIRK(0x103c, 0x8724, "HP EliteBook 850 G7", ALC285_FIXUP_HP_GPIO_LED),
-@@ -8665,6 +8676,7 @@ static const struct hda_model_fixup alc2
- 	{.id = ALC274_FIXUP_HP_MIC, .name = "alc274-hp-mic-detect"},
- 	{.id = ALC245_FIXUP_HP_X360_AMP, .name = "alc245-hp-x360-amp"},
- 	{.id = ALC295_FIXUP_HP_OMEN, .name = "alc295-hp-omen"},
-+	{.id = ALC285_FIXUP_HP_SPECTRE_X360, .name = "alc285-hp-spectre-x360"},
- 	{}
- };
- #define ALC225_STANDARD_PINS \
+ 	return err;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2058,7 +2058,7 @@ static int fbcon_resize(struct vc_data *
+ 			return -EINVAL;
+ 
+ 		DPRINTK("resize now %ix%i\n", var.xres, var.yres);
+-		if (con_is_visible(vc)) {
++		if (con_is_visible(vc) && vc->vc_mode == KD_TEXT) {
+ 			var.activate = FB_ACTIVATE_NOW |
+ 				FB_ACTIVATE_FORCE;
+ 			fb_set_var(info, &var);
 
 
