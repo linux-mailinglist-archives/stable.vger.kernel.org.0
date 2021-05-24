@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E888538E9C9
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:49:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2E6038E9CE
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:49:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233168AbhEXOuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54986 "EHLO mail.kernel.org"
+        id S233631AbhEXOvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233620AbhEXOtL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:49:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E79D613F5;
-        Mon, 24 May 2021 14:47:25 +0000 (UTC)
+        id S233652AbhEXOtR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:49:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D48613FE;
+        Mon, 24 May 2021 14:47:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867646;
-        bh=Kji/SL/Q169iv2cO8f5kc2sJ612BTBImf1Vd4mVPAxk=;
+        s=k20201202; t=1621867647;
+        bh=J/bY1BDA2WepYFUzY74lWoOzigSPgpgyi+ZouIRDfug=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mz3QIJsZlc10A+jNuqhU19FCejAH61nIpyhn5ifRJj/07iwshC9Lw5BoaIZhCeDR+
-         QKOa4DOTqRUjaMRAOt+3lwgOA6uz6PRonJbNsvw7zo0wht/k8D51wGX3n/kopM6zMv
-         Ewr5+aAuYnu4aLwpgpM4iBCFSqruYxHV4LBc+9NvrWiNaf3PjBMWD5Nr8oebZzOQVR
-         o4KNJjbT5Wt04E9fdntUMXbKSIHP0Y0mz3mQHS03yH5BY9tK1tdIKQl10Ax8mL6Y+t
-         7vygjpfAa01K+biSvDXPivnrikTnOct2wDZ6KCCSvbKO/2/5KVLtn4c8t1jFmAgCs5
-         5eZJVyJpVa0EA==
+        b=JSS/RU1qiAGhUo7Ex4Emsy/YlPtrndyipXQ1yRQzPmo6XogKavME9bUKSHnqPghQR
+         NYNIWvJnEa0Ldj0nOMuBtAzY2SMnBknZud0QO0RV+UJtmtFqLr2XWQwrSzpPaZxMEq
+         9l+1VR3b5zsNDka1GHVzcNzQBJWduZJw+zhO0y6Cp646jz4/h+VNSNB7M2VlhsjzUW
+         GgZFnF/Ps2VId/EzrDIy2ToPviM/ebv8yW4crt92M5uiMa2n2GGGRcZf0KOzCaEsep
+         6d4X1i1EwDUmSI/M2UYM8R+3VjqTItHR4IEU75qystJa+6gryTj+j8e8mqAtaZNWpK
+         IdP9iM/JO0Ihw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 50/63] btrfs: do not BUG_ON in link_to_fixup_dir
-Date:   Mon, 24 May 2021 10:46:07 -0400
-Message-Id: <20210524144620.2497249-50-sashal@kernel.org>
+Cc:     Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>,
+        alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 51/63] ALSA: dice: disable double_pcm_frames mode for M-Audio Profire 610, 2626 and Avid M-Box 3 Pro
+Date:   Mon, 24 May 2021 10:46:08 -0400
+Message-Id: <20210524144620.2497249-51-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -42,73 +42,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
+[ Upstream commit 9f079c1bdc9087842dc5ac9d81b1d7f2578e81ce ]
 
-While doing error injection testing I got the following panic
+ALSA dice driver detects jumbo payload at high sampling transfer frequency
+for below models:
 
-  kernel BUG at fs/btrfs/tree-log.c:1862!
-  invalid opcode: 0000 [#1] SMP NOPTI
-  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
-  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
-  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
-  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
-  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
-  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
-  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
-  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
-  Call Trace:
-   replay_one_buffer+0x409/0x470
-   ? btree_read_extent_buffer_pages+0xd0/0x110
-   walk_up_log_tree+0x157/0x1e0
-   walk_log_tree+0xa6/0x1d0
-   btrfs_recover_log_trees+0x1da/0x360
-   ? replay_one_extent+0x7b0/0x7b0
-   open_ctree+0x1486/0x1720
-   btrfs_mount_root.cold+0x12/0xea
-   ? __kmalloc_track_caller+0x12f/0x240
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x10d/0x380
-   ? vfs_parse_fs_string+0x4d/0x90
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   path_mount+0x433/0xa10
-   __x64_sys_mount+0xe3/0x120
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+ * Avid M-Box 3 Pro
+ * M-Audio Profire 610
+ * M-Audio Profire 2626
 
-We can get -EIO or any number of legitimate errors from
-btrfs_search_slot(), panicing here is not the appropriate response.  The
-error path for this code handles errors properly, simply return the
-error.
+Although many DICE-based devices have a quirk at high sampling transfer
+frequency to multiplex double number of PCM frames into data block than
+the number in IEC 61883-1/6, the above devices are just compliant to
+IEC 61883-1/6.
 
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+This commit disables the mode of double_pcm_frames for the models.
+
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20210518012510.37126-1-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 2 --
- 1 file changed, 2 deletions(-)
+ sound/firewire/dice/dice-pcm.c    |  4 ++--
+ sound/firewire/dice/dice-stream.c |  2 +-
+ sound/firewire/dice/dice.c        | 24 ++++++++++++++++++++++++
+ sound/firewire/dice/dice.h        |  3 ++-
+ 4 files changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 47e76e79b3d6..847acbd6d3ea 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1858,8 +1858,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
- 		ret = btrfs_update_inode(trans, root, BTRFS_I(inode));
- 	} else if (ret == -EEXIST) {
- 		ret = 0;
--	} else {
--		BUG(); /* Logic Error */
+diff --git a/sound/firewire/dice/dice-pcm.c b/sound/firewire/dice/dice-pcm.c
+index af8a90ee40f3..a69ca1111b03 100644
+--- a/sound/firewire/dice/dice-pcm.c
++++ b/sound/firewire/dice/dice-pcm.c
+@@ -218,7 +218,7 @@ static int pcm_open(struct snd_pcm_substream *substream)
+ 
+ 		if (frames_per_period > 0) {
+ 			// For double_pcm_frame quirk.
+-			if (rate > 96000) {
++			if (rate > 96000 && !dice->disable_double_pcm_frames) {
+ 				frames_per_period *= 2;
+ 				frames_per_buffer *= 2;
+ 			}
+@@ -273,7 +273,7 @@ static int pcm_hw_params(struct snd_pcm_substream *substream,
+ 
+ 		mutex_lock(&dice->mutex);
+ 		// For double_pcm_frame quirk.
+-		if (rate > 96000) {
++		if (rate > 96000 && !dice->disable_double_pcm_frames) {
+ 			events_per_period /= 2;
+ 			events_per_buffer /= 2;
+ 		}
+diff --git a/sound/firewire/dice/dice-stream.c b/sound/firewire/dice/dice-stream.c
+index 1a14c083e8ce..c4dfe76500c2 100644
+--- a/sound/firewire/dice/dice-stream.c
++++ b/sound/firewire/dice/dice-stream.c
+@@ -181,7 +181,7 @@ static int keep_resources(struct snd_dice *dice, struct amdtp_stream *stream,
+ 	// as 'Dual Wire'.
+ 	// For this quirk, blocking mode is required and PCM buffer size should
+ 	// be aligned to SYT_INTERVAL.
+-	double_pcm_frames = rate > 96000;
++	double_pcm_frames = (rate > 96000 && !dice->disable_double_pcm_frames);
+ 	if (double_pcm_frames) {
+ 		rate /= 2;
+ 		pcm_chs *= 2;
+diff --git a/sound/firewire/dice/dice.c b/sound/firewire/dice/dice.c
+index 107a81691f0e..239d164b0eea 100644
+--- a/sound/firewire/dice/dice.c
++++ b/sound/firewire/dice/dice.c
+@@ -21,6 +21,7 @@ MODULE_LICENSE("GPL v2");
+ #define OUI_SSL			0x0050c2	// Actually ID reserved by IEEE.
+ #define OUI_PRESONUS		0x000a92
+ #define OUI_HARMAN		0x000fd7
++#define OUI_AVID		0x00a07e
+ 
+ #define DICE_CATEGORY_ID	0x04
+ #define WEISS_CATEGORY_ID	0x00
+@@ -222,6 +223,14 @@ static int dice_probe(struct fw_unit *unit,
+ 				(snd_dice_detect_formats_t)entry->driver_data;
  	}
- 	iput(inode);
+ 
++	// Below models are compliant to IEC 61883-1/6 and have no quirk at high sampling transfer
++	// frequency.
++	// * Avid M-Box 3 Pro
++	// * M-Audio Profire 610
++	// * M-Audio Profire 2626
++	if (entry->vendor_id == OUI_MAUDIO || entry->vendor_id == OUI_AVID)
++		dice->disable_double_pcm_frames = true;
++
+ 	spin_lock_init(&dice->lock);
+ 	mutex_init(&dice->mutex);
+ 	init_completion(&dice->clock_accepted);
+@@ -278,7 +287,22 @@ static void dice_bus_reset(struct fw_unit *unit)
+ 
+ #define DICE_INTERFACE	0x000001
+ 
++#define DICE_DEV_ENTRY_TYPICAL(vendor, model, data) \
++	{ \
++		.match_flags	= IEEE1394_MATCH_VENDOR_ID | \
++				  IEEE1394_MATCH_MODEL_ID | \
++				  IEEE1394_MATCH_SPECIFIER_ID | \
++				  IEEE1394_MATCH_VERSION, \
++		.vendor_id	= (vendor), \
++		.model_id	= (model), \
++		.specifier_id	= (vendor), \
++		.version	= DICE_INTERFACE, \
++		.driver_data = (kernel_ulong_t)(data), \
++	}
++
+ static const struct ieee1394_device_id dice_id_table[] = {
++	// Avid M-Box 3 Pro. To match in probe function.
++	DICE_DEV_ENTRY_TYPICAL(OUI_AVID, 0x000004, snd_dice_detect_extension_formats),
+ 	/* M-Audio Profire 2626 has a different value in version field. */
+ 	{
+ 		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
+diff --git a/sound/firewire/dice/dice.h b/sound/firewire/dice/dice.h
+index adc6f7c84460..3c967d1b3605 100644
+--- a/sound/firewire/dice/dice.h
++++ b/sound/firewire/dice/dice.h
+@@ -109,7 +109,8 @@ struct snd_dice {
+ 	struct fw_iso_resources rx_resources[MAX_STREAMS];
+ 	struct amdtp_stream tx_stream[MAX_STREAMS];
+ 	struct amdtp_stream rx_stream[MAX_STREAMS];
+-	bool global_enabled;
++	bool global_enabled:1;
++	bool disable_double_pcm_frames:1;
+ 	struct completion clock_accepted;
+ 	unsigned int substreams_counter;
  
 -- 
 2.30.2
