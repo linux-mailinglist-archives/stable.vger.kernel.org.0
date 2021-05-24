@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82A0638EDF1
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FB3A38EF5F
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234221AbhEXPn6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:43:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56192 "EHLO mail.kernel.org"
+        id S235073AbhEXP5M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:57:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233045AbhEXPmE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:42:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1894C61449;
-        Mon, 24 May 2021 15:34:47 +0000 (UTC)
+        id S234457AbhEXP4S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:56:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5704761940;
+        Mon, 24 May 2021 15:42:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870488;
-        bh=eOKaja5hCBW7m2c8I8KG96QDT2EdqZCH3DzPKDvwX6c=;
+        s=korg; t=1621870963;
+        bh=Nzy5gzh1VjtU/TboU9DQW5QUBfsY8+VumZ6IfEyhaZM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zHAfMS8/quoPpFNKVXx+TtSsx/Zo2w5uGfKa9zL9IxrWVEoGzukIj7F/oxaz34rWw
-         8RZoUkyENemlfP54jKgye4nyRLyJYsdVgcX7S4W4t7BEkWuMmNEbKCBUZIUPYLpaW1
-         r6I538hWMs7mcCrg4J1fd/2bdf4WhWLi4tDSf/sw=
+        b=zrijKivd8fT1NEKCE9D+MvTF1pjNbhcGRpIk01zdsTFIxOKRgfAenn31LhELICzuD
+         H/l2t9miHLDWHmMcmdRDpi2kUKHACHAw/6mHfU/bWy7BaLB4Hd4BC1Eb+EE85GcCj7
+         +iJSgI+7tV5H3AMg27g4eY4576PQR02SSmRZ0VU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Zqiang <qiang.zhang@windriver.com>,
+        stable@vger.kernel.org,
+        Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>,
+        Rijo Thomas <Rijo-john.Thomas@amd.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 09/49] locking/mutex: clear MUTEX_FLAGS if wait_list is empty due to signal
+Subject: [PATCH 5.12 003/127] tee: amdtee: unload TA only when its refcount becomes 0
 Date:   Mon, 24 May 2021 17:25:20 +0200
-Message-Id: <20210524152324.694690812@linuxfoundation.org>
+Message-Id: <20210524152334.975632947@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,133 +43,282 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang.zhang@windriver.com>
+From: Rijo Thomas <Rijo-john.Thomas@amd.com>
 
-[ Upstream commit 3a010c493271f04578b133de977e0e5dd2848cea ]
+[ Upstream commit 9f015b3765bf593b3ed5d3b588e409dc0ffa9f85 ]
 
-When a interruptible mutex locker is interrupted by a signal
-without acquiring this lock and removed from the wait queue.
-if the mutex isn't contended enough to have a waiter
-put into the wait queue again, the setting of the WAITER
-bit will force mutex locker to go into the slowpath to
-acquire the lock every time, so if the wait queue is empty,
-the WAITER bit need to be clear.
+Same Trusted Application (TA) can be loaded in multiple TEE contexts.
 
-Fixes: 040a0a371005 ("mutex: Add support for wound/wait style locks")
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Zqiang <qiang.zhang@windriver.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Link: https://lkml.kernel.org/r/20210517034005.30828-1-qiang.zhang@windriver.com
+If it is a single instance TA, the TA should not get unloaded from AMD
+Secure Processor, while it is still in use in another TEE context.
+
+Therefore reference count TA and unload it when the count becomes zero.
+
+Fixes: 757cc3e9ff1d ("tee: add AMD-TEE driver")
+Reviewed-by: Devaraj Rangasamy <Devaraj.Rangasamy@amd.com>
+Signed-off-by: Rijo Thomas <Rijo-john.Thomas@amd.com>
+Acked-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/locking/mutex-debug.c |  4 ++--
- kernel/locking/mutex-debug.h |  2 +-
- kernel/locking/mutex.c       | 18 +++++++++++++-----
- kernel/locking/mutex.h       |  4 +---
- 4 files changed, 17 insertions(+), 11 deletions(-)
+ drivers/tee/amdtee/amdtee_private.h | 13 ++++
+ drivers/tee/amdtee/call.c           | 94 ++++++++++++++++++++++++++---
+ drivers/tee/amdtee/core.c           | 15 +++--
+ 3 files changed, 106 insertions(+), 16 deletions(-)
 
-diff --git a/kernel/locking/mutex-debug.c b/kernel/locking/mutex-debug.c
-index 9aa713629387..839df4383799 100644
---- a/kernel/locking/mutex-debug.c
-+++ b/kernel/locking/mutex-debug.c
-@@ -57,7 +57,7 @@ void debug_mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 	task->blocked_on = waiter;
- }
+diff --git a/drivers/tee/amdtee/amdtee_private.h b/drivers/tee/amdtee/amdtee_private.h
+index 337c8d82f74e..6d0f7062bb87 100644
+--- a/drivers/tee/amdtee/amdtee_private.h
++++ b/drivers/tee/amdtee/amdtee_private.h
+@@ -21,6 +21,7 @@
+ #define TEEC_SUCCESS			0x00000000
+ #define TEEC_ERROR_GENERIC		0xFFFF0000
+ #define TEEC_ERROR_BAD_PARAMETERS	0xFFFF0006
++#define TEEC_ERROR_OUT_OF_MEMORY	0xFFFF000C
+ #define TEEC_ERROR_COMMUNICATION	0xFFFF000E
  
--void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
-+void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 			 struct task_struct *task)
- {
- 	DEBUG_LOCKS_WARN_ON(list_empty(&waiter->list));
-@@ -65,7 +65,7 @@ void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 	DEBUG_LOCKS_WARN_ON(task->blocked_on != waiter);
- 	task->blocked_on = NULL;
+ #define TEEC_ORIGIN_COMMS		0x00000002
+@@ -93,6 +94,18 @@ struct amdtee_shm_data {
+ 	u32     buf_id;
+ };
  
--	list_del_init(&waiter->list);
-+	INIT_LIST_HEAD(&waiter->list);
- 	waiter->task = NULL;
- }
- 
-diff --git a/kernel/locking/mutex-debug.h b/kernel/locking/mutex-debug.h
-index 1edd3f45a4ec..53e631e1d76d 100644
---- a/kernel/locking/mutex-debug.h
-+++ b/kernel/locking/mutex-debug.h
-@@ -22,7 +22,7 @@ extern void debug_mutex_free_waiter(struct mutex_waiter *waiter);
- extern void debug_mutex_add_waiter(struct mutex *lock,
- 				   struct mutex_waiter *waiter,
- 				   struct task_struct *task);
--extern void mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
-+extern void debug_mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 				struct task_struct *task);
- extern void debug_mutex_unlock(struct mutex *lock);
- extern void debug_mutex_init(struct mutex *lock, const char *name,
-diff --git a/kernel/locking/mutex.c b/kernel/locking/mutex.c
-index b3da782cdfbd..354151fef06a 100644
---- a/kernel/locking/mutex.c
-+++ b/kernel/locking/mutex.c
-@@ -177,7 +177,7 @@ static inline bool __mutex_waiter_is_first(struct mutex *lock, struct mutex_wait
-  * Add @waiter to a given location in the lock wait_list and set the
-  * FLAG_WAITERS flag if it's the first waiter.
-  */
--static void __sched
-+static void
- __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 		   struct list_head *list)
- {
-@@ -188,6 +188,16 @@ __mutex_add_waiter(struct mutex *lock, struct mutex_waiter *waiter,
- 		__mutex_set_flag(lock, MUTEX_FLAG_WAITERS);
- }
- 
-+static void
-+__mutex_remove_waiter(struct mutex *lock, struct mutex_waiter *waiter)
-+{
-+	list_del(&waiter->list);
-+	if (likely(list_empty(&lock->wait_list)))
-+		__mutex_clear_flag(lock, MUTEX_FLAGS);
++/**
++ * struct amdtee_ta_data - Keeps track of all TAs loaded in AMD Secure
++ *			   Processor
++ * @ta_handle:	Handle to TA loaded in TEE
++ * @refcount:	Reference count for the loaded TA
++ */
++struct amdtee_ta_data {
++	struct list_head list_node;
++	u32 ta_handle;
++	u32 refcount;
++};
 +
-+	debug_mutex_remove_waiter(lock, waiter, current);
+ #define LOWER_TWO_BYTE_MASK	0x0000FFFF
+ 
+ /**
+diff --git a/drivers/tee/amdtee/call.c b/drivers/tee/amdtee/call.c
+index 096dd4d92d39..07f36ac834c8 100644
+--- a/drivers/tee/amdtee/call.c
++++ b/drivers/tee/amdtee/call.c
+@@ -121,15 +121,69 @@ static int amd_params_to_tee_params(struct tee_param *tee, u32 count,
+ 	return ret;
+ }
+ 
++static DEFINE_MUTEX(ta_refcount_mutex);
++static struct list_head ta_list = LIST_HEAD_INIT(ta_list);
++
++static u32 get_ta_refcount(u32 ta_handle)
++{
++	struct amdtee_ta_data *ta_data;
++	u32 count = 0;
++
++	/* Caller must hold a mutex */
++	list_for_each_entry(ta_data, &ta_list, list_node)
++		if (ta_data->ta_handle == ta_handle)
++			return ++ta_data->refcount;
++
++	ta_data = kzalloc(sizeof(*ta_data), GFP_KERNEL);
++	if (ta_data) {
++		ta_data->ta_handle = ta_handle;
++		ta_data->refcount = 1;
++		count = ta_data->refcount;
++		list_add(&ta_data->list_node, &ta_list);
++	}
++
++	return count;
 +}
 +
- /*
-  * Give up ownership to a specific task, when @task = NULL, this is equivalent
-  * to a regular unlock. Sets PICKUP on a handoff, clears HANDOF, preserves
-@@ -1040,9 +1050,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
- 			__ww_mutex_check_waiters(lock, ww_ctx);
++static u32 put_ta_refcount(u32 ta_handle)
++{
++	struct amdtee_ta_data *ta_data;
++	u32 count = 0;
++
++	/* Caller must hold a mutex */
++	list_for_each_entry(ta_data, &ta_list, list_node)
++		if (ta_data->ta_handle == ta_handle) {
++			count = --ta_data->refcount;
++			if (count == 0) {
++				list_del(&ta_data->list_node);
++				kfree(ta_data);
++				break;
++			}
++		}
++
++	return count;
++}
++
+ int handle_unload_ta(u32 ta_handle)
+ {
+ 	struct tee_cmd_unload_ta cmd = {0};
+-	u32 status;
++	u32 status, count;
+ 	int ret;
+ 
+ 	if (!ta_handle)
+ 		return -EINVAL;
+ 
++	mutex_lock(&ta_refcount_mutex);
++
++	count = put_ta_refcount(ta_handle);
++
++	if (count) {
++		pr_debug("unload ta: not unloading %u count %u\n",
++			 ta_handle, count);
++		ret = -EBUSY;
++		goto unlock;
++	}
++
+ 	cmd.ta_handle = ta_handle;
+ 
+ 	ret = psp_tee_process_cmd(TEE_CMD_ID_UNLOAD_TA, (void *)&cmd,
+@@ -137,8 +191,12 @@ int handle_unload_ta(u32 ta_handle)
+ 	if (!ret && status != 0) {
+ 		pr_err("unload ta: status = 0x%x\n", status);
+ 		ret = -EBUSY;
++	} else {
++		pr_debug("unloaded ta handle %u\n", ta_handle);
  	}
  
--	mutex_remove_waiter(lock, &waiter, current);
--	if (likely(list_empty(&lock->wait_list)))
--		__mutex_clear_flag(lock, MUTEX_FLAGS);
-+	__mutex_remove_waiter(lock, &waiter);
++unlock:
++	mutex_unlock(&ta_refcount_mutex);
+ 	return ret;
+ }
  
- 	debug_mutex_free_waiter(&waiter);
+@@ -340,7 +398,8 @@ int handle_open_session(struct tee_ioctl_open_session_arg *arg, u32 *info,
  
-@@ -1059,7 +1067,7 @@ __mutex_lock_common(struct mutex *lock, long state, unsigned int subclass,
+ int handle_load_ta(void *data, u32 size, struct tee_ioctl_open_session_arg *arg)
+ {
+-	struct tee_cmd_load_ta cmd = {0};
++	struct tee_cmd_unload_ta unload_cmd = {};
++	struct tee_cmd_load_ta load_cmd = {};
+ 	phys_addr_t blob;
+ 	int ret;
  
- err:
- 	__set_current_state(TASK_RUNNING);
--	mutex_remove_waiter(lock, &waiter, current);
-+	__mutex_remove_waiter(lock, &waiter);
- err_early_kill:
- 	spin_unlock(&lock->wait_lock);
- 	debug_mutex_free_waiter(&waiter);
-diff --git a/kernel/locking/mutex.h b/kernel/locking/mutex.h
-index 1c2287d3fa71..f0c710b1d192 100644
---- a/kernel/locking/mutex.h
-+++ b/kernel/locking/mutex.h
-@@ -10,12 +10,10 @@
-  * !CONFIG_DEBUG_MUTEXES case. Most of them are NOPs:
-  */
+@@ -353,21 +412,36 @@ int handle_load_ta(void *data, u32 size, struct tee_ioctl_open_session_arg *arg)
+ 		return -EINVAL;
+ 	}
  
--#define mutex_remove_waiter(lock, waiter, task) \
--		__list_del((waiter)->list.prev, (waiter)->list.next)
--
- #define debug_mutex_wake_waiter(lock, waiter)		do { } while (0)
- #define debug_mutex_free_waiter(waiter)			do { } while (0)
- #define debug_mutex_add_waiter(lock, waiter, ti)	do { } while (0)
-+#define debug_mutex_remove_waiter(lock, waiter, ti)     do { } while (0)
- #define debug_mutex_unlock(lock)			do { } while (0)
- #define debug_mutex_init(lock, name, key)		do { } while (0)
+-	cmd.hi_addr = upper_32_bits(blob);
+-	cmd.low_addr = lower_32_bits(blob);
+-	cmd.size = size;
++	load_cmd.hi_addr = upper_32_bits(blob);
++	load_cmd.low_addr = lower_32_bits(blob);
++	load_cmd.size = size;
+ 
+-	ret = psp_tee_process_cmd(TEE_CMD_ID_LOAD_TA, (void *)&cmd,
+-				  sizeof(cmd), &arg->ret);
++	mutex_lock(&ta_refcount_mutex);
++
++	ret = psp_tee_process_cmd(TEE_CMD_ID_LOAD_TA, (void *)&load_cmd,
++				  sizeof(load_cmd), &arg->ret);
+ 	if (ret) {
+ 		arg->ret_origin = TEEC_ORIGIN_COMMS;
+ 		arg->ret = TEEC_ERROR_COMMUNICATION;
+-	} else {
+-		set_session_id(cmd.ta_handle, 0, &arg->session);
++	} else if (arg->ret == TEEC_SUCCESS) {
++		ret = get_ta_refcount(load_cmd.ta_handle);
++		if (!ret) {
++			arg->ret_origin = TEEC_ORIGIN_COMMS;
++			arg->ret = TEEC_ERROR_OUT_OF_MEMORY;
++
++			/* Unload the TA on error */
++			unload_cmd.ta_handle = load_cmd.ta_handle;
++			psp_tee_process_cmd(TEE_CMD_ID_UNLOAD_TA,
++					    (void *)&unload_cmd,
++					    sizeof(unload_cmd), &ret);
++		} else {
++			set_session_id(load_cmd.ta_handle, 0, &arg->session);
++		}
+ 	}
++	mutex_unlock(&ta_refcount_mutex);
+ 
+ 	pr_debug("load TA: TA handle = 0x%x, RO = 0x%x, ret = 0x%x\n",
+-		 cmd.ta_handle, arg->ret_origin, arg->ret);
++		 load_cmd.ta_handle, arg->ret_origin, arg->ret);
+ 
+ 	return 0;
+ }
+diff --git a/drivers/tee/amdtee/core.c b/drivers/tee/amdtee/core.c
+index 8a6a8f30bb42..da6b88e80dc0 100644
+--- a/drivers/tee/amdtee/core.c
++++ b/drivers/tee/amdtee/core.c
+@@ -59,10 +59,9 @@ static void release_session(struct amdtee_session *sess)
+ 			continue;
+ 
+ 		handle_close_session(sess->ta_handle, sess->session_info[i]);
++		handle_unload_ta(sess->ta_handle);
+ 	}
+ 
+-	/* Unload Trusted Application once all sessions are closed */
+-	handle_unload_ta(sess->ta_handle);
+ 	kfree(sess);
+ }
+ 
+@@ -224,8 +223,6 @@ static void destroy_session(struct kref *ref)
+ 	struct amdtee_session *sess = container_of(ref, struct amdtee_session,
+ 						   refcount);
+ 
+-	/* Unload the TA from TEE */
+-	handle_unload_ta(sess->ta_handle);
+ 	mutex_lock(&session_list_mutex);
+ 	list_del(&sess->list_node);
+ 	mutex_unlock(&session_list_mutex);
+@@ -238,7 +235,7 @@ int amdtee_open_session(struct tee_context *ctx,
+ {
+ 	struct amdtee_context_data *ctxdata = ctx->data;
+ 	struct amdtee_session *sess = NULL;
+-	u32 session_info;
++	u32 session_info, ta_handle;
+ 	size_t ta_size;
+ 	int rc, i;
+ 	void *ta;
+@@ -259,11 +256,14 @@ int amdtee_open_session(struct tee_context *ctx,
+ 	if (arg->ret != TEEC_SUCCESS)
+ 		goto out;
+ 
++	ta_handle = get_ta_handle(arg->session);
++
+ 	mutex_lock(&session_list_mutex);
+ 	sess = alloc_session(ctxdata, arg->session);
+ 	mutex_unlock(&session_list_mutex);
+ 
+ 	if (!sess) {
++		handle_unload_ta(ta_handle);
+ 		rc = -ENOMEM;
+ 		goto out;
+ 	}
+@@ -277,6 +277,7 @@ int amdtee_open_session(struct tee_context *ctx,
+ 
+ 	if (i >= TEE_NUM_SESSIONS) {
+ 		pr_err("reached maximum session count %d\n", TEE_NUM_SESSIONS);
++		handle_unload_ta(ta_handle);
+ 		kref_put(&sess->refcount, destroy_session);
+ 		rc = -ENOMEM;
+ 		goto out;
+@@ -289,12 +290,13 @@ int amdtee_open_session(struct tee_context *ctx,
+ 		spin_lock(&sess->lock);
+ 		clear_bit(i, sess->sess_mask);
+ 		spin_unlock(&sess->lock);
++		handle_unload_ta(ta_handle);
+ 		kref_put(&sess->refcount, destroy_session);
+ 		goto out;
+ 	}
+ 
+ 	sess->session_info[i] = session_info;
+-	set_session_id(sess->ta_handle, i, &arg->session);
++	set_session_id(ta_handle, i, &arg->session);
+ out:
+ 	free_pages((u64)ta, get_order(ta_size));
+ 	return rc;
+@@ -329,6 +331,7 @@ int amdtee_close_session(struct tee_context *ctx, u32 session)
+ 
+ 	/* Close the session */
+ 	handle_close_session(ta_handle, session_info);
++	handle_unload_ta(ta_handle);
+ 
+ 	kref_put(&sess->refcount, destroy_session);
  
 -- 
 2.30.2
