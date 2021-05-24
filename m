@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 79F1F38E9ED
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41C438EA27
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:53:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbhEXOvp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:51:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55384 "EHLO mail.kernel.org"
+        id S233281AbhEXOw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54356 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233150AbhEXOtk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:49:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 233D7613F8;
-        Mon, 24 May 2021 14:47:35 +0000 (UTC)
+        id S233747AbhEXOtw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:49:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BD0F613F9;
+        Mon, 24 May 2021 14:47:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867656;
-        bh=43Ep8yTKFx8b5Cs4UYEBqADSxw+9vpWN/kaNXflbzXY=;
+        s=k20201202; t=1621867657;
+        bh=liBbmSEWTgGrl45+w2Z8Zd42KpUNMD5HI4NCGB0wRkE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=toZemQ1ArI9TGyZ7f2w9bnzpfIPb2gy9rQi61I29ZCUUCIq4naP86FRIEnRRGyAm7
-         udNedA0NruoNEjg09gKnMhIn1mdjLntHoKdAKT+hWevLd8YQ9eYxir0j2BwuezN52/
-         EFndQmjRCSuqvdQYl+3mbbeh/yVkCjtZAfS+X06X8jwp7c5Suihy0IIpbCKVCt7Taj
-         mJ7xDOqI0Brq8mZTLGblvSiDzEah/ANA6cfMk40zHQWjyTYFAG6xea12s64SYYJOvN
-         EELAX0iS+Agf50MGot8GxkYuT2hhan4RoTFHMZSfS7Za8PhW1wmDVHEmTi0d/FQyti
-         5Us9baE+/t98Q==
+        b=XmzC3Bjxizc0MIRBWgHGY1ehvK/98efD65hAz0R8QbS1gDQIwndyWm1gg3Wee99ky
+         mJF/MkZC7cKx1XuvP++3W5y02zMnOiAcAlZz+52XKptX3z2KA4EmNITFTNsus5Npk2
+         trcaR6IOk8TYebm2ylFUuADhDyofN6Rh0xirU74meAV8bgDAILUyTyuHkkRkc+RuOH
+         abqH5/Jql6jNwJyfiiwo7fNXz1LqiA2ZrUchg28p8gyMJWxpDNrONodNxueEzKGNOX
+         tPvEwMB4HDmP6uIqVJoM+iITjCCOjpaBO1uVArnhlRfIRi/qExfL7UYYb2063TE6NR
+         Y/a5P5T/r2MIQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+Cc:     Lang Yu <Lang.Yu@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=83nig?= <christian.koenig@amd.com>,
+        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 58/63] drm/amdgpu: Fix a use-after-free
-Date:   Mon, 24 May 2021 10:46:15 -0400
-Message-Id: <20210524144620.2497249-58-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 59/63] drm/amd/amdgpu: fix a potential deadlock in gpu reset
+Date:   Mon, 24 May 2021 10:46:16 -0400
+Message-Id: <20210524144620.2497249-59-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -45,47 +46,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Lang Yu <Lang.Yu@amd.com>
 
-[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
+[ Upstream commit 9c2876d56f1ce9b6b2072f1446fb1e8d1532cb3d ]
 
-looks like we forget to set ttm->sg to NULL.
-Hit panic below
+When amdgpu_ib_ring_tests failed, the reset logic called
+amdgpu_device_ip_suspend twice, then deadlock occurred.
+Deadlock log:
 
-[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
-[ 1235.989074] Call Trace:
-[ 1235.991751]  sg_free_table+0x17/0x20
-[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
-[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
-[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
-[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
-[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
-[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
-[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
-[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
-[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
-[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
+[  805.655192] amdgpu 0000:04:00.0: amdgpu: ib ring test failed (-110).
+[  806.290952] [drm] free PSP TMR buffer
 
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
+[  806.319406] ============================================
+[  806.320315] WARNING: possible recursive locking detected
+[  806.321225] 5.11.0-custom #1 Tainted: G        W  OEL
+[  806.322135] --------------------------------------------
+[  806.323043] cat/2593 is trying to acquire lock:
+[  806.323825] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.325668]
+               but task is already holding lock:
+[  806.326664] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.328430]
+               other info that might help us debug this:
+[  806.329539]  Possible unsafe locking scenario:
+
+[  806.330549]        CPU0
+[  806.330983]        ----
+[  806.331416]   lock(&adev->dm.dc_lock);
+[  806.332086]   lock(&adev->dm.dc_lock);
+[  806.332738]
+                *** DEADLOCK ***
+
+[  806.333747]  May be due to missing lock nesting notation
+
+[  806.334899] 3 locks held by cat/2593:
+[  806.335537]  #0: ffff888100d3f1b8 (&attr->mutex){+.+.}-{3:3}, at: simple_attr_read+0x4e/0x110
+[  806.337009]  #1: ffff888136b1fd78 (&adev->reset_sem){++++}-{3:3}, at: amdgpu_device_lock_adev+0x42/0x94 [amdgpu]
+[  806.339018]  #2: ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.340869]
+               stack backtrace:
+[  806.341621] CPU: 6 PID: 2593 Comm: cat Tainted: G        W  OEL    5.11.0-custom #1
+[  806.342921] Hardware name: AMD Celadon-CZN/Celadon-CZN, BIOS WLD0C23N_Weekly_20_12_2 12/23/2020
+[  806.344413] Call Trace:
+[  806.344849]  dump_stack+0x93/0xbd
+[  806.345435]  __lock_acquire.cold+0x18a/0x2cf
+[  806.346179]  lock_acquire+0xca/0x390
+[  806.346807]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.347813]  __mutex_lock+0x9b/0x930
+[  806.348454]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.349434]  ? amdgpu_device_indirect_rreg+0x58/0x70 [amdgpu]
+[  806.350581]  ? _raw_spin_unlock_irqrestore+0x47/0x50
+[  806.351437]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.352437]  ? rcu_read_lock_sched_held+0x4f/0x80
+[  806.353252]  ? rcu_read_lock_sched_held+0x4f/0x80
+[  806.354064]  mutex_lock_nested+0x1b/0x20
+[  806.354747]  ? mutex_lock_nested+0x1b/0x20
+[  806.355457]  dm_suspend+0xb8/0x1d0 [amdgpu]
+[  806.356427]  ? soc15_common_set_clockgating_state+0x17d/0x19 [amdgpu]
+[  806.357736]  amdgpu_device_ip_suspend_phase1+0x78/0xd0 [amdgpu]
+[  806.360394]  amdgpu_device_ip_suspend+0x21/0x70 [amdgpu]
+[  806.362926]  amdgpu_device_pre_asic_reset+0xb3/0x270 [amdgpu]
+[  806.365560]  amdgpu_device_gpu_recover.cold+0x679/0x8eb [amdgpu]
+
+Signed-off-by: Lang Yu <Lang.Yu@amd.com>
+Acked-by: Christian KÃnig <christian.koenig@amd.com>
+Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 383c178cf074..bbc73cde6b04 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1287,6 +1287,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_bo_device *bdev,
- 	if (gtt && gtt->userptr) {
- 		amdgpu_ttm_tt_set_user_pages(ttm, NULL);
- 		kfree(ttm->sg);
-+		ttm->sg = NULL;
- 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
- 		return;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+index 5eee251e3335..85d90e857693 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
+@@ -4356,7 +4356,6 @@ static int amdgpu_do_asic_reset(struct amdgpu_hive_info *hive,
+ 			r = amdgpu_ib_ring_tests(tmp_adev);
+ 			if (r) {
+ 				dev_err(tmp_adev->dev, "ib ring test failed (%d).\n", r);
+-				r = amdgpu_device_ip_suspend(tmp_adev);
+ 				need_full_reset = true;
+ 				r = -EAGAIN;
+ 				goto end;
 -- 
 2.30.2
 
