@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A0D8C38F063
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9397C38F061
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233357AbhEXQDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:03:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49240 "EHLO mail.kernel.org"
+        id S235500AbhEXQDE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:03:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46618 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235810AbhEXQCP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:02:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC346619A0;
-        Mon, 24 May 2021 15:47:05 +0000 (UTC)
+        id S234058AbhEXQCV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:02:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65F2F6199B;
+        Mon, 24 May 2021 15:47:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871226;
-        bh=wfEgEgy1LF8Lnb9B/cql8UwTFYpdGrP+HkZSOSNoBSE=;
+        s=korg; t=1621871228;
+        bh=l5znzEEp+drGCc3MSCCVnVpCS2tcza2eGBpHeaiJtnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WfaSYSmqwbXrtBkcPWVUJgcun9e+UP+kxKZuqyPNmyYjD08Wr00SiP8EBW9zy/zTn
-         QECthZEzTF5s1JNCeLm+pXV2238HYeGKDOuAr/oU48ISqwa7gPaPheYYiqOzSCrpT8
-         +eUvocamnkmQ31NoODIpUGI0hO0vDNwFU0ISa1D4=
+        b=y+xmWVwnzcFz3iEi0hZxlOSyQKt8dnxbIIdvTjsRcpKZmdLDiDmJduRWuEgBvEu4/
+         61yGaNkopuoiOM/1NOG7m65flaVFPb0jVt6Y9Xg0+PIsnQSkb0qtb8Q1eneP2NwOn3
+         J8V4aoSK1U7aUE5HgoMwDW9IRmGXOZoi11U4zr8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wenwen Wang <wang6495@umn.edu>,
-        Peter Rosin <peda@axentia.se>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.12 103/127] Revert "gdrom: fix a memory leak bug"
-Date:   Mon, 24 May 2021 17:27:00 +0200
-Message-Id: <20210524152338.335433092@linuxfoundation.org>
+        stable@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        Peter Rosin <peda@axentia.se>,
+        Atul Gopinathan <atulgopinathan@gmail.com>
+Subject: [PATCH 5.12 104/127] cdrom: gdrom: deallocate struct gdrom_unit fields in remove_gdrom
+Date:   Mon, 24 May 2021 17:27:01 +0200
+Message-Id: <20210524152338.367982185@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -39,44 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 257343d3ed557f11d580d0b7c515dc154f64a42b upstream.
+commit d03d1021da6fe7f46efe9f2a7335564e7c9db5ab upstream.
 
-This reverts commit 093c48213ee37c3c3ff1cf5ac1aa2a9d8bc66017.
+The fields, "toc" and "cd_info", of "struct gdrom_unit gd" are allocated
+in "probe_gdrom()". Prevent a memory leak by making sure "gd.cd_info" is
+deallocated in the "remove_gdrom()" function.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Also prevent double free of the field "gd.toc" by moving it from the
+module's exit function to "remove_gdrom()". This is because, in
+"probe_gdrom()", the function makes sure to deallocate "gd.toc" in case
+of any errors, so the exit function invoked later would again free
+"gd.toc".
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+The patch also maintains consistency by deallocating the above mentioned
+fields in "remove_gdrom()" along with another memory allocated field
+"gd.disk".
 
-Because of this, all submissions from this group must be reverted from
-the kernel tree and will need to be re-reviewed again to determine if
-they actually are a valid fix.  Until that work is complete, remove this
-change to ensure that no problems are being introduced into the
-codebase.
-
-Cc: Wenwen Wang <wang6495@umn.edu>
+Suggested-by: Jens Axboe <axboe@kernel.dk>
 Cc: Peter Rosin <peda@axentia.se>
-Cc: Jens Axboe <axboe@kernel.dk>
-Fixes: 093c48213ee3 ("gdrom: fix a memory leak bug")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-27-gregkh@linuxfoundation.org
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-28-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/cdrom/gdrom.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/cdrom/gdrom.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
 --- a/drivers/cdrom/gdrom.c
 +++ b/drivers/cdrom/gdrom.c
-@@ -863,7 +863,6 @@ static void __exit exit_gdrom(void)
+@@ -831,6 +831,8 @@ static int remove_gdrom(struct platform_
+ 	if (gdrom_major)
+ 		unregister_blkdev(gdrom_major, GDROM_DEV_NAME);
+ 	unregister_cdrom(gd.cd_info);
++	kfree(gd.cd_info);
++	kfree(gd.toc);
+ 
+ 	return 0;
+ }
+@@ -862,7 +864,6 @@ static void __exit exit_gdrom(void)
+ {
  	platform_device_unregister(pd);
  	platform_driver_unregister(&gdrom_driver);
- 	kfree(gd.toc);
--	kfree(gd.cd_info);
+-	kfree(gd.toc);
  }
  
  module_init(init_gdrom);
