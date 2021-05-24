@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E686338EE2E
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:45:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B0AB338EFA9
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233297AbhEXPqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:46:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33978 "EHLO mail.kernel.org"
+        id S234820AbhEXP6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40492 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234661AbhEXPoa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:44:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 91AE86145F;
-        Mon, 24 May 2021 15:36:08 +0000 (UTC)
+        id S233923AbhEXP5z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:57:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E4229613C8;
+        Mon, 24 May 2021 15:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870569;
-        bh=qhD0BZqeu27jr8v2vR77dTcRsazvYX0eWy1cx0Jai9Q=;
+        s=korg; t=1621871031;
+        bh=KN9/wTIwtYFC3VY1RYKg//I4UbsHp7lVb6coPb4Sxuo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rFr+mca4yqnowk88HKEU9JCdxUyZnuDFFYnWgzAVL44bPgqyUw71O5WrUxGbB1MIC
-         y4jdzqX3jnm9T67nREERuidB7f4FE30qHeVid96Z3T7EsxJpwMKkzMa+Qeoks9mZE3
-         EUBfPpQo0S9/qkkktNdREWgkyHX/RiUJvAhNVPjk=
+        b=dnHuDhA0TVn+5/TKZOpeT/XN4i4ldR+mDsUUXZ1gALUvaWcAp52JbYKMWBUpVd4K+
+         S13ATLUQx0ZdCgeN4suH2mQpq8zXWslJ6pRrLIB5TRKEjXlNo/EtkV8G2i6uwYkrpN
+         +qK/N8TMqxzjhEWf7n4Od7hG8DwCau21Y3m2DcyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 46/49] vgacon: Record video mode changes with VT_RESIZEX
+        stable@vger.kernel.org, Christoph Hellwig <hch@lst.de>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        linux-fsdevel@vger.kernel.org,
+        Seth Forshee <seth.forshee@canonical.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>
+Subject: [PATCH 5.12 040/127] fs/mount_setattr: tighten permission checks
 Date:   Mon, 24 May 2021 17:25:57 +0200
-Message-Id: <20210524152325.857253151@linuxfoundation.org>
+Message-Id: <20210524152336.206780930@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +42,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Christian Brauner <christian.brauner@ubuntu.com>
 
-commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
+commit 2ca4dcc4909d787ee153272f7efc2bff3b498720 upstream.
 
-Fix an issue with VGA console font size changes made after the initial
-video text mode has been changed with a user tool like `svgatextmode'
-calling the VT_RESIZEX ioctl.  As it stands in that case the original
-screen geometry continues being used to validate further VT resizing.
+We currently don't have any filesystems that support idmapped mounts
+which are mountable inside a user namespace. That was a deliberate
+decision for now as a userns root can just mount the filesystem
+themselves. So enforce this restriction explicitly until there's a real
+use-case for this. This way we can notice it and will have a chance to
+adapt and audit our translation helpers and fstests appropriately if we
+need to support such filesystems.
 
-Consequently when the video adapter is firstly reprogrammed from the
-original say 80x25 text mode using a 9x16 character cell (720x400 pixel
-resolution) to say 80x37 text mode and the same character cell (720x592
-pixel resolution), and secondly the CRTC character cell updated to 9x8
-(by loading a suitable font with the KD_FONT_OP_SET request of the
-KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
-and only upper half of the screen is used for the VT, with the lower
-half showing rubbish corresponding to whatever happens to be there in
-the video memory that maps to that part of the screen.  Of course the
-proportions change according to text mode geometries and font sizes
-chosen.
-
-Address the problem then, by updating the text mode geometry defaults
-rather than checking against them whenever the VT is resized via a user
-ioctl.
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
-Cc: stable@vger.kernel.org # v2.6.24+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Christoph Hellwig <hch@lst.de>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: stable@vger.kernel.org
+CC: linux-fsdevel@vger.kernel.org
+Suggested-by: Seth Forshee <seth.forshee@canonical.com>
+Signed-off-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ fs/namespace.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -1106,12 +1106,20 @@ static int vgacon_resize(struct vc_data
- 	if ((width << 1) * height > vga_vram_size)
+--- a/fs/namespace.c
++++ b/fs/namespace.c
+@@ -3853,8 +3853,12 @@ static int can_idmap_mount(const struct
+ 	if (!(m->mnt_sb->s_type->fs_flags & FS_ALLOW_IDMAP))
  		return -EINVAL;
  
-+	if (user) {
-+		/*
-+		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
-+		 * the video mode!  Set the new defaults then and go away.
-+		 */
-+		screen_info.orig_video_cols = width;
-+		screen_info.orig_video_lines = height;
-+		vga_default_font_height = c->vc_font.height;
-+		return 0;
-+	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
- 	    c->vc_font.height)
--		/* let svgatextmode tinker with video timings and
--		   return success */
--		return (user) ? 0 : -EINVAL;
++	/* Don't yet support filesystem mountable in user namespaces. */
++	if (m->mnt_sb->s_user_ns != &init_user_ns)
 +		return -EINVAL;
++
+ 	/* We're not controlling the superblock. */
+-	if (!ns_capable(m->mnt_sb->s_user_ns, CAP_SYS_ADMIN))
++	if (!capable(CAP_SYS_ADMIN))
+ 		return -EPERM;
  
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
- 		vgacon_doresize(c, width, height);
+ 	/* Mount has already been visible in the filesystem hierarchy. */
 
 
