@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3511738EDBD
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:40:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25FD638EED6
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234038AbhEXPlX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:41:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56946 "EHLO mail.kernel.org"
+        id S234112AbhEXPz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234146AbhEXPjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BA31A61420;
-        Mon, 24 May 2021 15:33:46 +0000 (UTC)
+        id S235211AbhEXPzC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C41C961430;
+        Mon, 24 May 2021 15:40:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870427;
-        bh=aNOCDNl4Nwk6cB4xfBZkqrMwit3VkEhdXsg9HCEXt8E=;
+        s=korg; t=1621870836;
+        bh=MTf65CjRn4pimJ0YQqAOZWp680x6htRBMF1uX8Kmrns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YEj9Yo5e/PUeGgrIr38mIvTS0HeZcloeja2BUz6ezYAA0vHClCWZC0yxoSj4R/Pdb
-         IPRhu98atahklMwLnbdhrMgU0cH68QR4JNlAS9Q9GAU7Pz1iPFICRxDVvsPDT/ZVei
-         vbIUr2DYWWLP+l/zfhbrMe6SnDKari6VkOOSkAqs=
+        b=tmpR1jk8I6DFVgziS2qbyufbVpSSBtKyEX3DpHwMZ2nRQ0+4H+/8FOFNlQIo2SA2D
+         83gfWcBqtPhBtIt2oHr/68Ln2EEQESNKu7hBF5BMiccdVixGSRrAwNeLo/VZC/hQw3
+         qno7jWQKiMlt26k+ti8Xt9Q81B8/XpYVE/hpaO1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Shannon Nelson <shannon.lee.nelson@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 28/37] Revert "niu: fix missing checks of niu_pci_eeprom_read"
+        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 037/104] ALSA: line6: Fix racy initialization of LINE6 MIDI
 Date:   Mon, 24 May 2021 17:25:32 +0200
-Message-Id: <20210524152325.118330809@linuxfoundation.org>
+Message-Id: <20210524152334.064032900@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 7930742d6a0ff091c85b92ef4e076432d8d8cb79 upstream.
+commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
 
-This reverts commit 26fd962bde0b15e54234fe762d86bc0349df1de4.
+The initialization of MIDI devices that are found on some LINE6
+drivers are currently done in a racy way; namely, the MIDI buffer
+instance is allocated and initialized in each private_init callback
+while the communication with the interface is already started via
+line6_init_cap_control() call before that point.  This may lead to
+Oops in line6_data_received() when a spurious event is received, as
+reported by syzkaller.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+This patch moves the MIDI initialization to line6_init_cap_control()
+as well instead of the too-lately-called private_init for avoiding the
+race.  Also this reduces slightly more lines, so it's a win-win
+change.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The change here was incorrect.  While it is nice to check if
-niu_pci_eeprom_read() succeeded or not when using the data, any error
-that might have happened was not propagated upwards properly, causing
-the kernel to assume that these reads were successful, which results in
-invalid data in the buffer that was to contain the successfully read
-data.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Shannon Nelson <shannon.lee.nelson@gmail.com>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: 26fd962bde0b ("niu: fix missing checks of niu_pci_eeprom_read")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-23-gregkh@linuxfoundation.org
+Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
+Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
+Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
+Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/sun/niu.c |   10 ++--------
- 1 file changed, 2 insertions(+), 8 deletions(-)
+ sound/usb/line6/driver.c |    4 ++++
+ sound/usb/line6/pod.c    |    5 -----
+ sound/usb/line6/variax.c |    6 ------
+ 3 files changed, 4 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/sun/niu.c
-+++ b/drivers/net/ethernet/sun/niu.c
-@@ -8117,8 +8117,6 @@ static int niu_pci_vpd_scan_props(struct
- 		start += 3;
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -699,6 +699,10 @@ static int line6_init_cap_control(struct
+ 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
+ 		if (!line6->buffer_message)
+ 			return -ENOMEM;
++
++		ret = line6_init_midi(line6);
++		if (ret < 0)
++			return ret;
+ 	} else {
+ 		ret = line6_hwdep_init(line6);
+ 		if (ret < 0)
+--- a/sound/usb/line6/pod.c
++++ b/sound/usb/line6/pod.c
+@@ -376,11 +376,6 @@ static int pod_init(struct usb_line6 *li
+ 	if (err < 0)
+ 		return err;
  
- 		prop_len = niu_pci_eeprom_read(np, start + 4);
--		if (prop_len < 0)
--			return prop_len;
- 		err = niu_pci_vpd_get_propname(np, start + 5, namebuf, 64);
- 		if (err < 0)
- 			return err;
-@@ -8163,12 +8161,8 @@ static int niu_pci_vpd_scan_props(struct
- 			netif_printk(np, probe, KERN_DEBUG, np->dev,
- 				     "VPD_SCAN: Reading in property [%s] len[%d]\n",
- 				     namebuf, prop_len);
--			for (i = 0; i < prop_len; i++) {
--				err = niu_pci_eeprom_read(np, off + i);
--				if (err >= 0)
--					*prop_buf = err;
--				++prop_buf;
--			}
-+			for (i = 0; i < prop_len; i++)
-+				*prop_buf++ = niu_pci_eeprom_read(np, off + i);
- 		}
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initialize PCM subsystem: */
+ 	err = line6_init_pcm(line6, &pod_pcm_properties);
+ 	if (err < 0)
+--- a/sound/usb/line6/variax.c
++++ b/sound/usb/line6/variax.c
+@@ -159,7 +159,6 @@ static int variax_init(struct usb_line6
+ 		       const struct usb_device_id *id)
+ {
+ 	struct usb_line6_variax *variax = line6_to_variax(line6);
+-	int err;
  
- 		start += len;
+ 	line6->process_message = line6_variax_process_message;
+ 	line6->disconnect = line6_variax_disconnect;
+@@ -172,11 +171,6 @@ static int variax_init(struct usb_line6
+ 	if (variax->buffer_activate == NULL)
+ 		return -ENOMEM;
+ 
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(&variax->line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initiate startup procedure: */
+ 	schedule_delayed_work(&line6->startup_work,
+ 			      msecs_to_jiffies(VARIAX_STARTUP_DELAY1));
 
 
