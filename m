@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C1C738F04E
+	by mail.lfdr.de (Postfix) with ESMTP id 2CC2B38F04D
 	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234264AbhEXQCe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:02:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
+        id S234448AbhEXQCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:02:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46880 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234775AbhEXQBF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:01:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3121C613E1;
-        Mon, 24 May 2021 15:46:38 +0000 (UTC)
+        id S235739AbhEXQBH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:01:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AFB56108E;
+        Mon, 24 May 2021 15:46:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871198;
-        bh=pkw4y6w6i8kRvXCTH/9+f10HRXwnSp5AOZG+nFVmBmE=;
+        s=korg; t=1621871200;
+        bh=z+x9sfBndTpSV/Z25LvBDWoiyAV8PcfNG3sB9v3VDrk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N38L2yM01ShOQrg+1oYyUEirSgD+GxYJIX2SNRg1a+dB6FXw1AKFFy0NfIey6hq+R
-         cdeIkw/qlm7Njq2krxEVa8ADXdh27F0fFpudHQ+Xim9A+ul86KGAiRTKEUyaoEAS3G
-         gn3UULZF0fqRokT8XFbOsWdM6YhuFtfEz3Ursx1Q=
+        b=1cgIG0+82zQvDe04IopPNS4C3JApTRTZUHsn6z6U2ViUzYv/PgoPjBazGrc4pCoQn
+         TBDOascHDOn8PfFTyyL+zte9pw5KVeCoGTTTpvAn2rZws39qxipLAmAE4zxhsxY4Iq
+         94UnC0p6wrjCKTMH0htd1h+Pi2P2TmK37s90VW3Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 118/127] vgacon: Record video mode changes with VT_RESIZEX
-Date:   Mon, 24 May 2021 17:27:15 +0200
-Message-Id: <20210524152338.856586982@linuxfoundation.org>
+Subject: [PATCH 5.12 119/127] vt_ioctl: Revert VT_RESIZEX parameter handling removal
+Date:   Mon, 24 May 2021 17:27:16 +0200
+Message-Id: <20210524152338.889687421@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -41,63 +41,101 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
+commit a90c275eb144c1b755f04769e1f29d832d6daeaf upstream.
 
-Fix an issue with VGA console font size changes made after the initial
-video text mode has been changed with a user tool like `svgatextmode'
-calling the VT_RESIZEX ioctl.  As it stands in that case the original
-screen geometry continues being used to validate further VT resizing.
+Revert the removal of code handling extra VT_RESIZEX ioctl's parameters
+beyond those that VT_RESIZE supports, fixing a functional regression
+causing `svgatextmode' not to resize the VT anymore.
 
-Consequently when the video adapter is firstly reprogrammed from the
-original say 80x25 text mode using a 9x16 character cell (720x400 pixel
-resolution) to say 80x37 text mode and the same character cell (720x592
-pixel resolution), and secondly the CRTC character cell updated to 9x8
-(by loading a suitable font with the KD_FONT_OP_SET request of the
-KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
-and only upper half of the screen is used for the VT, with the lower
-half showing rubbish corresponding to whatever happens to be there in
-the video memory that maps to that part of the screen.  Of course the
-proportions change according to text mode geometries and font sizes
-chosen.
+As a consequence of the reverted change when the video adapter is
+reprogrammed from the original say 80x25 text mode using a 9x16
+character cell (720x400 pixel resolution) to say 80x37 text mode and the
+same character cell (720x592 pixel resolution), the VT geometry does not
+get updated and only upper two thirds of the screen are used for the VT,
+and the lower part remains blank.  The proportions change according to
+text mode geometries chosen.
 
-Address the problem then, by updating the text mode geometry defaults
-rather than checking against them whenever the VT is resized via a user
-ioctl.
+Revert the change verbatim then, bringing back previous VT resizing.
 
 Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
-Cc: stable@vger.kernel.org # v2.6.24+
+Fixes: 988d0763361b ("vt_ioctl: make VT_RESIZEX behave like VT_RESIZE")
+Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/tty/vt/vt_ioctl.c |   57 +++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -1089,12 +1089,20 @@ static int vgacon_resize(struct vc_data
- 	if ((width << 1) * height > vga_vram_size)
- 		return -EINVAL;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -671,21 +671,58 @@ static int vt_resizex(struct vc_data *vc
+ 	if (copy_from_user(&v, cs, sizeof(struct vt_consize)))
+ 		return -EFAULT;
  
-+	if (user) {
-+		/*
-+		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
-+		 * the video mode!  Set the new defaults then and go away.
-+		 */
-+		screen_info.orig_video_cols = width;
-+		screen_info.orig_video_lines = height;
-+		vga_default_font_height = c->vc_font.height;
-+		return 0;
+-	if (v.v_vlin)
+-		pr_info_once("\"struct vt_consize\"->v_vlin is ignored. Please report if you need this.\n");
+-	if (v.v_clin)
+-		pr_info_once("\"struct vt_consize\"->v_clin is ignored. Please report if you need this.\n");
++	/* FIXME: Should check the copies properly */
++	if (!v.v_vlin)
++		v.v_vlin = vc->vc_scan_lines;
++
++	if (v.v_clin) {
++		int rows = v.v_vlin / v.v_clin;
++		if (v.v_rows != rows) {
++			if (v.v_rows) /* Parameters don't add up */
++				return -EINVAL;
++			v.v_rows = rows;
++		}
 +	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
- 	    c->vc_font.height)
--		/* let svgatextmode tinker with video timings and
--		   return success */
--		return (user) ? 0 : -EINVAL;
++
++	if (v.v_vcol && v.v_ccol) {
++		int cols = v.v_vcol / v.v_ccol;
++		if (v.v_cols != cols) {
++			if (v.v_cols)
++				return -EINVAL;
++			v.v_cols = cols;
++		}
++	}
++
++	if (v.v_clin > 32)
 +		return -EINVAL;
  
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
- 		vgacon_doresize(c, width, height);
+-	console_lock();
+ 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
+-		vc = vc_cons[i].d;
++		struct vc_data *vcp;
++
++		if (!vc_cons[i].d)
++			continue;
++		console_lock();
++		vcp = vc_cons[i].d;
++		if (vcp) {
++			int ret;
++			int save_scan_lines = vcp->vc_scan_lines;
++			int save_font_height = vcp->vc_font.height;
+ 
+-		if (vc) {
+-			vc->vc_resize_user = 1;
+-			vc_resize(vc, v.v_cols, v.v_rows);
++			if (v.v_vlin)
++				vcp->vc_scan_lines = v.v_vlin;
++			if (v.v_clin)
++				vcp->vc_font.height = v.v_clin;
++			vcp->vc_resize_user = 1;
++			ret = vc_resize(vcp, v.v_cols, v.v_rows);
++			if (ret) {
++				vcp->vc_scan_lines = save_scan_lines;
++				vcp->vc_font.height = save_font_height;
++				console_unlock();
++				return ret;
++			}
+ 		}
++		console_unlock();
+ 	}
+-	console_unlock();
+ 
+ 	return 0;
+ }
 
 
