@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 857EC38ED51
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 663B338EF10
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233900AbhEXPgY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:36:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50504 "EHLO mail.kernel.org"
+        id S235059AbhEXPz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39020 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233886AbhEXPec (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15BA9613F2;
-        Mon, 24 May 2021 15:31:57 +0000 (UTC)
+        id S234661AbhEXPxM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:53:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F252616EA;
+        Mon, 24 May 2021 15:39:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870318;
-        bh=3iOAUpIunq8o5uXAQzDcoek9kBPjKvTpZGYDo5alVaY=;
+        s=korg; t=1621870758;
+        bh=g4WznfC1RMud/RVC4tEowcseFD//o/MAWnIuwiNWWSA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xGIzVqW+Iu0fIftBFnM9M0knpRmL/H1fWJkQWi+0WnIhcpJa6Aq45YYKXP6xHg/LS
-         GuE52X4kbjmGWDHEC4cGUqqkwQUQx34OfjuquYS8zkJy0mQhVhfJ5kzSqJWuCpro4G
-         tfRWVFlMy45F+Gykwa6jVbFZ6/7W/Tc8opVh/4/I=
+        b=Z3uEpCl6ZugnlRzA/GoNagEX3Gxwy4J8/ZMhXEsvA1EfQp7E4mcHgLVYjxVvpkLm8
+         uoaXJSZBtkG6oYck3muYwu/F+cp571GGhlUI1wTV51hYEGXvJZ3ORUSGZ1RWUjEMH0
+         /ksfBqBBx5naim8+bLAyl2cEZw5rVbok4lL/WWHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 16/36] Revert "net: stmicro: fix a missing check of clk_prepare"
+        stable@vger.kernel.org, Jason Gunthorpe <jgg@nvidia.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 006/104] RDMA/core: Prevent divide-by-zero error triggered by the user
 Date:   Mon, 24 May 2021 17:25:01 +0200
-Message-Id: <20210524152324.690959122@linuxfoundation.org>
+Message-Id: <20210524152333.057239582@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit bee1b0511844c8c79fccf1f2b13472393b6b91f7 upstream.
+[ Upstream commit 54d87913f147a983589923c7f651f97de9af5be1 ]
 
-This reverts commit f86a3b83833e7cfe558ca4d70b64ebc48903efec.
+The user_entry_size is supplied by the user and later used as a
+denominator to calculate number of entries. The zero supplied by the user
+will trigger the following divide-by-zero error:
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+ divide error: 0000 [#1] SMP KASAN PTI
+ CPU: 4 PID: 497 Comm: c_repro Not tainted 5.13.0-rc1+ #281
+ Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+ RIP: 0010:ib_uverbs_handler_UVERBS_METHOD_QUERY_GID_TABLE+0x1b1/0x510
+ Code: 87 59 03 00 00 e8 9f ab 1e ff 48 8d bd a8 00 00 00 e8 d3 70 41 ff 44 0f b7 b5 a8 00 00 00 e8 86 ab 1e ff 31 d2 4c 89 f0 31 ff <49> f7 f5 48 89 d6 48 89 54 24 10 48 89 04 24 e8 1b ad 1e ff 48 8b
+ RSP: 0018:ffff88810416f828 EFLAGS: 00010246
+ RAX: 0000000000000008 RBX: 1ffff1102082df09 RCX: ffffffff82183f3d
+ RDX: 0000000000000000 RSI: ffff888105f2da00 RDI: 0000000000000000
+ RBP: ffff88810416fa98 R08: 0000000000000001 R09: ffffed102082df5f
+ R10: ffff88810416faf7 R11: ffffed102082df5e R12: 0000000000000000
+ R13: 0000000000000000 R14: 0000000000000008 R15: ffff88810416faf0
+ FS:  00007f5715efa740(0000) GS:ffff88811a700000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+ CR2: 0000000020000840 CR3: 000000010c2e0001 CR4: 0000000000370ea0
+ DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+ DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+ Call Trace:
+  ? ib_uverbs_handler_UVERBS_METHOD_INFO_HANDLES+0x4b0/0x4b0
+  ib_uverbs_cmd_verbs+0x1546/0x1940
+  ib_uverbs_ioctl+0x186/0x240
+  __x64_sys_ioctl+0x38a/0x1220
+  do_syscall_64+0x3f/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit causes a memory leak when it is trying to claim it
-is properly handling errors.  Revert this change and fix it up properly
-in a follow-on commit.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Fixes: f86a3b83833e ("net: stmicro: fix a missing check of clk_prepare")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-21-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 9f85cbe50aa0 ("RDMA/uverbs: Expose the new GID query API to user space")
+Link: https://lore.kernel.org/r/b971cc70a8b240a8b5eda33c99fa0558a0071be2.1620657876.git.leonro@nvidia.com
+Reviewed-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/infiniband/core/uverbs_std_types_device.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-sunxi.c
-@@ -59,9 +59,7 @@ static int sun7i_gmac_init(struct platfo
- 		gmac->clk_enabled = 1;
- 	} else {
- 		clk_set_rate(gmac->tx_clk, SUN7I_GMAC_MII_RATE);
--		ret = clk_prepare(gmac->tx_clk);
--		if (ret)
--			return ret;
-+		clk_prepare(gmac->tx_clk);
- 	}
+diff --git a/drivers/infiniband/core/uverbs_std_types_device.c b/drivers/infiniband/core/uverbs_std_types_device.c
+index 9ec6971056fa..a03021d94e11 100644
+--- a/drivers/infiniband/core/uverbs_std_types_device.c
++++ b/drivers/infiniband/core/uverbs_std_types_device.c
+@@ -331,6 +331,9 @@ static int UVERBS_HANDLER(UVERBS_METHOD_QUERY_GID_TABLE)(
+ 	if (ret)
+ 		return ret;
  
- 	return 0;
++	if (!user_entry_size)
++		return -EINVAL;
++
+ 	max_entries = uverbs_attr_ptr_get_array_size(
+ 		attrs, UVERBS_ATTR_QUERY_GID_TABLE_RESP_ENTRIES,
+ 		user_entry_size);
+-- 
+2.30.2
+
 
 
