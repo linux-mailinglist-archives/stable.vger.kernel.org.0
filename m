@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D17AA38EFE5
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D29C538EF1D
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235841AbhEXQAP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:00:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42834 "EHLO mail.kernel.org"
+        id S234716AbhEXP4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234798AbhEXP71 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:59:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 70B526145F;
-        Mon, 24 May 2021 15:45:13 +0000 (UTC)
+        id S233535AbhEXPzL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 867D16128B;
+        Mon, 24 May 2021 15:41:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871113;
-        bh=7KfIVN9pHpu0B/eBNxr7NuZtnIQ0ibfV+1Q4rIUF92A=;
+        s=korg; t=1621870899;
+        bh=fapQ2AtFga6aNrcEJb+wEG7H7bM5nXFUvbE7ZcNabB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O/onWhWzYYny1gdvncIBjS3NKGcrHMNG6MXELyFADCyT9vwOE/siF9qTpJE8YEiAt
-         eFxCqRJclgiXEjPhPAsAAVm/Uh2/H77dBx1h3SRl9kRI36tidNGQwg4jmnPf6NDyQr
-         HZgv7pwvhpQwLd025jrkTOI7FxTlRQ8oHt1TCcro=
+        b=MdkBJ+2JxzRf5/k2UkSxfvMgaK79Ml7RW2ZD5qGvES8BBBP/i33PphbmegbujrKrM
+         /hjsgXDwG1cGhjgpBPmnrqsryjsQ+6VZTjeAV7KOcuOaZjyzQZZEkXpRRfHfN4RO+l
+         WHA3OHAK6R607RHQGKXQ+qVGW39FDB7IEl6s0iTA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Subject: [PATCH 5.12 062/127] uio_hv_generic: Fix another memory leak in error handling paths
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Bryan Brattlof <hello@bryanbrattlof.com>
+Subject: [PATCH 5.10 084/104] Revert "rtlwifi: fix a potential NULL pointer dereference"
 Date:   Mon, 24 May 2021 17:26:19 +0200
-Message-Id: <20210524152336.928538044@linuxfoundation.org>
+Message-Id: <20210524152335.634043142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 0b0226be3a52dadd965644bc52a807961c2c26df upstream.
+commit 68c5634c4a7278672a3bed00eb5646884257c413 upstream.
 
-Memory allocated by 'vmbus_alloc_ring()' at the beginning of the probe
-function is never freed in the error handling path.
+This reverts commit 765976285a8c8db3f0eb7f033829a899d0c2786e.
 
-Add the missing 'vmbus_free_ring()' call.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Note that it is already freed in the .remove function.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Fixes: cdfa835c6e5e ("uio_hv_generic: defer opening vmbus until first use")
+This commit is not correct, it should not have used unlikely() and is
+not propagating the error properly to the calling function, so it should
+be reverted at this point in time.  Also, if the check failed, the
+work queue was still assumed to be allocated, so further accesses would
+have continued to fail, meaning this patch does nothing to solve the
+root issues at all.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Bryan Brattlof <hello@bryanbrattlof.com>
+Fixes: 765976285a8c ("rtlwifi: fix a potential NULL pointer dereference")
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Link: https://lore.kernel.org/r/0d86027b8eeed8e6360bc3d52bcdb328ff9bdca1.1620544055.git.christophe.jaillet@wanadoo.fr
+Link: https://lore.kernel.org/r/20210503115736.2104747-13-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/uio/uio_hv_generic.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/base.c |    5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/uio/uio_hv_generic.c
-+++ b/drivers/uio/uio_hv_generic.c
-@@ -291,7 +291,7 @@ hv_uio_probe(struct hv_device *dev,
- 	pdata->recv_buf = vzalloc(RECV_BUFFER_SIZE);
- 	if (pdata->recv_buf == NULL) {
- 		ret = -ENOMEM;
--		goto fail_close;
-+		goto fail_free_ring;
- 	}
- 
- 	ret = vmbus_establish_gpadl(channel, pdata->recv_buf,
-@@ -351,6 +351,8 @@ hv_uio_probe(struct hv_device *dev,
- 
- fail_close:
- 	hv_uio_cleanup(dev, pdata);
-+fail_free_ring:
-+	vmbus_free_ring(dev->channel);
- 
- 	return ret;
- }
+--- a/drivers/net/wireless/realtek/rtlwifi/base.c
++++ b/drivers/net/wireless/realtek/rtlwifi/base.c
+@@ -452,11 +452,6 @@ static void _rtl_init_deferred_work(stru
+ 	/* <2> work queue */
+ 	rtlpriv->works.hw = hw;
+ 	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
+-	if (unlikely(!rtlpriv->works.rtl_wq)) {
+-		pr_err("Failed to allocate work queue\n");
+-		return;
+-	}
+-
+ 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
+ 			  rtl_watchdog_wq_callback);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
 
 
