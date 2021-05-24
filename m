@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2457338EE1C
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C7838EDD4
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233787AbhEXPpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56932 "EHLO mail.kernel.org"
+        id S234025AbhEXPmn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:42:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233201AbhEXPnF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:43:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BFB3661446;
-        Mon, 24 May 2021 15:35:11 +0000 (UTC)
+        id S234055AbhEXPkh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:40:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11B556143F;
+        Mon, 24 May 2021 15:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870512;
-        bh=ogFyHBqwc8cEz8KsA8L6Q+Hn9skW7uqjYdcqmyQVW4g=;
+        s=korg; t=1621870462;
+        bh=11CFGkVqx0/wik8SpN3uohr7Pd+8jB70sbAWCEt25z8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QpjpBXU7gF3/rJfK1ZCG9wltyI1d6pIKWQBrN+reQy4s7F338nLikDCzrzLIVskuA
-         k4XPTM3BsFM3/WAadZyDntu5dB2xgTSQj+pz9CVsspY5cFVgPb0ZpUbgQsUqsNkLA4
-         z6/mZ4EuB4ij1XdcXzSVXioq/ipdb4Q9gGDvQIoc=
+        b=1vuxt8seZCrU+CYkKGp2xW2zuSIte3iliLPzDfBwuVmZstbn2/7pEcyFarGz25RHI
+         ci0wpzFv790kp6+zscDaUKInX/SC/iDpYMuuwF1Iaw0+YvwuHKzGopxdbY25hiip2T
+         Ad8M8uNljUENuzMLUqCD/KwJD6CDexb6s/VQA5yM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Tyler Hicks <code@tyhicks.com>
-Subject: [PATCH 4.19 30/49] Revert "ecryptfs: replace BUG_ON with error handling code"
+        stable@vger.kernel.org,
+        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Subject: [PATCH 4.14 37/37] tty: vt: always invoke vc->vc_sw->con_resize callback
 Date:   Mon, 24 May 2021 17:25:41 +0200
-Message-Id: <20210524152325.354855859@linuxfoundation.org>
+Message-Id: <20210524152325.418859115@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
-References: <20210524152324.382084875@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 
-commit e1436df2f2550bc89d832ffd456373fdf5d5b5d7 upstream.
+commit ffb324e6f874121f7dce5bdae5e05d02baae7269 upstream.
 
-This reverts commit 2c2a7552dd6465e8fde6bc9cccf8d66ed1c1eb72.
+syzbot is reporting OOB write at vga16fb_imageblit() [1], for
+resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
+requested rows/columns fit the amount of memory reserved for the graphical
+screen if current mode is KD_GRAPHICS.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+----------
+  #include <sys/types.h>
+  #include <sys/stat.h>
+  #include <fcntl.h>
+  #include <sys/ioctl.h>
+  #include <linux/kd.h>
+  #include <linux/vt.h>
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+  int main(int argc, char *argv[])
+  {
+        const int fd = open("/dev/char/4:1", O_RDWR);
+        struct vt_sizes vt = { 0x4100, 2 };
 
-The original commit log for this change was incorrect, no "error
-handling code" was added, things will blow up just as badly as before if
-any of these cases ever were true.  As this BUG_ON() never fired, and
-most of these checks are "obviously" never going to be true, let's just
-revert to the original code for now until this gets unwound to be done
-correctly in the future.
+        ioctl(fd, KDSETMODE, KD_GRAPHICS);
+        ioctl(fd, VT_RESIZE, &vt);
+        ioctl(fd, KDSETMODE, KD_TEXT);
+        return 0;
+  }
+----------
 
-Cc: Aditya Pakki <pakki001@umn.edu>
-Fixes: 2c2a7552dd64 ("ecryptfs: replace BUG_ON with error handling code")
-Cc: stable <stable@vger.kernel.org>
-Acked-by: Tyler Hicks <code@tyhicks.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-49-gregkh@linuxfoundation.org
+Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
+KD_GRAPHICS check from resize_screen() to fbcon_resize().
+
+Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
+Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ecryptfs/crypto.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/tty/vt/vt.c              |    2 +-
+ drivers/video/fbdev/core/fbcon.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ecryptfs/crypto.c
-+++ b/fs/ecryptfs/crypto.c
-@@ -325,10 +325,8 @@ static int crypt_scatterlist(struct ecry
- 	struct extent_crypt_result ecr;
- 	int rc = 0;
+--- a/drivers/tty/vt/vt.c
++++ b/drivers/tty/vt/vt.c
+@@ -835,7 +835,7 @@ static inline int resize_screen(struct v
+ 	/* Resizes the resolution of the display adapater */
+ 	int err = 0;
  
--	if (!crypt_stat || !crypt_stat->tfm
--	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED))
--		return -EINVAL;
--
-+	BUG_ON(!crypt_stat || !crypt_stat->tfm
-+	       || !(crypt_stat->flags & ECRYPTFS_STRUCT_INITIALIZED));
- 	if (unlikely(ecryptfs_verbosity > 0)) {
- 		ecryptfs_printk(KERN_DEBUG, "Key size [%zd]; key:\n",
- 				crypt_stat->key_size);
+-	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
++	if (vc->vc_sw->con_resize)
+ 		err = vc->vc_sw->con_resize(vc, width, height, user);
+ 
+ 	return err;
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2003,7 +2003,7 @@ static int fbcon_resize(struct vc_data *
+ 			return -EINVAL;
+ 
+ 		DPRINTK("resize now %ix%i\n", var.xres, var.yres);
+-		if (con_is_visible(vc)) {
++		if (con_is_visible(vc) && vc->vc_mode == KD_TEXT) {
+ 			var.activate = FB_ACTIVATE_NOW |
+ 				FB_ACTIVATE_FORCE;
+ 			fb_set_var(info, &var);
 
 
