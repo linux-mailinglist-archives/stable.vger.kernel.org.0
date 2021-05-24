@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E1B8B38ED67
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:35:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A77F038EEDA
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233653AbhEXPhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51614 "EHLO mail.kernel.org"
+        id S234350AbhEXPz3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:55:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38446 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233529AbhEXPe7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:34:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2B9FC613D0;
-        Mon, 24 May 2021 15:32:24 +0000 (UTC)
+        id S234508AbhEXPxE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:53:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 58A07616E8;
+        Mon, 24 May 2021 15:39:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870344;
-        bh=4HOjAGHMT/mLxQ+ZWKE9kSuVmLG91trN+tFHhEclEC8=;
+        s=korg; t=1621870755;
+        bh=5BIjGO/HfJ+QLLHPRH0DK/giklItFH5er/uviNOaCb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nJhLHdoZhP7i7vnEwI4SgZMe2PAi5phC5wP4brsXZepMp0oZvPoGBFQj4iDs1cqkq
-         OzzIxIer9Ep+NkYb/ClnpkPk3/gDHH39taTritvpSgklH+7YM+M0Jtae/dwWtwDD3+
-         GWWEFBG6hi50lTSMIlKAedGccd4+GanZdRmM4q8Y=
+        b=ia+cuevf+h/o/Opv55ekTmQqqLbDUJhMNUwD639YtZTs424Z2nsk0ZxNp4TA7YU+A
+         06YpBIC3Z30j589Ryp/3D81nnnAke6CxIHJ7x1Ddr8b0THgLBK+UyLp0Ii1YefPDOw
+         VB+uwFFB7or1HGOLknDUBpXi0YA7LpbBeAtjs77g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Aditya Pakki <pakki001@umn.edu>,
-        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Subject: [PATCH 4.9 15/36] Revert "video: hgafb: fix potential NULL pointer dereference"
+        stable@vger.kernel.org, Leon Romanovsky <leonro@nvidia.com>,
+        Bernard Metzler <bmt@zurich.ibm.com>,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 005/104] RDMA/siw: Release xarray entry
 Date:   Mon, 24 May 2021 17:25:00 +0200
-Message-Id: <20210524152324.660125436@linuxfoundation.org>
+Message-Id: <20210524152333.026054428@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.158146731@linuxfoundation.org>
-References: <20210524152324.158146731@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Leon Romanovsky <leonro@nvidia.com>
 
-commit 58c0cc2d90f1e37c4eb63ae7f164c83830833f78 upstream.
+[ Upstream commit a3d83276d98886879b5bf7b30b7c29882754e4df ]
 
-This reverts commit ec7f6aad57ad29e4e66cc2e18e1e1599ddb02542.
+The xarray entry is allocated in siw_qp_add(), but release was
+missed in case zero-sized SQ was discovered.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This patch "looks" correct, but the driver keeps on running and will
-fail horribly right afterward if this error condition ever trips.
-
-So points for trying to resolve an issue, but a huge NEGATIVE value for
-providing a "fake" fix for the problem as nothing actually got resolved
-at all.  I'll go fix this up properly...
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Ferenc Bakonyi <fero@drama.obuda.kando.hu>
-Cc: Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>
-Fixes: ec7f6aad57ad ("video: hgafb: fix potential NULL pointer dereference")
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-39-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 661f385961f0 ("RDMA/siw: Fix handling of zero-sized Read and Receive Queues.")
+Link: https://lore.kernel.org/r/f070b59d5a1114d5a4e830346755c2b3f141cde5.1620560472.git.leonro@nvidia.com
+Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
+Reviewed-by: Bernard Metzler <bmt@zurich.ibm.com>
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/hgafb.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/infiniband/sw/siw/siw_verbs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/hgafb.c
-+++ b/drivers/video/fbdev/hgafb.c
-@@ -285,8 +285,6 @@ static int hga_card_detect(void)
- 	hga_vram_len  = 0x08000;
- 
- 	hga_vram = ioremap(0xb0000, hga_vram_len);
--	if (!hga_vram)
--		goto error;
- 
- 	if (request_region(0x3b0, 12, "hgafb"))
- 		release_io_ports = 1;
+diff --git a/drivers/infiniband/sw/siw/siw_verbs.c b/drivers/infiniband/sw/siw/siw_verbs.c
+index 11bd3205dbc6..34e847a91eb8 100644
+--- a/drivers/infiniband/sw/siw/siw_verbs.c
++++ b/drivers/infiniband/sw/siw/siw_verbs.c
+@@ -372,7 +372,7 @@ struct ib_qp *siw_create_qp(struct ib_pd *pd,
+ 	else {
+ 		/* Zero sized SQ is not supported */
+ 		rv = -EINVAL;
+-		goto err_out;
++		goto err_out_xa;
+ 	}
+ 	if (num_rqe)
+ 		num_rqe = roundup_pow_of_two(num_rqe);
+-- 
+2.30.2
+
 
 
