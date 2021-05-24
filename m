@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E889638E922
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:46:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 841A138E925
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:46:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbhEXOsM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:48:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54154 "EHLO mail.kernel.org"
+        id S233219AbhEXOsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:48:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233168AbhEXOr6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:47:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5AB4A613D0;
-        Mon, 24 May 2021 14:46:29 +0000 (UTC)
+        id S233172AbhEXOr7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:47:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 978DF613BC;
+        Mon, 24 May 2021 14:46:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867590;
-        bh=N6QBhbaoixqNSH7hQZQXy04G9OzUiSPwdaXmmotnH0I=;
+        s=k20201202; t=1621867591;
+        bh=xDh8vqmsD0PqY7lkpUvW7q/+AmZ23MBZFO5QElc9QaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OrEWw6BOU+/vtIfbzaeBs2u1xheNjfxiRzH7AHCbA84dIe4JjLrPm17Vwsn5IUzL8
-         +klowIxuIbjPmcVVBwecxzbC19bexh6QttYFSFbHthj0TpjAOXs0K+b5epctNt3zPf
-         y7DYMzvvKG/yhnytBiwH7aJ1zXI4midxMF+IHk88tw83q9X9xmS9mP39Vj4HiZnZYm
-         JjIFkOuHuTeqLEfC8E8giuE8yjUWTXu7b0T/B/vIaMevu16qW3AzgUAKsjqYLc0bZu
-         Esxp5TonP9rK+/Aii+DPs0z1etoCauFbAPEDvEG2Yy7qTlc+7RDGEeLArW2jAWWiWq
-         W2lxFGZoRjgMQ==
+        b=a8qYhsoV0bYiY9RkaQwa1fN1N7MB6g1YTPnEm26xXKUpppThI4H5IP7hTr98AIC72
+         ++6C8+6c2pKc/iElMx+cd4BVBeNnrCJYdCQIh4MJ3ckFAauyujzdnr7+xSjygGF3qX
+         40aDZKJgCqycB7AhJ4RVD28ju5qg6BgQQHbMXPvuDevtWcSbbl4wb/bPuvI6psTkys
+         lZq2mQOCQXL7rK1hNGyEEAG8GIbLolYPLV9WgVNEjkmYD3klD/OqDTIElSQNk7Lo5P
+         VGg0U4uhc+NkyMYT1nhhYfDD78l7Pg9s6bbaCIEjvZaUm6Ss62RmV6GoZu9yI4Ay+j
+         hdz5zc5+RCEyw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Atul Gopinathan <atulgopinathan@gmail.com>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 07/63] serial: max310x: unregister uart driver in case of failure and abort
-Date:   Mon, 24 May 2021 10:45:24 -0400
-Message-Id: <20210524144620.2497249-7-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kangjie Lu <kjlu@umn.edu>,
+        "David S . Miller" <davem@davemloft.net>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 08/63] Revert "net: fujitsu: fix a potential NULL pointer dereference"
+Date:   Mon, 24 May 2021 10:45:25 -0400
+Message-Id: <20210524144620.2497249-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144620.2497249-1-sashal@kernel.org>
 References: <20210524144620.2497249-1-sashal@kernel.org>
@@ -43,47 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 3890e3dea315f1a257d1b940a2a4e2fa16a7b095 ]
+[ Upstream commit 5f94eaa4ee23e80841fa359a372f84cfe25daee1 ]
 
-The macro "spi_register_driver" invokes the function
-"__spi_register_driver()" which has a return type of int and can fail,
-returning a negative value in such a case. This is currently ignored and
-the init() function yields success even if the spi driver failed to
-register.
+This reverts commit 9f4d6358e11bbc7b839f9419636188e4151fb6e4.
 
-Fix this by collecting the return value of "__spi_register_driver()" and
-also unregister the uart driver in case of failure.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-12-gregkh@linuxfoundation.org
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original change does not change any behavior as the caller of this
+function onlyu checks for "== -1" as an error condition so this error is
+not handled properly.  Remove this change and it will be fixed up
+properly in a later commit.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-15-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/fujitsu/fmvj18x_cs.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 93f69b66b896..43e55e6abea6 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1518,10 +1518,12 @@ static int __init max310x_uart_init(void)
- 		return ret;
+diff --git a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
+index a7b7a4aace79..dc90c61fc827 100644
+--- a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
++++ b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
+@@ -547,11 +547,6 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
+ 	return -1;
  
- #ifdef CONFIG_SPI_MASTER
--	spi_register_driver(&max310x_spi_driver);
-+	ret = spi_register_driver(&max310x_spi_driver);
-+	if (ret)
-+		uart_unregister_driver(&max310x_uart);
- #endif
+     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
+-    if (!base) {
+-	    pcmcia_release_window(link, link->resource[2]);
+-	    return -ENOMEM;
+-    }
+-
+     pcmcia_map_mem_page(link, link->resource[2], 0);
  
--	return 0;
-+	return ret;
- }
- module_init(max310x_uart_init);
- 
+     /*
 -- 
 2.30.2
 
