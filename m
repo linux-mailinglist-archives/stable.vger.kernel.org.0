@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 276E838EE45
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 25BF638EDA4
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232906AbhEXPru (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:47:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33832 "EHLO mail.kernel.org"
+        id S233672AbhEXPkR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:40:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233952AbhEXPpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:45:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAF9C6145E;
-        Mon, 24 May 2021 15:36:32 +0000 (UTC)
+        id S232974AbhEXPiV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:38:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C03361425;
+        Mon, 24 May 2021 15:33:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870593;
-        bh=tp882o/zghF5p/HiL5a1X0yQiJpnlZs6BbLpzJElWZQ=;
+        s=korg; t=1621870405;
+        bh=jz5lJpbrtEPhliG6O76iXaB5fHjt4HN2bNwhoy5SiXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HAGK/XoiAzgt77OPA4wVNid5WgDQGtUp86QemYGpgkA/QL93OKkyrb9mAdPyfwvC+
-         xjLv53XdjZamqUwS3kUqpNuZAxVEJQu2grPid6ATdcEeQi/eu6VU85vnr2s34MSBnT
-         mchvLe7atsu9S2KT8r0BGb1unajWVjtlH3hXU7/0=
+        b=im1bUHfV7FFETRZEtmANdXg+qz9bGVPmCkCMX9Yn8br4kI8bALJlHxO6joQdl1FW+
+         cn4DCVvhMrVio7pXMX3+UfvZAxszFNdRQ+hDvXvo0JeuVmc7AKLaxS9UC5ZYdf20BD
+         DuUx1NB5x29qn7KoatwVzCOc3v8jE9AAqivfWvRA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aurelien Aptel <aaptel@suse.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.4 17/71] cifs: fix memory leak in smb2_copychunk_range
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.14 19/37] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
 Date:   Mon, 24 May 2021 17:25:23 +0200
-Message-Id: <20210524152327.021522694@linuxfoundation.org>
+Message-Id: <20210524152324.833261636@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+References: <20210524152324.199089755@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronnie Sahlberg <lsahlber@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d201d7631ca170b038e7f8921120d05eec70d7c5 upstream.
+commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
 
-When using smb2_copychunk_range() for large ranges we will
-run through several iterations of a loop calling SMB2_ioctl()
-but never actually free the returned buffer except for the final
-iteration.
-This leads to memory leaks everytime a large copychunk is requested.
+This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
 
-Fixes: 9bf0c9cd4314 ("CIFS: Fix SMB2/SMB3 Copy offload support (refcopy) for large files")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Aurelien Aptel <aaptel@suse.com>
-Signed-off-by: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, it was determined that this commit is not needed at all so
+just revert it.  Also, the call to lm80_init_client() was not properly
+handled, so if error handling is needed in the lm80_probe() function,
+then it should be done properly, not half-baked like the commit being
+reverted here did.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2ops.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hwmon/lm80.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/fs/cifs/smb2ops.c
-+++ b/fs/cifs/smb2ops.c
-@@ -1673,6 +1673,8 @@ smb2_copychunk_range(const unsigned int
- 			cpu_to_le32(min_t(u32, len, tcon->max_bytes_chunk));
+--- a/drivers/hwmon/lm80.c
++++ b/drivers/hwmon/lm80.c
+@@ -630,7 +630,6 @@ static int lm80_probe(struct i2c_client
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
+ 	struct lm80_data *data;
+-	int rv;
  
- 		/* Request server copy to target from src identified by key */
-+		kfree(retbuf);
-+		retbuf = NULL;
- 		rc = SMB2_ioctl(xid, tcon, trgtfile->fid.persistent_fid,
- 			trgtfile->fid.volatile_fid, FSCTL_SRV_COPYCHUNK_WRITE,
- 			true /* is_fsctl */, (char *)pcchunk,
+ 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
+ 	if (!data)
+@@ -643,14 +642,8 @@ static int lm80_probe(struct i2c_client
+ 	lm80_init_client(client);
+ 
+ 	/* A few vars need to be filled upon startup */
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][0] = rv;
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][1] = rv;
++	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
++	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+ 
+ 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
+ 							   data, lm80_groups);
 
 
