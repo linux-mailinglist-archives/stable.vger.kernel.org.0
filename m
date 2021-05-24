@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 186DF38EDD6
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60D3038EE0D
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233450AbhEXPmw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:42:52 -0400
+        id S233583AbhEXPpV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:21 -0400
 Received: from mail.kernel.org ([198.145.29.99]:56778 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233528AbhEXPkw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:40:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A69F6142C;
-        Mon, 24 May 2021 15:34:24 +0000 (UTC)
+        id S233165AbhEXPmw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:42:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 70A236140A;
+        Mon, 24 May 2021 15:35:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870464;
-        bh=cqS4uG4oymDwgtZch5JHh0WuULcKvxegNLzQvl62z24=;
+        s=korg; t=1621870507;
+        bh=jz5lJpbrtEPhliG6O76iXaB5fHjt4HN2bNwhoy5SiXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dvfF+CEHgtANe5q1voma2wnneqiOdyEGPMplA0Kle1LLJKi8iBQ2ZQzXz53NvMkaR
-         8bDiIqRhQms5RVrPpteJGcjyq3E0ksUvu57sP9lhUII15WS6L2s9Mwna7HghowcTcD
-         LW4v+wKxu7Wyb0S8+5jvTOT3Ah/sQ3jiLI+IoEHE=
+        b=MXmru4TFHA8Xn+XQ8rop02FgQOy9H/Nz/NOYLZltQ9IBtfZsp771ME9O9C1vA1m0y
+         U3lkPuO45F7WMi+wU2Rdqe67YBNd3LHcgsimYKMyXQsX/T5s3u9QITXpqtozk0yy+j
+         BY9Jm8kCrtOLJ2IDg+RSUfTiVIJ9F0BIiFotBNjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.14 35/37] vgacon: Record video mode changes with VT_RESIZEX
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Guenter Roeck <linux@roeck-us.net>
+Subject: [PATCH 4.19 28/49] Revert "hwmon: (lm80) fix a missing check of bus read in lm80 probe"
 Date:   Mon, 24 May 2021 17:25:39 +0200
-Message-Id: <20210524152325.352993815@linuxfoundation.org>
+Message-Id: <20210524152325.289902282@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,65 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej W. Rozycki <macro@orcam.me.uk>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit d4d0ad57b3865795c4cde2fb5094c594c2e8f469 upstream.
+commit 99ae3417672a6d4a3bf68d4fc43d7c6ca074d477 upstream.
 
-Fix an issue with VGA console font size changes made after the initial
-video text mode has been changed with a user tool like `svgatextmode'
-calling the VT_RESIZEX ioctl.  As it stands in that case the original
-screen geometry continues being used to validate further VT resizing.
+This reverts commit 9aa3aa15f4c2f74f47afd6c5db4b420fadf3f315.
 
-Consequently when the video adapter is firstly reprogrammed from the
-original say 80x25 text mode using a 9x16 character cell (720x400 pixel
-resolution) to say 80x37 text mode and the same character cell (720x592
-pixel resolution), and secondly the CRTC character cell updated to 9x8
-(by loading a suitable font with the KD_FONT_OP_SET request of the
-KDFONTOP ioctl), the VT geometry does not get further updated from 80x37
-and only upper half of the screen is used for the VT, with the lower
-half showing rubbish corresponding to whatever happens to be there in
-the video memory that maps to that part of the screen.  Of course the
-proportions change according to text mode geometries and font sizes
-chosen.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Address the problem then, by updating the text mode geometry defaults
-rather than checking against them whenever the VT is resized via a user
-ioctl.
+Upon review, it was determined that this commit is not needed at all so
+just revert it.  Also, the call to lm80_init_client() was not properly
+handled, so if error handling is needed in the lm80_probe() function,
+then it should be done properly, not half-baked like the commit being
+reverted here did.
 
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Fixes: e400b6ec4ede ("vt/vgacon: Check if screen resize request comes from userspace")
-Cc: stable@vger.kernel.org # v2.6.24+
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Fixes: 9aa3aa15f4c2 ("hwmon: (lm80) fix a missing check of bus read in lm80 probe")
+Cc: stable <stable@vger.kernel.org>
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-5-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/console/vgacon.c |   14 +++++++++++---
- 1 file changed, 11 insertions(+), 3 deletions(-)
+ drivers/hwmon/lm80.c |   11 ++---------
+ 1 file changed, 2 insertions(+), 9 deletions(-)
 
---- a/drivers/video/console/vgacon.c
-+++ b/drivers/video/console/vgacon.c
-@@ -1100,12 +1100,20 @@ static int vgacon_resize(struct vc_data
- 	if ((width << 1) * height > vga_vram_size)
- 		return -EINVAL;
+--- a/drivers/hwmon/lm80.c
++++ b/drivers/hwmon/lm80.c
+@@ -630,7 +630,6 @@ static int lm80_probe(struct i2c_client
+ 	struct device *dev = &client->dev;
+ 	struct device *hwmon_dev;
+ 	struct lm80_data *data;
+-	int rv;
  
-+	if (user) {
-+		/*
-+		 * Ho ho!  Someone (svgatextmode, eh?) may have reprogrammed
-+		 * the video mode!  Set the new defaults then and go away.
-+		 */
-+		screen_info.orig_video_cols = width;
-+		screen_info.orig_video_lines = height;
-+		vga_default_font_height = c->vc_font.height;
-+		return 0;
-+	}
- 	if (width % 2 || width > screen_info.orig_video_cols ||
- 	    height > (screen_info.orig_video_lines * vga_default_font_height)/
- 	    c->vc_font.height)
--		/* let svgatextmode tinker with video timings and
--		   return success */
--		return (user) ? 0 : -EINVAL;
-+		return -EINVAL;
+ 	data = devm_kzalloc(dev, sizeof(struct lm80_data), GFP_KERNEL);
+ 	if (!data)
+@@ -643,14 +642,8 @@ static int lm80_probe(struct i2c_client
+ 	lm80_init_client(client);
  
- 	if (con_is_visible(c) && !vga_is_gfx) /* who knows */
- 		vgacon_doresize(c, width, height);
+ 	/* A few vars need to be filled upon startup */
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(1));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][0] = rv;
+-	rv = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+-	if (rv < 0)
+-		return rv;
+-	data->fan[f_min][1] = rv;
++	data->fan[f_min][0] = lm80_read_value(client, LM80_REG_FAN_MIN(1));
++	data->fan[f_min][1] = lm80_read_value(client, LM80_REG_FAN_MIN(2));
+ 
+ 	hwmon_dev = devm_hwmon_device_register_with_groups(dev, client->name,
+ 							   data, lm80_groups);
 
 
