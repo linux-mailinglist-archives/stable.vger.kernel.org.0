@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA3838EE82
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A00138EF9A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:57:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233815AbhEXPvJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33990 "EHLO mail.kernel.org"
+        id S235097AbhEXP6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39954 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232548AbhEXPsd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:48:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C70E0613BC;
-        Mon, 24 May 2021 15:37:37 +0000 (UTC)
+        id S235047AbhEXP5e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:57:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17EE961954;
+        Mon, 24 May 2021 15:43:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870658;
-        bh=sTz6XrR3syPDSWyg/TB/3cIFmLu+NQdSjbLs1Aee43c=;
+        s=korg; t=1621871020;
+        bh=ef2Jue2QD5V+1y3aD/PrGDsVDrMUNIS1SIQLhYS5L5c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PbDRVfmSoFuoPPM9c9ZCTVObYM5iCWk4dE/kQSoKS6wlJ372pxRcyFou8ra6sdh72
-         Jnm64BWWTD5Ua4qzyi+Pv3KDFn4N6yyW62dEuWfsjp8tSqgfzkeQI/wPabeb3EJ7N8
-         6PwCDTG7um+cspovf91enerQP76gr9ocIrdkw6As=
+        b=PmKWSab/G/SdH8us7t6ZrSzIaW9r6qSzyplo+n+lNCQ8OicqeTFvSDz2r3Rs++ojO
+         +uIf/dawWl2pAFQYi80ldNnt36FkqWHqcimCI0ywOvaoaJhSzgjf5tzdZbk9yiPIJr
+         Q26pPkOJK8bOC+mbDA2lC2b6IAgWT/Jcwmcajg9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Subject: [PATCH 5.4 46/71] Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
+        stable@vger.kernel.org, Rik van Riel <riel@surriel.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 035/127] btrfs: avoid RCU stalls while running delayed iputs
 Date:   Mon, 24 May 2021 17:25:52 +0200
-Message-Id: <20210524152327.963073733@linuxfoundation.org>
+Message-Id: <20210524152336.037395420@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit 8d1beda5f11953ffe135a5213287f0b25b4da41b upstream.
+commit 71795ee590111e3636cc3c148289dfa9fa0a5fc3 upstream.
 
-This reverts commit 248b57015f35c94d4eae2fdd8c6febf5cd703900.
+Generally a delayed iput is added when we might do the final iput, so
+usually we'll end up sleeping while processing the delayed iputs
+naturally.  However there's no guarantee of this, especially for small
+files.  In production we noticed 5 instances of RCU stalls while testing
+a kernel release overnight across 1000 machines, so this is relatively
+common:
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+  host count: 5
+  rcu: INFO: rcu_sched self-detected stall on CPU
+  rcu: ....: (20998 ticks this GP) idle=59e/1/0x4000000000000002 softirq=12333372/12333372 fqs=3208
+   	(t=21031 jiffies g=27810193 q=41075) NMI backtrace for cpu 1
+  CPU: 1 PID: 1713 Comm: btrfs-cleaner Kdump: loaded Not tainted 5.6.13-0_fbk12_rc1_5520_gec92bffc1ec9 #1
+  Call Trace:
+    <IRQ> dump_stack+0x50/0x70
+    nmi_cpu_backtrace.cold.6+0x30/0x65
+    ? lapic_can_unplug_cpu.cold.30+0x40/0x40
+    nmi_trigger_cpumask_backtrace+0xba/0xca
+    rcu_dump_cpu_stacks+0x99/0xc7
+    rcu_sched_clock_irq.cold.90+0x1b2/0x3a3
+    ? trigger_load_balance+0x5c/0x200
+    ? tick_sched_do_timer+0x60/0x60
+    ? tick_sched_do_timer+0x60/0x60
+    update_process_times+0x24/0x50
+    tick_sched_timer+0x37/0x70
+    __hrtimer_run_queues+0xfe/0x270
+    hrtimer_interrupt+0xf4/0x210
+    smp_apic_timer_interrupt+0x5e/0x120
+    apic_timer_interrupt+0xf/0x20 </IRQ>
+   RIP: 0010:queued_spin_lock_slowpath+0x17d/0x1b0
+   RSP: 0018:ffffc9000da5fe48 EFLAGS: 00000246 ORIG_RAX: ffffffffffffff13
+   RAX: 0000000000000000 RBX: ffff889fa81d0cd8 RCX: 0000000000000029
+   RDX: ffff889fff86c0c0 RSI: 0000000000080000 RDI: ffff88bfc2da7200
+   RBP: ffff888f2dcdd768 R08: 0000000001040000 R09: 0000000000000000
+   R10: 0000000000000001 R11: ffffffff82a55560 R12: ffff88bfc2da7200
+   R13: 0000000000000000 R14: ffff88bff6c2a360 R15: ffffffff814bd870
+   ? kzalloc.constprop.57+0x30/0x30
+   list_lru_add+0x5a/0x100
+   inode_lru_list_add+0x20/0x40
+   iput+0x1c1/0x1f0
+   run_delayed_iput_locked+0x46/0x90
+   btrfs_run_delayed_iputs+0x3f/0x60
+   cleaner_kthread+0xf2/0x120
+   kthread+0x10b/0x130
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+Fix this by adding a cond_resched_lock() to the loop processing delayed
+iputs so we can avoid these sort of stalls.
 
-The original commit does not properly unwind if there is an error
-condition so it needs to be reverted at this point in time.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
-Cc: stable <stable@vger.kernel.org>
-Fixes: 248b57015f35 ("leds: lp5523: fix a missing check of return value of lp55xx_read")
-Link: https://lore.kernel.org/r/20210503115736.2104747-9-gregkh@linuxfoundation.org
+CC: stable@vger.kernel.org # 4.9+
+Reviewed-by: Rik van Riel <riel@surriel.com>
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/leds/leds-lp5523.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ fs/btrfs/inode.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/leds/leds-lp5523.c
-+++ b/drivers/leds/leds-lp5523.c
-@@ -305,9 +305,7 @@ static int lp5523_init_program_engine(st
- 
- 	/* Let the programs run for couple of ms and check the engine status */
- 	usleep_range(3000, 6000);
--	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
--	if (ret)
--		return ret;
-+	lp55xx_read(chip, LP5523_REG_STATUS, &status);
- 	status &= LP5523_ENG_STATUS_MASK;
- 
- 	if (status != LP5523_ENG_STATUS_MASK) {
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -3253,6 +3253,7 @@ void btrfs_run_delayed_iputs(struct btrf
+ 		inode = list_first_entry(&fs_info->delayed_iputs,
+ 				struct btrfs_inode, delayed_iput);
+ 		run_delayed_iput_locked(fs_info, inode);
++		cond_resched_lock(&fs_info->delayed_iput_lock);
+ 	}
+ 	spin_unlock(&fs_info->delayed_iput_lock);
+ }
 
 
