@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E82138EF3B
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B31938EFE1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235384AbhEXP4b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:56:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40464 "EHLO mail.kernel.org"
+        id S235476AbhEXQAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:00:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235079AbhEXPzp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4084A6193F;
-        Mon, 24 May 2021 15:42:09 +0000 (UTC)
+        id S235838AbhEXP7P (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CEC9610CB;
+        Mon, 24 May 2021 15:45:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870929;
-        bh=SFIWmuCmd6K2BeIYJTK9POv4VRaOLzfGVszXVW0XUB4=;
+        s=korg; t=1621871109;
+        bh=yWGoagD7je4bCFJe3xmVWzn6dRxdct0Rh/ztAJtI6Gw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U+MxT6m+WE4Hjtl+kc3vkgZDPp9XAbM4dWyYpNYyfDlP2L+GR44zjVZa30e0TPoZE
-         VdOh8ZEupr/cfQ1ZFhGNyyTnXOpI31rqAZiTv5Q2z43JWMHCNJdghWU5k7eHAsIqMc
-         eOZY32CtQQixjhxqxd/TlD3rq2VyxM4ihh9qzUhQ=
+        b=Ra5Ne+P8fCyHKvq4jMRR5/RdDYTXVVXxRm0ZW4q9zqF3e0Shf3kMKzv+vCxgtqxQD
+         IZRCeAnsRReKgsC4Bljo+Hqmm2GzDzbAUaJMTwNe2Mhb228HWIoPFe0NTMrh8qw+u6
+         elKjUOHJMRrTL7YjTKE2TLbNFWivzOsVFfIzbHJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>
-Subject: [PATCH 5.10 100/104] openrisc: mm/init.c: remove unused memblock_region variable in map_ram()
+        stable@vger.kernel.org, Changfeng <Changfeng.Zhu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Huang Rui <ray.huang@amd.com>
+Subject: [PATCH 5.12 078/127] drm/amdgpu: disable 3DCGCG on picasso/raven1 to avoid compute hang
 Date:   Mon, 24 May 2021 17:26:35 +0200
-Message-Id: <20210524152336.161475222@linuxfoundation.org>
+Message-Id: <20210524152337.487819212@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Changfeng <Changfeng.Zhu@amd.com>
 
-commit 4eff124347191d1548eb4e14e20e77513dcbd0fe upstream.
+commit dbd1003d1252db5973dddf20b24bb0106ac52aa2 upstream.
 
-Kernel test robot reports:
+There is problem with 3DCGCG firmware and it will cause compute test
+hang on picasso/raven1. It needs to disable 3DCGCG in driver to avoid
+compute hang.
 
-cppcheck possible warnings: (new ones prefixed by >>, may not real problems)
-
->> arch/openrisc/mm/init.c:125:10: warning: Uninitialized variable: region [uninitvar]
-            region->base, region->base + region->size);
-            ^
-
-Replace usage of memblock_region fields with 'start' and 'end' variables
-that are initialized in for_each_mem_range() and remove the declaration of
-region.
-
-Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Changfeng <Changfeng.Zhu@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Huang Rui <ray.huang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/openrisc/mm/init.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c |   10 +++++++---
+ drivers/gpu/drm/amd/amdgpu/soc15.c    |    2 --
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -76,7 +76,6 @@ static void __init map_ram(void)
- 	/* These mark extents of read-only kernel pages...
- 	 * ...from vmlinux.lds.S
- 	 */
--	struct memblock_region *region;
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v9_0.c
+@@ -4864,7 +4864,7 @@ static void gfx_v9_0_update_3d_clock_gat
+ 	amdgpu_gfx_rlc_enter_safe_mode(adev);
  
- 	v = PAGE_OFFSET;
+ 	/* Enable 3D CGCG/CGLS */
+-	if (enable && (adev->cg_flags & AMD_CG_SUPPORT_GFX_3D_CGCG)) {
++	if (enable) {
+ 		/* write cmd to clear cgcg/cgls ov */
+ 		def = data = RREG32_SOC15(GC, 0, mmRLC_CGTT_MGCG_OVERRIDE);
+ 		/* unset CGCG override */
+@@ -4876,8 +4876,12 @@ static void gfx_v9_0_update_3d_clock_gat
+ 		/* enable 3Dcgcg FSM(0x0000363f) */
+ 		def = RREG32_SOC15(GC, 0, mmRLC_CGCG_CGLS_CTRL_3D);
  
-@@ -122,7 +121,7 @@ static void __init map_ram(void)
- 		}
- 
- 		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
--		       region->base, region->base + region->size);
-+		       start, end);
- 	}
- }
- 
+-		data = (0x36 << RLC_CGCG_CGLS_CTRL_3D__CGCG_GFX_IDLE_THRESHOLD__SHIFT) |
+-			RLC_CGCG_CGLS_CTRL_3D__CGCG_EN_MASK;
++		if (adev->cg_flags & AMD_CG_SUPPORT_GFX_3D_CGCG)
++			data = (0x36 << RLC_CGCG_CGLS_CTRL_3D__CGCG_GFX_IDLE_THRESHOLD__SHIFT) |
++				RLC_CGCG_CGLS_CTRL_3D__CGCG_EN_MASK;
++		else
++			data = 0x0 << RLC_CGCG_CGLS_CTRL_3D__CGCG_GFX_IDLE_THRESHOLD__SHIFT;
++
+ 		if (adev->cg_flags & AMD_CG_SUPPORT_GFX_3D_CGLS)
+ 			data |= (0x000F << RLC_CGCG_CGLS_CTRL_3D__CGLS_REP_COMPANSAT_DELAY__SHIFT) |
+ 				RLC_CGCG_CGLS_CTRL_3D__CGLS_EN_MASK;
+--- a/drivers/gpu/drm/amd/amdgpu/soc15.c
++++ b/drivers/gpu/drm/amd/amdgpu/soc15.c
+@@ -1151,7 +1151,6 @@ static int soc15_common_early_init(void
+ 			adev->cg_flags = AMD_CG_SUPPORT_GFX_MGCG |
+ 				AMD_CG_SUPPORT_GFX_MGLS |
+ 				AMD_CG_SUPPORT_GFX_CP_LS |
+-				AMD_CG_SUPPORT_GFX_3D_CGCG |
+ 				AMD_CG_SUPPORT_GFX_3D_CGLS |
+ 				AMD_CG_SUPPORT_GFX_CGCG |
+ 				AMD_CG_SUPPORT_GFX_CGLS |
+@@ -1170,7 +1169,6 @@ static int soc15_common_early_init(void
+ 				AMD_CG_SUPPORT_GFX_MGLS |
+ 				AMD_CG_SUPPORT_GFX_RLC_LS |
+ 				AMD_CG_SUPPORT_GFX_CP_LS |
+-				AMD_CG_SUPPORT_GFX_3D_CGCG |
+ 				AMD_CG_SUPPORT_GFX_3D_CGLS |
+ 				AMD_CG_SUPPORT_GFX_CGCG |
+ 				AMD_CG_SUPPORT_GFX_CGLS |
 
 
