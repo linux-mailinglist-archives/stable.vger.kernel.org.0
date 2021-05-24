@@ -2,104 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 48F2F38E32F
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 11:20:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D580538E335
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 11:22:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232445AbhEXJWX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 05:22:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60310 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232396AbhEXJWX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 05:22:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 764E1610A5;
-        Mon, 24 May 2021 09:20:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621848055;
-        bh=C0KBuOweP0oMeWO7jZ/E760szJDDgstvTnUGvt0yHWA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Ya/vuiRdNbMFglqcGaSGWwrGgMJZeNO6vpJ65Gb+JpreHSSUHyOqwcZLqlmhh0oim
-         TKIRJEJYIYzys7GksHNtNAtGIkk10BRx95UEEVUSUflDP3M/9na4i2w7V3KN0v/ccs
-         nfDRcZgGCtWlh2CnVLioJpYEcMs6Zm6Ouk3LMcGOddtcw+Ggxj0U4Wnt6X2/nmEsXx
-         d+OLb3geOo/SRTInTGBwgR9InvIbW5Sc2tz/U61+3X35Ty0a8Y2WLEbCsnI6NIaAle
-         nWdBv7A50Vj56/k+ew+HAKB/ZRgPEFPokDLMgOiXs8bYpsDmBhyrn9wJc/0fdwAaP3
-         1CgASWK1SXSnA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1ll6lZ-0001AO-6Q; Mon, 24 May 2021 11:20:53 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] Input: usbtouchscreen - fix control-request directions
-Date:   Mon, 24 May 2021 11:20:48 +0200
-Message-Id: <20210524092048.4443-1-johan@kernel.org>
-X-Mailer: git-send-email 2.26.3
+        id S232415AbhEXJYZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 05:24:25 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47576 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232397AbhEXJYY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 05:24:24 -0400
+Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CE24C061574
+        for <stable@vger.kernel.org>; Mon, 24 May 2021 02:22:55 -0700 (PDT)
+Received: by mail-pj1-x1029.google.com with SMTP id j6-20020a17090adc86b02900cbfe6f2c96so10793480pjv.1
+        for <stable@vger.kernel.org>; Mon, 24 May 2021 02:22:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=xj5hIQLkt23AixXJ4XbOTdtrFBzCRLq1s+kT1tQyxrk=;
+        b=t2B/Cog9+pJBFD1k7vL17puk5PmzRL62Ka43f6juJ7gPSQoddijqfLZ/ykrB5ttVXC
+         Uwc0ewd+TEhSb23/E+uGq3YggfdV7d7OaXAtUgBYny1YQVJcywAqVzv6wlMFreT4zxNr
+         pcZks5wH9PFmw6lx9usBdKsfDIweFbZyutqKD+n/gLAbAEM6oinevRg3AUWHU9RFh8M0
+         0+OygfL/HwjTsXjsBRmLO1gPRguYUNwqAmcBrG90ROELcCtizp2YZcjufvfl/HJYNqUx
+         dVCiUZCSslpYQXE7jZxlVv3KXZvx/SQtSAGL93MYOmD9qHj6qmqlMsWvcoDV1X3Mde2W
+         Hy6A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=xj5hIQLkt23AixXJ4XbOTdtrFBzCRLq1s+kT1tQyxrk=;
+        b=rwj4qIFrOyelJPGT+W1P+wSzuD6Qcd+SOAEDUKqJnfWGYJP/WdQp/jI1+QdjUjoe4W
+         coxfRCUkFPTduXkPwopkA8GhTBdTfaOv3rPXuHBVxkY+x3ZasHrCmO5FmHPSRJssII0/
+         TywEiK7rmgZn/ELtsTorMMmWk8Y63q1aZksaNUD1//kO4y/w9Gles4tSB72PidQQRrY0
+         b8aEpIOTsYMHa3eaDpb7wJePQZjWJEeMc8JHuvnq/xeruKUI3YyXTZFpa75wOes5lOkN
+         0JmgEgYAMapiMoKgKzbSm9whDAcKQ9ECut8T1swUltXnAqQIae21CHhmzWKaxfPA2yDZ
+         an2w==
+X-Gm-Message-State: AOAM530iAMdTghgWgaJ/wNeLnTXCRdXAFnw5KsYOX8QOe2ImX0oMOrHb
+        ZLak7gp5xLh7mTiNkeuYqjq1WYYG+oGqYCyt
+X-Google-Smtp-Source: ABdhPJyFAXQaM1suk5PdqNwmyLoo37pPbaGjG662VyCUemRQPb2jOM1Mp9xsE75QVX8b1Ra3PBGxRA==
+X-Received: by 2002:a17:902:6a84:b029:f3:f285:7d8 with SMTP id n4-20020a1709026a84b02900f3f28507d8mr24108986plk.57.1621848174674;
+        Mon, 24 May 2021 02:22:54 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j4sm13786282pjv.7.2021.05.24.02.22.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 24 May 2021 02:22:54 -0700 (PDT)
+Message-ID: <60ab706e.1c69fb81.ff4a9.d734@mx.google.com>
+Date:   Mon, 24 May 2021 02:22:54 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.12.5-79-g3f03da12545f
+X-Kernelci-Branch: queue/5.12
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.12 baseline: 118 runs,
+ 1 regressions (v5.12.5-79-g3f03da12545f)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+stable-rc/queue/5.12 baseline: 118 runs, 1 regressions (v5.12.5-79-g3f03da1=
+2545f)
 
-Fix the four control requests which erroneously used usb_rcvctrlpipe().
+Regressions Summary
+-------------------
 
-Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
-Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
-Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
-Cc: stable@vger.kernel.org      # 2.6.17
-Signed-off-by: Johan Hovold <johan@kernel.org>
----
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
 
-Changes in v2
- - include also the request in e2i_init which did not use USB_DIR_OUT
 
- drivers/input/touchscreen/usbtouchscreen.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
+nel/v5.12.5-79-g3f03da12545f/plan/baseline/
 
-diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
-index c847453a03c2..43c521f50c85 100644
---- a/drivers/input/touchscreen/usbtouchscreen.c
-+++ b/drivers/input/touchscreen/usbtouchscreen.c
-@@ -251,7 +251,7 @@ static int e2i_init(struct usbtouch_usb *usbtouch)
- 	int ret;
- 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
- 
--	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 	                      0x01, 0x02, 0x0000, 0x0081,
- 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
- 
-@@ -531,7 +531,7 @@ static int mtouch_init(struct usbtouch_usb *usbtouch)
- 	if (ret)
- 		return ret;
- 
--	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 	                      MTOUCHUSB_RESET,
- 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -543,7 +543,7 @@ static int mtouch_init(struct usbtouch_usb *usbtouch)
- 	msleep(150);
- 
- 	for (i = 0; i < 3; i++) {
--		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
-+		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
- 				      MTOUCHUSB_ASYNC_REPORT,
- 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
-@@ -722,7 +722,7 @@ static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
- 	}
- 
- 	/* start sending data */
--	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
-+	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
- 	                      TSC10_CMD_DATA1,
- 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
--- 
-2.26.3
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.12
+  Describe: v5.12.5-79-g3f03da12545f
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3f03da12545f3c12f748f5d5ba1ccc7fc3af9185 =
 
+
+
+Test Regressions
+---------------- =
+
+
+
+platform           | arch | lab             | compiler | defconfig         =
+  | regressions
+-------------------+------+-----------------+----------+-------------------=
+--+------------
+imx6ul-pico-hobbit | arm  | lab-pengutronix | gcc-8    | imx_v6_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60ab3a04bc168297e1b3afa5
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: imx_v6_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.5-7=
+9-g3f03da12545f/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-imx6=
+ul-pico-hobbit.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.5-7=
+9-g3f03da12545f/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-imx6=
+ul-pico-hobbit.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60ab3a04bc168297e1b3a=
+fa6
+        new failure (last pass: v5.12.5-75-g1796d4e8f240) =
+
+ =20
