@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B187338EE78
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:49:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 105F738EF8B
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbhEXPvE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:51:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33926 "EHLO mail.kernel.org"
+        id S234780AbhEXP6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234136AbhEXPsa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:48:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F13106157E;
-        Mon, 24 May 2021 15:37:26 +0000 (UTC)
+        id S235000AbhEXP5L (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:57:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 14D1D6194E;
+        Mon, 24 May 2021 15:43:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870647;
-        bh=4y53AlV7J/GunMYGYqM0s5l56bGEUAVQa7NrzwKwNJo=;
+        s=korg; t=1621871007;
+        bh=Bc053HPaJe0xqf2Y0GabxuPN8VVuRr4PB/4xGxebFr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uyf3PLc794qHxy1Pc92Iilz3w9aWij6SDN1SCt9CCk3dcgjOlYIKJuWHtuax/6yDx
-         bbE5JklTQbYVEz6RaaU6Db9sLj+IUymSt6R25NygERWJUNNaGjRU/0eUuuWp/lb3F8
-         DoN1gFaUI2Vkw6BinD6N2i6RvTeqOo8ReJ4edXuQ=
+        b=o0Gf67kUeTF/qMTbyWjLqEXr25CLuKAFG8/BXveLWOZaTwx7U0eP1//hnqgMAgAsK
+         sqTTqhLCui5KKnczZNHQohEmp9/+lJW/f5P2lyz9AlZbtt02igdQ7gkJbbr/mUvTQA
+         Pz7mDzwdxCY3s8IAPwWBL2tGd99tmpcmq65ZLBdA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 41/71] xen-pciback: reconfigure also from backend watch handler
+        stable@vger.kernel.org, Enzo Matsumiya <ematsumiya@suse.com>,
+        Daniel Wagner <dwagner@suse.de>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 030/127] nvmet: seset ns->file when open fails
 Date:   Mon, 24 May 2021 17:25:47 +0200
-Message-Id: <20210524152327.803620381@linuxfoundation.org>
+Message-Id: <20210524152335.863598658@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,85 +40,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Daniel Wagner <dwagner@suse.de>
 
-commit c81d3d24602540f65256f98831d0a25599ea6b87 upstream.
+[ Upstream commit 85428beac80dbcace5b146b218697c73e367dcf5 ]
 
-When multiple PCI devices get assigned to a guest right at boot, libxl
-incrementally populates the backend tree. The writes for the first of
-the devices trigger the backend watch. In turn xen_pcibk_setup_backend()
-will set the XenBus state to Initialised, at which point no further
-reconfigures would happen unless a device got hotplugged. Arrange for
-reconfigure to also get triggered from the backend watch handler.
+Reset the ns->file value to NULL also in the error case in
+nvmet_file_ns_enable().
 
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/2337cbd6-94b9-4187-9862-c03ea12e0c61@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The ns->file variable points either to file object or contains the
+error code after the filp_open() call. This can lead to following
+problem:
+
+When the user first setups an invalid file backend and tries to enable
+the ns, it will fail. Then the user switches over to a bdev backend
+and enables successfully the ns. The first received I/O will crash the
+system because the IO backend is chosen based on the ns->file value:
+
+static u16 nvmet_parse_io_cmd(struct nvmet_req *req)
+{
+	[...]
+
+	if (req->ns->file)
+		return nvmet_file_parse_io_cmd(req);
+
+	return nvmet_bdev_parse_io_cmd(req);
+}
+
+Reported-by: Enzo Matsumiya <ematsumiya@suse.com>
+Signed-off-by: Daniel Wagner <dwagner@suse.de>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/xenbus.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ drivers/nvme/target/io-cmd-file.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/xen/xen-pciback/xenbus.c
-+++ b/drivers/xen/xen-pciback/xenbus.c
-@@ -358,7 +358,8 @@ out:
- 	return err;
- }
+diff --git a/drivers/nvme/target/io-cmd-file.c b/drivers/nvme/target/io-cmd-file.c
+index 715d4376c997..7fdbdc496597 100644
+--- a/drivers/nvme/target/io-cmd-file.c
++++ b/drivers/nvme/target/io-cmd-file.c
+@@ -49,9 +49,11 @@ int nvmet_file_ns_enable(struct nvmet_ns *ns)
  
--static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev)
-+static int xen_pcibk_reconfigure(struct xen_pcibk_device *pdev,
-+				 enum xenbus_state state)
- {
- 	int err = 0;
- 	int num_devs;
-@@ -372,9 +373,7 @@ static int xen_pcibk_reconfigure(struct
- 	dev_dbg(&pdev->xdev->dev, "Reconfiguring device ...\n");
- 
- 	mutex_lock(&pdev->dev_lock);
--	/* Make sure we only reconfigure once */
--	if (xenbus_read_driver_state(pdev->xdev->nodename) !=
--	    XenbusStateReconfiguring)
-+	if (xenbus_read_driver_state(pdev->xdev->nodename) != state)
- 		goto out;
- 
- 	err = xenbus_scanf(XBT_NIL, pdev->xdev->nodename, "num_devs", "%d",
-@@ -499,6 +498,10 @@ static int xen_pcibk_reconfigure(struct
- 		}
+ 	ns->file = filp_open(ns->device_path, flags, 0);
+ 	if (IS_ERR(ns->file)) {
+-		pr_err("failed to open file %s: (%ld)\n",
+-				ns->device_path, PTR_ERR(ns->file));
+-		return PTR_ERR(ns->file);
++		ret = PTR_ERR(ns->file);
++		pr_err("failed to open file %s: (%d)\n",
++			ns->device_path, ret);
++		ns->file = NULL;
++		return ret;
  	}
  
-+	if (state != XenbusStateReconfiguring)
-+		/* Make sure we only reconfigure once. */
-+		goto out;
-+
- 	err = xenbus_switch_state(pdev->xdev, XenbusStateReconfigured);
- 	if (err) {
- 		xenbus_dev_fatal(pdev->xdev, err,
-@@ -524,7 +527,7 @@ static void xen_pcibk_frontend_changed(s
- 		break;
- 
- 	case XenbusStateReconfiguring:
--		xen_pcibk_reconfigure(pdev);
-+		xen_pcibk_reconfigure(pdev, XenbusStateReconfiguring);
- 		break;
- 
- 	case XenbusStateConnected:
-@@ -663,6 +666,15 @@ static void xen_pcibk_be_watch(struct xe
- 		xen_pcibk_setup_backend(pdev);
- 		break;
- 
-+	case XenbusStateInitialised:
-+		/*
-+		 * We typically move to Initialised when the first device was
-+		 * added. Hence subsequent devices getting added may need
-+		 * reconfiguring.
-+		 */
-+		xen_pcibk_reconfigure(pdev, XenbusStateInitialised);
-+		break;
-+
- 	default:
- 		break;
- 	}
+ 	ret = nvmet_file_ns_revalidate(ns);
+-- 
+2.30.2
+
 
 
