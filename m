@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 602A938EFDE
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9000838EF34
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:55:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235684AbhEXQAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:00:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40466 "EHLO mail.kernel.org"
+        id S234663AbhEXP4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40462 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235787AbhEXP7L (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:59:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 171F06195C;
-        Mon, 24 May 2021 15:44:57 +0000 (UTC)
+        id S234967AbhEXPzm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 90A8461931;
+        Mon, 24 May 2021 15:42:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871098;
-        bh=Hkib7HmFjpGuga3aSoohJ7gDsBbzsy2qgzCm9wjyFXM=;
+        s=korg; t=1621870921;
+        bh=etv7fgbCsQed6BsyYMNF77B1kOL4B+jWWd1yX1Ib1Fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PSpy6wmuxtVWllPrYNHHpeWYpGVX1qo1fTyWin+AccAz0j00482fju+EUpG84dlSk
-         FBVLSzLqVQY/qGExIblbCwGPIpMeJMiahDrjC+Po0wlxxDNwDHz0ZY47UlRsXi3bwP
-         r+Ny9pwbpuy1Yf8ZtMt+cyNEB41LhyfCqHsHOTvM=
+        b=ZFS6QyDv+gy5CUw+0SuQtAe6xaDZT+LkC5y6uIEBDy2fq3e5qQkFJWddlAUZl6ZvK
+         3NqTxWiWl9qzJKIpmqqkLakrAU+dR2yPBD1o2dr2nm6FnnzeiyyvlF6W5JOGM0Cwye
+         g+BpoqJ6PavkmFY5rHLUt/YebEV11QlqE9FeO3XA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Joerg Roedel <jroedel@suse.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.12 073/127] x86/sev-es: Forward page-faults which happen during emulation
-Date:   Mon, 24 May 2021 17:26:30 +0200
-Message-Id: <20210524152337.326764765@linuxfoundation.org>
+        stable@vger.kernel.org, "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 096/104] vt_ioctl: Revert VT_RESIZEX parameter handling removal
+Date:   Mon, 24 May 2021 17:26:31 +0200
+Message-Id: <20210524152336.036709416@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +39,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Maciej W. Rozycki <macro@orcam.me.uk>
 
-commit c25bbdb564060adaad5c3a8a10765c13487ba6a3 upstream.
+commit a90c275eb144c1b755f04769e1f29d832d6daeaf upstream.
 
-When emulating guest instructions for MMIO or IOIO accesses, the #VC
-handler might get a page-fault and will not be able to complete. Forward
-the page-fault in this case to the correct handler instead of killing
-the machine.
+Revert the removal of code handling extra VT_RESIZEX ioctl's parameters
+beyond those that VT_RESIZE supports, fixing a functional regression
+causing `svgatextmode' not to resize the VT anymore.
 
-Fixes: 0786138c78e7 ("x86/sev-es: Add a Runtime #VC Exception Handler")
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
+As a consequence of the reverted change when the video adapter is
+reprogrammed from the original say 80x25 text mode using a 9x16
+character cell (720x400 pixel resolution) to say 80x37 text mode and the
+same character cell (720x592 pixel resolution), the VT geometry does not
+get updated and only upper two thirds of the screen are used for the VT,
+and the lower part remains blank.  The proportions change according to
+text mode geometries chosen.
+
+Revert the change verbatim then, bringing back previous VT resizing.
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Fixes: 988d0763361b ("vt_ioctl: make VT_RESIZEX behave like VT_RESIZE")
 Cc: stable@vger.kernel.org # v5.10+
-Link: https://lkml.kernel.org/r/20210519135251.30093-3-joro@8bytes.org
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/sev-es.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/tty/vt/vt_ioctl.c |   57 +++++++++++++++++++++++++++++++++++++---------
+ 1 file changed, 47 insertions(+), 10 deletions(-)
 
---- a/arch/x86/kernel/sev-es.c
-+++ b/arch/x86/kernel/sev-es.c
-@@ -1269,6 +1269,10 @@ static __always_inline void vc_forward_e
- 	case X86_TRAP_UD:
- 		exc_invalid_op(ctxt->regs);
- 		break;
-+	case X86_TRAP_PF:
-+		write_cr2(ctxt->fi.cr2);
-+		exc_page_fault(ctxt->regs, error_code);
-+		break;
- 	case X86_TRAP_AC:
- 		exc_alignment_check(ctxt->regs, error_code);
- 		break;
+--- a/drivers/tty/vt/vt_ioctl.c
++++ b/drivers/tty/vt/vt_ioctl.c
+@@ -771,21 +771,58 @@ static int vt_resizex(struct vc_data *vc
+ 	if (copy_from_user(&v, cs, sizeof(struct vt_consize)))
+ 		return -EFAULT;
+ 
+-	if (v.v_vlin)
+-		pr_info_once("\"struct vt_consize\"->v_vlin is ignored. Please report if you need this.\n");
+-	if (v.v_clin)
+-		pr_info_once("\"struct vt_consize\"->v_clin is ignored. Please report if you need this.\n");
++	/* FIXME: Should check the copies properly */
++	if (!v.v_vlin)
++		v.v_vlin = vc->vc_scan_lines;
++
++	if (v.v_clin) {
++		int rows = v.v_vlin / v.v_clin;
++		if (v.v_rows != rows) {
++			if (v.v_rows) /* Parameters don't add up */
++				return -EINVAL;
++			v.v_rows = rows;
++		}
++	}
++
++	if (v.v_vcol && v.v_ccol) {
++		int cols = v.v_vcol / v.v_ccol;
++		if (v.v_cols != cols) {
++			if (v.v_cols)
++				return -EINVAL;
++			v.v_cols = cols;
++		}
++	}
++
++	if (v.v_clin > 32)
++		return -EINVAL;
+ 
+-	console_lock();
+ 	for (i = 0; i < MAX_NR_CONSOLES; i++) {
+-		vc = vc_cons[i].d;
++		struct vc_data *vcp;
++
++		if (!vc_cons[i].d)
++			continue;
++		console_lock();
++		vcp = vc_cons[i].d;
++		if (vcp) {
++			int ret;
++			int save_scan_lines = vcp->vc_scan_lines;
++			int save_font_height = vcp->vc_font.height;
+ 
+-		if (vc) {
+-			vc->vc_resize_user = 1;
+-			vc_resize(vc, v.v_cols, v.v_rows);
++			if (v.v_vlin)
++				vcp->vc_scan_lines = v.v_vlin;
++			if (v.v_clin)
++				vcp->vc_font.height = v.v_clin;
++			vcp->vc_resize_user = 1;
++			ret = vc_resize(vcp, v.v_cols, v.v_rows);
++			if (ret) {
++				vcp->vc_scan_lines = save_scan_lines;
++				vcp->vc_font.height = save_font_height;
++				console_unlock();
++				return ret;
++			}
+ 		}
++		console_unlock();
+ 	}
+-	console_unlock();
+ 
+ 	return 0;
+ }
 
 
