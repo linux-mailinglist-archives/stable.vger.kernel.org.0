@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D5AD38EF77
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:56:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1318E38EE0C
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:44:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234040AbhEXP54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:57:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40480 "EHLO mail.kernel.org"
+        id S233311AbhEXPpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:45:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56576 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233519AbhEXP4l (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:56:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4EF546144A;
-        Mon, 24 May 2021 15:43:05 +0000 (UTC)
+        id S233965AbhEXPmj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:42:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B34361457;
+        Mon, 24 May 2021 15:35:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870985;
-        bh=1dAMraQ5B+FymVoCYVg+XAajTuiOTDxvtot00gCCi/k=;
+        s=korg; t=1621870505;
+        bh=66DK00cfMraeU8Qxk2uVkIHsod0JpJCQcU7w9QKOs64=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r6OCVE0QyVnz36pKPxRDis6asHRgSKn8bRr0ESd7XT4WUYvd4Uxv+IFqTpSkNTTiD
-         ZdchwYiocSgPlHxYHfq3o+l7VeTPCwklnUeghLYpx6MQwWDG8SqI2uUlF9WPAAe9bE
-         9TPwoT+FOH0dDQKLS6TaP+jlEJFzSbNkWgGBsnpQ=
+        b=LLlOoVgkI4p/mHUWvEOE5vpIseODb9lpoHDJa2HXsGakIlDF0Coc5zw06SK2ET4ea
+         qgmbluvzjQ1/A6NvutBtCLoX33ULvZnvQmXE+P7QtGs8VbMwu0FpwlRDR1+dLu/8Zr
+         8GuxFOR2Lg339W4pnzjGApmOazxDujAaHmeN3pKU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Liming Sun <limings@nvidia.com>,
-        Vadim Pasternak <vadimp@nvidia.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 021/127] platform/mellanox: mlxbf-tmfifo: Fix a memory barrier issue
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Subject: [PATCH 4.19 27/49] Revert "leds: lp5523: fix a missing check of return value of lp55xx_read"
 Date:   Mon, 24 May 2021 17:25:38 +0200
-Message-Id: <20210524152335.572887795@linuxfoundation.org>
+Message-Id: <20210524152325.258389830@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152324.382084875@linuxfoundation.org>
+References: <20210524152324.382084875@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,66 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liming Sun <limings@nvidia.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 1c0e5701c5e792c090aef0e5b9b8923c334d9324 ]
+commit 8d1beda5f11953ffe135a5213287f0b25b4da41b upstream.
 
-The virtio framework uses wmb() when updating avail->idx. It
-guarantees the write order, but not necessarily loading order
-for the code accessing the memory. This commit adds a load barrier
-after reading the avail->idx to make sure all the data in the
-descriptor is visible. It also adds a barrier when returning the
-packet to virtio framework to make sure read/writes are visible to
-the virtio code.
+This reverts commit 248b57015f35c94d4eae2fdd8c6febf5cd703900.
 
-Fixes: 1357dfd7261f ("platform/mellanox: Add TmFifo driver for Mellanox BlueField Soc")
-Signed-off-by: Liming Sun <limings@nvidia.com>
-Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
-Link: https://lore.kernel.org/r/1620433812-17911-1-git-send-email-limings@nvidia.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit does not properly unwind if there is an error
+condition so it needs to be reverted at this point in time.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Jacek Anaszewski <jacek.anaszewski@gmail.com>
+Cc: stable <stable@vger.kernel.org>
+Fixes: 248b57015f35 ("leds: lp5523: fix a missing check of return value of lp55xx_read")
+Link: https://lore.kernel.org/r/20210503115736.2104747-9-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/platform/mellanox/mlxbf-tmfifo.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/leds/leds-lp5523.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
-index bbc4e71a16ff..38800e86ed8a 100644
---- a/drivers/platform/mellanox/mlxbf-tmfifo.c
-+++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
-@@ -294,6 +294,9 @@ mlxbf_tmfifo_get_next_desc(struct mlxbf_tmfifo_vring *vring)
- 	if (vring->next_avail == virtio16_to_cpu(vdev, vr->avail->idx))
- 		return NULL;
+--- a/drivers/leds/leds-lp5523.c
++++ b/drivers/leds/leds-lp5523.c
+@@ -318,9 +318,7 @@ static int lp5523_init_program_engine(st
  
-+	/* Make sure 'avail->idx' is visible already. */
-+	virtio_rmb(false);
-+
- 	idx = vring->next_avail % vr->num;
- 	head = virtio16_to_cpu(vdev, vr->avail->ring[idx]);
- 	if (WARN_ON(head >= vr->num))
-@@ -322,7 +325,7 @@ static void mlxbf_tmfifo_release_desc(struct mlxbf_tmfifo_vring *vring,
- 	 * done or not. Add a memory barrier here to make sure the update above
- 	 * completes before updating the idx.
- 	 */
--	mb();
-+	virtio_mb(false);
- 	vr->used->idx = cpu_to_virtio16(vdev, vr_idx + 1);
- }
+ 	/* Let the programs run for couple of ms and check the engine status */
+ 	usleep_range(3000, 6000);
+-	ret = lp55xx_read(chip, LP5523_REG_STATUS, &status);
+-	if (ret)
+-		return ret;
++	lp55xx_read(chip, LP5523_REG_STATUS, &status);
+ 	status &= LP5523_ENG_STATUS_MASK;
  
-@@ -733,6 +736,12 @@ static bool mlxbf_tmfifo_rxtx_one_desc(struct mlxbf_tmfifo_vring *vring,
- 		desc = NULL;
- 		fifo->vring[is_rx] = NULL;
- 
-+		/*
-+		 * Make sure the load/store are in order before
-+		 * returning back to virtio.
-+		 */
-+		virtio_mb(false);
-+
- 		/* Notify upper layer that packet is done. */
- 		spin_lock_irqsave(&fifo->spin_lock[is_rx], flags);
- 		vring_interrupt(0, vring->vq);
--- 
-2.30.2
-
+ 	if (status != LP5523_ENG_STATUS_MASK) {
 
 
