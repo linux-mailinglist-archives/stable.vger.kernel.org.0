@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B1A538EFBE
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 438B638EE87
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234515AbhEXP70 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:59:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40506 "EHLO mail.kernel.org"
+        id S233721AbhEXPvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35156 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234951AbhEXP6S (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:58:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 434B661454;
-        Mon, 24 May 2021 15:44:08 +0000 (UTC)
+        id S234711AbhEXPt3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:49:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C17761580;
+        Mon, 24 May 2021 15:37:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871048;
-        bh=pzldK/ODVQn7pBn2K65hBAv2hXuUOjSPmxb6eH4ybLo=;
+        s=korg; t=1621870675;
+        bh=wEin2Bf0hytRAmNp5kWe6+IfC5psva2MM1khbyHowAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sp8sO38jhH1oI3/I0i5pfgEz1njgVVfUnI4vZqdd28l4O7/ZXxjS+Y/gisFAGr5Eo
-         kTkrItyWzwBdokK8RlNrnMgL0UDCztnIyPUv5zuC/k/OEm1ps9q0TQd47HjOICi6XZ
-         PpzbAON2UsnD7w9IH/7ckqqHs/4Y7ObMUINTim+g=
+        b=wh+zcksAro+rkjMVhfeKsHVOSe0Bhnf6O4azMgXP7Fs3vnjBM1MZ46s2EEpnLosGo
+         wPeTLmbbcKVBfUDjQ019zGzgLlM8/jG8jXXpHes12TJNfoUe04F4EifPemGDysh8tH
+         MkLKz2KYq9j+4Pq1u9+A/zUn1rk8vsF8/7gbv5yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.12 042/127] ALSA: dice: fix stream format for TC Electronic Konnekt Live at high sampling transfer frequency
+        stable@vger.kernel.org, Peter Rosin <peda@axentia.se>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 5.4 53/71] cdrom: gdrom: initialize global variable at init time
 Date:   Mon, 24 May 2021 17:25:59 +0200
-Message-Id: <20210524152336.271230961@linuxfoundation.org>
+Message-Id: <20210524152328.182945139@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
-References: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,37 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 4c6fe8c547e3c9e8c15dabdd23c569ee0df3adb1 upstream.
+commit 9183f01b5e6e32eb3f17b5f3f8d5ad5ac9786c49 upstream.
 
-At high sampling transfer frequency, TC Electronic Konnekt Live
-transfers/receives 6 audio data frames in multi bit linear audio data
-channel of data block in CIP payload. Current hard-coded stream format
-is wrong.
+As Peter points out, if we were to disconnect and then reconnect this
+driver from a device, the "global" state of the device would contain odd
+values and could cause problems.  Fix this up by just initializing the
+whole thing to 0 at probe() time.
 
-Cc: <stable@vger.kernel.org>
-Fixes: f1f0f330b1d0 ("ALSA: dice: add parameters of stream formats for models produced by TC Electronic")
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210518012612.37268-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Ideally this would be a per-device variable, but given the age and the
+total lack of users of it, that would require a lot of s/./->/g changes
+for really no good reason.
+
+Reported-by: Peter Rosin <peda@axentia.se>
+Cc: Jens Axboe <axboe@kernel.dk>
+Reviewed-by: Peter Rosin <peda@axentia.se>
+Link: https://lore.kernel.org/r/YJP2j6AU82MqEY2M@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/firewire/dice/dice-tcelectronic.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/cdrom/gdrom.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/sound/firewire/dice/dice-tcelectronic.c
-+++ b/sound/firewire/dice/dice-tcelectronic.c
-@@ -38,8 +38,8 @@ static const struct dice_tc_spec konnekt
- };
- 
- static const struct dice_tc_spec konnekt_live = {
--	.tx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
--	.rx_pcm_chs = {{16, 16, 16}, {0, 0, 0} },
-+	.tx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
-+	.rx_pcm_chs = {{16, 16, 6}, {0, 0, 0} },
- 	.has_midi = true,
- };
- 
+--- a/drivers/cdrom/gdrom.c
++++ b/drivers/cdrom/gdrom.c
+@@ -740,6 +740,13 @@ static const struct blk_mq_ops gdrom_mq_
+ static int probe_gdrom(struct platform_device *devptr)
+ {
+ 	int err;
++
++	/*
++	 * Ensure our "one" device is initialized properly in case of previous
++	 * usages of it
++	 */
++	memset(&gd, 0, sizeof(gd));
++
+ 	/* Start the device */
+ 	if (gdrom_execute_diagnostic() != 1) {
+ 		pr_warning("ATA Probe for GDROM failed\n");
+@@ -845,7 +852,7 @@ static struct platform_driver gdrom_driv
+ static int __init init_gdrom(void)
+ {
+ 	int rc;
+-	gd.toc = NULL;
++
+ 	rc = platform_driver_register(&gdrom_driver);
+ 	if (rc)
+ 		return rc;
 
 
