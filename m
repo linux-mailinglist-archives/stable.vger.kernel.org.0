@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E061938EEA2
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:53:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 82D0B38EF18
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234421AbhEXPwl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:52:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38432 "EHLO mail.kernel.org"
+        id S233859AbhEXP4E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:56:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39476 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233525AbhEXPuh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:50:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43E4461623;
-        Mon, 24 May 2021 15:38:23 +0000 (UTC)
+        id S235457AbhEXPzI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:55:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A6A6761949;
+        Mon, 24 May 2021 15:41:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870703;
-        bh=CrtzNuv8rmWtIa9BCzud4rm4wY50FiTl/tCmJhw7PDc=;
+        s=korg; t=1621870888;
+        bh=MIh/gq1Au43YtotalzBSSyNVaznfxm6uSJGAnEpcbz4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ob0Q5OrrHYhQfgJb9wwP0c32VHo89F8hR07eBIfEu2z22zp43xnfQ0wadt9HXyQKd
-         Yj/AhOPctfFb9Al7Th1YMSl285tKTBzyuKpJoU5yMfkQbmHkwNbo/HUA+3zIFKEghu
-         xKbPdMgwT2B0aUb26kZtlg4BlLqRyJCsEp04zGQw=
+        b=kg2VpYLgUnhG188Q+dFNzY4s1w5W7juFqPXGwh9zqShaYIOHPAOaEcoTQfxEcnaWI
+         4/3epPMV1yn6XCQftK+CEdrn6esAvdrUOeDdVGHW6y56PwFsq4kyLFpi0KvC91dKsZ
+         JSu3zWh9SRp9BHfah9WTrKpLbflrT2JXl7Lx0jQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Subject: [PATCH 5.4 68/71] tty: vt: always invoke vc->vc_sw->con_resize callback
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Avri Altman <avri.altman@wdc.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 5.10 079/104] Revert "scsi: ufs: fix a missing check of devm_reset_control_get"
 Date:   Mon, 24 May 2021 17:26:14 +0200
-Message-Id: <20210524152328.656485882@linuxfoundation.org>
+Message-Id: <20210524152335.470852142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
-References: <20210524152326.447759938@linuxfoundation.org>
+In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
+References: <20210524152332.844251980@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,71 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ffb324e6f874121f7dce5bdae5e05d02baae7269 upstream.
+commit 4d427b408c4c2ff1676966c72119a3a559f8e39b upstream.
 
-syzbot is reporting OOB write at vga16fb_imageblit() [1], for
-resize_screen() from ioctl(VT_RESIZE) returns 0 without checking whether
-requested rows/columns fit the amount of memory reserved for the graphical
-screen if current mode is KD_GRAPHICS.
+This reverts commit 63a06181d7ce169d09843645c50fea1901bc9f0a.
 
-----------
-  #include <sys/types.h>
-  #include <sys/stat.h>
-  #include <fcntl.h>
-  #include <sys/ioctl.h>
-  #include <linux/kd.h>
-  #include <linux/vt.h>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-  int main(int argc, char *argv[])
-  {
-        const int fd = open("/dev/char/4:1", O_RDWR);
-        struct vt_sizes vt = { 0x4100, 2 };
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-        ioctl(fd, KDSETMODE, KD_GRAPHICS);
-        ioctl(fd, VT_RESIZE, &vt);
-        ioctl(fd, KDSETMODE, KD_TEXT);
-        return 0;
-  }
-----------
+The original commit is incorrect, it does not properly clean up on the
+error path, so I'll keep the revert and fix it up properly with a
+follow-on patch.
 
-Allow framebuffer drivers to return -EINVAL, by moving vc->vc_mode !=
-KD_GRAPHICS check from resize_screen() to fbcon_resize().
-
-Link: https://syzkaller.appspot.com/bug?extid=1f29e126cf461c4de3b3 [1]
-Reported-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Tested-by: syzbot <syzbot+1f29e126cf461c4de3b3@syzkaller.appspotmail.com>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Avri Altman <avri.altman@wdc.com>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: 63a06181d7ce ("scsi: ufs: fix a missing check of devm_reset_control_get")
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-31-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vt.c              |    2 +-
- drivers/video/fbdev/core/fbcon.c |    2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/ufs/ufs-hisi.c |    4 ----
+ 1 file changed, 4 deletions(-)
 
---- a/drivers/tty/vt/vt.c
-+++ b/drivers/tty/vt/vt.c
-@@ -1166,7 +1166,7 @@ static inline int resize_screen(struct v
- 	/* Resizes the resolution of the display adapater */
- 	int err = 0;
+--- a/drivers/scsi/ufs/ufs-hisi.c
++++ b/drivers/scsi/ufs/ufs-hisi.c
+@@ -479,10 +479,6 @@ static int ufs_hisi_init_common(struct u
+ 	ufshcd_set_variant(hba, host);
  
--	if (vc->vc_mode != KD_GRAPHICS && vc->vc_sw->con_resize)
-+	if (vc->vc_sw->con_resize)
- 		err = vc->vc_sw->con_resize(vc, width, height, user);
+ 	host->rst  = devm_reset_control_get(dev, "rst");
+-	if (IS_ERR(host->rst)) {
+-		dev_err(dev, "%s: failed to get reset control\n", __func__);
+-		return PTR_ERR(host->rst);
+-	}
  
- 	return err;
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2058,7 +2058,7 @@ static int fbcon_resize(struct vc_data *
- 			return -EINVAL;
+ 	ufs_hisi_set_pm_lvl(hba);
  
- 		DPRINTK("resize now %ix%i\n", var.xres, var.yres);
--		if (con_is_visible(vc)) {
-+		if (con_is_visible(vc) && vc->vc_mode == KD_TEXT) {
- 			var.activate = FB_ACTIVATE_NOW |
- 				FB_ACTIVATE_FORCE;
- 			fb_set_var(info, &var);
 
 
