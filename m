@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9329A38EDCA
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:41:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F6F038EE3A
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:46:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233350AbhEXPmF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:42:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56260 "EHLO mail.kernel.org"
+        id S233412AbhEXPr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:47:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33560 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233706AbhEXPkS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:40:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16B356142D;
-        Mon, 24 May 2021 15:34:08 +0000 (UTC)
+        id S233780AbhEXPpO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:45:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A28361466;
+        Mon, 24 May 2021 15:36:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870449;
-        bh=vRPb5bbdFlXhDT9/MX5I0AwXk6wBI1jLoV7lvKlY5pw=;
+        s=korg; t=1621870577;
+        bh=f5ddls+VuT5JBb48jcU41nRyF9h14kPR2cFe+BNEdsI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qk9O6yrmt9klpudlRc1uhFDqih98Bgg184NgqaBzplGhw3ORbye6UH569kcUhU9Xs
-         Lqfw3bdaqG5v/c0pWOgxyXRKxxZUplyXdoIf6ym+jzSDb+mcpKLKPXCKRqTeIaPvRC
-         ixVeQEuqefnWRxVTywNm8LFnYsniQIpUgo4gDgGw=
+        b=SRIyzaqKpG3eIqzmi0Dl9f4EY+9yqeXNJVvnRwDZO7tdHmINLN4+Qx5F5xxZUbX7Y
+         zLdhkYj10ulAZsZT5VhzzFFL3lIQGXd7f9uxxsD3x3qjzbdruIwvdwQuc0Ifo7g/DN
+         vJZlTu1mu7BCPNz4pXGS8PL4ycxm8U/PIHgSEGSk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexandre Bounine <alex.bou9@gmail.com>,
-        Matt Porter <mporter@kernel.crashing.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Anirudh Rayabharam <mail@anirudhrb.com>
-Subject: [PATCH 4.14 12/37] rapidio: handle create_workqueue() failure
+        stable@vger.kernel.org, Liming Sun <limings@nvidia.com>,
+        Vadim Pasternak <vadimp@nvidia.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 10/71] platform/mellanox: mlxbf-tmfifo: Fix a memory barrier issue
 Date:   Mon, 24 May 2021 17:25:16 +0200
-Message-Id: <20210524152324.615677750@linuxfoundation.org>
+Message-Id: <20210524152326.789722225@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
-References: <20210524152324.199089755@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,51 +41,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Liming Sun <limings@nvidia.com>
 
-commit 69ce3ae36dcb03cdf416b0862a45369ddbf50fdf upstream.
+[ Upstream commit 1c0e5701c5e792c090aef0e5b9b8923c334d9324 ]
 
-In case create_workqueue() fails, release all resources and return -ENOMEM
-to caller to avoid potential NULL pointer deref later. Move up the
-create_workequeue() call to return early and avoid unwinding the call to
-riocm_rx_fill().
+The virtio framework uses wmb() when updating avail->idx. It
+guarantees the write order, but not necessarily loading order
+for the code accessing the memory. This commit adds a load barrier
+after reading the avail->idx to make sure all the data in the
+descriptor is visible. It also adds a barrier when returning the
+packet to virtio framework to make sure read/writes are visible to
+the virtio code.
 
-Cc: Alexandre Bounine <alex.bou9@gmail.com>
-Cc: Matt Porter <mporter@kernel.crashing.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-46-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1357dfd7261f ("platform/mellanox: Add TmFifo driver for Mellanox BlueField Soc")
+Signed-off-by: Liming Sun <limings@nvidia.com>
+Reviewed-by: Vadim Pasternak <vadimp@nvidia.com>
+Link: https://lore.kernel.org/r/1620433812-17911-1-git-send-email-limings@nvidia.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/rapidio/rio_cm.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/platform/mellanox/mlxbf-tmfifo.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
---- a/drivers/rapidio/rio_cm.c
-+++ b/drivers/rapidio/rio_cm.c
-@@ -2136,6 +2136,14 @@ static int riocm_add_mport(struct device
- 		return -ENODEV;
- 	}
+diff --git a/drivers/platform/mellanox/mlxbf-tmfifo.c b/drivers/platform/mellanox/mlxbf-tmfifo.c
+index 5739a9669b29..92bda873d44a 100644
+--- a/drivers/platform/mellanox/mlxbf-tmfifo.c
++++ b/drivers/platform/mellanox/mlxbf-tmfifo.c
+@@ -294,6 +294,9 @@ mlxbf_tmfifo_get_next_desc(struct mlxbf_tmfifo_vring *vring)
+ 	if (vring->next_avail == virtio16_to_cpu(vdev, vr->avail->idx))
+ 		return NULL;
  
-+	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
-+	if (!cm->rx_wq) {
-+		rio_release_inb_mbox(mport, cmbox);
-+		rio_release_outb_mbox(mport, cmbox);
-+		kfree(cm);
-+		return -ENOMEM;
-+	}
++	/* Make sure 'avail->idx' is visible already. */
++	virtio_rmb(false);
 +
- 	/*
- 	 * Allocate and register inbound messaging buffers to be ready
- 	 * to receive channel and system management requests
-@@ -2146,7 +2154,6 @@ static int riocm_add_mport(struct device
- 	cm->rx_slots = RIOCM_RX_RING_SIZE;
- 	mutex_init(&cm->rx_lock);
- 	riocm_rx_fill(cm, RIOCM_RX_RING_SIZE);
--	cm->rx_wq = create_workqueue(DRV_NAME "/rxq");
- 	INIT_WORK(&cm->rx_work, rio_ibmsg_handler);
+ 	idx = vring->next_avail % vr->num;
+ 	head = virtio16_to_cpu(vdev, vr->avail->ring[idx]);
+ 	if (WARN_ON(head >= vr->num))
+@@ -322,7 +325,7 @@ static void mlxbf_tmfifo_release_desc(struct mlxbf_tmfifo_vring *vring,
+ 	 * done or not. Add a memory barrier here to make sure the update above
+ 	 * completes before updating the idx.
+ 	 */
+-	mb();
++	virtio_mb(false);
+ 	vr->used->idx = cpu_to_virtio16(vdev, vr_idx + 1);
+ }
  
- 	cm->tx_slot = 0;
+@@ -730,6 +733,12 @@ static bool mlxbf_tmfifo_rxtx_one_desc(struct mlxbf_tmfifo_vring *vring,
+ 		desc = NULL;
+ 		fifo->vring[is_rx] = NULL;
+ 
++		/*
++		 * Make sure the load/store are in order before
++		 * returning back to virtio.
++		 */
++		virtio_mb(false);
++
+ 		/* Notify upper layer that packet is done. */
+ 		spin_lock_irqsave(&fifo->spin_lock[is_rx], flags);
+ 		vring_interrupt(0, vring->vq);
+-- 
+2.30.2
+
 
 
