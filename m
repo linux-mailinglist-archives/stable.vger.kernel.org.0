@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B870A38EF0C
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28DB738EEAD
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234958AbhEXPz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38718 "EHLO mail.kernel.org"
+        id S233880AbhEXPx5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:53:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38584 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235398AbhEXPzH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 622D96143B;
-        Mon, 24 May 2021 15:41:10 +0000 (UTC)
+        id S234257AbhEXPvw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:51:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDECE6162D;
+        Mon, 24 May 2021 15:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870870;
-        bh=5mib4CZtgWgB8CCMyhXcqN7oYJH/iNBMul8UDElOprg=;
+        s=korg; t=1621870723;
+        bh=dxBIgUZ1Idl+2yCCxvP+acIItyl3e/AKF/qtoTpLeMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D6B7DmZSU1xMbq01m5yTt0Xa3KrCMOBXY4f75VPss8wFIiMUpIGVbi3iADu5hs0ek
-         rdsnR69s43p99LkUTndGdHXHzVVjzczcsIbiwn+onUU7oZgvUIXgGNoC8N76pXmdux
-         fqfLA+/jc953QtVyw/Rx5WP0PNPSHd95F59Cswb0=
+        b=AbLcMc/13pAeMj7P4410VbxWz3T9CUs25xkCmjzLeUcy4Nt9GmW+fRBLaUhTCnvMF
+         K/bXlj9KQIhJm0LRv3UDurD4rPNdY+s5qavwJsLp1fFyW1uNIhovUdQxb9BjXQCkvJ
+         DUeOh0OMCSCvRWhUtg/KQgY35d4gdljFtre6wvYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Miguel Ojeda <ojeda@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-        "Paul E. McKenney" <paulmck@kernel.org>
-Subject: [PATCH 5.10 072/104] kcsan: Fix debugfs initcall return type
+        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
+        Bryan Brattlof <hello@bryanbrattlof.com>
+Subject: [PATCH 5.4 61/71] net: rtlwifi: properly check for alloc_workqueue() failure
 Date:   Mon, 24 May 2021 17:26:07 +0200
-Message-Id: <20210524152335.238157502@linuxfoundation.org>
+Message-Id: <20210524152328.434681042@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
+References: <20210524152326.447759938@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +39,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 976aac5f882989e4f6c1b3a7224819bf0e801c6a upstream.
+commit 30b0e0ee9d02b97b68705c46b41444786effc40c upstream.
 
-clang with CONFIG_LTO_CLANG points out that an initcall function should
-return an 'int' due to the changes made to the initcall macros in commit
-3578ad11f3fb ("init: lto: fix PREL32 relocations"):
+If alloc_workqueue() fails, properly catch this and propagate the error
+to the calling functions, so that the devuce initialization will
+properly error out.
 
-kernel/kcsan/debugfs.c:274:15: error: returning 'void' from a function with incompatible result type 'int'
-late_initcall(kcsan_debugfs_init);
-~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~
-include/linux/init.h:292:46: note: expanded from macro 'late_initcall'
- #define late_initcall(fn)               __define_initcall(fn, 7)
-
-Fixes: e36299efe7d7 ("kcsan, debugfs: Move debugfs file creation out of early init")
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Cc: Bryan Brattlof <hello@bryanbrattlof.com>
 Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Miguel Ojeda <ojeda@kernel.org>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-14-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/kcsan/debugfs.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/wireless/realtek/rtlwifi/base.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/kernel/kcsan/debugfs.c
-+++ b/kernel/kcsan/debugfs.c
-@@ -261,9 +261,10 @@ static const struct file_operations debu
- 	.release = single_release
- };
+--- a/drivers/net/wireless/realtek/rtlwifi/base.c
++++ b/drivers/net/wireless/realtek/rtlwifi/base.c
+@@ -436,9 +436,14 @@ static void _rtl_init_mac80211(struct ie
+ 	}
+ }
  
--static void __init kcsan_debugfs_init(void)
-+static int __init kcsan_debugfs_init(void)
+-static void _rtl_init_deferred_work(struct ieee80211_hw *hw)
++static int _rtl_init_deferred_work(struct ieee80211_hw *hw)
  {
- 	debugfs_create_file("kcsan", 0644, NULL, NULL, &debugfs_ops);
+ 	struct rtl_priv *rtlpriv = rtl_priv(hw);
++	struct workqueue_struct *wq;
++
++	wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
++	if (!wq)
++		return -ENOMEM;
+ 
+ 	/* <1> timer */
+ 	timer_setup(&rtlpriv->works.watchdog_timer,
+@@ -447,7 +452,8 @@ static void _rtl_init_deferred_work(stru
+ 		    rtl_easy_concurrent_retrytimer_callback, 0);
+ 	/* <2> work queue */
+ 	rtlpriv->works.hw = hw;
+-	rtlpriv->works.rtl_wq = alloc_workqueue("%s", 0, 0, rtlpriv->cfg->name);
++	rtlpriv->works.rtl_wq = wq;
++
+ 	INIT_DELAYED_WORK(&rtlpriv->works.watchdog_wq,
+ 			  (void *)rtl_watchdog_wq_callback);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.ips_nic_off_wq,
+@@ -460,6 +466,7 @@ static void _rtl_init_deferred_work(stru
+ 			  (void *)rtl_fwevt_wq_callback);
+ 	INIT_DELAYED_WORK(&rtlpriv->works.c2hcmd_wq,
+ 			  (void *)rtl_c2hcmd_wq_callback);
 +	return 0;
  }
  
- late_initcall(kcsan_debugfs_init);
+ void rtl_deinit_deferred_work(struct ieee80211_hw *hw, bool ips_wq)
+@@ -559,9 +566,7 @@ int rtl_init_core(struct ieee80211_hw *h
+ 	rtlmac->link_state = MAC80211_NOLINK;
+ 
+ 	/* <6> init deferred work */
+-	_rtl_init_deferred_work(hw);
+-
+-	return 0;
++	return _rtl_init_deferred_work(hw);
+ }
+ EXPORT_SYMBOL_GPL(rtl_init_core);
+ 
 
 
