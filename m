@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A582B38EEF7
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:54:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D25C038EFD1
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:58:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235018AbhEXPzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40482 "EHLO mail.kernel.org"
+        id S235607AbhEXP7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:59:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235297AbhEXPzF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:55:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 780736192A;
-        Mon, 24 May 2021 15:40:57 +0000 (UTC)
+        id S235644AbhEXP7D (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:59:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B2066196A;
+        Mon, 24 May 2021 15:44:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621870857;
-        bh=7hmAbfphgOyVL13LgGdGnRzOmIHoIxlzSnUWIOJjmdA=;
+        s=korg; t=1621871087;
+        bh=MTf65CjRn4pimJ0YQqAOZWp680x6htRBMF1uX8Kmrns=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NatkCyzBl4tasTUza6q6ImYRtbppobyqYPTmFd6q1oJ2Jkaz2ixXS/6+R49SwbxU5
-         gXNNmGvKW0CoJqGjacPOCKj4/7iMuX6K1+H30w8B3FusceN+FS9Eultv0gQIKvjZcM
-         Hdg1LjRMrPRYn/qfZ+uwiub1+VBYa9Ww/koJGIAI=
+        b=MpmdIvtR/zYTcj5R/8YmFLAt1lT3ln9z0QpotLsz/RbwQjRB9KjXjd9BNR+2t/TO3
+         WzwhDINnCEJ7f7aejXLnSUbB82yOC0mPgY5fDXzKybUtXa9PIKwdV+ZORLrSfH6LD5
+         2H9jND5oEtpTLA3ZPik2qHHK0b9k+URAXCc6cWHg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.10 067/104] xen-pciback: redo VF placement in the virtual topology
+        stable@vger.kernel.org, Hyeonggon Yoo <42.hyeyoo@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 045/127] ALSA: line6: Fix racy initialization of LINE6 MIDI
 Date:   Mon, 24 May 2021 17:26:02 +0200
-Message-Id: <20210524152335.074372417@linuxfoundation.org>
+Message-Id: <20210524152336.367951866@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210524152332.844251980@linuxfoundation.org>
-References: <20210524152332.844251980@linuxfoundation.org>
+In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+References: <20210524152334.857620285@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,81 +39,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 4ba50e7c423c29639878c00573288869aa627068 upstream.
+commit 05ca447630334c323c9e2b788b61133ab75d60d3 upstream.
 
-The commit referenced below was incomplete: It merely affected what
-would get written to the vdev-<N> xenstore node. The guest would still
-find the function at the original function number as long as
-__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
-__xen_pcibk_get_pcifront_dev().
+The initialization of MIDI devices that are found on some LINE6
+drivers are currently done in a racy way; namely, the MIDI buffer
+instance is allocated and initialized in each private_init callback
+while the communication with the interface is already started via
+line6_init_cap_control() call before that point.  This may lead to
+Oops in line6_data_received() when a spurious event is received, as
+reported by syzkaller.
 
-Undo overriding the function to zero and instead make sure that VFs at
-function zero remain alone in their slot. This has the added benefit of
-improving overall capacity, considering that there's only a total of 32
-slots available right now (PCI segment and bus can both only ever be
-zero at present).
+This patch moves the MIDI initialization to line6_init_cap_control()
+as well instead of the too-lately-called private_init for avoiding the
+race.  Also this reduces slightly more lines, so it's a win-win
+change.
 
-Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to separate virtual slots")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
+Reported-by: syzbot+0d2b3feb0a2887862e06@syzkallerlkml..appspotmail.com
+Link: https://lore.kernel.org/r/000000000000a4be9405c28520de@google.com
+Link: https://lore.kernel.org/r/20210517132725.GA50495@hyeyoo
+Cc: Hyeonggon Yoo <42.hyeyoo@gmail.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210518083939.1927-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ sound/usb/line6/driver.c |    4 ++++
+ sound/usb/line6/pod.c    |    5 -----
+ sound/usb/line6/variax.c |    6 ------
+ 3 files changed, 4 insertions(+), 11 deletions(-)
 
---- a/drivers/xen/xen-pciback/vpci.c
-+++ b/drivers/xen/xen-pciback/vpci.c
-@@ -70,7 +70,7 @@ static int __xen_pcibk_add_pci_dev(struc
- 				   struct pci_dev *dev, int devid,
- 				   publish_pci_dev_cb publish_cb)
+--- a/sound/usb/line6/driver.c
++++ b/sound/usb/line6/driver.c
+@@ -699,6 +699,10 @@ static int line6_init_cap_control(struct
+ 		line6->buffer_message = kmalloc(LINE6_MIDI_MESSAGE_MAXLEN, GFP_KERNEL);
+ 		if (!line6->buffer_message)
+ 			return -ENOMEM;
++
++		ret = line6_init_midi(line6);
++		if (ret < 0)
++			return ret;
+ 	} else {
+ 		ret = line6_hwdep_init(line6);
+ 		if (ret < 0)
+--- a/sound/usb/line6/pod.c
++++ b/sound/usb/line6/pod.c
+@@ -376,11 +376,6 @@ static int pod_init(struct usb_line6 *li
+ 	if (err < 0)
+ 		return err;
+ 
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initialize PCM subsystem: */
+ 	err = line6_init_pcm(line6, &pod_pcm_properties);
+ 	if (err < 0)
+--- a/sound/usb/line6/variax.c
++++ b/sound/usb/line6/variax.c
+@@ -159,7 +159,6 @@ static int variax_init(struct usb_line6
+ 		       const struct usb_device_id *id)
  {
--	int err = 0, slot, func = -1;
-+	int err = 0, slot, func = PCI_FUNC(dev->devfn);
- 	struct pci_dev_entry *t, *dev_entry;
- 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
+ 	struct usb_line6_variax *variax = line6_to_variax(line6);
+-	int err;
  
-@@ -95,22 +95,25 @@ static int __xen_pcibk_add_pci_dev(struc
+ 	line6->process_message = line6_variax_process_message;
+ 	line6->disconnect = line6_variax_disconnect;
+@@ -172,11 +171,6 @@ static int variax_init(struct usb_line6
+ 	if (variax->buffer_activate == NULL)
+ 		return -ENOMEM;
  
- 	/*
- 	 * Keep multi-function devices together on the virtual PCI bus, except
--	 * virtual functions.
-+	 * that we want to keep virtual functions at func 0 on their own. They
-+	 * aren't multi-function devices and hence their presence at func 0
-+	 * may cause guests to not scan the other functions.
- 	 */
--	if (!dev->is_virtfn) {
-+	if (!dev->is_virtfn || func) {
- 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
- 			if (list_empty(&vpci_dev->dev_list[slot]))
- 				continue;
- 
- 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
- 				       struct pci_dev_entry, list);
-+			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
-+				continue;
- 
- 			if (match_slot(dev, t->dev)) {
- 				dev_info(&dev->dev, "vpci: assign to virtual slot %d func %d\n",
--					 slot, PCI_FUNC(dev->devfn));
-+					 slot, func);
- 				list_add_tail(&dev_entry->list,
- 					      &vpci_dev->dev_list[slot]);
--				func = PCI_FUNC(dev->devfn);
- 				goto unlock;
- 			}
- 		}
-@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
- 				 slot);
- 			list_add_tail(&dev_entry->list,
- 				      &vpci_dev->dev_list[slot]);
--			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
- 			goto unlock;
- 		}
- 	}
+-	/* initialize MIDI subsystem: */
+-	err = line6_init_midi(&variax->line6);
+-	if (err < 0)
+-		return err;
+-
+ 	/* initiate startup procedure: */
+ 	schedule_delayed_work(&line6->startup_work,
+ 			      msecs_to_jiffies(VARIAX_STARTUP_DELAY1));
 
 
