@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BD8938F055
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:01:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 54F4C38F080
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 18:07:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236022AbhEXQCn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 12:02:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48382 "EHLO mail.kernel.org"
+        id S236205AbhEXQDj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 12:03:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236031AbhEXQBU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 12:01:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1294761998;
-        Mon, 24 May 2021 15:46:48 +0000 (UTC)
+        id S235892AbhEXQCe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 12:02:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 736B26140C;
+        Mon, 24 May 2021 15:50:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621871209;
-        bh=2Z+d4Wgsx/otMK7BW/mHbEtbdQX5RNVNLnz08ZqUfkM=;
+        s=korg; t=1621871443;
+        bh=OKwBig0ASc3vb2AN3l1PWnwwMPSAFQCEJt5p9LTtmgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lFrcuDmsvdMAtl3klY4EsFnGB+Zb/XjnlF5bgcudILrIHbsUgPHK+VGphNrT6DUYM
-         ehRPrqZL9rfsYbjJIEHz336g427QKVNHIlsBx0Ko+D3FhnWFiplw8F+XXhsWR5bJAt
-         GKHeND7l4fEVI/cJnrh5NIMyHUL97cL9S6HyZxNk=
+        b=SKSCEjiYmx039UL6bhXKITLl8jexJhCBeF2+QdDZAwBYBtN/U3hbWtkyr/zVwmvY+
+         89QNwQl4xK9K3+EIu0K+R7UkaSykWdPciSyn+ApB2QFxTOEnLPTQGZVIXB3T+nUat+
+         oAHF2O3yT4Eg2yjIzrJXlPInfQHBy3wDE5/uaqck=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Mike Rapoport <rppt@linux.ibm.com>,
-        Stafford Horne <shorne@gmail.com>
-Subject: [PATCH 5.12 123/127] openrisc: mm/init.c: remove unused memblock_region variable in map_ram()
-Date:   Mon, 24 May 2021 17:27:20 +0200
-Message-Id: <20210524152339.031806993@linuxfoundation.org>
+        stable@vger.kernel.org, Olaf Hering <olaf@aepfle.de>,
+        Jan Beulich <jbeulich@suse.com>,
+        Juergen Gross <jgross@suse.com>
+Subject: [PATCH 5.12 124/127] x86/Xen: swap NX determination and GDT setup on BSP
+Date:   Mon, 24 May 2021 17:27:21 +0200
+Message-Id: <20210524152339.064067288@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
 References: <20210524152334.857620285@linuxfoundation.org>
@@ -40,49 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Rapoport <rppt@linux.ibm.com>
+From: Jan Beulich <jbeulich@suse.com>
 
-commit 4eff124347191d1548eb4e14e20e77513dcbd0fe upstream.
+commit ae897fda4f507e4b239f0bdfd578b3688ca96fb4 upstream.
 
-Kernel test robot reports:
+xen_setup_gdt(), via xen_load_gdt_boot(), wants to adjust page tables.
+For this to work when NX is not available, x86_configure_nx() needs to
+be called first.
 
-cppcheck possible warnings: (new ones prefixed by >>, may not real problems)
+[jgross] Note that this is a revert of 36104cb9012a82e73 ("x86/xen:
+Delay get_cpu_cap until stack canary is established"), which is possible
+now that we no longer support running as PV guest in 32-bit mode.
 
->> arch/openrisc/mm/init.c:125:10: warning: Uninitialized variable: region [uninitvar]
-            region->base, region->base + region->size);
-            ^
-
-Replace usage of memblock_region fields with 'start' and 'end' variables
-that are initialized in for_each_mem_range() and remove the declaration of
-region.
-
-Fixes: b10d6bca8720 ("arch, drivers: replace for_each_membock() with for_each_mem_range()")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: Mike Rapoport <rppt@linux.ibm.com>
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Cc: <stable.vger.kernel.org> # 5.9
+Fixes: 36104cb9012a82e73 ("x86/xen: Delay get_cpu_cap until stack canary is established")
+Reported-by: Olaf Hering <olaf@aepfle.de>
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/openrisc/mm/init.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/arch/openrisc/mm/init.c
-+++ b/arch/openrisc/mm/init.c
-@@ -75,7 +75,6 @@ static void __init map_ram(void)
- 	/* These mark extents of read-only kernel pages...
- 	 * ...from vmlinux.lds.S
+Link: https://lore.kernel.org/r/12a866b0-9e89-59f7-ebeb-a2a6cec0987a@suse.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+ arch/x86/xen/enlighten_pv.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+--- a/arch/x86/xen/enlighten_pv.c
++++ b/arch/x86/xen/enlighten_pv.c
+@@ -1276,16 +1276,16 @@ asmlinkage __visible void __init xen_sta
+ 	/* Get mfn list */
+ 	xen_build_dynamic_phys_to_machine();
+ 
++	/* Work out if we support NX */
++	get_cpu_cap(&boot_cpu_data);
++	x86_configure_nx();
++
+ 	/*
+ 	 * Set up kernel GDT and segment registers, mainly so that
+ 	 * -fstack-protector code can be executed.
  	 */
--	struct memblock_region *region;
+ 	xen_setup_gdt(0);
  
- 	v = PAGE_OFFSET;
- 
-@@ -121,7 +120,7 @@ static void __init map_ram(void)
- 		}
- 
- 		printk(KERN_INFO "%s: Memory: 0x%x-0x%x\n", __func__,
--		       region->base, region->base + region->size);
-+		       start, end);
- 	}
- }
+-	/* Work out if we support NX */
+-	get_cpu_cap(&boot_cpu_data);
+-	x86_configure_nx();
+-
+ 	/* Determine virtual and physical address sizes */
+ 	get_cpu_address_sizes(&boot_cpu_data);
  
 
 
