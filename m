@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B32E138EB88
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:04:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B8238EBAC
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 17:06:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234004AbhEXPD5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 11:03:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37276 "EHLO mail.kernel.org"
+        id S233907AbhEXPGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 11:06:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37280 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233842AbhEXPB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 11:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E6AB61492;
-        Mon, 24 May 2021 14:50:15 +0000 (UTC)
+        id S234142AbhEXPB6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 11:01:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AC9EF614A5;
+        Mon, 24 May 2021 14:50:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867816;
-        bh=03uit3HcRgBQorQUpuon9ip1oRKD6umUP7MMKYqtLKY=;
+        s=k20201202; t=1621867817;
+        bh=qimJcXLAlvslZZS3a36NHFGUNOy7xM10vdpvTwjf1k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vErcjlfxXSZknkqa3o/4mxdaf/IEBQZlVhwiDq+kbR3igRJxX0+5+kWHng5Nu4M6k
-         k4DlkjhfHeloLFeJlcIQdoIzaBP3eBzhjvxQlxjD2LDe3V3TYQp3cQSu7U/OaPDmpF
-         8GP0gj/YkgCLOozl+j7PdRIsx5qQ4iyuy5BqMgJXHbXn19rvrTVu37ZqpcxPUtq73X
-         0jakNzDMgFJccRBEtn/Cz9ismMqdqSTnNjzDFdQlEIVz30nI6/zyfbUHZ63cx9HOxU
-         2JrfYit6VQhzZy4ESnaHMWST4Z1au8SZWfsRsvUpMd8BTDJ3BTHvhhhY5TkhR0Udxw
-         ZadLtSlLm0QcA==
+        b=XmeB77wECvUKjGi56ZX493SaD3brV3Nr3b26nwr6i1GlTfDtc+afUdIRP+xz0WXXc
+         7em9m9LaS3RcNvb8uHNCkyk12OJ1tLMergDGPLDsC1Zde/bSiW6XIlJfymhNFs/lw8
+         VnlL7V3CL6NAdj4WoBHq/zsBK/IP82LZNgw+TBXUf/gyjdwUYIfNN7Df4FVZJHYtet
+         eSuORDPSURRQh+O63OcR1d4BIN8BIRD59QYM8Pobk8Yl4pAdK6TR8MHbIpf5G8/bbT
+         mem6rN9G2FvXUvY4JnjLQxwVmUF/6B2nkB/G0EUFb0DWqhxpfCWZieXyqYgFrLc0c6
+         g5B1kcTz8CNsA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Atul Gopinathan <atulgopinathan@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>,
+Cc:     Phillip Potter <phil@philpotter.co.uk>,
+        "David S . Miller" <davem@davemloft.net>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 4.19 06/25] ALSA: sb8: Add a comment note regarding an unused pointer
-Date:   Mon, 24 May 2021 10:49:49 -0400
-Message-Id: <20210524145008.2499049-6-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 07/25] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+Date:   Mon, 24 May 2021 10:49:50 -0400
+Message-Id: <20210524145008.2499049-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524145008.2499049-1-sashal@kernel.org>
 References: <20210524145008.2499049-1-sashal@kernel.org>
@@ -43,43 +43,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit a28591f61b60fac820c6de59826ffa710e5e314e ]
+[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
 
-The field "fm_res" of "struct snd_sb8" is never used/dereferenced
-throughout the sb8.c code. Therefore there is no need for any null value
-check after the "request_region()".
+Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
+and hw->ci->addr_mode respectively, to be before the subsequent checks
+for memory IO mode (and possible ioremap calls in this case).
 
-Add a comment note to make developers know about this and prevent any
-"NULL check" patches on this part of code.
+Also introduce ioremap error checks at both locations. This allows
+resources to be properly freed on ioremap failure, as when the caller
+of setup_io then subsequently calls release_io via its error path,
+release_io can now correctly determine the mode as it has been set
+before the ioremap call.
 
-Cc: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-36-gregkh@linuxfoundation.org
+Finally, refactor release_io function so that it will call
+release_mem_region in the memory IO case, regardless of whether or not
+hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
+released on failure.
+
+This properly implements the original reverted commit (d721fe99f6ad)
+from the University of Minnesota, whilst also implementing the ioremap
+check for the hw->ci->cfg_mode if block as well.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/sb/sb8.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
-diff --git a/sound/isa/sb/sb8.c b/sound/isa/sb/sb8.c
-index 1eb8b61a185b..fb59e5179075 100644
---- a/sound/isa/sb/sb8.c
-+++ b/sound/isa/sb/sb8.c
-@@ -109,7 +109,11 @@ static int snd_sb8_probe(struct device *pdev, unsigned int dev)
- 	acard = card->private_data;
- 	card->private_free = snd_sb8_free;
- 
--	/* block the 0x388 port to avoid PnP conflicts */
-+	/*
-+	 * Block the 0x388 port to avoid PnP conflicts.
-+	 * No need to check this value after request_region,
-+	 * as we never do anything with it.
-+	 */
- 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
- 	if (!acard->fm_res) {
- 		err = -EBUSY;
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index 3e01012be4ab..95a0d728eecc 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -645,17 +645,19 @@ static void
+ release_io(struct inf_hw *hw)
+ {
+ 	if (hw->cfg.mode) {
+-		if (hw->cfg.p) {
++		if (hw->cfg.mode == AM_MEMIO) {
+ 			release_mem_region(hw->cfg.start, hw->cfg.size);
+-			iounmap(hw->cfg.p);
++			if (hw->cfg.p)
++				iounmap(hw->cfg.p);
+ 		} else
+ 			release_region(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = AM_NONE;
+ 	}
+ 	if (hw->addr.mode) {
+-		if (hw->addr.p) {
++		if (hw->addr.mode == AM_MEMIO) {
+ 			release_mem_region(hw->addr.start, hw->addr.size);
+-			iounmap(hw->addr.p);
++			if (hw->addr.p)
++				iounmap(hw->addr.p);
+ 		} else
+ 			release_region(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = AM_NONE;
+@@ -685,9 +687,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
+ 			return err;
+ 		}
+-		if (hw->ci->cfg_mode == AM_MEMIO)
+-			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = hw->ci->cfg_mode;
++		if (hw->ci->cfg_mode == AM_MEMIO) {
++			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
++			if (!hw->cfg.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->cfg.start,
+@@ -712,9 +717,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO)
+-			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = hw->ci->addr_mode;
++		if (hw->ci->addr_mode == AM_MEMIO) {
++			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
++			if (!hw->addr.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->addr.start,
 -- 
 2.30.2
 
