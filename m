@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E81A338E661
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 14:13:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C306238E679
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 14:21:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232700AbhEXMO2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 08:14:28 -0400
-Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:59653 "EHLO
+        id S232371AbhEXMWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 08:22:43 -0400
+Received: from forward1-smtp.messagingengine.com ([66.111.4.223]:51935 "EHLO
         forward1-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232516AbhEXMO1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 08:14:27 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 73FEA1940438;
-        Mon, 24 May 2021 08:12:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Mon, 24 May 2021 08:12:59 -0400
+        by vger.kernel.org with ESMTP id S232300AbhEXMWn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 08:22:43 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 45678194023B;
+        Mon, 24 May 2021 08:21:15 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Mon, 24 May 2021 08:21:15 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RbqU+0
-        4pEtW+ygc6aiYHYStzD4wZ4Bf6OY162uCgWK4=; b=YQNxja+yD7csxGuyMYriKi
-        O7fJTztrIfU1W8KxDXTiEqXc9d6b4mxV90d0R5Q3OOHAMvwOaxEfQrrTv2eiLzJK
-        f8bjaK6XCpNb14o/QPPuZRknRWNcd9WrwnTehsBcAA0zI8u4he9fbmaGPut29Ipw
-        2E0xBIu5eOAhjyD8RbWc5PfDG9L5gK4ygY0xyI5ma5zPB3MzK7gvVHoiNmPUiKE5
-        f7iLtcuCv5hnbdUG4V5+zy1gtEY+qgwA3SNJ+2YEy9Bbx6I/tr88lNNzquP1y6FU
-        g1npoTyvWgUs7Me8SlWcIC2aZKkvEyzth4wwYiB8DL7DdOVMz4l1dgP0ZWkstCTQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+qVObr
+        5OQ+ZNB5wzeoxSErLMHECxZY5I+wUvO0jjUSA=; b=nVCKQBFdp0K5xu6Rb71KkM
+        BD/3AnbhT8vHrs1wHwbITo+NQsdTLVP9A73Jq1gZLIt3BMq8ZxT0eQliftkABW4/
+        S8qhzc68v9Ujq7nVbltkHa1Aprnffiw6ezYwfLyUaJoMkJ9NH3ERwQP6KPxuuM77
+        neFmGait9u7AcgdqyzyZ61FZrEEt/8oRUGvv/IQBAmw7Y+zBCP8VPw/P/2MMGLYx
+        rIyaXHAvs4voXB0QkWau5ZxcPJFvsF61gbhIJipXBtrX5NNVpKY6LBxulZpgGhBw
+        0YGVfYRfTBxATfVpXz+YV427U7oZ+/t1pIGuzi1dbrXdrmYIqOQ6XLDPplCjpKjQ
         ==
-X-ME-Sender: <xms:SpirYDZ7Rwnilc6KoM9sPciuARMnQuXz8WhBwEvrxm1PRetq7vMNjQ>
-    <xme:SpirYCYW4N2Uw91aMe8vOYh98spD1dKqmCD1-g9coqU6s1o8IUdQLBT6BE1mNtbty
-    Mh8ZyjjupoK6Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledghedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:OpqrYCQM5YfIcoqGEqw4dbZpHvF1R2r-_pUsoyCKMD4cXvWkVubJrQ>
+    <xme:OpqrYHyflFbPYht4soMlyyjn-IzXXopfrH-aUeFPJ5E8EvqiklUa4yvqixV7ixBle
+    hF6Fxo9gH_FDQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdejledghedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:S5irYF_qtyKoRFtZzBYkTk3TpkWAhx4_xfWDe-0JKV15uMV-ccC6eg>
-    <xmx:S5irYJqQV7sIi2-xYxNfEQnPlWdwEZMqGKJWwEg63Jw740v7G8dFIw>
-    <xmx:S5irYOqxbobEoTa7l7UXnjrmEVtfqPVHAknzEdNNGhyjUISD5TzN4w>
-    <xmx:S5irYDBVsjDpmP7h3sp3nCNLfTByHF9VLAuiL-s8ncmwyWBbqs1ELA>
+    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
+    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    gtohhm
+X-ME-Proxy: <xmx:OpqrYP2nQeqCtchg3Wwyg0Xb9upIsd0M1ctbhLl3tHI3P4JH5pIMZA>
+    <xmx:OpqrYOBAAUPLH4BMkLe1w0ffSgU8nCkxxvrfROAA4N2VAj-ECnK92Q>
+    <xmx:OpqrYLijlfK9RT5H-Nn9JQFJQdO90y_7EVtCksGERewftM8Hn7Uhxw>
+    <xmx:O5qrYIvSi01n5_fMY_mJXfHOmzFVHTliznEJ4Dh623IyanFGjLuGZA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Mon, 24 May 2021 08:12:58 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] perf/x86/lbr: Remove cpuc->lbr_xsave allocation from atomic" failed to apply to 5.12-stable tree
-To:     like.xu@linux.intel.com, kan.liang@linux.intel.com,
-        peterz@infradead.org
+        Mon, 24 May 2021 08:21:13 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] nvme-multipath: fix double initialization of ANA state" failed to apply to 4.19-stable tree
+To:     hch@lst.de, hare@suse.de, kbusch@kernel.org, mwilck@suse.com,
+        sagi@grimberg.me
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 24 May 2021 14:12:48 +0200
-Message-ID: <162185836897136@kroah.com>
+Date:   Mon, 24 May 2021 14:21:12 +0200
+Message-ID: <1621858872112178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,124 +71,150 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 488e13a489e9707a7e81e1991fdd1f20c0f04689 Mon Sep 17 00:00:00 2001
-From: Like Xu <like.xu@linux.intel.com>
-Date: Fri, 30 Apr 2021 13:22:47 +0800
-Subject: [PATCH] perf/x86/lbr: Remove cpuc->lbr_xsave allocation from atomic
- context
+From 5e1f689913a4498e3081093670ef9d85b2c60920 Mon Sep 17 00:00:00 2001
+From: Christoph Hellwig <hch@lst.de>
+Date: Thu, 29 Apr 2021 14:18:53 +0200
+Subject: [PATCH] nvme-multipath: fix double initialization of ANA state
 
-If the kernel is compiled with the CONFIG_LOCKDEP option, the conditional
-might_sleep_if() deep in kmem_cache_alloc() will generate the following
-trace, and potentially cause a deadlock when another LBR event is added:
+nvme_init_identify and thus nvme_mpath_init can be called multiple
+times and thus must not overwrite potentially initialized or in-use
+fields.  Split out a helper for the basic initialization when the
+controller is initialized and make sure the init_identify path does
+not blindly change in-use data structures.
 
-  [] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:196
-  [] Call Trace:
-  []  kmem_cache_alloc+0x36/0x250
-  []  intel_pmu_lbr_add+0x152/0x170
-  []  x86_pmu_add+0x83/0xd0
+Fixes: 0d0b660f214d ("nvme: add ANA support")
+Reported-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
 
-Make it symmetric with the release_lbr_buffers() call and mirror the
-existing DS buffers.
-
-Fixes: c085fb8774 ("perf/x86/intel/lbr: Support XSAVES for arch LBR read")
-Signed-off-by: Like Xu <like.xu@linux.intel.com>
-[peterz: simplified]
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Tested-by: Kan Liang <kan.liang@linux.intel.com>
-Link: https://lkml.kernel.org/r/20210430052247.3079672-2-like.xu@linux.intel.com
-
-diff --git a/arch/x86/events/core.c b/arch/x86/events/core.c
-index 8e509325c2c3..8f71dd72ef95 100644
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -396,10 +396,12 @@ int x86_reserve_hardware(void)
- 	if (!atomic_inc_not_zero(&pmc_refcount)) {
- 		mutex_lock(&pmc_reserve_mutex);
- 		if (atomic_read(&pmc_refcount) == 0) {
--			if (!reserve_pmc_hardware())
-+			if (!reserve_pmc_hardware()) {
- 				err = -EBUSY;
--			else
-+			} else {
- 				reserve_ds_buffers();
-+				reserve_lbr_buffers();
-+			}
- 		}
- 		if (!err)
- 			atomic_inc(&pmc_refcount);
-diff --git a/arch/x86/events/intel/lbr.c b/arch/x86/events/intel/lbr.c
-index 76dbab6ac9fb..4409d2cccfda 100644
---- a/arch/x86/events/intel/lbr.c
-+++ b/arch/x86/events/intel/lbr.c
-@@ -658,7 +658,6 @@ static inline bool branch_user_callstack(unsigned br_sel)
- 
- void intel_pmu_lbr_add(struct perf_event *event)
- {
--	struct kmem_cache *kmem_cache = event->pmu->task_ctx_cache;
- 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
- 
- 	if (!x86_pmu.lbr_nr)
-@@ -696,11 +695,6 @@ void intel_pmu_lbr_add(struct perf_event *event)
- 	perf_sched_cb_inc(event->ctx->pmu);
- 	if (!cpuc->lbr_users++ && !event->total_time_running)
- 		intel_pmu_lbr_reset();
--
--	if (static_cpu_has(X86_FEATURE_ARCH_LBR) &&
--	    kmem_cache && !cpuc->lbr_xsave &&
--	    (cpuc->lbr_users != cpuc->lbr_pebs_users))
--		cpuc->lbr_xsave = kmem_cache_alloc(kmem_cache, GFP_KERNEL);
- }
- 
- void release_lbr_buffers(void)
-@@ -722,6 +716,26 @@ void release_lbr_buffers(void)
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 522c9b229f80..762125f2905f 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -2901,7 +2901,7 @@ static int nvme_init_identify(struct nvme_ctrl *ctrl)
+ 		ctrl->hmmaxd = le16_to_cpu(id->hmmaxd);
  	}
- }
  
-+void reserve_lbr_buffers(void)
-+{
-+	struct kmem_cache *kmem_cache;
-+	struct cpu_hw_events *cpuc;
-+	int cpu;
-+
-+	if (!static_cpu_has(X86_FEATURE_ARCH_LBR))
-+		return;
-+
-+	for_each_possible_cpu(cpu) {
-+		cpuc = per_cpu_ptr(&cpu_hw_events, cpu);
-+		kmem_cache = x86_get_pmu(cpu)->task_ctx_cache;
-+		if (!kmem_cache || cpuc->lbr_xsave)
-+			continue;
-+
-+		cpuc->lbr_xsave = kmem_cache_alloc_node(kmem_cache, GFP_KERNEL,
-+							cpu_to_node(cpu));
-+	}
-+}
-+
- void intel_pmu_lbr_del(struct perf_event *event)
- {
- 	struct cpu_hw_events *cpuc = this_cpu_ptr(&cpu_hw_events);
-diff --git a/arch/x86/events/perf_event.h b/arch/x86/events/perf_event.h
-index 27fa85e7d4fd..ad87cb36f7c8 100644
---- a/arch/x86/events/perf_event.h
-+++ b/arch/x86/events/perf_event.h
-@@ -1244,6 +1244,8 @@ void reserve_ds_buffers(void);
+-	ret = nvme_mpath_init(ctrl, id);
++	ret = nvme_mpath_init_identify(ctrl, id);
+ 	if (ret < 0)
+ 		goto out_free;
  
- void release_lbr_buffers(void);
+@@ -4364,6 +4364,7 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
+ 		min(default_ps_max_latency_us, (unsigned long)S32_MAX));
  
-+void reserve_lbr_buffers(void);
-+
- extern struct event_constraint bts_constraint;
- extern struct event_constraint vlbr_constraint;
+ 	nvme_fault_inject_init(&ctrl->fault_inject, dev_name(ctrl->device));
++	nvme_mpath_init_ctrl(ctrl);
  
-@@ -1393,6 +1395,10 @@ static inline void release_lbr_buffers(void)
- {
- }
- 
-+static inline void reserve_lbr_buffers(void)
-+{
-+}
-+
- static inline int intel_pmu_init(void)
- {
  	return 0;
+ out_free_name:
+diff --git a/drivers/nvme/host/multipath.c b/drivers/nvme/host/multipath.c
+index 0551796517e6..deb14562c96a 100644
+--- a/drivers/nvme/host/multipath.c
++++ b/drivers/nvme/host/multipath.c
+@@ -781,9 +781,18 @@ void nvme_mpath_remove_disk(struct nvme_ns_head *head)
+ 	put_disk(head->disk);
+ }
+ 
+-int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
++void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl)
+ {
+-	int error;
++	mutex_init(&ctrl->ana_lock);
++	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
++	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
++}
++
++int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
++{
++	size_t max_transfer_size = ctrl->max_hw_sectors << SECTOR_SHIFT;
++	size_t ana_log_size;
++	int error = 0;
+ 
+ 	/* check if multipath is enabled and we have the capability */
+ 	if (!multipath || !ctrl->subsys ||
+@@ -795,37 +804,31 @@ int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id)
+ 	ctrl->nanagrpid = le32_to_cpu(id->nanagrpid);
+ 	ctrl->anagrpmax = le32_to_cpu(id->anagrpmax);
+ 
+-	mutex_init(&ctrl->ana_lock);
+-	timer_setup(&ctrl->anatt_timer, nvme_anatt_timeout, 0);
+-	ctrl->ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
+-		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc);
+-	ctrl->ana_log_size += ctrl->max_namespaces * sizeof(__le32);
+-
+-	if (ctrl->ana_log_size > ctrl->max_hw_sectors << SECTOR_SHIFT) {
++	ana_log_size = sizeof(struct nvme_ana_rsp_hdr) +
++		ctrl->nanagrpid * sizeof(struct nvme_ana_group_desc) +
++		ctrl->max_namespaces * sizeof(__le32);
++	if (ana_log_size > max_transfer_size) {
+ 		dev_err(ctrl->device,
+-			"ANA log page size (%zd) larger than MDTS (%d).\n",
+-			ctrl->ana_log_size,
+-			ctrl->max_hw_sectors << SECTOR_SHIFT);
++			"ANA log page size (%zd) larger than MDTS (%zd).\n",
++			ana_log_size, max_transfer_size);
+ 		dev_err(ctrl->device, "disabling ANA support.\n");
+-		return 0;
++		goto out_uninit;
+ 	}
+-
+-	INIT_WORK(&ctrl->ana_work, nvme_ana_work);
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
+-	if (!ctrl->ana_log_buf) {
+-		error = -ENOMEM;
+-		goto out;
++	if (ana_log_size > ctrl->ana_log_size) {
++		nvme_mpath_stop(ctrl);
++		kfree(ctrl->ana_log_buf);
++		ctrl->ana_log_buf = kmalloc(ctrl->ana_log_size, GFP_KERNEL);
++		if (!ctrl->ana_log_buf)
++			return -ENOMEM;
+ 	}
+-
++	ctrl->ana_log_size = ana_log_size;
+ 	error = nvme_read_ana_log(ctrl);
+ 	if (error)
+-		goto out_free_ana_log_buf;
++		goto out_uninit;
+ 	return 0;
+-out_free_ana_log_buf:
+-	kfree(ctrl->ana_log_buf);
+-	ctrl->ana_log_buf = NULL;
+-out:
++
++out_uninit:
++	nvme_mpath_uninit(ctrl);
+ 	return error;
+ }
+ 
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index 05f31a2c64bb..0015860ec12b 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -712,7 +712,8 @@ void nvme_kick_requeue_lists(struct nvme_ctrl *ctrl);
+ int nvme_mpath_alloc_disk(struct nvme_ctrl *ctrl,struct nvme_ns_head *head);
+ void nvme_mpath_add_disk(struct nvme_ns *ns, struct nvme_id_ns *id);
+ void nvme_mpath_remove_disk(struct nvme_ns_head *head);
+-int nvme_mpath_init(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
++int nvme_mpath_init_identify(struct nvme_ctrl *ctrl, struct nvme_id_ctrl *id);
++void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl);
+ void nvme_mpath_uninit(struct nvme_ctrl *ctrl);
+ void nvme_mpath_stop(struct nvme_ctrl *ctrl);
+ bool nvme_mpath_clear_current_path(struct nvme_ns *ns);
+@@ -780,7 +781,10 @@ static inline void nvme_mpath_check_last_path(struct nvme_ns *ns)
+ static inline void nvme_trace_bio_complete(struct request *req)
+ {
+ }
+-static inline int nvme_mpath_init(struct nvme_ctrl *ctrl,
++static inline void nvme_mpath_init_ctrl(struct nvme_ctrl *ctrl)
++{
++}
++static inline int nvme_mpath_init_identify(struct nvme_ctrl *ctrl,
+ 		struct nvme_id_ctrl *id)
+ {
+ 	if (ctrl->subsys->cmic & NVME_CTRL_CMIC_ANA)
 
