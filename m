@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C3D138E320
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 11:17:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F2F38E32F
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 11:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232476AbhEXJSw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 05:18:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59180 "EHLO mail.kernel.org"
+        id S232445AbhEXJWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 05:22:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232313AbhEXJSu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 05:18:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE68E60FE7;
-        Mon, 24 May 2021 09:17:22 +0000 (UTC)
+        id S232396AbhEXJWX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 05:22:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 764E1610A5;
+        Mon, 24 May 2021 09:20:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621847843;
-        bh=AEdXl0yOkNxGu8Z2KHUxXg9KFkc7Dxr7RFwj4gYtUlo=;
+        s=k20201202; t=1621848055;
+        bh=C0KBuOweP0oMeWO7jZ/E760szJDDgstvTnUGvt0yHWA=;
         h=From:To:Cc:Subject:Date:From;
-        b=Sp1WXFOR6b2e8ozm+ZjRWCt+tT0Tyn/Xndq0hIidaLdXs2thwnvN2wHomhmagrGaE
-         Z4rUv5wYr22iom2/sz7Rbc+YCu6R+ThjXFNNgS725N/0GXvN3LLe2mBCq+vSiCgjjA
-         PbKbTRNOorC1iZo1rStTOJaFP/IyIztp/xKja0hlW7M/AwOkNFF2pOn7C3F2oHilUe
-         blO0P8gLOY+eF4fKxF/rVByCoUafYV/fUGvbSHgtA3bJei6H5r3bfWZhsW9x0289ry
-         H/P9M/zkcqdv8VRbeWJp01REK+TfNykS60xQMW+lTQFhwk4+xocu7dxa+lefv4aUVL
-         1DtVV+B0KXfVg==
+        b=Ya/vuiRdNbMFglqcGaSGWwrGgMJZeNO6vpJ65Gb+JpreHSSUHyOqwcZLqlmhh0oim
+         TKIRJEJYIYzys7GksHNtNAtGIkk10BRx95UEEVUSUflDP3M/9na4i2w7V3KN0v/ccs
+         nfDRcZgGCtWlh2CnVLioJpYEcMs6Zm6Ouk3LMcGOddtcw+Ggxj0U4Wnt6X2/nmEsXx
+         d+OLb3geOo/SRTInTGBwgR9InvIbW5Sc2tz/U61+3X35Ty0a8Y2WLEbCsnI6NIaAle
+         nWdBv7A50Vj56/k+ew+HAKB/ZRgPEFPokDLMgOiXs8bYpsDmBhyrn9wJc/0fdwAaP3
+         1CgASWK1SXSnA==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan@kernel.org>)
-        id 1ll6i8-000182-4i; Mon, 24 May 2021 11:17:20 +0200
+        id 1ll6lZ-0001AO-6Q; Mon, 24 May 2021 11:20:53 +0200
 From:   Johan Hovold <johan@kernel.org>
-To:     Johan Hovold <johan@kernel.org>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+To:     Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc:     linux-input@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
         stable@vger.kernel.org
-Subject: [PATCH v2] USB: serial: quatech2: fix control-request directions
-Date:   Mon, 24 May 2021 11:17:05 +0200
-Message-Id: <20210524091705.4282-1-johan@kernel.org>
+Subject: [PATCH v2] Input: usbtouchscreen - fix control-request directions
+Date:   Mon, 24 May 2021 11:20:48 +0200
+Message-Id: <20210524092048.4443-1-johan@kernel.org>
 X-Mailer: git-send-email 2.26.3
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -44,50 +45,61 @@ The direction of the pipe argument must match the request-type direction
 bit or control requests may fail depending on the host-controller-driver
 implementation.
 
-Fix the three requests which erroneously used usb_rcvctrlpipe().
+Fix the four control requests which erroneously used usb_rcvctrlpipe().
 
-Fixes: f7a33e608d9a ("USB: serial: add quatech2 usb to serial driver")
-Cc: stable@vger.kernel.org      # 3.5
+Fixes: 1d3e20236d7a ("[PATCH] USB: usbtouchscreen: unified USB touchscreen driver")
+Fixes: 24ced062a296 ("usbtouchscreen: add support for DMC TSC-10/25 devices")
+Fixes: 9e3b25837a20 ("Input: usbtouchscreen - add support for e2i touchscreen controller")
+Cc: stable@vger.kernel.org      # 2.6.17
 Signed-off-by: Johan Hovold <johan@kernel.org>
 ---
 
 Changes in v2
- - fix also the request in attach
+ - include also the request in e2i_init which did not use USB_DIR_OUT
 
- drivers/usb/serial/quatech2.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/input/touchscreen/usbtouchscreen.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/usb/serial/quatech2.c b/drivers/usb/serial/quatech2.c
-index 3b5f2032ecdb..b0bb889f002c 100644
---- a/drivers/usb/serial/quatech2.c
-+++ b/drivers/usb/serial/quatech2.c
-@@ -416,7 +416,7 @@ static void qt2_close(struct usb_serial_port *port)
+diff --git a/drivers/input/touchscreen/usbtouchscreen.c b/drivers/input/touchscreen/usbtouchscreen.c
+index c847453a03c2..43c521f50c85 100644
+--- a/drivers/input/touchscreen/usbtouchscreen.c
++++ b/drivers/input/touchscreen/usbtouchscreen.c
+@@ -251,7 +251,7 @@ static int e2i_init(struct usbtouch_usb *usbtouch)
+ 	int ret;
+ 	struct usb_device *udev = interface_to_usbdev(usbtouch->interface);
  
- 	/* flush the port transmit buffer */
- 	i = usb_control_msg(serial->dev,
--			    usb_rcvctrlpipe(serial->dev, 0),
-+			    usb_sndctrlpipe(serial->dev, 0),
- 			    QT2_FLUSH_DEVICE, 0x40, 1,
- 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      0x01, 0x02, 0x0000, 0x0081,
+ 	                      NULL, 0, USB_CTRL_SET_TIMEOUT);
  
-@@ -426,7 +426,7 @@ static void qt2_close(struct usb_serial_port *port)
+@@ -531,7 +531,7 @@ static int mtouch_init(struct usbtouch_usb *usbtouch)
+ 	if (ret)
+ 		return ret;
  
- 	/* flush the port receive buffer */
- 	i = usb_control_msg(serial->dev,
--			    usb_rcvctrlpipe(serial->dev, 0),
-+			    usb_sndctrlpipe(serial->dev, 0),
- 			    QT2_FLUSH_DEVICE, 0x40, 0,
- 			    port_priv->device_port, NULL, 0, QT2_USB_TIMEOUT);
+-	ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++	ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 	                      MTOUCHUSB_RESET,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      1, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -543,7 +543,7 @@ static int mtouch_init(struct usbtouch_usb *usbtouch)
+ 	msleep(150);
  
-@@ -639,7 +639,7 @@ static int qt2_attach(struct usb_serial *serial)
- 	int status;
+ 	for (i = 0; i < 3; i++) {
+-		ret = usb_control_msg(udev, usb_rcvctrlpipe(udev, 0),
++		ret = usb_control_msg(udev, usb_sndctrlpipe(udev, 0),
+ 				      MTOUCHUSB_ASYNC_REPORT,
+ 				      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				      1, 1, NULL, 0, USB_CTRL_SET_TIMEOUT);
+@@ -722,7 +722,7 @@ static int dmc_tsc10_init(struct usbtouch_usb *usbtouch)
+ 	}
  
- 	/* power on unit */
--	status = usb_control_msg(serial->dev, usb_rcvctrlpipe(serial->dev, 0),
-+	status = usb_control_msg(serial->dev, usb_sndctrlpipe(serial->dev, 0),
- 				 0xc2, 0x40, 0x8000, 0, NULL, 0,
- 				 QT2_USB_TIMEOUT);
- 	if (status < 0) {
+ 	/* start sending data */
+-	ret = usb_control_msg(dev, usb_rcvctrlpipe (dev, 0),
++	ret = usb_control_msg(dev, usb_sndctrlpipe(dev, 0),
+ 	                      TSC10_CMD_DATA1,
+ 	                      USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 	                      0, 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
 -- 
 2.26.3
 
