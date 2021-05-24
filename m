@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2640638EAB6
-	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0663738EAAB
+	for <lists+stable@lfdr.de>; Mon, 24 May 2021 16:56:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233754AbhEXO5S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 10:57:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34170 "EHLO mail.kernel.org"
+        id S234210AbhEXO5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 10:57:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34172 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234254AbhEXOyy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 10:54:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C701F6142C;
-        Mon, 24 May 2021 14:48:46 +0000 (UTC)
+        id S234259AbhEXOyz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 10:54:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB2C161438;
+        Mon, 24 May 2021 14:48:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621867727;
-        bh=++Gvob/5i3UQSKep7Q0P08CfuIhWyKIUp8gYkapj0vE=;
+        s=k20201202; t=1621867728;
+        bh=EQuL5AWD/fApjp0/wL1bMQy/0dIiryBUxf0x/fpQz9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t79CWdajXrzepdyYsBYzOU76VmLcm4NHB2PdW+71xE+INqP5OK6ALCkZ/WWptn8EF
-         Y2rm6lP8vzAZ0v7Q5C1PN2Q7TFsN3//UNLZc1Fm8FG91snb6cUUtdTv1NYVN6BCj/d
-         HcNMb/sReOkeS82De9qKd9whV0fI87trLGIG5c7lpjYIqVhvuwj/RHcbgGqI4dQyVV
-         mNR2kZZHvSMkjbuxfgp0RMoQiSyCHyaw9jVJnLUp5bMgs16UNiaDFW6t8cvTKorPiL
-         QE9wyTK9RAD3MvyeHmgwwxa7HQdXeH08YiCOW7EcY2aFjlCkYGpUb/oJpm1Quf927o
-         N+51jzX9dJn1Q==
+        b=iVcNY8JTEQw5GlWFMuCbNUjMGjNgFXz7+v18UApyBIgLcfKyeV3dlYAHyJFS1B8cB
+         uYUxuzBLvmm2MKKM473s02dPW0FHH/tUtaHriNrBqnVnPv2+Nw0JEhPeJslLTMhHbL
+         3i2wAkHCxC/ou/eyiwXBQ1CzO+l3SHM+LCI7L1PXrGQO905qhkpBMeUEyB6HLvAZvB
+         op5dDojILE3gtjseRGONlM16VBCRvN1dvAMURRAJZRMRT9OPS265gr3tA/zNKS44Ki
+         O51tjj7bJQqJvAPorgDtTf8TKiLgSXxc2dKRdNX5hK35UZInHMbYCIsF7//ZZorwFm
+         pDcCSHOMxxkWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+Cc:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
         Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>,
         platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 51/62] platform/x86: hp-wireless: add AMD's hardware id to the supported list
-Date:   Mon, 24 May 2021 10:47:32 -0400
-Message-Id: <20210524144744.2497894-51-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 52/62] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
+Date:   Mon, 24 May 2021 10:47:33 -0400
+Message-Id: <20210524144744.2497894-52-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210524144744.2497894-1-sashal@kernel.org>
 References: <20210524144744.2497894-1-sashal@kernel.org>
@@ -43,40 +43,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit f048630bdd55eb5379ef35f971639fe52fabe499 ]
+[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
 
-Newer AMD based laptops uses AMDI0051 as the hardware id to support the
-airplane mode button. Adding this to the supported list.
+The intel_punit_ipc driver might be compiled as a module.
+When udev handles the event of the devices appearing
+the intel_punit_ipc module is missing.
 
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Link: https://lore.kernel.org/r/20210514180047.1697543-1-Shyam-sundar.S-k@amd.com
+Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
 Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/hp-wireless.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/platform/x86/intel_punit_ipc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/platform/x86/hp-wireless.c b/drivers/platform/x86/hp-wireless.c
-index 12c31fd5d5ae..0753ef18e721 100644
---- a/drivers/platform/x86/hp-wireless.c
-+++ b/drivers/platform/x86/hp-wireless.c
-@@ -17,12 +17,14 @@ MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Alex Hung");
- MODULE_ALIAS("acpi*:HPQ6001:*");
- MODULE_ALIAS("acpi*:WSTADEF:*");
-+MODULE_ALIAS("acpi*:AMDI0051:*");
- 
- static struct input_dev *hpwl_input_dev;
- 
- static const struct acpi_device_id hpwl_ids[] = {
- 	{"HPQ6001", 0},
- 	{"WSTADEF", 0},
-+	{"AMDI0051", 0},
- 	{"", 0},
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index 05cced59e251..f58b8543f6ac 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -312,6 +312,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
+ 	{ "INT34D4", 0 },
+ 	{ }
  };
++MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
  
+ static struct platform_driver intel_punit_ipc_driver = {
+ 	.probe = intel_punit_ipc_probe,
 -- 
 2.30.2
 
