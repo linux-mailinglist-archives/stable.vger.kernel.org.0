@@ -2,85 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5BA638F6F4
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 02:24:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56EE138F71C
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 02:53:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229543AbhEYAZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 20:25:29 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54314 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229540AbhEYAZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 20:25:28 -0400
-Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC796C061574
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 17:23:59 -0700 (PDT)
-Received: by mail-lj1-x234.google.com with SMTP id a4so21086097ljd.5
-        for <stable@vger.kernel.org>; Mon, 24 May 2021 17:23:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=67r0IyTNKB1ymOtz0XDUp8t8JuIpjQtfAAPkETfacjY=;
-        b=GJrle6GDtL8Vz7erdhdN6uADC6azVv6HIoWn1wjYxJFpu+/+6VHSwgQY+C0XOPTMRA
-         iDm4yJPjnwvtnEjayphzTvZCZfxld0LxvIiAtvLryd8mbm+lH9+Uf1XbjiFuAAjsGMkW
-         HC3+TTcbsTyvdCaD4UU+0rQV5e/LlaB5zpzyXgTA5cdG45dbW8vBxxsmhPTLFNTXC5Xr
-         mi9IGoQvMKmXkErLCYn2SW4ociWmRui0ChMWCZPZZHQiCommEd8wo2TduWSDZPsJqpC1
-         +8W4Sm9mGUaXQ1mv+DTuXEsGltnfBR0LSLmtbD/0tdEplHkC6QWBgbWinuUSVx+gol7g
-         VPwQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=67r0IyTNKB1ymOtz0XDUp8t8JuIpjQtfAAPkETfacjY=;
-        b=oAAJeusjQAbPGNk5HA99ysgx8WJQI9tpxOT+knQd0IvaQWL+zCw6AIlIQ2I76H4+ju
-         7yfQS/U72idT3hqJVdCXRdr+gbbfwuWqTl9ZM1Wy7WLWcfMs3XwQaPfTaLMTY/3LxHbV
-         9/Q1oE16utVe4HxPPDDI7kt+bsA5sCrF2ydp7op6GNmpSp88WYAOPrEqP0V/y0Rr37N0
-         w8m3xXJKfGWDG11rqeKvk0TEgGy3gOaLv+UnFc1A/tsfOuMpUN+fFDHsiNog7V9zKA2i
-         SRH55QSWgdwDJdRZORf2xTdrnXd4ts4O8LOkzeW6hUXNkqUB/o3vpxFjBzqOAp3Z0hqC
-         GK9w==
-X-Gm-Message-State: AOAM533OM12Xk01BDNIMAlIfebVi5pwSCuliHmi0t/dOTPhIcXkktP4O
-        iVBRJGQ4TAMsAsO97RanMZ6lxo2rnOa7ka0onA6IRQ==
-X-Google-Smtp-Source: ABdhPJxiz9uAg5mYC26qFwvFgWpntOH8FLCCrNFyNdBKjLbBKN+cJdD5HzDY1N6DT4gjxKfpK9gw1UEMeEk/qWEsn3k=
-X-Received: by 2002:a05:651c:4c6:: with SMTP id e6mr19398398lji.326.1621902238056;
- Mon, 24 May 2021 17:23:58 -0700 (PDT)
+        id S229598AbhEYAzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 20:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229539AbhEYAzW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 24 May 2021 20:55:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 414F9613BF;
+        Tue, 25 May 2021 00:53:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1621904033;
+        bh=gUNijcWcodGiSJ1D43tXty52czXiZxISSUlDZEOA4vA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uBU4xei5O1Q7UwrUGVnlMXrzppbBU8Nkvb+isRpf0NEjPBIyUXfs3aiKBliWtvp2o
+         8TcvUWDor11JeF+5OPxhnUQy1KbQ14R9xo4ruKHWmENkYDUlvDdCN4UDI0D2Fh8U8Y
+         4Q/hKaivUgIlRFRRNE+3/HZpVhXYFY/aaWRoRLREYPE8gFL1dPfSs0IanwyvTjMYGD
+         XcONTSgtRWHey2iW5NCDZqDRh5g2qGOIqsGADAl+SJqpbcTvyfowSD1vsDPVRcrQWX
+         Wr3FpiqF2BZBOI+bW5rXJbkNphAZKokAVVAAyDNdO75qNnbNqG0vqgCIffzoWZvG37
+         0KxRGg5mXKudw==
+Date:   Tue, 25 May 2021 08:53:49 +0800
+From:   Peter Chen <peter.chen@kernel.org>
+To:     Pawel Laszczak <pawell@cadence.com>
+Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
+        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
+        Rahul Kumar <kurahul@cadence.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: Re: [PATCH] usb: cdnsp: Fix deadlock issue in
+ cdnsp_thread_irq_handler
+Message-ID: <20210525005349.GA20923@nchen>
+References: <20210520094224.14099-1-pawell@gli-login.cadence.com>
+ <20210522095432.GA12415@b29397-desktop>
+ <BYAPR07MB5381074F9A2A8AD6CAF4C10BDD269@BYAPR07MB5381.namprd07.prod.outlook.com>
 MIME-Version: 1.0
-References: <20210512144819.664462530@linuxfoundation.org> <20210512144825.099918971@linuxfoundation.org>
- <20210515081814.GA30461@amd> <55d58470-f606-8c75-1f00-a2eb09314081@linaro.org>
-In-Reply-To: <55d58470-f606-8c75-1f00-a2eb09314081@linaro.org>
-From:   Linus Walleij <linus.walleij@linaro.org>
-Date:   Tue, 25 May 2021 02:23:47 +0200
-Message-ID: <CACRpkdbr+grtuF3A-QsmDYWK+oDTQ9+DPkPULQRfnswPZRgOOA@mail.gmail.com>
-Subject: Re: [PATCH 5.10 160/530] arm64: dts: qcom: db845c: fix correct
- powerdown pin for WSA881x
-To:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        linux-kernel <linux-kernel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        Bjorn Andersson <bjorn.andersson@linaro.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <BYAPR07MB5381074F9A2A8AD6CAF4C10BDD269@BYAPR07MB5381.namprd07.prod.outlook.com>
+User-Agent: Mutt/1.9.4 (2018-02-28)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 17, 2021 at 10:46 AM Srinivas Kandagatla
-<srinivas.kandagatla@linaro.org> wrote:
+On 21-05-24 10:56:23, Pawel Laszczak wrote:
+> >
+> >
+> >On 21-05-20 11:42:24, Pawel Laszczak wrote:
+> >> From: Pawel Laszczak <pawell@cadence.com>
+> >>
+> >> Patch fixes the critical issue caused by deadlock which has been detected
+> >> during testing NCM class.
+> >>
+> >> The root cause of issue is spin_lock/spin_unlock instruction instead
+> >> spin_lock_irqsave/spin_lock_irqrestore in cdnsp_thread_irq_handler
+> >> function.
+> >
+> >Pawel, would you please explain more about why the deadlock occurs with
+> >current code, and why this patch could fix it?
+> >
+> 
+> I'm going to add such description to commit message:
+> 
+> Lack of spin_lock_irqsave causes that during handling threaded
+> interrupt inside spin_lock/spin_unlock section the ethernet
+> subsystem invokes eth_start_xmit function from interrupt context
+> which in turn starts queueing free requests in cdnsp driver. 
+> Consequently, the deadlock occurs inside cdnsp_gadget_ep_queue
+> on spin_lock_irqsave instruction. Replacing spin_lock/spin_unlock
+> with spin_lock_irqsave/spin_lock_irqrestor causes disableing
 
-> > Do we have corresponding driver in 5.10 and was it fixed to match?
->
-> This corresponding gpio driver patch was submitted along with the
-> original fix, however it looks like it was not picked up yet.
->
-> https://www.spinics.net/lists/linux-gpio/msg59264.html
->
-> Bartosz/Linus W, Do you want me to resend this?
+%s/disableing/disabling
 
-OMG how could we have missed this patch with so many ACKs.
+> interrupts and blocks queuing requests by ethernet subsystem until
+> cdnsp_thread_irq_handler ends..
+> 
+> I hope this description is sufficient. 
 
-Please rebase on v5.13-rc1 and resend with all ACKs so that Bartosz
-can apply it.
+A call stack graph may be better, like [1]
 
-Yours,
-Linus Walleij
+[1]: https://www.spinics.net/lists/linux-usb/msg211931.html
+
+Peter
+
+> 
+> Thanks,
+> Pawel
+> 
+> >>
+> >> Cc: stable@vger.kernel.org
+> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
+> >> ---
+> >>  drivers/usb/cdns3/cdnsp-ring.c | 7 ++++---
+> >>  1 file changed, 4 insertions(+), 3 deletions(-)
+> >>
+> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
+> >> index 5f0513c96c04..68972746e363 100644
+> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
+> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
+> >> @@ -1517,13 +1517,14 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
+> >>  {
+> >>  	struct cdnsp_device *pdev = (struct cdnsp_device *)data;
+> >>  	union cdnsp_trb *event_ring_deq;
+> >> +	unsigned long flags;
+> >>  	int counter = 0;
+> >>
+> >> -	spin_lock(&pdev->lock);
+> >> +	spin_lock_irqsave(&pdev->lock, flags);
+> >>
+> >>  	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
+> >>  		cdnsp_died(pdev);
+> >> -		spin_unlock(&pdev->lock);
+> >> +		spin_unlock_irqrestore(&pdev->lock, flags);
+> >>  		return IRQ_HANDLED;
+> >>  	}
+> >>
+> >> @@ -1539,7 +1540,7 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
+> >>
+> >>  	cdnsp_update_erst_dequeue(pdev, event_ring_deq, 1);
+> >>
+> >> -	spin_unlock(&pdev->lock);
+> >> +	spin_unlock_irqrestore(&pdev->lock, flags);
+> >>
+> >>  	return IRQ_HANDLED;
+> >>  }
+> >> --
+> >> 2.25.1
+> >>
+> >
+> >--
+> >
+> >Thanks,
+> >Peter Chen
+> 
+
+-- 
+
+Thanks,
+Peter Chen
+
