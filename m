@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 76D5838F9CA
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 07:04:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 400DB38F9CB
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 07:05:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230041AbhEYFGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 01:06:19 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:34034 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230412AbhEYFGT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 May 2021 01:06:19 -0400
+        id S230413AbhEYFG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 01:06:59 -0400
+Received: from so254-9.mailgun.net ([198.61.254.9]:31599 "EHLO
+        so254-9.mailgun.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230240AbhEYFG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 01:06:59 -0400
 DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1621919090; h=Content-Transfer-Encoding: MIME-Version:
+ s=smtp; t=1621919130; h=Content-Transfer-Encoding: MIME-Version:
  References: In-Reply-To: Message-Id: Date: Subject: Cc: To: From:
- Sender; bh=KAqilLdEgUxBzC84OH9aPQccDAWa7xMB+hecxZ5oGXs=; b=MDUeFFgata7hX5MkgNTDgnhEH8qWESWxZ0OtwQBoDcV8qI08vPa7QNFBliqmgeQOYl75/Kgr
- nhIJCamSeHM+Rs9xm4O7sZERTrAu1YqfYL73yOA2LkuFagfXYC2AjXPcxm04QNYRB8S3Aote
- YHdhOyPsmCCyF7sKspJZGDfJltQ=
-X-Mailgun-Sending-Ip: 69.72.43.7
+ Sender; bh=LHwdCJogIa8hY/e6YAZ8chL+KrO7gLLNojKuqWUnSJE=; b=FCBRVRedrJyXhh+5PJVUNw1Fd87wpy3ujUe2wKlg8bPj5LuKa8aqfED/JSY7/6mU2TBWIr0N
+ dOmSnUPFmf27y9L8tiYySnSNGHGfbA3xEkUgod1yDqI3N63/rNf8sA6BDtzepVQWSYeyZNST
+ XJhAo2Nbht5rJMrxegu9xFeY/vk=
+X-Mailgun-Sending-Ip: 198.61.254.9
 X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
 Received: from smtp.codeaurora.org
  (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n06.prod.us-west-2.postgun.com with SMTP id
- 60ac85635f788b52a5a89763 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 25 May 2021 05:04:35
+ smtp-out-n03.prod.us-east-1.postgun.com with SMTP id
+ 60ac8595ceebd0e932592f60 (version=TLS1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Tue, 25 May 2021 05:05:25
  GMT
 Sender: jackp=codeaurora.org@mg.codeaurora.org
 Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 66FDDC433F1; Tue, 25 May 2021 05:04:35 +0000 (UTC)
+        id A9ED0C433D3; Tue, 25 May 2021 05:05:24 +0000 (UTC)
 X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
         aws-us-west-2-caf-mail-1.web.codeaurora.org
 X-Spam-Level: 
@@ -37,21 +37,21 @@ Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.2
         (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
         (Authenticated sender: jackp)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id 2DEEBC433F1;
-        Tue, 25 May 2021 05:04:34 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org 2DEEBC433F1
+        by smtp.codeaurora.org (Postfix) with ESMTPSA id A0363C433F1;
+        Tue, 25 May 2021 05:05:23 +0000 (UTC)
+DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org A0363C433F1
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
 Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=jackp@codeaurora.org
 From:   Jack Pham <jackp@codeaurora.org>
 To:     gregkh@linuxfoundation.org, balbi@kernel.org,
         stable@vger.kernel.org
 Cc:     Jack Pham <jackp@codeaurora.org>
-Subject: [PATCH 5.4] usb: dwc3: gadget: Enable suspend events
-Date:   Mon, 24 May 2021 22:04:24 -0700
-Message-Id: <20210525050424.14724-1-jackp@codeaurora.org>
+Subject: [PATCH 4.14] usb: dwc3: gadget: Enable suspend events
+Date:   Mon, 24 May 2021 22:05:19 -0700
+Message-Id: <20210525050519.15872-1-jackp@codeaurora.org>
 X-Mailer: git-send-email 2.24.0
-In-Reply-To: <1621239318160213@kroah.com>
-References: <1621239318160213@kroah.com>
+In-Reply-To: <16212391955939@kroah.com>
+References: <16212391955939@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
@@ -82,10 +82,10 @@ Signed-off-by: Jack Pham <jackp@codeaurora.org>
  1 file changed, 4 insertions(+)
 
 diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 40fe856184ef..6145311a3855 100644
+index 0ac28d204e2d..616f7c3a30e5 100644
 --- a/drivers/usb/dwc3/gadget.c
 +++ b/drivers/usb/dwc3/gadget.c
-@@ -2022,6 +2022,10 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
+@@ -1829,6 +1829,10 @@ static void dwc3_gadget_enable_irq(struct dwc3 *dwc)
  	if (dwc->revision < DWC3_REVISION_250A)
  		reg |= DWC3_DEVTEN_ULSTCNGEN;
  
