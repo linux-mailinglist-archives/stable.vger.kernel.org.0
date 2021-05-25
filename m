@@ -2,85 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBB94390B71
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 23:27:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13625390BCD
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 23:49:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbhEYV2q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 17:28:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57364 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230305AbhEYV2p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 17:28:45 -0400
-Received: from mail-oi1-x232.google.com (mail-oi1-x232.google.com [IPv6:2607:f8b0:4864:20::232])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 358A3C061574;
-        Tue, 25 May 2021 14:27:15 -0700 (PDT)
-Received: by mail-oi1-x232.google.com with SMTP id z3so31645585oib.5;
-        Tue, 25 May 2021 14:27:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=aRHZONKde4r8Wdfy+wGNtIGSNvdJ9+mf9WOYH/E0mZk=;
-        b=ca/k2bY2zA2TDYmgS4bFwdkRDxEsuvHeDeE37VILdzOSxVGcQ9R/Jm7UmmO5vP2InV
-         M43UbX3D4Ip2rOhaK7axjxOiQfbSIBNNSvUm3ftnrPMyWn0Vms+Y5hTYitbfvgx+NwnK
-         Zd3C8JD4JbQnvLQ6vWsuyGBUL22egm2RmJVjvjiH7z6JM2nVNaJ/iNsg0NGkvQFcYJle
-         D09+qwzRbgaPR43ORtPn6h6l9JnZDnp2ku0sbPYvQ3IHJT/9MV23RydAHE0G8epPWgWN
-         OOwEmryh4k8dg1Z2d66BmnpprWjv5O+W404Ar2MnghP0cE1DiZ9k9lnHx6hamQRZIhxX
-         jgpQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=aRHZONKde4r8Wdfy+wGNtIGSNvdJ9+mf9WOYH/E0mZk=;
-        b=GjEj+2GWTPVOHDj9WdY2HgSkymnEN+2rHMsJ5RX9Lf6+iYHJiG1m+ezdCo8CgYbEcV
-         c/sBRAqVMC916PMixlv7BmCPvBLTgyixm0W/jcA37Biuaf0btN6EK6QcjxB2/ySTeKQg
-         HH8K74CCYiiWhGUUhz/WTKuc530PgPSJjCGSdzU/BfLDxDRgIQFnrQ5KIZSynPHrYdSW
-         yoy5xWnGhf5soIerRp6/1kj31n1GAHYJkddJ91vCo9yvAWeY8M+rfmgPEorKs7r8t9zj
-         KTbdp6QJTL95OqFQIY+xQF+eGfnxCDRPLvgNhYHBdl9TwW52qMoJXGVBXL5LthDsFBIV
-         lu4g==
-X-Gm-Message-State: AOAM533R/WTMu4xQ3FVhKEMmydL3HmNCdbXiKGK8jQ8vnwMm+nglojOQ
-        NnELEISYSamLrpbHKefSCXM=
-X-Google-Smtp-Source: ABdhPJxNDQYMOLJ2Gk+4AUKhyQG8W3xqqNx6+HOUU9zVBZXpzxwkHlNxjEOQ+fjbXMBap5zOlKTYgA==
-X-Received: by 2002:aca:f5c5:: with SMTP id t188mr15458202oih.25.1621978034630;
-        Tue, 25 May 2021 14:27:14 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id z9sm4061386oti.37.2021.05.25.14.27.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 May 2021 14:27:14 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 25 May 2021 14:27:13 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.12 000/127] 5.12.7-rc1 review
-Message-ID: <20210525212713.GG921026@roeck-us.net>
-References: <20210524152334.857620285@linuxfoundation.org>
+        id S229610AbhEYVur (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 17:50:47 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:49946 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232114AbhEYVuq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 17:50:46 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=h1UvXr+IRNohjqK913qBRc1ANsdAb76bs7rLunSi2xs=; b=p2D+bXjs9h/DiPW3j3QeaeX6Fi
+        Eu7RY6n21Sd6xg0F1xMdF0eBRKA4iPAjQ/NqZUix/9unmc/dOQPudpdzLIr2umK8LRxyfmdL5mhdL
+        vWe0o/4zRCtE0jVh5g6WsUCa0dV/rWVl9pSlg0V4TnSR0wSBR2sFBWJlwSAOCS7r2bdk=;
+Received: from 94.196.90.140.threembb.co.uk ([94.196.90.140] helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1llevG-005qQM-UN; Tue, 25 May 2021 21:49:11 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id C0FD7D0DECA; Tue, 25 May 2021 22:49:44 +0100 (BST)
+Date:   Tue, 25 May 2021 22:49:44 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.10 30/62] ASoC: rt5645: add error checking to
+ rt5645_probe function
+Message-ID: <YK1w+H70aqLGDaDl@sirena.org.uk>
+References: <20210524144744.2497894-1-sashal@kernel.org>
+ <20210524144744.2497894-30-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="+9E0EyJd3tE2r8IF"
 Content-Disposition: inline
-In-Reply-To: <20210524152334.857620285@linuxfoundation.org>
+In-Reply-To: <20210524144744.2497894-30-sashal@kernel.org>
+X-Cookie: You are always busy.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 24, 2021 at 05:25:17PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.12.7 release.
-> There are 127 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
-> Anything received after that time might be too late.
-> 
 
-Build results:
-	total: 151 pass: 151 fail: 0
-Qemu test results:
-	total: 462 pass: 462 fail: 0
+--+9E0EyJd3tE2r8IF
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+On Mon, May 24, 2021 at 10:47:11AM -0400, Sasha Levin wrote:
+> From: Phillip Potter <phil@philpotter.co.uk>
+>=20
+> [ Upstream commit 5e70b8e22b64eed13d5bbebcb5911dae65bf8c6b ]
+>=20
+> Check for return value from various snd_soc_dapm_* calls, as many of
+> them can return errors and this should be handled. Also, reintroduce
+> the allocation failure check for rt5645->eq_param as well. Make all
 
-Guenter
+Now I've looked at the patch I don't think it's appropriate for
+stable, it's essentially equivalent to a patch that adds -Werror
+- the changes in it are upgrading things from error messages that
+would be generated by what are essentially static checks (even
+though we do do them at runtime they're on hard coded strings) to
+probe failures which would be a regression.  Unfortunately people
+do ignore warnings like that in shipping stuff so it's possible
+it's happening, we could do an audit to see if it is but it seems
+like more effort than it's worth.
+
+The only case I can think where it might help is if we're
+managing to OOM during probe() but that feels very unlikely to
+happen, and improved handling unlikely to make substantial
+difference compared to the risk that the routing warnings are
+triggering but being ignored so someone's sound stops working due
+to a stable update.  Otherwise it won't do much so why risk it?
+
+--+9E0EyJd3tE2r8IF
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmCtcPcACgkQJNaLcl1U
+h9BhPgf/QwPQszIviJZPkEDsCrlmdi0IWBRg2sa+8dwinV4RMlV342IGAtTEZxIY
+hhdgJ0BM+pCEhXHbHn1ZprphK6eEuiescflqk4RywaFM/AakFvuJRMdoazcNXkZI
+zNdS1yuaimfHHJ4/HkD463ikeXEBehoH+Fkrp/6qM+lgo5UZwtZ/bG6EBpUmIClK
+JGI+WZkysyx+qzoVHIF5weXw+oCkvjz/Qby83mWjK7KOM4MnB0x9PtKOyRURXrZJ
+82L7/uM8heK1LujQKxr+FoVVfkdr6ymBvatZpbLYt5JlLQoT3K7PdDaPj1ULNVke
+KLM9pJwHanFu9ia/yC7okZgonz1VBg==
+=ygou
+-----END PGP SIGNATURE-----
+
+--+9E0EyJd3tE2r8IF--
