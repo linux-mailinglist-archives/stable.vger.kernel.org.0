@@ -2,117 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF846390BD6
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 23:58:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 96BE5390BD9
+	for <lists+stable@lfdr.de>; Wed, 26 May 2021 00:00:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233436AbhEYV7x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 17:59:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51256 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232896AbhEYV7x (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 May 2021 17:59:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB0A2613C1;
-        Tue, 25 May 2021 21:58:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1621979902;
-        bh=Kjz3bb80tjoovQukukBUd+0ZU/0kz8AnMAE5BeZYUag=;
-        h=Date:From:To:Subject:From;
-        b=H5pWDiQT0wdpcJZT0sYs62FNuHEYDNtBtyAuQarBhZafDG4ffDKDXt74rVkoB2Yuu
-         sMNrOjutkze2/02+FLqcXcPhJVwWkjJCLSoGj9N2Nodqo+0mJrj4yA3oJQqy2N/T59
-         DsHPqWUKYIXqnOVKFuDpPsv4lYiL9x14invq3VwA=
-Date:   Tue, 25 May 2021 14:58:22 -0700
-From:   akpm@linux-foundation.org
-To:     anshuman.khandual@arm.com, gerald.schaefer@linux.ibm.com,
-        mm-commits@vger.kernel.org, stable@vger.kernel.org
-Subject:  +
- mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests.patch added to
- -mm tree
-Message-ID: <20210525215822.b9d6uZLDU%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S231348AbhEYWBl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 18:01:41 -0400
+Received: from heliosphere.sirena.org.uk ([172.104.155.198]:50092 "EHLO
+        heliosphere.sirena.org.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231124AbhEYWBl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 18:01:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=sirena.org.uk; s=20170815-heliosphere; h=In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=Q/aVwAl9ZbVzeROasWm9GqY9AVIvFYpQG1yWzJt4tok=; b=Kcj1d6Qlw0QazwDKdN+7hBCrS3
+        LDQOLK20ivePLU0b90/AgK0s2JnPTfrGFmHrfpfeHtvfM4PXyqDq7SCchpexKKlrcwTJdo0lSmoD4
+        1j1LG90iGfpfcXOdmf1CLSgXNJ+8WEFR+kUt373fMOb3DhucVpPpS5W9z7HrYoZhlbfs=;
+Received: from 94.196.90.140.threembb.co.uk ([94.196.90.140] helo=fitzroy.sirena.org.uk)
+        by heliosphere.sirena.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <broonie@sirena.org.uk>)
+        id 1llf5j-005qUg-G1; Tue, 25 May 2021 21:59:59 +0000
+Received: by fitzroy.sirena.org.uk (Postfix, from userid 1000)
+        id C36A4D0E998; Tue, 25 May 2021 23:00:33 +0100 (BST)
+Date:   Tue, 25 May 2021 23:00:33 +0100
+From:   Mark Brown <broonie@kernel.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Kangjie Lu <kjlu@umn.edu>, alsa-devel@alsa-project.org
+Subject: Re: [PATCH AUTOSEL 5.10 29/62] Revert "ASoC: rt5645: fix a NULL
+ pointer dereference"
+Message-ID: <YK1zgS7FwtySdeCg@sirena.org.uk>
+References: <20210524144744.2497894-1-sashal@kernel.org>
+ <20210524144744.2497894-29-sashal@kernel.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="DdwHdDdz+wOD3YAw"
+Content-Disposition: inline
+In-Reply-To: <20210524144744.2497894-29-sashal@kernel.org>
+X-Cookie: You are always busy.
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch titled
-     Subject: mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
-has been added to the -mm tree.  Its filename is
-     mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests.patch
+--DdwHdDdz+wOD3YAw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests.patch
+On Mon, May 24, 2021 at 10:47:10AM -0400, Sasha Levin wrote:
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+> Lots of things seem to be still allocated here and must be properly
+> cleaned up if an error happens here.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+That's not true, the core already has cleanup for everything else
+(as the followup patch in your series identified, though it was a
+bit confused as to how).
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+>  		RT5645_HWEQ_NUM, sizeof(struct rt5645_eq_param_s),
+>  		GFP_KERNEL);
+> =20
+> -	if (!rt5645->eq_param)
+> -		return -ENOMEM;
+> -
 
-------------------------------------------------------
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Subject: mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
+Without the followup patch (which I don't think is suitable for
+stable) this will just remove error checking.  It's not likely to
+happen and hence make a difference but on the other hand it
+introduces a problem, especially when backported in isolation.
 
-In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
-entry, and so it does not match the given pmdp/pudp and (aligned down) pfn
-any more.
+--DdwHdDdz+wOD3YAw
+Content-Type: application/pgp-signature; name="signature.asc"
 
-For s390, this results in memory corruption, because the IDTE instruction
-used e.g. in xxx_get_and_clear() will take the vaddr for some calculations,
-in combination with the given pmdp. It will then end up with a wrong table
-origin, ending on ...ff8, and some of those wrongly set low-order bits will
-also select a wrong pagetable level for the index addition. IDTE could
-therefore invalidate (or 0x20) something outside of the page tables,
-depending on the wrongly picked index, which in turn depends on the random
-vaddr.
+-----BEGIN PGP SIGNATURE-----
 
-As result, we sometimes see "BUG task_struct (Not tainted): Padding
-overwritten" on s390, where one 0x5a padding value got overwritten with
-0x7a.
+iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmCtc4EACgkQJNaLcl1U
+h9DmWwf/eYEFvTLEKSVeNp5s76miE9DNZEsJf+6meHS2E2vLXz8rU0IPk5IpTcPy
+BbXfaYsKCBHYU2Je394Xa8Nfjix4kxZoD/JXNG/cbAIFeinaUeXvY0ig4oWIvCxK
+DbHtmyn50GMD4xLrZgCSc0bX5PSXU3hcFZUrLkfND5gHfo+rchxQ4MvWaybzcYh9
+n0+xo8pyhFPcYuCpM+rRj27xBhHeIv6fKdVwtuoZGZnh9OHn7a37ZUcZceNwPY/p
+oU/QrvPTrXzgad3OnsywWhE2Vo5U7djjfGT8hAay1ckC6kQlIWlnIvuLTx67GD9N
+T7JzAerzodiHmeEVJmGBkPgJdcJYMQ==
+=bVSZ
+-----END PGP SIGNATURE-----
 
-Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
-calculated.
-
-Link: https://lkml.kernel.org/r/20210525130043.186290-2-gerald.schaefer@linux.ibm.com
-Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Cc: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
-
- mm/debug_vm_pgtable.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
---- a/mm/debug_vm_pgtable.c~mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests
-+++ a/mm/debug_vm_pgtable.c
-@@ -192,7 +192,7 @@ static void __init pmd_advanced_tests(st
- 
- 	pr_debug("Validating PMD advanced\n");
- 	/* Align the address wrt HPAGE_PMD_SIZE */
--	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
-+	vaddr &= HPAGE_PMD_MASK;
- 
- 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
- 
-@@ -330,7 +330,7 @@ static void __init pud_advanced_tests(st
- 
- 	pr_debug("Validating PUD advanced\n");
- 	/* Align the address wrt HPAGE_PUD_SIZE */
--	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
-+	vaddr &= HPAGE_PUD_MASK;
- 
- 	set_pud_at(mm, vaddr, pudp, pud);
- 	pudp_set_wrprotect(mm, vaddr, pudp);
-_
-
-Patches currently in -mm which might be from gerald.schaefer@linux.ibm.com are
-
-mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests.patch
-
+--DdwHdDdz+wOD3YAw--
