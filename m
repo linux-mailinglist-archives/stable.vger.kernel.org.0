@@ -2,81 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8243839001A
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 13:36:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91BC139001C
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 13:37:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231465AbhEYLiO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 07:38:14 -0400
-Received: from mail-wm1-f53.google.com ([209.85.128.53]:36519 "EHLO
-        mail-wm1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231127AbhEYLiN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 07:38:13 -0400
-Received: by mail-wm1-f53.google.com with SMTP id n17-20020a7bc5d10000b0290169edfadac9so3408860wmk.1;
-        Tue, 25 May 2021 04:36:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=e7M7J9ueTHYRqRSdos1354dv+7ox/fMvVKVag0BPtGI=;
-        b=DImA08/yxCYtagAn98bhvOplsPcCJeHTLNocOjywSlgWZ+XIzEMShhuHGnLzQDJRPk
-         G5OltvqNPgSJ1y9VNWKtHfX0TuJCKJ0mQhRj8nuRmSKANSuzX7FECq40e4yzaPPVZUTu
-         ONdrkqr9kugMvxPuo3i/vJ+bZ7XSxygG7HAvcTHfQVTPTw6RjFqxG8m4mp9McVK9czSI
-         R5U1Nq/m4Qd+H1ZsY3XE8xC26oDqxWios0jluedAoBNTKOdsLhBMR12RsOht0g1oa2+K
-         uThKC/uI+jlryYUVbCCicsbRbLBvA0he7KyvWrcFT9ypZHChDb2kVgJj17IfmsH2XluS
-         BlpQ==
-X-Gm-Message-State: AOAM532T1dr3cr8rKL8CCsZ018ik+F0yfMaKhmsJOzq/roS2RZRWftfk
-        BlOBdPKqSihrA+TQzGMOrw1QXaovatoBnw==
-X-Google-Smtp-Source: ABdhPJw7Wv8hVLwEvwm/jP3QbzIjEbvXVWClAzHv3sRmCjXWwjpYAUxMSVuFJt6HK74dejNTogM5PA==
-X-Received: by 2002:a1c:a9ca:: with SMTP id s193mr23839395wme.132.1621942601785;
-        Tue, 25 May 2021 04:36:41 -0700 (PDT)
-Received: from iss.Home ([82.213.255.93])
-        by smtp.gmail.com with ESMTPSA id z3sm2471300wmi.31.2021.05.25.04.36.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 May 2021 04:36:41 -0700 (PDT)
-From:   Andrew Zaborowski <andrew.zaborowski@intel.com>
-To:     keyrings@vger.kernel.org
-Cc:     Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org
-Subject: [RESEND][PATCH 1/2] keys: crypto: Replace BUG_ON() with WARN() in find_asymmetric_key()
-Date:   Tue, 25 May 2021 13:36:27 +0200
-Message-Id: <20210525113628.2682248-1-andrew.zaborowski@intel.com>
-X-Mailer: git-send-email 2.27.0
+        id S231532AbhEYLii (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 07:38:38 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:43017 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231127AbhEYLig (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 07:38:36 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1621942626;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=1tBEB3SzpdexLywxXZPiYr8gSbU1T57J4sUwzcuUpvk=;
+        b=h/+goRkPyfMw1GdERlfKHwnCMqSGEI8p3PUNkAOJ8Tnk9qetDVYR5ZjoavvwfYegpy4n5D
+        npi5BisdleEIfJ+xC8vUFIqIW9TaqNZZztm43TndHfyA7mBpmIDbyv7NVIhTSmQ++WQJia
+        xfEUq73nLEl0ysVz8r3g3kFuqoiwNHo=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-204-w5k79UYvNQW8hjSJ6tT_1w-1; Tue, 25 May 2021 07:37:04 -0400
+X-MC-Unique: w5k79UYvNQW8hjSJ6tT_1w-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 61044800D62;
+        Tue, 25 May 2021 11:37:03 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (file01.intranet.prod.int.rdu2.redhat.com [10.11.5.7])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 9BDE070136;
+        Tue, 25 May 2021 11:36:59 +0000 (UTC)
+Received: from file01.intranet.prod.int.rdu2.redhat.com (localhost [127.0.0.1])
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4) with ESMTP id 14PBaxIG013626;
+        Tue, 25 May 2021 07:36:59 -0400
+Received: from localhost (mpatocka@localhost)
+        by file01.intranet.prod.int.rdu2.redhat.com (8.14.4/8.14.4/Submit) with ESMTP id 14PBav2Z013621;
+        Tue, 25 May 2021 07:36:58 -0400
+X-Authentication-Warning: file01.intranet.prod.int.rdu2.redhat.com: mpatocka owned process doing -bs
+Date:   Tue, 25 May 2021 07:36:57 -0400 (EDT)
+From:   Mikulas Patocka <mpatocka@redhat.com>
+X-X-Sender: mpatocka@file01.intranet.prod.int.rdu2.redhat.com
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Michael Tokarev <mjt@tls.msk.ru>,
+        Mike Snitzer <snitzer@redhat.com>,
+        Zdenek Kabelac <zkabelac@redhat.com>
+Subject: Patch regression - Re: [PATCH 5.10 070/104] dm snapshot: fix a crash
+ when an origin has no snapshots
+In-Reply-To: <20210524152335.174655194@linuxfoundation.org>
+Message-ID: <alpine.LRH.2.02.2105250734180.13437@file01.intranet.prod.int.rdu2.redhat.com>
+References: <20210524152332.844251980@linuxfoundation.org> <20210524152335.174655194@linuxfoundation.org>
+User-Agent: Alpine 2.02 (LRH 1266 2009-07-14)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jarkko Sakkinen <jarkko@kernel.org>
+Hi Greg
 
-BUG_ON() should not be used in the kernel code, unless there are
-exceptional reasons to do so. Replace BUG_ON() with WARN() and
-return.
+I'd like to ask you to drop this patch from all stable branches.
 
-Cc: stable@vger.kernel.org
-Fixes: b3811d36a3e7 ("KEYS: checking the input id parameters before finding asymmetric key")
-Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
----
-No changes from original submission by Jarkko.
+It causes regression with snapshot merging and the regression is much 
+worse than the bug that it fixes.
 
- crypto/asymmetric_keys/asymmetric_type.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+Mikulas
 
-diff --git a/crypto/asymmetric_keys/asymmetric_type.c b/crypto/asymmetric_keys/asymmetric_type.c
-index ad8af3d70ac..a00bed3e04d 100644
---- a/crypto/asymmetric_keys/asymmetric_type.c
-+++ b/crypto/asymmetric_keys/asymmetric_type.c
-@@ -54,7 +54,10 @@ struct key *find_asymmetric_key(struct key *keyring,
- 	char *req, *p;
- 	int len;
- 
--	BUG_ON(!id_0 && !id_1);
-+	if (!id_0 && !id_1) {
-+		WARN(1, "All ID's are NULL\n");
-+		return ERR_PTR(-EINVAL);
-+	}
- 
- 	if (id_0) {
- 		lookup = id_0->data;
--- 
-2.27.0
+
+
+On Mon, 24 May 2021, Greg Kroah-Hartman wrote:
+
+> From: Mikulas Patocka <mpatocka@redhat.com>
+> 
+> commit 7ee06ddc4038f936b0d4459d37a7d4d844fb03db upstream.
+> 
+> If an origin target has no snapshots, o->split_boundary is set to 0.
+> This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+> 
+> Fix this by initializing chunk_size, and in turn split_boundary, to
+> rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
+> into "unsigned" type.
+> 
+> Reported-by: Michael Tokarev <mjt@tls.msk.ru>
+> Tested-by: Michael Tokarev <mjt@tls.msk.ru>
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+> Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> ---
+>  drivers/md/dm-snap.c |    5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
+> 
+> --- a/drivers/md/dm-snap.c
+> +++ b/drivers/md/dm-snap.c
+> @@ -854,12 +854,11 @@ static int dm_add_exception(void *contex
+>  static uint32_t __minimum_chunk_size(struct origin *o)
+>  {
+>  	struct dm_snapshot *snap;
+> -	unsigned chunk_size = 0;
+> +	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
+>  
+>  	if (o)
+>  		list_for_each_entry(snap, &o->snapshots, list)
+> -			chunk_size = min_not_zero(chunk_size,
+> -						  snap->store->chunk_size);
+> +			chunk_size = min(chunk_size, snap->store->chunk_size);
+>  
+>  	return (uint32_t) chunk_size;
+>  }
+> 
+> 
 
