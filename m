@@ -2,108 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE99C38FCA0
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 10:23:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B881B38FCBB
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 10:27:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbhEYIYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 04:24:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54742 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232331AbhEYIYI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 May 2021 04:24:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FBC861401;
-        Tue, 25 May 2021 08:22:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1621930927;
-        bh=RMh2s1flV1SxtkdnH8gTRbeXfuVDTPqIwYneYIOKCEQ=;
-        h=Subject:To:From:Date:From;
-        b=ch7bokXNICr1kCHFwJZ/O+iohFvRkjDYbm0xrsCvdUXnTiexOjQ/BPMtxH2Jqd3Bi
-         HmcHz2GbjNptlBSLYQfLfQxE2/ufEqNbLEm72LQskmcEM23fWbRMRDw0oG7pE/VO6r
-         kb3cKXEgZo2rNQQmwisoeppMi2gAYk9vWKxf+zkE=
-Subject: patch "xhci: Fix 5.12 regression of missing xHC cache clearing command after" added to usb-linus
-To:     mathias.nyman@linux.intel.com, gregkh@linuxfoundation.org,
-        peter.ganzhorn@googlemail.com, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 25 May 2021 10:21:57 +0200
-Message-ID: <1621930917142177@kroah.com>
+        id S232224AbhEYI2i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 04:28:38 -0400
+Received: from mail-mw2nam10on2071.outbound.protection.outlook.com ([40.107.94.71]:18080
+        "EHLO NAM10-MW2-obe.outbound.protection.outlook.com"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S231504AbhEYI2h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 May 2021 04:28:37 -0400
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=OWiMaBrvKN5QSYBR5iKSpy6h6ZV9SSTHkZXfNe3rCTG9rSLmSo0z2ChqCmKeVVubek3hrAjKaN4rhCSIG0yyIV5l7xH0MwqzmswZwoWd8DJC5zipcYoM7Azxqrr7GAt+sXJYnUZicda/08n2Mjkh5LXjN0lTI507Hby7iiF25nFRLEo8m5yncGxB4wTG03TaAnQO06ioN2E941Oqabjn8r2uW3CG6nWdYO0sE54x/E1+A/zgZops6ADd7fdqsuAv3FUXVT/vt5UOZwKCewMjAQL6pnnoBqMuX//olkgpX7wMzBlqBeMubrDnKMU2sOwN3MRe59pBDP2JZwnjZdeuLg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zoaD6oUM6eO3wdxXcg22NQ2KI19bREEQKtgdpQYm5PA=;
+ b=Kp3cGBHWmiSzzHzTAk0H11ySLT0fBktoXbiY5mmhZQiEoEJbaiX6J9I6u9FHGWdAEviZnGTD6JNWl/WtnICpeN60xxiQax9ysrFkU8PslhXBAnj663c1U+4ah7D2Y2r8YvbC2Onyj47u/KuTFI3gPNh9qMRuIlwD4dvPvGyX0LjvqoO4pmRgM5ChJaZe1JKz6hk3d13Q/FUmJvpOcDbmA1qOIYEmi3fXnCAp48Y5pJrwHMVlNmL+iZ3p2wcVjKXV964qS7R0r1LnncgmtRbocnjJVFsD28bSdVq9G/sDzaoKOBkl3q4SIQ87JsbNX4JvYb5uVuCaNmJROPc20D7cmg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.112.36) smtp.rcpttodomain=denx.de smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=none sp=none pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=zoaD6oUM6eO3wdxXcg22NQ2KI19bREEQKtgdpQYm5PA=;
+ b=ta6k7OeaL7BrFslBzSAmXUF3YEjs3UvT2NKdeHJ683SDW1W60GiA3iDzJVM5ahHwv8tWoqe1TOpWTCP97v+uh5kxX/9WukL1T6z6W89R+GxOY66zqHSAcIvG/URHxgo2tWRWsFj8JwJGpBno4/F3bGUTLjEqd9ypmRPscPmjMgVFiDimCl9efU1uVod8RMGospPNbmMKFQJ3+bzjznPgKo0DcVvU8Hzc8J40Th+QHHUhB0WtKi7GqkHvsqomJ0O5rnzF0UEI9mHV5MwTJmR+3qpvpShuFcpX7w9HdO/Qev3u8h6GNwmQR689wIwbaexQbMvpxhbdAeHPMXPv51xFAA==
+Received: from MWHPR12CA0035.namprd12.prod.outlook.com (2603:10b6:301:2::21)
+ by BL0PR12MB2563.namprd12.prod.outlook.com (2603:10b6:207:4b::30) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23; Tue, 25 May
+ 2021 08:27:06 +0000
+Received: from CO1NAM11FT048.eop-nam11.prod.protection.outlook.com
+ (2603:10b6:301:2:cafe::4) by MWHPR12CA0035.outlook.office365.com
+ (2603:10b6:301:2::21) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend
+ Transport; Tue, 25 May 2021 08:27:06 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.112.36)
+ smtp.mailfrom=nvidia.com; denx.de; dkim=none (message not signed)
+ header.d=none;denx.de; dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.112.36 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.112.36; helo=mail.nvidia.com;
+Received: from mail.nvidia.com (216.228.112.36) by
+ CO1NAM11FT048.mail.protection.outlook.com (10.13.175.148) with Microsoft SMTP
+ Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.20.4129.25 via Frontend Transport; Tue, 25 May 2021 08:27:05 +0000
+Received: from HQMAIL109.nvidia.com (172.20.187.15) by HQMAIL101.nvidia.com
+ (172.20.187.10) with Microsoft SMTP Server (TLS) id 15.0.1497.2; Tue, 25 May
+ 2021 08:27:04 +0000
+Received: from jonathanh-vm-01.nvidia.com (172.20.145.6) by mail.nvidia.com
+ (172.20.187.15) with Microsoft SMTP Server (TLS) id 15.0.1497.2 via Frontend
+ Transport; Tue, 25 May 2021 01:27:04 -0700
+From:   Jon Hunter <jonathanh@nvidia.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>, <linux-tegra@vger.kernel.org>
+Subject: Re: [PATCH 4.4 00/31] 4.4.270-rc1 review
+In-Reply-To: <20210524152322.919918360@linuxfoundation.org>
+References: <20210524152322.919918360@linuxfoundation.org>
+X-NVConfidentiality: public
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Message-ID: <26f1705c8df24f708fae97051bd352b5@HQMAIL109.nvidia.com>
+Date:   Tue, 25 May 2021 01:27:04 -0700
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-Office365-Filtering-Correlation-Id: 14ddb8cc-96cc-4f63-0099-08d91f56e115
+X-MS-TrafficTypeDiagnostic: BL0PR12MB2563:
+X-Microsoft-Antispam-PRVS: <BL0PR12MB25636940E99FFB89EBEC465AD9259@BL0PR12MB2563.namprd12.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:9508;
+X-MS-Exchange-SenderADCheck: 1
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: Y7i/5CZKlow1cq5dPNA59+pCdqD8dY2UO8G4I+JesZJBpCA34wio13s6wpHq/EuSJwDlxUX1xP4XtJhTK5mgYmwyZVduS8Uyef9j8dlHBYkTKYF7zhDOR0njV59OCrc9asD1BahmfuRa1c+0AKqFNMXTg0Rar9Z6xpSDlQsvWsQGFA8WB4FJMlXoWppy8rGae6ErtWdGmLzZr5W/5SUf28IAVI2WmJubylUChpoquNna4tQq2H3+0T2OTI/Muvkhe1lWBoq/Ybsx2d1AD2pkpDlPNMU42dZ13qXq6lMXm1GhvX1oWFtlVUKKrneJyUjMU1OnhDtY7TKIPCNYD28lr7SRJ9X20cipq9bvlyGy4GyJQCHuZIyMoQexZisuoz0PqI/BPfu7BEgMFd+jYqfqv6oAnAmzOBquF/kqM5v3D8qfPlYAcfS8ypA/5/ZtsBs5Ze2O9wREbduVvmk8q+HWT5CvLeELjsuKkg4yGBNRIupeYW7sMbaFttP4Met1yeDvIZ2+k4NBQTUjIibWEbcX4cSa8UnhNxiowkxj6E/WKuOxSmNkE+dSuRqG1MpNp3jscSygElzBirlwKvPAb8GeMsn4q25a2YtSBj7RmCsrnslTrbglgchMhtgSEChj2lJ7tDHFN15mkZR7NZL8K5zmbASDuJqmlMAine49n3FmNoVxb+j0glaOyxyuNMpVsFFcioin+UfT4YLCqdBpKNYBbXh2NoNYEyhcmivwgn35LsDqrasNRQFNzY69FWD1kp4BYxX8Y5RlyO2zwDOURn69yQ==
+X-Forefront-Antispam-Report: CIP:216.228.112.36;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:schybrid05.nvidia.com;CAT:NONE;SFS:(4636009)(396003)(39860400002)(346002)(376002)(136003)(36840700001)(46966006)(70206006)(7636003)(478600001)(336012)(966005)(2906002)(47076005)(70586007)(426003)(86362001)(5660300002)(186003)(24736004)(316002)(54906003)(6916009)(36860700001)(8676002)(36906005)(7416002)(26005)(108616005)(8936002)(82740400003)(356005)(4326008)(82310400003);DIR:OUT;SFP:1101;
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 May 2021 08:27:05.1775
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 14ddb8cc-96cc-4f63-0099-08d91f56e115
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.112.36];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource: CO1NAM11FT048.eop-nam11.prod.protection.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL0PR12MB2563
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 24 May 2021 17:24:43 +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.4.270 release.
+> There are 31 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.270-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-This is a note to let you know that I've just added the patch titled
+All tests passing for Tegra ...
 
-    xhci: Fix 5.12 regression of missing xHC cache clearing command after
+Test results for stable-v4.4:
+    6 builds:	6 pass, 0 fail
+    12 boots:	12 pass, 0 fail
+    30 tests:	30 pass, 0 fail
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+Linux version:	4.4.270-rc1-gc86cdd4a598c
+Boards tested:	tegra124-jetson-tk1, tegra20-ventana,
+                tegra30-cardhu-a04
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
+Tested-by: Jon Hunter <jonathanh@nvidia.com>
 
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From a7f2e9272aff1ccfe0fc801dab1d5a7a1c6b7ed2 Mon Sep 17 00:00:00 2001
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
-Date: Tue, 25 May 2021 10:41:00 +0300
-Subject: xhci: Fix 5.12 regression of missing xHC cache clearing command after
- a Stall
-
-If endpoints halts due to a stall then the dequeue pointer read from
-hardware may already be set ahead of the stalled TRB.
-After commit 674f8438c121 ("xhci: split handling halted endpoints into two
-steps") in 5.12 xhci driver won't issue a Set TR Dequeue if hardware
-dequeue pointer is already in the right place.
-
-Turns out the "Set TR Dequeue pointer" command is anyway needed as it in
-addition to moving the dequeue pointer also clears endpoint state and
-cache.
-
-Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
-Cc: <stable@vger.kernel.org> # 5.12
-Reported-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
-Tested-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210525074100.1154090-3-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/host/xhci-ring.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/usb/host/xhci-ring.c b/drivers/usb/host/xhci-ring.c
-index 256d336354a0..6acd2329e08d 100644
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -933,14 +933,18 @@ static int xhci_invalidate_cancelled_tds(struct xhci_virt_ep *ep)
- 			continue;
- 		}
- 		/*
--		 * If ring stopped on the TD we need to cancel, then we have to
-+		 * If a ring stopped on the TD we need to cancel then we have to
- 		 * move the xHC endpoint ring dequeue pointer past this TD.
-+		 * Rings halted due to STALL may show hw_deq is past the stalled
-+		 * TD, but still require a set TR Deq command to flush xHC cache.
- 		 */
- 		hw_deq = xhci_get_hw_deq(xhci, ep->vdev, ep->ep_index,
- 					 td->urb->stream_id);
- 		hw_deq &= ~0xf;
- 
--		if (trb_in_td(xhci, td->start_seg, td->first_trb,
-+		if (td->cancel_status == TD_HALTED) {
-+			cached_td = td;
-+		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
- 			      td->last_trb, hw_deq, false)) {
- 			switch (td->cancel_status) {
- 			case TD_CLEARED: /* TD is already no-op */
--- 
-2.31.1
-
-
+Jon
