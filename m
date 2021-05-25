@@ -2,114 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8ADC38FD40
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 10:55:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA2C38FDA7
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 11:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbhEYI4c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 04:56:32 -0400
-Received: from foss.arm.com ([217.140.110.172]:53376 "EHLO foss.arm.com"
+        id S232502AbhEYJWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 05:22:34 -0400
+Received: from foss.arm.com ([217.140.110.172]:53704 "EHLO foss.arm.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231278AbhEYI4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 25 May 2021 04:56:30 -0400
+        id S232458AbhEYJWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 25 May 2021 05:22:33 -0400
 Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 98DBA6D;
-        Tue, 25 May 2021 01:55:00 -0700 (PDT)
-Received: from [10.57.71.208] (unknown [10.57.71.208])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id CCAD33F73D;
-        Tue, 25 May 2021 01:54:58 -0700 (PDT)
-Subject: Re: [PATCH] coresight: tmc-etf: Fix global-out-of-bounds in
- tmc_update_etf_buffer()
-From:   Suzuki K Poulose <suzuki.poulose@arm.com>
-To:     Sai Prakash Ranjan <saiprakash.ranjan@codeaurora.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Mike Leach <mike.leach@linaro.org>,
-        Leo Yan <leo.yan@linaro.org>
-Cc:     coresight@lists.linaro.org, Stephen Boyd <swboyd@chromium.org>,
-        Denis Nikitin <denik@chromium.org>,
-        linux-arm-msm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, stable@vger.kernel.org
-References: <20210505093430.18445-1-saiprakash.ranjan@codeaurora.org>
- <8e0dbf24-af71-9bce-b615-ce7b1d12a720@arm.com>
-Message-ID: <dc18845a-73bf-9cbf-6749-6271dcaac9e8@arm.com>
-Date:   Tue, 25 May 2021 09:54:57 +0100
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.2
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 592C56D;
+        Tue, 25 May 2021 02:21:04 -0700 (PDT)
+Received: from C02TD0UTHF1T.local (unknown [10.57.37.142])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 2F3913F73D;
+        Tue, 25 May 2021 02:21:01 -0700 (PDT)
+Date:   Tue, 25 May 2021 10:20:54 +0100
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Marc Zyngier <maz@kernel.org>
+Cc:     linux-arm-kernel@lists.infradead.org, kvmarm@lists.cs.columbia.edu,
+        James Morse <james.morse@arm.com>,
+        Suzuki K Poulose <suzuki.poulose@arm.com>,
+        Alexandru Elisei <alexandru.elisei@arm.com>,
+        kernel-team@android.com, Steven Price <steven.price@arm.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2] KVM: arm64: Prevent mixed-width VM creation
+Message-ID: <20210525092054.GA31646@C02TD0UTHF1T.local>
+References: <20210524170752.1549797-1-maz@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <8e0dbf24-af71-9bce-b615-ce7b1d12a720@arm.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-GB
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210524170752.1549797-1-maz@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sai
+On Mon, May 24, 2021 at 06:07:52PM +0100, Marc Zyngier wrote:
+> It looks like we have tolerated creating mixed-width VMs since...
+> forever. However, that was never the intention, and we'd rather
+> not have to support that pointless complexity.
+> 
+> Forbid such a setup by making sure all the vcpus have the same
+> register width.
+> 
+> Reported-by: Steven Price <steven.price@arm.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org
 
-On 05/05/2021 10:47, Suzuki K Poulose wrote:
-> On 05/05/2021 10:34, Sai Prakash Ranjan wrote:
->> commit 6f755e85c332 ("coresight: Add helper for inserting synchronization
->> packets") removed trailing '\0' from barrier_pkt array and updated the
->> call sites like etb_update_buffer() to have proper checks for barrier_pkt
->> size before read but missed updating tmc_update_etf_buffer() which still
->> reads barrier_pkt past the array size resulting in KASAN out-of-bounds
->> bug. Fix this by adding a check for barrier_pkt size before accessing
->> like it is done in etb_update_buffer().
->>
->>   BUG: KASAN: global-out-of-bounds in tmc_update_etf_buffer+0x4b8/0x698
->>   Read of size 4 at addr ffffffd05b7d1030 by task perf/2629
->>
->>   Call trace:
->>    dump_backtrace+0x0/0x27c
->>    show_stack+0x20/0x2c
->>    dump_stack+0x11c/0x188
->>    print_address_description+0x3c/0x4a4
->>    __kasan_report+0x140/0x164
->>    kasan_report+0x10/0x18
->>    __asan_report_load4_noabort+0x1c/0x24
->>    tmc_update_etf_buffer+0x4b8/0x698
->>    etm_event_stop+0x248/0x2d8
->>    etm_event_del+0x20/0x2c
->>    event_sched_out+0x214/0x6f0
->>    group_sched_out+0xd0/0x270
->>    ctx_sched_out+0x2ec/0x518
->>    __perf_event_task_sched_out+0x4fc/0xe6c
->>    __schedule+0x1094/0x16a0
->>    preempt_schedule_irq+0x88/0x170
->>    arm64_preempt_schedule_irq+0xf0/0x18c
->>    el1_irq+0xe8/0x180
->>    perf_event_exec+0x4d8/0x56c
->>    setup_new_exec+0x204/0x400
->>    load_elf_binary+0x72c/0x18c0
->>    search_binary_handler+0x13c/0x420
->>    load_script+0x500/0x6c4
->>    search_binary_handler+0x13c/0x420
->>    exec_binprm+0x118/0x654
->>    __do_execve_file+0x77c/0xba4
->>    __arm64_compat_sys_execve+0x98/0xac
->>    el0_svc_common+0x1f8/0x5e0
->>    el0_svc_compat_handler+0x84/0xb0
->>    el0_svc_compat+0x10/0x50
->>
->>   The buggy address belongs to the variable:
->>    barrier_pkt+0x10/0x40
->>
->>   Memory state around the buggy address:
->>    ffffffd05b7d0f00: fa fa fa fa 04 fa fa fa fa fa fa fa 00 00 00 00
->>    ffffffd05b7d0f80: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
->>   >ffffffd05b7d1000: 00 00 00 00 00 00 fa fa fa fa fa fa 00 00 00 03
->>                                        ^
->>    ffffffd05b7d1080: fa fa fa fa 00 02 fa fa fa fa fa fa 03 fa fa fa
->>    ffffffd05b7d1100: fa fa fa fa 00 00 00 00 05 fa fa fa fa fa fa fa
->>   ==================================================================
->>
->> Fixes: 6f755e85c332 ("coresight: Add helper for inserting 
->> synchronization packets")
+Looks good to me!
 
-I have changed the commit to :
+Acked-by: Mark Rutland <mark.rutland@arm.com>
 
-Fixes: 0c3fc4d5fa26 ("coresight: Add barrier packet for synchronisation")
+Mark.
 
-Applied.
-
-Thanks
-Suzuki
+> ---
+> 
+> Notes:
+>     v2: Fix missing check against ARM64_HAS_32BIT_EL1 (Mark)
+> 
+>  arch/arm64/include/asm/kvm_emulate.h |  5 +++++
+>  arch/arm64/kvm/reset.c               | 28 ++++++++++++++++++++++++----
+>  2 files changed, 29 insertions(+), 4 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/kvm_emulate.h b/arch/arm64/include/asm/kvm_emulate.h
+> index f612c090f2e4..01b9857757f2 100644
+> --- a/arch/arm64/include/asm/kvm_emulate.h
+> +++ b/arch/arm64/include/asm/kvm_emulate.h
+> @@ -463,4 +463,9 @@ static __always_inline void kvm_incr_pc(struct kvm_vcpu *vcpu)
+>  	vcpu->arch.flags |= KVM_ARM64_INCREMENT_PC;
+>  }
+>  
+> +static inline bool vcpu_has_feature(struct kvm_vcpu *vcpu, int feature)
+> +{
+> +	return test_bit(feature, vcpu->arch.features);
+> +}
+> +
+>  #endif /* __ARM64_KVM_EMULATE_H__ */
+> diff --git a/arch/arm64/kvm/reset.c b/arch/arm64/kvm/reset.c
+> index 956cdc240148..d37ebee085cf 100644
+> --- a/arch/arm64/kvm/reset.c
+> +++ b/arch/arm64/kvm/reset.c
+> @@ -166,6 +166,25 @@ static int kvm_vcpu_enable_ptrauth(struct kvm_vcpu *vcpu)
+>  	return 0;
+>  }
+>  
+> +static bool vcpu_allowed_register_width(struct kvm_vcpu *vcpu)
+> +{
+> +	struct kvm_vcpu *tmp;
+> +	bool is32bit;
+> +	int i;
+> +
+> +	is32bit = vcpu_has_feature(vcpu, KVM_ARM_VCPU_EL1_32BIT);
+> +	if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1) && is32bit)
+> +		return false;
+> +
+> +	/* Check that the vcpus are either all 32bit or all 64bit */
+> +	kvm_for_each_vcpu(i, tmp, vcpu->kvm) {
+> +		if (vcpu_has_feature(tmp, KVM_ARM_VCPU_EL1_32BIT) != is32bit)
+> +			return false;
+> +	}
+> +
+> +	return true;
+> +}
+> +
+>  /**
+>   * kvm_reset_vcpu - sets core registers and sys_regs to reset value
+>   * @vcpu: The VCPU pointer
+> @@ -217,13 +236,14 @@ int kvm_reset_vcpu(struct kvm_vcpu *vcpu)
+>  		}
+>  	}
+>  
+> +	if (!vcpu_allowed_register_width(vcpu)) {
+> +		ret = -EINVAL;
+> +		goto out;
+> +	}
+> +
+>  	switch (vcpu->arch.target) {
+>  	default:
+>  		if (test_bit(KVM_ARM_VCPU_EL1_32BIT, vcpu->arch.features)) {
+> -			if (!cpus_have_const_cap(ARM64_HAS_32BIT_EL1)) {
+> -				ret = -EINVAL;
+> -				goto out;
+> -			}
+>  			pstate = VCPU_RESET_PSTATE_SVC;
+>  		} else {
+>  			pstate = VCPU_RESET_PSTATE_EL1;
+> -- 
+> 2.30.2
+> 
