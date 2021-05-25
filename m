@@ -2,143 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56EE138F71C
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 02:53:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 35E4E38F725
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 02:55:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229598AbhEYAzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 24 May 2021 20:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54720 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229539AbhEYAzW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 24 May 2021 20:55:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 414F9613BF;
-        Tue, 25 May 2021 00:53:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1621904033;
-        bh=gUNijcWcodGiSJ1D43tXty52czXiZxISSUlDZEOA4vA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uBU4xei5O1Q7UwrUGVnlMXrzppbBU8Nkvb+isRpf0NEjPBIyUXfs3aiKBliWtvp2o
-         8TcvUWDor11JeF+5OPxhnUQy1KbQ14R9xo4ruKHWmENkYDUlvDdCN4UDI0D2Fh8U8Y
-         4Q/hKaivUgIlRFRRNE+3/HZpVhXYFY/aaWRoRLREYPE8gFL1dPfSs0IanwyvTjMYGD
-         XcONTSgtRWHey2iW5NCDZqDRh5g2qGOIqsGADAl+SJqpbcTvyfowSD1vsDPVRcrQWX
-         Wr3FpiqF2BZBOI+bW5rXJbkNphAZKokAVVAAyDNdO75qNnbNqG0vqgCIffzoWZvG37
-         0KxRGg5mXKudw==
-Date:   Tue, 25 May 2021 08:53:49 +0800
-From:   Peter Chen <peter.chen@kernel.org>
-To:     Pawel Laszczak <pawell@cadence.com>
-Cc:     "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        Rahul Kumar <kurahul@cadence.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: [PATCH] usb: cdnsp: Fix deadlock issue in
- cdnsp_thread_irq_handler
-Message-ID: <20210525005349.GA20923@nchen>
-References: <20210520094224.14099-1-pawell@gli-login.cadence.com>
- <20210522095432.GA12415@b29397-desktop>
- <BYAPR07MB5381074F9A2A8AD6CAF4C10BDD269@BYAPR07MB5381.namprd07.prod.outlook.com>
+        id S229780AbhEYA5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 24 May 2021 20:57:21 -0400
+Received: from szxga04-in.huawei.com ([45.249.212.190]:5690 "EHLO
+        szxga04-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229550AbhEYA5U (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 24 May 2021 20:57:20 -0400
+Received: from dggems702-chm.china.huawei.com (unknown [172.30.72.59])
+        by szxga04-in.huawei.com (SkyGuard) with ESMTP id 4FpwY71PhNz1BRFG;
+        Tue, 25 May 2021 08:52:59 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggems702-chm.china.huawei.com (10.3.19.179) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Tue, 25 May 2021 08:55:45 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Tue, 25 May 2021 08:55:44 +0800
+Subject: Re: [PATCH 4.14 00/37] 4.14.234-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210524152324.199089755@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <335bbd7d-ef67-68e1-8066-49735eb5312c@huawei.com>
+Date:   Tue, 25 May 2021 08:55:44 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <BYAPR07MB5381074F9A2A8AD6CAF4C10BDD269@BYAPR07MB5381.namprd07.prod.outlook.com>
-User-Agent: Mutt/1.9.4 (2018-02-28)
+In-Reply-To: <20210524152324.199089755@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 21-05-24 10:56:23, Pawel Laszczak wrote:
-> >
-> >
-> >On 21-05-20 11:42:24, Pawel Laszczak wrote:
-> >> From: Pawel Laszczak <pawell@cadence.com>
-> >>
-> >> Patch fixes the critical issue caused by deadlock which has been detected
-> >> during testing NCM class.
-> >>
-> >> The root cause of issue is spin_lock/spin_unlock instruction instead
-> >> spin_lock_irqsave/spin_lock_irqrestore in cdnsp_thread_irq_handler
-> >> function.
-> >
-> >Pawel, would you please explain more about why the deadlock occurs with
-> >current code, and why this patch could fix it?
-> >
+
+
+On 2021/5/24 23:25, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.234 release.
+> There are 37 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> I'm going to add such description to commit message:
+> Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
+> Anything received after that time might be too late.
 > 
-> Lack of spin_lock_irqsave causes that during handling threaded
-> interrupt inside spin_lock/spin_unlock section the ethernet
-> subsystem invokes eth_start_xmit function from interrupt context
-> which in turn starts queueing free requests in cdnsp driver. 
-> Consequently, the deadlock occurs inside cdnsp_gadget_ep_queue
-> on spin_lock_irqsave instruction. Replacing spin_lock/spin_unlock
-> with spin_lock_irqsave/spin_lock_irqrestor causes disableing
-
-%s/disableing/disabling
-
-> interrupts and blocks queuing requests by ethernet subsystem until
-> cdnsp_thread_irq_handler ends..
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.234-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
 > 
-> I hope this description is sufficient. 
-
-A call stack graph may be better, like [1]
-
-[1]: https://www.spinics.net/lists/linux-usb/msg211931.html
-
-Peter
-
+> thanks,
 > 
-> Thanks,
-> Pawel
-> 
-> >>
-> >> Cc: stable@vger.kernel.org
-> >> Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-> >> Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-> >> ---
-> >>  drivers/usb/cdns3/cdnsp-ring.c | 7 ++++---
-> >>  1 file changed, 4 insertions(+), 3 deletions(-)
-> >>
-> >> diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-> >> index 5f0513c96c04..68972746e363 100644
-> >> --- a/drivers/usb/cdns3/cdnsp-ring.c
-> >> +++ b/drivers/usb/cdns3/cdnsp-ring.c
-> >> @@ -1517,13 +1517,14 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
-> >>  {
-> >>  	struct cdnsp_device *pdev = (struct cdnsp_device *)data;
-> >>  	union cdnsp_trb *event_ring_deq;
-> >> +	unsigned long flags;
-> >>  	int counter = 0;
-> >>
-> >> -	spin_lock(&pdev->lock);
-> >> +	spin_lock_irqsave(&pdev->lock, flags);
-> >>
-> >>  	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
-> >>  		cdnsp_died(pdev);
-> >> -		spin_unlock(&pdev->lock);
-> >> +		spin_unlock_irqrestore(&pdev->lock, flags);
-> >>  		return IRQ_HANDLED;
-> >>  	}
-> >>
-> >> @@ -1539,7 +1540,7 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
-> >>
-> >>  	cdnsp_update_erst_dequeue(pdev, event_ring_deq, 1);
-> >>
-> >> -	spin_unlock(&pdev->lock);
-> >> +	spin_unlock_irqrestore(&pdev->lock, flags);
-> >>
-> >>  	return IRQ_HANDLED;
-> >>  }
-> >> --
-> >> 2.25.1
-> >>
-> >
-> >--
-> >
-> >Thanks,
-> >Peter Chen
+> greg k-h
 > 
 
--- 
+Tested on x86 for 4.14.234-rc1,
 
-Thanks,
-Peter Chen
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.14.y
+Version: 4.14.234-rc1
+Commit: 8cd60853c248a961d85460a4b575fcd82f87b419
+Compiler: gcc version 7.3.0 (GCC)
 
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8833
+passed: 8833
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
