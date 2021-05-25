@@ -2,97 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 096B1390480
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 17:03:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 888E23904A3
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 17:09:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhEYPEX convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Tue, 25 May 2021 11:04:23 -0400
-Received: from us-smtp-delivery-44.mimecast.com ([207.211.30.44]:31137 "EHLO
-        us-smtp-delivery-44.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S232019AbhEYPET (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 11:04:19 -0400
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-453-fuP0jcRvNhOnFpQ0rMcJ9A-1; Tue, 25 May 2021 11:02:46 -0400
-X-MC-Unique: fuP0jcRvNhOnFpQ0rMcJ9A-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.phx2.redhat.com [10.5.11.15])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id B016B192CC44;
-        Tue, 25 May 2021 15:02:44 +0000 (UTC)
-Received: from bahia.lan (ovpn-113-46.ams2.redhat.com [10.36.113.46])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 144915D6AC;
-        Tue, 25 May 2021 15:02:42 +0000 (UTC)
-From:   Greg Kurz <groug@kaod.org>
-To:     Miklos Szeredi <miklos@szeredi.hu>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Vivek Goyal <vgoyal@redhat.com>, virtio-fs@redhat.com,
-        Greg Kurz <groug@kaod.org>, mreitz@redhat.com,
-        stable@vger.kernel.org
-Subject: [PATCH 2/4] fuse: Fix infinite loop in sget_fc()
-Date:   Tue, 25 May 2021 17:02:28 +0200
-Message-Id: <20210525150230.157586-3-groug@kaod.org>
-In-Reply-To: <20210525150230.157586-1-groug@kaod.org>
-References: <20210525150230.157586-1-groug@kaod.org>
+        id S229916AbhEYPKu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 11:10:50 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56594 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229643AbhEYPKt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 11:10:49 -0400
+Received: from mail-lj1-x22a.google.com (mail-lj1-x22a.google.com [IPv6:2a00:1450:4864:20::22a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61CEAC06138A
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 08:09:19 -0700 (PDT)
+Received: by mail-lj1-x22a.google.com with SMTP id p20so38595332ljj.8
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 08:09:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=VXhstycvJ/ZxY8r6rEvIPljRylC1sPEk0zKGubyDqnc=;
+        b=BkHE3p4fPN34oOAaNSE02dOwEecfhj/NQtDloDqQc+xn+yc/uj4k7T1GAhnkoP7XK5
+         PAirC+CqUOlNV4agBX4g9/Ge6HdzmhIku6IGO1lZlAQ4HoUyPFHWGpKqSpYR4oCZ17/x
+         OL4NFaTV9ufHRrTmyXNPQy0SobLF2Ah9Y/tHmZgKuKoywMAr/qH4eq4OhSBPU+fW+iew
+         lDytQ6AVAFVeL5MfFadlSqcfKptxdCKCSmg60GJGHFKBdWVJjN6us/ZAJ3izcjLvMERO
+         yT9gaICJf2Nc/0SKF4R1mlJwpRq4RbvU1REAIzGEeLOMIo34QkHzOBHiHCvo0l+vpuOR
+         E/dQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=VXhstycvJ/ZxY8r6rEvIPljRylC1sPEk0zKGubyDqnc=;
+        b=A0B04g5CLr5Vtzef1B5h5aEOsEcqZYArsLx4DzjFMxvWN742pZc/MVZ9lKdmYDAD17
+         AId4g6iqKBi0WaWk7wAtpfzMrlW34FRL1V69YJjza8xOFsP/doEHuUBPWOAHBgJmFNKA
+         ayR9HMMIFvg/OM3ka5qrmog5A9Q20FVo8ZhfF8/XlAlUuQJgh8ub5Qw8sDd5+/faDHWz
+         IPD28qufeYyRbymT15ndyoQ3jkYUS7FNuaTpiWPSIZEnffXw9ejwdryduOIsTGNhhLOW
+         q4TZVG0m41K4wyWM55uX6rAPHnya/VUKZLaG3d/gacBo9+X8W9J4VlhGAUol9jGggoTA
+         dYHw==
+X-Gm-Message-State: AOAM532RX/S6lEz+zDT7W/KbSn3kAFg0GY80X9dotGKD9Msp33egd1Fu
+        soEQ/TGXQrijh/3DYK0jgzJX4zNKTiZtMHzdK459/A==
+X-Google-Smtp-Source: ABdhPJxLgO3lpcEhQzJRZHtjBBS37mdWQMb5YUpDCqSSE+VsKji9pL95xpoUjuJXjYq+UoY6D/AWgxbpMKAO5jVryg0=
+X-Received: by 2002:a2e:90c7:: with SMTP id o7mr21231147ljg.368.1621955356716;
+ Tue, 25 May 2021 08:09:16 -0700 (PDT)
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.15
-Authentication-Results: relay.mimecast.com;
-        auth=pass smtp.auth=CUSA124A263 smtp.mailfrom=groug@kaod.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-Originator: kaod.org
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=WINDOWS-1252
+References: <20210512210316.1982416-1-luzmaximilian@gmail.com>
+ <CACRpkdZpm4w6Ym2p9xTsYpkU7CR531aLUUxXj54tssoqd6c9=Q@mail.gmail.com> <YKYnYCaoUDwjS1gL@smile.fi.intel.com>
+In-Reply-To: <YKYnYCaoUDwjS1gL@smile.fi.intel.com>
+From:   Linus Walleij <linus.walleij@linaro.org>
+Date:   Tue, 25 May 2021 17:09:05 +0200
+Message-ID: <CACRpkdYHxKbAwFTD=g_xWxq2wnRFC2V7NBrODVn-QDVUREfyhA@mail.gmail.com>
+Subject: Re: [PATCH] pinctrl/amd: Add device HID for new AMD GPIO controller
+To:     Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc:     Maximilian Luz <luzmaximilian@gmail.com>,
+        "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>, Sachi King <nakato@nakato.io>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We don't set the SB_BORN flag on submounts. This is wrong as these
-superblocks are then considered as partially constructed or dying
-in the rest of the code and can break some assumptions.
+On Thu, May 20, 2021 at 11:09 AM Andy Shevchenko
+<andriy.shevchenko@linux.intel.com> wrote:
+> On Thu, May 20, 2021 at 01:50:50AM +0200, Linus Walleij wrote:
+> > On Wed, May 12, 2021 at 11:03 PM Maximilian Luz <luzmaximilian@gmail.com> wrote:
+> >
+> > > Add device HID AMDI0031 to the AMD GPIO controller driver match table.
+> > > This controller can be found on Microsoft Surface Laptop 4 devices and
+> > > seems similar enough that we can just copy the existing AMDI0030 entry.
+> > >
+> > > Cc: <stable@vger.kernel.org> # 5.10+
+> >
+> > Why? It's hardly a regression?
+>
+> IIRC the stable policy allows to backport new IDs.
 
-One such case is when you have a virtiofs filesystem with submounts
-and you try to mount it again : virtio_fs_get_tree() tries to obtain
-a superblock with sget_fc(). The logic in sget_fc() is to loop until
-it has either found an existing matching superblock with SB_BORN set
-or to create a brand new one. It is assumed that a superblock without
-SB_BORN is transient and should go away. Forgetting to set SB_BORN on
-submounts hence causes sget_fc() to retry forever.
+You're right.
 
-Setting SB_BORN requires special care, i.e. a write barrier for
-super_cache_count() which can check SB_BORN without taking any lock.
-We should call vfs_get_tree() to deal with that but this requires
-to have a proper ->get_tree() implementation for submounts, which
-is a bigger piece of work. Go for a simple bug fix in the meatime.
+> > > Tested-by: Sachi King <nakato@nakato.io>
+> > > Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+> >
+> > I've applied the patch for next without the stable tag for now.
+>
+> It can be pulled to stable afterwards anyway :-)
 
-Fixes: bf109c64040f ("fuse: implement crossmounts")
-Cc: mreitz@redhat.com
-Cc: stable@vger.kernel.org # v5.10+
-Signed-off-by: Greg Kurz <groug@kaod.org>
----
- fs/fuse/dir.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Nah I'll tag it back on. But it goes upstream with the rest of
+patches for v5.14 in the merge window because it is not
+urgent.
 
-diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 01559061cbfb..3b0482738741 100644
---- a/fs/fuse/dir.c
-+++ b/fs/fuse/dir.c
-@@ -346,6 +346,16 @@ static struct vfsmount *fuse_dentry_automount(struct path *path)
- 		goto out_put_sb;
- 	}
- 
-+	/*
-+	 * FIXME: setting SB_BORN requires a write barrier for
-+	 *        super_cache_count(). We should actually come
-+	 *        up with a proper ->get_tree() implementation
-+	 *        for submounts and call vfs_get_tree() to take
-+	 *        care of the write barrier.
-+	 */
-+	smp_wmb();
-+	sb->s_flags |= SB_BORN;
-+
- 	sb->s_flags |= SB_ACTIVE;
- 	fsc->root = dget(sb->s_root);
- 	/* We are done configuring the superblock, so unlock it */
--- 
-2.31.1
-
+Yours,
+Linus Walleij
