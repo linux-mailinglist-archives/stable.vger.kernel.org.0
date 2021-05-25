@@ -2,202 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A471390692
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 18:23:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA163906B8
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 18:34:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232632AbhEYQZW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 12:25:22 -0400
-Received: from alexa-out.qualcomm.com ([129.46.98.28]:40861 "EHLO
-        alexa-out.qualcomm.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232200AbhEYQZW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 12:25:22 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=quicinc.com; i=@quicinc.com; q=dns/txt; s=qcdkim;
-  t=1621959833; x=1653495833;
-  h=subject:to:cc:references:from:message-id:date:
-   mime-version:in-reply-to:content-transfer-encoding;
-  bh=gNkgT7v0n5SRnIwXSrhTCQhmJu1ThQ+fRnMHpu+sBOs=;
-  b=UAvuqP6mEGjXTl76TxxKDzhRPlgjzH3P98MN13FUmXisupaPaWTz16vf
-   5a+zFic4brhl/LOQyi9kNQDkVxdPXf9Te4auxUVYWucmtnfIgikQjiJHm
-   OF7DF/Qw+zLNQdzuaGupUbQNgfjSZ+x5atM3YL0JUjyWOisNeCWwIyhxf
-   k=;
-Received: from ironmsg09-lv.qualcomm.com ([10.47.202.153])
-  by alexa-out.qualcomm.com with ESMTP; 25 May 2021 09:23:52 -0700
-X-QCInternal: smtphost
-Received: from nalasexr03e.na.qualcomm.com ([10.49.195.114])
-  by ironmsg09-lv.qualcomm.com with ESMTP/TLS/AES256-SHA; 25 May 2021 09:23:51 -0700
-Received: from [10.226.59.216] (10.80.80.8) by nalasexr03e.na.qualcomm.com
- (10.49.195.114) with Microsoft SMTP Server (TLS) id 15.0.1497.18; Tue, 25 May
- 2021 09:23:50 -0700
-Subject: Re: [PATCH 5.10 002/299] bus: mhi: core: Clear configuration from
- channel context during reset
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Bhaumik Bhatt <bbhatt@codeaurora.org>
-CC:     Pavel Machek <pavel@denx.de>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <stable@vger.kernel.org>,
-        Hemant Kumar <hemantk@codeaurora.org>
-References: <20210510102004.821838356@linuxfoundation.org>
- <20210510102004.900838842@linuxfoundation.org> <20210510205650.GA17966@amd>
- <20210511061623.GA8651@thinkpad>
- <64a8ebbdc9fc7de48b25b9e2bc896d47@codeaurora.org>
- <20210524041947.GB8823@work>
-From:   Jeffrey Hugo <quic_jhugo@quicinc.com>
-Message-ID: <011231f6-f6be-8bf4-f4f0-5e52764101e6@quicinc.com>
-Date:   Tue, 25 May 2021 10:23:49 -0600
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S231770AbhEYQft (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 12:35:49 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47624 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231235AbhEYQft (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 12:35:49 -0400
+Received: from mail-pg1-x531.google.com (mail-pg1-x531.google.com [IPv6:2607:f8b0:4864:20::531])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21FA2C061574
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 09:34:19 -0700 (PDT)
+Received: by mail-pg1-x531.google.com with SMTP id 6so23159997pgk.5
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 09:34:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=8FOCLg8QjdP4lO/GpKj8ujhoQT3idHdnUW+s9tjxw5g=;
+        b=1t74GX51RJPaJszJ0b4/g1OA1djU4s3xZEDR6P81lt0FF2cCwtmoxrdifrzgkj9yqt
+         A5q1OYMG3CXAAcuM/LJulEXUBgIkRG9l2tGjMhhUzzeND4Avv7cyevvqJa6I4ryCttna
+         /6dHesCfc2oRdYAV+xRQHKZviSh7QsWp4BFW38a66jXIedrNVbFFe1LfIjBl2TWRfDtL
+         Hv3QmJeS8zXjqfGa66duYoDtVXNKoRfcg9LC85K01O+EcvHUn0JFfje5BgUasRPlf9fV
+         nURGSEXXKXmZMNLrK6xwo80hFSvutmGkXWh0Lprfc6G2JcKpG4ekDuLhxcdjL+8USHpw
+         UDWg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=8FOCLg8QjdP4lO/GpKj8ujhoQT3idHdnUW+s9tjxw5g=;
+        b=ioLcpw0fHe62TvDIqxQu8dvSFGHRHQEAUlQhzi4+3Zx+lljZfjscnWTuXt4MZeDXsA
+         9Kq86hDMBz5qIJk/r22rm/0jBD5o6UOJlSTylNjt3YNqufzibZnGAFkZ84dqRByOLMB/
+         wEQDhyC5qBTQ09dfedQwkhgnmXY9/tWiMdpLg0MPTJ/LsCUn3d000JCT6wfGIBff6dqT
+         d9H5quS5qD1iSHypDgWmDqLyQmiQWIKG4x4/goYk+MCQisebaBsYTDU5sI5gk4AsMBrB
+         yEOuQqlHvk/PWGyuxV2azz8/Y49C70bPpAoc8/PX+sIAuCJC4y2jtONFr4vUeK7lFftp
+         d/VA==
+X-Gm-Message-State: AOAM533xWHohcmg/E1DNWYo3t5tsCmaCt+tv4WaHXMuArnidui2fyr00
+        6DRsOb7HFgYCYn1Ji4La/3RKa1jj+R0A2F/W
+X-Google-Smtp-Source: ABdhPJxAskpojSGPYJY9jy00j8Rbzr4FyBunPLuaijUAOLwevA0ArxGMfCQrAajER7qRAU72BwbTLg==
+X-Received: by 2002:a63:2bd5:: with SMTP id r204mr19478144pgr.426.1621960458208;
+        Tue, 25 May 2021 09:34:18 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id f3sm2548373pjo.3.2021.05.25.09.34.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 May 2021 09:34:17 -0700 (PDT)
+Message-ID: <60ad2709.1c69fb81.15b5a.8cd4@mx.google.com>
+Date:   Tue, 25 May 2021 09:34:17 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-In-Reply-To: <20210524041947.GB8823@work>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanexm03g.na.qualcomm.com (10.85.0.49) To
- nalasexr03e.na.qualcomm.com (10.49.195.114)
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.9.269-35-gb7f9cf71a46a
+X-Kernelci-Branch: queue/4.9
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.9 baseline: 96 runs,
+ 4 regressions (v4.9.269-35-gb7f9cf71a46a)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/23/2021 10:19 PM, Manivannan Sadhasivam wrote:
-> On Fri, May 21, 2021 at 10:50:33AM -0700, Bhaumik Bhatt wrote:
->> On 2021-05-10 11:17 PM, Manivannan Sadhasivam wrote:
->>> Hi Pavel,
->>>
->>> On Mon, May 10, 2021 at 10:56:50PM +0200, Pavel Machek wrote:
->>>> Hi!
->>>>
->>>>> From: Bhaumik Bhatt <bbhatt@codeaurora.org>
->>>>>
->>>>> commit 47705c08465931923e2f2b506986ca0bdf80380d upstream.
->>>>>
->>>>> When clearing up the channel context after client drivers are
->>>>> done using channels, the configuration is currently not being
->>>>> reset entirely. Ensure this is done to appropriately handle
->>>>> issues where clients unaware of the context state end up calling
->>>>> functions which expect a context.
->>>>
->>>>> +++ b/drivers/bus/mhi/core/init.c
->>>>> @@ -544,6 +544,7 @@ void mhi_deinit_chan_ctxt(struct mhi_con
->>>>> +	u32 tmp;
->>>>> @@ -554,7 +555,19 @@ void mhi_deinit_chan_ctxt(struct mhi_con
->>>> ...
->>>>> +	tmp = chan_ctxt->chcfg;
->>>>> +	tmp &= ~CHAN_CTX_CHSTATE_MASK;
->>>>> +	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
->>>>> +	chan_ctxt->chcfg = tmp;
->>>>> +
->>>>> +	/* Update to all cores */
->>>>> +	smp_wmb();
->>>>>   }
->>>>
->>>> This is really interesting code; author was careful to make sure chcfg
->>>> is updated atomically, but C compiler is free to undo that. Plus, this
->>>> will make all kinds of checkers angry.
->>>>
->>>> Does the file need to use READ_ONCE and WRITE_ONCE?
->>>>
->>>
->>> Thanks for looking into this.
->>>
->>> I agree that the order could be mangled between chcfg read & write and
->>> using READ_ONCE & WRITE_ONCE seems to be a good option.
->>>
->>> Bhaumik, can you please submit a patch and tag stable?
->>>
->>> Thanks,
->>> Mani
->>>
->>>> Best regards,
->>>> 								Pavel
->>>> --
->>>> DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
->>>> HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
->>
->> Hi Pavel/Mani,
->>
->> Hemant and I went over this patch and we noticed this particular function is
->> already being called with the channel mutex lock held. This would take care
->> of
->> the atomicity and we also probably don't need the smp_wmb() barrier as the
->> mutex
->> unlock will implicitly take care of it.
->>
-> 
-> okay
-> 
->> To the point of compiler re-ordering, we would need some help to understand
->> the
->> purpose of READ_ONCE()/WRITE_ONCE() for these dependent statements:
->>
->>> +	tmp = chan_ctxt->chcfg;
->>> +	tmp &= ~CHAN_CTX_CHSTATE_MASK;
->>> +	tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
->>> +	chan_ctxt->chcfg = tmp;
->>
->> Since RMW operation means that the chan_ctxt->chcfg is copied to a local
->> variable (tmp) and the _same_ is being written back to chan_ctxt->chcfg, can
->> compiler reorder these dependent statements and cause a different result?
->>
-> 
-> Well, I agree that there is a minimal guarantee with modern day CPUs on
-> not breaking the order of dependent memory accesses (like here tmp
-> variable is the one which gets read and written) but we want to make
-> sure that this won't break on future CPUs as well. So IMO using
-> READ_ONCE and WRITE_ONCE adds extra level of safety.
+stable-rc/queue/4.9 baseline: 96 runs, 4 regressions (v4.9.269-35-gb7f9cf71=
+a46a)
 
-?
+Regressions Summary
+-------------------
 
-I'm sorry, but this argument is non-sense to me, and so I want to 
-understand more.
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
 
-I've talked to our CPU designers from time to time, but cannot speak for 
-other vendors.  A modern CPU can easily reorder accesses all it wants, 
-so long as it does not change the end result.  This is typically 
-identified via "data dependencies", where the CPU identifies that the 
-result of a previous instruction is required to be known before 
-processing the current instruction (or any instructions in flight in the 
-pipeline, the instructions don't need to be adjacent).  These data 
-dependencies can be "read" or "write".
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
 
-The typical reason barriers are needed is because the CPU cannot detect 
-these dependencies when we are talking about different "memory".  For 
-example, a write to a register in some hardware block to program some 
-mode, and then a write to another register to activate the hardware 
-block based on that mode.  In this example, there is no data dependency 
-that the CPU can detect, although you and I as the software writer knows 
-there is a specific order to these operations.  Thus, a barrier is required.
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Your argument is that we need to protect against some hypothetical 
-future CPU where these data dependencies are ignored, and so the CPU 
-reorders things.  Except that means that the end result is (possibly) 
-changed, meaning the contract between software and hardware is no longer 
-valid.  It breaks the entire memory model for the C language.
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
 
-In the above code snippet, you are saying this is valid for some future 
-CPU to do:
 
-tmp = chan_ctxt->chcfg;
-chan_ctxt->chcfg = tmp; //probably optimized out because this now 
-obviously has no effect
-tmp &= ~CHAN_CTX_CHSTATE_MASK;
-tmp |= (MHI_CH_STATE_DISABLED << CHAN_CTX_CHSTATE_SHIFT);
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
+el/v4.9.269-35-gb7f9cf71a46a/plan/baseline/
 
-That is clearly wrong (I seriously hope you agree), and while I've seen 
-hardware designers do some boneheaded things to the point where I don't 
-trust them a lot of the time, I have a hard time believing they would 
-think that is acceptable.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.9
+  Describe: v4.9.269-35-gb7f9cf71a46a
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      b7f9cf71a46a4824f3874a16ecd6fc8972509b07 =
 
-That fundamentally breaks all of software to the point where the only 
-recourse is to have a literal barrier between every line of code.  That 
-doubles the line count of Linux and kills all performance.  Its plainly 
-not tenable.
 
-So, seriously, please explain your view in great detail because it feels 
-like we are talking past each-other and not coming to common ground.  As 
-I understand it, adding an explicit barrier in a patch cannot be done 
-"just because" and requires a good documented reason (in a comment next 
-to the barrier) for why the barrier is required.  It seems like the same 
-level of scrutiny should be applied for READ_ONCE/WRITE_ONCE, but your 
-reason for adding them, "using READ_ONCE and WRITE_ONCE adds extra level 
-of safety", reads like the reason to use them is "just because" to me.
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60acf577a1810e408db3afa4
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm=
+-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60acf577a1810e408db3a=
+fa5
+        failing since 192 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60acf53eab52098a3ab3af9d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-ver=
+satilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60acf53eab52098a3ab3a=
+f9e
+        failing since 192 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60acf58e77019a9009b3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_a=
+rm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60acf58e77019a9009b3a=
+f98
+        failing since 192 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =
+
+
+
+platform             | arch | lab             | compiler | defconfig       =
+    | regressions
+---------------------+------+-----------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60acf4ea1832a18aceb3afa1
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.269-3=
+5-gb7f9cf71a46a/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qemu=
+_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60acf4ea1832a18aceb3a=
+fa2
+        failing since 192 days (last pass: v4.9.243-16-gd8d67e375b0a, first=
+ fail: v4.9.243-25-ga01fe8e99a22) =
+
+ =20
