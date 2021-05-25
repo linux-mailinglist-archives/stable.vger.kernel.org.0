@@ -2,125 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 894AC390B4F
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 23:25:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A0D7F390B65
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 23:26:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232943AbhEYV0o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 17:26:44 -0400
-Received: from out03.mta.xmission.com ([166.70.13.233]:33102 "EHLO
-        out03.mta.xmission.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232508AbhEYV0n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 17:26:43 -0400
-Received: from in01.mta.xmission.com ([166.70.13.51])
-        by out03.mta.xmission.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.93)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lleY0-00HLfp-3h; Tue, 25 May 2021 15:25:08 -0600
-Received: from ip68-227-160-95.om.om.cox.net ([68.227.160.95] helo=fess.xmission.com)
-        by in01.mta.xmission.com with esmtpsa (TLS1.2:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.87)
-        (envelope-from <ebiederm@xmission.com>)
-        id 1lleXz-0003h6-73; Tue, 25 May 2021 15:25:07 -0600
-From:   ebiederm@xmission.com (Eric W. Biederman)
-To:     Jann Horn <jannh@google.com>
-Cc:     Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        stable <stable@vger.kernel.org>,
-        Paul Moore <paul@paul-moore.com>,
-        Casey Schaufler <casey@schaufler-ca.com>,
-        Oleg Nesterov <oleg@redhat.com>,
-        James Morris <jmorris@namei.org>,
-        John Johansen <john.johansen@canonical.com>,
-        Stephen Smalley <sds@tycho.nsa.gov>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        kernel list <linux-kernel@vger.kernel.org>,
-        linux-security-module <linux-security-module@vger.kernel.org>
-References: <20210525193735.2716374-1-keescook@chromium.org>
-        <CAG48ez2PdgpUj3GYRLDJ9MS1uKMZ4SU77i__vhXvmbzqudzuzA@mail.gmail.com>
-Date:   Tue, 25 May 2021 16:24:52 -0500
-In-Reply-To: <CAG48ez2PdgpUj3GYRLDJ9MS1uKMZ4SU77i__vhXvmbzqudzuzA@mail.gmail.com>
-        (Jann Horn's message of "Tue, 25 May 2021 22:49:29 +0200")
-Message-ID: <m1r1humrq3.fsf@fess.ebiederm.org>
-User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+        id S231981AbhEYV1v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 17:27:51 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57142 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229926AbhEYV1u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 17:27:50 -0400
+Received: from mail-oi1-x22e.google.com (mail-oi1-x22e.google.com [IPv6:2607:f8b0:4864:20::22e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25B5CC061574;
+        Tue, 25 May 2021 14:26:20 -0700 (PDT)
+Received: by mail-oi1-x22e.google.com with SMTP id c196so23456389oib.9;
+        Tue, 25 May 2021 14:26:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=sender:date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=ZwyB3oZbhncUoNjyEs4lI85OWB+hNWYX7AbTL0E94io=;
+        b=kNSQQ2XjstrNvX4Z4NKce3HUYaK00M+legpgKCuRA8g8mTZvsn88ujkcVOrJroRGW7
+         HmWa53+BQvuofJA+2Egy8i91efjbWbXfanJ6yWuzXW4Nu8mGZHhQZYTNzrBR7kgVvB2d
+         ydrl6L62r8ZbnQx+fhwd8QYPQ/a+ClTtwB3BuMkMnA23FU1zpySGFFDLY0bSz3YvV0dd
+         uUspuzis48IhKhgSbdGRKUGreQCp0xrK50GvrGelP7XLSKJQSbcN1wHvLprnXRBZYH3P
+         rA1uRXD5j0XChqjQtwyLQi+Lbgnz2jFcdwwBL0NtB2grHmovmfawe2twVv9tig2ZbNro
+         sXHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
+         :references:mime-version:content-disposition:in-reply-to;
+        bh=ZwyB3oZbhncUoNjyEs4lI85OWB+hNWYX7AbTL0E94io=;
+        b=H00eg5XKBk6kFiVoPa+m9sjjzsMMyf8p2ICJtITxZljegnznk7G22qVI4EN61Y1Tzl
+         NaRMgX6HXz0x1IOBjWIkjhIco9p1LQf5SChGr2chLbOMZAmg7JRkZWnmC/oQmB7cFkPn
+         E7sJxvC01Rbz/7UZIfrFpD3udosB7MjpljssnjLYbtXaMzmey9S2F+hQWSOOJBl4N2GY
+         Xdew/m8aPimkDC9RW0x7zUx3uTdzg3lP3SY3p+480jZjFuY/CWwMYFwpHXNRryLPvTg+
+         dDQO2cC+gEl/dP5Ya1jC9p7LoFezv+oR838YrB2cS+Bo5V3HXL6R2Xp2VoHQTi+v2wya
+         tU1g==
+X-Gm-Message-State: AOAM530kt4EkssTCFA7VdlNBSe5MnGhrgKa2SNaNNTZQaXQ5/+XFrvUC
+        5oTBQXdwvPwW7bT8dNfJN2U=
+X-Google-Smtp-Source: ABdhPJwIFqFU5B1/iHIQO2/jjyT6qCTA0tf+wBAsLwsQ/KKxWpJqtIMg06c5jp2K3YojeOr5H+DBdw==
+X-Received: by 2002:a54:4809:: with SMTP id j9mr249771oij.14.1621977979553;
+        Tue, 25 May 2021 14:26:19 -0700 (PDT)
+Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id i2sm3992126oto.66.2021.05.25.14.26.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 25 May 2021 14:26:19 -0700 (PDT)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 25 May 2021 14:26:17 -0700
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.4 00/71] 5.4.122-rc1 review
+Message-ID: <20210525212617.GE921026@roeck-us.net>
+References: <20210524152326.447759938@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-XM-SPF: eid=1lleXz-0003h6-73;;;mid=<m1r1humrq3.fsf@fess.ebiederm.org>;;;hst=in01.mta.xmission.com;;;ip=68.227.160.95;;;frm=ebiederm@xmission.com;;;spf=neutral
-X-XM-AID: U2FsdGVkX18b6GauH7woP0dutn2xuSoDIfadYjyx/GI=
-X-SA-Exim-Connect-IP: 68.227.160.95
-X-SA-Exim-Mail-From: ebiederm@xmission.com
-X-Spam-Checker-Version: SpamAssassin 3.4.2 (2018-09-13) on sa08.xmission.com
-X-Spam-Level: 
-X-Spam-Status: No, score=0.5 required=8.0 tests=ALL_TRUSTED,BAYES_50,
-        DCC_CHECK_NEGATIVE,T_TM2_M_HEADER_IN_MSG,XMSubLong autolearn=disabled
-        version=3.4.2
-X-Spam-Report: * -1.0 ALL_TRUSTED Passed through trusted hosts only via SMTP
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  0.7 XMSubLong Long Subject
-        *  0.0 T_TM2_M_HEADER_IN_MSG BODY: No description available.
-        * -0.0 DCC_CHECK_NEGATIVE Not listed in DCC
-        *      [sa08 1397; Body=1 Fuz1=1 Fuz2=1]
-X-Spam-DCC: XMission; sa08 1397; Body=1 Fuz1=1 Fuz2=1 
-X-Spam-Combo: ;Jann Horn <jannh@google.com>
-X-Spam-Relay-Country: 
-X-Spam-Timing: total 444 ms - load_scoreonly_sql: 0.05 (0.0%),
-        signal_user_changed: 15 (3.4%), b_tie_ro: 13 (2.9%), parse: 0.99
-        (0.2%), extract_message_metadata: 14 (3.0%), get_uri_detail_list: 1.98
-        (0.4%), tests_pri_-1000: 5 (1.1%), tests_pri_-950: 1.36 (0.3%),
-        tests_pri_-900: 1.16 (0.3%), tests_pri_-90: 56 (12.5%), check_bayes:
-        53 (12.0%), b_tokenize: 7 (1.6%), b_tok_get_all: 9 (2.0%),
-        b_comp_prob: 3.2 (0.7%), b_tok_touch_all: 29 (6.6%), b_finish: 1.48
-        (0.3%), tests_pri_0: 338 (76.1%), check_dkim_signature: 0.49 (0.1%),
-        check_dkim_adsp: 3.3 (0.7%), poll_dns_idle: 0.18 (0.0%), tests_pri_10:
-        2.1 (0.5%), tests_pri_500: 8 (1.7%), rewrite_mail: 0.00 (0.0%)
-Subject: Re: [PATCH] proc: Check /proc/$pid/attr/ writes against file opener
-X-Spam-Flag: No
-X-SA-Exim-Version: 4.2.1 (built Thu, 05 May 2016 13:38:54 -0600)
-X-SA-Exim-Scanned: Yes (on in01.mta.xmission.com)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210524152326.447759938@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Jann Horn <jannh@google.com> writes:
+On Mon, May 24, 2021 at 05:25:06PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.122 release.
+> There are 71 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 26 May 2021 15:23:11 +0000.
+> Anything received after that time might be too late.
+> 
 
-> On Tue, May 25, 2021 at 9:37 PM Kees Cook <keescook@chromium.org> wrote:
->> Fix another "confused deputy" weakness[1]. Writes to /proc/$pid/attr/
->> files need to check the opener credentials, since these fds do not
->> transition state across execve(). Without this, it is possible to
->> trick another process (which may have different credentials) to write
->> to its own /proc/$pid/attr/ files, leading to unexpected and possibly
->> exploitable behaviors.
->>
->> [1] https://www.kernel.org/doc/html/latest/security/credentials.html?highlight=confused#open-file-credentials
->>
->> Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
->> Cc: stable@vger.kernel.org
->> Signed-off-by: Kees Cook <keescook@chromium.org>
->> ---
->>  fs/proc/base.c | 4 ++++
->>  1 file changed, 4 insertions(+)
->>
->> diff --git a/fs/proc/base.c b/fs/proc/base.c
->> index 3851bfcdba56..58bbf334265b 100644
->> --- a/fs/proc/base.c
->> +++ b/fs/proc/base.c
->> @@ -2703,6 +2703,10 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
->>         void *page;
->>         int rv;
->>
->> +       /* A task may only write when it was the opener. */
->> +       if (file->f_cred != current_real_cred())
->> +               return -EPERM;
->
-> With this, if a task forks, the child will then still be able to open
-> its parent's /proc/$pid/attr/current and trick the parent into writing
-> to that, right? Is that acceptable? If not, the ->open handler should
-> probably also check for "current->thread_pid == proc_pid(inode)", or
-> something like that?
+Build results:
+	total: 157 pass: 157 fail: 0
+Qemu test results:
+	total: 428 pass: 427 fail: 1
+Failed tests:
+	riscv:virt:defconfig:net,usb-ohci:nvme:rootfs
 
-Currently exec always allocates a new cred.  So you can only ``trick''
-another process that was forked from you.  I don't think it counts as
-tricking or any kind of danger if you are simply confusing yourself.
+The failure is persistent; it manifests itself in failure to reboot.
+The test passes after applying commit e181811bd04d ("nvmet: use new
+ana_log_size instead the old one").
 
-Eric
+Tested-by: Guenter Roeck <linux@roeck-us.net>
 
+Guenter
