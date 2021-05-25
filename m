@@ -2,138 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0BEC390AA4
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 22:47:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ADE2390AB7
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 22:50:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232425AbhEYUsf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 16:48:35 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:44036 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbhEYUsf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 16:48:35 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 6F3AA1C0B79; Tue, 25 May 2021 22:47:04 +0200 (CEST)
-Date:   Tue, 25 May 2021 22:47:04 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Ferenc Bakonyi <fero@drama.obuda.kando.hu>,
-        Bartlomiej Zolnierkiewicz <b.zolnierkie@samsung.com>,
-        Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
-Subject: Re: [PATCH 4.4 28/31] video: hgafb: fix potential NULL pointer
- dereference
-Message-ID: <20210525204704.GA12631@duo.ucw.cz>
-References: <20210524152322.919918360@linuxfoundation.org>
- <20210524152323.833888129@linuxfoundation.org>
+        id S231532AbhEYUv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 16:51:29 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48930 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231217AbhEYUv1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 16:51:27 -0400
+Received: from mail-lj1-x232.google.com (mail-lj1-x232.google.com [IPv6:2a00:1450:4864:20::232])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B92AC06175F
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 13:49:57 -0700 (PDT)
+Received: by mail-lj1-x232.google.com with SMTP id w15so39940577ljo.10
+        for <stable@vger.kernel.org>; Tue, 25 May 2021 13:49:57 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=my1VRpGvUlfJOXYYzf5go17vJHSLCcuUwMNzSJZH5Ho=;
+        b=ua8fCYcaJJV6MtDCSg1a6tMUYR+FLxUCJ8CI+LDWBkCJ4cy1Wlpe+VCemp05KLBfSO
+         D9cYtH86QUDMbl/Fzop62cTA5zjzp+ljS/DdNiip70zWHVOWa1SjVYLnN3E+mf6LHYDk
+         NBzxy+HOhHapf14QAL8jiDZC3fi3YG1hwbvAFwsDpsxVgJ4XLi82xUXO+wMuBxceCL7H
+         6OjULEKwSnq+t0dj5lecl3Zy7J7N1jsxwerd1pfDqdxecC/4BsYyTHIC5/DbdlGb63Y6
+         EZDE4FHR60y6tkNVDKpDjHk3PKbT27tUHbBOXOnHE6m/1udgz6UFcLlbe8aQXnGTODWI
+         8q8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=my1VRpGvUlfJOXYYzf5go17vJHSLCcuUwMNzSJZH5Ho=;
+        b=izZ4m4y6/tJRJE1l8+UjEEaSZqAng2NrUAqZZrlxaRjuzP9WNRU7T24NjLZtzgGP40
+         iYAFrWFneP13/JtiXyxNaZJVyN2QIGWozMf0X0NrmYnQssAGXGxIQ9Ik5G7vIAJ0vbN8
+         M9WpCaxZoQDAK1BEuaSNYVyUeggnh/HFgxcSjtvqm30d7NptoMmoAJpbjpFEv79ziGs0
+         qSq9ybngPBqnVY13dA5R65YNWQ404GL8mRnIXcri2PIC2OdG6/w8d7jBJ+6R0y0lXSWm
+         9iHW3ingWOZ6VIKILET3XJJ5Acv9zRSobQnloLd9FuLqd7kivnEls00U6I6NbktT2fFj
+         lv6w==
+X-Gm-Message-State: AOAM531iOdgfkrrJHf2zXMOyFfdeQREhI33KvXGA+sFhLfIT9y+t8Iq4
+        sOREfqHejZ5En4bLHBK+WZxwkA09j+oTSMxO2EJPPg==
+X-Google-Smtp-Source: ABdhPJyTHdRV8wRsB3fBdCyc7Q6itMRgKE8fVP0pJH06zWDrayKPje8tP08v4Z6WOYTp3BQkb5Jip+8X5KCHD1zohLs=
+X-Received: by 2002:a2e:9f16:: with SMTP id u22mr22005702ljk.43.1621975795312;
+ Tue, 25 May 2021 13:49:55 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="oyUTqETQ0mS9luUI"
-Content-Disposition: inline
-In-Reply-To: <20210524152323.833888129@linuxfoundation.org>
-User-Agent: Mutt/1.10.1 (2018-07-13)
+References: <20210525193735.2716374-1-keescook@chromium.org>
+In-Reply-To: <20210525193735.2716374-1-keescook@chromium.org>
+From:   Jann Horn <jannh@google.com>
+Date:   Tue, 25 May 2021 22:49:29 +0200
+Message-ID: <CAG48ez2PdgpUj3GYRLDJ9MS1uKMZ4SU77i__vhXvmbzqudzuzA@mail.gmail.com>
+Subject: Re: [PATCH] proc: Check /proc/$pid/attr/ writes against file opener
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Linus Torvalds <torvalds@linuxfoundation.org>,
+        stable <stable@vger.kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Casey Schaufler <casey@schaufler-ca.com>,
+        Oleg Nesterov <oleg@redhat.com>,
+        James Morris <jmorris@namei.org>,
+        John Johansen <john.johansen@canonical.com>,
+        Stephen Smalley <sds@tycho.nsa.gov>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        kernel list <linux-kernel@vger.kernel.org>,
+        linux-security-module <linux-security-module@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Tue, May 25, 2021 at 9:37 PM Kees Cook <keescook@chromium.org> wrote:
+> Fix another "confused deputy" weakness[1]. Writes to /proc/$pid/attr/
+> files need to check the opener credentials, since these fds do not
+> transition state across execve(). Without this, it is possible to
+> trick another process (which may have different credentials) to write
+> to its own /proc/$pid/attr/ files, leading to unexpected and possibly
+> exploitable behaviors.
+>
+> [1] https://www.kernel.org/doc/html/latest/security/credentials.html?highlight=confused#open-file-credentials
+>
+> Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Kees Cook <keescook@chromium.org>
+> ---
+>  fs/proc/base.c | 4 ++++
+>  1 file changed, 4 insertions(+)
+>
+> diff --git a/fs/proc/base.c b/fs/proc/base.c
+> index 3851bfcdba56..58bbf334265b 100644
+> --- a/fs/proc/base.c
+> +++ b/fs/proc/base.c
+> @@ -2703,6 +2703,10 @@ static ssize_t proc_pid_attr_write(struct file * file, const char __user * buf,
+>         void *page;
+>         int rv;
+>
+> +       /* A task may only write when it was the opener. */
+> +       if (file->f_cred != current_real_cred())
+> +               return -EPERM;
 
---oyUTqETQ0mS9luUI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-Hi!
-
-> From: Igor Matheus Andrade Torrente <igormtorrente@gmail.com>
->=20
-> commit dc13cac4862cc68ec74348a80b6942532b7735fa upstream.
->=20
-> The return of ioremap if not checked, and can lead to a NULL to be
-> assigned to hga_vram. Potentially leading to a NULL pointer
-> dereference.
->=20
-> The fix adds code to deal with this case in the error label and
-> changes how the hgafb_probe handles the return of hga_card_detect.
-
-This will break hgafb completely, right? And crash system without hga
-card as a bonus.
-
-> +++ b/drivers/video/fbdev/hgafb.c
-> @@ -285,6 +285,8 @@ static int hga_card_detect(void)
->  	hga_vram_len  =3D 0x08000;
-> =20
->  	hga_vram =3D ioremap(0xb0000, hga_vram_len);
-> +	if (!hga_vram)
-> +		return -ENOMEM;
-> =20
->  	if (request_region(0x3b0, 12, "hgafb"))
->  		release_io_ports =3D 1;
-> @@ -344,13 +346,18 @@ static int hga_card_detect(void)
->  			hga_type_name =3D "Hercules";
->  			break;
->  	}
-> -	return 1;
-> +	return 0;
-
-Ok, so calling convention is now "0 means detected".
-
-
-> @@ -548,13 +555,11 @@ static struct fb_ops hgafb_ops =3D {
->  static int hgafb_probe(struct platform_device *pdev)
->  {
->  	struct fb_info *info;
-> +	int ret;
-=2E..
-> +	ret =3D hga_card_detect();
-> +	if (!ret)
-> +		return ret;
-> =20
->  	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
->  		hga_type_name, hga_vram_len/1024);
->=20
-
-If the card is detected, 0 is returned, !0 is true, and we abort
-detection....
-
-								Pavel
-							=09
-Signed-off-by: Pavel Machek <pavel@denx.de>
-
-diff --git a/drivers/video/fbdev/hgafb.c b/drivers/video/fbdev/hgafb.c
-index c35f217db53f..d6a95ea49c64 100644
---- a/drivers/video/fbdev/hgafb.c
-+++ b/drivers/video/fbdev/hgafb.c
-@@ -282,7 +282,7 @@ static int hga_card_detect(void)
- 	void __iomem *p, *q;
- 	unsigned short p_save, q_save;
-=20
--	hga_vram_len  =3D 0x08000;
-+	hga_vram_len =3D 0x08000;
-=20
- 	hga_vram =3D ioremap(0xb0000, hga_vram_len);
- 	if (!hga_vram)
-@@ -558,7 +558,7 @@ static int hgafb_probe(struct platform_device *pdev)
- 	int ret;
-=20
- 	ret =3D hga_card_detect();
--	if (!ret)
-+	if (ret)
- 		return ret;
-=20
- 	printk(KERN_INFO "hgafb: %s with %ldK of memory detected.\n",
-
-
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---oyUTqETQ0mS9luUI
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iF0EABECAB0WIQRPfPO7r0eAhk010v0w5/Bqldv68gUCYK1iSAAKCRAw5/Bqldv6
-8nLrAJ4wD/bAdGIucmpOt+V2+FL+SG/U9wCgsLb9HTpU2gUIz00oalDNs2LGGvc=
-=YHM2
------END PGP SIGNATURE-----
-
---oyUTqETQ0mS9luUI--
+With this, if a task forks, the child will then still be able to open
+its parent's /proc/$pid/attr/current and trick the parent into writing
+to that, right? Is that acceptable? If not, the ->open handler should
+probably also check for "current->thread_pid == proc_pid(inode)", or
+something like that?
