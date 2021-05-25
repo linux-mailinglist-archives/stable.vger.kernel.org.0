@@ -2,236 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FA8D390173
-	for <lists+stable@lfdr.de>; Tue, 25 May 2021 14:59:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF0B39018F
+	for <lists+stable@lfdr.de>; Tue, 25 May 2021 15:01:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232957AbhEYNBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 25 May 2021 09:01:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54968 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232956AbhEYNBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 09:01:00 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B91EC061574
-        for <stable@vger.kernel.org>; Tue, 25 May 2021 05:59:30 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id e22so6933145pgv.10
-        for <stable@vger.kernel.org>; Tue, 25 May 2021 05:59:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=jkZhk4unmdh1F0SrA0n4a5zMqaLVhURzB9fw2kiNsMU=;
-        b=IWHTA+qL8YvpqPltH+AGhhX3YzesAdKLx9U+Hy47o029B94HeIFv585ui5M1YbyYC0
-         EOXhCI6+NZii9nL5/oeqeL9zStJeWpGt5hETasVW1PD4JMvKriFb3AP2wratkJwkevff
-         HsbrXcibYFmXEnsIIGneq//kvm2HZUJoFX8ZWwQaJsU+stKDpGTHLZfc7TYtlCkOappC
-         9eOfPnjmzK7NPy7LQDyddhtBFaV0/uAcivSYwwL4FRDarB6KykFg8NSsaFAgz98gDo/f
-         OLUhPUozmVqLaHZTjEI6y0ObTK8M4rAFlGEpnW23dMlp3ZT5QKI1+R+2KIPSH0ecn6Jo
-         gWZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=jkZhk4unmdh1F0SrA0n4a5zMqaLVhURzB9fw2kiNsMU=;
-        b=mYXcjvxnE6gpTWt58rnk6+CzoV7AoMT3Wy4+X/xRnLMOekflyVMCpZQE5yRKoeWlnq
-         X8xgSncbiCpeEkOLnZ+w+cTbi0/qTjfCl9axt8kMQn0lxKvduOXoyqgi+yAHvGu3Azmp
-         QfI1rGhFnqfCamR6kN7zRts51U67YsI1RuX+OZf1+512zJCgCnKRfNrMoNjODJfSKMKp
-         wXyejEQV/1DeBYK15E4H2TGbWk1VTMoqlNpUXUrnt7x9GWo2f1WLSHH5+RRZSuBPkAp0
-         0M4Tcbs1+vcMTWYNqYzv3iUT6cQG4VZ9FUNzMKbi4qtyOZIW6/oVw9FGRRZ+1w8xFwKv
-         6mng==
-X-Gm-Message-State: AOAM531lo5x3QRgazu7DSputB7MmrwK7V7Ifn6oUInj+eMkJIGGzRZB7
-        miKlf6Ww+gd7MGt8H1cnUQk1r9tTNECwRxU/
-X-Google-Smtp-Source: ABdhPJxDdkybwZqRGwaKX7nhXXBrp4PFmQLRNmUp/ZnbsSYekOcCYvQCeRWeWzN4bwV3GP50LgotFg==
-X-Received: by 2002:a65:644d:: with SMTP id s13mr18753086pgv.362.1621947569489;
-        Tue, 25 May 2021 05:59:29 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id s48sm13187171pfw.205.2021.05.25.05.59.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 25 May 2021 05:59:29 -0700 (PDT)
-Message-ID: <60acf4b1.1c69fb81.85c1b.be25@mx.google.com>
-Date:   Tue, 25 May 2021 05:59:29 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233022AbhEYNDX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 25 May 2021 09:03:23 -0400
+Received: from mx0a-001b2d01.pphosted.com ([148.163.156.1]:13036 "EHLO
+        mx0a-001b2d01.pphosted.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232957AbhEYNDU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 25 May 2021 09:03:20 -0400
+Received: from pps.filterd (m0098393.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14PCXVYx114734;
+        Tue, 25 May 2021 09:01:38 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
+ : date : message-id : in-reply-to : references : mime-version :
+ content-transfer-encoding; s=pp1;
+ bh=zIkVztrnPmlK/T8hJBotAxR4HEjLOirSp4kgEg6fN5c=;
+ b=IZvOmcjyxaco8w5x7a4nbXccFb35V8r5iDNZKXFR6wZf39zf+fTw4KZOr8eXoV78ZQkp
+ ywtC6sW0Yhl+9xId1LcvixBMXYF86T7Jj03VMJINoCN0Oz1Qe1HelEfzgD0VI421E6bX
+ C9uNWFO/jCuiaLaWkrBU918Ka6szXyCzLEF9UA/FoxY3W2au4XdtCbVO2Xk+sE/1TRzf
+ mbzlypg3reB/1Nrz37HTZkerdB4YViafiBq2ydMvfX29hxkpcvgFs6cjyX/Z7NjI9QUG
+ H6WmZb+iOpUBFVnmnLzAEB4b2y84biihqdIyUM2B/16aU68oWYDQO/7u8MNOY4W5QVb7 Rw== 
+Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
+        by mx0a-001b2d01.pphosted.com with ESMTP id 38rxhvxwb6-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 09:01:37 -0400
+Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
+        by ppma03ams.nl.ibm.com (8.16.1.2/8.16.1.2) with SMTP id 14PCrE8C020940;
+        Tue, 25 May 2021 13:01:35 GMT
+Received: from b06cxnps4075.portsmouth.uk.ibm.com (d06relay12.portsmouth.uk.ibm.com [9.149.109.197])
+        by ppma03ams.nl.ibm.com with ESMTP id 38s1jn80et-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Tue, 25 May 2021 13:01:34 +0000
+Received: from d06av26.portsmouth.uk.ibm.com (d06av26.portsmouth.uk.ibm.com [9.149.105.62])
+        by b06cxnps4075.portsmouth.uk.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 14PD1Wia30146888
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Tue, 25 May 2021 13:01:32 GMT
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id BDE69AE055;
+        Tue, 25 May 2021 13:01:32 +0000 (GMT)
+Received: from d06av26.portsmouth.uk.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 77EAAAE053;
+        Tue, 25 May 2021 13:01:32 +0000 (GMT)
+Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
+        by d06av26.portsmouth.uk.ibm.com (Postfix) with ESMTP;
+        Tue, 25 May 2021 13:01:32 +0000 (GMT)
+From:   Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+To:     Andrew Morton <akpm@linux-foundation.org>,
+        Anshuman Khandual <anshuman.khandual@arm.com>
+Cc:     linux-mm <linux-mm@kvack.org>, LKML <linux-kernel@vger.kernel.org>,
+        linux-arch <linux-arch@vger.kernel.org>,
+        linux-sparc <sparclinux@vger.kernel.org>,
+        linux-s390 <linux-s390@vger.kernel.org>,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/1] mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
+Date:   Tue, 25 May 2021 15:00:43 +0200
+Message-Id: <20210525130043.186290-2-gerald.schaefer@linux.ibm.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
+References: <20210525130043.186290-1-gerald.schaefer@linux.ibm.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.191-48-g46e352d7f437
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 113 runs,
- 4 regressions (v4.19.191-48-g46e352d7f437)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: vrHywXj5uRP7xuHWWp7JNYeHqoBJuFrN
+X-Proofpoint-ORIG-GUID: vrHywXj5uRP7xuHWWp7JNYeHqoBJuFrN
+X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
+ definitions=2021-05-25_06:2021-05-25,2021-05-25 signatures=0
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 clxscore=1011 bulkscore=0
+ impostorscore=0 mlxscore=0 malwarescore=0 suspectscore=0 mlxlogscore=999
+ spamscore=0 lowpriorityscore=0 adultscore=0 priorityscore=1501
+ phishscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2104190000 definitions=main-2105250077
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 113 runs, 4 regressions (v4.19.191-48-g46e35=
-2d7f437)
+In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
+entry, and so it does not match the given pmdp/pudp and (aligned down) pfn
+any more.
 
-Regressions Summary
--------------------
+For s390, this results in memory corruption, because the IDTE instruction
+used e.g. in xxx_get_and_clear() will take the vaddr for some calculations,
+in combination with the given pmdp. It will then end up with a wrong table
+origin, ending on ...ff8, and some of those wrongly set low-order bits will
+also select a wrong pagetable level for the index addition. IDTE could
+therefore invalidate (or 0x20) something outside of the page tables,
+depending on the wrongly picked index, which in turn depends on the random
+vaddr.
 
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
+As result, we sometimes see "BUG task_struct (Not tainted): Padding
+overwritten" on s390, where one 0x5a padding value got overwritten with
+0x7a.
 
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
+Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
+calculated.
 
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
+Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Cc: <stable@vger.kernel.org> # v5.9+
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+---
+ mm/debug_vm_pgtable.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
+diff --git a/mm/debug_vm_pgtable.c b/mm/debug_vm_pgtable.c
+index 6ff92c8b0a00..f7b23565a04f 100644
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -193,7 +193,7 @@ static void __init pmd_advanced_tests(struct mm_struct *mm,
+ 
+ 	pr_debug("Validating PMD advanced\n");
+ 	/* Align the address wrt HPAGE_PMD_SIZE */
+-	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
++	vaddr &= HPAGE_PMD_MASK;
+ 
+ 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
+ 
+@@ -318,7 +318,7 @@ static void __init pud_advanced_tests(struct mm_struct *mm,
+ 
+ 	pr_debug("Validating PUD advanced\n");
+ 	/* Align the address wrt HPAGE_PUD_SIZE */
+-	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
++	vaddr &= HPAGE_PUD_MASK;
+ 
+ 	pud = pfn_pud(pfn, prot);
+ 	set_pud_at(mm, vaddr, pudp, pud);
+-- 
+2.25.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.191-48-g46e352d7f437/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.191-48-g46e352d7f437
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      46e352d7f437bdb001fa9ecaef484726cf738f02 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-broonie     | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60acca3967e958cee3b3afa4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60acca3967e958cee3b3a=
-fa5
-        failing since 192 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-cip         | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60acc2610ca54ddcd0b3afa7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60acc2610ca54ddcd0b3a=
-fa8
-        failing since 192 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-collabora   | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60acd26cdd50a5899fb3af98
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60acd26cdd50a5899fb3a=
-f99
-        failing since 192 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =
-
-
-
-platform             | arch | lab             | compiler | defconfig       =
-    | regressions
----------------------+------+-----------------+----------+-----------------=
-----+------------
-qemu_arm-versatilepb | arm  | lab-linaro-lkft | gcc-8    | versatile_defcon=
-fig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60acd46f835df94224b3afce
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.191=
--48-g46e352d7f437/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60acd46f835df94224b3a=
-fcf
-        failing since 192 days (last pass: v4.19.157-26-gd59f3161b3a0, firs=
-t fail: v4.19.157-27-g5543cc2c41d55) =
-
- =20
