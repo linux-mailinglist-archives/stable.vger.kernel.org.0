@@ -2,234 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FBD039104D
-	for <lists+stable@lfdr.de>; Wed, 26 May 2021 08:06:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1464B39104F
+	for <lists+stable@lfdr.de>; Wed, 26 May 2021 08:06:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231157AbhEZGHf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 26 May 2021 02:07:35 -0400
-Received: from mx0a-0014ca01.pphosted.com ([208.84.65.235]:25388 "EHLO
-        mx0a-0014ca01.pphosted.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229576AbhEZGHe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 26 May 2021 02:07:34 -0400
-Received: from pps.filterd (m0042385.ppops.net [127.0.0.1])
-        by mx0a-0014ca01.pphosted.com (8.16.0.43/8.16.0.43) with SMTP id 14Q62MNm017007;
-        Tue, 25 May 2021 23:06:01 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com; h=from : to : cc :
- subject : date : message-id : mime-version : content-type; s=proofpoint;
- bh=I97hx2Fqwiso1xlMcv+mbc93j2vuGQX3SWUoHQISzj8=;
- b=VWDk7auOoMnw/BLpz+Q5zFS2CY34n2nx9sWFy0zkzJHc6UtSr0/Ln8jY8pLcOAL5aAOO
- ZasSZdtyfTaDdu9BzSCj16Mm7E77dcODbIFefoew2qHKBWD2kOrs2DnbFgfk1J7VEjVm
- BHbTmjmNjS71X4D/Qass9Wp0awWP0VibWIu7KH5anhgWjpq/1KeTgLXY7t06OrrHU+Vt
- xdR03IVym6igzNfxep6HbkBrdETdhuvDn4tFFfWi89q0dlklIpb3S1bul3FZbTujT0OD
- szrA6QQ9BD+1fbQbDx7fJUGv89S0GAuJJcCOPO2DM2rgJUT8bUH+UbiJZLyr2g4XMM43 Cw== 
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2104.outbound.protection.outlook.com [104.47.70.104])
-        by mx0a-0014ca01.pphosted.com with ESMTP id 38rdrf73kc-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 25 May 2021 23:06:00 -0700
+        id S231991AbhEZGHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 26 May 2021 02:07:40 -0400
+Received: from aserp2130.oracle.com ([141.146.126.79]:56794 "EHLO
+        aserp2130.oracle.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbhEZGHk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 26 May 2021 02:07:40 -0400
+Received: from pps.filterd (aserp2130.oracle.com [127.0.0.1])
+        by aserp2130.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 14Q6557x120391;
+        Wed, 26 May 2021 06:06:06 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=subject : to : cc :
+ references : from : message-id : date : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2020-01-29;
+ bh=y0VDe4aUH5uNL3jSPMK/IIH87px7TFQMR+9vmwG1XG8=;
+ b=vjB9r86MeLw3E16Qte2ri+s+eTDcHnOKU+AJV7GzmxxkcxkWJt8qCBed3HGBaOc6z6fV
+ /itEl9i/QkgpN9gN7w/KhDf6n8dtTj83zvYxvTs/somthOQIiCP69xSOFf8/Ul6VFaeV
+ qgSdb0bKMGV8mdGDSR45P2akb7QrBU2DTodgQchtRt+QyvvCpHbLMFLln2evqIkFKPa8
+ zUsFN+vasBPOM2NtcJeoVbjvQ7wBW0Mluyc67hgvCz5SIa/2l5HaZ/4DiOUfQMUV5QQK
+ eNKYgcRRfITdBJk7K2tB5jdgmnyLBIwyLooK8Mpwv7SLI0r3me2M67IPl1BHrIvKyKMg 1A== 
+Received: from aserp3030.oracle.com (aserp3030.oracle.com [141.146.126.71])
+        by aserp2130.oracle.com with ESMTP id 38pqfcfy33-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 26 May 2021 06:06:06 +0000
+Received: from pps.filterd (aserp3030.oracle.com [127.0.0.1])
+        by aserp3030.oracle.com (8.16.0.42/8.16.0.42) with SMTP id 14Q6658A167797;
+        Wed, 26 May 2021 06:06:06 GMT
+Received: from nam04-bn8-obe.outbound.protection.outlook.com (mail-bn8nam08lp2041.outbound.protection.outlook.com [104.47.74.41])
+        by aserp3030.oracle.com with ESMTP id 38pr0cep43-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Wed, 26 May 2021 06:06:05 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=dTT9xSDkypj2h/IyBdaM9flWnlkdoNHsAWHpUbjc0h3DG5upKW62x/2HsxJQSfE8dzfaJekMzoLfWlqHe4UeCz3RC4jJHui99SjJIpLpc7WDO5jrAB8/tJMBQrnmN/8cGF5+eDqGDGenptXg26ZbOtM8xnrYbiXriBCxPd8h+3hlKa+NaBbqMoHCczKDtEpwIEHtF1IHEaFYMhWrfU6ml/8EXQYJSSEZbMXxY7+pc3sOvG8c4GgaiJ53RhQIHhC8yM4lLfdW43QPbzScYCSE9OLH/eHedi7sgK+3zDazK7ftn/JBfmjka/ymWMyH19w88PaSsqgjfBki9hVMpi2Sfg==
+ b=GSGG68fOrMSv85IZuwOfWQaD6APXlt86vd9iXvzHML5s616vYtsPjOFPS4ZK32Sbvr8KaxnzbvHLPUCBuEnMAuPcwS+vaPjx2ck7fvyNwlag4hGuA9L7mGIIiGGOMRCN0JhSDnUs9DK/ciwyg3+WTMyeITimR/XAkStT9bWkV6OlaJ5nUiTnfI0Rk6rISvFmfoJoO+YMiiu+QH7Nwgi89FKO6WOMC0bbggp0TM+jmk47vnH1085JGrwYgFwfEzUMCjp5s4viLU8OwHQQXUKKvo4ACeUQDJZFO7F48iK+DlUB3JrZ3QpVHHb1Y8pXGnk0Ngo0DIwamSM1Ktip1OX6Yw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I97hx2Fqwiso1xlMcv+mbc93j2vuGQX3SWUoHQISzj8=;
- b=ALgXHpR6k40GjZ+3MaKVBv4Kd3D75+a0hU6qL0c7HvHEa2mCbCPPJ7QOd4s31JWDhUHOQlV7fkPYQbrrjy0JcTyhAikG4zDvTDzfM+xxU0o2iN8QPfiF8YOwMORCK423nFym22sfnrebYM6sz8qiK0AtMVyudPy/v20tUgGTKNP3jt1gUvTlqxHkGWLsd5voBVStFmF/TbnDuT2g+PBhXIQNFpqHDrydkdzH0DHqfMRIrtizun/ny37w96BcwXr5DMiao3IEy8nEf1r4/QeuK8YRgmfOq9zwFmsNvMW8gIVmnU2TZKID/ClVzOKhieRHk9NmgDhnk0EYD7EhU3ykhw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 199.43.4.23) smtp.rcpttodomain=linuxfoundation.org smtp.mailfrom=cadence.com;
- dmarc=pass (p=none sp=none pct=100) action=none header.from=cadence.com;
- dkim=none (message not signed); arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cadence.com;
- s=selector2;
+ bh=y0VDe4aUH5uNL3jSPMK/IIH87px7TFQMR+9vmwG1XG8=;
+ b=D8ONr6S8IgE9CqLJzWOzXqsN/INNVMIKATEeJuMCqSjluZbi8qRHpFYuucmBYrQvC7kOlrJiRgXHIsWDlFItH+EerNGiVviWXDqohbKAUOuhVX+uT9lH1022lorOztVn5xwG2ygkqwXOQ5oKuvWbm8hNlJkKib/uLb50ZMcj6vZMZIjtjnqEA7sLHxST2Emgr4BP3jnBusknNjfA52Dm6VLpe3y5mAcT3yQuWfMOO5fa+h0fWSe2iO6cGaUYiIgFXXxsfK/XKxmsRudOWpjZo4DS8NRNMKdbrQB6+KS3uuPxjYE1HGKMQWG74FuR9BECNLqFy0rQKsTArybsrABymg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=I97hx2Fqwiso1xlMcv+mbc93j2vuGQX3SWUoHQISzj8=;
- b=R2J6kEKbYcDC6Q2CQRtzM2pEZhJe006xrlt3SAGOvVbi+y5PObFzGHpaDUkvDdWB1nrfmxGC4N3Xij/g+8HgCQDVnFDSYOhcL5E322y3pRJx1FXhasHHqx/GgK8tHsI/LQgxbcNkxY1g+nNFpXn0szTBa+2ETINHmIAa2TQrZLs=
-Received: from BN6PR1701CA0005.namprd17.prod.outlook.com
- (2603:10b6:405:15::15) by DM5PR07MB3020.namprd07.prod.outlook.com
- (2603:10b6:3:e3::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.25; Wed, 26 May
- 2021 06:05:57 +0000
-Received: from BN8NAM12FT010.eop-nam12.prod.protection.outlook.com
- (2603:10b6:405:15:cafe::41) by BN6PR1701CA0005.outlook.office365.com
- (2603:10b6:405:15::15) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend
- Transport; Wed, 26 May 2021 06:05:57 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 199.43.4.23)
- smtp.mailfrom=cadence.com; linuxfoundation.org; dkim=none (message not
- signed) header.d=none;linuxfoundation.org; dmarc=pass action=none
- header.from=cadence.com;
-Received-SPF: Pass (protection.outlook.com: domain of cadence.com designates
- 199.43.4.23 as permitted sender) receiver=protection.outlook.com;
- client-ip=199.43.4.23; helo=rmmaillnx1.cadence.com;
-Received: from rmmaillnx1.cadence.com (199.43.4.23) by
- BN8NAM12FT010.mail.protection.outlook.com (10.13.182.62) with Microsoft SMTP
- Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.4150.11 via Frontend Transport; Wed, 26 May 2021 06:05:56 +0000
-Received: from maileu3.global.cadence.com (maileu3.cadence.com [10.160.88.99])
-        by rmmaillnx1.cadence.com (8.14.4/8.14.4) with ESMTP id 14Q65tM8024173
-        (version=TLSv1/SSLv3 cipher=AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 26 May 2021 02:05:55 -0400
-X-CrossPremisesHeadersFilteredBySendConnector: maileu3.global.cadence.com
-Received: from maileu3.global.cadence.com (10.160.88.99) by
- maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2; Wed, 26 May 2021 08:05:54 +0200
-Received: from gli-login.cadence.com (10.187.128.100) by
- maileu3.global.cadence.com (10.160.88.99) with Microsoft SMTP Server (TLS) id
- 15.0.1497.2 via Frontend Transport; Wed, 26 May 2021 08:05:53 +0200
-Received: from gli-login.cadence.com (localhost [127.0.0.1])
-        by gli-login.cadence.com (8.14.4/8.14.4) with ESMTP id 14Q65qep008001;
-        Wed, 26 May 2021 08:05:52 +0200
-Received: (from pawell@localhost)
-        by gli-login.cadence.com (8.14.4/8.14.4/Submit) id 14Q65qnT007903;
-        Wed, 26 May 2021 08:05:52 +0200
-From:   Pawel Laszczak <pawell@cadence.com>
-To:     <peter.chen@kernel.org>
-CC:     <gregkh@linuxfoundation.org>, <linux-usb@vger.kernel.org>,
-        <kurahul@cadence.com>, Pawel Laszczak <pawell@cadence.com>,
-        <stable@vger.kernel.org>
-Subject: [PATCH v2] usb: cdnsp: Fix deadlock issue in cdnsp_thread_irq_handler
-Date:   Wed, 26 May 2021 08:05:27 +0200
-Message-ID: <20210526060527.7197-1-pawell@gli-login.cadence.com>
-X-Mailer: git-send-email 2.18.0
+ bh=y0VDe4aUH5uNL3jSPMK/IIH87px7TFQMR+9vmwG1XG8=;
+ b=L9FFFd+Twg6koJ2R8VXj+ocjaFQK+ctRddrjY+KowX09R3E2nxGVIlptxi5R6RSs1MZ8Gq6UfP1x3f1YcuXycrh7rhh7PBxiilN01ThPgMx49njY1dc67vA6NVJY+Usk2WFkHW7Cv3El4gV4RZIPa42HA64tjvxjt6ZlDdseQog=
+Authentication-Results: vger.kernel.org; dkim=none (message not signed)
+ header.d=none;vger.kernel.org; dmarc=none action=none header.from=oracle.com;
+Received: from MN2PR10MB4128.namprd10.prod.outlook.com (2603:10b6:208:1d2::24)
+ by MN2PR10MB3837.namprd10.prod.outlook.com (2603:10b6:208:183::13) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4150.23; Wed, 26 May
+ 2021 06:06:02 +0000
+Received: from MN2PR10MB4128.namprd10.prod.outlook.com
+ ([fe80::992c:4b34:d95:def8]) by MN2PR10MB4128.namprd10.prod.outlook.com
+ ([fe80::992c:4b34:d95:def8%8]) with mapi id 15.20.4173.021; Wed, 26 May 2021
+ 06:06:02 +0000
+Subject: Re: [PATCH 2/9] btrfs: clear defrag status of a root if starting
+ transaction fails
+To:     David Sterba <dsterba@suse.com>, linux-btrfs@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <cover.1621961965.git.dsterba@suse.com>
+ <183259751d20f64fa45dab806b7083923e718ceb.1621961965.git.dsterba@suse.com>
+From:   Anand Jain <anand.jain@oracle.com>
+Message-ID: <00ba646b-ea26-4a52-fb6c-1d617a2cd235@oracle.com>
+Date:   Wed, 26 May 2021 14:05:54 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.2
+In-Reply-To: <183259751d20f64fa45dab806b7083923e718ceb.1621961965.git.dsterba@suse.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [2406:3003:2006:2288:c97e:3e12:797:83c8]
+X-ClientProxiedBy: SG2PR02CA0042.apcprd02.prod.outlook.com
+ (2603:1096:3:18::30) To MN2PR10MB4128.namprd10.prod.outlook.com
+ (2603:10b6:208:1d2::24)
 MIME-Version: 1.0
-Content-Type: text/plain
-X-OrganizationHeadersPreserved: maileu3.global.cadence.com
-X-EOPAttributedMessage: 0
+X-MS-Exchange-MessageSentRepresentingType: 1
+Received: from [IPv6:2406:3003:2006:2288:c97e:3e12:797:83c8] (2406:3003:2006:2288:c97e:3e12:797:83c8) by SG2PR02CA0042.apcprd02.prod.outlook.com (2603:1096:3:18::30) with Microsoft SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.4173.20 via Frontend Transport; Wed, 26 May 2021 06:06:01 +0000
 X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id: 276e8f1e-2db0-4c39-4c14-08d9200c53e9
-X-MS-TrafficTypeDiagnostic: DM5PR07MB3020:
-X-Microsoft-Antispam-PRVS: <DM5PR07MB302068F6C8DABD6602AEB7FBDD249@DM5PR07MB3020.namprd07.prod.outlook.com>
-X-MS-Oob-TLC-OOBClassifiers: OLM:177;
+X-MS-Office365-Filtering-Correlation-Id: 383a791b-3f96-4e54-5ac7-08d9200c572f
+X-MS-TrafficTypeDiagnostic: MN2PR10MB3837:
+X-Microsoft-Antispam-PRVS: <MN2PR10MB3837288BFDFC30DBCFD6BF76E5249@MN2PR10MB3837.namprd10.prod.outlook.com>
+X-MS-Oob-TLC-OOBClassifiers: OLM:4125;
 X-MS-Exchange-SenderADCheck: 1
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: Zr1+i65zkENJWCpOCQR3pToLAdAeRxwC4STOc7hAoZIJ9ajrasw8z7IS2lPkMmMiU4LUUNtajtjgavVF1m/PsPb0UmULzd3On+EUXQCiDusNIkFqnQK53zcua9js8tpBXbSrosGqHSqjMWmgK7OoiLmYlbWVcQvXG/8G9iwWaxuD+PWtsXGLa0KZ1OE4Ji45lMRyJOdXf535/+lcRi9DX08Sq8943wwk1Fn5mQDNyCtdDWA3EKTyCGXZ36NcbAVwyynL9a5G+KRIvH3+q/qS25QxtdkmiUm6IvR+XCc3w1vO2bGp5XQsbbWd4Dpn2UNBl9T4pfVg8XjjzWz/QoVSbRKA6EDRLBPWsy5jZPd0DJ0uCd5rlpmf3TxjdbAfapNfILwXM/fi/DRtxSvFM9VzHc9jttUM1cjq1DER6ZRblAmfrVywhju9HnwwysvJm2BRDYJAlCrv6pZ8PpHwa/8aOfHH0dSjZlB6w0OMKk3r9KV0OWmwsXfQb/8L7UWHfiWkxPxd7bEpOUCIJzBgsMqeVahE1lqB1GpjUUpFvxAx6A7syoVTVlOZwfML7I5K24c9O6z6qwrTJaMXHIVi/QRnSsc+O65R3PAD5K/4tU7Ey78Yh84dVXTilRr/EHBN8tTIyPZVE9ksi+/4UXO+DUEs4FmQDm2e7O0I5uiIYfcAnyVbOwfOyAVXhbQ6WUlBUfL3ntdnXJg3FpPz+3wnQK5CnA==
-X-Forefront-Antispam-Report: CIP:199.43.4.23;CTRY:US;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:rmmaillnx1.cadence.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(4636009)(136003)(39860400002)(396003)(376002)(346002)(36092001)(36840700001)(46966006)(5660300002)(4326008)(186003)(8676002)(6666004)(47076005)(6916009)(356005)(26005)(336012)(316002)(478600001)(42186006)(426003)(70206006)(1076003)(81166007)(70586007)(54906003)(36860700001)(83380400001)(8936002)(82740400003)(2906002)(82310400003)(86362001)(36900700001);DIR:OUT;SFP:1101;
-X-OriginatorOrg: cadence.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2021 06:05:56.8900
+X-Microsoft-Antispam-Message-Info: YXZbxAgTXtIGRCv9mVt+SkzY3I8GQMKsUO2gNo4ZcnN7yL45Jf7y23KABfg8OuWXeoonjjgGcYJgfoOyWQqWbKfE2hs6a/q8BL55Yz7Bk1kO2UMYHckteNzqrjY56oz9pUAJdLCgMvQSu2WGWIY1A4k/x5ohhmkH0Q2T1Z890/MmSSYy5hutXBtGVhFV9SGwAzVtTsMZDNRyVRiYZzih6EuvYbrswgHpiSXUSEyf8fgjXHR2+/GHqcEP+Dne3lCcjBWeJUEJJ+zrwClTszMPUzXDUcdWSPaaxs8ISLB1+W2YZ2xAdyrZKkAEmdpPtG7AHnI11JB+2rIc0CnSk+CzjiOSHUFF8bly7rYKmrnmqmrEsjVq+dPAvuk4JR3ikk5D1kRjnX8pHxwIp+sWp6kZl1O9KZG+qN4DhR6NU4IqE0bQPRf0grnLoNH5YsaboDSAdr54XDeeDuHBz2wny2zqDHaWtEgiv7uiERykucW2HjCcBPO62aiTwpx1/XqcbF+reDfNIRvhf2hrDLb/oMslxYAwe126sjpOdt8DaBRlTaiBDc3UYLdxUGsnBsrRAHqFc88RXls1KKbzIx0+ptD6XdiCb3Qn8tKOfRXBPAJu7RqpsSp8BIKk8xJqiIgOkVzSqBMZV1sE7wgBzjaCEjTAofgPs56PFf2v3lFHNoerpaVGsw4JhQ2n/AZr7X5jKktE
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:MN2PR10MB4128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(346002)(136003)(376002)(366004)(39860400002)(396003)(38100700002)(31686004)(2616005)(83380400001)(66556008)(6486002)(36756003)(8676002)(16526019)(8936002)(4326008)(53546011)(6666004)(478600001)(66476007)(31696002)(2906002)(86362001)(66946007)(5660300002)(44832011)(316002)(186003)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData: =?utf-8?B?UDQrT3FIZGhBaTUydnQ0WlpGa2I0andjaHd3enZISm14VHhTd3B3cTFOejZh?=
+ =?utf-8?B?Uk1jTC9vRHF0ajlzVGducmkxeG5DZTRzelkrQWVveXA4dmpxeVhYbmp0UDA5?=
+ =?utf-8?B?WndBQWp6dTlpMm43bXI3RXNYU1d0SDVpOFB3b2tnVGYwNVNTNFd2Q3YxSS9w?=
+ =?utf-8?B?di9USnZEbU8xTWhjRWFVZ1EzazZCL20zdTZCZTJoQjNyWVVRaHNYK0ZmVjNL?=
+ =?utf-8?B?ZTZHNlVBUmFrUVR0WTJYSGM4RThMaFIrWEx3bkI3RXZvamR5V0dqYzFjSDNZ?=
+ =?utf-8?B?U0JDWE9RaDhKWUp2aUZzTE1tbDNvdUU5SG83NnRzeEJhUER4djM3RlFPdlZl?=
+ =?utf-8?B?UnNQS1RjVmxuYklIQTNST1VUcTVRVkRpOTNmTFZGOHBVNExPRWYwaXBPcWNx?=
+ =?utf-8?B?cnpwUVVBVFdDSE01eUJ6NFlpSFlqcm80d1hxTUI3WkpUU3lUL09GMWVrd3FY?=
+ =?utf-8?B?YXZSTWs0TWlSV21VT0RTdlNVUHQ1YkF3UFlQRDRsM3ZmSno2eno5dmdmNVhF?=
+ =?utf-8?B?cnZsUEw4bkZhNWExTjdOZXdJM1hSQW9IRkNzcFp3UkJJZ3JtNkRkMmJ3T3hL?=
+ =?utf-8?B?R1JqR01HSFM1SXVuWVM1SU9wK2V6STM0Q3FRWW1mbm5MR1lXRXlWSzcwOHpR?=
+ =?utf-8?B?TVNDcE9SY3h3dFh3L1RaQXNxLzVXbVRHZEl4dm9LTkpxOEovQ1R1Zm1XZ1J2?=
+ =?utf-8?B?cXBJUFd5ZnM2QW5JbXh6WEV0RjlrTFJHVDU2OFJHL0ZWa0VmMlFHRVNaMmdQ?=
+ =?utf-8?B?MmY2a2llVlJtbDBXM0dTNUl6QTlZQ0xoS0MrQ3l2L2JwZk1DM2c3OVpvbUFM?=
+ =?utf-8?B?amd4SkltS0hpeEEzTnZZT0NkTGVMNk5KV2t0YU1BVFdjSGI4TzNRcEZtM0gz?=
+ =?utf-8?B?N3I2b1J0ZVFsWmxaR2JSQmx2amdHM05la0l0aXZUdk1oZEIwUFFnOWl5THFh?=
+ =?utf-8?B?KzhsckRSeVB3TkR4YSs2VGtlSUhjdnZMQmZjbHM3WFpLY1MrUjRyRGtFeTdB?=
+ =?utf-8?B?SVlsVFJjMDNLemQ1OEp3L2lRVXQwSlhaWm4xM0Y4dzRoQkZSRXFDdzNRSlUy?=
+ =?utf-8?B?SGtIbjEwSFNRR2c4VzBudWE1bHp4YkVmQUVXTXQya3p1RXI3anlhOXArM1dq?=
+ =?utf-8?B?Um9SdEtCZ3pQWFV2Q0VHUmRpL2t6Yms2NThwTndCZG1Eb05UNTB1aXVkYXhj?=
+ =?utf-8?B?K21JOXdxa2VkQkZ5TFN1Sytrc1lLTDNpQ21MbXRCSTB2cnNXZ3hvdXZqU1Ux?=
+ =?utf-8?B?U0EvSDE3NzczbGJZSUNiM0hUUndkOEhGcUxDdE5FNThWMnduTnp5OCttOXlk?=
+ =?utf-8?B?QysvVVBlYWlpT1MvNFpNZGlQWTVtZlA0MmVjQnVWc0tCaWxoMXNBQTVwdld2?=
+ =?utf-8?B?RUhTME5RVi9qaFBBR054RUpraGx2NDNqRVZvZlZLTDE2RDIrOWVES3R0a1Z0?=
+ =?utf-8?B?bU9FdnRJWG14YXZ0RnhYMGZvUjVzcU9DbjRMZnpjQUdOL0EwTC83amdKRnY3?=
+ =?utf-8?B?bEVNMWdqNEcwNmtPTVI2aVduRTc0aFlMYnU5S05oV1BiSWk5NGRZUzRVQXZI?=
+ =?utf-8?B?anVuaTVuVDdXU3kxRE9SR0xBYWxSVGZaSXNiYVhrRENZU0FiUi9mWGNoR29S?=
+ =?utf-8?B?OUp4UVFJeHZPTFNjWkdYRmp6aTZ4ZmlOMk5MaUYzdkdXN0JIUjB0YWtOL0dN?=
+ =?utf-8?B?dlN1NFNHVG9hYWZJMjJ2NlVsek1JaTJVc2VRV2VOdzI3YkRxdi9NK2RMT0lC?=
+ =?utf-8?B?U3B0dngxd2tVem1iTnpnZEVGNG9LVWVOMk5yRzcyZ3Q2eU4zaUFvaHlFUDRK?=
+ =?utf-8?B?dUJIV1dKRkthU2JDZXhtMTFFTTlSSlVjN3dmaTJRM2tubmthTmMzME5wektL?=
+ =?utf-8?Q?BaEvquitmoCH1?=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 383a791b-3f96-4e54-5ac7-08d9200c572f
+X-MS-Exchange-CrossTenant-AuthSource: MN2PR10MB4128.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 26 May 2021 06:06:02.7338
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 276e8f1e-2db0-4c39-4c14-08d9200c53e9
-X-MS-Exchange-CrossTenant-Id: d36035c5-6ce6-4662-a3dc-e762e61ae4c9
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=d36035c5-6ce6-4662-a3dc-e762e61ae4c9;Ip=[199.43.4.23];Helo=[rmmaillnx1.cadence.com]
-X-MS-Exchange-CrossTenant-AuthSource: BN8NAM12FT010.eop-nam12.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM5PR07MB3020
-X-Proofpoint-GUID: zjSDOdwFtS5cR1kh1EtNRgDau4LoJrdq
-X-Proofpoint-ORIG-GUID: zjSDOdwFtS5cR1kh1EtNRgDau4LoJrdq
-X-Proofpoint-Virus-Version: vendor=fsecure engine=2.50.10434:6.0.391,18.0.761
- definitions=2021-05-26_04:2021-05-25,2021-05-26 signatures=0
-X-Proofpoint-Spam-Details: rule=outbound_check_notspam policy=outbound_check score=0 adultscore=0
- suspectscore=0 phishscore=0 lowpriorityscore=0 clxscore=1015
- impostorscore=0 malwarescore=0 priorityscore=1501 mlxscore=0
- mlxlogscore=739 spamscore=0 bulkscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.12.0-2104190000
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: LJAfZDeP+4OIE77m39JJISFsR8LVwGu/lIqoWYwBLTFuDU2fcZvkVOdchEelFBvgUZcRYD5ZC45TGjhJWTl+TA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB3837
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9995 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxscore=0 bulkscore=0 spamscore=0
+ mlxlogscore=999 malwarescore=0 adultscore=0 phishscore=0 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
+ definitions=main-2105260040
+X-Proofpoint-ORIG-GUID: 6Aqne_xBxLQo_tlb1-XtsJIP1rREc49G
+X-Proofpoint-GUID: 6Aqne_xBxLQo_tlb1-XtsJIP1rREc49G
+X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=9995 signatures=668682
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 spamscore=0 mlxscore=0
+ malwarescore=0 mlxlogscore=999 lowpriorityscore=0 impostorscore=0
+ adultscore=0 phishscore=0 priorityscore=1501 clxscore=1011 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2104190000
  definitions=main-2105260040
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+On 26/05/2021 01:08, David Sterba wrote:
+> The defrag loop processes leaves in batches and starting transaction for
+> each. The whole defragmentation on a given root is protected by a bit
+> but in case the transaction fails, the bit is not cleared
+> 
+> In case the transaction fails the bit would prevent starting
+> defragmentation again, so make sure it's cleared.
+> 
+> CC: stable@vger.kernel.org # 4.4+
+> Signed-off-by: David Sterba <dsterba@suse.com>
 
-Patch fixes the following critical issue caused by deadlock which has been
-detected during testing NCM class:
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
 
-smp: csd: Detected non-responsive CSD lock (#1) on CPU#0
-smp:     csd: CSD lock (#1) unresponsive.
-....
-RIP: 0010:native_queued_spin_lock_slowpath+0x61/0x1d0
-RSP: 0018:ffffbc494011cde0 EFLAGS: 00000002
-RAX: 0000000000000101 RBX: ffff9ee8116b4a68 RCX: 0000000000000000
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffff9ee8116b4658
-RBP: ffffbc494011cde0 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff9ee8116b4670 R11: 0000000000000000 R12: ffff9ee8116b4658
-R13: ffff9ee8116b4670 R14: 0000000000000246 R15: ffff9ee8116b4658
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f7bcc41a830 CR3: 000000007a612003 CR4: 00000000001706e0
-Call Trace:
- <IRQ>
- do_raw_spin_lock+0xc0/0xd0
- _raw_spin_lock_irqsave+0x95/0xa0
- cdnsp_gadget_ep_queue.cold+0x88/0x107 [cdnsp_udc_pci]
- usb_ep_queue+0x35/0x110
- eth_start_xmit+0x220/0x3d0 [u_ether]
- ncm_tx_timeout+0x34/0x40 [usb_f_ncm]
- ? ncm_free_inst+0x50/0x50 [usb_f_ncm]
- __hrtimer_run_queues+0xac/0x440
- hrtimer_run_softirq+0x8c/0xb0
- __do_softirq+0xcf/0x428
- asm_call_irq_on_stack+0x12/0x20
- </IRQ>
- do_softirq_own_stack+0x61/0x70
- irq_exit_rcu+0xc1/0xd0
- sysvec_apic_timer_interrupt+0x52/0xb0
- asm_sysvec_apic_timer_interrupt+0x12/0x20
-RIP: 0010:do_raw_spin_trylock+0x18/0x40
-RSP: 0018:ffffbc494138bda8 EFLAGS: 00000246
-RAX: 0000000000000000 RBX: ffff9ee8116b4658 RCX: 0000000000000000
-RDX: 0000000000000001 RSI: 0000000000000000 RDI: ffff9ee8116b4658
-RBP: ffffbc494138bda8 R08: 0000000000000001 R09: 0000000000000000
-R10: ffff9ee8116b4670 R11: 0000000000000000 R12: ffff9ee8116b4658
-R13: ffff9ee8116b4670 R14: ffff9ee7b5c73d80 R15: ffff9ee8116b4000
- _raw_spin_lock+0x3d/0x70
- ? cdnsp_thread_irq_handler.cold+0x32/0x112c [cdnsp_udc_pci]
- cdnsp_thread_irq_handler.cold+0x32/0x112c [cdnsp_udc_pci]
- ? cdnsp_remove_request+0x1f0/0x1f0 [cdnsp_udc_pci]
- ? cdnsp_thread_irq_handler+0x5/0xa0 [cdnsp_udc_pci]
- ? irq_thread+0xa0/0x1c0
- irq_thread_fn+0x28/0x60
- irq_thread+0x105/0x1c0
- ? __kthread_parkme+0x42/0x90
- ? irq_forced_thread_fn+0x90/0x90
- ? wake_threads_waitq+0x30/0x30
- ? irq_thread_check_affinity+0xe0/0xe0
- kthread+0x12a/0x160
- ? kthread_park+0x90/0x90
- ret_from_fork+0x22/0x30
+Thanks.
 
-The root cause of issue is spin_lock/spin_unlock instruction instead
-spin_lock_irqsave/spin_lock_irqrestore in cdnsp_thread_irq_handler
-function.
-
-Cc: stable@vger.kernel.org
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-
----
-Changelog:
-v2:
-- updated commit message
-
- drivers/usb/cdns3/cdnsp-ring.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/usb/cdns3/cdnsp-ring.c b/drivers/usb/cdns3/cdnsp-ring.c
-index 5f0513c96c04..68972746e363 100644
---- a/drivers/usb/cdns3/cdnsp-ring.c
-+++ b/drivers/usb/cdns3/cdnsp-ring.c
-@@ -1517,13 +1517,14 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
- {
- 	struct cdnsp_device *pdev = (struct cdnsp_device *)data;
- 	union cdnsp_trb *event_ring_deq;
-+	unsigned long flags;
- 	int counter = 0;
- 
--	spin_lock(&pdev->lock);
-+	spin_lock_irqsave(&pdev->lock, flags);
- 
- 	if (pdev->cdnsp_state & (CDNSP_STATE_HALTED | CDNSP_STATE_DYING)) {
- 		cdnsp_died(pdev);
--		spin_unlock(&pdev->lock);
-+		spin_unlock_irqrestore(&pdev->lock, flags);
- 		return IRQ_HANDLED;
- 	}
- 
-@@ -1539,7 +1540,7 @@ irqreturn_t cdnsp_thread_irq_handler(int irq, void *data)
- 
- 	cdnsp_update_erst_dequeue(pdev, event_ring_deq, 1);
- 
--	spin_unlock(&pdev->lock);
-+	spin_unlock_irqrestore(&pdev->lock, flags);
- 
- 	return IRQ_HANDLED;
- }
--- 
-2.25.1
+> ---
+>   fs/btrfs/transaction.c | 6 ++++--
+>   1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/fs/btrfs/transaction.c b/fs/btrfs/transaction.c
+> index e0a82aa7da89..22951621363f 100644
+> --- a/fs/btrfs/transaction.c
+> +++ b/fs/btrfs/transaction.c
+> @@ -1406,8 +1406,10 @@ int btrfs_defrag_root(struct btrfs_root *root)
+>   
+>   	while (1) {
+>   		trans = btrfs_start_transaction(root, 0);
+> -		if (IS_ERR(trans))
+> -			return PTR_ERR(trans);
+> +		if (IS_ERR(trans)) {
+> +			ret = PTR_ERR(trans);
+> +			break;
+> +		}
+>   
+>   		ret = btrfs_defrag_leaves(trans, root);
+>   
+> 
 
