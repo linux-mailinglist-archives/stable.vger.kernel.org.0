@@ -2,120 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1FE0393253
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28FB2393266
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:25:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235114AbhE0PVt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:21:49 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60592 "EHLO
+        id S235888AbhE0P1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:27:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33562 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235017AbhE0PVt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 11:21:49 -0400
+        with ESMTP id S235017AbhE0P1L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 11:27:11 -0400
 Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7900EC061574
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 08:20:15 -0700 (PDT)
-Received: by mail-pf1-x42f.google.com with SMTP id e17so833238pfl.5
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 08:20:15 -0700 (PDT)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE444C061574
+        for <stable@vger.kernel.org>; Thu, 27 May 2021 08:25:38 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id y202so840477pfc.6
+        for <stable@vger.kernel.org>; Thu, 27 May 2021 08:25:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=rFM5mvRySO3O1lZMJCwVNKVNoYmg380uW8LYLVXsPvk=;
-        b=QnLV8iGsF+7is8tXyMMdnqYZKTRpWnGRhsC/n7lUdDNiZWfq0w5RUiVoQwKVSEH/df
-         nCc4BKpfuE2YWjvIbf6jrABcILpL7OCol60tLHGU2xglR3x3/DB+qvlN8x9gnqVdZg+S
-         STN0CutiQHa3nBOIBym6d0oeuiGW1ME6rCfn0RXIpDjY48WvXwgLge4YF+52V5eaEEfG
-         ZiY3WlnST5BwwFE0MYFLpzeT9srJHCXx3h1vtoLTgt/8yZRaVTmvStbbFNpZZXFkzwHV
-         +kVk9xWPGJQH16fiqFKzRNzbru3igO/Z3q2cZLX+lncQ2Gbd0YL8mR0uW8e2HhKYGy5l
-         HklA==
+        d=google.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:content-transfer-encoding:in-reply-to;
+        bh=hWTSzwjfzvK9r78Jc0BKAqGfhQvOyMWlnIJcqhHnqTs=;
+        b=cYd7lPfwcGq0TRoHkfrzvW5Dix41MvESnghpVto3fTkNPGqD6oAy1QzKW/YVGrDaPM
+         i8L9XPIh1GC8gzEN/kxTdWAOdwUnkEL+kml/F8yc2F9PhwgLm05NvG99A04RK/wZcil3
+         ratMVh5vI7NQapvM/ZPvTBOFIuwLhRIh4q3OROHR2izPRLN7TdT9DeprAynvZEeb675h
+         YPGAZ4q/qYW0DYAxJmEKgLbX8vY+pZahMuo5LcLf+/wC6LqJ11wdUDvXPLfXibmr6ikz
+         82T52/vUOryfwG7udNrS2Ygf4VelmIqK1oYuUYcvG1rjqbXkw8y/TPJvj5UHUtudLDOB
+         Yk9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=rFM5mvRySO3O1lZMJCwVNKVNoYmg380uW8LYLVXsPvk=;
-        b=PyAAP/8EUl6Uu8ma0shhywu3UrQrQ8UkIkpJAvtY2SLHUPEX+FUxFrWGZc+q87bWKj
-         uJY1RvJuZKWsiatqndXeN1dZxjVGGyVNP84acg+z/dRA3aosRl2e+Mo+yQNofVB6abRV
-         45c9+WUxH0MZiLlblyPkZTtttA1+CZnBSmfProGLFHvIOSsj1Vntl+cb8YNJd9zyfwGA
-         MPPsIo+I9HK69KmPNGU46CktsTYnHaRQ/EG0T0oFcTyQXNG9qXaa6KlkKXhYALKUqppz
-         TeXQe1ddXAMAj/ome0s8Nt8cdf3Qt2aoD/Jw53ibBDWq3PZ/vPlaIgNDiYGYLWTYyPul
-         T2UQ==
-X-Gm-Message-State: AOAM533qQ841S4fhpADu2ku25Q1sNj+npEC05118xGVx8xFGA+aCBTKj
-        m1AwtwLRJQaecIWuQdudoj70VeGyoK0RLQ==
-X-Google-Smtp-Source: ABdhPJwvSz2auhrtB9Dnx2iDyRYzlpGkbssGTM5kUwdQoXAqMFVH34s+ATVZMPacxxOMQC7AeTKLAw==
-X-Received: by 2002:a63:3d84:: with SMTP id k126mr4135821pga.121.1622128814814;
-        Thu, 27 May 2021 08:20:14 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b7sm1987321pfv.149.2021.05.27.08.20.14
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:content-transfer-encoding
+         :in-reply-to;
+        bh=hWTSzwjfzvK9r78Jc0BKAqGfhQvOyMWlnIJcqhHnqTs=;
+        b=H+OmYJ91Z6yEjoB4+bmTwvxMNhhWYeDRWPjEYtM6legpN3X/63THNwuzT51x4wdp72
+         hUxWzWlZCiipuDJZ3dVPfs3VAWmlcFhzqeiYf8/zSIm4/r7vG4yBikkpEP1pMxND6aXT
+         xuaPqItDg4wNFOlkgN6+pOoeg6nrLd+nUbcoQm2KIau+37OgyPg5xtCBpi8ONyU/GyEs
+         JU+7KjN89h02yaYIe/ydnauI5C1X/QXxmJ6Hv2MFk4toMOXSJOYtkDT+/3niEp6uomW/
+         jxgbMp0YzJVU2YG8gBTR96KEsnl1XwQKLCK/KL6zyrkhsgxvlmSu5X3QZ4rB0Obk037H
+         VWLQ==
+X-Gm-Message-State: AOAM530rESsNkSdTSYSKAclHeEZ0QS9jdSw6/dGYNHc5gf3crl0PXsR0
+        ZMGolIa9anYBtcgn4bgB2XoCJA==
+X-Google-Smtp-Source: ABdhPJyC3Afb91ppmA57gaadCtg0WwcU9xVeUTSm0GT6J185uZPKBl+rLNlyDZ8yyd9y+83mfnwJXw==
+X-Received: by 2002:a63:4145:: with SMTP id o66mr4225300pga.4.1622129138170;
+        Thu, 27 May 2021 08:25:38 -0700 (PDT)
+Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
+        by smtp.gmail.com with ESMTPSA id y66sm2082841pgb.14.2021.05.27.08.25.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 May 2021 08:20:14 -0700 (PDT)
-Message-ID: <60afb8ae.1c69fb81.ec573.6cf0@mx.google.com>
-Date:   Thu, 27 May 2021 08:20:14 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Thu, 27 May 2021 08:25:37 -0700 (PDT)
+Date:   Thu, 27 May 2021 15:25:33 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jack Wang <jack.wang.usish@gmail.com>, wanpengli@tencent.com,
+        tglx@linutronix.de, stable <stable@vger.kernel.org>
+Subject: Re: FAILED: patch "[PATCH] KVM: x86: Defer vtime accounting 'til
+ after IRQ handling" failed to apply to 5.10-stable tree
+Message-ID: <YK+57TTRNIhk6xCh@google.com>
+References: <1621006676203106@kroah.com>
+ <CA+res+S2Jb2_pJFFDRQvizzm2s7yuaKJkqO16WoUT6hM9c0Neg@mail.gmail.com>
+ <YK9jzz3vOMNJdAo1@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.12.7-6-g71f64ab23af6
-X-Kernelci-Branch: queue/5.12
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.12 baseline: 148 runs,
- 1 regressions (v5.12.7-6-g71f64ab23af6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <YK9jzz3vOMNJdAo1@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 148 runs, 1 regressions (v5.12.7-6-g71f64ab2=
-3af6)
+On Thu, May 27, 2021, Greg Kroah-Hartman wrote:
+> On Wed, May 26, 2021 at 08:08:09AM +0200, Jack Wang wrote:
+> > <gregkh@linuxfoundation.org> 于2021年5月14日周五 下午9:32写道：
+> > >
+> > >
+> > > The patch below does not apply to the 5.10-stable tree.
+> > > If someone wants it applied there, or to any other stable or longterm
+> > > tree, then please email the backport, including the original git commit
+> > > id to <stable@vger.kernel.org>.
+> > 
+> > If I first apply 866a6dadbb02 ("context_tracking: Move guest exit
+> > context tracking to separate helpers")
+> > and 88d8220bbf06 ("context_tracking: Move guest exit vtime accounting
+> > to separate helpers")
+> > 
+> > then I can apply this commit cleanly to latest 5.10.y, I suppose it
+> > will work for 5.12.
 
-Regressions Summary
--------------------
+Thanks much!
 
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+> That worked, thanks!  Now queued up.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.7-6-g71f64ab23af6/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.7-6-g71f64ab23af6
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      71f64ab23af61ed1cd2da78156f217839c13caef =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform   | arch  | lab     | compiler | defconfig | regressions
------------+-------+---------+----------+-----------+------------
-imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60af8264cbe30d8b26b3afc7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.7-6=
--g71f64ab23af6/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.7-6=
--g71f64ab23af6/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60af8264cbe30d8b26b3a=
-fc8
-        failing since 1 day (last pass: v5.12.6-124-ga642885de2c1, first fa=
-il: v5.12.6-127-g3e985cc005fd) =
-
- =20
+To not mess up in the future, I assume known dependencies should be tagged
+"Cc: stable...", even if the dependencies aren't technically bug fixes?
+The plan all along was that all three patches would have to be picked up, but
+apparently I thought that would happen automagically.
