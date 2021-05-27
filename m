@@ -2,120 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCEC7392B92
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 12:15:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8E2392BAC
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 12:22:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236061AbhE0KRT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 06:17:19 -0400
-Received: from mx2.suse.de ([195.135.220.15]:43844 "EHLO mx2.suse.de"
+        id S236145AbhE0KYR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 06:24:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51222 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235978AbhE0KRT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 06:17:19 -0400
-X-Virus-Scanned: by amavisd-new at test-mx.suse.de
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1622110544; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=7Tqg2oJdZxR+Sys5kciWyzhmhV8Hhlr9BuDDbot73Yw=;
-        b=ka1Rz5Q2HXdp4QGEFWfv0X0d+KGjYQmq+MZISm65jgJ0iZthoM902leBiSvR/fhMuOSCiH
-        b+H9xuspfgYD2cv9dY1Z7UU4iYjHgErDDufiO4AmLl2xPn418L2f7X28SrSObUo+oKXuc8
-        0WQjucNiM9jgPd5XwKSoTfbqT+9e7Ck=
-Received: from relay2.suse.de (unknown [195.135.221.27])
-        by mx2.suse.de (Postfix) with ESMTP id 68397AAA6;
-        Thu, 27 May 2021 10:15:44 +0000 (UTC)
-Date:   Thu, 27 May 2021 12:15:43 +0200
-From:   Petr Mladek <pmladek@suse.com>
-To:     Oleg Nesterov <oleg@redhat.com>, liumartin@google.com,
-        akpm@linux-foundation.org, Tejun Heo <tj@kernel.org>
-Cc:     bp@suse.de, davidchao@google.com, jenhaochen@google.com,
-        jkosina@suse.cz, josh@joshtriplett.org, mhocko@suse.cz,
-        mingo@redhat.com, mm-commits@vger.kernel.org, nathan@kernel.org,
-        ndesaulniers@google.com, paulmck@linux.vnet.ibm.com,
-        peterz@infradead.org, rostedt@goodmis.org, stable@vger.kernel.org,
-        tglx@linutronix.de, tj@kernel.org, vbabka@suse.cz,
-        linux-kernel@vger.kernel.org
-Subject: Re: +
- kthread-fix-kthread_mod_delayed_work-vs-kthread_cancel_delayed_work_sync-race.patch
- added to -mm tree
-Message-ID: <YK9xTzlNSj83mAne@alley>
-References: <20210520214737.MrGGKbPrJ%akpm@linux-foundation.org>
- <20210521163526.GA17916@redhat.com>
- <YKvBVIJAc8/Qasdu@alley>
- <20210526170604.GC4581@redhat.com>
+        id S236149AbhE0KYN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 06:24:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 656E6613B4;
+        Thu, 27 May 2021 10:22:39 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1622110960;
+        bh=fu41OOBwvVAsIvlj0TmcDCa0Ztt6umjGSj3AvUXq19E=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dtZyddnBMfnZCBlVVCOlltjIv5psuHEuCiNxrNGPtooBYB8VyQjDtydDxwa5KhXql
+         CodqGRLbyM8W4QYHEjK49DwTVj5tI9I+baRDPUuaE/tYYAtduoP9zRHE20MLgS68FI
+         GEQrgK7fKKA0yMSVT0GKZ/kfXa9AHzFonk/wgsWo=
+Date:   Thu, 27 May 2021 12:22:37 +0200
+From:   "gregkh@linuxfoundation.org" <gregkh@linuxfoundation.org>
+To:     "Rantala, Tommi T. (Nokia - FI/Espoo)" <tommi.t.rantala@nokia.com>
+Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "jan.kratochvil@redhat.com" <jan.kratochvil@redhat.com>
+Subject: Re: LTS perf unwind fix
+Message-ID: <YK9y7dd+wsp2OLD/@kroah.com>
+References: <682895f7a145df0a20814001c508688113322854.camel@nokia.com>
+ <YKz2RIcTyD/FCF+a@kroah.com>
+ <45b140543ccb85ab184ed17befca4a9e64661051.camel@nokia.com>
+ <YK9jhtj/hwTKU5+N@kroah.com>
+ <ef44cde0f3493eb9ab2efe951bc03e4e6ccc416b.camel@nokia.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20210526170604.GC4581@redhat.com>
+In-Reply-To: <ef44cde0f3493eb9ab2efe951bc03e4e6ccc416b.camel@nokia.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Added Tejun into CC because of the workqueue API related question
-at the end of the mail.
-
-On Wed 2021-05-26 19:06:06, Oleg Nesterov wrote:
-> On 05/24, Petr Mladek wrote:
-> >
-> > Your patch changes the semantic. The current semantic is the same for
-> > the workqueue's counter-part mod_delayed_work_on().
+On Thu, May 27, 2021 at 10:04:51AM +0000, Rantala, Tommi T. (Nokia - FI/Espoo) wrote:
+> Hi Greg,
 > 
-> OK, I see, thanks. I was confused by the comment.
+> Please apply these two commits to 5.4.y
+> (other LTSes are probably fine too, but I didn't test):
 > 
-> > We should actually keep the "ret" value as is to stay compatible with
-> > workqueue API:
-> >
-> > 	/*
-> > 	 * Canceling could run in parallel from kthread_cancel_delayed_work_sync
-> > 	 * and change work's canceling count as the spinlock is released and regain
-> > 	 * in __kthread_cancel_work so we need to check the count again. Otherwise,
-> > 	 * we might incorrectly queue the dwork and further cause
-> > 	 * cancel_delayed_work_sync thread waiting for flush dwork endlessly.
-> > 	 *
-> > 	 * Keep the ret code. The API primary informs the caller
-> > 	 * whether some pending work has been canceled (not proceed).
-> > 	 */
-> > 	if (work->canceling)
-> > 		goto out;
 > 
-> Agreed, we should keep the "ret" value.
+> commit bf53fc6b5f415cddc7118091cb8fd6a211b2320d
+> Author: Jan Kratochvil <jan.kratochvil@redhat.com>
+> Date:   Fri Dec 4 09:17:02 2020 -0300
+> 
+>     perf unwind: Fix separate debug info files when using elfutils'
+> libdw's unwinder
+> 
+> 
+> commit 4e1481445407b86a483616c4542ffdc810efb680
+> Author: Dave Rigby <d.rigby@me.com>
+> Date:   Thu Feb 18 16:56:54 2021 +0000
+> 
+>     perf unwind: Set userdata for all __report_module() paths
+> 
+>     [...]
+> 
+>     Fixes: bf53fc6b5f41 ("perf unwind: Fix separate debug info files
+> when using elfutils' libdw's unwinder")
+> 
+> 
+> These commits fix some broken backtraces when using the perf tool.
 
-Martin Liu, could you please resend the patch without the "ret =
-false" line? See above.
+Also queued up for the 5.10.y tree as you do not want to move to a newer
+kernel and have a regression.
 
-Andrew, could you please remove this patch from the -mm tree for now?
+thanks,
 
-> but unless I am confused again this doesn't match mod_delayed_work_on()
-> which always returns true if it races with cancel(). Nevermind, I think
-> this doesn't matter.
-
-Good point. I think that it is actually a bug. Most callers ignore
-the return code but there is the following user:
-
-static void addrconf_del_dad_work(struct inet6_ifaddr *ifp)
-{
-	if (cancel_delayed_work(&ifp->dad_work))
-		__in6_ifa_put(ifp);
-}
-static void addrconf_mod_dad_work(struct inet6_ifaddr *ifp,
-				   unsigned long delay)
-{
-	in6_ifa_hold(ifp);
-	if (mod_delayed_work(addrconf_wq, &ifp->dad_work, delay))
-		in6_ifa_put(ifp);
-}
-
-If mod_delayed_work() races with cancel_delayed_work() then both might
-return true and call in6_ifa_put(ifp).
-
-I thought that they were serialized by ifp->lock. But, for example,
-addrconf_dad_start() calls addrconf_mod_dad_work() after releasing
-this lock.
-
-It is possible that they are serialized another way. But I think that
-in principle only the one that really cancelled a pending work
-should return "true".
-
-Tejun, any opinion?  Feel free to ask for more context.
-
-Best Regards,
-Petr
+greg k-h
