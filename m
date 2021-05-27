@@ -2,75 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6737C3928C7
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 09:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 97968392A3C
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 11:05:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235109AbhE0Hnw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 03:43:52 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39586 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235071AbhE0Hnw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 03:43:52 -0400
-Received: from mail-pg1-x543.google.com (mail-pg1-x543.google.com [IPv6:2607:f8b0:4864:20::543])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7D32C061574
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 00:42:19 -0700 (PDT)
-Received: by mail-pg1-x543.google.com with SMTP id m190so3073772pga.2
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 00:42:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:sender:from:date:message-id:subject:to;
-        bh=yLUuWTNGS1KnT8fHdHJgwMCnNQ8uwH9tKJBb7oX0NdM=;
-        b=WPinxkPLTr7vdUugHVre/S/yQRuDhLsfXL6pFS52x2MSud6NRkE6AWR8+yOfsaSz7V
-         7YpWBXhyzKxFaMhmTAf1p1tMsSP0uDjwbTuqPD9mYFGUI9RrHRnb3dtfCWCOXAoy0NlE
-         FGPXTYZx3P2O2EEo+fyAT+tqK45R0JF6S8pCyWOX6SKlq/vhwxOJsJXjhpUuYe1k/ZVy
-         3nlsuQ2DRJrQPL7YbACTL+ajs8VgPnRrlbI33mchk5ki9CT+BZ04kpJFHZlsyPbCe9R7
-         hqPtGf7IFt0MtHo9WZc9O4dJ1GbLCQVq5B6VTBpKz93WWzoKRlMEwXXGULEm4c1UbydE
-         WQtg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:sender:from:date:message-id:subject
-         :to;
-        bh=yLUuWTNGS1KnT8fHdHJgwMCnNQ8uwH9tKJBb7oX0NdM=;
-        b=f5Zlxxtev1QWzQoL1e+yODAm/gZshy8YnRKj0K1nI0ojIQtVrKXhgnarlqyiXXpM4N
-         e4KsD5WEUggbMgEZLRU1vIhLZRcLyCl0E+IpFOcAxmNlFSH5i+c1i8VdRXIcpwQ1WCFb
-         7ikwHMSyg4KvfaXchC1vfiFyWLIJJnJuJNGjg3wJrO1x9MHAoKPk+YtFh/scwqvpSfXe
-         Xy3yuxrsyE6R81dO4ZcTAauXEKN+8zJlNPVAxFP6/ekubuorD+Y1HDkCVOyYwvd9t/L9
-         gXvrILNNggTqo+rdcN7YvP80A7OJ3Jt0geWZOl49Mt5ubhUg+DQM+T82MMGpP50u1q7Q
-         T4Vg==
-X-Gm-Message-State: AOAM531zYgThUBtuH1YCFH3S7u0ijh4eiQALbmm+UoZ4Ka9iDs8PCC2/
-        lpJA9YzDvxm0yaTkp5TcBj2ZUDzHcSmbZi4r+rE=
-X-Google-Smtp-Source: ABdhPJwVXwuAq0LaMiqfZIzhVrxDyWLGvbvp9u2edDQFl6vgXR7V+a1WXEPKaqKp1J5Hu32F095jA3VjoK/lN9Y38oU=
-X-Received: by 2002:a65:6103:: with SMTP id z3mr2484905pgu.61.1622101339224;
- Thu, 27 May 2021 00:42:19 -0700 (PDT)
+        id S235666AbhE0JGu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 05:06:50 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:2498 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235537AbhE0JGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 05:06:49 -0400
+Received: from dggeml757-chm.china.huawei.com (unknown [172.30.72.53])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4FrMK64zXrzYqSk;
+        Thu, 27 May 2021 17:02:34 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggeml757-chm.china.huawei.com (10.1.199.137) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Thu, 27 May 2021 17:05:14 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Thu, 27 May 2021 17:05:14 +0800
+Subject: Re: Linux 4.19.192
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
+        <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
+CC:     <lwn@lwn.net>, <jslaby@suse.cz>
+References: <1622029720223218@kroah.com>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <82d9c37c-6fb5-45dd-00aa-f4da6e917763@huawei.com>
+Date:   Thu, 27 May 2021 17:05:13 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Sender: allentbarry11@gmail.com
-Received: by 2002:a05:6a10:fa8e:0:0:0:0 with HTTP; Thu, 27 May 2021 00:42:18
- -0700 (PDT)
-From:   Alexandra Kelly <alexandrakelly779@gmail.com>
-Date:   Thu, 27 May 2021 08:42:18 +0100
-X-Google-Sender-Auth: bLIPKYiuO6Q6RBoObYFJ_jHUBuA
-Message-ID: <CAOWzjW34OH7FG+nLCq1ZgTeqcyhTH_W6TGNe2VSuZ7yureJ4Vg@mail.gmail.com>
-Subject: Urgent Response
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <1622029720223218@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear friend,
 
-I am contacting you independently of my investigation in
-my bank and no one is informed of this communication. I need your
-urgent assistance in transferring the sum of $5.3 million dollars to
-your private account,that belongs to one of our foreign customers who
-died a longtime with his supposed NEXT OF KIN since July 22, 2003. The
-money has been here in our Bank lying dormant for years now without
-anybody coming for the claim of it.
 
-I want to release the money to you as the relative to our deceased
-customer , the Banking laws here does not allow such money to stay
-more than 18 years, because the money will be recalled to the Bank
-treasury account as unclaimed fund. I am ready to share with you 40%
-for you and 60% will be kept for me, by indicating your interest i
-will send you the full details on how the business will be executed, i
-will be waiting for your urgent response.
+On 2021/5/26 19:48, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 4.19.192 kernel.
+> 
+> All users of the 4.19 kernel series must upgrade.
+> 
+> The updated 4.19.y git tree can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+> and can be browsed at the normal kernel.org git web browser:
+> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 4.19.192,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.19.y
+Version: 4.19.192
+Commit: 6b7b0056defc6eb5c87bbe4690ccda547b2891aa
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8855
+passed: 8855
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8855
+passed: 8855
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
