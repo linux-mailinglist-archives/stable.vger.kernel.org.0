@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CEC15392F50
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 15:17:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DC17392FAC
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 15:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236115AbhE0NTK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 09:19:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39600 "EHLO mail.kernel.org"
+        id S236450AbhE0NaM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 09:30:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43232 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236405AbhE0NTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 09:19:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F2CD0610FC;
-        Thu, 27 May 2021 13:17:33 +0000 (UTC)
+        id S236492AbhE0NaI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 09:30:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBE4561059;
+        Thu, 27 May 2021 13:28:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622121454;
-        bh=cihUyPjDvhM0gn1T9nom34m/rWP3xvq7afy4b2MM0e0=;
+        s=korg; t=1622122111;
+        bh=Z9Wilw2+RP/FewgluEetbKEYHLYZYzd6a7jwEZTwhzE=;
         h=Subject:To:From:Date:From;
-        b=GPjsD9RDe5VZYBXQyt/luFWFNCycFELmUYhQpKLRSFR1ADTioU0fZQa3pLsi0jTwr
-         CLTsk+l9PAS2xvz6zhC29HzKl0LveMJWPCpPz0B+ylzcyAhSFxDMHFxn8enGGDFW2E
-         UZ9iqp7R+A2XAQ9QieChidm3YM/5MYwIx7/P8z9o=
-Subject: patch "mei: request autosuspend after sending rx flow control" added to char-misc-linus
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tomas.winkler@intel.com
+        b=bofgWTiyc8D114P/xtXDiVY4HzDlw3Rgt9u6CMZLE7KzEaZQLeQiYf2WzxT4Oh0MN
+         2auKWUZmg8KwN0Z4mNqJ1JjMXWYnbVQrWxYH7kDPEB0QnwxWRMsYPd7/iZx0LpqsEv
+         GvXv+62nmlTko9yrM2jqKEs7TppdKMpXcLRinCN8=
+Subject: patch "serial: 8250_pci: handle FL_NOIRQ board flag" added to tty-linus
+To:     christian.gmeiner@gmail.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 27 May 2021 15:17:32 +0200
-Message-ID: <162212145259137@kroah.com>
+Date:   Thu, 27 May 2021 15:28:29 +0200
+Message-ID: <162212210933109@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,11 +36,11 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    mei: request autosuspend after sending rx flow control
+    serial: 8250_pci: handle FL_NOIRQ board flag
 
-to my char-misc git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
-in the char-misc-linus branch.
+to my tty git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/tty.git
+in the tty-linus branch.
 
 The patch will show up in the next release of the linux-next tree
 (usually sometime within the next 24 hours during the week.)
@@ -51,38 +51,67 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From bbf0a94744edfeee298e4a9ab6fd694d639a5cdf Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Wed, 26 May 2021 22:33:34 +0300
-Subject: mei: request autosuspend after sending rx flow control
+From 9808f9be31c68af43f6e531f2c851ebb066513fe Mon Sep 17 00:00:00 2001
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
+Date: Thu, 27 May 2021 11:54:40 +0200
+Subject: serial: 8250_pci: handle FL_NOIRQ board flag
 
-A rx flow control waiting in the control queue may block autosuspend.
-Re-request autosuspend after flow control been sent to unblock
-the transition to the low power state.
+In commit 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+the way the irq gets allocated was changed. With that change the
+handling FL_NOIRQ got lost. Restore the old behaviour.
 
+Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
 Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Link: https://lore.kernel.org/r/20210527095529.26281-1-christian.gmeiner@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/interrupt.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/tty/serial/8250/8250_pci.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/misc/mei/interrupt.c b/drivers/misc/mei/interrupt.c
-index a98f6b895af7..aab3ebfa9fc4 100644
---- a/drivers/misc/mei/interrupt.c
-+++ b/drivers/misc/mei/interrupt.c
-@@ -277,6 +277,9 @@ static int mei_cl_irq_read(struct mei_cl *cl, struct mei_cl_cb *cb,
- 		return ret;
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 04fe42469990..780cc99732b6 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3958,21 +3958,26 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
+ 	uart.port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
+ 	uart.port.uartclk = board->base_baud * 16;
+ 
+-	if (pci_match_id(pci_use_msi, dev)) {
+-		dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
+-		pci_set_master(dev);
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++	if (board->flags & FL_NOIRQ) {
++		uart.port.irq = 0;
+ 	} else {
+-		dev_dbg(&dev->dev, "Using legacy interrupts\n");
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
+-	}
+-	if (rc < 0) {
+-		kfree(priv);
+-		priv = ERR_PTR(rc);
+-		goto err_deinit;
++		if (pci_match_id(pci_use_msi, dev)) {
++			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
++			pci_set_master(dev);
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++		} else {
++			dev_dbg(&dev->dev, "Using legacy interrupts\n");
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
++		}
++		if (rc < 0) {
++			kfree(priv);
++			priv = ERR_PTR(rc);
++			goto err_deinit;
++		}
++
++		uart.port.irq = pci_irq_vector(dev, 0);
  	}
  
-+	pm_runtime_mark_last_busy(dev->dev);
-+	pm_request_autosuspend(dev->dev);
-+
- 	list_move_tail(&cb->list, &cl->rd_pending);
+-	uart.port.irq = pci_irq_vector(dev, 0);
+ 	uart.port.dev = &dev->dev;
  
- 	return 0;
+ 	for (i = 0; i < nr_ports; i++) {
 -- 
 2.31.1
 
