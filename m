@@ -2,116 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAD5539321D
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:14:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BBBE393208
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236928AbhE0PPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43936 "EHLO mail.kernel.org"
+        id S236963AbhE0POv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:14:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43438 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237054AbhE0PPK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:15:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E0220613E3;
-        Thu, 27 May 2021 15:13:35 +0000 (UTC)
+        id S236913AbhE0POu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:14:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6589561358;
+        Thu, 27 May 2021 15:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128416;
-        bh=in0s6wBhMbItW1h9rShUvBsfHlVaaxCD+hhijVrXxWk=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cZ5c+chN/Ef6QPKR1MLzaDwhdo1TrVGjTcyLJsGGpDZFjdAPSeS3+DOxQsG7hoRTg
-         zbjFH+w59314oER7qfnEhzlPfH7s0aUpF7Fpg7gp5OxU+fOwt4EIG12YWiJG8wAZaG
-         MQTBsQLXMhcF5vWU2wxyDcn1vs4l1gZQyZr1Ks8A=
+        s=korg; t=1622128396;
+        bh=voo8IFPujFj7Za8oZvDOwliIiWqXv28aaHNHRQc7Eos=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=cp2MU8U9N/VpmpHhl7KzDISO3RJ5ysCuFs5e7gJ+Sjm9TvHycZaxmy3X1CdQk5NCx
+         aZYNvSUe73vahqbVFbPgUdiXQGiKGp3YMrhJyYhoyS1qKQuXMB4jcK6gf6BwcBBDac
+         2v76NzgjfBrL4VYgQEjF3sao9Okpno2BLytTOrC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 5.10 0/9] 5.10.41-rc1 review
-Date:   Thu, 27 May 2021 17:12:52 +0200
-Message-Id: <20210527151139.242182390@linuxfoundation.org>
+        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
+        Piotr Krysiuk <piotras@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.10 1/9] bpf: Wrap aux data inside bpf_sanitize_info container
+Date:   Thu, 27 May 2021 17:12:53 +0200
+Message-Id: <20210527151139.292532346@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
+In-Reply-To: <20210527151139.242182390@linuxfoundation.org>
+References: <20210527151139.242182390@linuxfoundation.org>
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.41-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.41-rc1
-X-KernelTest-Deadline: 2021-05-29T15:11+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.41 release.
-There are 9 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-Responses should be made by Sat, 29 May 2021 15:11:29 +0000.
-Anything received after that time might be too late.
+commit 3d0220f6861d713213b015b582e9f21e5b28d2e0 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.41-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+Add a container structure struct bpf_sanitize_info which holds
+the current aux info, and update call-sites to sanitize_ptr_alu()
+to pass it in. This is needed for passing in additional state
+later on.
 
-thanks,
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ kernel/bpf/verifier.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-greg k-h
-
--------------
-Pseudo-Shortlog of commits:
-
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.41-rc1
-
-Dongliang Mu <mudongliangabcd@gmail.com>
-    NFC: nci: fix memory leak in nci_allocate_device
-
-Dave Rigby <d.rigby@me.com>
-    perf unwind: Set userdata for all __report_module() paths
-
-Jan Kratochvil <jan.kratochvil@redhat.com>
-    perf unwind: Fix separate debug info files when using elfutils' libdw's unwinder
-
-Wanpeng Li <wanpengli@tencent.com>
-    KVM: x86: Defer vtime accounting 'til after IRQ handling
-
-Wanpeng Li <wanpengli@tencent.com>
-    context_tracking: Move guest exit vtime accounting to separate helpers
-
-Wanpeng Li <wanpengli@tencent.com>
-    context_tracking: Move guest exit context tracking to separate helpers
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: No need to simulate speculative domain for immediates
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Fix mask direction swap upon off reg sign change
-
-Daniel Borkmann <daniel@iogearbox.net>
-    bpf: Wrap aux data inside bpf_sanitize_info container
-
-
--------------
-
-Diffstat:
-
- Makefile                         |  4 ++--
- arch/x86/kvm/svm/svm.c           |  6 +++---
- arch/x86/kvm/vmx/vmx.c           |  6 +++---
- arch/x86/kvm/x86.c               |  9 ++++++++
- include/linux/context_tracking.h | 25 ++++++++++++++++++----
- include/net/nfc/nci_core.h       |  1 +
- kernel/bpf/verifier.c            | 46 ++++++++++++++++++++++++----------------
- net/nfc/nci/core.c               |  1 +
- net/nfc/nci/hci.c                |  5 +++++
- tools/perf/util/unwind-libdw.c   | 35 ++++++++++++++++++++++++++----
- 10 files changed, 104 insertions(+), 34 deletions(-)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -5743,15 +5743,19 @@ static bool sanitize_needed(u8 opcode)
+ 	return opcode == BPF_ADD || opcode == BPF_SUB;
+ }
+ 
++struct bpf_sanitize_info {
++	struct bpf_insn_aux_data aux;
++};
++
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+ 			    struct bpf_insn *insn,
+ 			    const struct bpf_reg_state *ptr_reg,
+ 			    const struct bpf_reg_state *off_reg,
+ 			    struct bpf_reg_state *dst_reg,
+-			    struct bpf_insn_aux_data *tmp_aux,
++			    struct bpf_sanitize_info *info,
+ 			    const bool commit_window)
+ {
+-	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
++	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
+ 	struct bpf_verifier_state *vstate = env->cur_state;
+ 	bool off_is_imm = tnum_is_const(off_reg->var_off);
+ 	bool off_is_neg = off_reg->smin_value < 0;
+@@ -5780,8 +5784,8 @@ static int sanitize_ptr_alu(struct bpf_v
+ 		/* In commit phase we narrow the masking window based on
+ 		 * the observed pointer move after the simulated operation.
+ 		 */
+-		alu_state = tmp_aux->alu_state;
+-		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
++		alu_state = info->aux.alu_state;
++		alu_limit = abs(info->aux.alu_limit - alu_limit);
+ 	} else {
+ 		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
+ 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
+@@ -5942,7 +5946,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
+ 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
+ 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
+-	struct bpf_insn_aux_data tmp_aux = {};
++	struct bpf_sanitize_info info = {};
+ 	u8 opcode = BPF_OP(insn->code);
+ 	u32 dst = insn->dst_reg;
+ 	int ret;
+@@ -6011,7 +6015,7 @@ static int adjust_ptr_min_max_vals(struc
+ 
+ 	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
+-				       &tmp_aux, false);
++				       &info, false);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
+ 	}
+@@ -6152,7 +6156,7 @@ static int adjust_ptr_min_max_vals(struc
+ 		return -EACCES;
+ 	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
+-				       &tmp_aux, true);
++				       &info, true);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
+ 	}
 
 
