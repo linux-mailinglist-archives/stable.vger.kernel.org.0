@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 982CB3931F8
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFD3E393207
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236879AbhE0POg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:14:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43094 "EHLO mail.kernel.org"
+        id S236958AbhE0POu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:14:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236885AbhE0POe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:14:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CA59613AA;
-        Thu, 27 May 2021 15:13:00 +0000 (UTC)
+        id S236928AbhE0POs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:14:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A19A660724;
+        Thu, 27 May 2021 15:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128380;
-        bh=rTUUvF7C+5eqi7RLIsHnuscfECV4eFNPhA1hcwbrQZ8=;
+        s=korg; t=1622128394;
+        bh=ViOOawHrnfl+PiIZ029e3HBJHv1vJ9NG6iGD30OfETg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QxKjNOl4dygtczq2U0OGpqI0P4gQYqUilBlvJS/nLt+feCa8A//foAtcqAMEpq9jv
-         u74eD1t7JykCPy36CNVpw7riCHg49j1LhGlPWKL5hf/WMyUQzOgmS2h2uUDzmKArPm
-         km2GEiUSyf3H/QCzAcfrNljHL+BoPXHTTotLQ4W4=
+        b=1rM4DWWaHSPNvB3+04lbgj1TTntpgtyaNl/ZevCXsyViNmbiDMNrZCa+yRVxxp2Wu
+         mzc3hFC7RRQ95GA0dm8+ooAQuz95gF0Rncmfr2lCyEWdWSzGkgYdJvP0sJYOHFZ+0k
+         vaCR5A/lN8/moAUKzkRROoWx/iWT6fByzFofAWIs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Piotr Krysiuk <piotras@gmail.com>,
+        stable@vger.kernel.org, Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 1/7] bpf: Wrap aux data inside bpf_sanitize_info container
-Date:   Thu, 27 May 2021 17:12:43 +0200
-Message-Id: <20210527151139.271634716@linuxfoundation.org>
+Subject: [PATCH 5.4 2/7] bpf: Fix mask direction swap upon off reg sign change
+Date:   Thu, 27 May 2021 17:12:44 +0200
+Message-Id: <20210527151139.302053105@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210527151139.224619013@linuxfoundation.org>
 References: <20210527151139.224619013@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -44,82 +42,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 3d0220f6861d713213b015b582e9f21e5b28d2e0 upstream.
+commit bb01a1bba579b4b1c5566af24d95f1767859771e upstream.
 
-Add a container structure struct bpf_sanitize_info which holds
-the current aux info, and update call-sites to sanitize_ptr_alu()
-to pass it in. This is needed for passing in additional state
-later on.
+Masking direction as indicated via mask_to_left is considered to be
+calculated once and then used to derive pointer limits. Thus, this
+needs to be placed into bpf_sanitize_info instead so we can pass it
+to sanitize_ptr_alu() call after the pointer move. Piotr noticed a
+corner case where the off reg causes masking direction change which
+then results in an incorrect final aux->alu_limit.
 
+Fixes: 7fedb63a8307 ("bpf: Tighten speculative pointer arithmetic mask")
+Reported-by: Piotr Krysiuk <piotras@gmail.com>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
 Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ kernel/bpf/verifier.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -4349,15 +4349,19 @@ static bool sanitize_needed(u8 opcode)
- 	return opcode == BPF_ADD || opcode == BPF_SUB;
- }
+@@ -4272,18 +4272,10 @@ enum {
+ };
  
-+struct bpf_sanitize_info {
-+	struct bpf_insn_aux_data aux;
-+};
-+
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
- 			    const struct bpf_reg_state *off_reg,
- 			    struct bpf_reg_state *dst_reg,
--			    struct bpf_insn_aux_data *tmp_aux,
-+			    struct bpf_sanitize_info *info,
- 			    const bool commit_window)
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+-			      const struct bpf_reg_state *off_reg,
+-			      u32 *alu_limit, u8 opcode)
++			      u32 *alu_limit, bool mask_to_left)
  {
--	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
-+	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
- 	struct bpf_verifier_state *vstate = env->cur_state;
- 	bool off_is_imm = tnum_is_const(off_reg->var_off);
- 	bool off_is_neg = off_reg->smin_value < 0;
-@@ -4386,8 +4390,8 @@ static int sanitize_ptr_alu(struct bpf_v
- 		/* In commit phase we narrow the masking window based on
- 		 * the observed pointer move after the simulated operation.
- 		 */
--		alu_state = tmp_aux->alu_state;
--		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
-+		alu_state = info->aux.alu_state;
-+		alu_limit = abs(info->aux.alu_limit - alu_limit);
- 	} else {
- 		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
- 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
-@@ -4517,7 +4521,7 @@ static int adjust_ptr_min_max_vals(struc
- 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
- 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
- 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
--	struct bpf_insn_aux_data tmp_aux = {};
-+	struct bpf_sanitize_info info = {};
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 dst = insn->dst_reg;
- 	int ret;
-@@ -4578,7 +4582,7 @@ static int adjust_ptr_min_max_vals(struc
+-	bool off_is_neg = off_reg->smin_value < 0;
+-	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+-			    (opcode == BPF_SUB && !off_is_neg);
+ 	u32 max = 0, ptr_limit = 0;
  
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
--				       &tmp_aux, false);
-+				       &info, false);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
- 	}
-@@ -4719,7 +4723,7 @@ static int adjust_ptr_min_max_vals(struc
- 		return -EACCES;
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
--				       &tmp_aux, true);
-+				       &info, true);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
- 	}
+-	if (!tnum_is_const(off_reg->var_off) &&
+-	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
+-		return REASON_BOUNDS;
+-
+ 	switch (ptr_reg->type) {
+ 	case PTR_TO_STACK:
+ 		/* Offset 0 is out-of-bounds, but acceptable start for the
+@@ -4351,6 +4343,7 @@ static bool sanitize_needed(u8 opcode)
+ 
+ struct bpf_sanitize_info {
+ 	struct bpf_insn_aux_data aux;
++	bool mask_to_left;
+ };
+ 
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+@@ -4382,7 +4375,16 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	if (vstate->speculative)
+ 		goto do_sim;
+ 
+-	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
++	if (!commit_window) {
++		if (!tnum_is_const(off_reg->var_off) &&
++		    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
++			return REASON_BOUNDS;
++
++		info->mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
++				     (opcode == BPF_SUB && !off_is_neg);
++	}
++
++	err = retrieve_ptr_limit(ptr_reg, &alu_limit, info->mask_to_left);
+ 	if (err < 0)
+ 		return err;
+ 
 
 
