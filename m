@@ -2,64 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 15DAD392AEE
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 11:38:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2CE392B27
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 11:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235850AbhE0JkS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 05:40:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40584 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235675AbhE0JkR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 05:40:17 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        id S235809AbhE0JxV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 05:53:21 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49503 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S235724AbhE0JxV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 05:53:21 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622109108;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=u9Cxtk2CGDavcxRvdG5xqMXG/D6DQ86Gj3Jra0Du2iA=;
+        b=JoscmxOsBQCWDPPaE0kZojQUtPyZR6xxmzZUk63GuyX+vEznZhfvRVp6cD0VGRDMS0e7gE
+        AMYwxDUHjjggEGNhrasB+oJQbMHIs77MHwqhqwna8HfDH+BogHfZ86JZsF363DGSGXZokY
+        LCaZvPIq8XOFkxb9x6geIDOKKkt2vN4=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-276-H_O0Ks53PH6uw7WYjNETzA-1; Thu, 27 May 2021 05:51:46 -0400
+X-MC-Unique: H_O0Ks53PH6uw7WYjNETzA-1
+Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 2E4BD613E6;
-        Thu, 27 May 2021 09:38:45 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=hot-poop.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1lmCTT-003uZK-7Z; Thu, 27 May 2021 10:38:43 +0100
-From:   Marc Zyngier <maz@kernel.org>
-To:     kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org,
-        Marc Zyngier <maz@kernel.org>
-Cc:     kernel-team@android.com, stable@vger.kernel.org,
-        Steven Price <steven.price@arm.com>
-Subject: Re: [PATCH v2] KVM: arm64: Prevent mixed-width VM creation
-Date:   Thu, 27 May 2021 10:38:37 +0100
-Message-Id: <162210830475.2571522.12133742975467988953.b4-ty@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210524170752.1549797-1-maz@kernel.org>
-References: <20210524170752.1549797-1-maz@kernel.org>
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 28388101371B;
+        Thu, 27 May 2021 09:51:45 +0000 (UTC)
+Received: from dresden.str.redhat.com (ovpn-114-232.ams2.redhat.com [10.36.114.232])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 873B3687D7;
+        Thu, 27 May 2021 09:51:39 +0000 (UTC)
+Subject: Re: [Virtio-fs] [PATCH 1/4] fuse: Fix crash in
+ fuse_dentry_automount() error path
+To:     Greg Kurz <groug@kaod.org>, Miklos Szeredi <miklos@szeredi.hu>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org,
+        Vivek Goyal <vgoyal@redhat.com>
+References: <20210525150230.157586-1-groug@kaod.org>
+ <20210525150230.157586-2-groug@kaod.org>
+From:   Max Reitz <mreitz@redhat.com>
+Message-ID: <cef80ba1-b0c1-a8bd-387a-9c7d2730a766@redhat.com>
+Date:   Thu, 27 May 2021 11:51:37 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: kvmarm@lists.cs.columbia.edu, linux-arm-kernel@lists.infradead.org, maz@kernel.org, kernel-team@android.com, stable@vger.kernel.org, steven.price@arm.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+In-Reply-To: <20210525150230.157586-2-groug@kaod.org>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 24 May 2021 18:07:52 +0100, Marc Zyngier wrote:
-> It looks like we have tolerated creating mixed-width VMs since...
-> forever. However, that was never the intention, and we'd rather
-> not have to support that pointless complexity.
+On 25.05.21 17:02, Greg Kurz wrote:
+> If fuse_fill_super_submount() returns an error, the error path
+> triggers a crash:
 > 
-> Forbid such a setup by making sure all the vcpus have the same
-> register width.
+> [   26.206673] BUG: kernel NULL pointer dereference, address: 0000000000000000
+> [...]
+> [   26.226362] RIP: 0010:__list_del_entry_valid+0x25/0x90
+> [...]
+> [   26.247938] Call Trace:
+> [   26.248300]  fuse_mount_remove+0x2c/0x70 [fuse]
+> [   26.248892]  virtio_kill_sb+0x22/0x160 [virtiofs]
+> [   26.249487]  deactivate_locked_super+0x36/0xa0
+> [   26.250077]  fuse_dentry_automount+0x178/0x1a0 [fuse]
+> 
+> The crash happens because fuse_mount_remove() assumes that the FUSE
+> mount was already added to list under the FUSE connection, but this
+> only done after fuse_fill_super_submount() has returned success.
+> 
+> This means that until fuse_fill_super_submount() has returned success,
+> the FUSE mount isn't actually owned by the superblock. We should thus
+> reclaim ownership by clearing sb->s_fs_info, which will skip the call
+> to fuse_mount_remove(), and perform rollback, like virtio_fs_get_tree()
+> already does for the root sb.
+> 
+> Fixes: bf109c64040f ("fuse: implement crossmounts")
+> Cc: mreitz@redhat.com
+> Cc: stable@vger.kernel.org # v5.10+
+> Signed-off-by: Greg Kurz <groug@kaod.org>
+> ---
+>   fs/fuse/dir.c | 6 +++++-
+>   1 file changed, 5 insertions(+), 1 deletion(-)
 
-Applied to fixes, thanks!
-
-[1/1] KVM: arm64: Prevent mixed-width VM creation
-      commit: 66e94d5cafd4decd4f92d16a022ea587d7f4094f
-
-Cheers,
-
-	M.
--- 
-Without deviation from the norm, progress is not possible.
-
+Reviewed-by: Max Reitz <mreitz@redhat.com>
 
