@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F2C3439322F
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:14:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B41D1393231
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:14:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237175AbhE0PQB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:16:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44260 "EHLO mail.kernel.org"
+        id S237145AbhE0PQF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:16:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44318 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237098AbhE0PPX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:15:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15DF2613C3;
-        Thu, 27 May 2021 15:13:48 +0000 (UTC)
+        id S237103AbhE0PPY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:15:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 449B0613D8;
+        Thu, 27 May 2021 15:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128429;
-        bh=Vy6Ay5huBFbu3BsnKhjEQJUVr1drvFyUZJiC8Kzri3E=;
+        s=korg; t=1622128431;
+        bh=TR9vGiWJQI7ifGZDSg2mVN/XhyP3rPp0dNlLw1qTPME=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o9qqhFIIdLWCSF6HauAXfEpwMLQeO672UJMvC+ooE+UBskdCRJDBB1z7Q2XN90Xus
-         0piNlJh2JleQ69hZ7OMk15fAKkt1i/0Yzox74n2Jcb7NWKIaUT1beujFw7ZHNjQRnC
-         6MJSDi7yUUWFpqxe1LSoAZMp9I+BW6e/3xsR5Tyk=
+        b=hj1uHVsf4ddCvaNlmfewoNqQirrUdSOSAb6GbpIZhD0A6Mc63e/5E/wqCmjP/mxEy
+         6MiuERoaw3+wOw0sL+4hZbK2DvM1V8v17WOmbDgmXNx2d7iW+lSgzHyeiXk2mKHbQQ
+         LcZMb1DDPKDqcmGfPqRjJoPoC9ZBaYSU0r1h2Mso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Wanpeng Li <wanpengli@tencent.com>,
-        Sean Christopherson <seanjc@google.com>
-Subject: [PATCH 5.12 6/7] KVM: x86: Defer vtime accounting til after IRQ handling
-Date:   Thu, 27 May 2021 17:13:07 +0200
-Message-Id: <20210527151139.442692176@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 7/7] NFC: nci: fix memory leak in nci_allocate_device
+Date:   Thu, 27 May 2021 17:13:08 +0200
+Message-Id: <20210527151139.479147283@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210527151139.241267495@linuxfoundation.org>
 References: <20210527151139.241267495@linuxfoundation.org>
@@ -40,96 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wanpeng Li <wanpengli@tencent.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 160457140187c5fb127b844e5a85f87f00a01b14 upstream.
+commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
 
-Defer the call to account guest time until after servicing any IRQ(s)
-that happened in the guest or immediately after VM-Exit.  Tick-based
-accounting of vCPU time relies on PF_VCPU being set when the tick IRQ
-handler runs, and IRQs are blocked throughout the main sequence of
-vcpu_enter_guest(), including the call into vendor code to actually
-enter and exit the guest.
+nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
+Fix this by freeing hci_dev in nci_free_device.
 
-This fixes a bug where reported guest time remains '0', even when
-running an infinite loop in the guest:
+BUG: memory leak
+unreferenced object 0xffff888111ea6800 (size 1024):
+  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
+    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
+    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
+    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
+    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
+    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
+    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
+    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
+    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
+    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
+    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
 
-  https://bugzilla.kernel.org/show_bug.cgi?id=209831
-
-Fixes: 87fa7f3e98a131 ("x86/kvm: Move context tracking where it belongs")
-Suggested-by: Thomas Gleixner <tglx@linutronix.de>
-Co-developed-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210505002735.1684165-4-seanjc@google.com
+Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm/svm.c |    6 +++---
- arch/x86/kvm/vmx/vmx.c |    6 +++---
- arch/x86/kvm/x86.c     |    9 +++++++++
- 3 files changed, 15 insertions(+), 6 deletions(-)
+ include/net/nfc/nci_core.h |    1 +
+ net/nfc/nci/core.c         |    1 +
+ net/nfc/nci/hci.c          |    5 +++++
+ 3 files changed, 7 insertions(+)
 
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3815,15 +3815,15 @@ static noinstr void svm_vcpu_enter_exit(
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -298,6 +298,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
+ 		      struct sk_buff **resp);
  
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6701,15 +6701,15 @@ static noinstr void vmx_vcpu_enter_exit(
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
+ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
++void nci_hci_deallocate(struct nci_dev *ndev);
+ int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
+ 		       const u8 *param, size_t param_len);
+ int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -1191,6 +1191,7 @@ EXPORT_SYMBOL(nci_allocate_device);
+ void nci_free_device(struct nci_dev *ndev)
+ {
+ 	nfc_free_device(ndev->nfc_dev);
++	nci_hci_deallocate(ndev);
+ 	kfree(ndev);
+ }
+ EXPORT_SYMBOL(nci_free_device);
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -792,3 +792,8 @@ struct nci_hci_dev *nci_hci_allocate(str
  
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9236,6 +9236,15 @@ static int vcpu_enter_guest(struct kvm_v
- 	local_irq_disable();
- 	kvm_after_interrupt(vcpu);
- 
-+	/*
-+	 * Wait until after servicing IRQs to account guest time so that any
-+	 * ticks that occurred while running the guest are properly accounted
-+	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
-+	 * of accounting via context tracking, but the loss of accuracy is
-+	 * acceptable for all known use cases.
-+	 */
-+	vtime_account_guest_exit();
+ 	return hdev;
+ }
 +
- 	if (lapic_in_kernel(vcpu)) {
- 		s64 delta = vcpu->arch.apic->lapic_timer.advance_expire_delta;
- 		if (delta != S64_MIN) {
++void nci_hci_deallocate(struct nci_dev *ndev)
++{
++	kfree(ndev->hci_dev);
++}
 
 
