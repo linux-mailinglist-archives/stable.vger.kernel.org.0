@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35DDB3931FD
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D91E33931FC
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236900AbhE0POo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S236909AbhE0POo (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 27 May 2021 11:14:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43196 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:43264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236902AbhE0POk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:14:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FC9C60724;
-        Thu, 27 May 2021 15:13:06 +0000 (UTC)
+        id S236878AbhE0POn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 41CE7613BF;
+        Thu, 27 May 2021 15:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128387;
-        bh=P4cHp4mjoWKDoBbgpH4pQLwRbAbw8CpoL9g8GbHVnSs=;
+        s=korg; t=1622128389;
+        bh=3yNOj5++PHfWawBsKTMH8sT6z9qB4FaUjWSAGNh9MhI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QkVmHVQq1/Y+blIlzD72nkS/I0OO7I0JNy5ASp3vqkIb5cb3AU2Xcge/t0SGWGUZt
-         SrFsfwLMFf4Kusppv5RoU49KuEIc2b7qsGP90+bggowwcspw1/2zVVCLrdIGXPXuET
-         TboSydx+l65sX8vrC7tW9uDEjIvlIGxfbsXiTC+g=
+        b=cGbPbrDH/Ol2Zygc/CGe5j8/Wvad/tSDSQESzIenOIPWT2w4+4nK7aL+ZnJJDBxbC
+         mtrzdxOGjI9WhqpymJatASWVOgpq44C49gaCp0DrPEjFZQi37wp8MZTwrPPX9zB+Vc
+         8mJZHqWrin6fvkQWFs4cj5mGFg0tyun3snanemAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Kratochvil <jan.kratochvil@redhat.com>,
+        stable@vger.kernel.org, Dave Rigby <d.rigby@me.com>,
+        Jan Kratochvil <jan.kratochvil@redhat.com>,
         Jiri Olsa <jolsa@redhat.com>,
-        Adrian Hunter <adrian.hunter@intel.com>,
-        David Ahern <dsahern@gmail.com>,
-        Ian Rogers <irogers@google.com>,
-        Namhyung Kim <namhyung@kernel.org>,
         Arnaldo Carvalho de Melo <acme@redhat.com>,
         "Tommi Rantala" <tommi.t.rantala@nokia.com>
-Subject: [PATCH 5.4 5/7] perf unwind: Fix separate debug info files when using elfutils libdws unwinder
-Date:   Thu, 27 May 2021 17:12:47 +0200
-Message-Id: <20210527151139.394008531@linuxfoundation.org>
+Subject: [PATCH 5.4 6/7] perf unwind: Set userdata for all __report_module() paths
+Date:   Thu, 27 May 2021 17:12:48 +0200
+Message-Id: <20210527151139.422851630@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210527151139.224619013@linuxfoundation.org>
 References: <20210527151139.224619013@linuxfoundation.org>
@@ -45,86 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kratochvil <jan.kratochvil@redhat.com>
+From: Dave Rigby <d.rigby@me.com>
 
-commit bf53fc6b5f415cddc7118091cb8fd6a211b2320d upstream.
+commit 4e1481445407b86a483616c4542ffdc810efb680 upstream.
 
-elfutils needs to be provided main binary and separate debug info file
-respectively. Providing separate debug info file instead of the main
-binary is not sufficient.
+When locating the DWARF module for a given address, __find_debuginfo()
+requires a 'struct dso' passed via the userdata argument.
 
-One needs to try both supplied filename and its possible cache by its
-build-id depending on the use case.
+However, this field is only set in __report_module() if the module is
+found in via dwfl_addrmodule(), not if it is found later via
+dwfl_report_elf().
 
-Signed-off-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Tested-by: Jiri Olsa <jolsa@redhat.com>
-Cc: Adrian Hunter <adrian.hunter@intel.com>
-Cc: David Ahern <dsahern@gmail.com>
-Cc: Ian Rogers <irogers@google.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
+Set userdata irrespective of how the DWARF module was found, as long as
+we found a module.
+
+Fixes: bf53fc6b5f41 ("perf unwind: Fix separate debug info files when using elfutils' libdw's unwinder")
+Signed-off-by: Dave Rigby <d.rigby@me.com>
+Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211801
+Acked-by: Jan Kratochvil <jan.kratochvil@redhat.com>
+Acked-by: Jiri Olsa <jolsa@redhat.com>
+Link: https://lore.kernel.org/linux-perf-users/20210218165654.36604-1-d.rigby@me.com/
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Cc: "Tommi Rantala" <tommi.t.rantala@nokia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/unwind-libdw.c |   32 +++++++++++++++++++++++++++-----
- 1 file changed, 27 insertions(+), 5 deletions(-)
+ tools/perf/util/unwind-libdw.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
 --- a/tools/perf/util/unwind-libdw.c
 +++ b/tools/perf/util/unwind-libdw.c
-@@ -20,10 +20,24 @@
- 
- static char *debuginfo_path;
- 
-+static int __find_debuginfo(Dwfl_Module *mod __maybe_unused, void **userdata,
-+			    const char *modname __maybe_unused, Dwarf_Addr base __maybe_unused,
-+			    const char *file_name, const char *debuglink_file __maybe_unused,
-+			    GElf_Word debuglink_crc __maybe_unused, char **debuginfo_file_name)
-+{
-+	const struct dso *dso = *userdata;
-+
-+	assert(dso);
-+	if (dso->symsrc_filename && strcmp (file_name, dso->symsrc_filename))
-+		*debuginfo_file_name = strdup(dso->symsrc_filename);
-+	return -1;
-+}
-+
- static const Dwfl_Callbacks offline_callbacks = {
--	.find_debuginfo		= dwfl_standard_find_debuginfo,
-+	.find_debuginfo		= __find_debuginfo,
- 	.debuginfo_path		= &debuginfo_path,
- 	.section_address	= dwfl_offline_section_address,
-+	// .find_elf is not set as we use dwfl_report_elf() instead.
- };
- 
- static int __report_module(struct addr_location *al, u64 ip,
-@@ -46,16 +60,24 @@ static int __report_module(struct addr_l
+@@ -60,10 +60,8 @@ static int __report_module(struct addr_l
  	mod = dwfl_addrmodule(ui->dwfl, ip);
  	if (mod) {
  		Dwarf_Addr s;
-+		void **userdatap;
+-		void **userdatap;
  
--		dwfl_module_info(mod, NULL, &s, NULL, NULL, NULL, NULL, NULL);
-+		dwfl_module_info(mod, &userdatap, &s, NULL, NULL, NULL, NULL, NULL);
-+		*userdatap = dso;
+-		dwfl_module_info(mod, &userdatap, &s, NULL, NULL, NULL, NULL, NULL);
+-		*userdatap = dso;
++		dwfl_module_info(mod, NULL, &s, NULL, NULL, NULL, NULL, NULL);
  		if (s != al->map->start - al->map->pgoff)
  			mod = 0;
  	}
+@@ -79,6 +77,13 @@ static int __report_module(struct addr_l
+ 					      al->map->start - al->map->pgoff, false);
+ 	}
  
- 	if (!mod)
--		mod = dwfl_report_elf(ui->dwfl, dso->short_name,
--				      (dso->symsrc_filename ? dso->symsrc_filename : dso->long_name), -1, al->map->start - al->map->pgoff,
--				      false);
-+		mod = dwfl_report_elf(ui->dwfl, dso->short_name, dso->long_name, -1,
-+				      al->map->start - al->map->pgoff, false);
-+	if (!mod) {
-+		char filename[PATH_MAX];
++	if (mod) {
++		void **userdatap;
 +
-+		if (dso__build_id_filename(dso, filename, sizeof(filename), false))
-+			mod = dwfl_report_elf(ui->dwfl, dso->short_name, filename, -1,
-+					      al->map->start - al->map->pgoff, false);
++		dwfl_module_info(mod, &userdatap, NULL, NULL, NULL, NULL, NULL, NULL);
++		*userdatap = dso;
 +	}
- 
++
  	return mod && dwfl_addrmodule(ui->dwfl, ip) == mod ? 0 : -1;
  }
+ 
 
 
