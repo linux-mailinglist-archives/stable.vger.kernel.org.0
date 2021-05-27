@@ -2,90 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A2AD3938B2
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 00:28:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E88D3938DA
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 00:58:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234391AbhE0WaN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 18:30:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233848AbhE0WaM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 18:30:12 -0400
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42538C061574;
-        Thu, 27 May 2021 15:28:38 -0700 (PDT)
-Received: by mail-pj1-x102a.google.com with SMTP id ep16-20020a17090ae650b029015d00f578a8so1348415pjb.2;
-        Thu, 27 May 2021 15:28:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=WZv67PcQASMRPC3zYPpa0x61J6yRtgH6SH+gS6OFGJg=;
-        b=ksHshNVcH908wYnIOm5PkZkUQyH6u42i70piZvaefxdKwleGWI8JLx6OHO2tXRnLVj
-         Plr+0wcMUAaWa70gC0G2IyEWSgUO78bD620TJYuKQb49gEGnXHvNnvdOtdpSGManrbH/
-         jx+ConpSAQ+Rflpa0alZQ85BX6QRQyQBd0mR+zmTj8MANZVei2v+//bs5Ci2UzjAxx6t
-         BmGvBQsldG6cb5vJE0sOZ0FhNfKK9M8z4UWkyFBieBIWuknf3U+7XLG97AXksrO3lNox
-         YX8usXDlx7FDRI+fnq5o9QSDLT0wi0mkhqk0gw93ppqeujAgiTUyZ57Yah1FTF7tceYm
-         6ZUw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=WZv67PcQASMRPC3zYPpa0x61J6yRtgH6SH+gS6OFGJg=;
-        b=By640MziOdje2q+n3f+fzwBlkYrGEUM6ueOLLdgI3iykP3qYH5+gAe2XStZHtp4MZg
-         48Y4y+pW07fIKTe/sLVLodFSWJy3dnqMP8N5rG3sWvH1dU7buQA6LMnSxxFeU/RQuoW4
-         Nt2ttSga4hMhheGLO1L0O72IhENpJKnKqC8Y6eNp7iXQPkmNOxxNRrw6C6XpfXdhwbh8
-         9oS581QEN1ebThkRrB5Yx5XY2/WIKT2fF9bZlT8k0P1AS4oghVEakBqoDreY+eXJIIu9
-         XyvTv/tC+VCYR3x1iup+u/6FATVjgMKEOAFPOl06ozJ60AefsNP0WOZel17XJf73N9WA
-         P8DQ==
-X-Gm-Message-State: AOAM5321Fifs2wbF5WsJB4fmgUYpDHyNvgGubLMCNw/ILouEwvWzNear
-        GipDLq5SGS63fe6y4I80Tvv9Cb/FQtJWnf1c6dxVFQ==
-X-Google-Smtp-Source: ABdhPJyI3X6zEYmNHlWkicXSEGNEDyUICcM8BIXkyZqV6+KHaok071hsBNBwtp+bugASQmJncZftEw==
-X-Received: by 2002:a17:90b:350a:: with SMTP id ls10mr714574pjb.181.1622154517315;
-        Thu, 27 May 2021 15:28:37 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id f17sm2669636pgm.37.2021.05.27.15.28.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 May 2021 15:28:36 -0700 (PDT)
-Message-ID: <60b01d14.1c69fb81.b1e96.974f@mx.google.com>
-Date:   Thu, 27 May 2021 15:28:36 -0700 (PDT)
-X-Google-Original-Date: Thu, 27 May 2021 22:28:34 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210527151139.241267495@linuxfoundation.org>
-Subject: RE: [PATCH 5.12 0/7] 5.12.8-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S236420AbhE0XAC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 19:00:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34186 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233203AbhE0XAC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 19:00:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B3324613B4;
+        Thu, 27 May 2021 22:58:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622156308;
+        bh=88+eV716DIdAR5tUqch1HNXLPldwfov0uEMbNQcqzSk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=USUAUQjUtNWzqcudS3yex3pfLJhCHJxn96LN10teB1uRolUdbFXqmYtAIhr5fZwVA
+         ydfAB/sAiwJZiJYP4mh+/NEhElElpFks/CCzimQypgzsvb2wM9zLCYRYhawT2aZHSw
+         YKeByIJ7ToHN4hJsxZssdSBwe/YrTkR1XfbC9hb6wBnq001G2B4U3+rHLDHB2u+REG
+         4YTCve+HKoYqbBeVbT4kYn8kKkEJrnvsO1I/C+3rp6W7//306k4Vd8CYoUuGSd6dVx
+         kALocVvXzUfJtzHWuZ+Zn0rOu3WcOxfmSWx0fOCnHfqkpROnbPbOUQDGugMtsZW5NU
+         iPaRCYmERRmtw==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-fscrypt@vger.kernel.org
+Cc:     linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
+        Daniel Rosenberg <drosen@google.com>, stable@vger.kernel.org
+Subject: [PATCH] fscrypt: fix derivation of SipHash keys on big endian CPUs
+Date:   Thu, 27 May 2021 15:55:25 -0700
+Message-Id: <20210527225525.2365513-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.32.0.rc0.204.g9fa02ecfa5-goog
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 May 2021 17:13:01 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.12.8 release.
-> There are 7 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 29 May 2021 15:11:29 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.8-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
+From: Eric Biggers <ebiggers@google.com>
 
-5.12.8-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
+Typically, the cryptographic APIs that fscrypt uses take keys as byte
+arrays, which avoids endianness issues.  However, siphash_key_t is an
+exception.  It is defined as 'u64 key[2];', i.e. the 128-bit key is
+expected to be given directly as two 64-bit words in CPU endianness.
+
+fscrypt_derive_dirhash_key() forgot to take this into account.
+Therefore, the SipHash keys used to index encrypted+casefolded
+directories differ on big endian vs. little endian platforms.
+This makes such directories non-portable between these platforms.
+
+Fix this by always using the little endian order.  This is a breaking
+change for big endian platforms, but this should be fine in practice
+since the encrypt+casefold support isn't known to actually be used on
+any big endian platforms yet.
+
+Fixes: aa408f835d02 ("fscrypt: derive dirhash key for casefolded directories")
+Cc: <stable@vger.kernel.org> # v5.6+
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/crypto/keysetup.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/fs/crypto/keysetup.c b/fs/crypto/keysetup.c
+index 261293fb7097..4d98377c07a7 100644
+--- a/fs/crypto/keysetup.c
++++ b/fs/crypto/keysetup.c
+@@ -221,6 +221,16 @@ int fscrypt_derive_dirhash_key(struct fscrypt_info *ci,
+ 				  sizeof(ci->ci_dirhash_key));
+ 	if (err)
+ 		return err;
++
++	/*
++	 * The SipHash APIs expect the key as a pair of 64-bit words, not as a
++	 * byte array.  Make sure to use a consistent endianness.
++	 */
++	BUILD_BUG_ON(sizeof(ci->ci_dirhash_key) != 16);
++	BUILD_BUG_ON(ARRAY_SIZE(ci->ci_dirhash_key.key) != 2);
++	le64_to_cpus(&ci->ci_dirhash_key.key[0]);
++	le64_to_cpus(&ci->ci_dirhash_key.key[1]);
++
+ 	ci->ci_dirhash_key_initialized = true;
+ 	return 0;
+ }
+-- 
+2.32.0.rc0.204.g9fa02ecfa5-goog
 
