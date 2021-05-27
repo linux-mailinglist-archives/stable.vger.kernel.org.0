@@ -2,91 +2,127 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F2CE392B27
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 11:51:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA04392B2E
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 11:55:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235809AbhE0JxV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 05:53:21 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:49503 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S235724AbhE0JxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 05:53:21 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1622109108;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=u9Cxtk2CGDavcxRvdG5xqMXG/D6DQ86Gj3Jra0Du2iA=;
-        b=JoscmxOsBQCWDPPaE0kZojQUtPyZR6xxmzZUk63GuyX+vEznZhfvRVp6cD0VGRDMS0e7gE
-        AMYwxDUHjjggEGNhrasB+oJQbMHIs77MHwqhqwna8HfDH+BogHfZ86JZsF363DGSGXZokY
-        LCaZvPIq8XOFkxb9x6geIDOKKkt2vN4=
-Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
- [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-276-H_O0Ks53PH6uw7WYjNETzA-1; Thu, 27 May 2021 05:51:46 -0400
-X-MC-Unique: H_O0Ks53PH6uw7WYjNETzA-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 28388101371B;
-        Thu, 27 May 2021 09:51:45 +0000 (UTC)
-Received: from dresden.str.redhat.com (ovpn-114-232.ams2.redhat.com [10.36.114.232])
-        by smtp.corp.redhat.com (Postfix) with ESMTPS id 873B3687D7;
-        Thu, 27 May 2021 09:51:39 +0000 (UTC)
-Subject: Re: [Virtio-fs] [PATCH 1/4] fuse: Fix crash in
- fuse_dentry_automount() error path
-To:     Greg Kurz <groug@kaod.org>, Miklos Szeredi <miklos@szeredi.hu>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        virtio-fs@redhat.com, linux-fsdevel@vger.kernel.org,
-        Vivek Goyal <vgoyal@redhat.com>
-References: <20210525150230.157586-1-groug@kaod.org>
- <20210525150230.157586-2-groug@kaod.org>
-From:   Max Reitz <mreitz@redhat.com>
-Message-ID: <cef80ba1-b0c1-a8bd-387a-9c7d2730a766@redhat.com>
-Date:   Thu, 27 May 2021 11:51:37 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        id S235770AbhE0J5I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 05:57:08 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42130 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235768AbhE0J5I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 05:57:08 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88657C061574;
+        Thu, 27 May 2021 02:55:34 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id s6so119314edu.10;
+        Thu, 27 May 2021 02:55:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=C58IMTIWG3aGpI31cvyq0/QCn2aAGcF3IZlr8Z32K/Y=;
+        b=AucBLzD1N+8LtmRlcHZj0bnRH597i8Rv5zSBdhDLzjoBgCqC8pa0xXJzg8WoHd4EiA
+         hzlkKVKxj6si3zT9ui9jP7tJQco7DXEN3fgi5H9k307nc0pGu26YUL6MGbF2jRuQfr/c
+         C5RZf2e0A554MP0GdifknkmBmgwZvO7IPXfVvZudjBpQSJ6cBl3D+EQtS515fvgSJ7ZC
+         HcTljKeD0z/mBtvPBrl1yODTAsFCsnt+Pt5zBxEt0yES4tMbuKHfPJ+KIBVyJsXZi08f
+         JUXVj6V7mSZEBszlWV1qKkghI0FuvdD3p0zBoJ04J6hiKZPYMwynaPDT9Rglc3de/pEC
+         pQsA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=C58IMTIWG3aGpI31cvyq0/QCn2aAGcF3IZlr8Z32K/Y=;
+        b=VjCxbIna+o7XJqwp189lmfVT9tIsrh7V+bKWlVZsNGtqdUgSvDlomc1nNN0zQa3CUk
+         ON/Ecz9NfiL5pDUkQq6LcJD8aVMaB5hwl13MvDJAkR7pUZ2Bc4EzZhQZc0AsdNH0qbL/
+         ONDysMQGu0Th43AiURyQtFqto87J+McIVCYG9P7ycDHjpvt6963tfWUoCwYA2wK3FX+p
+         3A9NfRWB0y4p5dwfU2D8S15XWPVPQKZuOPtVHDcLeRulNOeOhOoUawUW0DrHc8HGzmsE
+         OXeuNsRHVd1KU91k+FH1p6DjNfJtAFEXwh01PDp2HrAK7OiQD0Wiq1ZTcv2nX1p7bKpp
+         FvFg==
+X-Gm-Message-State: AOAM532+EmfLSvhqN1sDQ68RnwYEr83E6SnPFj+MVjjmuf0rnIs8cCUu
+        h0kUdVD5GohoDfkY27VpdqWjqGjTJoEyfQ==
+X-Google-Smtp-Source: ABdhPJxLJFoLPIpTk320Qan+reXcWHDotN+ksDZCmebp6yt3LtUtr0B6dIkx+wMTpySH/TodtK4L3w==
+X-Received: by 2002:a05:6402:74f:: with SMTP id p15mr3166309edy.333.1622109332779;
+        Thu, 27 May 2021 02:55:32 -0700 (PDT)
+Received: from localhost.localdomain.at (62-178-82-229.cable.dynamic.surfer.at. [62.178.82.229])
+        by smtp.gmail.com with ESMTPSA id l19sm70623edw.58.2021.05.27.02.55.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 27 May 2021 02:55:32 -0700 (PDT)
+From:   Christian Gmeiner <christian.gmeiner@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     Christian Gmeiner <christian.gmeiner@gmail.com>,
+        stable@vger.kernel.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        YueHaibing <yuehaibing@huawei.com>,
+        Tobias Diedrich <tobiasdiedrich@gmail.com>,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Du Huanpeng <u74147@gmail.com>,
+        Ralf Ramsauer <ralf.ramsauer@oth-regensburg.de>,
+        linux-serial@vger.kernel.org
+Subject: [PATCH] serial: 8250_pci: handle FL_NOIRQ board flag
+Date:   Thu, 27 May 2021 11:54:40 +0200
+Message-Id: <20210527095529.26281-1-christian.gmeiner@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-In-Reply-To: <20210525150230.157586-2-groug@kaod.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Scanned-By: MIMEDefang 2.79 on 10.5.11.13
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 25.05.21 17:02, Greg Kurz wrote:
-> If fuse_fill_super_submount() returns an error, the error path
-> triggers a crash:
-> 
-> [   26.206673] BUG: kernel NULL pointer dereference, address: 0000000000000000
-> [...]
-> [   26.226362] RIP: 0010:__list_del_entry_valid+0x25/0x90
-> [...]
-> [   26.247938] Call Trace:
-> [   26.248300]  fuse_mount_remove+0x2c/0x70 [fuse]
-> [   26.248892]  virtio_kill_sb+0x22/0x160 [virtiofs]
-> [   26.249487]  deactivate_locked_super+0x36/0xa0
-> [   26.250077]  fuse_dentry_automount+0x178/0x1a0 [fuse]
-> 
-> The crash happens because fuse_mount_remove() assumes that the FUSE
-> mount was already added to list under the FUSE connection, but this
-> only done after fuse_fill_super_submount() has returned success.
-> 
-> This means that until fuse_fill_super_submount() has returned success,
-> the FUSE mount isn't actually owned by the superblock. We should thus
-> reclaim ownership by clearing sb->s_fs_info, which will skip the call
-> to fuse_mount_remove(), and perform rollback, like virtio_fs_get_tree()
-> already does for the root sb.
-> 
-> Fixes: bf109c64040f ("fuse: implement crossmounts")
-> Cc: mreitz@redhat.com
-> Cc: stable@vger.kernel.org # v5.10+
-> Signed-off-by: Greg Kurz <groug@kaod.org>
-> ---
->   fs/fuse/dir.c | 6 +++++-
->   1 file changed, 5 insertions(+), 1 deletion(-)
+In commit 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+the way the irq gets allocated was changed. With that change the
+handling FL_NOIRQ got lost. Restore the old behaviour.
 
-Reviewed-by: Max Reitz <mreitz@redhat.com>
+Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+---
+ drivers/tty/serial/8250/8250_pci.c | 29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
+
+diff --git a/drivers/tty/serial/8250/8250_pci.c b/drivers/tty/serial/8250/8250_pci.c
+index 689d8227f95f..3b8217844c0b 100644
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3944,21 +3944,26 @@ pciserial_init_ports(struct pci_dev *dev, const struct pciserial_board *board)
+ 	uart.port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
+ 	uart.port.uartclk = board->base_baud * 16;
+ 
+-	if (pci_match_id(pci_use_msi, dev)) {
+-		dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
+-		pci_set_master(dev);
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++	if (board->flags & FL_NOIRQ) {
++		uart.port.irq = 0;
+ 	} else {
+-		dev_dbg(&dev->dev, "Using legacy interrupts\n");
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
+-	}
+-	if (rc < 0) {
+-		kfree(priv);
+-		priv = ERR_PTR(rc);
+-		goto err_deinit;
++		if (pci_match_id(pci_use_msi, dev)) {
++			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
++			pci_set_master(dev);
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++		} else {
++			dev_dbg(&dev->dev, "Using legacy interrupts\n");
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
++		}
++		if (rc < 0) {
++			kfree(priv);
++			priv = ERR_PTR(rc);
++			goto err_deinit;
++		}
++
++		uart.port.irq = pci_irq_vector(dev, 0);
+ 	}
+ 
+-	uart.port.irq = pci_irq_vector(dev, 0);
+ 	uart.port.dev = &dev->dev;
+ 
+ 	for (i = 0; i < nr_ports; i++) {
+-- 
+2.31.1
 
