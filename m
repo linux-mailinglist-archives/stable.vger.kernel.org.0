@@ -2,314 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F0A392CC0
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 13:31:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9007C392CC9
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 13:34:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbhE0Lca (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 07:32:30 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35584 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229657AbhE0Lca (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 07:32:30 -0400
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 451AEC061574
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 04:30:57 -0700 (PDT)
-Received: by mail-pj1-x1029.google.com with SMTP id gb21-20020a17090b0615b029015d1a863a91so2161141pjb.2
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 04:30:57 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=sHRW5yUBxhDDOhTrrrfAmGzddiuTgtSOrgGI4ynGmNY=;
-        b=qitx7RrXLEAV7hI09LMU9+cHS996e7M0aHe2TL+VRVJtSuXONmU2W3UYmcs9UDPd5I
-         4eGyzSIe3bRMTC5DG6kXZkOW+zJIDKpagvEE8/6YG6st5jstW8wnKnyaSIN/L9IZXAbc
-         vibZ1mLIQr+lsC8YlxeIwCbIGSJLeAV04AVXkDsC+UQdnWIqtYyLpDP0vX8gmwGZuSip
-         sYH/4Vpq10kTCIoRXmjcIFIGTr4koOFlMu6o+hB6UJrkKnlIEfebvMjKIYQJ2Du5dSu2
-         o3kYo6k2D1SPUeK+2C40Vxf3dehsaFx5CeRAWLqbhEoWVhdTbLrMXuk4nzPnMxWrF8f2
-         ZlBg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=sHRW5yUBxhDDOhTrrrfAmGzddiuTgtSOrgGI4ynGmNY=;
-        b=oUWWWiE+anuRKY09G+Q4AeEY5BWucIMNJFdSyGlcYyMPv90IQuhRNqmno6S/v55yOI
-         qSJwrbYiHWYv8pgjnG1EMqxSVx526BMycl5s0REGAE7qVhFFu5p3Hd5YX9GphoMm+JQp
-         Rz46lKZeTyKYAUlNOJd0OgyMdSK3DHRJZUfKn9hopl64bbyiDQFjRtItH5Mc1pC/vXy9
-         Yp7e3qA3kewN74JwWM4wPKb+fOkQFKbzecGBauwec530YxPEN3RZVQq0r7Kp+EvEKPW0
-         2y6INdIV4oSnhSmm8bghP1F2oHXgUhTBNO1U+w+X4xFTTumrN114EKyP5rh6a0qoIBmW
-         25Ug==
-X-Gm-Message-State: AOAM5323jNgD3I5lRNFseDUj3JYUxskTiYdDE3jkj126csYWlaLWpPZM
-        LVDeG+ddeUVs+8L53+ElWQYcz1ZYi0tT/Q==
-X-Google-Smtp-Source: ABdhPJyg/Efh4IuDlhLYUdC51oXtz3oUMTZCEuQLe28u1a8becEn2UuFO0di+1dzqM6sVOqQv+i1pQ==
-X-Received: by 2002:a17:90b:d98:: with SMTP id bg24mr8602303pjb.112.1622115056536;
-        Thu, 27 May 2021 04:30:56 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b12sm1813488pgs.52.2021.05.27.04.30.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 May 2021 04:30:56 -0700 (PDT)
-Message-ID: <60af82f0.1c69fb81.565d8.621a@mx.google.com>
-Date:   Thu, 27 May 2021 04:30:56 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229764AbhE0LgU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 07:36:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45580 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229657AbhE0LgT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 07:36:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A9E76113B;
+        Thu, 27 May 2021 11:34:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622115286;
+        bh=qIR0Xp1IFWI6K0A1WmRCygyc0qbztkIIn5fbZJjjmBU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Hr3465MFEWrrqP/VBjCjykFMuzlQ9RZTiAZgO1TunecUPQEyX/YQGucXhwOFFWlFd
+         RYAcjfrN9WBsXW4XEPvkGN6A1bnL5Uya21bUpiSLK+SMdhckecpxMr39X7+V8D5TAT
+         aZYfz2l/ju+OjinrQZ1ccz85Y+E4URiixf65sWSfA1Zb5QFR4e3QdkhjzgYWQL4coB
+         PzIWqC/Dx1iiQUsFP56R84DG3I4+26vu93LnNgDIbN4FiUo9W/T7GgMh7WgaZCILD1
+         2MGOAk04KuSaGd6fXXIAA8qQkAimJky+4lTQBRb/rd+qPDLI/nLUyaxKWuGWFjEPq4
+         sFOIcwUPO8Amg==
+From:   Frederic Weisbecker <frederic@kernel.org>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@kernel.org>
+Cc:     LKML <linux-kernel@vger.kernel.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        kernel test robot <oliver.sang@intel.com>,
+        stable@vger.kernel.org, "Paul E . McKenney" <paulmck@kernel.org>
+Subject: [PATCH] tick/nohz: Only check for RCU deferred wakeup on user/guest entry when needed
+Date:   Thu, 27 May 2021 13:34:41 +0200
+Message-Id: <20210527113441.465489-1-frederic@kernel.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.122-4-g2e864e6a084c
-X-Kernelci-Branch: queue/5.4
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/5.4 build: 29 builds: 0 failed, 29 passed,
- 17 warnings (v5.4.122-4-g2e864e6a084c)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.4 build: 29 builds: 0 failed, 29 passed, 17 warnings (v5.=
-4.122-4-g2e864e6a084c)
+Checking for and processing RCU-nocb deferred wakeup upon user/guest
+entry is only relevant when nohz_full runs on the local CPU, otherwise
+the periodic tick should take care of it.
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F5.4=
-/kernel/v5.4.122-4-g2e864e6a084c/
+Make sure we don't needlessly pollute these fast-paths as a -3%
+performance regression on a will-it-scale.per_process_ops has been
+reported so far.
 
-Tree: stable-rc
-Branch: queue/5.4
-Git Describe: v5.4.122-4-g2e864e6a084c
-Git Commit: 2e864e6a084ca46fb25d5fa336b1ea759dd9c167
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 4 unique architectures
-
-Warnings Detected:
-
-arc:
-    haps_hs_smp_defconfig (gcc-8): 2 warnings
-    nsim_hs_smp_defconfig (gcc-8): 2 warnings
-
-arm64:
-    defconfig (gcc-8): 2 warnings
-
-arm:
-    dove_defconfig (gcc-8): 1 warning
-    exynos_defconfig (gcc-8): 1 warning
-    ezx_defconfig (gcc-8): 1 warning
-    h5000_defconfig (gcc-8): 1 warning
-    keystone_defconfig (gcc-8): 1 warning
-    mini2440_defconfig (gcc-8): 1 warning
-    mvebu_v5_defconfig (gcc-8): 1 warning
-    mvebu_v7_defconfig (gcc-8): 1 warning
-    omap1_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    tegra_defconfig (gcc-8): 1 warning
-
-mips:
-
-
-Warnings summary:
-
-    11   WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-    4    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [=
--Wcpp]
-    2    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer=
- to integer of different size [-Wpointer-to-int-cast]
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section mi=
-smatches
-
-Warnings:
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-    arch/arm64/include/asm/memory.h:238:15: warning: cast from pointer to i=
-nteger of different size [-Wpointer-to-int-cast]
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section m=
-ismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
-section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 2 warnings, 0 =
-section mismatches
-
-Warnings:
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-    <stdin>:1511:2: warning: #warning syscall clone3 not implemented [-Wcpp]
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    WARNING: "return_address" [vmlinux] is a static EXPORT_SYMBOL_GPL
-
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Fixes: 47b8ff194c1f (entry: Explicitly flush pending rcuog wakeup before last rescheduling point)
+Fixes: 4ae7dc97f726 (entry/kvm: Explicitly flush pending rcuog wakeup before last rescheduling point)
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: stable@vger.kernel.org
+Cc: Paul E. McKenney <paulmck@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Frederic Weisbecker <frederic@kernel.org>
 ---
-For more info write to <info@kernelci.org>
+ include/linux/entry-kvm.h | 3 ++-
+ include/linux/tick.h      | 7 +++++++
+ kernel/entry/common.c     | 5 +++--
+ kernel/time/tick-sched.c  | 1 +
+ 4 files changed, 13 insertions(+), 3 deletions(-)
+
+diff --git a/include/linux/entry-kvm.h b/include/linux/entry-kvm.h
+index 8b2b1d68b954..136b8d97d8c0 100644
+--- a/include/linux/entry-kvm.h
++++ b/include/linux/entry-kvm.h
+@@ -3,6 +3,7 @@
+ #define __LINUX_ENTRYKVM_H
+ 
+ #include <linux/entry-common.h>
++#include <linux/tick.h>
+ 
+ /* Transfer to guest mode work */
+ #ifdef CONFIG_KVM_XFER_TO_GUEST_WORK
+@@ -57,7 +58,7 @@ int xfer_to_guest_mode_handle_work(struct kvm_vcpu *vcpu);
+ static inline void xfer_to_guest_mode_prepare(void)
+ {
+ 	lockdep_assert_irqs_disabled();
+-	rcu_nocb_flush_deferred_wakeup();
++	tick_nohz_user_enter_prepare();
+ }
+ 
+ /**
+diff --git a/include/linux/tick.h b/include/linux/tick.h
+index 7340613c7eff..1a0ff88fa107 100644
+--- a/include/linux/tick.h
++++ b/include/linux/tick.h
+@@ -11,6 +11,7 @@
+ #include <linux/context_tracking_state.h>
+ #include <linux/cpumask.h>
+ #include <linux/sched.h>
++#include <linux/rcupdate.h>
+ 
+ #ifdef CONFIG_GENERIC_CLOCKEVENTS
+ extern void __init tick_init(void);
+@@ -300,4 +301,10 @@ static inline void tick_nohz_task_switch(void)
+ 		__tick_nohz_task_switch();
+ }
+ 
++static inline void tick_nohz_user_enter_prepare(void)
++{
++	if (tick_nohz_full_cpu(smp_processor_id()))
++		rcu_nocb_flush_deferred_wakeup();
++}
++
+ #endif
+diff --git a/kernel/entry/common.c b/kernel/entry/common.c
+index a0b3b04fb596..bf16395b9e13 100644
+--- a/kernel/entry/common.c
++++ b/kernel/entry/common.c
+@@ -5,6 +5,7 @@
+ #include <linux/highmem.h>
+ #include <linux/livepatch.h>
+ #include <linux/audit.h>
++#include <linux/tick.h>
+ 
+ #include "common.h"
+ 
+@@ -186,7 +187,7 @@ static unsigned long exit_to_user_mode_loop(struct pt_regs *regs,
+ 		local_irq_disable_exit_to_user();
+ 
+ 		/* Check if any of the above work has queued a deferred wakeup */
+-		rcu_nocb_flush_deferred_wakeup();
++		tick_nohz_user_enter_prepare();
+ 
+ 		ti_work = READ_ONCE(current_thread_info()->flags);
+ 	}
+@@ -202,7 +203,7 @@ static void exit_to_user_mode_prepare(struct pt_regs *regs)
+ 	lockdep_assert_irqs_disabled();
+ 
+ 	/* Flush pending rcuog wakeup before the last need_resched() check */
+-	rcu_nocb_flush_deferred_wakeup();
++	tick_nohz_user_enter_prepare();
+ 
+ 	if (unlikely(ti_work & EXIT_TO_USER_MODE_WORK))
+ 		ti_work = exit_to_user_mode_loop(regs, ti_work);
+diff --git a/kernel/time/tick-sched.c b/kernel/time/tick-sched.c
+index 828b091501ca..6784f27a3099 100644
+--- a/kernel/time/tick-sched.c
++++ b/kernel/time/tick-sched.c
+@@ -230,6 +230,7 @@ static void tick_sched_handle(struct tick_sched *ts, struct pt_regs *regs)
+ 
+ #ifdef CONFIG_NO_HZ_FULL
+ cpumask_var_t tick_nohz_full_mask;
++EXPORT_SYMBOL_GPL(tick_nohz_full_mask);
+ bool tick_nohz_full_running;
+ EXPORT_SYMBOL_GPL(tick_nohz_full_running);
+ static atomic_t tick_dep_mask;
+-- 
+2.25.1
+
