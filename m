@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC5F393218
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A19A239321C
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:14:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237020AbhE0PPQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:15:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43814 "EHLO mail.kernel.org"
+        id S236988AbhE0PPU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:15:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237022AbhE0PPF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:15:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A26F6613BA;
-        Thu, 27 May 2021 15:13:31 +0000 (UTC)
+        id S237051AbhE0PPJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:15:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CF817613BF;
+        Thu, 27 May 2021 15:13:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128412;
-        bh=3yNOj5++PHfWawBsKTMH8sT6z9qB4FaUjWSAGNh9MhI=;
+        s=korg; t=1622128414;
+        bh=Uz/ZhiaplGVy6XWc6OMVzS18xnBmQgQN4hB9roOlbpk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E28HPgqjU79S8FA4wscakK3nPt5o816fEJX+n50J0sVZfixm/hEDnNihs2Zum5QMZ
-         f34AlnfsQSUqYNbPtD/v9FFhBuunDta1jpGG87whEHRLCha7p93UOF65TXrxOsoytV
-         pDNwn8aNcFrf8cLuVkd47T3kjNwh2jEmIsKki4I4=
+        b=vvoX8KyqBPkSvkN8hSE1TW1WQQcGcnOQZrDjllnhNTcmjQXfsih8WGAuDZIVSK081
+         k0CekxYcQ76e+cOT1J4TTiGYFCZIRlETD9UPd8n9n0+b3s6wpEkO6VliqZTvL/ZRCz
+         4i4cpLARuPcU02MW9NUlgPdks9m6mWhZ7ELHzVcY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Rigby <d.rigby@me.com>,
-        Jan Kratochvil <jan.kratochvil@redhat.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        "Tommi Rantala" <tommi.t.rantala@nokia.com>
-Subject: [PATCH 5.10 8/9] perf unwind: Set userdata for all __report_module() paths
-Date:   Thu, 27 May 2021 17:13:00 +0200
-Message-Id: <20210527151139.507069037@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 9/9] NFC: nci: fix memory leak in nci_allocate_device
+Date:   Thu, 27 May 2021 17:13:01 +0200
+Message-Id: <20210527151139.536229204@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210527151139.242182390@linuxfoundation.org>
 References: <20210527151139.242182390@linuxfoundation.org>
@@ -42,60 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Rigby <d.rigby@me.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 4e1481445407b86a483616c4542ffdc810efb680 upstream.
+commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
 
-When locating the DWARF module for a given address, __find_debuginfo()
-requires a 'struct dso' passed via the userdata argument.
+nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
+Fix this by freeing hci_dev in nci_free_device.
 
-However, this field is only set in __report_module() if the module is
-found in via dwfl_addrmodule(), not if it is found later via
-dwfl_report_elf().
+BUG: memory leak
+unreferenced object 0xffff888111ea6800 (size 1024):
+  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
+    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
+    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
+    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
+    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
+    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
+    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
+    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
+    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
+    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
+    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
 
-Set userdata irrespective of how the DWARF module was found, as long as
-we found a module.
-
-Fixes: bf53fc6b5f41 ("perf unwind: Fix separate debug info files when using elfutils' libdw's unwinder")
-Signed-off-by: Dave Rigby <d.rigby@me.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=211801
-Acked-by: Jan Kratochvil <jan.kratochvil@redhat.com>
-Acked-by: Jiri Olsa <jolsa@redhat.com>
-Link: https://lore.kernel.org/linux-perf-users/20210218165654.36604-1-d.rigby@me.com/
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: "Tommi Rantala" <tommi.t.rantala@nokia.com>
+Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/unwind-libdw.c |   11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ include/net/nfc/nci_core.h |    1 +
+ net/nfc/nci/core.c         |    1 +
+ net/nfc/nci/hci.c          |    5 +++++
+ 3 files changed, 7 insertions(+)
 
---- a/tools/perf/util/unwind-libdw.c
-+++ b/tools/perf/util/unwind-libdw.c
-@@ -60,10 +60,8 @@ static int __report_module(struct addr_l
- 	mod = dwfl_addrmodule(ui->dwfl, ip);
- 	if (mod) {
- 		Dwarf_Addr s;
--		void **userdatap;
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -298,6 +298,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
+ 		      struct sk_buff **resp);
  
--		dwfl_module_info(mod, &userdatap, &s, NULL, NULL, NULL, NULL, NULL);
--		*userdatap = dso;
-+		dwfl_module_info(mod, NULL, &s, NULL, NULL, NULL, NULL, NULL);
- 		if (s != al->map->start - al->map->pgoff)
- 			mod = 0;
- 	}
-@@ -79,6 +77,13 @@ static int __report_module(struct addr_l
- 					      al->map->start - al->map->pgoff, false);
- 	}
- 
-+	if (mod) {
-+		void **userdatap;
-+
-+		dwfl_module_info(mod, &userdatap, NULL, NULL, NULL, NULL, NULL, NULL);
-+		*userdatap = dso;
-+	}
-+
- 	return mod && dwfl_addrmodule(ui->dwfl, ip) == mod ? 0 : -1;
+ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
++void nci_hci_deallocate(struct nci_dev *ndev);
+ int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
+ 		       const u8 *param, size_t param_len);
+ int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -1175,6 +1175,7 @@ EXPORT_SYMBOL(nci_allocate_device);
+ void nci_free_device(struct nci_dev *ndev)
+ {
+ 	nfc_free_device(ndev->nfc_dev);
++	nci_hci_deallocate(ndev);
+ 	kfree(ndev);
  }
+ EXPORT_SYMBOL(nci_free_device);
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -795,3 +795,8 @@ struct nci_hci_dev *nci_hci_allocate(str
  
+ 	return hdev;
+ }
++
++void nci_hci_deallocate(struct nci_dev *ndev)
++{
++	kfree(ndev->hci_dev);
++}
 
 
