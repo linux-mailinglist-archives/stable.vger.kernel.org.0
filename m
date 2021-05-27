@@ -2,116 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A38C393897
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 00:13:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A2AD3938B2
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 00:28:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235720AbhE0WOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 18:14:46 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
+        id S234391AbhE0WaN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 18:30:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43978 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233563AbhE0WOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 18:14:46 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73AAEC061574
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 15:13:12 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id q6so1360220pjj.2
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 15:13:12 -0700 (PDT)
+        with ESMTP id S233848AbhE0WaM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 27 May 2021 18:30:12 -0400
+Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42538C061574;
+        Thu, 27 May 2021 15:28:38 -0700 (PDT)
+Received: by mail-pj1-x102a.google.com with SMTP id ep16-20020a17090ae650b029015d00f578a8so1348415pjb.2;
+        Thu, 27 May 2021 15:28:38 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=L/YmRei2haL4XSNWlb3cugC49BMiEW7x7qBA7UjfIO4=;
-        b=ygCTTdSXX34nSOFg8rVIiNo94Ti6DLLX0h54R4SKJQqLil6KjVAqVZGWkB9gsJaeQ9
-         Jdv8iOQVvuRhYCbLPrPdTVivDnsnhhWT5piGsPpcYVnKwh0QTG4geFbSnDEhr+P1RFHC
-         hl/+QKYOdPVtVsPwUhD0DyWen3xSVHmUVE+JoFahrZw3vPB4oKWJ3xrxDVeEg4mRgIvr
-         MAeovigliaLWz7Q3bQjrI/dQgEoXIV40MfRAmSw28gwVxuDwn2WlfjjoouX31iMqFN6c
-         eAg2yjBFvOI26gy1tSsDsPtKydbFkNxQtc82ZsiqKKqzpQUAYf4mb9Lr8HiQvQZR9zGN
-         57/A==
+        d=gmail.com; s=20161025;
+        h=message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=WZv67PcQASMRPC3zYPpa0x61J6yRtgH6SH+gS6OFGJg=;
+        b=ksHshNVcH908wYnIOm5PkZkUQyH6u42i70piZvaefxdKwleGWI8JLx6OHO2tXRnLVj
+         Plr+0wcMUAaWa70gC0G2IyEWSgUO78bD620TJYuKQb49gEGnXHvNnvdOtdpSGManrbH/
+         jx+ConpSAQ+Rflpa0alZQ85BX6QRQyQBd0mR+zmTj8MANZVei2v+//bs5Ci2UzjAxx6t
+         BmGvBQsldG6cb5vJE0sOZ0FhNfKK9M8z4UWkyFBieBIWuknf3U+7XLG97AXksrO3lNox
+         YX8usXDlx7FDRI+fnq5o9QSDLT0wi0mkhqk0gw93ppqeujAgiTUyZ57Yah1FTF7tceYm
+         6ZUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=L/YmRei2haL4XSNWlb3cugC49BMiEW7x7qBA7UjfIO4=;
-        b=ZEUu9FiWL42PsLpYeCKQ2kvhHkIavzR/Y8i9x3fsIT6fQd80/xUdC1Q2rnPBtnKHcF
-         CNbYrR+4rBuyBFxu8LFU/I8Fwlzh6aVt5qxkRKxd2xiJ9PbXlOQziNK8rTDWyg761NrE
-         WpOjug9IoY1Rd43YgH/hHtnAFh4iiZQzpJGxclp0eh1stQFiWkU2s8pS1sVcI2DZou0t
-         IkPFJBAKyG2ReoZCsDTsZfGJhacc5A28jqyHmXn7Wb2GB/+Hqit0knKIBQH87cyWCBp2
-         FvTJ178rQo5q9SJP9+5GaQ1AjkwwICkqvbxFoTkFYnBNpGxsDBCQaUuYgIrHFtAyGCkY
-         fgsw==
-X-Gm-Message-State: AOAM531WiuwqBAvmZCnw1OlpYtdISR2FgmtkCSRSU2VMpw9ozeiPOGQz
-        VQV96SZh1XcXDfDPre3xQhI8xQ==
-X-Google-Smtp-Source: ABdhPJwKsIdrAE+6MGaDyjW67ulr0cPpti0HzkJLI8rCGaifNTDam/+DnnL5rmN1w4Wvp5EER/PNIw==
-X-Received: by 2002:a17:90a:ec05:: with SMTP id l5mr763204pjy.141.1622153591939;
-        Thu, 27 May 2021 15:13:11 -0700 (PDT)
-Received: from omlet.lan (jfdmzpr03-ext.jf.intel.com. [134.134.139.72])
-        by smtp.gmail.com with ESMTPSA id y26sm2736525pge.94.2021.05.27.15.13.10
+        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
+         :content-transfer-encoding;
+        bh=WZv67PcQASMRPC3zYPpa0x61J6yRtgH6SH+gS6OFGJg=;
+        b=By640MziOdje2q+n3f+fzwBlkYrGEUM6ueOLLdgI3iykP3qYH5+gAe2XStZHtp4MZg
+         48Y4y+pW07fIKTe/sLVLodFSWJy3dnqMP8N5rG3sWvH1dU7buQA6LMnSxxFeU/RQuoW4
+         Nt2ttSga4hMhheGLO1L0O72IhENpJKnKqC8Y6eNp7iXQPkmNOxxNRrw6C6XpfXdhwbh8
+         9oS581QEN1ebThkRrB5Yx5XY2/WIKT2fF9bZlT8k0P1AS4oghVEakBqoDreY+eXJIIu9
+         XyvTv/tC+VCYR3x1iup+u/6FATVjgMKEOAFPOl06ozJ60AefsNP0WOZel17XJf73N9WA
+         P8DQ==
+X-Gm-Message-State: AOAM5321Fifs2wbF5WsJB4fmgUYpDHyNvgGubLMCNw/ILouEwvWzNear
+        GipDLq5SGS63fe6y4I80Tvv9Cb/FQtJWnf1c6dxVFQ==
+X-Google-Smtp-Source: ABdhPJyI3X6zEYmNHlWkicXSEGNEDyUICcM8BIXkyZqV6+KHaok071hsBNBwtp+bugASQmJncZftEw==
+X-Received: by 2002:a17:90b:350a:: with SMTP id ls10mr714574pjb.181.1622154517315;
+        Thu, 27 May 2021 15:28:37 -0700 (PDT)
+Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
+        by smtp.gmail.com with ESMTPSA id f17sm2669636pgm.37.2021.05.27.15.28.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 27 May 2021 15:13:11 -0700 (PDT)
-From:   Jason Ekstrand <jason@jlekstrand.net>
-To:     intel-gfx-trybot@lists.freedesktop.org
-Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Jason Ekstrand <jason.ekstrand@intel.com>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        stable@vger.kernel.org, Jon Bloomfield <jon.bloomfield@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Subject: [PATCH 4/5] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
-Date:   Thu, 27 May 2021 17:12:58 -0500
-Message-Id: <20210527221259.131918-5-jason@jlekstrand.net>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210527221259.131918-1-jason@jlekstrand.net>
-References: <20210527221259.131918-1-jason@jlekstrand.net>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        Thu, 27 May 2021 15:28:36 -0700 (PDT)
+Message-ID: <60b01d14.1c69fb81.b1e96.974f@mx.google.com>
+Date:   Thu, 27 May 2021 15:28:36 -0700 (PDT)
+X-Google-Original-Date: Thu, 27 May 2021 22:28:34 GMT
+From:   Fox Chen <foxhlchen@gmail.com>
+In-Reply-To: <20210527151139.241267495@linuxfoundation.org>
+Subject: RE: [PATCH 5.12 0/7] 5.12.8-rc1 review
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org,
+        Fox Chen <foxhlchen@gmail.com>
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
-since that commit, we've been having issues where a hang in one client
-can propagate to another.  In particular, a hang in an app can propagate
-to the X server which causes the whole desktop to lock up.
+On Thu, 27 May 2021 17:13:01 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
+> This is the start of the stable review cycle for the 5.12.8 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 29 May 2021 15:11:29 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.8-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Signed-off-by: Jason Ekstrand <jason.ekstrand@intel.com>
-Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: Jon Bloomfield <jon.bloomfield@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
----
- drivers/gpu/drm/i915/i915_request.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 970d8f4986bbe..b796197c07722 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1426,10 +1426,8 @@ i915_request_await_execution(struct i915_request *rq,
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		if (fence->context == rq->fence.context)
- 			continue;
-@@ -1527,10 +1525,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		/*
- 		 * Requests on the same timeline are explicitly ordered, along
--- 
-2.31.1
+5.12.8-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
+                
+Tested-by: Fox Chen <foxhlchen@gmail.com>
 
