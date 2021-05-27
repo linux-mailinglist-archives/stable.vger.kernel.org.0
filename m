@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6DE23931F9
-	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A53323931FB
+	for <lists+stable@lfdr.de>; Thu, 27 May 2021 17:13:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236904AbhE0POl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 27 May 2021 11:14:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43144 "EHLO mail.kernel.org"
+        id S236747AbhE0POn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 27 May 2021 11:14:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43170 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236886AbhE0POg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 27 May 2021 11:14:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A08D2613AF;
-        Thu, 27 May 2021 15:13:02 +0000 (UTC)
+        id S236899AbhE0POk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 27 May 2021 11:14:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D1EAE61358;
+        Thu, 27 May 2021 15:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622128383;
-        bh=NYjrMYE3y+cwh5dsoQ4+92RCVtPpsjvRAx4O2m3ox7c=;
+        s=korg; t=1622128385;
+        bh=PGSDWSy5zTruX9mD8xCw9OZ6XVWP6IV6zXvmckvGE9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ojkSZjtLdHCp8fTvrxaEVgBDG4tYzeAWKutwu5jP60sxQmhbazfkZaPU5SrQJrSX
-         fRfBwBlH9wc+Y7EPOR6rfBnXeyHSrY4beGHqHKpr4TJNo/NiPPTQf+TLl9lj3LgUE1
-         eybMMaYKLTkE6Pg63ZqDM8dVBItbh/YLcjmVB61s=
+        b=NTnJUVGDcj3JOesxhRlt2vrNmgnvZBjIcj9DVjnQMRFkdYoTrURHqE0Q+wV+z+sr7
+         jT6KkslFTdEZx5h7FCKmy0aGfc8p+8vDJ300Wm8U0Sp/zejRoyIiGoqbDYWUTlHuYI
+         DqrQcJDxA3oTRKfnloZd7nG3wwZ7ZBZ7L6+c5/kk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.4 3/7] bpf: No need to simulate speculative domain for immediates
-Date:   Thu, 27 May 2021 17:12:45 +0200
-Message-Id: <20210527151139.331493090@linuxfoundation.org>
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 5.4 4/7] usb: dwc3: gadget: Enable suspend events
+Date:   Thu, 27 May 2021 17:12:46 +0200
+Message-Id: <20210527151139.361919991@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210527151139.224619013@linuxfoundation.org>
 References: <20210527151139.224619013@linuxfoundation.org>
@@ -40,44 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit a7036191277f9fa68d92f2071ddc38c09b1e5ee5 upstream.
+commit d1d90dd27254c44d087ad3f8b5b3e4fff0571f45 upstream.
 
-In 801c6058d14a ("bpf: Fix leakage of uninitialized bpf stack under
-speculation") we replaced masking logic with direct loads of immediates
-if the register is a known constant. Given in this case we do not apply
-any masking, there is also no reason for the operation to be truncated
-under the speculative domain.
+commit 72704f876f50 ("dwc3: gadget: Implement the suspend entry event
+handler") introduced (nearly 5 years ago!) an interrupt handler for
+U3/L1-L2 suspend events.  The problem is that these events aren't
+currently enabled in the DEVTEN register so the handler is never
+even invoked.  Fix this simply by enabling the corresponding bit
+in dwc3_gadget_enable_irq() using the same revision check as found
+in the handler.
 
-Therefore, there is also zero reason for the verifier to branch-off and
-simulate this case, it only needs to do it for unknown but bounded scalars.
-As a side-effect, this also enables few test cases that were previously
-rejected due to simulation under zero truncation.
-
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 72704f876f50 ("dwc3: gadget: Implement the suspend entry event handler")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210428090111.3370-1-jackp@codeaurora.org
+[jackp@codeaurora.org: backport to pre-5.7 by replacing
+ DWC3_IS_VER_PRIOR check with direct comparison of dwc->revision]
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/usb/dwc3/gadget.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4408,8 +4408,12 @@ do_sim:
- 	/* If we're in commit phase, we're done here given we already
- 	 * pushed the truncated dst_reg into the speculative verification
- 	 * stack.
-+	 *
-+	 * Also, when register is a known constant, we rewrite register-based
-+	 * operation to immediate-based, and thus do not need masking (and as
-+	 * a consequence, do not need to simulate the zero-truncation either).
- 	 */
--	if (commit_window)
-+	if (commit_window || off_is_imm)
- 		return 0;
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -2022,6 +2022,10 @@ static void dwc3_gadget_enable_irq(struc
+ 	if (dwc->revision < DWC3_REVISION_250A)
+ 		reg |= DWC3_DEVTEN_ULSTCNGEN;
  
- 	/* Simulate and find potential out-of-bounds access under
++	/* On 2.30a and above this bit enables U3/L2-L1 Suspend Events */
++	if (dwc->revision >= DWC3_REVISION_230A)
++		reg |= DWC3_DEVTEN_EOPFEN;
++
+ 	dwc3_writel(dwc->regs, DWC3_DEVTEN, reg);
+ }
+ 
 
 
