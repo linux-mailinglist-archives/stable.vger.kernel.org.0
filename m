@@ -2,238 +2,162 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F4E4393D0B
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 08:22:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 006E03942EE
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 14:49:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229569AbhE1GYW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 02:24:22 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36432 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229561AbhE1GYW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 02:24:22 -0400
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21B3C06174A
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 23:22:47 -0700 (PDT)
-Received: by mail-ej1-x62d.google.com with SMTP id jt22so3656045ejb.7
-        for <stable@vger.kernel.org>; Thu, 27 May 2021 23:22:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=hZG+K5o9x93608ffGiO2O9Ngv/oiNofV4zjyg74md5k=;
-        b=QzQjFN9gxYe1wOtfY73V1aFqAd/0OGyHo7JPgM4uCoHhui/jHJFbqE0K0F4HiiF5eg
-         I5el5Fv3VFvR/wZOc9gR017FPTNzuzxbGVfvnFDe5G68q7N1Ztccq5sOvudQCAn+eOGA
-         1kCfP85tcSWhbab5FWiLw47XTXa4moF2k0Dkg3UyheQfqq+zRif7VkcxjDpBSXReSyPV
-         IAl2iTd9ETItZwG+wgt24aMrFxfaLEd0QNQ6lqq/3m1k9LogB4CCyVVsnrp+P4Sbju8Y
-         /5qzxuRFUBbjlP+JOpaq3tS815XTvWAajnHLHFgUd16P2qT9PjbR8daeI9/VVMe+fRug
-         8YiA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=hZG+K5o9x93608ffGiO2O9Ngv/oiNofV4zjyg74md5k=;
-        b=T/1XmFdBfPkNCflA6ubSFHprePkVnR85OgDSUFE/lDnCY0y6+Y5HNm5ed2C9nowtRa
-         Rw1z3KkUK9tWj8uVt/1/IchBW8bwXfV3xSQjmFo5AkI4vgt1LuyDNVa4iu4+SgyHRhCw
-         r1dkUO8o345QYQKuPcvXLTskNAlArH2yIGvHprFyBVVy3+Gf+wsBhm8LFBGJsXBs0rXd
-         ShkpgrBwhgg7iDG8+OB9M4X619DYnaX5ESn08jhPbn3OoLIfbVnlYgG/p1XpFyOLN3Am
-         DcBAv74Wltoh2/dJMNu/Nn6LaJHkghaARTQm+GU0+RUwawbkv7mAYSrbwN0nWYqxhRrm
-         wiWQ==
-X-Gm-Message-State: AOAM530UDq91S98b3ZCqbrjyotzbBWyy9SucbizeSk4OTx+drXFclnyk
-        LKFG24Xf0MPftlA/sqUjHZsEy/hB1QI5a2hiNfRZyA==
-X-Google-Smtp-Source: ABdhPJwSRHmAcY0UCICO1Np4fXcde1DpMd+W6fvPIBm31r1yRnjRKQVkc1c3255Db5m+nKHx1gciOgN3/y84TitM/TY=
-X-Received: by 2002:a17:906:c211:: with SMTP id d17mr7572074ejz.247.1622182966154;
- Thu, 27 May 2021 23:22:46 -0700 (PDT)
+        id S230390AbhE1MvT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 08:51:19 -0400
+Received: from bmailout1.hostsharing.net ([83.223.95.100]:54783 "EHLO
+        bmailout1.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229552AbhE1MvT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 08:51:19 -0400
+X-Greylist: delayed 397 seconds by postgrey-1.27 at vger.kernel.org; Fri, 28 May 2021 08:51:18 EDT
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by bmailout1.hostsharing.net (Postfix) with ESMTPS id A235F30000644
+        for <stable@vger.kernel.org>; Fri, 28 May 2021 14:43:05 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 95DE419E841; Fri, 28 May 2021 14:43:05 +0200 (CEST)
+X-Original-To: lukas@wunner.de
+Received: from mailin3.hostsharing.net (mailin3.hostsharing.net [176.9.242.53])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by h08.hostsharing.net (Postfix) with ESMTPS id 5CA6611B178
+        for <lukas@wunner.de>; Fri, 28 May 2021 08:23:44 +0200 (CEST)
+Received: from bmailout3.hostsharing.net (bmailout3.hostsharing.net [176.9.242.62])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mailin3.hostsharing.net (Postfix) with ESMTPS id EEF8481DF5
+        for <lukas@wunner.de>; Fri, 28 May 2021 08:23:43 +0200 (CEST)
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by bmailout3.hostsharing.net (Postfix) with ESMTPS id C43F1100FC065;
+        Fri, 28 May 2021 08:23:43 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 8AABD132D6A; Fri, 28 May 2021 08:23:43 +0200 (CEST)
+Date:   Fri, 28 May 2021 08:23:43 +0200
+From:   Lukas Wunner <lukas@wunner.de>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     "William A. Kennington III" <wak@google.com>,
+        Mark Brown <broonie@kernel.org>, linux-spi@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: [PATCH v4.9-stable] spi: Fix use-after-free with devm_spi_alloc_*
+Message-ID: <20210528062343.GA29343@wunner.de>
 MIME-Version: 1.0
-References: <20210527151139.242182390@linuxfoundation.org>
-In-Reply-To: <20210527151139.242182390@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 28 May 2021 11:52:34 +0530
-Message-ID: <CA+G9fYuk3Q0x4_LiFZQv96D8hYWcs3Vdb7bKEgJn6BkmrdnwOQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 0/9] 5.10.41-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 May 2021 at 20:43, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.41 release.
-> There are 9 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Sat, 29 May 2021 15:11:29 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.41-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Dear Greg, Dear Sasha,
 
+please consider applying the patch below to v4.9-stable.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+It is a backport of upstream commit 794aaf01444d, which has already
+been applied to all stable kernels going back to v4.14.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Thanks!
 
-## Build
-* kernel: 5.10.41-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: ec1cc3ee7be23032bad8bf00052c9b75fdfe9971
-* git describe: v5.10.40-10-gec1cc3ee7be2
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.40-10-gec1cc3ee7be2
+Lukas
 
-## No regressions (compared to v5.10.40)
+-- >8 --
 
-## No fixes (compared to v5.10.40)
+From: "William A. Kennington III" <wak@google.com>
+Date: Wed, 7 Apr 2021 02:55:27 -0700
+Subject: [PATCH] spi: Fix use-after-free with devm_spi_alloc_*
 
-## Test result summary
- total: 78784, pass: 64361, fail: 2504, skip: 11224, xfail: 695,
+commit 794aaf01444d4e765e2b067cba01cc69c1c68ed9 upstream.
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 26 total, 26 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
+We can't rely on the contents of the devres list during
+spi_unregister_controller(), as the list is already torn down at the
+time we perform devres_find() for devm_spi_release_controller. This
+causes devices registered with devm_spi_alloc_{master,slave}() to be
+mistakenly identified as legacy, non-devm managed devices and have their
+reference counters decremented below 0.
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+------------[ cut here ]------------
+WARNING: CPU: 1 PID: 660 at lib/refcount.c:28 refcount_warn_saturate+0x108/0x174
+[<b0396f04>] (refcount_warn_saturate) from [<b03c56a4>] (kobject_put+0x90/0x98)
+[<b03c5614>] (kobject_put) from [<b0447b4c>] (put_device+0x20/0x24)
+ r4:b6700140
+[<b0447b2c>] (put_device) from [<b07515e8>] (devm_spi_release_controller+0x3c/0x40)
+[<b07515ac>] (devm_spi_release_controller) from [<b045343c>] (release_nodes+0x84/0xc4)
+ r5:b6700180 r4:b6700100
+[<b04533b8>] (release_nodes) from [<b0454160>] (devres_release_all+0x5c/0x60)
+ r8:b1638c54 r7:b117ad94 r6:b1638c10 r5:b117ad94 r4:b163dc10
+[<b0454104>] (devres_release_all) from [<b044e41c>] (__device_release_driver+0x144/0x1ec)
+ r5:b117ad94 r4:b163dc10
+[<b044e2d8>] (__device_release_driver) from [<b044f70c>] (device_driver_detach+0x84/0xa0)
+ r9:00000000 r8:00000000 r7:b117ad94 r6:b163dc54 r5:b1638c10 r4:b163dc10
+[<b044f688>] (device_driver_detach) from [<b044d274>] (unbind_store+0xe4/0xf8)
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Instead, determine the devm allocation state as a flag on the
+controller which is guaranteed to be stable during cleanup.
+
+Fixes: 5e844cc37a5c ("spi: Introduce device-managed SPI controller allocation")
+Signed-off-by: William A. Kennington III <wak@google.com>
+Link: https://lore.kernel.org/r/20210407095527.2771582-1-wak@google.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v4.9.270]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+---
+ drivers/spi/spi.c       | 9 ++-------
+ include/linux/spi/spi.h | 3 +++
+ 2 files changed, 5 insertions(+), 7 deletions(-)
+
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index f0ba5eb26128..84e2296c45a2 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -1869,6 +1869,7 @@ struct spi_master *devm_spi_alloc_master(struct device *dev, unsigned int size)
+ 
+ 	master = spi_alloc_master(dev, size);
+ 	if (master) {
++		master->devm_allocated = true;
+ 		*ptr = master;
+ 		devres_add(dev, ptr);
+ 	} else {
+@@ -2059,11 +2060,6 @@ int devm_spi_register_master(struct device *dev, struct spi_master *master)
+ }
+ EXPORT_SYMBOL_GPL(devm_spi_register_master);
+ 
+-static int devm_spi_match_master(struct device *dev, void *res, void *master)
+-{
+-	return *(struct spi_master **)res == master;
+-}
+-
+ static int __unregister(struct device *dev, void *null)
+ {
+ 	spi_unregister_device(to_spi_device(dev));
+@@ -2102,8 +2098,7 @@ void spi_unregister_master(struct spi_master *master)
+ 	/* Release the last reference on the master if its driver
+ 	 * has not yet been converted to devm_spi_alloc_master().
+ 	 */
+-	if (!devres_find(master->dev.parent, devm_spi_release_master,
+-			 devm_spi_match_master, master))
++	if (!master->devm_allocated)
+ 		put_device(&master->dev);
+ 
+ 	if (IS_ENABLED(CONFIG_SPI_DYNAMIC))
+diff --git a/include/linux/spi/spi.h b/include/linux/spi/spi.h
+index 8470695e5dd7..9c8445f1af0c 100644
+--- a/include/linux/spi/spi.h
++++ b/include/linux/spi/spi.h
+@@ -443,6 +443,9 @@ struct spi_master {
+ #define SPI_MASTER_MUST_RX      BIT(3)		/* requires rx */
+ #define SPI_MASTER_MUST_TX      BIT(4)		/* requires tx */
+ 
++	/* flag indicating this is a non-devres managed controller */
++	bool			devm_allocated;
++
+ 	/*
+ 	 * on some hardware transfer / message size may be constrained
+ 	 * the limit may depend on device transfer settings
+-- 
+2.31.1
+
