@@ -2,91 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 523823946D3
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 20:11:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69CD9394707
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 20:29:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbhE1SMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 14:12:41 -0400
-Received: from phobos.denx.de ([85.214.62.61]:49468 "EHLO phobos.denx.de"
+        id S229481AbhE1SbY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 14:31:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56138 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229453AbhE1SMk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 May 2021 14:12:40 -0400
-Received: from [IPv6:::1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 775EB81FF5;
-        Fri, 28 May 2021 20:11:02 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1622225463;
-        bh=n6tFuTd1bckgtO6kRkILOeOeUjK2YzKwiXOZP4uCjNE=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=r4LocHsOfDDi304f0ET3nW2WIbvDHXJFgQ/s8tloOJtcSvUaYED5pSthteTsqbxt/
-         7Ouj6Yjc88cI/Lzk/egPtNz/R0q9RoOoS7bXdQ7Lu6EiK3fqtrGR/B3d3zUezoCEg5
-         FYHNuvxfp8SnVGwZFcuq/1Nro0iJXnIX/4wY4TRW9nQJCCvrcth4SO3nNV2AHbfeyJ
-         JWb8E7ePo4I1/DunPgwR3qXGXguwP8Mf6rbkPBbh2yS1DGm9JkTZiFr9zfvJuIOfxI
-         TXOcWw8jXiVFWFLowSy8vwLF3r7URh3Qnku4h4ztxGwDlHLwthS4FEBcRSIel7OJku
-         ALNMrJyRcLYTw==
-Subject: Re: [PATCH] rsi: fix broken AP mode due to unwanted encryption
-To:     Martin Fuzzey <martin.fuzzey@flowbird.group>,
-        Amitkumar Karwar <amitkarwar@gmail.com>
-Cc:     stable@vger.kernel.org, Siva Rebbagondla <siva8118@gmail.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <1622222314-17192-1-git-send-email-martin.fuzzey@flowbird.group>
-From:   Marek Vasut <marex@denx.de>
-Message-ID: <6f1d3952-c30e-4a6d-9857-5a6d68e962b2@denx.de>
-Date:   Fri, 28 May 2021 20:11:01 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S229463AbhE1SbY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 May 2021 14:31:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 43175613B5;
+        Fri, 28 May 2021 18:29:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622226588;
+        bh=QSRZ6S+Sdf5WKAtAbGtJdidvTJ3wPSV/gRZewGESIdk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hNQ+OCbF7nGq0MnBf2zAPV0EqKgB5b70lnJOPG/Bwu1By3raVTVvicfYq/ICuuHbd
+         TC4czzsMTLqk/RFcDpjfix5VBAQA34WlMU6mD/3sEKEkGHA1scGO+5EtIlxJb6bb58
+         962RSm5GttFs0CsZ8cXfAJ+eZhpLF/JFoUYqjV/b6uVemz8qtqktlMljUQ5UGd4Azl
+         XD5WWPTootKdW6q8HHwnhvXYLSk+a70AX587QpUItcVK6WevBjXPBPIYj903/XSfic
+         FIdC1ILIpNVc42D925oe+PjwSOgQwuqCkmAe0+hc+y9hJY7LAyK7zRUkUDuMF+CJTg
+         9n7m86SCQtTlQ==
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Michael Ellerman <mpe@ellerman.id.au>
+Cc:     Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Paul Mackerras <paulus@samba.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        linuxppc-dev@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        clang-built-linux@googlegroups.com,
+        Nathan Chancellor <nathan@kernel.org>, stable@vger.kernel.org
+Subject: [PATCH] powerpc/barrier: Avoid collision with clang's __lwsync macro
+Date:   Fri, 28 May 2021 11:27:52 -0700
+Message-Id: <20210528182752.1852002-1-nathan@kernel.org>
+X-Mailer: git-send-email 2.32.0.rc0
 MIME-Version: 1.0
-In-Reply-To: <1622222314-17192-1-git-send-email-martin.fuzzey@flowbird.group>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.102.4 at phobos.denx.de
-X-Virus-Status: Clean
+X-Patchwork-Bot: notify
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 5/28/21 7:17 PM, Martin Fuzzey wrote:
-> In AP mode WPA-PSK connections were not established.
-> 
-> The reason was that the AP was sending the first message
-> of the 4 way handshake encrypted, even though no key had
-> (correctly) yet been set.
-> 
-> Fix this by adding an extra check that we have a key.
-> 
-> The redpine downstream out of tree driver does it this way too.
-> 
-> Signed-off-by: Martin Fuzzey <martin.fuzzey@flowbird.group>
-> CC: stable@vger.kernel.org
+A change in clang 13 results in the __lwsync macro being defined as
+__builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
+the target supports. This breaks the build because of -Werror in
+arch/powerpc, along with thousands of warnings:
 
-This likely needs a Fixes: tag ?
+ In file included from arch/powerpc/kernel/pmc.c:12:
+ In file included from include/linux/bug.h:5:
+ In file included from arch/powerpc/include/asm/bug.h:109:
+ In file included from include/asm-generic/bug.h:20:
+ In file included from include/linux/kernel.h:12:
+ In file included from include/linux/bitops.h:32:
+ In file included from arch/powerpc/include/asm/bitops.h:62:
+ arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
+ #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
+        ^
+ <built-in>:308:9: note: previous definition is here
+ #define __lwsync __builtin_ppc_lwsync
+        ^
+ 1 error generated.
 
-> ---
->   drivers/net/wireless/rsi/rsi_91x_hal.c | 1 +
->   1 file changed, 1 insertion(+)
-> 
-> diff --git a/drivers/net/wireless/rsi/rsi_91x_hal.c b/drivers/net/wireless/rsi/rsi_91x_hal.c
-> index ce98921..ef84262 100644
-> --- a/drivers/net/wireless/rsi/rsi_91x_hal.c
-> +++ b/drivers/net/wireless/rsi/rsi_91x_hal.c
-> @@ -203,6 +203,7 @@ int rsi_prepare_data_desc(struct rsi_common *common, struct sk_buff *skb)
->   		wh->frame_control |= cpu_to_le16(RSI_SET_PS_ENABLE);
->   
->   	if ((!(info->flags & IEEE80211_TX_INTFL_DONT_ENCRYPT)) &&
-> +	    (info->control.hw_key) &&
+Undefine this macro so that the runtime patching introduced by
+commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
+work properly with clang and the build no longer breaks.
 
-The () are not needed.
+Cc: stable@vger.kernel.org
+Link: https://github.com/ClangBuiltLinux/linux/issues/1386
+Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ arch/powerpc/include/asm/barrier.h | 2 ++
+ 1 file changed, 2 insertions(+)
 
->   	    (common->secinfo.security_enable)) {
->   		if (rsi_is_cipher_wep(common))
->   			ieee80211_size += 4;
-> 
-Otherwise, looks good, thanks. With those two things above fixed, add:
+diff --git a/arch/powerpc/include/asm/barrier.h b/arch/powerpc/include/asm/barrier.h
+index 7ae29cfb06c0..f0e687236484 100644
+--- a/arch/powerpc/include/asm/barrier.h
++++ b/arch/powerpc/include/asm/barrier.h
+@@ -46,6 +46,8 @@
+ #    define SMPWMB      eieio
+ #endif
+ 
++/* clang defines this macro for a builtin, which will not work with runtime patching */
++#undef __lwsync
+ #define __lwsync()	__asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
+ #define dma_rmb()	__lwsync()
+ #define dma_wmb()	__asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
 
-Reviewed-by: Marek Vasut <marex@denx.de>
+base-commit: 97e5bf604b7a0d6e1b3e00fe31d5fd4b9bffeaae
+-- 
+2.32.0.rc0
+
