@@ -2,382 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56B263941E1
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 13:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F6963941E5
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 13:36:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234566AbhE1Lho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 07:37:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49198 "EHLO mail.kernel.org"
+        id S234994AbhE1Lhu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 07:37:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234573AbhE1Lhn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 May 2021 07:37:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C82661378;
-        Fri, 28 May 2021 11:36:07 +0000 (UTC)
+        id S234783AbhE1Lhr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 May 2021 07:37:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2B6A61378;
+        Fri, 28 May 2021 11:36:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622201768;
-        bh=bTCj99KM/RPC9BNds++1oBU+QH4Ih+eOg3gDwZC1EGs=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jM5J1VRM+cpuzHq8BEKBOtiteH4V/sPWelyxarWXkCXadv8RwLWGoTQC+7+gfti1o
-         dqWwJ0U34gEOdOlqbGziW/LP5HOhdMvEflmaWp0zY3e3UK/SP04AbaK1M5eNbOMq5B
-         Gr3rjOeVyXd3bTScL/oTHD9Uogg3lKAOiPlWqZ8M=
+        s=korg; t=1622201773;
+        bh=C0aVMXibZOmzHQhlrDgIlNwAkDULi5eFT4KubSuHhJw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nyiPRgMGFC/AVIKRk/XVTEleQe6zKnT5ygaXURmGuGjrfurj9JYbJrp4KiQ1GWPDe
+         WxwfSBdFNYVvMd4hpOLgEE0vmxcoyV/blKIQpYT2t67JVWIzhvZl4Nw6IinoKjpevR
+         YFJF+cdgIxDzO/T8nND+kFCs/W0+nuVpiT9oPv/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
         torvalds@linux-foundation.org, stable@vger.kernel.org
 Cc:     lwn@lwn.net, jslaby@suse.cz,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Subject: Re: Linux 5.10.41
-Date:   Fri, 28 May 2021 13:35:57 +0200
-Message-Id: <162220175749228@kroah.com>
+Subject: Linux 5.12.8
+Date:   Fri, 28 May 2021 13:36:01 +0200
+Message-Id: <162220176213976@kroah.com>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <16222017579575@kroah.com>
-References: <16222017579575@kroah.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-diff --git a/Makefile b/Makefile
-index 42c915ccc5b8..81011c92dd46 100644
---- a/Makefile
-+++ b/Makefile
-@@ -1,7 +1,7 @@
- # SPDX-License-Identifier: GPL-2.0
- VERSION = 5
- PATCHLEVEL = 10
--SUBLEVEL = 40
-+SUBLEVEL = 41
- EXTRAVERSION =
- NAME = Dare mighty things
- 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index ca7a717477e7..9d4eb114613c 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3532,15 +3532,15 @@ static noinstr void svm_vcpu_enter_exit(struct kvm_vcpu *vcpu,
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
- 
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index d7f8d2167fda..45877364e682 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -6640,15 +6640,15 @@ static noinstr void vmx_vcpu_enter_exit(struct kvm_vcpu *vcpu,
- 	 * have them in state 'on' as recorded before entering guest mode.
- 	 * Same as enter_from_user_mode().
- 	 *
--	 * guest_exit_irqoff() restores host context and reinstates RCU if
--	 * enabled and required.
-+	 * context_tracking_guest_exit() restores host context and reinstates
-+	 * RCU if enabled and required.
- 	 *
- 	 * This needs to be done before the below as native_read_msr()
- 	 * contains a tracepoint and x86_spec_ctrl_restore_host() calls
- 	 * into world and some more.
- 	 */
- 	lockdep_hardirqs_off(CALLER_ADDR0);
--	guest_exit_irqoff();
-+	context_tracking_guest_exit();
- 
- 	instrumentation_begin();
- 	trace_hardirqs_off_finish();
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index c071a83d543a..7f767d59b09d 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -9063,6 +9063,15 @@ static int vcpu_enter_guest(struct kvm_vcpu *vcpu)
- 	local_irq_disable();
- 	kvm_after_interrupt(vcpu);
- 
-+	/*
-+	 * Wait until after servicing IRQs to account guest time so that any
-+	 * ticks that occurred while running the guest are properly accounted
-+	 * to the guest.  Waiting until IRQs are enabled degrades the accuracy
-+	 * of accounting via context tracking, but the loss of accuracy is
-+	 * acceptable for all known use cases.
-+	 */
-+	vtime_account_guest_exit();
-+
- 	if (lapic_in_kernel(vcpu)) {
- 		s64 delta = vcpu->arch.apic->lapic_timer.advance_expire_delta;
- 		if (delta != S64_MIN) {
-diff --git a/include/linux/context_tracking.h b/include/linux/context_tracking.h
-index d53cd331c4dd..f5d127a5d819 100644
---- a/include/linux/context_tracking.h
-+++ b/include/linux/context_tracking.h
-@@ -129,16 +129,26 @@ static __always_inline void guest_enter_irqoff(void)
- 	}
- }
- 
--static __always_inline void guest_exit_irqoff(void)
-+static __always_inline void context_tracking_guest_exit(void)
- {
- 	if (context_tracking_enabled())
- 		__context_tracking_exit(CONTEXT_GUEST);
-+}
- 
--	instrumentation_begin();
-+static __always_inline void vtime_account_guest_exit(void)
-+{
- 	if (vtime_accounting_enabled_this_cpu())
- 		vtime_guest_exit(current);
- 	else
- 		current->flags &= ~PF_VCPU;
-+}
-+
-+static __always_inline void guest_exit_irqoff(void)
-+{
-+	context_tracking_guest_exit();
-+
-+	instrumentation_begin();
-+	vtime_account_guest_exit();
- 	instrumentation_end();
- }
- 
-@@ -157,12 +167,19 @@ static __always_inline void guest_enter_irqoff(void)
- 	instrumentation_end();
- }
- 
-+static __always_inline void context_tracking_guest_exit(void) { }
-+
-+static __always_inline void vtime_account_guest_exit(void)
-+{
-+	vtime_account_kernel(current);
-+	current->flags &= ~PF_VCPU;
-+}
-+
- static __always_inline void guest_exit_irqoff(void)
- {
- 	instrumentation_begin();
- 	/* Flush the guest cputime we spent on the guest */
--	vtime_account_kernel(current);
--	current->flags &= ~PF_VCPU;
-+	vtime_account_guest_exit();
- 	instrumentation_end();
- }
- #endif /* CONFIG_VIRT_CPU_ACCOUNTING_GEN */
-diff --git a/include/net/nfc/nci_core.h b/include/net/nfc/nci_core.h
-index 43c9c5d2bedb..33979017b782 100644
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -298,6 +298,7 @@ int nci_nfcc_loopback(struct nci_dev *ndev, void *data, size_t data_len,
- 		      struct sk_buff **resp);
- 
- struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
-+void nci_hci_deallocate(struct nci_dev *ndev);
- int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
- 		       const u8 *param, size_t param_len);
- int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 69730943eaf8..364b9760d1a7 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -5666,18 +5666,10 @@ enum {
- };
- 
- static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
--			      const struct bpf_reg_state *off_reg,
--			      u32 *alu_limit, u8 opcode)
-+			      u32 *alu_limit, bool mask_to_left)
- {
--	bool off_is_neg = off_reg->smin_value < 0;
--	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
--			    (opcode == BPF_SUB && !off_is_neg);
- 	u32 max = 0, ptr_limit = 0;
- 
--	if (!tnum_is_const(off_reg->var_off) &&
--	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
--		return REASON_BOUNDS;
--
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
- 		/* Offset 0 is out-of-bounds, but acceptable start for the
-@@ -5743,15 +5735,20 @@ static bool sanitize_needed(u8 opcode)
- 	return opcode == BPF_ADD || opcode == BPF_SUB;
- }
- 
-+struct bpf_sanitize_info {
-+	struct bpf_insn_aux_data aux;
-+	bool mask_to_left;
-+};
-+
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
- 			    const struct bpf_reg_state *off_reg,
- 			    struct bpf_reg_state *dst_reg,
--			    struct bpf_insn_aux_data *tmp_aux,
-+			    struct bpf_sanitize_info *info,
- 			    const bool commit_window)
- {
--	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
-+	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
- 	struct bpf_verifier_state *vstate = env->cur_state;
- 	bool off_is_imm = tnum_is_const(off_reg->var_off);
- 	bool off_is_neg = off_reg->smin_value < 0;
-@@ -5772,7 +5769,16 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	if (vstate->speculative)
- 		goto do_sim;
- 
--	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
-+	if (!commit_window) {
-+		if (!tnum_is_const(off_reg->var_off) &&
-+		    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
-+			return REASON_BOUNDS;
-+
-+		info->mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
-+				     (opcode == BPF_SUB && !off_is_neg);
-+	}
-+
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, info->mask_to_left);
- 	if (err < 0)
- 		return err;
- 
-@@ -5780,8 +5786,8 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 		/* In commit phase we narrow the masking window based on
- 		 * the observed pointer move after the simulated operation.
- 		 */
--		alu_state = tmp_aux->alu_state;
--		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
-+		alu_state = info->aux.alu_state;
-+		alu_limit = abs(info->aux.alu_limit - alu_limit);
- 	} else {
- 		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
- 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
-@@ -5796,8 +5802,12 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	/* If we're in commit phase, we're done here given we already
- 	 * pushed the truncated dst_reg into the speculative verification
- 	 * stack.
-+	 *
-+	 * Also, when register is a known constant, we rewrite register-based
-+	 * operation to immediate-based, and thus do not need masking (and as
-+	 * a consequence, do not need to simulate the zero-truncation either).
- 	 */
--	if (commit_window)
-+	if (commit_window || off_is_imm)
- 		return 0;
- 
- 	/* Simulate and find potential out-of-bounds access under
-@@ -5942,7 +5952,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
- 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
- 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
--	struct bpf_insn_aux_data tmp_aux = {};
-+	struct bpf_sanitize_info info = {};
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 dst = insn->dst_reg;
- 	int ret;
-@@ -6011,7 +6021,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
--				       &tmp_aux, false);
-+				       &info, false);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
- 	}
-@@ -6152,7 +6162,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 		return -EACCES;
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
--				       &tmp_aux, true);
-+				       &info, true);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
- 	}
-diff --git a/net/nfc/nci/core.c b/net/nfc/nci/core.c
-index 741da8f81c2b..32e8154363ca 100644
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -1175,6 +1175,7 @@ EXPORT_SYMBOL(nci_allocate_device);
- void nci_free_device(struct nci_dev *ndev)
- {
- 	nfc_free_device(ndev->nfc_dev);
-+	nci_hci_deallocate(ndev);
- 	kfree(ndev);
- }
- EXPORT_SYMBOL(nci_free_device);
-diff --git a/net/nfc/nci/hci.c b/net/nfc/nci/hci.c
-index c18e76d6d8ba..04e55ccb3383 100644
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -795,3 +795,8 @@ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev)
- 
- 	return hdev;
- }
-+
-+void nci_hci_deallocate(struct nci_dev *ndev)
-+{
-+	kfree(ndev->hci_dev);
-+}
-diff --git a/tools/perf/util/unwind-libdw.c b/tools/perf/util/unwind-libdw.c
-index 7a3dbc259cec..a74b517f7497 100644
---- a/tools/perf/util/unwind-libdw.c
-+++ b/tools/perf/util/unwind-libdw.c
-@@ -20,10 +20,24 @@
- 
- static char *debuginfo_path;
- 
-+static int __find_debuginfo(Dwfl_Module *mod __maybe_unused, void **userdata,
-+			    const char *modname __maybe_unused, Dwarf_Addr base __maybe_unused,
-+			    const char *file_name, const char *debuglink_file __maybe_unused,
-+			    GElf_Word debuglink_crc __maybe_unused, char **debuginfo_file_name)
-+{
-+	const struct dso *dso = *userdata;
-+
-+	assert(dso);
-+	if (dso->symsrc_filename && strcmp (file_name, dso->symsrc_filename))
-+		*debuginfo_file_name = strdup(dso->symsrc_filename);
-+	return -1;
-+}
-+
- static const Dwfl_Callbacks offline_callbacks = {
--	.find_debuginfo		= dwfl_standard_find_debuginfo,
-+	.find_debuginfo		= __find_debuginfo,
- 	.debuginfo_path		= &debuginfo_path,
- 	.section_address	= dwfl_offline_section_address,
-+	// .find_elf is not set as we use dwfl_report_elf() instead.
- };
- 
- static int __report_module(struct addr_location *al, u64 ip,
-@@ -53,9 +67,22 @@ static int __report_module(struct addr_location *al, u64 ip,
- 	}
- 
- 	if (!mod)
--		mod = dwfl_report_elf(ui->dwfl, dso->short_name,
--				      (dso->symsrc_filename ? dso->symsrc_filename : dso->long_name), -1, al->map->start - al->map->pgoff,
--				      false);
-+		mod = dwfl_report_elf(ui->dwfl, dso->short_name, dso->long_name, -1,
-+				      al->map->start - al->map->pgoff, false);
-+	if (!mod) {
-+		char filename[PATH_MAX];
-+
-+		if (dso__build_id_filename(dso, filename, sizeof(filename), false))
-+			mod = dwfl_report_elf(ui->dwfl, dso->short_name, filename, -1,
-+					      al->map->start - al->map->pgoff, false);
-+	}
-+
-+	if (mod) {
-+		void **userdatap;
-+
-+		dwfl_module_info(mod, &userdatap, NULL, NULL, NULL, NULL, NULL, NULL);
-+		*userdatap = dso;
-+	}
- 
- 	return mod && dwfl_addrmodule(ui->dwfl, ip) == mod ? 0 : -1;
- }
+I'm announcing the release of the 5.12.8 kernel.
+
+All users of the 5.12 kernel series must upgrade.
+
+The updated 5.12.y git tree can be found at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.12.y
+and can be browsed at the normal kernel.org git web browser:
+	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+
+thanks,
+
+greg k-h
+
+------------
+
+ Makefile                         |    2 -
+ arch/x86/kvm/svm/svm.c           |    6 ++---
+ arch/x86/kvm/vmx/vmx.c           |    6 ++---
+ arch/x86/kvm/x86.c               |    9 +++++++
+ include/linux/context_tracking.h |   25 +++++++++++++++++----
+ include/net/nfc/nci_core.h       |    1 
+ kernel/bpf/verifier.c            |   46 +++++++++++++++++++++++----------------
+ net/nfc/nci/core.c               |    1 
+ net/nfc/nci/hci.c                |    5 ++++
+ 9 files changed, 72 insertions(+), 29 deletions(-)
+
+Daniel Borkmann (3):
+      bpf: Wrap aux data inside bpf_sanitize_info container
+      bpf: Fix mask direction swap upon off reg sign change
+      bpf: No need to simulate speculative domain for immediates
+
+Dongliang Mu (1):
+      NFC: nci: fix memory leak in nci_allocate_device
+
+Greg Kroah-Hartman (1):
+      Linux 5.12.8
+
+Wanpeng Li (3):
+      context_tracking: Move guest exit context tracking to separate helpers
+      context_tracking: Move guest exit vtime accounting to separate helpers
+      KVM: x86: Defer vtime accounting 'til after IRQ handling
+
