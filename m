@@ -2,131 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5D13945A0
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 18:05:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D8DB394592
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 18:04:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236213AbhE1QGz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 12:06:55 -0400
-Received: from m43-7.mailgun.net ([69.72.43.7]:42878 "EHLO m43-7.mailgun.net"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236718AbhE1QGv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 May 2021 12:06:51 -0400
-DKIM-Signature: a=rsa-sha256; v=1; c=relaxed/relaxed; d=mg.codeaurora.org; q=dns/txt;
- s=smtp; t=1622217917; h=Content-Transfer-Encoding: MIME-Version:
- Message-Id: Date: Subject: Cc: To: From: Sender;
- bh=Cf/VjNCTchFVUo8Gy9ne+Oe9WRq9NkIZsHxvuJhoelg=; b=kYM+qDn7It5kmSBpnAx3ZRudjEFq+c25gK4nkH3zudt5js2jhxYLUzip2hdggGDdylP6TSBm
- D6rFh08CbbyUc/Lrb9FVOFLarNGFv5hqiyFEIzNTINhYmnuEup7HungFSvb9Rsk7XHpjyL3Y
- pJ99vu9ptUsvCnKrn4kdRuhfeik=
-X-Mailgun-Sending-Ip: 69.72.43.7
-X-Mailgun-Sid: WyI1ZjI4MyIsICJzdGFibGVAdmdlci5rZXJuZWwub3JnIiwgImJlOWU0YSJd
-Received: from smtp.codeaurora.org
- (ec2-35-166-182-171.us-west-2.compute.amazonaws.com [35.166.182.171]) by
- smtp-out-n05.prod.us-east-1.postgun.com with SMTP id
- 60b114b3cad205471db7a935 (version=TLS1.2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256); Fri, 28 May 2021 16:05:07
- GMT
-Sender: jackp=codeaurora.org@mg.codeaurora.org
-Received: by smtp.codeaurora.org (Postfix, from userid 1001)
-        id 63D12C4323A; Fri, 28 May 2021 16:05:06 +0000 (UTC)
-X-Spam-Checker-Version: SpamAssassin 3.4.0 (2014-02-07) on
-        aws-us-west-2-caf-mail-1.web.codeaurora.org
-X-Spam-Level: 
-X-Spam-Status: No, score=-2.9 required=2.0 tests=ALL_TRUSTED,BAYES_00,SPF_FAIL
-        autolearn=no autolearn_force=no version=3.4.0
-Received: from jackp-linux.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        id S235511AbhE1QGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 12:06:00 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:42868 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232832AbhE1QGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 12:06:00 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
         (No client certificate requested)
-        (Authenticated sender: jackp)
-        by smtp.codeaurora.org (Postfix) with ESMTPSA id E57EEC433F1;
-        Fri, 28 May 2021 16:05:04 +0000 (UTC)
-DMARC-Filter: OpenDMARC Filter v1.3.2 smtp.codeaurora.org E57EEC433F1
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; dmarc=none (p=none dis=none) header.from=codeaurora.org
-Authentication-Results: aws-us-west-2-caf-mail-1.web.codeaurora.org; spf=fail smtp.mailfrom=jackp@codeaurora.org
-From:   Jack Pham <jackp@codeaurora.org>
-To:     Felipe Balbi <balbi@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Wesley Cheng <wcheng@codeaurora.org>, linux-usb@vger.kernel.org,
-        Jack Pham <jackp@codeaurora.org>, stable@vger.kernel.org,
-        Peter Chen <peter.chen@kernel.org>
-Subject: [PATCH v2] usb: dwc3: gadget: Bail from dwc3_gadget_exit() if dwc->gadget is NULL
-Date:   Fri, 28 May 2021 09:04:05 -0700
-Message-Id: <20210528160405.17550-1-jackp@codeaurora.org>
-X-Mailer: git-send-email 2.24.0
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 0703D1FD2E;
+        Fri, 28 May 2021 16:04:23 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1622217863; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ryxgbzMlqoiV5wx2RetTsFDMMq3afsJoUJpplYegSOI=;
+        b=QzVqmaTdvG8sY+sW6kDpyamAAxq9KXvIYsOztS8hos4Qa5PSJSrRBTwCEFcKkO2KPw9Gaf
+        eyqfiuoQv4QTs6+fZ0AlhUxn2xf/EoUzI1CsBzbe56jAkx8exPt2FQq/a3PiA9iL9tR1O9
+        j7ZhosNKBHIDDXmfmpy0kEgBOwjRfhQ=
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 67DF0118DD;
+        Fri, 28 May 2021 16:04:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1622217861; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=ryxgbzMlqoiV5wx2RetTsFDMMq3afsJoUJpplYegSOI=;
+        b=j7icTdjfsJkM58Fv9lglAUF+xTGHtZlo/a73j4E/I04DMiD8fFixjr17ikhPLaSjv/pdfj
+        k8LoHW1jTShwk/7QhMfAlAqBJn/zq/uWc122JK38YbR5mcMKz9ruvd9EMIRzXa4ZAjp4li
+        3uul8IAuNyvvfp/7EXe3A40UCCmTWA0=
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id 3sDlFoUUsWBTJwAALh3uQQ
+        (envelope-from <varad.gautam@suse.com>); Fri, 28 May 2021 16:04:21 +0000
+From:   Varad Gautam <varad.gautam@suse.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     varad.gautam@suse.com,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>,
+        "Ahmed S. Darwish" <a.darwish@linutronix.de>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH v2] xfrm: policy: Read seqcount outside of rcu-read side in xfrm_policy_lookup_bytype
+Date:   Fri, 28 May 2021 18:04:06 +0200
+Message-Id: <20210528160407.32127-1-varad.gautam@suse.com>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210528120357.29542-1-varad.gautam@suse.com>
+References: <20210528120357.29542-1-varad.gautam@suse.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Authentication-Results: imap.suse.de;
+        none
+X-Spam-Level: *****
+X-Spam-Score: 5.00
+X-Spamd-Result: default: False [5.00 / 100.00];
+         ARC_NA(0.00)[];
+         RCVD_VIA_SMTP_AUTH(0.00)[];
+         FROM_HAS_DN(0.00)[];
+         TO_DN_SOME(0.00)[];
+         TO_MATCH_ENVRCPT_ALL(0.00)[];
+         R_MISSING_CHARSET(2.50)[];
+         MIME_GOOD(-0.10)[text/plain];
+         BROKEN_CONTENT_TYPE(1.50)[];
+         DKIM_SIGNED(0.00)[suse.com:s=susede1];
+         RCPT_COUNT_TWELVE(0.00)[12];
+         MID_CONTAINS_FROM(1.00)[];
+         RCVD_NO_TLS_LAST(0.10)[];
+         FROM_EQ_ENVFROM(0.00)[];
+         MIME_TRACE(0.00)[0:+];
+         RCVD_COUNT_TWO(0.00)[2]
+X-Spam-Flag: NO
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-There exists a possible scenario in which dwc3_gadget_init() can fail:
-during during host -> peripheral mode switch in dwc3_set_mode(), and
-a pending gadget driver fails to bind.  Then, if the DRD undergoes
-another mode switch from peripheral->host the resulting
-dwc3_gadget_exit() will attempt to reference an invalid and dangling
-dwc->gadget pointer as well as call dma_free_coherent() on unmapped
-DMA pointers.
+xfrm_policy_lookup_bytype loops on seqcount mutex xfrm_policy_hash_generation
+within an RCU read side critical section. Although ill advised, this is fine if
+the loop is bounded.
 
-The exact scenario can be reproduced as follows:
- - Start DWC3 in peripheral mode
- - Configure ConfigFS gadget with FunctionFS instance (or use g_ffs)
- - Run FunctionFS userspace application (open EPs, write descriptors, etc)
- - Bind gadget driver to DWC3's UDC
- - Switch DWC3 to host mode
-   => dwc3_gadget_exit() is called. usb_del_gadget() will put the
-	ConfigFS driver instance on the gadget_driver_pending_list
- - Stop FunctionFS application (closes the ep files)
- - Switch DWC3 to peripheral mode
-   => dwc3_gadget_init() fails as usb_add_gadget() calls
-	check_pending_gadget_drivers() and attempts to rebind the UDC
-	to the ConfigFS gadget but fails with -19 (-ENODEV) because the
-	FFS instance is not in FFS_ACTIVE state (userspace has not
-	re-opened and written the descriptors yet, i.e. desc_ready!=0).
- - Switch DWC3 back to host mode
-   => dwc3_gadget_exit() is called again, but this time dwc->gadget
-	is invalid.
+xfrm_policy_hash_generation wraps mutex hash_resize_mutex, which is used to
+serialize writers (xfrm_hash_resize, xfrm_hash_rebuild). This is fine too.
 
-Although it can be argued that userspace should take responsibility
-for ensuring that the FunctionFS application be ready prior to
-allowing the composite driver bind to the UDC, failure to do so
-should not result in a panic from the kernel driver.
+On PREEMPT_RT=y, the read_seqcount_begin call within xfrm_policy_lookup_bytype
+emits a mutex lock/unlock for hash_resize_mutex. Mutex locking is fine, since
+RCU read side critical sections are allowed to sleep with PREEMPT_RT.
 
-Fix this by setting dwc->gadget to NULL in the failure path of
-dwc3_gadget_init() and add a check to dwc3_gadget_exit() to bail out
-unless the gadget pointer is valid.
+xfrm_hash_resize can, however, block on synchronize_rcu while holding
+hash_resize_mutex.
 
-Fixes: e81a7018d93a ("usb: dwc3: allocate gadget structure dynamically")
-Cc: <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
+This leads to the following situation on PREEMPT_RT, where the writer is
+blocked on RCU grace period expiry, while the reader is blocked on a lock held
+by the writer:
+
+Thead 1 (xfrm_hash_resize)	Thread 2 (xfrm_policy_lookup_bytype)
+
+				rcu_read_lock();
+mutex_lock(&hash_resize_mutex);
+				read_seqcount_begin(&xfrm_policy_hash_generation);
+				mutex_lock(&hash_resize_mutex); // block
+xfrm_bydst_resize();
+synchronize_rcu(); // block
+		<RCU stalls in xfrm_policy_lookup_bytype>
+
+Move the read_seqcount_begin call outside of the RCU read side critical section,
+and do an rcu_read_unlock/retry if we got stale data within the critical section.
+
+On non-PREEMPT_RT, this shortens the time spent within RCU read side critical
+section in case the seqcount needs a retry, and avoids unbounded looping.
+
+Fixes: 77cc278f7b20 ("xfrm: policy: Use sequence counters with associated lock")
+Signed-off-by: Varad Gautam <varad.gautam@suse.com>
+Cc: linux-rt-users <linux-rt-users@vger.kernel.org>
+Cc: netdev@vger.kernel.org
+Cc: stable@vger.kernel.org # v4.9
+Cc: Steffen Klassert <steffen.klassert@secunet.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Florian Westphal <fw@strlen.de>
+Cc: "Ahmed S. Darwish" <a.darwish@linutronix.de>
 ---
-v2: Fixed commit message to refer to FFS_ACTIVE state; added
-    Peter's Reviewed-by tag.
+v2: Correct 'Fixes:' to the right commit.
 
- drivers/usb/dwc3/gadget.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ net/xfrm/xfrm_policy.c | 21 ++++++++++++++-------
+ 1 file changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 612825a39f82..65d9b7227752 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -4046,6 +4046,7 @@ int dwc3_gadget_init(struct dwc3 *dwc)
- 	dwc3_gadget_free_endpoints(dwc);
- err4:
- 	usb_put_gadget(dwc->gadget);
-+	dwc->gadget = NULL;
- err3:
- 	dma_free_coherent(dwc->sysdev, DWC3_BOUNCE_SIZE, dwc->bounce,
- 			dwc->bounce_addr);
-@@ -4065,6 +4066,9 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index ce500f847b99..e9d0df2a2ab1 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -2092,12 +2092,15 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
+ 	if (unlikely(!daddr || !saddr))
+ 		return NULL;
  
- void dwc3_gadget_exit(struct dwc3 *dwc)
- {
-+	if (!dwc->gadget)
-+		return;
+-	rcu_read_lock();
+  retry:
+-	do {
+-		sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
+-		chain = policy_hash_direct(net, daddr, saddr, family, dir);
+-	} while (read_seqcount_retry(&xfrm_policy_hash_generation, sequence));
++	sequence = read_seqcount_begin(&xfrm_policy_hash_generation);
++	rcu_read_lock();
 +
- 	usb_del_gadget(dwc->gadget);
- 	dwc3_gadget_free_endpoints(dwc);
- 	usb_put_gadget(dwc->gadget);
++	chain = policy_hash_direct(net, daddr, saddr, family, dir);
++	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
++		rcu_read_unlock();
++		goto retry;
++	}
+ 
+ 	ret = NULL;
+ 	hlist_for_each_entry_rcu(pol, chain, bydst) {
+@@ -2128,11 +2131,15 @@ static struct xfrm_policy *xfrm_policy_lookup_bytype(struct net *net, u8 type,
+ 	}
+ 
+ skip_inexact:
+-	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence))
++	if (read_seqcount_retry(&xfrm_policy_hash_generation, sequence)) {
++		rcu_read_unlock();
+ 		goto retry;
++	}
+ 
+-	if (ret && !xfrm_pol_hold_rcu(ret))
++	if (ret && !xfrm_pol_hold_rcu(ret)) {
++		rcu_read_unlock();
+ 		goto retry;
++	}
+ fail:
+ 	rcu_read_unlock();
+ 
 -- 
-2.24.0
+2.26.2
 
