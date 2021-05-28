@@ -2,100 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D992393F01
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 10:52:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87E6A3940BB
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 12:12:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235487AbhE1Iyb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 04:54:31 -0400
-Received: from mo-csw1514.securemx.jp ([210.130.202.153]:44936 "EHLO
-        mo-csw.securemx.jp" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235298AbhE1Iyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 04:54:31 -0400
-Received: by mo-csw.securemx.jp (mx-mo-csw1514) id 14S8qhcC023293; Fri, 28 May 2021 17:52:44 +0900
-X-Iguazu-Qid: 34tMccFKPI69aqbTa1
-X-Iguazu-QSIG: v=2; s=0; t=1622191963; q=34tMccFKPI69aqbTa1; m=V0eQkIsu+COYtcuxzbPCqr2ufRRsTeXvaadRqTN/yDo=
-Received: from imx2-a.toshiba.co.jp (imx2-a.toshiba.co.jp [106.186.93.35])
-        by relay.securemx.jp (mx-mr1510) id 14S8qZtx010858
-        (version=TLSv1.2 cipher=AES128-GCM-SHA256 bits=128 verify=NOT);
-        Fri, 28 May 2021 17:52:41 +0900
-Received: from enc01.toshiba.co.jp (enc01.toshiba.co.jp [106.186.93.100])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by imx2-a.toshiba.co.jp (Postfix) with ESMTPS id 796E11000AA;
-        Fri, 28 May 2021 17:52:35 +0900 (JST)
-Received: from hop001.toshiba.co.jp ([133.199.164.63])
-        by enc01.toshiba.co.jp  with ESMTP id 14S8qZ9U032339;
-        Fri, 28 May 2021 17:52:35 +0900
-From:   Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, sashal@kernel.org,
-        Lin Ma <linma@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>,
-        Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH for 4.4] bluetooth: eliminate the potential race condition when removing the HCI controller
-Date:   Fri, 28 May 2021 17:52:24 +0900
-X-TSB-HOP: ON
-Message-Id: <20210528085224.1021277-1-nobuhiro1.iwamatsu@toshiba.co.jp>
-X-Mailer: git-send-email 2.31.1
+        id S236436AbhE1KOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 06:14:14 -0400
+Received: from mail.loongson.cn ([114.242.206.163]:58024 "EHLO loongson.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S236551AbhE1KON (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 28 May 2021 06:14:13 -0400
+Received: from [10.130.0.135] (unknown [113.200.148.30])
+        by mail.loongson.cn (Coremail) with SMTP id AQAAf9DxL0MNwrBgJ8YFAA--.5536S3;
+        Fri, 28 May 2021 18:12:29 +0800 (CST)
+Subject: Re: [PATCH 4.19 00/12] bpf: fix verifier selftests, add
+ CVE-2021-29155 fixes
+To:     Ovidiu Panait <ovidiu.panait@windriver.com>, stable@vger.kernel.org
+References: <20210527173732.20860-1-ovidiu.panait@windriver.com>
+Cc:     fllinden@amazon.com, bpf@vger.kernel.org, ast@kernel.org,
+        daniel@iogearbox.net, yhs@fb.com, john.fastabend@gmail.com,
+        samjonas@amazon.com
+From:   Tiezhu Yang <yangtiezhu@loongson.cn>
+Message-ID: <3d25a908-6d1a-482f-106b-5d894c3cab87@loongson.cn>
+Date:   Fri, 28 May 2021 18:12:29 +0800
+User-Agent: Mozilla/5.0 (X11; Linux mips64; rv:45.0) Gecko/20100101
+ Thunderbird/45.4.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210527173732.20860-1-ovidiu.panait@windriver.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: AQAAf9DxL0MNwrBgJ8YFAA--.5536S3
+X-Coremail-Antispam: 1UD129KBjvdXoW7GrWUXFWUCr4xWrWkXFW8Zwb_yoWxZFXEkr
+        W3WFZ8Crn8Ar4UWay2yFyxurn8KrW3X3WSya40vwn5G3s5XFn5JFsaga4rAr93u3WfCrsr
+        JF13Gws5XFyY9jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+        9fnUUIcSsGvfJTRUUUbIAYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I
+        6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM2
+        8CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0
+        cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I
+        8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
+        64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWxJVW8Jr
+        1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4CEbIxvr21l
+        c2xSY4AK67AK6r4DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I
+        0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWU
+        tVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcV
+        CY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv
+        67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyT
+        uYvjxU75l1DUUUU
+X-CM-SenderInfo: p1dqw3xlh2x3gn0dqz5rrqw2lrqou0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+On 05/28/2021 01:37 AM, Ovidiu Panait wrote:
+> This patchset is based on Frank van der Linden's backport of CVE-2021-29155
+> fixes to 5.4 and 4.14:
+> https://lore.kernel.org/stable/20210429220839.15667-1-fllinden@amazon.com/
+> https://lore.kernel.org/stable/20210501043014.33300-1-fllinden@amazon.com/
+>
+> With this series, all verifier selftests but one (that has already been
+> failing, see [1] for more details) succeed.
+>
 
-commit e2cb6b891ad2b8caa9131e3be70f45243df82a80 upstream.
+Hi,
 
-There is a possible race condition vulnerability between issuing a HCI
-command and removing the cont.  Specifically, functions hci_req_sync()
-and hci_dev_do_close() can race each other like below:
+It seems that some patches about F_NEEDS_EFFICIENT_UNALIGNED_ACCESS
+are also needed?
 
-thread-A in hci_req_sync()      |   thread-B in hci_dev_do_close()
-                                |   hci_req_sync_lock(hdev);
-test_bit(HCI_UP, &hdev->flags); |
-...                             |   test_and_clear_bit(HCI_UP, &hdev->flags)
-hci_req_sync_lock(hdev);        |
-                                |
-In this commit we alter the sequence in function hci_req_sync(). Hence,
-the thread-A cannot issue th.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Fixes: 7c6a329e4447 ("[Bluetooth] Fix regression from using default link policy")
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-[iwamatsu: adjust filename, arguments of __hci_req_sync(). CVE-2021-32399]
-Signed-off-by: Nobuhiro Iwamatsu <nobuhiro1.iwamatsu@toshiba.co.jp>
----
- net/bluetooth/hci_core.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
-
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index cc905a4e573253..81a81b9a3c7d00 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -371,12 +371,17 @@ static int hci_req_sync(struct hci_dev *hdev,
- {
- 	int ret;
- 
--	if (!test_bit(HCI_UP, &hdev->flags))
--		return -ENETDOWN;
--
- 	/* Serialize all requests */
- 	hci_req_lock(hdev);
--	ret = __hci_req_sync(hdev, req, opt, timeout);
-+	/* check the state after obtaing the lock to protect the HCI_UP
-+	 * against any races from hci_dev_do_close when the controller
-+	 * gets removed.
-+	 */
-+	if (test_bit(HCI_UP, &hdev->flags))
-+		ret = __hci_req_sync(hdev, req, opt, timeout);
-+	else
-+		ret = -ENETDOWN;
-+
- 	hci_req_unlock(hdev);
- 
- 	return ret;
--- 
-2.31.1
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=F_NEEDS_EFFICIENT_UNALIGNED_ACCESS
 
