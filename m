@@ -2,70 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 87E6A3940BB
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 12:12:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ACD403940CD
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 12:19:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236436AbhE1KOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 06:14:14 -0400
-Received: from mail.loongson.cn ([114.242.206.163]:58024 "EHLO loongson.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S236551AbhE1KON (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 28 May 2021 06:14:13 -0400
-Received: from [10.130.0.135] (unknown [113.200.148.30])
-        by mail.loongson.cn (Coremail) with SMTP id AQAAf9DxL0MNwrBgJ8YFAA--.5536S3;
-        Fri, 28 May 2021 18:12:29 +0800 (CST)
-Subject: Re: [PATCH 4.19 00/12] bpf: fix verifier selftests, add
- CVE-2021-29155 fixes
-To:     Ovidiu Panait <ovidiu.panait@windriver.com>, stable@vger.kernel.org
-References: <20210527173732.20860-1-ovidiu.panait@windriver.com>
-Cc:     fllinden@amazon.com, bpf@vger.kernel.org, ast@kernel.org,
-        daniel@iogearbox.net, yhs@fb.com, john.fastabend@gmail.com,
-        samjonas@amazon.com
-From:   Tiezhu Yang <yangtiezhu@loongson.cn>
-Message-ID: <3d25a908-6d1a-482f-106b-5d894c3cab87@loongson.cn>
-Date:   Fri, 28 May 2021 18:12:29 +0800
-User-Agent: Mozilla/5.0 (X11; Linux mips64; rv:45.0) Gecko/20100101
- Thunderbird/45.4.0
+        id S236395AbhE1KUg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 06:20:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33514 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235361AbhE1KUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 06:20:36 -0400
+Received: from mail-wm1-x32c.google.com (mail-wm1-x32c.google.com [IPv6:2a00:1450:4864:20::32c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECFAFC061574
+        for <stable@vger.kernel.org>; Fri, 28 May 2021 03:19:01 -0700 (PDT)
+Received: by mail-wm1-x32c.google.com with SMTP id n5-20020a1c72050000b0290192e1f9a7e1so2095514wmc.2
+        for <stable@vger.kernel.org>; Fri, 28 May 2021 03:19:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=raspberrypi.com; s=google;
+        h=to:from:subject:message-id:date:user-agent:mime-version
+         :content-transfer-encoding:content-language;
+        bh=6qVNsNOHOXttvNFzvOcpkOuxMebFYKWVIPtq4G6P/0k=;
+        b=d2NnsgRmQA+n+ij2WRWpREE1vn4RDF40OVlcoYVQ0qfOgCBlco8eU25ac1CAtyXhbN
+         NHgGUVzAmMQ34P9fG5vGsYpKyQA+Ibyuo04OgviwSuLciYPslmzwU7Bcw5HWRUZW3RvM
+         Iz29zN4FuGLnI8L1T5dmFhVugRw905hyKSFyfrhRxy8g9hdu5MfF0efjjmFjYtQUhl1T
+         Ntiz4wbB35wnRIaOnbRZH4sB5Rx4S9AC8OTsVcRnhBhOqlrSIOpHnmd2CTiUsVuO1kBP
+         41qjTDLhVlez45bkziIOLP4GvJEJsRwwo1X0D7ApzQJYVRiE9pHuci9TeMNrxBukIx5q
+         4+Pw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:to:from:subject:message-id:date:user-agent
+         :mime-version:content-transfer-encoding:content-language;
+        bh=6qVNsNOHOXttvNFzvOcpkOuxMebFYKWVIPtq4G6P/0k=;
+        b=XF2ywjWnQ/4VyZLZAKoazE8aeqtHW6vtWJnMTy+cf5C5+XkzCr7gKf8UYuIiYQM5RI
+         loAO30htcvVoxUmAaooOr0SI+PVxxYD6gZrXnVTKrzXEz4uAXur/Bde+9omJ3eMjtniT
+         jlHkSUrvOjcAQwcu0apMw6j99rClss9632/qL/SCdjNvGiZVOi2CAbY0Im0DJoQy+2QU
+         vIb1mjPOwQ9Rhq/QwNG+7G/r1+j83/SJgYic04k1FUJzGuErL9eYqMvWEAcxkYSNe34n
+         Jn1Ml0bC8aTTuPm5i7eVmbMw+ACZv8Hx9LjfS3EOuHQH820+e9enrqolk4F9aj83Sv08
+         vbzg==
+X-Gm-Message-State: AOAM531iB+91q2irZ5f9WaSe9BGHPDtxQjkojoeZwDTqfZ5lS5H0XtwQ
+        LGgbNPiakFW0fxKGmPFOD00B56VKcuUerac2
+X-Google-Smtp-Source: ABdhPJxNFAQU0LHlsE81TQrf3gaS6e8QSGUmpGSidwU13zamNlHvWECq1YYSgA3v3GrmPBXAXs+CpA==
+X-Received: by 2002:a1c:f303:: with SMTP id q3mr12854844wmq.9.1622197140187;
+        Fri, 28 May 2021 03:19:00 -0700 (PDT)
+Received: from ?IPv6:2a00:1098:3142:14:8130:4d4f:4238:e763? ([2a00:1098:3142:14:8130:4d4f:4238:e763])
+        by smtp.gmail.com with ESMTPSA id b10sm7784114wrr.27.2021.05.28.03.18.59
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 28 May 2021 03:18:59 -0700 (PDT)
+To:     stable@vger.kernel.org
+From:   Phil Elwell <phil@raspberrypi.com>
+Subject: Back-ports of dwc2 commit break peripheral-only builds
+Message-ID: <558ce64c-666a-5b68-ee48-74293b08cbbc@raspberrypi.com>
+Date:   Fri, 28 May 2021 11:19:00 +0100
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.2
 MIME-Version: 1.0
-In-Reply-To: <20210527173732.20860-1-ovidiu.panait@windriver.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: AQAAf9DxL0MNwrBgJ8YFAA--.5536S3
-X-Coremail-Antispam: 1UD129KBjvdXoW7GrWUXFWUCr4xWrWkXFW8Zwb_yoWxZFXEkr
-        W3WFZ8Crn8Ar4UWay2yFyxurn8KrW3X3WSya40vwn5G3s5XFn5JFsaga4rAr93u3WfCrsr
-        JF13Gws5XFyY9jkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbIAYjsxI4VW3JwAYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I
-        6I8E6xAIw20EY4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM2
-        8CjxkF64kEwVA0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVW7JVWDJwA2z4x0Y4vE2Ix0
-        cI8IcVCY1x0267AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I
-        8E87Iv6xkF7I0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI
-        64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1Y6r17McIj6I8E87Iv67AKxVWxJVW8Jr
-        1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcVAKI48JMxk0xIA0c2IEe2xFo4CEbIxvr21l
-        c2xSY4AK67AK6r4DMxAIw28IcxkI7VAKI48JMxC20s026xCaFVCjc4AY6r1j6r4UMI8I3I
-        0E5I8CrVAFwI0_Jr0_Jr4lx2IqxVCjr7xvwVAFwI0_JrI_JrWlx4CE17CEb7AF67AKxVWU
-        tVW8ZwCIc40Y0x0EwIxGrwCI42IY6xIIjxv20xvE14v26r1j6r1xMIIF0xvE2Ix0cI8IcV
-        CY1x0267AKxVWUJVW8JwCI42IY6xAIw20EY4v20xvaj40_WFyUJVCq3wCI42IY6I8E87Iv
-        67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r4j6r4UJbIYCTnIWIevJa73UjIFyT
-        uYvjxU75l1DUUUU
-X-CM-SenderInfo: p1dqw3xlh2x3gn0dqz5rrqw2lrqou0/
+Content-Language: en-GB
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 05/28/2021 01:37 AM, Ovidiu Panait wrote:
-> This patchset is based on Frank van der Linden's backport of CVE-2021-29155
-> fixes to 5.4 and 4.14:
-> https://lore.kernel.org/stable/20210429220839.15667-1-fllinden@amazon.com/
-> https://lore.kernel.org/stable/20210501043014.33300-1-fllinden@amazon.com/
->
-> With this series, all verifier selftests but one (that has already been
-> failing, see [1] for more details) succeed.
->
-
 Hi,
 
-It seems that some patches about F_NEEDS_EFFICIENT_UNALIGNED_ACCESS
-are also needed?
+Back-ports of [1] - a Fix to the dwc2 driver - cause build errors for 
+configurations including CONFIG_USB_DWC2_PERIPHERAL=y because in the stable 
+branches the bus_suspended member of struct dwc2_hsotg is not present with that 
+setting. [1] depends on [2] to move bus_suspended into a common part of 
+dwc2_hsotg, but because [2] is not a fix it hasn't been back-ported to stable 
+branches. [2] does not apply cleanly on its own (e.g. to linux-5.10.y) , so 
+either more commits must be back-ported, [1] must be reverted, or a subset of 
+[2] could be used for the back-ports.
 
-https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/log/?qt=grep&q=F_NEEDS_EFFICIENT_UNALIGNED_ACCESS
+Phil
+
+[1] 24d209dba5a3 ("usb: dwc2: Fix hibernation between host and device modes")
+
+[2] 012466fc8ccc0 ("usb: dwc2: Add device clock gating support functions")
+
+
 
