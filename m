@@ -2,76 +2,240 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E212393D0D
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 08:23:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3301A393CE0
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 08:06:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229561AbhE1GYr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 02:24:47 -0400
-Received: from szxga08-in.huawei.com ([45.249.212.255]:2331 "EHLO
-        szxga08-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230076AbhE1GYp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 02:24:45 -0400
-Received: from dggeml752-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4FrvDS09HMz1BFtW;
-        Fri, 28 May 2021 14:00:24 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggeml752-chm.china.huawei.com (10.1.199.151) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Fri, 28 May 2021 14:04:59 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Fri, 28 May 2021 14:04:59 +0800
-Subject: [linux-stable-rc CI] Test report for 4.19.193-rc1 on arm64 and x86
-From:   Samuel Zou <zou_wei@huawei.com>
-To:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-References: <8271104d-0569-014a-63fe-02881cd45ca2@huawei.com>
- <8fea2e56-517c-dad4-62cc-b3521c67f562@huawei.com>
- <a2421ee5-4454-61a2-b56f-38d1650b74f2@huawei.com>
- <ea917176-a1c9-5845-26b7-928354388194@huawei.com>
-Message-ID: <fd057e1a-bca7-fe7d-e3f0-fed84e8f5abb@huawei.com>
-Date:   Fri, 28 May 2021 14:04:59 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S234181AbhE1GIV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 02:08:21 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235407AbhE1GIU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 02:08:20 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41AB5C06174A
+        for <stable@vger.kernel.org>; Thu, 27 May 2021 23:05:12 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id lg14so3577678ejb.9
+        for <stable@vger.kernel.org>; Thu, 27 May 2021 23:05:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=6KYJnQac1+UPmeLw0qtofsMJ4Bz2s3RkpAZuEomoHKY=;
+        b=JjIxzdBt3Cn7+COPTYCdUDee+2n8dtuy/viZAR//PzFJzUox2opZ4Br8elvmxAXDYz
+         rTtcRwBO3hws6RGKKMA4X0a/cXEQ3Uj5chqVwVw4H4N1+rbhcBI/NwR48jgAKMTzbWvu
+         X0rSt2Syv+ADE0J+WuvPlgF0xvVDEwAXYJYtEYGl/T+VM8Ywmevhfmgrg4fOKwxDhl7I
+         1CJl1b6dHB/dXKDcJWmACPk8uVUbc2qPNDdYOM8XfnYBkO3n2TrG/QPso+ghHH68XFLg
+         UZghb9uoKxzmH8EOUBDE8zN2g66P2JwNXBjUzhQy5WufWc2DmFYkOzEFJb2Nfo5FCRZf
+         /vwg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=6KYJnQac1+UPmeLw0qtofsMJ4Bz2s3RkpAZuEomoHKY=;
+        b=szI2aPzZZhvr6eTysYcUAlyIz9Mm9CxD1McbSNk5faK0RyOo/lisOXXnwDiv9ybniB
+         b4mQY30naOCKVjfjR8qOoq7hRiJKOEsGVeNdb+7yzm+zL246q9l1a2CHFyNZiogoNtf3
+         ODcCeQWr7+UTpstR49ZxpwOdyQuIyH3lqiEzvjfc0n8KLzdrc8f9bZpXCnK7DMeOprYk
+         YjNsHsLU8t9af4pxDOIra8msqGLaDXoqY6e7VFxX9kXZFzqVKRTspUYnCWgEU1nk3vqb
+         MQhrEJ+4PbxN8dEOPsxdZbh+442n3N+uw59ywhi53pla+1JoMm5FlKIDPPpURUh3SXwy
+         rx+g==
+X-Gm-Message-State: AOAM533rtslryJEprLuDgHbjcBeiPxndUoSS86Jk+/r37IJ7DYWTWZUs
+        gvXJXl6U81eVr/1ReKv6+jITDp1AUXAZ39ri9/TUgQ==
+X-Google-Smtp-Source: ABdhPJzbZ0/LfIqI4DAXKqRWViiVndxtDImFPCn1T+4P1yzNrEKW7NfTRw+8K+byPGBGn7GE63eatibKr1LEp2wcecc=
+X-Received: by 2002:a17:907:37b:: with SMTP id rs27mr7695964ejb.287.1622181910622;
+ Thu, 27 May 2021 23:05:10 -0700 (PDT)
 MIME-Version: 1.0
-In-Reply-To: <ea917176-a1c9-5845-26b7-928354388194@huawei.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+References: <20210527151139.241267495@linuxfoundation.org>
+In-Reply-To: <20210527151139.241267495@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Fri, 28 May 2021 11:34:59 +0530
+Message-ID: <CA+G9fYuYukN5wz2F65DfNmsqSzdHQ6+C1VTzNHAYzsU8GKd8Zw@mail.gmail.com>
+Subject: Re: [PATCH 5.12 0/7] 5.12.8-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Tested on arm64 and x86 for 4.19.193-rc1,
+On Thu, 27 May 2021 at 20:44, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.12.8 release.
+> There are 7 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Sat, 29 May 2021 15:11:29 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.12.8-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.12.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.193-rc1
-Commit: f96d7c02c0d0a6180888c0241399373121777708
-Compiler: gcc version 7.3.0 (GCC)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8855
-passed: 8855
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8855
-passed: 8855
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+## Build
+* kernel: 5.12.8-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-5.12.y
+* git commit: 6fc814b4a8b359a7a3231350692901f00e9d179b
+* git describe: v5.12.7-8-g6fc814b4a8b3
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
+.7-8-g6fc814b4a8b3
 
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+## No regressions (compared to v5.12.7)
+
+## No fixes (compared to v5.12.7)
+
+
+## Test result summary
+ total: 79064, pass: 65069, fail: 2108, skip: 11299, xfail: 588,
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 193 total, 193 passed, 0 failed
+* arm64: 27 total, 27 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 26 total, 26 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 45 total, 45 passed, 0 failed
+* parisc: 9 total, 9 passed, 0 failed
+* powerpc: 27 total, 27 passed, 0 failed
+* riscv: 21 total, 21 passed, 0 failed
+* s390: 18 total, 18 passed, 0 failed
+* sh: 18 total, 18 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 0 passed, 1 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 27 total, 27 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftes[
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* timesync-off
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
