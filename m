@@ -2,83 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2DC83943BD
-	for <lists+stable@lfdr.de>; Fri, 28 May 2021 16:04:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D58C63944D4
+	for <lists+stable@lfdr.de>; Fri, 28 May 2021 17:11:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236198AbhE1OGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 28 May 2021 10:06:31 -0400
-Received: from relay1-d.mail.gandi.net ([217.70.183.193]:27687 "EHLO
-        relay1-d.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbhE1OGb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 10:06:31 -0400
-Received: (Authenticated sender: thomas.petazzoni@bootlin.com)
-        by relay1-d.mail.gandi.net (Postfix) with ESMTPSA id 3735C240016;
-        Fri, 28 May 2021 14:04:54 +0000 (UTC)
-From:   Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-To:     Bin Liu <b-liu@ti.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Tony Lindgren <tony@atomide.com>
-Cc:     linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        alexandre.belloni@bootlin.com,
-        Thomas Petazzoni <thomas.petazzoni@bootlin.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] usb: musb: fix MUSB_QUIRK_B_DISCONNECT_99 handling
-Date:   Fri, 28 May 2021 16:04:46 +0200
-Message-Id: <20210528140446.278076-1-thomas.petazzoni@bootlin.com>
-X-Mailer: git-send-email 2.31.1
+        id S234443AbhE1PMy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 28 May 2021 11:12:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234653AbhE1PMx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 28 May 2021 11:12:53 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FC2FC061760;
+        Fri, 28 May 2021 08:11:17 -0700 (PDT)
+Date:   Fri, 28 May 2021 17:11:13 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1622214674;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NqKOQAfvyt+jzwrzPZmX2cFEmEVtOFvl9de23IZJw44=;
+        b=f4KFXAEnQtZqr8c5FBv+H4z7PxXv1eaZNTVMoqZ/vZmOaK4DdUayREtZcGBePe5QC8RRB/
+        VX/tNpORZIT70kJcHiQJCCXYDIekkuYKhQ1R/f6E1Mry4I17R7pyGNL0iSY+zsKzfTbX08
+        y52vRjeIvC2oRfNmh+dOSD/nNRLboq9SSfLHhc/iFh3rzaog41sJJtejWcKpGBogNkZLIj
+        Rzxxp32TrhDfEdTtizbUtdJwmM4gY5rCFcyJP4qnVIHEgaUXpC660xJFLYT7IKe3ApE6oU
+        4P45InAzqm266K05Gvbr3stiEusf5gLGDWFi2X7UPqctaLwBr7of5UWIVM4MiQ==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1622214674;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=NqKOQAfvyt+jzwrzPZmX2cFEmEVtOFvl9de23IZJw44=;
+        b=LWxeTJIPdPzpxWiqRWQmP+z+TenWtCY/2/AYuJZelRkd7AAm2XA5czAdJc8m9zBY7Q6LUO
+        es/iMtL3msAltnAg==
+From:   "Ahmed S. Darwish" <a.darwish@linutronix.de>
+To:     Varad Gautam <varad.gautam@suse.com>
+Cc:     linux-kernel@vger.kernel.org,
+        linux-rt-users <linux-rt-users@vger.kernel.org>,
+        netdev@vger.kernel.org, stable@vger.kernel.org,
+        Steffen Klassert <steffen.klassert@secunet.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Florian Westphal <fw@strlen.de>
+Subject: Re: [PATCH] xfrm: policy: Read seqcount outside of rcu-read side in
+ xfrm_policy_lookup_bytype
+Message-ID: <YLEIEa6DLjgd5mu5@lx-t490>
+References: <20210528120357.29542-1-varad.gautam@suse.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210528120357.29542-1-varad.gautam@suse.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-In commit 92af4fc6ec33 ("usb: musb: Fix suspend with devices
-connected for a64"), the logic to support the
-MUSB_QUIRK_B_DISCONNECT_99 quirk was modified to only conditionally
-schedule the musb->irq_work delayed work.
-
-This commit badly breaks ECM Gadget on AM335X. Indeed, with this
-commit, one can observe massive packet loss:
-
-$ ping 192.168.0.100
+On Fri, May 28, 2021, Varad Gautam wrote:
 ...
-15 packets transmitted, 3 received, 80% packet loss, time 14316ms
-
-Reverting this commit brings back a properly functioning ECM
-Gadget. An analysis of the commit seems to indicate that a mistake was
-made: the previous code was not falling through into the
-MUSB_QUIRK_B_INVALID_VBUS_91, but now it is, unless the condition is
-taken.
-
-Changing the logic to be as it was before the problematic commit *and*
-only conditionally scheduling musb->irq_work resolves the regression:
-
-$ ping 192.168.0.100
+>
+> Thead 1 (xfrm_hash_resize)	Thread 2 (xfrm_policy_lookup_bytype)
+>
+> 				rcu_read_lock();
+> mutex_lock(&hash_resize_mutex);
+> 				read_seqcount_begin(&xfrm_policy_hash_generation);
+> 				mutex_lock(&hash_resize_mutex); // block
+> xfrm_bydst_resize();
+> synchronize_rcu(); // block
+> 		<RCU stalls in xfrm_policy_lookup_bytype>
+>
 ...
-64 packets transmitted, 64 received, 0% packet loss, time 64475ms
+> Fixes: a7c44247f70 ("xfrm: policy: make xfrm_policy_lookup_bytype lockless")
 
-Fixes: 92af4fc6ec33 ("usb: musb: Fix suspend with devices connected for a64")
-Signed-off-by: Thomas Petazzoni <thomas.petazzoni@bootlin.com>
-Cc: stable@vger.kernel.org
----
- drivers/usb/musb/musb_core.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+Minor note: the 'Fixes' commit should be 77cc278f7b20 ("xfrm: policy:
+Use sequence counters with associated lock") instead.
 
-diff --git a/drivers/usb/musb/musb_core.c b/drivers/usb/musb/musb_core.c
-index 8f09a387b773..4c8f0112481f 100644
---- a/drivers/usb/musb/musb_core.c
-+++ b/drivers/usb/musb/musb_core.c
-@@ -2009,9 +2009,8 @@ static void musb_pm_runtime_check_session(struct musb *musb)
- 			schedule_delayed_work(&musb->irq_work,
- 					      msecs_to_jiffies(1000));
- 			musb->quirk_retries--;
--			break;
- 		}
--		fallthrough;
-+		break;
- 	case MUSB_QUIRK_B_INVALID_VBUS_91:
- 		if (musb->quirk_retries && !musb->flush_irq_work) {
- 			musb_dbg(musb,
--- 
-2.31.1
+The reason read_seqcount_begin() is emitting a mutex_lock() on
+PREEMPT_RT is because of the s/seqcount_t/seqcount_mutex_t/ change.
 
+Kind regards,
+
+--
+Ahmed S. Darwish
+Linutronix GmbH
