@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C723394CBF
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:16:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A907394CC1
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:17:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229723AbhE2PSU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:18:20 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:45447 "EHLO
+        id S229716AbhE2PTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:19:03 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:36763 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229693AbhE2PSU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:18:20 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 840231940DEE;
-        Sat, 29 May 2021 11:16:43 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 29 May 2021 11:16:43 -0400
+        by vger.kernel.org with ESMTP id S229693AbhE2PTC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:19:02 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id D2E861940DC6;
+        Sat, 29 May 2021 11:17:25 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Sat, 29 May 2021 11:17:25 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=jE0TKC
-        R4+/FPbHUODAOJ0GgDDxrlYR8MjBLZO38Dnl8=; b=moTHq1wMllXaITu69Ia6Nz
-        ELfBXl8+yZsiRAHnqQEKTyJyfr+JD8vMlCJgByeQ21r/5/0IoDBfXRWzZ8iRd+/g
-        RXlqcMcWPCcq/elQOMajoobhYVc5LFHLTjjUOkrH+myV327iKZSBEUFbi1dn+LiI
-        7qO8U72voQCCwbRwTYiZ4JqdJsVKhRUxVmIjHALcQn1AAAghA3uqZzrU1wDU/xAZ
-        K1NUZTlrXcjolNhlfMJwxPwQV4S54mrBFpwxjov9OaXJ4Q5I/PfXysHea46GAZZA
-        7eYwiJIWo+1C0XE2uHpPc60MQWGtRVHqLdwrFizBAE0IeruobpFD7bNDXNG621uA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=RQ0dR6
+        kvfxOpz0Yp5Z610uFRy3iO15ph095fOZBRqTE=; b=fbBVIuK/gnQ1gahkSvK6j0
+        SdoKLQ5Pqj0Ml822hhmYS7mUu3rPN5XJno0pmO9Oi8DUy+tum2gASVixf6hZGEin
+        eYchP62X0HSO11dnPNPSy7SQDAfNlMIGASSBdq62FbqWWfTDPKvpyZPtmNHui4C2
+        IrgrRmTIw35ivJiVh9f4X5yJNjHARNB3lT7i5qYbhkqrFv9Ie+OEFzisLBAbvn4+
+        mEa6vavjGwsYWRgvR32bF56PfgTlrxsEReqfJQuHzocaklilCiTOZCO3Byfzkpf9
+        T+mm61kZNo/k1NCNaLAoplz0kEuqypWwsJlzai7M4oMQyi8mPGV2Lx2WCfA1MgrA
         ==
-X-ME-Sender: <xms:21qyYGZmtLZvMBsl81yOlMunYjJv5SefqxiODL5H9Uywfc2f8A1oaw>
-    <xme:21qyYJZZzQAaZqqBMVJ5kTQr5xpmieLO4Nc5N3ltaTcRG5LI8kxJg41TLEiSLrrrE
-    KOodX2ls8VECA>
+X-ME-Sender: <xms:BVuyYAgvIJMxLj8iRHvubUYMo5RUA_RobHSUavpcFTQe-kANuq--Yg>
+    <xme:BVuyYJBSSyKrhSMTaWYUeMJdURysyQxiZQUC6shACr6TF9QgPKGD3BgLXMovRG6SM
+    GwQSYZutRQlKQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:21qyYA9BlHeYxTb1-w2-SsCfNrzybirTEMylsx7mCUtRq18crULPBw>
-    <xmx:21qyYIqZSl3uK_qvCYVCc0UDNqlnYACLvIOlSXzAr00OBGg05ko3aA>
-    <xmx:21qyYBogMTKktkm8Ye_fvSgrKVDpEtHRWNlv1kdLJ48XuSvcejea0w>
-    <xmx:21qyYCCMQ15hkRp-X8PcyVOyVlsSHbZOjopml4zMcJ1TeR7_wWevhQ>
+X-ME-Proxy: <xmx:BVuyYIHfXzoVn-_ZxxRCOAZvS0KnIot_HD-SJxd6AW3e7bJtRjh_ZA>
+    <xmx:BVuyYBR8byuBA6NJlW2DZWIejLYDZmGeXbhDkYIEA_gkEQqodKqCng>
+    <xmx:BVuyYNyQpZ4x7O9iacidXbzqVCTOc75DBgOcqNNwkdFwmLckDhxdPw>
+    <xmx:BVuyYOp1qk2tRGyzPapCi1Ppvva6hKoN_-SkHrw1vp8h3aw__bxbow>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:16:42 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ath10k: drop MPDU which has discard flag set by firmware for" failed to apply to 4.4-stable tree
+        Sat, 29 May 2021 11:17:25 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ath10k: Fix TKIP Michael MIC verification for PCIe" failed to apply to 4.19-stable tree
 To:     wgong@codeaurora.org, johannes.berg@intel.com, jouni@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:16:30 +0200
-Message-ID: <1622301390163169@kroah.com>
+Date:   Sat, 29 May 2021 17:17:24 +0200
+Message-ID: <162230144467187@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,63 +70,55 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 079a108feba474b4b32bd3471db03e11f2f83b81 Mon Sep 17 00:00:00 2001
+From 0dc267b13f3a7e8424a898815dd357211b737330 Mon Sep 17 00:00:00 2001
 From: Wen Gong <wgong@codeaurora.org>
-Date: Tue, 11 May 2021 20:02:55 +0200
-Subject: [PATCH] ath10k: drop MPDU which has discard flag set by firmware for
- SDIO
+Date: Tue, 11 May 2021 20:02:56 +0200
+Subject: [PATCH] ath10k: Fix TKIP Michael MIC verification for PCIe
 
-When the discard flag is set by the firmware for an MPDU, it should be
-dropped. This allows a mitigation for CVE-2020-24588 to be implemented
-in the firmware.
+TKIP Michael MIC was not verified properly for PCIe cases since the
+validation steps in ieee80211_rx_h_michael_mic_verify() in mac80211 did
+not get fully executed due to unexpected flag values in
+ieee80211_rx_status.
 
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
+Fix this by setting the flags property to meet mac80211 expectations for
+performing Michael MIC validation there. This fixes CVE-2020-26141. It
+does the same as ath10k_htt_rx_proc_rx_ind_hl() for SDIO which passed
+MIC verification case. This applies only to QCA6174/QCA9377 PCIe.
+
+Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid
+Link: https://lore.kernel.org/r/20210511200110.c3f1d42c6746.I795593fcaae941c471425b8c7d5f7bb185d29142@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
 diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index b1d93ff5215a..12451ab66a19 100644
+index 12451ab66a19..87196f9bbdea 100644
 --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
 +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -2312,6 +2312,11 @@ static bool ath10k_htt_rx_proc_rx_ind_hl(struct ath10k_htt *htt,
- 	fw_desc = &rx->fw_desc;
- 	rx_desc_len = fw_desc->len;
+@@ -1974,6 +1974,11 @@ static void ath10k_htt_rx_h_mpdu(struct ath10k *ar,
+ 		}
  
-+	if (fw_desc->u.bits.discard) {
-+		ath10k_dbg(ar, ATH10K_DBG_HTT, "htt discard mpdu\n");
-+		goto err;
-+	}
+ 		ath10k_htt_rx_h_csum_offload(msdu);
 +
- 	/* I have not yet seen any case where num_mpdu_ranges > 1.
- 	 * qcacld does not seem handle that case either, so we introduce the
- 	 * same limitiation here as well.
-diff --git a/drivers/net/wireless/ath/ath10k/rx_desc.h b/drivers/net/wireless/ath/ath10k/rx_desc.h
-index f2b6bf8f0d60..705b6295e466 100644
---- a/drivers/net/wireless/ath/ath10k/rx_desc.h
-+++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
-@@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
- #define FW_RX_DESC_UDP              (1 << 6)
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_MMIC_STRIPPED;
++
+ 		ath10k_htt_rx_h_undecap(ar, msdu, status, first_hdr, enctype,
+ 					is_decrypted);
  
- struct fw_rx_desc_hl {
--	u8 info0;
-+	union {
-+		struct {
-+		u8 discard:1,
-+		   forward:1,
-+		   any_err:1,
-+		   dup_err:1,
-+		   reserved:1,
-+		   inspect:1,
-+		   extension:2;
-+		} bits;
-+		u8 info0;
-+	} u;
+@@ -1991,6 +1996,11 @@ static void ath10k_htt_rx_h_mpdu(struct ath10k *ar,
+ 
+ 		hdr = (void *)msdu->data;
+ 		hdr->frame_control &= ~__cpu_to_le16(IEEE80211_FCTL_PROTECTED);
 +
- 	u8 version;
- 	u8 len;
- 	u8 flags;
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_IV_STRIPPED &
++					~RX_FLAG_MMIC_STRIPPED;
+ 	}
+ }
+ 
 
