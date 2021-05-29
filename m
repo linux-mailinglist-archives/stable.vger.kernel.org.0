@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAB4E394CB4
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:16:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4978B394CB6
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:16:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229756AbhE2PRg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:17:36 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:43855 "EHLO
+        id S229816AbhE2PRp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:17:45 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:51197 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229723AbhE2PRg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:17:36 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id BE7A41940DC0;
-        Sat, 29 May 2021 11:15:59 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229723AbhE2PRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:17:45 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id B03311940DB6;
+        Sat, 29 May 2021 11:16:08 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sat, 29 May 2021 11:15:59 -0400
+  by compute3.internal (MEProxy); Sat, 29 May 2021 11:16:08 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=0roPoW
-        Uaujd9xSAkCmE2mKoYdetwnEExnpo3TtBX270=; b=U3UjtBg/4VKPrH4fxh2sxE
-        okDaU4K9IkD7R9ck4nUxeR2ri9kSXNM+ihPv53lLBM/ddemh7E9DRq+VEEUajzsU
-        /Kh/+09XDXJ2Rf4R74jaAz80iDqdWYOR5+BS7WKkGIYpNQUldoghc3JSCYIBDmZZ
-        pix+xrAsWZrBEu3DiLMCv4up+AtkO7gVMvmuWB3DpgRtXstVq3yQE/ShnAkrGC+Q
-        +73hm3zJ1RCgxsZDHG5YycfrkgSG9DAo58WgwFZC8gD5+pe19xopPSbqCSGMFZ1E
-        cyTjfAszBVGtTrCllJHKOGL+mQX9R53fgDvK4G2JSiBpTDe+MZgYP06YG4Odh7Ow
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=phWRlU
+        M2SAC/HCWKY3isDXrWMT21bfJZe/cpOQvp4yA=; b=BprU3ycSwsz6IuEHVk/CbA
+        Dr8q73g/NomWutMoQtmzOxsaFtekIdC7ah+sbuR4H5fxhUFZgYgK0wWXBv83R7pL
+        BrH5DAr2QE5LE8GdyDrlZg0+NtNc2+X6sgiQJ4OpSoG3NBNyyM16jjNFCRSlqGDN
+        9+Cp8/NxaeKa12UB0C5TBHFo8s4pj9v+Fk2gOLCvtP0BgzqFFuSemzr4zhaI0jva
+        VzUTtmiB6o4UN2Oh7o7WFCbNg/+m3QVLNJzeLD0aR6ZeB6p3Bbw+eOsdqv6yS791
+        sJxpxxwx0RW4mtgI+lrvxiUPLHyuVB2Y9nBzgaa+TZFMWeqhQf1P0u7Wl+nMxLyg
         ==
-X-ME-Sender: <xms:r1qyYAvy7pUb2uBUIAPZGcXIKK4ens35zAh5CheQdXPo2T1nYKm14A>
-    <xme:r1qyYNcMTXhGHW8V6Aghdw3EuR_nYsTjnO9yMgYGRyb9ayC7O16anvGpaIXpLYPmf
-    D4qE2INLhYv7Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:uFqyYFjBWd2pTLEFDjM6HB6Hn6weapbXyzvW0BcXiEb3r6guAqazVg>
+    <xme:uFqyYKB-ArgvcuIYqR2kT5S3haW7-1RbEVVIAu25spsFkXE-DKyrZ7E08ZfLg9LXz
+    zojJxdmS3CX-g>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeefnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:r1qyYLz567GoCWmPC4EZxjhQ2LJbq7aqBMVAA9E1HpAB6bW9FN6DjQ>
-    <xmx:r1qyYDOpC0rTOTf-XSjVR7vfZ2Avgk9B1dw3H4mIKmAtWXKLWnwWCw>
-    <xmx:r1qyYA-hQnKA3tSGUrrFh1PQy0P2PgJFzlWuAi4RUcczs_6ylmaFrw>
-    <xmx:r1qyYOmHTQaEuChG_HZlSeex6M_30u6ABa_-9Ham6eY74g9XdNKOVg>
+X-ME-Proxy: <xmx:uFqyYFECtAn7Nt0y3Bj-9sxRalesoShohG4WPQ5JegyHXMB3jtAIYg>
+    <xmx:uFqyYKQuSYF8bkNJvbuzV3Z-6ZJ77RRavC1Z4uFey4VY5neIOorL1g>
+    <xmx:uFqyYCz4gz_0KYKkJSnLNH1QmsF1Mwk35SyzTRU6lug1em4Ub-mGag>
+    <xmx:uFqyYHrqcdN_gEOSxmDAMB8hp1SpufmvLs728qRBx6MNb7KbrXaX5Q>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:15:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ath10k: drop fragments with multicast DA for PCIe" failed to apply to 4.4-stable tree
+        Sat, 29 May 2021 11:16:08 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ath10k: drop fragments with multicast DA for SDIO" failed to apply to 4.19-stable tree
 To:     wgong@codeaurora.org, johannes.berg@intel.com, jouni@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:15:48 +0200
-Message-ID: <162230134820945@kroah.com>
+Date:   Sat, 29 May 2021 17:16:07 +0200
+Message-ID: <16223013676232@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,73 +70,47 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 65c415a144ad8132b6a6d97d4a1919ffc728e2d1 Mon Sep 17 00:00:00 2001
+From 40e7462dad6f3d06efdb17d26539e61ab6e34db1 Mon Sep 17 00:00:00 2001
 From: Wen Gong <wgong@codeaurora.org>
-Date: Tue, 11 May 2021 20:02:53 +0200
-Subject: [PATCH] ath10k: drop fragments with multicast DA for PCIe
+Date: Tue, 11 May 2021 20:02:54 +0200
+Subject: [PATCH] ath10k: drop fragments with multicast DA for SDIO
 
 Fragmentation is not used with multicast frames. Discard unexpected
 fragments with multicast DA. This fixes CVE-2020-26145.
 
-Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
+Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.5a0bd289bda8.Idd6ebea20038fb1cfee6de924aa595e5647c9eae@changeid
+Link: https://lore.kernel.org/r/20210511200110.9ca6ca7945a9.I1e18b514590af17c155bda86699bc3a971a8dcf4@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
 diff --git a/drivers/net/wireless/ath/ath10k/htt_rx.c b/drivers/net/wireless/ath/ath10k/htt_rx.c
-index f1e5bce8b14f..cb04848ed5cb 100644
+index cb04848ed5cb..b1d93ff5215a 100644
 --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
 +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -1768,6 +1768,16 @@ static u64 ath10k_htt_rx_h_get_pn(struct ath10k *ar, struct sk_buff *skb,
- 	return pn;
- }
+@@ -2617,6 +2617,13 @@ static bool ath10k_htt_rx_proc_rx_frag_ind_hl(struct ath10k_htt *htt,
+ 	rx_desc = (struct htt_hl_rx_desc *)(skb->data + tot_hdr_len);
+ 	rx_desc_info = __le32_to_cpu(rx_desc->info);
  
-+static bool ath10k_htt_rx_h_frag_multicast_check(struct ath10k *ar,
-+						 struct sk_buff *skb,
-+						 u16 offset)
-+{
-+	struct ieee80211_hdr *hdr;
++	hdr = (struct ieee80211_hdr *)((u8 *)rx_desc + rx_hl->fw_desc.len);
 +
-+	hdr = (struct ieee80211_hdr *)(skb->data + offset);
-+	return !is_multicast_ether_addr(hdr->addr1);
-+}
++	if (is_multicast_ether_addr(hdr->addr1)) {
++		/* Discard the fragment with multicast DA */
++		goto err;
++	}
 +
- static bool ath10k_htt_rx_h_frag_pn_check(struct ath10k *ar,
- 					  struct sk_buff *skb,
- 					  u16 peer_id,
-@@ -1839,7 +1849,7 @@ static void ath10k_htt_rx_h_mpdu(struct ath10k *ar,
- 	bool is_decrypted;
- 	bool is_mgmt;
- 	u32 attention;
--	bool frag_pn_check = true;
-+	bool frag_pn_check = true, multicast_check = true;
+ 	if (!MS(rx_desc_info, HTT_RX_DESC_HL_INFO_ENCRYPTED)) {
+ 		spin_unlock_bh(&ar->data_lock);
+ 		return ath10k_htt_rx_proc_rx_ind_hl(htt, &resp->rx_ind_hl, skb,
+@@ -2624,8 +2631,6 @@ static bool ath10k_htt_rx_proc_rx_frag_ind_hl(struct ath10k_htt *htt,
+ 						    HTT_RX_NON_TKIP_MIC);
+ 	}
  
- 	if (skb_queue_empty(amsdu))
- 		return;
-@@ -1946,13 +1956,20 @@ static void ath10k_htt_rx_h_mpdu(struct ath10k *ar,
- 								      0,
- 								      enctype);
- 
--		if (!frag_pn_check) {
--			/* Discard the fragment with invalid PN */
-+		if (frag)
-+			multicast_check = ath10k_htt_rx_h_frag_multicast_check(ar,
-+									       msdu,
-+									       0);
-+
-+		if (!frag_pn_check || !multicast_check) {
-+			/* Discard the fragment with invalid PN or multicast DA
-+			 */
- 			temp = msdu->prev;
- 			__skb_unlink(msdu, amsdu);
- 			dev_kfree_skb_any(msdu);
- 			msdu = temp;
- 			frag_pn_check = true;
-+			multicast_check = true;
- 			continue;
- 		}
+-	hdr = (struct ieee80211_hdr *)((u8 *)rx_desc + rx_hl->fw_desc.len);
+-
+ 	if (ieee80211_has_retry(hdr->frame_control))
+ 		goto err;
  
 
