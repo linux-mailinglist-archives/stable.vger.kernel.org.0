@@ -2,163 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CB2394C09
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 13:27:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E682A394C1E
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 14:06:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229714AbhE2L2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 07:28:41 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53160 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229602AbhE2L2l (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 07:28:41 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD87DC061574;
-        Sat, 29 May 2021 04:27:04 -0700 (PDT)
-Date:   Sat, 29 May 2021 11:27:01 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622287622;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wllJsNcibiIvAJWRjtmQE4qKSzwtR0YphipOcEnQVVU=;
-        b=sy7dCbmJMq4uZCGBTegkwtgM6tQduWwfU77ptvLe3u9abNosiHMihwbghFiWQ+MC80kW/f
-        Xxd+zD16jVey5GFbNHZ4DJF5ZxrY1CjDCnWtPgtL4GJqrtmAPi3aKN+5yrxuntSfrr9689
-        vMSNjENKynOCxXRCLZPqZPwnEj8Kya0nyF2bspGNR2M92NGLjzuSHxStkUAQvvSfUnW856
-        gV+N6nI2fYPSpuxPP3J618BhQVirBUKLtKEmJRUfhrRaG3tXh+9E2NY/fequ0cbqehepgQ
-        FRKRGIlGCwo86TCBFJHrX49tmi9VEopCQ7Cc4LfE/8OqXSr9xUR9HY5HWO4tHQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622287622;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=wllJsNcibiIvAJWRjtmQE4qKSzwtR0YphipOcEnQVVU=;
-        b=aNKGUi+h+JZmDcEr5YM5NtkAtQUbkHlcPd6vWwG8YPyLwh6g7vV9rx5FlZbosEIgjT/677
-        vY2yrXdTp78LVaDA==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: x86/urgent] x86/apic: Mark _all_ legacy interrupts when IO/APIC
- is missing
-Cc:     Imran Khan <imran.f.khan@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20210519233928.2157496-1-imran.f.khan@oracle.com>
-References: <20210519233928.2157496-1-imran.f.khan@oracle.com>
+        id S229726AbhE2MII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 08:08:08 -0400
+Received: from bmailout3.hostsharing.net ([176.9.242.62]:60037 "EHLO
+        bmailout3.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229602AbhE2MIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 08:08:07 -0400
+Received: from h08.hostsharing.net (h08.hostsharing.net [IPv6:2a01:37:1000::53df:5f1c:0])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by bmailout3.hostsharing.net (Postfix) with ESMTPS id 41A60100D9419;
+        Sat, 29 May 2021 14:06:29 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 07A4832395; Sat, 29 May 2021 14:06:29 +0200 (CEST)
+Date:   Sat, 29 May 2021 14:06:29 +0200
+From:   Lukas Wunner <lukas@wunner.de>
+To:     gregkh@linuxfoundation.org
+Cc:     broonie@kernel.org, miaoqinglang@huawei.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] spi: mt7621: Disable clock in probe error
+ path" failed to apply to 4.19-stable tree
+Message-ID: <20210529120629.GA31339@wunner.de>
+References: <1609153628110242@kroah.com>
 MIME-Version: 1.0
-Message-ID: <162228762181.29796.12251794167483746232.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1609153628110242@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the x86/urgent branch of tip:
+On Mon, Dec 28, 2020 at 12:07:08PM +0100, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Commit-ID:     7d65f9e80646c595e8c853640a9d0768a33e204c
-Gitweb:        https://git.kernel.org/tip/7d65f9e80646c595e8c853640a9d0768a33e204c
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Tue, 25 May 2021 13:08:41 +02:00
-Committer:     Borislav Petkov <bp@suse.de>
-CommitterDate: Sat, 29 May 2021 11:41:14 +02:00
+Here's the backport of 24f7033405ab to v4.19.192:
 
-x86/apic: Mark _all_ legacy interrupts when IO/APIC is missing
+-- >8 --
+From: Lukas Wunner <lukas@wunner.de>
+Date: Mon, 7 Dec 2020 09:17:13 +0100
+Subject: [PATCH] spi: mt7621: Disable clock in probe error path
 
-PIC interrupts do not support affinity setting and they can end up on
-any online CPU. Therefore, it's required to mark the associated vectors
-as system-wide reserved. Otherwise, the corresponding irq descriptors
-are copied to the secondary CPUs but the vectors are not marked as
-assigned or reserved. This works correctly for the IO/APIC case.
+commit 24f7033405abe195224ec793dbc3d7a27dec0b98 upstream.
 
-When the IO/APIC is disabled via config, kernel command line or lack of
-enumeration then all legacy interrupts are routed through the PIC, but
-nothing marks them as system-wide reserved vectors.
+Commit 702b15cb9712 ("spi: mt7621: fix missing clk_disable_unprepare()
+on error in mt7621_spi_probe") sought to disable the SYS clock on probe
+errors, but only did so for 2 of 3 potentially failing calls:  The clock
+needs to be disabled on failure of spi_register_master() as well.
 
-As a consequence, a subsequent allocation on a secondary CPU can result in
-allocating one of these vectors, which triggers the BUG() in
-apic_update_vector() because the interrupt descriptor slot is not empty.
+Moreover, the commit purports to fix a bug in commit cbd66c626e16 ("spi:
+mt7621: Move SPI driver out of staging") but in reality the bug has
+existed since the driver was first introduced.
 
-Imran tried to work around that by marking those interrupts as allocated
-when a CPU comes online. But that's wrong in case that the IO/APIC is
-available and one of the legacy interrupts, e.g. IRQ0, has been switched to
-PIC mode because then marking them as allocated will fail as they are
-already marked as system vectors.
-
-Stay consistent and update the legacy vectors after attempting IO/APIC
-initialization and mark them as system vectors in case that no IO/APIC is
-available.
-
-Fixes: 69cde0004a4b ("x86/vector: Use matrix allocator for vector assignment")
-Reported-by: Imran Khan <imran.f.khan@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210519233928.2157496-1-imran.f.khan@oracle.com
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.17+: 702b15cb9712: spi: mt7621: fix missing clk_disable_unprepare() on error in mt7621_spi_probe
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Qinglang Miao <miaoqinglang@huawei.com>
+Link: https://lore.kernel.org/r/36ad42760087952fb7c10aae7d2628547c26a7ec.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v4.19.192]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 ---
- arch/x86/include/asm/apic.h   |  1 +
- arch/x86/kernel/apic/apic.c   |  1 +
- arch/x86/kernel/apic/vector.c | 20 ++++++++++++++++++++
- 3 files changed, 22 insertions(+)
+ drivers/staging/mt7621-spi/spi-mt7621.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/apic.h b/arch/x86/include/asm/apic.h
-index 412b51e..48067af 100644
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -174,6 +174,7 @@ static inline int apic_is_clustered_box(void)
- extern int setup_APIC_eilvt(u8 lvt_off, u8 vector, u8 msg_type, u8 mask);
- extern void lapic_assign_system_vectors(void);
- extern void lapic_assign_legacy_vector(unsigned int isairq, bool replace);
-+extern void lapic_update_legacy_vectors(void);
- extern void lapic_online(void);
- extern void lapic_offline(void);
- extern bool apic_needs_pit(void);
-diff --git a/arch/x86/kernel/apic/apic.c b/arch/x86/kernel/apic/apic.c
-index 4a39fb4..d262811 100644
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -2604,6 +2604,7 @@ static void __init apic_bsp_setup(bool upmode)
- 	end_local_APIC_setup();
- 	irq_remap_enable_fault_handling();
- 	setup_IO_APIC();
-+	lapic_update_legacy_vectors();
+diff --git a/drivers/staging/mt7621-spi/spi-mt7621.c b/drivers/staging/mt7621-spi/spi-mt7621.c
+index 33c747bc8320..ebfbe5ee479a 100644
+--- a/drivers/staging/mt7621-spi/spi-mt7621.c
++++ b/drivers/staging/mt7621-spi/spi-mt7621.c
+@@ -487,7 +487,11 @@ static int mt7621_spi_probe(struct platform_device *pdev)
+ 
+ 	mt7621_spi_reset(rs, 0);
+ 
+-	return spi_register_master(master);
++	ret = spi_register_master(master);
++	if (ret)
++		clk_disable_unprepare(clk);
++
++	return ret;
  }
  
- #ifdef CONFIG_UP_LATE_INIT
-diff --git a/arch/x86/kernel/apic/vector.c b/arch/x86/kernel/apic/vector.c
-index 6dbdc7c..fb67ed5 100644
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -738,6 +738,26 @@ void lapic_assign_legacy_vector(unsigned int irq, bool replace)
- 	irq_matrix_assign_system(vector_matrix, ISA_IRQ_VECTOR(irq), replace);
- }
- 
-+void __init lapic_update_legacy_vectors(void)
-+{
-+	unsigned int i;
-+
-+	if (IS_ENABLED(CONFIG_X86_IO_APIC) && nr_ioapics > 0)
-+		return;
-+
-+	/*
-+	 * If the IO/APIC is disabled via config, kernel command line or
-+	 * lack of enumeration then all legacy interrupts are routed
-+	 * through the PIC. Make sure that they are marked as legacy
-+	 * vectors. PIC_CASCADE_IRQ has already been marked in
-+	 * lapic_assign_system_vectors().
-+	 */
-+	for (i = 0; i < nr_legacy_irqs(); i++) {
-+		if (i != PIC_CASCADE_IR)
-+			lapic_assign_legacy_vector(i, true);
-+	}
-+}
-+
- void __init lapic_assign_system_vectors(void)
- {
- 	unsigned int i, vector = 0;
+ static int mt7621_spi_remove(struct platform_device *pdev)
+-- 
+2.31.1
+
