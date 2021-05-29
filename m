@@ -2,58 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA2B6394CDD
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A724F394CDF
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:20:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229716AbhE2PVR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:21:17 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:48359 "EHLO
+        id S229734AbhE2PWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:22:24 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:34777 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229704AbhE2PVR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:21:17 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 712B21940E06;
-        Sat, 29 May 2021 11:19:40 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sat, 29 May 2021 11:19:40 -0400
+        by vger.kernel.org with ESMTP id S229704AbhE2PWY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:22:24 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 94F1D1940E06;
+        Sat, 29 May 2021 11:20:47 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sat, 29 May 2021 11:20:47 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=+17Mr2
-        BeN9cbKiyY45h0mn28im36kAvhbIfBj3djriw=; b=B8ttO3F1/gpqG4KgjX+39x
-        N7kX/Tb43e6yy+liV/fEmDGOTe+wm88iadtSriRbErye8I5MxTaqjevDzixHBkz0
-        Kw20EhHZbnKNCnrRPN4yvrNrcQ1jmqRnYEHlrrcliVBHltsiivhIb9xP/8bv77uF
-        glTEnxttxDuy6ux7917dbZEt1QB5UwvoAoxcja03JmWgmMjUhyYbAic8jMGlx7Rr
-        BxGRLKaducmpAwgOR3UiK0cxaY4OyO+SxFjIgf8ouJQSPlbUIyKfuqULFL9jBvwb
-        dpHGJ1l13WgJMLBsfG142+rcyLZNpHOdGjTsCtQQyJD1aDlTcImkoi9Jd85nfhMA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=wvGE/Q
+        kR1y8RttH2N0pN2NSCMwzVB/dO3g8bpoF4cV8=; b=tG+puYjFjWVo5L5ml3a6vV
+        XRMHZgTOtsshq3QTtPMTLilBQ2nA+VY1bhZp6IBcbytbJ0HzZadAyr/+BGB9eJUs
+        vjc5akt1eY3OfaFHz0ClqI8nxd+rT2blR5geoxJ4h4MGKMRUXegwBZ4lwbPyKcQ5
+        VqMtioC1qSUkYe6klqabZF0+kZLNJB5Y9+xkI9fLXiZrOFRZrduL626DclZfR5WG
+        AX6kW2p5VpjRvVm4roySlvgl4quXv47FGTgZCD8uEcL+7g8EdG2KNqxYu/fB7gy8
+        kv/a+r2S0TomjhoS7JCpKALSK4SO5tqawzpsR+s3Dljm1YLpt7E24Gl+C2Y6wYxg
         ==
-X-ME-Sender: <xms:jFuyYAcladu8p3edyfytNKzx8FISiTd4AIKsA28HB3v_UBpHAwG-Aw>
-    <xme:jFuyYCMqc190lJGR-3NJyTKVuIXDbmuib4GUGywd7Lu4cGAcIHWzDuKFctAuR8Lgx
-    EoNVD93HZ3rIQ>
+X-ME-Sender: <xms:z1uyYCQ0QgEAtv6sZuEBzCpGoeWhkOF3tjt3-DVNzX_qi76VUb774A>
+    <xme:z1uyYHynLpUk7-kbzkWr_Mbj5hn-vCfVJ7F8Tf9s_ZHajgfftdpayl8oU8z4nw_7i
+    _AL4-z9m0M2WQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpeegnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:jFuyYBi7iEWm8UQKgswPCi5bfAOfys2csX9GHMSIHlv6ps42RLJOhA>
-    <xmx:jFuyYF-lUgKfQ7DTUZNGv1fRbpa5OIjQTwo2llJtW7ydyUTisKzRFg>
-    <xmx:jFuyYMuHm0_bSpboYseZdGLLvesLZNNs1gf-4Fww5UFiY7s2HUmcHQ>
-    <xmx:jFuyYJVdb6RSzMHXPP0y-EY7XKUiDBKfWg3-5AU0-1kFDApVatOM2w>
+    dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepvdffgeejjeeitdeiffejieejfffghedviedujeehfe
+    egvefhhfevvdefueehkeelnecuffhomhgrihhnpehfrhgvvgguvghskhhtohhprdhorhhg
+    necukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgvrhfuihiivgeptdenucfrrg
+    hrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:z1uyYP0PB1Xv9NsAUhidkkGMrTQzUL3GMZxnz1Tl6y56kqSAEpN2Sw>
+    <xmx:z1uyYOCIfvTIHjDZIpROecgQGWTTyIrZZtH0n-MbyUufbsqpX_0Ycw>
+    <xmx:z1uyYLhLnXODDTPEUbkhg9ibTh9mzJdKFkLgAR-EQjLipVLfCyfICQ>
+    <xmx:z1uyYLJPtfONX4_igNULhvskWz7JC8UxybBP6jjxHQWFTb1fzierdQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:19:39 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ath11k: Drop multicast fragments" failed to apply to 5.12-stable tree
-To:     srirrama@codeaurora.org, johannes.berg@intel.com,
-        jouni@codeaurora.org
+        Sat, 29 May 2021 11:20:46 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/ttm: Skip swapout if ttm object is not populated" failed to apply to 5.12-stable tree
+To:     xinhui.pan@amd.com, christian.koenig@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:19:24 +0200
-Message-ID: <1622301564182156@kroah.com>
+Date:   Sat, 29 May 2021 17:20:44 +0200
+Message-ID: <1622301644154152@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -71,61 +70,34 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 210f563b097997ce917e82feab356b298bfd12b0 Mon Sep 17 00:00:00 2001
-From: Sriram R <srirrama@codeaurora.org>
-Date: Tue, 11 May 2021 20:02:59 +0200
-Subject: [PATCH] ath11k: Drop multicast fragments
+From 35f819d218035ddfbc71e7cf62a4849231701e58 Mon Sep 17 00:00:00 2001
+From: xinhui pan <xinhui.pan@amd.com>
+Date: Fri, 21 May 2021 16:31:12 +0800
+Subject: [PATCH] drm/ttm: Skip swapout if ttm object is not populated
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Fragmentation is used only with unicast frames. Drop multicast fragments
-to avoid any undesired behavior.
+Swapping a ttm object which has no backend pages makes no sense.
 
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01734-QCAHKSWPL_SILICONZ-1 v2
+Suggested-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210521083112.33176-1-xinhui.pan@amd.com
+CC: stable@kernel.org
+Signed-off-by: Christian König <christian.koenig@amd.com>
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Sriram R <srirrama@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.1d53bfd20a8b.Ibb63283051bb5e2c45951932c6e1f351d5a73dc3@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 3382f8bfcb48..603d2f93ac18 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -260,6 +260,16 @@ static void ath11k_dp_rxdesc_set_msdu_len(struct ath11k_base *ab,
- 	ab->hw_params.hw_ops->rx_desc_set_msdu_len(desc, len);
- }
+diff --git a/drivers/gpu/drm/ttm/ttm_device.c b/drivers/gpu/drm/ttm/ttm_device.c
+index 510e3e001dab..a1dcf7d55c90 100644
+--- a/drivers/gpu/drm/ttm/ttm_device.c
++++ b/drivers/gpu/drm/ttm/ttm_device.c
+@@ -145,7 +145,7 @@ int ttm_device_swapout(struct ttm_device *bdev, struct ttm_operation_ctx *ctx,
+ 			list_for_each_entry(bo, &man->lru[j], lru) {
+ 				uint32_t num_pages;
  
-+static bool ath11k_dp_rx_h_attn_is_mcbc(struct ath11k_base *ab,
-+					struct hal_rx_desc *desc)
-+{
-+	struct rx_attention *attn = ath11k_dp_rx_get_attention(ab, desc);
-+
-+	return ath11k_dp_rx_h_msdu_end_first_msdu(ab, desc) &&
-+		(!!FIELD_GET(RX_ATTENTION_INFO1_MCAST_BCAST,
-+		 __le32_to_cpu(attn->info1)));
-+}
-+
- static void ath11k_dp_service_mon_ring(struct timer_list *t)
- {
- 	struct ath11k_base *ab = from_timer(ab, t, mon_reap_timer);
-@@ -3468,6 +3478,7 @@ static int ath11k_dp_rx_frag_h_mpdu(struct ath11k *ar,
- 	u8 tid;
- 	int ret = 0;
- 	bool more_frags;
-+	bool is_mcbc;
- 
- 	rx_desc = (struct hal_rx_desc *)msdu->data;
- 	peer_id = ath11k_dp_rx_h_mpdu_start_peer_id(ar->ab, rx_desc);
-@@ -3475,6 +3486,11 @@ static int ath11k_dp_rx_frag_h_mpdu(struct ath11k *ar,
- 	seqno = ath11k_dp_rx_h_mpdu_start_seq_no(ar->ab, rx_desc);
- 	frag_no = ath11k_dp_rx_h_mpdu_start_frag_no(ar->ab, msdu);
- 	more_frags = ath11k_dp_rx_h_mpdu_start_more_frags(ar->ab, msdu);
-+	is_mcbc = ath11k_dp_rx_h_attn_is_mcbc(ar->ab, rx_desc);
-+
-+	/* Multicast/Broadcast fragments are not expected */
-+	if (is_mcbc)
-+		return -EINVAL;
- 
- 	if (!ath11k_dp_rx_h_mpdu_start_seq_ctrl_valid(ar->ab, rx_desc) ||
- 	    !ath11k_dp_rx_h_mpdu_start_fc_valid(ar->ab, rx_desc) ||
+-				if (!bo->ttm ||
++				if (!bo->ttm || !ttm_tt_is_populated(bo->ttm) ||
+ 				    bo->ttm->page_flags & TTM_PAGE_FLAG_SG ||
+ 				    bo->ttm->page_flags & TTM_PAGE_FLAG_SWAPPED)
+ 					continue;
 
