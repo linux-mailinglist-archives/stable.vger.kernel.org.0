@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60D14394C8F
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 16:53:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5571C394C90
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 16:54:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229846AbhE2Oyk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 10:54:40 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:49357 "EHLO
+        id S229693AbhE2O42 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 10:56:28 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:49001 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229737AbhE2Oyk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 10:54:40 -0400
+        by vger.kernel.org with ESMTP id S229686AbhE2O41 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 10:56:27 -0400
 Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8389E194072C;
-        Sat, 29 May 2021 10:53:03 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute5.internal (MEProxy); Sat, 29 May 2021 10:53:03 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 448C21940DEE;
+        Sat, 29 May 2021 10:54:50 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sat, 29 May 2021 10:54:50 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=4wKHef
-        8kJGHofsN/1VJSTDt0i8K2Ped058p57FNzH2c=; b=MIJlm3czqBH18Pe0z8WaJM
-        2l+M0QnPemakyCtGc1T49aU7ZwCacDn5oiX9iXEfi5vkixhHW/T4sEijdOXxrio1
-        OWbsjAmxTPtJ3kWlV5xH2jSXBxgZwzj9mG+th2KJVMhxUCu87sB+a65bvdzfccyZ
-        dflpGUc6xk9OOt3RTanV0N0f8+Y+lId2T3jizxZTttdT343TC/mSxi67dJ+kzWyu
-        H36ipqftnq5VKv+4JqzUNGlDWsCadytoV6YYfOC93up/T+BQuOuzZDbKrE2IJWZb
-        ItgZTQHo6hCmuvgozinE/SKOzv13DFBcSWyptAd+UwPM4iEV7ZHuv9sp8kz3QH0A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=B2Uy8q
+        6YFA5aJBfl0qqF0fYK7319F30ZtQpjZh+jPJE=; b=TRNrZuID39Ull1pVjlB/o1
+        g509ytsfnbj8Tq0F5qpr4okP1zzPiWhHp07Si8m51gEcSp4KeO+yeaoNWyIQSmF/
+        tNPnkfZEIMSDy8Wmn9XyoJRh8JytxPGkYretsZvOYRypJPTxpZP+mRUuncnU8k27
+        FlEHj+kJnfJ+y2fDTMu3wu9cwv3nPdNCGlYgJeaqueG2Rz/c2M6tsDRfqxMpzkLq
+        c+JkDVmhL93hE7m12by0oJVZYkewFDoyhFXlce/SyCMDAqJOMhXK9zVslu9pDlHF
+        3R5AuycjzhgGJhSp5fGgwdd7BfufeJnzFObukeIUfoSQOUyYsh+wirMoYPG5bSlg
         ==
-X-ME-Sender: <xms:T1WyYNSTEzr8-eo4rQ0lVggw8NUVB4qXGDVu3LcWwiHEOcCmLO2fNA>
-    <xme:T1WyYGyFjLi8Ct8HJmNBOY-cy9L529ByKKgQ0NCq1f4lY3uktPBBabaH14Wy7TPwr
-    7lOsT8UCsjDAw>
+X-ME-Sender: <xms:ulWyYBfCLzc-IUHEOf-3h0aqhSvh4lfzhNG2mmaTom7F8XbqPOtlhg>
+    <xme:ulWyYPNp4I6bempTY6w80LKLu0VtP8MKjiAJmxNFWBa1xIYkZjrqszDYl6W2_pBzP
+    xzZ8VXYbnstWA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:T1WyYC0vpHLKWYjQ51D89JAKrDSs_uqTQcHuLW4EZ0P0E-EyEmQ-Yg>
-    <xmx:T1WyYFDwqRqRdBUSOZ9fDN3NZVLdoH1NOhejMVuk8HGC_bYvVrcipg>
-    <xmx:T1WyYGj2Ri5t7WSKWile63o2l_SWnhOQWmAHxhVXxbPv89bfH6zD9w>
-    <xmx:T1WyYOIkRa15AJ7W3lClF5KKxlcTtbcvwCUTPZ7O94a1VU2IvjHDHg>
+X-ME-Proxy: <xmx:ulWyYKjGIdKsWBxTzWiXU2iAewMMzke810Caotp_jIMIuLe-BBkELQ>
+    <xmx:ulWyYK_xn-iwWXseAAhztjS3dAErPCQ1UW7zOSBAjBlODwSoCR-aeg>
+    <xmx:ulWyYNvl1Ip3ZA38ph5HHmgBTWlwqzrQ67Meb_IcuyEUj5NkRTg_0Q>
+    <xmx:ulWyYC7InnmJQ08nE6gde_BHC_jmR5_3AoZECS6_Kk3huTMZ4iyz0A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 10:53:02 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] cfg80211: mitigate A-MSDU aggregation attacks" failed to apply to 4.4-stable tree
-To:     Mathy.Vanhoef@kuleuven.be, johannes.berg@intel.com
+        Sat, 29 May 2021 10:54:49 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mac80211: drop A-MSDUs on old ciphers" failed to apply to 4.4-stable tree
+To:     johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 16:53:01 +0200
-Message-ID: <16222999817165@kroah.com>
+Date:   Sat, 29 May 2021 16:54:47 +0200
+Message-ID: <162230008710359@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -70,47 +70,61 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 2b8a1fee3488c602aca8bea004a087e60806a5cf Mon Sep 17 00:00:00 2001
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Date: Tue, 11 May 2021 20:02:45 +0200
-Subject: [PATCH] cfg80211: mitigate A-MSDU aggregation attacks
+From 270032a2a9c4535799736142e1e7c413ca7b836e Mon Sep 17 00:00:00 2001
+From: Johannes Berg <johannes.berg@intel.com>
+Date: Tue, 11 May 2021 20:02:46 +0200
+Subject: [PATCH] mac80211: drop A-MSDUs on old ciphers
 
-Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
-destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
-header, and if so dropping the complete A-MSDU frame. This mitigates
-known attacks, although new (unknown) aggregation-based attacks may
-remain possible.
+With old ciphers (WEP and TKIP) we shouldn't be using A-MSDUs
+since A-MSDUs are only supported if we know that they are, and
+the only practical way for that is HT support which doesn't
+support old ciphers.
 
-This defense works because in A-MSDU aggregation injection attacks, a
-normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
-the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
-header. In other words, the destination MAC address of the first A-MSDU
-subframe contains the start of an RFC1042 header during an aggregation
-attack. We can detect this and thereby prevent this specific attack.
-For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
-Through Frame Aggregation and Fragmentation".
-
-Note that for kernel 4.9 and above this patch depends on "mac80211:
-properly handle A-MSDUs that start with a rfc1042 header". Otherwise
-this patch has no impact and attacks will remain possible.
+However, we would normally accept them anyway. Since we check
+the MMIC before deaggregating A-MSDUs, and the A-MSDU bit in
+the QoS header is not protected in TKIP (or WEP), this enables
+attacks similar to CVE-2020-24588. To prevent that, drop A-MSDUs
+completely with old ciphers.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
+Link: https://lore.kernel.org/r/20210511200110.076543300172.I548e6e71f1ee9cad4b9a37bf212ae7db723587aa@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/net/wireless/util.c b/net/wireless/util.c
-index 39966a873e40..7ec021a610ae 100644
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -771,6 +771,9 @@ void ieee80211_amsdu_to_8023s(struct sk_buff *skb, struct sk_buff_head *list,
- 		remaining = skb->len - offset;
- 		if (subframe_len > remaining)
- 			goto purge;
-+		/* mitigate A-MSDU aggregation injection attacks */
-+		if (ether_addr_equal(eth.h_dest, rfc1042_header))
-+			goto purge;
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index f14d32a5001d..8a72d48ad6e0 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -6,7 +6,7 @@
+  * Copyright 2007-2010	Johannes Berg <johannes@sipsolutions.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018-2020 Intel Corporation
++ * Copyright (C) 2018-2021 Intel Corporation
+  */
  
- 		offset += sizeof(struct ethhdr);
- 		last = remaining <= subframe_len + padding;
+ #include <linux/jiffies.h>
+@@ -2739,6 +2739,23 @@ ieee80211_rx_h_amsdu(struct ieee80211_rx_data *rx)
+ 	if (is_multicast_ether_addr(hdr->addr1))
+ 		return RX_DROP_UNUSABLE;
+ 
++	if (rx->key) {
++		/*
++		 * We should not receive A-MSDUs on pre-HT connections,
++		 * and HT connections cannot use old ciphers. Thus drop
++		 * them, as in those cases we couldn't even have SPP
++		 * A-MSDUs or such.
++		 */
++		switch (rx->key->conf.cipher) {
++		case WLAN_CIPHER_SUITE_WEP40:
++		case WLAN_CIPHER_SUITE_WEP104:
++		case WLAN_CIPHER_SUITE_TKIP:
++			return RX_DROP_UNUSABLE;
++		default:
++			break;
++		}
++	}
++
+ 	return __ieee80211_rx_h_amsdu(rx, 0);
+ }
+ 
 
