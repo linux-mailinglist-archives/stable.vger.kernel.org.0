@@ -2,58 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9A09394A93
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 07:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53FFF394AB1
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 08:05:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229549AbhE2Fau (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 01:30:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53638 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229456AbhE2Fau (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 29 May 2021 01:30:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A312E6128D;
-        Sat, 29 May 2021 05:29:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622266154;
-        bh=vUcwMg0oxT4K5R8nTbh3KdbXpvAddhf1SbDPcXhNnP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=tm2hPmeU/sfWm5aTQ0V0BHRISk6rF/ZIbPTPWt29w3f4Id/gQ9YdmqBW65i44OyJS
-         2EM6N+Zc20RMOtzi6m7ywS4uo3qc8qh3znhmUzeuLNV/a5xgl5FSXBIbWelFTbXVhU
-         kIqSWNfNJY5V9KIYsybERb2CoZTeQFYqg1arpRQ8=
-Date:   Sat, 29 May 2021 07:29:12 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "J. Bruce Fields" <bfields@fieldses.org>
-Cc:     stable@vger.kernel.org, Chris Wilson <chris@chris-wilson.co.uk>,
-        intel-gfx@lists.freedesktop.org
-Subject: Re: [CI] drm/i915: Disable atomics in L3 for gen9
-Message-ID: <YLHRKI+RZ0nvIe/P@kroah.com>
-References: <20210528172543.GA7385@fieldses.org>
+        id S229620AbhE2GHK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 02:07:10 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40440 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229547AbhE2GHK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 02:07:10 -0400
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82EAFC061574;
+        Fri, 28 May 2021 23:05:33 -0700 (PDT)
+Received: by mail-pj1-x102b.google.com with SMTP id pi6-20020a17090b1e46b029015cec51d7cdso3694249pjb.5;
+        Fri, 28 May 2021 23:05:33 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dj+sVpS2uayKHiIJ1N88jZYGI1O1BdFKfgWRCDtgcRw=;
+        b=oBmxC+MnK9tUUJJeZJufxG9NHq6kIQQY6R/LuZVLQ1FItodhfhciBM8szGm+onRt+V
+         sJuT9r/hTu+8FGSjHRwM4W23A/aKAPgxuEnjWPC9Ys4gpC8ZjJfKVcowoY0qkiFXiqwe
+         YHtdljdCNhQAllPwxV5IvA8r/4QYgzFFJ7X9Wm+XC5cMQtQgKRnOUXCv4JfmRTCMVpSj
+         qaddp1VvIN9DKDGkuzDb18YknshlgbUS5EykGhN11mQ/Gh+XK/Weoz2ESOl7bhzLJ2Kn
+         kVsglDU/IcTpy8YPCxwOfZIlmvkjKMyOs37r0ILDIIMYBd2n2vuy0Va40IcmbZZJaIX1
+         oJkA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dj+sVpS2uayKHiIJ1N88jZYGI1O1BdFKfgWRCDtgcRw=;
+        b=H2BajBvPSc2we4zKO69pzUc7BfgLV13Zl5eMWsoyGZeharnJR+qF7O9ov3LNUZ4ryt
+         uvdZ8rqmDsoBWnM1U/6bKVMKGLGh2MP4QO5jcBM4FWwsiWsJH07XJhSoRYIGqLqNPViy
+         M8PdHrs8Y2fmWwn5A/LhAWvxlTnhaakuK+8K89AClgccxjauloIjlhOhp1nz12cHhN2p
+         paT1bBi0R8WadlflWiz1+b2Vd6qT+8fYdUW+D+zpg+J9LH3IapCElskzIOA04XVm6+Xt
+         86+AKzq2YuJ5HTGwkVhkk377IsLF6nE8PuNrt4ca8MFeVTzjUFvcTzicagbflMDZIV4U
+         WBjQ==
+X-Gm-Message-State: AOAM530VrVzsRUvq9SOg/xdwklCf2YxQVAEC4Mclv7WzNUD32U+zndwt
+        FCAYMYA2utaum23XO0jD0UA=
+X-Google-Smtp-Source: ABdhPJzJk51CMG+RbBrsd/wxt+xHRmOmoRQjW/Qa/nDEtITWWRgyGAkJkaAnPaWE3UlY/yzLqkCysg==
+X-Received: by 2002:a17:90a:d482:: with SMTP id s2mr8407870pju.230.1622268332834;
+        Fri, 28 May 2021 23:05:32 -0700 (PDT)
+Received: from vultr.guest ([141.164.41.4])
+        by smtp.gmail.com with ESMTPSA id u4sm5841520pgl.43.2021.05.28.23.05.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 28 May 2021 23:05:32 -0700 (PDT)
+From:   Changbin Du <changbin.du@gmail.com>
+To:     "David S. Miller" <davem@davemloft.net>,
+        Jakub Kici nski <kuba@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Changbin Du <changbin.du@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] net: fix oops in socket ioctl cmd SIOCGSKNS when NET_NS is disabled
+Date:   Sat, 29 May 2021 14:05:26 +0800
+Message-Id: <20210529060526.422987-1-changbin.du@gmail.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210528172543.GA7385@fieldses.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 28, 2021 at 01:25:43PM -0400, J. Bruce Fields wrote:
-> Would it be possible to apply
-> 
-> 	58586680ffad "drm/i915: Disable atomics in L3 for gen9"
-> 
-> to stable kernels?
-> 
-> I'm finding it quite easy to crash my Thinkpad X1 Carbon 6th gen with
-> Blender on Fedora 34 (which is using the 5.11.y kernels).  It applies
-> cleanly, and I've been running 5.11.16 with the patch applied and seeing
-> no obvious ill effects.
+When NET_NS is not enabled, socket ioctl cmd SIOCGSKNS should do nothing
+but acknowledge userspace it is not supported. Otherwise, kernel would
+panic wherever nsfs trys to access ns->ops since the proc_ns_operations
+is not implemented in this case.
 
-As 5.11.y is now end-of-life, and has been for a week or so, what
-kernel(s) would you want this applied to given that 5.12.y is the latest
-stable kernel tree?
+[7.670023] Unable to handle kernel NULL pointer dereference at virtual address 00000010
+[7.670268] pgd = 32b54000
+[7.670544] [00000010] *pgd=00000000
+[7.671861] Internal error: Oops: 5 [#1] SMP ARM
+[7.672315] Modules linked in:
+[7.672918] CPU: 0 PID: 1 Comm: systemd Not tainted 5.13.0-rc3-00375-g6799d4f2da49 #16
+[7.673309] Hardware name: Generic DT based system
+[7.673642] PC is at nsfs_evict+0x24/0x30
+[7.674486] LR is at clear_inode+0x20/0x9c
 
-What prevents you from moving to 5.12.y now?
+Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Cc: <stable@vger.kernel.org> # v4.9
+---
+ net/socket.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-thanks,
+diff --git a/net/socket.c b/net/socket.c
+index 27e3e7d53f8e..644b46112d35 100644
+--- a/net/socket.c
++++ b/net/socket.c
+@@ -1149,11 +1149,15 @@ static long sock_ioctl(struct file *file, unsigned cmd, unsigned long arg)
+ 			mutex_unlock(&vlan_ioctl_mutex);
+ 			break;
+ 		case SIOCGSKNS:
++#ifdef CONFIG_NET_NS
+ 			err = -EPERM;
+ 			if (!ns_capable(net->user_ns, CAP_NET_ADMIN))
+ 				break;
+ 
+ 			err = open_related_ns(&net->ns, get_net_ns);
++#else
++			err = -ENOTSUPP;
++#endif
+ 			break;
+ 		case SIOCGSTAMP_OLD:
+ 		case SIOCGSTAMPNS_OLD:
+-- 
+2.27.0
 
-greg k-h
