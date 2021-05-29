@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B2AE394C97
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:00:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BA61394C9A
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:01:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229693AbhE2PB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:01:56 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:57217 "EHLO
+        id S229718AbhE2PCs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:02:48 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:53953 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229636AbhE2PB4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:01:56 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A83D21940E3E;
-        Sat, 29 May 2021 11:00:19 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute6.internal (MEProxy); Sat, 29 May 2021 11:00:19 -0400
+        by vger.kernel.org with ESMTP id S229636AbhE2PCs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:02:48 -0400
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A739E1940E68;
+        Sat, 29 May 2021 11:01:11 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute2.internal (MEProxy); Sat, 29 May 2021 11:01:11 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=7FkFj8
-        CdHQT5I1ZIvBi4lQbvzW7r7ECPnQBtqCIgRc0=; b=daYaPn4VkSzBZ5dNnL17qt
-        xlgtK8YpDBB2i3Dmff6WDv0axNQ8oKWzgJJETwx+KRFVIzoVg/LdHN49VXmcrBoC
-        PUl3/DtMgj1FU5JRT1vcAyam22/a17u1gamYgHMEhrUCgKnkW8rMICbNh30VKgFf
-        CXNoI6twZwc1w/sVXTl+qZuOH1ZBrr6EMpaMERvfFUQLZU5S++RCEalCvyMUDjHk
-        6RCDbTPpUZ3pk6HT/BwnIOTQEeJy0m5G2ytiIEJJuGJ+tYQAtKDRm2SpX3RHkD0E
-        uuADWrx746qk6n2llErFBoqCdPzDxOA4P1pjO1AsJ1RDKGn2iNlADNPlgYA1vizQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=NTlrOk
+        MleHxc7OdW881NAsCtHGpLqUqMfM6Odmi3SAE=; b=IynFiQMgWa0b3p9R7oDzu1
+        l/tkVhFA/lf20yl0lElqkPdF6XCPthWH+1Pxf74oK4kg2T1a+ENLU5GFKcGNS7fX
+        h0LUO5JZlff4GfVpdDDshrvbDXWcwTqnzRANxpSB5YHDtuijXK/MmEiFj/fUQ4WQ
+        ksRblmZ0jkEjTayKPpbaYikZXsQpHIT93XhUJau4NocHhvhB79DBWltI1AGHFOd8
+        hEADoy4WB2I52bT1RYj9/mHycYLUytGQf0hOtxizt509m0ObleaAl7q+oQua23jU
+        9HXx6QX9Wd1oRRsJtZDoT++5NPxLjKR/SNRsL6Nxi4NPlokbiz1W0Clrn2hkF56g
         ==
-X-ME-Sender: <xms:A1eyYBFwX0kQQ8wB2MOABlnmEyeyDQMCER6D84VbyacTrxOAEc8BMw>
-    <xme:A1eyYGUZ9FGZpT0X0g-BFQKdi8i-oEQryQCpRAG50klE5eks4JsfMEljZTYRG9E7P
-    lDrL4GlGlI3kw>
+X-ME-Sender: <xms:N1eyYL4OnTGVOsF3AegSHMrVBXrWCaBaw4YaVD1NqChvCCX51SXTEA>
+    <xme:N1eyYA4XPN5ilZUDGoZssQkrqdq6rhvmpcZf-SsOfd30kLazCJ0yclpJ_Tc2kf2AD
+    vjm2fOG_zjyUA>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeegucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:A1eyYDLmOypol33Kiryys3FX1lD_WrM1XHJ4pJWGZ-3wb5yVChRjpw>
-    <xmx:A1eyYHFbTaPT8g66uJybfWvb8Mo3GP8dlWb2CmaHlflchTQ1IyXyAg>
-    <xmx:A1eyYHU5h44OIO17g3VVGGFbfNWI932JBAge7boirq3MTo3Lr9kksg>
-    <xmx:A1eyYOAzmgIItsYLZE_0xeOkwHai8hpWnvt_DiOr-crWP6cZ4a4jHg>
+X-ME-Proxy: <xmx:N1eyYCe9lPgEx5a5iN1FTzCGiASXa4_X7iUCCWDN5Whs_BpJ9E8XHw>
+    <xmx:N1eyYML_HPC6n9UUApH0nN6S3UEMGNqPbTNe9Syv3n_4OwXbO5RCeA>
+    <xmx:N1eyYPL1PIke6DMc3NTAbyFprhiwKuJOl-ZCZucCs1lQHOQz7lJKBA>
+    <xmx:N1eyYKnd2m7njYXkE8TxMBJlgbsrQbha_wCX2PnAdEzNFJmGa_5kHA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:00:18 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mac80211: check defrag PN against current frame" failed to apply to 4.4-stable tree
+        Sat, 29 May 2021 11:01:11 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mac80211: prevent attacks on TKIP/WEP as well" failed to apply to 4.14-stable tree
 To:     johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:00:16 +0200
-Message-ID: <16223004161447@kroah.com>
+Date:   Sat, 29 May 2021 17:00:59 +0200
+Message-ID: <162230045920794@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.4-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,120 +70,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From bf30ca922a0c0176007e074b0acc77ed345e9990 Mon Sep 17 00:00:00 2001
+From 7e44a0b597f04e67eee8cdcbe7ee706c6f5de38b Mon Sep 17 00:00:00 2001
 From: Johannes Berg <johannes.berg@intel.com>
-Date: Tue, 11 May 2021 20:02:48 +0200
-Subject: [PATCH] mac80211: check defrag PN against current frame
+Date: Tue, 11 May 2021 20:02:49 +0200
+Subject: [PATCH] mac80211: prevent attacks on TKIP/WEP as well
 
-As pointed out by Mathy Vanhoef, we implement the RX PN check
-on fragmented frames incorrectly - we check against the last
-received PN prior to the new frame, rather than to the one in
-this frame itself.
+Similar to the issues fixed in previous patches, TKIP and WEP
+should be protected even if for TKIP we have the Michael MIC
+protecting it, and WEP is broken anyway.
 
-Prior patches addressed the security issue here, but in order
-to be able to reason better about the code, fix it to really
-compare against the current frame's PN, not the last stored
-one.
+However, this also somewhat protects potential other algorithms
+that drivers might implement.
 
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210511200110.bfbc340ff071.Id0b690e581da7d03d76df90bb0e3fd55930bc8a0@changeid
+Link: https://lore.kernel.org/r/20210511200110.430e8c202313.Ia37e4e5b6b3eaab1a5ae050e015f6c92859dbe27@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 4c714375bad0..214404a558fb 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -223,8 +223,15 @@ struct ieee80211_rx_data {
- 	 */
- 	int security_idx;
- 
--	u32 tkip_iv32;
--	u16 tkip_iv16;
-+	union {
-+		struct {
-+			u32 iv32;
-+			u16 iv16;
-+		} tkip;
-+		struct {
-+			u8 pn[IEEE80211_CCMP_PN_LEN];
-+		} ccm_gcm;
-+	};
- };
- 
- struct ieee80211_csa_settings {
 diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index 7212a1bebd0c..b619c47e1d12 100644
+index b619c47e1d12..4454ec47283f 100644
 --- a/net/mac80211/rx.c
 +++ b/net/mac80211/rx.c
-@@ -2308,7 +2308,6 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 	if (entry->check_sequential_pn) {
- 		int i;
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
--		int queue;
- 
- 		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
-@@ -2323,8 +2322,8 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 			if (pn[i])
- 				break;
+@@ -2274,6 +2274,7 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 			 * next fragment has a sequential PN value.
+ 			 */
+ 			entry->check_sequential_pn = true;
++			entry->is_protected = true;
+ 			entry->key_color = rx->key->color;
+ 			memcpy(entry->last_pn,
+ 			       rx->key->u.ccmp.rx_pn[queue],
+@@ -2286,6 +2287,9 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ 				     sizeof(rx->key->u.gcmp.rx_pn[queue]));
+ 			BUILD_BUG_ON(IEEE80211_CCMP_PN_LEN !=
+ 				     IEEE80211_GCMP_PN_LEN);
++		} else if (rx->key && ieee80211_has_protected(fc)) {
++			entry->is_protected = true;
++			entry->key_color = rx->key->color;
  		}
--		queue = rx->security_idx;
--		rpn = rx->key->u.ccmp.rx_pn[queue];
-+
-+		rpn = rx->ccm_gcm.pn;
+ 		return RX_QUEUED;
+ 	}
+@@ -2327,6 +2331,14 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
  		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
  			return RX_DROP_UNUSABLE;
  		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
-diff --git a/net/mac80211/wpa.c b/net/mac80211/wpa.c
-index 91bf32af55e9..bca47fad5a16 100644
---- a/net/mac80211/wpa.c
-+++ b/net/mac80211/wpa.c
-@@ -3,6 +3,7 @@
-  * Copyright 2002-2004, Instant802 Networks, Inc.
-  * Copyright 2008, Jouni Malinen <j@w1.fi>
-  * Copyright (C) 2016-2017 Intel Deutschland GmbH
-+ * Copyright (C) 2020-2021 Intel Corporation
-  */
- 
- #include <linux/netdevice.h>
-@@ -167,8 +168,8 @@ ieee80211_rx_h_michael_mic_verify(struct ieee80211_rx_data *rx)
- 
- update_iv:
- 	/* update IV in key information to be able to detect replays */
--	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip_iv32;
--	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip_iv16;
-+	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip.iv32;
-+	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip.iv16;
- 
- 	return RX_CONTINUE;
- 
-@@ -294,8 +295,8 @@ ieee80211_crypto_tkip_decrypt(struct ieee80211_rx_data *rx)
- 					  key, skb->data + hdrlen,
- 					  skb->len - hdrlen, rx->sta->sta.addr,
- 					  hdr->addr1, hwaccel, rx->security_idx,
--					  &rx->tkip_iv32,
--					  &rx->tkip_iv16);
-+					  &rx->tkip.iv32,
-+					  &rx->tkip.iv16);
- 	if (res != TKIP_DECRYPT_OK)
- 		return RX_DROP_UNUSABLE;
- 
-@@ -553,6 +554,8 @@ ieee80211_crypto_ccmp_decrypt(struct ieee80211_rx_data *rx,
- 		}
- 
- 		memcpy(key->u.ccmp.rx_pn[queue], pn, IEEE80211_CCMP_PN_LEN);
-+		if (unlikely(ieee80211_is_frag(hdr)))
-+			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
++	} else if (entry->is_protected &&
++		   (!rx->key || !ieee80211_has_protected(fc) ||
++		    rx->key->color != entry->key_color)) {
++		/* Drop this as a mixed key or fragment cache attack, even
++		 * if for TKIP Michael MIC should protect us, and WEP is a
++		 * lost cause anyway.
++		 */
++		return RX_DROP_UNUSABLE;
  	}
  
- 	/* Remove CCMP header and MIC */
-@@ -781,6 +784,8 @@ ieee80211_crypto_gcmp_decrypt(struct ieee80211_rx_data *rx)
- 		}
- 
- 		memcpy(key->u.gcmp.rx_pn[queue], pn, IEEE80211_GCMP_PN_LEN);
-+		if (unlikely(ieee80211_is_frag(hdr)))
-+			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
- 	}
- 
- 	/* Remove GCMP header and MIC */
+ 	skb_pull(rx->skb, ieee80211_hdrlen(fc));
+diff --git a/net/mac80211/sta_info.h b/net/mac80211/sta_info.h
+index 5c56d29a619e..0333072ebd98 100644
+--- a/net/mac80211/sta_info.h
++++ b/net/mac80211/sta_info.h
+@@ -455,7 +455,8 @@ struct ieee80211_fragment_entry {
+ 	u16 extra_len;
+ 	u16 last_frag;
+ 	u8 rx_queue;
+-	bool check_sequential_pn; /* needed for CCMP/GCMP */
++	u8 check_sequential_pn:1, /* needed for CCMP/GCMP */
++	   is_protected:1;
+ 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
+ 	unsigned int key_color;
+ };
 
