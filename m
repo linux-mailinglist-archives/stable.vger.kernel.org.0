@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A490394C92
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 16:55:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ADBCF394C91
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 16:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbhE2O4g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 10:56:36 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:43053 "EHLO
+        id S229704AbhE2O4f (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 10:56:35 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:36133 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229698AbhE2O4g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 10:56:36 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A614C1940DEA;
-        Sat, 29 May 2021 10:54:59 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sat, 29 May 2021 10:54:59 -0400
+        by vger.kernel.org with ESMTP id S229698AbhE2O4e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 10:56:34 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id E37DA1940DEA;
+        Sat, 29 May 2021 10:54:57 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sat, 29 May 2021 10:54:57 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uH7RFr
-        BDoT46G8KpGnePvtXYBfYU7ylviqrbRRjQMNE=; b=gIYPObESEYvWduX9gziv+0
-        OeZns5i1zaZg2uAIzQLYqk+r+gy1Re3cflQvvZG8R1XA6TeITf35oubc733tukhB
-        Z20FUqVltJLGkHm8ELH8TL70ku0dRvHd0HdrC0tbX9BzIIDvJ3qihLESfXEfe9Jz
-        AOcPscSCGNYO0BmLdLEkFbq6XV1wGnFePydD2yok49Eq1tCMX6I9uRXGKStCtCoN
-        5K9iHIbm7EHbRaD8+bwtfUCFYZvGw9xZ+kx2OhaKjAH8frhL+txqSgsFmyngZtAy
-        N/MrpCJSENt2hBkYdLxrpRwI/Zid8VBhLu8zVpcE8Xa2SCobxf2XjqlNhVEEf7XQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=aYXv+r
+        Yiu3QpzoF3q80FZ7WsGkHrWQoxrQrFshHCqzk=; b=EHCg4cuQLbh7taZXiUnZBo
+        OEdBgATU/fIwpR+bPBxXVc9P/oOizZ70+tGYtCNdafIWtz0t1kjrM95vMwTY1D7y
+        wzA8SgPt08EMpaGZPm839B5hNZC0DeHJzBPMYNHJgECvFk0d/YyIYKSblVT0BLg1
+        Z8jTy9mR469eJAP8ejqdcFgVsM1w62FVIKD+h1Xxls7o+MTI+KAril4Oe60v2/+F
+        Cy8jWVtHjFkBTyjTShZ8jk6R7Rolncxr6KeLzoiVgQe6EV+g1uvCoFA44fAnxUcv
+        S7tFXPMwVqCM3+jKzVcKzmWYkg4Be+uQMhMnPmz3ZfRQURfViTNZGzWB2m4zZ9KA
         ==
-X-ME-Sender: <xms:w1WyYBA-Qbl2pm2aaXUfihv8CxkS-Xwk0nU52t7Dzi3Xyb2xp0qZQw>
-    <xme:w1WyYPjoP90oH-j2u8umAWomUw4f5ag20kYSvNRD5kAQ87NyELLHe8LBIV7U8IhoX
-    BALsu0ZH4GRUw>
+X-ME-Sender: <xms:wVWyYDFzDtCT9_az_XwqU3Uxu-8jM8ndSEf4xLJpMPbkzoz4uR3PHQ>
+    <xme:wVWyYAUux4ipfFDWvc3bzWjuoeV4NTDzxXrligbPhFtaEyjFqFKN1kNO4pU-2yGVd
+    JZOgQxDwrtewg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedvnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:w1WyYMlZhWtHzZ-0aqiBmiRuUBOSzPYdaRZqwyMr2n28SshBfJeAHQ>
-    <xmx:w1WyYLw8oe6eEVgueI8IRCA4EI9Lz2_Amr0U6iHNiinp8obn4fmEvg>
-    <xmx:w1WyYGSIy7jLo1HPeZ155Bj4ZaeoqoIHoadDDvnDZscKjYRZNbpydA>
-    <xmx:w1WyYNNCi1oa0V-gCKIEow1bDiHkWiY9mRHFYfI9oPHfyIyPUnfG-Q>
+X-ME-Proxy: <xmx:wVWyYFJuI-rJqxVeo_EAJnLrOQcR-ot49KKajkxnsexBqcB49fW2FQ>
+    <xmx:wVWyYBERr5rl9X_o2kWMN6OEWJQutacOJnm2sASW5RIhGPr3b9OgJg>
+    <xmx:wVWyYJVOz9shB12wsMmksOT6pe7EvIMOidEY8_SfTi5i7_QInGxsFA>
+    <xmx:wVWyYIA8v4j4BIZgcwjVqVygV8bETzT7j-kRIlg08xYotMZSKXKTDg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 10:54:59 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mac80211: drop A-MSDUs on old ciphers" failed to apply to 4.9-stable tree
+        Sat, 29 May 2021 10:54:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mac80211: drop A-MSDUs on old ciphers" failed to apply to 4.14-stable tree
 To:     johannes.berg@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 May 2021 16:54:48 +0200
-Message-ID: <1622300088201159@kroah.com>
+Message-ID: <1622300088174156@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
