@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A29D394CAF
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:15:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EC040394CAE
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:15:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229810AbhE2PRL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:17:11 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:39281 "EHLO
+        id S229800AbhE2PRB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:17:01 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:36189 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229698AbhE2PRK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:17:10 -0400
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3F5C71940DB6;
-        Sat, 29 May 2021 11:15:33 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute2.internal (MEProxy); Sat, 29 May 2021 11:15:33 -0400
+        by vger.kernel.org with ESMTP id S229698AbhE2PRB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:17:01 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A77A31940DC0;
+        Sat, 29 May 2021 11:15:24 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute6.internal (MEProxy); Sat, 29 May 2021 11:15:24 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=EQ4Lfa
-        x7GlCF8x3guO6f+8P6Dm35KdOlrY5QGT3CbDQ=; b=qqLOHe+ZrJTNWd2v0V1j9m
-        vKJ6QRXFeTQ6B2DdWTYkek0nUhwmMrcf+uryox4bF1GPJyM1kPlEaNSU9KA8TAIz
-        NIFkJSKG4S8pcKgKnFx3z6iImYvOPUwkFMWBCp1imG1NgB1fm/U7ZM378cnKGvmM
-        ETqxlUZpKvs9TPr2Fm02boy0Hg/VFeg9u07XQjLGiZo9L9UcSA9hyyZaITJhZD2C
-        rwrqFedLEGFOrP1WF9jhH7ezgQXtnnZTwHPEj18cKiYLrrtSQfnu7MLPd3lyntlE
-        kBKsN6GbNbnuVLggIsupette6eDuUvJ1G7vPA5yk9LDGb9mZQssf92Vxa5iEFatA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Xi91hg
+        /wX5sskMDF6OqsOEX2mtYUXuB3H+49zAtAfMM=; b=Qof4CIrHqsh7vxNM2vjW31
+        OeFpdCHOAQQuWKh4wOhPjswV2wA/5dQ4v4aphqLCYR4r7acmVrzul7cb7iVOA78G
+        luLJasgcodYuslfIO4dGqLGUSeuHXE6UwMEiddZQI2rWYN1BHy939gDqOv/Ayb4O
+        AVd+A7WBTvsq1+NS9IQEEdXCCOjUKlI7KFZtUvBdTLbNM1kJuuyWBXgJPIWmB0lF
+        3MC1K4aPYUUb7tvfmNSQ7L/o6kiCrb27k3BFsZ7h1xJzKCpmogOsXT/wWJ4L5hAt
+        22hlB5vfgcYPzrgoLNO9AMehjUHmhb/JBCAdSd7RC5CstfkiyW7vrB4+W14CDksg
         ==
-X-ME-Sender: <xms:lVqyYNSY3P3q0OocEWFkMszJyPGhWkKZ-qMBn4eb7Q0L4KzQ7Lw4Dg>
-    <xme:lVqyYGymoUtANxqjBNA7oFFQUxDtgqb6FF9ZX3vU61zOX_KWmotI-rsY2eXP_pFZp
-    rCfKs11e39dWA>
+X-ME-Sender: <xms:jFqyYDT0KliOa6kN2DtKIKtvWlujfw53ox3eVxlXMfKhzd3jlCyy0Q>
+    <xme:jFqyYEzOlqG4hs1B6FXYRMvSB2XAE-TUGlC-Ho9qsogsf9CIJ6XwuxLrjmeqf502r
+    eKbkMRS39g0Pg>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeejucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:lVqyYC08SXrR_Tskw6qwdikzenMajuHKDibAdsYjBM6d5OWuPGEeWA>
-    <xmx:lVqyYFB5nqE4ySTC6TaXVNxtHSjAgAWeOHnPfo7OOkth5SfIdcs69g>
-    <xmx:lVqyYGhLe6NMs0LcwyKr9f38v4a2VB9zoKKVTAe2cJmyOiYMPaduLg>
-    <xmx:lVqyYKZerZb9B05ggY0PdWCSrmjwW2U40aKIJGuWZy8jC83C7Vdd-g>
+X-ME-Proxy: <xmx:jFqyYI12_lcLYLJpCuI6dvszqzH4YtXgL4V3_FmatSXbikBhU-exew>
+    <xmx:jFqyYDCUuupnKNYngcHK_gkUZz9P84WC84y-VCJM3m1dy9xrV8RTUQ>
+    <xmx:jFqyYMj8FwtmLDWMClgTmUOytzXPZMZEnTQAYBeiYabLB-HsMellnQ>
+    <xmx:jFqyYIb1XXpjHGcCgWTRC1P5hFmmTq7Lv7V_TtuUswaSlynZNjjt6w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:15:32 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ath10k: add CCMP PN replay protection for fragmented frames" failed to apply to 4.14-stable tree
+        Sat, 29 May 2021 11:15:23 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] ath10k: add CCMP PN replay protection for fragmented frames" failed to apply to 4.19-stable tree
 To:     wgong@codeaurora.org, johannes.berg@intel.com, jouni@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 May 2021 17:15:22 +0200
-Message-ID: <1622301322101175@kroah.com>
+Message-ID: <1622301322103234@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
