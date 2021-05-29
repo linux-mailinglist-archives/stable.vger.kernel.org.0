@@ -2,155 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 059E0394CD3
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:19:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED9B7394CD4
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:19:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229693AbhE2PUt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:20:49 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:34649 "EHLO
-        forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229754AbhE2PUs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:20:48 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id AEAF41940E04;
-        Sat, 29 May 2021 11:19:11 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sat, 29 May 2021 11:19:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ypimts
-        plXCSmrXai8ORV1cpeS7zirQ4bGrfJ3o67oeo=; b=W1y/Xw096g+LPZpVoSxyRv
-        qb01TknoY6/A3MIT5voIjYzT4jNqXUAdz1X1vM4UHWIdK/UVt1doQmKOKZQ5zgat
-        LyY3/+7fe5LHu0X+rWrdLmdpmfiXFS+Ne+rZVRqxvWWem1t2kPWS7N0LMxoikz/J
-        fTMU0Ijpex8Qpk6mPotXx3W/qeRZQZT060txB9cWmlt66va//J7bRITk/+am3Nxd
-        DAZ+LE5tLwNXRaDx8Gz8eaPc5QRZH6QRCf+f6SlY1nNxKGBt/mwrB58CHo+KDBk2
-        0+seDVyQcuA7jcZrONhk2EzaFzFWwRIpqcMHAlAViYhwAYMGyyjEG8Er/sLoqTjQ
-        ==
-X-ME-Sender: <xms:b1uyYCCz4v6ksKXnE9CDHIGO9iB3iEhcdtBWr--7gzh3WLpfqF0E2A>
-    <xme:b1uyYMgg61wgVmJzD83sOZO_wxlvanlq9ZpMfLhpmEbwkR5P8HPJXU9yN7SmkVOxf
-    3lCR1HQEeLnkQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeekucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
-    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
-    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:b1uyYFn9UG_GqvQvxhE1pNwb7aO9dfxENEOROpmFU8Rl8VPKIX-4mw>
-    <xmx:b1uyYAxBCSoCvAshlN3LHroSV9PaiZjAgdRsuEu66LnXH3YpHMANOg>
-    <xmx:b1uyYHQ-tdH8rJHaf6eJ2yyVpSi2EgyuTCKorxmJrhETgJU9-k4umw>
-    <xmx:b1uyYOLhqiD4ZCOjgazetZQkXDhqNars56XC2Ody8agGGGj6fdAorA>
-Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
-        by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:19:11 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] ath11k: Clear the fragment cache during key install" failed to apply to 5.4-stable tree
-To:     srirrama@codeaurora.org, johannes.berg@intel.com,
-        jouni@codeaurora.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:18:57 +0200
-Message-ID: <1622301537240209@kroah.com>
+        id S229761AbhE2PUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:20:54 -0400
+Received: from bmailout1.hostsharing.net ([83.223.95.100]:35985 "EHLO
+        bmailout1.hostsharing.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229754AbhE2PUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:20:51 -0400
+Received: from h08.hostsharing.net (h08.hostsharing.net [83.223.95.28])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (Client CN "*.hostsharing.net", Issuer "RapidSSL TLS DV RSA Mixed SHA256 2020 CA-1" (verified OK))
+        by bmailout1.hostsharing.net (Postfix) with ESMTPS id 6CE96300002A5;
+        Sat, 29 May 2021 17:19:13 +0200 (CEST)
+Received: by h08.hostsharing.net (Postfix, from userid 100393)
+        id 5FFC0210E76; Sat, 29 May 2021 17:19:13 +0200 (CEST)
+Date:   Sat, 29 May 2021 17:19:13 +0200
+From:   Lukas Wunner <lukas@wunner.de>
+To:     gregkh@linuxfoundation.org
+Cc:     andrew.smirnov@gmail.com, broonie@kernel.org,
+        linus.walleij@linaro.org, navid.emamdoost@gmail.com,
+        stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] spi: gpio: Don't leak SPI master in probe
+ error path" failed to apply to 4.19-stable tree
+Message-ID: <20210529151913.GA20981@wunner.de>
+References: <1609153159153229@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1609153159153229@kroah.com>
+User-Agent: Mutt/1.10.1 (2018-07-13)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Dec 28, 2020 at 11:59:19AM +0100, gregkh@linuxfoundation.org wrote:
+> The patch below does not apply to the 4.19-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-The patch below does not apply to the 5.4-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Here's the backport of 7174dc655ef0 to v4.19.192:
 
-thanks,
+-- >8 --
+From: Lukas Wunner <lukas@wunner.de>
+Date: Mon, 7 Dec 2020 09:17:09 +0100
+Subject: [PATCH] spi: gpio: Don't leak SPI master in probe error path
 
-greg k-h
+commit 7174dc655ef0578877b0b4598e69619d2be28b4d upstream.
 
------------------- original commit in Linus's tree ------------------
+If the calls to devm_kcalloc() or spi_gpio_request() fail on probe of
+the GPIO SPI driver, the spi_master struct is erroneously not freed
+because the required calls to spi_master_put() are missing.
 
-From c3944a5621026c176001493d48ee66ff94e1a39a Mon Sep 17 00:00:00 2001
-From: Sriram R <srirrama@codeaurora.org>
-Date: Tue, 11 May 2021 20:02:58 +0200
-Subject: [PATCH] ath11k: Clear the fragment cache during key install
+Fix by switching over to the new devm_spi_alloc_master() helper.
 
-Currently the fragment cache setup during peer assoc is
-cleared only during peer delete. In case a key reinstallation
-happens with the same peer, the same fragment cache with old
-fragments added before key installation could be clubbed
-with fragments received after. This might be exploited
-to mix fragments of different data resulting in a proper
-unintended reassembled packet to be passed up the stack.
+Fixes: 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO descriptors")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Navid Emamdoost <navid.emamdoost@gmail.com>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>
+Link: https://lore.kernel.org/r/86eaed27431c3d709e3748eb76ceecbfc790dd37.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v4.19.192]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+---
+ drivers/spi/spi-gpio.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-Hence flush the fragment cache on every key installation to prevent
-potential attacks (CVE-2020-24587).
-
-Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.4.0.1-01734-QCAHKSWPL_SILICONZ-1 v2
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Sriram R <srirrama@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.218dc777836f.I9af6fc76215a35936c4152552018afb5079c5d8c@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.c b/drivers/net/wireless/ath/ath11k/dp_rx.c
-index 1d9aa1bb6b6e..3382f8bfcb48 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.c
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.c
-@@ -852,6 +852,24 @@ static void ath11k_dp_rx_frags_cleanup(struct dp_rx_tid *rx_tid, bool rel_link_d
- 	__skb_queue_purge(&rx_tid->rx_frags);
+diff --git a/drivers/spi/spi-gpio.c b/drivers/spi/spi-gpio.c
+index 77838d8fd9bb..341d2953d7fc 100644
+--- a/drivers/spi/spi-gpio.c
++++ b/drivers/spi/spi-gpio.c
+@@ -382,7 +382,7 @@ static int spi_gpio_probe(struct platform_device *pdev)
+ 		return -ENODEV;
+ #endif
+ 
+-	master = spi_alloc_master(&pdev->dev, sizeof(*spi_gpio));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*spi_gpio));
+ 	if (!master)
+ 		return -ENOMEM;
+ 
+@@ -438,11 +438,7 @@ static int spi_gpio_probe(struct platform_device *pdev)
+ 	}
+ 	spi_gpio->bitbang.setup_transfer = spi_bitbang_setup_transfer;
+ 
+-	status = spi_bitbang_start(&spi_gpio->bitbang);
+-	if (status)
+-		spi_master_put(master);
+-
+-	return status;
++	return spi_bitbang_start(&spi_gpio->bitbang);
  }
  
-+void ath11k_peer_frags_flush(struct ath11k *ar, struct ath11k_peer *peer)
-+{
-+	struct dp_rx_tid *rx_tid;
-+	int i;
-+
-+	lockdep_assert_held(&ar->ab->base_lock);
-+
-+	for (i = 0; i <= IEEE80211_NUM_TIDS; i++) {
-+		rx_tid = &peer->rx_tid[i];
-+
-+		spin_unlock_bh(&ar->ab->base_lock);
-+		del_timer_sync(&rx_tid->frag_timer);
-+		spin_lock_bh(&ar->ab->base_lock);
-+
-+		ath11k_dp_rx_frags_cleanup(rx_tid, true);
-+	}
-+}
-+
- void ath11k_peer_rx_tid_cleanup(struct ath11k *ar, struct ath11k_peer *peer)
- {
- 	struct dp_rx_tid *rx_tid;
-diff --git a/drivers/net/wireless/ath/ath11k/dp_rx.h b/drivers/net/wireless/ath/ath11k/dp_rx.h
-index bf399312b5ff..623da3bf9dc8 100644
---- a/drivers/net/wireless/ath/ath11k/dp_rx.h
-+++ b/drivers/net/wireless/ath/ath11k/dp_rx.h
-@@ -49,6 +49,7 @@ int ath11k_dp_peer_rx_pn_replay_config(struct ath11k_vif *arvif,
- 				       const u8 *peer_addr,
- 				       enum set_key_cmd key_cmd,
- 				       struct ieee80211_key_conf *key);
-+void ath11k_peer_frags_flush(struct ath11k *ar, struct ath11k_peer *peer);
- void ath11k_peer_rx_tid_cleanup(struct ath11k *ar, struct ath11k_peer *peer);
- void ath11k_peer_rx_tid_delete(struct ath11k *ar,
- 			       struct ath11k_peer *peer, u8 tid);
-diff --git a/drivers/net/wireless/ath/ath11k/mac.c b/drivers/net/wireless/ath/ath11k/mac.c
-index 4df425dd31a2..9d0ff150ec30 100644
---- a/drivers/net/wireless/ath/ath11k/mac.c
-+++ b/drivers/net/wireless/ath/ath11k/mac.c
-@@ -2779,6 +2779,12 @@ static int ath11k_mac_op_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd,
- 	 */
- 	spin_lock_bh(&ab->base_lock);
- 	peer = ath11k_peer_find(ab, arvif->vdev_id, peer_addr);
-+
-+	/* flush the fragments cache during key (re)install to
-+	 * ensure all frags in the new frag list belong to the same key.
-+	 */
-+	if (peer && cmd == SET_KEY)
-+		ath11k_peer_frags_flush(ar, peer);
- 	spin_unlock_bh(&ab->base_lock);
- 
- 	if (!peer) {
+ static int spi_gpio_remove(struct platform_device *pdev)
+-- 
+2.31.1
 
