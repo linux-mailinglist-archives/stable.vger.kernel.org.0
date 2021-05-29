@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3694394C99
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:01:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B6F394C9F
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:13:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229716AbhE2PCq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:02:46 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:35285 "EHLO
+        id S229756AbhE2PPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:15:10 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:37831 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229636AbhE2PCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:02:46 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 5DB791940E57;
-        Sat, 29 May 2021 11:01:09 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sat, 29 May 2021 11:01:09 -0400
+        by vger.kernel.org with ESMTP id S229693AbhE2PPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:15:09 -0400
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 120571940717;
+        Sat, 29 May 2021 11:13:33 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Sat, 29 May 2021 11:13:33 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=HSQr+g
-        BwTI7Dv/XgPVRKDWw992kucMVNUke4zM5d4VY=; b=RyuxknmRyR4uNy62Quqi1D
-        y2os3CbgeGRPxTVKtANldw/bhbsCHNZNQNKM1dZXysn8IVWxmzh8wJlVIDsMyWto
-        mbvqXlBba5tWjP+zFwNE/Slp70/dF5zZRh0vKZRDsHrqLGRh+1Y9ta8IxKu7FIBH
-        7x6XnPq9Zv5zL36yPa7s7xqmuIhGsg1XfNgZfOIZMuRbEvP7IAicO/ayrkKxwHBY
-        gD0UCyqOoG0FnaqzypY9Wk0/ocSzujs9BFhetjTrPeSwScQ6gohEf4Id5JvqIvsA
-        NrvXypQZeCOfV5fE9ylpSPZz4hOn91Pkt+xO/q7ydCZK2p/Ad4i8ns9gRxV3bSng
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=xlXhZY
+        F/0u4cFLix46HRIOW6wVeFZbKRcP0OlnryLVc=; b=A2aSKSrGP8Y2E4aFBGC5lc
+        neewnNfENOZXIWiQ8MZzaMmtCpOZnBfV4Lv/14M8bmVW0l11al89/es95qstJq69
+        H6fHP2uMP+iKjE1jzC2hujRubG5GG+wabzGQfR/+JlCsQB/Hdq/MhdC3J+ZnBF8G
+        qoFD02/5AP0RiXEdC59S0RaRdu7i+FONekruJZpz9oT0Ii1bU2cRt8W77Axri3Ta
+        QvZe+fhH4bEpvhz0Gb3C7GxJurj7mwfJytzt4XRFwOHPb8F1/+xurotp/pJoJ238
+        OJPW9nCGrAo0119tzXrr8HDltOci0loYSe0P+Tw4W8xruaU5Ufwfe4kSNWvCpfGw
         ==
-X-ME-Sender: <xms:NVeyYE9SP2H5vq_ZyqlCQt_dVLosb_UIQyaahl8bHhJ0io6Ix9ajlw>
-    <xme:NVeyYMshs_Z7BptI5zVKP89367NrhaYs09x75oR_WQn5dHJQlla3qc-4NlVFJGca7
-    J54_xyQZJ5idQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeegucetufdoteggodetrfdotf
+X-ME-Sender: <xms:HFqyYE7DIKLNTp5plCTKKW5sS0LSHUXkElcsvSDUVUsZ7vP0IFaRFQ>
+    <xme:HFqyYF5YSW_LiC2EkAQbuhGedxQiQXiCfODwNOQKScKA1l0KwXNixLGZcAXCq4rFO
+    o7kP831LxUHlQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:NVeyYKAdJiNC2GSRq1vCzLRsERumYxw6asmBeDFdpRankZ1TyoEYfw>
-    <xmx:NVeyYEfJO4oxeM4CSeamj6MWXDGJ1yLxlEh5A8qkSM46FChVz4Rlcg>
-    <xmx:NVeyYJNBAu5IUOUqQDSM4sxTWP-1R9JdEl0AKA3mgXxLLf9W4GJRtw>
-    <xmx:NVeyYAajL3abygHx1hN3mF9VYXB05QGaBprTXST9a70I_dWvnggO-w>
+X-ME-Proxy: <xmx:HFqyYDdspzmUYSL2sAkWKELTSl7KRiW0inPmrZvuts9TFL3DjOcE_A>
+    <xmx:HFqyYJLpGbEJUyQcpYVbPKjNfbo846jRHM6lxuTwZ8v6UqoybXWZdA>
+    <xmx:HFqyYIJjvdp9RTFPI6fXHNDw7qRJQ2DeTgqPSaN7DxjzZUVArjLmJA>
+    <xmx:HVqyYCw5C2D10K4eds6M-n8eptrnCk93r6Pi9x7ANx0kzxXUQnWa0w>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:01:08 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] mac80211: prevent attacks on TKIP/WEP as well" failed to apply to 4.9-stable tree
-To:     johannes.berg@intel.com
+        Sat, 29 May 2021 11:13:32 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] mac80211: do not accept/forward invalid EAPOL frames" failed to apply to 4.4-stable tree
+To:     johannes.berg@intel.com, jouni@codeaurora.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 29 May 2021 17:00:59 +0200
-Message-ID: <16223004596050@kroah.com>
+Date:   Sat, 29 May 2021 17:13:30 +0200
+Message-ID: <1622301210149146@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,71 +70,101 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7e44a0b597f04e67eee8cdcbe7ee706c6f5de38b Mon Sep 17 00:00:00 2001
+From a8c4d76a8dd4fb9666fc8919a703d85fb8f44ed8 Mon Sep 17 00:00:00 2001
 From: Johannes Berg <johannes.berg@intel.com>
-Date: Tue, 11 May 2021 20:02:49 +0200
-Subject: [PATCH] mac80211: prevent attacks on TKIP/WEP as well
+Date: Tue, 11 May 2021 20:02:50 +0200
+Subject: [PATCH] mac80211: do not accept/forward invalid EAPOL frames
 
-Similar to the issues fixed in previous patches, TKIP and WEP
-should be protected even if for TKIP we have the Michael MIC
-protecting it, and WEP is broken anyway.
+EAPOL frames are used for authentication and key management between the
+AP and each individual STA associated in the BSS. Those frames are not
+supposed to be sent by one associated STA to another associated STA
+(either unicast for broadcast/multicast).
 
-However, this also somewhat protects potential other algorithms
-that drivers might implement.
+Similarly, in 802.11 they're supposed to be sent to the authenticator
+(AP) address.
+
+Since it is possible for unexpected EAPOL frames to result in misbehavior
+in supplicant implementations, it is better for the AP to not allow such
+cases to be forwarded to other clients either directly, or indirectly if
+the AP interface is part of a bridge.
+
+Accept EAPOL (control port) frames only if they're transmitted to the
+own address, or, due to interoperability concerns, to the PAE group
+address.
+
+Disable forwarding of EAPOL (or well, the configured control port
+protocol) frames back to wireless medium in all cases. Previously, these
+frames were accepted from fully authenticated and authorized stations
+and also from unauthenticated stations for one of the cases.
+
+Additionally, to avoid forwarding by the bridge, rewrite the PAE group
+address case to the local MAC address.
 
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210511200110.430e8c202313.Ia37e4e5b6b3eaab1a5ae050e015f6c92859dbe27@changeid
+Co-developed-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20210511200110.cb327ed0cabe.Ib7dcffa2a31f0913d660de65ba3c8aca75b1d10f@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 
 diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index b619c47e1d12..4454ec47283f 100644
+index 4454ec47283f..22a925899a9e 100644
 --- a/net/mac80211/rx.c
 +++ b/net/mac80211/rx.c
-@@ -2274,6 +2274,7 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 			 * next fragment has a sequential PN value.
- 			 */
- 			entry->check_sequential_pn = true;
-+			entry->is_protected = true;
- 			entry->key_color = rx->key->color;
- 			memcpy(entry->last_pn,
- 			       rx->key->u.ccmp.rx_pn[queue],
-@@ -2286,6 +2287,9 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 				     sizeof(rx->key->u.gcmp.rx_pn[queue]));
- 			BUILD_BUG_ON(IEEE80211_CCMP_PN_LEN !=
- 				     IEEE80211_GCMP_PN_LEN);
-+		} else if (rx->key && ieee80211_has_protected(fc)) {
-+			entry->is_protected = true;
-+			entry->key_color = rx->key->color;
- 		}
- 		return RX_QUEUED;
- 	}
-@@ -2327,6 +2331,14 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
-+	} else if (entry->is_protected &&
-+		   (!rx->key || !ieee80211_has_protected(fc) ||
-+		    rx->key->color != entry->key_color)) {
-+		/* Drop this as a mixed key or fragment cache attack, even
-+		 * if for TKIP Michael MIC should protect us, and WEP is a
-+		 * lost cause anyway.
-+		 */
-+		return RX_DROP_UNUSABLE;
- 	}
+@@ -2531,13 +2531,13 @@ static bool ieee80211_frame_allowed(struct ieee80211_rx_data *rx, __le16 fc)
+ 	struct ethhdr *ehdr = (struct ethhdr *) rx->skb->data;
  
- 	skb_pull(rx->skb, ieee80211_hdrlen(fc));
-diff --git a/net/mac80211/sta_info.h b/net/mac80211/sta_info.h
-index 5c56d29a619e..0333072ebd98 100644
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -455,7 +455,8 @@ struct ieee80211_fragment_entry {
- 	u16 extra_len;
- 	u16 last_frag;
- 	u8 rx_queue;
--	bool check_sequential_pn; /* needed for CCMP/GCMP */
-+	u8 check_sequential_pn:1, /* needed for CCMP/GCMP */
-+	   is_protected:1;
- 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
- 	unsigned int key_color;
- };
+ 	/*
+-	 * Allow EAPOL frames to us/the PAE group address regardless
+-	 * of whether the frame was encrypted or not.
++	 * Allow EAPOL frames to us/the PAE group address regardless of
++	 * whether the frame was encrypted or not, and always disallow
++	 * all other destination addresses for them.
+ 	 */
+-	if (ehdr->h_proto == rx->sdata->control_port_protocol &&
+-	    (ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
+-	     ether_addr_equal(ehdr->h_dest, pae_group_addr)))
+-		return true;
++	if (unlikely(ehdr->h_proto == rx->sdata->control_port_protocol))
++		return ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
++		       ether_addr_equal(ehdr->h_dest, pae_group_addr);
+ 
+ 	if (ieee80211_802_1x_port_control(rx) ||
+ 	    ieee80211_drop_unencrypted(rx, fc))
+@@ -2562,8 +2562,28 @@ static void ieee80211_deliver_skb_to_local_stack(struct sk_buff *skb,
+ 		cfg80211_rx_control_port(dev, skb, noencrypt);
+ 		dev_kfree_skb(skb);
+ 	} else {
++		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
++
+ 		memset(skb->cb, 0, sizeof(skb->cb));
+ 
++		/*
++		 * 802.1X over 802.11 requires that the authenticator address
++		 * be used for EAPOL frames. However, 802.1X allows the use of
++		 * the PAE group address instead. If the interface is part of
++		 * a bridge and we pass the frame with the PAE group address,
++		 * then the bridge will forward it to the network (even if the
++		 * client was not associated yet), which isn't supposed to
++		 * happen.
++		 * To avoid that, rewrite the destination address to our own
++		 * address, so that the authenticator (e.g. hostapd) will see
++		 * the frame, but bridge won't forward it anywhere else. Note
++		 * that due to earlier filtering, the only other address can
++		 * be the PAE group address.
++		 */
++		if (unlikely(skb->protocol == sdata->control_port_protocol &&
++			     !ether_addr_equal(ehdr->h_dest, sdata->vif.addr)))
++			ether_addr_copy(ehdr->h_dest, sdata->vif.addr);
++
+ 		/* deliver to local stack */
+ 		if (rx->list)
+ 			list_add_tail(&skb->list, rx->list);
+@@ -2603,6 +2623,7 @@ ieee80211_deliver_skb(struct ieee80211_rx_data *rx)
+ 	if ((sdata->vif.type == NL80211_IFTYPE_AP ||
+ 	     sdata->vif.type == NL80211_IFTYPE_AP_VLAN) &&
+ 	    !(sdata->flags & IEEE80211_SDATA_DONT_BRIDGE_PACKETS) &&
++	    ehdr->h_proto != rx->sdata->control_port_protocol &&
+ 	    (sdata->vif.type != NL80211_IFTYPE_AP_VLAN || !sdata->u.vlan.sta)) {
+ 		if (is_multicast_ether_addr(ehdr->h_dest) &&
+ 		    ieee80211_vif_get_num_mcast_if(sdata) != 0) {
 
