@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F34C6394CE8
-	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:25:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A49D394CE7
+	for <lists+stable@lfdr.de>; Sat, 29 May 2021 17:25:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229726AbhE2P0n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 11:26:43 -0400
-Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:41817 "EHLO
+        id S229723AbhE2P0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 29 May 2021 11:26:40 -0400
+Received: from forward4-smtp.messagingengine.com ([66.111.4.238]:49935 "EHLO
         forward4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229693AbhE2P0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:26:42 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 8C69D1940826;
-        Sat, 29 May 2021 11:25:05 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sat, 29 May 2021 11:25:05 -0400
+        by vger.kernel.org with ESMTP id S229693AbhE2P0k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 11:26:40 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id C480B1940C1A;
+        Sat, 29 May 2021 11:25:03 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sat, 29 May 2021 11:25:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Wuawfh
-        8yhON5xga5y2axQEwQT8l0ZJcYo2wbO5hc+54=; b=YfyB4x9LR3fnOuTnlqe12O
-        Ip35uPgYCReMna6HkCxgz8TIxN2Uptt0Ga9M/RLdMoJ72rOgHcP65DS3bZSp9+Js
-        xkK4Se/8qqmifWkRPntAnwvNGuqo8pk5sSlwU7MRabOadepag4FEi5bwDRmg+T6K
-        XevB9TcOyqNz5SMInZ5+ldt/K+Mr257KhqfwO4e5OwNmyQgEnm2y2Ba04fIAdtmT
-        PCQb1PBAkl076hPgF3LfmAtalyEyQWMIdcIJ9PN2ATSSar8ZYcTGOrvV8Ln3fW0u
-        FZukl5bWcHRTVFHhZIr9i0PhLDK/ClhlLwfW6jA1X6ih5xlZCFD0nOJitUI2QEKA
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=M+w4zR
+        6fkde5XE6Ptuv1NjKqe+GRTSROv+sZfjqkxDQ=; b=nlHw1ABUKj34sWnaExWChl
+        jpUA+1BpjhoJ+9ae30ZdN+aAcYBEQEvMD8YWh7OtNfNNcYs5uMP0FVy9nirmbbdw
+        Zjy8wlFAu4TeAhGNZnPG1jaS5tnv4vuPt8G/XeV+PBK7nl2U4vWq5kvr2nUnT+t9
+        ZXupgerk416xRj0dGS0iXwArKRHOJl2AJhTUlgpT0Wa452j6mu608FFOsm5hU9qf
+        4FqCDob7wuzlguXVur3kmnZk2+eskfGMExgbn3/qAwtGMp959hO1I3qSxNDG2WeQ
+        NPKzzWu65Mdw3RxO2va43i7ZJcGrqgcZbNv8oWrIa9qUuAmASKx88cpDURx4HLcQ
         ==
-X-ME-Sender: <xms:0VyyYBg-ClD7n5198x98GjVtdkt00ws-zQkn6eNk1WEzuPmN8xpnCQ>
-    <xme:0VyyYGAcPJ7x92NJxu8Hc0xfD-kdrgE-L1cnd00MgzPpolwDR5oPLw3_jtz9H1Eku
-    qFFyylsNnp9Ww>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeelucetufdoteggodetrfdotf
+X-ME-Sender: <xms:z1yyYKwu52DH7CdM3pwUX5KkJNDtPv9bCdjNuJeNmDOeLG5AfUl76g>
+    <xme:z1yyYGSD42wP95C71lyKaZATPHWL5atATY-lP_w3Ox4IbVR_r1O5Ao9e2_t4s-Yoo
+    Z28ZgCklfjY1A>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdekledgkeekucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtjeenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepheeggfeuvdehjeffieehheeuvdejfefhgeevgfegvd
     euudefveegffeuvdetleeunecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:0VyyYBGt9sAqevkquTTsRvC-owptt_hBBL43vIQXZ2anb0MTl2i87w>
-    <xmx:0VyyYGRiFFfN_DO4eWdi7eXmQbH40LchfCz1-th8uLKs8ZNCr9pEcA>
-    <xmx:0VyyYOyAhwyba7RE-KgVPNY0QuJqy0kMF6hRW13DHjRyAA97i1mdWw>
-    <xmx:0VyyYJ8_cbkoYHwDLF10UBIfaV7F1tqvq0QDzaz2qsBcfUBVNdHpKw>
+X-ME-Proxy: <xmx:z1yyYMUhe5QnBz-T597dvJuOolfvw0bcdOJPyOlJbVPFMBLlEZfULg>
+    <xmx:z1yyYAjLQxXoWjJh3ovvDgAINAEosJ9Xpk4MEDYfCSRbd4LS3gr04w>
+    <xmx:z1yyYMBm6k0LPbgYUtsjCoMfx2PUFkrOrOLWoTaw3NpWmes9GJyDmQ>
+    <xmx:z1yyYPOLk3c9qEVBdj82mtU4ZDVMdyIX_iSDckVXt3Km7dv7RzTKMA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sat, 29 May 2021 11:25:05 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] drm/amdgpu/vcn3: add cancel_delayed_work_sync before power" failed to apply to 5.10-stable tree
+        Sat, 29 May 2021 11:25:03 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] drm/amdgpu/vcn3: add cancel_delayed_work_sync before power" failed to apply to 5.4-stable tree
 To:     James.Zhu@amd.com, alexander.deucher@amd.com,
         christian.koenig@amd.com, leo.liu@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
 Date:   Sat, 29 May 2021 17:24:54 +0200
-Message-ID: <1622301894190162@kroah.com>
+Message-ID: <1622301894201178@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
