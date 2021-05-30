@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5D9539508F
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 13:05:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EACA395099
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 13:11:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbhE3LG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 07:06:59 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:35101 "EHLO
+        id S229579AbhE3LM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 07:12:58 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:50175 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3LG7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 07:06:59 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id A96B3194059A;
-        Sun, 30 May 2021 07:05:20 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229500AbhE3LM6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 07:12:58 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 2B301194011A;
+        Sun, 30 May 2021 07:11:20 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 07:05:20 -0400
+  by compute4.internal (MEProxy); Sun, 30 May 2021 07:11:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tJ95fx
-        zK+LV5Djod6odAp8UuM2wq06voZHAK9W+i57k=; b=kUIU1I/4+qjE5q/FszoHip
-        rGyjoVG2jXVH/xvyj6GTV+PtjgVQuPr7BS4bndSOO8o3YR41/1n1xGATJJg4MpUA
-        Av0Yh1M8kA4KcEKKCX9mkFEgsCFSUlbyFkRUl8/H7AOP605r170IrAo4oY/n5La3
-        5Vw1flXwEaS/+T6bT0TkcrZkQmLq3Qzr7grrXiZr/QQxRDoUPfQzH/saj+mwxl/I
-        QdBTDxuPJA3w45HLxGcnRTkcmm5sDd8mxL4PLS1chlrujssPJe8ZWNU+q3gjW8WT
-        mLaeS7TPFrIqmceNjaSnYHhKMC7+G5jpHo9nfxS9ip8SZdu8+NpnwBvuOtKZeATw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=hGsnJZ
+        5OM9pYgFUGfPD/dTlKI8aGud9JBVgOKB7jlgY=; b=vFYq73yucj4MrX/2OJIPqT
+        wnbZkREJKGp9+NGZcmwWuGsBW55j3VxHhvm6Pz7cq+jRYSIxLKxSw6iFPv/6NhbA
+        G+TH4uo21+tTY5stq0hHbrlLFaro2j6deF79E6dPtKZ9PM3XL3h2z8JfwTQHqoQQ
+        3PZVaOUAd1Lyai8kYi9Hdtrc2Kaj4z2Bw2VOk4YM4tY9PWMZhoSS1p0y8MK0Irw/
+        W0I1BkOnO6InFuWfecWhOCPPktPg1YCK8crvBOTR1Qha/G4C2fa3+HNDn6zXRKtk
+        HWwY7axT0o19+WdAGvHZbTAi0uQP9UWEx3m3Q4qArlqtvK8I1V6B6pDdavKFoMkA
         ==
-X-ME-Sender: <xms:cHGzYHnX2JT6PC96mZ9PpCWHp-LFf0k3vD9qThC1ZbzfaXlgN0N5Qw>
-    <xme:cHGzYK2QbAuwCioppAQIbCUUVlFC2tz6e1yLZPFwkJHQX4U9F1O3YKK11B6A05JH1
-    af1Qg_5gCwXBw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfeeiucetufdoteggodetrfdotf
+X-ME-Sender: <xms:13KzYPCogOEYWBW1xqFFvgijaxuFD43FzJ3azZcqxcKYyG8TYj4BpA>
+    <xme:13KzYFiqxcAFGMT5hrA-rJkUk0fG-wr6znCw0nvNzM1V7OPqj9l3REQUWw-1CaThh
+    vDTvrMoZVG-Jw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,19 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfeeiucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:cHGzYNpfEcT8NHA18xEOKUgNaLKN8oBEnlvQRvA9DTM6Wf3dfIWWqQ>
-    <xmx:cHGzYPkXX8UbP9McjNV5fvPAmJcXeG2mAfFtEwL62EOCPOHR1ZT9Ag>
-    <xmx:cHGzYF2v1rwV-pU75XlydwCDfwpgPDGj6VhSDlk-oufoA5wT5Ge_ng>
-    <xmx:cHGzYChMn7LTvmh_FsYgLKk3mOc_RS8DEdnKBDXrSMnV1tHCvq6JmQ>
+X-ME-Proxy: <xmx:13KzYKnvtPvrES0mdPQbaqKWFN-vAQEsSxB1mGrF0iec0VQrmzJz5A>
+    <xmx:13KzYBxNC3742y5lr4Ds-UGr5oIU9h5gDbn_wF-o4CPAKzn7BUeUJw>
+    <xmx:13KzYETBKmzjsnJbTwKlZI4G4XQrT3WtLrYpGVAbJj55Z_VYLQ4lSg>
+    <xmx:2HKzYPcyK2c-x3gcV12YujWabrULIjzk2wREVjuj4dqhg9pNu99aAg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 07:05:19 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: gadget: udc: renesas_usb3: Fix a race in" failed to apply to 4.9-stable tree
-To:     yoshihiro.shimoda.uh@renesas.com
+        Sun, 30 May 2021 07:11:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: typec: mux: Fix matching with typec_altmode_desc" failed to apply to 5.4-stable tree
+To:     bjorn.andersson@linaro.org, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 13:05:18 +0200
-Message-ID: <1622372718131227@kroah.com>
+Date:   Sun, 30 May 2021 13:10:52 +0200
+Message-ID: <1622373052250198@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.9-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,63 +71,50 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From e752dbc59e1241b13b8c4f7b6eb582862e7668fe Mon Sep 17 00:00:00 2001
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Date: Mon, 24 May 2021 15:01:55 +0900
-Subject: [PATCH] usb: gadget: udc: renesas_usb3: Fix a race in
- usb3_start_pipen()
+From acf5631c239dfc53489f739c4ad47f490c5181ff Mon Sep 17 00:00:00 2001
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
+Date: Sat, 15 May 2021 20:47:30 -0700
+Subject: [PATCH] usb: typec: mux: Fix matching with typec_altmode_desc
 
-The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
-usb3_request_done_pipen() so that usb3_start_pipen() is possible
-to cause a race when getting usb3_first_req like below:
+In typec_mux_match() "nval" is assigned the number of elements in the
+"svid" fwnode property, then the variable is used to store the success
+of the read and finally attempts to loop between 0 and "success" - i.e.
+not at all - and the code returns indicating that no match was found.
 
-renesas_usb3_ep_queue()
- spin_lock_irqsave()
- list_add_tail()
- spin_unlock_irqrestore()
- usb3_start_pipen()
-  usb3_first_req = usb3_get_request() --- [1]
- --- interrupt ---
- usb3_irq_dma_int()
- usb3_request_done_pipen()
-  usb3_get_request()
-  usb3_start_pipen()
-  usb3_first_req = usb3_get_request()
-  ...
-  (the req is possible to be finished in the interrupt)
+Fix this by using a separate variable to track the success of the read,
+to allow the loop to get a change to find a match.
 
-The usb3_first_req [1] above may have been finished after the interrupt
-ended so that this driver caused to start a transfer wrongly. To fix this
-issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
-in the same section.
-
-Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
+Fixes: 96a6d031ca99 ("usb: typec: mux: Find the muxes by also matching against the device node")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210516034730.621461-1-bjorn.andersson@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
-index 0c418ce50ba0..f1b35a39d1ba 100644
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -1488,7 +1488,7 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
- 			     struct renesas_usb3_request *usb3_req)
- {
- 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
--	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
-+	struct renesas_usb3_request *usb3_req_first;
- 	unsigned long flags;
- 	int ret = -EAGAIN;
- 	u32 enable_bits = 0;
-@@ -1496,7 +1496,8 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
- 	spin_lock_irqsave(&usb3->lock, flags);
- 	if (usb3_ep->halt || usb3_ep->started)
- 		goto out;
--	if (usb3_req != usb3_req_first)
-+	usb3_req_first = __usb3_get_request(usb3_ep);
-+	if (!usb3_req_first || usb3_req != usb3_req_first)
- 		goto out;
+diff --git a/drivers/usb/typec/mux.c b/drivers/usb/typec/mux.c
+index 9da22ae3006c..8514bec7e1b8 100644
+--- a/drivers/usb/typec/mux.c
++++ b/drivers/usb/typec/mux.c
+@@ -191,6 +191,7 @@ static void *typec_mux_match(struct fwnode_handle *fwnode, const char *id,
+ 	bool match;
+ 	int nval;
+ 	u16 *val;
++	int ret;
+ 	int i;
  
- 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
+ 	/*
+@@ -218,10 +219,10 @@ static void *typec_mux_match(struct fwnode_handle *fwnode, const char *id,
+ 	if (!val)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	nval = fwnode_property_read_u16_array(fwnode, "svid", val, nval);
+-	if (nval < 0) {
++	ret = fwnode_property_read_u16_array(fwnode, "svid", val, nval);
++	if (ret < 0) {
+ 		kfree(val);
+-		return ERR_PTR(nval);
++		return ERR_PTR(ret);
+ 	}
+ 
+ 	for (i = 0; i < nval; i++) {
 
