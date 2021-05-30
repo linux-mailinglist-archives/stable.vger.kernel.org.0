@@ -2,156 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C3E2395320
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 00:02:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8DF395329
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 00:21:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbhE3WEP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 18:04:15 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51374 "EHLO
+        id S229872AbhE3WXS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 18:23:18 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229846AbhE3WEP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 18:04:15 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DAD7C061574
-        for <stable@vger.kernel.org>; Sun, 30 May 2021 15:02:37 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622412154;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MKd6zv7WZScEl5igo0zkykfrQym3iemdXvlO/e8+1rc=;
-        b=y4fUj2muU1QyUsqBmXLAYrBvYEbbYfmUYdNwvnBO0tO3tFno4mbFHcDWG2UU9IzWo2dG3l
-        kAdL4auapr7ZNcDJPhFq+A4IlZYRbctqd+82DsLswPge0H+2kYvXfz7DUSBxkYxBFooRVQ
-        AkZlyAU67tOHI0YwxkV8Xm/3c4JX20vFqCszNi807wWWV8Cp7O1dpjMFrkieosL/tWD2ya
-        wUjeHo0CetBf3XgHDXG2WyIGsIjUiNhCRlxgNLew/8BNTscfYfm99/zuf0fwOV5b06APKZ
-        6g1+YYADkKZIqmh0LxB7nWa3eDp/Ns+HGHsG3eEuVWqnpRvwSXazZ6LbiOdu2w==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622412154;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=MKd6zv7WZScEl5igo0zkykfrQym3iemdXvlO/e8+1rc=;
-        b=4c61nGbX+RfK5f3itS8CrTHXR7liJIvT9uUKXzX5v7u/j82kvDn5jsTmukqK6fgJQzlIA2
-        iX9dRZKsMbyKI5CA==
-To:     Andy Lutomirski <luto@kernel.org>, x86@kernel.org
-Cc:     Dave Hansen <dave.hansen@intel.com>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
-Subject: Re: [RFC v2 1/2] x86/fpu: Fix state corruption in __fpu__restore_sig()
-In-Reply-To: <b69df1e42d1235996682178013f61d4120b3b361.1622351443.git.luto@kernel.org>
-References: <cover.1622351443.git.luto@kernel.org> <b69df1e42d1235996682178013f61d4120b3b361.1622351443.git.luto@kernel.org>
-Date:   Mon, 31 May 2021 00:02:33 +0200
-Message-ID: <87a6ob6ft2.ffs@nanos.tec.linutronix.de>
+        with ESMTP id S229847AbhE3WXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 18:23:18 -0400
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A1AEC061574
+        for <stable@vger.kernel.org>; Sun, 30 May 2021 15:21:38 -0700 (PDT)
+Received: by mail-pj1-x1034.google.com with SMTP id pi6-20020a17090b1e46b029015cec51d7cdso5559532pjb.5
+        for <stable@vger.kernel.org>; Sun, 30 May 2021 15:21:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=Cw76sKXwr2tsxhnx9jnP7q0pwIIq1lXgBAzBjT+JcpQ=;
+        b=NsT6qx9JZox+0fuAk00KMSDammcNT+hQ45hNeGLTlT/fEcitDmYl21VwRSUbF7sZ3y
+         +QkyAwabhTBkEMPIY5mN2MwSAvYCXQHMLKT3FlT20YkT7uXCOb09QNvD5fiSthrJKxln
+         T602L4Xfrfldh7VDn9AlbTHCXuv/f5c+97rEk2R1Cx9VBG/rxpNZzfUyga2cZvUDE6X/
+         6vi6AL1WuOQjDhQ4cDuTFwj8F3Bvb6gJjXSNvMcZRJ2THQo9qnnQjCDwpJfwiXzCxlcf
+         w7bLaLjXxFOTsVNiLr5/a4lDDk/pG1MRf/cTJqY/qqZZJlrziFHR6xMvTnyOaiMBI5MA
+         xS+Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=Cw76sKXwr2tsxhnx9jnP7q0pwIIq1lXgBAzBjT+JcpQ=;
+        b=KTCcwclKbiXsrhFAgWa5wSgJKESXQU31A5qzHJCE3w36yQJhAwuypyWQHM4u+MGIxc
+         QLTqLCSEcCYUG5agi8RF9WGhUf9cgQajETsM2+ujGQl8mxB7AFPOnvPwzs/7OyglxLZr
+         r1xLjC3W9ajx5VtXdd4GF/fnFekaLjFewPk9wBddBDpiKbooiHEft95P0fu8yzYwSS/O
+         pv4oNCIPoC+NWt1Zl9pq12ux6Tk/uirWkBqTeAGWCSRuvqucRDVNk/95VrWw4D0Sp1ia
+         rJX+Y+8mWzE1uwviFyeQGD9vuf+iUQJBhwt7yR812O81WNzODEsNSxr5+I1BzYFOiMf5
+         XZrw==
+X-Gm-Message-State: AOAM5310zv/d71CkrujYjOT/3EoY0e8HOIozNUTBVQ5DGCffpAbssE4B
+        Bnr3Fne0ZIHyqpOcaeingT5Zvo3TUFnK6oq4
+X-Google-Smtp-Source: ABdhPJxSVOF27tYKoZtn/5sEXZgZbFGa9t8COmKsjRmOr6YRnjS3J6Drg43KFzJsJEL6ThmpRim92g==
+X-Received: by 2002:a17:90a:dac1:: with SMTP id g1mr15953355pjx.199.1622413297751;
+        Sun, 30 May 2021 15:21:37 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s12sm9397977pji.5.2021.05.30.15.21.37
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 30 May 2021 15:21:37 -0700 (PDT)
+Message-ID: <60b40ff1.1c69fb81.c870b.e151@mx.google.com>
+Date:   Sun, 30 May 2021 15:21:37 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.40-139-gf93ddb6581f8
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 186 runs,
+ 1 regressions (v5.10.40-139-gf93ddb6581f8)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Andy,
+stable-rc/queue/5.10 baseline: 186 runs, 1 regressions (v5.10.40-139-gf93dd=
+b6581f8)
 
-On Sat, May 29 2021 at 22:12, Andy Lutomirski wrote:
->
-> Cc: stable@vger.kernel.org
-> Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
-> Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Regressions Summary
+-------------------
 
-Debugged-by ...
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-> Signed-off-by: Andy Lutomirski <luto@kernel.org>
 
-...
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.40-139-gf93ddb6581f8/plan/baseline/
 
->  /*
-> - * Clear the FPU state back to init state.
-> - *
-> - * Called by sys_execve(), by the signal handler code and by various
-> - * error paths.
-> + * Reset current's user FPU states to the init states.  The caller promises
-> + * that current's supervisor states (in memory or CPU regs as appropriate)
-> + * as well as the XSAVE header in memory are intact.
->   */
-> -static void fpu__clear(struct fpu *fpu, bool user_only)
-> +void fpu__clear_user_states(struct fpu *fpu)
->  {
->  	WARN_ON_FPU(fpu != &current->thread.fpu);
->  
->  	if (!static_cpu_has(X86_FEATURE_FPU)) {
-> -		fpu__drop(fpu);
-> -		fpu__initialize(fpu);
-> +		fpu__clear_all(fpu);
->  		return;
->  	}
->  
->  	fpregs_lock();
->  
-> -	if (user_only) {
-> -		if (!fpregs_state_valid(fpu, smp_processor_id()) &&
-> -		    xfeatures_mask_supervisor())
-> -			copy_kernel_to_xregs(&fpu->state.xsave,
-> -					     xfeatures_mask_supervisor());
-> -		copy_init_fpstate_to_fpregs(xfeatures_mask_user());
-> -	} else {
-> -		copy_init_fpstate_to_fpregs(xfeatures_mask_all);
-> -	}
-> +	/*
-> +	 * Ensure that current's supervisor states are loaded into
-> +	 * their corresponding registers.
-> +	 */
-> +	if (!fpregs_state_valid(fpu, smp_processor_id()) &&
-> +	    xfeatures_mask_supervisor())
-> +		copy_kernel_to_xregs(&fpu->state.xsave,
-> +				     xfeatures_mask_supervisor());
->  
-> +	/*
-> +	 * Reset user states in registers.
-> +	 */
-> +	copy_init_fpstate_to_fpregs(xfeatures_mask_user());
-> +
-> +	/*
-> +	 * Now all FPU registers have their desired values.  Inform the
-> +	 * FPU state machine that current's FPU registers are in the
-> +	 * hardware registers.
-> +	 */
->  	fpregs_mark_activate();
-> +
->  	fpregs_unlock();
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.40-139-gf93ddb6581f8
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      f93ddb6581f8cad4a9a78e98563beb147d491675 =
 
-This is as wrong as before. The corrupted task->fpu.state still
-survives.
 
-For f*cks sake, I gave you a reproducer and a working patch and I
-explained it in great length what's broken and what needs to be fixed.
 
-And of course you kept the bug which was in the offending commit,
-i.e. not wiping the task->fpu.state corruption which causes the next
-XRSTOR to fail:
+Test Regressions
+---------------- =
 
-[   34.095020] Bad FPU state detected at copy_kernel_to_fpregs+0x28/0x40, reinitializing FPU registers.
-[   34.095052] WARNING: CPU: 0 PID: 1364 at arch/x86/mm/extable.c:65 ex_handler_fprestore+0x5f/0x70
-...
-[   34.153472]  switch_fpu_return+0x40/0xb0
-[   34.154196]  exit_to_user_mode_prepare+0x8f/0x180
-[   34.155060]  syscall_exit_to_user_mode+0x23/0x50
-[   34.155912]  do_syscall_64+0x4d/0xb0
 
-IOW, this is exactly the same shit as we had before. So what is decent
-about this? Define decent...
 
-Why the heck do you think I wasted a couple of days to:
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
- - Analyze the root cause
 
- - Destill a trivial C reproducer
+  Details:     https://kernelci.org/test/plan/id/60b3d92380adefacfdb3af97
 
- - Come up with a fully working and completely correct fix
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
+139-gf93ddb6581f8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
+139-gf93ddb6581f8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
 
-Just because, right?
 
-I'm fine with splitting up clear_all() and clear_user(), but what you
-provided is as much of a clusterfuck as the commit it pretends to fix.
 
-Your's seriously grumpy
+  * baseline.login: https://kernelci.org/test/case/id/60b3d92380adefacfdb3a=
+f98
+        failing since 0 day (last pass: v5.10.40-98-gef1477410758, first fa=
+il: v5.10.40-139-g2cb2acbbafd8) =
 
-       Thomas
+ =20
