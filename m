@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E1FA395123
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:55:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C4BD395124
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:55:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbhE3N52 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 09:57:28 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:45537 "EHLO
+        id S229751AbhE3N5d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 09:57:33 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51583 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3N52 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 09:57:28 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id E588019406F6;
-        Sun, 30 May 2021 09:55:49 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute1.internal (MEProxy); Sun, 30 May 2021 09:55:49 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3N5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 09:57:32 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 9272619406F6;
+        Sun, 30 May 2021 09:55:54 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Sun, 30 May 2021 09:55:54 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Eh0ofT
-        BbwcAsd9jBeGn5s0HfjLEVEedc4JGU80FO/is=; b=sT6DONncxGxHtQGyW7RXzF
-        OLbYPKY/QVssmu6EnUZbjw79ZsJSFvHKsdvyBROVRf8MTYJl6yzTEHIYZrmdxzo3
-        o9OWwSjK5gND//8AtB6icwwK+/MIqQCL62bOlDfS2SI6a250oBLFdSQuS7Bah+0n
-        +YxEWdjJ/kwBFyS94YaHZdu2jicJjo+cYWKVP5ue9GQ35qIQnk+pd9sBdITRL/tB
-        I5yZUMh6VxXzBdSAmUxihlcQDNNujjNnLvbsfcMkWXTaoBK0YKNru1+GiU4MLeR6
-        A7ErCGTyRr7CrPLZcIDT5E1Fu837iOLc7fFw8+p7OQmLapDDyvFPWLHQBLWRO7yg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Ur+b3Q
+        2xtGUt6BKJFxQj75+FcKFSJKhDZGfHV0zPMN4=; b=OS4FclQTNBUURlMN5jKQVL
+        97qn2yeoYAI2oZ4qJUR4esvuedKmgdyVB7hQS5VydfRPGwQlm6UKy75f0yZd/h+I
+        3XG0H9RQmn7nJ7pynTCsdH1iHSLHu6cI6+9rcYI75ZOQFzm42lwfDz6QRQ8iGvO6
+        xaGmN1Fr2skcfZhciH6t68dBDC2BBx1EKecUh9GCSt6fusJLL2nZEtVbGEDm1NJQ
+        Yer3X9PUCTflwitY2cV9oqOy+2/fyJEIkXhjuYoRbs3QGB+vqjPSPX4uNMO+nDCa
+        /kz4so3Wz5F9uK4l9HjCiGryQLVFRgxzm7qJdS083lT+02iQp3Ie0tEfxvjdnJMg
         ==
-X-ME-Sender: <xms:ZZmzYI3qAdLM1WNI2mHgD8e-xL5qIs0VSsn1zFqv9YdB1eGu7cw-Xg>
-    <xme:ZZmzYDGofes-jZZ3dAmHGFRmcj3j9HWCLJDRzH5BW3bvbwSd5pJeU4CDb3V5pti2o
-    kp8u_WUVtgWXg>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:apmzYBcXRdNdiMc90Y7CbNK4kFyDP_gk0p7jdgCWMz4Tvd7EEUp8uA>
+    <xme:apmzYPOaU4p_FuNCMeRrtFN0bslmp7Mv4NhpUMbXl6ou8Ad9gqjQqAjRA154QkpLB
+    QwEv8EP4d-JEA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgieelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:ZZmzYA77KKwgmmF3bVbxzsHsTCvbYMeX3Yzd_QvxaVUY2oAv2kZ8Mw>
-    <xmx:ZZmzYB3lzPjV7Wfjxz237WiixHi-FrhICGwVyByuNjgccWe73w00pw>
-    <xmx:ZZmzYLFfFZ60VI8U4p79XUEID7IGy_PHL7_2LX5k7aHhQydklio4tA>
-    <xmx:ZZmzYBOXPpBoqd14XVriY0BcofNXHCY7fxPjBpfWpsTaAbz-yJjDUw>
+X-ME-Proxy: <xmx:apmzYKijM4y_DjrWIlePq14WcuiW6A2blE_hB1VYiFoq2A_XbNpWWQ>
+    <xmx:apmzYK8Kyerp1368F8a06FAsKXgqbTJtoXGD-187IaYr5HEh7tx81w>
+    <xmx:apmzYNuKym5lqo7C4mLZsxLPi8ogC54DOcl5LS2iy7LZiP3h5Y7dgw>
+    <xmx:apmzYOUcL3mUf5_1Xuyyb6SukHv31u1Dacwx3xMqV9oOegnVMfothw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 09:55:49 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] {net, RDMA}/mlx5: Fix override of log_max_qp by other device" failed to apply to 5.10-stable tree
-To:     maorg@nvidia.com, mbloch@nvidia.com, saeedm@nvidia.com
+        Sun, 30 May 2021 09:55:54 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net/mlx5: Fix err prints and return when creating termination" failed to apply to 5.4-stable tree
+To:     roid@nvidia.com, maord@nvidia.com, saeedm@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 15:55:33 +0200
-Message-ID: <162238293319349@kroah.com>
+Date:   Sun, 30 May 2021 15:55:53 +0200
+Message-ID: <162238295320864@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,150 +70,78 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 3410fbcd47dc6479af4309febf760ccaa5efb472 Mon Sep 17 00:00:00 2001
-From: Maor Gottlieb <maorg@nvidia.com>
-Date: Wed, 12 May 2021 13:52:27 +0300
-Subject: [PATCH] {net, RDMA}/mlx5: Fix override of log_max_qp by other device
+From fca086617af864efd20289774901221b2df06b39 Mon Sep 17 00:00:00 2001
+From: Roi Dayan <roid@nvidia.com>
+Date: Thu, 13 May 2021 15:00:53 +0300
+Subject: [PATCH] net/mlx5: Fix err prints and return when creating termination
+ table
 
-mlx5_core_dev holds pointer to static profile, hence when the
-log_max_qp of the profile is override by some device, then it
-effect all other mlx5 devices that share the same profile.
-Fix it by having a profile instance for every mlx5 device.
+Fix print to print correct error code and not using IS_ERR() which
+will just result in always printing 1.
+Also return real err instead of always -EOPNOTSUPP.
 
-Fixes: 883371c453b9 ("net/mlx5: Check FW limitations on log_max_qp before setting it")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
+Fixes: 10caabdaad5a ("net/mlx5e: Use termination table for VLAN push actions")
+Signed-off-by: Roi Dayan <roid@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 
-diff --git a/drivers/infiniband/hw/mlx5/mr.c b/drivers/infiniband/hw/mlx5/mr.c
-index 4388afeff251..9662cd39c7ff 100644
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -743,10 +743,10 @@ int mlx5_mr_cache_init(struct mlx5_ib_dev *dev)
- 		ent->xlt = (1 << ent->order) * sizeof(struct mlx5_mtt) /
- 			   MLX5_IB_UMR_OCTOWORD;
- 		ent->access_mode = MLX5_MKC_ACCESS_MODE_MTT;
--		if ((dev->mdev->profile->mask & MLX5_PROF_MASK_MR_CACHE) &&
-+		if ((dev->mdev->profile.mask & MLX5_PROF_MASK_MR_CACHE) &&
- 		    !dev->is_rep && mlx5_core_is_pf(dev->mdev) &&
- 		    mlx5_ib_can_load_pas_with_umr(dev, 0))
--			ent->limit = dev->mdev->profile->mr_cache[i].limit;
-+			ent->limit = dev->mdev->profile.mr_cache[i].limit;
- 		else
- 			ent->limit = 0;
- 		spin_lock_irq(&ent->lock);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index c114365eb126..a1d67bd7fb43 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -503,7 +503,7 @@ static int handle_hca_cap_odp(struct mlx5_core_dev *dev, void *set_ctx)
- 
- static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
+index e3e7fdd396ad..d61bee2d35fe 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
+@@ -65,7 +65,7 @@ mlx5_eswitch_termtbl_create(struct mlx5_core_dev *dev,
  {
--	struct mlx5_profile *prof = dev->profile;
-+	struct mlx5_profile *prof = &dev->profile;
- 	void *set_hca_cap;
- 	int err;
+ 	struct mlx5_flow_table_attr ft_attr = {};
+ 	struct mlx5_flow_namespace *root_ns;
+-	int err;
++	int err, err2;
  
-@@ -524,11 +524,11 @@ static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
- 		 to_fw_pkey_sz(dev, 128));
- 
- 	/* Check log_max_qp from HCA caps to set in current profile */
--	if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < profile[prof_sel].log_max_qp) {
-+	if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
- 		mlx5_core_warn(dev, "log_max_qp value in current profile is %d, changing it to HCA capability limit (%d)\n",
--			       profile[prof_sel].log_max_qp,
-+			       prof->log_max_qp,
- 			       MLX5_CAP_GEN_MAX(dev, log_max_qp));
--		profile[prof_sel].log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
-+		prof->log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
+ 	root_ns = mlx5_get_flow_namespace(dev, MLX5_FLOW_NAMESPACE_FDB);
+ 	if (!root_ns) {
+@@ -83,26 +83,26 @@ mlx5_eswitch_termtbl_create(struct mlx5_core_dev *dev,
+ 	ft_attr.autogroup.max_num_groups = 1;
+ 	tt->termtbl = mlx5_create_auto_grouped_flow_table(root_ns, &ft_attr);
+ 	if (IS_ERR(tt->termtbl)) {
+-		esw_warn(dev, "Failed to create termination table (error %d)\n",
+-			 IS_ERR(tt->termtbl));
+-		return -EOPNOTSUPP;
++		err = PTR_ERR(tt->termtbl);
++		esw_warn(dev, "Failed to create termination table, err %pe\n", tt->termtbl);
++		return err;
  	}
- 	if (prof->mask & MLX5_PROF_MASK_QP_SIZE)
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, log_max_qp,
-@@ -1381,8 +1381,7 @@ int mlx5_mdev_init(struct mlx5_core_dev *dev, int profile_idx)
- 	struct mlx5_priv *priv = &dev->priv;
- 	int err;
  
--	dev->profile = &profile[profile_idx];
--
-+	memcpy(&dev->profile, &profile[profile_idx], sizeof(dev->profile));
- 	INIT_LIST_HEAD(&priv->ctx_list);
- 	spin_lock_init(&priv->ctx_lock);
- 	mutex_init(&dev->intf_state_mutex);
-diff --git a/include/linux/mlx5/driver.h b/include/linux/mlx5/driver.h
-index f8e8d7e90616..020a8f7fdbdd 100644
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -703,6 +703,27 @@ struct mlx5_hv_vhca;
- #define MLX5_LOG_SW_ICM_BLOCK_SIZE(dev) (MLX5_CAP_DEV_MEM(dev, log_sw_icm_alloc_granularity))
- #define MLX5_SW_ICM_BLOCK_SIZE(dev) (1 << MLX5_LOG_SW_ICM_BLOCK_SIZE(dev))
+ 	tt->rule = mlx5_add_flow_rules(tt->termtbl, NULL, flow_act,
+ 				       &tt->dest, 1);
+ 	if (IS_ERR(tt->rule)) {
+-		esw_warn(dev, "Failed to create termination table rule (error %d)\n",
+-			 IS_ERR(tt->rule));
++		err = PTR_ERR(tt->rule);
++		esw_warn(dev, "Failed to create termination table rule, err %pe\n", tt->rule);
+ 		goto add_flow_err;
+ 	}
+ 	return 0;
  
-+enum {
-+	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
-+	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
-+};
-+
-+enum {
-+	MR_CACHE_LAST_STD_ENTRY = 20,
-+	MLX5_IMR_MTT_CACHE_ENTRY,
-+	MLX5_IMR_KSM_CACHE_ENTRY,
-+	MAX_MR_CACHE_ENTRIES
-+};
-+
-+struct mlx5_profile {
-+	u64	mask;
-+	u8	log_max_qp;
-+	struct {
-+		int	size;
-+		int	limit;
-+	} mr_cache[MAX_MR_CACHE_ENTRIES];
-+};
-+
- struct mlx5_core_dev {
- 	struct device *device;
- 	enum mlx5_coredev_type coredev_type;
-@@ -731,7 +752,7 @@ struct mlx5_core_dev {
- 	struct mutex		intf_state_mutex;
- 	unsigned long		intf_state;
- 	struct mlx5_priv	priv;
--	struct mlx5_profile	*profile;
-+	struct mlx5_profile	profile;
- 	u32			issi;
- 	struct mlx5e_resources  mlx5e_res;
- 	struct mlx5_dm          *dm;
-@@ -1083,18 +1104,6 @@ static inline u8 mlx5_mkey_variant(u32 mkey)
- 	return mkey & 0xff;
+ add_flow_err:
+-	err = mlx5_destroy_flow_table(tt->termtbl);
+-	if (err)
+-		esw_warn(dev, "Failed to destroy termination table\n");
++	err2 = mlx5_destroy_flow_table(tt->termtbl);
++	if (err2)
++		esw_warn(dev, "Failed to destroy termination table, err %d\n", err2);
+ 
+-	return -EOPNOTSUPP;
++	return err;
  }
  
--enum {
--	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
--	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
--};
--
--enum {
--	MR_CACHE_LAST_STD_ENTRY = 20,
--	MLX5_IMR_MTT_CACHE_ENTRY,
--	MLX5_IMR_KSM_CACHE_ENTRY,
--	MAX_MR_CACHE_ENTRIES
--};
--
- /* Async-atomic event notifier used by mlx5 core to forward FW
-  * evetns recived from event queue to mlx5 consumers.
-  * Optimise event queue dipatching.
-@@ -1148,15 +1157,6 @@ int mlx5_rdma_rn_get_params(struct mlx5_core_dev *mdev,
- 			    struct ib_device *device,
- 			    struct rdma_netdev_alloc_params *params);
- 
--struct mlx5_profile {
--	u64	mask;
--	u8	log_max_qp;
--	struct {
--		int	size;
--		int	limit;
--	} mr_cache[MAX_MR_CACHE_ENTRIES];
--};
--
- enum {
- 	MLX5_PCI_DEV_IS_VF		= 1 << 0,
- };
+ static struct mlx5_termtbl_handle *
+@@ -270,8 +270,7 @@ mlx5_eswitch_add_termtbl_rule(struct mlx5_eswitch *esw,
+ 		tt = mlx5_eswitch_termtbl_get_create(esw, &term_tbl_act,
+ 						     &dest[i], attr);
+ 		if (IS_ERR(tt)) {
+-			esw_warn(esw->dev, "Failed to get termination table (error %d)\n",
+-				 IS_ERR(tt));
++			esw_warn(esw->dev, "Failed to get termination table, err %pe\n", tt);
+ 			goto revert_changes;
+ 		}
+ 		attr->dests[num_vport_dests].termtbl = tt;
 
