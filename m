@@ -2,308 +2,254 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69B2C394EEE
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 03:48:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 74F1B394FAD
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 07:12:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229550AbhE3Btr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 29 May 2021 21:49:47 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42420 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbhE3Btr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 29 May 2021 21:49:47 -0400
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01816C061574
-        for <stable@vger.kernel.org>; Sat, 29 May 2021 18:48:08 -0700 (PDT)
-Received: by mail-pf1-x436.google.com with SMTP id d16so6225545pfn.12
-        for <stable@vger.kernel.org>; Sat, 29 May 2021 18:48:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=s3RwfBonF/i6OmGO0WJszN9SjQA5KNeBjOZ/f2JMABk=;
-        b=G4C8Sn1atsStF3kXOUE40fa6QTqBhrcFJdzoy408uFcoiQTF6v55ToXpbPfKSb7UOq
-         2wiwPOugvC8686Aiyx2K+fD90tos1tTTK2jEoJ46CGf9hPD9K+fFYj4k0bek/zkL022s
-         MNNSt6M3nACDMHArJQ1n2qAbeBVg2ObDxk8yVgNC4DmvknwjSakBcnOqH27qfQ3Bvfhh
-         h+HZwSXGHZJekZyJxXOPBv4AHtmlATX9PCtP2D7s7jZ8mvEXPMDU0FMSa5ucpeviH7Fb
-         vo+Mu5rQpsdfQAOtgUbAiRQgXrWpumObPSnqEILPvCsvgMoFPZanwBhrqdE8MbLZa5Kb
-         OpVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=s3RwfBonF/i6OmGO0WJszN9SjQA5KNeBjOZ/f2JMABk=;
-        b=uf2D6jIF3RuUZw54xWz/hSUXYh8A9zhRQ9scYCf2o+u4X2wck6UtqyqJugQ3ul283g
-         yUX6aTH55cfW/mYvkHpAKkr2UEN10L2IhyO5fAH4Bkr8qceWi6q0TdSA4RO8uVsO+UTK
-         zmcPrJus9pWg6yHvs8eX4sGlZKTUf/yv72zDLJhboiLnba+LmMIturE0FmktvBgoKswX
-         y7qiirAjY+sewzn2vDG4eFjmfk6r5/oqQ04CXtpGQGz1T23KwnvCeye51vxzs6cP2w2Q
-         RTPWV82X22TZcHP9tTQHOhoxVA/tOlrrg1qAhRYS6ffoNVlKXjecWJjjaHr9CfA8SdIB
-         GUkg==
-X-Gm-Message-State: AOAM532qbkZkeUIVnjar6u1CXycI5T5FYGQUjQvW/9iuNiqkHQE92T8P
-        2qd+wZeik97DirQxPSHCTHdtYupEqjRCwYod
-X-Google-Smtp-Source: ABdhPJyLl+XTgvxB6J/wFRfH1ZBLwqQNnYy3k7Fsf2tsHqMmJiFed8IPllNdL9OBh3pJHyAm49aVOA==
-X-Received: by 2002:a63:f557:: with SMTP id e23mr16135844pgk.55.1622339288205;
-        Sat, 29 May 2021 18:48:08 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r22sm446375pgu.18.2021.05.29.18.48.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 29 May 2021 18:48:07 -0700 (PDT)
-Message-ID: <60b2eed7.1c69fb81.40027.1fd1@mx.google.com>
-Date:   Sat, 29 May 2021 18:48:07 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229515AbhE3FNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 01:13:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57294 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229495AbhE3FNv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sun, 30 May 2021 01:13:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B17C5611AE;
+        Sun, 30 May 2021 05:12:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622351532;
+        bh=8hHiF7BQAmIs6EOyfFqGWrdu/sX/MdtEoPC5OPz7fJI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=DTtusVXssmJ2WYBh3L0i4BA9xTs9IPlnAWlh4H4rWSED0Nh8JD3Juxv3kb30JFypF
+         XnI1TbhibcfgEJwWIaK3j0M2JtF23hwbRKACNS2PTl3E3UcCYojLmjW2duZS4XIlEF
+         v/yK88Gjsu4nvP26q133yKdB66+vB/4v8D47G1+q923Txb22rI1W9en9KvHkaY7F99
+         cynd+8ffofoI6G5RSp5nR9zNrBejHkwfQZALpsfNxZWqvzXSBaqFarxyzIitSBDm8v
+         U+EeBDGindYxET8o8DTuaG2xPY3fKyJ585IIDRXV8sHzksoyL+TXhqUfnMccy43RIF
+         oDYqlTh3aN+qw==
+From:   Andy Lutomirski <luto@kernel.org>
+To:     x86@kernel.org
+Cc:     Dave Hansen <dave.hansen@intel.com>,
+        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
+        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Subject: [RFC v2 1/2] x86/fpu: Fix state corruption in __fpu__restore_sig()
+Date:   Sat, 29 May 2021 22:12:09 -0700
+Message-Id: <b69df1e42d1235996682178013f61d4120b3b361.1622351443.git.luto@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <cover.1622351443.git.luto@kernel.org>
+References: <cover.1622351443.git.luto@kernel.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.14.234-19-g9eedca7b03b6
-X-Kernelci-Branch: queue/4.14
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.14 baseline: 161 runs,
- 6 regressions (v4.14.234-19-g9eedca7b03b6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.14 baseline: 161 runs, 6 regressions (v4.14.234-19-g9eedc=
-a7b03b6)
+Prior to adding XSAVES support, some of fpu__clear()'s callers
+required that fpu__clear() successfully reset current's FPU state
+even if current's XSAVE header was corrupt.  commit b860eb8dce59
+("x86/fpu/xstate: Define new functions for clearing fpregs and
+xstates") split fpu__clear() into two different functions, neither
+of which was capable of correctly handling a corrupt header.
+
+As a practical matter, trying to specify what
+fpu__clear_user_states() is supposed to do if current's XSAVE area
+is corrupt is difficult -- it's supposed to preverve supervisor
+states, but the entire XSAVES buffer may be unusable due to corrupt
+XFEATURES and/or XCOMP_BV.
+
+Improve the situation by completely separating fpu__clear_all() and
+fpu__clear_user_states().  The former is, once again, a full reset.
+The latter requires an intact header and resets only user states.
+Update and document __fpu__restore_sig() accordingly.
+
+Cc: stable@vger.kernel.org
+Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
+Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Signed-off-by: Andy Lutomirski <luto@kernel.org>
+---
+ arch/x86/kernel/fpu/core.c   | 62 ++++++++++++++++++++++++------------
+ arch/x86/kernel/fpu/signal.c | 50 +++++++++++++++++++++++++----
+ 2 files changed, 84 insertions(+), 28 deletions(-)
+
+diff --git a/arch/x86/kernel/fpu/core.c b/arch/x86/kernel/fpu/core.c
+index 571220ac8bea..55792ef6ba6d 100644
+--- a/arch/x86/kernel/fpu/core.c
++++ b/arch/x86/kernel/fpu/core.c
+@@ -354,45 +354,65 @@ static inline void copy_init_fpstate_to_fpregs(u64 features_mask)
+ }
+ 
+ /*
+- * Clear the FPU state back to init state.
+- *
+- * Called by sys_execve(), by the signal handler code and by various
+- * error paths.
++ * Reset current's user FPU states to the init states.  The caller promises
++ * that current's supervisor states (in memory or CPU regs as appropriate)
++ * as well as the XSAVE header in memory are intact.
+  */
+-static void fpu__clear(struct fpu *fpu, bool user_only)
++void fpu__clear_user_states(struct fpu *fpu)
+ {
+ 	WARN_ON_FPU(fpu != &current->thread.fpu);
+ 
+ 	if (!static_cpu_has(X86_FEATURE_FPU)) {
+-		fpu__drop(fpu);
+-		fpu__initialize(fpu);
++		fpu__clear_all(fpu);
+ 		return;
+ 	}
+ 
+ 	fpregs_lock();
+ 
+-	if (user_only) {
+-		if (!fpregs_state_valid(fpu, smp_processor_id()) &&
+-		    xfeatures_mask_supervisor())
+-			copy_kernel_to_xregs(&fpu->state.xsave,
+-					     xfeatures_mask_supervisor());
+-		copy_init_fpstate_to_fpregs(xfeatures_mask_user());
+-	} else {
+-		copy_init_fpstate_to_fpregs(xfeatures_mask_all);
+-	}
++	/*
++	 * Ensure that current's supervisor states are loaded into
++	 * their corresponding registers.
++	 */
++	if (!fpregs_state_valid(fpu, smp_processor_id()) &&
++	    xfeatures_mask_supervisor())
++		copy_kernel_to_xregs(&fpu->state.xsave,
++				     xfeatures_mask_supervisor());
+ 
++	/*
++	 * Reset user states in registers.
++	 */
++	copy_init_fpstate_to_fpregs(xfeatures_mask_user());
++
++	/*
++	 * Now all FPU registers have their desired values.  Inform the
++	 * FPU state machine that current's FPU registers are in the
++	 * hardware registers.
++	 */
+ 	fpregs_mark_activate();
++
+ 	fpregs_unlock();
+ }
+ 
+-void fpu__clear_user_states(struct fpu *fpu)
+-{
+-	fpu__clear(fpu, true);
+-}
+ 
++/*
++ * Reset current's FPU registers (user and supervisor) to their INIT values.
++ * This function does not trust the in-memory XSAVE image to be valid at all;
++ * it is safe to call even if the contents of fpu->state may be entirely
++ * malicious, including the header.
++ *
++ * This means that it must not use XSAVE, as XSAVE reads the header from
++ * memory.
++ *
++ * This does not change the actual hardware registers; when fpu__clear_all()
++ * returns, TIF_NEED_FPU_LOAD will be set, and a subsequent exit to user mode
++ * will reload the hardware registers from memory.
++ */
+ void fpu__clear_all(struct fpu *fpu)
+ {
+-	fpu__clear(fpu, false);
++	fpregs_lock();
++	fpu__drop(fpu);
++	fpu__initialize(fpu);
++	fpregs_unlock();
+ }
+ 
+ /*
+diff --git a/arch/x86/kernel/fpu/signal.c b/arch/x86/kernel/fpu/signal.c
+index a4ec65317a7f..3ff7e75c7b8f 100644
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -345,6 +345,7 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		 */
+ 		fpregs_lock();
+ 		pagefault_disable();
++
+ 		ret = copy_user_to_fpregs_zeroing(buf_fx, user_xfeatures, fx_only);
+ 		pagefault_enable();
+ 		if (!ret) {
+@@ -382,10 +383,9 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 	}
+ 
+ 	/*
+-	 * By setting TIF_NEED_FPU_LOAD it is ensured that our xstate is
+-	 * not modified on context switch and that the xstate is considered
+-	 * to be loaded again on return to userland (overriding last_cpu avoids
+-	 * the optimisation).
++	 * By setting TIF_NEED_FPU_LOAD, we ensure that any context switches
++	 * or kernel_fpu_begin() operations (due to scheduling, page faults,
++	 * softirq, etc) do not access fpu->state.
+ 	 */
+ 	fpregs_lock();
+ 
+@@ -406,10 +406,18 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		u64 init_bv = xfeatures_mask_user() & ~user_xfeatures;
+ 
+ 		if (using_compacted_format()) {
++			/*
++			 * copy_user_to_xstate() may write complete garbage
++			 * to the user states, but it will not corrupt the
++			 * XSAVE header, nor will it corrupt any supervisor
++			 * states.
++			 */
+ 			ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
+ 		} else {
+ 			ret = __copy_from_user(&fpu->state.xsave, buf_fx, state_size);
+-
++			/*
++			 * Careful, the XSAVE header may be corrupt now.
++			 */
+ 			if (!ret && state_size > offsetof(struct xregs_state, header))
+ 				ret = validate_user_xstate_header(&fpu->state.xsave.header);
+ 		}
+@@ -457,6 +465,15 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 		fpregs_lock();
+ 		ret = copy_kernel_to_fregs_err(&fpu->state.fsave);
+ 	}
++
++	/*
++	 * At this point, we have modified the hardware FPU regs.  We must
++	 * either mark them active for current or invalidate them for
++	 * any other task that may have owned them.
++	 *
++	 * Yes, the nonsensically named fpregs_deactivate() function
++	 * ignores its parameter and marks this CPU's regs invalid.
++	 */
+ 	if (!ret)
+ 		fpregs_mark_activate();
+ 	else
+@@ -464,8 +481,27 @@ static int __fpu__restore_sig(void __user *buf, void __user *buf_fx, int size)
+ 	fpregs_unlock();
+ 
+ err_out:
+-	if (ret)
+-		fpu__clear_user_states(fpu);
++	if (ret) {
++		if (using_compacted_format()) {
++			/*
++			 * Our failed attempt to load the new state is
++			 * guaranteed to have preserved the XSAVE header
++			 * and all supervisor state.
++			 */
++			fpu__clear_user_states(fpu);
++		} else {
++			/*
++			 * If an error above caused garbage to be written
++			 * to XFEATURES, then XSAVE would preserve that
++			 * garbage in memory, and a subsequent XRSTOR would
++			 * fail or worse.  XSAVES does not have this problem.
++			 *
++			 * Wipe out the FPU state and start over from a clean
++			 * slate.
++			 */
++			fpu__clear_all(fpu);
++		}
++	}
+ 	return ret;
+ }
+ 
+-- 
+2.31.1
 
-Regressions Summary
--------------------
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
-nel/v4.14.234-19-g9eedca7b03b6/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.14
-  Describe: v4.14.234-19-g9eedca7b03b6
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      9eedca7b03b6afae8b3eaf753596d4a713af6537 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-meson-gxm-q200       | arm64 | lab-baylibre    | gcc-8    | defconfig      =
-     | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2be427204a76dfab3af97
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
-0.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2be427204a76dfab3a=
-f98
-        failing since 89 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
-t fail: v4.14.222-120-gdc8887cba23e) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-baylibre    | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2b2fe98147095a4b3b000
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_=
-arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2b2fe98147095a4b3b=
-001
-        failing since 197 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-broonie     | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2b2f298147095a4b3aff1
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_a=
-rm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2b2f298147095a4b3a=
-ff2
-        failing since 197 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-cip         | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2b2fc98147095a4b3affd
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-v=
-ersatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2b2fc98147095a4b3a=
-ffe
-        failing since 197 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-collabora   | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2b2ea1b1d2c452eb3b009
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu=
-_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2b2ea1b1d2c452eb3b=
-00a
-        failing since 197 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =
-
-
-
-platform             | arch  | lab             | compiler | defconfig      =
-     | regressions
----------------------+-------+-----------------+----------+----------------=
------+------------
-qemu_arm-versatilepb | arm   | lab-linaro-lkft | gcc-8    | versatile_defco=
-nfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b2b2a99d22c241f4b3afbe
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
--19-g9eedca7b03b6/arm/versatile_defconfig/gcc-8/lab-linaro-lkft/baseline-qe=
-mu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b2b2a99d22c241f4b3a=
-fbf
-        failing since 197 days (last pass: v4.14.206-21-g787a7a3ca16c, firs=
-t fail: v4.14.206-22-ga949bf40fb01) =
-
- =20
