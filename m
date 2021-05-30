@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AF254395079
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 12:47:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D5D9539508F
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 13:05:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229685AbhE3Ks7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 06:48:59 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:35563 "EHLO
+        id S229550AbhE3LG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 07:06:59 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:35101 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229550AbhE3Ks7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 06:48:59 -0400
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 499201940181;
-        Sun, 30 May 2021 06:47:21 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229500AbhE3LG7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 07:06:59 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id A96B3194059A;
+        Sun, 30 May 2021 07:05:20 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Sun, 30 May 2021 06:47:21 -0400
+  by compute3.internal (MEProxy); Sun, 30 May 2021 07:05:20 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=IHkZgz
-        k4PMl1deebbEfXIUZUrDYhzZOubGdwb5xBrTk=; b=irTyBSJWKrDATjJlOFkrgF
-        9VtJSfKg7SsW7+AJVZuNBABOJ7AXSq6zuxDq2OXUN9iGlozcJe+dQAbHx064t9nM
-        s2jhmTYm6dc5NGHkx9BHd0lhWDpIgnDB9ZwU1P5+YYiGVOGTClli6wFfNHd3v6Dn
-        8W7NGn9LNQQdmUO2g94xVfhX1DTTuqYi/or4xYQaQ7EBdBavUZcIOCEHVXjoTxVg
-        nswzfx60Ko6ucncB97NE6T9EGCKb+zWlYzOK6Hzml1kT3eDPqhdebrSkSrjIYADQ
-        YFlEnt49dXVvuOpQ0JpCd7uILw5XnJRr+jgwoySx04Uqvk3qs80vHYVYilXI30Sw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=tJ95fx
+        zK+LV5Djod6odAp8UuM2wq06voZHAK9W+i57k=; b=kUIU1I/4+qjE5q/FszoHip
+        rGyjoVG2jXVH/xvyj6GTV+PtjgVQuPr7BS4bndSOO8o3YR41/1n1xGATJJg4MpUA
+        Av0Yh1M8kA4KcEKKCX9mkFEgsCFSUlbyFkRUl8/H7AOP605r170IrAo4oY/n5La3
+        5Vw1flXwEaS/+T6bT0TkcrZkQmLq3Qzr7grrXiZr/QQxRDoUPfQzH/saj+mwxl/I
+        QdBTDxuPJA3w45HLxGcnRTkcmm5sDd8mxL4PLS1chlrujssPJe8ZWNU+q3gjW8WT
+        mLaeS7TPFrIqmceNjaSnYHhKMC7+G5jpHo9nfxS9ip8SZdu8+NpnwBvuOtKZeATw
         ==
-X-ME-Sender: <xms:OW2zYL-BH0sADMOsjvI_uLzaqHO_xMCzyzg0chfymFaDNAGPTjUpfw>
-    <xme:OW2zYHv0BdHixhzS8dd_2bLaPKPmzt8-0-OAQ1f7dlcVQ3baeYSTO3uf2ee88eflD
-    ldvBGCY-oSthw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfedvucetufdoteggodetrfdotf
+X-ME-Sender: <xms:cHGzYHnX2JT6PC96mZ9PpCWHp-LFf0k3vD9qThC1ZbzfaXlgN0N5Qw>
+    <xme:cHGzYK2QbAuwCioppAQIbCUUVlFC2tz6e1yLZPFwkJHQX4U9F1O3YKK11B6A05JH1
+    af1Qg_5gCwXBw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfeeiucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
-    etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepudenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
-    gtohhm
-X-ME-Proxy: <xmx:OW2zYJDy81tPZd4gWHkJ6f6DH3extW-Ycmgws6L6uBZc9IJMRvxaCA>
-    <xmx:OW2zYHcTbxTXE-HWvofQYFxicIyIvxPTcku2G4hN5S9mcR8NP_qEMQ>
-    <xmx:OW2zYAP4v95cziXOCgXKQUO2nLp9sj8wRdGRAcOEyPy2HcjG2NlvRQ>
-    <xmx:OW2zYKXRNgXYhfHPZ8Bg1zqPsQw8HTaoRADhjX1LHoUNUOtF5Ph7Fg>
+    gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
+    egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:cHGzYNpfEcT8NHA18xEOKUgNaLKN8oBEnlvQRvA9DTM6Wf3dfIWWqQ>
+    <xmx:cHGzYPkXX8UbP9McjNV5fvPAmJcXeG2mAfFtEwL62EOCPOHR1ZT9Ag>
+    <xmx:cHGzYF2v1rwV-pU75XlydwCDfwpgPDGj6VhSDlk-oufoA5wT5Ge_ng>
+    <xmx:cHGzYChMn7LTvmh_FsYgLKk3mOc_RS8DEdnKBDXrSMnV1tHCvq6JmQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 06:47:20 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] KVM: arm64: Fix debug register indexing" failed to apply to 5.10-stable tree
-To:     maz@kernel.org, ricarkol@google.com
+        Sun, 30 May 2021 07:05:19 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: gadget: udc: renesas_usb3: Fix a race in" failed to apply to 4.9-stable tree
+To:     yoshihiro.shimoda.uh@renesas.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 12:47:09 +0200
-Message-ID: <162237162910458@kroah.com>
+Date:   Sun, 30 May 2021 13:05:18 +0200
+Message-ID: <1622372718131227@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.9-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,206 +70,63 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From cb853ded1d25e5b026ce115dbcde69e3d7e2e831 Mon Sep 17 00:00:00 2001
-From: Marc Zyngier <maz@kernel.org>
-Date: Fri, 14 May 2021 09:05:41 +0100
-Subject: [PATCH] KVM: arm64: Fix debug register indexing
+From e752dbc59e1241b13b8c4f7b6eb582862e7668fe Mon Sep 17 00:00:00 2001
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Date: Mon, 24 May 2021 15:01:55 +0900
+Subject: [PATCH] usb: gadget: udc: renesas_usb3: Fix a race in
+ usb3_start_pipen()
 
-Commit 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on
-reset") flipped the register number to 0 for all the debug registers
-in the sysreg table, hereby indicating that these registers live
-in a separate shadow structure.
+The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
+usb3_request_done_pipen() so that usb3_start_pipen() is possible
+to cause a race when getting usb3_first_req like below:
 
-However, the author of this patch failed to realise that all the
-accessors are using that particular index instead of the register
-encoding, resulting in all the registers hitting index 0. Not quite
-a valid implementation of the architecture...
+renesas_usb3_ep_queue()
+ spin_lock_irqsave()
+ list_add_tail()
+ spin_unlock_irqrestore()
+ usb3_start_pipen()
+  usb3_first_req = usb3_get_request() --- [1]
+ --- interrupt ---
+ usb3_irq_dma_int()
+ usb3_request_done_pipen()
+  usb3_get_request()
+  usb3_start_pipen()
+  usb3_first_req = usb3_get_request()
+  ...
+  (the req is possible to be finished in the interrupt)
 
-Address the issue by fixing all the accessors to use the CRm field
-of the encoding, which contains the debug register index.
+The usb3_first_req [1] above may have been finished after the interrupt
+ended so that this driver caused to start a transfer wrongly. To fix this
+issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
+in the same section.
 
-Fixes: 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on reset")
-Reported-by: Ricardo Koller <ricarkol@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
+Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index 76ea2800c33e..1a7968ad078c 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -399,14 +399,14 @@ static bool trap_bvr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
+diff --git a/drivers/usb/gadget/udc/renesas_usb3.c b/drivers/usb/gadget/udc/renesas_usb3.c
+index 0c418ce50ba0..f1b35a39d1ba 100644
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -1488,7 +1488,7 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
+ 			     struct renesas_usb3_request *usb3_req)
  {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
+ 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
+-	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
++	struct renesas_usb3_request *usb3_req_first;
+ 	unsigned long flags;
+ 	int ret = -EAGAIN;
+ 	u32 enable_bits = 0;
+@@ -1496,7 +1496,8 @@ static void usb3_start_pipen(struct renesas_usb3_ep *usb3_ep,
+ 	spin_lock_irqsave(&usb3->lock, flags);
+ 	if (usb3_ep->halt || usb3_ep->started)
+ 		goto out;
+-	if (usb3_req != usb3_req_first)
++	usb3_req_first = __usb3_get_request(usb3_ep);
++	if (!usb3_req_first || usb3_req != usb3_req_first)
+ 		goto out;
  
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, rd, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, rd, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -414,7 +414,7 @@ static bool trap_bvr(struct kvm_vcpu *vcpu,
- static int set_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -424,7 +424,7 @@ static int set_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -434,21 +434,21 @@ static int get_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_bvr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm] = rd->val;
- }
- 
- static bool trap_bcr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, rd, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, rd, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -456,7 +456,7 @@ static bool trap_bcr(struct kvm_vcpu *vcpu,
- static int set_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -467,7 +467,7 @@ static int set_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -477,22 +477,22 @@ static int get_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_bcr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm] = rd->val;
- }
- 
- static bool trap_wvr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, rd, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, rd, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write,
--		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg]);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write,
-+		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm]);
- 
- 	return true;
- }
-@@ -500,7 +500,7 @@ static bool trap_wvr(struct kvm_vcpu *vcpu,
- static int set_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -510,7 +510,7 @@ static int set_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -520,21 +520,21 @@ static int get_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_wvr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm] = rd->val;
- }
- 
- static bool trap_wcr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, rd, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, rd, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -542,7 +542,7 @@ static bool trap_wcr(struct kvm_vcpu *vcpu,
- static int set_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -552,7 +552,7 @@ static int set_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -562,7 +562,7 @@ static int get_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_wcr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm] = rd->val;
- }
- 
- static void reset_amair_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
+ 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
 
