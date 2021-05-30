@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A4AE39513B
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:03:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7292739513C
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:03:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229646AbhE3OFF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 10:05:05 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:44385 "EHLO
+        id S229640AbhE3OFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 10:05:06 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:53775 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3OFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:05:04 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3OFG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:05:06 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 6E2CD1940174;
-        Sun, 30 May 2021 10:03:26 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 10:03:26 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id 1AB8119402B2;
+        Sun, 30 May 2021 10:03:28 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 30 May 2021 10:03:28 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=Jfq6jx
-        4KU9zuTsNYzBAIHIeqw/qMUhbgTy20i1x2rxg=; b=udgbEhBy0qlumnYDGm46ov
-        nAVE0/ezAuepYFm5S+hlT4gkOhJ4DRcGANZSKL0HH27McnEhHpZMNbR9iOxnvtTH
-        pEbjX7Auxolu6QxehsRV0wA5WyOpk7LbB6ZF0vaWotXlQ+cylGyCDjecoMFWQjo6
-        H54W3ZXRGQRGId/VSJNDgNKPvkCNYyZ7VvdqVFjT7MRcdpOqrlADTWWGyeH+ZatX
-        1f0rHgSVFBrxc0n7KhpAeFEFmsmT5yykEzXq7gHw9lYIi+mYnZDjfvkDYFbnfBSc
-        sGsFGc2n2n+932mG6x4dS9nSrHk2MXLOvUVdzf4o+eUdDwtA184dXtpCMRJItDZg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vHQ6jN
+        DK6UmWaKZVwjXjLQd9X2XbmRvCtyF12Ed1SJ0=; b=qYpykz7wC9cUPffiZVcFc5
+        JZd128aqVgepsXTf4czP1xKPY581D7AcE3JmYOCxkieDgJedKGBoy0BNHuYzuNY4
+        seSjYfS5ovXUveydP1pCGMQA7hx7x6rZCrYqzQpuiB9Ahdjwa93a0kBZ89dVrIdO
+        c8oHtpi2ddQgR3WKU4Sai6wfK70kIoiG3CG1nUz3AL/4khNewEqhRqvYlr8TrIVM
+        7cupDCtN7z+FtKN1tG2JqsiC5sJNYOraimEeGoHgQOW9z67UI6WIfEwh9mI8gRmz
+        yiX30XNcodio1tVFKN2nhWTb+lFr7GWvGjeoWz1ksKtzLx0ZhgjQ/i8DKZ504CIA
         ==
-X-ME-Sender: <xms:LpuzYCp0IEwesFonDywAsnrkoqWBC1VBD04jBDcb3Vx6moCGa7O4dA>
-    <xme:LpuzYApO3VzmqCPhjYrWuNDVdHKFR4DaeQa8vtsWW-849JT6DK7211yEg9H5_vFnu
-    2xRzyfBQNrddQ>
+X-ME-Sender: <xms:L5uzYDCOi0fqJM9IMS649phubLQhlDtv0adLoXqYRsMA4iS2hfk4bg>
+    <xme:L5uzYJjGYNQOQ_9iimqxu-V4hQCyoYzzAkJ-bthPZNghhFn4aC7eyTNtzQUTucXBE
+    C1_4f2kh0iG-g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,20 +38,20 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeduucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgepieenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:LpuzYHOO7_K9SfDL6t84boR1L8zSvanr3QgQnxmHW5QrVcQqU11gOw>
-    <xmx:LpuzYB5l4vraxXCdrEpULlRwqJFvKPSwWwAi2RP4j0-fUd1PURr_lw>
-    <xmx:LpuzYB7GKbFgcwpInGlJ4Lv47ffbIcouEngFcRhS9H-T3cUjExReIw>
-    <xmx:LpuzYBE5kMlrntcUiNUjaXkxdkfg27OsgjeEuEPsjwM_llSG8qSGUw>
+X-ME-Proxy: <xmx:MJuzYOl2ITt7Mq9mR6dV0BofGOZzfY_JxgdqG5GEEOts9CAGuh1j8A>
+    <xmx:MJuzYFxjxC-EsVTPDg3d61kGDWtBbIjV6kaCPJI1Ed-wryqcPyHATA>
+    <xmx:MJuzYIS69mTFpHThd-1iPZW1SxFRvi4fYbnlBqAkbyB8x_zHAkOOPw>
+    <xmx:MJuzYDcUhe-MTTT8frJO24yK04cI7IU56czXBakUO48d_ErgqM_gzw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 10:03:25 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tipc: wait and exit until all work queues are done" failed to apply to 4.14-stable tree
+        Sun, 30 May 2021 10:03:27 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tipc: wait and exit until all work queues are done" failed to apply to 4.19-stable tree
 To:     lucien.xin@gmail.com, davem@davemloft.net, jmaloy@redhat.com,
         shuali@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 16:03:15 +0200
-Message-ID: <162238339514660@kroah.com>
+Date:   Sun, 30 May 2021 16:03:16 +0200
+Message-ID: <1622383396113241@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
