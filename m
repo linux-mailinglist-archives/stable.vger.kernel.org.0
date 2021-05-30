@@ -2,55 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7FC2395133
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAA9D395134
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:58:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229735AbhE3OAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 10:00:34 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:36717 "EHLO
+        id S229754AbhE3OAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 10:00:37 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:51127 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3OAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:00:34 -0400
-Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 3C8E7194071E;
-        Sun, 30 May 2021 09:58:56 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute5.internal (MEProxy); Sun, 30 May 2021 09:58:56 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3OAh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:00:37 -0400
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 0DE20194071E;
+        Sun, 30 May 2021 09:58:58 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Sun, 30 May 2021 09:58:58 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=TkqKqX
-        IH+HdwTwFME1hdst+TGm8OlLN/VCDm+XYzHiU=; b=AusgeTYKx/M6cNyngSvho5
-        6xGbx6wuTDQW3oxcDRoS3PomJR6kl1ydDfITAfBRlV7pWcOlucnwz/iWpF6HWOwD
-        JwrC/GDcNB4Fsc625tyF3yaYCmsdZkfCHZunuVmEeASxSrw+1WMnKat8hfnosbxZ
-        56bA/TkzmkVwKKEA56dDn/dUaeq/5aUuwkvj1w2r7aJfjArttlhnxghrjA0JUEM/
-        QNU1SohD8m6sZ7iuS/A0Rr7Lz8OCvfzoElb30/jR69TnJNdaAW4R/YWTtAnnRixt
-        Ob3DfTGxYqnO8bRklluqvvWP3ADZGMSvxIRq0Kra4OwLTJw7XutsJwL992nnWn5A
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=QNC+Zd
+        ScutFKIediNQk/15ArloamQByumXE6uA9P39U=; b=DKR7aK3uA0DBU8CrjEPe16
+        sy6TUHPtwf1f3NALm3OVcr/LfAXGjiJbPdvOHVeHj9syFjwQExv/hLlAVFxSeVwD
+        2xsmNPIOh1W1jnr6puZHJ/61JaZNe6b0dmYR40ArJ5hiZ8Grew0ytWfRr5GBSHaD
+        rLVhh1MV6kbje7slxL0bqEP6+4Acq5ZPp50KBpGQUnPHAIRBHLkYFBMQ9CJC2mgv
+        xP1f8Gsy2dyR8V72SIgVCp3Yf/47+jwFhFIOtTmSayn8CcowGzn40TbYHcvLLqo5
+        /EHlG+phhV2BcS6L2sGBmB4/jbcydGHkBJaiEx6AzCjc/MZXOY8XWBVB2j9/5Z4Q
         ==
-X-ME-Sender: <xms:IJqzYEh2wA6o8azOW71xcsoEXR2HdvZhOh0SZNzPMkZavpbALAwc9w>
-    <xme:IJqzYNAojfTgu66HKRJIqntoVRxLV8f3X0xF8JCG9RPUbqzU15hK2FOW8FUwyLYj9
-    zKBury_DYjHuQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjedtucetufdoteggodetrfdotf
+X-ME-Sender: <xms:IZqzYBJiqvNwYqD6flA-jw_XzXRVHPO-AosVc1yftOtZPEKutswA6w>
+    <xme:IZqzYNIJNiBSHGwtyhKuTpFV_-q8caZ7YfoIvtTMeN0sYfk1aOo3D8_O9OipbR2ZU
+    a9vVIL30hSxLA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepvdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:IJqzYMGY5emrWKjlV3zchtpKYyfV5JnA-oas_PfA22vHF0UGq8y0_g>
-    <xmx:IJqzYFTczlIjq3X1CNsUNgrr1dGpJczpm0PUeIldfRdlPPyiVynDBA>
-    <xmx:IJqzYBwMu01Py5au-ecodwygFGZDx1AFXNBjXpWr9xOfL-n3pQmINA>
-    <xmx:IJqzYPasqtvxYlN7CSnUKXf0LmbhulLrXgqgh1z0qHBl0qMYHA2PDg>
+X-ME-Proxy: <xmx:IZqzYJsyzWTpP4NdzXhNe4svBoJsVaTcx40TBjGjxPgXDKsy26d1RA>
+    <xmx:IZqzYCY6nZyXe3KHW5n47nXdPt-9rOIeI4KaoIk--QfONzDmwpSaPw>
+    <xmx:IZqzYIaqe7wgbZg3uHNJf5nlZd-eBe8Pv7LpmeIeNuTZulzHe3ig1A>
+    <xmx:IpqzYBDolS7gaRwudnCkWsRMDZDiWi_WuTPQd2dX4GjhArqxjEuUEg>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 09:58:55 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] SUNRPC in case of backlog, hand free slots directly to" failed to apply to 4.19-stable tree
+        Sun, 30 May 2021 09:58:57 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] SUNRPC in case of backlog, hand free slots directly to" failed to apply to 5.4-stable tree
 To:     neilb@suse.de, trond.myklebust@hammerspace.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 15:58:44 +0200
-Message-ID: <1622383124119211@kroah.com>
+Date:   Sun, 30 May 2021 15:58:45 +0200
+Message-ID: <16223831252038@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
