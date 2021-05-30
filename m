@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6A5395117
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:49:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90EF7395119
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 15:54:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229683AbhE3Nve (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 09:51:34 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:57077 "EHLO
+        id S229580AbhE3Nzj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 09:55:39 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:55933 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3Nvd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 09:51:33 -0400
-Received: from compute6.internal (compute6.nyi.internal [10.202.2.46])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 44FF719407AB;
-        Sun, 30 May 2021 09:49:54 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute6.internal (MEProxy); Sun, 30 May 2021 09:49:54 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3Nzi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 09:55:38 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 5ACC219404C7;
+        Sun, 30 May 2021 09:54:00 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Sun, 30 May 2021 09:54:00 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=6lfOoj
-        PyzZ5msdS6UsSQ7kT0IEJryVXobVEagxJIWKQ=; b=tTqVUArYqpTdN19SaZSRlu
-        WgBCbeJwjH7svpHdIoNmTG20B9AmXk9pQ0Netvow9XjonUdp36YM0blPiSSgrqVU
-        s6ocR0Lz69KSeWu5g7VhsYRvo2XvrXtmjCBdDmB3H3tPW7Aq4mfrSnC68PdgM+q8
-        oLWC3HK4BZo9lGxqy6LCe5a6uflFlPt7ZFr2AtVhiduhz+8GDTQZxbUUxkKON9IE
-        7HzNUmTxqx9vLLJW+9a/Z+Vluv5YKpZkhMCSi9utsm1a6GV/a5eT69TpSs48ygXo
-        tH/UbfRQXKRrInq2Qx1UjXQWxHqyqYNdO6HqEuc3eS3pYEnk/90Jn/3WaDcmcLQw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=uoWXvI
+        f1eVe3EuVnQ6mct9I7dH+5DEsWxb1/lBgq8LA=; b=nrBRPj21rja3s+DkGBq/Dx
+        ckDp+89oWHlOdxTRkj0q3S37G7Nf7h9x+Dd9XqRgHiO/UZZIg3hBR8rXE87DlDAq
+        ldNFz2EI1lfL6zPWl17sfENiQSIWt9tYyz2gJs3M32b7OrmP0m4kbLRLVKXwjJF1
+        t1eiOwCIWoiTyIscn9JyPEmpchS7uBdGRaoeRHaL3r6QM+SVCk1CT1TZ1KEU9kz6
+        qzU/1bVDEf4QoYUSIkELj9uuPFTwsx6GtHcG7j0aeYpY5fKbhny0wjHbxExEs3qJ
+        hDCFt6ywZORgUe9/o3nMlavKXeqSTa/uqdxwaUz6MiU+b5xmifikR8b99Vj+lkMw
         ==
-X-ME-Sender: <xms:ApizYEBbVLcjAN5ynPYGEtZXMdTNZeYB7VZpiMo5bBQvMW_3EEtGnw>
-    <xme:ApizYGh23L_DVbTFvTgA-PTsHEyL5kL56nXkZwG51WuAU9mudNtVJRhL2sIztssQY
-    jklFrvqckrcjg>
+X-ME-Sender: <xms:-JizYG-qUe7P4lR9TIP07bxrzObNosRu-PZhU0DfWmXKXFoq8hGpWg>
+    <xme:-JizYGtnL4CTozb3xwBAcibH8ynVYvt3gbGQfvlhL36O2xVfup84gj4VekqHw8MrK
+    OU-ZBe0ni6WgQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgieelucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,19 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgieelucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:ApizYHkygBKb1VuHTwpP35qEarAyFOfcTl6t4hrsLTMtaFhbtZ9P_g>
-    <xmx:ApizYKyfXciVXukf9H20mRRD40XR_bYSZYVPB9cSA5vQnx4eqGOqrQ>
-    <xmx:ApizYJRIJQQGzavYC5_Ok3YqojI-gxmM-gjt5H9nrIYqnpa4E7x7Ag>
-    <xmx:ApizYEMOws2WIOSlHWdXB40gV-JcnD12b008pN7VKdtnmKQngtnNnA>
+X-ME-Proxy: <xmx:-JizYMCCHUPNuu_Lw0UrWXCkU-xi3B3d1Y0-qQ711WCNhOZ65NmDcg>
+    <xmx:-JizYOeX7GSPojieWHSn_gbwjSQw1CIC1bcBPYLoZhbVmRuHev5jtA>
+    <xmx:-JizYLP7bSDoEN9ZQlVYc5otpDcvSbZwgZ6hRLz3WfmzKkzpoIjL4g>
+    <xmx:-JizYB0Zkn0f9VF1LRYuEV10tRzqkdNvgfJF0tkB5fY_JLLWs6tJWA>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 09:49:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] NFS: Fix an Oopsable condition in __nfs_pageio_add_request()" failed to apply to 4.19-stable tree
-To:     trond.myklebust@hammerspace.com
+        Sun, 30 May 2021 09:53:59 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] net/mlx5e: Fix nullptr in mlx5e_tc_add_fdb_flow()" failed to apply to 4.14-stable tree
+To:     dchumak@nvidia.com, saeedm@nvidia.com, vladbu@nvidia.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 15:49:40 +0200
-Message-ID: <162238258072199@kroah.com>
+Date:   Sun, 30 May 2021 15:53:54 +0200
+Message-ID: <162238283432112@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,43 +70,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 56517ab958b7c11030e626250c00b9b1a24b41eb Mon Sep 17 00:00:00 2001
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
-Date: Tue, 25 May 2021 10:23:05 -0400
-Subject: [PATCH] NFS: Fix an Oopsable condition in __nfs_pageio_add_request()
+From fe7738eb3ca3631a75844e790f6cb576c0fe7b00 Mon Sep 17 00:00:00 2001
+From: Dima Chumak <dchumak@nvidia.com>
+Date: Mon, 26 Apr 2021 15:16:26 +0300
+Subject: [PATCH] net/mlx5e: Fix nullptr in mlx5e_tc_add_fdb_flow()
 
-Ensure that nfs_pageio_error_cleanup() resets the mirror array contents,
-so that the structure reflects the fact that it is now empty.
-Also change the test in nfs_pageio_do_add_request() to be more robust by
-checking whether or not the list is empty rather than relying on the
-value of pg_count.
+The result of __dev_get_by_index() is not checked for NULL, which then
+passed to mlx5e_attach_encap() and gets dereferenced.
 
-Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Also, in case of a successful lookup, the net_device reference count is
+not incremented, which may result in net_device pointer becoming invalid
+at any time during mlx5e_attach_encap() execution.
 
-diff --git a/fs/nfs/pagelist.c b/fs/nfs/pagelist.c
-index 6c20b28d9d7c..d35c84af44e0 100644
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1094,15 +1094,16 @@ nfs_pageio_do_add_request(struct nfs_pageio_descriptor *desc,
- 	struct nfs_page *prev = NULL;
- 	unsigned int size;
+Fix by using dev_get_by_index(), which does proper reference counting on
+the net_device pointer. Also, handle nullptr return value when mirred
+device is not found.
+
+It's safe to call dev_put() on the mirred net_device pointer, right
+after mlx5e_attach_encap() call, because it's not being saved/copied
+down the call chain.
+
+Fixes: 3c37745ec614 ("net/mlx5e: Properly deal with encap flows add/del under neigh update")
+Addresses-Coverity: ("Dereference null return value")
+Signed-off-by: Dima Chumak <dchumak@nvidia.com>
+Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 46945d04b5b8..882bafba43f2 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -1322,10 +1322,10 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
+ 		      struct netlink_ext_ack *extack)
+ {
+ 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
+-	struct net_device *out_dev, *encap_dev = NULL;
+ 	struct mlx5e_tc_flow_parse_attr *parse_attr;
+ 	struct mlx5_flow_attr *attr = flow->attr;
+ 	bool vf_tun = false, encap_valid = true;
++	struct net_device *encap_dev = NULL;
+ 	struct mlx5_esw_flow_attr *esw_attr;
+ 	struct mlx5_fc *counter = NULL;
+ 	struct mlx5e_rep_priv *rpriv;
+@@ -1371,16 +1371,22 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
+ 	esw_attr = attr->esw_attr;
  
--	if (mirror->pg_count != 0) {
--		prev = nfs_list_entry(mirror->pg_list.prev);
--	} else {
-+	if (list_empty(&mirror->pg_list)) {
- 		if (desc->pg_ops->pg_init)
- 			desc->pg_ops->pg_init(desc, req);
- 		if (desc->pg_error < 0)
- 			return 0;
- 		mirror->pg_base = req->wb_pgbase;
--	}
-+		mirror->pg_count = 0;
-+		mirror->pg_recoalesce = 0;
-+	} else
-+		prev = nfs_list_entry(mirror->pg_list.prev);
+ 	for (out_index = 0; out_index < MLX5_MAX_FLOW_FWD_VPORTS; out_index++) {
++		struct net_device *out_dev;
+ 		int mirred_ifindex;
  
- 	if (desc->pg_maxretrans && req->wb_nio > desc->pg_maxretrans) {
- 		if (NFS_SERVER(desc->pg_inode)->flags & NFS_MOUNT_SOFTERR)
+ 		if (!(esw_attr->dests[out_index].flags & MLX5_ESW_DEST_ENCAP))
+ 			continue;
+ 
+ 		mirred_ifindex = parse_attr->mirred_ifindex[out_index];
+-		out_dev = __dev_get_by_index(dev_net(priv->netdev),
+-					     mirred_ifindex);
++		out_dev = dev_get_by_index(dev_net(priv->netdev), mirred_ifindex);
++		if (!out_dev) {
++			NL_SET_ERR_MSG_MOD(extack, "Requested mirred device not found");
++			err = -ENODEV;
++			goto err_out;
++		}
+ 		err = mlx5e_attach_encap(priv, flow, out_dev, out_index,
+ 					 extack, &encap_dev, &encap_valid);
++		dev_put(out_dev);
+ 		if (err)
+ 			goto err_out;
+ 
 
