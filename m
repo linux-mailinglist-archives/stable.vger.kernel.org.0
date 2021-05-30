@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71FC6395152
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:35:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F2EFE395157
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:44:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229599AbhE3Oh0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 10:37:26 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:33901 "EHLO
+        id S229599AbhE3OqO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 10:46:14 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:56823 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229580AbhE3Oh0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:37:26 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id C9C2E1940637;
-        Sun, 30 May 2021 10:35:47 -0400 (EDT)
+        by vger.kernel.org with ESMTP id S229580AbhE3OqN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:46:13 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 40D9119401D2;
+        Sun, 30 May 2021 10:44:35 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 10:35:47 -0400
+  by compute4.internal (MEProxy); Sun, 30 May 2021 10:44:35 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=vHQ6jN
-        DK6UmWaKZVwjXjLQd9X2XbmRvCtyF12Ed1SJ0=; b=KscMGu14uUHJspVLGGtan8
-        zsIJZKrAum6cGeoby8hmAOFW29YYwEf0QFiFHtI9XpMjolEMgE2KaqhJwrm4UjsE
-        dd7Pv6lVmAlvWVY/x4NLSCIoe0HtL8V3fgG4XB70lnnE6c/3qvJ7QmjwKfJZ6BKP
-        uE0e4Mk3UmRNkhzfyTKWofaS+lPb7ciPGN/+YVlDTcaCH52GY5c36PLyeteQ19aV
-        yDY9oq+ducePQlpFEFFG/EZCV/10K5x4cuxSlKQkLY6eTGzjfVdQ8CRXM96ttKzP
-        qik7kttyjK0oS1CByFgsZW+7Tt8W24NKuX/4RynTde7VE8gjFCkiBxCu8R8By+pg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=++yopl
+        kNa1jsjtFDGgC6oq6Cl5lpYxXOGPavcTevipw=; b=wX/22nNmFC3IQ3ODPx8D9m
+        9vj7yOFBafa7VYaSbW3J+Kl4D+D8+B8Ne3+IsuEbmS8VuSLUeTPOwyKWaLnaRju+
+        O9lUKf2o/HE0ZRpV/CDiazjiBNQcBF06IjJaDL/T8ozM37WRM3tZLEGmkhGd3rju
+        Whzt8JDu8W11OZ9NlBJdsuvaEXMnwcmH5WqO0bU1r8Qx5K792LElTFai6370hrO+
+        tloPRlyr8OkBwpr5A082U0PamFj33L0jyZ+hiwrmRn+Xm1O1XSbC0tbihAuK3qJp
+        TZRxORN4PImWMvinnZKTWZ9pgROk1SXTAfPEtsRUDGrawOGP88VVm4EsXgDWAVPw
         ==
-X-ME-Sender: <xms:w6KzYJpL7PykKCD9X7fSsVp2Pp6wb-OINi5MZT8ikMLhmNsYkJyUCg>
-    <xme:w6KzYLqodoJ7BHXeqY6b2v2lfafIy0l3lWuVsAe2SqLy0FgSMcC4mJYZRlGPxEHc4
-    XUI4URwJtv7aQ>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeekucetufdoteggodetrfdotf
+X-ME-Sender: <xms:0qSzYEKOLY35IQNotS0wNOJNvaKcO_0CRJRUG9RL-wBbukKaekJe7Q>
+    <xme:0qSzYEL6ArMfVEb7upsuLGihdk2Ysu_ySsHsdhtlFVlwlEfVb8Eky9K3j3bXDpDQ_
+    GuLLYrJjaYPSw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgkedtucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
@@ -38,20 +38,19 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeekucetufdoteggod
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
     rhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:w6KzYGNL9fZHJDUOf6WHaQ8_BflBZQKUmwUrnTVa9k61Yfqt8_OWtg>
-    <xmx:w6KzYE53UyZ2qXOoV9pTi0z9pAHwAG4kLXpqkSCdIit_bAXnyuliHQ>
-    <xmx:w6KzYI6k5SppZqu0LEYg01axC3ip8xKK7CjhwfG33B3-PgcXgvGQsQ>
-    <xmx:w6KzYIF1H-AZGnOIlZh0lyZ97yVwSDPFGITklQAYQxcOEMIkPD9caw>
+X-ME-Proxy: <xmx:0qSzYEsyVM1bf5T2_3p4P9z1Iln3b5YzY7g81W5iom7p_nfP599qOA>
+    <xmx:0qSzYBY4EL5Z_EIrgqkMQTXFVTvu2YHVGJJQPgkA1XuDjxGxB0zkIA>
+    <xmx:0qSzYLZp14PgGNexoa0XrFZUGo9jVRDdVu7G52WpmpdOLTAbFak2-Q>
+    <xmx:06SzYMAtO8XOkw02cS_c_YBw4pDshgSfGLLIhnFEXZykeBaIAOyR1A>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 10:35:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] tipc: wait and exit until all work queues are done" failed to apply to 4.19-stable tree
-To:     lucien.xin@gmail.com, davem@davemloft.net, jmaloy@redhat.com,
-        shuali@redhat.com
+        Sun, 30 May 2021 10:44:34 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] i2c: mediatek: Disable i2c start_en and clear intr_stat" failed to apply to 5.4-stable tree
+To:     qii.wang@mediatek.com, wsa@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 16:35:44 +0200
-Message-ID: <162238534421917@kroah.com>
+Date:   Sun, 30 May 2021 16:44:32 +0200
+Message-ID: <162238587231164@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -60,7 +59,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -71,88 +70,37 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 04c26faa51d1e2fe71cf13c45791f5174c37f986 Mon Sep 17 00:00:00 2001
-From: Xin Long <lucien.xin@gmail.com>
-Date: Mon, 17 May 2021 02:28:58 +0800
-Subject: [PATCH] tipc: wait and exit until all work queues are done
+From fed1bd51a504eb96caa38b4f13ab138fc169ea75 Mon Sep 17 00:00:00 2001
+From: Qii Wang <qii.wang@mediatek.com>
+Date: Thu, 27 May 2021 20:04:04 +0800
+Subject: [PATCH] i2c: mediatek: Disable i2c start_en and clear intr_stat
+ brfore reset
 
-On some host, a crash could be triggered simply by repeating these
-commands several times:
+The i2c controller driver do dma reset after transfer timeout,
+but sometimes dma reset will trigger an unexpected DMA_ERR irq.
+It will cause the i2c controller to continuously send interrupts
+to the system and cause soft lock-up. So we need to disable i2c
+start_en and clear intr_stat to stop i2c controller before dma
+reset when transfer timeout.
 
-  # modprobe tipc
-  # tipc bearer enable media udp name UDP1 localip 127.0.0.1
-  # rmmod tipc
+Fixes: aafced673c06("i2c: mediatek: move dma reset before i2c reset")
+Signed-off-by: Qii Wang <qii.wang@mediatek.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 
-  [] BUG: unable to handle kernel paging request at ffffffffc096bb00
-  [] Workqueue: events 0xffffffffc096bb00
-  [] Call Trace:
-  []  ? process_one_work+0x1a7/0x360
-  []  ? worker_thread+0x30/0x390
-  []  ? create_worker+0x1a0/0x1a0
-  []  ? kthread+0x116/0x130
-  []  ? kthread_flush_work_fn+0x10/0x10
-  []  ? ret_from_fork+0x35/0x40
-
-When removing the TIPC module, the UDP tunnel sock will be delayed to
-release in a work queue as sock_release() can't be done in rtnl_lock().
-If the work queue is schedule to run after the TIPC module is removed,
-kernel will crash as the work queue function cleanup_beareri() code no
-longer exists when trying to invoke it.
-
-To fix it, this patch introduce a member wq_count in tipc_net to track
-the numbers of work queues in schedule, and  wait and exit until all
-work queues are done in tipc_exit_net().
-
-Fixes: d0f91938bede ("tipc: add ip/udp media type")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-
-diff --git a/net/tipc/core.c b/net/tipc/core.c
-index 5cc1f0307215..72f3ac73779b 100644
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -119,6 +119,8 @@ static void __net_exit tipc_exit_net(struct net *net)
- #ifdef CONFIG_TIPC_CRYPTO
- 	tipc_crypto_stop(&tipc_net(net)->crypto_tx);
- #endif
-+	while (atomic_read(&tn->wq_count))
-+		cond_resched();
- }
+diff --git a/drivers/i2c/busses/i2c-mt65xx.c b/drivers/i2c/busses/i2c-mt65xx.c
+index 5ddfa4e56ee2..4e9fb6b44436 100644
+--- a/drivers/i2c/busses/i2c-mt65xx.c
++++ b/drivers/i2c/busses/i2c-mt65xx.c
+@@ -479,6 +479,11 @@ static void mtk_i2c_clock_disable(struct mtk_i2c *i2c)
+ static void mtk_i2c_init_hw(struct mtk_i2c *i2c)
+ {
+ 	u16 control_reg;
++	u16 intr_stat_reg;
++
++	mtk_i2c_writew(i2c, I2C_CHN_CLR_FLAG, OFFSET_START);
++	intr_stat_reg = mtk_i2c_readw(i2c, OFFSET_INTR_STAT);
++	mtk_i2c_writew(i2c, intr_stat_reg, OFFSET_INTR_STAT);
  
- static void __net_exit tipc_pernet_pre_exit(struct net *net)
-diff --git a/net/tipc/core.h b/net/tipc/core.h
-index 03de7b213f55..5741ae488bb5 100644
---- a/net/tipc/core.h
-+++ b/net/tipc/core.h
-@@ -149,6 +149,8 @@ struct tipc_net {
- #endif
- 	/* Work item for net finalize */
- 	struct tipc_net_work final_work;
-+	/* The numbers of work queues in schedule */
-+	atomic_t wq_count;
- };
- 
- static inline struct tipc_net *tipc_net(struct net *net)
-diff --git a/net/tipc/udp_media.c b/net/tipc/udp_media.c
-index e556d2cdc064..c2bb818704c8 100644
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -814,6 +814,7 @@ static void cleanup_bearer(struct work_struct *work)
- 		kfree_rcu(rcast, rcu);
- 	}
- 
-+	atomic_dec(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	dst_cache_destroy(&ub->rcast.dst_cache);
- 	udp_tunnel_sock_release(ub->ubsock);
- 	synchronize_net();
-@@ -834,6 +835,7 @@ static void tipc_udp_disable(struct tipc_bearer *b)
- 	RCU_INIT_POINTER(ub->bearer, NULL);
- 
- 	/* sock_release need to be done outside of rtnl lock */
-+	atomic_inc(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	INIT_WORK(&ub->work, cleanup_bearer);
- 	schedule_work(&ub->work);
- }
+ 	if (i2c->dev_comp->apdma_sync) {
+ 		writel(I2C_DMA_WARM_RST, i2c->pdmabase + OFFSET_RST);
 
