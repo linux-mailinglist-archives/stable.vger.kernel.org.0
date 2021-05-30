@@ -2,58 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E2D6239509B
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 13:11:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C383A39509F
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 13:12:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhE3LN0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 07:13:26 -0400
-Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:58591 "EHLO
+        id S229640AbhE3LOP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 07:14:15 -0400
+Received: from forward5-smtp.messagingengine.com ([66.111.4.239]:60697 "EHLO
         forward5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3LN0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 07:13:26 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3LOO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 07:14:14 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 30F6A194051E;
-        Sun, 30 May 2021 07:11:48 -0400 (EDT)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 07:11:48 -0400
+        by mailforward.nyi.internal (Postfix) with ESMTP id CE87619405BC;
+        Sun, 30 May 2021 07:12:36 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute3.internal (MEProxy); Sun, 30 May 2021 07:12:36 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=ga1SHB
-        A71KCeynObTmUAuHbas7Zn+EthdYgYPZ6z0KM=; b=Eubey5BfGtr5gqMaPbFyg+
-        B0YQRllr0XpruWq86IMjxftWh1IQdfwAErbML4+2dhMg27SuHU1ZjqyxFMpm5hhD
-        tXolyeYRUBfIxY1Ak69gpexVDIoSMlg0EI+QTxidecNvk5wkZFzoRFdI9eZbPLQm
-        4RT8cxI0t7vqCHDCKVyTEWo05fsGaJ+V6IkAbaJwA1eDo3uxvra5/Aj3mWqKkVqj
-        BIHXVow/qh4R/onOsEx1MD+yo1tsZrlymaBDDSrXKI+zFmTTzAOaj/6JQwXc2LdR
-        Jelwwh/h0Mo4AKxMYJyi/czMy0Ym4NNSC6bYyYALqTxpUIFPSKAE3jbguYS/kdcw
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=yC++iq
+        4bsJzbHHR/94nZBuvW5bq4znlL9+iD6n0y7QI=; b=hbLoiBR/gcQOOrYrC1St65
+        t9Ax7QT3tyXm4QwoZvHnoITNbPsu5Oh9yh7GXnSAFt+Gm0JUwzIjv6ne29Rg3Fem
+        6XkCBlL3MNMak48wOIY3x+ZEh4xzyq9Z5YDJGjLieE5sC3JTPefJuqR2PNo5CePk
+        tzggW80h9WhlVPqBu2/giEZhjRsc4gjvbm9BK8lakjvXI64SAflVbwxQZpxeuMSA
+        2hXlmLxdxR2Qk5CeNpVl4ZmvUZzNwY4YH2yThDM1NiR0Lk4xFnbhF9XJ+fqIzYrj
+        GXOWPinZGJwjI9wSaRSGpLfq3+rIS5jcaUVcO81jkmnjCF1aZvDqlnRcH320URgg
         ==
-X-ME-Sender: <xms:9HKzYEmeH3Cfzk96FoVkeuZVUE87lU-H1bhCiJsQdbAKWFpNl07klg>
-    <xme:9HKzYD0X7qaP15dIN5LyEdFF3monDab_GUVXw27iCBQzpEF7bYZ5PCxV7UIvaFLl5
-    jXTpepn48OpKg>
+X-ME-Sender: <xms:JHOzYBL0tCgM_WFG2vLo8vjQO4DfI6wMKSYiU59jsYVNdy2bAk9ySg>
+    <xme:JHOzYNIz4sw0ORw0J3muf6V1nAfCEJo-pMs5qelaFcib1bDOxYd_mxiX97LuZiHOd
+    qsS3oosFoWr4g>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgfeejucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepleelledvgeefleeltdetgedugeffgffhudffudduke
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
-    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
+    keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedunecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:9HKzYCoL3UW3sXAbDPmdmrGJwtKIEbpbSBIsAvE_-taZd_SZgpxYxw>
-    <xmx:9HKzYAnpwFI4mphcbAUfgpzTY-5FXfW_3IDnvAhC7cF-9mAWwijGlQ>
-    <xmx:9HKzYC0TEWwrBfpt301aAos1Rr2P1UupL5NEkqzqdD7MA_H0Q0egog>
-    <xmx:9HKzYFSyk3ECADnj3bQpg7DvUaRvS7vroUkWO1pvvfeeMIr1kuZXkw>
+X-ME-Proxy: <xmx:JHOzYJsU109Jqq5YpGTm0GUzixT6FhGU0WNGUryYbQRlnClPJtviiA>
+    <xmx:JHOzYCZ03ugap8suEUW9azmvUHNVIIKTV4Kt86NzP7ce0eItbrjqCQ>
+    <xmx:JHOzYIZcXUYLzCxGiCVUzAJyNj9q8CvoaxG9zDGWuHH492A4qaoedw>
+    <xmx:JHOzYAEXuz38Ko_jR6At0yWdVfl5SRD4VMSq0aZ3dAI5WJfD87l3CQ>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 07:11:47 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Use LE to CPU conversion when accessing" failed to apply to 5.4-stable tree
-To:     andriy.shevchenko@linux.intel.com,
-        Adam.Thomson.Opensource@diasemi.com, gregkh@linuxfoundation.org,
+        Sun, 30 May 2021 07:12:36 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Respond Not_Supported if no snk_vdo" failed to apply to 4.19-stable tree
+To:     kyletso@google.com, gregkh@linuxfoundation.org,
         heikki.krogerus@linux.intel.com, linux@roeck-us.net,
         stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 13:11:38 +0200
-Message-ID: <162237309822029@kroah.com>
+Date:   Sun, 30 May 2021 13:12:34 +0200
+Message-ID: <1622373154752@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -62,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -73,49 +72,38 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From c58bbe3477f75deb7883983e6cf428404a107555 Mon Sep 17 00:00:00 2001
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Date: Wed, 19 May 2021 13:03:58 +0300
-Subject: [PATCH] usb: typec: tcpm: Use LE to CPU conversion when accessing
- msg->header
+From a20dcf53ea9836387b229c4878f9559cf1b55b71 Mon Sep 17 00:00:00 2001
+From: Kyle Tso <kyletso@google.com>
+Date: Sun, 23 May 2021 09:58:55 +0800
+Subject: [PATCH] usb: typec: tcpm: Respond Not_Supported if no snk_vdo
 
-Sparse is not happy about strict type handling:
-  .../typec/tcpm/tcpm.c:2720:27: warning: restricted __le16 degrades to integer
-  .../typec/tcpm/tcpm.c:2814:32: warning: restricted __le16 degrades to integer
+If snk_vdo is not populated from fwnode, it implies the port does not
+support responding to SVDM commands. Not_Supported Message shall be sent
+if the contract is in PD3. And for PD2, the port shall ignore the
+commands.
 
-Fix this by converting LE to CPU before use.
-
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Fixes: 64f7c494a3c0 ("typec: tcpm: Add support for sink PPS related messages")
+Fixes: 193a68011fdc ("staging: typec: tcpm: Respond to Discover Identity commands")
 Cc: stable <stable@vger.kernel.org>
-Cc: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
 Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210519100358.64018-1-andriy.shevchenko@linux.intel.com
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210523015855.1785484-3-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 64133e586c64..8fdfd7f65ad7 100644
+index 6ea5df3782cf..9ce8c9af4da5 100644
 --- a/drivers/usb/typec/tcpm/tcpm.c
 +++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2717,7 +2717,7 @@ static void tcpm_pd_ext_msg_request(struct tcpm_port *port,
- 	enum pd_ext_msg_type type = pd_header_type_le(msg->header);
- 	unsigned int data_size = pd_ext_header_data_size_le(msg->ext_msg.header);
- 
--	if (!(msg->ext_msg.header & PD_EXT_HDR_CHUNKED)) {
-+	if (!(le16_to_cpu(msg->ext_msg.header) & PD_EXT_HDR_CHUNKED)) {
- 		tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
- 		tcpm_log(port, "Unchunked extended messages unsupported");
- 		return;
-@@ -2811,7 +2811,7 @@ static void tcpm_pd_rx_handler(struct kthread_work *work)
- 				 "Data role mismatch, initiating error recovery");
- 			tcpm_set_state(port, ERROR_RECOVERY, 0);
- 		} else {
--			if (msg->header & PD_HEADER_EXT_HDR)
-+			if (le16_to_cpu(msg->header) & PD_HEADER_EXT_HDR)
- 				tcpm_pd_ext_msg_request(port, msg);
- 			else if (cnt)
- 				tcpm_pd_data_request(port, msg);
+@@ -2430,7 +2430,10 @@ static void tcpm_pd_data_request(struct tcpm_port *port,
+ 					   NONE_AMS);
+ 		break;
+ 	case PD_DATA_VENDOR_DEF:
+-		tcpm_handle_vdm_request(port, msg->payload, cnt);
++		if (tcpm_vdm_ams(port) || port->nr_snk_vdo)
++			tcpm_handle_vdm_request(port, msg->payload, cnt);
++		else if (port->negotiated_rev > PD_REV20)
++			tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
+ 		break;
+ 	case PD_DATA_BIST:
+ 		port->bist_request = le32_to_cpu(msg->payload[0]);
 
