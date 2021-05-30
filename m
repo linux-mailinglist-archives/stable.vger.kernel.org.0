@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 512C6395136
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:00:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A648F395139
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:03:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhE3OCR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 10:02:17 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:43279 "EHLO
+        id S229580AbhE3OEy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 10:04:54 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:57619 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3OCQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:02:16 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3OEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:04:54 -0400
 Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id 51E351940771;
-        Sun, 30 May 2021 10:00:38 -0400 (EDT)
+        by mailforward.nyi.internal (Postfix) with ESMTP id 04D9019401D7;
+        Sun, 30 May 2021 10:03:16 -0400 (EDT)
 Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 10:00:38 -0400
+  by compute3.internal (MEProxy); Sun, 30 May 2021 10:03:16 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=sDeJdv
-        Al7vEYgvJHit2fhbkSeXrZ7pPX7ua3cWZuTic=; b=Rma+m1PFojiHo9PEmGjE7a
-        REy3Lhc5u3LgQWjpDggkrV1CDSDyuDLRtSsJolAhMXnZmhx9Xgak3dzfZe9qeLBo
-        mk9WmDU1Hf1Wc/twtWwLZRl0+CkWJ9MqebVuOya+fYf3/QOtwa5/dX3TfqEnC4zv
-        paWkfkE+MYF5ezW+WzhnLS1FAHV/rSPIwxuVCOxTXMTkdQ5fk9MR/UDQigfj/6kV
-        8VCX/oiaxu0t/eEYNxDEtif7RizoTVZIgDZJFn24v+Lz2rTLC4IqmnmZVis9kgAf
-        VfmpFZn3enrsdUcY3UAk1kBybVmo8rqGQ1YLbzaAdOPyrPOewY66BWHHEVauXKzQ
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=8cwfQp
+        AxzkyJ2qgvqVX0P1ksGUIPaUJerhkS60OVjCU=; b=SShcBAbDSN9YuuV0wghy52
+        aM9K/o3AST4P+Oe2YT9TzFsf0Gz5pcEk24n9GZHhiZD7NxehoWGCFvFv1UqZQDGX
+        z5kDvMUhglLdtu+BWY8LgF70ZC8th/fb0ZKGc/JCtcRHloJsGA6pLK+xBRhZnW3J
+        5VSFp8bpUrxSAzbavLXiez+ZfuHN+3ywaXpNxA4LgUUeCwk0NmKIDK9G2DoWpUGX
+        6swLHQOu+6/C1MJS4YvsxbqXupcoVuFnLOcBEYXtD3XIaDOWV3U+bntQbA4Yh9PJ
+        crq5BOsjMF6/JvFmytTn+NRBF0OnmPPMtZemC9x4nOCCXSahvJua/9HW/wd3L/lg
         ==
-X-ME-Sender: <xms:hZqzYFYpslUDCHIFOj7JKQ3bOU11BBwUDXHOm3vvGkyG4Ej0OUMc1w>
-    <xme:hZqzYMb5PIWAg0fO4rSTgSBlDaLbvTcdnD9t4pElN7gbZ2q3xqUFjg9m_mOs6ftPE
-    UR7eDC2XTDhDQ>
+X-ME-Sender: <xms:I5uzYPBY9f6FtvJwSD5c-qZjRKH3ci58edRFDZ_3jgpkFIAz0xecvA>
+    <xme:I5uzYFialGEfoofmKEJPl6v0HM-UBN-3d1D8KuTVqa1zJiTHOvnim2s6x-4zSykwG
+    AZwfFb6hOVCog>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjeduucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
     dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
     gheqnecuggftrfgrthhtvghrnhepieetveehuedvhfdtgfdvieeiheehfeelveevheejud
     etveeuveeludejjefgteehnecukfhppeekfedrkeeirdejgedrieegnecuvehluhhsthgv
-    rhfuihiivgepfeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
+    rhfuihiivgepgeenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorghhrd
     gtohhm
-X-ME-Proxy: <xmx:hZqzYH-VRnH8C9iKKHPOGOLj79Lo07BuL7EJhyvbZQPD9bGJWN2QmA>
-    <xmx:hZqzYDotVd1nC74S5YMVkNEUKlWEc9JZj-ZBe72cqr3Z636nLIJznw>
-    <xmx:hZqzYAoiov0YBlKMDW6CxrUzcjE_yhwBf_wqcotlNCbG-M1H_6I7iA>
-    <xmx:hpqzYNDlyhlGeWFB04GrUW2X_QVYDEBEh0oziJv6Mmm6HS00SouagA>
+X-ME-Proxy: <xmx:I5uzYKkfcZ8doTpSjyRP495Qab8d7n7AVwB_DisHwkyi6NGfP9Cj0g>
+    <xmx:I5uzYBy9S4is7qoxJHun_JH4y6GuSrY_zab-IVr-haZM6KboJ-AlVw>
+    <xmx:I5uzYERxOu4dLRuoASI7k878WX0ggIwrx8KFW-99FOS7UMJym3Uh_g>
+    <xmx:JJuzYPfigFlcVJnlir7t82VWsIVmqAJufrjfg1fmyv7guUa4g4NnTw>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 10:00:37 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] net/mlx5e: Fix nullptr in mlx5e_tc_add_fdb_flow()" failed to apply to 5.10-stable tree
-To:     dchumak@nvidia.com, saeedm@nvidia.com, vladbu@nvidia.com
+        Sun, 30 May 2021 10:03:15 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] tipc: wait and exit until all work queues are done" failed to apply to 4.4-stable tree
+To:     lucien.xin@gmail.com, davem@davemloft.net, jmaloy@redhat.com,
+        shuali@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 16:00:35 +0200
-Message-ID: <162238323522840@kroah.com>
+Date:   Sun, 30 May 2021 16:03:13 +0200
+Message-ID: <162238339320326@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -59,7 +60,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -70,71 +71,88 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From fe7738eb3ca3631a75844e790f6cb576c0fe7b00 Mon Sep 17 00:00:00 2001
-From: Dima Chumak <dchumak@nvidia.com>
-Date: Mon, 26 Apr 2021 15:16:26 +0300
-Subject: [PATCH] net/mlx5e: Fix nullptr in mlx5e_tc_add_fdb_flow()
+From 04c26faa51d1e2fe71cf13c45791f5174c37f986 Mon Sep 17 00:00:00 2001
+From: Xin Long <lucien.xin@gmail.com>
+Date: Mon, 17 May 2021 02:28:58 +0800
+Subject: [PATCH] tipc: wait and exit until all work queues are done
 
-The result of __dev_get_by_index() is not checked for NULL, which then
-passed to mlx5e_attach_encap() and gets dereferenced.
+On some host, a crash could be triggered simply by repeating these
+commands several times:
 
-Also, in case of a successful lookup, the net_device reference count is
-not incremented, which may result in net_device pointer becoming invalid
-at any time during mlx5e_attach_encap() execution.
+  # modprobe tipc
+  # tipc bearer enable media udp name UDP1 localip 127.0.0.1
+  # rmmod tipc
 
-Fix by using dev_get_by_index(), which does proper reference counting on
-the net_device pointer. Also, handle nullptr return value when mirred
-device is not found.
+  [] BUG: unable to handle kernel paging request at ffffffffc096bb00
+  [] Workqueue: events 0xffffffffc096bb00
+  [] Call Trace:
+  []  ? process_one_work+0x1a7/0x360
+  []  ? worker_thread+0x30/0x390
+  []  ? create_worker+0x1a0/0x1a0
+  []  ? kthread+0x116/0x130
+  []  ? kthread_flush_work_fn+0x10/0x10
+  []  ? ret_from_fork+0x35/0x40
 
-It's safe to call dev_put() on the mirred net_device pointer, right
-after mlx5e_attach_encap() call, because it's not being saved/copied
-down the call chain.
+When removing the TIPC module, the UDP tunnel sock will be delayed to
+release in a work queue as sock_release() can't be done in rtnl_lock().
+If the work queue is schedule to run after the TIPC module is removed,
+kernel will crash as the work queue function cleanup_beareri() code no
+longer exists when trying to invoke it.
 
-Fixes: 3c37745ec614 ("net/mlx5e: Properly deal with encap flows add/del under neigh update")
-Addresses-Coverity: ("Dereference null return value")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Vlad Buslov <vladbu@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+To fix it, this patch introduce a member wq_count in tipc_net to track
+the numbers of work queues in schedule, and  wait and exit until all
+work queues are done in tipc_exit_net().
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 46945d04b5b8..882bafba43f2 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1322,10 +1322,10 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
- 		      struct netlink_ext_ack *extack)
- {
- 	struct mlx5_eswitch *esw = priv->mdev->priv.eswitch;
--	struct net_device *out_dev, *encap_dev = NULL;
- 	struct mlx5e_tc_flow_parse_attr *parse_attr;
- 	struct mlx5_flow_attr *attr = flow->attr;
- 	bool vf_tun = false, encap_valid = true;
-+	struct net_device *encap_dev = NULL;
- 	struct mlx5_esw_flow_attr *esw_attr;
- 	struct mlx5_fc *counter = NULL;
- 	struct mlx5e_rep_priv *rpriv;
-@@ -1371,16 +1371,22 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
- 	esw_attr = attr->esw_attr;
+Fixes: d0f91938bede ("tipc: add ip/udp media type")
+Reported-by: Shuang Li <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+
+diff --git a/net/tipc/core.c b/net/tipc/core.c
+index 5cc1f0307215..72f3ac73779b 100644
+--- a/net/tipc/core.c
++++ b/net/tipc/core.c
+@@ -119,6 +119,8 @@ static void __net_exit tipc_exit_net(struct net *net)
+ #ifdef CONFIG_TIPC_CRYPTO
+ 	tipc_crypto_stop(&tipc_net(net)->crypto_tx);
+ #endif
++	while (atomic_read(&tn->wq_count))
++		cond_resched();
+ }
  
- 	for (out_index = 0; out_index < MLX5_MAX_FLOW_FWD_VPORTS; out_index++) {
-+		struct net_device *out_dev;
- 		int mirred_ifindex;
+ static void __net_exit tipc_pernet_pre_exit(struct net *net)
+diff --git a/net/tipc/core.h b/net/tipc/core.h
+index 03de7b213f55..5741ae488bb5 100644
+--- a/net/tipc/core.h
++++ b/net/tipc/core.h
+@@ -149,6 +149,8 @@ struct tipc_net {
+ #endif
+ 	/* Work item for net finalize */
+ 	struct tipc_net_work final_work;
++	/* The numbers of work queues in schedule */
++	atomic_t wq_count;
+ };
  
- 		if (!(esw_attr->dests[out_index].flags & MLX5_ESW_DEST_ENCAP))
- 			continue;
+ static inline struct tipc_net *tipc_net(struct net *net)
+diff --git a/net/tipc/udp_media.c b/net/tipc/udp_media.c
+index e556d2cdc064..c2bb818704c8 100644
+--- a/net/tipc/udp_media.c
++++ b/net/tipc/udp_media.c
+@@ -814,6 +814,7 @@ static void cleanup_bearer(struct work_struct *work)
+ 		kfree_rcu(rcast, rcu);
+ 	}
  
- 		mirred_ifindex = parse_attr->mirred_ifindex[out_index];
--		out_dev = __dev_get_by_index(dev_net(priv->netdev),
--					     mirred_ifindex);
-+		out_dev = dev_get_by_index(dev_net(priv->netdev), mirred_ifindex);
-+		if (!out_dev) {
-+			NL_SET_ERR_MSG_MOD(extack, "Requested mirred device not found");
-+			err = -ENODEV;
-+			goto err_out;
-+		}
- 		err = mlx5e_attach_encap(priv, flow, out_dev, out_index,
- 					 extack, &encap_dev, &encap_valid);
-+		dev_put(out_dev);
- 		if (err)
- 			goto err_out;
++	atomic_dec(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
+ 	dst_cache_destroy(&ub->rcast.dst_cache);
+ 	udp_tunnel_sock_release(ub->ubsock);
+ 	synchronize_net();
+@@ -834,6 +835,7 @@ static void tipc_udp_disable(struct tipc_bearer *b)
+ 	RCU_INIT_POINTER(ub->bearer, NULL);
  
+ 	/* sock_release need to be done outside of rtnl lock */
++	atomic_inc(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
+ 	INIT_WORK(&ub->work, cleanup_bearer);
+ 	schedule_work(&ub->work);
+ }
 
