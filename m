@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F04C39513D
-	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E686A39513E
+	for <lists+stable@lfdr.de>; Sun, 30 May 2021 16:04:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbhE3OFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 30 May 2021 10:05:32 -0400
-Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:58665 "EHLO
+        id S229599AbhE3OFl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 30 May 2021 10:05:41 -0400
+Received: from forward3-smtp.messagingengine.com ([66.111.4.237]:54933 "EHLO
         forward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229500AbhE3OFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:05:32 -0400
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailforward.nyi.internal (Postfix) with ESMTP id F12A619402AF;
-        Sun, 30 May 2021 10:03:53 -0400 (EDT)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute3.internal (MEProxy); Sun, 30 May 2021 10:03:53 -0400
+        by vger.kernel.org with ESMTP id S229500AbhE3OFl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 30 May 2021 10:05:41 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailforward.nyi.internal (Postfix) with ESMTP id 3BB4219402AD;
+        Sun, 30 May 2021 10:04:03 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sun, 30 May 2021 10:04:03 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
         :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=WFPkRc
-        PLGnHaTbkNC6PM/9/cX82k5tPasX5djm2PlLM=; b=EXTawrzkuPv98pFpwJZOlN
-        VRsBMhm1lPpUObAm8Q6HIMxEGiX0+VDx1B4wATxK5r0YWHZCL+6zL523FBUR57F4
-        PNjCoDaKyLhDrE1u93aAxfxcVEIWKynIkGrrmvXy0lm/AbMcuqDeetVJPyCI8EdH
-        tKHTMWS3qdl/Kcvdwz2PlNzx48lMoPpo7TzTN/xKcWYghMDT+7OqSV88PVEdvtL4
-        pXKfhgG7vskpJFxVp0wTHA1mHHHgvqyRHbll2+3ndiXDHglzWqXf8KDlR76Bm57z
-        BKq30dg/ZG9GtGga07+G6PRLDYQCZTDtTZ4nehiEEDXuqDJ1bOPEKfa1UC4z6eDg
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=r7l/LF
+        Q7IrqaSn34/FI/i9xT4H7LTLsD4lWdbO9HFYY=; b=UpPPHBn+gLR+qtC4mfQm+w
+        1KKGZAcS6/RFulwcHwTJ7Ec8nJEQS7g4R5Xnc1mVu4Oy+thzuKyzgZa0MkA3tbeZ
+        vCJrwuOPQn7/Oin0BEwSqEQ1zFLRfJtCrfHyD8AHV+jmBSA93yHzzoF5XPGIOLL5
+        5ObB7ESDN5RRQProL0enU31OKjMRJn78/TUJ4VrYHtWwWAFDfsF68Z2NNWpE/w7a
+        G71+oiPrQYbuvEtNDiXacjxjYF44ima5HuhYu010rhBlkooV+m5LMmGLzPzUgSix
+        A0S4LsD1AGVqrWfHDdTu7ZBgaujtFbiE2mx6oTpAaIqsFB80ToXehYVGk6x+WNwg
         ==
-X-ME-Sender: <xms:SZuzYF_oIxJ47eyFCB15nUFXRutXP8LBNnE4RJu6TgzNpMxQaS0sKg>
-    <xme:SZuzYJtmmd1Hg5meMLxYSWU7L8oaIkap_gnzul-xiN-cVKiUPfxI0vpjFjbbf-Tmw
-    tUD63ErtIehfg>
+X-ME-Sender: <xms:UZuzYPCdyr8OxE6jkMIXcSszmERCtc83RRtn1fnpRathUVrMuTFRhg>
+    <xme:UZuzYFj7YLTDedRi051SFV5s0xzqpLK_7HfvD-yQvzpE27rqS9Y9UaWrHE-Mr2Bjh
+    2xbBvMFXWiynQ>
 X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjedvucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
     uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
@@ -38,21 +38,21 @@ X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdeluddgjedvucetufdoteggod
     egfeelgeeigeekjefhleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucfkphep
     keefrdekiedrjeegrdeigeenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmh
     grihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
-X-ME-Proxy: <xmx:SZuzYDBKxCRMH9tUoIGsKM3lA5T7KQhgVtPM49Com83n34bwl95olA>
-    <xmx:SZuzYJciXkvyRqQdaTvZAVoN6QTgFvbRGWADE1gJFr2PSN6_7z88Zw>
-    <xmx:SZuzYKMooLto3I0Vkqg5wctqyDnU1WJW3oS9F_jrVkpmbCdyVLrOPQ>
-    <xmx:SZuzYHqiWxg4xp9yMaCfcw2vploZ7hKiUteWtWCGdFnOuNp9HG_5mQ>
+X-ME-Proxy: <xmx:UZuzYKlsnOs3E6Msi2INWdMOSxqWAodgtnvx88pmGBoUXEQGI0lFYQ>
+    <xmx:UZuzYByG6dmmxeGFqRpX2sZ60HLbDR4xAMXU7zEYadcFYPbRji4TfA>
+    <xmx:UZuzYEQG_7xQ033UgfYRco9QFw4DaYec-p3JK73t5dPEYWJ2JjsF1w>
+    <xmx:U5uzYKOLNMbdmIwHpSbo78mxsXrSruiSzNOEVk8N6ognB71HGRph8g>
 Received: from localhost (83-86-74-64.cable.dynamic.v4.ziggo.nl [83.86.74.64])
         by mail.messagingengine.com (Postfix) with ESMTPA;
-        Sun, 30 May 2021 10:03:52 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] spi: Assume GPIO CS active high in ACPI case" failed to apply to 5.12-stable tree
+        Sun, 30 May 2021 10:04:01 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] spi: Assume GPIO CS active high in ACPI case" failed to apply to 5.10-stable tree
 To:     andriy.shevchenko@linux.intel.com, broonie@kernel.org,
         f.fangjian@huawei.com, thesven73@gmail.com, xhao@linux.alibaba.com,
         zhangliguang@linux.alibaba.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 30 May 2021 16:03:51 +0200
-Message-ID: <1622383431200222@kroah.com>
+Date:   Sun, 30 May 2021 16:03:52 +0200
+Message-ID: <162238343223449@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -61,7 +61,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.12-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
