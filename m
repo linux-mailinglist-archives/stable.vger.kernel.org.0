@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBADA3962AF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD0933960C3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbhEaPAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:00:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
+        id S233372AbhEaOb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56026 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231376AbhEaO5b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F67261CC4;
-        Mon, 31 May 2021 14:00:36 +0000 (UTC)
+        id S233774AbhEaO3W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94CC261C24;
+        Mon, 31 May 2021 13:48:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469636;
-        bh=RkNj7Sxouky+EMx7MnkcMWjpYcOVlf2hJ4xc/nFXHn0=;
+        s=korg; t=1622468898;
+        bh=FkMhq74uK3etKdSivx+MQ8g7r+DNORyT/QYAvYZA+Ig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i82HYEc8P1dvdxT5JdzIttPxnb8Gei9Q5qtrMvrNBIzgBW/mzDpdgtrJe7350HIbw
-         Wd9UTwbrjMijv3sUjLvC9Ongi9ZDhTJc518k0KrgnHEeUY5tIsRUwcrLXJuOesa2Xr
-         YQZQwl/RxDsrvouRxbN7X9WbJOLLzQpMDyrlQ4j8=
+        b=wn0XdwkfF15ZYZNBSDBOkbgb+R1yE+ZASE24/cWIOpPih32b19PIf+6kb05FaexOj
+         rze3unbzJDlE8pHfbAlSOjkJten5K1smn60Q7CE4vBfso7aTL3Df4pApgJ9uCDHMsf
+         y5Ij4v+dW6WJnmg1t3JMa/4tjRcfyGXhZnJ5rkR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 273/296] scsi: libsas: Use _safe() loop in sas_resume_port()
+        stable@vger.kernel.org
+Subject: [PATCH 5.4 171/177] i915: fix build warning in intel_dp_get_link_status()
 Date:   Mon, 31 May 2021 15:15:28 +0200
-Message-Id: <20210531130712.922373099@linuxfoundation.org>
+Message-Id: <20210531130653.837840180@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,51 +38,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
+There is a build warning using gcc-11 showing a mis-match in the .h and .c
+definitions of intel_dp_get_link_status():
+  CC [M]  drivers/gpu/drm/i915/display/intel_dp.o
+drivers/gpu/drm/i915/display/intel_dp.c:4139:56: warning: argument 2 of type ‘u8[6]’ {aka ‘unsigned char[6]’} with mismatched bound [-Warray-parameter=]
+ 4139 | intel_dp_get_link_status(struct intel_dp *intel_dp, u8 link_status[DP_LINK_STATUS_SIZE])
+      |                                                     ~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+In file included from drivers/gpu/drm/i915/display/intel_dp.c:51:
+drivers/gpu/drm/i915/display/intel_dp.h:105:57: note: previously declared as ‘u8 *’ {aka ‘unsigned char *’}
+  105 | intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status);
+      |                                                     ~~~~^~~~~~~~~~~
 
-If sas_notify_lldd_dev_found() fails then this code calls:
+This was fixed accidentally commit b30edfd8d0b4 ("drm/i915: Switch to LTTPR
+non-transparent mode link training") by getting rid of the function entirely,
+but that is not a viable backport for a stable kernel, so just fix up the
+function definition to remove the build warning entirely.  There is no
+functional change for this, and it fixes up one of the last 'make allmodconfig'
+build warnings when using gcc-11 on this kernel tree.
 
-	sas_unregister_dev(port, dev);
-
-which removes "dev", our list iterator, from the list.  This could lead to
-an endless loop.  We need to use list_for_each_entry_safe().
-
-Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
-Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/libsas/sas_port.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
-index 19cf418928fa..e3d03d744713 100644
---- a/drivers/scsi/libsas/sas_port.c
-+++ b/drivers/scsi/libsas/sas_port.c
-@@ -25,7 +25,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
- 
- static void sas_resume_port(struct asd_sas_phy *phy)
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -3634,7 +3634,7 @@ static void chv_dp_post_pll_disable(stru
+  * link status information
+  */
+ bool
+-intel_dp_get_link_status(struct intel_dp *intel_dp, u8 link_status[DP_LINK_STATUS_SIZE])
++intel_dp_get_link_status(struct intel_dp *intel_dp, u8 *link_status)
  {
--	struct domain_device *dev;
-+	struct domain_device *dev, *n;
- 	struct asd_sas_port *port = phy->port;
- 	struct sas_ha_struct *sas_ha = phy->ha;
- 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
-@@ -44,7 +44,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
- 	 * 1/ presume every device came back
- 	 * 2/ force the next revalidation to check all expander phys
- 	 */
--	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
-+	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
- 		int i, rc;
- 
- 		rc = sas_notify_lldd_dev_found(dev);
--- 
-2.30.2
-
+ 	return drm_dp_dpcd_read(&intel_dp->aux, DP_LANE0_1_STATUS, link_status,
+ 				DP_LINK_STATUS_SIZE) == DP_LINK_STATUS_SIZE;
 
 
