@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E578A395CB8
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7F73395B61
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232431AbhEaNgx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39090 "EHLO mail.kernel.org"
+        id S232103AbhEaNUD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:20:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232261AbhEaNdW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:33:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4055961439;
-        Mon, 31 May 2021 13:24:24 +0000 (UTC)
+        id S231908AbhEaNTL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA2D160FE8;
+        Mon, 31 May 2021 13:17:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467464;
-        bh=/LAiBxxPS3dyAKvwHJ6hjFBxCZ4+5UXQ2QLuztF1k/g=;
+        s=korg; t=1622467051;
+        bh=Sg+oHbjPM3EyWs9U+wsYp0uv2MQ9sKDApoykKutJ+x8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zQv6nDA1MOHSLmx5GxwJEPSvvSQJb6VsdQfdlUDTVBgn6F2pjzj0B/7zdNgYcU25K
-         xM4SFULLt3scKPZWSL8MRUnJMI+Wqxr1kml/Z8p4dgkg91eKOrU+HvmaH9KeuP7oZ6
-         CAaySdvQY2qeDndSIr85PiYAztpZsMXlQmJhhOGc=
+        b=dCASzqmrGAiP2oCkhZShu32vCG5eqHPIIhx/fH/JoZEI17EW0RPypGtT7NToE4TS8
+         30pd8VF9HQpplMv+V4xzjMpgrWBXbx91zICiQujzxOKlzl/fs3ZkHOIOYu2MUQfs77
+         11MPh9Bdy2ESCHRC90CN4NbDi4X0gX1u+FP+LX+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 068/116] Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
+        stable@vger.kernel.org, Sean Young <sean@mess.org>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Alaa Emad <alaaemadhossney.ae@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 38/54] media: dvb: Add check on sp8870_readreg return
 Date:   Mon, 31 May 2021 15:14:04 +0200
-Message-Id: <20210531130642.458439263@linuxfoundation.org>
+Message-Id: <20210531130636.269301384@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Alaa Emad <alaaemadhossney.ae@gmail.com>
 
-commit 75016891357a628d2b8acc09e2b9b2576c18d318 upstream.
+[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
 
-This reverts commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046.
-Above fix is not correct and caused memory leak issue.
+The function sp8870_readreg returns a negative value when i2c_transfer
+fails so properly check for this and return the error if it happens.
 
-Fixes: 6bf24dc0cc0c ("net:tipc: Fix a double free in tipc_sk_mcast_rcv")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Acked-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Sean Young <sean@mess.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/media/dvb-frontends/sp8870.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -1187,7 +1187,10 @@ void tipc_sk_mcast_rcv(struct net *net,
- 		spin_lock_bh(&inputq->lock);
- 		if (skb_peek(arrvq) == skb) {
- 			skb_queue_splice_tail_init(&tmpq, inputq);
--			__skb_dequeue(arrvq);
-+			/* Decrease the skb's refcnt as increasing in the
-+			 * function tipc_skb_peek
-+			 */
-+			kfree_skb(__skb_dequeue(arrvq));
- 		}
- 		spin_unlock_bh(&inputq->lock);
- 		__skb_queue_purge(&tmpq);
+diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
+index e87ac30d7fb8..b43135c5a960 100644
+--- a/drivers/media/dvb-frontends/sp8870.c
++++ b/drivers/media/dvb-frontends/sp8870.c
+@@ -293,7 +293,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
+ 	sp8870_writereg(state, 0xc05, reg0xc05);
+ 
+ 	// read status reg in order to clear pending irqs
+-	sp8870_readreg(state, 0x200);
++	err = sp8870_readreg(state, 0x200);
++	if (err < 0)
++		return err;
+ 
+ 	// system controller start
+ 	sp8870_microcontroller_start(state);
+-- 
+2.30.2
+
 
 
