@@ -2,33 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C6FF395E0C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:52:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DAFF395E1B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231713AbhEaNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55222 "EHLO mail.kernel.org"
+        id S232130AbhEaNyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:54:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231411AbhEaNva (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:51:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 805D86186A;
-        Mon, 31 May 2021 13:32:28 +0000 (UTC)
+        id S232460AbhEaNvl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:51:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5DB5F616EB;
+        Mon, 31 May 2021 13:32:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467949;
-        bh=sg8BA99lz8X4n17e5wbLXqVoyRIWCYyTeQ0xl9m3Ti0=;
+        s=korg; t=1622467951;
+        bh=DSf4XqPjzvaq/zKi0DCw4Gh+8Dfiy3EAaMlzty3/gvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ml2jmd3N50bwkwee2V80T6W0eXeJL0w075wmyfO1bB75mNXxN538fLvLmEW/CyDOb
-         iXeFVJXKz0JcFHuPDIV5Ad2/WW4AysK/GC+qD26SThldFiU/0WHc4CL59KMhWUSCm8
-         5dtO8PR21gkIo73akZga5jPrGTO83GAuq8HYtWQk=
+        b=iDpzHtGgKSbG4Rxqzm7a3gO0cWXYbeA877YypDrj/O/+HLyGkKxLnPvOliSTaKVpi
+         QrEHQdszT+OWO05+teKqaS1Z/AvzEJ57+fTo1B7tUYhY40f+R8Hlmv7cegexslzL7N
+         gsqV7RVU4djkXTP0Ztn1lt0/XU9MVahCY3HOsPB8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stankus <lucas.p.stankus@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.10 060/252] staging: iio: cdc: ad7746: avoid overwrite of num_channels
-Date:   Mon, 31 May 2021 15:12:05 +0200
-Message-Id: <20210531130700.012141532@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
+        Rui Miguel Silva <rui.silva@linaro.org>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.10 061/252] iio: gyro: fxas21002c: balance runtime power in error path
+Date:   Mon, 31 May 2021 15:12:06 +0200
+Message-Id: <20210531130700.050104168@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -40,33 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stankus <lucas.p.stankus@gmail.com>
+From: Rui Miguel Silva <rui.silva@linaro.org>
 
-commit 04f5b9f539ce314f758d919a14dc7a669f3b7838 upstream.
+commit 2a54c8c9ebc2006bf72554afc84ffc67768979a0 upstream.
 
-AD7745 devices don't have the CIN2 pins and therefore can't handle related
-channels. Forcing the number of AD7746 channels may lead to enabling more
-channels than what the hardware actually supports.
-Avoid num_channels being overwritten after first assignment.
+If we fail to read temperature or axis we need to decrement the
+runtime pm reference count to trigger autosuspend.
 
-Signed-off-by: Lucas Stankus <lucas.p.stankus@gmail.com>
-Fixes: 83e416f458d53 ("staging: iio: adc: Replace, rewrite ad7745 from scratch.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Add the call to pm_put to do that in case of error.
+
+Fixes: a0701b6263ae ("iio: gyro: add core driver for fxas21002c")
+Suggested-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
+Link: https://lore.kernel.org/linux-iio/CBBZA9T1OY9C.2611WSV49DV2G@arch-thunder/
 Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/iio/cdc/ad7746.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/iio/gyro/fxas21002c_core.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/staging/iio/cdc/ad7746.c
-+++ b/drivers/staging/iio/cdc/ad7746.c
-@@ -700,7 +700,6 @@ static int ad7746_probe(struct i2c_clien
- 		indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	else
- 		indio_dev->num_channels =  ARRAY_SIZE(ad7746_channels) - 2;
--	indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	indio_dev->modes = INDIO_DIRECT_MODE;
+--- a/drivers/iio/gyro/fxas21002c_core.c
++++ b/drivers/iio/gyro/fxas21002c_core.c
+@@ -399,6 +399,7 @@ static int fxas21002c_temp_get(struct fx
+ 	ret = regmap_field_read(data->regmap_fields[F_TEMP], &temp);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to read temp: %d\n", ret);
++		fxas21002c_pm_put(data);
+ 		goto data_unlock;
+ 	}
  
- 	if (pdata) {
+@@ -432,6 +433,7 @@ static int fxas21002c_axis_get(struct fx
+ 			       &axis_be, sizeof(axis_be));
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to read axis: %d: %d\n", index, ret);
++		fxas21002c_pm_put(data);
+ 		goto data_unlock;
+ 	}
+ 
 
 
