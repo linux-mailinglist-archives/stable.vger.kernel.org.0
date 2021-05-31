@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 061A4395F74
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC6E2395B85
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233335AbhEaOLf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:11:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40228 "EHLO mail.kernel.org"
+        id S231905AbhEaNV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:21:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233488AbhEaOJe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:09:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C45C61457;
-        Mon, 31 May 2021 13:40:15 +0000 (UTC)
+        id S231566AbhEaNTz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECAA7613B9;
+        Mon, 31 May 2021 13:18:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468416;
-        bh=SKYaOhmre3/ukocqr42X05M8Nh4aw3JOi0HHOFC09oQ=;
+        s=korg; t=1622467094;
+        bh=o1Vg1+Yrw0GnXAW2r/u+OLWNaxvLVS4WPTHwmj0OT+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XI2j3eHrWrwfeWy9MhLJKmsyw49rzPzhPHFclXRIxJfOdYtFrwJ8EqsYTJ0M0SSk6
-         U3OMkOiV2h/AQR1FzFbJL6Lq9qwRXT+TXW8GxEEXj8GGpe91lbMeJiJw2GLqbUE/YW
-         f9oSTuZnopDWERcGWlqtLhqq2WFZjJipKKOg5wMk=
+        b=eAB9i2TIueVxmhkp1FP9HMMbX3lKqwZtP1XYydcxeMc3o3hahlG+xBBGAyTpS3t82
+         7J4dDDruemSrXZt0wX8uoCLzRsAU5HRV2zilXq758A1Aywvbu5OxFDbKPNfylmn5Tm
+         a6eQL+md7YMyE+EaUt3mXOoARMmI2n4bVTSaHK08=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 189/252] net: netcp: Fix an error message
+Subject: [PATCH 4.4 48/54] scsi: libsas: Use _safe() loop in sas_resume_port()
 Date:   Mon, 31 May 2021 15:14:14 +0200
-Message-Id: <20210531130704.434514681@linuxfoundation.org>
+Message-Id: <20210531130636.574545730@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit ddb6e00f8413e885ff826e32521cff7924661de0 ]
+[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
 
-'ret' is known to be 0 here.
-The expected error code is stored in 'tx_pipe->dma_queue', so use it
-instead.
+If sas_notify_lldd_dev_found() fails then this code calls:
 
-While at it, switch from %d to %pe which is more user friendly.
+	sas_unregister_dev(port, dev);
 
-Fixes: 84640e27f230 ("net: netcp: Add Keystone NetCP core ethernet driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+which removes "dev", our list iterator, from the list.  This could lead to
+an endless loop.  We need to use list_for_each_entry_safe().
+
+Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
+Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/netcp_core.c | 4 ++--
+ drivers/scsi/libsas/sas_port.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
-index d7a144b4a09f..dc50e948195d 100644
---- a/drivers/net/ethernet/ti/netcp_core.c
-+++ b/drivers/net/ethernet/ti/netcp_core.c
-@@ -1350,8 +1350,8 @@ int netcp_txpipe_open(struct netcp_tx_pipe *tx_pipe)
- 	tx_pipe->dma_queue = knav_queue_open(name, tx_pipe->dma_queue_id,
- 					     KNAV_QUEUE_SHARED);
- 	if (IS_ERR(tx_pipe->dma_queue)) {
--		dev_err(dev, "Could not open DMA queue for channel \"%s\": %d\n",
--			name, ret);
-+		dev_err(dev, "Could not open DMA queue for channel \"%s\": %pe\n",
-+			name, tx_pipe->dma_queue);
- 		ret = PTR_ERR(tx_pipe->dma_queue);
- 		goto err;
- 	}
+diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
+index d3c5297c6c89..30e0730f613e 100644
+--- a/drivers/scsi/libsas/sas_port.c
++++ b/drivers/scsi/libsas/sas_port.c
+@@ -41,7 +41,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
+ 
+ static void sas_resume_port(struct asd_sas_phy *phy)
+ {
+-	struct domain_device *dev;
++	struct domain_device *dev, *n;
+ 	struct asd_sas_port *port = phy->port;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+ 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
+@@ -60,7 +60,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+ 	 * 1/ presume every device came back
+ 	 * 2/ force the next revalidation to check all expander phys
+ 	 */
+-	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
++	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+ 		int i, rc;
+ 
+ 		rc = sas_notify_lldd_dev_found(dev);
 -- 
 2.30.2
 
