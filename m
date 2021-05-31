@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 360A5396196
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7ED94395FFE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233303AbhEaOnq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:43:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
+        id S233081AbhEaOR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:17:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233738AbhEaOlg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:41:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EEED06188B;
-        Mon, 31 May 2021 13:53:41 +0000 (UTC)
+        id S231239AbhEaOP7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:15:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CC5161476;
+        Mon, 31 May 2021 13:43:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469222;
-        bh=o8d0MYRmFJEVRBRcBij+FPj3htteyd3KcVJ/xoqEwg8=;
+        s=korg; t=1622468588;
+        bh=yJaSPk+SA3ZD/Iq4qFmrm8UN3AxhOPuQ3d7rZwmtAN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gwPCY+wtAYxaZKUTHTVa0PR0MOmGeBDk+Q7yrvgu0HLL76HONLCPgBu7BUAL1qUlK
-         lypzTdC/qOH+CYyIqZu/zIQQ1pDEHONLxpb14WvO+dpwOwtvLXmsuDnuAYUp0SWOhU
-         co2VI6CWVxGRdnHQTnsgxo/8yDr2C4wp3zgrotDQ=
+        b=D4zGMpcz94aDM38j0o1c3KwrOwlAUH0MzXwFUxnPzs7Oal3fqq5ND3xdTTuE0Z/Fb
+         HX7gBF0z9WCzx9QzKoETgISaiOLDnFsBs1WnWYu7s30xBkLp7wKSnvK9Fd40DHVBAJ
+         5kIYQP/EXpYobqqZNmxdqVRmuXZ9wqSn7UnTUfrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.12 115/296] NFS: Dont corrupt the value of pg_bytes_written in nfs_do_recoalesce()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 013/177] net: hso: fix control-request directions
 Date:   Mon, 31 May 2021 15:12:50 +0200
-Message-Id: <20210531130707.790572508@linuxfoundation.org>
+Message-Id: <20210531130648.370093307@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,52 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 0d0ea309357dea0d85a82815f02157eb7fcda39f upstream.
+commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
 
-The value of mirror->pg_bytes_written should only be updated after a
-successful attempt to flush out the requests on the list.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fix the tiocmset and rfkill requests which erroneously used
+usb_rcvctrlpipe().
+
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org      # 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pagelist.c |   12 +++++-------
- 1 file changed, 5 insertions(+), 7 deletions(-)
+ drivers/net/usb/hso.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/pagelist.c
-+++ b/fs/nfs/pagelist.c
-@@ -1128,17 +1128,16 @@ static void nfs_pageio_doio(struct nfs_p
- {
- 	struct nfs_pgio_mirror *mirror = nfs_pgio_current_mirror(desc);
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -1689,7 +1689,7 @@ static int hso_serial_tiocmset(struct tt
+ 	spin_unlock_irqrestore(&serial->serial_lock, flags);
  
--
- 	if (!list_empty(&mirror->pg_list)) {
- 		int error = desc->pg_ops->pg_doio(desc);
- 		if (error < 0)
- 			desc->pg_error = error;
--		else
-+		if (list_empty(&mirror->pg_list)) {
- 			mirror->pg_bytes_written += mirror->pg_count;
--	}
--	if (list_empty(&mirror->pg_list)) {
--		mirror->pg_count = 0;
--		mirror->pg_base = 0;
-+			mirror->pg_count = 0;
-+			mirror->pg_base = 0;
-+			mirror->pg_recoalesce = 0;
-+		}
- 	}
+ 	return usb_control_msg(serial->parent->usb,
+-			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
++			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
+ 			       0x21, val, if_num, NULL, 0,
+ 			       USB_CTRL_SET_TIMEOUT);
  }
- 
-@@ -1228,7 +1227,6 @@ static int nfs_do_recoalesce(struct nfs_
- 
- 	do {
- 		list_splice_init(&mirror->pg_list, &head);
--		mirror->pg_bytes_written -= mirror->pg_count;
- 		mirror->pg_count = 0;
- 		mirror->pg_base = 0;
- 		mirror->pg_recoalesce = 0;
+@@ -2436,7 +2436,7 @@ static int hso_rfkill_set_block(void *da
+ 	if (hso_dev->usb_gone)
+ 		rv = 0;
+ 	else
+-		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
++		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
+ 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
+ 				       USB_CTRL_SET_TIMEOUT);
+ 	mutex_unlock(&hso_dev->mutex);
 
 
