@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F5B239621A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 739D2396072
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbhEaOvU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40316 "EHLO mail.kernel.org"
+        id S232137AbhEaO1G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:27:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234016AbhEaOtP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 97D7C61C94;
-        Mon, 31 May 2021 13:57:00 +0000 (UTC)
+        id S233435AbhEaOZC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:25:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DABA61625;
+        Mon, 31 May 2021 13:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469421;
-        bh=HbHEhZjevRB4CeDDwC7R5m9J42CXq3lr/RUWKX8V39w=;
+        s=korg; t=1622468777;
+        bh=1IYDyVXakbWlqPPxz3zhjImOYU2dRk9Db7ijwLOxpIU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f/IhyixjhCgwl4utvglupWnUqz9hqcEBVl4eyvxS85lSxAZIHKO/Zn/ftGP6W5iJt
-         1qAqCw1ujxJ1qFiZXYsCPzypTUqbUekYxGuwpnzJbH60GfVIGCdfsgE1S4/SGDbTdn
-         JfrXwqSP658CQpnjG5c4jobRdEFW0bN4Mvxzfx0I=
+        b=NP9fnwonYYrycWtgEnenBFoeHqcK3tVIP579c2Q8ieAAdGYDmFMTXLNcqFahAegjV
+         SX6hJCTBw89osK6X6YRBw1jiXxu7S6GWalCTcg8q6MUX1ZdRWgwH48XLjm5Tz+YyUG
+         uijO8h7kPV2QMlokw3TVKAWlIWvjWxQeiCxznjm0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 191/296] media: dvb: Add check on sp8870_readreg return
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 089/177] Revert "ALSA: sb: fix a missing check of snd_ctl_add"
 Date:   Mon, 31 May 2021 15:14:06 +0200
-Message-Id: <20210531130710.295465213@linuxfoundation.org>
+Message-Id: <20210531130650.969801268@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
+[ Upstream commit 4b059ce1f4b368208c2310925f49be77f15e527b ]
 
-The function sp8870_readreg returns a negative value when i2c_transfer
-fails so properly check for this and return the error if it happens.
+This reverts commit beae77170c60aa786f3e4599c18ead2854d8694d.
 
-Cc: Sean Young <sean@mess.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It is safe to ignore this error as the
+mixer element is optional, and the driver is very legacy.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210503115736.2104747-8-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/sp8870.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/isa/sb/sb16_main.c | 10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
-index ee893a2f2261..9767159aeb9b 100644
---- a/drivers/media/dvb-frontends/sp8870.c
-+++ b/drivers/media/dvb-frontends/sp8870.c
-@@ -280,7 +280,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
- 	sp8870_writereg(state, 0xc05, reg0xc05);
+diff --git a/sound/isa/sb/sb16_main.c b/sound/isa/sb/sb16_main.c
+index 0768bbf8fd71..679f9f48370f 100644
+--- a/sound/isa/sb/sb16_main.c
++++ b/sound/isa/sb/sb16_main.c
+@@ -864,14 +864,10 @@ int snd_sb16dsp_pcm(struct snd_sb *chip, int device)
+ 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_PLAYBACK, &snd_sb16_playback_ops);
+ 	snd_pcm_set_ops(pcm, SNDRV_PCM_STREAM_CAPTURE, &snd_sb16_capture_ops);
  
- 	// read status reg in order to clear pending irqs
--	sp8870_readreg(state, 0x200);
-+	err = sp8870_readreg(state, 0x200);
-+	if (err < 0)
-+		return err;
+-	if (chip->dma16 >= 0 && chip->dma8 != chip->dma16) {
+-		err = snd_ctl_add(card, snd_ctl_new1(
+-					&snd_sb16_dma_control, chip));
+-		if (err)
+-			return err;
+-	} else {
++	if (chip->dma16 >= 0 && chip->dma8 != chip->dma16)
++		snd_ctl_add(card, snd_ctl_new1(&snd_sb16_dma_control, chip));
++	else
+ 		pcm->info_flags = SNDRV_PCM_INFO_HALF_DUPLEX;
+-	}
  
- 	// system controller start
- 	sp8870_microcontroller_start(state);
+ 	snd_pcm_lib_preallocate_pages_for_all(pcm, SNDRV_DMA_TYPE_DEV,
+ 					      card->dev,
 -- 
 2.30.2
 
