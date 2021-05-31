@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C85D396010
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36D8E396197
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbhEaOWd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43918 "EHLO mail.kernel.org"
+        id S232563AbhEaOnp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:43:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37958 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231713AbhEaOQv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:16:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4973761474;
-        Mon, 31 May 2021 13:43:20 +0000 (UTC)
+        id S233602AbhEaOlc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BAEA461C7D;
+        Mon, 31 May 2021 13:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468600;
-        bh=xysvk/MAie5uKzq53jK1E7/emgdtxAAemgb/XjEeeBk=;
+        s=korg; t=1622469209;
+        bh=IQ7IhCWeAmbY4PS5fgPbkHkaNBhyHOKfgSAxpYDpQB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RN6cDTBxl4l2xfQRBPacVJSf/BoIdnu55na4RYGMqKntckv/votqqELXecU2UY18O
-         NOlI26KmtLCRx3JBonfcbVQbWyyVdTQfd96pu26y42N7hDWmeka8pqn1/iMkMhsGAA
-         ov7Ty0UXokC/C3+dB4oxDeW5RQp23LSvUfBN7apQ=
+        b=xVKdf43ghOGQ3SnFXlFtFdn33KbNdyJ6So7UjpaeWjS1v+0g8JfGN1Ef8Jw9CFxkG
+         0qTACm5NBkiYAEUsiQyLW3oJxp9Jdm4k/LIhSDMPvYlI9JneV6n2ommmc7tL2UvNvn
+         8rE81GaO6c/VXMSrWwI6szeQGouU1KCSJVGAK92Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 008/177] perf intel-pt: Fix transaction abort handling
-Date:   Mon, 31 May 2021 15:12:45 +0200
-Message-Id: <20210531130648.188637697@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Marcel Holtmann <marcel@holtmann.org>
+Subject: [PATCH 5.12 111/296] Bluetooth: cmtp: fix file refcount when cmtp_attach_device fails
+Date:   Mon, 31 May 2021 15:12:46 +0200
+Message-Id: <20210531130707.665284333@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,103 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
 
-commit cb7987837c31b217b28089bbc78922d5c9187869 upstream.
+commit 8da3a0b87f4f1c3a3bbc4bfb78cf68476e97d183 upstream.
 
-When adding support for power events, some handling of FUP packets was
-unified. That resulted in breaking reporting of TSX aborts, by not
-considering the associated TIP packet. Fix that.
+When cmtp_attach_device fails, cmtp_add_connection returns the error value
+which leads to the caller to doing fput through sockfd_put. But
+cmtp_session kthread, which is stopped in this path will also call fput,
+leading to a potential refcount underflow or a use-after-free.
 
-Example:
+Add a refcount before we signal the kthread to stop. The kthread will try
+to grab the cmtp_session_sem mutex before doing the fput, which is held
+when get_file is called, so there should be no races there.
 
-A machine that supports TSX is required. It will have flag "rtm". Kernel
-parameter tsx=on may be required.
-
- # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
- rtm
-
-Test program:
-
- #include <stdio.h>
- #include <immintrin.h>
-
- int main()
- {
-        int x = 0;
-
-        if (_xbegin() == _XBEGIN_STARTED) {
-                x = 1;
-                _xabort(1);
-        } else {
-                printf("x = %d\n", x);
-        }
-        return 0;
- }
-
-Compile with -mrtm i.e.
-
- gcc -Wall -Wextra -mrtm xabort.c -o xabort
-
-Record:
-
- perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
-
-Before:
-
- # perf script --itrace=be -F+flags,+addr,-period,-event --ns
-          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   jmp                            400b96 main+0x29 (/root/xabort) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   return                         400bb4 main+0x47 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
-          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
-          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
-
-After:
-
- # perf script --itrace=be -F+flags,+addr,-period,-event --ns
-          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   tx abrt                        400b93 main+0x26 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
-          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
-          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
-
-Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210519074515.9262-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Reported-by: Ryota Shiga
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/bluetooth/cmtp/core.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1090,6 +1090,8 @@ static bool intel_pt_fup_event(struct in
- 		decoder->set_fup_tx_flags = false;
- 		decoder->tx_flags = decoder->fup_tx_flags;
- 		decoder->state.type = INTEL_PT_TRANSACTION;
-+		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
-+			decoder->state.type |= INTEL_PT_BRANCH;
- 		decoder->state.from_ip = decoder->ip;
- 		decoder->state.to_ip = 0;
- 		decoder->state.flags = decoder->fup_tx_flags;
-@@ -1164,8 +1166,10 @@ static int intel_pt_walk_fup(struct inte
- 			return 0;
- 		if (err == -EAGAIN ||
- 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
-+			bool no_tip = decoder->pkt_state != INTEL_PT_STATE_FUP;
+--- a/net/bluetooth/cmtp/core.c
++++ b/net/bluetooth/cmtp/core.c
+@@ -392,6 +392,11 @@ int cmtp_add_connection(struct cmtp_conn
+ 	if (!(session->flags & BIT(CMTP_LOOPBACK))) {
+ 		err = cmtp_attach_device(session);
+ 		if (err < 0) {
++			/* Caller will call fput in case of failure, and so
++			 * will cmtp_session kthread.
++			 */
++			get_file(session->sock->file);
 +
- 			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
--			if (intel_pt_fup_event(decoder))
-+			if (intel_pt_fup_event(decoder) && no_tip)
- 				return 0;
- 			return -EAGAIN;
- 		}
+ 			atomic_inc(&session->terminate);
+ 			wake_up_interruptible(sk_sleep(session->sock->sk));
+ 			up_write(&cmtp_session_sem);
 
 
