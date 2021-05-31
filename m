@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2272A395C31
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24252395FDF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231876AbhEaN3x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:29:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
+        id S233251AbhEaOQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:16:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231722AbhEaN13 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:27:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEB206124C;
-        Mon, 31 May 2021 13:21:39 +0000 (UTC)
+        id S233664AbhEaOO4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:14:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7100961999;
+        Mon, 31 May 2021 13:42:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467300;
-        bh=28oIjeMM/OpE27mPjfcbfp+hhJeFJ4dkjF9nnqiUDdY=;
+        s=korg; t=1622468551;
+        bh=3N0ezVeZkrEOInXsqK+PFhmFlFUqU5U/DaZLgbTEMLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1nBNYUKgH7bxoRYN3DEpNl1ZrnrDDbZS+ev0+rVaYmKE2f5+TH3m0ZHhMPCixcN2H
-         c77o+9uJba9j/a+CLhw8LmMQumIqGSGq9QlTImch4kzj3TRWeDJ23BX4wbhBp6sLCm
-         I9ZUMi/HJKCc/pdBrNAac3bUp633bGLb4FSJ11bw=
+        b=u30/iWSrSiCfHggXhNmboHutJUWzhL1VPR87hHnaqtD8pISjj+D35brzMJue1nKTU
+         wxzjZkzdmXmlpd633C3G/32ilENTpyDhiAgAN4ujLVqSkUOo49Cum3zHt68MJOsOi6
+         jxrqRl6uU3OQoJDUV0gc0ikDEHcfsjkc5cx8z7sQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 014/116] cfg80211: mitigate A-MSDU aggregation attacks
+        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
+        Leo Liu <leo.liu@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 033/177] drm/amdgpu/vcn2.5: add cancel_delayed_work_sync before power gate
 Date:   Mon, 31 May 2021 15:13:10 +0200
-Message-Id: <20210531130640.629173850@linuxfoundation.org>
+Message-Id: <20210531130649.068609990@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: James Zhu <James.Zhu@amd.com>
 
-commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
+commit 2fb536ea42d557f39f70c755f68e1aa1ad466c55 upstream.
 
-Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
-destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
-header, and if so dropping the complete A-MSDU frame. This mitigates
-known attacks, although new (unknown) aggregation-based attacks may
-remain possible.
+Add cancel_delayed_work_sync before set power gating state
+to avoid race condition issue when power gating.
 
-This defense works because in A-MSDU aggregation injection attacks, a
-normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
-the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
-header. In other words, the destination MAC address of the first A-MSDU
-subframe contains the start of an RFC1042 header during an aggregation
-attack. We can detect this and thereby prevent this specific attack.
-For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
-Through Frame Aggregation and Fragmentation".
-
-Note that for kernel 4.9 and above this patch depends on "mac80211:
-properly handle A-MSDUs that start with a rfc1042 header". Otherwise
-this patch has no impact and attacks will remain possible.
-
+Signed-off-by: James Zhu <James.Zhu@amd.com>
+Reviewed-by: Leo Liu <leo.liu@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/util.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -652,6 +652,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
- 		remaining = skb->len - offset;
- 		if (subframe_len > remaining)
- 			goto purge;
-+		/* mitigate A-MSDU aggregation injection attacks */
-+		if (ether_addr_equal(eth.h_dest, rfc1042_header))
-+			goto purge;
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
+@@ -302,6 +302,8 @@ static int vcn_v2_5_hw_fini(void *handle
+ 	struct amdgpu_ring *ring;
+ 	int i;
  
- 		offset += sizeof(struct ethhdr);
- 		last = remaining <= subframe_len + padding;
++	cancel_delayed_work_sync(&adev->vcn.idle_work);
++
+ 	for (i = 0; i < adev->vcn.num_vcn_inst; ++i) {
+ 		if (adev->vcn.harvest_config & (1 << i))
+ 			continue;
 
 
