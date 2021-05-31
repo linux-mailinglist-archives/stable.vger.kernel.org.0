@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9D8395C2E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 81AB2395EC5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231560AbhEaN3m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:29:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32884 "EHLO mail.kernel.org"
+        id S233015AbhEaOD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:03:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231626AbhEaN1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:27:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 65DAA6140B;
-        Mon, 31 May 2021 13:21:31 +0000 (UTC)
+        id S232775AbhEaOBW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:01:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FFD661946;
+        Mon, 31 May 2021 13:36:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467292;
-        bh=jYjWdxGle6NuNLuxROdtIqxVjIKIfmoY5UTauMyD3Do=;
+        s=korg; t=1622468206;
+        bh=hJioXbNkRjbaQfSnF3a1N7TLMXw8gCIegzDRoHUU3DQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mUHJFta++F/rIoVhUYxMdzKg+YY/mhtumaFerX/FZ8idyy5BQEivQ5Fvkjo1I0TpH
-         L6a34aHrh0L5SelRImnAGa8lmgIT1bs+iWWYVutFgOqc6MNKDY/pgj/fWQBIF/CwJa
-         WC87a391MGsIg/RSl5EuZ9iRO0pYgpBVfHyJOfOQ=
+        b=CeHK+aNp8mgg7eaAMMfJr1Phg/JzcidsS2lwyVfEU5OJJE91ZKmDAXcji0z2x5Sg7
+         PP3KSGL9rm87QoDfS/x7l8j+VQaavkLD6NmMz9Km59t3457BmHVHuGOC8tnyGRu5ix
+         7A/t+bb+OxOtOEmwvacZPZ3oLAgzQ/+XWWOtjxMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 011/116] mac80211: assure all fragments are encrypted
+        stable@vger.kernel.org,
+        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
+        Jean Delvare <jdelvare@suse.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.10 122/252] i2c: i801: Dont generate an interrupt on bus reset
 Date:   Mon, 31 May 2021 15:13:07 +0200
-Message-Id: <20210531130640.526630328@linuxfoundation.org>
+Message-Id: <20210531130702.144134040@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Jean Delvare <jdelvare@suse.de>
 
-commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
+commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
 
-Do not mix plaintext and encrypted fragments in protected Wi-Fi
-networks. This fixes CVE-2020-26147.
+Now that the i2c-i801 driver supports interrupts, setting the KILL bit
+in a attempt to recover from a timed out transaction triggers an
+interrupt. Unfortunately, the interrupt handler (i801_isr) is not
+prepared for this situation and will try to process the interrupt as
+if it was signaling the end of a successful transaction. In the case
+of a block transaction, this can result in an out-of-range memory
+access.
 
-Previously, an attacker was able to first forward a legitimate encrypted
-fragment towards a victim, followed by a plaintext fragment. The
-encrypted and plaintext fragment would then be reassembled. For further
-details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
-Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
+This condition was reproduced several times by syzbot:
+https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
+https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
+https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
+https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
+https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
+https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
 
-Because of this change there are now two equivalent conditions in the
-code to determine if a received fragment requires sequential PNs, so we
-also move this test to a separate function to make the code easier to
-maintain.
+So disable interrupts while trying to reset the bus. Interrupts will
+be enabled again for the following transaction.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
+Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2078,6 +2078,16 @@ ieee80211_reassemble_find(struct ieee802
- 	return NULL;
- }
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -391,11 +391,9 @@ static int i801_check_post(struct i801_p
+ 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+ 		/* try to stop the current command */
+ 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
+-		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
+-		       SMBHSTCNT(priv));
++		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
+ 		usleep_range(1000, 2000);
+-		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
+-		       SMBHSTCNT(priv));
++		outb_p(0, SMBHSTCNT(priv));
  
-+static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
-+{
-+	return rx->key &&
-+		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
-+		ieee80211_has_protected(fc);
-+}
-+
- static ieee80211_rx_result debug_noinline
- ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- {
-@@ -2122,12 +2132,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		/* This is the first fragment of a new frame. */
- 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
- 						 rx->seqno_idx, &(rx->skb));
--		if (rx->key &&
--		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
--		    ieee80211_has_protected(fc)) {
-+		if (requires_sequential_pn(rx, fc)) {
- 			int queue = rx->security_idx;
- 
- 			/* Store CCMP/GCMP PN so that we can verify that the
-@@ -2169,11 +2174,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
- 		int queue;
- 
--		if (!rx->key ||
--		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
-+		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+ 		/* Check if it worked */
+ 		status = inb_p(SMBHSTSTS(priv));
 
 
