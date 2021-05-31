@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 56A0A395BFD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:25:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E17FB395D8C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231919AbhEaN1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:27:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32882 "EHLO mail.kernel.org"
+        id S232039AbhEaNr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232245AbhEaNZE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:25:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFD8961401;
-        Mon, 31 May 2021 13:20:35 +0000 (UTC)
+        id S232767AbhEaNpV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:45:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 464B2613F2;
+        Mon, 31 May 2021 13:29:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467236;
-        bh=cA5NOrNWalJKhg9rRHxMvNtggRGkZS+yg8g6K10CDm0=;
+        s=korg; t=1622467789;
+        bh=TD042Atec4F9ZBJai4TbAhVmwzi2hnS8ajipd8FJQ0E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WPA17McghC4QltfzK54sStgg3VforZHTdLYq1HIxJoiuD0KDJ5arjFCQ1bJWq/Zui
-         fHwP3AuVpLsMpAikm5YVEzgLGvz4kPgTi7WFNdmz/ndN/I8Tdvn6Tj7KnZZ+20Ui7k
-         xt3HlDmmXR0YI1HJGv9I5qMhMcUSgBp9yruMzrXs=
+        b=eh//u7OyQxtd6X7nUzYU7m/K4JiD6stTsOzjTo80eDyAfc39H/FSHEWvPcjT46SbB
+         8yH1vw38wmcQ6EmSg3KIgABH1b2vinBqFljub9zst2Mpbig31o2Q/hK3f7ov6DGAgk
+         9E6tiG9uwBKZpXiSFkHz7mb2xLkymfswKvDrAevM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 57/66] net: bnx2: Fix error return code in bnx2_init_board()
+Subject: [PATCH 4.14 45/79] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
 Date:   Mon, 31 May 2021 15:14:30 +0200
-Message-Id: <20210531130638.055138517@linuxfoundation.org>
+Message-Id: <20210531130637.455710083@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +42,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-[ Upstream commit 28c66b6da4087b8cfe81c2ec0a46eb6116dafda9 ]
+[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
 
-Fix to return -EPERM from the error handling case instead of 0, as done
-elsewhere in this function.
+hp_accel can take almost two seconds to resume on some HP laptops.
 
-Fixes: b6016b767397 ("[BNX2]: New Broadcom gigabit network driver.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+The bottleneck is on evaluating _INI, which is only needed to run once.
+
+Resolve the issue by only invoking _INI when it's necessary. Namely, on
+probe and on hibernation restore.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
+Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
+ drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index 1f7034d739b0..e15e487c14dd 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -8256,9 +8256,9 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
- 		BNX2_WR(bp, PCI_COMMAND, reg);
- 	} else if ((BNX2_CHIP_ID(bp) == BNX2_CHIP_ID_5706_A1) &&
- 		!(bp->flags & BNX2_FLAG_PCIX)) {
--
- 		dev_err(&pdev->dev,
- 			"5706 A1 can only be used in a PCIX bus, aborting\n");
-+		rc = -EPERM;
- 		goto err_out_unmap;
+diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
+index c439c827eea8..0ef759671b54 100644
+--- a/drivers/misc/lis3lv02d/lis3lv02d.h
++++ b/drivers/misc/lis3lv02d/lis3lv02d.h
+@@ -284,6 +284,7 @@ struct lis3lv02d {
+ 	int			regs_size;
+ 	u8                      *reg_cache;
+ 	bool			regs_stored;
++	bool			init_required;
+ 	u8                      odr_mask;  /* ODR bit mask */
+ 	u8			whoami;    /* indicates measurement precision */
+ 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
+diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
+index 7b12abe86b94..9c3c83ef445b 100644
+--- a/drivers/platform/x86/hp_accel.c
++++ b/drivers/platform/x86/hp_accel.c
+@@ -101,6 +101,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
+ static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
+ {
+ 	struct acpi_device *dev = lis3->bus_priv;
++	if (!lis3->init_required)
++		return 0;
++
+ 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
+ 				 NULL, NULL) != AE_OK)
+ 		return -EINVAL;
+@@ -367,6 +370,7 @@ static int lis3lv02d_add(struct acpi_device *device)
  	}
  
+ 	/* call the core layer do its init */
++	lis3_dev.init_required = true;
+ 	ret = lis3lv02d_init_device(&lis3_dev);
+ 	if (ret)
+ 		return ret;
+@@ -414,11 +418,27 @@ static int lis3lv02d_suspend(struct device *dev)
+ 
+ static int lis3lv02d_resume(struct device *dev)
+ {
++	lis3_dev.init_required = false;
++	lis3lv02d_poweron(&lis3_dev);
++	return 0;
++}
++
++static int lis3lv02d_restore(struct device *dev)
++{
++	lis3_dev.init_required = true;
+ 	lis3lv02d_poweron(&lis3_dev);
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
++static const struct dev_pm_ops hp_accel_pm = {
++	.suspend = lis3lv02d_suspend,
++	.resume = lis3lv02d_resume,
++	.freeze = lis3lv02d_suspend,
++	.thaw = lis3lv02d_resume,
++	.poweroff = lis3lv02d_suspend,
++	.restore = lis3lv02d_restore,
++};
++
+ #define HP_ACCEL_PM (&hp_accel_pm)
+ #else
+ #define HP_ACCEL_PM NULL
 -- 
 2.30.2
 
