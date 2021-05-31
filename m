@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D3B5A395FBA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26C823961BC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231243AbhEaOP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:15:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S233427AbhEaOpl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:45:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233289AbhEaOMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:12:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11F8F61460;
-        Mon, 31 May 2021 13:41:31 +0000 (UTC)
+        id S233178AbhEaOlX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ED3E61435;
+        Mon, 31 May 2021 13:53:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468492;
-        bh=vWzu84KDPR4m9KQqki4TpwcoGMXj2QMHBkh1UmR+CQE=;
+        s=korg; t=1622469190;
+        bh=IGnyTuQjYOOw4G6t0SNltBrM51l310tTmm7+guOXb0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lo02YeEVf5SLwTtwwJUiKyF8QplkTYrv+SAoO3eZo0HOsPVgGVbWyaPj/HBtTkm6h
-         OtFzM4cq9o5rrlTdrXSHCFMVSZTfgCrj42jNbp0+7tzLkSwmfZC7uIjRDMnqVmLB4B
-         QYHGfYmUOFr/76l1w0YeqsIeb5U1P7JgKNXHor+A=
+        b=RPchp5ercswbNHupRAZwfxSlWRzVKpGvlTrjpYN6b59xnLRw4+XLZ3uvLLh6PScRT
+         sLJS2EmFvkZyNRc08Syo7tP5fIj/U+OCXNPrHnPwp4TiPCbjN+SC/P8Afqf1b8IC5r
+         sMaNbMKADvMEnGx5QM+K1QBbnH1XPftLyYGbv4wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.4 002/177] ALSA: usb-audio: scarlett2: Fix device hang with ehci-pci
+        stable@vger.kernel.org,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Subject: [PATCH 5.12 104/296] usb: gadget: udc: renesas_usb3: Fix a race in usb3_start_pipen()
 Date:   Mon, 31 May 2021 15:12:39 +0200
-Message-Id: <20210531130647.977054036@linuxfoundation.org>
+Message-Id: <20210531130707.430694783@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoffrey D. Bennett <g@b4.vu>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-commit 764fa6e686e0107c0357a988d193de04cf047583 upstream.
+commit e752dbc59e1241b13b8c4f7b6eb582862e7668fe upstream.
 
-Use usb_rcvctrlpipe() not usb_sndctrlpipe() for USB control input in
-the Scarlett Gen 2 mixer driver. This fixes the device hang during
-initialisation when used with the ehci-pci host driver.
+The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
+usb3_request_done_pipen() so that usb3_start_pipen() is possible
+to cause a race when getting usb3_first_req like below:
 
-Fixes: 9e4d5c1be21f ("ALSA: usb-audio: Scarlett Gen 2 mixer interface")
-Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/66a3d05dac325d5b53e4930578e143cef1f50dbe.1621584566.git.g@b4.vu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+renesas_usb3_ep_queue()
+ spin_lock_irqsave()
+ list_add_tail()
+ spin_unlock_irqrestore()
+ usb3_start_pipen()
+  usb3_first_req = usb3_get_request() --- [1]
+ --- interrupt ---
+ usb3_irq_dma_int()
+ usb3_request_done_pipen()
+  usb3_get_request()
+  usb3_start_pipen()
+  usb3_first_req = usb3_get_request()
+  ...
+  (the req is possible to be finished in the interrupt)
+
+The usb3_first_req [1] above may have been finished after the interrupt
+ended so that this driver caused to start a transfer wrongly. To fix this
+issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
+in the same section.
+
+Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_scarlett_gen2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/renesas_usb3.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/sound/usb/mixer_scarlett_gen2.c
-+++ b/sound/usb/mixer_scarlett_gen2.c
-@@ -635,7 +635,7 @@ static int scarlett2_usb(
- 	/* send a second message to get the response */
+--- a/drivers/usb/gadget/udc/renesas_usb3.c
++++ b/drivers/usb/gadget/udc/renesas_usb3.c
+@@ -1488,7 +1488,7 @@ static void usb3_start_pipen(struct rene
+ 			     struct renesas_usb3_request *usb3_req)
+ {
+ 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
+-	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
++	struct renesas_usb3_request *usb3_req_first;
+ 	unsigned long flags;
+ 	int ret = -EAGAIN;
+ 	u32 enable_bits = 0;
+@@ -1496,7 +1496,8 @@ static void usb3_start_pipen(struct rene
+ 	spin_lock_irqsave(&usb3->lock, flags);
+ 	if (usb3_ep->halt || usb3_ep->started)
+ 		goto out;
+-	if (usb3_req != usb3_req_first)
++	usb3_req_first = __usb3_get_request(usb3_ep);
++	if (!usb3_req_first || usb3_req != usb3_req_first)
+ 		goto out;
  
- 	err = snd_usb_ctl_msg(mixer->chip->dev,
--			usb_sndctrlpipe(mixer->chip->dev, 0),
-+			usb_rcvctrlpipe(mixer->chip->dev, 0),
- 			SCARLETT2_USB_VENDOR_SPECIFIC_CMD_RESP,
- 			USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
- 			0,
+ 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
 
 
