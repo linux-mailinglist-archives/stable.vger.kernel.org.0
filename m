@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 222F63962F8
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E901F395EEA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232793AbhEaPCx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:02:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
+        id S232009AbhEaOFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:05:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36870 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233875AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 11:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EBE4C6124B;
-        Mon, 31 May 2021 14:13:31 +0000 (UTC)
+        id S232386AbhEaODX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:03:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1304561950;
+        Mon, 31 May 2021 13:37:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622470412;
-        bh=CkBX6dDb2qCvTwr5HBZitee88T2Xacmboqzj1RmD66k=;
+        s=korg; t=1622468258;
+        bh=KM4ZRHcBYvmmLTQN2gghKxyawHk0kobjfSRa02NjybU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tWOXzZ2PJ6RRUCHx9FCwOCaYghg5NMeOGUrCnZ3rGc3RXb9zH7oXaxKY0govqRd1J
-         SPtiqU+XHzT8Jj137UjnLeSZBN4wrH7Q13543qtrIXkru2v3+ofl1dK0b5hfXxviUg
-         IsaWvbOyoGEhjFhOI1JASPSi9IAFAZ96xA7Adsso=
+        b=G9Ic+38C3g2ahwjf3dgYdhOoKrxVoUKLTLBKEzV4FU7dUGLe1IPNeKmHfHJbxcilB
+         pBKtfnfqnd357GVQiBg72g4yCLHHv4c7Ly+rHK+eJFeHUIkGqeiRqVcqkxzQoZY21y
+         POhMeqohdZcCOn9HOLUTNBlrtrNitAfer+xExXxc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.19 065/116] NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 176/252] btrfs: do not BUG_ON in link_to_fixup_dir
 Date:   Mon, 31 May 2021 15:14:01 +0200
-Message-Id: <20210531130642.364230432@linuxfoundation.org>
+Message-Id: <20210531130703.987244439@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit e67afa7ee4a59584d7253e45d7f63b9528819a13 upstream.
+[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
 
-Since commit bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors"),
-nfs42_proc_llseek would return -EOPNOTSUPP rather than -ENOTSUPP when
-SEEK_DATA on NFSv4.0/v4.1.
+While doing error injection testing I got the following panic
 
-This will lead xfstests generic/285 not run on NFSv4.0/v4.1 when set the
-CONFIG_NFS_V4_2, rather than run failed.
+  kernel BUG at fs/btrfs/tree-log.c:1862!
+  invalid opcode: 0000 [#1] SMP NOPTI
+  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
+  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
+  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
+  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
+  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
+  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
+  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
+  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
+  Call Trace:
+   replay_one_buffer+0x409/0x470
+   ? btree_read_extent_buffer_pages+0xd0/0x110
+   walk_up_log_tree+0x157/0x1e0
+   walk_log_tree+0xa6/0x1d0
+   btrfs_recover_log_trees+0x1da/0x360
+   ? replay_one_extent+0x7b0/0x7b0
+   open_ctree+0x1486/0x1720
+   btrfs_mount_root.cold+0x12/0xea
+   ? __kmalloc_track_caller+0x12f/0x240
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   vfs_kern_mount.part.0+0x71/0xb0
+   btrfs_mount+0x10d/0x380
+   ? vfs_parse_fs_string+0x4d/0x90
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   path_mount+0x433/0xa10
+   __x64_sys_mount+0xe3/0x120
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
 
-Fixes: bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors")
-Cc: <stable.vger.kernel.org> # 4.2
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We can get -EIO or any number of legitimate errors from
+btrfs_search_slot(), panicing here is not the appropriate response.  The
+error path for this code handles errors properly, simply return the
+error.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/tree-log.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -148,7 +148,7 @@ static loff_t nfs4_file_llseek(struct fi
- 	case SEEK_HOLE:
- 	case SEEK_DATA:
- 		ret = nfs42_proc_llseek(filep, offset, whence);
--		if (ret != -ENOTSUPP)
-+		if (ret != -EOPNOTSUPP)
- 			return ret;
- 		/* Fall through */
- 	default:
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index 8bc3e2f25e7d..9a0cfa0e124d 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1823,8 +1823,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_update_inode(trans, root, inode);
+ 	} else if (ret == -EEXIST) {
+ 		ret = 0;
+-	} else {
+-		BUG(); /* Logic Error */
+ 	}
+ 	iput(inode);
+ 
+-- 
+2.30.2
+
 
 
