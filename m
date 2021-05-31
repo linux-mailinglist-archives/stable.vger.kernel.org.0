@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B99CE39627E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:55:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90D0F395F6C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:09:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232828AbhEaO5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47902 "EHLO mail.kernel.org"
+        id S233281AbhEaOL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:11:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233222AbhEaOzU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:55:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FDE261CBD;
-        Mon, 31 May 2021 13:59:39 +0000 (UTC)
+        id S233460AbhEaOJY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:09:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C1B061461;
+        Mon, 31 May 2021 13:40:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469580;
-        bh=J/bY1BDA2WepYFUzY74lWoOzigSPgpgyi+ZouIRDfug=;
+        s=korg; t=1622468410;
+        bh=6ZOBp95rw4h/8YnRs5mvXTJ5grO4wqegQKxjVp5celU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nTkYPlbCcKiGq8GuoUxwM6iOMjWoxhgiGLU/eZ2+Izv76VX+NtVYgnqVrG80PDP2f
-         pzHmtd2L+mxdcuQ2u1iOUlcVojDag2XY3C6vC/MRHB0K06cU28179xz656mL4wGB46
-         3GIJBVu9DEq+tKMozs9ALOGs0IGRdu/ZUK7ZEcdk=
+        b=j6Z+V7iOgpad40QHAgJ+EXVDkcjbhyEMPO/g8KKXOuQw1Tq+Ue3q9xipxzz/MwPu3
+         i2yIKz7I6zbt7PoRgD+XVA+3rkk+bxogCBsRfus3z4XXowk+2xYyU6yi+NQHQ/+h/S
+         dc9GQQl8LZxCjLQN/f0WlUfqNlbDrPJaPaA5vu7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Takashi Sakamoto <o-takashi@sakamocchi.jp>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 207/296] ALSA: dice: disable double_pcm_frames mode for M-Audio Profire 610, 2626 and Avid M-Box 3 Pro
+        stable@vger.kernel.org,
+        Liguang Zhang <zhangliguang@linux.alibaba.com>,
+        Jay Fang <f.fangjian@huawei.com>,
+        Sven Van Asbroeck <thesven73@gmail.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Xin Hao <xhao@linux.alibaba.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 197/252] spi: Assume GPIO CS active high in ACPI case
 Date:   Mon, 31 May 2021 15:14:22 +0200
-Message-Id: <20210531130710.830211600@linuxfoundation.org>
+Message-Id: <20210531130704.713282925@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,134 +45,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 9f079c1bdc9087842dc5ac9d81b1d7f2578e81ce ]
+[ Upstream commit 6b69546912a57ff8c31061f98e56383cc0beffd3 ]
 
-ALSA dice driver detects jumbo payload at high sampling transfer frequency
-for below models:
+Currently GPIO CS handling, when descriptors are in use, doesn't
+take into consideration that in ACPI case the default polarity
+is Active High and can't be altered. Instead we have to use the
+per-chip definition provided by SPISerialBus() resource.
 
- * Avid M-Box 3 Pro
- * M-Audio Profire 610
- * M-Audio Profire 2626
-
-Although many DICE-based devices have a quirk at high sampling transfer
-frequency to multiplex double number of PCM frames into data block than
-the number in IEC 61883-1/6, the above devices are just compliant to
-IEC 61883-1/6.
-
-This commit disables the mode of double_pcm_frames for the models.
-
-Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
-Link: https://lore.kernel.org/r/20210518012510.37126-1-o-takashi@sakamocchi.jp
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 766c6b63aa04 ("spi: fix client driver breakages when using GPIO descriptors")
+Cc: Liguang Zhang <zhangliguang@linux.alibaba.com>
+Cc: Jay Fang <f.fangjian@huawei.com>
+Cc: Sven Van Asbroeck <thesven73@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Tested-by: Xin Hao <xhao@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20210511140912.30757-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/firewire/dice/dice-pcm.c    |  4 ++--
- sound/firewire/dice/dice-stream.c |  2 +-
- sound/firewire/dice/dice.c        | 24 ++++++++++++++++++++++++
- sound/firewire/dice/dice.h        |  3 ++-
- 4 files changed, 29 insertions(+), 4 deletions(-)
+ drivers/spi/spi.c | 23 ++++++++++++++++++-----
+ 1 file changed, 18 insertions(+), 5 deletions(-)
 
-diff --git a/sound/firewire/dice/dice-pcm.c b/sound/firewire/dice/dice-pcm.c
-index af8a90ee40f3..a69ca1111b03 100644
---- a/sound/firewire/dice/dice-pcm.c
-+++ b/sound/firewire/dice/dice-pcm.c
-@@ -218,7 +218,7 @@ static int pcm_open(struct snd_pcm_substream *substream)
+diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
+index 419de3d40481..a6f1e94af13c 100644
+--- a/drivers/spi/spi.c
++++ b/drivers/spi/spi.c
+@@ -814,16 +814,29 @@ static void spi_set_cs(struct spi_device *spi, bool enable, bool force)
  
- 		if (frames_per_period > 0) {
- 			// For double_pcm_frame quirk.
--			if (rate > 96000) {
-+			if (rate > 96000 && !dice->disable_double_pcm_frames) {
- 				frames_per_period *= 2;
- 				frames_per_buffer *= 2;
- 			}
-@@ -273,7 +273,7 @@ static int pcm_hw_params(struct snd_pcm_substream *substream,
- 
- 		mutex_lock(&dice->mutex);
- 		// For double_pcm_frame quirk.
--		if (rate > 96000) {
-+		if (rate > 96000 && !dice->disable_double_pcm_frames) {
- 			events_per_period /= 2;
- 			events_per_buffer /= 2;
+ 	if (spi->cs_gpiod || gpio_is_valid(spi->cs_gpio)) {
+ 		if (!(spi->mode & SPI_NO_CS)) {
+-			if (spi->cs_gpiod)
+-				/* polarity handled by gpiolib */
+-				gpiod_set_value_cansleep(spi->cs_gpiod,
+-							 enable1);
+-			else
++			if (spi->cs_gpiod) {
++				/*
++				 * Historically ACPI has no means of the GPIO polarity and
++				 * thus the SPISerialBus() resource defines it on the per-chip
++				 * basis. In order to avoid a chain of negations, the GPIO
++				 * polarity is considered being Active High. Even for the cases
++				 * when _DSD() is involved (in the updated versions of ACPI)
++				 * the GPIO CS polarity must be defined Active High to avoid
++				 * ambiguity. That's why we use enable, that takes SPI_CS_HIGH
++				 * into account.
++				 */
++				if (has_acpi_companion(&spi->dev))
++					gpiod_set_value_cansleep(spi->cs_gpiod, !enable);
++				else
++					/* Polarity handled by GPIO library */
++					gpiod_set_value_cansleep(spi->cs_gpiod, enable1);
++			} else {
+ 				/*
+ 				 * invert the enable line, as active low is
+ 				 * default for SPI.
+ 				 */
+ 				gpio_set_value_cansleep(spi->cs_gpio, !enable);
++			}
  		}
-diff --git a/sound/firewire/dice/dice-stream.c b/sound/firewire/dice/dice-stream.c
-index 1a14c083e8ce..c4dfe76500c2 100644
---- a/sound/firewire/dice/dice-stream.c
-+++ b/sound/firewire/dice/dice-stream.c
-@@ -181,7 +181,7 @@ static int keep_resources(struct snd_dice *dice, struct amdtp_stream *stream,
- 	// as 'Dual Wire'.
- 	// For this quirk, blocking mode is required and PCM buffer size should
- 	// be aligned to SYT_INTERVAL.
--	double_pcm_frames = rate > 96000;
-+	double_pcm_frames = (rate > 96000 && !dice->disable_double_pcm_frames);
- 	if (double_pcm_frames) {
- 		rate /= 2;
- 		pcm_chs *= 2;
-diff --git a/sound/firewire/dice/dice.c b/sound/firewire/dice/dice.c
-index 107a81691f0e..239d164b0eea 100644
---- a/sound/firewire/dice/dice.c
-+++ b/sound/firewire/dice/dice.c
-@@ -21,6 +21,7 @@ MODULE_LICENSE("GPL v2");
- #define OUI_SSL			0x0050c2	// Actually ID reserved by IEEE.
- #define OUI_PRESONUS		0x000a92
- #define OUI_HARMAN		0x000fd7
-+#define OUI_AVID		0x00a07e
- 
- #define DICE_CATEGORY_ID	0x04
- #define WEISS_CATEGORY_ID	0x00
-@@ -222,6 +223,14 @@ static int dice_probe(struct fw_unit *unit,
- 				(snd_dice_detect_formats_t)entry->driver_data;
- 	}
- 
-+	// Below models are compliant to IEC 61883-1/6 and have no quirk at high sampling transfer
-+	// frequency.
-+	// * Avid M-Box 3 Pro
-+	// * M-Audio Profire 610
-+	// * M-Audio Profire 2626
-+	if (entry->vendor_id == OUI_MAUDIO || entry->vendor_id == OUI_AVID)
-+		dice->disable_double_pcm_frames = true;
-+
- 	spin_lock_init(&dice->lock);
- 	mutex_init(&dice->mutex);
- 	init_completion(&dice->clock_accepted);
-@@ -278,7 +287,22 @@ static void dice_bus_reset(struct fw_unit *unit)
- 
- #define DICE_INTERFACE	0x000001
- 
-+#define DICE_DEV_ENTRY_TYPICAL(vendor, model, data) \
-+	{ \
-+		.match_flags	= IEEE1394_MATCH_VENDOR_ID | \
-+				  IEEE1394_MATCH_MODEL_ID | \
-+				  IEEE1394_MATCH_SPECIFIER_ID | \
-+				  IEEE1394_MATCH_VERSION, \
-+		.vendor_id	= (vendor), \
-+		.model_id	= (model), \
-+		.specifier_id	= (vendor), \
-+		.version	= DICE_INTERFACE, \
-+		.driver_data = (kernel_ulong_t)(data), \
-+	}
-+
- static const struct ieee1394_device_id dice_id_table[] = {
-+	// Avid M-Box 3 Pro. To match in probe function.
-+	DICE_DEV_ENTRY_TYPICAL(OUI_AVID, 0x000004, snd_dice_detect_extension_formats),
- 	/* M-Audio Profire 2626 has a different value in version field. */
- 	{
- 		.match_flags	= IEEE1394_MATCH_VENDOR_ID |
-diff --git a/sound/firewire/dice/dice.h b/sound/firewire/dice/dice.h
-index adc6f7c84460..3c967d1b3605 100644
---- a/sound/firewire/dice/dice.h
-+++ b/sound/firewire/dice/dice.h
-@@ -109,7 +109,8 @@ struct snd_dice {
- 	struct fw_iso_resources rx_resources[MAX_STREAMS];
- 	struct amdtp_stream tx_stream[MAX_STREAMS];
- 	struct amdtp_stream rx_stream[MAX_STREAMS];
--	bool global_enabled;
-+	bool global_enabled:1;
-+	bool disable_double_pcm_frames:1;
- 	struct completion clock_accepted;
- 	unsigned int substreams_counter;
- 
+ 		/* Some SPI masters need both GPIO CS & slave_select */
+ 		if ((spi->controller->flags & SPI_MASTER_GPIO_SS) &&
 -- 
 2.30.2
 
