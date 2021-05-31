@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A963962AC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED2603960CC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232637AbhEaPAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:00:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
+        id S233564AbhEaObh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233513AbhEaO5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B829761CBE;
-        Mon, 31 May 2021 14:00:30 +0000 (UTC)
+        id S233792AbhEaO33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 478BC61422;
+        Mon, 31 May 2021 13:48:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469631;
-        bh=gb0fZDAFLB83BRTjYZSk5VklBhYcGwo5BpT1E0lkT0Y=;
+        s=korg; t=1622468892;
+        bh=+0/xJAOl7raiNs0n3tlLfY30d6cyr+KSIJ6eyB+TjAI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yC7Pi0RjJkLQ/PnsY4M9GTUZ0wGgo100Twu3aBLNhvWT82IP9DLzw12mXzu/71gaD
-         i9ZNoV43GTZ9Qf1bUBssVKeSK1VpkK6F3A0og06F9zao67foZ5z/KtLnfI+D+rhB1H
-         3oW9IeMPh0B+G6Mjki8lplLZPKeiJSwYtfqqz8u4=
+        b=brZzogZ/R+K4JVtVjIl+P13xYHDk34Nqj/T31oDH4g4XrU2VIADCi8DxUn5ifyKiR
+         sEzxrXkodVaN2tX9GveJRzvRepV8PhmM949oGSDTd2x/G1Q//VpgmRFXa59wnlFzNn
+         bq+5P+39xXx0ux4W1onczh18GYPYeXEBtIF/7W6E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Skajewski <piotrx.skajewski@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 271/296] ixgbe: fix large MTU request from VF
+Subject: [PATCH 5.4 169/177] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
 Date:   Mon, 31 May 2021 15:15:26 +0200
-Message-Id: <20210531130712.857655325@linuxfoundation.org>
+Message-Id: <20210531130653.765574488@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 63e39d29b3da02e901349f6cd71159818a4737a6 ]
+[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
 
-Check that the MTU value requested by the VF is in the supported
-range of MTUs before attempting to set the VF large packet enable,
-otherwise reject the request. This also avoids unnecessary
-register updates in the case of the 82599 controller.
+rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
+when this watchdog driver is built as a loadable module, there is a
+build error since the rt_sysc_membase symbol is not exported.
+Export it to quell the build error.
 
-Fixes: 872844ddb9e4 ("ixgbe: Enable jumbo frames support w/ SR-IOV")
-Co-developed-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Co-developed-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
+
+Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ arch/mips/ralink/of.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-index 988db46bff0e..214a38de3f41 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -467,12 +467,16 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
- 	return err;
- }
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 59b23095bfbb..4e38a905ab38 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -8,6 +8,7 @@
  
--static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
-+static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
+ #include <linux/io.h>
+ #include <linux/clk.h>
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/sizes.h>
+ #include <linux/of_fdt.h>
+@@ -25,6 +26,7 @@
+ 
+ __iomem void *rt_sysc_membase;
+ __iomem void *rt_memc_membase;
++EXPORT_SYMBOL_GPL(rt_sysc_membase);
+ 
+ __iomem void *plat_of_remap_node(const char *node)
  {
- 	struct ixgbe_hw *hw = &adapter->hw;
--	int max_frame = msgbuf[1];
- 	u32 max_frs;
- 
-+	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
-+		e_err(drv, "VF max_frame %d out of range\n", max_frame);
-+		return -EINVAL;
-+	}
-+
- 	/*
- 	 * For 82599EB we have to keep all PFs and VFs operating with
- 	 * the same max_frame value in order to avoid sending an oversize
-@@ -533,12 +537,6 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
- 		}
- 	}
- 
--	/* MTU < 68 is an error and causes problems on some kernels */
--	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
--		e_err(drv, "VF max_frame %d out of range\n", max_frame);
--		return -EINVAL;
--	}
--
- 	/* pull current max frame size from hardware */
- 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
- 	max_frs &= IXGBE_MHADD_MFS_MASK;
-@@ -1249,7 +1247,7 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
- 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
- 		break;
- 	case IXGBE_VF_SET_LPE:
--		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
-+		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
- 		break;
- 	case IXGBE_VF_SET_MACVLAN:
- 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
 -- 
 2.30.2
 
