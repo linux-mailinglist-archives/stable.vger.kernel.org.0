@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 238373960BA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCBD395F62
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:09:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231678AbhEaObF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
+        id S232185AbhEaOKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233973AbhEaO2G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:28:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F141C61C1A;
-        Mon, 31 May 2021 13:47:50 +0000 (UTC)
+        id S232244AbhEaOHg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 248186140A;
+        Mon, 31 May 2021 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468871;
-        bh=N0FAeNuDKMSXFENfB91Epg1afoE4j4T6/AIEHFc73fs=;
+        s=korg; t=1622468372;
+        bh=vf2R1pwzOzf+f1ro2bIxCj3uHCxoj+ts+iVokRCQiOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N8S46KZYK3QCe4EpRHFq0XcVPFjfoieE3uflB9w7/iUGR1UEP83vBfEJe48tbLIwj
-         ZsD9lHMdOf3MTsSAHZ+SXbLguB2tbehGGyfH6t50ffV1GqBClFyk7PZfArsv2t0TPm
-         vbvTAf6VBHP9zQ8ntcXX80Gi/V2MRnvLMe4lzgJk=
+        b=Mxe3u8JPKX6bC7D9ODe2FxuRGZL4jH21YpWbx2zZ0KRBw/pGTdMwoEP03X6ysLgH6
+         w2RxVsXBd0n7krXSqFzZqB99Ur1hujn8VTzJ1QSYAv2brDK1jRbrMDJWs21uaEeJ/f
+         +8LIDfBVMJr7j0Pxcle+5UVxyeERIzAUTMDj6b6k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, David Awogbemila <awogbemila@google.com>,
+        Willem de Brujin <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 126/177] btrfs: do not BUG_ON in link_to_fixup_dir
+Subject: [PATCH 5.10 218/252] gve: Add NULL pointer checks when freeing irqs.
 Date:   Mon, 31 May 2021 15:14:43 +0200
-Message-Id: <20210531130652.278805513@linuxfoundation.org>
+Message-Id: <20210531130705.417386172@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: David Awogbemila <awogbemila@google.com>
 
-[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
+[ Upstream commit 5218e919c8d06279884aa0baf76778a6817d5b93 ]
 
-While doing error injection testing I got the following panic
+When freeing notification blocks, we index priv->msix_vectors.
+If we failed to allocate priv->msix_vectors (see abort_with_msix_vectors)
+this could lead to a NULL pointer dereference if the driver is unloaded.
 
-  kernel BUG at fs/btrfs/tree-log.c:1862!
-  invalid opcode: 0000 [#1] SMP NOPTI
-  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
-  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
-  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
-  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
-  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
-  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
-  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
-  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
-  Call Trace:
-   replay_one_buffer+0x409/0x470
-   ? btree_read_extent_buffer_pages+0xd0/0x110
-   walk_up_log_tree+0x157/0x1e0
-   walk_log_tree+0xa6/0x1d0
-   btrfs_recover_log_trees+0x1da/0x360
-   ? replay_one_extent+0x7b0/0x7b0
-   open_ctree+0x1486/0x1720
-   btrfs_mount_root.cold+0x12/0xea
-   ? __kmalloc_track_caller+0x12f/0x240
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x10d/0x380
-   ? vfs_parse_fs_string+0x4d/0x90
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   path_mount+0x433/0xa10
-   __x64_sys_mount+0xe3/0x120
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
-
-We can get -EIO or any number of legitimate errors from
-btrfs_search_slot(), panicing here is not the appropriate response.  The
-error path for this code handles errors properly, simply return the
-error.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
+Signed-off-by: David Awogbemila <awogbemila@google.com>
+Acked-by: Willem de Brujin <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/google/gve/gve_main.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index de53e5166997..54647eb9c6ed 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1846,8 +1846,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
- 		ret = btrfs_update_inode(trans, root, inode);
- 	} else if (ret == -EEXIST) {
- 		ret = 0;
--	} else {
--		BUG(); /* Logic Error */
- 	}
- 	iput(inode);
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index a8fcf1227391..839102ea6aa1 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -301,20 +301,22 @@ static void gve_free_notify_blocks(struct gve_priv *priv)
+ {
+ 	int i;
  
+-	/* Free the irqs */
+-	for (i = 0; i < priv->num_ntfy_blks; i++) {
+-		struct gve_notify_block *block = &priv->ntfy_blocks[i];
+-		int msix_idx = i;
+-
+-		irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
+-				      NULL);
+-		free_irq(priv->msix_vectors[msix_idx].vector, block);
++	if (priv->msix_vectors) {
++		/* Free the irqs */
++		for (i = 0; i < priv->num_ntfy_blks; i++) {
++			struct gve_notify_block *block = &priv->ntfy_blocks[i];
++			int msix_idx = i;
++
++			irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
++					      NULL);
++			free_irq(priv->msix_vectors[msix_idx].vector, block);
++		}
++		free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
+ 	}
+ 	dma_free_coherent(&priv->pdev->dev,
+ 			  priv->num_ntfy_blks * sizeof(*priv->ntfy_blocks),
+ 			  priv->ntfy_blocks, priv->ntfy_block_bus);
+ 	priv->ntfy_blocks = NULL;
+-	free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
+ 	pci_disable_msix(priv->pdev);
+ 	kvfree(priv->msix_vectors);
+ 	priv->msix_vectors = NULL;
 -- 
 2.30.2
 
