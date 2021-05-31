@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 38739395B2A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC1FF3961E0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbhEaNSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:18:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53022 "EHLO mail.kernel.org"
+        id S233810AbhEaOrh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231330AbhEaNSA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC37A6135D;
-        Mon, 31 May 2021 13:16:19 +0000 (UTC)
+        id S233103AbhEaOph (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4F36143D;
+        Mon, 31 May 2021 13:55:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622466980;
-        bh=aEOG8s1btNRx6uC+MOC4W0QMUsNhnm6l0q2TlVN8zII=;
+        s=korg; t=1622469320;
+        bh=J92z31Ks7LNs9W0RjN69gwEGe59n8IsFFyb+fj2tIz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yuhzq2/EpGBpos75nlUcqc/lEIXlopOwG+d0vrUjQEkRDukD9JwFuw+bvEQVVa4my
-         Ja0VLHrHcsT6vSjY/qC7HtdJHpP1LzYHTO9Xwck7um9QaHKEzs4V4T7e/qT71m4FAo
-         Ox5kpBw63wRGfU4smMNtioZxATIL8j9W5bp1178I=
+        b=XVu6oo0CnzILWfTPtOthOeV9GRT1q30HcOhEd32q/VBa3rTErC7mbAnMEv1ce+3Op
+         ArLw5FhW9kCQ9Q3ZNL/pUJ3EZZJHkdnoExE4zhsFqg1c4U9x3seyM9U4YvxHzNd/hK
+         vNzWanwyCLJiDf6n7JGWQOydrthcZ/E1QUEjbUMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        "Pavel Machek (CIP)" <pavel@denx.de>,
-        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
-Subject: [PATCH 4.4 02/54] netfilter: x_tables: Use correct memory barriers.
+        stable@vger.kernel.org, David Howells <dhowells@redhat.com>,
+        Marc Dionne <marc.dionne@auristor.com>,
+        linux-afs@lists.infradead.org,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 153/296] afs: Fix the nlink handling of dir-over-dir rename
 Date:   Mon, 31 May 2021 15:13:28 +0200
-Message-Id: <20210531130635.154707451@linuxfoundation.org>
+Message-Id: <20210531130709.009434618@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+From: David Howells <dhowells@redhat.com>
 
-commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 upstream.
+commit f610a5a29c3cfb7d37bdfa4ef52f72ea51f24a76 upstream.
 
-When a new table value was assigned, it was followed by a write memory
-barrier. This ensured that all writes before this point would complete
-before any writes after this point. However, to determine whether the
-rules are unused, the sequence counter is read. To ensure that all
-writes have been done before these reads, a full memory barrier is
-needed, not just a write memory barrier. The same argument applies when
-incrementing the counter, before the rules are read.
+Fix rename of one directory over another such that the nlink on the deleted
+directory is cleared to 0 rather than being decremented to 1.
 
-Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
-reported in cc00bcaa5899 (which is still present), while still
-maintaining the same speed of replacing tables.
+This was causing the generic/035 xfstest to fail.
 
-The smb_mb() barriers potentially slow the packet path, however testing
-has shown no measurable change in performance on a 4-core MIPS64
-platform.
-
-Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
-Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
-[Ported to stable, affected barrier is added by d3d40f237480abf3268956daf18cdc56edd32834 in mainline]
-Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
-Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
+Fixes: e49c7b2f6de7 ("afs: Build an abstraction around an "operation" concept")
+Signed-off-by: David Howells <dhowells@redhat.com>
+Reviewed-by: Marc Dionne <marc.dionne@auristor.com>
+cc: linux-afs@lists.infradead.org
+Link: https://lore.kernel.org/r/162194384460.3999479.7605572278074191079.stgit@warthog.procyon.org.uk/ # v1
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/netfilter/x_tables.h |    2 +-
- net/netfilter/x_tables.c           |    3 +++
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ fs/afs/dir.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/netfilter/x_tables.h
-+++ b/include/linux/netfilter/x_tables.h
-@@ -327,7 +327,7 @@ static inline unsigned int xt_write_recs
- 	 * since addend is most likely 1
- 	 */
- 	__this_cpu_add(xt_recseq.sequence, addend);
--	smp_wmb();
-+	smp_mb();
- 
- 	return addend;
- }
---- a/net/netfilter/x_tables.c
-+++ b/net/netfilter/x_tables.c
-@@ -1140,6 +1140,9 @@ xt_replace_table(struct xt_table *table,
- 	smp_wmb();
- 	table->private = newinfo;
- 
-+	/* make sure all cpus see new ->private value */
-+	smp_mb();
-+
- 	/*
- 	 * Even though table entries have now been swapped, other CPU's
- 	 * may still be using the old entries. This is okay, because
+--- a/fs/afs/dir.c
++++ b/fs/afs/dir.c
+@@ -1842,7 +1842,9 @@ static void afs_rename_edit_dir(struct a
+ 	new_inode = d_inode(new_dentry);
+ 	if (new_inode) {
+ 		spin_lock(&new_inode->i_lock);
+-		if (new_inode->i_nlink > 0)
++		if (S_ISDIR(new_inode->i_mode))
++			clear_nlink(new_inode);
++		else if (new_inode->i_nlink > 0)
+ 			drop_nlink(new_inode);
+ 		spin_unlock(&new_inode->i_lock);
+ 	}
 
 
