@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72E8F395BE9
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68E87395D2D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232163AbhEaNZx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:53 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
+        id S232808AbhEaNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:42:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231644AbhEaNX5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BC38B613B9;
-        Mon, 31 May 2021 13:20:12 +0000 (UTC)
+        id S232409AbhEaNkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:40:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 691EA61459;
+        Mon, 31 May 2021 13:27:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467213;
-        bh=V0QDUYX5OnRqA3JrdUeP+0VbvLODVnGZUntGH/PKvOY=;
+        s=korg; t=1622467651;
+        bh=lt7IgVqniB7ZiD/JA5DsU0X9tS2/T41Pz6ywahkI++M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jeelXll5K1+LYH/NXWRUTc7TPBKrT2W381tjoCHTri+Nake0KdnY82lSix/yzAmEZ
-         CQDSqmaUf67EltnKadttdbUtbruGeZzCZ6+6QT/00qEP3ZR7SDJAB/wou8u5bwvNWF
-         hJcjatgP2Y6DcmQCA3/2CTb1mnpQn07ffWsutxAM=
+        b=IxKMw4zkULx4CAIebjWJSZPKa8fVmPEa47Ius4/OeqOs1UXVbYpt3eDCy7z7Xk8NT
+         LOJ5+33lZM44Jo6a6/qs/ocdlpHaAmhObEFPpgvv63Ra9Ja0QQHfhqumb+OBgyAyLh
+         ZIaJVspS/JFEeTRom3/FtWItztGj+LtXjb65/xSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 40/66] net: fujitsu: fix potential null-ptr-deref
+        stable@vger.kernel.org, Sean MacLennan <seanm@seanm.ca>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 28/79] USB: serial: ti_usb_3410_5052: add startech.com device id
 Date:   Mon, 31 May 2021 15:14:13 +0200
-Message-Id: <20210531130637.526222221@linuxfoundation.org>
+Message-Id: <20210531130636.907374949@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Sean MacLennan <seanm@seanm.ca>
 
-[ Upstream commit 52202be1cd996cde6e8969a128dc27ee45a7cb5e ]
+commit 89b1a3d811e6f8065d6ae8a25e7682329b4a31e2 upstream.
 
-In fmvj18x_get_hwinfo(), if ioremap fails there will be NULL pointer
-deref. To fix this, check the return value of ioremap and return -1
-to the caller in case of failure.
+This adds support for the Startech.com generic serial to USB converter.
+It seems to be a bone stock TI_3410. I have been using this patch for
+years.
 
-Cc: "David S. Miller" <davem@davemloft.net>
-Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-16-gregkh@linuxfoundation.org
+Signed-off-by: Sean MacLennan <seanm@seanm.ca>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/fujitsu/fmvj18x_cs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/usb/serial/ti_usb_3410_5052.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-index 399cfd217288..cfda55bfa811 100644
---- a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-+++ b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-@@ -548,6 +548,11 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
- 	return -1;
+--- a/drivers/usb/serial/ti_usb_3410_5052.c
++++ b/drivers/usb/serial/ti_usb_3410_5052.c
+@@ -41,6 +41,7 @@
+ /* Vendor and product ids */
+ #define TI_VENDOR_ID			0x0451
+ #define IBM_VENDOR_ID			0x04b3
++#define STARTECH_VENDOR_ID		0x14b0
+ #define TI_3410_PRODUCT_ID		0x3410
+ #define IBM_4543_PRODUCT_ID		0x4543
+ #define IBM_454B_PRODUCT_ID		0x454b
+@@ -378,6 +379,7 @@ static const struct usb_device_id ti_id_
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
++	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+ 	{ }	/* terminator */
+ };
  
-     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
-+    if (!base) {
-+	pcmcia_release_window(link, link->resource[2]);
-+	return -1;
-+    }
-+
-     pcmcia_map_mem_page(link, link->resource[2], 0);
+@@ -416,6 +418,7 @@ static const struct usb_device_id ti_id_
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
++	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+ 	{ }	/* terminator */
+ };
  
-     /*
--- 
-2.30.2
-
 
 
