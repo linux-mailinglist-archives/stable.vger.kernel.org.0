@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BF8B7395E8D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C85D5395FF3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232203AbhEaOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:00:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60840 "EHLO mail.kernel.org"
+        id S232865AbhEaORe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:17:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230339AbhEaN6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:58:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7548261440;
-        Mon, 31 May 2021 13:35:34 +0000 (UTC)
+        id S233754AbhEaOPd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:15:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B876147E;
+        Mon, 31 May 2021 13:42:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468135;
-        bh=Pv3bP2PMj6YOQykP7mK1HxW1+69TEd2XZ+M7eh5YLp0=;
+        s=korg; t=1622468566;
+        bh=axbAyOi48Hmr3K74CrPJHT6/KFmTBpUvIncWdwiQ5Hk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JiD9VlMh/wMM7ktt2+fhN9M71biNbpS1gAOb3fhy6b/C+qtGpD+0YpEvnE/ZGz3B0
-         rvD253ucD3a2cMivr907xT0VJvBemwb+18q378bsNREsQ5LJ2cE6MWpDlhTwzxgeBM
-         z5lkSt4A2gSwm6CDdPnaZq5/fTCNBLqhnfWaFM0A=
+        b=lqPi9lCECghzAY6Kvk3y67xkkluC/CWtxzTpHkDEdTmLixPEkV7+6swBI+BmH8ldF
+         drAO+SMKpEgwyyUG417kw+YYdIh8la+hTG1WA1KmMGFxpDkIVmgLR+wmcwkaQV6xl4
+         vBHCb3EjKA194/163l8A/arGc6g9ZF4K/8bi3yE0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 130/252] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+        stable@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
+        Tycho Andersen <tycho@tycho.pizza>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 5.4 038/177] Documentation: seccomp: Fix user notification documentation
 Date:   Mon, 31 May 2021 15:13:15 +0200
-Message-Id: <20210531130702.430082836@linuxfoundation.org>
+Message-Id: <20210531130649.242377413@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,92 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Sargun Dhillon <sargun@sargun.me>
 
-[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
+commit aac902925ea646e461c95edc98a8a57eb0def917 upstream.
 
-hp_accel can take almost two seconds to resume on some HP laptops.
+The documentation had some previously incorrect information about how
+userspace notifications (and responses) were handled due to a change
+from a previously proposed patchset.
 
-The bottleneck is on evaluating _INI, which is only needed to run once.
-
-Resolve the issue by only invoking _INI when it's necessary. Namely, on
-probe and on hibernation restore.
-
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
-Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Sargun Dhillon <sargun@sargun.me>
+Acked-by: Tycho Andersen <tycho@tycho.pizza>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210517193908.3113-2-sargun@sargun.me
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
- drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ Documentation/userspace-api/seccomp_filter.rst |   16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
-index c394c0b08519..7ac788fae1b8 100644
---- a/drivers/misc/lis3lv02d/lis3lv02d.h
-+++ b/drivers/misc/lis3lv02d/lis3lv02d.h
-@@ -271,6 +271,7 @@ struct lis3lv02d {
- 	int			regs_size;
- 	u8                      *reg_cache;
- 	bool			regs_stored;
-+	bool			init_required;
- 	u8                      odr_mask;  /* ODR bit mask */
- 	u8			whoami;    /* indicates measurement precision */
- 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
-diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
-index 799cbe2ffcf3..8c0867bda828 100644
---- a/drivers/platform/x86/hp_accel.c
-+++ b/drivers/platform/x86/hp_accel.c
-@@ -88,6 +88,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
- static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
- {
- 	struct acpi_device *dev = lis3->bus_priv;
-+	if (!lis3->init_required)
-+		return 0;
+--- a/Documentation/userspace-api/seccomp_filter.rst
++++ b/Documentation/userspace-api/seccomp_filter.rst
+@@ -250,14 +250,14 @@ Users can read via ``ioctl(SECCOMP_IOCTL
+ seccomp notification fd to receive a ``struct seccomp_notif``, which contains
+ five members: the input length of the structure, a unique-per-filter ``id``,
+ the ``pid`` of the task which triggered this request (which may be 0 if the
+-task is in a pid ns not visible from the listener's pid namespace), a ``flags``
+-member which for now only has ``SECCOMP_NOTIF_FLAG_SIGNALED``, representing
+-whether or not the notification is a result of a non-fatal signal, and the
+-``data`` passed to seccomp. Userspace can then make a decision based on this
+-information about what to do, and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a
+-response, indicating what should be returned to userspace. The ``id`` member of
+-``struct seccomp_notif_resp`` should be the same ``id`` as in ``struct
+-seccomp_notif``.
++task is in a pid ns not visible from the listener's pid namespace). The
++notification also contains the ``data`` passed to seccomp, and a filters flag.
++The structure should be zeroed out prior to calling the ioctl.
 +
- 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
- 				 NULL, NULL) != AE_OK)
- 		return -EINVAL;
-@@ -356,6 +359,7 @@ static int lis3lv02d_add(struct acpi_device *device)
- 	}
++Userspace can then make a decision based on this information about what to do,
++and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a response, indicating what should be
++returned to userspace. The ``id`` member of ``struct seccomp_notif_resp`` should
++be the same ``id`` as in ``struct seccomp_notif``.
  
- 	/* call the core layer do its init */
-+	lis3_dev.init_required = true;
- 	ret = lis3lv02d_init_device(&lis3_dev);
- 	if (ret)
- 		return ret;
-@@ -403,11 +407,27 @@ static int lis3lv02d_suspend(struct device *dev)
- 
- static int lis3lv02d_resume(struct device *dev)
- {
-+	lis3_dev.init_required = false;
-+	lis3lv02d_poweron(&lis3_dev);
-+	return 0;
-+}
-+
-+static int lis3lv02d_restore(struct device *dev)
-+{
-+	lis3_dev.init_required = true;
- 	lis3lv02d_poweron(&lis3_dev);
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
-+static const struct dev_pm_ops hp_accel_pm = {
-+	.suspend = lis3lv02d_suspend,
-+	.resume = lis3lv02d_resume,
-+	.freeze = lis3lv02d_suspend,
-+	.thaw = lis3lv02d_resume,
-+	.poweroff = lis3lv02d_suspend,
-+	.restore = lis3lv02d_restore,
-+};
-+
- #define HP_ACCEL_PM (&hp_accel_pm)
- #else
- #define HP_ACCEL_PM NULL
--- 
-2.30.2
-
+ It is worth noting that ``struct seccomp_data`` contains the values of register
+ arguments to the syscall, but does not contain pointers to memory. The task's
 
 
