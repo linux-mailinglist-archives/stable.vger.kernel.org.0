@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 180D5395D4C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:42:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 209D8395DE3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232516AbhEaNnp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:43:45 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33022 "EHLO
+        id S230262AbhEaNvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:36 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232730AbhEaNlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 09:41:50 -0400
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 975D1C061343;
-        Mon, 31 May 2021 06:27:41 -0700 (PDT)
-Received: by mail-pj1-x1031.google.com with SMTP id b15-20020a17090a550fb029015dad75163dso1365pji.0;
-        Mon, 31 May 2021 06:27:41 -0700 (PDT)
+        with ESMTP id S232490AbhEaNtZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 09:49:25 -0400
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DEBDAC0610E8;
+        Mon, 31 May 2021 06:30:44 -0700 (PDT)
+Received: by mail-pj1-x1033.google.com with SMTP id 22-20020a17090a0c16b0290164a5354ad0so1335237pjs.2;
+        Mon, 31 May 2021 06:30:44 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20161025;
         h=from:to:cc:subject:date:message-id;
         bh=6mf9vxePMwOECmPy8sralSQirr3sPMiFyk3gZWElr34=;
-        b=O5h0B6VMZFSPjV0vMk0DbNJvcKsqAmnAGvnRN9UJC61qBB9qAi8ktmFIJ1gNe8zVfO
-         rzSrFVJd8HIrAeIUytZNJMbZfUF2FtaOHbnE9nyDebhfwPcL9Qc3Um9pd3J+TIxCB8BW
-         yqW0aDTRI2wdgB+6zxgnOqMnThDwVdwSMZttyvF4EDO+sPbmEt98+VqlHBF8ERGSPCbM
-         DG4FY+8DcK/6sljrV6RhfnYcjhOgQxfbNJTAcHAEVipYttgDt7Wp4A6j/W1ByQw6dMyL
-         IQQWRoyBcFqJJLNHpHP5eFi9RT2nlxGbN7jMxEY9TtvTxaIr+5DFKPvkXUT4SLmjoO08
-         UAMA==
+        b=NOrEdIkmcjZaaZLptcbrxJMPUDa7Q/13ezvdv+3nz9bra+EWHxhkXbET2vWbh+Nof1
+         e7AsdZc5ECngckio0j237QPh9MtqHrvhpjNGcAerPxinHYjUdTqhZAynfj2s5ReDRQsG
+         EMEFkK3ckomIHPn5f+r4s6jFsAbJWEim9r77wnppxxuwhVEHkWsAkXlCvZ5Hmpclm4cu
+         7xdUhszx/Fo9p8Z7Dl40pORAxOQuSoTSk/GE1OGl2DPwDKQQ3h88XBc7hU4+aWv9we42
+         GRvKDZBxvzNh/P6qQeUimp76SjT/DohFQRyhLYw/NJhdi6TZywt+d2388QsdFaEGWevu
+         NcBA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
         h=x-gm-message-state:from:to:cc:subject:date:message-id;
         bh=6mf9vxePMwOECmPy8sralSQirr3sPMiFyk3gZWElr34=;
-        b=LWleLclT0CahTaRNpDYL2TED0aBmyFkXv64g4n8XbL5P+DuPyyd//SH8L0LYYRs+8g
-         csp0/Afhpd9DWZOfhztiRB6y+CbSsg5Voj8WnGk2UVO8vuQGFE4bK4n+ifGKnWaPBph2
-         pCDY0wFybR00OrGnAnZndAH4Qr/Bi/gi1+7o9t8YOxL9mnA9/4zlebsYEzAEixg0mAuP
-         MjEu+puee+rWjdZ8rxJIluTDvzA10Qy8fHQJxcsi1tnS2T7sNkDZStpOe3s31LvdDDGx
-         zQ6p6c4FkvD+jEBY9D4SStrtbhajxt+Y2GTrA/vCJ55z/O4M1TEwHbjjQTpyDjYvgqGr
-         nmuQ==
-X-Gm-Message-State: AOAM530BYVBEy3nDhdXIZYhMOEQECsotu82cNKZlCApEBNNHVliSHfVj
-        jCL8kydts1iY5cfb0L8Q65CIwPfs5Vg=
-X-Google-Smtp-Source: ABdhPJw1W6y+qvRwnCEGZ7SJOr+gmHDZqS3gazPCOP9+eL15gPdoMAQYipZvSQvuITgeol8jSwX42g==
-X-Received: by 2002:a17:902:7b8e:b029:ec:f35a:918e with SMTP id w14-20020a1709027b8eb02900ecf35a918emr20776958pll.77.1622467660913;
-        Mon, 31 May 2021 06:27:40 -0700 (PDT)
+        b=AkLofsZH3P9NCMLnEz5KcEPLCs/aH2aUE1DiBrTKe64KtIINpXQheVZmWC/yKgdGsu
+         X6edlsdTGMw9ycQkgzFUPDNau8KHCZGzXhHc88kdHokhpC5VmOuLgZBOmDHwrX/xAj3Q
+         2QE8UM8tNvhBnriJYfZZem0tZa3ekHHXJLzNm7bqGb5xP4r0R6AXOiptZXPd+0r48yN0
+         r5EemHhytxxonYwCUE4NqqGslEt+Eognswq3o0oyoUaQIiLJP9ElF0VkmJ8YYuQVhWPb
+         edVF7hcdxyegSHlQqkFD5VaBMgpdOHKw9nKVl/+lwaVEf3gGT3yLPjTQnOFchMSUn5Nl
+         wkLg==
+X-Gm-Message-State: AOAM531MvsaZYA72OARUIw3O3Yc/PyYVy9adtzWtF1yZR9ItWwUXro/6
+        4Bjk5PLP/hrgsk/elkMoP6WhwrEDCo8=
+X-Google-Smtp-Source: ABdhPJydb/0iJtzHNck3YPyW8ss9CWq2h6HdUdwgEV4dWTCY+4Iusd66oOusFiw3mRC6FGxQgyKVkA==
+X-Received: by 2002:a17:90a:ce02:: with SMTP id f2mr11705623pju.45.1622467844182;
+        Mon, 31 May 2021 06:30:44 -0700 (PDT)
 Received: from localhost.localdomain ([203.205.141.39])
-        by smtp.gmail.com with ESMTPSA id o10sm11015225pfh.67.2021.05.31.06.27.38
+        by smtp.gmail.com with ESMTPSA id p36sm11836646pgm.74.2021.05.31.06.30.41
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Mon, 31 May 2021 06:27:40 -0700 (PDT)
+        Mon, 31 May 2021 06:30:43 -0700 (PDT)
 From:   Hongbo Li <herbert.tencent@gmail.com>
 To:     keyrings@vger.kernel.org, linux-crypto@vger.kernel.org,
         herbert@gondor.apana.org.au, ebiggers@kernel.org,
         dhowells@redhat.com, jarkko@kernel.org,
         tianjia.zhang@linux.alibaba.com, herberthbli@tencent.com
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH] crypto: fix a memory leak in sm2
-Date:   Mon, 31 May 2021 21:26:51 +0800
-Message-Id: <1622467611-30383-1-git-send-email-herbert.tencent@gmail.com>
+Subject: [PATCH] crypto: sm2 - fix a memory leak in sm2
+Date:   Mon, 31 May 2021 21:30:01 +0800
+Message-Id: <1622467801-30957-1-git-send-email-herbert.tencent@gmail.com>
 X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
