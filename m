@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5940139613B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 31C50396145
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233988AbhEaOhi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33264 "EHLO mail.kernel.org"
+        id S233765AbhEaOht (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:37:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59608 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232666AbhEaOfh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EECB961434;
-        Mon, 31 May 2021 13:51:12 +0000 (UTC)
+        id S232180AbhEaOfj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:35:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8007C61C4C;
+        Mon, 31 May 2021 13:51:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469073;
-        bh=uZ8RMiPR5Nz4q5T/km5vQvdU10060VwQaBgXOWVR9tc=;
+        s=korg; t=1622469076;
+        bh=bn9Yfc60NCXCqvjOeeCmlfBl45qIlI/F7Dn3brpeL7c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cTqJ3M1kTGy6nW6RM+nJ6Kj1aqnvnltrE7mqatl1hhKyRO33DenuWEYzWmk+wlNcE
-         5oFZuYUAjVHJRnnxfVlpVgVgz7uPXbvygwWK9T3OHyk5Gj7OP1WglKVcY5qrv7OkPf
-         Kpf9D/OJDiCou+qljSdzauX8+Yy6J/ifuo3uPmjg=
+        b=B0KL793YtMXnIlKi3Gwz485NCKO+YvyLTkZiHUiky+FAzgBc74Z2TgyM7Q65qOBs0
+         R2j6Y3FXGJQAEDCG+P6nQdC8aKeZ1uUTPLn78A/U5ZHiNhsrY1JRY0UUQGu83aQpaR
+         AAkqRqlsNo9CjJgPV9Mc4JTA6Dc9mO6uzwlR8lX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Hoeppner <hoeppner@linux.ibm.com>,
-        Stefan Haberland <sth@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>, Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.12 024/296] s390/dasd: add missing discipline function
-Date:   Mon, 31 May 2021 15:11:19 +0200
-Message-Id: <20210531130704.589841236@linuxfoundation.org>
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.12 025/296] perf intel-pt: Fix sample instruction bytes
+Date:   Mon, 31 May 2021 15:11:20 +0200
+Message-Id: <20210531130704.627016278@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -40,86 +40,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Haberland <sth@linux.ibm.com>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c0c8a8397fa8a74d04915f4d3d28cb4a5d401427 upstream.
+commit c954eb72b31a9dc56c99b450253ec5b121add320 upstream.
 
-Fix crash with illegal operation exception in dasd_device_tasklet.
-Commit b72949328869 ("s390/dasd: Prepare for additional path event handling")
-renamed the verify_path function for ECKD but not for FBA and DIAG.
-This leads to a panic when the path verification function is called for a
-FBA or DIAG device.
+The decoder reports the current instruction if it was decoded. In some
+cases the current instruction is not decoded, in which case the instruction
+bytes length must be set to zero. Ensure that is always done.
 
-Fix by defining a wrapper function for dasd_generic_verify_path().
+Note perf script can anyway get the instruction bytes for any samples where
+they are not present.
 
-Fixes: b72949328869 ("s390/dasd: Prepare for additional path event handling")
-Cc: <stable@vger.kernel.org> #5.11
-Reviewed-by: Jan Hoeppner <hoeppner@linux.ibm.com>
-Signed-off-by: Stefan Haberland <sth@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Link: https://lore.kernel.org/r/20210525125006.157531-2-sth@linux.ibm.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Also note, that there is a redundant "ptq->insn_len = 0" statement which is
+not removed until a subsequent patch in order to make this patch apply
+cleanly to stable branches.
+
+Example:
+
+A machne that supports TSX is required. It will have flag "rtm". Kernel
+parameter tsx=on may be required.
+
+ # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
+ rtm
+
+Test program:
+
+ #include <stdio.h>
+ #include <immintrin.h>
+
+ int main()
+ {
+        int x = 0;
+
+        if (_xbegin() == _XBEGIN_STARTED) {
+                x = 1;
+                _xabort(1);
+        } else {
+                printf("x = %d\n", x);
+        }
+        return 0;
+ }
+
+Compile with -mrtm i.e.
+
+ gcc -Wall -Wextra -mrtm xabort.c -o xabort
+
+Record:
+
+ perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
+
+Before:
+
+ # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
+          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          mov $0xffffffff, %eax
+          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          mov $0xffffffff, %eax
+
+After:
+
+ # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
+          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          xbegin 0x6
+          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          xabort $0x1
+
+Fixes: faaa87680b25d ("perf intel-pt/bts: Report instruction bytes and length in sample")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20210519074515.9262-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/s390/block/dasd_diag.c |    8 +++++++-
- drivers/s390/block/dasd_fba.c  |    8 +++++++-
- drivers/s390/block/dasd_int.h  |    1 -
- 3 files changed, 14 insertions(+), 3 deletions(-)
+ tools/perf/util/intel-pt.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/s390/block/dasd_diag.c
-+++ b/drivers/s390/block/dasd_diag.c
-@@ -642,12 +642,18 @@ static void dasd_diag_setup_blk_queue(st
- 	blk_queue_segment_boundary(q, PAGE_SIZE - 1);
- }
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -707,8 +707,10 @@ static int intel_pt_walk_next_insn(struc
  
-+static int dasd_diag_pe_handler(struct dasd_device *device,
-+				__u8 tbvpm, __u8 fcsecpm)
-+{
-+	return dasd_generic_verify_path(device, tbvpm);
-+}
-+
- static struct dasd_discipline dasd_diag_discipline = {
- 	.owner = THIS_MODULE,
- 	.name = "DIAG",
- 	.ebcname = "DIAG",
- 	.check_device = dasd_diag_check_device,
--	.verify_path = dasd_generic_verify_path,
-+	.pe_handler = dasd_diag_pe_handler,
- 	.fill_geometry = dasd_diag_fill_geometry,
- 	.setup_blk_queue = dasd_diag_setup_blk_queue,
- 	.start_IO = dasd_start_diag,
---- a/drivers/s390/block/dasd_fba.c
-+++ b/drivers/s390/block/dasd_fba.c
-@@ -800,13 +800,19 @@ static void dasd_fba_setup_blk_queue(str
- 	blk_queue_flag_set(QUEUE_FLAG_DISCARD, q);
- }
+ 			*ip += intel_pt_insn->length;
  
-+static int dasd_fba_pe_handler(struct dasd_device *device,
-+			       __u8 tbvpm, __u8 fcsecpm)
-+{
-+	return dasd_generic_verify_path(device, tbvpm);
-+}
-+
- static struct dasd_discipline dasd_fba_discipline = {
- 	.owner = THIS_MODULE,
- 	.name = "FBA ",
- 	.ebcname = "FBA ",
- 	.check_device = dasd_fba_check_characteristics,
- 	.do_analysis = dasd_fba_do_analysis,
--	.verify_path = dasd_generic_verify_path,
-+	.pe_handler = dasd_fba_pe_handler,
- 	.setup_blk_queue = dasd_fba_setup_blk_queue,
- 	.fill_geometry = dasd_fba_fill_geometry,
- 	.start_IO = dasd_start_IO,
---- a/drivers/s390/block/dasd_int.h
-+++ b/drivers/s390/block/dasd_int.h
-@@ -297,7 +297,6 @@ struct dasd_discipline {
- 	 * e.g. verify that new path is compatible with the current
- 	 * configuration.
- 	 */
--	int (*verify_path)(struct dasd_device *, __u8);
- 	int (*pe_handler)(struct dasd_device *, __u8, __u8);
+-			if (to_ip && *ip == to_ip)
++			if (to_ip && *ip == to_ip) {
++				intel_pt_insn->length = 0;
+ 				goto out_no_cache;
++			}
  
- 	/*
+ 			if (*ip >= al.map->end)
+ 				break;
+@@ -1198,6 +1200,7 @@ static void intel_pt_set_pid_tid_cpu(str
+ 
+ static void intel_pt_sample_flags(struct intel_pt_queue *ptq)
+ {
++	ptq->insn_len = 0;
+ 	if (ptq->state->flags & INTEL_PT_ABORT_TX) {
+ 		ptq->flags = PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT;
+ 	} else if (ptq->state->flags & INTEL_PT_ASYNC) {
 
 
