@@ -2,117 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BDD13396865
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 21:38:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DB75239686D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 21:47:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbhEaTjl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 15:39:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46308 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231144AbhEaTjk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 15:39:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D9716135C;
-        Mon, 31 May 2021 19:38:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622489880;
-        bh=DxmToG3L31wIR+9AdgK9OhgVLZyRMZ/xTbCfSGTuyhQ=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=QBl6dcmn1Rx7zOlV2n2Nl+2g6JAtjkgqPcHvclhsLlHustjWEFdadRTHjjlkqK4qs
-         +M3oZt+zsuDljk+HeIXVQJEnHucadsgqqhkWNgG2qgZjxfautiQTmjDPUv80T0lG5v
-         Sw1owFkPyCbIyUm99iqkdEEA6vaz4J8WT49k3k5IC5sMAN1GUJEgXyFXSdrHRJ0h1Z
-         Q7AsdsrxL5OXBH2I6b/kFwevlUu1upQVPfZ3jmof8zEdjFv/x6zGEh7t4NuEp3SNsM
-         EuBD7uOZyXO0LDJcnF/LNhm/mU4kutwi0vpzUKB/ZI/Do3GIuteNLPXUg1rcVFxH7R
-         AgIgYEy/jzx3w==
-Received: by mail-ot1-f54.google.com with SMTP id i23-20020a9d68d70000b02902dc19ed4c15so12049102oto.0;
-        Mon, 31 May 2021 12:38:00 -0700 (PDT)
-X-Gm-Message-State: AOAM531BSksz8cNSHRD2+QDz3ong4/7uykjHW+M4RKHh0PmCOLEeAyn9
-        BwhUZDejimT4zrt0FN7Q3dgM8XnYIUrMMwiveu0=
-X-Google-Smtp-Source: ABdhPJxPwjDBqtCO2vVdoCZIFP8PKpzd7N2ZxjbZBqdZTvAj4/TEDt5tvoyFrMZSG6HJFmhLRxOFwg7krnBvo9m5Hkg=
-X-Received: by 2002:a9d:69c5:: with SMTP id v5mr17902553oto.108.1622489879945;
- Mon, 31 May 2021 12:37:59 -0700 (PDT)
+        id S230439AbhEaTtU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 15:49:20 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57588 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230424AbhEaTtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 15:49:20 -0400
+Received: from mail-ot1-x32d.google.com (mail-ot1-x32d.google.com [IPv6:2607:f8b0:4864:20::32d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C6CDC06174A
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 12:47:40 -0700 (PDT)
+Received: by mail-ot1-x32d.google.com with SMTP id v19-20020a0568301413b0290304f00e3d88so12045938otp.4
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 12:47:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxtx.org; s=google;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=3lF6MoSj2wY9eDfl/0ZlHspX4t/Cc1wkZeLHSfsMxRw=;
+        b=SrSHMGkcG7/IFFCtZHfMZ/VjcoSKWtPB4oDc7ZIRfafUvkDyz1IbLLyiHb572jUQ04
+         o5d5NmgymWh2n074gHJEyLGLVp190Xt0QYwDJJJRHL/fiFLsV6KjMYH7HKGMVqsFt7Es
+         aKtYB8MxDA/walyUzgdCrON+VSPOLO3Hm59vg=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=3lF6MoSj2wY9eDfl/0ZlHspX4t/Cc1wkZeLHSfsMxRw=;
+        b=AKVAXMVCk81QTd+9UbRJ1ZBgS6rpzvZ7sfyBrAf69gk3bVRxS+AuEVxdyJT2W4ugjV
+         X+uOKlN1QsuYluZq3jTDqtQ1vP7XUuSRMvPVf0vVMW7lHyrrH8JT8NLslHfpcg9WfNG1
+         l4GZHMJz1ti0AO7l/G+4QrwjCY2goFQaZ6qKU/eTFuKSy139Vy/GZIcp5qj3ZLl90ywS
+         upgq5XjTg+6/B7e0QJSEgG5TqR6i9xOsEGgABsNDQPcDxAXcnqgH9sznRxAUue47262N
+         bsOUIyApbqsn00/UdjMoJIRlSm5Uhs6M/rn0RbWa20TMi2fB5TQMvr0sjW/VxHtJM3I5
+         h92w==
+X-Gm-Message-State: AOAM530Xz3hr2j6Sh3NhxdstI+mhZU/8h/A4gyMeoa/Y5qGLZu4yIrzv
+        6KLTZaNfiXpaDWCkNC3n5JWhrMCqTyNTkYAF9iY=
+X-Google-Smtp-Source: ABdhPJz9JU40RWd5fZXozCP8eoT6CNpk99Olq7W7dcXpIic/IJIWDc6+qVE0lH6ZMkNPOYqJWHUDPg==
+X-Received: by 2002:a05:6830:40a8:: with SMTP id x40mr6741102ott.364.1622490459378;
+        Mon, 31 May 2021 12:47:39 -0700 (PDT)
+Received: from fedora64.linuxtx.org (104-189-158-32.lightspeed.rcsntx.sbcglobal.net. [104.189.158.32])
+        by smtp.gmail.com with ESMTPSA id a5sm3486343otb.41.2021.05.31.12.47.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 May 2021 12:47:38 -0700 (PDT)
+Date:   Mon, 31 May 2021 14:47:37 -0500
+From:   Justin Forbes <jmforbes@linuxtx.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: Re: [PATCH 5.12 000/296] 5.12.9-rc1 review
+Message-ID: <YLU9WWjyVm+WRihm@fedora64.linuxtx.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20210531095720.77469-1-maz@kernel.org> <20210531095720.77469-2-maz@kernel.org>
-In-Reply-To: <20210531095720.77469-2-maz@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 31 May 2021 21:37:49 +0200
-X-Gmail-Original-Message-ID: <CAMj1kXFNUAtXPzO+EbMzZQPxgst4BMEUuYbrWwYer3P9trYdLQ@mail.gmail.com>
-Message-ID: <CAMj1kXFNUAtXPzO+EbMzZQPxgst4BMEUuYbrWwYer3P9trYdLQ@mail.gmail.com>
-Subject: Re: [PATCH v2 1/5] arm64: kexec_file: Forbid non-crash kernels
-To:     Marc Zyngier <maz@kernel.org>
-Cc:     kexec@lists.infradead.org,
-        Linux ARM <linux-arm-kernel@lists.infradead.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        James Morse <james.morse@arm.com>,
-        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
-        Hanjun Guo <guohanjun@huawei.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Bhupesh SHARMA <bhupesh.sharma@linaro.org>,
-        AKASHI Takahiro <takahiro.akashi@linaro.org>,
-        Dave Young <dyoung@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Moritz Fischer <mdf@kernel.org>,
-        Android Kernel Team <kernel-team@android.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 May 2021 at 11:57, Marc Zyngier <maz@kernel.org> wrote:
->
-> It has been reported that kexec_file doesn't really work on arm64.
-> It completely ignores any of the existing reservations, which results
-> in the secondary kernel being loaded where the GICv3 LPI tables live,
-> or even corrupting the ACPI tables.
->
-> Since only crash kernels are imune to this as they use a reserved
-> memory region, disable the non-crash kernel use case. Further
-> patches will try and restore the functionality.
->
-> Reported-by: Moritz Fischer <mdf@kernel.org>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Cc: stable@vger.kernel.org # 5.10
+On Mon, May 31, 2021 at 03:10:55PM +0200, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.12.9 release.
+> There are 296 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.9-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Acked-by: Ard Biesheuvel <ardb@kernel.org>
+Tested rc1 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-... but do we really only need this in 5.10 and not earlier?
-
-> ---
->  arch/arm64/kernel/kexec_image.c | 20 ++++++++++++++++++++
->  1 file changed, 20 insertions(+)
->
-> diff --git a/arch/arm64/kernel/kexec_image.c b/arch/arm64/kernel/kexec_image.c
-> index 9ec34690e255..acf9cd251307 100644
-> --- a/arch/arm64/kernel/kexec_image.c
-> +++ b/arch/arm64/kernel/kexec_image.c
-> @@ -145,3 +145,23 @@ const struct kexec_file_ops kexec_image_ops = {
->         .verify_sig = image_verify_sig,
->  #endif
->  };
-> +
-> +/**
-> + * arch_kexec_locate_mem_hole - Find free memory to place the segments.
-> + * @kbuf:                       Parameters for the memory search.
-> + *
-> + * On success, kbuf->mem will have the start address of the memory region found.
-> + *
-> + * Return: 0 on success, negative errno on error.
-> + */
-> +int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf)
-> +{
-> +       /*
-> +        * For the time being, kexec_file_load isn't reliable except
-> +        * for crash kernel. Say sorry to the user.
-> +        */
-> +       if (kbuf->image->type != KEXEC_TYPE_CRASH)
-> +               return -EADDRNOTAVAIL;
-> +
-> +       return kexec_locate_mem_hole(kbuf);
-> +}
-> --
-> 2.30.2
->
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
