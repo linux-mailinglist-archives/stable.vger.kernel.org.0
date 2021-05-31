@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8251395C92
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:33:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E15E7395D04
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232931AbhEaNfE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:35:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+        id S232561AbhEaNkn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43270 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232130AbhEaNc2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:32:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4D3536108D;
-        Mon, 31 May 2021 13:23:52 +0000 (UTC)
+        id S232521AbhEaNil (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:38:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D4A2161375;
+        Mon, 31 May 2021 13:26:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467432;
-        bh=MSDdwLgqXfSX0xnV9EaZQyWnNiZCGjU8vudd2Vy++EI=;
+        s=korg; t=1622467608;
+        bh=6MIX/v40CaAp+ioMxCboYjyyp5oZh/fWPW+g9t3b5JY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJbu/YdHWJl7ehl0qTCg8YpfxCwzSvdW6ZqMy5Yz1zPkszThUwBEGVqZ4M+X1DOAZ
-         ow8KSZVpLYkkDtswFSGmmbtrhb6M6YC1UNVTfTfmejZ20HMuxH1G3Ye8HwRecbAVpa
-         I9EEC8eM0db5pN6zsZWBVE0J8wX3HhxBU3nh2hns=
+        b=srdTjszmJkjH7IKfIeg/d1USn07c/3l4poTjcfcJ014sf6xF3kv3N3CFBBadzBin3
+         xzEcZkMzoQFO61Xl/ZZ8g5QfirM6pAgKBs7SVsxhWPGVV6bZCKgWijDZHuzztHQuZD
+         tCuhy4P0V61s4fn0CLIkrLEOVtmToun55X6XzLUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.19 062/116] Bluetooth: cmtp: fix file refcount when cmtp_attach_device fails
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 13/79] mac80211: assure all fragments are encrypted
 Date:   Mon, 31 May 2021 15:13:58 +0200
-Message-Id: <20210531130642.271036712@linuxfoundation.org>
+Message-Id: <20210531130636.433791915@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 8da3a0b87f4f1c3a3bbc4bfb78cf68476e97d183 upstream.
+commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
 
-When cmtp_attach_device fails, cmtp_add_connection returns the error value
-which leads to the caller to doing fput through sockfd_put. But
-cmtp_session kthread, which is stopped in this path will also call fput,
-leading to a potential refcount underflow or a use-after-free.
+Do not mix plaintext and encrypted fragments in protected Wi-Fi
+networks. This fixes CVE-2020-26147.
 
-Add a refcount before we signal the kthread to stop. The kthread will try
-to grab the cmtp_session_sem mutex before doing the fput, which is held
-when get_file is called, so there should be no races there.
+Previously, an attacker was able to first forward a legitimate encrypted
+fragment towards a victim, followed by a plaintext fragment. The
+encrypted and plaintext fragment would then be reassembled. For further
+details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
+Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
 
-Reported-by: Ryota Shiga
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Because of this change there are now two equivalent conditions in the
+code to determine if a received fragment requires sequential PNs, so we
+also move this test to a separate function to make the code easier to
+maintain.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/cmtp/core.c |    5 +++++
- 1 file changed, 5 insertions(+)
+ net/mac80211/rx.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
---- a/net/bluetooth/cmtp/core.c
-+++ b/net/bluetooth/cmtp/core.c
-@@ -391,6 +391,11 @@ int cmtp_add_connection(struct cmtp_conn
- 	if (!(session->flags & BIT(CMTP_LOOPBACK))) {
- 		err = cmtp_attach_device(session);
- 		if (err < 0) {
-+			/* Caller will call fput in case of failure, and so
-+			 * will cmtp_session kthread.
-+			 */
-+			get_file(session->sock->file);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1968,6 +1968,16 @@ ieee80211_reassemble_find(struct ieee802
+ 	return NULL;
+ }
+ 
++static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
++{
++	return rx->key &&
++		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
++		ieee80211_has_protected(fc);
++}
 +
- 			atomic_inc(&session->terminate);
- 			wake_up_interruptible(sk_sleep(session->sock->sk));
- 			up_write(&cmtp_session_sem);
+ static ieee80211_rx_result debug_noinline
+ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ {
+@@ -2012,12 +2022,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		/* This is the first fragment of a new frame. */
+ 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
+ 						 rx->seqno_idx, &(rx->skb));
+-		if (rx->key &&
+-		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
+-		    ieee80211_has_protected(fc)) {
++		if (requires_sequential_pn(rx, fc)) {
+ 			int queue = rx->security_idx;
+ 
+ 			/* Store CCMP/GCMP PN so that we can verify that the
+@@ -2059,11 +2064,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
+ 		int queue;
+ 
+-		if (!rx->key ||
+-		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
++		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
 
 
