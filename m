@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AFE37395B7F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62849395D8E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:46:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231880AbhEaNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:21:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55814 "EHLO mail.kernel.org"
+        id S232981AbhEaNrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231777AbhEaNTr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A1D2613AF;
-        Mon, 31 May 2021 13:18:05 +0000 (UTC)
+        id S232814AbhEaNpi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:45:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C35EF61428;
+        Mon, 31 May 2021 13:29:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467086;
-        bh=nErmVLyr1tlj/n+cc0pBDyAqBB0N06DTGmAaHj+iXNE=;
+        s=korg; t=1622467792;
+        bh=yeK4QSIuwQInUo50dTdpiX7O1gfAmxoFGOPlZSDNhgs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QR2y76CQxUk30szaSUFFZzyE55BQw0xaf7u36kEPN111vRrsF384BxAVNQoL5FV0v
-         YiSzeQCDDBzhJNGHBSCvc6dmfYRkGPqPi2PK40bjj4lE0bRJN4Lu3RnDbqvmdekCAZ
-         1cz8PrHe7U04N2Pi3gj8lM/NgMN9yw14IIzhyV3g=
+        b=nWoZNc7kcaRsIkIXcaj6ZXepoYeNEKucmEOCgyoAG5XVPaWRLOLsIAEH9CEldFQ3h
+         SZ0Vu9Z4STQIED7pLdmDaoVQufBjA7odwRN0k6GiMbYx2pLL/EhXLfHO7rksGkSCC5
+         afeonylm+yUd09jpXZJJRvRcTSJtt8+Uc/rLpN4Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 4.4 54/54] usb: core: reduce power-on-good delay time of root hub
-Date:   Mon, 31 May 2021 15:14:20 +0200
-Message-Id: <20210531130636.756816902@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.14 36/79] NFS: Dont corrupt the value of pg_bytes_written in nfs_do_recoalesce()
+Date:   Mon, 31 May 2021 15:14:21 +0200
+Message-Id: <20210531130637.167248150@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit 90d28fb53d4a51299ff324dede015d5cb11b88a2 upstream.
+commit 0d0ea309357dea0d85a82815f02157eb7fcda39f upstream.
 
-Return the exactly delay time given by root hub descriptor,
-this helps to reduce resume time etc.
+The value of mirror->pg_bytes_written should only be updated after a
+successful attempt to flush out the requests on the list.
 
-Due to the root hub descriptor is usually provided by the host
-controller driver, if there is compatibility for a root hub,
-we can fix it easily without affect other root hub
-
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1618017645-12259-1-git-send-email-chunfeng.yun@mediatek.com
+Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/nfs/pagelist.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/core/hub.h
-+++ b/drivers/usb/core/hub.h
-@@ -140,8 +140,10 @@ static inline unsigned hub_power_on_good
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -986,17 +986,16 @@ static void nfs_pageio_doio(struct nfs_p
  {
- 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
+ 	struct nfs_pgio_mirror *mirror = nfs_pgio_current_mirror(desc);
  
--	/* Wait at least 100 msec for power to become stable */
--	return max(delay, 100U);
-+	if (!hub->hdev->parent)	/* root hub */
-+		return delay;
-+	else /* Wait at least 100 msec for power to become stable */
-+		return max(delay, 100U);
+-
+ 	if (!list_empty(&mirror->pg_list)) {
+ 		int error = desc->pg_ops->pg_doio(desc);
+ 		if (error < 0)
+ 			desc->pg_error = error;
+-		else
++		if (list_empty(&mirror->pg_list)) {
+ 			mirror->pg_bytes_written += mirror->pg_count;
+-	}
+-	if (list_empty(&mirror->pg_list)) {
+-		mirror->pg_count = 0;
+-		mirror->pg_base = 0;
++			mirror->pg_count = 0;
++			mirror->pg_base = 0;
++			mirror->pg_recoalesce = 0;
++		}
+ 	}
  }
  
- static inline int hub_port_debounce_be_connected(struct usb_hub *hub,
+@@ -1094,7 +1093,6 @@ static int nfs_do_recoalesce(struct nfs_
+ 
+ 	do {
+ 		list_splice_init(&mirror->pg_list, &head);
+-		mirror->pg_bytes_written -= mirror->pg_count;
+ 		mirror->pg_count = 0;
+ 		mirror->pg_base = 0;
+ 		mirror->pg_recoalesce = 0;
 
 
