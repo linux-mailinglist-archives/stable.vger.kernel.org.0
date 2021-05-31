@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD9D8395EF8
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:04:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CF0D395BCD
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232898AbhEaOGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:06:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37384 "EHLO mail.kernel.org"
+        id S232203AbhEaNYq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:24:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231219AbhEaOD5 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:03:57 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49E7A6194C;
-        Mon, 31 May 2021 13:37:56 +0000 (UTC)
+        id S232287AbhEaNWp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:22:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BFAB6140F;
+        Mon, 31 May 2021 13:19:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468276;
-        bh=xGou3xu3WMhEItva0gKR7+VwTCk+xQj8PAChKyy1Mxo=;
+        s=korg; t=1622467182;
+        bh=7QXqn94zqFD8tTPdbHgKtZQt7uJTtmRjqr/4mq2F30k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0pMrtWW2Wzk067mPlRt9k1t/Qw4GRwPahB8YntQ3Jb6T7sJ6z/JxgxWZYeGj0EbE
-         kAusZ/RyQXI9f5bJfPCUFo6fYsmjVOt6gPTQn3oqxfTV/3CFbyBmdln6MDU/izxdFn
-         r+/P+mPHWgrvp3p0VMi+JpqI/RKzcf/A+VFzS+14=
+        b=j2jL2mZR1DatPLT4qWz0zI/wJl/iJVQaN+fIlneeiYVz/ANDVzUjWCl4K56fckthp
+         R53iYpE1V6UgyJChY5lE7seIZzMQWHWG4hjfPG2BgW6aCDe6EE3dJGBBhE/BN5ncqG
+         RMbfBXA9X+aDQ81Ysqsn0fkXDM0+t7OUAMPQ44hY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 182/252] drm/amd/amdgpu: fix refcount leak
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 34/66] tipc: skb_linearize the head skb when reassembling msgs
 Date:   Mon, 31 May 2021 15:14:07 +0200
-Message-Id: <20210531130704.193621612@linuxfoundation.org>
+Message-Id: <20210531130637.342399501@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingwen Chen <Jingwen.Chen2@amd.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit fa7e6abc75f3d491bc561734312d065dc9dc2a77 ]
+commit b7df21cf1b79ab7026f545e7bf837bd5750ac026 upstream.
 
-[Why]
-the gem object rfb->base.obj[0] is get according to num_planes
-in amdgpufb_create, but is not put according to num_planes
+It's not a good idea to append the frag skb to a skb's frag_list if
+the frag_list already has skbs from elsewhere, such as this skb was
+created by pskb_copy() where the frag_list was cloned (all the skbs
+in it were skb_get'ed) and shared by multiple skbs.
 
-[How]
-put rfb->base.obj[0] in amdgpu_fbdev_destroy according to num_planes
+However, the new appended frag skb should have been only seen by the
+current skb. Otherwise, it will cause use after free crashes as this
+appended frag skb are seen by multiple skbs but it only got skb_get
+called once.
 
-Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The same thing happens with a skb updated by pskb_may_pull() with a
+skb_cloned skb. Li Shuang has reported quite a few crashes caused
+by this when doing testing over macvlan devices:
+
+  [] kernel BUG at net/core/skbuff.c:1970!
+  [] Call Trace:
+  []  skb_clone+0x4d/0xb0
+  []  macvlan_broadcast+0xd8/0x160 [macvlan]
+  []  macvlan_process_broadcast+0x148/0x150 [macvlan]
+  []  process_one_work+0x1a7/0x360
+  []  worker_thread+0x30/0x390
+
+  [] kernel BUG at mm/usercopy.c:102!
+  [] Call Trace:
+  []  __check_heap_object+0xd3/0x100
+  []  __check_object_size+0xff/0x16b
+  []  simple_copy_to_iter+0x1c/0x30
+  []  __skb_datagram_iter+0x7d/0x310
+  []  __skb_datagram_iter+0x2a5/0x310
+  []  skb_copy_datagram_iter+0x3b/0x90
+  []  tipc_recvmsg+0x14a/0x3a0 [tipc]
+  []  ____sys_recvmsg+0x91/0x150
+  []  ___sys_recvmsg+0x7b/0xc0
+
+  [] kernel BUG at mm/slub.c:305!
+  [] Call Trace:
+  []  <IRQ>
+  []  kmem_cache_free+0x3ff/0x400
+  []  __netif_receive_skb_core+0x12c/0xc40
+  []  ? kmem_cache_alloc+0x12e/0x270
+  []  netif_receive_skb_internal+0x3d/0xb0
+  []  ? get_rx_page_info+0x8e/0xa0 [be2net]
+  []  be_poll+0x6ef/0xd00 [be2net]
+  []  ? irq_exit+0x4f/0x100
+  []  net_rx_action+0x149/0x3b0
+
+  ...
+
+This patch is to fix it by linearizing the head skb if it has frag_list
+set in tipc_buf_append(). Note that we choose to do this before calling
+skb_unshare(), as __skb_linearize() will avoid skb_copy(). Also, we can
+not just drop the frag_list either as the early time.
+
+Fixes: 45c8b7b175ce ("tipc: allow non-linear first fragment buffer")
+Reported-by: Li Shuang <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/tipc/msg.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-index 1ea8af48ae2f..43f29ee0e3b0 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
-@@ -289,10 +289,13 @@ out:
- static int amdgpu_fbdev_destroy(struct drm_device *dev, struct amdgpu_fbdev *rfbdev)
- {
- 	struct amdgpu_framebuffer *rfb = &rfbdev->rfb;
-+	int i;
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -141,18 +141,13 @@ int tipc_buf_append(struct sk_buff **hea
+ 		if (unlikely(head))
+ 			goto err;
+ 		*buf = NULL;
++		if (skb_has_frag_list(frag) && __skb_linearize(frag))
++			goto err;
+ 		frag = skb_unshare(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+ 		TIPC_SKB_CB(head)->tail = NULL;
+-		if (skb_is_nonlinear(head)) {
+-			skb_walk_frags(head, tail) {
+-				TIPC_SKB_CB(head)->tail = tail;
+-			}
+-		} else {
+-			skb_frag_list_init(head);
+-		}
+ 		return 0;
+ 	}
  
- 	drm_fb_helper_unregister_fbi(&rfbdev->helper);
- 
- 	if (rfb->base.obj[0]) {
-+		for (i = 0; i < rfb->base.format->num_planes; i++)
-+			drm_gem_object_put(rfb->base.obj[0]);
- 		amdgpufb_destroy_pinned_object(rfb->base.obj[0]);
- 		rfb->base.obj[0] = NULL;
- 		drm_framebuffer_unregister_private(&rfb->base);
--- 
-2.30.2
-
 
 
