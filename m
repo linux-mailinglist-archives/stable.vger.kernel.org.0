@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2303A395E3C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:54:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 56CCE395E44
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:54:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232553AbhEaN4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:56:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58840 "EHLO mail.kernel.org"
+        id S232617AbhEaN40 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:56:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55704 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232183AbhEaNyB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:54:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 03F8C6191D;
-        Mon, 31 May 2021 13:33:38 +0000 (UTC)
+        id S233113AbhEaNy2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:54:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AB81613F4;
+        Mon, 31 May 2021 13:33:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468019;
-        bh=IGnyTuQjYOOw4G6t0SNltBrM51l310tTmm7+guOXb0o=;
+        s=korg; t=1622468022;
+        bh=6F4LA1KYJub7FaLxg+TkDK0L6lJ+/RJtGLAZGeI3SSs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cZj1dmWV4xcLnHJ3KPLAeybinXjWyIc9y5wXmng34EsoLRAmPL6TrrEhhyg35eqcO
-         eoAgVsKOdSBbtyHJqAc6IaKzMy6jHiU8UTExcTENlc7elUsy3Z99VujEOSeq/f+vxC
-         TOTPiTLn9pj5PzFgmh4Ap0pY4ssMMLYOpnqj8N3M=
+        b=UbniEEWDS6y0aEbKe0kHQ7KG5Ov8PsnZ6465A41DPZZeF6mrDYXri7b+jEKrGdqem
+         c0YiffxF+QIma8wOMcfjDMc7+1i2BDdc892ympEUepsXhw+BjnZSS6ab8hIXooD0Q9
+         G8rj3H5V5Es2KEvMNllFLStU/duhx5/tj1LrT/8E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.10 087/252] usb: gadget: udc: renesas_usb3: Fix a race in usb3_start_pipen()
-Date:   Mon, 31 May 2021 15:12:32 +0200
-Message-Id: <20210531130700.936886724@linuxfoundation.org>
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Bjorn Andersson <bjorn.andersson@linaro.org>
+Subject: [PATCH 5.10 088/252] usb: typec: mux: Fix matching with typec_altmode_desc
+Date:   Mon, 31 May 2021 15:12:33 +0200
+Message-Id: <20210531130700.967476722@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -39,63 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Bjorn Andersson <bjorn.andersson@linaro.org>
 
-commit e752dbc59e1241b13b8c4f7b6eb582862e7668fe upstream.
+commit acf5631c239dfc53489f739c4ad47f490c5181ff upstream.
 
-The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
-usb3_request_done_pipen() so that usb3_start_pipen() is possible
-to cause a race when getting usb3_first_req like below:
+In typec_mux_match() "nval" is assigned the number of elements in the
+"svid" fwnode property, then the variable is used to store the success
+of the read and finally attempts to loop between 0 and "success" - i.e.
+not at all - and the code returns indicating that no match was found.
 
-renesas_usb3_ep_queue()
- spin_lock_irqsave()
- list_add_tail()
- spin_unlock_irqrestore()
- usb3_start_pipen()
-  usb3_first_req = usb3_get_request() --- [1]
- --- interrupt ---
- usb3_irq_dma_int()
- usb3_request_done_pipen()
-  usb3_get_request()
-  usb3_start_pipen()
-  usb3_first_req = usb3_get_request()
-  ...
-  (the req is possible to be finished in the interrupt)
+Fix this by using a separate variable to track the success of the read,
+to allow the loop to get a change to find a match.
 
-The usb3_first_req [1] above may have been finished after the interrupt
-ended so that this driver caused to start a transfer wrongly. To fix this
-issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
-in the same section.
-
-Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
+Fixes: 96a6d031ca99 ("usb: typec: mux: Find the muxes by also matching against the device node")
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
 Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
+Signed-off-by: Bjorn Andersson <bjorn.andersson@linaro.org>
+Link: https://lore.kernel.org/r/20210516034730.621461-1-bjorn.andersson@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/usb/typec/mux.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -1488,7 +1488,7 @@ static void usb3_start_pipen(struct rene
- 			     struct renesas_usb3_request *usb3_req)
- {
- 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
--	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
-+	struct renesas_usb3_request *usb3_req_first;
- 	unsigned long flags;
- 	int ret = -EAGAIN;
- 	u32 enable_bits = 0;
-@@ -1496,7 +1496,8 @@ static void usb3_start_pipen(struct rene
- 	spin_lock_irqsave(&usb3->lock, flags);
- 	if (usb3_ep->halt || usb3_ep->started)
- 		goto out;
--	if (usb3_req != usb3_req_first)
-+	usb3_req_first = __usb3_get_request(usb3_ep);
-+	if (!usb3_req_first || usb3_req != usb3_req_first)
- 		goto out;
+--- a/drivers/usb/typec/mux.c
++++ b/drivers/usb/typec/mux.c
+@@ -191,6 +191,7 @@ static void *typec_mux_match(struct fwno
+ 	bool match;
+ 	int nval;
+ 	u16 *val;
++	int ret;
+ 	int i;
  
- 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
+ 	/*
+@@ -218,10 +219,10 @@ static void *typec_mux_match(struct fwno
+ 	if (!val)
+ 		return ERR_PTR(-ENOMEM);
+ 
+-	nval = fwnode_property_read_u16_array(fwnode, "svid", val, nval);
+-	if (nval < 0) {
++	ret = fwnode_property_read_u16_array(fwnode, "svid", val, nval);
++	if (ret < 0) {
+ 		kfree(val);
+-		return ERR_PTR(nval);
++		return ERR_PTR(ret);
+ 	}
+ 
+ 	for (i = 0; i < nval; i++) {
 
 
