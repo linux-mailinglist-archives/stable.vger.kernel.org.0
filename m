@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 030173961C2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B5A395FBA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231663AbhEaOp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
+        id S231243AbhEaOP7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:15:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232836AbhEaOnh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:43:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AB6AD61C70;
-        Mon, 31 May 2021 13:54:38 +0000 (UTC)
+        id S233289AbhEaOMF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:12:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 11F8F61460;
+        Mon, 31 May 2021 13:41:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469279;
-        bh=LI6tbHe4ZMdS7xGy7ZTHhToBgx0h3n6G75mb/ZqC3HA=;
+        s=korg; t=1622468492;
+        bh=vWzu84KDPR4m9KQqki4TpwcoGMXj2QMHBkh1UmR+CQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fDjaxtC/dMnMQ0urOVO9Uln8Sbow9oU8bs7AxCB3/mlJpnMsxeN/8ByPdSmOX9wv3
-         z7xZLoQifNYfTjEmWSE47CH3lliKXazAw7hdO93yrPxIoGOSE8OP/bLfpSczhkNCb2
-         uSgMnqnXPsItAN9ltLxN8PZCRamFnYdSE0I7yMCI=
+        b=Lo02YeEVf5SLwTtwwJUiKyF8QplkTYrv+SAoO3eZo0HOsPVgGVbWyaPj/HBtTkm6h
+         OtFzM4cq9o5rrlTdrXSHCFMVSZTfgCrj42jNbp0+7tzLkSwmfZC7uIjRDMnqVmLB4B
+         QYHGfYmUOFr/76l1w0YeqsIeb5U1P7JgKNXHor+A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.12 103/296] usb: dwc3: gadget: Properly track pending and queued SG
-Date:   Mon, 31 May 2021 15:12:38 +0200
-Message-Id: <20210531130707.398562809@linuxfoundation.org>
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.4 002/177] ALSA: usb-audio: scarlett2: Fix device hang with ehci-pci
+Date:   Mon, 31 May 2021 15:12:39 +0200
+Message-Id: <20210531130647.977054036@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-commit 25dda9fc56bd90d45f9a4516bcfa5211e61b4290 upstream.
+commit 764fa6e686e0107c0357a988d193de04cf047583 upstream.
 
-The driver incorrectly uses req->num_pending_sgs to track both the
-number of pending and queued SG entries. It only prepares the next
-request if the previous is done, and it doesn't update num_pending_sgs
-until there is TRB completion interrupt. This may starve the controller
-of more TRBs until the num_pending_sgs is decremented.
+Use usb_rcvctrlpipe() not usb_sndctrlpipe() for USB control input in
+the Scarlett Gen 2 mixer driver. This fixes the device hang during
+initialisation when used with the ehci-pci host driver.
 
-Fix this by decrementing the num_pending_sgs after they are queued and
-properly track both num_mapped_sgs and num_queued_sgs.
-
-Fixes: c96e6725db9d ("usb: dwc3: gadget: Correct the logic for queuing sgs")
+Fixes: 9e4d5c1be21f ("ALSA: usb-audio: Scarlett Gen 2 mixer interface")
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
 Cc: <stable@vger.kernel.org>
-Reported-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Tested-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/ba24591dbcaad8f244a3e88bd449bb7205a5aec3.1620874069.git.Thinh.Nguyen@synopsys.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/66a3d05dac325d5b53e4930578e143cef1f50dbe.1621584566.git.g@b4.vu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ sound/usb/mixer_scarlett_gen2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1236,6 +1236,7 @@ static int dwc3_prepare_trbs_sg(struct d
- 			req->start_sg = sg_next(s);
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -635,7 +635,7 @@ static int scarlett2_usb(
+ 	/* send a second message to get the response */
  
- 		req->num_queued_sgs++;
-+		req->num_pending_sgs--;
- 
- 		/*
- 		 * The number of pending SG entries may not correspond to the
-@@ -1243,7 +1244,7 @@ static int dwc3_prepare_trbs_sg(struct d
- 		 * don't include unused SG entries.
- 		 */
- 		if (length == 0) {
--			req->num_pending_sgs -= req->request.num_mapped_sgs - req->num_queued_sgs;
-+			req->num_pending_sgs = 0;
- 			break;
- 		}
- 
-@@ -2839,15 +2840,15 @@ static int dwc3_gadget_ep_reclaim_trb_sg
- 	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
- 	struct scatterlist *sg = req->sg;
- 	struct scatterlist *s;
--	unsigned int pending = req->num_pending_sgs;
-+	unsigned int num_queued = req->num_queued_sgs;
- 	unsigned int i;
- 	int ret = 0;
- 
--	for_each_sg(sg, s, pending, i) {
-+	for_each_sg(sg, s, num_queued, i) {
- 		trb = &dep->trb_pool[dep->trb_dequeue];
- 
- 		req->sg = sg_next(s);
--		req->num_pending_sgs--;
-+		req->num_queued_sgs--;
- 
- 		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
- 				trb, event, status, true);
-@@ -2870,7 +2871,7 @@ static int dwc3_gadget_ep_reclaim_trb_li
- 
- static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
- {
--	return req->num_pending_sgs == 0;
-+	return req->num_pending_sgs == 0 && req->num_queued_sgs == 0;
- }
- 
- static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
-@@ -2879,7 +2880,7 @@ static int dwc3_gadget_ep_cleanup_comple
- {
- 	int ret;
- 
--	if (req->num_pending_sgs)
-+	if (req->request.num_mapped_sgs)
- 		ret = dwc3_gadget_ep_reclaim_trb_sg(dep, req, event,
- 				status);
- 	else
+ 	err = snd_usb_ctl_msg(mixer->chip->dev,
+-			usb_sndctrlpipe(mixer->chip->dev, 0),
++			usb_rcvctrlpipe(mixer->chip->dev, 0),
+ 			SCARLETT2_USB_VENDOR_SPECIFIC_CMD_RESP,
+ 			USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
+ 			0,
 
 
