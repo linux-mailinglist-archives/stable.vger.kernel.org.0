@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 286633962D8
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C083B3960AA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232956AbhEaPB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50182 "EHLO mail.kernel.org"
+        id S231342AbhEaOao (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:30:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234367AbhEaO7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2CA361CCE;
-        Mon, 31 May 2021 14:01:17 +0000 (UTC)
+        id S233793AbhEaO11 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:27:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 76A1D6161C;
+        Mon, 31 May 2021 13:47:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469678;
-        bh=2/vnSKFmBiPWtK2QwcFs5JOW2fCY6BqT0zNO9pZ7rfg=;
+        s=korg; t=1622468856;
+        bh=sEfcnesrPRlbDo2cFYNq0uRXw0mNlM8JcxE+5scxdrQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F+XySutns5ca3/SK0Mp3TD07jH9Umt+DRbJBuk+xI3Ekk/Y2OyYI1vyA9hwL2IEpL
-         IOkyxGLfEwvF51c21xWyLjIUHSuH4ewpIJyOcSKqMF54czbgWf6wKFNB9mHGipvDWA
-         27RRlOL8TjQFith5zKWy4+e2LywG/fj8geFAxfpI=
+        b=icHXj552Wh87XOByYDsCe1GSWJ6xw9UfPEhSDc2SJIecahBLBRTe39ajqlTp/nlBv
+         5fOiQ6rSb0ltQb0Cc8xE3kd84qvNQ/zRxqlxx/WJB/I+EFSH2A3qEvD1oX99Ot3YGQ
+         zPkt1EYMFh4umw3U847O//QNdoHhH7Q6hN/2iUNs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catherine Sullivan <csully@google.com>,
-        David Awogbemila <awogbemila@google.com>,
-        Willem de Brujin <willemb@google.com>,
+        stable@vger.kernel.org, David Awogbemila <awogbemila@google.com>,
+        Willem de Bruijn <willemb@google.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 254/296] gve: Upgrade memory barrier in poll routine
-Date:   Mon, 31 May 2021 15:15:09 +0200
-Message-Id: <20210531130712.295650193@linuxfoundation.org>
+Subject: [PATCH 5.4 153/177] gve: Update mgmt_msix_idx if num_ntfy changes
+Date:   Mon, 31 May 2021 15:15:10 +0200
+Message-Id: <20210531130653.212537921@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catherine Sullivan <csully@google.com>
+From: David Awogbemila <awogbemila@google.com>
 
-[ Upstream commit f81781835f0adfae8d701545386030d223efcd6f ]
+[ Upstream commit e96b491a0ffa35a8a9607c193fa4d894ca9fb32f ]
 
-As currently written, if the driver checks for more work (via
-gve_tx_poll or gve_rx_poll) before the device posts work and the
-irq doorbell is not unmasked
-(via iowrite32be(GVE_IRQ_ACK | GVE_IRQ_EVENT, ...)) before the device
-attempts to raise an interrupt, an interrupt is lost and this could
-potentially lead to the traffic being completely halted. For
-example, if a tx queue has already been stopped, the driver won't get
-the chance to complete work and egress will be halted.
-
-We need a full memory barrier in the poll
-routine to ensure that the irq doorbell is unmasked before the driver
-checks for more work.
+If we do not get the expected number of vectors from
+pci_enable_msix_range, we update priv->num_ntfy_blks but not
+priv->mgmt_msix_idx. This patch fixes this so that priv->mgmt_msix_idx
+is updated accordingly.
 
 Fixes: f5cedc84a30d ("gve: Add transmit and receive support")
-Signed-off-by: Catherine Sullivan <csully@google.com>
 Signed-off-by: David Awogbemila <awogbemila@google.com>
-Acked-by: Willem de Brujin <willemb@google.com>
+Acked-by: Willem de Bruijn <willemb@google.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/google/gve/gve_main.c | 1 +
+ 1 file changed, 1 insertion(+)
 
 diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
-index 21a5d058dab4..bbc423e93122 100644
+index 9b7a8db9860f..9c74251f9b6a 100644
 --- a/drivers/net/ethernet/google/gve/gve_main.c
 +++ b/drivers/net/ethernet/google/gve/gve_main.c
-@@ -180,7 +180,7 @@ static int gve_napi_poll(struct napi_struct *napi, int budget)
- 	/* Double check we have no extra work.
- 	 * Ensure unmask synchronizes with checking for work.
- 	 */
--	dma_rmb();
-+	mb();
- 	if (block->tx)
- 		reschedule |= gve_tx_poll(block, -1);
- 	if (block->rx)
+@@ -161,6 +161,7 @@ static int gve_alloc_notify_blocks(struct gve_priv *priv)
+ 		int vecs_left = new_num_ntfy_blks % 2;
+ 
+ 		priv->num_ntfy_blks = new_num_ntfy_blks;
++		priv->mgmt_msix_idx = priv->num_ntfy_blks;
+ 		priv->tx_cfg.max_queues = min_t(int, priv->tx_cfg.max_queues,
+ 						vecs_per_type);
+ 		priv->rx_cfg.max_queues = min_t(int, priv->rx_cfg.max_queues,
 -- 
 2.30.2
 
