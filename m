@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B2E6395B36
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E6FFC395C6B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231683AbhEaNSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:18:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53514 "EHLO mail.kernel.org"
+        id S232227AbhEaNcg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:32:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231663AbhEaNST (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4AC36135D;
-        Mon, 31 May 2021 13:16:38 +0000 (UTC)
+        id S232089AbhEaNae (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:30:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0CF86142D;
+        Mon, 31 May 2021 13:23:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622466999;
-        bh=MvJFFWkWQkinB1xG6V0udxxPs18hrtjOttKpB5EZfhE=;
+        s=korg; t=1622467390;
+        bh=2mYgn0+xEy3LA8PX8utkbUKq+W5HQvza1lQI7eUtytQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f9IJZAk4efcwMRkj9crTlybrQUJ2VrYG186lDBBQpMgklCzmi72g66mVPFH4sReUp
-         EsWfslroCcV08LGaM1sL+u8z0Dy1mIO5ySAi7EAYsh4zfOdzbJV+rJAv3ISr4wS3gv
-         WOw+SM4M3N7zvF3pI62KRSqYgTQTNU64kQE5jeEk=
+        b=pc5pqr28NKbpeKgRzfW81SZagaMX2bSV6Lvtzlh3fwFsTzDzMwzW1c3Wsz5GSgsJR
+         2YUBfxZFQth4LjwMI3J/YIQ+Comk9licVbbqZ/sRHevaLbFnB1aqufWxfLLfq10o3G
+         YcI0q+MV5WU9Kwe/tVsHojdygNXOuX2+0+UqLROA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zolton Jheng <s6668c2t@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.4 18/54] USB: serial: pl2303: add device id for ADLINK ND-6530 GC
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 048/116] bpf: Ensure off_reg has no mixed signed bounds for all types
 Date:   Mon, 31 May 2021 15:13:44 +0200
-Message-Id: <20210531130635.668182895@linuxfoundation.org>
+Message-Id: <20210531130641.806645614@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +42,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zolton Jheng <s6668c2t@gmail.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit f8e8c1b2f782e7391e8a1c25648ce756e2a7d481 upstream.
+commit 24c109bb1537c12c02aeed2d51a347b4d6a9b76e upstream.
 
-This adds the device id for the ADLINK ND-6530 which is a PL2303GC based
-device.
+The mixed signed bounds check really belongs into retrieve_ptr_limit()
+instead of outside of it in adjust_ptr_min_max_vals(). The reason is
+that this check is not tied to PTR_TO_MAP_VALUE only, but to all pointer
+types that we handle in retrieve_ptr_limit() and given errors from the latter
+propagate back to adjust_ptr_min_max_vals() and lead to rejection of the
+program, it's a better place to reside to avoid anything slipping through
+for future types. The reason why we must reject such off_reg is that we
+otherwise would not be able to derive a mask, see details in 9d7eceede769
+("bpf: restrict unknown scalars of mixed signed bounds for unprivileged").
 
-Signed-off-by: Zolton Jheng <s6668c2t@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[fllinden@amazon.com: backport to 5.4]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[OP: backport to 4.19]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ kernel/bpf/verifier.c |   18 +++++++++---------
+ 1 file changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -102,6 +102,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SONY_VENDOR_ID, SONY_QN3USB_PRODUCT_ID) },
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
-+	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
- 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -156,6 +156,7 @@
- /* ADLINK ND-6530 RS232,RS485 and RS422 adapter */
- #define ADLINK_VENDOR_ID		0x0b63
- #define ADLINK_ND6530_PRODUCT_ID	0x6530
-+#define ADLINK_ND6530GC_PRODUCT_ID	0x653a
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2730,12 +2730,18 @@ static struct bpf_insn_aux_data *cur_aux
+ }
  
- /* SMART USB Serial Adapter */
- #define SMART_VENDOR_ID	0x0b8c
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+-			      u32 *ptr_limit, u8 opcode, bool off_is_neg)
++			      const struct bpf_reg_state *off_reg,
++			      u32 *ptr_limit, u8 opcode)
+ {
++	bool off_is_neg = off_reg->smin_value < 0;
+ 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+ 			    (opcode == BPF_SUB && !off_is_neg);
+ 	u32 off, max;
+ 
++	if (!tnum_is_const(off_reg->var_off) &&
++	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
++		return -EACCES;
++
+ 	switch (ptr_reg->type) {
+ 	case PTR_TO_STACK:
+ 		/* Offset 0 is out-of-bounds, but acceptable start for the
+@@ -2826,7 +2832,7 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	alu_state |= ptr_is_dst_reg ?
+ 		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
+ 
+-	err = retrieve_ptr_limit(ptr_reg, &alu_limit, opcode, off_is_neg);
++	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
+ 	if (err < 0)
+ 		return err;
+ 
+@@ -2871,8 +2877,8 @@ static int adjust_ptr_min_max_vals(struc
+ 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
+ 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
+ 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
+-	u32 dst = insn->dst_reg, src = insn->src_reg;
+ 	u8 opcode = BPF_OP(insn->code);
++	u32 dst = insn->dst_reg;
+ 	int ret;
+ 
+ 	dst_reg = &regs[dst];
+@@ -2909,12 +2915,6 @@ static int adjust_ptr_min_max_vals(struc
+ 			dst);
+ 		return -EACCES;
+ 	}
+-	if (ptr_reg->type == PTR_TO_MAP_VALUE &&
+-	    !env->allow_ptr_leaks && !known && (smin_val < 0) != (smax_val < 0)) {
+-		verbose(env, "R%d has unknown scalar with mixed signed bounds, pointer arithmetic with it prohibited for !root\n",
+-			off_reg == dst_reg ? dst : src);
+-		return -EACCES;
+-	}
+ 
+ 	/* In case of 'scalar += pointer', dst_reg inherits pointer type and id.
+ 	 * The id may be overwritten later if we create a new variable offset.
 
 
