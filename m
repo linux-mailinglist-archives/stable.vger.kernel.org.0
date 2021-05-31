@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C77B4396248
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BAC2395D5B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231330AbhEaOxu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:53:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45736 "EHLO mail.kernel.org"
+        id S232454AbhEaNoy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:44:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233548AbhEaOvm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:51:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E8F061CA7;
-        Mon, 31 May 2021 13:58:12 +0000 (UTC)
+        id S232858AbhEaNmf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:42:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 902006147D;
+        Mon, 31 May 2021 13:28:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469493;
-        bh=HEYbWVopiiv8JhXlkj0mpt1+zBK4clPd/uzpkSwxRNY=;
+        s=korg; t=1622467703;
+        bh=iFoHbmoRfsF8UqahWydgX8ijJLz5v2TsAOTGswzRmLY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=USBB0c8RILtwp4VJlKCXJwS3JltcityPwebS/pfKytm08sUFXf3xFJCfRl8u3uETM
-         hdC0zd35iRyg8o9t3bo4KlcqAEfJYxt+x2ERNeao4tnaXwu5ROPFFw4FWzjqD4VEt+
-         911lyMkV70VZaaTOgOOyD21lhe6H5S6zqFyuw31k=
+        b=FdJDsdtSMa2BqQXpvONuQjleF9Hlk++6NDWeEfsRAfRIQkWktlkD6M4Bgu6oiPzXf
+         zVhrpFKD+Xp+AfHZJNAWMU+WKutVcQBhvZE6yLedXbpOEbEIJmUQKZahYn7/tQ+Z9B
+         +oEDiDt78I+DVZXskCQCn3Pe8YUHrfFXTajz12Hc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
+        stable@vger.kernel.org, Tom Seewald <tseewald@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 219/296] linux/bits.h: fix compilation error with GENMASK
+Subject: [PATCH 4.14 49/79] char: hpet: add checks after calling ioremap
 Date:   Mon, 31 May 2021 15:14:34 +0200
-Message-Id: <20210531130711.200545468@linuxfoundation.org>
+Message-Id: <20210531130637.580292263@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,131 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Tom Seewald <tseewald@gmail.com>
 
-[ Upstream commit f747e6667ebb2ffb8133486c9cd19800d72b0d98 ]
+[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
 
-GENMASK() has an input check which uses __builtin_choose_expr() to
-enable a compile time sanity check of its inputs if they are known at
-compile time.
+The function hpet_resources() calls ioremap() two times, but in both
+cases it does not check if ioremap() returned a null pointer. Fix this
+by adding null pointer checks and returning an appropriate error.
 
-However, it turns out that __builtin_constant_p() does not always return
-a compile time constant [0].  It was thought this problem was fixed with
-gcc 4.9 [1], but apparently this is not the case [2].
-
-Switch to use __is_constexpr() instead which always returns a compile time
-constant, regardless of its inputs.
-
-Link: https://lore.kernel.org/lkml/42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk [0]
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19449 [1]
-Link: https://lore.kernel.org/lkml/1ac7bbc2-45d9-26ed-0b33-bf382b8d858b@I-love.SAKURA.ne.jp [2]
-Link: https://lkml.kernel.org/r/20210511203716.117010-1-rikard.falkeborn@gmail.com
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bits.h        |  2 +-
- include/linux/const.h       |  8 ++++++++
- include/linux/minmax.h      | 10 ++--------
- tools/include/linux/bits.h  |  2 +-
- tools/include/linux/const.h |  8 ++++++++
- 5 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/char/hpet.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/bits.h b/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/include/linux/bits.h
-+++ b/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
- #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/include/linux/const.h b/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/include/linux/const.h
-+++ b/include/linux/const.h
-@@ -3,4 +3,12 @@
+diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
+index 05ca269ddd05..b9935675085c 100644
+--- a/drivers/char/hpet.c
++++ b/drivers/char/hpet.c
+@@ -977,6 +977,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
+ 	if (ACPI_SUCCESS(status)) {
+ 		hdp->hd_phys_address = addr.address.minimum;
+ 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
++		if (!hdp->hd_address)
++			return AE_ERROR;
  
- #include <vdso/const.h>
+ 		if (hpet_is_known(hdp)) {
+ 			iounmap(hdp->hd_address);
+@@ -990,6 +992,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
+ 		hdp->hd_phys_address = fixmem32->address;
+ 		hdp->hd_address = ioremap(fixmem32->address,
+ 						HPET_RANGE_SIZE);
++		if (!hdp->hd_address)
++			return AE_ERROR;
  
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
-diff --git a/include/linux/minmax.h b/include/linux/minmax.h
-index c0f57b0c64d9..5433c08fcc68 100644
---- a/include/linux/minmax.h
-+++ b/include/linux/minmax.h
-@@ -2,6 +2,8 @@
- #ifndef _LINUX_MINMAX_H
- #define _LINUX_MINMAX_H
- 
-+#include <linux/const.h>
-+
- /*
-  * min()/max()/clamp() macros must accomplish three things:
-  *
-@@ -17,14 +19,6 @@
- #define __typecheck(x, y) \
- 	(!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
- 
--/*
-- * This returns a constant expression while determining if an argument is
-- * a constant expression, most importantly without evaluating the argument.
-- * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-- */
--#define __is_constexpr(x) \
--	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
--
- #define __no_side_effects(x, y) \
- 		(__is_constexpr(x) && __is_constexpr(y))
- 
-diff --git a/tools/include/linux/bits.h b/tools/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/tools/include/linux/bits.h
-+++ b/tools/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
- #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/tools/include/linux/const.h b/tools/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/tools/include/linux/const.h
-+++ b/tools/include/linux/const.h
-@@ -3,4 +3,12 @@
- 
- #include <vdso/const.h>
- 
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
+ 		if (hpet_is_known(hdp)) {
+ 			iounmap(hdp->hd_address);
 -- 
 2.30.2
 
