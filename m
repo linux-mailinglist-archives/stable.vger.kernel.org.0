@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A3390396027
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9383D395ED2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:02:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbhEaOXO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46050 "EHLO mail.kernel.org"
+        id S232525AbhEaOEA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:04:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233482AbhEaOTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:19:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 81308619B7;
-        Mon, 31 May 2021 13:44:08 +0000 (UTC)
+        id S232861AbhEaOB4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:01:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12C0F61944;
+        Mon, 31 May 2021 13:37:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468649;
-        bh=zH5zUuwgFW9ZZZXgIpNcKq6XZaHbmZk4BtIuoV0z7ss=;
+        s=korg; t=1622468224;
+        bh=DKm/4LqZEMd3LR14FJ9YG0VfrPqVTXlodDeLd28VrlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wr0CGvjhFSaya2nZCE7L79IRFdXipemyxfHb51NA0eS4kEjuKO1LCM9M4vMU9pUSV
-         ZrDeOaeaGQJ+NrsvgCfyqhEQsRhINfwEKZQnTtz56ZR9WHGy6a7qhCQWwPC1de5ThV
-         bkfmxj0beacPW1x5GJEUzvCN2p82mQWxWqauIz60=
+        b=1V/KJO1i88kXY/9/Wkg4Ko5kxqssbKttzEUx1V9idHfX54PTOU1d5Mp6/XlhwCyrU
+         LGROFb9lLs7o2tylEI77Fd4z+wrrEFI0oZI1BkVRyooi2Ikv21tmi2qh56qX3GwT2O
+         YdJA/PB7WI6skDMjlP3a35ruJpcvE38jbnaBbf98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.4 072/177] net/mlx5e: Fix multipath lag activation
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 164/252] Revert "media: gspca: Check the return value of write_bridge for timeout"
 Date:   Mon, 31 May 2021 15:13:49 +0200
-Message-Id: <20210531130650.387543693@linuxfoundation.org>
+Message-Id: <20210531130703.584545769@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dima Chumak <dchumak@nvidia.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 97817fcc684ed01497bd19d0cd4dea699665b9cf upstream.
+[ Upstream commit 8e23e83c752b54e98102627a1cc09281ad71a299 ]
 
-When handling FIB_EVENT_ENTRY_REPLACE event for a new multipath route,
-lag activation can be missed if a stale (struct lag_mp)->mfi pointer
-exists, which was associated with an older multipath route that had been
-removed.
+This reverts commit a21a0eb56b4e8fe4a330243af8030f890cde2283.
 
-Normally, when a route is removed, it triggers mlx5_lag_fib_event(),
-which handles FIB_EVENT_ENTRY_DEL and clears mfi pointer. But, if
-mlx5_lag_check_prereq() condition isn't met, for example when eswitch is
-in legacy mode, the fib event is skipped and mfi pointer becomes stale.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Fix by resetting mfi pointer to NULL every time mlx5_lag_mp_init() is
-called.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Different error values should never be "OR" together and expect anything
+sane to come out of the result.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-63-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/media/usb/gspca/m5602/m5602_po1030.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-@@ -307,6 +307,11 @@ int mlx5_lag_mp_init(struct mlx5_lag *ld
- 	struct lag_mp *mp = &ldev->lag_mp;
- 	int err;
+diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+index d680b777f097..7bdbb8065146 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
++++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+@@ -154,7 +154,6 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
  
-+	/* always clear mfi, as it might become stale when a route delete event
-+	 * has been missed
-+	 */
-+	mp->mfi = NULL;
-+
- 	if (mp->fib_nb.notifier_call)
- 		return 0;
+ int po1030_probe(struct sd *sd)
+ {
+-	int rc = 0;
+ 	u8 dev_id_h = 0, i;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
-@@ -328,4 +333,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag
+@@ -174,14 +173,11 @@ int po1030_probe(struct sd *sd)
+ 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
+ 		u8 data = preinit_po1030[i][2];
+ 		if (preinit_po1030[i][0] == SENSOR)
+-			rc |= m5602_write_sensor(sd,
++			m5602_write_sensor(sd,
+ 				preinit_po1030[i][1], &data, 1);
+ 		else
+-			rc |= m5602_write_bridge(sd, preinit_po1030[i][1],
+-						data);
++			m5602_write_bridge(sd, preinit_po1030[i][1], data);
+ 	}
+-	if (rc < 0)
+-		return rc;
  
- 	unregister_fib_notifier(&mp->fib_nb);
- 	mp->fib_nb.notifier_call = NULL;
-+	mp->mfi = NULL;
- }
+ 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
+ 		return -ENODEV;
+-- 
+2.30.2
+
 
 
