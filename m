@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71C9F395DFE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3045B39618A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbhEaNwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:52:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
+        id S232977AbhEaOlz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:41:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231799AbhEaNur (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:50:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BBA8061434;
-        Mon, 31 May 2021 13:32:04 +0000 (UTC)
+        id S234194AbhEaOjh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:39:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C4861C5E;
+        Mon, 31 May 2021 13:52:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467925;
-        bh=8sBlBF3aZ7IQ3aX/sNN68lKWcwkvZUQSjfXUGH8riqo=;
+        s=korg; t=1622469177;
+        bh=Y7gPqA2FJ85axZFS15qE4ple5UmOcKAzqJuaDpE6BSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sd/jz7YCxyqOQG/USjUKJZQZB+DQ83me+C+ro8+ldIBbYbSv/hAzpUUkid6ZLB54K
-         TmnEQEkfFNdRefP0I7qkFnpTAXsspH1Ws/ie8UGC1N6030i9uq+AjXDVduisXQOb55
-         deKEe4c97A5BqPcUR1s62MNGadA1fEvX2SbzSjw8=
+        b=Dj/fZ5y0RmagtFpGQS0BUCJgvugIy743GMdXcDUXYEuxPNZWjr/CG1oOs3Pfu/9sc
+         spMATJgakBbExBmNwGZ+QmQ3uCF21qqZ+cOO466LSI1AFAWqpNDAsaeohwiDat4Bjx
+         rnJBNL+UhqYziFlGbXR3yNR8h0HzbONj90ElynJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
-        Tycho Andersen <tycho@tycho.pizza>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>,
-        Rodrigo Campos <rodrigo@kinvolk.io>
-Subject: [PATCH 5.10 052/252] seccomp: Refactor notification handler to prepare for new semantics
-Date:   Mon, 31 May 2021 15:11:57 +0200
-Message-Id: <20210531130659.748784740@linuxfoundation.org>
+        stable@vger.kernel.org, Chen Huang <chenhuang5@huawei.com>,
+        Palmer Dabbelt <palmerdabbelt@google.com>
+Subject: [PATCH 5.12 063/296] riscv: stacktrace: fix the riscv stacktrace when CONFIG_FRAME_POINTER enabled
+Date:   Mon, 31 May 2021 15:11:58 +0200
+Message-Id: <20210531130705.961214426@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,81 +39,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sargun Dhillon <sargun@sargun.me>
+From: Chen Huang <chenhuang5@huawei.com>
 
-commit ddc473916955f7710d1eb17c1273d91c8622a9fe upstream.
+commit eac2f3059e02382d91f8c887462083841d6ea2a3 upstream.
 
-This refactors the user notification code to have a do / while loop around
-the completion condition. This has a small change in semantic, in that
-previously we ignored addfd calls upon wakeup if the notification had been
-responded to, but instead with the new change we check for an outstanding
-addfd calls prior to returning to userspace.
+As [1] and [2] said, the arch_stack_walk should not to trace itself, or it will
+leave the trace unexpectedly when called. The example is when we do "cat
+/sys/kernel/debug/page_owner", all pages' stack is the same.
 
-Rodrigo Campos also identified a bug that can result in addfd causing
-an early return, when the supervisor didn't actually handle the
-syscall [1].
+arch_stack_walk+0x18/0x20
+stack_trace_save+0x40/0x60
+register_dummy_stack+0x24/0x5e
+init_page_owner+0x2e
 
-[1]: https://lore.kernel.org/lkml/20210413160151.3301-1-rodrigo@kinvolk.io/
+So we use __builtin_frame_address(1) as the first frame to be walked. And mark
+the arch_stack_walk() noinline.
 
-Fixes: 7cf97b125455 ("seccomp: Introduce addfd ioctl to seccomp user notifier")
-Signed-off-by: Sargun Dhillon <sargun@sargun.me>
-Acked-by: Tycho Andersen <tycho@tycho.pizza>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Rodrigo Campos <rodrigo@kinvolk.io>
+We found that pr_cont will affact pages' stack whose task state is RUNNING when
+testing "echo t > /proc/sysrq-trigger". So move the place of pr_cont and mark
+the function dump_backtrace() noinline.
+
+Also we move the case when task == NULL into else branch, and test for it in
+"echo c > /proc/sysrq-trigger".
+
+[1] https://lore.kernel.org/lkml/20210319184106.5688-1-mark.rutland@arm.com/
+[2] https://lore.kernel.org/lkml/20210317142050.57712-1-chenjun102@huawei.com/
+
+Signed-off-by: Chen Huang <chenhuang5@huawei.com>
+Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210517193908.3113-3-sargun@sargun.me
+Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/seccomp.c |   30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ arch/riscv/kernel/stacktrace.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/kernel/seccomp.c
-+++ b/kernel/seccomp.c
-@@ -864,28 +864,30 @@ static int seccomp_do_user_notification(
+--- a/arch/riscv/kernel/stacktrace.c
++++ b/arch/riscv/kernel/stacktrace.c
+@@ -27,10 +27,10 @@ void notrace walk_stackframe(struct task
+ 		fp = frame_pointer(regs);
+ 		sp = user_stack_pointer(regs);
+ 		pc = instruction_pointer(regs);
+-	} else if (task == NULL || task == current) {
+-		fp = (unsigned long)__builtin_frame_address(0);
+-		sp = sp_in_global;
+-		pc = (unsigned long)walk_stackframe;
++	} else if (task == current) {
++		fp = (unsigned long)__builtin_frame_address(1);
++		sp = (unsigned long)__builtin_frame_address(0);
++		pc = (unsigned long)__builtin_return_address(0);
+ 	} else {
+ 		/* task blocked in __switch_to */
+ 		fp = task->thread.s[0];
+@@ -106,15 +106,15 @@ static bool print_trace_address(void *ar
+ 	return true;
+ }
  
- 	up(&match->notif->request);
- 	wake_up_poll(&match->wqh, EPOLLIN | EPOLLRDNORM);
--	mutex_unlock(&match->notify_lock);
+-void dump_backtrace(struct pt_regs *regs, struct task_struct *task,
++noinline void dump_backtrace(struct pt_regs *regs, struct task_struct *task,
+ 		    const char *loglvl)
+ {
+-	pr_cont("%sCall Trace:\n", loglvl);
+ 	walk_stackframe(task, regs, print_trace_address, (void *)loglvl);
+ }
  
- 	/*
- 	 * This is where we wait for a reply from userspace.
- 	 */
--wait:
--	err = wait_for_completion_interruptible(&n.ready);
--	mutex_lock(&match->notify_lock);
--	if (err == 0) {
--		/* Check if we were woken up by a addfd message */
-+	do {
-+		mutex_unlock(&match->notify_lock);
-+		err = wait_for_completion_interruptible(&n.ready);
-+		mutex_lock(&match->notify_lock);
-+		if (err != 0)
-+			goto interrupted;
-+
- 		addfd = list_first_entry_or_null(&n.addfd,
- 						 struct seccomp_kaddfd, list);
--		if (addfd && n.state != SECCOMP_NOTIFY_REPLIED) {
-+		/* Check if we were woken up by a addfd message */
-+		if (addfd)
- 			seccomp_handle_addfd(addfd);
--			mutex_unlock(&match->notify_lock);
--			goto wait;
--		}
--		ret = n.val;
--		err = n.error;
--		flags = n.flags;
--	}
+ void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
+ {
++	pr_cont("%sCall Trace:\n", loglvl);
+ 	dump_backtrace(NULL, task, loglvl);
+ }
  
-+	}  while (n.state != SECCOMP_NOTIFY_REPLIED);
-+
-+	ret = n.val;
-+	err = n.error;
-+	flags = n.flags;
-+
-+interrupted:
- 	/* If there were any pending addfd calls, clear them out */
- 	list_for_each_entry_safe(addfd, tmp, &n.addfd, list) {
- 		/* The process went away before we got a chance to handle it */
+@@ -139,7 +139,7 @@ unsigned long get_wchan(struct task_stru
+ 
+ #ifdef CONFIG_STACKTRACE
+ 
+-void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
++noinline void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
+ 		     struct task_struct *task, struct pt_regs *regs)
+ {
+ 	walk_stackframe(task, regs, consume_entry, cookie);
 
 
