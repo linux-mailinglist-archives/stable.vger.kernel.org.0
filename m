@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E477F395D35
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A82CE395CA5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232950AbhEaNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43832 "EHLO mail.kernel.org"
+        id S231678AbhEaNgR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:36:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231876AbhEaNky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:40:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E65B1611CA;
-        Mon, 31 May 2021 13:27:43 +0000 (UTC)
+        id S232642AbhEaNd1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:33:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B8A76143C;
+        Mon, 31 May 2021 13:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467664;
-        bh=RSCDZVDY7+Xmrbe0M1V7pN9hhncjaOlb1MbqCtk34X4=;
+        s=korg; t=1622467477;
+        bh=qimJcXLAlvslZZS3a36NHFGUNOy7xM10vdpvTwjf1k8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBlwkCuFbf4K5AcIF02Pt9nD++GrdoKJOPDZAoKh+FzMwamZxd52J4oCO8Q5eD8zu
-         JWc0PGQJPUxGUhlw/OYeIlS83/GISBf8bfAEiSXSYJqsf96dGf8L4FCHQLmQoAT8Qk
-         77PEI0zRjlAFAwUJWp0YsIzUyRDSGAw7gtcyPfWQ=
+        b=zvZ2DSnKwg+tvkDsAHoGq4mx0gOxJk3iT2Sp0CTgGGoJ5WLLI34dHstpl/fhghd16
+         bkK7c3UDCM4Wh4S+WG+pNEHCfJqeX2ZjPO+7EbLoga3rRrxgT1LgrkwssC71kQtcgr
+         FL9ud5Oh2UEcB1sivchHJYUT7NrZkEKbFp29IHsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 4.14 32/79] usb: gadget: udc: renesas_usb3: Fix a race in usb3_start_pipen()
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 081/116] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
 Date:   Mon, 31 May 2021 15:14:17 +0200
-Message-Id: <20210531130637.034959983@linuxfoundation.org>
+Message-Id: <20210531130642.909457873@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit e752dbc59e1241b13b8c4f7b6eb582862e7668fe upstream.
+[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
 
-The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
-usb3_request_done_pipen() so that usb3_start_pipen() is possible
-to cause a race when getting usb3_first_req like below:
+Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
+and hw->ci->addr_mode respectively, to be before the subsequent checks
+for memory IO mode (and possible ioremap calls in this case).
 
-renesas_usb3_ep_queue()
- spin_lock_irqsave()
- list_add_tail()
- spin_unlock_irqrestore()
- usb3_start_pipen()
-  usb3_first_req = usb3_get_request() --- [1]
- --- interrupt ---
- usb3_irq_dma_int()
- usb3_request_done_pipen()
-  usb3_get_request()
-  usb3_start_pipen()
-  usb3_first_req = usb3_get_request()
-  ...
-  (the req is possible to be finished in the interrupt)
+Also introduce ioremap error checks at both locations. This allows
+resources to be properly freed on ioremap failure, as when the caller
+of setup_io then subsequently calls release_io via its error path,
+release_io can now correctly determine the mode as it has been set
+before the ioremap call.
 
-The usb3_first_req [1] above may have been finished after the interrupt
-ended so that this driver caused to start a transfer wrongly. To fix this
-issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
-in the same section.
+Finally, refactor release_io function so that it will call
+release_mem_region in the memory IO case, regardless of whether or not
+hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
+released on failure.
 
-Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
+This properly implements the original reverted commit (d721fe99f6ad)
+from the University of Minnesota, whilst also implementing the ioremap
+check for the hw->ci->cfg_mode if block as well.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -1442,7 +1442,7 @@ static void usb3_start_pipen(struct rene
- 			     struct renesas_usb3_request *usb3_req)
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index 3e01012be4ab..95a0d728eecc 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -645,17 +645,19 @@ static void
+ release_io(struct inf_hw *hw)
  {
- 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
--	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
-+	struct renesas_usb3_request *usb3_req_first;
- 	unsigned long flags;
- 	int ret = -EAGAIN;
- 	u32 enable_bits = 0;
-@@ -1450,7 +1450,8 @@ static void usb3_start_pipen(struct rene
- 	spin_lock_irqsave(&usb3->lock, flags);
- 	if (usb3_ep->halt || usb3_ep->started)
- 		goto out;
--	if (usb3_req != usb3_req_first)
-+	usb3_req_first = __usb3_get_request(usb3_ep);
-+	if (!usb3_req_first || usb3_req != usb3_req_first)
- 		goto out;
- 
- 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
+ 	if (hw->cfg.mode) {
+-		if (hw->cfg.p) {
++		if (hw->cfg.mode == AM_MEMIO) {
+ 			release_mem_region(hw->cfg.start, hw->cfg.size);
+-			iounmap(hw->cfg.p);
++			if (hw->cfg.p)
++				iounmap(hw->cfg.p);
+ 		} else
+ 			release_region(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = AM_NONE;
+ 	}
+ 	if (hw->addr.mode) {
+-		if (hw->addr.p) {
++		if (hw->addr.mode == AM_MEMIO) {
+ 			release_mem_region(hw->addr.start, hw->addr.size);
+-			iounmap(hw->addr.p);
++			if (hw->addr.p)
++				iounmap(hw->addr.p);
+ 		} else
+ 			release_region(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = AM_NONE;
+@@ -685,9 +687,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
+ 			return err;
+ 		}
+-		if (hw->ci->cfg_mode == AM_MEMIO)
+-			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = hw->ci->cfg_mode;
++		if (hw->ci->cfg_mode == AM_MEMIO) {
++			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
++			if (!hw->cfg.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->cfg.start,
+@@ -712,9 +717,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO)
+-			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = hw->ci->addr_mode;
++		if (hw->ci->addr_mode == AM_MEMIO) {
++			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
++			if (!hw->addr.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->addr.start,
+-- 
+2.30.2
+
 
 
