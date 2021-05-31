@@ -2,32 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C2F3395FD7
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E0320395FD9
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233106AbhEaOQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
+        id S231289AbhEaOQo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:16:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42684 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233537AbhEaOOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:14:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 268F66199B;
-        Mon, 31 May 2021 13:42:24 +0000 (UTC)
+        id S233626AbhEaOOc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:14:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ED026199C;
+        Mon, 31 May 2021 13:42:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468544;
-        bh=+AnYopkoo2JAvurKoTnNndHvZirtU9zs5Jxey1oteq0=;
+        s=korg; t=1622468547;
+        bh=68svN8qALJMVamZXMkW6w5NBf89LKW/Z7/CfJcreCr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Im6CphXdEjLmF75R//0+xUcbyUffMWFoQ0UdsQmyjGKcmd9e90XbBlQ9Onb+XiNxL
-         jm4pbfAgYkxb/AHuKTCQwRvHO2ZWaSqbKg2POdvDeiWQC3Hz4+ePCL5AAqDUoCcmwZ
-         IqRSBsuSDPWnKP33usCHOB4PZwokM0gN1wsQ/LEs=
+        b=eRbZmuRx+YrcJt16g9jnvKdcgPdPGMNkuXFMXKMs+U1VF6pGlXdJM0tDcgnCtUEep
+         8PzrOUvsgBxQBG0Con1bJhWWVJ3W2Bjst5BoQPTYq6jcmWFxXTKUoTOEQOsFiEC6VP
+         7DnDMw0xQqdpePrJXhncwKtrYuxeqd50UdL7FmBk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 5.4 030/177] dm snapshot: properly fix a crash when an origin has no snapshots
-Date:   Mon, 31 May 2021 15:13:07 +0200
-Message-Id: <20210531130648.958720109@linuxfoundation.org>
+        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
+        Leo Liu <leo.liu@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.4 031/177] drm/amdgpu/vcn1: add cancel_delayed_work_sync before power gate
+Date:   Mon, 31 May 2021 15:13:08 +0200
+Message-Id: <20210531130649.002914653@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
 References: <20210531130647.887605866@linuxfoundation.org>
@@ -39,35 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: James Zhu <James.Zhu@amd.com>
 
-commit 7e768532b2396bcb7fbf6f82384b85c0f1d2f197 upstream.
+commit b95f045ea35673572ef46d6483ad8bd6d353d63c upstream.
 
-If an origin target has no snapshots, o->split_boundary is set to 0.
-This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+Add cancel_delayed_work_sync before set power gating state
+to avoid race condition issue when power gating.
 
-Fix this by initializing chunk_size, and in turn split_boundary, to
-rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
-into "unsigned" type.
-
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
+Signed-off-by: James Zhu <James.Zhu@amd.com>
+Reviewed-by: Leo Liu <leo.liu@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-snap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -854,7 +854,7 @@ static int dm_add_exception(void *contex
- static uint32_t __minimum_chunk_size(struct origin *o)
- {
- 	struct dm_snapshot *snap;
--	unsigned chunk_size = 0;
-+	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
+@@ -233,9 +233,13 @@ static int vcn_v1_0_hw_fini(void *handle
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 	struct amdgpu_ring *ring = &adev->vcn.inst->ring_dec;
  
- 	if (o)
- 		list_for_each_entry(snap, &o->snapshots, list)
++	cancel_delayed_work_sync(&adev->vcn.idle_work);
++
+ 	if ((adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG) ||
+-		RREG32_SOC15(VCN, 0, mmUVD_STATUS))
++		(adev->vcn.cur_state != AMD_PG_STATE_GATE &&
++		 RREG32_SOC15(VCN, 0, mmUVD_STATUS))) {
+ 		vcn_v1_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
++	}
+ 
+ 	ring->sched.ready = false;
+ 
 
 
