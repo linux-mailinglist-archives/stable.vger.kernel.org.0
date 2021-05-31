@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DD60395D3F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 371A1395C79
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbhEaNnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:43:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
+        id S232303AbhEaNdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:33:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232046AbhEaNlS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:41:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D5F61467;
-        Mon, 31 May 2021 13:28:01 +0000 (UTC)
+        id S232310AbhEaNbX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:31:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B13361434;
+        Mon, 31 May 2021 13:23:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467682;
-        bh=Qi45ADbjLBMRT0eBoIy0WXhGlqHUOvulXnfWiuiIukQ=;
+        s=korg; t=1622467413;
+        bh=2BVZ6E4O9fQ3wfq7+PomQvFxLlwY9udVOZj5I4Y7hMs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fHEPQQ0aJq1mAstQiP65ZTmc+TlXU5I35F3GR0um6FRVB1PpQTtlgLPQExUXWc0kf
-         MEZiQzAui2NPNI+/fQ7YSjdEsycSgnAOWJlcPU1+Fo74I5Qw3oPh0gYtQAn9T/tHyj
-         F0n+RpcW5gpaTjw/lzfnStCI+GNBZXGN4bQIC1GU=
+        b=ilxTzVbLFK+pPGMPLSw86l972rzM9m6pJHl25UjUbTzhLVq/Dw2fnMOX2VSg3tZh8
+         3PfqUgk8oprqgvuHvaD6E2extQjdvJ7FLF5NDGcc+EqkxZWELAJBNxSlOLAVO3oBGI
+         Wb49eofaKLsH6LiIv+apRmfkgSY1QfWRPsD+9pQA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.14 07/79] NFSv4: Fix a NULL pointer dereference in pnfs_mark_matching_lsegs_return()
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Piotr Krysiuk <piotras@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 056/116] bpf: Wrap aux data inside bpf_sanitize_info container
 Date:   Mon, 31 May 2021 15:13:52 +0200
-Message-Id: <20210531130636.236570905@linuxfoundation.org>
+Message-Id: <20210531130642.072928971@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +41,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit a421d218603ffa822a0b8045055c03eae394a7eb upstream.
+commit 3d0220f6861d713213b015b582e9f21e5b28d2e0 upstream
 
-Commit de144ff4234f changes _pnfs_return_layout() to call
-pnfs_mark_matching_lsegs_return() passing NULL as the struct
-pnfs_layout_range argument. Unfortunately,
-pnfs_mark_matching_lsegs_return() doesn't check if we have a value here
-before dereferencing it, causing an oops.
+Add a container structure struct bpf_sanitize_info which holds
+the current aux info, and update call-sites to sanitize_ptr_alu()
+to pass it in. This is needed for passing in additional state
+later on.
 
-I'm able to hit this crash consistently when running connectathon basic
-tests on NFS v4.1/v4.2 against Ontap.
-
-Fixes: de144ff4234f ("NFSv4: Don't discard segments marked for return in _pnfs_return_layout()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pnfs.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ kernel/bpf/verifier.c |   18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1136,6 +1136,11 @@ _pnfs_return_layout(struct inode *ino)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2815,15 +2815,19 @@ static bool sanitize_needed(u8 opcode)
+ 	return opcode == BPF_ADD || opcode == BPF_SUB;
+ }
+ 
++struct bpf_sanitize_info {
++	struct bpf_insn_aux_data aux;
++};
++
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+ 			    struct bpf_insn *insn,
+ 			    const struct bpf_reg_state *ptr_reg,
+ 			    const struct bpf_reg_state *off_reg,
+ 			    struct bpf_reg_state *dst_reg,
+-			    struct bpf_insn_aux_data *tmp_aux,
++			    struct bpf_sanitize_info *info,
+ 			    const bool commit_window)
  {
- 	struct pnfs_layout_hdr *lo = NULL;
- 	struct nfs_inode *nfsi = NFS_I(ino);
-+	struct pnfs_layout_range range = {
-+		.iomode		= IOMODE_ANY,
-+		.offset		= 0,
-+		.length		= NFS4_MAX_UINT64,
-+	};
- 	LIST_HEAD(tmp_list);
- 	nfs4_stateid stateid;
- 	int status = 0;
-@@ -1162,16 +1167,10 @@ _pnfs_return_layout(struct inode *ino)
+-	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
++	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
+ 	struct bpf_verifier_state *vstate = env->cur_state;
+ 	bool off_is_imm = tnum_is_const(off_reg->var_off);
+ 	bool off_is_neg = off_reg->smin_value < 0;
+@@ -2852,8 +2856,8 @@ static int sanitize_ptr_alu(struct bpf_v
+ 		/* In commit phase we narrow the masking window based on
+ 		 * the observed pointer move after the simulated operation.
+ 		 */
+-		alu_state = tmp_aux->alu_state;
+-		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
++		alu_state = info->aux.alu_state;
++		alu_limit = abs(info->aux.alu_limit - alu_limit);
+ 	} else {
+ 		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
+ 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
+@@ -2983,7 +2987,7 @@ static int adjust_ptr_min_max_vals(struc
+ 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
+ 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
+ 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
+-	struct bpf_insn_aux_data tmp_aux = {};
++	struct bpf_sanitize_info info = {};
+ 	u8 opcode = BPF_OP(insn->code);
+ 	u32 dst = insn->dst_reg;
+ 	int ret;
+@@ -3035,7 +3039,7 @@ static int adjust_ptr_min_max_vals(struc
+ 
+ 	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
+-				       &tmp_aux, false);
++				       &info, false);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
  	}
- 	valid_layout = pnfs_layout_is_valid(lo);
- 	pnfs_clear_layoutcommit(ino, &tmp_list);
--	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
-+	pnfs_mark_matching_lsegs_return(lo, &tmp_list, &range, 0);
- 
--	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
--		struct pnfs_layout_range range = {
--			.iomode		= IOMODE_ANY,
--			.offset		= 0,
--			.length		= NFS4_MAX_UINT64,
--		};
-+	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range)
- 		NFS_SERVER(ino)->pnfs_curr_ld->return_range(lo, &range);
--	}
- 
- 	/* Don't send a LAYOUTRETURN if list was initially empty */
- 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags) ||
+@@ -3176,7 +3180,7 @@ static int adjust_ptr_min_max_vals(struc
+ 		return -EACCES;
+ 	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
+-				       &tmp_aux, true);
++				       &info, true);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
+ 	}
 
 
