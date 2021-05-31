@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E12CE396162
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5567395E0B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbhEaOkO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33126 "EHLO mail.kernel.org"
+        id S231629AbhEaNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:53:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232875AbhEaOha (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:37:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B77160FE5;
-        Mon, 31 May 2021 13:51:36 +0000 (UTC)
+        id S232359AbhEaNvZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:51:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7771617ED;
+        Mon, 31 May 2021 13:32:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469097;
-        bh=krfTaxbOyWqugdtfCJBtYWS9/Y9DDZMOs09uCkuPDQk=;
+        s=korg; t=1622467946;
+        bh=L2uOL+Q8pAYqKVL/7z/INd8oC9HxuuO7OuGD0KrWVGw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/emltDwHG8D3a3Ig1AhQtE1/dvPz+faLHt3dqCt64JsdYPIY1NbhEjRNwamW6BPC
-         NFMzua0idGZICEwSkxgjnrd8seACyYLN3Zo+FisDmsw5SuwXcNkP2v17MPUW56ZFNB
-         H8i/OghnvEDmXEMYLd6RIYawLi56hfE1l1LL0k+0=
+        b=corREL4437hiXXF/3meaEcNKELM0CbReybkuZXAHtFknLAu0gkkIMlwT3pPZrw1NS
+         4mMsaK5daKQrM67P1qi//wXdX0Hn+sB63/0hDMC7jBpZOqLOwTbNLNhr71fbfHy6fl
+         w/X1eqff//wgJUhzfofVMPKOYA+/LeSFrqAoZfMU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.12 069/296] thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.10 059/252] mei: request autosuspend after sending rx flow control
 Date:   Mon, 31 May 2021 15:12:04 +0200
-Message-Id: <20210531130706.168432752@linuxfoundation.org>
+Message-Id: <20210531130659.981923822@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit b106776080a1cf953a1b2fd50cb2a995db4732be upstream.
+commit bbf0a94744edfeee298e4a9ab6fd694d639a5cdf upstream.
 
-Up to 64 bytes of data can be read from NVM in one go. Read address
-must be dword aligned. Data is read into a local buffer.
+A rx flow control waiting in the control queue may block autosuspend.
+Re-request autosuspend after flow control been sent to unblock
+the transition to the low power state.
 
-If caller asks to read data starting at an unaligned address then full
-dword is anyway read from NVM into a local buffer. Data is then copied
-from the local buffer starting at the unaligned offset to the caller
-buffer.
-
-In cases where asked data length + unaligned offset is over 64 bytes
-we need to make sure we don't read past the 64 bytes in the local
-buffer when copying to caller buffer, and make sure that we don't
-skip copying unaligned offset bytes from local buffer anymore after
-the first round of 64 byte NVM data read.
-
-Fixes: 3e13676862f9 ("thunderbolt: Add support for DMA configuration based mailbox")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/dma_port.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/misc/mei/interrupt.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/thunderbolt/dma_port.c
-+++ b/drivers/thunderbolt/dma_port.c
-@@ -366,15 +366,15 @@ int dma_port_flash_read(struct tb_dma_po
- 			void *buf, size_t size)
- {
- 	unsigned int retries = DMA_PORT_RETRIES;
--	unsigned int offset;
--
--	offset = address & 3;
--	address = address & ~3;
+--- a/drivers/misc/mei/interrupt.c
++++ b/drivers/misc/mei/interrupt.c
+@@ -277,6 +277,9 @@ static int mei_cl_irq_read(struct mei_cl
+ 		return ret;
+ 	}
  
- 	do {
--		u32 nbytes = min_t(u32, size, MAIL_DATA_DWORDS * 4);
-+		unsigned int offset;
-+		size_t nbytes;
- 		int ret;
- 
-+		offset = address & 3;
-+		nbytes = min_t(size_t, size + offset, MAIL_DATA_DWORDS * 4);
++	pm_runtime_mark_last_busy(dev->dev);
++	pm_request_autosuspend(dev->dev);
 +
- 		ret = dma_port_flash_read_block(dma, address, dma->buf,
- 						ALIGN(nbytes, 4));
- 		if (ret) {
-@@ -386,6 +386,7 @@ int dma_port_flash_read(struct tb_dma_po
- 			return ret;
- 		}
+ 	list_move_tail(&cb->list, &cl->rd_pending);
  
-+		nbytes -= offset;
- 		memcpy(buf, dma->buf + offset, nbytes);
- 
- 		size -= nbytes;
+ 	return 0;
 
 
