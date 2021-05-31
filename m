@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DB2B23962CE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 632393960D2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234223AbhEaPBG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51026 "EHLO mail.kernel.org"
+        id S233651AbhEaObn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232320AbhEaO5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F0E4161CC3;
-        Mon, 31 May 2021 14:00:14 +0000 (UTC)
+        id S233996AbhEaO3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DCC7161C2C;
+        Mon, 31 May 2021 13:48:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469615;
-        bh=PKzEODyfDSGFUpUfnp0qkQcN03fCPZhu/gsT/K7Rrdw=;
+        s=korg; t=1622468922;
+        bh=lxk174Ryk4cZ/o2Rr7e56WRgvltK8lnkiXY/ACDHFBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YPHyhlO03P+r6tRO+fcFPuLnhN1hSC7yf0d71BJTgtY5Kaaoo5xU+roH/iMgT5q/p
-         LkuEPh22fblq29cH3ZlgZ6HtRX5w2E/xasN04SL6lWlA3Wjg2QZMUn7az9D23u9loa
-         SSA1Z/K/IMrhtwZU7JSRBeTdcppYBwKV+FZnzaVk=
+        b=DJ7cmN6CCL9J6f5xbqXhTfRV13vFOaD8Fx8tXymkF2Z/wwLXzd+v7vUKUNkZqKoHF
+         RQWPdvUxOHtnSDuvnRpc4of3D6XneU111Q/IIXTSSqL60wDnLRne4oC5aDkxI+Ropt
+         IlgXD6RPbxr5fuedlmB+TbVMggktw38rTH8pv/rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Lu Baolu <baolu.lu@linux.intel.com>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 265/296] iommu/vt-d: Use user privilege for RID2PASID translation
+        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 163/177] net: lantiq: fix memory corruption in RX ring
 Date:   Mon, 31 May 2021 15:15:20 +0200
-Message-Id: <20210531130712.653143446@linuxfoundation.org>
+Message-Id: <20210531130653.557782387@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lu Baolu <baolu.lu@linux.intel.com>
+From: Aleksander Jan Bajkowski <olek2@wp.pl>
 
-[ Upstream commit 54c80d907400189b09548039be8f3b6e297e8ae3 ]
+[ Upstream commit c7718ee96dbc2f9c5fc3b578abdf296dd44b9c20 ]
 
-When first-level page tables are used for IOVA translation, we use user
-privilege by setting U/S bit in the page table entry. This is to make it
-consistent with the second level translation, where the U/S enforcement
-is not available. Clear the SRE (Supervisor Request Enable) field in the
-pasid table entry of RID2PASID so that requests requesting the supervisor
-privilege are blocked and treated as DMA remapping faults.
+In a situation where memory allocation or dma mapping fails, an
+invalid address is programmed into the descriptor. This can lead
+to memory corruption. If the memory allocation fails, DMA should
+reuse the previous skb and mapping and drop the packet. This patch
+also increments rx drop counter.
 
-Fixes: b802d070a52a1 ("iommu/vt-d: Use iova over first level")
-Suggested-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
-Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
-Link: https://lore.kernel.org/r/20210512064426.3440915-1-baolu.lu@linux.intel.com
-Link: https://lore.kernel.org/r/20210519015027.108468-3-baolu.lu@linux.intel.com
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: fe1a56420cf2 ("net: lantiq: Add Lantiq / Intel VRX200 Ethernet driver ")
+Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/intel/iommu.c | 7 +++++--
- drivers/iommu/intel/pasid.c | 3 ++-
- 2 files changed, 7 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/lantiq_xrx200.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
-index 2569585ffcd4..56930e0b8f59 100644
---- a/drivers/iommu/intel/iommu.c
-+++ b/drivers/iommu/intel/iommu.c
-@@ -2525,9 +2525,9 @@ static int domain_setup_first_level(struct intel_iommu *iommu,
- 				    struct device *dev,
- 				    u32 pasid)
+diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
+index 4e44a39267eb..6ece99e6b6dd 100644
+--- a/drivers/net/ethernet/lantiq_xrx200.c
++++ b/drivers/net/ethernet/lantiq_xrx200.c
+@@ -154,6 +154,7 @@ static int xrx200_close(struct net_device *net_dev)
+ 
+ static int xrx200_alloc_skb(struct xrx200_chan *ch)
  {
--	int flags = PASID_FLAG_SUPERVISOR_MODE;
- 	struct dma_pte *pgd = domain->pgd;
- 	int agaw, level;
-+	int flags = 0;
++	dma_addr_t mapping;
+ 	int ret = 0;
  
- 	/*
- 	 * Skip top levels of page tables for iommu which has
-@@ -2543,7 +2543,10 @@ static int domain_setup_first_level(struct intel_iommu *iommu,
- 	if (level != 4 && level != 5)
- 		return -EINVAL;
+ 	ch->skb[ch->dma.desc] = netdev_alloc_skb_ip_align(ch->priv->net_dev,
+@@ -163,16 +164,17 @@ static int xrx200_alloc_skb(struct xrx200_chan *ch)
+ 		goto skip;
+ 	}
  
--	flags |= (level == 5) ? PASID_FLAG_FL5LP : 0;
-+	if (pasid != PASID_RID2PASID)
-+		flags |= PASID_FLAG_SUPERVISOR_MODE;
-+	if (level == 5)
-+		flags |= PASID_FLAG_FL5LP;
+-	ch->dma.desc_base[ch->dma.desc].addr = dma_map_single(ch->priv->dev,
+-			ch->skb[ch->dma.desc]->data, XRX200_DMA_DATA_LEN,
+-			DMA_FROM_DEVICE);
+-	if (unlikely(dma_mapping_error(ch->priv->dev,
+-				       ch->dma.desc_base[ch->dma.desc].addr))) {
++	mapping = dma_map_single(ch->priv->dev, ch->skb[ch->dma.desc]->data,
++				 XRX200_DMA_DATA_LEN, DMA_FROM_DEVICE);
++	if (unlikely(dma_mapping_error(ch->priv->dev, mapping))) {
+ 		dev_kfree_skb_any(ch->skb[ch->dma.desc]);
+ 		ret = -ENOMEM;
+ 		goto skip;
+ 	}
  
- 	if (domain->domain.type == IOMMU_DOMAIN_UNMANAGED)
- 		flags |= PASID_FLAG_PAGE_SNOOP;
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index 5093d317ff1a..77fbe9908abd 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -663,7 +663,8 @@ int intel_pasid_setup_second_level(struct intel_iommu *iommu,
- 	 * Since it is a second level only translation setup, we should
- 	 * set SRE bit as well (addresses are expected to be GPAs).
- 	 */
--	pasid_set_sre(pte);
-+	if (pasid != PASID_RID2PASID)
-+		pasid_set_sre(pte);
- 	pasid_set_present(pte);
- 	pasid_flush_caches(iommu, pte, pasid, did);
++	ch->dma.desc_base[ch->dma.desc].addr = mapping;
++	/* Make sure the address is written before we give it to HW */
++	wmb();
+ skip:
+ 	ch->dma.desc_base[ch->dma.desc].ctl =
+ 		LTQ_DMA_OWN | LTQ_DMA_RX_OFFSET(NET_IP_ALIGN) |
+@@ -196,6 +198,8 @@ static int xrx200_hw_receive(struct xrx200_chan *ch)
+ 	ch->dma.desc %= LTQ_DESC_NUM;
  
+ 	if (ret) {
++		ch->skb[ch->dma.desc] = skb;
++		net_dev->stats.rx_dropped++;
+ 		netdev_err(net_dev, "failed to allocate new rx buffer\n");
+ 		return ret;
+ 	}
 -- 
 2.30.2
 
