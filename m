@@ -2,97 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B65B73968B6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 22:24:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36A7E3968B8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 22:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230385AbhEaU0h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 16:26:37 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:51222 "EHLO
+        id S230381AbhEaU2S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 16:28:18 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:51322 "EHLO
         jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbhEaU0h (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 16:26:37 -0400
+        with ESMTP id S230282AbhEaU2S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 16:28:18 -0400
 Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id C7BFC1C0B76; Mon, 31 May 2021 22:24:53 +0200 (CEST)
-Date:   Mon, 31 May 2021 22:24:53 +0200
+        id 22BD71C0B7C; Mon, 31 May 2021 22:26:37 +0200 (CEST)
+Date:   Mon, 31 May 2021 22:26:36 +0200
 From:   Pavel Machek <pavel@denx.de>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Wen Gong <wgong@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: Re: [PATCH 5.10 036/252] ath10k: drop MPDU which has discard flag
- set by firmware for SDIO
-Message-ID: <20210531202453.GA18772@amd>
+        Kees Cook <keescook@chromium.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: Re: [PATCH 5.10 053/252] serial: core: fix suspicious
+ security_locked_down() call
+Message-ID: <20210531202636.GB18772@amd>
 References: <20210531130657.971257589@linuxfoundation.org>
- <20210531130659.215132273@linuxfoundation.org>
+ <20210531130659.786984803@linuxfoundation.org>
 MIME-Version: 1.0
 Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="Kj7319i9nmIyA2yE"
+        protocol="application/pgp-signature"; boundary="ADZbWkCsHQ7r3kzd"
 Content-Disposition: inline
-In-Reply-To: <20210531130659.215132273@linuxfoundation.org>
+In-Reply-To: <20210531130659.786984803@linuxfoundation.org>
 User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---Kj7319i9nmIyA2yE
+--ADZbWkCsHQ7r3kzd
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
 Hi!
 
-> commit 079a108feba474b4b32bd3471db03e11f2f83b81 upstream.
->=20
-> When the discard flag is set by the firmware for an MPDU, it should be
-> dropped. This allows a mitigation for CVE-2020-24588 to be implemented
-> in the firmware.
->=20
-> Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
+> From: Ondrej Mosnacek <omosnace@redhat.com>
 
-This introduces bitfields for communication with firmware.
+=2E..
 
-> +++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
-> @@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
->  #define FW_RX_DESC_UDP              (1 << 6)
-> =20
->  struct fw_rx_desc_hl {
-> -	u8 info0;
-> +	union {
-> +		struct {
-> +		u8 discard:1,
-> +		   forward:1,
-> +		   any_err:1,
-> +		   dup_err:1,
-> +		   reserved:1,
-> +		   inspect:1,
-> +		   extension:2;
-> +		} bits;
-> +		u8 info0;
-> +	} u;
-> +
+> Fixes: 794edf30ee6c ("lockdown: Lock down TIOCSSERIAL")
+> Acked-by: Kees Cook <keescook@chromium.org>
+> Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+> Cc: stable <stable@vger.kernel.org>
+> Link: https://lore.kernel.org/r/20210507115719.140799-1-omosnace@redhat.c=
+om
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-That is a) quite unusual (see the define just above) and b) very
-fragile AFAICT. Compilers on LE and BE machines behave differently,
-for example. Should it use usual bit manipulation functions?
+I'm not sure if it is going to cause any problems, but two signoffs
+like this look quite unusual.
 
 Best regards,
-								Pavel
+							Pavel
+						=09
 --=20
 DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
 HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
---Kj7319i9nmIyA2yE
+--ADZbWkCsHQ7r3kzd
 Content-Type: application/pgp-signature; name="signature.asc"
 Content-Description: Digital signature
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1
 
-iEYEARECAAYFAmC1RhUACgkQMOfwapXb+vKNYQCfSGX5lSJApig3eMZB7iUP+QZN
-64gAoJjL3ULTCduk5WT9GOgiRDWywIbn
-=RW3Y
+iEYEARECAAYFAmC1RnwACgkQMOfwapXb+vKKTgCgi8kd6RMnPVZAoZHERWV1D7At
+jGkAoIFkCEhKPzAlI8w6Z9DYTT9Yzp0A
+=KJhG
 -----END PGP SIGNATURE-----
 
---Kj7319i9nmIyA2yE--
+--ADZbWkCsHQ7r3kzd--
