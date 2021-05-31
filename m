@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1BF3396031
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 573203962ED
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbhEaOX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
+        id S234411AbhEaPCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232153AbhEaOQB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:16:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BDE3619A4;
-        Mon, 31 May 2021 13:43:10 +0000 (UTC)
+        id S234130AbhEaPAj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 11:00:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DD7FD613AD;
+        Mon, 31 May 2021 14:14:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468590;
-        bh=81HEX3wfGTS5qyC4+VS4SZfAh54TQnf3Kpe1DR6KXDs=;
+        s=korg; t=1622470482;
+        bh=zC4OPIc9eEpXm+Ok5oEw0HDZKkn58dj2vDLqSK7D6A0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fwN9pJpvIXgLuefprmgCay18Uh8vaqNBr31F7bHS4MHotE8fxK4ptjfRDmPqt4A2
-         TKYOv0cuHq4ujasF2d937bILIjp8B5EoQlTO3eHCec/dz8AxeLg3qz3RAUOSjVLAXl
-         xBjuLHjUH6d/bcBx/dwgDzHMfjz7/dBGS5j5YJ8k=
+        b=PIsuw224qQMxNKjzFD523RCv4MTEXrHnqOWLERqNRoclNUPgeX79IpOIqgxnv3pRk
+         6feGQj7ZfGfDOqwcmProGxWXiZS+7csq2JfWA/2ISt77tcI2bxPSiyhTuGcjoOCho1
+         LISVQK6lHTkRyGrQnf3u6v0Oo7Hl8ffoWr6mnclM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 014/177] mac80211: assure all fragments are encrypted
+        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.12 116/296] NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
 Date:   Mon, 31 May 2021 15:12:51 +0200
-Message-Id: <20210531130648.400682153@linuxfoundation.org>
+Message-Id: <20210531130707.823014710@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
+commit e67afa7ee4a59584d7253e45d7f63b9528819a13 upstream.
 
-Do not mix plaintext and encrypted fragments in protected Wi-Fi
-networks. This fixes CVE-2020-26147.
+Since commit bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors"),
+nfs42_proc_llseek would return -EOPNOTSUPP rather than -ENOTSUPP when
+SEEK_DATA on NFSv4.0/v4.1.
 
-Previously, an attacker was able to first forward a legitimate encrypted
-fragment towards a victim, followed by a plaintext fragment. The
-encrypted and plaintext fragment would then be reassembled. For further
-details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
-Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
+This will lead xfstests generic/285 not run on NFSv4.0/v4.1 when set the
+CONFIG_NFS_V4_2, rather than run failed.
 
-Because of this change there are now two equivalent conditions in the
-code to determine if a received fragment requires sequential PNs, so we
-also move this test to a separate function to make the code easier to
-maintain.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors")
+Cc: <stable.vger.kernel.org> # 4.2
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ fs/nfs/nfs4file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2154,6 +2154,16 @@ ieee80211_reassemble_find(struct ieee802
- 	return NULL;
- }
- 
-+static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
-+{
-+	return rx->key &&
-+		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
-+		ieee80211_has_protected(fc);
-+}
-+
- static ieee80211_rx_result debug_noinline
- ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- {
-@@ -2198,12 +2208,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		/* This is the first fragment of a new frame. */
- 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
- 						 rx->seqno_idx, &(rx->skb));
--		if (rx->key &&
--		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
--		    ieee80211_has_protected(fc)) {
-+		if (requires_sequential_pn(rx, fc)) {
- 			int queue = rx->security_idx;
- 
- 			/* Store CCMP/GCMP PN so that we can verify that the
-@@ -2245,11 +2250,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
- 		int queue;
- 
--		if (!rx->key ||
--		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
-+		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -211,7 +211,7 @@ static loff_t nfs4_file_llseek(struct fi
+ 	case SEEK_HOLE:
+ 	case SEEK_DATA:
+ 		ret = nfs42_proc_llseek(filep, offset, whence);
+-		if (ret != -ENOTSUPP)
++		if (ret != -EOPNOTSUPP)
+ 			return ret;
+ 		fallthrough;
+ 	default:
 
 
