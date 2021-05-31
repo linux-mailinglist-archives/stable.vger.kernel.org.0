@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E56563962C6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7512E3962C7
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232867AbhEaPBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51184 "EHLO mail.kernel.org"
+        id S234150AbhEaPBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:01:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234425AbhEaO7c (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234424AbhEaO7c (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 31 May 2021 10:59:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DC20461CD1;
-        Mon, 31 May 2021 14:01:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 352246193F;
+        Mon, 31 May 2021 14:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469691;
-        bh=7GLuG7p2PLEwJpRKZsrVU/cz+qEOp6Ra4vJBqINOQjk=;
+        s=korg; t=1622469693;
+        bh=WEChJ6jb79usMwhfXxnCXY+Floj+im3Lq2Q0hut9XTw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=naZxqA7QIhi94E/9ZnfLzTNg6K3qToWnUaBEgbEK/Za7JTUZU6OMkt5VNQlt2DMqT
-         Q2cqBJNsrgXO7Ap551loEhfDyS9xd8BYezoJlvLpRTtdL7Ea6mbjSgtO9pEkN7wa61
-         al/PqEEOtExWgCT99ZHWWMiaAmD2V3XFKd1qajy4=
+        b=g2RmYMP8zYdTEhaTmKBPtv7d5lCGEzkR43c73GX4WmBkwk4/YeQKo3NAMEdY49V2H
+         mjTn7xGco842FTysvl57d2aNQYrBmRYOXBjPFLqB//WfFpNBfnpVmxqYIWwdp4XF2v
+         wp3XjLwxti7jilw11sFiiI6u3ueVllDN22RHhxC8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chinmay Agarwal <chinagar@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 295/296] neighbour: Prevent Race condition in neighbour subsytem
-Date:   Mon, 31 May 2021 15:15:50 +0200
-Message-Id: <20210531130713.624469233@linuxfoundation.org>
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 5.12 296/296] usb: core: reduce power-on-good delay time of root hub
+Date:   Mon, 31 May 2021 15:15:51 +0200
+Message-Id: <20210531130713.653728152@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -39,62 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chinmay Agarwal <chinagar@codeaurora.org>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-commit eefb45eef5c4c425e87667af8f5e904fbdd47abf upstream.
+commit 90d28fb53d4a51299ff324dede015d5cb11b88a2 upstream.
 
-Following Race Condition was detected:
+Return the exactly delay time given by root hub descriptor,
+this helps to reduce resume time etc.
 
-<CPU A, t0>: Executing: __netif_receive_skb() ->__netif_receive_skb_core()
--> arp_rcv() -> arp_process().arp_process() calls __neigh_lookup() which
-takes a reference on neighbour entry 'n'.
-Moves further along, arp_process() and calls neigh_update()->
-__neigh_update(). Neighbour entry is unlocked just before a call to
-neigh_update_gc_list.
+Due to the root hub descriptor is usually provided by the host
+controller driver, if there is compatibility for a root hub,
+we can fix it easily without affect other root hub
 
-This unlocking paves way for another thread that may take a reference on
-the same and mark it dead and remove it from gc_list.
-
-<CPU B, t1> - neigh_flush_dev() is under execution and calls
-neigh_mark_dead(n) marking the neighbour entry 'n' as dead. Also n will be
-removed from gc_list.
-Moves further along neigh_flush_dev() and calls
-neigh_cleanup_and_release(n), but since reference count increased in t1,
-'n' couldn't be destroyed.
-
-<CPU A, t3>- Code hits neigh_update_gc_list, with neighbour entry
-set as dead.
-
-<CPU A, t4> - arp_process() finally calls neigh_release(n), destroying
-the neighbour entry and we have a destroyed ntry still part of gc_list.
-
-Fixes: eb4e8fac00d1("neighbour: Prevent a dead entry from updating gc_list")
-Signed-off-by: Chinmay Agarwal <chinagar@codeaurora.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1618017645-12259-1-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/core/hub.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -131,6 +131,9 @@ static void neigh_update_gc_list(struct
- 	write_lock_bh(&n->tbl->lock);
- 	write_lock(&n->lock);
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -148,8 +148,10 @@ static inline unsigned hub_power_on_good
+ {
+ 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
  
-+	if (n->dead)
-+		goto out;
-+
- 	/* remove from the gc list if new state is permanent or if neighbor
- 	 * is externally learned; otherwise entry should be on the gc list
- 	 */
-@@ -147,6 +150,7 @@ static void neigh_update_gc_list(struct
- 		atomic_inc(&n->tbl->gc_entries);
- 	}
- 
-+out:
- 	write_unlock(&n->lock);
- 	write_unlock_bh(&n->tbl->lock);
+-	/* Wait at least 100 msec for power to become stable */
+-	return max(delay, 100U);
++	if (!hub->hdev->parent)	/* root hub */
++		return delay;
++	else /* Wait at least 100 msec for power to become stable */
++		return max(delay, 100U);
  }
+ 
+ static inline int hub_port_debounce_be_connected(struct usb_hub *hub,
 
 
