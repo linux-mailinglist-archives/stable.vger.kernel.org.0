@@ -2,35 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5AD77395BAD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92FFD395C80
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:33:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232034AbhEaNXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:23:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
+        id S231871AbhEaNdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:33:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39364 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231663AbhEaNVf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:21:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD90B613CB;
-        Mon, 31 May 2021 13:19:08 +0000 (UTC)
+        id S232378AbhEaNbb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:31:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 104F3613C8;
+        Mon, 31 May 2021 13:23:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467149;
-        bh=lt7IgVqniB7ZiD/JA5DsU0X9tS2/T41Pz6ywahkI++M=;
+        s=korg; t=1622467424;
+        bh=+w22d5Lh5qfl2TsfF9L41caHmM9xpcYax38cT+6efQY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T23hw/KCWISS5cjFgIOUPkI9fyH2Ch4IPlA1Hgumjdj8iwtMXPtSEWMjFlPg1v2Ed
-         IHjvMHywD2oTYGUCWTw4GBErmK68cmBEode0P8o+ZvnkMA8CdIuog1d/qCzVsmSEiK
-         3JF+uFGH75Gkkxv1i/LARrxPTQ8hB4KTMVgOhQL4=
+        b=rTlE0oo3D6C5t/ykWNWrAJ7XH+bppPjU2WsUBZh8AilwnkNnNeXu6L0hWbiLsFOZS
+         YqGhQ+kGa8PDNQh3qOMvki1LhIl7OuXyQ16UsVw8am1QwqF4EYJOGmIo3o5EJ9upsd
+         Ol0OL0iES+k5EQPFKDIHyoajaoGkKja2herfqcw4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean MacLennan <seanm@seanm.ca>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.9 22/66] USB: serial: ti_usb_3410_5052: add startech.com device id
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Navid Emamdoost <navid.emamdoost@gmail.com>,
+        Andrey Smirnov <andrew.smirnov@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 059/116] spi: gpio: Dont leak SPI master in probe error path
 Date:   Mon, 31 May 2021 15:13:55 +0200
-Message-Id: <20210531130636.963566694@linuxfoundation.org>
+Message-Id: <20210531130642.176191748@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +42,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean MacLennan <seanm@seanm.ca>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit 89b1a3d811e6f8065d6ae8a25e7682329b4a31e2 upstream.
+commit 7174dc655ef0578877b0b4598e69619d2be28b4d upstream.
 
-This adds support for the Startech.com generic serial to USB converter.
-It seems to be a bone stock TI_3410. I have been using this patch for
-years.
+If the call to devm_spi_register_master() fails on probe of the GPIO SPI
+driver, the spi_master struct is erroneously not freed:
 
-Signed-off-by: Sean MacLennan <seanm@seanm.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+After allocating the spi_master, its reference count is 1.  The driver
+unconditionally decrements the reference count on unbind using a devm
+action.  Before calling devm_spi_register_master(), the driver
+unconditionally increments the reference count because on success,
+that function will decrement the reference count on unbind.  However on
+failure, devm_spi_register_master() does *not* decrement the reference
+count, so the spi_master is leaked.
+
+The issue was introduced by commits 8b797490b4db ("spi: gpio: Make sure
+spi_master_put() is called in every error path") and 79567c1a321e ("spi:
+gpio: Use devm_spi_register_master()"), which sought to plug leaks
+introduced by 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO
+descriptors") but missed this remaining leak.
+
+The situation was later aggravated by commit d3b0ffa1d75d ("spi: gpio:
+prevent memory leak in spi_gpio_probe"), which introduced a
+use-after-free because it releases a reference on the spi_master if
+devm_add_action_or_reset() fails even though the function already
+does that.
+
+Fix by switching over to the new devm_spi_alloc_master() helper.
+
+Fixes: 9b00bc7b901f ("spi: spi-gpio: Rewrite to use GPIO descriptors")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v5.1-: 8b797490b4db: spi: gpio: Make sure spi_master_put() is called in every error path
+Cc: <stable@vger.kernel.org> # v5.1-: 45beec351998: spi: bitbang: Introduce spi_bitbang_init()
+Cc: <stable@vger.kernel.org> # v5.1-: 79567c1a321e: spi: gpio: Use devm_spi_register_master()
+Cc: <stable@vger.kernel.org> # v5.4-: d3b0ffa1d75d: spi: gpio: prevent memory leak in spi_gpio_probe
+Cc: <stable@vger.kernel.org> # v4.17+
+Cc: Navid Emamdoost <navid.emamdoost@gmail.com>
+Cc: Andrey Smirnov <andrew.smirnov@gmail.com>
+Link: https://lore.kernel.org/r/86eaed27431c3d709e3748eb76ceecbfc790dd37.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v4.19.192]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ti_usb_3410_5052.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/spi/spi-gpio.c |    8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/usb/serial/ti_usb_3410_5052.c
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c
-@@ -41,6 +41,7 @@
- /* Vendor and product ids */
- #define TI_VENDOR_ID			0x0451
- #define IBM_VENDOR_ID			0x04b3
-+#define STARTECH_VENDOR_ID		0x14b0
- #define TI_3410_PRODUCT_ID		0x3410
- #define IBM_4543_PRODUCT_ID		0x4543
- #define IBM_454B_PRODUCT_ID		0x454b
-@@ -378,6 +379,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
+--- a/drivers/spi/spi-gpio.c
++++ b/drivers/spi/spi-gpio.c
+@@ -382,7 +382,7 @@ static int spi_gpio_probe(struct platfor
+ 		return -ENODEV;
+ #endif
  
-@@ -416,6 +418,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
+-	master = spi_alloc_master(&pdev->dev, sizeof(*spi_gpio));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*spi_gpio));
+ 	if (!master)
+ 		return -ENOMEM;
  
+@@ -438,11 +438,7 @@ static int spi_gpio_probe(struct platfor
+ 	}
+ 	spi_gpio->bitbang.setup_transfer = spi_bitbang_setup_transfer;
+ 
+-	status = spi_bitbang_start(&spi_gpio->bitbang);
+-	if (status)
+-		spi_master_put(master);
+-
+-	return status;
++	return spi_bitbang_start(&spi_gpio->bitbang);
+ }
+ 
+ static int spi_gpio_remove(struct platform_device *pdev)
 
 
