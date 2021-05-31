@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BF5E395C94
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:33:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 571E7395D14
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231695AbhEaNfH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:35:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
+        id S231889AbhEaNlH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232274AbhEaNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:32:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B97DF6135D;
-        Mon, 31 May 2021 13:24:02 +0000 (UTC)
+        id S232683AbhEaNjW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E446E61405;
+        Mon, 31 May 2021 13:26:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467443;
-        bh=4pPF3576SbVzTBopJc0l9cXkMjzIN9CW7vY9obVO2Os=;
+        s=korg; t=1622467619;
+        bh=McKPymCagduZUZJsuMKrp98aMcnfige8IoXNt/hH0XQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXcqA8dIt0SiTw4PGXqzYx54XPdmwXNNer9nP8dXd4N7I2orYefz9dFCbFlTqjWBw
-         9GuEF303zs84nzF8mNsvLPPUFzdk/3KD6vLce29zYtu/CAs2gSqBL4/AsZ2Zop7qgT
-         EnbY0uLZPgfCQ56ijfkcC3v1i34a/ZNs8U4sMNKQ=
+        b=HVTCttEjE7cYiQ1VJ7Wy+M1GrSpxCkemRfZv5StDNPzF6jmle+HfIHOHswP8HsngK
+         hzOCTt3NJHagSJdgAM8xmEaZQ4z2dRxpKV0hHDVru6bdf1/g7QzW4bH7eixzJC7/F2
+         kJeIXDe/ENQzeUlhCxjqqFhqhjoy69lzpSBOCo5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
-        Neil Armstrong <narmstrong@baylibre.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Subject: [PATCH 4.19 066/116] drm/meson: fix shutdown crash when component not probed
+        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 17/79] ath10k: Validate first subframe of A-MSDU before processing the list
 Date:   Mon, 31 May 2021 15:14:02 +0200
-Message-Id: <20210531130642.395713882@linuxfoundation.org>
+Message-Id: <20210531130636.559849672@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +40,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <narmstrong@baylibre.com>
+From: Sriram R <srirrama@codeaurora.org>
 
-commit 7cfc4ea78fc103ea51ecbacd9236abb5b1c490d2 upstream.
+commit 62a8ff67eba52dae9b107e1fb8827054ed00a265 upstream.
 
-When main component is not probed, by example when the dw-hdmi module is
-not loaded yet or in probe defer, the following crash appears on shutdown:
+In certain scenarios a normal MSDU can be received as an A-MSDU when
+the A-MSDU present bit of a QoS header gets flipped during reception.
+Since this bit is unauthenticated, the hardware crypto engine can pass
+the frame to the driver without any error indication.
 
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000038
-...
-pc : meson_drv_shutdown+0x24/0x50
-lr : platform_drv_shutdown+0x20/0x30
-...
-Call trace:
-meson_drv_shutdown+0x24/0x50
-platform_drv_shutdown+0x20/0x30
-device_shutdown+0x158/0x360
-kernel_restart_prepare+0x38/0x48
-kernel_restart+0x18/0x68
-__do_sys_reboot+0x224/0x250
-__arm64_sys_reboot+0x24/0x30
-...
+This could result in processing unintended subframes collected in the
+A-MSDU list. Hence, validate A-MSDU list by checking if the first frame
+has a valid subframe header.
 
-Simply check if the priv struct has been allocated before using it.
+Comparing the non-aggregated MSDU and an A-MSDU, the fields of the first
+subframe DA matches the LLC/SNAP header fields of a normal MSDU.
+In order to avoid processing such frames, add a validation to
+filter such A-MSDU frames where the first subframe header DA matches
+with the LLC/SNAP header pattern.
 
-Fixes: fa0c16caf3d7 ("drm: meson_drv add shutdown function")
-Reported-by: Stefan Agner <stefan@agner.ch>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
-Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20210430082744.3638743-1-narmstrong@baylibre.com
+Tested-on: QCA9984 hw1.0 PCI 10.4-3.10-00047
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20210511200110.e6f5eb7b9847.I38a77ae26096862527a5eab73caebd7346af8b66@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/meson/meson_drv.c |    9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c |   61 ++++++++++++++++++++++++++++---
+ 1 file changed, 57 insertions(+), 4 deletions(-)
 
---- a/drivers/gpu/drm/meson/meson_drv.c
-+++ b/drivers/gpu/drm/meson/meson_drv.c
-@@ -387,11 +387,12 @@ static int meson_probe_remote(struct pla
- static void meson_drv_shutdown(struct platform_device *pdev)
- {
- 	struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
--	struct drm_device *drm = priv->drm;
- 
--	DRM_DEBUG_DRIVER("\n");
--	drm_kms_helper_poll_fini(drm);
--	drm_atomic_helper_shutdown(drm);
-+	if (!priv)
-+		return;
-+
-+	drm_kms_helper_poll_fini(priv->drm);
-+	drm_atomic_helper_shutdown(priv->drm);
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -1605,14 +1605,62 @@ static void ath10k_htt_rx_h_unchain(stru
+ 	ath10k_unchain_msdu(amsdu);
  }
  
- static int meson_drv_probe(struct platform_device *pdev)
++static bool ath10k_htt_rx_validate_amsdu(struct ath10k *ar,
++					 struct sk_buff_head *amsdu)
++{
++	u8 *subframe_hdr;
++	struct sk_buff *first;
++	bool is_first, is_last;
++	struct htt_rx_desc *rxd;
++	struct ieee80211_hdr *hdr;
++	size_t hdr_len, crypto_len;
++	enum htt_rx_mpdu_encrypt_type enctype;
++	int bytes_aligned = ar->hw_params.decap_align_bytes;
++
++	first = skb_peek(amsdu);
++
++	rxd = (void *)first->data - sizeof(*rxd);
++	hdr = (void *)rxd->rx_hdr_status;
++
++	is_first = !!(rxd->msdu_end.common.info0 &
++		      __cpu_to_le32(RX_MSDU_END_INFO0_FIRST_MSDU));
++	is_last = !!(rxd->msdu_end.common.info0 &
++		     __cpu_to_le32(RX_MSDU_END_INFO0_LAST_MSDU));
++
++	/* Return in case of non-aggregated msdu */
++	if (is_first && is_last)
++		return true;
++
++	/* First msdu flag is not set for the first msdu of the list */
++	if (!is_first)
++		return false;
++
++	enctype = MS(__le32_to_cpu(rxd->mpdu_start.info0),
++		     RX_MPDU_START_INFO0_ENCRYPT_TYPE);
++
++	hdr_len = ieee80211_hdrlen(hdr->frame_control);
++	crypto_len = ath10k_htt_rx_crypto_param_len(ar, enctype);
++
++	subframe_hdr = (u8 *)hdr + round_up(hdr_len, bytes_aligned) +
++		       crypto_len;
++
++	/* Validate if the amsdu has a proper first subframe.
++	 * There are chances a single msdu can be received as amsdu when
++	 * the unauthenticated amsdu flag of a QoS header
++	 * gets flipped in non-SPP AMSDU's, in such cases the first
++	 * subframe has llc/snap header in place of a valid da.
++	 * return false if the da matches rfc1042 pattern
++	 */
++	if (ether_addr_equal(subframe_hdr, rfc1042_header))
++		return false;
++
++	return true;
++}
++
+ static bool ath10k_htt_rx_amsdu_allowed(struct ath10k *ar,
+ 					struct sk_buff_head *amsdu,
+ 					struct ieee80211_rx_status *rx_status)
+ {
+-	/* FIXME: It might be a good idea to do some fuzzy-testing to drop
+-	 * invalid/dangerous frames.
+-	 */
+-
+ 	if (!rx_status->freq) {
+ 		ath10k_dbg(ar, ATH10K_DBG_HTT, "no channel configured; ignoring frame(s)!\n");
+ 		return false;
+@@ -1623,6 +1671,11 @@ static bool ath10k_htt_rx_amsdu_allowed(
+ 		return false;
+ 	}
+ 
++	if (!ath10k_htt_rx_validate_amsdu(ar, amsdu)) {
++		ath10k_dbg(ar, ATH10K_DBG_HTT, "invalid amsdu received\n");
++		return false;
++	}
++
+ 	return true;
+ }
+ 
 
 
