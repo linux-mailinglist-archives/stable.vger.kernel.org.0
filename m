@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE41139600C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D2AD3395F10
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230282AbhEaOW1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
+        id S232091AbhEaOHe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:07:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232850AbhEaORF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:17:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A13DA613D7;
-        Mon, 31 May 2021 13:43:33 +0000 (UTC)
+        id S232292AbhEaOFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:05:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB1C61956;
+        Mon, 31 May 2021 13:38:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468614;
-        bh=G9Djgm5+D9+1oVWiiL+Z96/5chrPLDcwDNTHkHXHhyk=;
+        s=korg; t=1622468312;
+        bh=0Gs3QaBX5NpBiFEW+dVVgdX5Zdxzj0UaiT1XmKN/qHk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N4Hi8rmtI+WuVX8xB9S2I4fC+fpxj3LCrv3mUMbwCR1ap1BBNYcxTb3VPbi8VIMmZ
-         SoTDFwQk9wqzjpu4P1u2zLwfe7Xx37qZfyJAC73MR+cox4Gjbf7tz2emum7s5P/dR8
-         xsa8g6DRS20UVvxeuPACnM5tSWDu3baOGcsK8fO8=
+        b=fhVf3xSv1wansAAlqm8rfAEcFlp6vLEg3EEKp2aZbbfF+e3SfXWSatKQUEuX5C2dQ
+         pzwZOgNlL1BT20lCSUUJWtHNfPgyGQxvyk9XGnAhPmFn/cjFfPJ+EdqSZA0txQ7EZj
+         KPbjiDqXBJvbteP4Bq/T3ifqTFNpc8RRFkAmywL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zolton Jheng <s6668c2t@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.4 059/177] USB: serial: pl2303: add device id for ADLINK ND-6530 GC
+        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 151/252] ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()
 Date:   Mon, 31 May 2021 15:13:36 +0200
-Message-Id: <20210531130649.954228936@linuxfoundation.org>
+Message-Id: <20210531130703.136037228@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zolton Jheng <s6668c2t@gmail.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-commit f8e8c1b2f782e7391e8a1c25648ce756e2a7d481 upstream.
+[ Upstream commit 54433367840b46a1555c8ed36c4c0cfc5dbf1358 ]
 
-This adds the device id for the ADLINK ND-6530 which is a PL2303GC based
-device.
+Propagate error code from failure of ath6kl_wmi_cmd_send() to the
+caller.
 
-Signed-off-by: Zolton Jheng <s6668c2t@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-44-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ drivers/net/wireless/ath/ath6kl/debug.c | 5 ++++-
+ drivers/net/wireless/ath/ath6kl/wmi.c   | 4 +---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -107,6 +107,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SONY_VENDOR_ID, SONY_QN3USB_PRODUCT_ID) },
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
-+	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
- 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -152,6 +152,7 @@
- /* ADLINK ND-6530 RS232,RS485 and RS422 adapter */
- #define ADLINK_VENDOR_ID		0x0b63
- #define ADLINK_ND6530_PRODUCT_ID	0x6530
-+#define ADLINK_ND6530GC_PRODUCT_ID	0x653a
+diff --git a/drivers/net/wireless/ath/ath6kl/debug.c b/drivers/net/wireless/ath/ath6kl/debug.c
+index 7506cea46f58..433a047f3747 100644
+--- a/drivers/net/wireless/ath/ath6kl/debug.c
++++ b/drivers/net/wireless/ath/ath6kl/debug.c
+@@ -1027,14 +1027,17 @@ static ssize_t ath6kl_lrssi_roam_write(struct file *file,
+ {
+ 	struct ath6kl *ar = file->private_data;
+ 	unsigned long lrssi_roam_threshold;
++	int ret;
  
- /* SMART USB Serial Adapter */
- #define SMART_VENDOR_ID	0x0b8c
+ 	if (kstrtoul_from_user(user_buf, count, 0, &lrssi_roam_threshold))
+ 		return -EINVAL;
+ 
+ 	ar->lrssi_roam_threshold = lrssi_roam_threshold;
+ 
+-	ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
++	ret = ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
+ 
++	if (ret)
++		return ret;
+ 	return count;
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index 99be0d20f9a5..dbc47702a268 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -776,10 +776,8 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
+ 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
+ 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
+ 
+-	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
++	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
+ 			    NO_SYNC_WMIFLAG);
+-
+-	return 0;
+ }
+ 
+ int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
+-- 
+2.30.2
+
 
 
