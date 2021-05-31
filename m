@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 691BE396044
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:22:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12C6D395D28
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232697AbhEaOXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
+        id S232699AbhEaNmB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:42:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42864 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233863AbhEaOVb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:21:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9BBBF61581;
-        Mon, 31 May 2021 13:45:00 +0000 (UTC)
+        id S232953AbhEaNj6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3214A61370;
+        Mon, 31 May 2021 13:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468701;
-        bh=VargY4XG5cDtl7Den5zPVuw+rnYOMNgRzAdJUIQW1mw=;
+        s=korg; t=1622467645;
+        bh=cFKdeZRAsalLgHDr88RrC/uO12YQi4x7nN+X157/FWI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4AIbZIsUABAbkNQ4fkH7z945vodgrSGrBU0H9HqDzHgjyZGxJCVssxSYj97NGYmD
-         bE+I7RZNg9OHO7Vo5fP6tb0Ssp+QWq02Dkptu4r298Mf3XPzqWKi2imfwPUsC7kAQy
-         GZNTGzP+/p7tYWRdfx/FqIcrhPIylJaYGw2Jg2Jc=
+        b=TJwZ2Lkeu2cZ8M5/NfSRF4AQeToggDOuxBygj7Cea4g60e5378nNvRo5LfOC/L/6P
+         ypq7MdRSImbkxS8vMXiyWLiJsZ4FABZg9H2x6YRvdtF8u5q9Nj1Z/YY4rhBid5c4JE
+         CbnGegBNqr6PMU3kEXV3GMET1tFSF/+PCYtEiieM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Ursula Braun <ubraun@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 094/177] Revert "net/smc: fix a NULL pointer dereference"
+        stable@vger.kernel.org, Linh Phung <linh.phung.jy@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 4.14 26/79] serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
 Date:   Mon, 31 May 2021 15:14:11 +0200
-Message-Id: <20210531130651.142173183@linuxfoundation.org>
+Message-Id: <20210531130636.845790318@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit 5369ead83f5aff223b6418c99cb1fe9a8f007363 ]
+commit 2ea2e019c190ee3973ef7bcaf829d8762e56e635 upstream.
 
-This reverts commit e183d4e414b64711baf7a04e214b61969ca08dfa.
+The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
+FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
+ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
+can write an out-of-range value, touching reserved bits.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Fix this by limiting the trigger value to the FIFO size minus one.
+Reverse the order of the checks, to avoid rx_trig becoming zero if the
+FIFO size is one.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+Note that this change has no impact on other SCIF variants, as their
+maximum supported trigger value is lower than the FIFO size anyway, and
+the code below takes care of enforcing these limits.
 
-The original commit causes a memory leak and does not properly fix the
-issue it claims to fix.  I will send a follow-on patch to resolve this
-properly.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Ursula Braun <ubraun@linux.ibm.com>
-Cc: David S. Miller <davem@davemloft.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-17-gregkh@linuxfoundation.org
+Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
+Reported-by: Linh Phung <linh.phung.jy@renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_ism.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/tty/serial/sh-sci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index e89e918b88e0..2fff79db1a59 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -289,11 +289,6 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
- 	INIT_LIST_HEAD(&smcd->vlan);
- 	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
- 						 WQ_MEM_RECLAIM, name);
--	if (!smcd->event_wq) {
--		kfree(smcd->conn);
--		kfree(smcd);
--		return NULL;
--	}
- 	return smcd;
- }
- EXPORT_SYMBOL_GPL(smcd_alloc_dev);
--- 
-2.30.2
-
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -994,10 +994,10 @@ static int scif_set_rtrg(struct uart_por
+ {
+ 	unsigned int bits;
+ 
++	if (rx_trig >= port->fifosize)
++		rx_trig = port->fifosize - 1;
+ 	if (rx_trig < 1)
+ 		rx_trig = 1;
+-	if (rx_trig >= port->fifosize)
+-		rx_trig = port->fifosize;
+ 
+ 	/* HSCIF can be set to an arbitrary level. */
+ 	if (sci_getreg(port, HSRTRGR)->size) {
 
 
