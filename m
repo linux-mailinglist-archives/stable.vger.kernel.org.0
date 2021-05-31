@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E52F395F14
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:06:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6093039628E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231261AbhEaOHi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:07:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
+        id S234301AbhEaO5w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:57:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232561AbhEaOFb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:05:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A2D661960;
-        Mon, 31 May 2021 13:38:40 +0000 (UTC)
+        id S232973AbhEaOxn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:53:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B073761CAF;
+        Mon, 31 May 2021 13:59:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468320;
-        bh=ROmstazyoaFNN3theMl0eig7ltzXRdcQMLKvT3gtATw=;
+        s=korg; t=1622469543;
+        bh=1m1lvHMZRM41MlBa4EFWZQLiMkDhEqr5cEsP18CrtqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISkvwxMLAKdhf5XGIDJiXFV9c/0NyVS4cy5l7ca3QrZN89uBYOQd/rjK9LVF88gTs
-         WEMAn5fFasLiNyXSgf0fV6gmpTtlcT2zEnpODUYsv3kLq2WsgQsIwDnWQ6h4YCesaw
-         UN8SsVwFirvHH0cGNoSI2EzqImJF/5eyKsNiazAc=
+        b=tmLvpbLkxnAWKClqkTzDlABCoIx/3dFk7ofgXbUhtFDyT7B5s6AK6y2ABEEdj8+Zc
+         flhAS2jYXEd22gPcfPng5xHJuIOKHK7L9SxJzU70Ya9C+8mGNdKPCWBoHddJZ9/RKe
+         05DE51JlTGbqJYD5h2lrU8lWxR8I8O0ch0JyK9rw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
-        Joakim Zhang <qiangqing.zhang@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Teava Radu <rateava@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 200/252] net: fec: fix the potential memory leak in fec_enet_init()
+Subject: [PATCH 5.12 210/296] platform/x86: touchscreen_dmi: Add info for the Mediacom Winpad 7.0 W700 tablet
 Date:   Mon, 31 May 2021 15:14:25 +0200
-Message-Id: <20210531130704.811954649@linuxfoundation.org>
+Message-Id: <20210531130710.920662743@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,62 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fugang Duan <fugang.duan@nxp.com>
+From: Teava Radu <rateava@gmail.com>
 
-[ Upstream commit 619fee9eb13b5d29e4267cb394645608088c28a8 ]
+[ Upstream commit 39a6172ea88b3117353ae16cbb0a53cd80a9340a ]
 
-If the memory allocated for cbd_base is failed, it should
-free the memory allocated for the queues, otherwise it causes
-memory leak.
+Add touchscreen info for the Mediacom Winpad 7.0 W700 tablet.
+Tested on 5.11 hirsute.
+Note: it's hw clone to Wintron surftab 7.
 
-And if the memory allocated for the queues is failed, it can
-return error directly.
-
-Fixes: 59d0f7465644 ("net: fec: init multi queue date structure")
-Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
-Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Teava Radu <rateava@gmail.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210504185746.175461-6-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/fec_main.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
-index 55c28fbc5f9e..960def41cc55 100644
---- a/drivers/net/ethernet/freescale/fec_main.c
-+++ b/drivers/net/ethernet/freescale/fec_main.c
-@@ -3277,7 +3277,9 @@ static int fec_enet_init(struct net_device *ndev)
- 		return ret;
- 	}
- 
--	fec_enet_alloc_queue(ndev);
-+	ret = fec_enet_alloc_queue(ndev);
-+	if (ret)
-+		return ret;
- 
- 	bd_size = (fep->total_tx_ring_size + fep->total_rx_ring_size) * dsize;
- 
-@@ -3285,7 +3287,8 @@ static int fec_enet_init(struct net_device *ndev)
- 	cbd_base = dmam_alloc_coherent(&fep->pdev->dev, bd_size, &bd_dma,
- 				       GFP_KERNEL);
- 	if (!cbd_base) {
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto free_queue_mem;
- 	}
- 
- 	/* Get the Ethernet address */
-@@ -3363,6 +3366,10 @@ static int fec_enet_init(struct net_device *ndev)
- 		fec_enet_update_ethtool_stats(ndev);
- 
- 	return 0;
-+
-+free_queue_mem:
-+	fec_enet_free_queue(ndev);
-+	return ret;
- }
- 
- #ifdef CONFIG_OF
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index c44a6e8dceb8..5e4eb3b36d70 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -1070,6 +1070,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
+ 		},
+ 	},
++	{
++		/* Mediacom WinPad 7.0 W700 (same hw as Wintron surftab 7") */
++		.driver_data = (void *)&trekstor_surftab_wintron70_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "WinPad 7 W10 - WPW700"),
++		},
++	},
+ 	{
+ 		/* Mediacom Flexbook Edge 11 (same hw as TS Primebook C11) */
+ 		.driver_data = (void *)&trekstor_primebook_c11_data,
 -- 
 2.30.2
 
