@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E25AC395F60
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:09:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 965D7396266
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:54:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233184AbhEaOKp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:10:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40812 "EHLO mail.kernel.org"
+        id S232788AbhEaO4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:56:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233141AbhEaOIj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:08:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CEFAE6196C;
-        Mon, 31 May 2021 13:39:53 +0000 (UTC)
+        id S233425AbhEaOxj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:53:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AE2A6143F;
+        Mon, 31 May 2021 13:58:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468394;
-        bh=e9Kvj+llEdXdE4vFZ3aybTT3zMofuM2ZWeu75cRbXRo=;
+        s=korg; t=1622469538;
+        bh=DjQ2hMj8WxO3WxXz+guJ5eK96NTTpmaG2dey4dg2x6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N/AxO9RGI5Hwb+PXB2E+VtjGvCRkacQ/VxbOe5+454X6HEaAKkuydit2bOT7BXxLJ
-         dSAw7egpim6SbQi2MzdZs0Q5KeSyn4lw3dG805Dp/D5AxvlLNjuss5rOl5s1dfgfUV
-         hwAa8sYyr3Pg13oPKIguo4TaE1uyck0fQ+dYHbtM=
+        b=iBvVMWW0zOo7VcyZf7+wCw+sdTfdsk2C+4Dm/tBVa+nZy7B2l8hXAhDI52V62lJQQ
+         FCIdGfn9lnA1pXXT2QZzNfKCc/bkaShNO9SzDmjrCG9ZYKe+PB2D7dUdXmMM8Lj1Jg
+         Ej6LA/f25jxpnLoDXIPuI5amsFjtkb0+d/9uVAMA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Richard Cochran <richardcochran@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 225/252] cxgb4: avoid accessing registers when clearing filters
+Subject: [PATCH 5.12 235/296] ptp: ocp: Fix a resource leak in an error handling path
 Date:   Mon, 31 May 2021 15:14:50 +0200
-Message-Id: <20210531130705.638995400@linuxfoundation.org>
+Message-Id: <20210531130711.701242148@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,37 +42,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit 88c380df84fbd03f9b137c2b9d0a44b9f2f553b0 ]
+[ Upstream commit 9c1bb37f8cad5e2ee1933fa1da9a6baa7876a8e4 ]
 
-Hardware register having the server TID base can contain
-invalid values when adapter is in bad state (for example,
-due to AER fatal error). Reading these invalid values in the
-register can lead to out-of-bound memory access. So, fix
-by using the saved server TID base when clearing filters.
+If an error occurs after a successful 'pci_ioremap_bar()' call, it must be
+undone by a corresponding 'pci_iounmap()' call, as already done in the
+remove function.
 
-Fixes: b1a79360ee86 ("cxgb4: Delete all hash and TCAM filters before resource cleanup")
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Fixes: a7e1abad13f3 ("ptp: Add clock driver for the OpenCompute TimeCard.")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Acked-by: Richard Cochran <richardcochran@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/ptp/ptp_ocp.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index bde8494215c4..e664e05b9f02 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -1042,7 +1042,7 @@ void clear_all_filters(struct adapter *adapter)
- 				cxgb4_del_filter(dev, f->tid, &f->fs);
- 		}
+diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
+index 530e5f90095e..0d1034e3ed0f 100644
+--- a/drivers/ptp/ptp_ocp.c
++++ b/drivers/ptp/ptp_ocp.c
+@@ -324,7 +324,7 @@ ptp_ocp_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	if (!bp->base) {
+ 		dev_err(&pdev->dev, "io_remap bar0\n");
+ 		err = -ENOMEM;
+-		goto out;
++		goto out_release_regions;
+ 	}
+ 	bp->reg = bp->base + OCP_REGISTER_OFFSET;
+ 	bp->tod = bp->base + TOD_REGISTER_OFFSET;
+@@ -347,6 +347,8 @@ ptp_ocp_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+ 	return 0;
  
--		sb = t4_read_reg(adapter, LE_DB_SRVR_START_INDEX_A);
-+		sb = adapter->tids.stid_base;
- 		for (i = 0; i < sb; i++) {
- 			f = (struct filter_entry *)adapter->tids.tid_tab[i];
- 
+ out:
++	pci_iounmap(pdev, bp->base);
++out_release_regions:
+ 	pci_release_regions(pdev);
+ out_disable:
+ 	pci_disable_device(pdev);
 -- 
 2.30.2
 
