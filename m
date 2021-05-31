@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10D6F395CEE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 59DDC395D5F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232197AbhEaNkL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:40:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+        id S232240AbhEaNpB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:45:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232221AbhEaNgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7286144D;
-        Mon, 31 May 2021 13:25:44 +0000 (UTC)
+        id S232672AbhEaNmz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:42:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B9DB61474;
+        Mon, 31 May 2021 13:28:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467545;
-        bh=0ehsmwxMcJ5M3eodCYeo9WXhDYbu9W5dnK3tTJEgvjw=;
+        s=korg; t=1622467718;
+        bh=WCY1tsQHs0qPaWWClyBnYNlp7D6WjJ9ssswyl7No6Yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HD/Mfgm4VtEok4YAe+9rcMkqv0hsyrH87zUHkk2gGCwKBb0N5pecXdJ8KVGrbRrzU
-         dnIWHWSYzUAKY2X8Ydj41sWzxcfHUgCmg0o2f3mhzm+3hWNhCLjCp2s2bS2wytNvA2
-         bayuiByO5miwKEIZrlxbgwftGRPaQGJs5Vqhexf0=
+        b=0TJAW6X8KbkQvargg1s0gMWZaQ3P0Fm4RtCixUeyeyi3zq/1gyOxC77NoYcCuo9Qd
+         D76bLDgrIXP6hx/ee4SmM4A0Cz3YWNm2yRBChlJc0JS3K04poOrdsjOb1KcM9j+WtM
+         nK2Yzm57QiSd3IL0zZ63lcSR9QI7anUnex2sBEwY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 104/116] staging: emxx_udc: fix loop in _nbu2ss_nuke()
+Subject: [PATCH 4.14 55/79] media: gspca: properly check for errors in po1030_probe()
 Date:   Mon, 31 May 2021 15:14:40 +0200
-Message-Id: <20210531130643.655092357@linuxfoundation.org>
+Message-Id: <20210531130637.763124921@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e0112a7c9e847ada15a631b88e279d547e8f26a7 ]
+[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
 
-The _nbu2ss_ep_done() function calls:
+If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
+initialize the device but return the error to the calling funtion.
 
-	list_del_init(&req->queue);
-
-which means that the loop will never exit.
-
-Fixes: ca3d253eb967 ("Staging: emxx_udc: Iterate list using list_for_each_entry")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YKUd0sDyjm/lkJfJ@mwanda
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/emxx_udc/emxx_udc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/staging/emxx_udc/emxx_udc.c b/drivers/staging/emxx_udc/emxx_udc.c
-index 3e51476a7045..d2cb2bd6d913 100644
---- a/drivers/staging/emxx_udc/emxx_udc.c
-+++ b/drivers/staging/emxx_udc/emxx_udc.c
-@@ -2148,7 +2148,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
- 			struct nbu2ss_ep *ep,
- 			int status)
+diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+index a0a90dd34ca8..a098aeb290c3 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
++++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+@@ -159,6 +159,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
+ int po1030_probe(struct sd *sd)
  {
--	struct nbu2ss_req *req;
-+	struct nbu2ss_req *req, *n;
+ 	u8 dev_id_h = 0, i;
++	int err;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
- 	/* Endpoint Disable */
- 	_nbu2ss_epn_exit(udc, ep);
-@@ -2160,7 +2160,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
- 		return 0;
- 
- 	/* called with irqs blocked */
--	list_for_each_entry(req, &ep->queue, queue) {
-+	list_for_each_entry_safe(req, n, &ep->queue, queue) {
- 		_nbu2ss_ep_done(ep, req, status);
+ 	if (force_sensor) {
+@@ -177,10 +178,13 @@ int po1030_probe(struct sd *sd)
+ 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
+ 		u8 data = preinit_po1030[i][2];
+ 		if (preinit_po1030[i][0] == SENSOR)
+-			m5602_write_sensor(sd,
+-				preinit_po1030[i][1], &data, 1);
++			err = m5602_write_sensor(sd, preinit_po1030[i][1],
++						 &data, 1);
+ 		else
+-			m5602_write_bridge(sd, preinit_po1030[i][1], data);
++			err = m5602_write_bridge(sd, preinit_po1030[i][1],
++						 data);
++		if (err < 0)
++			return err;
  	}
  
+ 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
 -- 
 2.30.2
 
