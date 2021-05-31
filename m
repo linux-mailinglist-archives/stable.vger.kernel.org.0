@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5893A396229
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 050FD395B80
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbhEaOvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
+        id S231873AbhEaNVT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:21:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231542AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CBFC613F6;
-        Mon, 31 May 2021 13:57:16 +0000 (UTC)
+        id S232075AbhEaNTt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D27EF613B4;
+        Mon, 31 May 2021 13:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469436;
-        bh=iSEmKE8r5JSK7hSp+AFegfddZIAUEcasH3dWqdBytFs=;
+        s=korg; t=1622467089;
+        bh=a4HyP3ltuq17FGvGAa56l5kLpkM11flsQTh8rEev3B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nPagPWxuLINAoB6wzXzNt5vkbuKp71tyv5NSOUPI32xawyMKPhVwV8ATEAfSI8gfk
-         1SB4idxIGdkTyd59lVtRIeS2qPDbmLuUpVZFs2TCUCz/jGVEb/5ZW5//cIY1/6J+w6
-         pzm2uVAH4F2gF4WayhUYJ7Za5r17KgCiO8ZdyWcM=
+        b=FllyXkZaLeWz37Tl5HzfcSrk2EJd2oYw/4cF7EJ9akMjyN3FnPXIBkKg1M5aFUAve
+         h5ojpNbxyMiy92fQ+OLYTWrqpv/bHVEbODfwW0gqbF6uM4KwiShcMLgkzliw5/ZaQ0
+         DTxi761+cB9ut8Sru3RBI/yuA8OmHlCsGOSQ1AuI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Tom Seewald <tseewald@gmail.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 197/296] net: liquidio: Add missing null pointer checks
+Subject: [PATCH 4.4 46/54] mld: fix panic in mld_newpack()
 Date:   Mon, 31 May 2021 15:14:12 +0200
-Message-Id: <20210531130710.495052712@linuxfoundation.org>
+Message-Id: <20210531130636.513805582@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,233 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit dbc97bfd3918ed9268bfc174cae8a7d6b3d51aad ]
+[ Upstream commit 020ef930b826d21c5446fdc9db80fd72a791bc21 ]
 
-The functions send_rx_ctrl_cmd() in both liquidio/lio_main.c and
-liquidio/lio_vf_main.c do not check if the call to
-octeon_alloc_soft_command() fails and returns a null pointer. Both
-functions also return void so errors are not propagated back to the
-caller.
+mld_newpack() doesn't allow to allocate high order page,
+only order-0 allocation is allowed.
+If headroom size is too large, a kernel panic could occur in skb_put().
 
-Fix these issues by updating both instances of send_rx_ctrl_cmd() to
-return an integer rather than void, and have them return -ENOMEM if an
-allocation failure occurs. Also update all callers of send_rx_ctrl_cmd()
-so that they now check the return value.
+Test commands:
+    ip netns del A
+    ip netns del B
+    ip netns add A
+    ip netns add B
+    ip link add veth0 type veth peer name veth1
+    ip link set veth0 netns A
+    ip link set veth1 netns B
 
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-66-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    ip netns exec A ip link set lo up
+    ip netns exec A ip link set veth0 up
+    ip netns exec A ip -6 a a 2001:db8:0::1/64 dev veth0
+    ip netns exec B ip link set lo up
+    ip netns exec B ip link set veth1 up
+    ip netns exec B ip -6 a a 2001:db8:0::2/64 dev veth1
+    for i in {1..99}
+    do
+        let A=$i-1
+        ip netns exec A ip link add ip6gre$i type ip6gre \
+	local 2001:db8:$A::1 remote 2001:db8:$A::2 encaplimit 100
+        ip netns exec A ip -6 a a 2001:db8:$i::1/64 dev ip6gre$i
+        ip netns exec A ip link set ip6gre$i up
+
+        ip netns exec B ip link add ip6gre$i type ip6gre \
+	local 2001:db8:$A::2 remote 2001:db8:$A::1 encaplimit 100
+        ip netns exec B ip -6 a a 2001:db8:$i::2/64 dev ip6gre$i
+        ip netns exec B ip link set ip6gre$i up
+    done
+
+Splat looks like:
+kernel BUG at net/core/skbuff.c:110!
+invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+CPU: 0 PID: 7 Comm: kworker/0:1 Not tainted 5.12.0+ #891
+Workqueue: ipv6_addrconf addrconf_dad_work
+RIP: 0010:skb_panic+0x15d/0x15f
+Code: 92 fe 4c 8b 4c 24 10 53 8b 4d 70 45 89 e0 48 c7 c7 00 ae 79 83
+41 57 41 56 41 55 48 8b 54 24 a6 26 f9 ff <0f> 0b 48 8b 6c 24 20 89
+34 24 e8 4a 4e 92 fe 8b 34 24 48 c7 c1 20
+RSP: 0018:ffff88810091f820 EFLAGS: 00010282
+RAX: 0000000000000089 RBX: ffff8881086e9000 RCX: 0000000000000000
+RDX: 0000000000000089 RSI: 0000000000000008 RDI: ffffed1020123efb
+RBP: ffff888005f6eac0 R08: ffffed1022fc0031 R09: ffffed1022fc0031
+R10: ffff888117e00187 R11: ffffed1022fc0030 R12: 0000000000000028
+R13: ffff888008284eb0 R14: 0000000000000ed8 R15: 0000000000000ec0
+FS:  0000000000000000(0000) GS:ffff888117c00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f8b801c5640 CR3: 0000000033c2c006 CR4: 00000000003706f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ skb_put.cold.104+0x22/0x22
+ ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ ? rcu_read_lock_sched_held+0x91/0xc0
+ mld_newpack+0x398/0x8f0
+ ? ip6_mc_hdr.isra.26.constprop.46+0x600/0x600
+ ? lock_contended+0xc40/0xc40
+ add_grhead.isra.33+0x280/0x380
+ add_grec+0x5ca/0xff0
+ ? mld_sendpack+0xf40/0xf40
+ ? lock_downgrade+0x690/0x690
+ mld_send_initial_cr.part.34+0xb9/0x180
+ ipv6_mc_dad_complete+0x15d/0x1b0
+ addrconf_dad_completed+0x8d2/0xbb0
+ ? lock_downgrade+0x690/0x690
+ ? addrconf_rs_timer+0x660/0x660
+ ? addrconf_dad_work+0x73c/0x10e0
+ addrconf_dad_work+0x73c/0x10e0
+
+Allowing high order page allocation could fix this problem.
+
+Fixes: 72e09ad107e7 ("ipv6: avoid high order allocations")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 28 +++++++++++++------
- .../ethernet/cavium/liquidio/lio_vf_main.c    | 27 +++++++++++++-----
- 2 files changed, 40 insertions(+), 15 deletions(-)
+ net/ipv6/mcast.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index 6fa570068648..591229b96257 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -1153,7 +1153,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
-  * @lio: per-network private data
-  * @start_stop: whether to start or stop
-  */
--static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
-+static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- {
- 	struct octeon_soft_command *sc;
- 	union octnet_cmd *ncmd;
-@@ -1161,11 +1161,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	int retval;
+diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
+index 2d28f0b54494..636425999aac 100644
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -1573,10 +1573,7 @@ static struct sk_buff *mld_newpack(struct inet6_dev *idev, unsigned int mtu)
+ 		     IPV6_TLV_PADN, 0 };
  
- 	if (oct->props[lio->ifidx].rx_on == start_stop)
--		return;
-+		return 0;
+ 	/* we assume size > sizeof(ra) here */
+-	/* limit our allocations to order-0 page */
+-	size = min_t(int, size, SKB_MAX_ORDER(0, 0));
+ 	skb = sock_alloc_send_skb(sk, size, 1, &err);
+-
+ 	if (!skb)
+ 		return NULL;
  
- 	sc = (struct octeon_soft_command *)
- 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
- 					  16, 0);
-+	if (!sc) {
-+		netif_info(lio, rx_err, lio->netdev,
-+			   "Failed to allocate octeon_soft_command struct\n");
-+		return -ENOMEM;
-+	}
- 
- 	ncmd = (union octnet_cmd *)sc->virtdptr;
- 
-@@ -1187,18 +1192,19 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	if (retval == IQ_SEND_FAILED) {
- 		netif_info(lio, rx_err, lio->netdev, "Failed to send RX Control message\n");
- 		octeon_free_soft_command(oct, sc);
--		return;
- 	} else {
- 		/* Sleep on a wait queue till the cond flag indicates that the
- 		 * response arrived or timed-out.
- 		 */
- 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
- 		if (retval)
--			return;
-+			return retval;
- 
- 		oct->props[lio->ifidx].rx_on = start_stop;
- 		WRITE_ONCE(sc->caller_is_done, true);
- 	}
-+
-+	return retval;
- }
- 
- /**
-@@ -1773,6 +1779,7 @@ static int liquidio_open(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	if (oct->props[lio->ifidx].napi_enabled == 0) {
- 		tasklet_disable(&oct_priv->droq_tasklet);
-@@ -1808,7 +1815,9 @@ static int liquidio_open(struct net_device *netdev)
- 	netif_info(lio, ifup, lio->netdev, "Interface Open, ready for traffic\n");
- 
- 	/* tell Octeon to start forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 1);
-+	ret = send_rx_ctrl_cmd(lio, 1);
-+	if (ret)
-+		return ret;
- 
- 	/* start periodical statistics fetch */
- 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
-@@ -1819,7 +1828,7 @@ static int liquidio_open(struct net_device *netdev)
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
- 		 netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -1833,6 +1842,7 @@ static int liquidio_stop(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	ifstate_reset(lio, LIO_IFSTATE_RUNNING);
- 
-@@ -1849,7 +1859,9 @@ static int liquidio_stop(struct net_device *netdev)
- 	lio->link_changes++;
- 
- 	/* Tell Octeon that nic interface is down. */
--	send_rx_ctrl_cmd(lio, 0);
-+	ret = send_rx_ctrl_cmd(lio, 0);
-+	if (ret)
-+		return ret;
- 
- 	if (OCTEON_CN23XX_PF(oct)) {
- 		if (!oct->msix_on)
-@@ -1884,7 +1896,7 @@ static int liquidio_stop(struct net_device *netdev)
- 
- 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-index 516f166ceff8..ffddb3126a32 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-@@ -595,7 +595,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
-  * @lio: per-network private data
-  * @start_stop: whether to start or stop
-  */
--static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
-+static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- {
- 	struct octeon_device *oct = (struct octeon_device *)lio->oct_dev;
- 	struct octeon_soft_command *sc;
-@@ -603,11 +603,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	int retval;
- 
- 	if (oct->props[lio->ifidx].rx_on == start_stop)
--		return;
-+		return 0;
- 
- 	sc = (struct octeon_soft_command *)
- 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
- 					  16, 0);
-+	if (!sc) {
-+		netif_info(lio, rx_err, lio->netdev,
-+			   "Failed to allocate octeon_soft_command struct\n");
-+		return -ENOMEM;
-+	}
- 
- 	ncmd = (union octnet_cmd *)sc->virtdptr;
- 
-@@ -635,11 +640,13 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 		 */
- 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
- 		if (retval)
--			return;
-+			return retval;
- 
- 		oct->props[lio->ifidx].rx_on = start_stop;
- 		WRITE_ONCE(sc->caller_is_done, true);
- 	}
-+
-+	return retval;
- }
- 
- /**
-@@ -906,6 +913,7 @@ static int liquidio_open(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	if (!oct->props[lio->ifidx].napi_enabled) {
- 		tasklet_disable(&oct_priv->droq_tasklet);
-@@ -932,11 +940,13 @@ static int liquidio_open(struct net_device *netdev)
- 					(LIQUIDIO_NDEV_STATS_POLL_TIME_MS));
- 
- 	/* tell Octeon to start forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 1);
-+	ret = send_rx_ctrl_cmd(lio, 1);
-+	if (ret)
-+		return ret;
- 
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n", netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -950,9 +960,12 @@ static int liquidio_stop(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	/* tell Octeon to stop forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 0);
-+	ret = send_rx_ctrl_cmd(lio, 0);
-+	if (ret)
-+		return ret;
- 
- 	netif_info(lio, ifdown, lio->netdev, "Stopping interface!\n");
- 	/* Inform that netif carrier is down */
-@@ -986,7 +999,7 @@ static int liquidio_stop(struct net_device *netdev)
- 
- 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
 -- 
 2.30.2
 
