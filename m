@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E901F395EEA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0EA70395D13
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232009AbhEaOFZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36870 "EHLO mail.kernel.org"
+        id S232617AbhEaNlC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43908 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232386AbhEaODX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:03:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1304561950;
-        Mon, 31 May 2021 13:37:37 +0000 (UTC)
+        id S232667AbhEaNjN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 501536140D;
+        Mon, 31 May 2021 13:26:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468258;
-        bh=KM4ZRHcBYvmmLTQN2gghKxyawHk0kobjfSRa02NjybU=;
+        s=korg; t=1622467616;
+        bh=7alTiTLdYHQmL3pMlblMGxuJCwT5bbNm54MEl33uXXE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G9Ic+38C3g2ahwjf3dgYdhOoKrxVoUKLTLBKEzV4FU7dUGLe1IPNeKmHfHJbxcilB
-         pBKtfnfqnd357GVQiBg72g4yCLHHv4c7Ly+rHK+eJFeHUIkGqeiRqVcqkxzQoZY21y
-         POhMeqohdZcCOn9HOLUTNBlrtrNitAfer+xExXxc=
+        b=TaQdl7+CBt3r8s/n1mLPoAiEkNA1206thm5SOdgYvzuWyBq4WJyaaSYuwcdAP90NK
+         PlyOV9iKtiCGS03b10XIY7nQ6Xz1uEH2STuMDOJSGTKEpqX3c4f+5SpuBL1dUxURX8
+         yRIS/Omxk8sxWDdG63JMaV34AeIuld078sWSSJdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 176/252] btrfs: do not BUG_ON in link_to_fixup_dir
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.14 16/79] mac80211: check defrag PN against current frame
 Date:   Mon, 31 May 2021 15:14:01 +0200
-Message-Id: <20210531130703.987244439@linuxfoundation.org>
+Message-Id: <20210531130636.525832903@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +38,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
+commit bf30ca922a0c0176007e074b0acc77ed345e9990 upstream.
 
-While doing error injection testing I got the following panic
+As pointed out by Mathy Vanhoef, we implement the RX PN check
+on fragmented frames incorrectly - we check against the last
+received PN prior to the new frame, rather than to the one in
+this frame itself.
 
-  kernel BUG at fs/btrfs/tree-log.c:1862!
-  invalid opcode: 0000 [#1] SMP NOPTI
-  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
-  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
-  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
-  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
-  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
-  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
-  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
-  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
-  Call Trace:
-   replay_one_buffer+0x409/0x470
-   ? btree_read_extent_buffer_pages+0xd0/0x110
-   walk_up_log_tree+0x157/0x1e0
-   walk_log_tree+0xa6/0x1d0
-   btrfs_recover_log_trees+0x1da/0x360
-   ? replay_one_extent+0x7b0/0x7b0
-   open_ctree+0x1486/0x1720
-   btrfs_mount_root.cold+0x12/0xea
-   ? __kmalloc_track_caller+0x12f/0x240
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x10d/0x380
-   ? vfs_parse_fs_string+0x4d/0x90
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   path_mount+0x433/0xa10
-   __x64_sys_mount+0xe3/0x120
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+Prior patches addressed the security issue here, but in order
+to be able to reason better about the code, fix it to really
+compare against the current frame's PN, not the last stored
+one.
 
-We can get -EIO or any number of legitimate errors from
-btrfs_search_slot(), panicing here is not the appropriate response.  The
-error path for this code handles errors properly, simply return the
-error.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20210511200110.bfbc340ff071.Id0b690e581da7d03d76df90bb0e3fd55930bc8a0@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/mac80211/ieee80211_i.h |   11 +++++++++--
+ net/mac80211/rx.c          |    5 ++---
+ net/mac80211/wpa.c         |   13 +++++++++----
+ 3 files changed, 20 insertions(+), 9 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 8bc3e2f25e7d..9a0cfa0e124d 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1823,8 +1823,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
- 		ret = btrfs_update_inode(trans, root, inode);
- 	} else if (ret == -EEXIST) {
- 		ret = 0;
--	} else {
--		BUG(); /* Logic Error */
- 	}
- 	iput(inode);
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -242,8 +242,15 @@ struct ieee80211_rx_data {
+ 	 */
+ 	int security_idx;
  
--- 
-2.30.2
-
+-	u32 tkip_iv32;
+-	u16 tkip_iv16;
++	union {
++		struct {
++			u32 iv32;
++			u16 iv16;
++		} tkip;
++		struct {
++			u8 pn[IEEE80211_CCMP_PN_LEN];
++		} ccm_gcm;
++	};
+ };
+ 
+ struct ieee80211_csa_settings {
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2063,7 +2063,6 @@ ieee80211_rx_h_defragment(struct ieee802
+ 	if (entry->check_sequential_pn) {
+ 		int i;
+ 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
+-		int queue;
+ 
+ 		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
+@@ -2078,8 +2077,8 @@ ieee80211_rx_h_defragment(struct ieee802
+ 			if (pn[i])
+ 				break;
+ 		}
+-		queue = rx->security_idx;
+-		rpn = rx->key->u.ccmp.rx_pn[queue];
++
++		rpn = rx->ccm_gcm.pn;
+ 		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
+ 			return RX_DROP_UNUSABLE;
+ 		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
+--- a/net/mac80211/wpa.c
++++ b/net/mac80211/wpa.c
+@@ -2,6 +2,7 @@
+  * Copyright 2002-2004, Instant802 Networks, Inc.
+  * Copyright 2008, Jouni Malinen <j@w1.fi>
+  * Copyright (C) 2016 Intel Deutschland GmbH
++ * Copyright (C) 2020-2021 Intel Corporation
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 as
+@@ -162,8 +163,8 @@ ieee80211_rx_h_michael_mic_verify(struct
+ 
+ update_iv:
+ 	/* update IV in key information to be able to detect replays */
+-	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip_iv32;
+-	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip_iv16;
++	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip.iv32;
++	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip.iv16;
+ 
+ 	return RX_CONTINUE;
+ 
+@@ -289,8 +290,8 @@ ieee80211_crypto_tkip_decrypt(struct iee
+ 					  key, skb->data + hdrlen,
+ 					  skb->len - hdrlen, rx->sta->sta.addr,
+ 					  hdr->addr1, hwaccel, rx->security_idx,
+-					  &rx->tkip_iv32,
+-					  &rx->tkip_iv16);
++					  &rx->tkip.iv32,
++					  &rx->tkip.iv16);
+ 	if (res != TKIP_DECRYPT_OK)
+ 		return RX_DROP_UNUSABLE;
+ 
+@@ -548,6 +549,8 @@ ieee80211_crypto_ccmp_decrypt(struct iee
+ 		}
+ 
+ 		memcpy(key->u.ccmp.rx_pn[queue], pn, IEEE80211_CCMP_PN_LEN);
++		if (unlikely(ieee80211_is_frag(hdr)))
++			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
+ 	}
+ 
+ 	/* Remove CCMP header and MIC */
+@@ -777,6 +780,8 @@ ieee80211_crypto_gcmp_decrypt(struct iee
+ 		}
+ 
+ 		memcpy(key->u.gcmp.rx_pn[queue], pn, IEEE80211_GCMP_PN_LEN);
++		if (unlikely(ieee80211_is_frag(hdr)))
++			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
+ 	}
+ 
+ 	/* Remove GCMP header and MIC */
 
 
