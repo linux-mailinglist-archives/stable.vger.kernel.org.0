@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B0D3396032
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40599395C84
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:33:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233290AbhEaOX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S232449AbhEaNd5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233630AbhEaOV1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:21:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B744619B8;
-        Mon, 31 May 2021 13:44:31 +0000 (UTC)
+        id S232042AbhEaNbz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:31:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A093C613EA;
+        Mon, 31 May 2021 13:23:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468671;
-        bh=OnKk4J0rJiPuHFiwNihNYM0eQogylE7E2JYfh02LAe4=;
+        s=korg; t=1622467430;
+        bh=wxtoUfqWMXTdNfadc7sU/GNV6l0LpwXlGpF4M7rLEoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BltVo9jdc/WnHqQX8V2ij/jGMzHj89ryCckdvZ2ekb+EOUdsUbyILVQ8wwJSfJPsq
-         DobpPPe5p26Vcn31bLWqaV2pPwjkkyjMLA2RwWWefKu+foZqgnkgLs+m7UF368SVCE
-         zMZwUCZsbp6qtdrH3HP++5qbume/i1XQFBhoaIq4=
+        b=l3E3XegdoXa0h7+f73mSbUo8HBzmEajXq1c0vLFQdDnBu6Uu7lSnZCzC5zlzrw4H3
+         uXLgGq/CXtZj+Zp4IcONoqm1Tu/P677YxyhQfny46RVjJ7Yzq8r5auPrk03Be5hL4W
+         41GioA7hfeXFR+Knbs1M0TNh9xXH86es6JVAaCJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 080/177] net: dsa: fix a crash if ->get_sset_count() fails
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Stefan Roese <sr@denx.de>, Mark Brown <broonie@kernel.org>
+Subject: [PATCH 4.19 061/116] spi: mt7621: Dont leak SPI master in probe error path
 Date:   Mon, 31 May 2021 15:13:57 +0200
-Message-Id: <20210531130650.674754658@linuxfoundation.org>
+Message-Id: <20210531130642.238746730@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +39,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Lukas Wunner <lukas@wunner.de>
 
-commit a269333fa5c0c8e53c92b5a28a6076a28cde3e83 upstream.
+commit 46b5c4fb87ce8211e0f9b0383dbde72c3652d2ba upstream.
 
-If ds->ops->get_sset_count() fails then it "count" is a negative error
-code such as -EOPNOTSUPP.  Because "i" is an unsigned int, the negative
-error code is type promoted to a very high value and the loop will
-corrupt memory until the system crashes.
+If the calls to device_reset() or devm_spi_register_controller() fail on
+probe of the MediaTek MT7621 SPI driver, the spi_controller struct is
+erroneously not freed.  Fix by switching over to the new
+devm_spi_alloc_master() helper.
 
-Fix this by checking for error codes and changing the type of "i" to
-just int.
+Additionally, there's an ordering issue in mt7621_spi_remove() wherein
+the spi_controller is unregistered after disabling the SYS clock.
+The correct order is to call spi_unregister_controller() *before* this
+teardown step because bus accesses may still be ongoing until that
+function returns.
 
-Fixes: badf3ada60ab ("net: dsa: Provide CPU port statistics to master netdev")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+All of these bugs have existed since the driver was first introduced,
+so it seems fair to fix them together in a single commit.
+
+Fixes: 1ab7f2a43558 ("staging: mt7621-spi: add mt7621 support")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Reviewed-by: Stefan Roese <sr@denx.de>
+Cc: <stable@vger.kernel.org> # v4.17+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.17+
+Link: https://lore.kernel.org/r/72b680796149f5fcda0b3f530ffb7ee73b04f224.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v4.19.192]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/master.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/staging/mt7621-spi/spi-mt7621.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/net/dsa/master.c
-+++ b/net/dsa/master.c
-@@ -147,8 +147,7 @@ static void dsa_master_get_strings(struc
- 	struct dsa_switch *ds = cpu_dp->ds;
- 	int port = cpu_dp->index;
- 	int len = ETH_GSTRING_LEN;
--	int mcount = 0, count;
--	unsigned int i;
-+	int mcount = 0, count, i;
- 	uint8_t pfx[4];
- 	uint8_t *ndata;
+--- a/drivers/staging/mt7621-spi/spi-mt7621.c
++++ b/drivers/staging/mt7621-spi/spi-mt7621.c
+@@ -452,7 +452,7 @@ static int mt7621_spi_probe(struct platf
+ 	if (status)
+ 		return status;
  
-@@ -178,6 +177,8 @@ static void dsa_master_get_strings(struc
- 		 */
- 		ds->ops->get_strings(ds, port, stringset, ndata);
- 		count = ds->ops->get_sset_count(ds, port, stringset);
-+		if (count < 0)
-+			return;
- 		for (i = 0; i < count; i++) {
- 			memmove(ndata + (i * len + sizeof(pfx)),
- 				ndata + i * len, len - sizeof(pfx));
+-	master = spi_alloc_master(&pdev->dev, sizeof(*rs));
++	master = devm_spi_alloc_master(&pdev->dev, sizeof(*rs));
+ 	if (master == NULL) {
+ 		dev_info(&pdev->dev, "master allocation failed\n");
+ 		clk_disable_unprepare(clk);
+@@ -502,8 +502,8 @@ static int mt7621_spi_remove(struct plat
+ 	master = dev_get_drvdata(&pdev->dev);
+ 	rs = spi_master_get_devdata(master);
+ 
+-	clk_disable(rs->clk);
+ 	spi_unregister_master(master);
++	clk_disable_unprepare(rs->clk);
+ 
+ 	return 0;
+ }
 
 
