@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CABE39607A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D71CB395F4B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233386AbhEaO1U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:27:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
+        id S232448AbhEaOJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233075AbhEaOZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:25:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CB7F861A2B;
-        Mon, 31 May 2021 13:46:31 +0000 (UTC)
+        id S232641AbhEaOHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B92E26140D;
+        Mon, 31 May 2021 13:39:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468792;
-        bh=V6Ht5Q1d7BA+Esqjk6ydJwBvQnSAYZKpF8/BlSXnVyw=;
+        s=korg; t=1622468364;
+        bh=7cBwNGJ4XnuLLx9x++da50kJ15B5g5p8WyjwJlCQIJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKZ8Hhe9Ap0Ii2LylgUe6RiZrHYLWfbydB7aVqafKm50FfBuVU+kxqkMKL8bb4EEr
-         MXbcDiC/tsPbbw8xH4aXnKYSSn/o3edcVteiN/OoyMckH3irsPUcCHzX4ioXiAooBC
-         OKzMOuJNg5JYipmUlC8QcWU5o8c+YO5qUFmcpByA=
+        b=bgD8aIpsUD4X94rIPNjSSDoeSk0LnkW9mckv/43vBPXDF9KgehjdOBHGg+VMdjHqB
+         1VyQOtN22q4HbCYb9vNfYsToM2hyoRCnPVfyr46A31njhjJNXgrDBYssWRWCGQEQdu
+         R/ZkkIOMmmM+VpRo1hJdWhFgLsp4DNsljbT6WFmg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
+        Karsten Graul <kgraul@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 123/177] btrfs: return whole extents in fiemap
+Subject: [PATCH 5.10 215/252] net/smc: remove device from smcd_dev_list after failed device_add()
 Date:   Mon, 31 May 2021 15:14:40 +0200
-Message-Id: <20210531130652.173259255@linuxfoundation.org>
+Message-Id: <20210531130705.318275352@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,83 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Julian Wiedmann <jwi@linux.ibm.com>
 
-[ Upstream commit 15c7745c9a0078edad1f7df5a6bb7b80bc8cca23 ]
+[ Upstream commit 444d7be9532dcfda8e0385226c862fd7e986f607 ]
 
-  `xfs_io -c 'fiemap <off> <len>' <file>`
+If the device_add() for a smcd_dev fails, there's no cleanup step that
+rolls back the earlier list_add(). The device subsequently gets freed,
+and we end up with a corrupted list.
 
-can give surprising results on btrfs that differ from xfs.
+Add some error handling that removes the device from the list.
 
-btrfs prints out extents trimmed to fit the user input. If the user's
-fiemap request has an offset, then rather than returning each whole
-extent which intersects that range, we also trim the start extent to not
-have start < off.
-
-Documentation in filesystems/fiemap.txt and the xfs_io man page suggests
-that returning the whole extent is expected.
-
-Some cases which all yield the same fiemap in xfs, but not btrfs:
-  dd if=/dev/zero of=$f bs=4k count=1
-  sudo xfs_io -c 'fiemap 0 1024' $f
-    0: [0..7]: 26624..26631
-  sudo xfs_io -c 'fiemap 2048 1024' $f
-    0: [4..7]: 26628..26631
-  sudo xfs_io -c 'fiemap 2048 4096' $f
-    0: [4..7]: 26628..26631
-  sudo xfs_io -c 'fiemap 3584 512' $f
-    0: [7..7]: 26631..26631
-  sudo xfs_io -c 'fiemap 4091 5' $f
-    0: [7..6]: 26631..26630
-
-I believe this is a consequence of the logic for merging contiguous
-extents represented by separate extent items. That logic needs to track
-the last offset as it loops through the extent items, which happens to
-pick up the start offset on the first iteration, and trim off the
-beginning of the full extent. To fix it, start `off` at 0 rather than
-`start` so that we keep the iteration/merging intact without cutting off
-the start of the extent.
-
-after the fix, all the above commands give:
-
-  0: [0..7]: 26624..26631
-
-The merging logic is exercised by fstest generic/483, and I have written
-a new fstest for checking we don't have backwards or zero-length fiemaps
-for cases like those above.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Boris Burkov <boris@bur.io>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
+Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
+Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/smc/smc_ism.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 95205bde240f..eca3abc1a7cd 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4648,7 +4648,7 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
- 		__u64 start, __u64 len)
- {
- 	int ret = 0;
--	u64 off = start;
-+	u64 off;
- 	u64 max = start + len;
- 	u32 flags = 0;
- 	u32 found_type;
-@@ -4684,6 +4684,11 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
- 		goto out_free_ulist;
- 	}
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 024ca21392f7..8e33c0128d73 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -331,6 +331,8 @@ EXPORT_SYMBOL_GPL(smcd_alloc_dev);
  
-+	/*
-+	 * We can't initialize that to 'start' as this could miss extents due
-+	 * to extent item merging
-+	 */
-+	off = 0;
- 	start = round_down(start, btrfs_inode_sectorsize(inode));
- 	len = round_up(max, btrfs_inode_sectorsize(inode)) - start;
+ int smcd_register_dev(struct smcd_dev *smcd)
+ {
++	int rc;
++
+ 	mutex_lock(&smcd_dev_list.mutex);
+ 	if (list_empty(&smcd_dev_list.list)) {
+ 		u8 *system_eid = NULL;
+@@ -350,7 +352,14 @@ int smcd_register_dev(struct smcd_dev *smcd)
+ 			    dev_name(&smcd->dev), smcd->pnetid,
+ 			    smcd->pnetid_by_user ? " (user defined)" : "");
+ 
+-	return device_add(&smcd->dev);
++	rc = device_add(&smcd->dev);
++	if (rc) {
++		mutex_lock(&smcd_dev_list.mutex);
++		list_del(&smcd->list);
++		mutex_unlock(&smcd_dev_list.mutex);
++	}
++
++	return rc;
+ }
+ EXPORT_SYMBOL_GPL(smcd_register_dev);
  
 -- 
 2.30.2
