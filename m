@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F9C63961B4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 48B61395EAE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233127AbhEaOpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:45:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37854 "EHLO mail.kernel.org"
+        id S232870AbhEaOB6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:01:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60392 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233313AbhEaOn2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:43:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10C606191B;
-        Mon, 31 May 2021 13:54:14 +0000 (UTC)
+        id S232421AbhEaN7z (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:59:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DBC8061402;
+        Mon, 31 May 2021 13:36:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469255;
-        bh=uMF7+gPy7twIoaTGLUFuRpN4SVRDwXmZORFPJj9IrSA=;
+        s=korg; t=1622468176;
+        bh=Ill1eplk4IdYv6idJ17y/9StCsRZ9eo1Srla6Dpkocc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o/6KH25SO8tV4LVzQc0KhG9yE+b8J/nA0l1pqYAz42czh+TxXPNxPvY/H4BGWh1TT
-         LkUHRP0RviBOzHKI3Za+mFHtnhmNRUSk4gBeNf0AyhAv+//Ikinwkh9pocOpMTQDMo
-         zMWRkp48fQGEDOZbLkbWJW+QqLc5C1Xi8zTuJR1s=
+        b=tp4OPbUqRn65BHg2FJanln4P0Q9HWr8z9EU2EObBgtdwiMB0rNyNXgWFuLJ127UjE
+         v2aFPNB29F/7XVBm69l/TGn6wDYrZ+2hzMX0QnwOj/2rYWomB5XuZzi2RrEzzu0kET
+         A8MhdI5eZoCKnOHjP8E/aXrSDR5Kq4f7O6ZuetxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Maor Gottlieb <maorg@nvidia.com>,
-        Mark Bloch <mbloch@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.12 127/296] {net, RDMA}/mlx5: Fix override of log_max_qp by other device
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 117/252] net: dsa: sja1105: add error handling in sja1105_setup()
 Date:   Mon, 31 May 2021 15:13:02 +0200
-Message-Id: <20210531130708.168948818@linuxfoundation.org>
+Message-Id: <20210531130701.963639794@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,150 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maor Gottlieb <maorg@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 3410fbcd47dc6479af4309febf760ccaa5efb472 upstream.
+commit cec279a898a3b004411682f212215ccaea1cd0fb upstream.
 
-mlx5_core_dev holds pointer to static profile, hence when the
-log_max_qp of the profile is override by some device, then it
-effect all other mlx5 devices that share the same profile.
-Fix it by having a profile instance for every mlx5 device.
+If any of sja1105_static_config_load(), sja1105_clocking_setup() or
+sja1105_devlink_setup() fails, we can't just return in the middle of
+sja1105_setup() or memory will leak. Add a cleanup path.
 
-Fixes: 883371c453b9 ("net/mlx5: Check FW limitations on log_max_qp before setting it")
-Signed-off-by: Maor Gottlieb <maorg@nvidia.com>
-Reviewed-by: Mark Bloch <mbloch@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 0a7bdbc23d8a ("net: dsa: sja1105: move devlink param code to sja1105_devlink.c")
+Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/mlx5/mr.c                |    4 +-
- drivers/net/ethernet/mellanox/mlx5/core/main.c |   11 ++----
- include/linux/mlx5/driver.h                    |   44 ++++++++++++-------------
- 3 files changed, 29 insertions(+), 30 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
---- a/drivers/infiniband/hw/mlx5/mr.c
-+++ b/drivers/infiniband/hw/mlx5/mr.c
-@@ -764,10 +764,10 @@ int mlx5_mr_cache_init(struct mlx5_ib_de
- 		ent->xlt = (1 << ent->order) * sizeof(struct mlx5_mtt) /
- 			   MLX5_IB_UMR_OCTOWORD;
- 		ent->access_mode = MLX5_MKC_ACCESS_MODE_MTT;
--		if ((dev->mdev->profile->mask & MLX5_PROF_MASK_MR_CACHE) &&
-+		if ((dev->mdev->profile.mask & MLX5_PROF_MASK_MR_CACHE) &&
- 		    !dev->is_rep && mlx5_core_is_pf(dev->mdev) &&
- 		    mlx5_ib_can_load_pas_with_umr(dev, 0))
--			ent->limit = dev->mdev->profile->mr_cache[i].limit;
-+			ent->limit = dev->mdev->profile.mr_cache[i].limit;
- 		else
- 			ent->limit = 0;
- 		spin_lock_irq(&ent->lock);
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -503,7 +503,7 @@ static int handle_hca_cap_odp(struct mlx
- 
- static int handle_hca_cap(struct mlx5_core_dev *dev, void *set_ctx)
- {
--	struct mlx5_profile *prof = dev->profile;
-+	struct mlx5_profile *prof = &dev->profile;
- 	void *set_hca_cap;
- 	int err;
- 
-@@ -524,11 +524,11 @@ static int handle_hca_cap(struct mlx5_co
- 		 to_fw_pkey_sz(dev, 128));
- 
- 	/* Check log_max_qp from HCA caps to set in current profile */
--	if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < profile[prof_sel].log_max_qp) {
-+	if (MLX5_CAP_GEN_MAX(dev, log_max_qp) < prof->log_max_qp) {
- 		mlx5_core_warn(dev, "log_max_qp value in current profile is %d, changing it to HCA capability limit (%d)\n",
--			       profile[prof_sel].log_max_qp,
-+			       prof->log_max_qp,
- 			       MLX5_CAP_GEN_MAX(dev, log_max_qp));
--		profile[prof_sel].log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
-+		prof->log_max_qp = MLX5_CAP_GEN_MAX(dev, log_max_qp);
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -2922,13 +2922,13 @@ static int sja1105_setup(struct dsa_swit
+ 	rc = sja1105_static_config_load(priv, ports);
+ 	if (rc < 0) {
+ 		dev_err(ds->dev, "Failed to load static config: %d\n", rc);
+-		return rc;
++		goto out_ptp_clock_unregister;
  	}
- 	if (prof->mask & MLX5_PROF_MASK_QP_SIZE)
- 		MLX5_SET(cmd_hca_cap, set_hca_cap, log_max_qp,
-@@ -1335,8 +1335,7 @@ int mlx5_mdev_init(struct mlx5_core_dev
- 	struct mlx5_priv *priv = &dev->priv;
- 	int err;
+ 	/* Configure the CGU (PHY link modes and speeds) */
+ 	rc = sja1105_clocking_setup(priv);
+ 	if (rc < 0) {
+ 		dev_err(ds->dev, "Failed to configure MII clocking: %d\n", rc);
+-		return rc;
++		goto out_static_config_free;
+ 	}
+ 	/* On SJA1105, VLAN filtering per se is always enabled in hardware.
+ 	 * The only thing we can do to disable it is lie about what the 802.1Q
+@@ -2949,7 +2949,7 @@ static int sja1105_setup(struct dsa_swit
  
--	dev->profile = &profile[profile_idx];
--
-+	memcpy(&dev->profile, &profile[profile_idx], sizeof(dev->profile));
- 	INIT_LIST_HEAD(&priv->ctx_list);
- 	spin_lock_init(&priv->ctx_lock);
- 	mutex_init(&dev->intf_state_mutex);
---- a/include/linux/mlx5/driver.h
-+++ b/include/linux/mlx5/driver.h
-@@ -698,6 +698,27 @@ struct mlx5_hv_vhca;
- #define MLX5_LOG_SW_ICM_BLOCK_SIZE(dev) (MLX5_CAP_DEV_MEM(dev, log_sw_icm_alloc_granularity))
- #define MLX5_SW_ICM_BLOCK_SIZE(dev) (1 << MLX5_LOG_SW_ICM_BLOCK_SIZE(dev))
+ 	rc = sja1105_devlink_setup(ds);
+ 	if (rc < 0)
+-		return rc;
++		goto out_static_config_free;
  
-+enum {
-+	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
-+	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
-+};
+ 	/* The DSA/switchdev model brings up switch ports in standalone mode by
+ 	 * default, and that means vlan_filtering is 0 since they're not under
+@@ -2958,6 +2958,17 @@ static int sja1105_setup(struct dsa_swit
+ 	rtnl_lock();
+ 	rc = sja1105_setup_8021q_tagging(ds, true);
+ 	rtnl_unlock();
++	if (rc)
++		goto out_devlink_teardown;
 +
-+enum {
-+	MR_CACHE_LAST_STD_ENTRY = 20,
-+	MLX5_IMR_MTT_CACHE_ENTRY,
-+	MLX5_IMR_KSM_CACHE_ENTRY,
-+	MAX_MR_CACHE_ENTRIES
-+};
++	return 0;
 +
-+struct mlx5_profile {
-+	u64	mask;
-+	u8	log_max_qp;
-+	struct {
-+		int	size;
-+		int	limit;
-+	} mr_cache[MAX_MR_CACHE_ENTRIES];
-+};
-+
- struct mlx5_core_dev {
- 	struct device *device;
- 	enum mlx5_coredev_type coredev_type;
-@@ -726,7 +747,7 @@ struct mlx5_core_dev {
- 	struct mutex		intf_state_mutex;
- 	unsigned long		intf_state;
- 	struct mlx5_priv	priv;
--	struct mlx5_profile	*profile;
-+	struct mlx5_profile	profile;
- 	u32			issi;
- 	struct mlx5e_resources  mlx5e_res;
- 	struct mlx5_dm          *dm;
-@@ -1073,18 +1094,6 @@ static inline u8 mlx5_mkey_variant(u32 m
- 	return mkey & 0xff;
++out_devlink_teardown:
++	sja1105_devlink_teardown(ds);
++out_ptp_clock_unregister:
++	sja1105_ptp_clock_unregister(ds);
++out_static_config_free:
++	sja1105_static_config_free(&priv->static_config);
+ 
+ 	return rc;
  }
- 
--enum {
--	MLX5_PROF_MASK_QP_SIZE		= (u64)1 << 0,
--	MLX5_PROF_MASK_MR_CACHE		= (u64)1 << 1,
--};
--
--enum {
--	MR_CACHE_LAST_STD_ENTRY = 20,
--	MLX5_IMR_MTT_CACHE_ENTRY,
--	MLX5_IMR_KSM_CACHE_ENTRY,
--	MAX_MR_CACHE_ENTRIES
--};
--
- /* Async-atomic event notifier used by mlx5 core to forward FW
-  * evetns recived from event queue to mlx5 consumers.
-  * Optimise event queue dipatching.
-@@ -1138,15 +1147,6 @@ int mlx5_rdma_rn_get_params(struct mlx5_
- 			    struct ib_device *device,
- 			    struct rdma_netdev_alloc_params *params);
- 
--struct mlx5_profile {
--	u64	mask;
--	u8	log_max_qp;
--	struct {
--		int	size;
--		int	limit;
--	} mr_cache[MAX_MR_CACHE_ENTRIES];
--};
--
- enum {
- 	MLX5_PCI_DEV_IS_VF		= 1 << 0,
- };
 
 
