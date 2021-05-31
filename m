@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 112B1395BDD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D56F396213
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231799AbhEaNZc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54726 "EHLO mail.kernel.org"
+        id S232661AbhEaOuv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:50:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232006AbhEaNX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD796613EB;
-        Mon, 31 May 2021 13:19:56 +0000 (UTC)
+        id S232912AbhEaOrK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BF66761C8D;
+        Mon, 31 May 2021 13:55:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467197;
-        bh=WdFcZprQndjTYS/SxBiIeNcjRD9TVeMtArvFYsCVERE=;
+        s=korg; t=1622469355;
+        bh=3sJWlWwJts/OZe86uPzAEUSOBxJPp9sIBwTodNo2VCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y+Rd0BsLYk9opyHc9ShsLo5HMexw6zhc/q8lw1pCIddq3A31J6zB+DunQxt2QcbTg
-         ZIJwupbSI3Npr8Ev5Yxs4ZyUFWPdF36EwFj0wRjef4UbDx3YEcVbF+L+0A6GwKEL1n
-         3AI8qS98eBSikl9s325lkP8A8IHGEjViFTageTq4=
+        b=NZ580y8UFqIsaPJtoWTjGwLizQ94Aj85AZyGGhk6rsVuq2IZzcgH1j6CraGolnuv1
+         RAKqTJDeN2iuAcrtB7RuN/BYZJhXgSWpxcbIB+mDCZK1lqdF/eDiGpKIcm4LXQng6r
+         k2NbKyjUUoFgw0WJaQ7F9Yto46aJrAOjuzisMJJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 06/66] NFSv4: Fix a NULL pointer dereference in pnfs_mark_matching_lsegs_return()
-Date:   Mon, 31 May 2021 15:13:39 +0200
-Message-Id: <20210531130636.470565621@linuxfoundation.org>
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 165/296] Revert "serial: max310x: pass return value of spi_register_driver"
+Date:   Mon, 31 May 2021 15:13:40 +0200
+Message-Id: <20210531130709.411875449@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit a421d218603ffa822a0b8045055c03eae394a7eb upstream.
+[ Upstream commit b0a85abbe92e1a6f3e8580a4590fa7245de7090b ]
 
-Commit de144ff4234f changes _pnfs_return_layout() to call
-pnfs_mark_matching_lsegs_return() passing NULL as the struct
-pnfs_layout_range argument. Unfortunately,
-pnfs_mark_matching_lsegs_return() doesn't check if we have a value here
-before dereferencing it, causing an oops.
+This reverts commit 51f689cc11333944c7a457f25ec75fcb41e99410.
 
-I'm able to hit this crash consistently when running connectathon basic
-tests on NFS v4.1/v4.2 against Ontap.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Fixes: de144ff4234f ("NFSv4: Don't discard segments marked for return in _pnfs_return_layout()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+This change did not properly unwind from the error condition, so it was
+not correct.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Acked-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-11-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/pnfs.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/tty/serial/max310x.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1070,6 +1070,11 @@ _pnfs_return_layout(struct inode *ino)
- {
- 	struct pnfs_layout_hdr *lo = NULL;
- 	struct nfs_inode *nfsi = NFS_I(ino);
-+	struct pnfs_layout_range range = {
-+		.iomode		= IOMODE_ANY,
-+		.offset		= 0,
-+		.length		= NFS4_MAX_UINT64,
-+	};
- 	LIST_HEAD(tmp_list);
- 	nfs4_stateid stateid;
- 	int status = 0, empty;
-@@ -1088,16 +1093,10 @@ _pnfs_return_layout(struct inode *ino)
- 	pnfs_get_layout_hdr(lo);
- 	empty = list_empty(&lo->plh_segs);
- 	pnfs_clear_layoutcommit(ino, &tmp_list);
--	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
-+	pnfs_mark_matching_lsegs_return(lo, &tmp_list, &range, 0);
+diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
+index 1b61d26bb7af..93f69b66b896 100644
+--- a/drivers/tty/serial/max310x.c
++++ b/drivers/tty/serial/max310x.c
+@@ -1518,10 +1518,10 @@ static int __init max310x_uart_init(void)
+ 		return ret;
  
--	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
--		struct pnfs_layout_range range = {
--			.iomode		= IOMODE_ANY,
--			.offset		= 0,
--			.length		= NFS4_MAX_UINT64,
--		};
-+	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range)
- 		NFS_SERVER(ino)->pnfs_curr_ld->return_range(lo, &range);
--	}
+ #ifdef CONFIG_SPI_MASTER
+-	ret = spi_register_driver(&max310x_spi_driver);
++	spi_register_driver(&max310x_spi_driver);
+ #endif
  
- 	/* Don't send a LAYOUTRETURN if list was initially empty */
- 	if (empty) {
+-	return ret;
++	return 0;
+ }
+ module_init(max310x_uart_init);
+ 
+-- 
+2.30.2
+
 
 
