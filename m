@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3DF395E27
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3612396172
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:39:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231706AbhEaNzN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:55:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55720 "EHLO mail.kernel.org"
+        id S233001AbhEaOku (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:40:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232635AbhEaNwa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:52:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6DF5613EB;
-        Mon, 31 May 2021 13:32:52 +0000 (UTC)
+        id S233959AbhEaOhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:37:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F82961C56;
+        Mon, 31 May 2021 13:52:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467973;
-        bh=4kczbqToKUoouxXjyJfOWnf9wHAck/hBksZMc/Wqk44=;
+        s=korg; t=1622469123;
+        bh=CTOq7VVM7Ni3yi7qRiNv4fNQie3EkSonQ2SRJ0iS4jo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IBd2a86lglooyAMWH1YliIFkO7fdi7T34UxFS1TET7pZ+dvUHLbUwgEdvnQfkQJbX
-         z3ePBNp7mC3mVKtt8iNj9ktncd2C+pkF8LcrXZj2byE5ND/RrZJJbyhgvlDy8QwAei
-         rdBKC7Q8/t7Ia+CUp7XiHiZSMeayaY9eH+7H5TRs=
+        b=wFhjsLiuNgUix9kEKjKH+UOtqvf6Orh1UNRzFrxQmnBKh5VZiP3+eTFl5Qma8b0sn
+         B2HQaadOuasPyNpLZZ5zjUYG2myIS8Flngo0125OK3AK4gdwBypbhHZfhchDegR6Gj
+         E8q6j4TeyIrtlpdflRvpzSexrEpVKLIB1jnbHse8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
         Stable@vger.kernel.org
-Subject: [PATCH 5.10 068/252] iio: adc: ad7192: Avoid disabling a clock that was never enabled.
+Subject: [PATCH 5.12 078/296] iio: adc: ad7768-1: Fix too small buffer passed to iio_push_to_buffers_with_timestamp()
 Date:   Mon, 31 May 2021 15:12:13 +0200
-Message-Id: <20210531130700.303457863@linuxfoundation.org>
+Message-Id: <20210531130706.476550184@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,60 +43,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-commit e32fe6d90f44922ccbb94016cfc3c238359e3e39 upstream.
+commit a1caeebab07e9d72eec534489f47964782b93ba9 upstream.
 
-Found by inspection.
+Add space for the timestamp to be inserted.  Also ensure correct
+alignment for passing to iio_push_to_buffers_with_timestamp()
 
-If the internal clock source is being used, the driver doesn't
-call clk_prepare_enable() and as such we should not call
-clk_disable_unprepare()
-
-Use the same condition to protect the disable path as is used
-on the enable one.  Note this will all get simplified when
-the driver moves over to a full devm_ flow, but that would make
-backporting the fix harder.
-
-Fix obviously predates move out of staging, but backporting will
-become more complex (and is unlikely to happen), hence that patch
-is given in the fixes tag.
-
-Alexandru's sign off is here because he added this patch into
-a larger series that Jonathan then applied.
-
-Fixes: b581f748cce0 ("staging: iio: adc: ad7192: move out of staging")
-Cc: Alexandru Tachici <alexandru.tachici@analog.com>
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Fixes: a5f8c7da3dbe ("iio: adc: Add AD7768-1 ADC basic support")
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501165314.511954-2-jic23@kernel.org
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7192.c |    8 ++++++--
+ drivers/iio/adc/ad7768-1.c |    8 ++++++--
  1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/iio/adc/ad7192.c
-+++ b/drivers/iio/adc/ad7192.c
-@@ -1014,7 +1014,9 @@ static int ad7192_probe(struct spi_devic
- 	return 0;
+--- a/drivers/iio/adc/ad7768-1.c
++++ b/drivers/iio/adc/ad7768-1.c
+@@ -167,6 +167,10 @@ struct ad7768_state {
+ 	 * transfer buffers to live in their own cache lines.
+ 	 */
+ 	union {
++		struct {
++			__be32 chan;
++			s64 timestamp;
++		} scan;
+ 		__be32 d32;
+ 		u8 d8[2];
+ 	} data ____cacheline_aligned;
+@@ -469,11 +473,11 @@ static irqreturn_t ad7768_trigger_handle
  
- error_disable_clk:
--	clk_disable_unprepare(st->mclk);
-+	if (st->clock_sel == AD7192_CLK_EXT_MCLK1_2 ||
-+	    st->clock_sel == AD7192_CLK_EXT_MCLK2)
-+		clk_disable_unprepare(st->mclk);
- error_remove_trigger:
- 	ad_sd_cleanup_buffer_and_trigger(indio_dev);
- error_disable_dvdd:
-@@ -1031,7 +1033,9 @@ static int ad7192_remove(struct spi_devi
- 	struct ad7192_state *st = iio_priv(indio_dev);
+ 	mutex_lock(&st->lock);
  
- 	iio_device_unregister(indio_dev);
--	clk_disable_unprepare(st->mclk);
-+	if (st->clock_sel == AD7192_CLK_EXT_MCLK1_2 ||
-+	    st->clock_sel == AD7192_CLK_EXT_MCLK2)
-+		clk_disable_unprepare(st->mclk);
- 	ad_sd_cleanup_buffer_and_trigger(indio_dev);
+-	ret = spi_read(st->spi, &st->data.d32, 3);
++	ret = spi_read(st->spi, &st->data.scan.chan, 3);
+ 	if (ret < 0)
+ 		goto err_unlock;
  
- 	regulator_disable(st->dvdd);
+-	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.d32,
++	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ 	iio_trigger_notify_done(indio_dev->trig);
 
 
