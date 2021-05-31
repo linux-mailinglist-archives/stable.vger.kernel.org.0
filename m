@@ -2,36 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D83E7395E30
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C4BCE395E96
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232027AbhEaNzZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:55:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55082 "EHLO mail.kernel.org"
+        id S231680AbhEaOAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:00:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232211AbhEaNxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:53:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 071696188B;
-        Mon, 31 May 2021 13:33:11 +0000 (UTC)
+        id S232285AbhEaN5a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:57:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F5DF6192D;
+        Mon, 31 May 2021 13:35:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467992;
-        bh=fDSHuxrhJTbpqsPwkMi+VT3J276BLyapjLD2nMJdh4c=;
+        s=korg; t=1622468113;
+        bh=jkmb25lIZCsxNDvHR/Aa6xXTz6m8W8yJHam7hbHsmkc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h/1y+nJAcD2yIjkXsrtk+diy1fqEw/DDzHKFXnbaBJwtEhxhnuyLaDkep9sItCkc0
-         dCTzZeqWD/fL+6DwzqT3Gorx0dyXi/u9z3PZyGsSLq5lYRtV2SlxlusV1BKvFeQpFi
-         MbSU+Hq6WzelaD20ejHyejbtDNIJNKR+V5+dUYY4=
+        b=ZdbTIEJ4jGUtjD3i23eHk1H/xMJWn88q6QdMBTbDbAd8szOP544ZHBnWgzSg/1DGX
+         iQuA6uS70vbvf7wx2SXxGYmhdJRsJksJ/+EpObV/ZVrPyKrwAwUc5jCQUnMoEZhPQx
+         N2SYyNIRxVJtakadsGStYzjpXX+3oN3FfFNKqDDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH 5.10 075/252] Revert "irqbypass: do not start cons/prod when failed connect"
-Date:   Mon, 31 May 2021 15:12:20 +0200
-Message-Id: <20210531130700.548488476@linuxfoundation.org>
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+882a85c0c8ec4a3e2281@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 076/252] USB: usbfs: Dont WARN about excessively large memory allocations
+Date:   Mon, 31 May 2021 15:12:21 +0200
+Message-Id: <20210531130700.577469507@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -43,67 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit e44b49f623c77bee7451f1a82ccfb969c1028ae2 upstream.
+commit 4f2629ea67e7225c3fd292c7fe4f5b3c9d6392de upstream.
 
-This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
+Syzbot found that the kernel generates a WARNing if the user tries to
+submit a bulk transfer through usbfs with a buffer that is way too
+large.  This isn't a bug in the kernel; it's merely an invalid request
+from the user and the usbfs code does handle it correctly.
 
-The reverted commit may cause VM freeze on arm64 with GICv4,
-where stopping a consumer is implemented by suspending the VM.
-Should the connect fail, the VM will not be resumed, which
-is a bit of a problem.
+In theory the same thing can happen with async transfers, or with the
+packet descriptor table for isochronous transfers.
 
-It also erroneously calls the producer destructor unconditionally,
-which is unexpected.
+To prevent the MM subsystem from complaining about these bad
+allocation requests, add the __GFP_NOWARN flag to the kmalloc calls
+for these buffers.
 
-Reported-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Tested-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-[maz: tags and cc-stable, commit message update]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: a979a6aa009f ("irqbypass: do not start cons/prod when failed connect")
-Link: https://lore.kernel.org/r/3a2c66d6-6ca0-8478-d24b-61e8e3241b20@hisilicon.com
-Link: https://lore.kernel.org/r/20210508071152.722425-1-lingshan.zhu@intel.com
-Cc: stable@vger.kernel.org
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+882a85c0c8ec4a3e2281@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210518201835.GA1140918@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/lib/irqbypass.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/usb/core/devio.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/virt/lib/irqbypass.c
-+++ b/virt/lib/irqbypass.c
-@@ -40,21 +40,17 @@ static int __connect(struct irq_bypass_p
- 	if (prod->add_consumer)
- 		ret = prod->add_consumer(prod, cons);
- 
--	if (ret)
--		goto err_add_consumer;
--
--	ret = cons->add_producer(cons, prod);
--	if (ret)
--		goto err_add_producer;
-+	if (!ret) {
-+		ret = cons->add_producer(cons, prod);
-+		if (ret && prod->del_consumer)
-+			prod->del_consumer(prod, cons);
-+	}
- 
- 	if (cons->start)
- 		cons->start(cons);
- 	if (prod->start)
- 		prod->start(prod);
--err_add_producer:
--	if (prod->del_consumer)
--		prod->del_consumer(prod, cons);
--err_add_consumer:
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1218,7 +1218,12 @@ static int do_proc_bulk(struct usb_dev_s
+ 	ret = usbfs_increase_memory_usage(len1 + sizeof(struct urb));
+ 	if (ret)
+ 		return ret;
+-	tbuf = kmalloc(len1, GFP_KERNEL);
 +
- 	return ret;
- }
- 
++	/*
++	 * len1 can be almost arbitrarily large.  Don't WARN if it's
++	 * too big, just fail the request.
++	 */
++	tbuf = kmalloc(len1, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!tbuf) {
+ 		ret = -ENOMEM;
+ 		goto done;
+@@ -1696,7 +1701,7 @@ static int proc_do_submiturb(struct usb_
+ 	if (num_sgs) {
+ 		as->urb->sg = kmalloc_array(num_sgs,
+ 					    sizeof(struct scatterlist),
+-					    GFP_KERNEL);
++					    GFP_KERNEL | __GFP_NOWARN);
+ 		if (!as->urb->sg) {
+ 			ret = -ENOMEM;
+ 			goto error;
+@@ -1731,7 +1736,7 @@ static int proc_do_submiturb(struct usb_
+ 					(uurb_start - as->usbm->vm_start);
+ 		} else {
+ 			as->urb->transfer_buffer = kmalloc(uurb->buffer_length,
+-					GFP_KERNEL);
++					GFP_KERNEL | __GFP_NOWARN);
+ 			if (!as->urb->transfer_buffer) {
+ 				ret = -ENOMEM;
+ 				goto error;
 
 
