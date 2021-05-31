@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D272395F08
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B1D9395BE3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233071AbhEaOG5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:06:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38128 "EHLO mail.kernel.org"
+        id S232025AbhEaNZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:25:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233445AbhEaOE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:04:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F66F61453;
-        Mon, 31 May 2021 13:38:18 +0000 (UTC)
+        id S232019AbhEaNXn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:23:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 649A06135D;
+        Mon, 31 May 2021 13:20:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468299;
-        bh=oDyXkmvx+gQobzupFPp7+JRAht8mlIefsNOkh3GbdPw=;
+        s=korg; t=1622467204;
+        bh=T0uyLt3w9LbOp+KZeE25iK1OAQJNXyiNPw5Gs/3sDHI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Mhmp807TLF54eNeepjPSeeqSmEK3n1qpt4ScHSau1wBhWgTfEL96rPvbUi31f+/bI
-         lFcfOTBy9kwzNs0p22bPj3d4/jUCsjwol5vPDxkqJyGI0lZG3ddq/tEKT/cM9bBOT4
-         GBtGTNo5OX+sNR9dOIIsq8NO/UQEJ9B7QO3JTOQY=
+        b=uV52WvL9Plge4fQcVUrjuNRtdzpZ01iSz/I6McHxOWw67DCgGMCjeGJCD60FVrYmA
+         P9NeXonZ1y4f1yWQ1HvjoUIADMOVnOlFbopQDpt1JaUeMQY/d4aUqDesSEA0cdt6Rd
+         6FjBCQZOjkNa4ij3yIadPwBt6/fP54HhpihL3+MM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 156/252] Revert "libertas: add checks for the return value of sysfs_create_group"
-Date:   Mon, 31 May 2021 15:13:41 +0200
-Message-Id: <20210531130703.304071429@linuxfoundation.org>
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 09/66] mac80211: assure all fragments are encrypted
+Date:   Mon, 31 May 2021 15:13:42 +0200
+Message-Id: <20210531130636.562556549@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,54 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-[ Upstream commit 46651077765c80a0d6f87f3469129a72e49ce91b ]
+commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
 
-This reverts commit 434256833d8eb988cb7f3b8a41699e2fe48d9332.
+Do not mix plaintext and encrypted fragments in protected Wi-Fi
+networks. This fixes CVE-2020-26147.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Previously, an attacker was able to first forward a legitimate encrypted
+fragment towards a victim, followed by a plaintext fragment. The
+encrypted and plaintext fragment would then be reassembled. For further
+details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
+Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+Because of this change there are now two equivalent conditions in the
+code to determine if a received fragment requires sequential PNs, so we
+also move this test to a separate function to make the code easier to
+maintain.
 
-The original commit was incorrect, the error needs to be propagated back
-to the caller AND if the second group call fails, the first needs to be
-removed.  There are much better ways to solve this, the driver should
-NOT be calling sysfs_create_group() on its own as it is racing userspace
-and loosing.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-53-gregkh@linuxfoundation.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/mesh.c | 5 -----
- 1 file changed, 5 deletions(-)
+ net/mac80211/rx.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/mesh.c b/drivers/net/wireless/marvell/libertas/mesh.c
-index f5b78257d551..c611e6668b21 100644
---- a/drivers/net/wireless/marvell/libertas/mesh.c
-+++ b/drivers/net/wireless/marvell/libertas/mesh.c
-@@ -805,12 +805,7 @@ static void lbs_persist_config_init(struct net_device *dev)
- {
- 	int ret;
- 	ret = sysfs_create_group(&(dev->dev.kobj), &boot_opts_group);
--	if (ret)
--		pr_err("failed to create boot_opts_group.\n");
--
- 	ret = sysfs_create_group(&(dev->dev.kobj), &mesh_ie_group);
--	if (ret)
--		pr_err("failed to create mesh_ie_group.\n");
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1942,6 +1942,16 @@ ieee80211_reassemble_find(struct ieee802
+ 	return NULL;
  }
  
- static void lbs_persist_config_remove(struct net_device *dev)
--- 
-2.30.2
-
++static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
++{
++	return rx->key &&
++		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
++		ieee80211_has_protected(fc);
++}
++
+ static ieee80211_rx_result debug_noinline
+ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ {
+@@ -1987,12 +1997,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		/* This is the first fragment of a new frame. */
+ 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
+ 						 rx->seqno_idx, &(rx->skb));
+-		if (rx->key &&
+-		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
+-		    ieee80211_has_protected(fc)) {
++		if (requires_sequential_pn(rx, fc)) {
+ 			int queue = rx->security_idx;
+ 
+ 			/* Store CCMP/GCMP PN so that we can verify that the
+@@ -2034,11 +2039,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
+ 		int queue;
+ 
+-		if (!rx->key ||
+-		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
++		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
 
 
