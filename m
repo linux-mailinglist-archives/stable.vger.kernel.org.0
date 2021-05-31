@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DAFB3962AE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BBADA3962AF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232935AbhEaPAX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:00:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51052 "EHLO mail.kernel.org"
+        id S232839AbhEaPAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:00:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234283AbhEaO5V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7FF0761448;
-        Mon, 31 May 2021 14:00:33 +0000 (UTC)
+        id S231376AbhEaO5b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:57:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F67261CC4;
+        Mon, 31 May 2021 14:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469634;
-        bh=v8L/5MiTcVd5VZJDeFZ8tx+G2LIK7lyE+6GAJMxxvhM=;
+        s=korg; t=1622469636;
+        bh=RkNj7Sxouky+EMx7MnkcMWjpYcOVlf2hJ4xc/nFXHn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hPF/Ku7kXhGFHvCrSkBItH4/ihZKCVDTPTmf6OpHNkXhHTrtO35oAC7Tt+22Xdpgd
-         JSHCxsnzdChrhtVoXKphAmVxd/ktg2zYchVdA7XCnvVcFNKudR6pHQCnjRAPU/S1o2
-         VGFUQ5EfAJ/JKWKKuHdt2ouZWQblNyp4EQiW2KME=
+        b=i82HYEc8P1dvdxT5JdzIttPxnb8Gei9Q5qtrMvrNBIzgBW/mzDpdgtrJe7350HIbw
+         Wd9UTwbrjMijv3sUjLvC9Ongi9ZDhTJc518k0KrgnHEeUY5tIsRUwcrLXJuOesa2Xr
+         YQZQwl/RxDsrvouRxbN7X9WbJOLLzQpMDyrlQ4j8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Banajit Goswami <bgoswami@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 272/296] ASoC: qcom: lpass-cpu: Use optional clk APIs
-Date:   Mon, 31 May 2021 15:15:27 +0200
-Message-Id: <20210531130712.891046118@linuxfoundation.org>
+Subject: [PATCH 5.12 273/296] scsi: libsas: Use _safe() loop in sas_resume_port()
+Date:   Mon, 31 May 2021 15:15:28 +0200
+Message-Id: <20210531130712.922373099@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -43,53 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stephen Boyd <swboyd@chromium.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit af2702549d68519ac78228e915d9b2c199056787 ]
+[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
 
-This driver spits out a warning for me at boot:
+If sas_notify_lldd_dev_found() fails then this code calls:
 
- sc7180-lpass-cpu 62f00000.lpass: asoc_qcom_lpass_cpu_platform_probe() error getting optional null: -2
+	sas_unregister_dev(port, dev);
 
-but it looks like it is all an optional clk. Use the optional clk APIs
-here so that we don't see this message and everything else is the same.
+which removes "dev", our list iterator, from the list.  This could lead to
+an endless loop.  We need to use list_for_each_entry_safe().
 
-Cc: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Cc: Banajit Goswami <bgoswami@codeaurora.org>
-Fixes: 3e53ac8230c1 ("ASoC: qcom: make osr clock optional")
-Signed-off-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20210520014807.3749797-1-swboyd@chromium.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
+Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/qcom/lpass-cpu.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/scsi/libsas/sas_port.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/qcom/lpass-cpu.c b/sound/soc/qcom/lpass-cpu.c
-index be360a402b67..936384a94f25 100644
---- a/sound/soc/qcom/lpass-cpu.c
-+++ b/sound/soc/qcom/lpass-cpu.c
-@@ -835,18 +835,8 @@ int asoc_qcom_lpass_cpu_platform_probe(struct platform_device *pdev)
- 		if (dai_id == LPASS_DP_RX)
- 			continue;
+diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
+index 19cf418928fa..e3d03d744713 100644
+--- a/drivers/scsi/libsas/sas_port.c
++++ b/drivers/scsi/libsas/sas_port.c
+@@ -25,7 +25,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
  
--		drvdata->mi2s_osr_clk[dai_id] = devm_clk_get(dev,
-+		drvdata->mi2s_osr_clk[dai_id] = devm_clk_get_optional(dev,
- 					     variant->dai_osr_clk_names[i]);
--		if (IS_ERR(drvdata->mi2s_osr_clk[dai_id])) {
--			dev_warn(dev,
--				"%s() error getting optional %s: %ld\n",
--				__func__,
--				variant->dai_osr_clk_names[i],
--				PTR_ERR(drvdata->mi2s_osr_clk[dai_id]));
--
--			drvdata->mi2s_osr_clk[dai_id] = NULL;
--		}
--
- 		drvdata->mi2s_bit_clk[dai_id] = devm_clk_get(dev,
- 						variant->dai_bit_clk_names[i]);
- 		if (IS_ERR(drvdata->mi2s_bit_clk[dai_id])) {
+ static void sas_resume_port(struct asd_sas_phy *phy)
+ {
+-	struct domain_device *dev;
++	struct domain_device *dev, *n;
+ 	struct asd_sas_port *port = phy->port;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+ 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
+@@ -44,7 +44,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+ 	 * 1/ presume every device came back
+ 	 * 2/ force the next revalidation to check all expander phys
+ 	 */
+-	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
++	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+ 		int i, rc;
+ 
+ 		rc = sas_notify_lldd_dev_found(dev);
 -- 
 2.30.2
 
