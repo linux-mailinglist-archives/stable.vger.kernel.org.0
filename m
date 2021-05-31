@@ -2,31 +2,31 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DCFAD3960F2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:32:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00EE63960F4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:32:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232895AbhEaOdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56128 "EHLO mail.kernel.org"
+        id S233637AbhEaOdm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:33:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55976 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233374AbhEaOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233381AbhEaOb3 (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 31 May 2021 10:31:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7A1961624;
-        Mon, 31 May 2021 13:49:10 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 423E461629;
+        Mon, 31 May 2021 13:49:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468951;
-        bh=57mus0dGnXJhnois5zRxOYyJ+59inXy3QF90V2hIR3E=;
+        s=korg; t=1622468953;
+        bh=6XlGExWuaiqzJEloSrf2Ut/W76vJdtpipp50LEhiXN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LcmF6MYckd6o9Q8T27mJZA3/fkkd/PtxlPEN+NdqxlH/SmFLxhuvZdyYntnQLjGlH
-         i5iy54ZuBqmGNcrkDrcF2LMKk1U3JpsH4Erji5xCg4j4r+moVG4jBpwmjZjEbwfLvY
-         T2JnEjh7FvsXb8ViMY4LI+vmdP7pG6qrz12WA2ww=
+        b=qqVFDU2D5wVYm2RddC/VVKfc+nKzoFcXt8LF1RTpqLAXxECCVbRIasvtg38j8wPIF
+         sBAUtPdTbi7BaRe1gfbiLprlPcWhXHumx4UA+/NUKNUEorUtH9jTbTGeMz9Sp5I3CR
+         STnsr7mWt0z5gEiNQ1ljoaxWJA4DtCd7JWcATFQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.12 013/296] mtd: rawnand: cs553x: Fix external use of SW Hamming ECC helper
-Date:   Mon, 31 May 2021 15:11:08 +0200
-Message-Id: <20210531130704.213640507@linuxfoundation.org>
+Subject: [PATCH 5.12 014/296] mtd: rawnand: txx9ndfmc: Fix external use of SW Hamming ECC helper
+Date:   Mon, 31 May 2021 15:11:09 +0200
+Message-Id: <20210531130704.242852585@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -40,7 +40,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 56a8d3fd1f342d10ee7b27e9ac0f4d00b5fbb91c upstream.
+commit 3d227a0b0ce319edbff6fd0d8af4d66689e477cc upstream.
 
 Since the Hamming software ECC engine has been updated to become a
 proper and independent ECC engine, it is now mandatory to either
@@ -52,46 +52,32 @@ helper instead of the rawnand one.
 Fixes: 90ccf0a0192f ("mtd: nand: ecc-hamming: Rename the exported functions")
 Cc: stable@vger.kernel.org
 Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210413161840.345208-2-miquel.raynal@bootlin.com
+Link: https://lore.kernel.org/linux-mtd/20210413161840.345208-8-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/cs553x_nand.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ drivers/mtd/nand/raw/txx9ndfmc.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/drivers/mtd/nand/raw/cs553x_nand.c
-+++ b/drivers/mtd/nand/raw/cs553x_nand.c
-@@ -18,6 +18,7 @@
- #include <linux/module.h>
+--- a/drivers/mtd/nand/raw/txx9ndfmc.c
++++ b/drivers/mtd/nand/raw/txx9ndfmc.c
+@@ -13,6 +13,7 @@
+ #include <linux/platform_device.h>
  #include <linux/delay.h>
  #include <linux/mtd/mtd.h>
 +#include <linux/mtd/nand-ecc-sw-hamming.h>
  #include <linux/mtd/rawnand.h>
  #include <linux/mtd/partitions.h>
- #include <linux/iopoll.h>
-@@ -240,6 +241,15 @@ static int cs_calculate_ecc(struct nand_
- 	return 0;
- }
+ #include <linux/io.h>
+@@ -193,8 +194,8 @@ static int txx9ndfmc_correct_data(struct
+ 	int stat;
  
-+static int cs553x_ecc_correct(struct nand_chip *chip,
-+			      unsigned char *buf,
-+			      unsigned char *read_ecc,
-+			      unsigned char *calc_ecc)
-+{
-+	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
-+				      chip->ecc.size, false);
-+}
-+
- static struct cs553x_nand_controller *controllers[4];
- 
- static int cs553x_attach_chip(struct nand_chip *chip)
-@@ -251,7 +261,7 @@ static int cs553x_attach_chip(struct nan
- 	chip->ecc.bytes = 3;
- 	chip->ecc.hwctl  = cs_enable_hwecc;
- 	chip->ecc.calculate = cs_calculate_ecc;
--	chip->ecc.correct  = rawnand_sw_hamming_correct;
-+	chip->ecc.correct  = cs553x_ecc_correct;
- 	chip->ecc.strength = 1;
- 
- 	return 0;
+ 	for (eccsize = chip->ecc.size; eccsize > 0; eccsize -= 256) {
+-		stat = rawnand_sw_hamming_correct(chip, buf, read_ecc,
+-						  calc_ecc);
++		stat = ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
++					      chip->ecc.size, false);
+ 		if (stat < 0)
+ 			return stat;
+ 		corrected += stat;
 
 
