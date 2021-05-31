@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E5E2395F4A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8257E395D05
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbhEaOJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:09:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
+        id S232250AbhEaNks (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233298AbhEaOHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:07:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DD586195D;
-        Mon, 31 May 2021 13:39:26 +0000 (UTC)
+        id S232167AbhEaNib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:38:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B0A2D613AD;
+        Mon, 31 May 2021 13:26:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468367;
-        bh=lVmYbOfXRPQDI0BHM560+nSRPOfXdZPEgZZTm6SwwjE=;
+        s=korg; t=1622467595;
+        bh=PvpqNfjGQRdLeH0IHyIbADJKr8YmkbC9yVvp1MaYJ6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VbC0wxhSc6amVD9ZSPXr5CKqHlDY6DX4vsfDnGarwT8EFYtU3Ur94ufSz42hiFhOG
-         ONXcfV4S1wm/7B98v1KPDk3SG6r123PVeMgwJJwO1YFsnq+KezfgxrLzzClEXPH9dr
-         2FqY77Ym6YCsyTWVYp9pLkF1Q4ueXKhYRR0tKYwo=
+        b=Iis8rYZLizmGLNBJ0iWqvAyB1EvE6gw2xB+vWqgjOFYt1DxzXaQdvFKMTePZ7wwkr
+         csh8N123O8pT/sxk/Ci1WR5PaOXqmZRoJq+71SSRsMrs2JbzXu7tRd8CXShS7qr08V
+         qsbbEvAowAm8XKTEo9eHO28cOb/kKCjdSxVsXuwM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Catherine Sullivan <csully@google.com>,
-        David Awogbemila <awogbemila@google.com>,
-        Willem de Bruijn <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 216/252] gve: Check TX QPL was actually assigned
+Subject: [PATCH 4.19 105/116] ASoC: cs35l33: fix an error code in probe()
 Date:   Mon, 31 May 2021 15:14:41 +0200
-Message-Id: <20210531130705.357113930@linuxfoundation.org>
+Message-Id: <20210531130643.686402619@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,50 +41,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Catherine Sullivan <csully@google.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 5aec55b46c6238506cdf0c60cd0e42ab77a1e5e0 ]
+[ Upstream commit 833bc4cf9754643acc69b3c6b65988ca78df4460 ]
 
-Correctly check the TX QPL was assigned and unassigned if
-other steps in the allocation fail.
+This error path returns zero (success) but it should return -EINVAL.
 
-Fixes: f5cedc84a30d (gve: Add transmit and receive support)
-Signed-off-by: Catherine Sullivan <csully@google.com>
-Signed-off-by: David Awogbemila <awogbemila@google.com>
-Acked-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 3333cb7187b9 ("ASoC: cs35l33: Initial commit of the cs35l33 CODEC driver.")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/YKXuyGEzhPT35R3G@mwanda
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_tx.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ sound/soc/codecs/cs35l33.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
-index d0244feb0301..30532ee28dd3 100644
---- a/drivers/net/ethernet/google/gve/gve_tx.c
-+++ b/drivers/net/ethernet/google/gve/gve_tx.c
-@@ -207,10 +207,12 @@ static int gve_tx_alloc_ring(struct gve_priv *priv, int idx)
- 		goto abort_with_info;
+diff --git a/sound/soc/codecs/cs35l33.c b/sound/soc/codecs/cs35l33.c
+index 668cd3754209..73fa784646e5 100644
+--- a/sound/soc/codecs/cs35l33.c
++++ b/sound/soc/codecs/cs35l33.c
+@@ -1204,6 +1204,7 @@ static int cs35l33_i2c_probe(struct i2c_client *i2c_client,
+ 		dev_err(&i2c_client->dev,
+ 			"CS35L33 Device ID (%X). Expected ID %X\n",
+ 			devid, CS35L33_CHIP_ID);
++		ret = -EINVAL;
+ 		goto err_enable;
+ 	}
  
- 	tx->tx_fifo.qpl = gve_assign_tx_qpl(priv);
-+	if (!tx->tx_fifo.qpl)
-+		goto abort_with_desc;
- 
- 	/* map Tx FIFO */
- 	if (gve_tx_fifo_init(priv, &tx->tx_fifo))
--		goto abort_with_desc;
-+		goto abort_with_qpl;
- 
- 	tx->q_resources =
- 		dma_alloc_coherent(hdev,
-@@ -229,6 +231,8 @@ static int gve_tx_alloc_ring(struct gve_priv *priv, int idx)
- 
- abort_with_fifo:
- 	gve_tx_fifo_release(priv, &tx->tx_fifo);
-+abort_with_qpl:
-+	gve_unassign_qpl(priv, tx->tx_fifo.qpl->id);
- abort_with_desc:
- 	dma_free_coherent(hdev, bytes, tx->desc, tx->bus);
- 	tx->desc = NULL;
 -- 
 2.30.2
 
