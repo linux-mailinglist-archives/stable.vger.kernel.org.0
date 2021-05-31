@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D71CB395F4B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D6F395CEE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232448AbhEaOJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:09:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
+        id S232197AbhEaNkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232641AbhEaOHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:07:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B92E26140D;
-        Mon, 31 May 2021 13:39:23 +0000 (UTC)
+        id S232221AbhEaNgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:36:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9F7286144D;
+        Mon, 31 May 2021 13:25:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468364;
-        bh=7cBwNGJ4XnuLLx9x++da50kJ15B5g5p8WyjwJlCQIJY=;
+        s=korg; t=1622467545;
+        bh=0ehsmwxMcJ5M3eodCYeo9WXhDYbu9W5dnK3tTJEgvjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bgD8aIpsUD4X94rIPNjSSDoeSk0LnkW9mckv/43vBPXDF9KgehjdOBHGg+VMdjHqB
-         1VyQOtN22q4HbCYb9vNfYsToM2hyoRCnPVfyr46A31njhjJNXgrDBYssWRWCGQEQdu
-         R/ZkkIOMmmM+VpRo1hJdWhFgLsp4DNsljbT6WFmg=
+        b=HD/Mfgm4VtEok4YAe+9rcMkqv0hsyrH87zUHkk2gGCwKBb0N5pecXdJ8KVGrbRrzU
+         dnIWHWSYzUAKY2X8Ydj41sWzxcfHUgCmg0o2f3mhzm+3hWNhCLjCp2s2bS2wytNvA2
+         bayuiByO5miwKEIZrlxbgwftGRPaQGJs5Vqhexf0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 215/252] net/smc: remove device from smcd_dev_list after failed device_add()
+Subject: [PATCH 4.19 104/116] staging: emxx_udc: fix loop in _nbu2ss_nuke()
 Date:   Mon, 31 May 2021 15:14:40 +0200
-Message-Id: <20210531130705.318275352@linuxfoundation.org>
+Message-Id: <20210531130643.655092357@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +39,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 444d7be9532dcfda8e0385226c862fd7e986f607 ]
+[ Upstream commit e0112a7c9e847ada15a631b88e279d547e8f26a7 ]
 
-If the device_add() for a smcd_dev fails, there's no cleanup step that
-rolls back the earlier list_add(). The device subsequently gets freed,
-and we end up with a corrupted list.
+The _nbu2ss_ep_done() function calls:
 
-Add some error handling that removes the device from the list.
+	list_del_init(&req->queue);
 
-Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+which means that the loop will never exit.
+
+Fixes: ca3d253eb967 ("Staging: emxx_udc: Iterate list using list_for_each_entry")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Link: https://lore.kernel.org/r/YKUd0sDyjm/lkJfJ@mwanda
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_ism.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ drivers/staging/emxx_udc/emxx_udc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 024ca21392f7..8e33c0128d73 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -331,6 +331,8 @@ EXPORT_SYMBOL_GPL(smcd_alloc_dev);
- 
- int smcd_register_dev(struct smcd_dev *smcd)
+diff --git a/drivers/staging/emxx_udc/emxx_udc.c b/drivers/staging/emxx_udc/emxx_udc.c
+index 3e51476a7045..d2cb2bd6d913 100644
+--- a/drivers/staging/emxx_udc/emxx_udc.c
++++ b/drivers/staging/emxx_udc/emxx_udc.c
+@@ -2148,7 +2148,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
+ 			struct nbu2ss_ep *ep,
+ 			int status)
  {
-+	int rc;
-+
- 	mutex_lock(&smcd_dev_list.mutex);
- 	if (list_empty(&smcd_dev_list.list)) {
- 		u8 *system_eid = NULL;
-@@ -350,7 +352,14 @@ int smcd_register_dev(struct smcd_dev *smcd)
- 			    dev_name(&smcd->dev), smcd->pnetid,
- 			    smcd->pnetid_by_user ? " (user defined)" : "");
+-	struct nbu2ss_req *req;
++	struct nbu2ss_req *req, *n;
  
--	return device_add(&smcd->dev);
-+	rc = device_add(&smcd->dev);
-+	if (rc) {
-+		mutex_lock(&smcd_dev_list.mutex);
-+		list_del(&smcd->list);
-+		mutex_unlock(&smcd_dev_list.mutex);
-+	}
-+
-+	return rc;
- }
- EXPORT_SYMBOL_GPL(smcd_register_dev);
+ 	/* Endpoint Disable */
+ 	_nbu2ss_epn_exit(udc, ep);
+@@ -2160,7 +2160,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
+ 		return 0;
+ 
+ 	/* called with irqs blocked */
+-	list_for_each_entry(req, &ep->queue, queue) {
++	list_for_each_entry_safe(req, n, &ep->queue, queue) {
+ 		_nbu2ss_ep_done(ep, req, status);
+ 	}
  
 -- 
 2.30.2
