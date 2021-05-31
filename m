@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3A9395EB7
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0569A395CBB
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbhEaOCh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:02:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60806 "EHLO mail.kernel.org"
+        id S232356AbhEaNhA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:37:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38922 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231978AbhEaOAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D49461447;
-        Mon, 31 May 2021 13:36:26 +0000 (UTC)
+        id S232585AbhEaNdK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:33:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 644A5613B9;
+        Mon, 31 May 2021 13:24:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468186;
-        bh=YMUIRBqPsKnP1v3cJ/Dw9pNi02k97cYZ5bin7a9UhRc=;
+        s=korg; t=1622467454;
+        bh=G9Djgm5+D9+1oVWiiL+Z96/5chrPLDcwDNTHkHXHhyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CsgfS0Zw0IadBNke6bzWUmsErfugSp8B/5C7hTM1uTjaaMHreX389Q1v+gCpz55ra
-         7dNipbxHXXwGFWHvx63WN3mehui7z6sL1UJi8ZNqjGviBOHYD2e0ai9OfovZxfWfKd
-         xsb4RyUkAfqA08a9RV3TtSiiDPZRIlHX51ycZ8Wg=
+        b=XnKd/+LXxZj8DI+L3FimOlzhz03+vGpmQw6iyWXzmaXQHpLVa/VfM/+KReP5cJyy1
+         9rkAivQewb5PiglTuVQhOMENCWOQQbDkdoD6xGHa92XGyvczXaphKn/CrJ07kWC40Y
+         tr8IwNLqg6shQw/U4Qw5Riu8T6ZvgIVAYbbxbmOc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 147/252] Revert "ALSA: usx2y: Fix potential NULL pointer dereference"
+        stable@vger.kernel.org, Zolton Jheng <s6668c2t@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 036/116] USB: serial: pl2303: add device id for ADLINK ND-6530 GC
 Date:   Mon, 31 May 2021 15:13:32 +0200
-Message-Id: <20210531130703.013333713@linuxfoundation.org>
+Message-Id: <20210531130641.385701804@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Zolton Jheng <s6668c2t@gmail.com>
 
-[ Upstream commit 4667a6fc1777ce071504bab570d3599107f4790f ]
+commit f8e8c1b2f782e7391e8a1c25648ce756e2a7d481 upstream.
 
-This reverts commit a2c6433ee5a35a8de6d563f6512a26f87835ea0f.
+This adds the device id for the ADLINK ND-6530 which is a PL2303GC based
+device.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original patch was incorrect, and would leak memory if the error
-path the patch added was hit.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210503115736.2104747-37-gregkh@linuxfoundation.org
+Signed-off-by: Zolton Jheng <s6668c2t@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/usb/usx2y/usb_stream.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/sound/usb/usx2y/usb_stream.c b/sound/usb/usx2y/usb_stream.c
-index 091c071b270a..6bba17bf689a 100644
---- a/sound/usb/usx2y/usb_stream.c
-+++ b/sound/usb/usx2y/usb_stream.c
-@@ -91,12 +91,7 @@ static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -107,6 +107,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(SONY_VENDOR_ID, SONY_QN3USB_PRODUCT_ID) },
+ 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
+ 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
++	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
+ 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -152,6 +152,7 @@
+ /* ADLINK ND-6530 RS232,RS485 and RS422 adapter */
+ #define ADLINK_VENDOR_ID		0x0b63
+ #define ADLINK_ND6530_PRODUCT_ID	0x6530
++#define ADLINK_ND6530GC_PRODUCT_ID	0x653a
  
- 	for (u = 0; u < USB_STREAM_NURBS; ++u) {
- 		sk->inurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
--		if (!sk->inurb[u])
--			return -ENOMEM;
--
- 		sk->outurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
--		if (!sk->outurb[u])
--			return -ENOMEM;
- 	}
- 
- 	if (init_pipe_urbs(sk, use_packsize, sk->inurb, indata, dev, in_pipe) ||
--- 
-2.30.2
-
+ /* SMART USB Serial Adapter */
+ #define SMART_VENDOR_ID	0x0b8c
 
 
