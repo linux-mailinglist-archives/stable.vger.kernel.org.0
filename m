@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1E5395C06
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DC73839606C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232220AbhEaN1b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:27:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33238 "EHLO mail.kernel.org"
+        id S233473AbhEaOZp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232263AbhEaNZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:25:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 121BD613FF;
-        Mon, 31 May 2021 13:20:46 +0000 (UTC)
+        id S233287AbhEaOXd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F809619D0;
+        Mon, 31 May 2021 13:45:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467247;
-        bh=i+QloeXiWDUkItTqnL2vr8fK0KqCD/zYOdBzyi31b1s=;
+        s=korg; t=1622468759;
+        bh=lGqqaLBNP/9QRAroFbTLl3k3cLDdzW2qBzFiLQ2qiP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bkRzYhm1wEkZH/lAzVGBLo+hQ4xKsOxrDvUfpIBV0z23SXQ3PXlpDGNcnUfGVYSi1
-         P1aEEtngVsPIlDdevqbU85BD59r0nLQofN1fErYcnI7PYKJ37u1BAJGrjZpcvnq4gu
-         360bWFLhV9ZarI2C9fxNtITUP1mwEvsdbNLIhWo0=
+        b=e6ZBiu5jkc6mDzo1M3xkJ+TOydAH+xQjUR+9zZgu+bRchd0OI/bxoUKI6bexELeQZ
+         +Dv/oSK+7JcJzvEmKIHOuJdc9ey0PdExtlKxN/rZzFrgj1wqbcD0JtNzlB0knAqg5p
+         Mf26OTKtVGVxkLVCGu9JdSm3N5aqJtWH7BbTHHqk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Charles Keepax <ckeepax@opensource.cirrus.com>,
-        Mark Brown <broonie@kernel.org>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Alaa Emad <alaaemadhossney.ae@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 60/66] ASoC: cs35l33: fix an error code in probe()
+Subject: [PATCH 5.4 116/177] media: gspca: mt9m111: Check write_bridge for timeout
 Date:   Mon, 31 May 2021 15:14:33 +0200
-Message-Id: <20210531130638.156666728@linuxfoundation.org>
+Message-Id: <20210531130651.918846570@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,34 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alaa Emad <alaaemadhossney.ae@gmail.com>
 
-[ Upstream commit 833bc4cf9754643acc69b3c6b65988ca78df4460 ]
+[ Upstream commit e932f5b458eee63d013578ea128b9ff8ef5f5496 ]
 
-This error path returns zero (success) but it should return -EINVAL.
+If m5602_write_bridge times out, it will return a negative error value.
+So properly check for this and handle the error correctly instead of
+just ignoring it.
 
-Fixes: 3333cb7187b9 ("ASoC: cs35l33: Initial commit of the cs35l33 CODEC driver.")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Charles Keepax <ckeepax@opensource.cirrus.com>
-Link: https://lore.kernel.org/r/YKXuyGEzhPT35R3G@mwanda
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-62-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs35l33.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/sound/soc/codecs/cs35l33.c b/sound/soc/codecs/cs35l33.c
-index 6df29fa30fb9..9e449dd8da92 100644
---- a/sound/soc/codecs/cs35l33.c
-+++ b/sound/soc/codecs/cs35l33.c
-@@ -1209,6 +1209,7 @@ static int cs35l33_i2c_probe(struct i2c_client *i2c_client,
- 		dev_err(&i2c_client->dev,
- 			"CS35L33 Device ID (%X). Expected ID %X\n",
- 			devid, CS35L33_CHIP_ID);
-+		ret = -EINVAL;
- 		goto err_enable;
+diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
+index 50481dc928d0..bf1af6ed9131 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
++++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
+@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
+ int mt9m111_probe(struct sd *sd)
+ {
+ 	u8 data[2] = {0x00, 0x00};
+-	int i;
++	int i, err;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+ 
+ 	if (force_sensor) {
+@@ -213,15 +213,17 @@ int mt9m111_probe(struct sd *sd)
+ 	/* Do the preinit */
+ 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
+ 		if (preinit_mt9m111[i][0] == BRIDGE) {
+-			m5602_write_bridge(sd,
+-				preinit_mt9m111[i][1],
+-				preinit_mt9m111[i][2]);
++			err = m5602_write_bridge(sd,
++					preinit_mt9m111[i][1],
++					preinit_mt9m111[i][2]);
+ 		} else {
+ 			data[0] = preinit_mt9m111[i][2];
+ 			data[1] = preinit_mt9m111[i][3];
+-			m5602_write_sensor(sd,
+-				preinit_mt9m111[i][1], data, 2);
++			err = m5602_write_sensor(sd,
++					preinit_mt9m111[i][1], data, 2);
+ 		}
++		if (err < 0)
++			return err;
  	}
  
+ 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
 -- 
 2.30.2
 
