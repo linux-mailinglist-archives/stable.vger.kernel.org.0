@@ -2,37 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 223C83960E6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:31:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED723960E5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:31:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234072AbhEaOdF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:33:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
+        id S234036AbhEaOdE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:33:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233210AbhEaObF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:31:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B0B9861585;
-        Mon, 31 May 2021 13:48:49 +0000 (UTC)
+        id S233201AbhEaObE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:31:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7752C61C2F;
+        Mon, 31 May 2021 13:48:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468930;
-        bh=z6NA4bIa26BOxeOeMk+KqbOxp4/JoT64XtlLNQrmsEg=;
+        s=korg; t=1622468932;
+        bh=EJaGrKNSQsHsjeAio+/+bon96Z7M3SGXwfhDl1TK6qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UUFLcQ+UxTLi7UndY+bXjNjw5pZjXOEeQ+cazOYexhV8Gk0sSfwuNNz8+NC0Oh82k
-         i54VkI+YR3L2zU7LiGjiUBI3/nZtgDJzeu3B0DjW7MyBXIs+NGT43+0LUW2WxQSEMT
-         i5BoLWM+ko2Pq92jk9whwY/bJjDxX0whOYaxxMak=
+        b=Si7Qnge6IjhvgkUxkb514dVkTZT49KX84wxzji3EnlVZuSTsUhJ0Q7zvS13zQCuZk
+         BjONtxI9uCnCRD4ICU3hpWHgx/fiqm3dXZper0WA5jPJepWGNgF/6yzKVwv5WNDNtU
+         IizwSbzLQrnCO3KWY/B+Abot7W3iOAOBmHgODq0o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stefan Roese <sr@denx.de>,
-        Felix Fietkau <nbd@nbd.name>, John Crispin <john@phrozen.org>,
-        Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>,
-        Reto Schneider <code@reto-schneider.ch>,
-        Reto Schneider <reto.schneider@husqvarnagroup.com>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 166/177] net: ethernet: mtk_eth_soc: Fix packet statistics support for MT7628/88
-Date:   Mon, 31 May 2021 15:15:23 +0200
-Message-Id: <20210531130653.655300340@linuxfoundation.org>
+Subject: [PATCH 5.4 167/177] sch_dsmark: fix a NULL deref in qdisc_reset()
+Date:   Mon, 31 May 2021 15:15:24 +0200
+Message-Id: <20210531130653.695147600@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
 References: <20210531130647.887605866@linuxfoundation.org>
@@ -44,157 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Roese <sr@denx.de>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit ad79fd2c42f7626bdf6935cd72134c2a5a59ff2d ]
+[ Upstream commit 9b76eade16423ef06829cccfe3e100cfce31afcd ]
 
-The MT7628/88 SoC(s) have other (limited) packet counter registers than
-currently supported in the mtk_eth_soc driver. This patch adds support
-for reading these registers, so that the packet statistics are correctly
-updated.
+If Qdisc_ops->init() is failed, Qdisc_ops->reset() would be called.
+When dsmark_init(Qdisc_ops->init()) is failed, it possibly doesn't
+initialize dsmark_qdisc_data->q. But dsmark_reset(Qdisc_ops->reset())
+uses dsmark_qdisc_data->q pointer wihtout any null checking.
+So, panic would occur.
 
-Additionally the defines for the non-MT7628 variant packet counter
-registers are added and used in this patch instead of using hard coded
-values.
+Test commands:
+    sysctl net.core.default_qdisc=dsmark -w
+    ip link add dummy0 type dummy
+    ip link add vw0 link dummy0 type virt_wifi
+    ip link set vw0 up
 
-Signed-off-by: Stefan Roese <sr@denx.de>
-Fixes: 296c9120752b ("net: ethernet: mediatek: Add MT7628/88 SoC support")
-Cc: Felix Fietkau <nbd@nbd.name>
-Cc: John Crispin <john@phrozen.org>
-Cc: Ilya Lipnitskiy <ilya.lipnitskiy@gmail.com>
-Cc: Reto Schneider <code@reto-schneider.ch>
-Cc: Reto Schneider <reto.schneider@husqvarnagroup.com>
-Cc: David S. Miller <davem@davemloft.net>
+Splat looks like:
+KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
+CPU: 3 PID: 684 Comm: ip Not tainted 5.12.0+ #910
+RIP: 0010:qdisc_reset+0x2b/0x680
+Code: 1f 44 00 00 48 b8 00 00 00 00 00 fc ff df 41 57 41 56 41 55 41 54
+55 48 89 fd 48 83 c7 18 53 48 89 fa 48 c1 ea 03 48 83 ec 20 <80> 3c 02
+00 0f 85 09 06 00 00 4c 8b 65 18 0f 1f 44 00 00 65 8b 1d
+RSP: 0018:ffff88800fda6bf8 EFLAGS: 00010282
+RAX: dffffc0000000000 RBX: ffff8880050ed800 RCX: 0000000000000000
+RDX: 0000000000000003 RSI: ffffffff99e34100 RDI: 0000000000000018
+RBP: 0000000000000000 R08: fffffbfff346b553 R09: fffffbfff346b553
+R10: 0000000000000001 R11: fffffbfff346b552 R12: ffffffffc0824940
+R13: ffff888109e83800 R14: 00000000ffffffff R15: ffffffffc08249e0
+FS:  00007f5042287680(0000) GS:ffff888119800000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000055ae1f4dbd90 CR3: 0000000006760002 CR4: 00000000003706e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ ? rcu_read_lock_bh_held+0xa0/0xa0
+ dsmark_reset+0x3d/0xf0 [sch_dsmark]
+ qdisc_reset+0xa9/0x680
+ qdisc_destroy+0x84/0x370
+ qdisc_create_dflt+0x1fe/0x380
+ attach_one_default_qdisc.constprop.41+0xa4/0x180
+ dev_activate+0x4d5/0x8c0
+ ? __dev_open+0x268/0x390
+ __dev_open+0x270/0x390
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mediatek/mtk_eth_soc.c | 67 ++++++++++++++-------
- drivers/net/ethernet/mediatek/mtk_eth_soc.h | 24 +++++++-
- 2 files changed, 66 insertions(+), 25 deletions(-)
+ net/sched/sch_dsmark.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.c b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-index 7e3806fd70b2..48b395b9c15a 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
-@@ -675,32 +675,53 @@ static int mtk_set_mac_address(struct net_device *dev, void *p)
- void mtk_stats_update_mac(struct mtk_mac *mac)
- {
- 	struct mtk_hw_stats *hw_stats = mac->hw_stats;
--	unsigned int base = MTK_GDM1_TX_GBCNT;
--	u64 stats;
--
--	base += hw_stats->reg_offset;
-+	struct mtk_eth *eth = mac->hw;
+diff --git a/net/sched/sch_dsmark.c b/net/sched/sch_dsmark.c
+index 2b88710994d7..76ed1a05ded2 100644
+--- a/net/sched/sch_dsmark.c
++++ b/net/sched/sch_dsmark.c
+@@ -406,7 +406,8 @@ static void dsmark_reset(struct Qdisc *sch)
+ 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
  
- 	u64_stats_update_begin(&hw_stats->syncp);
- 
--	hw_stats->rx_bytes += mtk_r32(mac->hw, base);
--	stats =  mtk_r32(mac->hw, base + 0x04);
--	if (stats)
--		hw_stats->rx_bytes += (stats << 32);
--	hw_stats->rx_packets += mtk_r32(mac->hw, base + 0x08);
--	hw_stats->rx_overflow += mtk_r32(mac->hw, base + 0x10);
--	hw_stats->rx_fcs_errors += mtk_r32(mac->hw, base + 0x14);
--	hw_stats->rx_short_errors += mtk_r32(mac->hw, base + 0x18);
--	hw_stats->rx_long_errors += mtk_r32(mac->hw, base + 0x1c);
--	hw_stats->rx_checksum_errors += mtk_r32(mac->hw, base + 0x20);
--	hw_stats->rx_flow_control_packets +=
--					mtk_r32(mac->hw, base + 0x24);
--	hw_stats->tx_skip += mtk_r32(mac->hw, base + 0x28);
--	hw_stats->tx_collisions += mtk_r32(mac->hw, base + 0x2c);
--	hw_stats->tx_bytes += mtk_r32(mac->hw, base + 0x30);
--	stats =  mtk_r32(mac->hw, base + 0x34);
--	if (stats)
--		hw_stats->tx_bytes += (stats << 32);
--	hw_stats->tx_packets += mtk_r32(mac->hw, base + 0x38);
-+	if (MTK_HAS_CAPS(eth->soc->caps, MTK_SOC_MT7628)) {
-+		hw_stats->tx_packets += mtk_r32(mac->hw, MT7628_SDM_TPCNT);
-+		hw_stats->tx_bytes += mtk_r32(mac->hw, MT7628_SDM_TBCNT);
-+		hw_stats->rx_packets += mtk_r32(mac->hw, MT7628_SDM_RPCNT);
-+		hw_stats->rx_bytes += mtk_r32(mac->hw, MT7628_SDM_RBCNT);
-+		hw_stats->rx_checksum_errors +=
-+			mtk_r32(mac->hw, MT7628_SDM_CS_ERR);
-+	} else {
-+		unsigned int offs = hw_stats->reg_offset;
-+		u64 stats;
-+
-+		hw_stats->rx_bytes += mtk_r32(mac->hw,
-+					      MTK_GDM1_RX_GBCNT_L + offs);
-+		stats = mtk_r32(mac->hw, MTK_GDM1_RX_GBCNT_H + offs);
-+		if (stats)
-+			hw_stats->rx_bytes += (stats << 32);
-+		hw_stats->rx_packets +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_GPCNT + offs);
-+		hw_stats->rx_overflow +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_OERCNT + offs);
-+		hw_stats->rx_fcs_errors +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_FERCNT + offs);
-+		hw_stats->rx_short_errors +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_SERCNT + offs);
-+		hw_stats->rx_long_errors +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_LENCNT + offs);
-+		hw_stats->rx_checksum_errors +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_CERCNT + offs);
-+		hw_stats->rx_flow_control_packets +=
-+			mtk_r32(mac->hw, MTK_GDM1_RX_FCCNT + offs);
-+		hw_stats->tx_skip +=
-+			mtk_r32(mac->hw, MTK_GDM1_TX_SKIPCNT + offs);
-+		hw_stats->tx_collisions +=
-+			mtk_r32(mac->hw, MTK_GDM1_TX_COLCNT + offs);
-+		hw_stats->tx_bytes +=
-+			mtk_r32(mac->hw, MTK_GDM1_TX_GBCNT_L + offs);
-+		stats =  mtk_r32(mac->hw, MTK_GDM1_TX_GBCNT_H + offs);
-+		if (stats)
-+			hw_stats->tx_bytes += (stats << 32);
-+		hw_stats->tx_packets +=
-+			mtk_r32(mac->hw, MTK_GDM1_TX_GPCNT + offs);
-+	}
-+
- 	u64_stats_update_end(&hw_stats->syncp);
+ 	pr_debug("%s(sch %p,[qdisc %p])\n", __func__, sch, p);
+-	qdisc_reset(p->q);
++	if (p->q)
++		qdisc_reset(p->q);
+ 	sch->qstats.backlog = 0;
+ 	sch->q.qlen = 0;
  }
- 
-diff --git a/drivers/net/ethernet/mediatek/mtk_eth_soc.h b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-index 1e9202b34d35..c0b2768b480f 100644
---- a/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-+++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.h
-@@ -264,8 +264,21 @@
- /* QDMA FQ Free Page Buffer Length Register */
- #define MTK_QDMA_FQ_BLEN	0x1B2C
- 
--/* GMA1 Received Good Byte Count Register */
--#define MTK_GDM1_TX_GBCNT	0x2400
-+/* GMA1 counter / statics register */
-+#define MTK_GDM1_RX_GBCNT_L	0x2400
-+#define MTK_GDM1_RX_GBCNT_H	0x2404
-+#define MTK_GDM1_RX_GPCNT	0x2408
-+#define MTK_GDM1_RX_OERCNT	0x2410
-+#define MTK_GDM1_RX_FERCNT	0x2414
-+#define MTK_GDM1_RX_SERCNT	0x2418
-+#define MTK_GDM1_RX_LENCNT	0x241c
-+#define MTK_GDM1_RX_CERCNT	0x2420
-+#define MTK_GDM1_RX_FCCNT	0x2424
-+#define MTK_GDM1_TX_SKIPCNT	0x2428
-+#define MTK_GDM1_TX_COLCNT	0x242c
-+#define MTK_GDM1_TX_GBCNT_L	0x2430
-+#define MTK_GDM1_TX_GBCNT_H	0x2434
-+#define MTK_GDM1_TX_GPCNT	0x2438
- #define MTK_STAT_OFFSET		0x40
- 
- /* QDMA descriptor txd4 */
-@@ -476,6 +489,13 @@
- #define MT7628_SDM_MAC_ADRL	(MT7628_SDM_OFFSET + 0x0c)
- #define MT7628_SDM_MAC_ADRH	(MT7628_SDM_OFFSET + 0x10)
- 
-+/* Counter / stat register */
-+#define MT7628_SDM_TPCNT	(MT7628_SDM_OFFSET + 0x100)
-+#define MT7628_SDM_TBCNT	(MT7628_SDM_OFFSET + 0x104)
-+#define MT7628_SDM_RPCNT	(MT7628_SDM_OFFSET + 0x108)
-+#define MT7628_SDM_RBCNT	(MT7628_SDM_OFFSET + 0x10c)
-+#define MT7628_SDM_CS_ERR	(MT7628_SDM_OFFSET + 0x110)
-+
- struct mtk_rx_dma {
- 	unsigned int rxd1;
- 	unsigned int rxd2;
 -- 
 2.30.2
 
