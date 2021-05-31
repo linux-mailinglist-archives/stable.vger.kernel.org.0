@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 59DDC395D5F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3883139608D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:26:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232240AbhEaNpB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:45:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        id S231890AbhEaO2I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:28:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55188 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232672AbhEaNmz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:42:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B9DB61474;
-        Mon, 31 May 2021 13:28:37 +0000 (UTC)
+        id S232752AbhEaO0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:26:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88B2061C1B;
+        Mon, 31 May 2021 13:47:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467718;
-        bh=WCY1tsQHs0qPaWWClyBnYNlp7D6WjJ9ssswyl7No6Yc=;
+        s=korg; t=1622468821;
+        bh=qpeWGXYbfBBTCp7GnN16Kw1/b0uQPW98VaTjozobj54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0TJAW6X8KbkQvargg1s0gMWZaQ3P0Fm4RtCixUeyeyi3zq/1gyOxC77NoYcCuo9Qd
-         D76bLDgrIXP6hx/ee4SmM4A0Cz3YWNm2yRBChlJc0JS3K04poOrdsjOb1KcM9j+WtM
-         nK2Yzm57QiSd3IL0zZ63lcSR9QI7anUnex2sBEwY=
+        b=QS19l/KuK2T1wrCp5NIjZQwmZq8t9F3HUOGZPEJ3lYp8XcAg56OmpD484IpWczunL
+         qkcl/zYwL6psdjiIwVHhq9FDpSKnPl/VTu6OxbXyCHZBb5YkFFgKPT4zTgCJ3IjgP4
+         IikNTPH2dsZBf3xht1V4EV65gJd5t7tjAU4Ruu3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
+        Matt Wang <wwentao@vmware.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 55/79] media: gspca: properly check for errors in po1030_probe()
-Date:   Mon, 31 May 2021 15:14:40 +0200
-Message-Id: <20210531130637.763124921@linuxfoundation.org>
+Subject: [PATCH 5.4 124/177] scsi: BusLogic: Fix 64-bit system enumeration error for Buslogic
+Date:   Mon, 31 May 2021 15:14:41 +0200
+Message-Id: <20210531130652.207518522@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Matt Wang <wwentao@vmware.com>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+[ Upstream commit 56f396146af278135c0ff958c79b5ee1bd22453d ]
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+Commit 391e2f25601e ("[SCSI] BusLogic: Port driver to 64-bit")
+introduced a serious issue for 64-bit systems.  With this commit,
+64-bit kernel will enumerate 8*15 non-existing disks.  This is caused
+by the broken CCB structure.  The change from u32 data to void *data
+increased CCB length on 64-bit system, which introduced an extra 4
+byte offset of the CDB.  This leads to incorrect response to INQUIRY
+commands during enumeration.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fix disk enumeration failure by reverting the portion of the commit
+above which switched the data pointer from u32 to void.
+
+Link: https://lore.kernel.org/r/C325637F-1166-4340-8F0F-3BCCD59D4D54@vmware.com
+Acked-by: Khalid Aziz <khalid@gonehiking.org>
+Signed-off-by: Matt Wang <wwentao@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/scsi/BusLogic.c | 6 +++---
+ drivers/scsi/BusLogic.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index a0a90dd34ca8..a098aeb290c3 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -159,6 +159,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
- {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
- 
- 	if (force_sensor) {
-@@ -177,10 +178,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
+diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
+index c25e8a54e869..6e988233fb81 100644
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -3077,11 +3077,11 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
+ 		ccb->opcode = BLOGIC_INITIATOR_CCB_SG;
+ 		ccb->datalen = count * sizeof(struct blogic_sg_seg);
+ 		if (blogic_multimaster_type(adapter))
+-			ccb->data = (void *)((unsigned int) ccb->dma_handle +
++			ccb->data = (unsigned int) ccb->dma_handle +
+ 					((unsigned long) &ccb->sglist -
+-					(unsigned long) ccb));
++					(unsigned long) ccb);
  		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
- 	}
+-			ccb->data = ccb->sglist;
++			ccb->data = virt_to_32bit_virt(ccb->sglist);
  
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
+ 		scsi_for_each_sg(command, sg, count, i) {
+ 			ccb->sglist[i].segbytes = sg_dma_len(sg);
+diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
+index 6182cc8a0344..e081ad47d1cf 100644
+--- a/drivers/scsi/BusLogic.h
++++ b/drivers/scsi/BusLogic.h
+@@ -814,7 +814,7 @@ struct blogic_ccb {
+ 	unsigned char cdblen;				/* Byte 2 */
+ 	unsigned char sense_datalen;			/* Byte 3 */
+ 	u32 datalen;					/* Bytes 4-7 */
+-	void *data;					/* Bytes 8-11 */
++	u32 data;					/* Bytes 8-11 */
+ 	unsigned char:8;				/* Byte 12 */
+ 	unsigned char:8;				/* Byte 13 */
+ 	enum blogic_adapter_status adapter_status;	/* Byte 14 */
 -- 
 2.30.2
 
