@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B3533395CB1
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 94DCC39625F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:54:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbhEaNgg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
+        id S232879AbhEaOzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:55:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232723AbhEaNeY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:34:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 13A3A61400;
-        Mon, 31 May 2021 13:24:58 +0000 (UTC)
+        id S234047AbhEaOxR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:53:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6C6AB6193A;
+        Mon, 31 May 2021 13:58:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467499;
-        bh=eThF42QgHM2ceyuUbfHXSeQsf1W1pocY7rix57lF/sE=;
+        s=korg; t=1622469514;
+        bh=EQuL5AWD/fApjp0/wL1bMQy/0dIiryBUxf0x/fpQz9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ktSBQkRxKPSoTABscIdKP+s+V/wCIBoe6YhhcsHjsO3adHXxuzGJcxXzWTwJC5VHI
-         2ZVWxymnrNbzxRKwBa67uCN330NGrMmJol+oMPC+bWGe0E6FThar+uEIGBIy0tvVP2
-         uy5bhjzjx7gHG2NSPjqgCnTenLj3JCBYChzRGroE=
+        b=DvUBnwFK6XLEfBcKdg2wD8EPGiAnQpRVWqujctb/MwpFzKfPSOf25L8N3selEEW4f
+         u6w6lKujLMP8Ibl/LGSqdADHKjvsc7t+DFffVpN1sqCZQWDYU8kIG2duI62n7/cnkk
+         088A9aMRpCNvmuYkpR3E/BffuvsbM8I/qdhTadKw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Stafford Horne <shorne@gmail.com>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 088/116] openrisc: Define memory barrier mb
+Subject: [PATCH 5.12 209/296] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
 Date:   Mon, 31 May 2021 15:14:24 +0200
-Message-Id: <20210531130643.128560431@linuxfoundation.org>
+Message-Id: <20210531130710.890146435@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 8b549c18ae81dbc36fb11e4aa08b8378c599ca95 ]
+[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
 
-This came up in the discussion of the requirements of qspinlock on an
-architecture.  OpenRISC uses qspinlock, but it was noticed that the
-memmory barrier was not defined.
+The intel_punit_ipc driver might be compiled as a module.
+When udev handles the event of the devices appearing
+the intel_punit_ipc module is missing.
 
-Peter defined it in the mail thread writing:
+Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
 
-    As near as I can tell this should do. The arch spec only lists
-    this one instruction and the text makes it sound like a completion
-    barrier.
-
-This is correct so applying this patch.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-[shorne@gmail.com:Turned the mail into a patch]
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/barrier.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
- create mode 100644 arch/openrisc/include/asm/barrier.h
+ drivers/platform/x86/intel_punit_ipc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
-new file mode 100644
-index 000000000000..7538294721be
---- /dev/null
-+++ b/arch/openrisc/include/asm/barrier.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_BARRIER_H
-+#define __ASM_BARRIER_H
-+
-+#define mb() asm volatile ("l.msync" ::: "memory")
-+
-+#include <asm-generic/barrier.h>
-+
-+#endif /* __ASM_BARRIER_H */
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index 05cced59e251..f58b8543f6ac 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -312,6 +312,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
+ 	{ "INT34D4", 0 },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
+ 
+ static struct platform_driver intel_punit_ipc_driver = {
+ 	.probe = intel_punit_ipc_probe,
 -- 
 2.30.2
 
