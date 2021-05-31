@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D2F396297
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 70C073960D4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231574AbhEaO6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50622 "EHLO mail.kernel.org"
+        id S233701AbhEaObo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231693AbhEaO4F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:56:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CCD9261CBB;
-        Mon, 31 May 2021 14:00:06 +0000 (UTC)
+        id S233993AbhEaO3g (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C54261C2B;
+        Mon, 31 May 2021 13:48:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469607;
-        bh=Pfm5elhLty2T0dvGkOYXa40LNca4aqBke3gcjM3Vgmg=;
+        s=korg; t=1622468916;
+        bh=udF61iovPAdU6ur1TYq0jtlIjT3KUEKu/qIh0tV5UYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnDC7eImJJ1fAqyEn8RyI2VQlboUp+yDgeBV/WH1Hd1dGSNqL8Te7wYwuvIKBcnK9
-         mChOTWhsW8peufaBm1Jac0NrBFrP4vBZex6hpnjjqBVU33Bo4p+WMNmnOBdK781RTD
-         5HOfCgeDC8BmsuIYcp3oyd2hMPnhpfPUTC2zwTOA=
+        b=pIpwXDKs4Sb5sDxWm4Idi7SNhhs69WowucjBTmGqwf8J0j+aMUVbkjplDqsg0/sS2
+         ZpNdX1d4xspVSGIGYGTf3LTSGcl/bKGvAyP+PnSyRtwhaQXQmwt2xbaQZW378ACcqP
+         QPhyMHIeqVbdnXGwSuq4ktRlGV3xDJqReJ5AEqU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        stable@vger.kernel.org,
+        Piotr Skajewski <piotrx.skajewski@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 263/296] net/mlx5e: Reject mirroring on source port change encap rules
+Subject: [PATCH 5.4 161/177] ixgbe: fix large MTU request from VF
 Date:   Mon, 31 May 2021 15:15:18 +0200
-Message-Id: <20210531130712.590916301@linuxfoundation.org>
+Message-Id: <20210531130653.486039410@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,45 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit 7d1a3d08c8a6398e7497a98cf3f7b73ea13d9939 ]
+[ Upstream commit 63e39d29b3da02e901349f6cd71159818a4737a6 ]
 
-Rules with MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE dest flag are
-translated to destination FT in eswitch. Currently it is not possible to
-mirror such rules because firmware doesn't support mixing FT and Vport
-destinations in single rule when one of them adds encapsulation. Since the
-only use case for MLX5_ESW_DEST_CHAIN_WITH_SRC_PORT_CHANGE destination is
-support for tunnel endpoints on VF and trying to offload such rule with
-mirror action causes either crash in fs_core or firmware error with
-syndrome 0xff6a1d, reject all such rules in mlx5 TC layer.
+Check that the MTU value requested by the VF is in the supported
+range of MTUs before attempting to set the VF large packet enable,
+otherwise reject the request. This also avoids unnecessary
+register updates in the case of the 82599 controller.
 
-Fixes: 10742efc20a4 ("net/mlx5e: VF tunnel TX traffic offloading")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 872844ddb9e4 ("ixgbe: Enable jumbo frames support w/ SR-IOV")
+Co-developed-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Co-developed-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 2d28116be8d0..840cc9d8a2ee 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -1353,6 +1353,12 @@ mlx5e_tc_add_fdb_flow(struct mlx5e_priv *priv,
- 		esw_attr->dests[out_index].mdev = out_priv->mdev;
- 	}
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+index 537dfff585e0..47a920128760 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -467,12 +467,16 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
+ 	return err;
+ }
  
-+	if (vf_tun && esw_attr->out_count > 1) {
-+		NL_SET_ERR_MSG_MOD(extack, "VF tunnel encap with mirroring is not supported");
-+		err = -EOPNOTSUPP;
-+		goto err_out;
+-static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
++static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
+ {
+ 	struct ixgbe_hw *hw = &adapter->hw;
+-	int max_frame = msgbuf[1];
+ 	u32 max_frs;
+ 
++	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
++		e_err(drv, "VF max_frame %d out of range\n", max_frame);
++		return -EINVAL;
 +	}
 +
- 	err = mlx5_eswitch_add_vlan_action(esw, attr);
- 	if (err)
- 		goto err_out;
+ 	/*
+ 	 * For 82599EB we have to keep all PFs and VFs operating with
+ 	 * the same max_frame value in order to avoid sending an oversize
+@@ -533,12 +537,6 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
+ 		}
+ 	}
+ 
+-	/* MTU < 68 is an error and causes problems on some kernels */
+-	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
+-		e_err(drv, "VF max_frame %d out of range\n", max_frame);
+-		return -EINVAL;
+-	}
+-
+ 	/* pull current max frame size from hardware */
+ 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
+ 	max_frs &= IXGBE_MHADD_MFS_MASK;
+@@ -1249,7 +1247,7 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
+ 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
+ 		break;
+ 	case IXGBE_VF_SET_LPE:
+-		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
++		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
+ 		break;
+ 	case IXGBE_VF_SET_MACVLAN:
+ 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
 -- 
 2.30.2
 
