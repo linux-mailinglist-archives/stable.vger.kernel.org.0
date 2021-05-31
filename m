@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD0B73960B5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 12F20395F95
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:11:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231563AbhEaObB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56328 "EHLO mail.kernel.org"
+        id S232083AbhEaONG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:13:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41002 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233869AbhEaO1g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:27:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E6126161F;
-        Mon, 31 May 2021 13:47:48 +0000 (UTC)
+        id S233312AbhEaOLD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:11:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 85B4961459;
+        Mon, 31 May 2021 13:40:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468868;
-        bh=+gR+FMGGGlAhOlGUA3e8RprGHDS4xiMb/fyoXenxcDU=;
+        s=korg; t=1622468460;
+        bh=TQ1JQL4GbrtX2PfHGZCt7VdT0YbSfHC2BDFnkNa+D7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FGi4YQgbPJrSnl3MzTAHzqy9w9dz1kHh/swlNKS2qCYpjJhBUQWxrTCHhSj7Cr7N5
-         o9I6LxQUXiZhi0iQzd1yOVXJplfZyrsCMQrPKbwyLgnl4pXlFGrol5vnm62w6lNA3s
-         PWO1mJg23nDArwdxRl1z/7/vbUWboTFAz23fL1Vw=
+        b=l9lxQDIkJq4c3ETaEkXv4ZGTjgGqiS1R8Biu0tx4uwjzRGFdjUP6ydlSIwNmOyiZM
+         kjWUcznkbDy86w2SPPQQSYupgdcHHYsjx0v6Mul3HgXrTWWG/PaFn0YHLpPaTFI1fR
+         67aR9lBMWzWFM053oIyLvp1WFv763VJUIm+43mek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 158/177] staging: emxx_udc: fix loop in _nbu2ss_nuke()
+        stable@vger.kernel.org, Masahiro Yamada <masahiroy@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.10 250/252] scripts/clang-tools: switch explicitly to Python 3
 Date:   Mon, 31 May 2021 15:15:15 +0200
-Message-Id: <20210531130653.377779485@linuxfoundation.org>
+Message-Id: <20210531130706.484285599@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +39,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit e0112a7c9e847ada15a631b88e279d547e8f26a7 ]
+commit 074075aea2ff72dade5231b4ee9f2ab9a055f1ec upstream.
 
-The _nbu2ss_ep_done() function calls:
+For the same reason as commit 51839e29cb59 ("scripts: switch explicitly
+to Python 3"), switch some more scripts, which I tested and confirmed
+working on Python 3.
 
-	list_del_init(&req->queue);
-
-which means that the loop will never exit.
-
-Fixes: ca3d253eb967 ("Staging: emxx_udc: Iterate list using list_for_each_entry")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Link: https://lore.kernel.org/r/YKUd0sDyjm/lkJfJ@mwanda
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Acked-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/staging/emxx_udc/emxx_udc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ scripts/clang-tools/gen_compile_commands.py |    2 +-
+ scripts/clang-tools/run-clang-tools.py      |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/staging/emxx_udc/emxx_udc.c b/drivers/staging/emxx_udc/emxx_udc.c
-index a6c893ddbf28..cc4c18c3fb36 100644
---- a/drivers/staging/emxx_udc/emxx_udc.c
-+++ b/drivers/staging/emxx_udc/emxx_udc.c
-@@ -2064,7 +2064,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
- 			struct nbu2ss_ep *ep,
- 			int status)
- {
--	struct nbu2ss_req *req;
-+	struct nbu2ss_req *req, *n;
- 
- 	/* Endpoint Disable */
- 	_nbu2ss_epn_exit(udc, ep);
-@@ -2076,7 +2076,7 @@ static int _nbu2ss_nuke(struct nbu2ss_udc *udc,
- 		return 0;
- 
- 	/* called with irqs blocked */
--	list_for_each_entry(req, &ep->queue, queue) {
-+	list_for_each_entry_safe(req, n, &ep->queue, queue) {
- 		_nbu2ss_ep_done(ep, req, status);
- 	}
- 
--- 
-2.30.2
-
+--- a/scripts/clang-tools/gen_compile_commands.py
++++ b/scripts/clang-tools/gen_compile_commands.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-2.0
+ #
+ # Copyright (C) Google LLC, 2018
+--- a/scripts/clang-tools/run-clang-tools.py
++++ b/scripts/clang-tools/run-clang-tools.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # SPDX-License-Identifier: GPL-2.0
+ #
+ # Copyright (C) Google LLC, 2020
 
 
