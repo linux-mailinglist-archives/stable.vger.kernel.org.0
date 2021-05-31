@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 726F9395FD5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3096B395E60
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232617AbhEaOQj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43696 "EHLO mail.kernel.org"
+        id S232909AbhEaN57 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:57:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60396 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233102AbhEaOOH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:14:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E1A261997;
-        Mon, 31 May 2021 13:42:16 +0000 (UTC)
+        id S232474AbhEaNzw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:55:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BD80A61925;
+        Mon, 31 May 2021 13:34:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468537;
-        bh=6zMg2Uwm/5KXUwjM/b5LE+GC0zql9G7//5mQH1dEFmU=;
+        s=korg; t=1622468062;
+        bh=aDdELBJolIwaHwa7WqyX+ylH/b6zpzeXArGxknQS0QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mWPNUIY++yVvhjE1nnS3udSZ9FdFAyxP3NKXDt5UsSFNG6bTLUpVeChYH+Q2PoQY1
-         pKJO4G9jb0gGadpdzLlfcdJe72wuk56GxA9CJhDJHqeW2NptnP4XbKKERWmTQB4Iu0
-         V+GXbhaN10ePcWAmKfGQa0oxILvwJAytlLoC3Ppg=
+        b=NqZEyd2V0RmdFCWU7zvvC149QOu/OIq3OKWTUuSNt8iltC45/sb1iojVJWHfIC+IV
+         qvisGIDMSHWBiMlT4aa8x+AfLRe+/MeCNHK414+fIW20Pi4IJFOACBYMgf3AH9CRRO
+         fLOuy4JXwzW8LfH9krZxsDlZLTDcLxGS/MfWIsqQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 010/177] perf scripts python: exported-sql-viewer.py: Fix Array TypeError
+        stable@vger.kernel.org, Jianbo Liu <jianbol@nvidia.com>,
+        Ariel Levkovich <lariel@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.10 102/252] net/mlx5: Set reformat action when needed for termination rules
 Date:   Mon, 31 May 2021 15:12:47 +0200
-Message-Id: <20210531130648.259354482@linuxfoundation.org>
+Message-Id: <20210531130701.467370257@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Jianbo Liu <jianbol@nvidia.com>
 
-commit fd931b2e234a7cc451a7bbb1965d6ce623189158 upstream.
+commit 442b3d7b671bcb779ebdad46edd08051eb8b28d9 upstream.
 
-The 'Array' class is present in more than one python standard library.
-In some versions of Python 3, the following error occurs:
+For remote mirroring, after the tunnel packets are received, they are
+decapsulated and sent to representor, then re-encapsulated and sent
+out over another tunnel. So reformat action is set only when the
+destination is required to do encapsulation.
 
-Traceback (most recent call last):
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4702, in <lambda>
-    reports_menu.addAction(CreateAction(label, "Create a new window displaying branch events", lambda a=None,x=dbid: self.NewBranchView(x), self))
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4727, in NewBranchView
-    BranchWindow(self.glb, event_id, ReportVars(), self)
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3208, in __init__
-    self.model = LookupCreateModel(model_name, lambda: BranchModel(glb, event_id, report_vars.where_clause))
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 343, in LookupCreateModel
-    model = create_fn()
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3208, in <lambda>
-    self.model = LookupCreateModel(model_name, lambda: BranchModel(glb, event_id, report_vars.where_clause))
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3124, in __init__
-    self.fetcher = SQLFetcher(glb, sql, prep, self.AddSample)
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 2658, in __init__
-    self.buffer = Array(c_char, self.buffer_size, lock=False)
-TypeError: abstract class
-
-This apparently happens because Python can be inconsistent about which
-class of the name 'Array' gets imported. Fix by importing explicitly by
-name so that only the desired 'Array' gets imported.
-
-Fixes: 8392b74b575c3 ("perf scripts python: exported-sql-viewer.py: Add ability to display all the database tables")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210521092053.25683-3-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 249ccc3c95bd ("net/mlx5e: Add support for offloading traffic from uplink to uplink")
+Signed-off-by: Jianbo Liu <jianbol@nvidia.com>
+Reviewed-by: Ariel Levkovich <lariel@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c |   31 +++-------
+ 1 file changed, 10 insertions(+), 21 deletions(-)
 
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -122,8 +122,9 @@ if pyside_version_1:
- 	from PySide.QtGui import *
- 	from PySide.QtSql import *
+--- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
+@@ -171,19 +171,6 @@ mlx5_eswitch_termtbl_put(struct mlx5_esw
+ 	}
+ }
  
--from decimal import *
--from ctypes import *
-+from decimal import Decimal, ROUND_HALF_UP
-+from ctypes import CDLL, Structure, create_string_buffer, addressof, sizeof, \
-+		   c_void_p, c_bool, c_byte, c_char, c_int, c_uint, c_longlong, c_ulonglong
- from multiprocessing import Process, Array, Value, Event
+-static bool mlx5_eswitch_termtbl_is_encap_reformat(struct mlx5_pkt_reformat *rt)
+-{
+-	switch (rt->reformat_type) {
+-	case MLX5_REFORMAT_TYPE_L2_TO_VXLAN:
+-	case MLX5_REFORMAT_TYPE_L2_TO_NVGRE:
+-	case MLX5_REFORMAT_TYPE_L2_TO_L2_TUNNEL:
+-	case MLX5_REFORMAT_TYPE_L2_TO_L3_TUNNEL:
+-		return true;
+-	default:
+-		return false;
+-	}
+-}
+-
+ static void
+ mlx5_eswitch_termtbl_actions_move(struct mlx5_flow_act *src,
+ 				  struct mlx5_flow_act *dst)
+@@ -201,14 +188,6 @@ mlx5_eswitch_termtbl_actions_move(struct
+ 			memset(&src->vlan[1], 0, sizeof(src->vlan[1]));
+ 		}
+ 	}
+-
+-	if (src->action & MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT &&
+-	    mlx5_eswitch_termtbl_is_encap_reformat(src->pkt_reformat)) {
+-		src->action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
+-		dst->action |= MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
+-		dst->pkt_reformat = src->pkt_reformat;
+-		src->pkt_reformat = NULL;
+-	}
+ }
  
- # xrange is range in Python3
+ static bool mlx5_eswitch_offload_is_uplink_port(const struct mlx5_eswitch *esw,
+@@ -278,6 +257,14 @@ mlx5_eswitch_add_termtbl_rule(struct mlx
+ 		if (dest[i].type != MLX5_FLOW_DESTINATION_TYPE_VPORT)
+ 			continue;
+ 
++		if (attr->dests[num_vport_dests].flags & MLX5_ESW_DEST_ENCAP) {
++			term_tbl_act.action |= MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
++			term_tbl_act.pkt_reformat = attr->dests[num_vport_dests].pkt_reformat;
++		} else {
++			term_tbl_act.action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
++			term_tbl_act.pkt_reformat = NULL;
++		}
++
+ 		/* get the terminating table for the action list */
+ 		tt = mlx5_eswitch_termtbl_get_create(esw, &term_tbl_act,
+ 						     &dest[i], attr);
+@@ -299,6 +286,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx
+ 		goto revert_changes;
+ 
+ 	/* create the FTE */
++	flow_act->action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
++	flow_act->pkt_reformat = NULL;
+ 	rule = mlx5_add_flow_rules(fdb, spec, flow_act, dest, num_dest);
+ 	if (IS_ERR(rule))
+ 		goto revert_changes;
 
 
