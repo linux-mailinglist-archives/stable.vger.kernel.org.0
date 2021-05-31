@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94780395EE4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CC6A395EE5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232443AbhEaOFG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S232503AbhEaOFH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:05:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232210AbhEaOCy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:02:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7F7361396;
-        Mon, 31 May 2021 13:37:25 +0000 (UTC)
+        id S233111AbhEaOC4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:02:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D3576194B;
+        Mon, 31 May 2021 13:37:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468246;
-        bh=7+3A1Pukmv3Q1p12fd4IG939MkFyNpZf9mJ1LLh8o5c=;
+        s=korg; t=1622468248;
+        bh=BCFSwPzx2HxKv/p9u44M95JwdRo+S1eHf49eYFKdEJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DpSuzJ0SPStRaJ75tQCw8dQ3NcYbu36gzfGRbzdCXgQAPxsWrIhSCdDj05N97f5sL
-         4GDnsB9UyV9nGZcZ/K2DUHbK0GMaosJEWlrNo0R6G92xsT747fxF412vIHYqecmFM8
-         vFwjFEbQaQUzxCzc04wJC3WIpxW/1h7niRwYad5w=
+        b=RS+cY7CWYk+K3AXlTc4PNLm7yNjSvhnW0nyOHNsjt2b6LE49Zaw5Btr67NLdxL3rY
+         8aYXScqzSHktbrgI+2yneul57bwO3+Oy8ii4D2A+uH2R1EKI2epwGkKMr3C6O+EmBP
+         WS0gIMC9f4kF71pUrh1lAJiIWq9ZDXpTqX9MiYtM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Stanley Chu <stanley.chu@mediatek.com>,
-        Peter Wang <peter.wang@mediatek.com>,
+        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
+        Matt Wang <wwentao@vmware.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 171/252] scsi: ufs: ufs-mediatek: Fix power down spec violation
-Date:   Mon, 31 May 2021 15:13:56 +0200
-Message-Id: <20210531130703.818410766@linuxfoundation.org>
+Subject: [PATCH 5.10 172/252] scsi: BusLogic: Fix 64-bit system enumeration error for Buslogic
+Date:   Mon, 31 May 2021 15:13:57 +0200
+Message-Id: <20210531130703.851619561@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -41,53 +41,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Wang <peter.wang@mediatek.com>
+From: Matt Wang <wwentao@vmware.com>
 
-[ Upstream commit c625b80b9d00f3546722cd77527f9697c8c4c911 ]
+[ Upstream commit 56f396146af278135c0ff958c79b5ee1bd22453d ]
 
-As per spec, e.g. JESD220E chapter 7.2, while powering off the UFS device,
-RST_N signal should be between VSS(Ground) and VCCQ/VCCQ2. The power down
-sequence after fixing:
+Commit 391e2f25601e ("[SCSI] BusLogic: Port driver to 64-bit")
+introduced a serious issue for 64-bit systems.  With this commit,
+64-bit kernel will enumerate 8*15 non-existing disks.  This is caused
+by the broken CCB structure.  The change from u32 data to void *data
+increased CCB length on 64-bit system, which introduced an extra 4
+byte offset of the CDB.  This leads to incorrect response to INQUIRY
+commands during enumeration.
 
-Power down:
+Fix disk enumeration failure by reverting the portion of the commit
+above which switched the data pointer from u32 to void.
 
- 1. Assert RST_N low
-
- 2. Turn-off VCC
-
- 3. Turn-off VCCQ/VCCQ2
-
-Link: https://lore.kernel.org/r/1620813706-25331-1-git-send-email-peter.wang@mediatek.com
-Reviewed-by: Stanley Chu <stanley.chu@mediatek.com>
-Signed-off-by: Peter Wang <peter.wang@mediatek.com>
+Link: https://lore.kernel.org/r/C325637F-1166-4340-8F0F-3BCCD59D4D54@vmware.com
+Acked-by: Khalid Aziz <khalid@gonehiking.org>
+Signed-off-by: Matt Wang <wwentao@vmware.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/ufs/ufs-mediatek.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/BusLogic.c | 6 +++---
+ drivers/scsi/BusLogic.h | 2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/scsi/ufs/ufs-mediatek.c b/drivers/scsi/ufs/ufs-mediatek.c
-index 09d2ac20508b..aace13399a7f 100644
---- a/drivers/scsi/ufs/ufs-mediatek.c
-+++ b/drivers/scsi/ufs/ufs-mediatek.c
-@@ -824,6 +824,7 @@ static void ufs_mtk_vreg_set_lpm(struct ufs_hba *hba, bool lpm)
- static int ufs_mtk_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- {
- 	int err;
-+	struct arm_smccc_res res;
+diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
+index ccb061ab0a0a..7231de2767a9 100644
+--- a/drivers/scsi/BusLogic.c
++++ b/drivers/scsi/BusLogic.c
+@@ -3078,11 +3078,11 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
+ 		ccb->opcode = BLOGIC_INITIATOR_CCB_SG;
+ 		ccb->datalen = count * sizeof(struct blogic_sg_seg);
+ 		if (blogic_multimaster_type(adapter))
+-			ccb->data = (void *)((unsigned int) ccb->dma_handle +
++			ccb->data = (unsigned int) ccb->dma_handle +
+ 					((unsigned long) &ccb->sglist -
+-					(unsigned long) ccb));
++					(unsigned long) ccb);
+ 		else
+-			ccb->data = ccb->sglist;
++			ccb->data = virt_to_32bit_virt(ccb->sglist);
  
- 	if (ufshcd_is_link_hibern8(hba)) {
- 		err = ufs_mtk_link_set_lpm(hba);
-@@ -844,6 +845,9 @@ static int ufs_mtk_suspend(struct ufs_hba *hba, enum ufs_pm_op pm_op)
- 		ufs_mtk_vreg_set_lpm(hba, true);
- 	}
- 
-+	if (ufshcd_is_link_off(hba))
-+		ufs_mtk_device_reset_ctrl(0, res);
-+
- 	return 0;
- }
- 
+ 		scsi_for_each_sg(command, sg, count, i) {
+ 			ccb->sglist[i].segbytes = sg_dma_len(sg);
+diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
+index 6182cc8a0344..e081ad47d1cf 100644
+--- a/drivers/scsi/BusLogic.h
++++ b/drivers/scsi/BusLogic.h
+@@ -814,7 +814,7 @@ struct blogic_ccb {
+ 	unsigned char cdblen;				/* Byte 2 */
+ 	unsigned char sense_datalen;			/* Byte 3 */
+ 	u32 datalen;					/* Bytes 4-7 */
+-	void *data;					/* Bytes 8-11 */
++	u32 data;					/* Bytes 8-11 */
+ 	unsigned char:8;				/* Byte 12 */
+ 	unsigned char:8;				/* Byte 13 */
+ 	enum blogic_adapter_status adapter_status;	/* Byte 14 */
 -- 
 2.30.2
 
