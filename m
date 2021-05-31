@@ -2,38 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BBED39628A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CB9B2395D92
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233375AbhEaO5k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
+        id S232991AbhEaNrm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232741AbhEaOza (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:55:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A631B61933;
-        Mon, 31 May 2021 13:59:42 +0000 (UTC)
+        id S232824AbhEaNpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:45:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5254F6141D;
+        Mon, 31 May 2021 13:29:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469583;
-        bh=DQknK+guMV8EB2YI3n8n9bEN8CPrQG+Hf0znxpFfcVk=;
+        s=korg; t=1622467794;
+        bh=lLdB2C7FvsBE8EVewfRYKHQ7yxsd5rLBd+AkuN39X6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L7011UfQa0gT6HJHpW76D3+gGKaQNDYX4iBIeledKGo97sFJUJGkZ7cVhxp3zLied
-         yQvnjkWyEd+81h6ax2hIVvogKY55Ucy+HrBLgfSwgyBl5FH82Ms6PKTDHA5/1qSY54
-         Q9rVxBEdsfuto7IJR0lMukavdWteUboBzFnSH0O0=
+        b=TwaQ1GssPkaqzJOKOPMwwuhMijD12ML9wYeqZsvzelz3Gh+sxxUT1z3A1acJJkckC
+         kNrJyk68QNou3JPJw4RMyvNr1WyMTQYWZRGeGdztV1mg5UqqND12v7+irRs9JEKMBS
+         /2A8rlzQO9C3I87KaCDXLi95fcvPnOM/+Mvpr5Sw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 246/296] net: bnx2: Fix error return code in bnx2_init_board()
+Subject: [PATCH 4.14 76/79] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
 Date:   Mon, 31 May 2021 15:15:01 +0200
-Message-Id: <20210531130712.050769987@linuxfoundation.org>
+Message-Id: <20210531130638.433069872@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,38 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 28c66b6da4087b8cfe81c2ec0a46eb6116dafda9 ]
+[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
 
-Fix to return -EPERM from the error handling case instead of 0, as done
-elsewhere in this function.
+rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
+when this watchdog driver is built as a loadable module, there is a
+build error since the rt_sysc_membase symbol is not exported.
+Export it to quell the build error.
 
-Fixes: b6016b767397 ("[BNX2]: New Broadcom gigabit network driver.")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Reviewed-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
+
+Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/bnx2.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/mips/ralink/of.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
-index 3e8a179f39db..633b10389653 100644
---- a/drivers/net/ethernet/broadcom/bnx2.c
-+++ b/drivers/net/ethernet/broadcom/bnx2.c
-@@ -8247,9 +8247,9 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
- 		BNX2_WR(bp, PCI_COMMAND, reg);
- 	} else if ((BNX2_CHIP_ID(bp) == BNX2_CHIP_ID_5706_A1) &&
- 		!(bp->flags & BNX2_FLAG_PCIX)) {
--
- 		dev_err(&pdev->dev,
- 			"5706 A1 can only be used in a PCIX bus, aborting\n");
-+		rc = -EPERM;
- 		goto err_out_unmap;
- 	}
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 1ada8492733b..92b3d4849996 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -10,6 +10,7 @@
  
+ #include <linux/io.h>
+ #include <linux/clk.h>
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/sizes.h>
+ #include <linux/of_fdt.h>
+@@ -27,6 +28,7 @@
+ 
+ __iomem void *rt_sysc_membase;
+ __iomem void *rt_memc_membase;
++EXPORT_SYMBOL_GPL(rt_sysc_membase);
+ 
+ __iomem void *plat_of_remap_node(const char *node)
+ {
 -- 
 2.30.2
 
