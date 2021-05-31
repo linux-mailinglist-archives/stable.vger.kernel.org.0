@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B0EE8396137
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B102395DD6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233946AbhEaOhh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33126 "EHLO mail.kernel.org"
+        id S232411AbhEaNvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50924 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230162AbhEaOf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C48061C48;
-        Mon, 31 May 2021 13:50:44 +0000 (UTC)
+        id S232865AbhEaNqi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:46:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26D9861601;
+        Mon, 31 May 2021 13:30:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469045;
-        bh=ZZn6gAXd2LtIgYDetsil5HNXegsJcOEU4gvJpdG9hJA=;
+        s=korg; t=1622467816;
+        bh=SAy4fzhur0fZ0yAH1nIopSmHflQijzgnd3zeuAvU398=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w39LXnAsSzqjCl6a4FmEl4FT+SEYbScX875gyMqudZ2O1sAjLWefWZ/7QvHfLOm92
-         EWvVCnrcRS9QoVuTQVbNOFRKIp3GI9OEG9Xv1NyKL88Or+AFDtfSOjbHUZw2cGxosG
-         5Fta5mVHqCkX5pvIDeDoC74IJsmGImau5QziNzAI=
+        b=u0V59BYqjP6CBn1gtuMHr4tu3KQ2Lsjtwt05cnYz3aAvHVEzAROyAh7DsVaac8MFm
+         sDf5xC1Q3HF5ZeS9uMkYUQBJinFl7c9sbDRDZ7BRkLLFLdF+nLyrGxAoX86dLnAxW4
+         TLtObRrCiiBCXlp2kCLgxlMMZGZTTdbgjuxtHuGM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.12 021/296] NFSv4: Fix a NULL pointer dereference in pnfs_mark_matching_lsegs_return()
-Date:   Mon, 31 May 2021 15:11:16 +0200
-Message-Id: <20210531130704.481153525@linuxfoundation.org>
+        stable@vger.kernel.org, Rolf Eike Beer <eb@emlix.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 5.10 012/252] iommu/vt-d: Fix sysfs leak in alloc_iommu()
+Date:   Mon, 31 May 2021 15:11:17 +0200
+Message-Id: <20210531130658.395395581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,60 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anna Schumaker <Anna.Schumaker@Netapp.com>
+From: Rolf Eike Beer <eb@emlix.com>
 
-commit a421d218603ffa822a0b8045055c03eae394a7eb upstream.
+commit 0ee74d5a48635c848c20f152d0d488bf84641304 upstream.
 
-Commit de144ff4234f changes _pnfs_return_layout() to call
-pnfs_mark_matching_lsegs_return() passing NULL as the struct
-pnfs_layout_range argument. Unfortunately,
-pnfs_mark_matching_lsegs_return() doesn't check if we have a value here
-before dereferencing it, causing an oops.
+iommu_device_sysfs_add() is called before, so is has to be cleaned on subsequent
+errors.
 
-I'm able to hit this crash consistently when running connectathon basic
-tests on NFS v4.1/v4.2 against Ontap.
-
-Fixes: de144ff4234f ("NFSv4: Don't discard segments marked for return in _pnfs_return_layout()")
-Cc: stable@vger.kernel.org
-Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Fixes: 39ab9555c2411 ("iommu: Add sysfs bindings for struct iommu_device")
+Cc: stable@vger.kernel.org # 4.11.x
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/17411490.HIIP88n32C@mobilepool36.emlix.com
+Link: https://lore.kernel.org/r/20210525070802.361755-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/pnfs.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ drivers/iommu/intel/dmar.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/nfs/pnfs.c
-+++ b/fs/nfs/pnfs.c
-@@ -1317,6 +1317,11 @@ _pnfs_return_layout(struct inode *ino)
- {
- 	struct pnfs_layout_hdr *lo = NULL;
- 	struct nfs_inode *nfsi = NFS_I(ino);
-+	struct pnfs_layout_range range = {
-+		.iomode		= IOMODE_ANY,
-+		.offset		= 0,
-+		.length		= NFS4_MAX_UINT64,
-+	};
- 	LIST_HEAD(tmp_list);
- 	const struct cred *cred;
- 	nfs4_stateid stateid;
-@@ -1344,16 +1349,10 @@ _pnfs_return_layout(struct inode *ino)
+--- a/drivers/iommu/intel/dmar.c
++++ b/drivers/iommu/intel/dmar.c
+@@ -1137,7 +1137,7 @@ static int alloc_iommu(struct dmar_drhd_
+ 
+ 		err = iommu_device_register(&iommu->iommu);
+ 		if (err)
+-			goto err_unmap;
++			goto err_sysfs;
  	}
- 	valid_layout = pnfs_layout_is_valid(lo);
- 	pnfs_clear_layoutcommit(ino, &tmp_list);
--	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
-+	pnfs_mark_matching_lsegs_return(lo, &tmp_list, &range, 0);
  
--	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
--		struct pnfs_layout_range range = {
--			.iomode		= IOMODE_ANY,
--			.offset		= 0,
--			.length		= NFS4_MAX_UINT64,
--		};
-+	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range)
- 		NFS_SERVER(ino)->pnfs_curr_ld->return_range(lo, &range);
--	}
+ 	drhd->iommu = iommu;
+@@ -1145,6 +1145,8 @@ static int alloc_iommu(struct dmar_drhd_
  
- 	/* Don't send a LAYOUTRETURN if list was initially empty */
- 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags) ||
+ 	return 0;
+ 
++err_sysfs:
++	iommu_device_sysfs_remove(&iommu->iommu);
+ err_unmap:
+ 	unmap_iommu(iommu);
+ error_free_seq_id:
 
 
