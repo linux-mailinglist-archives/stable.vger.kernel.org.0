@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2953A396035
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34CC5395C95
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232682AbhEaOX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47640 "EHLO mail.kernel.org"
+        id S231950AbhEaNfM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:35:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233635AbhEaOV1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:21:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56A16619B5;
-        Mon, 31 May 2021 13:44:38 +0000 (UTC)
+        id S232136AbhEaNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:32:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D96161435;
+        Mon, 31 May 2021 13:23:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468678;
-        bh=KHU6nK91ps5fgJ0M+8gUgacb8bal347koAIiWci8V5k=;
+        s=korg; t=1622467438;
+        bh=3STy/J+KXQGvw2IIo5JcJiXNLWioShq40qInjhhyVX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s7TZu4/qAOymrqL9Ltq6xzAk9h+QlcCwF7iEKYcwlZkRbrKCxZzL101IW/EFpPgkS
-         IkIOv/fLvvzGqBnh+B5snC+3vxQQ8LEJUueQ3PK1SCwKaHle50mmEat1kPU8O7cgad
-         RwQtlhEbbuHty7b3VuGpddHJyFMzy2zbHYG1GaKk=
+        b=Vuc8LMN3JN+2sE/x6EdTL2x9NsO6+apAxrPV9vnidFlFmirblSR8JdP28I1yJu2yn
+         3w7KOs7dVHXXLwFQWDBULSTZ2xaBa8H11FoedfxXq0Qg9RIjZn0+/pl/69V/kc7C7k
+         1FSuJcmwF5ntomLdnIh9qDctiu9O3rP7q9iXPiEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
-        Jean Delvare <jdelvare@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 083/177] i2c: i801: Dont generate an interrupt on bus reset
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 064/116] NFS: Dont corrupt the value of pg_bytes_written in nfs_do_recoalesce()
 Date:   Mon, 31 May 2021 15:14:00 +0200
-Message-Id: <20210531130650.769485625@linuxfoundation.org>
+Message-Id: <20210531130642.333988973@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
+commit 0d0ea309357dea0d85a82815f02157eb7fcda39f upstream.
 
-Now that the i2c-i801 driver supports interrupts, setting the KILL bit
-in a attempt to recover from a timed out transaction triggers an
-interrupt. Unfortunately, the interrupt handler (i801_isr) is not
-prepared for this situation and will try to process the interrupt as
-if it was signaling the end of a successful transaction. In the case
-of a block transaction, this can result in an out-of-range memory
-access.
+The value of mirror->pg_bytes_written should only be updated after a
+successful attempt to flush out the requests on the list.
 
-This condition was reproduced several times by syzbot:
-https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
-https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
-https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
-https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
-https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
-https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
-
-So disable interrupts while trying to reset the bus. Interrupts will
-be enabled again for the following transaction.
-
-Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
-Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ fs/nfs/pagelist.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -379,11 +379,9 @@ static int i801_check_post(struct i801_p
- 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
- 		/* try to stop the current command */
- 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
--		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
--		       SMBHSTCNT(priv));
-+		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
- 		usleep_range(1000, 2000);
--		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
--		       SMBHSTCNT(priv));
-+		outb_p(0, SMBHSTCNT(priv));
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -987,17 +987,16 @@ static void nfs_pageio_doio(struct nfs_p
+ {
+ 	struct nfs_pgio_mirror *mirror = nfs_pgio_current_mirror(desc);
  
- 		/* Check if it worked */
- 		status = inb_p(SMBHSTSTS(priv));
+-
+ 	if (!list_empty(&mirror->pg_list)) {
+ 		int error = desc->pg_ops->pg_doio(desc);
+ 		if (error < 0)
+ 			desc->pg_error = error;
+-		else
++		if (list_empty(&mirror->pg_list)) {
+ 			mirror->pg_bytes_written += mirror->pg_count;
+-	}
+-	if (list_empty(&mirror->pg_list)) {
+-		mirror->pg_count = 0;
+-		mirror->pg_base = 0;
++			mirror->pg_count = 0;
++			mirror->pg_base = 0;
++			mirror->pg_recoalesce = 0;
++		}
+ 	}
+ }
+ 
+@@ -1095,7 +1094,6 @@ static int nfs_do_recoalesce(struct nfs_
+ 
+ 	do {
+ 		list_splice_init(&mirror->pg_list, &head);
+-		mirror->pg_bytes_written -= mirror->pg_count;
+ 		mirror->pg_count = 0;
+ 		mirror->pg_base = 0;
+ 		mirror->pg_recoalesce = 0;
 
 
