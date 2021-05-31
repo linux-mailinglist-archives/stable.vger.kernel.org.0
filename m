@@ -2,120 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB71396062
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3655F395F1B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:06:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233707AbhEaOZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:25:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42058 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232114AbhEaOXA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 10:23:00 -0400
-Received: from mail-pj1-x1035.google.com (mail-pj1-x1035.google.com [IPv6:2607:f8b0:4864:20::1035])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FA21C03463E
-        for <stable@vger.kernel.org>; Mon, 31 May 2021 06:44:55 -0700 (PDT)
-Received: by mail-pj1-x1035.google.com with SMTP id f3-20020a17090a4a83b02901619627235bso4505591pjh.1
-        for <stable@vger.kernel.org>; Mon, 31 May 2021 06:44:55 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=/d5BhG6cvR0m0RMzQqXdAmX9O6b03puyF5itYVeFAlE=;
-        b=Ei86ioCYfAypxLXBdDwPi9pLEf3dCyHmu1uUcdwfJvQQ+7NPg4ZX8GHlWKmjNUsyBi
-         0c2mvIukUDh7mWth136aPXiTzrpoktqTVpDb/zZU8yE7VSnmBlZ40taT52nU/Wwtm2rO
-         pIudkW3dzxAmHqKOEKTvp+pUW4/X2ASVXjBVlHBykWreh4ATHFm59980BUda+KPYhhxj
-         5dN6uFBT6f7r7nwrchRQQ8UVsHB4jZvZ5xsYWt1RX/Cq3c1Ii7KVfg38kOnYwPNmhknx
-         PY/gRWa5U89Ay3v44CYyVGiBbXJeYKQC+qmNEzPD6aKvNiqHpWWHuAartmE8mHU4gfhU
-         HcJg==
+        id S232484AbhEaOH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:07:57 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:40457 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232750AbhEaOFy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 10:05:54 -0400
+Received: from mail-wm1-f71.google.com ([209.85.128.71])
+        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <krzysztof.kozlowski@canonical.com>)
+        id 1lniWb-0001tr-2i
+        for stable@vger.kernel.org; Mon, 31 May 2021 14:04:13 +0000
+Received: by mail-wm1-f71.google.com with SMTP id o82-20020a1ca5550000b029019ae053d508so12764wme.6
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 07:04:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=/d5BhG6cvR0m0RMzQqXdAmX9O6b03puyF5itYVeFAlE=;
-        b=dDsxYSdhN+JR5esfOudJxt/H+r+7rwsbKvcs9P0eA0OmcQzniK6WeCbNQQiV0bd/7Z
-         FwMgJCm4qCMxXmpS4QaJu6DD+bqCf7859L0wF4m2GUGPCIG/R9se12uWaJ9Zdf6CGs5V
-         1jZYM0yiS+ZxndvJzPTF4SaaXR4rmaHMlMk/22h2s5mM7gYTXA12hQfOLGbQoRuJE6NA
-         UiQpg04Nj16rIX6OVyvO+H8ln6rz2LhTTmHjD1s9advNutA+YBTVwIQSokSHy1i60I54
-         EqnvVVaq/9hlxNSCOs8w93aVYnMQ80YH2Mvr6hIaVIJTbmIC6ibLcrc0tmzSdSiIttP5
-         Yc8Q==
-X-Gm-Message-State: AOAM531qbJ3PXBwGzrCxt5kQHYGZvGY2p4nt76jSxYLbtSX7loB8d3+5
-        XYRTQ7E6wkJbApRvZHl2z+9oXQTv2CwvXdBM
-X-Google-Smtp-Source: ABdhPJwmgKEuhdZKOH8X58c/fbdtslyMzk+QlVUG/Pyxy8gDBmM2lhB9DmWBt+C2h+e4isgFNp1nOQ==
-X-Received: by 2002:a17:90a:2f81:: with SMTP id t1mr17715941pjd.122.1622468694423;
-        Mon, 31 May 2021 06:44:54 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b10sm5968505pfi.122.2021.05.31.06.44.54
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=dgTSNZe6+QH6HNKJLb5tMT2tagGq/tOKzcBKc+w7RxY=;
+        b=jDNEOtt179fMmHEn9Pyw9fx/XuTt/PgX7SPoLnehVCJLY8/s4TAP3hSVemNIv/6cdc
+         e7+ZWS78Uzq4nU9U/rBnSxOL0lj0DmEBoyFDO60lWvJovjoMb/2HEVGOA3qXrBm5YD2s
+         T9XXfpZoaNj0ZqQmHBYaKJUiEgA4VIqbxKyrklqd/7NRgCRwXXkWHKeqgAf3fd67lUff
+         U9sY3qkwySc7Hepos20dKFU3be7lpCnMBMhB9hZzVvnUWa4yrvQFjtATMvrTUpJvvxgE
+         DmsKXyY8hoxU6DO1up40DJuDv7w5BLUwZW7KY7VPzkgjpmkoLXFCoEHbGpqWNAjLMEah
+         FztQ==
+X-Gm-Message-State: AOAM533Qx+LNt16c0fsxPyqozZ69gSZsIMQdQinLFF5CXtQDQlkxmJ83
+        s250vDD2o5CPScz1txjXJY9F+e6uG7RjIP8uZ78CyRbuwPR7bJl5bn9jfcx65ihvsuVbqfy79FN
+        jRpSL+Xxg/I5yk/ejGgssmNEoyx+baWMdIA==
+X-Received: by 2002:a1c:e90d:: with SMTP id q13mr21354714wmc.163.1622469852256;
+        Mon, 31 May 2021 07:04:12 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyQKVEWnWOKH1iQ1q2G14Jf6ofLD6Kw2Hb/0+rL+bdFmRi4ajpNvKESX1iFsCi994G8AL5oEQ==
+X-Received: by 2002:a1c:e90d:: with SMTP id q13mr21354692wmc.163.1622469852091;
+        Mon, 31 May 2021 07:04:12 -0700 (PDT)
+Received: from localhost.localdomain (xdsl-188-155-185-9.adslplus.ch. [188.155.185.9])
+        by smtp.gmail.com with ESMTPSA id b188sm13342971wmh.18.2021.05.31.07.04.11
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 May 2021 06:44:54 -0700 (PDT)
-Message-ID: <60b4e856.1c69fb81.d8f17.0efc@mx.google.com>
-Date:   Mon, 31 May 2021 06:44:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        Mon, 31 May 2021 07:04:11 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Andrea Righi <andrea.righi@canonical.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v3 | stable v5.4 0/3] x86/kvm: fixes for hibernation
+Date:   Mon, 31 May 2021 16:03:44 +0200
+Message-Id: <20210531140347.42681-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.9.270-67-g3c706be65cd5
-X-Kernelci-Branch: queue/4.9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.9 baseline: 117 runs,
- 1 regressions (v4.9.270-67-g3c706be65cd5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.9 baseline: 117 runs, 1 regressions (v4.9.270-67-g3c706be=
-65cd5)
+Hi,
 
-Regressions Summary
--------------------
+This is version 2 of a backport for v5.4.
 
-platform  | arch | lab         | compiler | defconfig      | regressions
-----------+------+-------------+----------+----------------+------------
-qemu_i386 | i386 | lab-broonie | gcc-8    | i386_defconfig | 1          =
+Changes since v2:
+1. Send proper backport without context changes,
+2. This series is only for v5.4.
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.9/kern=
-el/v4.9.270-67-g3c706be65cd5/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.9
-  Describe: v4.9.270-67-g3c706be65cd5
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      3c706be65cd5511631d8f0f6d9e45730d0fe1211 =
+Changes since v1:
+1. Clean backport, without context changes.
 
 
+The first patch specifically fixes bug aftert 2nd resume:
+  BUG: Bad page state in process dbus-daemon  pfn:18b01
+  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
 
-Test Regressions
----------------- =
+Best regards,
+Krzysztof
 
+Vitaly Kuznetsov (3):
+  x86/kvm: Teardown PV features on boot CPU as well
+  x86/kvm: Disable kvmclock on all CPUs on shutdown
+  x86/kvm: Disable all PV features on crash
 
+ arch/x86/include/asm/kvm_para.h | 10 +---
+ arch/x86/kernel/kvm.c           | 92 ++++++++++++++++++++++++---------
+ arch/x86/kernel/kvmclock.c      | 26 +---------
+ 3 files changed, 72 insertions(+), 56 deletions(-)
 
-platform  | arch | lab         | compiler | defconfig      | regressions
-----------+------+-------------+----------+----------------+------------
-qemu_i386 | i386 | lab-broonie | gcc-8    | i386_defconfig | 1          =
+-- 
+2.27.0
 
-
-  Details:     https://kernelci.org/test/plan/id/60b4aed0242544e77eb3afa7
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.270-6=
-7-g3c706be65cd5/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.9/v4.9.270-6=
-7-g3c706be65cd5/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b4aed0242544e77eb3a=
-fa8
-        new failure (last pass: v4.9.270-66-gf6e0b6889430) =
-
- =20
