@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A863395F8E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:11:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8020A396290
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232824AbhEaOMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:12:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40830 "EHLO mail.kernel.org"
+        id S233654AbhEaO5x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:57:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48410 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233116AbhEaOKl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:10:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 312536197D;
-        Mon, 31 May 2021 13:40:50 +0000 (UTC)
+        id S232212AbhEaOzl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:55:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB84661938;
+        Mon, 31 May 2021 13:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468451;
-        bh=ojP7AD91Td2DIOE5XG1Gb53ukD9vtNUalcDUcids81w=;
+        s=korg; t=1622469590;
+        bh=KV0Xdxu8Dkl/vXMKiCns9Jvm8GcHeLevV3LpsKI29eY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aEjSLTyPg50XEeWOYzHCmBtVwZeEvSsoy4S9QCw1n63q1CrEyJr0mYEzMp4IlMb2x
-         PefpVVXryKjfM+XT6vgXm3CjV+zWNZlNzYtVQHpMhZuWCCpgUEdU8clGZ0mTisaTgz
-         sMHqD0NE/d/nF4oxxCMLH/m67K8W+MDvQ3lqjf+Y=
+        b=Qy00dyjmdjAGFTZ6oRdecipoOOKS7dPaqLjtOiAB/z64akfcRxfh3yfe9oQZpO+wG
+         Opf61la3YLUySbUNJ7DBary2DCdP72SWkqx9qbjQ2dF7zYyR/90lOcC+DxrPt2E7lW
+         ZVEGOdIcmjma47XqrU/GiBLFrLzmdkm17QwEL45A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.10 247/252] SUNRPC: More fixes for backlog congestion
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Bixuan Cui <cuibixuan@huawei.com>,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 257/296] iommu/virtio: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 31 May 2021 15:15:12 +0200
-Message-Id: <20210531130706.393597050@linuxfoundation.org>
+Message-Id: <20210531130712.394435405@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,228 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-commit e86be3a04bc4aeaf12f93af35f08f8d4385bcd98 upstream.
+[ Upstream commit 382d91fc0f4f1b13f8a0dcbf7145f4f175b71a18 ]
 
-Ensure that we fix the XPRT_CONGESTED starvation issue for RDMA as well
-as socket based transports.
-Ensure we always initialise the request after waking up from the backlog
-list.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Fixes: e877a88d1f06 ("SUNRPC in case of backlog, hand free slots directly to waiting task")
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Fixes: fa4afd78ea12 ("iommu/virtio: Build virtio-iommu as module")
+Reviewed-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Link: https://lore.kernel.org/r/20210508031451.53493-1-cuibixuan@huawei.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/sunrpc/xprt.h     |    2 +
- net/sunrpc/xprt.c               |   58 +++++++++++++++++++---------------------
- net/sunrpc/xprtrdma/transport.c |   12 ++++----
- net/sunrpc/xprtrdma/verbs.c     |   18 ++++++++++--
- net/sunrpc/xprtrdma/xprt_rdma.h |    1 
- 5 files changed, 52 insertions(+), 39 deletions(-)
+ drivers/iommu/virtio-iommu.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/include/linux/sunrpc/xprt.h
-+++ b/include/linux/sunrpc/xprt.h
-@@ -367,6 +367,8 @@ struct rpc_xprt *	xprt_alloc(struct net
- 				unsigned int num_prealloc,
- 				unsigned int max_req);
- void			xprt_free(struct rpc_xprt *);
-+void			xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task);
-+bool			xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req);
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 2bfdd5734844..81dea4caf561 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -1138,6 +1138,7 @@ static struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_IOMMU, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+ };
++MODULE_DEVICE_TABLE(virtio, id_table);
  
- static inline int
- xprt_enable_swap(struct rpc_xprt *xprt)
---- a/net/sunrpc/xprt.c
-+++ b/net/sunrpc/xprt.c
-@@ -1575,11 +1575,18 @@ xprt_transmit(struct rpc_task *task)
- 	spin_unlock(&xprt->queue_lock);
- }
- 
--static void xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task)
-+static void xprt_complete_request_init(struct rpc_task *task)
-+{
-+	if (task->tk_rqstp)
-+		xprt_request_init(task);
-+}
-+
-+void xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task)
- {
- 	set_bit(XPRT_CONGESTED, &xprt->state);
--	rpc_sleep_on(&xprt->backlog, task, NULL);
-+	rpc_sleep_on(&xprt->backlog, task, xprt_complete_request_init);
- }
-+EXPORT_SYMBOL_GPL(xprt_add_backlog);
- 
- static bool __xprt_set_rq(struct rpc_task *task, void *data)
- {
-@@ -1587,14 +1594,13 @@ static bool __xprt_set_rq(struct rpc_tas
- 
- 	if (task->tk_rqstp == NULL) {
- 		memset(req, 0, sizeof(*req));	/* mark unused */
--		task->tk_status = -EAGAIN;
- 		task->tk_rqstp = req;
- 		return true;
- 	}
- 	return false;
- }
- 
--static bool xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req)
-+bool xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req)
- {
- 	if (rpc_wake_up_first(&xprt->backlog, __xprt_set_rq, req) == NULL) {
- 		clear_bit(XPRT_CONGESTED, &xprt->state);
-@@ -1602,6 +1608,7 @@ static bool xprt_wake_up_backlog(struct
- 	}
- 	return true;
- }
-+EXPORT_SYMBOL_GPL(xprt_wake_up_backlog);
- 
- static bool xprt_throttle_congested(struct rpc_xprt *xprt, struct rpc_task *task)
- {
-@@ -1611,7 +1618,7 @@ static bool xprt_throttle_congested(stru
- 		goto out;
- 	spin_lock(&xprt->reserve_lock);
- 	if (test_bit(XPRT_CONGESTED, &xprt->state)) {
--		rpc_sleep_on(&xprt->backlog, task, NULL);
-+		xprt_add_backlog(xprt, task);
- 		ret = true;
- 	}
- 	spin_unlock(&xprt->reserve_lock);
-@@ -1780,10 +1787,6 @@ xprt_request_init(struct rpc_task *task)
- 	struct rpc_xprt *xprt = task->tk_xprt;
- 	struct rpc_rqst	*req = task->tk_rqstp;
- 
--	if (req->rq_task)
--		/* Already initialized */
--		return;
--
- 	req->rq_task	= task;
- 	req->rq_xprt    = xprt;
- 	req->rq_buffer  = NULL;
-@@ -1844,10 +1847,8 @@ void xprt_retry_reserve(struct rpc_task
- 	struct rpc_xprt *xprt = task->tk_xprt;
- 
- 	task->tk_status = 0;
--	if (task->tk_rqstp != NULL) {
--		xprt_request_init(task);
-+	if (task->tk_rqstp != NULL)
- 		return;
--	}
- 
- 	task->tk_status = -EAGAIN;
- 	xprt_do_reserve(xprt, task);
-@@ -1872,24 +1873,21 @@ void xprt_release(struct rpc_task *task)
- 	}
- 
- 	xprt = req->rq_xprt;
--	if (xprt) {
--		xprt_request_dequeue_xprt(task);
--		spin_lock(&xprt->transport_lock);
--		xprt->ops->release_xprt(xprt, task);
--		if (xprt->ops->release_request)
--			xprt->ops->release_request(task);
--		xprt_schedule_autodisconnect(xprt);
--		spin_unlock(&xprt->transport_lock);
--		if (req->rq_buffer)
--			xprt->ops->buf_free(task);
--		xdr_free_bvec(&req->rq_rcv_buf);
--		xdr_free_bvec(&req->rq_snd_buf);
--		if (req->rq_cred != NULL)
--			put_rpccred(req->rq_cred);
--		if (req->rq_release_snd_buf)
--			req->rq_release_snd_buf(req);
--	} else
--		xprt = task->tk_xprt;
-+	xprt_request_dequeue_xprt(task);
-+	spin_lock(&xprt->transport_lock);
-+	xprt->ops->release_xprt(xprt, task);
-+	if (xprt->ops->release_request)
-+		xprt->ops->release_request(task);
-+	xprt_schedule_autodisconnect(xprt);
-+	spin_unlock(&xprt->transport_lock);
-+	if (req->rq_buffer)
-+		xprt->ops->buf_free(task);
-+	xdr_free_bvec(&req->rq_rcv_buf);
-+	xdr_free_bvec(&req->rq_snd_buf);
-+	if (req->rq_cred != NULL)
-+		put_rpccred(req->rq_cred);
-+	if (req->rq_release_snd_buf)
-+		req->rq_release_snd_buf(req);
- 
- 	task->tk_rqstp = NULL;
- 	if (likely(!bc_prealloc(req)))
---- a/net/sunrpc/xprtrdma/transport.c
-+++ b/net/sunrpc/xprtrdma/transport.c
-@@ -520,9 +520,8 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xp
- 	return;
- 
- out_sleep:
--	set_bit(XPRT_CONGESTED, &xprt->state);
--	rpc_sleep_on(&xprt->backlog, task, NULL);
- 	task->tk_status = -EAGAIN;
-+	xprt_add_backlog(xprt, task);
- }
- 
- /**
-@@ -537,10 +536,11 @@ xprt_rdma_free_slot(struct rpc_xprt *xpr
- 	struct rpcrdma_xprt *r_xprt =
- 		container_of(xprt, struct rpcrdma_xprt, rx_xprt);
- 
--	memset(rqst, 0, sizeof(*rqst));
--	rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
--	if (unlikely(!rpc_wake_up_next(&xprt->backlog)))
--		clear_bit(XPRT_CONGESTED, &xprt->state);
-+	rpcrdma_reply_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
-+	if (!xprt_wake_up_backlog(xprt, rqst)) {
-+		memset(rqst, 0, sizeof(*rqst));
-+		rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
-+	}
- }
- 
- static bool rpcrdma_check_regbuf(struct rpcrdma_xprt *r_xprt,
---- a/net/sunrpc/xprtrdma/verbs.c
-+++ b/net/sunrpc/xprtrdma/verbs.c
-@@ -1198,6 +1198,20 @@ void rpcrdma_mr_put(struct rpcrdma_mr *m
- }
- 
- /**
-+ * rpcrdma_reply_put - Put reply buffers back into pool
-+ * @buffers: buffer pool
-+ * @req: object to return
-+ *
-+ */
-+void rpcrdma_reply_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req)
-+{
-+	if (req->rl_reply) {
-+		rpcrdma_rep_put(buffers, req->rl_reply);
-+		req->rl_reply = NULL;
-+	}
-+}
-+
-+/**
-  * rpcrdma_buffer_get - Get a request buffer
-  * @buffers: Buffer pool from which to obtain a buffer
-  *
-@@ -1225,9 +1239,7 @@ rpcrdma_buffer_get(struct rpcrdma_buffer
-  */
- void rpcrdma_buffer_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req)
- {
--	if (req->rl_reply)
--		rpcrdma_rep_put(buffers, req->rl_reply);
--	req->rl_reply = NULL;
-+	rpcrdma_reply_put(buffers, req);
- 
- 	spin_lock(&buffers->rb_lock);
- 	list_add(&req->rl_list, &buffers->rb_send_bufs);
---- a/net/sunrpc/xprtrdma/xprt_rdma.h
-+++ b/net/sunrpc/xprtrdma/xprt_rdma.h
-@@ -472,6 +472,7 @@ void rpcrdma_mrs_refresh(struct rpcrdma_
- struct rpcrdma_req *rpcrdma_buffer_get(struct rpcrdma_buffer *);
- void rpcrdma_buffer_put(struct rpcrdma_buffer *buffers,
- 			struct rpcrdma_req *req);
-+void rpcrdma_reply_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req);
- void rpcrdma_recv_buffer_put(struct rpcrdma_rep *);
- 
- bool rpcrdma_regbuf_realloc(struct rpcrdma_regbuf *rb, size_t size,
+ static struct virtio_driver virtio_iommu_drv = {
+ 	.driver.name		= KBUILD_MODNAME,
+-- 
+2.30.2
+
 
 
