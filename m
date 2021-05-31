@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B8A395B49
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:17:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DEF71396207
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231927AbhEaNTG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:19:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54216 "EHLO mail.kernel.org"
+        id S232824AbhEaOt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:49:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231823AbhEaNSk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CAEC160FE8;
-        Mon, 31 May 2021 13:17:00 +0000 (UTC)
+        id S233849AbhEaOrk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DC0E61925;
+        Mon, 31 May 2021 13:56:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467021;
-        bh=w3/GKWvF3YoRzibKiLpzRRg5LpdhtsVnBLC8UcgKUeM=;
+        s=korg; t=1622469386;
+        bh=euRLIJDH25ZoSnSBxdxzZ317rlc/qZqkNqj/3eTS1xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cs+pWkX3o4k57ufVhhcon/4RuzmS0k7wS959IW9rrcfqWi3BhhXA2ZAyhzTp2XoZ5
-         XjipNtUM6Kbe2DhPAvdxjIk/613/TGTi1ZmPmNUrr+K97i2wOlbG8M2nrq4mWZjvOT
-         d/jErX+7OFPEMDplr2fQwd27NOhT4aV65dxCMIps=
+        b=Zs6xoAnd9Uvpnk4PRpZB8QZaY93NZmfnzZTEsawKeS/evXe3rYMTIDq+1VztsFrgp
+         dtGEc9FRRBMAZ7D4o+lC2QDcRv9yrb94Zx29ghfygn2DLxGruzIZb3fwBGXIVpo/z5
+         OLddCBm6nuY2rqOESr36KyASCn7ANreQEosN1ga8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 27/54] Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
-Date:   Mon, 31 May 2021 15:13:53 +0200
-Message-Id: <20210531130635.937727747@linuxfoundation.org>
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 179/296] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+Date:   Mon, 31 May 2021 15:13:54 +0200
+Message-Id: <20210531130709.883243622@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 75016891357a628d2b8acc09e2b9b2576c18d318 upstream.
+[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
 
-This reverts commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046.
-Above fix is not correct and caused memory leak issue.
+Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
+and hw->ci->addr_mode respectively, to be before the subsequent checks
+for memory IO mode (and possible ioremap calls in this case).
 
-Fixes: 6bf24dc0cc0c ("net:tipc: Fix a double free in tipc_sk_mcast_rcv")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Acked-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Also introduce ioremap error checks at both locations. This allows
+resources to be properly freed on ioremap failure, as when the caller
+of setup_io then subsequently calls release_io via its error path,
+release_io can now correctly determine the mode as it has been set
+before the ioremap call.
+
+Finally, refactor release_io function so that it will call
+release_mem_region in the memory IO case, regardless of whether or not
+hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
+released on failure.
+
+This properly implements the original reverted commit (d721fe99f6ad)
+from the University of Minnesota, whilst also implementing the ioremap
+check for the hw->ci->cfg_mode if block as well.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/socket.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -763,7 +763,10 @@ void tipc_sk_mcast_rcv(struct net *net,
- 		spin_lock_bh(&inputq->lock);
- 		if (skb_peek(arrvq) == skb) {
- 			skb_queue_splice_tail_init(&tmpq, inputq);
--			__skb_dequeue(arrvq);
-+			/* Decrease the skb's refcnt as increasing in the
-+			 * function tipc_skb_peek
-+			 */
-+			kfree_skb(__skb_dequeue(arrvq));
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index fa9c491f9c38..88d592bafdb0 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -630,17 +630,19 @@ static void
+ release_io(struct inf_hw *hw)
+ {
+ 	if (hw->cfg.mode) {
+-		if (hw->cfg.p) {
++		if (hw->cfg.mode == AM_MEMIO) {
+ 			release_mem_region(hw->cfg.start, hw->cfg.size);
+-			iounmap(hw->cfg.p);
++			if (hw->cfg.p)
++				iounmap(hw->cfg.p);
+ 		} else
+ 			release_region(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = AM_NONE;
+ 	}
+ 	if (hw->addr.mode) {
+-		if (hw->addr.p) {
++		if (hw->addr.mode == AM_MEMIO) {
+ 			release_mem_region(hw->addr.start, hw->addr.size);
+-			iounmap(hw->addr.p);
++			if (hw->addr.p)
++				iounmap(hw->addr.p);
+ 		} else
+ 			release_region(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = AM_NONE;
+@@ -670,9 +672,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
+ 			return err;
  		}
- 		spin_unlock_bh(&inputq->lock);
- 		__skb_queue_purge(&tmpq);
+-		if (hw->ci->cfg_mode == AM_MEMIO)
+-			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = hw->ci->cfg_mode;
++		if (hw->ci->cfg_mode == AM_MEMIO) {
++			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
++			if (!hw->cfg.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->cfg.start,
+@@ -697,9 +702,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO)
+-			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = hw->ci->addr_mode;
++		if (hw->ci->addr_mode == AM_MEMIO) {
++			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
++			if (!hw->addr.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->addr.start,
+-- 
+2.30.2
+
 
 
