@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2983D395B2E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE85B39603C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:22:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231603AbhEaNSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:18:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
+        id S233067AbhEaOXj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231539AbhEaNSI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E952F6136D;
-        Mon, 31 May 2021 13:16:26 +0000 (UTC)
+        id S233857AbhEaOVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A80C619C0;
+        Mon, 31 May 2021 13:44:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622466987;
-        bh=nSPxMGueoan15cqTgN2FSxdGVBhwNcyfBM02WQWe3pc=;
+        s=korg; t=1622468690;
+        bh=zrSSD5pNPwNmFPdwAPPZmx+5i/cwBL/iK4acZnwDC+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PRx0e9AkB10A7BFlpLV+kYuPqkIIuRmErw6hdeLdxq3GTtGFeOn1EltLaoP1G1vb6
-         IUWQcxQ7P2QGF1R/it00wySxsglPSoSHbJb36SDk/8FeDKfHdYgveqq1kI/ACzCaMS
-         HHuvpBPyQ2NMSR7IZxSxhw4h5Y3bzkmnm5Zs3bqY=
+        b=LIJLzyIm6RcJU803qeKdGnVqAfrIxmzcNhMUae/BqLnHxNUKekCLhwbjOYtzp79SH
+         415QygyoZxL7FISEaka0M0n93NfayqBY9JVIQr/2sOERvLpEOMqCqEKImPOp9YLCcV
+         tv7hD6ys4HqfiAO/R20kWo8xda9TROH3XPbiUmaY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.4 05/54] net: hso: fix control-request directions
+        stable@vger.kernel.org, Linh Phung <linh.phung.jy@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 5.4 054/177] serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
 Date:   Mon, 31 May 2021 15:13:31 +0200
-Message-Id: <20210531130635.243555317@linuxfoundation.org>
+Message-Id: <20210531130649.787362966@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
+commit 2ea2e019c190ee3973ef7bcaf829d8762e56e635 upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
+FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
+ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
+can write an out-of-range value, touching reserved bits.
 
-Fix the tiocmset and rfkill requests which erroneously used
-usb_rcvctrlpipe().
+Fix this by limiting the trigger value to the FIFO size minus one.
+Reverse the order of the checks, to avoid rx_trig becoming zero if the
+FIFO size is one.
 
-Fixes: 72dc1c096c70 ("HSO: add option hso driver")
-Cc: stable@vger.kernel.org      # 2.6.27
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Note that this change has no impact on other SCIF variants, as their
+maximum supported trigger value is lower than the FIFO size anyway, and
+the code below takes care of enforcing these limits.
+
+Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
+Reported-by: Linh Phung <linh.phung.jy@renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |    4 ++--
+ drivers/tty/serial/sh-sci.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -1710,7 +1710,7 @@ static int hso_serial_tiocmset(struct tt
- 	spin_unlock_irqrestore(&serial->serial_lock, flags);
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1026,10 +1026,10 @@ static int scif_set_rtrg(struct uart_por
+ {
+ 	unsigned int bits;
  
- 	return usb_control_msg(serial->parent->usb,
--			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
-+			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
- 			       0x21, val, if_num, NULL, 0,
- 			       USB_CTRL_SET_TIMEOUT);
- }
-@@ -2461,7 +2461,7 @@ static int hso_rfkill_set_block(void *da
- 	if (hso_dev->usb_gone)
- 		rv = 0;
- 	else
--		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
-+		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
- 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
- 				       USB_CTRL_SET_TIMEOUT);
- 	mutex_unlock(&hso_dev->mutex);
++	if (rx_trig >= port->fifosize)
++		rx_trig = port->fifosize - 1;
+ 	if (rx_trig < 1)
+ 		rx_trig = 1;
+-	if (rx_trig >= port->fifosize)
+-		rx_trig = port->fifosize;
+ 
+ 	/* HSCIF can be set to an arbitrary level. */
+ 	if (sci_getreg(port, HSRTRGR)->size) {
 
 
