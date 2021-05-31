@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ECA0396258
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:53:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69D8F395F5D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:09:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234355AbhEaOzW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:55:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47898 "EHLO mail.kernel.org"
+        id S232988AbhEaOKc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:10:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39886 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234060AbhEaOxS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:53:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C83D613F5;
-        Mon, 31 May 2021 13:58:49 +0000 (UTC)
+        id S232953AbhEaOIb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:08:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3721561970;
+        Mon, 31 May 2021 13:39:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469529;
-        bh=Q6mA6D0soW/kCeWiI5cvmV+dDk1a114klHTObJLnEXo=;
+        s=korg; t=1622468388;
+        bh=9hketVnH5oSWAlUu7aodZlXpngTzaW7b/FvgDTNxkbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mdontsgZPH6QX/gfeZfEABrWK9I6XMA12YsJf6Qvy1cv97WU1n9eeKZHQ7N0u/R5E
-         fofEYv9Gk2wPhO7lMjBU085ZbrutK3cFvPJu2G6669vL2Vqd1ccD8uTvU+0oxPREM1
-         8Zeap6/lVmS3W4RLhlf9KjZYFXEj2uuyGtJrNPNk=
+        b=K45ZeLtyBDGsuIOYB/5zaE43zVS7L+u8BeUEPhadWrzA0AiFa8if+5BkGNDPRnsE9
+         rHWjowxSzR3Nbb7lCFTtvsoimtX84T6GyoHNEXdvRV7Sw7e9j4x49COr5s/YNbw6er
+         VAvnY2lKhvc+5anTkqJHjdUdXNq1PZtEgJ6ZiPMo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-        Richard Sanger <rsanger@wand.net.nz>,
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 232/296] net: packetmmap: fix only tx timestamp on request
-Date:   Mon, 31 May 2021 15:14:47 +0200
-Message-Id: <20210531130711.608742062@linuxfoundation.org>
+Subject: [PATCH 5.10 223/252] net: hns3: put off calling register_netdev() until client initialize complete
+Date:   Mon, 31 May 2021 15:14:48 +0200
+Message-Id: <20210531130705.577439219@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Sanger <rsanger@wand.net.nz>
+From: Jian Shen <shenjian15@huawei.com>
 
-[ Upstream commit 171c3b151118a2fe0fc1e2a9d1b5a1570cfe82d2 ]
+[ Upstream commit a289a7e5c1d49b7d47df9913c1cc81fb48fab613 ]
 
-The packetmmap tx ring should only return timestamps if requested via
-setsockopt PACKET_TIMESTAMP, as documented. This allows compatibility
-with non-timestamp aware user-space code which checks
-tp_status == TP_STATUS_AVAILABLE; not expecting additional timestamp
-flags to be set in tp_status.
+Currently, the netdevice is registered before client initializing
+complete. So there is a timewindow between netdevice available
+and usable. In this case, if user try to change the channel number
+or ring param, it may cause the hns3_set_rx_cpu_rmap() being called
+twice, and report bug.
 
-Fixes: b9c32fb27170 ("packet: if hw/sw ts enabled in rx/tx ring, report which ts we got")
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>
-Signed-off-by: Richard Sanger <rsanger@wand.net.nz>
+[47199.416502] hns3 0000:35:00.0 eth1: set channels: tqp_num=1, rxfh=0
+[47199.430340] hns3 0000:35:00.0 eth1: already uninitialized
+[47199.438554] hns3 0000:35:00.0: rss changes from 4 to 1
+[47199.511854] hns3 0000:35:00.0: Channels changed, rss_size from 4 to 1, tqps from 4 to 1
+[47200.163524] ------------[ cut here ]------------
+[47200.171674] kernel BUG at lib/cpu_rmap.c:142!
+[47200.177847] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[47200.185259] Modules linked in: hclge(+) hns3(-) hns3_cae(O) hns_roce_hw_v2 hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O) [last unloaded: hclge]
+[47200.205912] CPU: 1 PID: 8260 Comm: ethtool Tainted: G           O      5.11.0-rc3+ #1
+[47200.215601] Hardware name:  , xxxxxx 02/04/2021
+[47200.223052] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+[47200.230188] pc : cpu_rmap_add+0x38/0x40
+[47200.237472] lr : irq_cpu_rmap_add+0x84/0x140
+[47200.243291] sp : ffff800010e93a30
+[47200.247295] x29: ffff800010e93a30 x28: ffff082100584880
+[47200.254155] x27: 0000000000000000 x26: 0000000000000000
+[47200.260712] x25: 0000000000000000 x24: 0000000000000004
+[47200.267241] x23: ffff08209ba03000 x22: ffff08209ba038c0
+[47200.273789] x21: 000000000000003f x20: ffff0820e2bc1680
+[47200.280400] x19: ffff0820c970ec80 x18: 00000000000000c0
+[47200.286944] x17: 0000000000000000 x16: ffffb43debe4a0d0
+[47200.293456] x15: fffffc2082990600 x14: dead000000000122
+[47200.300059] x13: ffffffffffffffff x12: 000000000000003e
+[47200.306606] x11: ffff0820815b8080 x10: ffff53e411988000
+[47200.313171] x9 : 0000000000000000 x8 : ffff0820e2bc1700
+[47200.319682] x7 : 0000000000000000 x6 : 000000000000003f
+[47200.326170] x5 : 0000000000000040 x4 : ffff800010e93a20
+[47200.332656] x3 : 0000000000000004 x2 : ffff0820c970ec80
+[47200.339168] x1 : ffff0820e2bc1680 x0 : 0000000000000004
+[47200.346058] Call trace:
+[47200.349324]  cpu_rmap_add+0x38/0x40
+[47200.354300]  hns3_set_rx_cpu_rmap+0x6c/0xe0 [hns3]
+[47200.362294]  hns3_reset_notify_init_enet+0x1cc/0x340 [hns3]
+[47200.370049]  hns3_change_channels+0x40/0xb0 [hns3]
+[47200.376770]  hns3_set_channels+0x12c/0x2a0 [hns3]
+[47200.383353]  ethtool_set_channels+0x140/0x250
+[47200.389772]  dev_ethtool+0x714/0x23d0
+[47200.394440]  dev_ioctl+0x4cc/0x640
+[47200.399277]  sock_do_ioctl+0x100/0x2a0
+[47200.404574]  sock_ioctl+0x28c/0x470
+[47200.409079]  __arm64_sys_ioctl+0xb4/0x100
+[47200.415217]  el0_svc_common.constprop.0+0x84/0x210
+[47200.422088]  do_el0_svc+0x28/0x34
+[47200.426387]  el0_svc+0x28/0x70
+[47200.431308]  el0_sync_handler+0x1a4/0x1b0
+[47200.436477]  el0_sync+0x174/0x180
+[47200.441562] Code: 11000405 79000c45 f8247861 d65f03c0 (d4210000)
+[47200.448869] ---[ end trace a01efe4ce42e5f34 ]---
+
+The process is like below:
+excuting hns3_client_init
+|
+register_netdev()
+|                           hns3_set_channels()
+|                           |
+hns3_set_rx_cpu_rmap()      hns3_reset_notify_uninit_enet()
+|                               |
+|                            quit without calling function
+|                            hns3_free_rx_cpu_rmap for flag
+|                            HNS3_NIC_STATE_INITED is unset.
+|                           |
+|                           hns3_reset_notify_init_enet()
+|                               |
+set HNS3_NIC_STATE_INITED    call hns3_set_rx_cpu_rmap()-- crash
+
+Fix it by calling register_netdev() at the end of function
+hns3_client_init().
+
+Fixes: 08a100689d4b ("net: hns3: re-organize vector handle")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/packet/af_packet.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/net/packet/af_packet.c b/net/packet/af_packet.c
-index 9611e41c7b8b..c52557ec7fb3 100644
---- a/net/packet/af_packet.c
-+++ b/net/packet/af_packet.c
-@@ -422,7 +422,8 @@ static __u32 tpacket_get_timestamp(struct sk_buff *skb, struct timespec64 *ts,
- 	    ktime_to_timespec64_cond(shhwtstamps->hwtstamp, ts))
- 		return TP_STATUS_TS_RAW_HARDWARE;
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index ef3148919970..25fcb624ac20 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -4113,12 +4113,6 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 	if (ret)
+ 		goto out_init_phy;
  
--	if (ktime_to_timespec64_cond(skb->tstamp, ts))
-+	if ((flags & SOF_TIMESTAMPING_SOFTWARE) &&
-+	    ktime_to_timespec64_cond(skb->tstamp, ts))
- 		return TP_STATUS_TS_SOFTWARE;
+-	ret = register_netdev(netdev);
+-	if (ret) {
+-		dev_err(priv->dev, "probe register netdev fail!\n");
+-		goto out_reg_netdev_fail;
+-	}
+-
+ 	/* the device can work without cpu rmap, only aRFS needs it */
+ 	ret = hns3_set_rx_cpu_rmap(netdev);
+ 	if (ret)
+@@ -4146,17 +4140,23 @@ static int hns3_client_init(struct hnae3_handle *handle)
  
- 	return 0;
-@@ -2340,7 +2341,12 @@ static int tpacket_rcv(struct sk_buff *skb, struct net_device *dev,
+ 	set_bit(HNS3_NIC_STATE_INITED, &priv->state);
  
- 	skb_copy_bits(skb, 0, h.raw + macoff, snaplen);
++	ret = register_netdev(netdev);
++	if (ret) {
++		dev_err(priv->dev, "probe register netdev fail!\n");
++		goto out_reg_netdev_fail;
++	}
++
+ 	if (netif_msg_drv(handle))
+ 		hns3_info_show(priv);
  
--	if (!(ts_status = tpacket_get_timestamp(skb, &ts, po->tp_tstamp)))
-+	/* Always timestamp; prefer an existing software timestamp taken
-+	 * closer to the time of capture.
-+	 */
-+	ts_status = tpacket_get_timestamp(skb, &ts,
-+					  po->tp_tstamp | SOF_TIMESTAMPING_SOFTWARE);
-+	if (!ts_status)
- 		ktime_get_real_ts64(&ts);
+ 	return ret;
  
- 	status |= ts_status;
++out_reg_netdev_fail:
++	hns3_dbg_uninit(handle);
+ out_client_start:
+ 	hns3_free_rx_cpu_rmap(netdev);
+ 	hns3_nic_uninit_irq(priv);
+ out_init_irq_fail:
+-	unregister_netdev(netdev);
+-out_reg_netdev_fail:
+ 	hns3_uninit_phy(netdev);
+ out_init_phy:
+ 	hns3_uninit_all_ring(priv);
 -- 
 2.30.2
 
