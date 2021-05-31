@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D6BC395BED
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8518F396058
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231921AbhEaN0J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:26:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60152 "EHLO mail.kernel.org"
+        id S232203AbhEaOZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48846 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231931AbhEaNYM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:24:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D9347613F8;
-        Mon, 31 May 2021 13:20:17 +0000 (UTC)
+        id S231315AbhEaOXT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F32F061415;
+        Mon, 31 May 2021 13:45:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467218;
-        bh=eThF42QgHM2ceyuUbfHXSeQsf1W1pocY7rix57lF/sE=;
+        s=korg; t=1622468735;
+        bh=jI99WAe9RVtRbs+Gt1kQRnnslk5QCXfmsL4bZR6wSPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZWNwcEq5KhoObCbqH79zIJFpowvd7+ktJDYt5AnQG3enxPGmSa5J7n9LnYTGOzVk
-         N7/BYtXZs/FOgku2iZu8MCgSf4BbEJOKvLFcGv93X21vWZYAIZUPExWYhnHA0QDSxW
-         xLRXcdqZgs8g4Hv+wKKTxv1Lq8sYkZj4VZCNPFqQ=
+        b=m64DKYU21NbKG7pGZgDLdJti3OE30ddeW0BjI+AI5UZwmxMGI7X2LQUIGC/FeMuDW
+         ldaodvH5uLGWBLPtaBZq08jig6n6wEBK4N/LlDwniVw0AWucH8Gs6OsD+W2v6TQ/C/
+         +wmaHbCoE3vXzPNA/0iVopC4/DPrg1vSh2pMgjfs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Stafford Horne <shorne@gmail.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Vinod Koul <vkoul@kernel.org>, Sinan Kaya <okaya@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 50/66] openrisc: Define memory barrier mb
-Date:   Mon, 31 May 2021 15:14:23 +0200
-Message-Id: <20210531130637.849176990@linuxfoundation.org>
+Subject: [PATCH 5.4 107/177] Revert "dmaengine: qcom_hidma: Check for driver register failure"
+Date:   Mon, 31 May 2021 15:14:24 +0200
+Message-Id: <20210531130651.608852954@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 8b549c18ae81dbc36fb11e4aa08b8378c599ca95 ]
+[ Upstream commit 43ed0fcf613a87dd0221ec72d1ade4d6544f2ffc ]
 
-This came up in the discussion of the requirements of qspinlock on an
-architecture.  OpenRISC uses qspinlock, but it was noticed that the
-memmory barrier was not defined.
+This reverts commit a474b3f0428d6b02a538aa10b3c3b722751cb382.
 
-Peter defined it in the mail thread writing:
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-    As near as I can tell this should do. The arch spec only lists
-    this one instruction and the text makes it sound like a completion
-    barrier.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-This is correct so applying this patch.
+The original change is NOT correct, as it does not correctly unwind from
+the resources that was allocated before the call to
+platform_driver_register().
 
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-[shorne@gmail.com:Turned the mail into a patch]
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Cc: Aditya Pakki <pakki001@umn.edu>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Acked-By: Sinan Kaya <okaya@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-51-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/barrier.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
- create mode 100644 arch/openrisc/include/asm/barrier.h
+ drivers/dma/qcom/hidma_mgmt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
-new file mode 100644
-index 000000000000..7538294721be
---- /dev/null
-+++ b/arch/openrisc/include/asm/barrier.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_BARRIER_H
-+#define __ASM_BARRIER_H
-+
-+#define mb() asm volatile ("l.msync" ::: "memory")
-+
-+#include <asm-generic/barrier.h>
-+
-+#endif /* __ASM_BARRIER_H */
+diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
+index 806ca02c52d7..fe87b01f7a4e 100644
+--- a/drivers/dma/qcom/hidma_mgmt.c
++++ b/drivers/dma/qcom/hidma_mgmt.c
+@@ -418,8 +418,9 @@ static int __init hidma_mgmt_init(void)
+ 		hidma_mgmt_of_populate_channels(child);
+ 	}
+ #endif
+-	return platform_driver_register(&hidma_mgmt_driver);
++	platform_driver_register(&hidma_mgmt_driver);
+ 
++	return 0;
+ }
+ module_init(hidma_mgmt_init);
+ MODULE_LICENSE("GPL v2");
 -- 
 2.30.2
 
