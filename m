@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 588F3395D3D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD60395D3F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232380AbhEaNnS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:43:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
+        id S231706AbhEaNnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:43:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232086AbhEaNlO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:41:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9409A61464;
-        Mon, 31 May 2021 13:27:59 +0000 (UTC)
+        id S232046AbhEaNlS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:41:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 10D5F61467;
+        Mon, 31 May 2021 13:28:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467680;
-        bh=1PgQGrBxZKLTbNoxeWWMZoJhX1q0eSCDcQ56kDC7YE4=;
+        s=korg; t=1622467682;
+        bh=Qi45ADbjLBMRT0eBoIy0WXhGlqHUOvulXnfWiuiIukQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=10DDRrL4/db/t0HsBsAhAmiPyjIfbT4BlC3jLh2CxG+S5G4Z9M3/0Dfs3fRp404hH
-         ol2K5BOViKtJAkzORDMlPgV6OB0KJkN2c3lVgsa7Ew15tpwAOc7YhgDWl0WYilA0qF
-         bD7mzS2N3s7RvaUTcAJVp+6zPzXH/yAxqVk2qT2E=
+        b=fHEPQQ0aJq1mAstQiP65ZTmc+TlXU5I35F3GR0um6FRVB1PpQTtlgLPQExUXWc0kf
+         MEZiQzAui2NPNI+/fQ7YSjdEsycSgnAOWJlcPU1+Fo74I5Qw3oPh0gYtQAn9T/tHyj
+         F0n+RpcW5gpaTjw/lzfnStCI+GNBZXGN4bQIC1GU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.14 06/79] NFC: nci: fix memory leak in nci_allocate_device
-Date:   Mon, 31 May 2021 15:13:51 +0200
-Message-Id: <20210531130636.204157923@linuxfoundation.org>
+        stable@vger.kernel.org, Anna Schumaker <Anna.Schumaker@Netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.14 07/79] NFSv4: Fix a NULL pointer dereference in pnfs_mark_matching_lsegs_return()
+Date:   Mon, 31 May 2021 15:13:52 +0200
+Message-Id: <20210531130636.236570905@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
 References: <20210531130636.002722319@linuxfoundation.org>
@@ -41,81 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Anna Schumaker <Anna.Schumaker@Netapp.com>
 
-commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
+commit a421d218603ffa822a0b8045055c03eae394a7eb upstream.
 
-nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
-Fix this by freeing hci_dev in nci_free_device.
+Commit de144ff4234f changes _pnfs_return_layout() to call
+pnfs_mark_matching_lsegs_return() passing NULL as the struct
+pnfs_layout_range argument. Unfortunately,
+pnfs_mark_matching_lsegs_return() doesn't check if we have a value here
+before dereferencing it, causing an oops.
 
-BUG: memory leak
-unreferenced object 0xffff888111ea6800 (size 1024):
-  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
-    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
-    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
-    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
-    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
-    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
-    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
-    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
-    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
-    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
-    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
-    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
-    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
-    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+I'm able to hit this crash consistently when running connectathon basic
+tests on NFS v4.1/v4.2 against Ontap.
 
-Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
-Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: de144ff4234f ("NFSv4: Don't discard segments marked for return in _pnfs_return_layout()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Anna Schumaker <Anna.Schumaker@Netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/nfc/nci_core.h |    1 +
- net/nfc/nci/core.c         |    1 +
- net/nfc/nci/hci.c          |    5 +++++
- 3 files changed, 7 insertions(+)
+ fs/nfs/pnfs.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -310,6 +310,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
- 		      struct sk_buff **resp);
- 
- struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
-+void nci_hci_deallocate(struct nci_dev *ndev);
- int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
- 		       const u8 *param, size_t param_len);
- int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -1187,6 +1187,7 @@ EXPORT_SYMBOL(nci_allocate_device);
- void nci_free_device(struct nci_dev *ndev)
+--- a/fs/nfs/pnfs.c
++++ b/fs/nfs/pnfs.c
+@@ -1136,6 +1136,11 @@ _pnfs_return_layout(struct inode *ino)
  {
- 	nfc_free_device(ndev->nfc_dev);
-+	nci_hci_deallocate(ndev);
- 	kfree(ndev);
- }
- EXPORT_SYMBOL(nci_free_device);
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -807,3 +807,8 @@ struct nci_hci_dev *nci_hci_allocate(str
+ 	struct pnfs_layout_hdr *lo = NULL;
+ 	struct nfs_inode *nfsi = NFS_I(ino);
++	struct pnfs_layout_range range = {
++		.iomode		= IOMODE_ANY,
++		.offset		= 0,
++		.length		= NFS4_MAX_UINT64,
++	};
+ 	LIST_HEAD(tmp_list);
+ 	nfs4_stateid stateid;
+ 	int status = 0;
+@@ -1162,16 +1167,10 @@ _pnfs_return_layout(struct inode *ino)
+ 	}
+ 	valid_layout = pnfs_layout_is_valid(lo);
+ 	pnfs_clear_layoutcommit(ino, &tmp_list);
+-	pnfs_mark_matching_lsegs_return(lo, &tmp_list, NULL, 0);
++	pnfs_mark_matching_lsegs_return(lo, &tmp_list, &range, 0);
  
- 	return hdev;
- }
-+
-+void nci_hci_deallocate(struct nci_dev *ndev)
-+{
-+	kfree(ndev->hci_dev);
-+}
+-	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range) {
+-		struct pnfs_layout_range range = {
+-			.iomode		= IOMODE_ANY,
+-			.offset		= 0,
+-			.length		= NFS4_MAX_UINT64,
+-		};
++	if (NFS_SERVER(ino)->pnfs_curr_ld->return_range)
+ 		NFS_SERVER(ino)->pnfs_curr_ld->return_range(lo, &range);
+-	}
+ 
+ 	/* Don't send a LAYOUTRETURN if list was initially empty */
+ 	if (!test_bit(NFS_LAYOUT_RETURN_REQUESTED, &lo->plh_flags) ||
 
 
