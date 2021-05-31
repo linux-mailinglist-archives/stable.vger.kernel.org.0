@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8496B395FDD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCCB3395C30
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231790AbhEaOQz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
+        id S231695AbhEaN3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:29:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233661AbhEaOOr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:14:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA37261995;
-        Mon, 31 May 2021 13:42:28 +0000 (UTC)
+        id S231691AbhEaN1W (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:27:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1560061008;
+        Mon, 31 May 2021 13:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468549;
-        bh=6j6ZMMCKN0uBgMN7g5/8gcsFHGF6ZdFMAlH5D3cbRqI=;
+        s=korg; t=1622467297;
+        bh=Sro/wLDx/kPUtQx688EuMS7CDt1WrUlAsqXX1GQY9oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plZSfSFJPQ3FFZIlJCos/ymTxA5ECzvr6ho6OHC6aXXx56DN4ankmOXhq9aPS84Y9
-         oWopX2UNvVH5PPGrUrhGruycD9vKJkUReA7lKDXSCupPfi1FVotuvaTVxK/F8WO1a0
-         KB8xW+3dBIhkQiWrG+9sspO01koh8rnPeTdhsKz4=
+        b=o5/2I9IWcggAf/2uuOTj533SL6nLKJ2Dh7UYgE8VunyHMdWFhUag2eVzk5G3DaTsP
+         zK8QyyLJtlG7ed36TFUThkJuTkfvuhkt5UsEYZGiOw58j4M2dLRyNDZsWdXS8m6ef7
+         RcvxlCjY0LL744iwJxp1lrbVaK/OSVlTfjwVEYAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 032/177] drm/amdgpu/vcn2.0: add cancel_delayed_work_sync before power gate
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 013/116] mac80211: properly handle A-MSDUs that start with an RFC 1042 header
 Date:   Mon, 31 May 2021 15:13:09 +0200
-Message-Id: <20210531130649.034675421@linuxfoundation.org>
+Message-Id: <20210531130640.588215299@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 0c6013377b4027e69d8f3e63b6bf556b6cb87802 upstream.
+commit a1d5ff5651ea592c67054233b14b30bf4452999c upstream.
 
-Add cancel_delayed_work_sync before set power gating state
-to avoid race condition issue when power gating.
+Properly parse A-MSDUs whose first 6 bytes happen to equal a rfc1042
+header. This can occur in practice when the destination MAC address
+equals AA:AA:03:00:00:00. More importantly, this simplifies the next
+patch to mitigate A-MSDU injection attacks.
 
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.0b2b886492f0.I23dd5d685fe16d3b0ec8106e8f01b59f499dffed@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c |    2 ++
- 1 file changed, 2 insertions(+)
+ include/net/cfg80211.h |    4 ++--
+ net/mac80211/rx.c      |    2 +-
+ net/wireless/util.c    |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
-@@ -293,6 +293,8 @@ static int vcn_v2_0_hw_fini(void *handle
- 	struct amdgpu_ring *ring = &adev->vcn.inst->ring_dec;
- 	int i;
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -4605,7 +4605,7 @@ unsigned int ieee80211_get_mesh_hdrlen(s
+  */
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ 				  const u8 *addr, enum nl80211_iftype iftype,
+-				  u8 data_offset);
++				  u8 data_offset, bool is_amsdu);
  
-+	cancel_delayed_work_sync(&adev->vcn.idle_work);
-+
- 	if ((adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG) ||
- 	    (adev->vcn.cur_state != AMD_PG_STATE_GATE &&
- 	      RREG32_SOC15(VCN, 0, mmUVD_STATUS)))
+ /**
+  * ieee80211_data_to_8023 - convert an 802.11 data frame to 802.3
+@@ -4617,7 +4617,7 @@ int ieee80211_data_to_8023_exthdr(struct
+ static inline int ieee80211_data_to_8023(struct sk_buff *skb, const u8 *addr,
+ 					 enum nl80211_iftype iftype)
+ {
+-	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0);
++	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0, false);
+ }
+ 
+ /**
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2557,7 +2557,7 @@ __ieee80211_rx_h_amsdu(struct ieee80211_
+ 	if (ieee80211_data_to_8023_exthdr(skb, &ethhdr,
+ 					  rx->sdata->vif.addr,
+ 					  rx->sdata->vif.type,
+-					  data_offset))
++					  data_offset, true))
+ 		return RX_DROP_UNUSABLE;
+ 
+ 	ieee80211_amsdu_to_8023s(skb, &frame_list, dev->dev_addr,
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -422,7 +422,7 @@ EXPORT_SYMBOL(ieee80211_get_mesh_hdrlen)
+ 
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ 				  const u8 *addr, enum nl80211_iftype iftype,
+-				  u8 data_offset)
++				  u8 data_offset, bool is_amsdu)
+ {
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	struct {
+@@ -510,7 +510,7 @@ int ieee80211_data_to_8023_exthdr(struct
+ 	skb_copy_bits(skb, hdrlen, &payload, sizeof(payload));
+ 	tmp.h_proto = payload.proto;
+ 
+-	if (likely((ether_addr_equal(payload.hdr, rfc1042_header) &&
++	if (likely((!is_amsdu && ether_addr_equal(payload.hdr, rfc1042_header) &&
+ 		    tmp.h_proto != htons(ETH_P_AARP) &&
+ 		    tmp.h_proto != htons(ETH_P_IPX)) ||
+ 		   ether_addr_equal(payload.hdr, bridge_tunnel_header)))
 
 
