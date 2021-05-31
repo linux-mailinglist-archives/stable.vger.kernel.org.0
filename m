@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55B03395F11
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C7FB395C73
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232139AbhEaOHg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:07:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36870 "EHLO mail.kernel.org"
+        id S232237AbhEaNdU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:33:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38860 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231670AbhEaOFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:05:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BAF261954;
-        Mon, 31 May 2021 13:38:29 +0000 (UTC)
+        id S231576AbhEaNbH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:31:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD0716140F;
+        Mon, 31 May 2021 13:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468309;
-        bh=jLKy2fs+izQ6dpIvDbWD8/SxmqacVqGQoXpuCfbhMlc=;
+        s=korg; t=1622467395;
+        bh=VAf0sI2V21i5ddVvKlfZEQ4IyqyOpRQptxraRFMNqhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZ75mE+mtIsTp0StiOrARYamw8SBmP49Grxbhd9lyMPbUPL4RcjsI4maW0NBDw8xy
-         MOg6qXELWjHYl27WgqRNOG/I5w0l2mfngy+gxjFNflu5vRSkG3jIIe7/WtcAAqVTDk
-         f/H9teBroSWiIDvgLJ/Bw4nyNqDLleBR3S5dkZyQ=
+        b=w3D8jjsylVDH2JIdcUMusg3JOYELSURQwy2EmvusRfnmz7K7J/jYI/RXsgDxnwx61
+         75Nz/mTFkQX+njACgpcfmmpXd0GS6FH5g/Kl0u4AsW0weKJuOAFV60cz72hOW1CjM5
+         u/TQMYx3akxRPwawRNcuaL8jO9MbF1tWnuuDyMJM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 160/252] Revert "media: dvb: Add check on sp8870_readreg"
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 049/116] bpf: Rework ptr_limit into alu_limit and add common error path
 Date:   Mon, 31 May 2021 15:13:45 +0200
-Message-Id: <20210531130703.456789726@linuxfoundation.org>
+Message-Id: <20210531130641.839723130@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit 47e4ff06fa7f5ba4860543a2913bbd0c164640aa ]
+commit b658bbb844e28f1862867f37e8ca11a8e2aa94a3 upstream.
 
-This reverts commit 467a37fba93f2b4fe3ab597ff6a517b22b566882.
+Small refactor with no semantic changes in order to consolidate the max
+ptr_limit boundary check.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This commit is not properly checking for an error at all, so if a
-read succeeds from this device, it will error out.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Sean Young <sean@mess.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-59-gregkh@linuxfoundation.org
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+[OP: backport to 4.19]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/dvb-frontends/sp8870.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ kernel/bpf/verifier.c |   21 +++++++++++++--------
+ 1 file changed, 13 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
-index 655db8272268..ee893a2f2261 100644
---- a/drivers/media/dvb-frontends/sp8870.c
-+++ b/drivers/media/dvb-frontends/sp8870.c
-@@ -280,9 +280,7 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
- 	sp8870_writereg(state, 0xc05, reg0xc05);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2731,12 +2731,12 @@ static struct bpf_insn_aux_data *cur_aux
  
- 	// read status reg in order to clear pending irqs
--	err = sp8870_readreg(state, 0x200);
--	if (err)
--		return err;
-+	sp8870_readreg(state, 0x200);
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+ 			      const struct bpf_reg_state *off_reg,
+-			      u32 *ptr_limit, u8 opcode)
++			      u32 *alu_limit, u8 opcode)
+ {
+ 	bool off_is_neg = off_reg->smin_value < 0;
+ 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+ 			    (opcode == BPF_SUB && !off_is_neg);
+-	u32 off, max;
++	u32 off, max = 0, ptr_limit = 0;
  
- 	// system controller start
- 	sp8870_microcontroller_start(state);
--- 
-2.30.2
-
+ 	if (!tnum_is_const(off_reg->var_off) &&
+ 	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
+@@ -2750,22 +2750,27 @@ static int retrieve_ptr_limit(const stru
+ 		max = MAX_BPF_STACK + mask_to_left;
+ 		off = ptr_reg->off + ptr_reg->var_off.value;
+ 		if (mask_to_left)
+-			*ptr_limit = MAX_BPF_STACK + off;
++			ptr_limit = MAX_BPF_STACK + off;
+ 		else
+-			*ptr_limit = -off - 1;
+-		return *ptr_limit >= max ? -ERANGE : 0;
++			ptr_limit = -off - 1;
++		break;
+ 	case PTR_TO_MAP_VALUE:
+ 		max = ptr_reg->map_ptr->value_size;
+ 		if (mask_to_left) {
+-			*ptr_limit = ptr_reg->umax_value + ptr_reg->off;
++			ptr_limit = ptr_reg->umax_value + ptr_reg->off;
+ 		} else {
+ 			off = ptr_reg->smin_value + ptr_reg->off;
+-			*ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
++			ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
+ 		}
+-		return *ptr_limit >= max ? -ERANGE : 0;
++		break;
+ 	default:
+ 		return -EINVAL;
+ 	}
++
++	if (ptr_limit >= max)
++		return -ERANGE;
++	*alu_limit = ptr_limit;
++	return 0;
+ }
+ 
+ static bool can_skip_alu_sanitation(const struct bpf_verifier_env *env,
 
 
