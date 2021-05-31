@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 40C08395D6A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 238373960BA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230339AbhEaNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:45:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
+        id S231678AbhEaObF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232331AbhEaNnK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:43:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C829613D7;
-        Mon, 31 May 2021 13:28:48 +0000 (UTC)
+        id S233973AbhEaO2G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:28:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F141C61C1A;
+        Mon, 31 May 2021 13:47:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467729;
-        bh=Dv1gPJz98h71tKkFr3ikWvxAKFWRsMK+BBbWvj2Tgjc=;
+        s=korg; t=1622468871;
+        bh=N0FAeNuDKMSXFENfB91Epg1afoE4j4T6/AIEHFc73fs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OYYLmgR5IT/cJeDv3BfhWKKhMKKBE06JKyIY65dIf+Dvx5cDr/Odc81YsH60EdBvI
-         ukNhtF45lbEGiQOdSfnNdQRyttKbkvy7fHAdSkRujS7sIsIs4+plPiPo0cEe7+BUWy
-         K6svABQ3J4rzFlzsU32DUAWtVhwQL/CzABLAHDIk=
+        b=N8S46KZYK3QCe4EpRHFq0XcVPFjfoieE3uflB9w7/iUGR1UEP83vBfEJe48tbLIwj
+         ZsD9lHMdOf3MTsSAHZ+SXbLguB2tbehGGyfH6t50ffV1GqBClFyk7PZfArsv2t0TPm
+         vbvTAf6VBHP9zQ8ntcXX80Gi/V2MRnvLMe4lzgJk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
         David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 58/79] btrfs: do not BUG_ON in link_to_fixup_dir
+Subject: [PATCH 5.4 126/177] btrfs: do not BUG_ON in link_to_fixup_dir
 Date:   Mon, 31 May 2021 15:14:43 +0200
-Message-Id: <20210531130637.856622078@linuxfoundation.org>
+Message-Id: <20210531130652.278805513@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -96,10 +96,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 deletions(-)
 
 diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index e40c27aec949..035a2e2be156 100644
+index de53e5166997..54647eb9c6ed 100644
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -1629,8 +1629,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
+@@ -1846,8 +1846,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
  		ret = btrfs_update_inode(trans, root, inode);
  	} else if (ret == -EEXIST) {
  		ret = 0;
