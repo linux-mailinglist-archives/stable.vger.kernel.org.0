@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD12A396073
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E5AA0395D1B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232480AbhEaO1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47638 "EHLO mail.kernel.org"
+        id S232524AbhEaNlS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233456AbhEaOZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:25:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 90E666157E;
-        Mon, 31 May 2021 13:46:14 +0000 (UTC)
+        id S232746AbhEaNj2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 110C16145B;
+        Mon, 31 May 2021 13:27:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468775;
-        bh=sVg6SB/8K3yyZdgO0ZP29Rf+pPOA/vY5LIPQHKTVJMw=;
+        s=korg; t=1622467629;
+        bh=u9hwx6PrFbY+xGhleGHXwrAL3AW/kdpLzY9cUqXR2IE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gTSU5SHVJ9AkiWqAdhm7oQid4nELDrt1i5dTPV0ljQ/eZukQTOaZpIFU1KIL5J5DE
-         pyUxdxp2tOqr4EIUbiyC7N/k8Urv0EVAVYKAC2AXih+S5iWhVqfsVK2wbzzWDhkv2y
-         eJE3hVfQa8ARzgZFIBiatbi2sPs3uzDIfwlYt21g=
+        b=Ey7E416/XeFA2CsywQkJgqsenn9IaudgLMEqTiCzafXXkyJxDOCagG2JmBXGA5n8r
+         9r+zEoaHHlaWXZC7WNfB/lE8a9vKuMY4f/S7dlj4AjC+octUhePZYtEWChXB6PdNgy
+         yVZBv92U5oWEJP15liT9X1y4RFoCrH3jjy6WnoQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 088/177] Revert "media: usb: gspca: add a missed check for goto_low_power"
+        stable@vger.kernel.org,
+        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>
+Subject: [PATCH 4.14 20/79] misc/uss720: fix memory leak in uss720_probe
 Date:   Mon, 31 May 2021 15:14:05 +0200
-Message-Id: <20210531130650.929867579@linuxfoundation.org>
+Message-Id: <20210531130636.651784232@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit fd013265e5b5576a74a033920d6c571e08d7c423 ]
+commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
 
-This reverts commit 5b711870bec4dc9a6d705d41e127e73944fa3650.
+uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
+Fix this by decreasing the refcount of usbdev by usb_put_dev.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+BUG: memory leak
+unreferenced object 0xffff888101113800 (size 2048):
+  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
+    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
+  backtrace:
+    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
+    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
+    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
+    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
+    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
+    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
+    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
+    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
+    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
+    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-Upon review, this commit was found to do does nothing useful as a user
-can do nothing with this information and if an error did happen, the
-code would continue on as before.  Because of this, just revert it.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-7-gregkh@linuxfoundation.org
+Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/gspca/cpia1.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ drivers/usb/misc/uss720.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/media/usb/gspca/cpia1.c b/drivers/media/usb/gspca/cpia1.c
-index a4f7431486f3..d93d384286c1 100644
---- a/drivers/media/usb/gspca/cpia1.c
-+++ b/drivers/media/usb/gspca/cpia1.c
-@@ -1424,7 +1424,6 @@ static int sd_config(struct gspca_dev *gspca_dev,
- {
- 	struct sd *sd = (struct sd *) gspca_dev;
- 	struct cam *cam;
--	int ret;
+--- a/drivers/usb/misc/uss720.c
++++ b/drivers/usb/misc/uss720.c
+@@ -749,6 +749,7 @@ static int uss720_probe(struct usb_inter
+ 	parport_announce_port(pp);
  
- 	sd->mainsFreq = FREQ_DEF == V4L2_CID_POWER_LINE_FREQUENCY_60HZ;
- 	reset_camera_params(gspca_dev);
-@@ -1436,10 +1435,7 @@ static int sd_config(struct gspca_dev *gspca_dev,
- 	cam->cam_mode = mode;
- 	cam->nmodes = ARRAY_SIZE(mode);
+ 	usb_set_intfdata(intf, pp);
++	usb_put_dev(usbdev);
+ 	return 0;
  
--	ret = goto_low_power(gspca_dev);
--	if (ret)
--		gspca_err(gspca_dev, "Cannot go to low power mode: %d\n",
--			  ret);
-+	goto_low_power(gspca_dev);
- 	/* Check the firmware version. */
- 	sd->params.version.firmwareVersion = 0;
- 	get_version_information(gspca_dev);
--- 
-2.30.2
-
+ probe_abort:
 
 
