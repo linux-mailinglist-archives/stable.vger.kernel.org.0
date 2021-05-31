@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BA72A39623F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:52:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EBC8395EDF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232123AbhEaOxd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:53:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
+        id S232138AbhEaOFB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:05:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233365AbhEaOv3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:51:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 18E6861CA0;
-        Mon, 31 May 2021 13:57:58 +0000 (UTC)
+        id S232626AbhEaOCc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:02:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D48161948;
+        Mon, 31 May 2021 13:37:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469479;
-        bh=L6/9C92JDBgplMtoVklmzjavKJBt2S6f6PqJFK2r8qA=;
+        s=korg; t=1622468235;
+        bh=4q0YyHM0SbsFNSLazTrvIfuRC/KdV8PwvZYubE5KCAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J3kOyBS8MorSooisz3o2mXO8r0gRyj8cKgkPzs+85hKBClQPuzqD1zQEDjys1ohbw
-         mVrpxyLxSEuWNhgdAjfC67MMXxDqugJvMDNHyLLoHS6JizIXajLWmg3TknoC6nSscn
-         f0rYS/C7sgMoyWvAbK9DRegtG/4qZjyGITxg5V2g=
+        b=lOdXG2jU/tbM4E6dORsIdg2jpyPPtGpVuLpkudTvR4SnbWC5dguLscSQIU675Akh6
+         X8QGRaXMkz6gJLs5f/s4pfhb1iNTRsChYoXFT3SFtjEpivlduU3cP5OMXQxDAYuFsM
+         4szAEhT9VRytD9tcoONxzBG9MkKH9tdRxwL4zFx8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 178/296] Revert "isdn: mISDNinfineon: fix potential NULL pointer dereference"
+Subject: [PATCH 5.10 168/252] Revert "brcmfmac: add a check for the status of usb_register"
 Date:   Mon, 31 May 2021 15:13:53 +0200
-Message-Id: <20210531130709.852188279@linuxfoundation.org>
+Message-Id: <20210531130703.718990488@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,9 +42,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit abd7bca23bd4247124265152d00ffd4b2b0d6877 ]
+[ Upstream commit 30a350947692f794796f563029d29764497f2887 ]
 
-This reverts commit d721fe99f6ada070ae8fc0ec3e01ce5a42def0d9.
+This reverts commit 42daad3343be4a4e1ee03e30a5f5cc731dadfef5.
 
 Because of recent interactions with developers from @umn.edu, all
 commits from them have been recently re-reviewed to ensure if they were
@@ -54,39 +54,35 @@ Upon review, this commit was found to be incorrect for the reasons
 below, so it must be reverted.  It will be fixed up "correctly" in a
 later kernel change.
 
-The original commit was incorrect, it should have never have used
-"unlikely()" and if it ever does trigger, resources are left grabbed.
-
-Given there are no users for this code around, I'll just revert this and
-leave it "as is" as the odds that ioremap() will ever fail here is
-horrendiously low.
+The original commit here did nothing to actually help if usb_register()
+failed, so it gives a "false sense of security" when there is none.  The
+correct solution is to correctly unwind from this error.
 
 Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-41-gregkh@linuxfoundation.org
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-69-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/mISDNinfineon.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-index a16c7a2a7f3d..fa9c491f9c38 100644
---- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-@@ -697,11 +697,8 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->addr.start, (ulong)hw->addr.size);
- 			return err;
- 		}
--		if (hw->ci->addr_mode == AM_MEMIO) {
-+		if (hw->ci->addr_mode == AM_MEMIO)
- 			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
--			if (unlikely(!hw->addr.p))
--				return -ENOMEM;
--		}
- 		hw->addr.mode = hw->ci->addr_mode;
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 586f4dfc638b..d2a803fc8ac6 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -1586,10 +1586,6 @@ void brcmf_usb_exit(void)
+ 
+ void brcmf_usb_register(void)
+ {
+-	int ret;
+-
+ 	brcmf_dbg(USB, "Enter\n");
+-	ret = usb_register(&brcmf_usbdrvr);
+-	if (ret)
+-		brcmf_err("usb_register failed %d\n", ret);
++	usb_register(&brcmf_usbdrvr);
+ }
 -- 
 2.30.2
 
