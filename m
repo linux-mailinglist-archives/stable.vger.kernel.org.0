@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E7F73395B61
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B43395CAE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbhEaNUD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:20:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S232386AbhEaNg3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:36:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231908AbhEaNTL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA2D160FE8;
-        Mon, 31 May 2021 13:17:30 +0000 (UTC)
+        id S232712AbhEaNeW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:34:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D988613F6;
+        Mon, 31 May 2021 13:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467051;
-        bh=Sg+oHbjPM3EyWs9U+wsYp0uv2MQ9sKDApoykKutJ+x8=;
+        s=korg; t=1622467494;
+        bh=7QXqn94zqFD8tTPdbHgKtZQt7uJTtmRjqr/4mq2F30k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dCASzqmrGAiP2oCkhZShu32vCG5eqHPIIhx/fH/JoZEI17EW0RPypGtT7NToE4TS8
-         30pd8VF9HQpplMv+V4xzjMpgrWBXbx91zICiQujzxOKlzl/fs3ZkHOIOYu2MUQfs77
-         11MPh9Bdy2ESCHRC90CN4NbDi4X0gX1u+FP+LX+M=
+        b=SZO+ffiYfPZUodSOBXte3EHlHgIaQITCev5qMRrIpkyDEIZbeOSwVnn7fFeAteFJr
+         Lm2t20P2U6yNEv6aBlzMA2WT2z6yXk+R9aVlQlU4AZFMA7B7wAusjiZXtO2CYUblPp
+         b52+Wpw94vNvKPfoMHPzWcZXJ92pplc6UmMdbBVY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 38/54] media: dvb: Add check on sp8870_readreg return
-Date:   Mon, 31 May 2021 15:14:04 +0200
-Message-Id: <20210531130636.269301384@linuxfoundation.org>
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
+        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 069/116] tipc: skb_linearize the head skb when reassembling msgs
+Date:   Mon, 31 May 2021 15:14:05 +0200
+Message-Id: <20210531130642.490194410@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +40,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
+commit b7df21cf1b79ab7026f545e7bf837bd5750ac026 upstream.
 
-The function sp8870_readreg returns a negative value when i2c_transfer
-fails so properly check for this and return the error if it happens.
+It's not a good idea to append the frag skb to a skb's frag_list if
+the frag_list already has skbs from elsewhere, such as this skb was
+created by pskb_copy() where the frag_list was cloned (all the skbs
+in it were skb_get'ed) and shared by multiple skbs.
 
-Cc: Sean Young <sean@mess.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
+However, the new appended frag skb should have been only seen by the
+current skb. Otherwise, it will cause use after free crashes as this
+appended frag skb are seen by multiple skbs but it only got skb_get
+called once.
+
+The same thing happens with a skb updated by pskb_may_pull() with a
+skb_cloned skb. Li Shuang has reported quite a few crashes caused
+by this when doing testing over macvlan devices:
+
+  [] kernel BUG at net/core/skbuff.c:1970!
+  [] Call Trace:
+  []  skb_clone+0x4d/0xb0
+  []  macvlan_broadcast+0xd8/0x160 [macvlan]
+  []  macvlan_process_broadcast+0x148/0x150 [macvlan]
+  []  process_one_work+0x1a7/0x360
+  []  worker_thread+0x30/0x390
+
+  [] kernel BUG at mm/usercopy.c:102!
+  [] Call Trace:
+  []  __check_heap_object+0xd3/0x100
+  []  __check_object_size+0xff/0x16b
+  []  simple_copy_to_iter+0x1c/0x30
+  []  __skb_datagram_iter+0x7d/0x310
+  []  __skb_datagram_iter+0x2a5/0x310
+  []  skb_copy_datagram_iter+0x3b/0x90
+  []  tipc_recvmsg+0x14a/0x3a0 [tipc]
+  []  ____sys_recvmsg+0x91/0x150
+  []  ___sys_recvmsg+0x7b/0xc0
+
+  [] kernel BUG at mm/slub.c:305!
+  [] Call Trace:
+  []  <IRQ>
+  []  kmem_cache_free+0x3ff/0x400
+  []  __netif_receive_skb_core+0x12c/0xc40
+  []  ? kmem_cache_alloc+0x12e/0x270
+  []  netif_receive_skb_internal+0x3d/0xb0
+  []  ? get_rx_page_info+0x8e/0xa0 [be2net]
+  []  be_poll+0x6ef/0xd00 [be2net]
+  []  ? irq_exit+0x4f/0x100
+  []  net_rx_action+0x149/0x3b0
+
+  ...
+
+This patch is to fix it by linearizing the head skb if it has frag_list
+set in tipc_buf_append(). Note that we choose to do this before calling
+skb_unshare(), as __skb_linearize() will avoid skb_copy(). Also, we can
+not just drop the frag_list either as the early time.
+
+Fixes: 45c8b7b175ce ("tipc: allow non-linear first fragment buffer")
+Reported-by: Li Shuang <shuali@redhat.com>
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/sp8870.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/tipc/msg.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
-index e87ac30d7fb8..b43135c5a960 100644
---- a/drivers/media/dvb-frontends/sp8870.c
-+++ b/drivers/media/dvb-frontends/sp8870.c
-@@ -293,7 +293,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
- 	sp8870_writereg(state, 0xc05, reg0xc05);
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -141,18 +141,13 @@ int tipc_buf_append(struct sk_buff **hea
+ 		if (unlikely(head))
+ 			goto err;
+ 		*buf = NULL;
++		if (skb_has_frag_list(frag) && __skb_linearize(frag))
++			goto err;
+ 		frag = skb_unshare(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+ 		TIPC_SKB_CB(head)->tail = NULL;
+-		if (skb_is_nonlinear(head)) {
+-			skb_walk_frags(head, tail) {
+-				TIPC_SKB_CB(head)->tail = tail;
+-			}
+-		} else {
+-			skb_frag_list_init(head);
+-		}
+ 		return 0;
+ 	}
  
- 	// read status reg in order to clear pending irqs
--	sp8870_readreg(state, 0x200);
-+	err = sp8870_readreg(state, 0x200);
-+	if (err < 0)
-+		return err;
- 
- 	// system controller start
- 	sp8870_microcontroller_start(state);
--- 
-2.30.2
-
 
 
