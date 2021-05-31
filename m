@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9D9E39617E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:39:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B50A395E7F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:58:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232533AbhEaOld (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37972 "EHLO mail.kernel.org"
+        id S231775AbhEaN7s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:59:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234141AbhEaOjb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 43ED961C5F;
-        Mon, 31 May 2021 13:52:38 +0000 (UTC)
+        id S232834AbhEaN5S (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:57:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3AFF6192A;
+        Mon, 31 May 2021 13:34:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469158;
-        bh=fDSHuxrhJTbpqsPwkMi+VT3J276BLyapjLD2nMJdh4c=;
+        s=korg; t=1622468100;
+        bh=zLd87GVsB9Bvtf45Zjo2w1uiZ53JhlIRv2HhH8552eA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SLaN5hV8gdrNnyE48re/UhJteyfKeztZSp+Oi3eAm5PhaJlliYngbDc0kroVxnXe1
-         QYVXgfVc0kMfneCLbrSEJPO5Ab7Ja5Xj9xHKDbHct9LpfA0VFGgJtyALvATvFMNwiv
-         UBbZrGIecLgCsAZp7SepSYua7Pb+OXRVtTDEr86E=
+        b=kO47X1eTimUvqj+HeyGjMF7IdM57kzDVBalZ6byqPdo/ieoYWEExMPbFrk91b5uEy
+         OgWCWi0hXnJ8SOH+vcF8a34AfIIU7WWzRng7jbeQ2Esrypp6obZhcfdSnSZV5Dj49m
+         BbBLYBz46WkfOolxH8ofPEz7ui4Yf2wNRImYx6M4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shaokun Zhang <zhangshaokun@hisilicon.com>,
-        Marc Zyngier <maz@kernel.org>,
-        Jason Wang <jasowang@redhat.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Eric Auger <eric.auger@redhat.com>,
-        Zhu Lingshan <lingshan.zhu@intel.com>
-Subject: [PATCH 5.12 090/296] Revert "irqbypass: do not start cons/prod when failed connect"
-Date:   Mon, 31 May 2021 15:12:25 +0200
-Message-Id: <20210531130706.924302301@linuxfoundation.org>
+        stable@vger.kernel.org, Sean MacLennan <seanm@seanm.ca>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 081/252] USB: serial: ti_usb_3410_5052: add startech.com device id
+Date:   Mon, 31 May 2021 15:12:26 +0200
+Message-Id: <20210531130700.742456632@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,67 +39,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhu Lingshan <lingshan.zhu@intel.com>
+From: Sean MacLennan <seanm@seanm.ca>
 
-commit e44b49f623c77bee7451f1a82ccfb969c1028ae2 upstream.
+commit 89b1a3d811e6f8065d6ae8a25e7682329b4a31e2 upstream.
 
-This reverts commit a979a6aa009f3c99689432e0cdb5402a4463fb88.
+This adds support for the Startech.com generic serial to USB converter.
+It seems to be a bone stock TI_3410. I have been using this patch for
+years.
 
-The reverted commit may cause VM freeze on arm64 with GICv4,
-where stopping a consumer is implemented by suspending the VM.
-Should the connect fail, the VM will not be resumed, which
-is a bit of a problem.
-
-It also erroneously calls the producer destructor unconditionally,
-which is unexpected.
-
-Reported-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Suggested-by: Marc Zyngier <maz@kernel.org>
-Acked-by: Jason Wang <jasowang@redhat.com>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Eric Auger <eric.auger@redhat.com>
-Tested-by: Shaokun Zhang <zhangshaokun@hisilicon.com>
-Signed-off-by: Zhu Lingshan <lingshan.zhu@intel.com>
-[maz: tags and cc-stable, commit message update]
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Fixes: a979a6aa009f ("irqbypass: do not start cons/prod when failed connect")
-Link: https://lore.kernel.org/r/3a2c66d6-6ca0-8478-d24b-61e8e3241b20@hisilicon.com
-Link: https://lore.kernel.org/r/20210508071152.722425-1-lingshan.zhu@intel.com
+Signed-off-by: Sean MacLennan <seanm@seanm.ca>
 Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- virt/lib/irqbypass.c |   16 ++++++----------
- 1 file changed, 6 insertions(+), 10 deletions(-)
+ drivers/usb/serial/ti_usb_3410_5052.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/virt/lib/irqbypass.c
-+++ b/virt/lib/irqbypass.c
-@@ -40,21 +40,17 @@ static int __connect(struct irq_bypass_p
- 	if (prod->add_consumer)
- 		ret = prod->add_consumer(prod, cons);
+--- a/drivers/usb/serial/ti_usb_3410_5052.c
++++ b/drivers/usb/serial/ti_usb_3410_5052.c
+@@ -37,6 +37,7 @@
+ /* Vendor and product ids */
+ #define TI_VENDOR_ID			0x0451
+ #define IBM_VENDOR_ID			0x04b3
++#define STARTECH_VENDOR_ID		0x14b0
+ #define TI_3410_PRODUCT_ID		0x3410
+ #define IBM_4543_PRODUCT_ID		0x4543
+ #define IBM_454B_PRODUCT_ID		0x454b
+@@ -372,6 +373,7 @@ static const struct usb_device_id ti_id_
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
++	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+ 	{ }	/* terminator */
+ };
  
--	if (ret)
--		goto err_add_consumer;
--
--	ret = cons->add_producer(cons, prod);
--	if (ret)
--		goto err_add_producer;
-+	if (!ret) {
-+		ret = cons->add_producer(cons, prod);
-+		if (ret && prod->del_consumer)
-+			prod->del_consumer(prod, cons);
-+	}
- 
- 	if (cons->start)
- 		cons->start(cons);
- 	if (prod->start)
- 		prod->start(prod);
--err_add_producer:
--	if (prod->del_consumer)
--		prod->del_consumer(prod, cons);
--err_add_consumer:
-+
- 	return ret;
- }
+@@ -410,6 +412,7 @@ static const struct usb_device_id ti_id_
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
+ 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
++	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
+ 	{ }	/* terminator */
+ };
  
 
 
