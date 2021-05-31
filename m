@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1A9BA395BBB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:22:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 07FBD395B5E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231991AbhEaNY0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:24:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
+        id S232100AbhEaNT6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:19:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231569AbhEaNWd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:22:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A89E96139A;
-        Mon, 31 May 2021 13:19:26 +0000 (UTC)
+        id S231790AbhEaNTF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A40D61375;
+        Mon, 31 May 2021 13:17:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467167;
-        bh=ZPfS/GznChWa3LRt9cYciiQLaUzC8vIO5v/yBWzozOs=;
+        s=korg; t=1622467045;
+        bh=d31Yhnkyy17E4yy6rXixvQwo0TFmxk7sTDaVwYUlXLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=McDV8GtmZIO3PW1eCjJ19nMiqvfThkUCkGyOcg7jQGEw//LZW1xMxDaarOAR4hYpe
-         iB5NyW/S2/AqbaXavSaZ8AznqrbsUTq2SH6wAO48Jrd/tyqzS2d9E/fOiyMgWOgsT3
-         U4xMfFiuWP6Cb3+5HJnS+HHwloiGdIOVF0MVah10=
+        b=swQp/jPS/x07Q+Vkq7wFReqXAbQ1NfeU7lVzg4NkERJ6iHK911H+iVWcTfpJzq1au
+         8iPqlU4vTX4AFcGWCZai88V/OEWtdjh++4jDo04jyFQ4DBFmWStwXI5U6f4LfCedq/
+         B+QNv+ToK3N9u7KdQA2CUeBM+tFgmo5f5U20cV4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.9 29/66] NFS: fix an incorrect limit in filelayout_decode_layout()
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 36/54] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
 Date:   Mon, 31 May 2021 15:14:02 +0200
-Message-Id: <20210531130637.193334463@linuxfoundation.org>
+Message-Id: <20210531130636.209459990@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +40,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 769b01ea68b6c49dc3cde6adf7e53927dacbd3a8 upstream.
+[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
 
-The "sizeof(struct nfs_fh)" is two bytes too large and could lead to
-memory corruption.  It should be NFS_MAXFHSIZE because that's the size
-of the ->data[] buffer.
+Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
+and hw->ci->addr_mode respectively, to be before the subsequent checks
+for memory IO mode (and possible ioremap calls in this case).
 
-I reversed the size of the arguments to put the variable on the left.
+Also introduce ioremap error checks at both locations. This allows
+resources to be properly freed on ioremap failure, as when the caller
+of setup_io then subsequently calls release_io via its error path,
+release_io can now correctly determine the mode as it has been set
+before the ioremap call.
 
-Fixes: 16b374ca439f ("NFSv4.1: pnfs: filelayout: add driver's LAYOUTGET and GETDEVICEINFO infrastructure")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Finally, refactor release_io function so that it will call
+release_mem_region in the memory IO case, regardless of whether or not
+hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
+released on failure.
+
+This properly implements the original reverted commit (d721fe99f6ad)
+from the University of Minnesota, whilst also implementing the ioremap
+check for the hw->ci->cfg_mode if block as well.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/filelayout/filelayout.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
+ 1 file changed, 16 insertions(+), 8 deletions(-)
 
---- a/fs/nfs/filelayout/filelayout.c
-+++ b/fs/nfs/filelayout/filelayout.c
-@@ -726,7 +726,7 @@ filelayout_decode_layout(struct pnfs_lay
- 		if (unlikely(!p))
- 			goto out_err;
- 		fl->fh_array[i]->size = be32_to_cpup(p++);
--		if (sizeof(struct nfs_fh) < fl->fh_array[i]->size) {
-+		if (fl->fh_array[i]->size > NFS_MAXFHSIZE) {
- 			printk(KERN_ERR "NFS: Too big fh %d received %d\n",
- 			       i, fl->fh_array[i]->size);
- 			goto out_err;
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index d5bdbaf93a1a..d0b6377b9834 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -645,17 +645,19 @@ static void
+ release_io(struct inf_hw *hw)
+ {
+ 	if (hw->cfg.mode) {
+-		if (hw->cfg.p) {
++		if (hw->cfg.mode == AM_MEMIO) {
+ 			release_mem_region(hw->cfg.start, hw->cfg.size);
+-			iounmap(hw->cfg.p);
++			if (hw->cfg.p)
++				iounmap(hw->cfg.p);
+ 		} else
+ 			release_region(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = AM_NONE;
+ 	}
+ 	if (hw->addr.mode) {
+-		if (hw->addr.p) {
++		if (hw->addr.mode == AM_MEMIO) {
+ 			release_mem_region(hw->addr.start, hw->addr.size);
+-			iounmap(hw->addr.p);
++			if (hw->addr.p)
++				iounmap(hw->addr.p);
+ 		} else
+ 			release_region(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = AM_NONE;
+@@ -685,9 +687,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
+ 			return err;
+ 		}
+-		if (hw->ci->cfg_mode == AM_MEMIO)
+-			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
+ 		hw->cfg.mode = hw->ci->cfg_mode;
++		if (hw->ci->cfg_mode == AM_MEMIO) {
++			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
++			if (!hw->cfg.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->cfg.start,
+@@ -712,9 +717,12 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO)
+-			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+ 		hw->addr.mode = hw->ci->addr_mode;
++		if (hw->ci->addr_mode == AM_MEMIO) {
++			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
++			if (!hw->addr.p)
++				return -ENOMEM;
++		}
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+ 				  hw->name, (ulong)hw->addr.start,
+-- 
+2.30.2
+
 
 
