@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EE0E395CC5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BE4395F2A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:07:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232116AbhEaNhc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:37:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39090 "EHLO mail.kernel.org"
+        id S231228AbhEaOIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:08:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232616AbhEaNfX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:35:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFA7F61444;
-        Mon, 31 May 2021 13:25:17 +0000 (UTC)
+        id S233157AbhEaOGd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:06:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E26BB61458;
+        Mon, 31 May 2021 13:38:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467518;
-        bh=k5C6B80V97/999w9lzY6hsrf7kvKwJWQtz5GjPSoiEQ=;
+        s=korg; t=1622468337;
+        bh=dPH8jfCynb71gmIZShaBaJy5/X+Me3+uHCk3gGdP82U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ipg98l41S28DP03KsYAJBj379LkppS/QY3xUoGQCALV0gbZFInzzD2Q9zcbbwh2xh
-         cYCF9WTC0IGqETsbWcDYBK63L8GCbc1D2mr6qlGlkQMaVlrAujZre4WT3whbwmMAlF
-         iJW5vq+ysdfxIA0N1GIxbbq1VzH0ATAEwYkWfy+4=
+        b=DZ+qMPeu2dzWK3lWhE+cftPvVt/tyw98qjcKjCWF/faawR/FxNaTwRTJIa78835BC
+         Hav9MexMnspr1V4a7BcHeLulbvo1Xk6eh5XncEWu7HEQr8ABmVgus0fa4SVRmTWZLH
+         N/9tUWvMcideypjRvtN/q4dSCHT8SmKc1dnNYhW4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        stable@vger.kernel.org, Jim Ma <majinjing3@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 095/116] drm/amdgpu: Fix a use-after-free
+Subject: [PATCH 5.10 206/252] tls splice: check SPLICE_F_NONBLOCK instead of MSG_DONTWAIT
 Date:   Mon, 31 May 2021 15:14:31 +0200
-Message-Id: <20210531130643.355967281@linuxfoundation.org>
+Message-Id: <20210531130705.013320213@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,47 +40,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: Jim Ma <majinjing3@gmail.com>
 
-[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
+[ Upstream commit 974271e5ed45cfe4daddbeb16224a2156918530e ]
 
-looks like we forget to set ttm->sg to NULL.
-Hit panic below
+In tls_sw_splice_read, checkout MSG_* is inappropriate, should use
+SPLICE_*, update tls_wait_data to accept nonblock arguments instead
+of flags for recvmsg and splice.
 
-[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
-[ 1235.989074] Call Trace:
-[ 1235.991751]  sg_free_table+0x17/0x20
-[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
-[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
-[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
-[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
-[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
-[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
-[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
-[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
-[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
-[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
-
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: c46234ebb4d1 ("tls: RX path for ktls")
+Signed-off-by: Jim Ma <majinjing3@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/tls/tls_sw.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 757fa486aac4..50807d621eca 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -1277,6 +1277,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_tt *ttm)
- 	if (gtt && gtt->userptr) {
- 		amdgpu_ttm_tt_set_user_pages(ttm, NULL);
- 		kfree(ttm->sg);
-+		ttm->sg = NULL;
- 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
- 		return;
- 	}
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 845c628ac1b2..3abe5257f757 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -37,6 +37,7 @@
+ 
+ #include <linux/sched/signal.h>
+ #include <linux/module.h>
++#include <linux/splice.h>
+ #include <crypto/aead.h>
+ 
+ #include <net/strparser.h>
+@@ -1282,7 +1283,7 @@ int tls_sw_sendpage(struct sock *sk, struct page *page,
+ }
+ 
+ static struct sk_buff *tls_wait_data(struct sock *sk, struct sk_psock *psock,
+-				     int flags, long timeo, int *err)
++				     bool nonblock, long timeo, int *err)
+ {
+ 	struct tls_context *tls_ctx = tls_get_ctx(sk);
+ 	struct tls_sw_context_rx *ctx = tls_sw_ctx_rx(tls_ctx);
+@@ -1307,7 +1308,7 @@ static struct sk_buff *tls_wait_data(struct sock *sk, struct sk_psock *psock,
+ 		if (sock_flag(sk, SOCK_DONE))
+ 			return NULL;
+ 
+-		if ((flags & MSG_DONTWAIT) || !timeo) {
++		if (nonblock || !timeo) {
+ 			*err = -EAGAIN;
+ 			return NULL;
+ 		}
+@@ -1787,7 +1788,7 @@ int tls_sw_recvmsg(struct sock *sk,
+ 		bool async_capable;
+ 		bool async = false;
+ 
+-		skb = tls_wait_data(sk, psock, flags, timeo, &err);
++		skb = tls_wait_data(sk, psock, flags & MSG_DONTWAIT, timeo, &err);
+ 		if (!skb) {
+ 			if (psock) {
+ 				int ret = __tcp_bpf_recvmsg(sk, psock,
+@@ -1991,9 +1992,9 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
+ 
+ 	lock_sock(sk);
+ 
+-	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
++	timeo = sock_rcvtimeo(sk, flags & SPLICE_F_NONBLOCK);
+ 
+-	skb = tls_wait_data(sk, NULL, flags, timeo, &err);
++	skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo, &err);
+ 	if (!skb)
+ 		goto splice_read_end;
+ 
 -- 
 2.30.2
 
