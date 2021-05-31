@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA7C7395DD3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0169F396119
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:34:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232357AbhEaNvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:51:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50842 "EHLO mail.kernel.org"
+        id S232947AbhEaOfl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:35:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232677AbhEaNs1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:48:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A3FB6142C;
-        Mon, 31 May 2021 13:31:02 +0000 (UTC)
+        id S233820AbhEaOdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78968613B6;
+        Mon, 31 May 2021 13:50:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467863;
-        bh=hpjsjytQg/ALl6GeckXXfXL+wcqpcFm+jRAd5w8np9w=;
+        s=korg; t=1622469018;
+        bh=xeakNeHo+vWY6mJu9AUXZCwYLaHsdw4m/zc8lvHTY5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MVmwX/mKNpL3esKQ76bdsHbZQrUCqs51iGBYhUmI8oc/Ydg3s/3KR5kI5xeNv4wnY
-         dCEY5daalf5e42H7wLuN70gz9K5Y/fbJ3liVRlCfxuz0fRV+PlmnNM/YuJeSY7K5m+
-         Ul1VFux5d5Vu53YXRfug5yjCxAPQAtu9j9beRm/4=
+        b=AM04EUMxy+g5UVwNEaSLm9cbb8yFIorfaqZExkQhv6RC6tY/sFDOr2svkwiUMUlnD
+         G6Va1eGHkrHopZuVJdfQYe+lSIPKfuHeu0NH9/VPV+WfHhod4pIbEGlSSpc20UtJd6
+         w9HJ2asvnG7taTnfLpWLi4oy/FGTHOweqi8HAOe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 028/252] mac80211: add fragment cache to sta_info
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.12 038/296] cfg80211: mitigate A-MSDU aggregation attacks
 Date:   Mon, 31 May 2021 15:11:33 +0200
-Message-Id: <20210531130658.941631904@linuxfoundation.org>
+Message-Id: <20210531130705.103550458@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,326 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 3a11ce08c45b50d69c891d71760b7c5b92074709 upstream.
+commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
 
-Prior patches protected against fragmentation cache attacks
-by coloring keys, but this shows that it can lead to issues
-when multiple stations use the same sequence number. Add a
-fragment cache to struct sta_info (in addition to the one in
-the interface) to separate fragments for different stations
-properly.
+Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
+destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
+header, and if so dropping the complete A-MSDU frame. This mitigates
+known attacks, although new (unknown) aggregation-based attacks may
+remain possible.
 
-This then automatically clear most of the fragment cache when a
-station disconnects (or reassociates) from an AP, or when client
-interfaces disconnect from the network, etc.
+This defense works because in A-MSDU aggregation injection attacks, a
+normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
+the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
+header. In other words, the destination MAC address of the first A-MSDU
+subframe contains the start of an RFC1042 header during an aggregation
+attack. We can detect this and thereby prevent this specific attack.
+For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
+Through Frame Aggregation and Fragmentation".
 
-On the way, also fix the comment there since this brings us in line
-with the recommendation in 802.11-2016 ("An AP should support ...").
-Additionally, remove a useless condition (since there's no problem
-purging an already empty list).
+Note that for kernel 4.9 and above this patch depends on "mac80211:
+properly handle A-MSDUs that start with a rfc1042 header". Otherwise
+this patch has no impact and attacks will remain possible.
 
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210511200110.fc35046b0d52.I1ef101e3784d13e8f6600d83de7ec9a3a45bcd52@changeid
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |   26 ++++----------------------
- net/mac80211/iface.c       |   11 +++--------
- net/mac80211/rx.c          |   41 ++++++++++++++++++++++++++++++-----------
- net/mac80211/sta_info.c    |    6 +++++-
- net/mac80211/sta_info.h    |   32 +++++++++++++++++++++++++++++++-
- 5 files changed, 73 insertions(+), 43 deletions(-)
+ net/wireless/util.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -50,12 +50,6 @@ struct ieee80211_local;
- #define IEEE80211_ENCRYPT_HEADROOM 8
- #define IEEE80211_ENCRYPT_TAILROOM 18
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -771,6 +771,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
+ 		remaining = skb->len - offset;
+ 		if (subframe_len > remaining)
+ 			goto purge;
++		/* mitigate A-MSDU aggregation injection attacks */
++		if (ether_addr_equal(eth.h_dest, rfc1042_header))
++			goto purge;
  
--/* IEEE 802.11 (Ch. 9.5 Defragmentation) requires support for concurrent
-- * reception of at least three fragmented frames. This limit can be increased
-- * by changing this define, at the cost of slower frame reassembly and
-- * increased memory use (about 2 kB of RAM per entry). */
--#define IEEE80211_FRAGMENT_MAX 4
--
- /* power level hasn't been configured (or set to automatic) */
- #define IEEE80211_UNSET_POWER_LEVEL	INT_MIN
- 
-@@ -88,19 +82,6 @@ extern const u8 ieee80211_ac_to_qos_mask
- 
- #define IEEE80211_MAX_NAN_INSTANCE_ID 255
- 
--struct ieee80211_fragment_entry {
--	struct sk_buff_head skb_list;
--	unsigned long first_frag_time;
--	u16 seq;
--	u16 extra_len;
--	u16 last_frag;
--	u8 rx_queue;
--	bool check_sequential_pn; /* needed for CCMP/GCMP */
--	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
--	unsigned int key_color;
--};
--
--
- struct ieee80211_bss {
- 	u32 device_ts_beacon, device_ts_presp;
- 
-@@ -907,9 +888,7 @@ struct ieee80211_sub_if_data {
- 
- 	char name[IFNAMSIZ];
- 
--	/* Fragment table for host-based reassembly */
--	struct ieee80211_fragment_entry	fragments[IEEE80211_FRAGMENT_MAX];
--	unsigned int fragment_next;
-+	struct ieee80211_fragment_cache frags;
- 
- 	/* TID bitmap for NoAck policy */
- 	u16 noack_map;
-@@ -2328,4 +2307,7 @@ u32 ieee80211_calc_expected_tx_airtime(s
- #define debug_noinline
- #endif
- 
-+void ieee80211_init_frag_cache(struct ieee80211_fragment_cache *cache);
-+void ieee80211_destroy_frag_cache(struct ieee80211_fragment_cache *cache);
-+
- #endif /* IEEE80211_I_H */
---- a/net/mac80211/iface.c
-+++ b/net/mac80211/iface.c
-@@ -8,7 +8,7 @@
-  * Copyright 2008, Johannes Berg <johannes@sipsolutions.net>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright (c) 2016        Intel Deutschland GmbH
-- * Copyright (C) 2018-2020 Intel Corporation
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
- #include <linux/slab.h>
- #include <linux/kernel.h>
-@@ -679,16 +679,12 @@ static void ieee80211_set_multicast_list
-  */
- static void ieee80211_teardown_sdata(struct ieee80211_sub_if_data *sdata)
- {
--	int i;
--
- 	/* free extra data */
- 	ieee80211_free_keys(sdata, false);
- 
- 	ieee80211_debugfs_remove_netdev(sdata);
- 
--	for (i = 0; i < IEEE80211_FRAGMENT_MAX; i++)
--		__skb_queue_purge(&sdata->fragments[i].skb_list);
--	sdata->fragment_next = 0;
-+	ieee80211_destroy_frag_cache(&sdata->frags);
- 
- 	if (ieee80211_vif_is_mesh(&sdata->vif))
- 		ieee80211_mesh_teardown_sdata(sdata);
-@@ -1950,8 +1946,7 @@ int ieee80211_if_add(struct ieee80211_lo
- 	sdata->wdev.wiphy = local->hw.wiphy;
- 	sdata->local = local;
- 
--	for (i = 0; i < IEEE80211_FRAGMENT_MAX; i++)
--		skb_queue_head_init(&sdata->fragments[i].skb_list);
-+	ieee80211_init_frag_cache(&sdata->frags);
- 
- 	INIT_LIST_HEAD(&sdata->key_list);
- 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2133,19 +2133,34 @@ ieee80211_rx_h_decrypt(struct ieee80211_
- 	return result;
- }
- 
-+void ieee80211_init_frag_cache(struct ieee80211_fragment_cache *cache)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(cache->entries); i++)
-+		skb_queue_head_init(&cache->entries[i].skb_list);
-+}
-+
-+void ieee80211_destroy_frag_cache(struct ieee80211_fragment_cache *cache)
-+{
-+	int i;
-+
-+	for (i = 0; i < ARRAY_SIZE(cache->entries); i++)
-+		__skb_queue_purge(&cache->entries[i].skb_list);
-+}
-+
- static inline struct ieee80211_fragment_entry *
--ieee80211_reassemble_add(struct ieee80211_sub_if_data *sdata,
-+ieee80211_reassemble_add(struct ieee80211_fragment_cache *cache,
- 			 unsigned int frag, unsigned int seq, int rx_queue,
- 			 struct sk_buff **skb)
- {
- 	struct ieee80211_fragment_entry *entry;
- 
--	entry = &sdata->fragments[sdata->fragment_next++];
--	if (sdata->fragment_next >= IEEE80211_FRAGMENT_MAX)
--		sdata->fragment_next = 0;
-+	entry = &cache->entries[cache->next++];
-+	if (cache->next >= IEEE80211_FRAGMENT_MAX)
-+		cache->next = 0;
- 
--	if (!skb_queue_empty(&entry->skb_list))
--		__skb_queue_purge(&entry->skb_list);
-+	__skb_queue_purge(&entry->skb_list);
- 
- 	__skb_queue_tail(&entry->skb_list, *skb); /* no need for locking */
- 	*skb = NULL;
-@@ -2160,14 +2175,14 @@ ieee80211_reassemble_add(struct ieee8021
- }
- 
- static inline struct ieee80211_fragment_entry *
--ieee80211_reassemble_find(struct ieee80211_sub_if_data *sdata,
-+ieee80211_reassemble_find(struct ieee80211_fragment_cache *cache,
- 			  unsigned int frag, unsigned int seq,
- 			  int rx_queue, struct ieee80211_hdr *hdr)
- {
- 	struct ieee80211_fragment_entry *entry;
- 	int i, idx;
- 
--	idx = sdata->fragment_next;
-+	idx = cache->next;
- 	for (i = 0; i < IEEE80211_FRAGMENT_MAX; i++) {
- 		struct ieee80211_hdr *f_hdr;
- 		struct sk_buff *f_skb;
-@@ -2176,7 +2191,7 @@ ieee80211_reassemble_find(struct ieee802
- 		if (idx < 0)
- 			idx = IEEE80211_FRAGMENT_MAX - 1;
- 
--		entry = &sdata->fragments[idx];
-+		entry = &cache->entries[idx];
- 		if (skb_queue_empty(&entry->skb_list) || entry->seq != seq ||
- 		    entry->rx_queue != rx_queue ||
- 		    entry->last_frag + 1 != frag)
-@@ -2217,6 +2232,7 @@ static bool requires_sequential_pn(struc
- static ieee80211_rx_result debug_noinline
- ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- {
-+	struct ieee80211_fragment_cache *cache = &rx->sdata->frags;
- 	struct ieee80211_hdr *hdr;
- 	u16 sc;
- 	__le16 fc;
-@@ -2238,6 +2254,9 @@ ieee80211_rx_h_defragment(struct ieee802
- 		goto out_no_led;
- 	}
- 
-+	if (rx->sta)
-+		cache = &rx->sta->frags;
-+
- 	if (likely(!ieee80211_has_morefrags(fc) && frag == 0))
- 		goto out;
- 
-@@ -2256,7 +2275,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 
- 	if (frag == 0) {
- 		/* This is the first fragment of a new frame. */
--		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
-+		entry = ieee80211_reassemble_add(cache, frag, seq,
- 						 rx->seqno_idx, &(rx->skb));
- 		if (requires_sequential_pn(rx, fc)) {
- 			int queue = rx->security_idx;
-@@ -2284,7 +2303,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 	/* This is a fragment for a frame that should already be pending in
- 	 * fragment cache. Add this fragment to the end of the pending entry.
- 	 */
--	entry = ieee80211_reassemble_find(rx->sdata, frag, seq,
-+	entry = ieee80211_reassemble_find(cache, frag, seq,
- 					  rx->seqno_idx, hdr);
- 	if (!entry) {
- 		I802_DEBUG_INC(rx->local->rx_handlers_drop_defrag);
---- a/net/mac80211/sta_info.c
-+++ b/net/mac80211/sta_info.c
-@@ -4,7 +4,7 @@
-  * Copyright 2006-2007	Jiri Benc <jbenc@suse.cz>
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright (C) 2015 - 2017 Intel Deutschland GmbH
-- * Copyright (C) 2018-2020 Intel Corporation
-+ * Copyright (C) 2018-2021 Intel Corporation
-  */
- 
- #include <linux/module.h>
-@@ -392,6 +392,8 @@ struct sta_info *sta_info_alloc(struct i
- 
- 	u64_stats_init(&sta->rx_stats.syncp);
- 
-+	ieee80211_init_frag_cache(&sta->frags);
-+
- 	sta->sta_state = IEEE80211_STA_NONE;
- 
- 	/* Mark TID as unreserved */
-@@ -1102,6 +1104,8 @@ static void __sta_info_destroy_part2(str
- 
- 	ieee80211_sta_debugfs_remove(sta);
- 
-+	ieee80211_destroy_frag_cache(&sta->frags);
-+
- 	cleanup_single_sta(sta);
- }
- 
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -3,7 +3,7 @@
-  * Copyright 2002-2005, Devicescape Software, Inc.
-  * Copyright 2013-2014  Intel Mobile Communications GmbH
-  * Copyright(c) 2015-2017 Intel Deutschland GmbH
-- * Copyright(c) 2020 Intel Corporation
-+ * Copyright(c) 2020-2021 Intel Corporation
-  */
- 
- #ifndef STA_INFO_H
-@@ -437,6 +437,33 @@ struct ieee80211_sta_rx_stats {
- };
- 
- /*
-+ * IEEE 802.11-2016 (10.6 "Defragmentation") recommends support for "concurrent
-+ * reception of at least one MSDU per access category per associated STA"
-+ * on APs, or "at least one MSDU per access category" on other interface types.
-+ *
-+ * This limit can be increased by changing this define, at the cost of slower
-+ * frame reassembly and increased memory use while fragments are pending.
-+ */
-+#define IEEE80211_FRAGMENT_MAX 4
-+
-+struct ieee80211_fragment_entry {
-+	struct sk_buff_head skb_list;
-+	unsigned long first_frag_time;
-+	u16 seq;
-+	u16 extra_len;
-+	u16 last_frag;
-+	u8 rx_queue;
-+	bool check_sequential_pn; /* needed for CCMP/GCMP */
-+	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
-+	unsigned int key_color;
-+};
-+
-+struct ieee80211_fragment_cache {
-+	struct ieee80211_fragment_entry	entries[IEEE80211_FRAGMENT_MAX];
-+	unsigned int next;
-+};
-+
-+/*
-  * The bandwidth threshold below which the per-station CoDel parameters will be
-  * scaled to be more lenient (to prevent starvation of slow stations). This
-  * value will be scaled by the number of active stations when it is being
-@@ -529,6 +556,7 @@ struct ieee80211_sta_rx_stats {
-  * @status_stats.last_ack_signal: last ACK signal
-  * @status_stats.ack_signal_filled: last ACK signal validity
-  * @status_stats.avg_ack_signal: average ACK signal
-+ * @frags: fragment cache
-  */
- struct sta_info {
- 	/* General information, mostly static */
-@@ -637,6 +665,8 @@ struct sta_info {
- 
- 	struct cfg80211_chan_def tdls_chandef;
- 
-+	struct ieee80211_fragment_cache frags;
-+
- 	/* keep last! */
- 	struct ieee80211_sta sta;
- };
+ 		offset += sizeof(struct ethhdr);
+ 		last = remaining <= subframe_len + padding;
 
 
