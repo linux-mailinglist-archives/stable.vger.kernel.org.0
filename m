@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CF1DB39607C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 222F63962F8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233743AbhEaO1W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:27:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54450 "EHLO mail.kernel.org"
+        id S232793AbhEaPCx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:02:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51350 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232252AbhEaOZU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:25:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 29CC961A1D;
-        Mon, 31 May 2021 13:46:29 +0000 (UTC)
+        id S233875AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 11:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBE4C6124B;
+        Mon, 31 May 2021 14:13:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468789;
-        bh=szfQwQ6TG9bJQID2vn9M14Gfw/Jx1GOvFCQrvjG7zrE=;
+        s=korg; t=1622470412;
+        bh=CkBX6dDb2qCvTwr5HBZitee88T2Xacmboqzj1RmD66k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P+/U3heVf/r56z3tltmqu/UA2cSB7OzKpi9zdavi4Pi4CbB8HKIUDw4tYmtCmBZ5/
-         csL+JC7LFVDWAAFZtluiB2h5h/zJzLGb13BtzV8sY0XGzvRLRLxnjATcYo4sxHZmIW
-         UsY7SWLkJilS7KJNhgOJFHCSvTocXW0SpWszusGA=
+        b=tWOXzZ2PJ6RRUCHx9FCwOCaYghg5NMeOGUrCnZ3rGc3RXb9zH7oXaxKY0govqRd1J
+         SPtiqU+XHzT8Jj137UjnLeSZBN4wrH7Q13543qtrIXkru2v3+ofl1dK0b5hfXxviUg
+         IsaWvbOyoGEhjFhOI1JASPSi9IAFAZ96xA7Adsso=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.4 084/177] i2c: sh_mobile: Use new clock calculation formulas for RZ/G2E
+        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.19 065/116] NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
 Date:   Mon, 31 May 2021 15:14:01 +0200
-Message-Id: <20210531130650.806796465@linuxfoundation.org>
+Message-Id: <20210531130642.364230432@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit c4740e293c93c747e65d53d9aacc2ba8521d1489 upstream.
+commit e67afa7ee4a59584d7253e45d7f63b9528819a13 upstream.
 
-When switching the Gen3 SoCs to the new clock calculation formulas, the
-match entry for RZ/G2E added in commit 51243b73455f2d12 ("i2c:
-sh_mobile: Add support for r8a774c0 (RZ/G2E)") was forgotten.
+Since commit bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors"),
+nfs42_proc_llseek would return -EOPNOTSUPP rather than -ENOTSUPP when
+SEEK_DATA on NFSv4.0/v4.1.
 
-Fixes: e8a27567509b2439 ("i2c: sh_mobile: use new clock calculation formulas for Gen3")
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+This will lead xfstests generic/285 not run on NFSv4.0/v4.1 when set the
+CONFIG_NFS_V4_2, rather than run failed.
+
+Fixes: bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors")
+Cc: <stable.vger.kernel.org> # 4.2
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
+ fs/nfs/nfs4file.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -813,7 +813,7 @@ static const struct sh_mobile_dt_config
- static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,iic-r8a73a4", .data = &fast_clock_dt_config },
- 	{ .compatible = "renesas,iic-r8a7740", .data = &r8a7740_dt_config },
--	{ .compatible = "renesas,iic-r8a774c0", .data = &fast_clock_dt_config },
-+	{ .compatible = "renesas,iic-r8a774c0", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7790", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7791", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7792", .data = &v2_freq_calc_dt_config },
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -148,7 +148,7 @@ static loff_t nfs4_file_llseek(struct fi
+ 	case SEEK_HOLE:
+ 	case SEEK_DATA:
+ 		ret = nfs42_proc_llseek(filep, offset, whence);
+-		if (ret != -ENOTSUPP)
++		if (ret != -EOPNOTSUPP)
+ 			return ret;
+ 		/* Fall through */
+ 	default:
 
 
