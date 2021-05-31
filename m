@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F47A395B74
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66A03395C6A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231935AbhEaNUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:20:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53846 "EHLO mail.kernel.org"
+        id S232212AbhEaNcf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:32:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232027AbhEaNTi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 342126136D;
-        Mon, 31 May 2021 13:17:58 +0000 (UTC)
+        id S231995AbhEaNa2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:30:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 994E061421;
+        Mon, 31 May 2021 13:23:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467078;
-        bh=MXGIiJJLIK2C3dDDxIjREMy62nUD8pk2ZeVamRVj5gc=;
+        s=korg; t=1622467382;
+        bh=7ZJWYZmveuhj1bMDldiWxf32/QRQQ2LAT9Lp6hzTgJo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XMkQk1WnksI4VsIFGc0tW9KiyRmdJgyEV6rP4a5yPzNVOB+p4aYfRDGIMkarOMcj6
-         ok3T665jk/OIDToGQbFRAkZ3cPPp2kQ6NARXLCwqYgxB21Wfkg3M3edgW1N95BY66P
-         Rz+cbzYHWdGzFrGTaDxuSaG3dzgHkgMLwAEGZRm8=
+        b=FK8DqzwPI3VU0rGBGnd1AN7Dvl29P/pD8K1zfEjW+4RT1ITm5wAm6IIG7yT05ZLiA
+         bpyvCGKUMWdkbsrKiqvtOM0+/i34p553gVfmcA451kDsEwZhLKtFUU1if7nChylxS3
+         dWRueB9q+olwoNmwnsI6rz/glR0xTDMPAQ5bqWXE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>
-Subject: [PATCH 4.4 15/54] serial: rp2: use request_firmware instead of request_firmware_nowait
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 045/116] bpf: Test_verifier, bpf_get_stack return value add <0
 Date:   Mon, 31 May 2021 15:13:41 +0200
-Message-Id: <20210531130635.567024152@linuxfoundation.org>
+Message-Id: <20210531130641.683479991@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,267 +41,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: John Fastabend <john.fastabend@gmail.com>
 
-commit 016002848c82eeb5d460489ce392d91fe18c475c upstream.
+commit 9ac26e9973bac5716a2a542e32f380c84db2b88c upstream.
 
-In 'rp2_probe', the driver registers 'rp2_uart_interrupt' then calls
-'rp2_fw_cb' through 'request_firmware_nowait'. In 'rp2_fw_cb', if the
-firmware don't exists, function just return without initializing ports
-of 'rp2_card'. But now the interrupt handler function has been
-registered, and when an interrupt comes, 'rp2_uart_interrupt' may access
-those ports then causing NULL pointer dereference or other bugs.
+With current ALU32 subreg handling and retval refine fix from last
+patches we see an expected failure in test_verifier. With verbose
+verifier state being printed at each step for clarity we have the
+following relavent lines [I omit register states that are not
+necessarily useful to see failure cause],
 
-Because the driver does some initialization work in 'rp2_fw_cb', in
-order to make the driver ready to handle interrupts, 'request_firmware'
-should be used instead of asynchronous 'request_firmware_nowait'.
+#101/p bpf_get_stack return R0 within range FAIL
+Failed to load prog 'Success'!
+[..]
+14: (85) call bpf_get_stack#67
+ R0_w=map_value(id=0,off=0,ks=8,vs=48,imm=0)
+ R3_w=inv48
+15:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+15: (b7) r1 = 0
+16:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+16: (bf) r8 = r0
+17:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+17: (67) r8 <<= 32
+18:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smax_value=9223372032559808512,
+               umax_value=18446744069414584320,
+               var_off=(0x0; 0xffffffff00000000),
+               s32_min_value=0,
+               s32_max_value=0,
+               u32_max_value=0,
+               var32_off=(0x0; 0x0))
+18: (c7) r8 s>>= 32
+19
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=2147483647,
+               var32_off=(0x0; 0xffffffff))
+19: (cd) if r1 s< r8 goto pc+16
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=0,
+               var32_off=(0x0; 0xffffffff))
+20:
+ R0=inv(id=0,smax_value=48,var32_off=(0x0; 0xffffffff))
+ R1_w=inv0
+ R8_w=inv(id=0,smin_value=-2147483648,
+               smax_value=0,
+ R9=inv48
+20: (1f) r9 -= r8
+21: (bf) r2 = r7
+22:
+ R2_w=map_value(id=0,off=0,ks=8,vs=48,imm=0)
+22: (0f) r2 += r8
+value -2147483648 makes map_value pointer be out of bounds
 
-This report reveals it:
+After call bpf_get_stack() on line 14 and some moves we have at line 16
+an r8 bound with max_value 48 but an unknown min value. This is to be
+expected bpf_get_stack call can only return a max of the input size but
+is free to return any negative error in the 32-bit register space. The
+C helper is returning an int so will use lower 32-bits.
 
-INFO: trying to register non-static key.
-the code is fine but needs lockdep annotation.
-turning off the locking correctness validator.
-CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef-dirty #45
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-
-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-Call Trace:
- <IRQ>
- __dump_stack lib/dump_stack.c:77 [inline]
- dump_stack+0xec/0x156 lib/dump_stack.c:118
- assign_lock_key kernel/locking/lockdep.c:727 [inline]
- register_lock_class+0x14e5/0x1ba0 kernel/locking/lockdep.c:753
- __lock_acquire+0x187/0x3750 kernel/locking/lockdep.c:3303
- lock_acquire+0x124/0x340 kernel/locking/lockdep.c:3907
- __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
- _raw_spin_lock+0x32/0x50 kernel/locking/spinlock.c:144
- spin_lock include/linux/spinlock.h:329 [inline]
- rp2_ch_interrupt drivers/tty/serial/rp2.c:466 [inline]
- rp2_asic_interrupt.isra.9+0x15d/0x990 drivers/tty/serial/rp2.c:493
- rp2_uart_interrupt+0x49/0xe0 drivers/tty/serial/rp2.c:504
- __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
- handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
- handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
- handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
- generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
- handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
- do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
- common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
- </IRQ>
-RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
-Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 c2 2f 8c 48 89 e5 e8 fb 31 e7 f8
-8b 05 75 af 8d 03 85 c0 7e 07 0f 00 2d 8a 61 65 00 fb f4 <5d> c3 90 90 90
-90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
-RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
-RAX: 0000000000000000 RBX: ffffffff8bde7e48 RCX: ffffffff88a21285
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2fc200
-RBP: ffff88806b71fcc8 R08: fffffbfff185f840 R09: fffffbfff185f840
-R10: 0000000000000001 R11: fffffbfff185f840 R12: 0000000000000002
-R13: ffffffff8bea18a0 R14: 0000000000000000 R15: 0000000000000000
- arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
- default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
- arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
- default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
- cpuidle_idle_call kernel/sched/idle.c:153 [inline]
- do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
- cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
- start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
-BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
-PGD 8000000056d27067 P4D 8000000056d27067 PUD 56d28067 PMD 0
-Oops: 0000 [#1] PREEMPT SMP KASAN PTI
-CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef-dirty #45
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-
-gc9ba5276e321-prebuilt.qemu.org 04/01/2014
-RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
-RIP: 0010:rp2_ch_interrupt drivers/tty/serial/rp2.c:472 [inline]
-RIP: 0010:rp2_asic_interrupt.isra.9+0x181/0x990 drivers/tty/serial/rp2.c:
-493
-Code: df e8 43 5d c2 05 48 8d 83 e8 01 00 00 48 89 85 60 ff ff ff 48 c1 e8
-03 42 80 3c 30 00 0f 85 aa 07 00 00 48 8b 83 e8 01 00 00 <8b> 40 10 89 c1
-89 85 68 ff ff ff 48 8b 83 e8 01 00 00 89 48 10 83
-RSP: 0018:ffff88806c287cd0 EFLAGS: 00010046
-RAX: 0000000000000000 RBX: ffff88806ade6820 RCX: ffffffff814300b1
-RDX: 1ffff1100d5bcd06 RSI: 0000000000000004 RDI: ffff88806ade6820
-RBP: ffff88806c287db8 R08: ffffed100d5bcd05 R09: ffffed100d5bcd05
-R10: 0000000000000001 R11: ffffed100d5bcd04 R12: ffffc90001e00000
-R13: ffff888069654e10 R14: dffffc0000000000 R15: ffff888069654df0
-FS:  0000000000000000(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000010 CR3: 000000006892c000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- <IRQ>
- rp2_uart_interrupt+0x49/0xe0 drivers/tty/serial/rp2.c:504
- __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
- handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
- handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
- handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
- generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
- handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
- do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
- common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
- </IRQ>
-RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
-Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 c2 2f 8c 48 89 e5 e8 fb 31 e7
-f8 8b 05 75 af 8d 03 85 c0 7e 07 0f 00 2d 8a 61 65 00 fb f4 <5d> c3 90
-90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
-RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
-RAX: 0000000000000000 RBX: ffffffff8bde7e48 RCX: ffffffff88a21285
-RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2fc200
-RBP: ffff88806b71fcc8 R08: fffffbfff185f840 R09: fffffbfff185f840
-R10: 0000000000000001 R11: fffffbfff185f840 R12: 0000000000000002
-R13: ffffffff8bea18a0 R14: 0000000000000000 R15: 0000000000000000
- arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
- default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
- arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
- default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
- cpuidle_idle_call kernel/sched/idle.c:153 [inline]
- do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
- cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
- start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
- secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
-Modules linked in:
-Dumping ftrace buffer:
-   (ftrace buffer empty)
-CR2: 0000000000000010
----[ end trace 11804dbb55cb1a64 ]---
-RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
-RIP: 0010:rp2_ch_interrupt drivers/tty/serial/rp2.c:472 [inline]
-RIP: 0010:rp2_asic_interrupt.isra.9+0x181/0x990 drivers/tty/serial/rp2.c:
-493
-Code: df e8 43 5d c2 05 48 8d 83 e8 01 00 00 48 89 85 60 ff ff ff 48 c1
-e8 03 42 80 3c 30 00 0f 85 aa 07 00 00 48 8b 83 e8 01 00 00 <8b> 40 10 89
-c1 89 85 68 ff ff ff 48 8b 83 e8 01 00 00 89 48 10 83
-RSP: 0018:ffff88806c287cd0 EFLAGS: 00010046
-RAX: 0000000000000000 RBX: ffff88806ade6820 RCX: ffffffff814300b1
-RDX: 1ffff1100d5bcd06 RSI: 0000000000000004 RDI: ffff88806ade6820
-RBP: ffff88806c287db8 R08: ffffed100d5bcd05 R09: ffffed100d5bcd05
-R10: 0000000000000001 R11: ffffed100d5bcd04 R12: ffffc90001e00000
-R13: ffff888069654e10 R14: dffffc0000000000 R15: ffff888069654df0
-FS:  0000000000000000(0000) GS:ffff88806c280000(0000) knlGS:
-0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000000000000010 CR3: 000000006892c000 CR4: 00000000000006e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Lines 17 and 18 clear the top 32 bits with a left/right shift but use
+ARSH so we still have worst case min bound before line 19 of -2147483648.
+At this point the signed check 'r1 s< r8' meant to protect the addition
+on line 22 where dst reg is a map_value pointer may very well return
+true with a large negative number. Then the final line 22 will detect
+this as an invalid operation and fail the program. What we want to do
+is proceed only if r8 is positive non-error. So change 'r1 s< r8' to
+'r1 s> r8' so that we jump if r8 is negative.
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Link: https://lore.kernel.org/r/1621577323-1541-1-git-send-email-zheyuma97@gmail.com
-Cc: stable <stable@vger.kernel.org>
+Next we will throw an error because we access past the end of the map
+value. The map value size is 48 and sizeof(struct test_val) is 48 so
+we walk off the end of the map value on the second call to
+get bpf_get_stack(). Fix this by changing sizeof(struct test_val) to
+24 by using 'sizeof(struct test_val) / 2'. After this everything passes
+as expected.
+
+Signed-off-by: John Fastabend <john.fastabend@gmail.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/158560426019.10843.3285429543232025187.stgit@john-Precision-5820-Tower
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[OP: backport to 4.19]
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/rp2.c |   52 +++++++++++++++--------------------------------
- 1 file changed, 17 insertions(+), 35 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/serial/rp2.c
-+++ b/drivers/tty/serial/rp2.c
-@@ -198,7 +198,6 @@ struct rp2_card {
- 	void __iomem			*bar0;
- 	void __iomem			*bar1;
- 	spinlock_t			card_lock;
--	struct completion		fw_loaded;
- };
- 
- #define RP_ID(prod) PCI_VDEVICE(RP, (prod))
-@@ -667,17 +666,10 @@ static void rp2_remove_ports(struct rp2_
- 	card->initialized_ports = 0;
- }
- 
--static void rp2_fw_cb(const struct firmware *fw, void *context)
-+static int rp2_load_firmware(struct rp2_card *card, const struct firmware *fw)
- {
--	struct rp2_card *card = context;
- 	resource_size_t phys_base;
--	int i, rc = -ENOENT;
--
--	if (!fw) {
--		dev_err(&card->pdev->dev, "cannot find '%s' firmware image\n",
--			RP2_FW_NAME);
--		goto no_fw;
--	}
-+	int i, rc = 0;
- 
- 	phys_base = pci_resource_start(card->pdev, 1);
- 
-@@ -723,23 +715,13 @@ static void rp2_fw_cb(const struct firmw
- 		card->initialized_ports++;
- 	}
- 
--	release_firmware(fw);
--no_fw:
--	/*
--	 * rp2_fw_cb() is called from a workqueue long after rp2_probe()
--	 * has already returned success.  So if something failed here,
--	 * we'll just leave the now-dormant device in place until somebody
--	 * unbinds it.
--	 */
--	if (rc)
--		dev_warn(&card->pdev->dev, "driver initialization failed\n");
--
--	complete(&card->fw_loaded);
-+	return rc;
- }
- 
- static int rp2_probe(struct pci_dev *pdev,
- 				   const struct pci_device_id *id)
- {
-+	const struct firmware *fw;
- 	struct rp2_card *card;
- 	struct rp2_uart_port *ports;
- 	void __iomem * const *bars;
-@@ -750,7 +732,6 @@ static int rp2_probe(struct pci_dev *pde
- 		return -ENOMEM;
- 	pci_set_drvdata(pdev, card);
- 	spin_lock_init(&card->card_lock);
--	init_completion(&card->fw_loaded);
- 
- 	rc = pcim_enable_device(pdev);
- 	if (rc)
-@@ -783,21 +764,23 @@ static int rp2_probe(struct pci_dev *pde
- 		return -ENOMEM;
- 	card->ports = ports;
- 
--	rc = devm_request_irq(&pdev->dev, pdev->irq, rp2_uart_interrupt,
--			      IRQF_SHARED, DRV_NAME, card);
--	if (rc)
-+	rc = request_firmware(&fw, RP2_FW_NAME, &pdev->dev);
-+	if (rc < 0) {
-+		dev_err(&pdev->dev, "cannot find '%s' firmware image\n",
-+			RP2_FW_NAME);
- 		return rc;
-+	}
- 
--	/*
--	 * Only catastrophic errors (e.g. ENOMEM) are reported here.
--	 * If the FW image is missing, we'll find out in rp2_fw_cb()
--	 * and print an error message.
--	 */
--	rc = request_firmware_nowait(THIS_MODULE, 1, RP2_FW_NAME, &pdev->dev,
--				     GFP_KERNEL, card, rp2_fw_cb);
-+	rc = rp2_load_firmware(card, fw);
-+
-+	release_firmware(fw);
-+	if (rc < 0)
-+		return rc;
-+
-+	rc = devm_request_irq(&pdev->dev, pdev->irq, rp2_uart_interrupt,
-+			      IRQF_SHARED, DRV_NAME, card);
- 	if (rc)
- 		return rc;
--	dev_dbg(&pdev->dev, "waiting for firmware blob...\n");
- 
- 	return 0;
- }
-@@ -806,7 +789,6 @@ static void rp2_remove(struct pci_dev *p
- {
- 	struct rp2_card *card = pci_get_drvdata(pdev);
- 
--	wait_for_completion(&card->fw_loaded);
- 	rp2_remove_ports(card);
- }
- 
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -12253,17 +12253,17 @@ static struct bpf_test tests[] = {
+ 				     BPF_FUNC_map_lookup_elem),
+ 			BPF_JMP_IMM(BPF_JEQ, BPF_REG_0, 0, 28),
+ 			BPF_MOV64_REG(BPF_REG_7, BPF_REG_0),
+-			BPF_MOV64_IMM(BPF_REG_9, sizeof(struct test_val)),
++			BPF_MOV64_IMM(BPF_REG_9, sizeof(struct test_val)/2),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_6),
+ 			BPF_MOV64_REG(BPF_REG_2, BPF_REG_7),
+-			BPF_MOV64_IMM(BPF_REG_3, sizeof(struct test_val)),
++			BPF_MOV64_IMM(BPF_REG_3, sizeof(struct test_val)/2),
+ 			BPF_MOV64_IMM(BPF_REG_4, 256),
+ 			BPF_EMIT_CALL(BPF_FUNC_get_stack),
+ 			BPF_MOV64_IMM(BPF_REG_1, 0),
+ 			BPF_MOV64_REG(BPF_REG_8, BPF_REG_0),
+ 			BPF_ALU64_IMM(BPF_LSH, BPF_REG_8, 32),
+ 			BPF_ALU64_IMM(BPF_ARSH, BPF_REG_8, 32),
+-			BPF_JMP_REG(BPF_JSLT, BPF_REG_1, BPF_REG_8, 16),
++			BPF_JMP_REG(BPF_JSGT, BPF_REG_1, BPF_REG_8, 16),
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_9, BPF_REG_8),
+ 			BPF_MOV64_REG(BPF_REG_2, BPF_REG_7),
+ 			BPF_ALU64_REG(BPF_ADD, BPF_REG_2, BPF_REG_8),
+@@ -12273,7 +12273,7 @@ static struct bpf_test tests[] = {
+ 			BPF_MOV64_REG(BPF_REG_3, BPF_REG_2),
+ 			BPF_ALU64_REG(BPF_ADD, BPF_REG_3, BPF_REG_1),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_7),
+-			BPF_MOV64_IMM(BPF_REG_5, sizeof(struct test_val)),
++			BPF_MOV64_IMM(BPF_REG_5, sizeof(struct test_val)/2),
+ 			BPF_ALU64_REG(BPF_ADD, BPF_REG_1, BPF_REG_5),
+ 			BPF_JMP_REG(BPF_JGE, BPF_REG_3, BPF_REG_1, 4),
+ 			BPF_MOV64_REG(BPF_REG_1, BPF_REG_6),
 
 
