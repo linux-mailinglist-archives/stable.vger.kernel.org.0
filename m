@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 918ED395CC3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 153CB395EFA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbhEaNha (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:37:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39134 "EHLO mail.kernel.org"
+        id S232516AbhEaOGE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:06:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232102AbhEaNfZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:35:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0224E6144A;
-        Mon, 31 May 2021 13:25:22 +0000 (UTC)
+        id S232212AbhEaOD5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:03:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F20C1613C1;
+        Mon, 31 May 2021 13:37:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467523;
-        bh=t38r1m1yqrG19lywPpcm2PM0Dbu7AjPD3TxcAUQw+5M=;
+        s=korg; t=1622468274;
+        bh=p9SOPVhR3hgFauLpHcLifRt5AajZWHwWV4bCa9HFucs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfO/gHabSabHKrGRgJd4ge/n228VaREZTPLpggEIvwicy+6VAmv0TGw4hpicjlBMy
-         SnkPJG9hEJBfHAUgEJ20D+MnTVWzKq09rfCPEknlTzmgEZM/cV8X4CmZ5i529UKqD+
-         RiMAIb+FxY3EtFiMrZFwM3KATJ3UR2GpfQlI4nUg=
+        b=HhMYZqp0ejVYr5db15BRPuyaz193KjOWDLyHW8gywVzmP0m7m5vrNcZ3SHRxQyUHv
+         EW847IXMLbLItsgVMPNCIp2uAK5SGxj+tRA+DcEbb70miCPst3GpxYuJQyogZjTCbU
+         Llz1s1J0Lc1V86zo1DBdKU/nFcblrUFV0WnuQAic=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 070/116] net: dsa: mt7530: fix VLAN traffic leaks
+        stable@vger.kernel.org, Chris Park <Chris.Park@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Stylon Wang <stylon.wang@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 181/252] drm/amd/display: Disconnect non-DP with no EDID
 Date:   Mon, 31 May 2021 15:14:06 +0200
-Message-Id: <20210531130642.520516690@linuxfoundation.org>
+Message-Id: <20210531130704.161056012@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: DENG Qingfang <dqfext@gmail.com>
+From: Chris Park <Chris.Park@amd.com>
 
-commit 474a2ddaa192777522a7499784f1d60691cd831a upstream.
+[ Upstream commit 080039273b126eeb0185a61c045893a25dbc046e ]
 
-PCR_MATRIX field was set to all 1's when VLAN filtering is enabled, but
-was not reset when it is disabled, which may cause traffic leaks:
+[Why]
+Active DP dongles return no EDID when dongle
+is connected, but VGA display is taken out.
+Current driver behavior does not remove the
+active display when this happens, and this is
+a gap between dongle DTP and dongle behavior.
 
-	ip link add br0 type bridge vlan_filtering 1
-	ip link add br1 type bridge vlan_filtering 1
-	ip link set swp0 master br0
-	ip link set swp1 master br1
-	ip link set br0 type bridge vlan_filtering 0
-	ip link set br1 type bridge vlan_filtering 0
-	# traffic in br0 and br1 will start leaking to each other
+[How]
+For active DP dongles and non-DP scenario,
+disconnect sink on detection when no EDID
+is read due to timeout.
 
-As port_bridge_{add,del} have set up PCR_MATRIX properly, remove the
-PCR_MATRIX write from mt7530_port_set_vlan_aware.
-
-Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
-Signed-off-by: DENG Qingfang <dqfext@gmail.com>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Park <Chris.Park@amd.com>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Stylon Wang <stylon.wang@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/mt7530.c |    8 --------
- 1 file changed, 8 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
---- a/drivers/net/dsa/mt7530.c
-+++ b/drivers/net/dsa/mt7530.c
-@@ -851,14 +851,6 @@ mt7530_port_set_vlan_aware(struct dsa_sw
- {
- 	struct mt7530_priv *priv = ds->priv;
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index f0039599e02f..62778ccea055 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -1049,6 +1049,24 @@ static bool dc_link_detect_helper(struct dc_link *link,
+ 			    dc_is_dvi_signal(link->connector_signal)) {
+ 				if (prev_sink)
+ 					dc_sink_release(prev_sink);
++				link_disconnect_sink(link);
++
++				return false;
++			}
++			/*
++			 * Abort detection for DP connectors if we have
++			 * no EDID and connector is active converter
++			 * as there are no display downstream
++			 *
++			 */
++			if (dc_is_dp_sst_signal(link->connector_signal) &&
++				(link->dpcd_caps.dongle_type ==
++						DISPLAY_DONGLE_DP_VGA_CONVERTER ||
++				link->dpcd_caps.dongle_type ==
++						DISPLAY_DONGLE_DP_DVI_CONVERTER)) {
++				if (prev_sink)
++					dc_sink_release(prev_sink);
++				link_disconnect_sink(link);
  
--	/* The real fabric path would be decided on the membership in the
--	 * entry of VLAN table. PCR_MATRIX set up here with ALL_MEMBERS
--	 * means potential VLAN can be consisting of certain subset of all
--	 * ports.
--	 */
--	mt7530_rmw(priv, MT7530_PCR_P(port),
--		   PCR_MATRIX_MASK, PCR_MATRIX(MT7530_ALL_MEMBERS));
--
- 	/* Trapped into security mode allows packet forwarding through VLAN
- 	 * table lookup. CPU port is set to fallback mode to let untagged
- 	 * frames pass through.
+ 				return false;
+ 			}
+-- 
+2.30.2
+
 
 
