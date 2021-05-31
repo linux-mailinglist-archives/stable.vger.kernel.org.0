@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2AD3395F10
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A75A395B6C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbhEaOHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:07:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36882 "EHLO mail.kernel.org"
+        id S231997AbhEaNUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:20:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232292AbhEaOFX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:05:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0AB1C61956;
-        Mon, 31 May 2021 13:38:31 +0000 (UTC)
+        id S231996AbhEaNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A14FF61370;
+        Mon, 31 May 2021 13:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468312;
-        bh=0Gs3QaBX5NpBiFEW+dVVgdX5Zdxzj0UaiT1XmKN/qHk=;
+        s=korg; t=1622467066;
+        bh=QiJfQQ2lGAhjue+n+IK7CmDXRyJYeulPWGflo0C2kKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fhVf3xSv1wansAAlqm8rfAEcFlp6vLEg3EEKp2aZbbfF+e3SfXWSatKQUEuX5C2dQ
-         pzwZOgNlL1BT20lCSUUJWtHNfPgyGQxvyk9XGnAhPmFn/cjFfPJ+EdqSZA0txQ7EZj
-         KPbjiDqXBJvbteP4Bq/T3ifqTFNpc8RRFkAmywL0=
+        b=dpDE/OyjOjNatyxWb7AY1YqKPBRbG2TeadOFj6o592/SCdvwgDM3AGAcFdFtwJHb9
+         eJcdtg7DRcng4ZgqOocXHQ1xnpEpJCn3NcOHjOxE9HF7zNJZmm9JyGB5IZeemxpRNX
+         X4hdJCsgLbCrwXzqQQ0VNftPTbPpkw2RPIze2ZRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 151/252] ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()
+        stable@vger.kernel.org,
+        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>
+Subject: [PATCH 4.4 10/54] misc/uss720: fix memory leak in uss720_probe
 Date:   Mon, 31 May 2021 15:13:36 +0200
-Message-Id: <20210531130703.136037228@linuxfoundation.org>
+Message-Id: <20210531130635.408957459@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit 54433367840b46a1555c8ed36c4c0cfc5dbf1358 ]
+commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
 
-Propagate error code from failure of ath6kl_wmi_cmd_send() to the
-caller.
+uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
+Fix this by decreasing the refcount of usbdev by usb_put_dev.
 
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-44-gregkh@linuxfoundation.org
+BUG: memory leak
+unreferenced object 0xffff888101113800 (size 2048):
+  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
+    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
+  backtrace:
+    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
+    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
+    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
+    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
+    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
+    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
+    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
+    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
+    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
+    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+
+Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath6kl/debug.c | 5 ++++-
- drivers/net/wireless/ath/ath6kl/wmi.c   | 4 +---
- 2 files changed, 5 insertions(+), 4 deletions(-)
+ drivers/usb/misc/uss720.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/ath/ath6kl/debug.c b/drivers/net/wireless/ath/ath6kl/debug.c
-index 7506cea46f58..433a047f3747 100644
---- a/drivers/net/wireless/ath/ath6kl/debug.c
-+++ b/drivers/net/wireless/ath/ath6kl/debug.c
-@@ -1027,14 +1027,17 @@ static ssize_t ath6kl_lrssi_roam_write(struct file *file,
- {
- 	struct ath6kl *ar = file->private_data;
- 	unsigned long lrssi_roam_threshold;
-+	int ret;
+--- a/drivers/usb/misc/uss720.c
++++ b/drivers/usb/misc/uss720.c
+@@ -753,6 +753,7 @@ static int uss720_probe(struct usb_inter
+ 	parport_announce_port(pp);
  
- 	if (kstrtoul_from_user(user_buf, count, 0, &lrssi_roam_threshold))
- 		return -EINVAL;
+ 	usb_set_intfdata(intf, pp);
++	usb_put_dev(usbdev);
+ 	return 0;
  
- 	ar->lrssi_roam_threshold = lrssi_roam_threshold;
- 
--	ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
-+	ret = ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
- 
-+	if (ret)
-+		return ret;
- 	return count;
- }
- 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index 99be0d20f9a5..dbc47702a268 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -776,10 +776,8 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
- 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
- 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
- 
--	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
-+	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
- 			    NO_SYNC_WMIFLAG);
--
--	return 0;
- }
- 
- int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
--- 
-2.30.2
-
+ probe_abort:
 
 
