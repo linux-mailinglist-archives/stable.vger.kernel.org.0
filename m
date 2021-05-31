@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 71DAE39628C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C809C3960B0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234222AbhEaO5q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
+        id S232555AbhEaOas (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:30:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56238 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232364AbhEaOzg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:55:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 64C3261935;
-        Mon, 31 May 2021 13:59:47 +0000 (UTC)
+        id S231576AbhEaO1c (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:27:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5989C61A36;
+        Mon, 31 May 2021 13:47:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469587;
-        bh=I3MFQZEYwlfs0WAgyazAsru7RkY9wmdUF6WGBdOVvN4=;
+        s=korg; t=1622468858;
+        bh=/6Zf6gd127aJEt9MOKlPzntrXz2WBMQtBzrAtlBIp6M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWiVZySAWZLjIVSYVXDtTkDP36zCS49dMNPQZfoZ6WPAPDoHcnxuDMNAVtQlfGWvZ
-         XMa4wkTzTXpZGuOHrQPZ0sr0BpSC57K1GNUC9teYJpHE59Cab/eH6gM6V1VNXDgddY
-         5Qn7IzChjdAPGfuzCQVDgYFJgIWkIzi1ZL6iGQwQ=
+        b=BOezKMtDUMpDGbuexgAx/RRhBni3560zMgeXmpRbjvnhkcq2riKfjlln9Lv40utEk
+         KtJp8tQNHoGlpz25empA7QAAg8APBIczA3BgzIhCbbvjy0MJ3DXb2T8bv+mAiYucne
+         m6kzFLDRIQPU3ezYQpJ+ZYpjx2BRwzvvZmyk36Tk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Jean-Philippe Brucker <jean-philippe@linaro.org>,
-        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 256/296] iommu/amd: Clear DMA ops when switching domain
+        stable@vger.kernel.org, David Awogbemila <awogbemila@google.com>,
+        Willem de Brujin <willemb@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 154/177] gve: Add NULL pointer checks when freeing irqs.
 Date:   Mon, 31 May 2021 15:15:11 +0200
-Message-Id: <20210531130712.363990117@linuxfoundation.org>
+Message-Id: <20210531130653.242254816@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,53 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean-Philippe Brucker <jean-philippe@linaro.org>
+From: David Awogbemila <awogbemila@google.com>
 
-[ Upstream commit d6177a6556f853785867e2ec6d5b7f4906f0d809 ]
+[ Upstream commit 5218e919c8d06279884aa0baf76778a6817d5b93 ]
 
-Since commit 08a27c1c3ecf ("iommu: Add support to change default domain
-of an iommu group") a user can switch a device between IOMMU and direct
-DMA through sysfs. This doesn't work for AMD IOMMU at the moment because
-dev->dma_ops is not cleared when switching from a DMA to an identity
-IOMMU domain. The DMA layer thus attempts to use the dma-iommu ops on an
-identity domain, causing an oops:
+When freeing notification blocks, we index priv->msix_vectors.
+If we failed to allocate priv->msix_vectors (see abort_with_msix_vectors)
+this could lead to a NULL pointer dereference if the driver is unloaded.
 
-  # echo 0000:00:05.0 > /sys/sys/bus/pci/drivers/e1000e/unbind
-  # echo identity > /sys/bus/pci/devices/0000:00:05.0/iommu_group/type
-  # echo 0000:00:05.0 > /sys/sys/bus/pci/drivers/e1000e/bind
-   ...
-  BUG: kernel NULL pointer dereference, address: 0000000000000028
-   ...
-   Call Trace:
-    iommu_dma_alloc
-    e1000e_setup_tx_resources
-    e1000e_open
-
-Since iommu_change_dev_def_domain() calls probe_finalize() again, clear
-the dma_ops there like Vt-d does.
-
-Fixes: 08a27c1c3ecf ("iommu: Add support to change default domain of an iommu group")
-Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
-Link: https://lore.kernel.org/r/20210422094216.2282097-1-jean-philippe@linaro.org
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Fixes: 893ce44df565 ("gve: Add basic driver framework for Compute Engine Virtual NIC")
+Signed-off-by: David Awogbemila <awogbemila@google.com>
+Acked-by: Willem de Brujin <willemb@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iommu/amd/iommu.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/google/gve/gve_main.c | 20 +++++++++++---------
+ 1 file changed, 11 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
-index a69a8b573e40..7de7a260706b 100644
---- a/drivers/iommu/amd/iommu.c
-+++ b/drivers/iommu/amd/iommu.c
-@@ -1747,6 +1747,8 @@ static void amd_iommu_probe_finalize(struct device *dev)
- 	domain = iommu_get_domain_for_dev(dev);
- 	if (domain->type == IOMMU_DOMAIN_DMA)
- 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
-+	else
-+		set_dma_ops(dev, NULL);
- }
+diff --git a/drivers/net/ethernet/google/gve/gve_main.c b/drivers/net/ethernet/google/gve/gve_main.c
+index 9c74251f9b6a..77e79d2939ba 100644
+--- a/drivers/net/ethernet/google/gve/gve_main.c
++++ b/drivers/net/ethernet/google/gve/gve_main.c
+@@ -242,20 +242,22 @@ static void gve_free_notify_blocks(struct gve_priv *priv)
+ {
+ 	int i;
  
- static void amd_iommu_release_device(struct device *dev)
+-	/* Free the irqs */
+-	for (i = 0; i < priv->num_ntfy_blks; i++) {
+-		struct gve_notify_block *block = &priv->ntfy_blocks[i];
+-		int msix_idx = i;
+-
+-		irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
+-				      NULL);
+-		free_irq(priv->msix_vectors[msix_idx].vector, block);
++	if (priv->msix_vectors) {
++		/* Free the irqs */
++		for (i = 0; i < priv->num_ntfy_blks; i++) {
++			struct gve_notify_block *block = &priv->ntfy_blocks[i];
++			int msix_idx = i;
++
++			irq_set_affinity_hint(priv->msix_vectors[msix_idx].vector,
++					      NULL);
++			free_irq(priv->msix_vectors[msix_idx].vector, block);
++		}
++		free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
+ 	}
+ 	dma_free_coherent(&priv->pdev->dev,
+ 			  priv->num_ntfy_blks * sizeof(*priv->ntfy_blocks),
+ 			  priv->ntfy_blocks, priv->ntfy_block_bus);
+ 	priv->ntfy_blocks = NULL;
+-	free_irq(priv->msix_vectors[priv->mgmt_msix_idx].vector, priv);
+ 	pci_disable_msix(priv->pdev);
+ 	kvfree(priv->msix_vectors);
+ 	priv->msix_vectors = NULL;
 -- 
 2.30.2
 
