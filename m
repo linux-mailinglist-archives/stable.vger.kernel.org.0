@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C469395C6C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 904D0396023
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231898AbhEaNci (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:32:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
+        id S233587AbhEaOXE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47642 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231903AbhEaNam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4339A6142C;
-        Mon, 31 May 2021 13:23:12 +0000 (UTC)
+        id S233615AbhEaOVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 94470619C4;
+        Mon, 31 May 2021 13:44:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467392;
-        bh=zrSSD5pNPwNmFPdwAPPZmx+5i/cwBL/iK4acZnwDC+o=;
+        s=korg; t=1622468681;
+        bh=WI96yNYEwV38Y2J1FKT1h5hUwNeLHHgB+vbk3m1vC6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6QFN66wNwOdEgOVM9NsxfhwQR0DiQXuHMsv/FE//m64MQW8oGmtAHBnOVdPvYI8y
-         cdE3uNjG2AdW+4wNQA1c7xCaD6z1mNLlpbkErbHH3YHu5HeYBHZn6pcy3aM2SPm3wO
-         6sxNJLf+iZj/Eg8ZvOPDYUd3uwpQ8hj+ETScPmP8=
+        b=zH/La89af7enriWVOYQIdJnmEUvBeqZWqYEqU2klZS2rWog99sgWtft0MwpAHNive
+         crmWDhH7DVuXUWzRUOteDpataFevLJU/yE8CuiteRREvYlzS/74AhXUTXUUFBsquad
+         6nwFpcvxm+0BCOpacg+tVOtuXLv444r/FleY+tuc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linh Phung <linh.phung.jy@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.19 031/116] serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
+        stable@vger.kernel.org,
+        Christian Gmeiner <christian.gmeiner@gmail.com>
+Subject: [PATCH 5.4 050/177] serial: 8250_pci: handle FL_NOIRQ board flag
 Date:   Mon, 31 May 2021 15:13:27 +0200
-Message-Id: <20210531130641.225362520@linuxfoundation.org>
+Message-Id: <20210531130649.662027632@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Christian Gmeiner <christian.gmeiner@gmail.com>
 
-commit 2ea2e019c190ee3973ef7bcaf829d8762e56e635 upstream.
+commit 9808f9be31c68af43f6e531f2c851ebb066513fe upstream.
 
-The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
-FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
-ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
-can write an out-of-range value, touching reserved bits.
+In commit 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+the way the irq gets allocated was changed. With that change the
+handling FL_NOIRQ got lost. Restore the old behaviour.
 
-Fix this by limiting the trigger value to the FIFO size minus one.
-Reverse the order of the checks, to avoid rx_trig becoming zero if the
-FIFO size is one.
-
-Note that this change has no impact on other SCIF variants, as their
-maximum supported trigger value is lower than the FIFO size anyway, and
-the code below takes care of enforcing these limits.
-
-Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
-Reported-by: Linh Phung <linh.phung.jy@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
+Fixes: 8428413b1d14 ("serial: 8250_pci: Implement MSI(-X) support")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Christian Gmeiner <christian.gmeiner@gmail.com>
+Link: https://lore.kernel.org/r/20210527095529.26281-1-christian.gmeiner@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/sh-sci.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_pci.c |   29 +++++++++++++++++------------
+ 1 file changed, 17 insertions(+), 12 deletions(-)
 
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -1026,10 +1026,10 @@ static int scif_set_rtrg(struct uart_por
- {
- 	unsigned int bits;
+--- a/drivers/tty/serial/8250/8250_pci.c
++++ b/drivers/tty/serial/8250/8250_pci.c
+@@ -3917,21 +3917,26 @@ pciserial_init_ports(struct pci_dev *dev
+ 	uart.port.flags = UPF_SKIP_TEST | UPF_BOOT_AUTOCONF | UPF_SHARE_IRQ;
+ 	uart.port.uartclk = board->base_baud * 16;
  
-+	if (rx_trig >= port->fifosize)
-+		rx_trig = port->fifosize - 1;
- 	if (rx_trig < 1)
- 		rx_trig = 1;
--	if (rx_trig >= port->fifosize)
--		rx_trig = port->fifosize;
+-	if (pci_match_id(pci_use_msi, dev)) {
+-		dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
+-		pci_set_master(dev);
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++	if (board->flags & FL_NOIRQ) {
++		uart.port.irq = 0;
+ 	} else {
+-		dev_dbg(&dev->dev, "Using legacy interrupts\n");
+-		rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
+-	}
+-	if (rc < 0) {
+-		kfree(priv);
+-		priv = ERR_PTR(rc);
+-		goto err_deinit;
++		if (pci_match_id(pci_use_msi, dev)) {
++			dev_dbg(&dev->dev, "Using MSI(-X) interrupts\n");
++			pci_set_master(dev);
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_ALL_TYPES);
++		} else {
++			dev_dbg(&dev->dev, "Using legacy interrupts\n");
++			rc = pci_alloc_irq_vectors(dev, 1, 1, PCI_IRQ_LEGACY);
++		}
++		if (rc < 0) {
++			kfree(priv);
++			priv = ERR_PTR(rc);
++			goto err_deinit;
++		}
++
++		uart.port.irq = pci_irq_vector(dev, 0);
+ 	}
  
- 	/* HSCIF can be set to an arbitrary level. */
- 	if (sci_getreg(port, HSRTRGR)->size) {
+-	uart.port.irq = pci_irq_vector(dev, 0);
+ 	uart.port.dev = &dev->dev;
+ 
+ 	for (i = 0; i < nr_ports; i++) {
 
 
