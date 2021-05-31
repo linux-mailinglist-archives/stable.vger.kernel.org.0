@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73B84395FA4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:12:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 006FF395D84
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233322AbhEaONh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:13:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
+        id S232539AbhEaNrE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233344AbhEaOLg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:11:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A4838611CA;
-        Mon, 31 May 2021 13:41:15 +0000 (UTC)
+        id S231580AbhEaNo6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:44:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E90066141C;
+        Mon, 31 May 2021 13:29:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468476;
-        bh=nlTcHeTklVjLklF9DpoD4gMA/IBp18zY02GeRa0N93E=;
+        s=korg; t=1622467771;
+        bh=chRS472GWhhR5JQis0YvThFSqaRbPhgR2khsjQae0nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lJjLPRt1p8QTaNOYPk3c1UBZh3vUQNRi/HLOuhkInSHhC/RxeW2IzjLjgU8GTlIk
-         il3/e6PaeZclTyjAtDwI2cmEpU4WsEv4WKl8Qan9A8U5BgzOAW+RyuvNmIKFT9S3e4
-         MlQn8TY8L0anw/UKdTLXgV1MbD7rUFvgcFFh4KEc=
+        b=LvAca1uiB9lzMnP0Inotcmlt1EDphV9TcY5YZY72FtrO1AmBWqgMWPbkm7r8jYxnY
+         PJFkHKachhUZNAHvDZ5K9971uxWRivXhX9h+vXJANvpIHMSjYaGUzSI1QRYc0MkRoX
+         BYzGSwumc+CYOAjiQTcgt+blVjZh/Sbz0Rh5PmN4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 233/252] net: lantiq: fix memory corruption in RX ring
+Subject: [PATCH 4.14 73/79] ipv6: record frag_max_size in atomic fragments in input path
 Date:   Mon, 31 May 2021 15:14:58 +0200
-Message-Id: <20210531130705.923630376@linuxfoundation.org>
+Message-Id: <20210531130638.331799659@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,68 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit c7718ee96dbc2f9c5fc3b578abdf296dd44b9c20 ]
+[ Upstream commit e29f011e8fc04b2cdc742a2b9bbfa1b62518381a ]
 
-In a situation where memory allocation or dma mapping fails, an
-invalid address is programmed into the descriptor. This can lead
-to memory corruption. If the memory allocation fails, DMA should
-reuse the previous skb and mapping and drop the packet. This patch
-also increments rx drop counter.
+Commit dbd1759e6a9c ("ipv6: on reassembly, record frag_max_size")
+filled the frag_max_size field in IP6CB in the input path.
+The field should also be filled in case of atomic fragments.
 
-Fixes: fe1a56420cf2 ("net: lantiq: Add Lantiq / Intel VRX200 Ethernet driver ")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+Fixes: dbd1759e6a9c ('ipv6: on reassembly, record frag_max_size')
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ net/ipv6/reassembly.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
-index 51ed8a54d380..135ba5b6ae98 100644
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -154,6 +154,7 @@ static int xrx200_close(struct net_device *net_dev)
+diff --git a/net/ipv6/reassembly.c b/net/ipv6/reassembly.c
+index 6dea6e92e686..b2f7a335a12b 100644
+--- a/net/ipv6/reassembly.c
++++ b/net/ipv6/reassembly.c
+@@ -347,7 +347,7 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
+ 	hdr = ipv6_hdr(skb);
+ 	fhdr = (struct frag_hdr *)skb_transport_header(skb);
  
- static int xrx200_alloc_skb(struct xrx200_chan *ch)
- {
-+	dma_addr_t mapping;
- 	int ret = 0;
+-	if (!(fhdr->frag_off & htons(0xFFF9))) {
++	if (!(fhdr->frag_off & htons(IP6_OFFSET | IP6_MF))) {
+ 		/* It is not a fragmented frame */
+ 		skb->transport_header += sizeof(struct frag_hdr);
+ 		__IP6_INC_STATS(net,
+@@ -355,6 +355,8 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
  
- 	ch->skb[ch->dma.desc] = netdev_alloc_skb_ip_align(ch->priv->net_dev,
-@@ -163,16 +164,17 @@ static int xrx200_alloc_skb(struct xrx200_chan *ch)
- 		goto skip;
+ 		IP6CB(skb)->nhoff = (u8 *)fhdr - skb_network_header(skb);
+ 		IP6CB(skb)->flags |= IP6SKB_FRAGMENTED;
++		IP6CB(skb)->frag_max_size = ntohs(hdr->payload_len) +
++					    sizeof(struct ipv6hdr);
+ 		return 1;
  	}
  
--	ch->dma.desc_base[ch->dma.desc].addr = dma_map_single(ch->priv->dev,
--			ch->skb[ch->dma.desc]->data, XRX200_DMA_DATA_LEN,
--			DMA_FROM_DEVICE);
--	if (unlikely(dma_mapping_error(ch->priv->dev,
--				       ch->dma.desc_base[ch->dma.desc].addr))) {
-+	mapping = dma_map_single(ch->priv->dev, ch->skb[ch->dma.desc]->data,
-+				 XRX200_DMA_DATA_LEN, DMA_FROM_DEVICE);
-+	if (unlikely(dma_mapping_error(ch->priv->dev, mapping))) {
- 		dev_kfree_skb_any(ch->skb[ch->dma.desc]);
- 		ret = -ENOMEM;
- 		goto skip;
- 	}
- 
-+	ch->dma.desc_base[ch->dma.desc].addr = mapping;
-+	/* Make sure the address is written before we give it to HW */
-+	wmb();
- skip:
- 	ch->dma.desc_base[ch->dma.desc].ctl =
- 		LTQ_DMA_OWN | LTQ_DMA_RX_OFFSET(NET_IP_ALIGN) |
-@@ -196,6 +198,8 @@ static int xrx200_hw_receive(struct xrx200_chan *ch)
- 	ch->dma.desc %= LTQ_DESC_NUM;
- 
- 	if (ret) {
-+		ch->skb[ch->dma.desc] = skb;
-+		net_dev->stats.rx_dropped++;
- 		netdev_err(net_dev, "failed to allocate new rx buffer\n");
- 		return ret;
- 	}
 -- 
 2.30.2
 
