@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5293961E6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2983D395B2E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233904AbhEaOro (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:47:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40788 "EHLO mail.kernel.org"
+        id S231603AbhEaNSM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:18:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53148 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233256AbhEaOpj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:45:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F3C8161437;
-        Mon, 31 May 2021 13:55:27 +0000 (UTC)
+        id S231539AbhEaNSI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E952F6136D;
+        Mon, 31 May 2021 13:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469328;
-        bh=R7fGHLtuHqWMQLf1kTqQdOKEvzKXPfzIK9wJtXAntKI=;
+        s=korg; t=1622466987;
+        bh=nSPxMGueoan15cqTgN2FSxdGVBhwNcyfBM02WQWe3pc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uCpk15J6qV+/t0edkpQ7GNNSwe4drnPyk/Hh9KxrHhzybFJd/TcZN1TXcjeJTgjhD
-         lE40y0lOn75dUiloeTpTdKMGIdyWbFpVo2Xf+a57PTYY51gWVYa19Kb9X168llFVBr
-         Lwp+2JP5cjlehRaUiTfxA/3X7JPzoawLtRUqa0dc=
+        b=PRx0e9AkB10A7BFlpLV+kYuPqkIIuRmErw6hdeLdxq3GTtGFeOn1EltLaoP1G1vb6
+         IUWQcxQ7P2QGF1R/it00wySxsglPSoSHbJb36SDk/8FeDKfHdYgveqq1kI/ACzCaMS
+         HHuvpBPyQ2NMSR7IZxSxhw4h5Y3bzkmnm5Zs3bqY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hou Pu <houpu.main@gmail.com>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Christoph Hellwig <hch@lst.de>
-Subject: [PATCH 5.12 156/296] nvmet-tcp: fix inline data size comparison in nvmet_tcp_queue_response
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 05/54] net: hso: fix control-request directions
 Date:   Mon, 31 May 2021 15:13:31 +0200
-Message-Id: <20210531130709.107873224@linuxfoundation.org>
+Message-Id: <20210531130635.243555317@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,31 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Pu <houpu.main@gmail.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 25df1acd2d36eb72b14c3d00f6b861b1e00b3aab upstream.
+commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
 
-Using "<=" instead "<" to compare inline data size.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Fixes: bdaf13279192 ("nvmet-tcp: fix a segmentation fault during io parsing error")
-Signed-off-by: Hou Pu <houpu.main@gmail.com>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
+Fix the tiocmset and rfkill requests which erroneously used
+usb_rcvctrlpipe().
+
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org      # 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/tcp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/usb/hso.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/nvme/target/tcp.c
-+++ b/drivers/nvme/target/tcp.c
-@@ -538,7 +538,7 @@ static void nvmet_tcp_queue_response(str
- 		 * nvmet_req_init is completed.
- 		 */
- 		if (queue->rcv_state == NVMET_TCP_RECV_PDU &&
--		    len && len < cmd->req.port->inline_data_size &&
-+		    len && len <= cmd->req.port->inline_data_size &&
- 		    nvme_is_write(cmd->req.cmd))
- 			return;
- 	}
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -1710,7 +1710,7 @@ static int hso_serial_tiocmset(struct tt
+ 	spin_unlock_irqrestore(&serial->serial_lock, flags);
+ 
+ 	return usb_control_msg(serial->parent->usb,
+-			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
++			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
+ 			       0x21, val, if_num, NULL, 0,
+ 			       USB_CTRL_SET_TIMEOUT);
+ }
+@@ -2461,7 +2461,7 @@ static int hso_rfkill_set_block(void *da
+ 	if (hso_dev->usb_gone)
+ 		rv = 0;
+ 	else
+-		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
++		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
+ 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
+ 				       USB_CTRL_SET_TIMEOUT);
+ 	mutex_unlock(&hso_dev->mutex);
 
 
