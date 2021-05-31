@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E13395F0A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CB6739601C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233355AbhEaOG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:06:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S233227AbhEaOWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:22:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233444AbhEaOE4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:04:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B801561451;
-        Mon, 31 May 2021 13:38:15 +0000 (UTC)
+        id S233033AbhEaORl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:17:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13363619AF;
+        Mon, 31 May 2021 13:43:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468296;
-        bh=FjffVfX7ZHBpMoEV5UGia/iEkAw5C7P7xXuBqUhqT+g=;
+        s=korg; t=1622468626;
+        bh=Tw1m8lGwCOODsUpAjhAhIZd9AtVXP8hkFAvRZXBJgo0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VURsmjU66kViCnDMJXAmo5FUajxsYLarQ0aLtXSA75hsNE343ExCCkBvG7+e+HLHJ
-         XVfseScrGn9ddIhVZJkhStAfntDuQ2GULEumH3ya4ndSji72y6By9HCgU2erPyld9j
-         5VqYR41DMdkok/nX55w38admAE5HB473xhTgpuIs=
+        b=M16pAr8KmSRnDQCZAq6NvoZ0JQmFbPBpHANHg0bwQVS1i4mYIdS9NnDx6NQjNy1t6
+         XOBBx5suwYOPaDR4YM1mIVyBzDSz6hEEueleinZHIUraW1BOo/RPLm4yMUdQ1Wrwme
+         +Y98PvblLQVnGR8cYD1CM29up/POU3MJIDUOr8/0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Sinan Kaya <okaya@kernel.org>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 155/252] dmaengine: qcom_hidma: comment platform_driver_register call
-Date:   Mon, 31 May 2021 15:13:40 +0200
-Message-Id: <20210531130703.273282204@linuxfoundation.org>
+        stable@vger.kernel.org, Lukas Wunner <lukas@wunner.de>,
+        Rajendra Nayak <rnayak@codeaurora.org>,
+        Girish Mahadevan <girishm@codeaurora.org>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.4 064/177] spi: spi-geni-qcom: Fix use-after-free on unbind
+Date:   Mon, 31 May 2021 15:13:41 +0200
+Message-Id: <20210531130650.118413088@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,52 +41,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Lukas Wunner <lukas@wunner.de>
 
-[ Upstream commit 4df2a8b0ad634d98a67e540a4e18a60f943e7d9f ]
+commit 8f96c434dfbc85ffa755d6634c8c1cb2233fcf24 upstream.
 
-Place a comment in hidma_mgmt_init explaining why success must
-currently be assumed, due to the cleanup issue that would need to
-be considered were this module ever to be unloadable or were this
-platform_driver_register call ever to fail.
+spi_geni_remove() accesses the driver's private data after calling
+spi_unregister_master() even though that function releases the last
+reference on the spi_master and thereby frees the private data.
 
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Acked-By: Sinan Kaya <okaya@kernel.org>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-52-gregkh@linuxfoundation.org
+Moreover, since commit 1a9e489e6128 ("spi: spi-geni-qcom: Use OPP API to
+set clk/perf state"), spi_geni_probe() leaks the spi_master allocation
+if the calls to dev_pm_opp_set_clkname() or dev_pm_opp_of_add_table()
+fail.
+
+Fix by switching over to the new devm_spi_alloc_master() helper which
+keeps the private data accessible until the driver has unbound and also
+avoids the spi_master leak on probe.
+
+Fixes: 561de45f72bd ("spi: spi-geni-qcom: Add SPI driver support for GENI based QUP")
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
+Cc: <stable@vger.kernel.org> # v4.20+: 5e844cc37a5c: spi: Introduce device-managed SPI controller allocation
+Cc: <stable@vger.kernel.org> # v4.20+
+Cc: Rajendra Nayak <rnayak@codeaurora.org>
+Cc: Girish Mahadevan <girishm@codeaurora.org>
+Link: https://lore.kernel.org/r/dfa1d8c41b8acdfad87ec8654cd124e6e3cb3f31.1607286887.git.lukas@wunner.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+[lukas: backport to v5.4.123]
+Signed-off-by: Lukas Wunner <lukas@wunner.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/hidma_mgmt.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/spi/spi-geni-qcom.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
-index fe87b01f7a4e..62026607f3f8 100644
---- a/drivers/dma/qcom/hidma_mgmt.c
-+++ b/drivers/dma/qcom/hidma_mgmt.c
-@@ -418,6 +418,20 @@ static int __init hidma_mgmt_init(void)
- 		hidma_mgmt_of_populate_channels(child);
+--- a/drivers/spi/spi-geni-qcom.c
++++ b/drivers/spi/spi-geni-qcom.c
+@@ -552,7 +552,7 @@ static int spi_geni_probe(struct platfor
+ 		return PTR_ERR(clk);
  	}
- #endif
-+	/*
-+	 * We do not check for return value here, as it is assumed that
-+	 * platform_driver_register must not fail. The reason for this is that
-+	 * the (potential) hidma_mgmt_of_populate_channels calls above are not
-+	 * cleaned up if it does fail, and to do this work is quite
-+	 * complicated. In particular, various calls of of_address_to_resource,
-+	 * of_irq_to_resource, platform_device_register_full, of_dma_configure,
-+	 * and of_msi_configure which then call other functions and so on, must
-+	 * be cleaned up - this is not a trivial exercise.
-+	 *
-+	 * Currently, this module is not intended to be unloaded, and there is
-+	 * no module_exit function defined which does the needed cleanup. For
-+	 * this reason, we have to assume success here.
-+	 */
- 	platform_driver_register(&hidma_mgmt_driver);
  
- 	return 0;
--- 
-2.30.2
-
+-	spi = spi_alloc_master(&pdev->dev, sizeof(*mas));
++	spi = devm_spi_alloc_master(&pdev->dev, sizeof(*mas));
+ 	if (!spi)
+ 		return -ENOMEM;
+ 
+@@ -599,7 +599,6 @@ spi_geni_probe_free_irq:
+ 	free_irq(mas->irq, spi);
+ spi_geni_probe_runtime_disable:
+ 	pm_runtime_disable(&pdev->dev);
+-	spi_master_put(spi);
+ 	return ret;
+ }
+ 
 
 
