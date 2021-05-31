@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C916396075
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AD4BA396225
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232395AbhEaO1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:27:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
+        id S232148AbhEaOvg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233084AbhEaOZF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:25:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6458F61A14;
-        Mon, 31 May 2021 13:46:22 +0000 (UTC)
+        id S234171AbhEaOth (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 245C86192C;
+        Mon, 31 May 2021 13:57:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468782;
-        bh=b2hoTEC5uqobuuzMRsBFsNEWCV8ogZnhjo5R2n1ILIw=;
+        s=korg; t=1622469426;
+        bh=lGqqaLBNP/9QRAroFbTLl3k3cLDdzW2qBzFiLQ2qiP0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RldBNon3oMsaov9tpB+TppmSkUKQuXe7cjuMzHvuVrSU1XsBZHGqxO6KWAKaRJrVF
-         wD5/LBymxMqt8JTJg98cJYBQmWtKqzvlc94tDXZh9ePSzXoxHAvseYBwZ5Mgtw2CN5
-         WvuZAfNXTMhN2C6mjrVh1v5QDDaVmUZ9cowTMtWQ=
+        b=IAZKH38GHTqebn2OtCFlbqHegYMopU3Xb2HVJdRongGADr23H6SPQcK4RZWfFccOU
+         X3b4dpKqsZTnqD+bU4zkut3pfDhUTANB4/AFud/j5Ua5PeO06Gzja5TQlHd9FEHvE7
+         Em/AJ9pjMlnOlezuM+JfnCEcpXdGazCLGiQcvXQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Atul Gopinathan <atulgopinathan@gmail.com>,
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Alaa Emad <alaaemadhossney.ae@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 091/177] serial: max310x: unregister uart driver in case of failure and abort
+Subject: [PATCH 5.12 193/296] media: gspca: mt9m111: Check write_bridge for timeout
 Date:   Mon, 31 May 2021 15:14:08 +0200
-Message-Id: <20210531130651.038375111@linuxfoundation.org>
+Message-Id: <20210531130710.365483304@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Alaa Emad <alaaemadhossney.ae@gmail.com>
 
-[ Upstream commit 3890e3dea315f1a257d1b940a2a4e2fa16a7b095 ]
+[ Upstream commit e932f5b458eee63d013578ea128b9ff8ef5f5496 ]
 
-The macro "spi_register_driver" invokes the function
-"__spi_register_driver()" which has a return type of int and can fail,
-returning a negative value in such a case. This is currently ignored and
-the init() function yields success even if the spi driver failed to
-register.
+If m5602_write_bridge times out, it will return a negative error value.
+So properly check for this and handle the error correctly instead of
+just ignoring it.
 
-Fix this by collecting the return value of "__spi_register_driver()" and
-also unregister the uart driver in case of failure.
-
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-12-gregkh@linuxfoundation.org
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-62-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index f60b7b86d099..5bf8dd6198bb 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1527,10 +1527,12 @@ static int __init max310x_uart_init(void)
- 		return ret;
+diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
+index 50481dc928d0..bf1af6ed9131 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
++++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
+@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
+ int mt9m111_probe(struct sd *sd)
+ {
+ 	u8 data[2] = {0x00, 0x00};
+-	int i;
++	int i, err;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
- #ifdef CONFIG_SPI_MASTER
--	spi_register_driver(&max310x_spi_driver);
-+	ret = spi_register_driver(&max310x_spi_driver);
-+	if (ret)
-+		uart_unregister_driver(&max310x_uart);
- #endif
+ 	if (force_sensor) {
+@@ -213,15 +213,17 @@ int mt9m111_probe(struct sd *sd)
+ 	/* Do the preinit */
+ 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
+ 		if (preinit_mt9m111[i][0] == BRIDGE) {
+-			m5602_write_bridge(sd,
+-				preinit_mt9m111[i][1],
+-				preinit_mt9m111[i][2]);
++			err = m5602_write_bridge(sd,
++					preinit_mt9m111[i][1],
++					preinit_mt9m111[i][2]);
+ 		} else {
+ 			data[0] = preinit_mt9m111[i][2];
+ 			data[1] = preinit_mt9m111[i][3];
+-			m5602_write_sensor(sd,
+-				preinit_mt9m111[i][1], data, 2);
++			err = m5602_write_sensor(sd,
++					preinit_mt9m111[i][1], data, 2);
+ 		}
++		if (err < 0)
++			return err;
+ 	}
  
--	return 0;
-+	return ret;
- }
- module_init(max310x_uart_init);
- 
+ 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
 -- 
 2.30.2
 
