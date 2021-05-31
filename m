@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F1FE3395DEC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1B01A39610C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:33:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232351AbhEaNvv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:51:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55338 "EHLO mail.kernel.org"
+        id S232515AbhEaOfW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:35:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232907AbhEaNtm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:49:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DB3F5613B4;
-        Mon, 31 May 2021 13:31:42 +0000 (UTC)
+        id S233790AbhEaOdG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:33:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 039B76103E;
+        Mon, 31 May 2021 13:49:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467903;
-        bh=vWzu84KDPR4m9KQqki4TpwcoGMXj2QMHBkh1UmR+CQE=;
+        s=korg; t=1622468987;
+        bh=u6TgoZ0K28l+UN68umsfGYwPBSs31uoQ2h/44usjM7U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KxIvX+e3pTN+YEjYw7N25Cm1uhLYRK1C2jl0Ik6iLX1dmZpkrbLeyJ+GNHSoR/nUU
-         h39e125CLR2MUHE9B6kvbZQoyL3B7nuWo0oKbsOh6917mGZmyGZF87UM8k8c32XRCg
-         YOgZrJYKWvlKHT301TEA5T8ZSwBgQ5eOpoia/sLQ=
+        b=Hu5bFKMgpi9nwPZfWEwMXIbEQO+K6pl1Ee1VWs/DWjbnQwsiUNXCL11YvWmrR70qQ
+         LUc6+h+a80dqqCC5L0+8iVvjruvgcmxgv/k2txn7G5MqmzhfUaJc98CSwpPc7nMT+a
+         YTo35hm5RpZbrHJ+fYfrkIPAhXTBJvd90gn56PvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 008/252] ALSA: usb-audio: scarlett2: Fix device hang with ehci-pci
-Date:   Mon, 31 May 2021 15:11:13 +0200
-Message-Id: <20210531130658.263869279@linuxfoundation.org>
+        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
+Subject: [PATCH 5.12 019/296] mtd: rawnand: fsmc: Fix external use of SW Hamming ECC helper
+Date:   Mon, 31 May 2021 15:11:14 +0200
+Message-Id: <20210531130704.407146577@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,34 +38,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoffrey D. Bennett <g@b4.vu>
+From: Miquel Raynal <miquel.raynal@bootlin.com>
 
-commit 764fa6e686e0107c0357a988d193de04cf047583 upstream.
+commit ad9ffdce453934cdc22fac0a0268119bd630260f upstream.
 
-Use usb_rcvctrlpipe() not usb_sndctrlpipe() for USB control input in
-the Scarlett Gen 2 mixer driver. This fixes the device hang during
-initialisation when used with the ehci-pci host driver.
+Since the Hamming software ECC engine has been updated to become a
+proper and independent ECC engine, it is now mandatory to either
+initialize the engine before using any one of his functions or use one
+of the bare helpers which only perform the calculations. As there is no
+actual need for a proper ECC initialization, let's just use the bare
+helper instead of the rawnand one.
 
-Fixes: 9e4d5c1be21f ("ALSA: usb-audio: Scarlett Gen 2 mixer interface")
-Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/66a3d05dac325d5b53e4930578e143cef1f50dbe.1621584566.git.g@b4.vu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 90ccf0a0192f ("mtd: nand: ecc-hamming: Rename the exported functions")
+Cc: stable@vger.kernel.org
+Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
+Link: https://lore.kernel.org/linux-mtd/20210413161840.345208-3-miquel.raynal@bootlin.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_scarlett_gen2.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mtd/nand/raw/fsmc_nand.c |   12 +++++++++++-
+ 1 file changed, 11 insertions(+), 1 deletion(-)
 
---- a/sound/usb/mixer_scarlett_gen2.c
-+++ b/sound/usb/mixer_scarlett_gen2.c
-@@ -635,7 +635,7 @@ static int scarlett2_usb(
- 	/* send a second message to get the response */
+--- a/drivers/mtd/nand/raw/fsmc_nand.c
++++ b/drivers/mtd/nand/raw/fsmc_nand.c
+@@ -25,6 +25,7 @@
+ #include <linux/sched.h>
+ #include <linux/types.h>
+ #include <linux/mtd/mtd.h>
++#include <linux/mtd/nand-ecc-sw-hamming.h>
+ #include <linux/mtd/rawnand.h>
+ #include <linux/platform_device.h>
+ #include <linux/of.h>
+@@ -432,6 +433,15 @@ static int fsmc_read_hwecc_ecc1(struct n
+ 	return 0;
+ }
  
- 	err = snd_usb_ctl_msg(mixer->chip->dev,
--			usb_sndctrlpipe(mixer->chip->dev, 0),
-+			usb_rcvctrlpipe(mixer->chip->dev, 0),
- 			SCARLETT2_USB_VENDOR_SPECIFIC_CMD_RESP,
- 			USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
- 			0,
++static int fsmc_correct_ecc1(struct nand_chip *chip,
++			     unsigned char *buf,
++			     unsigned char *read_ecc,
++			     unsigned char *calc_ecc)
++{
++	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
++				      chip->ecc.size, false);
++}
++
+ /* Count the number of 0's in buff upto a max of max_bits */
+ static int count_written_bits(u8 *buff, int size, int max_bits)
+ {
+@@ -917,7 +927,7 @@ static int fsmc_nand_attach_chip(struct
+ 	case NAND_ECC_ENGINE_TYPE_ON_HOST:
+ 		dev_info(host->dev, "Using 1-bit HW ECC scheme\n");
+ 		nand->ecc.calculate = fsmc_read_hwecc_ecc1;
+-		nand->ecc.correct = rawnand_sw_hamming_correct;
++		nand->ecc.correct = fsmc_correct_ecc1;
+ 		nand->ecc.hwctl = fsmc_enable_hwecc;
+ 		nand->ecc.bytes = 3;
+ 		nand->ecc.strength = 1;
 
 
