@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5759A395D5E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B82F7395C11
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbhEaNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:44:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49272 "EHLO mail.kernel.org"
+        id S232157AbhEaN1q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:27:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232894AbhEaNmo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:42:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3CA0861476;
-        Mon, 31 May 2021 13:28:35 +0000 (UTC)
+        id S231778AbhEaNZp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:25:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 37C6E613CD;
+        Mon, 31 May 2021 13:21:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467715;
-        bh=xtLMumVgtJEQDYmH/yfxN1UxvNic+puxMIyGP/3wjBg=;
+        s=korg; t=1622467262;
+        bh=gX9fkF68UPNOyurxx7ugEYnJ8bb41xHeA4OZQgPhuJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vzvMPQ7fSDTcOwD6hMBKZQPu2eUfNqxxU+A/R/Z/dz7nt5TjXjhQpqu0jJoBapHoU
-         Kgb2jwCzOEp0FU8xQTwzEriUQUtVqV40b/sXDPrmceNI/Rf+PydPf3nsblKtwW3H1X
-         tXM6SPqtkbN9u9X4I0ODvVBCubYIQdYbqA5sVNAQ=
+        b=DWxxXNWxf/MQ2uSo5BoDk1G6ow6L3FD6ndXbDvx79QJSq+tXaCNwdFZPSp2gmMici
+         IAfk8pJOm85xiacxsAOd8INhUISYWqTz3bu5/HWSO5qbR+USj/k2N3RRF7cR3LGt3l
+         q2m6ApmFBAS0mHHB/BP3BzmjmM10DfKCnn1drKo0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 54/79] media: dvb: Add check on sp8870_readreg return
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 4.9 66/66] usb: core: reduce power-on-good delay time of root hub
 Date:   Mon, 31 May 2021 15:14:39 +0200
-Message-Id: <20210531130637.731512642@linuxfoundation.org>
+Message-Id: <20210531130638.339303847@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
+commit 90d28fb53d4a51299ff324dede015d5cb11b88a2 upstream.
 
-The function sp8870_readreg returns a negative value when i2c_transfer
-fails so properly check for this and return the error if it happens.
+Return the exactly delay time given by root hub descriptor,
+this helps to reduce resume time etc.
 
-Cc: Sean Young <sean@mess.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
+Due to the root hub descriptor is usually provided by the host
+controller driver, if there is compatibility for a root hub,
+we can fix it easily without affect other root hub
+
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1618017645-12259-1-git-send-email-chunfeng.yun@mediatek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/sp8870.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/core/hub.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
-index 04454cb78467..a5782d1133df 100644
---- a/drivers/media/dvb-frontends/sp8870.c
-+++ b/drivers/media/dvb-frontends/sp8870.c
-@@ -293,7 +293,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
- 	sp8870_writereg(state, 0xc05, reg0xc05);
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -151,8 +151,10 @@ static inline unsigned hub_power_on_good
+ {
+ 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
  
- 	// read status reg in order to clear pending irqs
--	sp8870_readreg(state, 0x200);
-+	err = sp8870_readreg(state, 0x200);
-+	if (err < 0)
-+		return err;
+-	/* Wait at least 100 msec for power to become stable */
+-	return max(delay, 100U);
++	if (!hub->hdev->parent)	/* root hub */
++		return delay;
++	else /* Wait at least 100 msec for power to become stable */
++		return max(delay, 100U);
+ }
  
- 	// system controller start
- 	sp8870_microcontroller_start(state);
--- 
-2.30.2
-
+ static inline int hub_port_debounce_be_connected(struct usb_hub *hub,
 
 
