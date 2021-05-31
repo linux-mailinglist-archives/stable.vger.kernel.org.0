@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 991AF395BDF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 16ED7395C5D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231668AbhEaNZd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S232398AbhEaNbd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:31:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33730 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231984AbhEaNX1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83E4F613DD;
-        Mon, 31 May 2021 13:19:54 +0000 (UTC)
+        id S232563AbhEaN3b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:29:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EEF5613F1;
+        Mon, 31 May 2021 13:22:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467195;
-        bh=gATJj241SGwApTt7Kb037qpCfU7Rnb8FhwcbwqkfCZs=;
+        s=korg; t=1622467374;
+        bh=8VCZdGKQ7EY/u9kiLpcdwgbmCfVG9LiE87K1OqJjFZQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S/Rr3WLB2awFYRATYeSxV0u6zz0awPYUDv7IOhtzi6dTNh0TUeksAE02qx9LnGxJX
-         zvOrVVLM3IEtyGKQIb3ZAm1bG8lXWvSaRj6w76Ck/3a0N00qLerGSySXqlyCTxQwct
-         6b97vZc0J+z+PWfd829LzIVSugPRq1LzrhL8n0OQ=
+        b=NprCoIo7swXaNq5DbKiOdmt/ScoWdNULY+3G0O/s6KkAInA4j2cmVJT7wimRvUCKr
+         uCk6VAvZ3Elx0Atw7Ar5KQjBplFUxG1/uLucR8CZczNn6F33MNb05oiyXw/YGvJpF0
+         XAPYUn4ltx/HBaoxLGedu1Qqh3BeJ2bGMO573Bhw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 05/66] NFC: nci: fix memory leak in nci_allocate_device
+        Andrey Ignatov <rdna@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 042/116] selftests/bpf: Test narrow loads with off > 0 in test_verifier
 Date:   Mon, 31 May 2021 15:13:38 +0200
-Message-Id: <20210531130636.440285220@linuxfoundation.org>
+Message-Id: <20210531130641.588975603@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +40,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Andrey Ignatov <rdna@fb.com>
 
-commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
+commit 6c2afb674dbda9b736b8f09c976516e1e788860a upstream
 
-nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
-Fix this by freeing hci_dev in nci_free_device.
+Test the following narrow loads in test_verifier for context __sk_buff:
+* off=1, size=1 - ok;
+* off=2, size=1 - ok;
+* off=3, size=1 - ok;
+* off=0, size=2 - ok;
+* off=1, size=2 - fail;
+* off=0, size=2 - ok;
+* off=3, size=2 - fail.
 
-BUG: memory leak
-unreferenced object 0xffff888111ea6800 (size 1024):
-  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
-    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
-    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
-    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
-    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
-    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
-    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
-    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
-    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
-    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
-    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
-    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
-    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
-    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
-
-Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
-Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Andrey Ignatov <rdna@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/nfc/nci_core.h |    1 +
- net/nfc/nci/core.c         |    1 +
- net/nfc/nci/hci.c          |    5 +++++
- 3 files changed, 7 insertions(+)
+ tools/testing/selftests/bpf/test_verifier.c |   48 ++++++++++++++++++++++------
+ 1 file changed, 38 insertions(+), 10 deletions(-)
 
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -310,6 +310,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
- 		      struct sk_buff **resp);
- 
- struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
-+void nci_hci_deallocate(struct nci_dev *ndev);
- int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
- 		       const u8 *param, size_t param_len);
- int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -1188,6 +1188,7 @@ EXPORT_SYMBOL(nci_allocate_device);
- void nci_free_device(struct nci_dev *ndev)
- {
- 	nfc_free_device(ndev->nfc_dev);
-+	nci_hci_deallocate(ndev);
- 	kfree(ndev);
- }
- EXPORT_SYMBOL(nci_free_device);
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -798,3 +798,8 @@ struct nci_hci_dev *nci_hci_allocate(str
- 
- 	return hdev;
- }
-+
-+void nci_hci_deallocate(struct nci_dev *ndev)
-+{
-+	kfree(ndev->hci_dev);
-+}
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -2002,29 +2002,27 @@ static struct bpf_test tests[] = {
+ 		.result = ACCEPT,
+ 	},
+ 	{
+-		"check skb->hash byte load not permitted 1",
++		"check skb->hash byte load permitted 1",
+ 		.insns = {
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_1,
+ 				    offsetof(struct __sk_buff, hash) + 1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr = "invalid bpf_context access",
+-		.result = REJECT,
++		.result = ACCEPT,
+ 	},
+ 	{
+-		"check skb->hash byte load not permitted 2",
++		"check skb->hash byte load permitted 2",
+ 		.insns = {
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_LDX_MEM(BPF_B, BPF_REG_0, BPF_REG_1,
+ 				    offsetof(struct __sk_buff, hash) + 2),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr = "invalid bpf_context access",
+-		.result = REJECT,
++		.result = ACCEPT,
+ 	},
+ 	{
+-		"check skb->hash byte load not permitted 3",
++		"check skb->hash byte load permitted 3",
+ 		.insns = {
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+@@ -2036,8 +2034,7 @@ static struct bpf_test tests[] = {
+ #endif
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr = "invalid bpf_context access",
+-		.result = REJECT,
++		.result = ACCEPT,
+ 	},
+ 	{
+ 		"check cb access: byte, wrong type",
+@@ -2149,7 +2146,7 @@ static struct bpf_test tests[] = {
+ 		.result = ACCEPT,
+ 	},
+ 	{
+-		"check skb->hash half load not permitted",
++		"check skb->hash half load permitted 2",
+ 		.insns = {
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ #if __BYTE_ORDER == __LITTLE_ENDIAN
+@@ -2161,6 +2158,37 @@ static struct bpf_test tests[] = {
+ #endif
+ 			BPF_EXIT_INSN(),
+ 		},
++		.result = ACCEPT,
++	},
++	{
++		"check skb->hash half load not permitted, unaligned 1",
++		.insns = {
++			BPF_MOV64_IMM(BPF_REG_0, 0),
++#if __BYTE_ORDER == __LITTLE_ENDIAN
++			BPF_LDX_MEM(BPF_H, BPF_REG_0, BPF_REG_1,
++				    offsetof(struct __sk_buff, hash) + 1),
++#else
++			BPF_LDX_MEM(BPF_H, BPF_REG_0, BPF_REG_1,
++				    offsetof(struct __sk_buff, hash) + 3),
++#endif
++			BPF_EXIT_INSN(),
++		},
++		.errstr = "invalid bpf_context access",
++		.result = REJECT,
++	},
++	{
++		"check skb->hash half load not permitted, unaligned 3",
++		.insns = {
++			BPF_MOV64_IMM(BPF_REG_0, 0),
++#if __BYTE_ORDER == __LITTLE_ENDIAN
++			BPF_LDX_MEM(BPF_H, BPF_REG_0, BPF_REG_1,
++				    offsetof(struct __sk_buff, hash) + 3),
++#else
++			BPF_LDX_MEM(BPF_H, BPF_REG_0, BPF_REG_1,
++				    offsetof(struct __sk_buff, hash) + 1),
++#endif
++			BPF_EXIT_INSN(),
++		},
+ 		.errstr = "invalid bpf_context access",
+ 		.result = REJECT,
+ 	},
 
 
