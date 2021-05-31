@@ -2,161 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB1523954CC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 06:49:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 728D73954D5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 06:51:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229730AbhEaEvc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 00:51:32 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55404 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbhEaEvb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 00:51:31 -0400
-Received: from mail-pg1-x52b.google.com (mail-pg1-x52b.google.com [IPv6:2607:f8b0:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D851CC061574
-        for <stable@vger.kernel.org>; Sun, 30 May 2021 21:49:51 -0700 (PDT)
-Received: by mail-pg1-x52b.google.com with SMTP id r1so7430392pgk.8
-        for <stable@vger.kernel.org>; Sun, 30 May 2021 21:49:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=WP1v9CUt/EfWBRts+ovyE3432nJPMtxM7zLZ2C7TAzc=;
-        b=nq24BwQcOTyOuhX9qESDUsXh8JcQ3OzPz7+UrQLoJu6mW97jHn/RfrhtdMD+1Z7OV/
-         x7u0awgr5y1sPHV8LsK7h3Q/o5tO5jWvKA+NBu+4K0+2D3iMgir1p+Rbr/+EwYVhOunN
-         iBdoKZFU568kTrTDFsilcFzEWNKbVM0zuEs6XrVimbyFl0PyoZ/xNVlIyWoE10yBTpNA
-         OyTnMsrcZLSXJTHPY676ggeE+8WhyThU/sApqnzEzodOINS6R/DY1OcjtxGnpcFfwHe5
-         kfZEjlU6zM0Llu1h1SCNlw+jKhkj2ns4PeucGux6DIFDtX7tdvP71Wk7UgSS0ZhRCu/5
-         q6sw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=WP1v9CUt/EfWBRts+ovyE3432nJPMtxM7zLZ2C7TAzc=;
-        b=P6rnSATk5UqOuz239Af193bQDMBrssnuhwsYBkkaNfPwf2rECk999fhmtIc/bQqENj
-         sUXaIBPtuIbKCpEdkMV5sFht2TBwg2HDJp8RiWfbsFrjviXNUiKokGxAtxFQ9k+Olpru
-         2yjLokFX0OZGgF0DWWYbHXgxtBZVlzLzBzsyB1PZLxG8/MU/F3i2H6F7lMLCeABXAVDa
-         pRRu34n7LoTVXMD7/uGc0F4LoR9JtbqScpNiu/aDnN4IxG/RsD31Io1EbzhTMSKDmOmf
-         MsqoTckKyqv/5i9gjqeOUGcXuGJqYZgBKHjcUpU+vX9aRaYDBN/AGedkcwbruv0uKTco
-         q0bA==
-X-Gm-Message-State: AOAM532+XJesnAmTx55JabcXDUGTinvaVxXRXgBCzJVTUeEji+8GZduY
-        XRssdhNcLuCEpzGgjO/jWmRBcHEsWGCpeBC3
-X-Google-Smtp-Source: ABdhPJxDVbi/X5GUYfh6Wrrx9toRNSAu5PSUAa1tFqUkSzyBq9NElnOrGR6TTDQTJBYOd61BggwPoA==
-X-Received: by 2002:a62:1496:0:b029:2e7:2674:147 with SMTP id 144-20020a6214960000b02902e726740147mr15620269pfu.51.1622436591156;
-        Sun, 30 May 2021 21:49:51 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b24sm2262768pff.58.2021.05.30.21.49.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 30 May 2021 21:49:50 -0700 (PDT)
-Message-ID: <60b46aee.1c69fb81.fcab2.70e3@mx.google.com>
-Date:   Sun, 30 May 2021 21:49:50 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229877AbhEaEx2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 00:53:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36022 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229717AbhEaEx2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 00:53:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 910FC61057;
+        Mon, 31 May 2021 04:51:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622436709;
+        bh=WRv6fQ3sfkE3Q4OpIzMPN0VfRRUu+eA4XzEtYX3Xfpo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=n1RlIT341qSR9OIDfR/FCEx0dSK3RIx8r1VDbf0PJhwJsxwLTGRyhTsAYr3OPyxAY
+         PX0sVsrgzcyyQYAspc94vvz42qDE22nYlkPwrQEiGiu4gEdcSqstkWQfK6hgAuyRah
+         RkL6x2s733j6f9LTMjLvEIzOPeb1brOYw9Q1o7jgByzx7wT8UoFpgwz/mJaJQMiaFf
+         q1xsuzn22W5gUy1YnU1612Q8RwXXPzBcvvvH2vz/zEZ0wPz4Ytk5pVjNDknx/IiW7s
+         uwjaU2D26Rtl8/KP0Wvw2dl5s8y/Gim082BfEp+kqEytq56bpYwqBwanO6ngdKG0ff
+         bjCXJ0ADpMS5w==
+From:   Jarkko Sakkinen <jarkko@kernel.org>
+To:     linux-integrity@vger.kernel.org
+Cc:     Jarkko Sakkinen <jarkko@kernel.org>, stable@vger.kernel.org,
+        Hans de Goede <hdegoede@redhat.com>,
+        Greg KH <greg@kroah.com>, Peter Huewe <peterhuewe@gmx.de>,
+        Jason Gunthorpe <jgg@ziepe.ca>,
+        James Bottomley <James.Bottomley@HansenPartnership.com>
+Subject: [PATCH] tpm: Replace WARN_ONCE() with dev_err_once() in tpm_tis_status()
+Date:   Mon, 31 May 2021 07:51:31 +0300
+Message-Id: <20210531045131.110616-1-jarkko@kernel.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.40-198-gc51a6e59c823
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 200 runs,
- 2 regressions (v5.10.40-198-gc51a6e59c823)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 200 runs, 2 regressions (v5.10.40-198-gc51a6=
-e59c823)
+Do not torn down the system when getting invalid status from a TPM chip.
+This can happen when panic-on-warn is used.
 
-Regressions Summary
--------------------
+In addition, print out the value of TPM_STS.x instead of "invalid
+status". In order to get the earlier benefits for forensics, also call
+dump_stack().
 
-platform           | arch  | lab             | compiler | defconfig        =
-   | regressions
--------------------+-------+-----------------+----------+------------------=
----+------------
-imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
-ig | 1          =
+Link: https://lore.kernel.org/keyrings/YKzlTR1AzUigShtZ@kroah.com/
+Fixes: 55707d531af6 ("tpm_tis: Add a check for invalid status")
+Cc: stable@vger.kernel.org
+Cc: Hans de Goede <hdegoede@redhat.com>
+Cc: Greg KH <greg@kroah.com>
+Signed-off-by: Jarkko Sakkinen <jarkko@kernel.org>
+---
+ drivers/char/tpm/tpm_tis_core.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
-   | 1          =
+diff --git a/drivers/char/tpm/tpm_tis_core.c b/drivers/char/tpm/tpm_tis_core.c
+index 55b9d3965ae1..514a481829c9 100644
+--- a/drivers/char/tpm/tpm_tis_core.c
++++ b/drivers/char/tpm/tpm_tis_core.c
+@@ -202,7 +202,16 @@ static u8 tpm_tis_status(struct tpm_chip *chip)
+ 		 * acquired.  Usually because tpm_try_get_ops() hasn't
+ 		 * been called before doing a TPM operation.
+ 		 */
+-		WARN_ONCE(1, "TPM returned invalid status\n");
++		dev_err_once(&chip->dev, "invalid TPM_STS.x 0x%02x, dumping stack for forensics\n",
++			     status);
++
++		/*
++		 * Dump stack for forensics, as invalid TPM_STS.x could be
++		 * potentially triggered by impaired tpm_try_get_ops() or
++		 * tpm_find_get_ops().
++		 */
++		dump_stack();
++
+ 		return 0;
+ 	}
+ 
+-- 
+2.31.1
 
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.40-198-gc51a6e59c823/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.40-198-gc51a6e59c823
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c51a6e59c823b286deb695a5e4c9cf6c90e32273 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab             | compiler | defconfig        =
-   | regressions
--------------------+-------+-----------------+----------+------------------=
----+------------
-imx6ul-pico-hobbit | arm   | lab-pengutronix | gcc-8    | imx_v6_v7_defconf=
-ig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b432790b3e7298aeb3afb8
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: imx_v6_v7_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
-198-gc51a6e59c823/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
-198-gc51a6e59c823/arm/imx_v6_v7_defconfig/gcc-8/lab-pengutronix/baseline-im=
-x6ul-pico-hobbit.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b432790b3e7298aeb3a=
-fb9
-        new failure (last pass: v5.10.40-139-gf93ddb6581f8) =
-
- =
-
-
-
-platform           | arch  | lab             | compiler | defconfig        =
-   | regressions
--------------------+-------+-----------------+----------+------------------=
----+------------
-imx8mp-evk         | arm64 | lab-nxp         | gcc-8    | defconfig        =
-   | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b4352a998ea139b1b3afc4
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
-198-gc51a6e59c823/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.40-=
-198-gc51a6e59c823/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b4352a998ea139b1b3a=
-fc5
-        failing since 0 day (last pass: v5.10.40-98-gef1477410758, first fa=
-il: v5.10.40-139-g2cb2acbbafd8) =
-
- =20
