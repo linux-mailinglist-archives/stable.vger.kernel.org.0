@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 053F8395FC7
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3413395C51
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:30:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbhEaOQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43308 "EHLO mail.kernel.org"
+        id S232260AbhEaNbO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:31:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33136 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233023AbhEaONj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:13:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CD83D6146D;
-        Mon, 31 May 2021 13:42:09 +0000 (UTC)
+        id S232437AbhEaN3N (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:29:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EE7D61418;
+        Mon, 31 May 2021 13:22:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468530;
-        bh=8Oy81VEdXomROfATdpP8vyT3Lrxeamkk3bpNm7pWYCU=;
+        s=korg; t=1622467350;
+        bh=qyAv7zT9mxZEqmsAwmGr+tMC2ngeuTBaZEVrO08jyBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kORbYk392kBHm1ghStJnAUR4QKwXM/BQ/x+U0lc6ynta7nng2iGdHEpV5552n4F/j
-         bVeCOZ/LipdvCRvtuOjDTKU5v1crQmWwY4KRchwY1FuywJ6Zt0aIOfeH63dN26Nbtb
-         6NDSiAQn/DpjywUt570a4WGCtQqYqYYLK2z5TLy8=
+        b=LMtym/Dvm+d7i6lt2HCRwgAcmcPpq24SouRuurSEmPHvbdEkrYlcCZv7rF993e65j
+         jyrKuCDRb+gFA3IoPf1rPh7UKX23Q3qrMJs8SmgyuqV5f6CoA3FlHrUgdew9yNu8Yk
+         c0JOSHHpn8BbxnJI6DgqHRKYQZ/0CejWP3vt+aJg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
-        Jouni Malinen <jouni@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 025/177] ath10k: drop fragments with multicast DA for PCIe
+        stable@vger.kernel.org, Rolf Eike Beer <eb@emlix.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>
+Subject: [PATCH 4.19 006/116] iommu/vt-d: Fix sysfs leak in alloc_iommu()
 Date:   Mon, 31 May 2021 15:13:02 +0200
-Message-Id: <20210531130648.785266963@linuxfoundation.org>
+Message-Id: <20210531130640.360198515@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,75 +40,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Rolf Eike Beer <eb@emlix.com>
 
-commit 65c415a144ad8132b6a6d97d4a1919ffc728e2d1 upstream.
+commit 0ee74d5a48635c848c20f152d0d488bf84641304 upstream.
 
-Fragmentation is not used with multicast frames. Discard unexpected
-fragments with multicast DA. This fixes CVE-2020-26145.
+iommu_device_sysfs_add() is called before, so is has to be cleaned on subsequent
+errors.
 
-Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.5a0bd289bda8.Idd6ebea20038fb1cfee6de924aa595e5647c9eae@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 39ab9555c2411 ("iommu: Add sysfs bindings for struct iommu_device")
+Cc: stable@vger.kernel.org # 4.11.x
+Signed-off-by: Rolf Eike Beer <eb@emlix.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/17411490.HIIP88n32C@mobilepool36.emlix.com
+Link: https://lore.kernel.org/r/20210525070802.361755-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c |   23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ drivers/iommu/dmar.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/ath/ath10k/htt_rx.c
-+++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -1761,6 +1761,16 @@ static u64 ath10k_htt_rx_h_get_pn(struct
- 	return pn;
- }
+--- a/drivers/iommu/dmar.c
++++ b/drivers/iommu/dmar.c
+@@ -1119,7 +1119,7 @@ static int alloc_iommu(struct dmar_drhd_
  
-+static bool ath10k_htt_rx_h_frag_multicast_check(struct ath10k *ar,
-+						 struct sk_buff *skb,
-+						 u16 offset)
-+{
-+	struct ieee80211_hdr *hdr;
-+
-+	hdr = (struct ieee80211_hdr *)(skb->data + offset);
-+	return !is_multicast_ether_addr(hdr->addr1);
-+}
-+
- static bool ath10k_htt_rx_h_frag_pn_check(struct ath10k *ar,
- 					  struct sk_buff *skb,
- 					  u16 peer_id,
-@@ -1832,7 +1842,7 @@ static void ath10k_htt_rx_h_mpdu(struct
- 	bool is_decrypted;
- 	bool is_mgmt;
- 	u32 attention;
--	bool frag_pn_check = true;
-+	bool frag_pn_check = true, multicast_check = true;
+ 		err = iommu_device_register(&iommu->iommu);
+ 		if (err)
+-			goto err_unmap;
++			goto err_sysfs;
+ 	}
  
- 	if (skb_queue_empty(amsdu))
- 		return;
-@@ -1939,13 +1949,20 @@ static void ath10k_htt_rx_h_mpdu(struct
- 								      0,
- 								      enctype);
+ 	drhd->iommu = iommu;
+@@ -1127,6 +1127,8 @@ static int alloc_iommu(struct dmar_drhd_
  
--		if (!frag_pn_check) {
--			/* Discard the fragment with invalid PN */
-+		if (frag)
-+			multicast_check = ath10k_htt_rx_h_frag_multicast_check(ar,
-+									       msdu,
-+									       0);
-+
-+		if (!frag_pn_check || !multicast_check) {
-+			/* Discard the fragment with invalid PN or multicast DA
-+			 */
- 			temp = msdu->prev;
- 			__skb_unlink(msdu, amsdu);
- 			dev_kfree_skb_any(msdu);
- 			msdu = temp;
- 			frag_pn_check = true;
-+			multicast_check = true;
- 			continue;
- 		}
+ 	return 0;
  
++err_sysfs:
++	iommu_device_sysfs_remove(&iommu->iommu);
+ err_unmap:
+ 	unmap_iommu(iommu);
+ error_free_seq_id:
 
 
