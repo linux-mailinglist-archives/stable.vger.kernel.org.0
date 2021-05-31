@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 64A2539614C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:37:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E7FD2395DBC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233396AbhEaOil (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:38:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60154 "EHLO mail.kernel.org"
+        id S230454AbhEaNus (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:50:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49502 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233604AbhEaOgJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:36:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 179966162F;
-        Mon, 31 May 2021 13:51:17 +0000 (UTC)
+        id S232395AbhEaNrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1D5CE61607;
+        Mon, 31 May 2021 13:30:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469078;
-        bh=u4xqj8Zvvajo2QYdfEv5ehNR/i44+Ki388AIdQJcLXo=;
+        s=korg; t=1622467827;
+        bh=dixYiv4IqcDTYMXQxCyKzf3bhVXKR4o+mefvnnvINyA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzuRsZzQ/166v+yu87yW/18KLzr7Lb6AhtTQ8iAld93BdLqC5dBh5GWcFtibmruUG
-         5un3SDZup7DwEJobUuROnVTvoG9m0GrcWTVHkWz4linSJBghhwFZEXgLgCP9b2xNW+
-         k7xkCbRm46Uy5CvkT9bW/BEc4nVVFMs4AR8qAGqs=
+        b=LnZQnBbqnDDRCCaC186wgRRztwK+xInlJdtcYL02ansfhYeeaHiXDDTk7q3VDU150
+         lKcEqraJuF0lF9+MIlXHENLZBaWSmJby1EI8OGRRr5fPelnO8+uGctFM5mmZuoB+Jq
+         SgCSF5WYixaxgBqQeAwaiXpFxroWKaujhU6Z5Low=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.12 026/296] perf intel-pt: Fix transaction abort handling
+Subject: [PATCH 5.10 016/252] perf scripts python: exported-sql-viewer.py: Fix Array TypeError
 Date:   Mon, 31 May 2021 15:11:21 +0200
-Message-Id: <20210531130704.656640384@linuxfoundation.org>
+Message-Id: <20210531130658.528808458@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,101 +42,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit cb7987837c31b217b28089bbc78922d5c9187869 upstream.
+commit fd931b2e234a7cc451a7bbb1965d6ce623189158 upstream.
 
-When adding support for power events, some handling of FUP packets was
-unified. That resulted in breaking reporting of TSX aborts, by not
-considering the associated TIP packet. Fix that.
+The 'Array' class is present in more than one python standard library.
+In some versions of Python 3, the following error occurs:
 
-Example:
+Traceback (most recent call last):
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4702, in <lambda>
+    reports_menu.addAction(CreateAction(label, "Create a new window displaying branch events", lambda a=None,x=dbid: self.NewBranchView(x), self))
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4727, in NewBranchView
+    BranchWindow(self.glb, event_id, ReportVars(), self)
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3208, in __init__
+    self.model = LookupCreateModel(model_name, lambda: BranchModel(glb, event_id, report_vars.where_clause))
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 343, in LookupCreateModel
+    model = create_fn()
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3208, in <lambda>
+    self.model = LookupCreateModel(model_name, lambda: BranchModel(glb, event_id, report_vars.where_clause))
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3124, in __init__
+    self.fetcher = SQLFetcher(glb, sql, prep, self.AddSample)
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 2658, in __init__
+    self.buffer = Array(c_char, self.buffer_size, lock=False)
+TypeError: abstract class
 
-A machine that supports TSX is required. It will have flag "rtm". Kernel
-parameter tsx=on may be required.
+This apparently happens because Python can be inconsistent about which
+class of the name 'Array' gets imported. Fix by importing explicitly by
+name so that only the desired 'Array' gets imported.
 
- # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
- rtm
-
-Test program:
-
- #include <stdio.h>
- #include <immintrin.h>
-
- int main()
- {
-        int x = 0;
-
-        if (_xbegin() == _XBEGIN_STARTED) {
-                x = 1;
-                _xabort(1);
-        } else {
-                printf("x = %d\n", x);
-        }
-        return 0;
- }
-
-Compile with -mrtm i.e.
-
- gcc -Wall -Wextra -mrtm xabort.c -o xabort
-
-Record:
-
- perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
-
-Before:
-
- # perf script --itrace=be -F+flags,+addr,-period,-event --ns
-          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   jmp                            400b96 main+0x29 (/root/xabort) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   return                         400bb4 main+0x47 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
-          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
-          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
-
-After:
-
- # perf script --itrace=be -F+flags,+addr,-period,-event --ns
-          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431348624:   tx abrt                        400b93 main+0x26 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
-          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
-          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
-          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
-          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
-
-Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
+Fixes: 8392b74b575c3 ("perf scripts python: exported-sql-viewer.py: Add ability to display all the database tables")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210519074515.9262-2-adrian.hunter@intel.com
+Link: http://lore.kernel.org/lkml/20210521092053.25683-3-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ tools/perf/scripts/python/exported-sql-viewer.py |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
---- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-+++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
-@@ -1146,6 +1146,8 @@ static bool intel_pt_fup_event(struct in
- 		decoder->set_fup_tx_flags = false;
- 		decoder->tx_flags = decoder->fup_tx_flags;
- 		decoder->state.type = INTEL_PT_TRANSACTION;
-+		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
-+			decoder->state.type |= INTEL_PT_BRANCH;
- 		decoder->state.from_ip = decoder->ip;
- 		decoder->state.to_ip = 0;
- 		decoder->state.flags = decoder->fup_tx_flags;
-@@ -1220,8 +1222,10 @@ static int intel_pt_walk_fup(struct inte
- 			return 0;
- 		if (err == -EAGAIN ||
- 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
-+			bool no_tip = decoder->pkt_state != INTEL_PT_STATE_FUP;
-+
- 			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
--			if (intel_pt_fup_event(decoder))
-+			if (intel_pt_fup_event(decoder) && no_tip)
- 				return 0;
- 			return -EAGAIN;
- 		}
+--- a/tools/perf/scripts/python/exported-sql-viewer.py
++++ b/tools/perf/scripts/python/exported-sql-viewer.py
+@@ -125,8 +125,9 @@ if pyside_version_1:
+ 	from PySide.QtGui import *
+ 	from PySide.QtSql import *
+ 
+-from decimal import *
+-from ctypes import *
++from decimal import Decimal, ROUND_HALF_UP
++from ctypes import CDLL, Structure, create_string_buffer, addressof, sizeof, \
++		   c_void_p, c_bool, c_byte, c_char, c_int, c_uint, c_longlong, c_ulonglong
+ from multiprocessing import Process, Array, Value, Event
+ 
+ # xrange is range in Python3
 
 
