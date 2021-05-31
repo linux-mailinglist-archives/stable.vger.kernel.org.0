@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A9FF3962B0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BB6473960CA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233176AbhEaPA0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:00:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51184 "EHLO mail.kernel.org"
+        id S233441AbhEaObe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56132 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234132AbhEaO5c (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DA0061CC2;
-        Mon, 31 May 2021 14:00:38 +0000 (UTC)
+        id S233825AbhEaO33 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3187961C25;
+        Mon, 31 May 2021 13:48:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469639;
-        bh=nlTcHeTklVjLklF9DpoD4gMA/IBp18zY02GeRa0N93E=;
+        s=korg; t=1622468903;
+        bh=uS8+4oKfWZJY8Y8Wuwo953RpPRVLkzyt/KFj9P9//+g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HR+12+nuZiLuwPBDvKwCrkPlvxDTzHvwlda99sbTw3+Tn5UpVeNp2LM9vurOzIcqb
-         7u4vgGeZrYMByZL1rw52ydHx/K2TvgPBNBAzQBfkpebmDhZ7I1/+l7qsM/rBcsnbPT
-         LvHbfiKxBsRn+ltUjLE9m1QQ4d4GIrPny/AGmFSQ=
+        b=kxY6FClKKi6SzRpSlhfnBlVVWCeQFlbF+/AWnKoKwigm0qhI+LuTOblYroaDITHLd
+         MDpvJBj/alWfpcThIh1kFExSF91ZkB5cY8knKQRvvfabu5NDK/Q1Kgc4VGqoTvK/Sz
+         jtN6SzqbyLjhxTw4MvqRJCoV6mzG9z8QivoY6jh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aleksander Jan Bajkowski <olek2@wp.pl>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 274/296] net: lantiq: fix memory corruption in RX ring
-Date:   Mon, 31 May 2021 15:15:29 +0200
-Message-Id: <20210531130712.951598038@linuxfoundation.org>
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 173/177] net: hns3: check the return of skb_checksum_help()
+Date:   Mon, 31 May 2021 15:15:30 +0200
+Message-Id: <20210531130653.913525384@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,70 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aleksander Jan Bajkowski <olek2@wp.pl>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-[ Upstream commit c7718ee96dbc2f9c5fc3b578abdf296dd44b9c20 ]
+commit 9bb5a495424fd4bfa672eb1f31481248562fa156 upstream.
 
-In a situation where memory allocation or dma mapping fails, an
-invalid address is programmed into the descriptor. This can lead
-to memory corruption. If the memory allocation fails, DMA should
-reuse the previous skb and mapping and drop the packet. This patch
-also increments rx drop counter.
+Currently skb_checksum_help()'s return is ignored, but it may
+return error when it fails to allocate memory when linearizing.
 
-Fixes: fe1a56420cf2 ("net: lantiq: Add Lantiq / Intel VRX200 Ethernet driver ")
-Signed-off-by: Aleksander Jan Bajkowski <olek2@wp.pl>
+So adds checking for the return of skb_checksum_help().
+
+Fixes: 76ad4f0ee747("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/lantiq_xrx200.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/lantiq_xrx200.c b/drivers/net/ethernet/lantiq_xrx200.c
-index 51ed8a54d380..135ba5b6ae98 100644
---- a/drivers/net/ethernet/lantiq_xrx200.c
-+++ b/drivers/net/ethernet/lantiq_xrx200.c
-@@ -154,6 +154,7 @@ static int xrx200_close(struct net_device *net_dev)
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -810,8 +810,6 @@ static bool hns3_tunnel_csum_bug(struct
+ 	      l4.udp->dest == htons(4790))))
+ 		return false;
  
- static int xrx200_alloc_skb(struct xrx200_chan *ch)
- {
-+	dma_addr_t mapping;
- 	int ret = 0;
+-	skb_checksum_help(skb);
+-
+ 	return true;
+ }
  
- 	ch->skb[ch->dma.desc] = netdev_alloc_skb_ip_align(ch->priv->net_dev,
-@@ -163,16 +164,17 @@ static int xrx200_alloc_skb(struct xrx200_chan *ch)
- 		goto skip;
+@@ -889,8 +887,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 			/* the stack computes the IP header already,
+ 			 * driver calculate l4 checksum when not TSO.
+ 			 */
+-			skb_checksum_help(skb);
+-			return 0;
++			return skb_checksum_help(skb);
+ 		}
+ 
+ 		hns3_set_outer_l2l3l4(skb, ol4_proto, ol_type_vlan_len_msec);
+@@ -935,7 +932,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 		break;
+ 	case IPPROTO_UDP:
+ 		if (hns3_tunnel_csum_bug(skb))
+-			break;
++			return skb_checksum_help(skb);
+ 
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
+@@ -960,8 +957,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 		/* the stack computes the IP header already,
+ 		 * driver calculate l4 checksum when not TSO.
+ 		 */
+-		skb_checksum_help(skb);
+-		return 0;
++		return skb_checksum_help(skb);
  	}
  
--	ch->dma.desc_base[ch->dma.desc].addr = dma_map_single(ch->priv->dev,
--			ch->skb[ch->dma.desc]->data, XRX200_DMA_DATA_LEN,
--			DMA_FROM_DEVICE);
--	if (unlikely(dma_mapping_error(ch->priv->dev,
--				       ch->dma.desc_base[ch->dma.desc].addr))) {
-+	mapping = dma_map_single(ch->priv->dev, ch->skb[ch->dma.desc]->data,
-+				 XRX200_DMA_DATA_LEN, DMA_FROM_DEVICE);
-+	if (unlikely(dma_mapping_error(ch->priv->dev, mapping))) {
- 		dev_kfree_skb_any(ch->skb[ch->dma.desc]);
- 		ret = -ENOMEM;
- 		goto skip;
- 	}
- 
-+	ch->dma.desc_base[ch->dma.desc].addr = mapping;
-+	/* Make sure the address is written before we give it to HW */
-+	wmb();
- skip:
- 	ch->dma.desc_base[ch->dma.desc].ctl =
- 		LTQ_DMA_OWN | LTQ_DMA_RX_OFFSET(NET_IP_ALIGN) |
-@@ -196,6 +198,8 @@ static int xrx200_hw_receive(struct xrx200_chan *ch)
- 	ch->dma.desc %= LTQ_DESC_NUM;
- 
- 	if (ret) {
-+		ch->skb[ch->dma.desc] = skb;
-+		net_dev->stats.rx_dropped++;
- 		netdev_err(net_dev, "failed to allocate new rx buffer\n");
- 		return ret;
- 	}
--- 
-2.30.2
-
+ 	return 0;
 
 
