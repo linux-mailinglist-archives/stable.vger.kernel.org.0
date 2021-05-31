@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92BE8395BF3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A36439605C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:05 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232080AbhEaN03 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:26:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
+        id S232869AbhEaOZW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231837AbhEaNYZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:24:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C874F613FA;
-        Mon, 31 May 2021 13:20:27 +0000 (UTC)
+        id S233591AbhEaOX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 190DF61419;
+        Mon, 31 May 2021 13:45:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467228;
-        bh=aTgG2riFV4u4JLKEo+ZITnnT3/960WFFm2TRp9q+8JY=;
+        s=korg; t=1622468742;
+        bh=u5KZkVYOV5WgmRfdQgoGQXq8qkFTOZu/4eT03SuCZOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jtmvuRkgRAVpTHzB0bGrHkJUIsAcuOBOf8EQiQgZ/x0r+G4c/HJ62sgGFBdZSgzjX
-         N69oVbznf8rIHs08o1GfoD+P0iN1GQWyuruQCpK7RirFnQ8uH0sou1QPqrO/ZGnbLY
-         Rj4W6pCc+BwU8lbo2sEANI1AMRwVZCiTf77T1K2Q=
+        b=ZMDJubbv9X8H8H0t+0eIBvaKKBZCyJxQhB5bQXXa71DuNnAF+GKeVdjp0zt+P6xIi
+         7IFvCSc7dXxKxTdKw7DpTMAQt+VtwAswce4hZA3MSzTe2mCnobmOeU+6eYJ9VnfEpx
+         sc6qs3OI2ZK7RSTqD43H6jYbq+luD7nvUq/Pswtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 54/66] net: netcp: Fix an error message
+Subject: [PATCH 5.4 110/177] libertas: register sysfs groups properly
 Date:   Mon, 31 May 2021 15:14:27 +0200
-Message-Id: <20210531130637.965032742@linuxfoundation.org>
+Message-Id: <20210531130651.717350366@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit ddb6e00f8413e885ff826e32521cff7924661de0 ]
+[ Upstream commit 7e79b38fe9a403b065ac5915465f620a8fb3de84 ]
 
-'ret' is known to be 0 here.
-The expected error code is stored in 'tx_pipe->dma_queue', so use it
-instead.
+The libertas driver was trying to register sysfs groups "by hand" which
+causes them to be created _after_ the device is initialized and
+announced to userspace, which causes races and can prevent userspace
+tools from seeing the sysfs files correctly.
 
-While at it, switch from %d to %pe which is more user friendly.
+Fix this up by using the built-in sysfs_groups pointers in struct
+net_device which were created for this very reason, fixing the race
+condition, and properly allowing for any error that might have occured
+to be handled properly.
 
-Fixes: 84640e27f230 ("net: netcp: Add Keystone NetCP core ethernet driver")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-54-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/ti/netcp_core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/marvell/libertas/mesh.c | 28 +++-----------------
+ 1 file changed, 4 insertions(+), 24 deletions(-)
 
-diff --git a/drivers/net/ethernet/ti/netcp_core.c b/drivers/net/ethernet/ti/netcp_core.c
-index 32516661f180..a55e83a0946a 100644
---- a/drivers/net/ethernet/ti/netcp_core.c
-+++ b/drivers/net/ethernet/ti/netcp_core.c
-@@ -1325,8 +1325,8 @@ int netcp_txpipe_open(struct netcp_tx_pipe *tx_pipe)
- 	tx_pipe->dma_queue = knav_queue_open(name, tx_pipe->dma_queue_id,
- 					     KNAV_QUEUE_SHARED);
- 	if (IS_ERR(tx_pipe->dma_queue)) {
--		dev_err(dev, "Could not open DMA queue for channel \"%s\": %d\n",
--			name, ret);
-+		dev_err(dev, "Could not open DMA queue for channel \"%s\": %pe\n",
-+			name, tx_pipe->dma_queue);
- 		ret = PTR_ERR(tx_pipe->dma_queue);
- 		goto err;
+diff --git a/drivers/net/wireless/marvell/libertas/mesh.c b/drivers/net/wireless/marvell/libertas/mesh.c
+index a21c86d446fa..050fd403110e 100644
+--- a/drivers/net/wireless/marvell/libertas/mesh.c
++++ b/drivers/net/wireless/marvell/libertas/mesh.c
+@@ -801,19 +801,6 @@ static const struct attribute_group mesh_ie_group = {
+ 	.attrs = mesh_ie_attrs,
+ };
+ 
+-static void lbs_persist_config_init(struct net_device *dev)
+-{
+-	int ret;
+-	ret = sysfs_create_group(&(dev->dev.kobj), &boot_opts_group);
+-	ret = sysfs_create_group(&(dev->dev.kobj), &mesh_ie_group);
+-}
+-
+-static void lbs_persist_config_remove(struct net_device *dev)
+-{
+-	sysfs_remove_group(&(dev->dev.kobj), &boot_opts_group);
+-	sysfs_remove_group(&(dev->dev.kobj), &mesh_ie_group);
+-}
+-
+ 
+ /***************************************************************************
+  * Initializing and starting, stopping mesh
+@@ -1014,6 +1001,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
+ 	SET_NETDEV_DEV(priv->mesh_dev, priv->dev->dev.parent);
+ 
+ 	mesh_dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
++	mesh_dev->sysfs_groups[0] = &lbs_mesh_attr_group;
++	mesh_dev->sysfs_groups[1] = &boot_opts_group;
++	mesh_dev->sysfs_groups[2] = &mesh_ie_group;
++
+ 	/* Register virtual mesh interface */
+ 	ret = register_netdev(mesh_dev);
+ 	if (ret) {
+@@ -1021,19 +1012,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
+ 		goto err_free_netdev;
  	}
+ 
+-	ret = sysfs_create_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
+-	if (ret)
+-		goto err_unregister;
+-
+-	lbs_persist_config_init(mesh_dev);
+-
+ 	/* Everything successful */
+ 	ret = 0;
+ 	goto done;
+ 
+-err_unregister:
+-	unregister_netdev(mesh_dev);
+-
+ err_free_netdev:
+ 	free_netdev(mesh_dev);
+ 
+@@ -1054,8 +1036,6 @@ void lbs_remove_mesh(struct lbs_private *priv)
+ 
+ 	netif_stop_queue(mesh_dev);
+ 	netif_carrier_off(mesh_dev);
+-	sysfs_remove_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
+-	lbs_persist_config_remove(mesh_dev);
+ 	unregister_netdev(mesh_dev);
+ 	priv->mesh_dev = NULL;
+ 	kfree(mesh_dev->ieee80211_ptr);
 -- 
 2.30.2
 
