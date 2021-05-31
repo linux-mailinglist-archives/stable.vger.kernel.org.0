@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EEF7395C52
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A1AA0395EBC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232287AbhEaNbW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:31:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
+        id S231974AbhEaOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32910 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232453AbhEaN3T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:29:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C201B61415;
-        Mon, 31 May 2021 13:22:32 +0000 (UTC)
+        id S232698AbhEaOAx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:00:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1741961462;
+        Mon, 31 May 2021 13:36:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467353;
-        bh=/s/rwubZx/ifd+zZhHoxLC9s4wnjjK1FQfwAWDavSB0=;
+        s=korg; t=1622468196;
+        bh=i/yh22XRqMBDWXKWA7tVRwpyvyI939/Wesu5tWdN0YY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rrDgFFkLysDJ69xkNQuZuTVZ1LF5SltZ0q53JtZTYWZZ61625LfF45BWOPr6H3NPq
-         5qXV740ulNosmG0HFGUipNUvqYfrFiccJxqQfUBwg0miK6hCBOKDZxBzUT4lFno3Wv
-         I4w7YzU4yg56+s6Rd9uoO40I8youPXt8JxwHmYwc=
+        b=keFXejyVnhnuGN8eV858yQc5/uWpLEY8mv5kmCSazNAIm1FElJLBfE8Yp57l+ozeI
+         5qfqtT4on608rSINSP2nFgueHEzo4QorEq6b/CQPFCzEfrq2QwmoOTy5Oi5yI+OKZL
+         BA2T7h+geQDIK2/kRvt7xR27SQfvm8VJ/uXPaj8M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 007/116] perf intel-pt: Fix sample instruction bytes
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 118/252] net: dsa: sja1105: call dsa_unregister_switch when allocating memory fails
 Date:   Mon, 31 May 2021 15:13:03 +0200
-Message-Id: <20210531130640.390800881@linuxfoundation.org>
+Message-Id: <20210531130701.994650447@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,100 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit c954eb72b31a9dc56c99b450253ec5b121add320 upstream.
+commit dc596e3fe63f88e3d1e509f64e7f761cd4135538 upstream.
 
-The decoder reports the current instruction if it was decoded. In some
-cases the current instruction is not decoded, in which case the instruction
-bytes length must be set to zero. Ensure that is always done.
+Unlike other drivers which pretty much end their .probe() execution with
+dsa_register_switch(), the sja1105 does some extra stuff. When that
+fails with -ENOMEM, the driver is quick to return that, forgetting to
+call dsa_unregister_switch(). Not critical, but a bug nonetheless.
 
-Note perf script can anyway get the instruction bytes for any samples where
-they are not present.
-
-Also note, that there is a redundant "ptq->insn_len = 0" statement which is
-not removed until a subsequent patch in order to make this patch apply
-cleanly to stable branches.
-
-Example:
-
-A machne that supports TSX is required. It will have flag "rtm". Kernel
-parameter tsx=on may be required.
-
- # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
- rtm
-
-Test program:
-
- #include <stdio.h>
- #include <immintrin.h>
-
- int main()
- {
-        int x = 0;
-
-        if (_xbegin() == _XBEGIN_STARTED) {
-                x = 1;
-                _xabort(1);
-        } else {
-                printf("x = %d\n", x);
-        }
-        return 0;
- }
-
-Compile with -mrtm i.e.
-
- gcc -Wall -Wextra -mrtm xabort.c -o xabort
-
-Record:
-
- perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
-
-Before:
-
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          mov $0xffffffff, %eax
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          mov $0xffffffff, %eax
-
-After:
-
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          xbegin 0x6
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          xabort $0x1
-
-Fixes: faaa87680b25d ("perf intel-pt/bts: Report instruction bytes and length in sample")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210519074515.9262-3-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4d7525085a9b ("net: dsa: sja1105: offload the Credit-Based Shaper qdisc")
+Fixes: a68578c20a96 ("net: dsa: Make deferred_xmit private to sja1105")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   15 +++++++++++----
+ 1 file changed, 11 insertions(+), 4 deletions(-)
 
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -505,8 +505,10 @@ static int intel_pt_walk_next_insn(struc
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -3483,8 +3483,10 @@ static int sja1105_probe(struct spi_devi
+ 		priv->cbs = devm_kcalloc(dev, priv->info->num_cbs_shapers,
+ 					 sizeof(struct sja1105_cbs_entry),
+ 					 GFP_KERNEL);
+-		if (!priv->cbs)
+-			return -ENOMEM;
++		if (!priv->cbs) {
++			rc = -ENOMEM;
++			goto out_unregister_switch;
++		}
+ 	}
  
- 			*ip += intel_pt_insn->length;
+ 	/* Connections between dsa_port and sja1105_port */
+@@ -3509,7 +3511,7 @@ static int sja1105_probe(struct spi_devi
+ 			dev_err(ds->dev,
+ 				"failed to create deferred xmit thread: %d\n",
+ 				rc);
+-			goto out;
++			goto out_destroy_workers;
+ 		}
+ 		skb_queue_head_init(&sp->xmit_queue);
+ 		sp->xmit_tpid = ETH_P_SJA1105;
+@@ -3519,7 +3521,8 @@ static int sja1105_probe(struct spi_devi
+ 	}
  
--			if (to_ip && *ip == to_ip)
-+			if (to_ip && *ip == to_ip) {
-+				intel_pt_insn->length = 0;
- 				goto out_no_cache;
-+			}
+ 	return 0;
+-out:
++
++out_destroy_workers:
+ 	while (port-- > 0) {
+ 		struct sja1105_port *sp = &priv->ports[port];
  
- 			if (*ip >= al.map->end)
- 				break;
-@@ -893,6 +895,7 @@ static void intel_pt_set_pid_tid_cpu(str
+@@ -3528,6 +3531,10 @@ out:
  
- static void intel_pt_sample_flags(struct intel_pt_queue *ptq)
- {
-+	ptq->insn_len = 0;
- 	if (ptq->state->flags & INTEL_PT_ABORT_TX) {
- 		ptq->flags = PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT;
- 	} else if (ptq->state->flags & INTEL_PT_ASYNC) {
+ 		kthread_destroy_worker(sp->xmit_worker);
+ 	}
++
++out_unregister_switch:
++	dsa_unregister_switch(ds);
++
+ 	return rc;
+ }
+ 
 
 
