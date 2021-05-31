@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0729B395DF0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03521396168
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230323AbhEaNwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:52:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
+        id S230438AbhEaOkX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:40:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233130AbhEaNuA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:50:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B6A2613C8;
-        Mon, 31 May 2021 13:31:53 +0000 (UTC)
+        id S233933AbhEaOhh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:37:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3407861C52;
+        Mon, 31 May 2021 13:51:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467914;
-        bh=dDO8IvkNPOq4l1134DqE7t1K1s+XGFot/hxwoHQv+W4=;
+        s=korg; t=1622469115;
+        bh=Tg5e3P3m5H6s4Zj5G9dfzDFhHNm44SLJ5FAMgs/JNWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BJ4rNZ0/4sutzQRLdxjeCu5f4Yi9VOvpJQYQ/pcGD06iVqIttFhEmxFwuzxfuKR9N
-         xfmOrLbHMqQP9r83GsMRd8HMi0t8UheHygMt5SLHH0QJ9rgeaMCW/oz5KNzBSdyPc3
-         2qjCHZmUlU/XJI0ZnfzTNmzArKfd40Qf8MzU/dR4=
+        b=u58fQ9RVzaFBLQ4tc1H9Q6WsPvfQdqiVQ4AEDbTUutPpXDCfB7/qkrMKPeIVXBKl8
+         Q0mSsbAB+1ov4iXvoa337ZPHhWVI0TLDOKjfKcwtONLnJZrkeNu8saW0RGYfjiZ3dP
+         xPSEUQvANYnWzvmj+nEMmSzTF3XBbHVcVg/3mrVU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/252] selftests/gpio: Move include of lib.mk up
+        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
+        Leo Liu <leo.liu@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.12 058/296] drm/amdgpu/vcn2.0: add cancel_delayed_work_sync before power gate
 Date:   Mon, 31 May 2021 15:11:53 +0200
-Message-Id: <20210531130659.617139127@linuxfoundation.org>
+Message-Id: <20210531130705.778955862@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +41,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: James Zhu <James.Zhu@amd.com>
 
-[ Upstream commit 449539da2e237336bc750b41f1736a77f9aca25c ]
+commit 0c6013377b4027e69d8f3e63b6bf556b6cb87802 upstream.
 
-Move the include of lib.mk up so that in a subsequent patch we can use
-OUTPUT, which is initialised by lib.mk, in the definition of the GPIO
-variables.
+Add cancel_delayed_work_sync before set power gating state
+to avoid race condition issue when power gating.
 
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: James Zhu <James.Zhu@amd.com>
+Reviewed-by: Leo Liu <leo.liu@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/gpio/Makefile | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/tools/testing/selftests/gpio/Makefile b/tools/testing/selftests/gpio/Makefile
-index c85fb5acf5f4..615c8a953ade 100644
---- a/tools/testing/selftests/gpio/Makefile
-+++ b/tools/testing/selftests/gpio/Makefile
-@@ -13,6 +13,9 @@ TEST_PROGS := gpio-mockup.sh
- TEST_FILES := gpio-mockup-sysfs.sh
- TEST_GEN_PROGS_EXTENDED := gpio-mockup-chardev
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_0.c
+@@ -262,6 +262,8 @@ static int vcn_v2_0_hw_fini(void *handle
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
  
-+KSFT_KHDR_INSTALL := 1
-+include ../lib.mk
++	cancel_delayed_work_sync(&adev->vcn.idle_work);
 +
- GPIODIR := $(realpath ../../../gpio)
- GPIOOBJ := gpio-utils.o
- 
-@@ -21,9 +24,6 @@ override define CLEAN
- 	$(MAKE) -C $(GPIODIR) OUTPUT=$(GPIODIR)/ clean
- endef
- 
--KSFT_KHDR_INSTALL := 1
--include ../lib.mk
--
- $(TEST_GEN_PROGS_EXTENDED): $(GPIODIR)/$(GPIOOBJ)
- 
- $(GPIODIR)/$(GPIOOBJ):
--- 
-2.30.2
-
+ 	if ((adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG) ||
+ 	    (adev->vcn.cur_state != AMD_PG_STATE_GATE &&
+ 	      RREG32_SOC15(VCN, 0, mmUVD_STATUS)))
 
 
