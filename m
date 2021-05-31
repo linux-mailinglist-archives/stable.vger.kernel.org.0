@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 63460396188
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE096395E04
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231916AbhEaOlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
+        id S232954AbhEaNxG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:53:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234198AbhEaOji (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 083FA613DD;
-        Mon, 31 May 2021 13:53:01 +0000 (UTC)
+        id S232250AbhEaNvF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:51:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E0272616EC;
+        Mon, 31 May 2021 13:32:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469182;
-        bh=xRkXyXRD4VsuCj4tAgHWY+MiLuM+0pgSLT5KovffrFc=;
+        s=korg; t=1622467935;
+        bh=zaqc71jmfjSYAhxJFkH0vlK71+sUttf04PqO/8IWQqE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gZf4ngxKjyn5J3h0N4yprdK+PIEp0HqlhZc8OKLoJd9QNDdGon3JwRiUXTDtG3zj/
-         HLIqKHVL5cA0huLtLIeOS7AKgafeOjtqKHrIbXP0CHiJsL4GRMNZyli+Fvb9+0dFQN
-         rbgL8/RDIyPI0CLOshCk+HixfgM55M2Er2HN4dA8=
+        b=fn2Nm2kRyZS/IsYa0A79Gsm253qcHPodSg6KpRYqoqseRCf7dEoRJDel5sQ43MS6Z
+         zmS5HT9q98O/9UDhicqwXs9xrG9BO2wiucAbzjvUwIqJhkgIdZqzM4Vbbxk4vPa/Fc
+         izicawgCYlldHEZ4Ju1n/LmN0nY9iKXk/tzt9KQk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH 5.12 065/296] debugfs: fix security_locked_down() call for SELinux
-Date:   Mon, 31 May 2021 15:12:00 +0200
-Message-Id: <20210531130706.022562078@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 5.10 056/252] thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
+Date:   Mon, 31 May 2021 15:12:01 +0200
+Message-Id: <20210531130659.879830516@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,49 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 5881fa8dc2de9697a89451f6518e8b3a796c09c6 upstream.
+commit b106776080a1cf953a1b2fd50cb2a995db4732be upstream.
 
-When (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)) is zero, then
-the SELinux implementation of the locked_down hook might report a denial
-even though the operation would actually be allowed.
+Up to 64 bytes of data can be read from NVM in one go. Read address
+must be dword aligned. Data is read into a local buffer.
 
-To fix this, make sure that security_locked_down() is called only when
-the return value will be taken into account (i.e. when changing one of
-the problematic attributes).
+If caller asks to read data starting at an unaligned address then full
+dword is anyway read from NVM into a local buffer. Data is then copied
+from the local buffer starting at the unaligned offset to the caller
+buffer.
 
-Note: this was introduced by commit 5496197f9b08 ("debugfs: Restrict
-debugfs when the kernel is locked down"), but it didn't matter at that
-time, as the SELinux support came in later.
+In cases where asked data length + unaligned offset is over 64 bytes
+we need to make sure we don't read past the 64 bytes in the local
+buffer when copying to caller buffer, and make sure that we don't
+skip copying unaligned offset bytes from local buffer anymore after
+the first round of 64 byte NVM data read.
 
-Fixes: 59438b46471a ("security,lockdown,selinux: implement SELinux lockdown")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
-Link: https://lore.kernel.org/r/20210507125304.144394-1-omosnace@redhat.com
+Fixes: 3e13676862f9 ("thunderbolt: Add support for DMA configuration based mailbox")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/debugfs/inode.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/thunderbolt/dma_port.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/fs/debugfs/inode.c
-+++ b/fs/debugfs/inode.c
-@@ -45,10 +45,13 @@ static unsigned int debugfs_allow __ro_a
- static int debugfs_setattr(struct user_namespace *mnt_userns,
- 			   struct dentry *dentry, struct iattr *ia)
+--- a/drivers/thunderbolt/dma_port.c
++++ b/drivers/thunderbolt/dma_port.c
+@@ -364,15 +364,15 @@ int dma_port_flash_read(struct tb_dma_po
+ 			void *buf, size_t size)
  {
--	int ret = security_locked_down(LOCKDOWN_DEBUGFS);
-+	int ret;
+ 	unsigned int retries = DMA_PORT_RETRIES;
+-	unsigned int offset;
+-
+-	offset = address & 3;
+-	address = address & ~3;
  
--	if (ret && (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)))
--		return ret;
-+	if (ia->ia_valid & (ATTR_MODE | ATTR_UID | ATTR_GID)) {
-+		ret = security_locked_down(LOCKDOWN_DEBUGFS);
-+		if (ret)
-+			return ret;
-+	}
- 	return simple_setattr(&init_user_ns, dentry, ia);
- }
+ 	do {
+-		u32 nbytes = min_t(u32, size, MAIL_DATA_DWORDS * 4);
++		unsigned int offset;
++		size_t nbytes;
+ 		int ret;
  
++		offset = address & 3;
++		nbytes = min_t(size_t, size + offset, MAIL_DATA_DWORDS * 4);
++
+ 		ret = dma_port_flash_read_block(dma, address, dma->buf,
+ 						ALIGN(nbytes, 4));
+ 		if (ret) {
+@@ -384,6 +384,7 @@ int dma_port_flash_read(struct tb_dma_po
+ 			return ret;
+ 		}
+ 
++		nbytes -= offset;
+ 		memcpy(buf, dma->buf + offset, nbytes);
+ 
+ 		size -= nbytes;
 
 
