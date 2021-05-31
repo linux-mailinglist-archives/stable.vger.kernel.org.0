@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EB64839606A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EBDC396247
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:52:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233921AbhEaOZn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:25:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48838 "EHLO mail.kernel.org"
+        id S232683AbhEaOxq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:53:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233675AbhEaOXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:23:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5D1461A13;
-        Mon, 31 May 2021 13:45:56 +0000 (UTC)
+        id S233541AbhEaOvm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:51:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B891161CA5;
+        Mon, 31 May 2021 13:58:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468757;
-        bh=yGMZrSeD5ldYQ8amepKy7fmPBbO/88Lgz8D1NmVxsVU=;
+        s=korg; t=1622469490;
+        bh=FfLlHbhceFQpqIb6A/9hOSiqrfjkSpTDA/qbL078WLI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m4T+Q83UKg2YWfUNebsY5lWGmmgC2R4n5qbInb8fJ1MDcE/gzLHPcE3kqYnnJbFF9
-         gVYovuH22ITlTcfP0r6gSKdlLZAYaj31agUWxAkgT3QYYpc3qXjWA9Dmc7VLWAxCjI
-         RPHMSdxfO68X+ub39M5Fn83iS4J5mLi3eA/tqjRs=
+        b=pQaaF2gfsyq/kOt7pxz0ayw3nL3ckI9chrVJpY54gkKtGasLvTQC8du4HW+87IW3p
+         uaa8GC79Aepngp+fN9uJsHQk2OVIfPosnTxRo7Wg0sfORwRLjihOjfbDwybfN6+rUv
+         9Tpe+mpMpYZzI9F52KlYlcDMbFHqNWdwqA+pndzU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 115/177] Revert "media: gspca: mt9m111: Check write_bridge for timeout"
-Date:   Mon, 31 May 2021 15:14:32 +0200
-Message-Id: <20210531130651.886507528@linuxfoundation.org>
+        stable@vger.kernel.org, Gulam Mohamed <gulam.mohamed@oracle.com>,
+        Christoph Hellwig <hch@lst.de>, Ming Lei <ming.lei@redhat.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 218/296] block: fix a race between del_gendisk and BLKRRPART
+Date:   Mon, 31 May 2021 15:14:33 +0200
+Message-Id: <20210531130711.168211296@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,66 +40,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Gulam Mohamed <gulam.mohamed@oracle.com>
 
-[ Upstream commit d8c3be2fb2079d0cb4cd29d6aba58dbe54771e42 ]
+[ Upstream commit bc6a385132601c29a6da1dbf8148c0d3c9ad36dc ]
 
-This reverts commit 656025850074f5c1ba2e05be37bda57ba2b8d491.
+When BLKRRPART is called concurrently with del_gendisk, the partitions
+rescan can create a stale partition that will never be be cleaned up.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Fix this by checking the the disk is up before rescanning partitions
+while under bd_mutex.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-Different error values should never be "OR" together and expect anything
-sane to come out of the result.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-61-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Gulam Mohamed <gulam.mohamed@oracle.com>
+[hch: split from a larger patch]
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Link: https://lore.kernel.org/r/20210514131842.1600568-3-hch@lst.de
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ fs/block_dev.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-index bfa3b381d8a2..50481dc928d0 100644
---- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
- int mt9m111_probe(struct sd *sd)
- {
- 	u8 data[2] = {0x00, 0x00};
--	int i, rc = 0;
-+	int i;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+diff --git a/fs/block_dev.c b/fs/block_dev.c
+index a5a6a7930e5e..389609bc5aa3 100644
+--- a/fs/block_dev.c
++++ b/fs/block_dev.c
+@@ -1244,6 +1244,9 @@ int bdev_disk_changed(struct block_device *bdev, bool invalidate)
  
- 	if (force_sensor) {
-@@ -213,18 +213,16 @@ int mt9m111_probe(struct sd *sd)
- 	/* Do the preinit */
- 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
- 		if (preinit_mt9m111[i][0] == BRIDGE) {
--			rc |= m5602_write_bridge(sd,
-+			m5602_write_bridge(sd,
- 				preinit_mt9m111[i][1],
- 				preinit_mt9m111[i][2]);
- 		} else {
- 			data[0] = preinit_mt9m111[i][2];
- 			data[1] = preinit_mt9m111[i][3];
--			rc |= m5602_write_sensor(sd,
-+			m5602_write_sensor(sd,
- 				preinit_mt9m111[i][1], data, 2);
- 		}
- 	}
--	if (rc < 0)
--		return rc;
+ 	lockdep_assert_held(&bdev->bd_mutex);
  
- 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
- 		return -ENODEV;
++	if (!(disk->flags & GENHD_FL_UP))
++		return -ENXIO;
++
+ rescan:
+ 	ret = blk_drop_partitions(bdev);
+ 	if (ret)
 -- 
 2.30.2
 
