@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D020395E63
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C1BF3396031
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbhEaN6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:58:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60416 "EHLO mail.kernel.org"
+        id S233654AbhEaOX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43712 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232481AbhEaNzz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:55:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1089A61927;
-        Mon, 31 May 2021 13:34:29 +0000 (UTC)
+        id S232153AbhEaOQB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:16:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5BDE3619A4;
+        Mon, 31 May 2021 13:43:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468070;
-        bh=b6pxLm9b+aHmQ8leoDa2uMcseGzhDvHezK5XJWEJodM=;
+        s=korg; t=1622468590;
+        bh=81HEX3wfGTS5qyC4+VS4SZfAh54TQnf3Kpe1DR6KXDs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gcS74qvecCdIhCx1mjqnYlbGDIHHI44UYY8svT2rlF04Jltz5eMAb7ogBeOhs2AI/
-         ps/ORAh1vHLoZ9xwpRwMi1eL6Chhxd3T5OCU4pT5/TP3GNdHduXPFrWPviQSzxw7+r
-         tAzKg4XQMtvuVucA+cI5gpHraH/87nBb3BYJOpY4=
+        b=0fwN9pJpvIXgLuefprmgCay18Uh8vaqNBr31F7bHS4MHotE8fxK4ptjfRDmPqt4A2
+         TKYOv0cuHq4ujasF2d937bILIjp8B5EoQlTO3eHCec/dz8AxeLg3qz3RAUOSjVLAXl
+         xBjuLHjUH6d/bcBx/dwgDzHMfjz7/dBGS5j5YJ8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Ariel Levkovich <lariel@nvidia.com>
-Subject: [PATCH 5.10 105/252] net/mlx5: Set term table as an unmanaged flow table
-Date:   Mon, 31 May 2021 15:12:50 +0200
-Message-Id: <20210531130701.562990707@linuxfoundation.org>
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 014/177] mac80211: assure all fragments are encrypted
+Date:   Mon, 31 May 2021 15:12:51 +0200
+Message-Id: <20210531130648.400682153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,61 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ariel Levkovich <lariel@nvidia.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 6ff51ab8aa8fcbcddeeefce8ca705b575805d12b upstream.
+commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
 
-Termination tables are restricted to have the default miss action and
-cannot be set to forward to another table in case of a miss.
-If the fs prio of the termination table is not the last one in the
-list, fs_core will attempt to attach it to another table.
+Do not mix plaintext and encrypted fragments in protected Wi-Fi
+networks. This fixes CVE-2020-26147.
 
-Set the unmanaged ft flag when creating the termination table ft
-and select the tc offload prio for it to prevent fs_core from selecting
-the forwarding to next ft miss action and use the default one.
+Previously, an attacker was able to first forward a legitimate encrypted
+fragment towards a victim, followed by a plaintext fragment. The
+encrypted and plaintext fragment would then be reassembled. For further
+details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
+Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
 
-In addition, set the flow that forwards to the termination table to
-ignore ft level restrictions since the ft level is not set by fs_core
-for unamanged fts.
+Because of this change there are now two equivalent conditions in the
+code to determine if a received fragment requires sequential PNs, so we
+also move this test to a separate function to make the code easier to
+maintain.
 
-Fixes: 249ccc3c95bd ("net/mlx5e: Add support for offloading traffic from uplink to uplink")
-Signed-off-by: Ariel Levkovich <lariel@nvidia.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ net/mac80211/rx.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-@@ -76,10 +76,11 @@ mlx5_eswitch_termtbl_create(struct mlx5_
- 	/* As this is the terminating action then the termination table is the
- 	 * same prio as the slow path
- 	 */
--	ft_attr.flags = MLX5_FLOW_TABLE_TERMINATION |
-+	ft_attr.flags = MLX5_FLOW_TABLE_TERMINATION | MLX5_FLOW_TABLE_UNMANAGED |
- 			MLX5_FLOW_TABLE_TUNNEL_EN_REFORMAT;
--	ft_attr.prio = FDB_SLOW_PATH;
-+	ft_attr.prio = FDB_TC_OFFLOAD;
- 	ft_attr.max_fte = 1;
-+	ft_attr.level = 1;
- 	ft_attr.autogroup.max_num_groups = 1;
- 	tt->termtbl = mlx5_create_auto_grouped_flow_table(root_ns, &ft_attr);
- 	if (IS_ERR(tt->termtbl)) {
-@@ -216,6 +217,7 @@ mlx5_eswitch_termtbl_required(struct mlx
- 	int i;
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2154,6 +2154,16 @@ ieee80211_reassemble_find(struct ieee802
+ 	return NULL;
+ }
  
- 	if (!MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, termination_table) ||
-+	    !MLX5_CAP_ESW_FLOWTABLE_FDB(esw->dev, ignore_flow_level) ||
- 	    attr->flags & MLX5_ESW_ATTR_FLAG_SLOW_PATH ||
- 	    !mlx5_eswitch_offload_is_uplink_port(esw, spec))
- 		return false;
-@@ -288,6 +290,7 @@ mlx5_eswitch_add_termtbl_rule(struct mlx
- 	/* create the FTE */
- 	flow_act->action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
- 	flow_act->pkt_reformat = NULL;
-+	flow_act->flags |= FLOW_ACT_IGNORE_FLOW_LEVEL;
- 	rule = mlx5_add_flow_rules(fdb, spec, flow_act, dest, num_dest);
- 	if (IS_ERR(rule))
- 		goto revert_changes;
++static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
++{
++	return rx->key &&
++		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
++		ieee80211_has_protected(fc);
++}
++
+ static ieee80211_rx_result debug_noinline
+ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ {
+@@ -2198,12 +2208,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		/* This is the first fragment of a new frame. */
+ 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
+ 						 rx->seqno_idx, &(rx->skb));
+-		if (rx->key &&
+-		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
+-		    ieee80211_has_protected(fc)) {
++		if (requires_sequential_pn(rx, fc)) {
+ 			int queue = rx->security_idx;
+ 
+ 			/* Store CCMP/GCMP PN so that we can verify that the
+@@ -2245,11 +2250,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
+ 		int queue;
+ 
+-		if (!rx->key ||
+-		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
++		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
 
 
