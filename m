@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 44EA73962D9
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E093962C4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbhEaPB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
+        id S234065AbhEaPA6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:00:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234371AbhEaO7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A409A61CE2;
-        Mon, 31 May 2021 14:01:22 +0000 (UTC)
+        id S234429AbhEaO7d (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:59:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 05E036128A;
+        Mon, 31 May 2021 14:01:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469683;
-        bh=7PFeLZafVQ6dj3ubSamHOGzkWKXqeD/Q2Y4Acl122fg=;
+        s=korg; t=1622469696;
+        bh=JQppAQEZVSwNkD/dSxwDXfeNX+ilbBapXPNJJFF1hcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ps5Lb4c6qxxhWy2Kbxf9Ccm9C+9NgdHlASqoGvvKDaYg6mGyFhFDGCFyUEJ605fsj
-         BZcg9t3l3JFOynRagCXyor93uUP2MejKal4E+fH3ivcELxQ66paZ5yghWuFItTiPa0
-         m1SsKAvcStKikYONJNYl3rwVceWF07Be1INpr++Y=
+        b=i4932dEHH7zNyrvq2C3mpR0oTafvcOP6wfALmuOwKdyO11GpqVZS+GzxClzADA8lC
+         sIPPjwF4IyLCDQ5ENEezIHBVumRuWcmYCjAQeg1jf8iVYRKLT/A2cggmSVipF2OmYn
+         Q1M53RyWVxvbdTBDi0Hzx0YOc9zhxJyhanwqIv1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
-        Stefan Chulski <stefanc@marvell.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 284/296] net: mvpp2: add buffer header handling in RX
-Date:   Mon, 31 May 2021 15:15:39 +0200
-Message-Id: <20210531130713.267499876@linuxfoundation.org>
+Subject: [PATCH 5.12 285/296] SUNRPC: More fixes for backlog congestion
+Date:   Mon, 31 May 2021 15:15:40 +0200
+Message-Id: <20210531130713.297629976@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -41,155 +40,239 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Stefan Chulski <stefanc@marvell.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit 17f9c1b63cdd4439523cfcdf5683e5070b911f24 ]
+[ Upstream commit e86be3a04bc4aeaf12f93af35f08f8d4385bcd98 ]
 
-If Link Partner sends frames larger than RX buffer size, MAC mark it
-as oversize but still would pass it to the Packet Processor.
-In this scenario, Packet Processor scatter frame between multiple buffers,
-but only a single buffer would be returned to the Buffer Manager pool and
-it would not refill the poll.
+Ensure that we fix the XPRT_CONGESTED starvation issue for RDMA as well
+as socket based transports.
+Ensure we always initialise the request after waking up from the backlog
+list.
 
-Patch add handling of oversize error with buffer header handling, so all
-buffers would be returned to the Buffer Manager pool.
-
-Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
-Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Stefan Chulski <stefanc@marvell.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e877a88d1f06 ("SUNRPC in case of backlog, hand free slots directly to waiting task")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/marvell/mvpp2/mvpp2.h    | 22 ++++++++
- .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 54 +++++++++++++++----
- 2 files changed, 67 insertions(+), 9 deletions(-)
+ include/linux/sunrpc/xprt.h     |  2 ++
+ net/sunrpc/xprt.c               | 58 ++++++++++++++++-----------------
+ net/sunrpc/xprtrdma/transport.c | 12 +++----
+ net/sunrpc/xprtrdma/verbs.c     | 18 ++++++++--
+ net/sunrpc/xprtrdma/xprt_rdma.h |  1 +
+ 5 files changed, 52 insertions(+), 39 deletions(-)
 
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-index 8edba5ea90f0..4a61c90003b5 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
-@@ -993,6 +993,14 @@ enum mvpp22_ptp_packet_format {
+diff --git a/include/linux/sunrpc/xprt.h b/include/linux/sunrpc/xprt.h
+index d2e97ee802af..8a063b2b944d 100644
+--- a/include/linux/sunrpc/xprt.h
++++ b/include/linux/sunrpc/xprt.h
+@@ -367,6 +367,8 @@ struct rpc_xprt *	xprt_alloc(struct net *net, size_t size,
+ 				unsigned int num_prealloc,
+ 				unsigned int max_req);
+ void			xprt_free(struct rpc_xprt *);
++void			xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task);
++bool			xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req);
  
- #define MVPP2_DESC_DMA_MASK	DMA_BIT_MASK(40)
- 
-+/* Buffer header info bits */
-+#define MVPP2_B_HDR_INFO_MC_ID_MASK	0xfff
-+#define MVPP2_B_HDR_INFO_MC_ID(info)	((info) & MVPP2_B_HDR_INFO_MC_ID_MASK)
-+#define MVPP2_B_HDR_INFO_LAST_OFFS	12
-+#define MVPP2_B_HDR_INFO_LAST_MASK	BIT(12)
-+#define MVPP2_B_HDR_INFO_IS_LAST(info) \
-+	   (((info) & MVPP2_B_HDR_INFO_LAST_MASK) >> MVPP2_B_HDR_INFO_LAST_OFFS)
-+
- struct mvpp2_tai;
- 
- /* Definitions */
-@@ -1002,6 +1010,20 @@ struct mvpp2_rss_table {
- 	u32 indir[MVPP22_RSS_TABLE_ENTRIES];
- };
- 
-+struct mvpp2_buff_hdr {
-+	__le32 next_phys_addr;
-+	__le32 next_dma_addr;
-+	__le16 byte_count;
-+	__le16 info;
-+	__le16 reserved1;	/* bm_qset (for future use, BM) */
-+	u8 next_phys_addr_high;
-+	u8 next_dma_addr_high;
-+	__le16 reserved2;
-+	__le16 reserved3;
-+	__le16 reserved4;
-+	__le16 reserved5;
-+};
-+
- /* Shared Packet Processor resources */
- struct mvpp2 {
- 	/* Shared registers' base addresses */
-diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-index 1767c60056c5..6c81e4f175ac 100644
---- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-+++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
-@@ -3840,6 +3840,35 @@ mvpp2_run_xdp(struct mvpp2_port *port, struct mvpp2_rx_queue *rxq,
- 	return ret;
+ static inline int
+ xprt_enable_swap(struct rpc_xprt *xprt)
+diff --git a/net/sunrpc/xprt.c b/net/sunrpc/xprt.c
+index 7f9fa1c66627..dc9207c1ff07 100644
+--- a/net/sunrpc/xprt.c
++++ b/net/sunrpc/xprt.c
+@@ -1603,11 +1603,18 @@ xprt_transmit(struct rpc_task *task)
+ 	spin_unlock(&xprt->queue_lock);
  }
  
-+static void mvpp2_buff_hdr_pool_put(struct mvpp2_port *port, struct mvpp2_rx_desc *rx_desc,
-+				    int pool, u32 rx_status)
+-static void xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task)
++static void xprt_complete_request_init(struct rpc_task *task)
 +{
-+	phys_addr_t phys_addr, phys_addr_next;
-+	dma_addr_t dma_addr, dma_addr_next;
-+	struct mvpp2_buff_hdr *buff_hdr;
-+
-+	phys_addr = mvpp2_rxdesc_dma_addr_get(port, rx_desc);
-+	dma_addr = mvpp2_rxdesc_cookie_get(port, rx_desc);
-+
-+	do {
-+		buff_hdr = (struct mvpp2_buff_hdr *)phys_to_virt(phys_addr);
-+
-+		phys_addr_next = le32_to_cpu(buff_hdr->next_phys_addr);
-+		dma_addr_next = le32_to_cpu(buff_hdr->next_dma_addr);
-+
-+		if (port->priv->hw_version >= MVPP22) {
-+			phys_addr_next |= ((u64)buff_hdr->next_phys_addr_high << 32);
-+			dma_addr_next |= ((u64)buff_hdr->next_dma_addr_high << 32);
-+		}
-+
-+		mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
-+
-+		phys_addr = phys_addr_next;
-+		dma_addr = dma_addr_next;
-+
-+	} while (!MVPP2_B_HDR_INFO_IS_LAST(le16_to_cpu(buff_hdr->info)));
++	if (task->tk_rqstp)
++		xprt_request_init(task);
 +}
 +
- /* Main rx processing */
- static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
- 		    int rx_todo, struct mvpp2_rx_queue *rxq)
-@@ -3886,14 +3915,6 @@ static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
- 			MVPP2_RXD_BM_POOL_ID_OFFS;
- 		bm_pool = &port->priv->bm_pools[pool];
++void xprt_add_backlog(struct rpc_xprt *xprt, struct rpc_task *task)
+ {
+ 	set_bit(XPRT_CONGESTED, &xprt->state);
+-	rpc_sleep_on(&xprt->backlog, task, NULL);
++	rpc_sleep_on(&xprt->backlog, task, xprt_complete_request_init);
+ }
++EXPORT_SYMBOL_GPL(xprt_add_backlog);
  
--		/* In case of an error, release the requested buffer pointer
--		 * to the Buffer Manager. This request process is controlled
--		 * by the hardware, and the information about the buffer is
--		 * comprised by the RX descriptor.
--		 */
--		if (rx_status & MVPP2_RXD_ERR_SUMMARY)
--			goto err_drop_frame;
+ static bool __xprt_set_rq(struct rpc_task *task, void *data)
+ {
+@@ -1615,14 +1622,13 @@ static bool __xprt_set_rq(struct rpc_task *task, void *data)
+ 
+ 	if (task->tk_rqstp == NULL) {
+ 		memset(req, 0, sizeof(*req));	/* mark unused */
+-		task->tk_status = -EAGAIN;
+ 		task->tk_rqstp = req;
+ 		return true;
+ 	}
+ 	return false;
+ }
+ 
+-static bool xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req)
++bool xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req)
+ {
+ 	if (rpc_wake_up_first(&xprt->backlog, __xprt_set_rq, req) == NULL) {
+ 		clear_bit(XPRT_CONGESTED, &xprt->state);
+@@ -1630,6 +1636,7 @@ static bool xprt_wake_up_backlog(struct rpc_xprt *xprt, struct rpc_rqst *req)
+ 	}
+ 	return true;
+ }
++EXPORT_SYMBOL_GPL(xprt_wake_up_backlog);
+ 
+ static bool xprt_throttle_congested(struct rpc_xprt *xprt, struct rpc_task *task)
+ {
+@@ -1639,7 +1646,7 @@ static bool xprt_throttle_congested(struct rpc_xprt *xprt, struct rpc_task *task
+ 		goto out;
+ 	spin_lock(&xprt->reserve_lock);
+ 	if (test_bit(XPRT_CONGESTED, &xprt->state)) {
+-		rpc_sleep_on(&xprt->backlog, task, NULL);
++		xprt_add_backlog(xprt, task);
+ 		ret = true;
+ 	}
+ 	spin_unlock(&xprt->reserve_lock);
+@@ -1808,10 +1815,6 @@ xprt_request_init(struct rpc_task *task)
+ 	struct rpc_xprt *xprt = task->tk_xprt;
+ 	struct rpc_rqst	*req = task->tk_rqstp;
+ 
+-	if (req->rq_task)
+-		/* Already initialized */
+-		return;
 -
- 		if (port->priv->percpu_pools) {
- 			pp = port->priv->page_pool[pool];
- 			dma_dir = page_pool_get_dma_dir(pp);
-@@ -3905,6 +3926,18 @@ static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
- 					rx_bytes + MVPP2_MH_SIZE,
- 					dma_dir);
+ 	req->rq_task	= task;
+ 	req->rq_xprt    = xprt;
+ 	req->rq_buffer  = NULL;
+@@ -1872,10 +1875,8 @@ void xprt_retry_reserve(struct rpc_task *task)
+ 	struct rpc_xprt *xprt = task->tk_xprt;
  
-+		/* Buffer header not supported */
-+		if (rx_status & MVPP2_RXD_BUF_HDR)
-+			goto err_drop_frame;
-+
-+		/* In case of an error, release the requested buffer pointer
-+		 * to the Buffer Manager. This request process is controlled
-+		 * by the hardware, and the information about the buffer is
-+		 * comprised by the RX descriptor.
-+		 */
-+		if (rx_status & MVPP2_RXD_ERR_SUMMARY)
-+			goto err_drop_frame;
-+
- 		/* Prefetch header */
- 		prefetch(data);
+ 	task->tk_status = 0;
+-	if (task->tk_rqstp != NULL) {
+-		xprt_request_init(task);
++	if (task->tk_rqstp != NULL)
+ 		return;
+-	}
  
-@@ -3986,7 +4019,10 @@ err_drop_frame:
- 		dev->stats.rx_errors++;
- 		mvpp2_rx_error(port, rx_desc);
- 		/* Return the buffer to the pool */
--		mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
-+		if (rx_status & MVPP2_RXD_BUF_HDR)
-+			mvpp2_buff_hdr_pool_put(port, rx_desc, pool, rx_status);
-+		else
-+			mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
+ 	task->tk_status = -EAGAIN;
+ 	xprt_do_reserve(xprt, task);
+@@ -1900,24 +1901,21 @@ void xprt_release(struct rpc_task *task)
  	}
  
- 	rcu_read_unlock();
+ 	xprt = req->rq_xprt;
+-	if (xprt) {
+-		xprt_request_dequeue_xprt(task);
+-		spin_lock(&xprt->transport_lock);
+-		xprt->ops->release_xprt(xprt, task);
+-		if (xprt->ops->release_request)
+-			xprt->ops->release_request(task);
+-		xprt_schedule_autodisconnect(xprt);
+-		spin_unlock(&xprt->transport_lock);
+-		if (req->rq_buffer)
+-			xprt->ops->buf_free(task);
+-		xdr_free_bvec(&req->rq_rcv_buf);
+-		xdr_free_bvec(&req->rq_snd_buf);
+-		if (req->rq_cred != NULL)
+-			put_rpccred(req->rq_cred);
+-		if (req->rq_release_snd_buf)
+-			req->rq_release_snd_buf(req);
+-	} else
+-		xprt = task->tk_xprt;
++	xprt_request_dequeue_xprt(task);
++	spin_lock(&xprt->transport_lock);
++	xprt->ops->release_xprt(xprt, task);
++	if (xprt->ops->release_request)
++		xprt->ops->release_request(task);
++	xprt_schedule_autodisconnect(xprt);
++	spin_unlock(&xprt->transport_lock);
++	if (req->rq_buffer)
++		xprt->ops->buf_free(task);
++	xdr_free_bvec(&req->rq_rcv_buf);
++	xdr_free_bvec(&req->rq_snd_buf);
++	if (req->rq_cred != NULL)
++		put_rpccred(req->rq_cred);
++	if (req->rq_release_snd_buf)
++		req->rq_release_snd_buf(req);
+ 
+ 	task->tk_rqstp = NULL;
+ 	if (likely(!bc_prealloc(req)))
+diff --git a/net/sunrpc/xprtrdma/transport.c b/net/sunrpc/xprtrdma/transport.c
+index 09953597d055..19a49d26b1e4 100644
+--- a/net/sunrpc/xprtrdma/transport.c
++++ b/net/sunrpc/xprtrdma/transport.c
+@@ -520,9 +520,8 @@ xprt_rdma_alloc_slot(struct rpc_xprt *xprt, struct rpc_task *task)
+ 	return;
+ 
+ out_sleep:
+-	set_bit(XPRT_CONGESTED, &xprt->state);
+-	rpc_sleep_on(&xprt->backlog, task, NULL);
+ 	task->tk_status = -EAGAIN;
++	xprt_add_backlog(xprt, task);
+ }
+ 
+ /**
+@@ -537,10 +536,11 @@ xprt_rdma_free_slot(struct rpc_xprt *xprt, struct rpc_rqst *rqst)
+ 	struct rpcrdma_xprt *r_xprt =
+ 		container_of(xprt, struct rpcrdma_xprt, rx_xprt);
+ 
+-	memset(rqst, 0, sizeof(*rqst));
+-	rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
+-	if (unlikely(!rpc_wake_up_next(&xprt->backlog)))
+-		clear_bit(XPRT_CONGESTED, &xprt->state);
++	rpcrdma_reply_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
++	if (!xprt_wake_up_backlog(xprt, rqst)) {
++		memset(rqst, 0, sizeof(*rqst));
++		rpcrdma_buffer_put(&r_xprt->rx_buf, rpcr_to_rdmar(rqst));
++	}
+ }
+ 
+ static bool rpcrdma_check_regbuf(struct rpcrdma_xprt *r_xprt,
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index f3fffc74ab0f..0731b4756c49 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -1184,6 +1184,20 @@ rpcrdma_mr_get(struct rpcrdma_xprt *r_xprt)
+ 	return mr;
+ }
+ 
++/**
++ * rpcrdma_reply_put - Put reply buffers back into pool
++ * @buffers: buffer pool
++ * @req: object to return
++ *
++ */
++void rpcrdma_reply_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req)
++{
++	if (req->rl_reply) {
++		rpcrdma_rep_put(buffers, req->rl_reply);
++		req->rl_reply = NULL;
++	}
++}
++
+ /**
+  * rpcrdma_buffer_get - Get a request buffer
+  * @buffers: Buffer pool from which to obtain a buffer
+@@ -1212,9 +1226,7 @@ rpcrdma_buffer_get(struct rpcrdma_buffer *buffers)
+  */
+ void rpcrdma_buffer_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req)
+ {
+-	if (req->rl_reply)
+-		rpcrdma_rep_put(buffers, req->rl_reply);
+-	req->rl_reply = NULL;
++	rpcrdma_reply_put(buffers, req);
+ 
+ 	spin_lock(&buffers->rb_lock);
+ 	list_add(&req->rl_list, &buffers->rb_send_bufs);
+diff --git a/net/sunrpc/xprtrdma/xprt_rdma.h b/net/sunrpc/xprtrdma/xprt_rdma.h
+index 28af11fbe643..ac13b93af9bd 100644
+--- a/net/sunrpc/xprtrdma/xprt_rdma.h
++++ b/net/sunrpc/xprtrdma/xprt_rdma.h
+@@ -481,6 +481,7 @@ struct rpcrdma_req *rpcrdma_buffer_get(struct rpcrdma_buffer *);
+ void rpcrdma_buffer_put(struct rpcrdma_buffer *buffers,
+ 			struct rpcrdma_req *req);
+ void rpcrdma_recv_buffer_put(struct rpcrdma_rep *);
++void rpcrdma_reply_put(struct rpcrdma_buffer *buffers, struct rpcrdma_req *req);
+ 
+ bool rpcrdma_regbuf_realloc(struct rpcrdma_regbuf *rb, size_t size,
+ 			    gfp_t flags);
 -- 
 2.30.2
 
