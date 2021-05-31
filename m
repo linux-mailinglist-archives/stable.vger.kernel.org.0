@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C01063960C1
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E85E396257
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:53:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233247AbhEaOb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
+        id S233081AbhEaOzT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:55:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233741AbhEaO3H (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:29:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC2E61420;
-        Mon, 31 May 2021 13:48:06 +0000 (UTC)
+        id S233770AbhEaOwl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:52:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 65A6961934;
+        Mon, 31 May 2021 13:58:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468887;
-        bh=dutP2hyGs4F8Z4v+JyMkt+banxkxYy0tH1KYmtDZQTo=;
+        s=korg; t=1622469506;
+        bh=TPhC4X7LHDYNfwFynm+l7isf1+cHxuReC14F/T3U5yg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EhCKxcMiMe4M8g2ROpKb3cJapjJfJDrdyh6RGFI4WE70dXuAquaEmcnYb1ILSI+To
-         1lrpS/3f0HMb39gX+OuxmC2ksL99O+2CxPDU1nHzd2lmBEiHBDLmqirJOnix/pqDOC
-         4lLhpZU4Qku2WJw/sqoOSsTWRe2bBu+e0bp9vbY4=
+        b=yu+RGX4SA4Lc9ZRtrTNEXY3gqnkUETKbtmRZnhXHjFxIOL8Zz/K3HecbaBqCwna0E
+         +rhY7h8kXTlyNSOJaobcqiG7gTnikQLzdxra6VeOWqLD1xDPsPF8SdNnutTrEBxhB+
+         JWIGUwZNf/B2UjkS80zw5SUcNPHx7MdQ+z4puNqg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 122/177] brcmfmac: properly check for bus register errors
+Subject: [PATCH 5.12 224/296] interconnect: qcom: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 31 May 2021 15:14:39 +0200
-Message-Id: <20210531130652.135811116@linuxfoundation.org>
+Message-Id: <20210531130711.357241673@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,195 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 419b4a142a7ece36cebcd434f8ce2af59ef94b85 ]
+[ Upstream commit 1fd86e280d8b21762901e43d42d66dbfe8b8e0d3 ]
 
-The brcmfmac driver ignores any errors on initialization with the
-different busses by deferring the initialization to a workqueue and
-ignoring all possible errors that might happen.  Fix up all of this by
-only allowing the module to load if all bus registering worked properly.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-70-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620704673-104205-1-git-send-email-zou_wei@huawei.com
+Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../broadcom/brcm80211/brcmfmac/bcmsdh.c      |  8 +---
- .../broadcom/brcm80211/brcmfmac/bus.h         | 19 ++++++++-
- .../broadcom/brcm80211/brcmfmac/core.c        | 42 ++++++++-----------
- .../broadcom/brcm80211/brcmfmac/pcie.c        |  9 +---
- .../broadcom/brcm80211/brcmfmac/pcie.h        |  5 ---
- .../broadcom/brcm80211/brcmfmac/usb.c         |  4 +-
- 6 files changed, 41 insertions(+), 46 deletions(-)
+ drivers/interconnect/qcom/bcm-voter.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-index fc12598b2dd3..c492d2d2db1d 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
-@@ -1168,13 +1168,9 @@ static struct sdio_driver brcmf_sdmmc_driver = {
- 	},
+diff --git a/drivers/interconnect/qcom/bcm-voter.c b/drivers/interconnect/qcom/bcm-voter.c
+index dd18cd8474f8..1da6cea8ecbc 100644
+--- a/drivers/interconnect/qcom/bcm-voter.c
++++ b/drivers/interconnect/qcom/bcm-voter.c
+@@ -363,6 +363,7 @@ static const struct of_device_id bcm_voter_of_match[] = {
+ 	{ .compatible = "qcom,bcm-voter" },
+ 	{ }
  };
++MODULE_DEVICE_TABLE(of, bcm_voter_of_match);
  
--void brcmf_sdio_register(void)
-+int brcmf_sdio_register(void)
- {
--	int ret;
--
--	ret = sdio_register_driver(&brcmf_sdmmc_driver);
--	if (ret)
--		brcmf_err("sdio_register_driver failed: %d\n", ret);
-+	return sdio_register_driver(&brcmf_sdmmc_driver);
- }
- 
- void brcmf_sdio_exit(void)
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
-index 623c0168da79..8b27494a5d3d 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
-@@ -274,11 +274,26 @@ void brcmf_bus_add_txhdrlen(struct device *dev, uint len);
- 
- #ifdef CONFIG_BRCMFMAC_SDIO
- void brcmf_sdio_exit(void);
--void brcmf_sdio_register(void);
-+int brcmf_sdio_register(void);
-+#else
-+static inline void brcmf_sdio_exit(void) { }
-+static inline int brcmf_sdio_register(void) { return 0; }
- #endif
-+
- #ifdef CONFIG_BRCMFMAC_USB
- void brcmf_usb_exit(void);
--void brcmf_usb_register(void);
-+int brcmf_usb_register(void);
-+#else
-+static inline void brcmf_usb_exit(void) { }
-+static inline int brcmf_usb_register(void) { return 0; }
-+#endif
-+
-+#ifdef CONFIG_BRCMFMAC_PCIE
-+void brcmf_pcie_exit(void);
-+int brcmf_pcie_register(void);
-+#else
-+static inline void brcmf_pcie_exit(void) { }
-+static inline int brcmf_pcie_register(void) { return 0; }
- #endif
- 
- #endif /* BRCMFMAC_BUS_H */
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-index e9bb8dbdc9aa..edb79e9665dc 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
-@@ -1438,40 +1438,34 @@ void brcmf_bus_change_state(struct brcmf_bus *bus, enum brcmf_bus_state state)
- 	}
- }
- 
--static void brcmf_driver_register(struct work_struct *work)
--{
--#ifdef CONFIG_BRCMFMAC_SDIO
--	brcmf_sdio_register();
--#endif
--#ifdef CONFIG_BRCMFMAC_USB
--	brcmf_usb_register();
--#endif
--#ifdef CONFIG_BRCMFMAC_PCIE
--	brcmf_pcie_register();
--#endif
--}
--static DECLARE_WORK(brcmf_driver_work, brcmf_driver_register);
--
- int __init brcmf_core_init(void)
- {
--	if (!schedule_work(&brcmf_driver_work))
--		return -EBUSY;
-+	int err;
-+
-+	err = brcmf_sdio_register();
-+	if (err)
-+		return err;
-+
-+	err = brcmf_usb_register();
-+	if (err)
-+		goto error_usb_register;
- 
-+	err = brcmf_pcie_register();
-+	if (err)
-+		goto error_pcie_register;
- 	return 0;
-+
-+error_pcie_register:
-+	brcmf_usb_exit();
-+error_usb_register:
-+	brcmf_sdio_exit();
-+	return err;
- }
- 
- void __exit brcmf_core_exit(void)
- {
--	cancel_work_sync(&brcmf_driver_work);
--
--#ifdef CONFIG_BRCMFMAC_SDIO
- 	brcmf_sdio_exit();
--#endif
--#ifdef CONFIG_BRCMFMAC_USB
- 	brcmf_usb_exit();
--#endif
--#ifdef CONFIG_BRCMFMAC_PCIE
- 	brcmf_pcie_exit();
--#endif
- }
- 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-index cb68f54a9c56..bda042138e96 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -2137,15 +2137,10 @@ static struct pci_driver brcmf_pciedrvr = {
- };
- 
- 
--void brcmf_pcie_register(void)
-+int brcmf_pcie_register(void)
- {
--	int err;
--
- 	brcmf_dbg(PCIE, "Enter\n");
--	err = pci_register_driver(&brcmf_pciedrvr);
--	if (err)
--		brcmf_err(NULL, "PCIE driver registration failed, err=%d\n",
--			  err);
-+	return pci_register_driver(&brcmf_pciedrvr);
- }
- 
- 
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
-index d026401d2001..8e6c227e8315 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
-@@ -11,9 +11,4 @@ struct brcmf_pciedev {
- 	struct brcmf_pciedev_info *devinfo;
- };
- 
--
--void brcmf_pcie_exit(void);
--void brcmf_pcie_register(void);
--
--
- #endif /* BRCMFMAC_PCIE_H */
-diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-index 6f41d28930e4..3b897f040371 100644
---- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-+++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
-@@ -1558,8 +1558,8 @@ void brcmf_usb_exit(void)
- 	usb_deregister(&brcmf_usbdrvr);
- }
- 
--void brcmf_usb_register(void)
-+int brcmf_usb_register(void)
- {
- 	brcmf_dbg(USB, "Enter\n");
--	usb_register(&brcmf_usbdrvr);
-+	return usb_register(&brcmf_usbdrvr);
- }
+ static struct platform_driver qcom_icc_bcm_voter_driver = {
+ 	.probe = qcom_icc_bcm_voter_probe,
 -- 
 2.30.2
 
