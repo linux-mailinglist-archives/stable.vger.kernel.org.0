@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C112395D1F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6167D395B66
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232601AbhEaNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:41:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
+        id S231974AbhEaNUI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:20:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232859AbhEaNjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 60D126145D;
-        Mon, 31 May 2021 13:27:14 +0000 (UTC)
+        id S231847AbhEaNTT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:19:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DF4B6138C;
+        Mon, 31 May 2021 13:17:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467634;
-        bh=pBN3k1dfVhUrsTdxrEuc87G1WviUMAzn0aTgiovF7hg=;
+        s=korg; t=1622467058;
+        bh=eThF42QgHM2ceyuUbfHXSeQsf1W1pocY7rix57lF/sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lwy97F44RR4X4MLjSBy07POp6xUI7BR6hBBOcdCB1iRlfIrzLz6NFiruPg4s5+gWV
-         adwZrlKMpqCVWiv0f8sugagpq/26Pvv04gvKUOnza26o6Lo5TIodWO6lJprE+FMqEZ
-         Yg+La0yl1yvBEzYkp0TEv5p3pB8Pp5U4p4EQ3JEk=
+        b=mwIqGzGhVATUw/wiPz+FBElZ24DQiCzN16RyQpFB8t21G3RXT+8OO3cXKpz0MHBb3
+         bUBg5S3ACOanmkv6rt5UDUloEfTcLqi009renLw1LFiX2pd0LMsEqfpM6jQt4VT55B
+         /vS8jHjmPnuObFgNtKHWquUK8Ao+9ZuQdHqQaSY8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 4.14 22/79] mei: request autosuspend after sending rx flow control
+        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
+        Stafford Horne <shorne@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.4 41/54] openrisc: Define memory barrier mb
 Date:   Mon, 31 May 2021 15:14:07 +0200
-Message-Id: <20210531130636.714647662@linuxfoundation.org>
+Message-Id: <20210531130636.363318707@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit bbf0a94744edfeee298e4a9ab6fd694d639a5cdf upstream.
+[ Upstream commit 8b549c18ae81dbc36fb11e4aa08b8378c599ca95 ]
 
-A rx flow control waiting in the control queue may block autosuspend.
-Re-request autosuspend after flow control been sent to unblock
-the transition to the low power state.
+This came up in the discussion of the requirements of qspinlock on an
+architecture.  OpenRISC uses qspinlock, but it was noticed that the
+memmory barrier was not defined.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Peter defined it in the mail thread writing:
+
+    As near as I can tell this should do. The arch spec only lists
+    this one instruction and the text makes it sound like a completion
+    barrier.
+
+This is correct so applying this patch.
+
+Signed-off-by: Peter Zijlstra <peterz@infradead.org>
+[shorne@gmail.com:Turned the mail into a patch]
+Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/mei/interrupt.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/openrisc/include/asm/barrier.h | 9 +++++++++
+ 1 file changed, 9 insertions(+)
+ create mode 100644 arch/openrisc/include/asm/barrier.h
 
---- a/drivers/misc/mei/interrupt.c
-+++ b/drivers/misc/mei/interrupt.c
-@@ -220,6 +220,9 @@ static int mei_cl_irq_read(struct mei_cl
- 		return ret;
- 	}
- 
-+	pm_runtime_mark_last_busy(dev->dev);
-+	pm_request_autosuspend(dev->dev);
+diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
+new file mode 100644
+index 000000000000..7538294721be
+--- /dev/null
++++ b/arch/openrisc/include/asm/barrier.h
+@@ -0,0 +1,9 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __ASM_BARRIER_H
++#define __ASM_BARRIER_H
 +
- 	list_move_tail(&cb->list, &cl->rd_pending);
- 
- 	return 0;
++#define mb() asm volatile ("l.msync" ::: "memory")
++
++#include <asm-generic/barrier.h>
++
++#endif /* __ASM_BARRIER_H */
+-- 
+2.30.2
+
 
 
