@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 88BF0395D20
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2649395BC8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232718AbhEaNlu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:41:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
+        id S232135AbhEaNYf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:24:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232855AbhEaNjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA28461457;
-        Mon, 31 May 2021 13:27:11 +0000 (UTC)
+        id S231994AbhEaNWk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:22:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF4AB613AF;
+        Mon, 31 May 2021 13:19:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467632;
-        bh=tnvJWa0/obn0k7RrwOLx7h++w9S7+ohA+s2Tnw8Eczw=;
+        s=korg; t=1622467179;
+        bh=Eqktl7Cb1Ni60dTz+yxy23YCwdyOoNqQLBe0o/zbO7A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pRKdJY62Pq9IjB5Zwyb+AKXgqLUVc7kqo0MBnsuXkWJNcASs/OXzz03Ql+mKTWX5r
-         dp2lVken4UVgep+693SvJ7CbK83gXSGsHLyTYk7TgNcJNMU3pwvcDQaZd1OCmJK2k4
-         n3oSJ2EZTKgWKsOwiCSPk7EtHTHQfuOb8z55Ff+g=
+        b=NfC4aEXnOWcj6BNb0YsYJglw9qXSZx6hxuvacxLLJHdjCUegF2tTYuvtorFtEYEQq
+         eM8SZGOwdKyC8AwPjGg34CkSY8Iy5/1DgBnwEmVz814HHITfKB00ZF2JXjycSSKJ9M
+         zB57m4clQm3fBiML4aOIslUHvGIw6vkmgq4kdtcg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 4.14 21/79] thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 33/66] Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
 Date:   Mon, 31 May 2021 15:14:06 +0200
-Message-Id: <20210531130636.681439907@linuxfoundation.org>
+Message-Id: <20210531130637.312994674@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-commit b106776080a1cf953a1b2fd50cb2a995db4732be upstream.
+commit 75016891357a628d2b8acc09e2b9b2576c18d318 upstream.
 
-Up to 64 bytes of data can be read from NVM in one go. Read address
-must be dword aligned. Data is read into a local buffer.
+This reverts commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046.
+Above fix is not correct and caused memory leak issue.
 
-If caller asks to read data starting at an unaligned address then full
-dword is anyway read from NVM into a local buffer. Data is then copied
-from the local buffer starting at the unaligned offset to the caller
-buffer.
-
-In cases where asked data length + unaligned offset is over 64 bytes
-we need to make sure we don't read past the 64 bytes in the local
-buffer when copying to caller buffer, and make sure that we don't
-skip copying unaligned offset bytes from local buffer anymore after
-the first round of 64 byte NVM data read.
-
-Fixes: 3e13676862f9 ("thunderbolt: Add support for DMA configuration based mailbox")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Fixes: 6bf24dc0cc0c ("net:tipc: Fix a double free in tipc_sk_mcast_rcv")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Acked-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thunderbolt/dma_port.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ net/tipc/socket.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/thunderbolt/dma_port.c
-+++ b/drivers/thunderbolt/dma_port.c
-@@ -369,15 +369,15 @@ int dma_port_flash_read(struct tb_dma_po
- 			void *buf, size_t size)
- {
- 	unsigned int retries = DMA_PORT_RETRIES;
--	unsigned int offset;
--
--	offset = address & 3;
--	address = address & ~3;
- 
- 	do {
--		u32 nbytes = min_t(u32, size, MAIL_DATA_DWORDS * 4);
-+		unsigned int offset;
-+		size_t nbytes;
- 		int ret;
- 
-+		offset = address & 3;
-+		nbytes = min_t(size_t, size + offset, MAIL_DATA_DWORDS * 4);
-+
- 		ret = dma_port_flash_read_block(dma, address, dma->buf,
- 						ALIGN(nbytes, 4));
- 		if (ret) {
-@@ -389,6 +389,7 @@ int dma_port_flash_read(struct tb_dma_po
- 			return ret;
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -741,7 +741,10 @@ void tipc_sk_mcast_rcv(struct net *net,
+ 		spin_lock_bh(&inputq->lock);
+ 		if (skb_peek(arrvq) == skb) {
+ 			skb_queue_splice_tail_init(&tmpq, inputq);
+-			__skb_dequeue(arrvq);
++			/* Decrease the skb's refcnt as increasing in the
++			 * function tipc_skb_peek
++			 */
++			kfree_skb(__skb_dequeue(arrvq));
  		}
- 
-+		nbytes -= offset;
- 		memcpy(buf, dma->buf + offset, nbytes);
- 
- 		size -= nbytes;
+ 		spin_unlock_bh(&inputq->lock);
+ 		__skb_queue_purge(&tmpq);
 
 
