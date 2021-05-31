@@ -2,39 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD06395B52
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D641A395BB0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231983AbhEaNTW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:19:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54382 "EHLO mail.kernel.org"
+        id S231485AbhEaNXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231859AbhEaNSt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A3EFE613AD;
-        Mon, 31 May 2021 13:17:08 +0000 (UTC)
+        id S231845AbhEaNVl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:21:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34D51613DB;
+        Mon, 31 May 2021 13:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467029;
-        bh=NTLuPLBkvflV6YcFbm3pKZh9OJOtKOdZ91xr2AALtJk=;
+        s=korg; t=1622467151;
+        bh=0a4NtUaRwsttjvtiHpSuUZHtN0o8mYZWa44xbUKnBbM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e4WgDromq4TkbhXObXGR1UmdkAkawsftF2IE5Q7OMrIHS7zatlHmb90zHisgf269v
-         /ndNs/s5Wbtd/vRKiA/jUGTSZH3TLwOnjEQejmRoNKJdGj8knvZvuZW6DcLJBeVKwy
-         4459BwxWVgIfzuCVVxqR4N+PqzeCd2OyMOmcfJXQ=
+        b=HYZiOmaeY1jqoI6v3QjrBWqZw3YEaHzIStlwnrAlxxVTTy9c0pcmrd9xWphd7FzfK
+         FUHtuvdevo3OzO0sIRhXT3s2h11HVXalqySGTlUld+kTWeAUQOPWAcaRSHO0lMS0AG
+         pcDyZ5Z82q4bpOQcEbZSnyTcgrYlLlGghQSYzgGo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
-        Jean Delvare <jdelvare@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.4 30/54] i2c: i801: Dont generate an interrupt on bus reset
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 23/66] USB: serial: option: add Telit LE910-S1 compositions 0x7010, 0x7011
 Date:   Mon, 31 May 2021 15:13:56 +0200
-Message-Id: <20210531130636.029277749@linuxfoundation.org>
+Message-Id: <20210531130636.995535329@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
+commit e467714f822b5d167a7fb03d34af91b5b6af1827 upstream.
 
-Now that the i2c-i801 driver supports interrupts, setting the KILL bit
-in a attempt to recover from a timed out transaction triggers an
-interrupt. Unfortunately, the interrupt handler (i801_isr) is not
-prepared for this situation and will try to process the interrupt as
-if it was signaling the end of a successful transaction. In the case
-of a block transaction, this can result in an out-of-range memory
-access.
+Add support for the following Telit LE910-S1 compositions:
 
-This condition was reproduced several times by syzbot:
-https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
-https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
-https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
-https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
-https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
-https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
+0x7010: rndis, tty, tty, tty
+0x7011: ecm, tty, tty, tty
 
-So disable interrupts while trying to reset the bus. Interrupts will
-be enabled again for the following transaction.
-
-Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
-Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210428072634.5091-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -327,11 +327,9 @@ static int i801_check_post(struct i801_p
- 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
- 		/* try to stop the current command */
- 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
--		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
--		       SMBHSTCNT(priv));
-+		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
- 		usleep_range(1000, 2000);
--		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
--		       SMBHSTCNT(priv));
-+		outb_p(0, SMBHSTCNT(priv));
- 
- 		/* Check if it worked */
- 		status = inb_p(SMBHSTSTS(priv));
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1222,6 +1222,10 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
+ 	  .driver_info = NCTRL(0) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7010, 0xff),	/* Telit LE910-S1 (RNDIS) */
++	  .driver_info = NCTRL(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7011, 0xff),	/* Telit LE910-S1 (ECM) */
++	  .driver_info = NCTRL(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
+ 	  .driver_info = NCTRL(0) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
 
 
