@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 02CED395F0E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B483C395BE4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbhEaOHV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:07:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36738 "EHLO mail.kernel.org"
+        id S231796AbhEaNZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:25:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55060 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232523AbhEaOFM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:05:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E30461953;
-        Mon, 31 May 2021 13:38:23 +0000 (UTC)
+        id S231822AbhEaNXs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:23:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0864160FE8;
+        Mon, 31 May 2021 13:20:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468304;
-        bh=RQhlUaPK0txnvTpB8EbPl0THdMYPjTwx7mfDkn3q924=;
+        s=korg; t=1622467207;
+        bh=5Kjm/MX9uQ8kR71j/gCNkL71LD7bxn607SZxIhDz/JI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ElIQu1Orn7h9/bzo1FaST7xGAqk6l4xb6fUmya1ZOclOJKiKjM2smTRXFbUAoGr82
-         ZgemA2eKwp2Grfvv5EmSQD0k4RmuiAgwN3LOqVxcHRUNYLQZxj4VPinyrzr42pNSgC
-         2M0r9WK1K8t0rYhsk3aUH2oFwqftRp8fcOS2MlWY=
+        b=cyBPf3Y4TplA/JfpwysYLt7wNQb3zxrn00CN5iEvPHohGxZxGLT5eT2+CazVrIh8E
+         Y7bRzWzNSBoc/85fGbyHDQovoMwS6QC3zgFIN5E3WjCypqSLprImwjHLXLv9cOptpq
+         SLjO515T2rdEvbQcHGY3wyLSPw0qZRkAVg2Yuq7w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 158/252] Revert "ASoC: cs43130: fix a NULL pointer dereference"
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 10/66] mac80211: prevent mixed key and fragment cache attacks
 Date:   Mon, 31 May 2021 15:13:43 +0200
-Message-Id: <20210531130703.380162829@linuxfoundation.org>
+Message-Id: <20210531130636.591895707@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +39,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-[ Upstream commit fdda0dd2686ecd1f2e616c9e0366ea71b40c485d ]
+commit 94034c40ab4a3fcf581fbc7f8fdf4e29943c4a24 upstream.
 
-This reverts commit a2be42f18d409213bb7e7a736e3ef6ba005115bb.
+Simultaneously prevent mixed key attacks (CVE-2020-24587) and fragment
+cache attacks (CVE-2020-24586). This is accomplished by assigning a
+unique color to every key (per interface) and using this to track which
+key was used to decrypt a fragment. When reassembling frames, it is
+now checked whether all fragments were decrypted using the same key.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+To assure that fragment cache attacks are also prevented, the ID that is
+assigned to keys is unique even over (re)associations and (re)connects.
+This means fragments separated by a (re)association or (re)connect will
+not be reassembled. Because mac80211 now also prevents the reassembly of
+mixed encrypted and plaintext fragments, all cache attacks are prevented.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original patch here is not correct, sysfs files that were created
-are not unwound.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-57-gregkh@linuxfoundation.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.3f8290e59823.I622a67769ed39257327a362cfc09c812320eb979@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs43130.c | 2 --
- 1 file changed, 2 deletions(-)
+ net/mac80211/ieee80211_i.h |    1 +
+ net/mac80211/key.c         |    7 +++++++
+ net/mac80211/key.h         |    2 ++
+ net/mac80211/rx.c          |    6 ++++++
+ 4 files changed, 16 insertions(+)
 
-diff --git a/sound/soc/codecs/cs43130.c b/sound/soc/codecs/cs43130.c
-index 7fb34422a2a4..bb46e993c353 100644
---- a/sound/soc/codecs/cs43130.c
-+++ b/sound/soc/codecs/cs43130.c
-@@ -2319,8 +2319,6 @@ static int cs43130_probe(struct snd_soc_component *component)
- 			return ret;
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -97,6 +97,7 @@ struct ieee80211_fragment_entry {
+ 	u8 rx_queue;
+ 	bool check_sequential_pn; /* needed for CCMP/GCMP */
+ 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
++	unsigned int key_color;
+ };
  
- 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
--		if (!cs43130->wq)
--			return -ENOMEM;
- 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
- 	}
  
--- 
-2.30.2
-
+--- a/net/mac80211/key.c
++++ b/net/mac80211/key.c
+@@ -646,6 +646,7 @@ int ieee80211_key_link(struct ieee80211_
+ 		       struct ieee80211_sub_if_data *sdata,
+ 		       struct sta_info *sta)
+ {
++	static atomic_t key_color = ATOMIC_INIT(0);
+ 	struct ieee80211_local *local = sdata->local;
+ 	struct ieee80211_key *old_key;
+ 	int idx = key->conf.keyidx;
+@@ -681,6 +682,12 @@ int ieee80211_key_link(struct ieee80211_
+ 	key->sdata = sdata;
+ 	key->sta = sta;
+ 
++	/*
++	 * Assign a unique ID to every key so we can easily prevent mixed
++	 * key and fragment cache attacks.
++	 */
++	key->color = atomic_inc_return(&key_color);
++
+ 	increment_tailroom_need_count(sdata);
+ 
+ 	ieee80211_key_replace(sdata, sta, pairwise, old_key, key);
+--- a/net/mac80211/key.h
++++ b/net/mac80211/key.h
+@@ -127,6 +127,8 @@ struct ieee80211_key {
+ 	} debugfs;
+ #endif
+ 
++	unsigned int color;
++
+ 	/*
+ 	 * key config, must be last because it contains key
+ 	 * material as variable length member
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2004,6 +2004,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 			 * next fragment has a sequential PN value.
+ 			 */
+ 			entry->check_sequential_pn = true;
++			entry->key_color = rx->key->color;
+ 			memcpy(entry->last_pn,
+ 			       rx->key->u.ccmp.rx_pn[queue],
+ 			       IEEE80211_CCMP_PN_LEN);
+@@ -2041,6 +2042,11 @@ ieee80211_rx_h_defragment(struct ieee802
+ 
+ 		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
++
++		/* Prevent mixed key and fragment cache attacks */
++		if (entry->key_color != rx->key->color)
++			return RX_DROP_UNUSABLE;
++
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+ 			pn[i]++;
 
 
