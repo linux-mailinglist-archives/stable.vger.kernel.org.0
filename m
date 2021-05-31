@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5567395E0B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:52:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 11468396160
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231629AbhEaNxb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:53:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55176 "EHLO mail.kernel.org"
+        id S232548AbhEaOkL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:40:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232359AbhEaNvZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:51:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B7771617ED;
-        Mon, 31 May 2021 13:32:25 +0000 (UTC)
+        id S233715AbhEaOha (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:37:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 306A961C50;
+        Mon, 31 May 2021 13:51:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467946;
-        bh=L2uOL+Q8pAYqKVL/7z/INd8oC9HxuuO7OuGD0KrWVGw=;
+        s=korg; t=1622469099;
+        bh=F28ENUktMeBlIeqVNXhvaXUllT9A0puQItpPMb53VJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=corREL4437hiXXF/3meaEcNKELM0CbReybkuZXAHtFknLAu0gkkIMlwT3pPZrw1NS
-         4mMsaK5daKQrM67P1qi//wXdX0Hn+sB63/0hDMC7jBpZOqLOwTbNLNhr71fbfHy6fl
-         w/X1eqff//wgJUhzfofVMPKOYA+/LeSFrqAoZfMU=
+        b=nSK1g8Jg01Fu72uVgO50T/jMf42Nx6GBam9Y2prITkwwipTcy5MhQybzxTzgAdqB+
+         YbKcJp/iNxq3TaifgkDvVBNoXfXjqw2YlVIuorlMeJro0RupECDnTilwQLw/y2NyoX
+         elB1J5+6SaW6VRUt+CSqFKbjSNXfJ2MFblDxD/EI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexander Usyskin <alexander.usyskin@intel.com>,
-        Tomas Winkler <tomas.winkler@intel.com>
-Subject: [PATCH 5.10 059/252] mei: request autosuspend after sending rx flow control
-Date:   Mon, 31 May 2021 15:12:04 +0200
-Message-Id: <20210531130659.981923822@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.12 070/296] KVM: X86: Fix vCPU preempted state from guests point of view
+Date:   Mon, 31 May 2021 15:12:05 +0200
+Message-Id: <20210531130706.200784834@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,34 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Usyskin <alexander.usyskin@intel.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit bbf0a94744edfeee298e4a9ab6fd694d639a5cdf upstream.
+commit 1eff0ada88b48e4ac1e3fe26483b3684fedecd27 upstream.
 
-A rx flow control waiting in the control queue may block autosuspend.
-Re-request autosuspend after flow control been sent to unblock
-the transition to the low power state.
+Commit 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's
+CPUID) avoids to access pv tlb shootdown host side logic when this pv feature
+is not exposed to guest, however, kvm_steal_time.preempted not only leveraged
+by pv tlb shootdown logic but also mitigate the lock holder preemption issue.
+>From guest's point of view, vCPU is always preempted since we lose the reset
+of kvm_steal_time.preempted before vmentry if pv tlb shootdown feature is not
+exposed. This patch fixes it by clearing kvm_steal_time.preempted before
+vmentry.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
+Fixes: 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's CPUID)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1621339235-11131-3-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/mei/interrupt.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kvm/x86.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/misc/mei/interrupt.c
-+++ b/drivers/misc/mei/interrupt.c
-@@ -277,6 +277,9 @@ static int mei_cl_irq_read(struct mei_cl
- 		return ret;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3015,6 +3015,8 @@ static void record_steal_time(struct kvm
+ 				       st->preempted & KVM_VCPU_FLUSH_TLB);
+ 		if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
+ 			kvm_vcpu_flush_tlb_guest(vcpu);
++	} else {
++		st->preempted = 0;
  	}
  
-+	pm_runtime_mark_last_busy(dev->dev);
-+	pm_request_autosuspend(dev->dev);
-+
- 	list_move_tail(&cb->list, &cl->rd_pending);
- 
- 	return 0;
+ 	vcpu->arch.st.preempted = 0;
 
 
