@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 54398395CB0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 33D5E395F73
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbhEaNge (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
+        id S233330AbhEaOLe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:11:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232713AbhEaNeW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:34:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 920CD613F3;
-        Mon, 31 May 2021 13:24:56 +0000 (UTC)
+        id S233480AbhEaOJb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:09:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1087A6145F;
+        Mon, 31 May 2021 13:40:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467497;
-        bh=r2zlUh1pZXvCNhM+q9Rg6U2Q68hTUG+6yv5YzOkjEZ0=;
+        s=korg; t=1622468413;
+        bh=SUSzlEVEmHgMiHeLtBCO7zpTUDU7+Muby84fd2VYuMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN1OcWZ1AuMtp3tMCDuM8z646RmzwYFztjtqfg//sHklbUjHL2xLOx77JMbGWlwvz
-         dqvfYQZFIjNrQSiSidZkQY3DehT2Cb4QJSrkAzBmyre9OB/IaZ+C84POnW38TOD+on
-         sbWpdjsz1CIMKgApQxt2au0+nzTxbOCoEnEZ0SAU=
+        b=CBOZLmtg77+aGZ8HCA4mDni5wvUBWmotqVff69YCNehnkEEnJyDKfmW+cDxZZ+0HX
+         TWg7YEwFUF6DIsYehuoxD6PBctEYnV3+opfWwXHd5QKQMucdg4QtdjKZ90fUuGzRuK
+         iTLiba2G93bb3A5R9vKx+OtmZw+SaT8z3E55BT8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Khalid Aziz <khalid@gonehiking.org>,
-        Matt Wang <wwentao@vmware.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 087/116] scsi: BusLogic: Fix 64-bit system enumeration error for Buslogic
+Subject: [PATCH 5.10 198/252] net: really orphan skbs tied to closing sk
 Date:   Mon, 31 May 2021 15:14:23 +0200
-Message-Id: <20210531130643.097819206@linuxfoundation.org>
+Message-Id: <20210531130704.743041050@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,63 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Wang <wwentao@vmware.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 56f396146af278135c0ff958c79b5ee1bd22453d ]
+[ Upstream commit 098116e7e640ba677d9e345cbee83d253c13d556 ]
 
-Commit 391e2f25601e ("[SCSI] BusLogic: Port driver to 64-bit")
-introduced a serious issue for 64-bit systems.  With this commit,
-64-bit kernel will enumerate 8*15 non-existing disks.  This is caused
-by the broken CCB structure.  The change from u32 data to void *data
-increased CCB length on 64-bit system, which introduced an extra 4
-byte offset of the CDB.  This leads to incorrect response to INQUIRY
-commands during enumeration.
+If the owing socket is shutting down - e.g. the sock reference
+count already dropped to 0 and only sk_wmem_alloc is keeping
+the sock alive, skb_orphan_partial() becomes a no-op.
 
-Fix disk enumeration failure by reverting the portion of the commit
-above which switched the data pointer from u32 to void.
+When forwarding packets over veth with GRO enabled, the above
+causes refcount errors.
 
-Link: https://lore.kernel.org/r/C325637F-1166-4340-8F0F-3BCCD59D4D54@vmware.com
-Acked-by: Khalid Aziz <khalid@gonehiking.org>
-Signed-off-by: Matt Wang <wwentao@vmware.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+This change addresses the issue with a plain skb_orphan() call
+in the critical scenario.
+
+Fixes: 9adc89af724f ("net: let skb_orphan_partial wake-up waiters.")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/BusLogic.c | 6 +++---
- drivers/scsi/BusLogic.h | 2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ include/net/sock.h | 4 +++-
+ net/core/sock.c    | 8 ++++----
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/scsi/BusLogic.c b/drivers/scsi/BusLogic.c
-index 0d4ffe0ae306..79b5c5457cc2 100644
---- a/drivers/scsi/BusLogic.c
-+++ b/drivers/scsi/BusLogic.c
-@@ -3081,11 +3081,11 @@ static int blogic_qcmd_lck(struct scsi_cmnd *command,
- 		ccb->opcode = BLOGIC_INITIATOR_CCB_SG;
- 		ccb->datalen = count * sizeof(struct blogic_sg_seg);
- 		if (blogic_multimaster_type(adapter))
--			ccb->data = (void *)((unsigned int) ccb->dma_handle +
-+			ccb->data = (unsigned int) ccb->dma_handle +
- 					((unsigned long) &ccb->sglist -
--					(unsigned long) ccb));
-+					(unsigned long) ccb);
- 		else
--			ccb->data = ccb->sglist;
-+			ccb->data = virt_to_32bit_virt(ccb->sglist);
+diff --git a/include/net/sock.h b/include/net/sock.h
+index 261195598df3..f68184b8c0aa 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2197,13 +2197,15 @@ static inline void skb_set_owner_r(struct sk_buff *skb, struct sock *sk)
+ 	sk_mem_charge(sk, skb->truesize);
+ }
  
- 		scsi_for_each_sg(command, sg, count, i) {
- 			ccb->sglist[i].segbytes = sg_dma_len(sg);
-diff --git a/drivers/scsi/BusLogic.h b/drivers/scsi/BusLogic.h
-index 8d47e2c88d24..1a33a4b28d45 100644
---- a/drivers/scsi/BusLogic.h
-+++ b/drivers/scsi/BusLogic.h
-@@ -821,7 +821,7 @@ struct blogic_ccb {
- 	unsigned char cdblen;				/* Byte 2 */
- 	unsigned char sense_datalen;			/* Byte 3 */
- 	u32 datalen;					/* Bytes 4-7 */
--	void *data;					/* Bytes 8-11 */
-+	u32 data;					/* Bytes 8-11 */
- 	unsigned char:8;				/* Byte 12 */
- 	unsigned char:8;				/* Byte 13 */
- 	enum blogic_adapter_status adapter_status;	/* Byte 14 */
+-static inline void skb_set_owner_sk_safe(struct sk_buff *skb, struct sock *sk)
++static inline __must_check bool skb_set_owner_sk_safe(struct sk_buff *skb, struct sock *sk)
+ {
+ 	if (sk && refcount_inc_not_zero(&sk->sk_refcnt)) {
+ 		skb_orphan(skb);
+ 		skb->destructor = sock_efree;
+ 		skb->sk = sk;
++		return true;
+ 	}
++	return false;
+ }
+ 
+ void sk_reset_timer(struct sock *sk, struct timer_list *timer,
+diff --git a/net/core/sock.c b/net/core/sock.c
+index c75c1e723a84..dee29f41beaf 100644
+--- a/net/core/sock.c
++++ b/net/core/sock.c
+@@ -2099,10 +2099,10 @@ void skb_orphan_partial(struct sk_buff *skb)
+ 	if (skb_is_tcp_pure_ack(skb))
+ 		return;
+ 
+-	if (can_skb_orphan_partial(skb))
+-		skb_set_owner_sk_safe(skb, skb->sk);
+-	else
+-		skb_orphan(skb);
++	if (can_skb_orphan_partial(skb) && skb_set_owner_sk_safe(skb, skb->sk))
++		return;
++
++	skb_orphan(skb);
+ }
+ EXPORT_SYMBOL(skb_orphan_partial);
+ 
 -- 
 2.30.2
 
