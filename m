@@ -2,34 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9901C395E32
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BF2639617A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:39:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232084AbhEaNz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:55:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S233393AbhEaOl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:41:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37856 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232978AbhEaNxP (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:53:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A242761883;
-        Mon, 31 May 2021 13:33:08 +0000 (UTC)
+        id S234110AbhEaOjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:39:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E1151616EB;
+        Mon, 31 May 2021 13:52:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467989;
-        bh=48Soh6RnlXypW8APZSOeTcy38VcdKuzc9LqZpppiBno=;
+        s=korg; t=1622469139;
+        bh=ynVL04ift/6egESuTKn/Fk2adUED9rKiBWSXS2RVsvc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kXuvpk6LyTgEGKw4mKszrzOZ8piGivugjgXREDaONwisvMQIlmUvHtJqkBnBFrUUO
-         jPdDxKRgCHQJtYqNWFsENhT6+kzLi+fan+a5Aqd/NH/9iXg9UVwnliQmZry01G4jlM
-         Sg0y58/34xw1yAOsy1PmoKp2wgHGtZ2OMcc1HIQc=
+        b=vRnv7Bd5lAslfs/fw5EDSjArGixS+mbX9KtDzr+HlMtXr3Dst1wC1FIylibpihmvK
+         W0M5ZMX3IddB1Mw56+wKhpmXa1paDdL3J76GRKb9dZlDJSqy3EKoMtK0b5nN9iOiRY
+         JDSJp/9bMDDohg6qaQiI725WbpnFo62AI36pAaME=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 074/252] USB: trancevibrator: fix control-request direction
+        stable@vger.kernel.org,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Alexandru Ardelean <aardelean@deviqon.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.12 084/296] iio: adc: ad7192: handle regulator voltage error first
 Date:   Mon, 31 May 2021 15:12:19 +0200
-Message-Id: <20210531130700.514848795@linuxfoundation.org>
+Message-Id: <20210531130706.691400827@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,39 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Alexandru Ardelean <aardelean@deviqon.com>
 
-commit 746e4acf87bcacf1406e05ef24a0b7139147c63e upstream.
+commit b0f27fca5a6c7652e265aae6a4452ce2f2ed64da upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+This change fixes a corner-case, where for a zero regulator value, the
+driver would exit early, initializing the driver only partially.
+The driver would be in an unknown state.
 
-Fix the set-speed request which erroneously used USB_DIR_IN and update
-the default timeout argument to match (same value).
+This change reworks the code to check regulator_voltage() return value
+for negative (error) first, and return early. This is the more common
+idiom.
 
-Fixes: 5638e4d92e77 ("USB: add PlayStation 2 Trance Vibrator driver")
-Cc: stable@vger.kernel.org      # 2.6.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210521133109.17396-1-johan@kernel.org
+Also, this change is removing the 'voltage_uv' variable and using the 'ret'
+value directly. The only place where 'voltage_uv' is being used is to
+compute the internal reference voltage, and the type of this variable is
+'int' (same are for 'ret'). Using only 'ret' avoids having to assign it on
+the error path.
+
+Fixes: ab0afa65bbc7 ("staging: iio: adc: ad7192: fail probe on get_voltage")
+Cc: Alexandru Tachici <alexandru.tachici@analog.com>
+Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/trancevibrator.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iio/adc/ad7192.c |   11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/misc/trancevibrator.c
-+++ b/drivers/usb/misc/trancevibrator.c
-@@ -61,9 +61,9 @@ static ssize_t speed_store(struct device
- 	/* Set speed */
- 	retval = usb_control_msg(tv->udev, usb_sndctrlpipe(tv->udev, 0),
- 				 0x01, /* vendor request: set speed */
--				 USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_OTHER,
-+				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
- 				 tv->speed, /* speed value */
--				 0, NULL, 0, USB_CTRL_GET_TIMEOUT);
-+				 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		tv->speed = old;
- 		dev_dbg(&tv->udev->dev, "retval = %d\n", retval);
+--- a/drivers/iio/adc/ad7192.c
++++ b/drivers/iio/adc/ad7192.c
+@@ -912,7 +912,7 @@ static int ad7192_probe(struct spi_devic
+ {
+ 	struct ad7192_state *st;
+ 	struct iio_dev *indio_dev;
+-	int ret, voltage_uv = 0;
++	int ret;
+ 
+ 	if (!spi->irq) {
+ 		dev_err(&spi->dev, "no IRQ?\n");
+@@ -949,15 +949,12 @@ static int ad7192_probe(struct spi_devic
+ 		goto error_disable_avdd;
+ 	}
+ 
+-	voltage_uv = regulator_get_voltage(st->avdd);
+-
+-	if (voltage_uv > 0) {
+-		st->int_vref_mv = voltage_uv / 1000;
+-	} else {
+-		ret = voltage_uv;
++	ret = regulator_get_voltage(st->avdd);
++	if (ret < 0) {
+ 		dev_err(&spi->dev, "Device tree error, reference voltage undefined\n");
+ 		goto error_disable_avdd;
+ 	}
++	st->int_vref_mv = ret / 1000;
+ 
+ 	spi_set_drvdata(spi, indio_dev);
+ 	st->chip_info = of_device_get_match_data(&spi->dev);
 
 
