@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E41E5395B6A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 87FA5395D24
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhEaNUT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:20:19 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54382 "EHLO mail.kernel.org"
+        id S231871AbhEaNlv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44426 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231946AbhEaNTX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A09761396;
-        Mon, 31 May 2021 13:17:43 +0000 (UTC)
+        id S232903AbhEaNjs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A52716145F;
+        Mon, 31 May 2021 13:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467063;
-        bh=Joz1eCpODLqPQKgdaHCknTXdIpMinnHu/FUByIrYEDg=;
+        s=korg; t=1622467640;
+        bh=fXVmRXjEYXzSiN1Fw+5ymuglW2HubZD3PlHAZd4Xgv4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LMn+zIv/5nfrV7OK3Rn3be0zdzvNTEPN5c83Hbo7ChT07++5nNKWOlhd+CFYXgksL
-         c4EM/zXJ0nA3fBZ+fvYs8hHFwOzmBa7lBLrzceV1fdphh/CknAm4+pi2UDgrcYJnD3
-         HIfgyF+U6/i8CuTiziMEojjFqhUgnCmHj/EUtVrQ=
+        b=Q/9R/bfCmVHd8RC1z8zwnO/jeCvQ3PwgEA6IzYiBAuUEOZFU9hcbd/+8nTTfZTlRB
+         YNyA1mBv4oX288YjjdBuLNs1meIJHAbKgrz/v1OrOsFcaNhdb610gyGUSPUPk1HtrJ
+         WU0tAaMz9iy/C8e1ed6e+WuDbMHyQYKABvteooQE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 43/54] drm/amdgpu: Fix a use-after-free
+        stable@vger.kernel.org, YueHaibing <yuehaibing@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.14 24/79] iio: adc: ad7793: Add missing error code in ad7793_setup()
 Date:   Mon, 31 May 2021 15:14:09 +0200
-Message-Id: <20210531130636.423923836@linuxfoundation.org>
+Message-Id: <20210531130636.777474012@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +40,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: xinhui pan <xinhui.pan@amd.com>
+From: YueHaibing <yuehaibing@huawei.com>
 
-[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
+commit 4ed243b1da169bcbc1ec5507867e56250c5f1ff9 upstream.
 
-looks like we forget to set ttm->sg to NULL.
-Hit panic below
+Set error code while device ID query failed.
 
-[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
-[ 1235.989074] Call Trace:
-[ 1235.991751]  sg_free_table+0x17/0x20
-[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
-[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
-[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
-[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
-[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
-[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
-[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
-[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
-[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
-[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
-
-Signed-off-by: xinhui pan <xinhui.pan@amd.com>
-Reviewed-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 88bc30548aae ("IIO: ADC: New driver for AD7792/AD7793 3 Channel SPI ADC")
+Signed-off-by: YueHaibing <yuehaibing@huawei.com>
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ drivers/iio/adc/ad7793.c |    1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-index 6beb3e76e1c9..014b87143837 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
-@@ -737,6 +737,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_tt *ttm)
+--- a/drivers/iio/adc/ad7793.c
++++ b/drivers/iio/adc/ad7793.c
+@@ -279,6 +279,7 @@ static int ad7793_setup(struct iio_dev *
+ 	id &= AD7793_ID_MASK;
  
- 	if (gtt && gtt->userptr) {
- 		kfree(ttm->sg);
-+		ttm->sg = NULL;
- 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
- 		return;
+ 	if (id != st->chip_info->id) {
++		ret = -ENODEV;
+ 		dev_err(&st->sd.spi->dev, "device ID query failed\n");
+ 		goto out;
  	}
--- 
-2.30.2
-
 
 
