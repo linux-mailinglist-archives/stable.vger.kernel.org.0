@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B74B7396222
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BF5E395C94
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:33:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232068AbhEaOvd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
+        id S231695AbhEaNfH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:35:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233995AbhEaOtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 719E561466;
-        Mon, 31 May 2021 13:56:47 +0000 (UTC)
+        id S232274AbhEaNc3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:32:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B97DF6135D;
+        Mon, 31 May 2021 13:24:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469408;
-        bh=eneXgJadla0FXNynniX2GwEnmQwZmwoZoySbbR2JdRk=;
+        s=korg; t=1622467443;
+        bh=4pPF3576SbVzTBopJc0l9cXkMjzIN9CW7vY9obVO2Os=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PmYr/xhlvTsgbE0KmTZ9FvWLAiy7uhcZ+rUQu1fnFvQhzBbDNx4cA4+40c0Gr69GS
-         sqhxx9XS/8wqvqSdSPtxnPVIpm+ccwpDwdkUDs5jJ3R648ZzCMWgcszhMQMLe0gh63
-         fJd6uBNXtYnkEGcXM/Jrqsgua9VEgoZH3bcZddWI=
+        b=lXcqA8dIt0SiTw4PGXqzYx54XPdmwXNNer9nP8dXd4N7I2orYefz9dFCbFlTqjWBw
+         9GuEF303zs84nzF8mNsvLPPUFzdk/3KD6vLce29zYtu/CAs2gSqBL4/AsZ2Zop7qgT
+         EnbY0uLZPgfCQ56ijfkcC3v1i34a/ZNs8U4sMNKQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 187/296] libertas: register sysfs groups properly
+        stable@vger.kernel.org, Stefan Agner <stefan@agner.ch>,
+        Neil Armstrong <narmstrong@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Subject: [PATCH 4.19 066/116] drm/meson: fix shutdown crash when component not probed
 Date:   Mon, 31 May 2021 15:14:02 +0200
-Message-Id: <20210531130710.159096271@linuxfoundation.org>
+Message-Id: <20210531130642.395713882@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,94 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Neil Armstrong <narmstrong@baylibre.com>
 
-[ Upstream commit 7e79b38fe9a403b065ac5915465f620a8fb3de84 ]
+commit 7cfc4ea78fc103ea51ecbacd9236abb5b1c490d2 upstream.
 
-The libertas driver was trying to register sysfs groups "by hand" which
-causes them to be created _after_ the device is initialized and
-announced to userspace, which causes races and can prevent userspace
-tools from seeing the sysfs files correctly.
+When main component is not probed, by example when the dw-hdmi module is
+not loaded yet or in probe defer, the following crash appears on shutdown:
 
-Fix this up by using the built-in sysfs_groups pointers in struct
-net_device which were created for this very reason, fixing the race
-condition, and properly allowing for any error that might have occured
-to be handled properly.
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000038
+...
+pc : meson_drv_shutdown+0x24/0x50
+lr : platform_drv_shutdown+0x20/0x30
+...
+Call trace:
+meson_drv_shutdown+0x24/0x50
+platform_drv_shutdown+0x20/0x30
+device_shutdown+0x158/0x360
+kernel_restart_prepare+0x38/0x48
+kernel_restart+0x18/0x68
+__do_sys_reboot+0x224/0x250
+__arm64_sys_reboot+0x24/0x30
+...
 
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-54-gregkh@linuxfoundation.org
+Simply check if the priv struct has been allocated before using it.
+
+Fixes: fa0c16caf3d7 ("drm: meson_drv add shutdown function")
+Reported-by: Stefan Agner <stefan@agner.ch>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20210430082744.3638743-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/libertas/mesh.c | 28 +++-----------------
- 1 file changed, 4 insertions(+), 24 deletions(-)
+ drivers/gpu/drm/meson/meson_drv.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/wireless/marvell/libertas/mesh.c b/drivers/net/wireless/marvell/libertas/mesh.c
-index c611e6668b21..c68814841583 100644
---- a/drivers/net/wireless/marvell/libertas/mesh.c
-+++ b/drivers/net/wireless/marvell/libertas/mesh.c
-@@ -801,19 +801,6 @@ static const struct attribute_group mesh_ie_group = {
- 	.attrs = mesh_ie_attrs,
- };
+--- a/drivers/gpu/drm/meson/meson_drv.c
++++ b/drivers/gpu/drm/meson/meson_drv.c
+@@ -387,11 +387,12 @@ static int meson_probe_remote(struct pla
+ static void meson_drv_shutdown(struct platform_device *pdev)
+ {
+ 	struct meson_drm *priv = dev_get_drvdata(&pdev->dev);
+-	struct drm_device *drm = priv->drm;
  
--static void lbs_persist_config_init(struct net_device *dev)
--{
--	int ret;
--	ret = sysfs_create_group(&(dev->dev.kobj), &boot_opts_group);
--	ret = sysfs_create_group(&(dev->dev.kobj), &mesh_ie_group);
--}
--
--static void lbs_persist_config_remove(struct net_device *dev)
--{
--	sysfs_remove_group(&(dev->dev.kobj), &boot_opts_group);
--	sysfs_remove_group(&(dev->dev.kobj), &mesh_ie_group);
--}
--
- 
- /***************************************************************************
-  * Initializing and starting, stopping mesh
-@@ -1009,6 +996,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
- 	SET_NETDEV_DEV(priv->mesh_dev, priv->dev->dev.parent);
- 
- 	mesh_dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
-+	mesh_dev->sysfs_groups[0] = &lbs_mesh_attr_group;
-+	mesh_dev->sysfs_groups[1] = &boot_opts_group;
-+	mesh_dev->sysfs_groups[2] = &mesh_ie_group;
+-	DRM_DEBUG_DRIVER("\n");
+-	drm_kms_helper_poll_fini(drm);
+-	drm_atomic_helper_shutdown(drm);
++	if (!priv)
++		return;
 +
- 	/* Register virtual mesh interface */
- 	ret = register_netdev(mesh_dev);
- 	if (ret) {
-@@ -1016,19 +1007,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
- 		goto err_free_netdev;
- 	}
++	drm_kms_helper_poll_fini(priv->drm);
++	drm_atomic_helper_shutdown(priv->drm);
+ }
  
--	ret = sysfs_create_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
--	if (ret)
--		goto err_unregister;
--
--	lbs_persist_config_init(mesh_dev);
--
- 	/* Everything successful */
- 	ret = 0;
- 	goto done;
- 
--err_unregister:
--	unregister_netdev(mesh_dev);
--
- err_free_netdev:
- 	free_netdev(mesh_dev);
- 
-@@ -1049,8 +1031,6 @@ void lbs_remove_mesh(struct lbs_private *priv)
- 
- 	netif_stop_queue(mesh_dev);
- 	netif_carrier_off(mesh_dev);
--	sysfs_remove_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
--	lbs_persist_config_remove(mesh_dev);
- 	unregister_netdev(mesh_dev);
- 	priv->mesh_dev = NULL;
- 	kfree(mesh_dev->ieee80211_ptr);
--- 
-2.30.2
-
+ static int meson_drv_probe(struct platform_device *pdev)
 
 
