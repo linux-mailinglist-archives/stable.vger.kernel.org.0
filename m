@@ -2,44 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 165EC395F07
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 15F40395D32
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233059AbhEaOGy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:06:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
+        id S232866AbhEaNml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:42:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44888 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233424AbhEaOEw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:04:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C76061406;
-        Mon, 31 May 2021 13:38:13 +0000 (UTC)
+        id S232402AbhEaNkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:40:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E268560FEF;
+        Mon, 31 May 2021 13:27:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468293;
-        bh=HEYbWVopiiv8JhXlkj0mpt1+zBK4clPd/uzpkSwxRNY=;
+        s=korg; t=1622467653;
+        bh=CdWbAnrbCNdrxTAIiipq1PnfPySFw9oNTymwri8WJYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xXdOGvy06AyIVHRGn+IYA61PuJbdtneRM9PzhLgoHgrD6Y9QM5GcV+5emMkuMH6zD
-         htF6DB05VUnjviRnOp52QMUSg38n6HQasuATAFWFXxuEtZ+shnWZKdOyvjCC1YZ4Eb
-         mrc8Zk6FwYTaEMTTUNKIXDeHqOz9YhiB7JbRkxbI=
+        b=kRnKb1WIseMytUUTbxZ0GfyFBb2RhHsjGKnWFLaQ7nhrj8RePatEAaDTYF5B5gThv
+         DProhaDzAxE7+z1ZePo7dPdb4ebQ5cUBX0gwwIFRqGqU3trqGAvEtnCS/s0LcZffb1
+         ezOuhWNQP3oQl1hrI4svdBjBSub5BXJDK+Mk8VoA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Rikard Falkeborn <rikard.falkeborn@gmail.com>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Andy Shevchenko <andy.shevchenko@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Yury Norov <yury.norov@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 188/252] linux/bits.h: fix compilation error with GENMASK
-Date:   Mon, 31 May 2021 15:14:13 +0200
-Message-Id: <20210531130704.398247040@linuxfoundation.org>
+        stable@vger.kernel.org, Daniele Palmas <dnlplm@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 29/79] USB: serial: option: add Telit LE910-S1 compositions 0x7010, 0x7011
+Date:   Mon, 31 May 2021 15:14:14 +0200
+Message-Id: <20210531130636.937784967@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -48,133 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rikard Falkeborn <rikard.falkeborn@gmail.com>
+From: Daniele Palmas <dnlplm@gmail.com>
 
-[ Upstream commit f747e6667ebb2ffb8133486c9cd19800d72b0d98 ]
+commit e467714f822b5d167a7fb03d34af91b5b6af1827 upstream.
 
-GENMASK() has an input check which uses __builtin_choose_expr() to
-enable a compile time sanity check of its inputs if they are known at
-compile time.
+Add support for the following Telit LE910-S1 compositions:
 
-However, it turns out that __builtin_constant_p() does not always return
-a compile time constant [0].  It was thought this problem was fixed with
-gcc 4.9 [1], but apparently this is not the case [2].
+0x7010: rndis, tty, tty, tty
+0x7011: ecm, tty, tty, tty
 
-Switch to use __is_constexpr() instead which always returns a compile time
-constant, regardless of its inputs.
-
-Link: https://lore.kernel.org/lkml/42b4342b-aefc-a16a-0d43-9f9c0d63ba7a@rasmusvillemoes.dk [0]
-Link: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=19449 [1]
-Link: https://lore.kernel.org/lkml/1ac7bbc2-45d9-26ed-0b33-bf382b8d858b@I-love.SAKURA.ne.jp [2]
-Link: https://lkml.kernel.org/r/20210511203716.117010-1-rikard.falkeborn@gmail.com
-Signed-off-by: Rikard Falkeborn <rikard.falkeborn@gmail.com>
-Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Acked-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
-Cc: Ard Biesheuvel <ardb@kernel.org>
-Cc: Yury Norov <yury.norov@gmail.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Daniele Palmas <dnlplm@gmail.com>
+Link: https://lore.kernel.org/r/20210428072634.5091-1-dnlplm@gmail.com
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/bits.h        |  2 +-
- include/linux/const.h       |  8 ++++++++
- include/linux/minmax.h      | 10 ++--------
- tools/include/linux/bits.h  |  2 +-
- tools/include/linux/const.h |  8 ++++++++
- 5 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/include/linux/bits.h b/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/include/linux/bits.h
-+++ b/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
- #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/include/linux/const.h b/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/include/linux/const.h
-+++ b/include/linux/const.h
-@@ -3,4 +3,12 @@
- 
- #include <vdso/const.h>
- 
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
-diff --git a/include/linux/minmax.h b/include/linux/minmax.h
-index c0f57b0c64d9..5433c08fcc68 100644
---- a/include/linux/minmax.h
-+++ b/include/linux/minmax.h
-@@ -2,6 +2,8 @@
- #ifndef _LINUX_MINMAX_H
- #define _LINUX_MINMAX_H
- 
-+#include <linux/const.h>
-+
- /*
-  * min()/max()/clamp() macros must accomplish three things:
-  *
-@@ -17,14 +19,6 @@
- #define __typecheck(x, y) \
- 	(!!(sizeof((typeof(x) *)1 == (typeof(y) *)1)))
- 
--/*
-- * This returns a constant expression while determining if an argument is
-- * a constant expression, most importantly without evaluating the argument.
-- * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-- */
--#define __is_constexpr(x) \
--	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
--
- #define __no_side_effects(x, y) \
- 		(__is_constexpr(x) && __is_constexpr(y))
- 
-diff --git a/tools/include/linux/bits.h b/tools/include/linux/bits.h
-index 7f475d59a097..87d112650dfb 100644
---- a/tools/include/linux/bits.h
-+++ b/tools/include/linux/bits.h
-@@ -22,7 +22,7 @@
- #include <linux/build_bug.h>
- #define GENMASK_INPUT_CHECK(h, l) \
- 	(BUILD_BUG_ON_ZERO(__builtin_choose_expr( \
--		__builtin_constant_p((l) > (h)), (l) > (h), 0)))
-+		__is_constexpr((l) > (h)), (l) > (h), 0)))
- #else
- /*
-  * BUILD_BUG_ON_ZERO is not available in h files included from asm files,
-diff --git a/tools/include/linux/const.h b/tools/include/linux/const.h
-index 81b8aae5a855..435ddd72d2c4 100644
---- a/tools/include/linux/const.h
-+++ b/tools/include/linux/const.h
-@@ -3,4 +3,12 @@
- 
- #include <vdso/const.h>
- 
-+/*
-+ * This returns a constant expression while determining if an argument is
-+ * a constant expression, most importantly without evaluating the argument.
-+ * Glory to Martin Uecker <Martin.Uecker@med.uni-goettingen.de>
-+ */
-+#define __is_constexpr(x) \
-+	(sizeof(int) == sizeof(*(8 ? ((void *)((long)(x) * 0l)) : (int *)8)))
-+
- #endif /* _LINUX_CONST_H */
--- 
-2.30.2
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -1243,6 +1243,10 @@ static const struct usb_device_id option
+ 	  .driver_info = NCTRL(0) | RSVD(1) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x1901, 0xff),	/* Telit LN940 (MBIM) */
+ 	  .driver_info = NCTRL(0) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7010, 0xff),	/* Telit LE910-S1 (RNDIS) */
++	  .driver_info = NCTRL(2) },
++	{ USB_DEVICE_INTERFACE_CLASS(TELIT_VENDOR_ID, 0x7011, 0xff),	/* Telit LE910-S1 (ECM) */
++	  .driver_info = NCTRL(2) },
+ 	{ USB_DEVICE(TELIT_VENDOR_ID, 0x9010),				/* Telit SBL FN980 flashing device */
+ 	  .driver_info = NCTRL(0) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(ZTE_VENDOR_ID, ZTE_PRODUCT_MF622, 0xff, 0xff, 0xff) }, /* ZTE WCDMA products */
 
 
