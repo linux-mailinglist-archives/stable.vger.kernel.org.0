@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DAA0E395C3F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EAF03961CD
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:45:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232223AbhEaNad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:30:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
+        id S231983AbhEaOql (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:46:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231864AbhEaN20 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:28:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A94661414;
-        Mon, 31 May 2021 13:22:06 +0000 (UTC)
+        id S234111AbhEaOog (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:44:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8C38B613F4;
+        Mon, 31 May 2021 13:54:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467326;
-        bh=rxiVWhRFjxc11PiobM7mz1F4cSS4dIpzOp1jHyGjH3E=;
+        s=korg; t=1622469295;
+        bh=gmvVBqqMIOOkqbraOZbqVPVvvHeqcqt6NIdqQ2Izlrg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lusIRIni1Dlu+h/zKIZCBb1ZH1m0zopujMRquQPhPQsgN9p0fuwWPWAOimNCytYOJ
-         lupAFWzUHwm5MSBZ93iycOMrqAGY6WXCWswtnLpdARFaUMGXh3DEorFk+e5TRijdlS
-         TRAcsoktmsoOrdioatKyodnuDhWSY2RFTZRvhG7M=
+        b=cFR2RqWjNx89EEHlVpCi7sTwcZ2k61l9ewyCulRDhWlFjB2HlJwQTxTfH1MjlXYne
+         hL3styfTfdPbaUbLgbd+RCbWCQ9V43U+/zVSRoqapLoTs5XzYV9IIrWoiegLV6lrWV
+         no5XobjeAJbTzOVdCmoJukAlZMhzS9/D/ol/M6mk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Jason Wessel <jason.wessel@windriver.com>
-Subject: [PATCH 4.19 023/116] kgdb: fix gcc-11 warnings harder
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 144/296] net: dsa: sja1105: use 4095 as the private VLAN for untagged traffic
 Date:   Mon, 31 May 2021 15:13:19 +0200
-Message-Id: <20210531130640.942959126@linuxfoundation.org>
+Message-Id: <20210531130708.712352125@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +39,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit bda7d3ab06f19c02dcef61fefcb9dd954dfd5e4f upstream.
+commit ed040abca4c1db72dfd3b8483b6ed6bfb7c2571e upstream.
 
-40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation") tried to fix up
-the gcc-11 complaints in this file by just reformatting the #defines.
-That worked for gcc 11.1.0, but in gcc 11.1.1 as shipped by Fedora 34,
-the warning came back for one of the #defines.
+One thing became visible when writing the blamed commit, and that was
+that STP and PTP frames injected by net/dsa/tag_sja1105.c using the
+deferred xmit mechanism are always classified to the pvid of the CPU
+port, regardless of whatever VLAN there might be in these packets.
 
-Fix this up again by putting { } around the if statement, now it is
-quiet again.
+So a decision needed to be taken regarding the mechanism through which
+we should ensure that delivery of STP and PTP traffic is possible when
+we are in a VLAN awareness mode that involves tag_8021q. This is because
+tag_8021q is not concerned with managing the pvid of the CPU port, since
+as far as tag_8021q is concerned, no traffic should be sent as untagged
+from the CPU port. So we end up not actually having a pvid on the CPU
+port if we only listen to tag_8021q, and unless we do something about it.
 
-Fixes: 40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Link: https://lore.kernel.org/r/20210520130839.51987-1-gregkh@linuxfoundation.org
+The decision taken at the time was to keep VLAN 1 in the list of
+priv->dsa_8021q_vlans, and make it a pvid of the CPU port. This ensures
+that STP and PTP frames can always be sent to the outside world.
+
+However there is a problem. If we do the following while we are in
+the best_effort_vlan_filtering=true mode:
+
+ip link add br0 type bridge vlan_filtering 1
+ip link set swp2 master br0
+bridge vlan del dev swp2 vid 1
+
+Then untagged and pvid-tagged frames should be dropped. But we observe
+that they aren't, and this is because of the precaution we took that VID
+1 is always installed on all ports.
+
+So clearly VLAN 1 is not good for this purpose. What about VLAN 0?
+Well, VLAN 0 is managed by the 8021q module, and that module wants to
+ensure that 802.1p tagged frames are always received by a port, and are
+always transmitted as VLAN-tagged (with VLAN ID 0). Whereas we want our
+STP and PTP frames to be untagged if the stack sent them as untagged -
+we don't want the driver to just decide out of the blue that it adds
+VID 0 to some packets.
+
+So what to do?
+
+Well, there is one other VLAN that is reserved, and that is 4095:
+$ ip link add link swp2 name swp2.4095 type vlan id 4095
+Error: 8021q: Invalid VLAN id.
+$ bridge vlan add dev swp2 vid 4095
+Error: bridge: Vlan id is invalid.
+
+After we made this change, VLAN 1 is indeed forwarded and/or dropped
+according to the bridge VLAN table, there are no further alterations
+done by the sja1105 driver.
+
+Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/kgdbts.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -112,8 +112,9 @@
- 		printk(KERN_INFO a);	\
- } while (0)
- #define v2printk(a...) do {		\
--	if (verbose > 1)		\
-+	if (verbose > 1) {		\
- 		printk(KERN_INFO a);	\
-+	}				\
- 	touch_nmi_watchdog();		\
- } while (0)
- #define eprintk(a...) do {		\
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -26,6 +26,7 @@
+ #include "sja1105_tas.h"
+ 
+ #define SJA1105_UNKNOWN_MULTICAST	0x010000000000ull
++#define SJA1105_DEFAULT_VLAN		(VLAN_N_VID - 1)
+ 
+ static const struct dsa_switch_ops sja1105_switch_ops;
+ 
+@@ -321,6 +322,13 @@ static int sja1105_init_l2_lookup_params
+ 	return 0;
+ }
+ 
++/* Set up a default VLAN for untagged traffic injected from the CPU
++ * using management routes (e.g. STP, PTP) as opposed to tag_8021q.
++ * All DT-defined ports are members of this VLAN, and there are no
++ * restrictions on forwarding (since the CPU selects the destination).
++ * Frames from this VLAN will always be transmitted as untagged, and
++ * neither the bridge nor the 8021q module cannot create this VLAN ID.
++ */
+ static int sja1105_init_static_vlan(struct sja1105_private *priv)
+ {
+ 	struct sja1105_table *table;
+@@ -330,17 +338,13 @@ static int sja1105_init_static_vlan(stru
+ 		.vmemb_port = 0,
+ 		.vlan_bc = 0,
+ 		.tag_port = 0,
+-		.vlanid = 1,
++		.vlanid = SJA1105_DEFAULT_VLAN,
+ 	};
+ 	struct dsa_switch *ds = priv->ds;
+ 	int port;
+ 
+ 	table = &priv->static_config.tables[BLK_IDX_VLAN_LOOKUP];
+ 
+-	/* The static VLAN table will only contain the initial pvid of 1.
+-	 * All other VLANs are to be configured through dynamic entries,
+-	 * and kept in the static configuration table as backing memory.
+-	 */
+ 	if (table->entry_count) {
+ 		kfree(table->entries);
+ 		table->entry_count = 0;
+@@ -353,9 +357,6 @@ static int sja1105_init_static_vlan(stru
+ 
+ 	table->entry_count = 1;
+ 
+-	/* VLAN 1: all DT-defined ports are members; no restrictions on
+-	 * forwarding; always transmit as untagged.
+-	 */
+ 	for (port = 0; port < ds->num_ports; port++) {
+ 		struct sja1105_bridge_vlan *v;
+ 
+@@ -366,15 +367,12 @@ static int sja1105_init_static_vlan(stru
+ 		pvid.vlan_bc |= BIT(port);
+ 		pvid.tag_port &= ~BIT(port);
+ 
+-		/* Let traffic that don't need dsa_8021q (e.g. STP, PTP) be
+-		 * transmitted as untagged.
+-		 */
+ 		v = kzalloc(sizeof(*v), GFP_KERNEL);
+ 		if (!v)
+ 			return -ENOMEM;
+ 
+ 		v->port = port;
+-		v->vid = 1;
++		v->vid = SJA1105_DEFAULT_VLAN;
+ 		v->untagged = true;
+ 		if (dsa_is_cpu_port(ds, port))
+ 			v->pvid = true;
 
 
