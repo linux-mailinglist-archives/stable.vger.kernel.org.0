@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B7233395DB9
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23BED395DAE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:48:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230228AbhEaNu3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:50:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50918 "EHLO mail.kernel.org"
+        id S232197AbhEaNsz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:48:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49272 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232633AbhEaNqi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:46:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6CCB61603;
-        Mon, 31 May 2021 13:30:18 +0000 (UTC)
+        id S232014AbhEaNqn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:46:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 843F7613AF;
+        Mon, 31 May 2021 13:30:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467819;
-        bh=/tU38SJFAtojJBrH97XpLCmxi2+Dl54b5odkYM3R/mM=;
+        s=korg; t=1622467822;
+        bh=VcrHVWoZluVo4waNsI1L8kpm8kNqFseTflwtZikbxKQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pO4i9WgjTZb0HNZSrEF3yAN36L8dHiDZEQtq7PWHftdq0RrW/f1M/evYkVvdhyHNZ
-         1UzHMif9t0KseWQ0cXkU1Se0TgExBQ+GdCX6KoqIJW3+2WONdmXt3T93MdBMIlR049
-         +I33RlXcjIQjfq0KrsV5MiZk6bf+i3gCM+2lJw2w=
+        b=enf7vHGkUeUPfsvykCOMgLp21Bs3GrigTmR2boHKHyHmKAedXlV4tl5ppE4uS/AkK
+         5Wxp0304p/pOPDVq0581lxPhfOM/P9zvDRPW0aaa/Y+Z5jAGJ90Ip0t74XhMpaIno6
+         66VH/Pb/YpUOuer21x/J0MQg28ioUXgbmiSsz2oY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
         Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.10 013/252] perf intel-pt: Fix sample instruction bytes
-Date:   Mon, 31 May 2021 15:11:18 +0200
-Message-Id: <20210531130658.427879103@linuxfoundation.org>
+Subject: [PATCH 5.10 014/252] perf intel-pt: Fix transaction abort handling
+Date:   Mon, 31 May 2021 15:11:19 +0200
+Message-Id: <20210531130658.458120383@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -42,22 +42,15 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c954eb72b31a9dc56c99b450253ec5b121add320 upstream.
+commit cb7987837c31b217b28089bbc78922d5c9187869 upstream.
 
-The decoder reports the current instruction if it was decoded. In some
-cases the current instruction is not decoded, in which case the instruction
-bytes length must be set to zero. Ensure that is always done.
-
-Note perf script can anyway get the instruction bytes for any samples where
-they are not present.
-
-Also note, that there is a redundant "ptq->insn_len = 0" statement which is
-not removed until a subsequent patch in order to make this patch apply
-cleanly to stable branches.
+When adding support for power events, some handling of FUP packets was
+unified. That resulted in breaking reporting of TSX aborts, by not
+considering the associated TIP packet. Fix that.
 
 Example:
 
-A machne that supports TSX is required. It will have flag "rtm". Kernel
+A machine that supports TSX is required. It will have flag "rtm". Kernel
 parameter tsx=on may be required.
 
  # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
@@ -91,49 +84,59 @@ Record:
 
 Before:
 
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          mov $0xffffffff, %eax
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          mov $0xffffffff, %eax
+ # perf script --itrace=be -F+flags,+addr,-period,-event --ns
+          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   jmp                            400b96 main+0x29 (/root/xabort) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   return                         400bb4 main+0x47 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
+          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
+          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
 
 After:
 
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          xbegin 0x6
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          xabort $0x1
+ # perf script --itrace=be -F+flags,+addr,-period,-event --ns
+          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   tx abrt                        400b93 main+0x26 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
+          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
+          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
 
-Fixes: faaa87680b25d ("perf intel-pt/bts: Report instruction bytes and length in sample")
+Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210519074515.9262-3-adrian.hunter@intel.com
+Link: http://lore.kernel.org/lkml/20210519074515.9262-2-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -647,8 +647,10 @@ static int intel_pt_walk_next_insn(struc
- 
- 			*ip += intel_pt_insn->length;
- 
--			if (to_ip && *ip == to_ip)
-+			if (to_ip && *ip == to_ip) {
-+				intel_pt_insn->length = 0;
- 				goto out_no_cache;
-+			}
- 
- 			if (*ip >= al.map->end)
- 				break;
-@@ -1131,6 +1133,7 @@ static void intel_pt_set_pid_tid_cpu(str
- 
- static void intel_pt_sample_flags(struct intel_pt_queue *ptq)
- {
-+	ptq->insn_len = 0;
- 	if (ptq->state->flags & INTEL_PT_ABORT_TX) {
- 		ptq->flags = PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT;
- 	} else if (ptq->state->flags & INTEL_PT_ASYNC) {
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1120,6 +1120,8 @@ static bool intel_pt_fup_event(struct in
+ 		decoder->set_fup_tx_flags = false;
+ 		decoder->tx_flags = decoder->fup_tx_flags;
+ 		decoder->state.type = INTEL_PT_TRANSACTION;
++		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
++			decoder->state.type |= INTEL_PT_BRANCH;
+ 		decoder->state.from_ip = decoder->ip;
+ 		decoder->state.to_ip = 0;
+ 		decoder->state.flags = decoder->fup_tx_flags;
+@@ -1194,8 +1196,10 @@ static int intel_pt_walk_fup(struct inte
+ 			return 0;
+ 		if (err == -EAGAIN ||
+ 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
++			bool no_tip = decoder->pkt_state != INTEL_PT_STATE_FUP;
++
+ 			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+-			if (intel_pt_fup_event(decoder))
++			if (intel_pt_fup_event(decoder) && no_tip)
+ 				return 0;
+ 			return -EAGAIN;
+ 		}
 
 
