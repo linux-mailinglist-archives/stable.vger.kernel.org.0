@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A411D395FE6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A3A3939619A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233360AbhEaORH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:17:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43030 "EHLO mail.kernel.org"
+        id S232065AbhEaOnr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:43:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36490 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233720AbhEaOPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C79661996;
-        Mon, 31 May 2021 13:42:43 +0000 (UTC)
+        id S233805AbhEaOlh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2332561883;
+        Mon, 31 May 2021 13:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468564;
-        bh=MdXx8nvefx0CsVv8KljOMYZO5YFzTnvk+ckz98B0Rd4=;
+        s=korg; t=1622469219;
+        bh=HvEV8rv5k3A5x5JzTug7RpZ58CxkXYwa9Jnzi+dxA0A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BZjOjd2qDR56SpGxhyo/DAFS6HvChxHvYrmJFb56+bjOiy2pPleeLnMizPPY7Zxbu
-         My1/4T+hg9ctRkvxGPmiZ6lVtdZuV0hNFvc3JXY8yypR38qVt5LccuydOmFQPz0QxD
-         MjNUW09Rxjcr85vL2Aacj9T4xbSksyxhPeuSQx2c=
+        b=xL/+YUBTrhiSZkhiNHDOMsnwHpFNAe8Pc/T7m4mXIzTFS+QnRjLasz76fMfsXZr7V
+         eYfs6ngoXyzhX1XhY+yUc0SDSh6QrBE084ELzaH2ZeBtWufoKaFA/TeLWkGSzQ1xP7
+         rISNHww6spopx7ANsCx4irRMe0qqI/99u9aiQTfE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.4 011/177] perf scripts python: exported-sql-viewer.py: Fix warning display
-Date:   Mon, 31 May 2021 15:12:48 +0200
-Message-Id: <20210531130648.291666995@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.12 114/296] NFS: Fix an Oopsable condition in __nfs_pageio_add_request()
+Date:   Mon, 31 May 2021 15:12:49 +0200
+Message-Id: <20210531130707.760057979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit f56299a9c998e0bfbd4ab07cafe9eb8444512448 upstream.
+commit 56517ab958b7c11030e626250c00b9b1a24b41eb upstream.
 
-Deprecation warnings are useful only for the developer, not an end user.
-Display warnings only when requested using the python -W option. This
-stops the display of warnings like:
+Ensure that nfs_pageio_error_cleanup() resets the mirror array contents,
+so that the structure reflects the fact that it is now empty.
+Also change the test in nfs_pageio_do_add_request() to be more robust by
+checking whether or not the list is empty rather than relying on the
+value of pg_count.
 
- tools/perf/scripts/python/exported-sql-viewer.py:5102: DeprecationWarning:
-         an integer is required (got type PySide2.QtCore.Qt.AlignmentFlag).
-         Implicit conversion to integers using __int__ is deprecated, and
-         may be removed in a future version of Python.
-    err = app.exec_()
-
-Since the warning can be fixed only in PySide2, we must wait for it to
-be finally fixed there.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org      # v5.3+
-Link: http://lore.kernel.org/lkml/20210521092053.25683-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    5 +++++
- 1 file changed, 5 insertions(+)
+ fs/nfs/pagelist.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -91,6 +91,11 @@
- from __future__ import print_function
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -1094,15 +1094,16 @@ nfs_pageio_do_add_request(struct nfs_pag
+ 	struct nfs_page *prev = NULL;
+ 	unsigned int size;
  
- import sys
-+# Only change warnings if the python -W option was not used
-+if not sys.warnoptions:
-+	import warnings
-+	# PySide2 causes deprecation warnings, ignore them.
-+	warnings.filterwarnings("ignore", category=DeprecationWarning)
- import argparse
- import weakref
- import threading
+-	if (mirror->pg_count != 0) {
+-		prev = nfs_list_entry(mirror->pg_list.prev);
+-	} else {
++	if (list_empty(&mirror->pg_list)) {
+ 		if (desc->pg_ops->pg_init)
+ 			desc->pg_ops->pg_init(desc, req);
+ 		if (desc->pg_error < 0)
+ 			return 0;
+ 		mirror->pg_base = req->wb_pgbase;
+-	}
++		mirror->pg_count = 0;
++		mirror->pg_recoalesce = 0;
++	} else
++		prev = nfs_list_entry(mirror->pg_list.prev);
+ 
+ 	if (desc->pg_maxretrans && req->wb_nio > desc->pg_maxretrans) {
+ 		if (NFS_SERVER(desc->pg_inode)->flags & NFS_MOUNT_SOFTERR)
 
 
