@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29213395CD6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B9CBB396227
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232081AbhEaNjD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:39:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43270 "EHLO mail.kernel.org"
+        id S233650AbhEaOvo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232438AbhEaNgd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:36:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48F916144E;
-        Mon, 31 May 2021 13:25:55 +0000 (UTC)
+        id S231411AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EFEA613F3;
+        Mon, 31 May 2021 13:57:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467555;
-        bh=wT0KiccDgL3YqGubO7STzSzHp7Ml/7GG+9c2IcX3nXc=;
+        s=korg; t=1622469432;
+        bh=/5mkWMxrniQRM0OIO+l/RFMqZzon2mnA8svi+4FOsBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rIQR+c1J2HcxKoq4lJEUndn7xVZoW9m/iB/8ImPsNApMlpch9Sr0CCFckqGiZ8ztz
-         HEj/55SR3VEvLmz0s/w15D5kBGquQDr2NmlPBL2oLJKqVFwe3uIKAYcqKy2SHTh3wa
-         xUPSoObHPu3FCgQDqWdfQhDWcPHOUQ/NnuoeQjhA=
+        b=tb1XqJiZf+RcO/IRPEFsI/zkxoasOj/t0swu6WOTOHmSToPiibpaB9IQNAWfm7QHh
+         o6FFMxcZAv2qkMxVXkWwPWuB6XC26noZJfPsLWmBgPUbv3RCvQWZTzcQu99zVTRfHJ
+         GWib79DMLcIEftalivuLO53JZshNLom/V4GtYOYg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.19 074/116] perf jevents: Fix getting maximum number of fds
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 195/296] media: gspca: properly check for errors in po1030_probe()
 Date:   Mon, 31 May 2021 15:14:10 +0200
-Message-Id: <20210531130642.661939901@linuxfoundation.org>
+Message-Id: <20210531130710.430819134@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 75ea44e356b5de8c817f821c9dd68ae329e82add upstream.
+[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
 
-On some hosts, rlim.rlim_max can be returned as RLIM_INFINITY.
-By casting it to int, it is interpreted as -1, which will cause get_maxfds
-to return 0, causing "Invalid argument" errors in nftw() calls.
-Fix this by casting the second argument of min() to rlim_t instead.
+If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
+initialize the device but return the error to the calling funtion.
 
-Fixes: 80eeb67fe577 ("perf jevents: Program to convert JSON file")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Link: http://lore.kernel.org/lkml/20210525160758.97829-1-nbd@nbd.name
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -858,7 +858,7 @@ static int get_maxfds(void)
- 	struct rlimit rlim;
+diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+index 7bdbb8065146..8fd99ceee4b6 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
++++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+@@ -155,6 +155,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
+ int po1030_probe(struct sd *sd)
+ {
+ 	u8 dev_id_h = 0, i;
++	int err;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
- 	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
--		return min((int)rlim.rlim_max / 2, 512);
-+		return min(rlim.rlim_max / 2, (rlim_t)512);
+ 	if (force_sensor) {
+@@ -173,10 +174,13 @@ int po1030_probe(struct sd *sd)
+ 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
+ 		u8 data = preinit_po1030[i][2];
+ 		if (preinit_po1030[i][0] == SENSOR)
+-			m5602_write_sensor(sd,
+-				preinit_po1030[i][1], &data, 1);
++			err = m5602_write_sensor(sd, preinit_po1030[i][1],
++						 &data, 1);
+ 		else
+-			m5602_write_bridge(sd, preinit_po1030[i][1], data);
++			err = m5602_write_bridge(sd, preinit_po1030[i][1],
++						 data);
++		if (err < 0)
++			return err;
+ 	}
  
- 	return 512;
- }
+ 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
+-- 
+2.30.2
+
 
 
