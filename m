@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4BA396225
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2433F395CEC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232148AbhEaOvg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40718 "EHLO mail.kernel.org"
+        id S231926AbhEaNkH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234171AbhEaOth (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 245C86192C;
-        Mon, 31 May 2021 13:57:05 +0000 (UTC)
+        id S232320AbhEaNg0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:36:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD16F61449;
+        Mon, 31 May 2021 13:25:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469426;
-        bh=lGqqaLBNP/9QRAroFbTLl3k3cLDdzW2qBzFiLQ2qiP0=;
+        s=korg; t=1622467553;
+        bh=aeJBmWwNnCLwm4Zv5IDmFtneV/ZXvJBGnlgGuDcJeYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IAZKH38GHTqebn2OtCFlbqHegYMopU3Xb2HVJdRongGADr23H6SPQcK4RZWfFccOU
-         X3b4dpKqsZTnqD+bU4zkut3pfDhUTANB4/AFud/j5Ua5PeO06Gzja5TQlHd9FEHvE7
-         Em/AJ9pjMlnOlezuM+JfnCEcpXdGazCLGiQcvXQY=
+        b=TXH3MOUi/7MZQ9ncvLaeo7kKcQqQ4mN/DG30GP0yhAy0PfZJJ/pNaOvUrCSOrB5WC
+         yFEoxTk7I60O3/akB/qh6fA367wQC+1ww4V+szqm6VzbX/7ERvhVHwHxEZQinWWLfe
+         te+wgMZSqwhJVWQgYsXNybk9WtqjpbUid5QI5EIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 193/296] media: gspca: mt9m111: Check write_bridge for timeout
-Date:   Mon, 31 May 2021 15:14:08 +0200
-Message-Id: <20210531130710.365483304@linuxfoundation.org>
+        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
+        Jean Delvare <jdelvare@suse.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.19 073/116] i2c: i801: Dont generate an interrupt on bus reset
+Date:   Mon, 31 May 2021 15:14:09 +0200
+Message-Id: <20210531130642.627366636@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit e932f5b458eee63d013578ea128b9ff8ef5f5496 ]
+commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
 
-If m5602_write_bridge times out, it will return a negative error value.
-So properly check for this and handle the error correctly instead of
-just ignoring it.
+Now that the i2c-i801 driver supports interrupts, setting the KILL bit
+in a attempt to recover from a timed out transaction triggers an
+interrupt. Unfortunately, the interrupt handler (i801_isr) is not
+prepared for this situation and will try to process the interrupt as
+if it was signaling the end of a successful transaction. In the case
+of a block transaction, this can result in an out-of-range memory
+access.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-62-gregkh@linuxfoundation.org
+This condition was reproduced several times by syzbot:
+https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
+https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
+https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
+https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
+https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
+https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
+
+So disable interrupts while trying to reset the bus. Interrupts will
+be enabled again for the following transaction.
+
+Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
+Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-index 50481dc928d0..bf1af6ed9131 100644
---- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
- int mt9m111_probe(struct sd *sd)
- {
- 	u8 data[2] = {0x00, 0x00};
--	int i;
-+	int i, err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -384,11 +384,9 @@ static int i801_check_post(struct i801_p
+ 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+ 		/* try to stop the current command */
+ 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
+-		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
+-		       SMBHSTCNT(priv));
++		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
+ 		usleep_range(1000, 2000);
+-		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
+-		       SMBHSTCNT(priv));
++		outb_p(0, SMBHSTCNT(priv));
  
- 	if (force_sensor) {
-@@ -213,15 +213,17 @@ int mt9m111_probe(struct sd *sd)
- 	/* Do the preinit */
- 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
- 		if (preinit_mt9m111[i][0] == BRIDGE) {
--			m5602_write_bridge(sd,
--				preinit_mt9m111[i][1],
--				preinit_mt9m111[i][2]);
-+			err = m5602_write_bridge(sd,
-+					preinit_mt9m111[i][1],
-+					preinit_mt9m111[i][2]);
- 		} else {
- 			data[0] = preinit_mt9m111[i][2];
- 			data[1] = preinit_mt9m111[i][3];
--			m5602_write_sensor(sd,
--				preinit_mt9m111[i][1], data, 2);
-+			err = m5602_write_sensor(sd,
-+					preinit_mt9m111[i][1], data, 2);
- 		}
-+		if (err < 0)
-+			return err;
- 	}
- 
- 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
--- 
-2.30.2
-
+ 		/* Check if it worked */
+ 		status = inb_p(SMBHSTSTS(priv));
 
 
