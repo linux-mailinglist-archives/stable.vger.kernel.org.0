@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 26C823961BC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8D0A395E4E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:55:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233427AbhEaOpl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:45:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37860 "EHLO mail.kernel.org"
+        id S232804AbhEaN45 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:56:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59498 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233178AbhEaOlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:41:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1ED3E61435;
-        Mon, 31 May 2021 13:53:09 +0000 (UTC)
+        id S233284AbhEaNzG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:55:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 039696143D;
+        Mon, 31 May 2021 13:33:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469190;
-        bh=IGnyTuQjYOOw4G6t0SNltBrM51l310tTmm7+guOXb0o=;
+        s=korg; t=1622468038;
+        bh=o8d0MYRmFJEVRBRcBij+FPj3htteyd3KcVJ/xoqEwg8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RPchp5ercswbNHupRAZwfxSlWRzVKpGvlTrjpYN6b59xnLRw4+XLZ3uvLLh6PScRT
-         sLJS2EmFvkZyNRc08Syo7tP5fIj/U+OCXNPrHnPwp4TiPCbjN+SC/P8Afqf1b8IC5r
-         sMaNbMKADvMEnGx5QM+K1QBbnH1XPftLyYGbv4wo=
+        b=CQsFrGkNpxsa3FaGe6GNpBHWPomtIulpX++LIErQbXpgeV+Gmro8nTiubuWTECw/h
+         qvIoRhcw5zVGSQAiPIuCh/Eivb5C8GygJJublf4KlQh8exmdm7CYSC0oFyG1MyyKSQ
+         dwvB4jg76T+6DYT0Tv25NDCCY7wb+5uzeLodu5u8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Subject: [PATCH 5.12 104/296] usb: gadget: udc: renesas_usb3: Fix a race in usb3_start_pipen()
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 5.10 094/252] NFS: Dont corrupt the value of pg_bytes_written in nfs_do_recoalesce()
 Date:   Mon, 31 May 2021 15:12:39 +0200
-Message-Id: <20210531130707.430694783@linuxfoundation.org>
+Message-Id: <20210531130701.163993326@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,63 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit e752dbc59e1241b13b8c4f7b6eb582862e7668fe upstream.
+commit 0d0ea309357dea0d85a82815f02157eb7fcda39f upstream.
 
-The usb3_start_pipen() is called by renesas_usb3_ep_queue() and
-usb3_request_done_pipen() so that usb3_start_pipen() is possible
-to cause a race when getting usb3_first_req like below:
+The value of mirror->pg_bytes_written should only be updated after a
+successful attempt to flush out the requests on the list.
 
-renesas_usb3_ep_queue()
- spin_lock_irqsave()
- list_add_tail()
- spin_unlock_irqrestore()
- usb3_start_pipen()
-  usb3_first_req = usb3_get_request() --- [1]
- --- interrupt ---
- usb3_irq_dma_int()
- usb3_request_done_pipen()
-  usb3_get_request()
-  usb3_start_pipen()
-  usb3_first_req = usb3_get_request()
-  ...
-  (the req is possible to be finished in the interrupt)
-
-The usb3_first_req [1] above may have been finished after the interrupt
-ended so that this driver caused to start a transfer wrongly. To fix this
-issue, getting/checking the usb3_first_req are under spin_lock_irqsave()
-in the same section.
-
-Fixes: 746bfe63bba3 ("usb: gadget: renesas_usb3: add support for Renesas USB3.0 peripheral controller")
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Link: https://lore.kernel.org/r/20210524060155.1178724-1-yoshihiro.shimoda.uh@renesas.com
+Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/udc/renesas_usb3.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/nfs/pagelist.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/gadget/udc/renesas_usb3.c
-+++ b/drivers/usb/gadget/udc/renesas_usb3.c
-@@ -1488,7 +1488,7 @@ static void usb3_start_pipen(struct rene
- 			     struct renesas_usb3_request *usb3_req)
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -1128,17 +1128,16 @@ static void nfs_pageio_doio(struct nfs_p
  {
- 	struct renesas_usb3 *usb3 = usb3_ep_to_usb3(usb3_ep);
--	struct renesas_usb3_request *usb3_req_first = usb3_get_request(usb3_ep);
-+	struct renesas_usb3_request *usb3_req_first;
- 	unsigned long flags;
- 	int ret = -EAGAIN;
- 	u32 enable_bits = 0;
-@@ -1496,7 +1496,8 @@ static void usb3_start_pipen(struct rene
- 	spin_lock_irqsave(&usb3->lock, flags);
- 	if (usb3_ep->halt || usb3_ep->started)
- 		goto out;
--	if (usb3_req != usb3_req_first)
-+	usb3_req_first = __usb3_get_request(usb3_ep);
-+	if (!usb3_req_first || usb3_req != usb3_req_first)
- 		goto out;
+ 	struct nfs_pgio_mirror *mirror = nfs_pgio_current_mirror(desc);
  
- 	if (usb3_pn_change(usb3, usb3_ep->num) < 0)
+-
+ 	if (!list_empty(&mirror->pg_list)) {
+ 		int error = desc->pg_ops->pg_doio(desc);
+ 		if (error < 0)
+ 			desc->pg_error = error;
+-		else
++		if (list_empty(&mirror->pg_list)) {
+ 			mirror->pg_bytes_written += mirror->pg_count;
+-	}
+-	if (list_empty(&mirror->pg_list)) {
+-		mirror->pg_count = 0;
+-		mirror->pg_base = 0;
++			mirror->pg_count = 0;
++			mirror->pg_base = 0;
++			mirror->pg_recoalesce = 0;
++		}
+ 	}
+ }
+ 
+@@ -1228,7 +1227,6 @@ static int nfs_do_recoalesce(struct nfs_
+ 
+ 	do {
+ 		list_splice_init(&mirror->pg_list, &head);
+-		mirror->pg_bytes_written -= mirror->pg_count;
+ 		mirror->pg_count = 0;
+ 		mirror->pg_base = 0;
+ 		mirror->pg_recoalesce = 0;
 
 
