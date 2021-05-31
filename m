@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E3E395DEB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5216639611C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:34:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232032AbhEaNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:51:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55360 "EHLO mail.kernel.org"
+        id S232365AbhEaOfn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:35:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232997AbhEaNto (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:49:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9779761423;
-        Mon, 31 May 2021 13:31:45 +0000 (UTC)
+        id S232923AbhEaOdf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:33:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CD43361C3E;
+        Mon, 31 May 2021 13:50:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467906;
-        bh=AmrhDOsbgb8ET6hHVS+twAXyCohgKOjmLp+05L67JBo=;
+        s=korg; t=1622469016;
+        bh=5wWAXwDd1+8lNt75Apd3en7MY6KsLBnr9VlAI1gWSdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0pslpdRPSHcNUSScS3Pe5X+pV5f7EJfcp6iX6CLsqtP7GeF8R2nJSDVOL7uV/8h97
-         lN2MwFKEScvOYjdKYInCIhtNjG5yamZgarcZT6EF/UsB+15OKw5bM/qSOim5tSWE8r
-         XekmofAx3pbeF7TMRG1W/85L47B09A1XVgoqsljs=
+        b=ybTIFwuLjd6Vl6bhhyiNTIr8c/y97IelknsDkpkWj5cfXHj0wcrIMYKAHoCmWWafT
+         malohKgCDZup6/c99+fFyw6zA3Az1m81XIePvZxv2hgCMmezE2kLH1VdQAsEHhvhpg
+         gr4GJahGXWE6YmHm7OiA7QcUXtdCSa+8g6EdfGuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.10 009/252] ALSA: usb-audio: scarlett2: Improve driver startup messages
-Date:   Mon, 31 May 2021 15:11:14 +0200
-Message-Id: <20210531130658.294375327@linuxfoundation.org>
+        stable@vger.kernel.org, Norbert Slusarek <nslusarek@gmx.net>,
+        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>,
+        Oliver Hartkopp <socketcan@hartkopp.net>,
+        Marc Kleine-Budde <mkl@pengutronix.de>
+Subject: [PATCH 5.12 020/296] can: isotp: prevent race between isotp_bind() and isotp_setsockopt()
+Date:   Mon, 31 May 2021 15:11:15 +0200
+Message-Id: <20210531130704.442908261@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,145 +41,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geoffrey D. Bennett <g@b4.vu>
+From: Norbert Slusarek <nslusarek@gmx.net>
 
-commit 265d1a90e4fb6d3264d8122fbd10760e5e733be6 upstream.
+commit 2b17c400aeb44daf041627722581ade527bb3c1d upstream.
 
-Add separate init function to call the existing controls_create
-function so a custom error can be displayed if initialisation fails.
+A race condition was found in isotp_setsockopt() which allows to
+change socket options after the socket was bound.
+For the specific case of SF_BROADCAST support, this might lead to possible
+use-after-free because can_rx_unregister() is not called.
 
-Use info level instead of error for notifications.
+Checking for the flag under the socket lock in isotp_bind() and taking
+the lock in isotp_setsockopt() fixes the issue.
 
-Display the VID/PID so device_setup is targeted to the right device.
-
-Display "enabled" message to easily confirm that the driver is loaded.
-
-Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/b5d140c65f640faf2427e085fbbc0297b32e5fce.1621584566.git.g@b4.vu
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: 921ca574cd38 ("can: isotp: add SF_BROADCAST support for functional addressing")
+Link: https://lore.kernel.org/r/trinity-e6ae9efa-9afb-4326-84c0-f3609b9b8168-1620773528307@3c-app-gmx-bs06
+Reported-by: Norbert Slusarek <nslusarek@gmx.net>
+Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+Signed-off-by: Norbert Slusarek <nslusarek@gmx.net>
+Acked-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/mixer_quirks.c        |    2 -
- sound/usb/mixer_scarlett_gen2.c |   79 +++++++++++++++++++++++++---------------
- sound/usb/mixer_scarlett_gen2.h |    2 -
- 3 files changed, 52 insertions(+), 31 deletions(-)
+ net/can/isotp.c |   49 +++++++++++++++++++++++++++++++++----------------
+ 1 file changed, 33 insertions(+), 16 deletions(-)
 
---- a/sound/usb/mixer_quirks.c
-+++ b/sound/usb/mixer_quirks.c
-@@ -3017,7 +3017,7 @@ int snd_usb_mixer_apply_create_quirk(str
- 	case USB_ID(0x1235, 0x8203): /* Focusrite Scarlett 6i6 2nd Gen */
- 	case USB_ID(0x1235, 0x8204): /* Focusrite Scarlett 18i8 2nd Gen */
- 	case USB_ID(0x1235, 0x8201): /* Focusrite Scarlett 18i20 2nd Gen */
--		err = snd_scarlett_gen2_controls_create(mixer);
-+		err = snd_scarlett_gen2_init(mixer);
- 		break;
+--- a/net/can/isotp.c
++++ b/net/can/isotp.c
+@@ -1062,27 +1062,31 @@ static int isotp_bind(struct socket *soc
+ 	if (len < ISOTP_MIN_NAMELEN)
+ 		return -EINVAL;
  
- 	case USB_ID(0x041e, 0x323b): /* Creative Sound Blaster E1 */
---- a/sound/usb/mixer_scarlett_gen2.c
-+++ b/sound/usb/mixer_scarlett_gen2.c
-@@ -1997,38 +1997,11 @@ static int scarlett2_mixer_status_create
- 	return usb_submit_urb(mixer->urb, GFP_KERNEL);
++	if (addr->can_addr.tp.tx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
++		return -EADDRNOTAVAIL;
++
++	if (!addr->can_ifindex)
++		return -ENODEV;
++
++	lock_sock(sk);
++
+ 	/* do not register frame reception for functional addressing */
+ 	if (so->opt.flags & CAN_ISOTP_SF_BROADCAST)
+ 		do_rx_reg = 0;
+ 
+ 	/* do not validate rx address for functional addressing */
+ 	if (do_rx_reg) {
+-		if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id)
+-			return -EADDRNOTAVAIL;
++		if (addr->can_addr.tp.rx_id == addr->can_addr.tp.tx_id) {
++			err = -EADDRNOTAVAIL;
++			goto out;
++		}
+ 
+-		if (addr->can_addr.tp.rx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+-			return -EADDRNOTAVAIL;
++		if (addr->can_addr.tp.rx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
++			err = -EADDRNOTAVAIL;
++			goto out;
++		}
+ 	}
+ 
+-	if (addr->can_addr.tp.tx_id & (CAN_ERR_FLAG | CAN_RTR_FLAG))
+-		return -EADDRNOTAVAIL;
+-
+-	if (!addr->can_ifindex)
+-		return -ENODEV;
+-
+-	lock_sock(sk);
+-
+ 	if (so->bound && addr->can_ifindex == so->ifindex &&
+ 	    addr->can_addr.tp.rx_id == so->rxid &&
+ 	    addr->can_addr.tp.tx_id == so->txid)
+@@ -1164,16 +1168,13 @@ static int isotp_getname(struct socket *
+ 	return ISOTP_MIN_NAMELEN;
  }
  
--/* Entry point */
--int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer)
-+int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer,
-+				      const struct scarlett2_device_info *info)
+-static int isotp_setsockopt(struct socket *sock, int level, int optname,
++static int isotp_setsockopt_locked(struct socket *sock, int level, int optname,
+ 			    sockptr_t optval, unsigned int optlen)
  {
--	const struct scarlett2_device_info *info;
- 	int err;
+ 	struct sock *sk = sock->sk;
+ 	struct isotp_sock *so = isotp_sk(sk);
+ 	int ret = 0;
  
--	/* only use UAC_VERSION_2 */
--	if (!mixer->protocol)
--		return 0;
--
--	switch (mixer->chip->usb_id) {
--	case USB_ID(0x1235, 0x8203):
--		info = &s6i6_gen2_info;
--		break;
--	case USB_ID(0x1235, 0x8204):
--		info = &s18i8_gen2_info;
--		break;
--	case USB_ID(0x1235, 0x8201):
--		info = &s18i20_gen2_info;
--		break;
--	default: /* device not (yet) supported */
+-	if (level != SOL_CAN_ISOTP)
 -		return -EINVAL;
--	}
 -
--	if (!(mixer->chip->setup & SCARLETT2_ENABLE)) {
--		usb_audio_err(mixer->chip,
--			"Focusrite Scarlett Gen 2 Mixer Driver disabled; "
--			"use options snd_usb_audio device_setup=1 "
--			"to enable and report any issues to g@b4.vu");
--		return 0;
--	}
--
- 	/* Initialise private data, routing, sequence number */
- 	err = scarlett2_init_private(mixer, info);
- 	if (err < 0)
-@@ -2073,3 +2046,51 @@ int snd_scarlett_gen2_controls_create(st
+ 	if (so->bound)
+ 		return -EISCONN;
  
- 	return 0;
+@@ -1248,6 +1249,22 @@ static int isotp_setsockopt(struct socke
+ 	return ret;
  }
+ 
++static int isotp_setsockopt(struct socket *sock, int level, int optname,
++			    sockptr_t optval, unsigned int optlen)
 +
-+int snd_scarlett_gen2_init(struct usb_mixer_interface *mixer)
 +{
-+	struct snd_usb_audio *chip = mixer->chip;
-+	const struct scarlett2_device_info *info;
-+	int err;
++	struct sock *sk = sock->sk;
++	int ret;
 +
-+	/* only use UAC_VERSION_2 */
-+	if (!mixer->protocol)
-+		return 0;
-+
-+	switch (chip->usb_id) {
-+	case USB_ID(0x1235, 0x8203):
-+		info = &s6i6_gen2_info;
-+		break;
-+	case USB_ID(0x1235, 0x8204):
-+		info = &s18i8_gen2_info;
-+		break;
-+	case USB_ID(0x1235, 0x8201):
-+		info = &s18i20_gen2_info;
-+		break;
-+	default: /* device not (yet) supported */
++	if (level != SOL_CAN_ISOTP)
 +		return -EINVAL;
-+	}
 +
-+	if (!(chip->setup & SCARLETT2_ENABLE)) {
-+		usb_audio_info(chip,
-+			"Focusrite Scarlett Gen 2 Mixer Driver disabled; "
-+			"use options snd_usb_audio vid=0x%04x pid=0x%04x "
-+			"device_setup=1 to enable and report any issues "
-+			"to g@b4.vu",
-+			USB_ID_VENDOR(chip->usb_id),
-+			USB_ID_PRODUCT(chip->usb_id));
-+		return 0;
-+	}
-+
-+	usb_audio_info(chip,
-+		"Focusrite Scarlett Gen 2 Mixer Driver enabled pid=0x%04x",
-+		USB_ID_PRODUCT(chip->usb_id));
-+
-+	err = snd_scarlett_gen2_controls_create(mixer, info);
-+	if (err < 0)
-+		usb_audio_err(mixer->chip,
-+			      "Error initialising Scarlett Mixer Driver: %d",
-+			      err);
-+
-+	return err;
++	lock_sock(sk);
++	ret = isotp_setsockopt_locked(sock, level, optname, optval, optlen);
++	release_sock(sk);
++	return ret;
 +}
---- a/sound/usb/mixer_scarlett_gen2.h
-+++ b/sound/usb/mixer_scarlett_gen2.h
-@@ -2,6 +2,6 @@
- #ifndef __USB_MIXER_SCARLETT_GEN2_H
- #define __USB_MIXER_SCARLETT_GEN2_H
- 
--int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer);
-+int snd_scarlett_gen2_init(struct usb_mixer_interface *mixer);
- 
- #endif /* __USB_MIXER_SCARLETT_GEN2_H */
++
+ static int isotp_getsockopt(struct socket *sock, int level, int optname,
+ 			    char __user *optval, int __user *optlen)
+ {
 
 
