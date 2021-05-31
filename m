@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AA92395EA2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A5DD3961D3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbhEaOBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59500 "EHLO mail.kernel.org"
+        id S233150AbhEaOrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40308 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232377AbhEaN7J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D861D61444;
-        Mon, 31 May 2021 13:35:50 +0000 (UTC)
+        id S234226AbhEaOpJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B0B61C80;
+        Mon, 31 May 2021 13:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468151;
-        bh=1NEL+GcIiRtjPVEvr2hIegNN3AwAHmDg7Vo8080uR6A=;
+        s=korg; t=1622469297;
+        bh=C3Kq6hxcf24debxLvrHsGOT//D+zzRi1v/d5Dutpdjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lXifVzb8+5X7Ncxyw4Kdpqha7xzjkPlD3NhuwK+FK5mKOYdUVUbROAfFSjnf8Y0ix
-         zlzJOgGyNkAobC1uV3bUTNBNC7TlC7857IW5a95dGX9WnDT0x/bJPar9MWLVibWZHL
-         eCEtzo0AFQ/upJ2fLAZ1RvwIYueGoVM4k9tOs2CI=
+        b=Y+RBhY+lTUHXEHsSF5Aj+G4jo6ta8q/6i57GIMTtv0VvZPgTpsK2m0i1RpN+whV2U
+         DZVSlxpIGpZqUaIhmmDPkCXORK1GwpeikL30URdAp7qOdljRwNUkibpmy5gFs7nS7i
+         KeBhFViAK87qD+K+4PJuh8UHnUTCoxnfl5EbZa/Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 135/252] Revert "serial: max310x: pass return value of spi_register_driver"
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 145/296] net: dsa: sja1105: error out on unsupported PHY mode
 Date:   Mon, 31 May 2021 15:13:20 +0200
-Message-Id: <20210531130702.604850571@linuxfoundation.org>
+Message-Id: <20210531130708.742981131@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit b0a85abbe92e1a6f3e8580a4590fa7245de7090b ]
+commit 6729188d2646709941903052e4b78e1d82c239b9 upstream.
 
-This reverts commit 51f689cc11333944c7a457f25ec75fcb41e99410.
+The driver continues probing when a port is configured for an
+unsupported PHY interface type, instead it should stop.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This change did not properly unwind from the error condition, so it was
-not correct.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-11-gregkh@linuxfoundation.org
+Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 8434bd5a8ec7..f60b7b86d099 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1527,10 +1527,10 @@ static int __init max310x_uart_init(void)
- 		return ret;
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -208,6 +208,7 @@ static int sja1105_init_mii_settings(str
+ 		default:
+ 			dev_err(dev, "Unsupported PHY mode %s!\n",
+ 				phy_modes(ports[i].phy_mode));
++			return -EINVAL;
+ 		}
  
- #ifdef CONFIG_SPI_MASTER
--	ret = spi_register_driver(&max310x_spi_driver);
-+	spi_register_driver(&max310x_spi_driver);
- #endif
- 
--	return ret;
-+	return 0;
- }
- module_init(max310x_uart_init);
- 
--- 
-2.30.2
-
+ 		/* Even though the SerDes port is able to drive SGMII autoneg
 
 
