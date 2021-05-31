@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 99E54396208
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5892B395D02
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231836AbhEaOt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:49:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
+        id S232525AbhEaNkk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233838AbhEaOrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:47:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F1BF161927;
-        Mon, 31 May 2021 13:56:28 +0000 (UTC)
+        id S232333AbhEaNib (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:38:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24C2C61452;
+        Mon, 31 May 2021 13:26:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469389;
-        bh=o2UOksS0HVOeLjuz84GvooEFiCHXaNV0PYRXLcFFWmA=;
+        s=korg; t=1622467600;
+        bh=ONFhqZotYwOTGryO8adXe6Fe90MUm7ufkRVFMThU7qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bk1iPLbpcIRGJf7pevJYGnFlNM++REgcRz2tGja+cLXX7hnZVnlvFhVX3qkY04iNX
-         x/mpF1BZmeColD+IqzlDHWWNWnJ+4z3uS5IXJFl2AaY6MeUmoqu5MtUGY/Um8K2sVz
-         HIK7NOnvbSmt054VJqiS8YXIegMNSPn1+GSPvUPo=
+        b=IvdBdmc7oZx3VflQj13oq4iWlmNDO9+JVbK2P1i0dXwX6uqNBhMDkyMUBEp2Ji/OX
+         gTmA9M52/sa/1JgOvKufr465/vxqjm5GswTn9T0S/ulZ1ATB5idy1HGuKOxnquGFp9
+         XJ7Jnj/p9BRiopySwVF9MW/GqhlKmMJApAljoMe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 180/296] Revert "ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()"
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 10/79] perf intel-pt: Fix transaction abort handling
 Date:   Mon, 31 May 2021 15:13:55 +0200
-Message-Id: <20210531130709.914038808@linuxfoundation.org>
+Message-Id: <20210531130636.334902992@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit efba106f89fc6848726716c101f4c84e88720a9c ]
+commit cb7987837c31b217b28089bbc78922d5c9187869 upstream.
 
-This reverts commit fc6a6521556c8250e356ddc6a3f2391aa62dc976.
+When adding support for power events, some handling of FUP packets was
+unified. That resulted in breaking reporting of TSX aborts, by not
+considering the associated TIP packet. Fix that.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Example:
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+A machine that supports TSX is required. It will have flag "rtm". Kernel
+parameter tsx=on may be required.
 
-The change being reverted does NOTHING as the caller to this function
-does not even look at the return value of the call.  So the "claim" that
-this fixed an an issue is not true.  It will be fixed up properly in a
-future patch by propagating the error up the stack correctly.
+ # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
+ rtm
 
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-43-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Test program:
 
-diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
-index b137e7f34397..aca9732ec1ee 100644
---- a/drivers/net/wireless/ath/ath6kl/wmi.c
-+++ b/drivers/net/wireless/ath/ath6kl/wmi.c
-@@ -776,8 +776,10 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
- 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
- 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
- 
--	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
-+	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
- 			    NO_SYNC_WMIFLAG);
-+
-+	return 0;
+ #include <stdio.h>
+ #include <immintrin.h>
+
+ int main()
+ {
+        int x = 0;
+
+        if (_xbegin() == _XBEGIN_STARTED) {
+                x = 1;
+                _xabort(1);
+        } else {
+                printf("x = %d\n", x);
+        }
+        return 0;
  }
- 
- int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
--- 
-2.30.2
 
+Compile with -mrtm i.e.
+
+ gcc -Wall -Wextra -mrtm xabort.c -o xabort
+
+Record:
+
+ perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
+
+Before:
+
+ # perf script --itrace=be -F+flags,+addr,-period,-event --ns
+          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   jmp                            400b96 main+0x29 (/root/xabort) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   return                         400bb4 main+0x47 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
+          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
+          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
+
+After:
+
+ # perf script --itrace=be -F+flags,+addr,-period,-event --ns
+          xabort  1478 [007] 92161.431348552:   tr strt                             0 [unknown] ([unknown]) =>           400b6d main+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431348624:   tx abrt                        400b93 main+0x26 (/root/xabort) =>           400b87 main+0x1a (/root/xabort)
+          xabort  1478 [007] 92161.431348637:   jcc                            400b8a main+0x1d (/root/xabort) =>           400b98 main+0x2b (/root/xabort)
+          xabort  1478 [007] 92161.431348644:   tr end  call                   400ba9 main+0x3c (/root/xabort) =>           40f690 printf+0x0 (/root/xabort)
+          xabort  1478 [007] 92161.431360859:   tr strt                             0 [unknown] ([unknown]) =>           400bae main+0x41 (/root/xabort)
+          xabort  1478 [007] 92161.431360882:   tr end  return                 400bb4 main+0x47 (/root/xabort) =>           401139 __libc_start_main+0x309 (/root/xabort)
+
+Fixes: a472e65fc490a ("perf intel-pt: Add decoder support for ptwrite and power event packets")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20210519074515.9262-2-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ tools/perf/util/intel-pt-decoder/intel-pt-decoder.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+--- a/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
++++ b/tools/perf/util/intel-pt-decoder/intel-pt-decoder.c
+@@ -1063,6 +1063,8 @@ static bool intel_pt_fup_event(struct in
+ 		decoder->set_fup_tx_flags = false;
+ 		decoder->tx_flags = decoder->fup_tx_flags;
+ 		decoder->state.type = INTEL_PT_TRANSACTION;
++		if (decoder->fup_tx_flags & INTEL_PT_ABORT_TX)
++			decoder->state.type |= INTEL_PT_BRANCH;
+ 		decoder->state.from_ip = decoder->ip;
+ 		decoder->state.to_ip = 0;
+ 		decoder->state.flags = decoder->fup_tx_flags;
+@@ -1129,8 +1131,10 @@ static int intel_pt_walk_fup(struct inte
+ 			return 0;
+ 		if (err == -EAGAIN ||
+ 		    intel_pt_fup_with_nlip(decoder, &intel_pt_insn, ip, err)) {
++			bool no_tip = decoder->pkt_state != INTEL_PT_STATE_FUP;
++
+ 			decoder->pkt_state = INTEL_PT_STATE_IN_SYNC;
+-			if (intel_pt_fup_event(decoder))
++			if (intel_pt_fup_event(decoder) && no_tip)
+ 				return 0;
+ 			return -EAGAIN;
+ 		}
 
 
