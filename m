@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DF2C3962D3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92518395D9B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:46:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231913AbhEaPBL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51028 "EHLO mail.kernel.org"
+        id S232386AbhEaNsI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:48:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48556 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234366AbhEaO7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FFAF61CD0;
-        Mon, 31 May 2021 14:01:19 +0000 (UTC)
+        id S231686AbhEaNqD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:46:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E55B615FF;
+        Mon, 31 May 2021 13:30:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469680;
-        bh=2XrakBU8gN29C5pcoXIngQGejAMjL9AdunnKmlxbrxE=;
+        s=korg; t=1622467806;
+        bh=VNoJb72BASLscbJ76MB5QsneL7jW1r5so6opZSHcc3Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FcrnD4/AR83cn3rCOFYKNuT97Kkt/mI/qoxY8o12o8C59oj0vB+6qb94II6h8ocbq
-         xMpXevHC5p1W0d0yAshRyyZ48uzWOugOqGNgeuBTFxyeVRvJiYMC41zswDV5TrLHp6
-         Ha452zyq8UHs/c6nGtSWrWi+wkCVTkb0487j8Jck=
+        b=SNC4JK2zmQYR3wZTsMd/d9YwToNOw9BtIy834RB9EJB4L9lw6yUo4fzYLJYYj1f1L
+         Jl0xBzK0nJqZxXqaIAEOEiiaHI8XqWaM53xH47QhMnk2MiGZ4AUVxmScw+klqik7o0
+         gU3if//l+/RihOtKPyUt1d62pNAeIbRhD+AbrSsw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org,
+        Manuel Lauss <manuel.lauss@googlemail.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Manuel Lauss <manuel.lauss@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 245/296] net: hso: check for allocation failure in hso_create_bulk_serial_device()
+Subject: [PATCH 4.14 75/79] MIPS: alchemy: xxs1500: add gpio-au1000.h header file
 Date:   Mon, 31 May 2021 15:15:00 +0200
-Message-Id: <20210531130712.019842202@linuxfoundation.org>
+Message-Id: <20210531130638.392292508@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +44,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 31db0dbd72444abe645d90c20ecb84d668f5af5e ]
+[ Upstream commit ff4cff962a7eedc73e54b5096693da7f86c61346 ]
 
-In current kernels, small allocations never actually fail so this
-patch shouldn't affect runtime.
+board-xxs1500.c references 2 functions without declaring them, so add
+the header file to placate the build.
 
-Originally this error handling code written with the idea that if
-the "serial->tiocmget" allocation failed, then we would continue
-operating instead of bailing out early.  But in later years we added
-an unchecked dereference on the next line.
+../arch/mips/alchemy/board-xxs1500.c: In function 'board_setup':
+../arch/mips/alchemy/board-xxs1500.c:56:2: error: implicit declaration of function 'alchemy_gpio1_input_enable' [-Werror=implicit-function-declaration]
+   56 |  alchemy_gpio1_input_enable();
+../arch/mips/alchemy/board-xxs1500.c:57:2: error: implicit declaration of function 'alchemy_gpio2_enable'; did you mean 'alchemy_uart_enable'? [-Werror=implicit-function-declaration]
+   57 |  alchemy_gpio2_enable();
 
-	serial->tiocmget->serial_state_notification = kzalloc();
-        ^^^^^^^^^^^^^^^^^^
-
-Since these allocations are never going fail in real life, this is
-mostly a philosophical debate, but I think bailing out early is the
-correct behavior that the user would want.  And generally it's safer to
-bail as soon an error happens.
-
-Fixes: af0de1303c4e ("usb: hso: obey DMA rules in tiocmget")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 8e026910fcd4 ("MIPS: Alchemy: merge GPR/MTX-1/XXS1500 board code into single files")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Manuel Lauss <manuel.lauss@googlemail.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c | 37 ++++++++++++++++++-------------------
- 1 file changed, 18 insertions(+), 19 deletions(-)
+ arch/mips/alchemy/board-xxs1500.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
-index ba366e9347f7..b947b7a9ffb8 100644
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2618,29 +2618,28 @@ static struct hso_device *hso_create_bulk_serial_device(
- 		num_urbs = 2;
- 		serial->tiocmget = kzalloc(sizeof(struct hso_tiocmget),
- 					   GFP_KERNEL);
-+		if (!serial->tiocmget)
-+			goto exit;
- 		serial->tiocmget->serial_state_notification
- 			= kzalloc(sizeof(struct hso_serial_state_notification),
- 					   GFP_KERNEL);
--		/* it isn't going to break our heart if serial->tiocmget
--		 *  allocation fails don't bother checking this.
--		 */
--		if (serial->tiocmget && serial->tiocmget->serial_state_notification) {
--			tiocmget = serial->tiocmget;
--			tiocmget->endp = hso_get_ep(interface,
--						    USB_ENDPOINT_XFER_INT,
--						    USB_DIR_IN);
--			if (!tiocmget->endp) {
--				dev_err(&interface->dev, "Failed to find INT IN ep\n");
--				goto exit;
--			}
--
--			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
--			if (tiocmget->urb) {
--				mutex_init(&tiocmget->mutex);
--				init_waitqueue_head(&tiocmget->waitq);
--			} else
--				hso_free_tiomget(serial);
-+		if (!serial->tiocmget->serial_state_notification)
-+			goto exit;
-+		tiocmget = serial->tiocmget;
-+		tiocmget->endp = hso_get_ep(interface,
-+					    USB_ENDPOINT_XFER_INT,
-+					    USB_DIR_IN);
-+		if (!tiocmget->endp) {
-+			dev_err(&interface->dev, "Failed to find INT IN ep\n");
-+			goto exit;
- 		}
-+
-+		tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
-+		if (tiocmget->urb) {
-+			mutex_init(&tiocmget->mutex);
-+			init_waitqueue_head(&tiocmget->waitq);
-+		} else
-+			hso_free_tiomget(serial);
- 	}
- 	else
- 		num_urbs = 1;
+diff --git a/arch/mips/alchemy/board-xxs1500.c b/arch/mips/alchemy/board-xxs1500.c
+index 0fc53e08a894..c05f7376148a 100644
+--- a/arch/mips/alchemy/board-xxs1500.c
++++ b/arch/mips/alchemy/board-xxs1500.c
+@@ -30,6 +30,7 @@
+ #include <asm/bootinfo.h>
+ #include <asm/reboot.h>
+ #include <asm/mach-au1x00/au1000.h>
++#include <asm/mach-au1x00/gpio-au1000.h>
+ #include <prom.h>
+ 
+ const char *get_system_type(void)
 -- 
 2.30.2
 
