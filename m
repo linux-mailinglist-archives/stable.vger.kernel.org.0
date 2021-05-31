@@ -2,39 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C87F5395CCF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B4150395F3C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231984AbhEaNiK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:38:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
+        id S230174AbhEaOJp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:09:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38128 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232482AbhEaNfs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:35:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FF2561448;
-        Mon, 31 May 2021 13:25:30 +0000 (UTC)
+        id S233343AbhEaOHB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DC8F6195F;
+        Mon, 31 May 2021 13:39:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467531;
-        bh=DbpjfWwOX5w4DXwVz2QROu43Vb5DxDjYUSn+itNusMo=;
+        s=korg; t=1622468351;
+        bh=p+y3ddyivja8fgExMZ1DS3GPCxyBmRnb/z1yU/Gr1w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iGvvlqNcn6s/DZlxirqiOZL+6FRTBsKW8e3ChhkFdWRW4xFCv7/MZGuTthMK88tff
-         xbA8QveuVsTnCsDm+NcE9tReiDyasORsiiCPH+uTnhJPgj10Ud3FDMNk0iBFLfms31
-         0UkLia+GGYCK6//s1I2QDRywJL0NAQKqp3BfI1zQ=
+        b=G52hF3GvbLGVkw46eQJY7ahv/+FameFxfF7a1dR52YiSjbN74jW/OgaNqxmDFFajK
+         T3RBvpnL7k+zERfdgoSobt4R2ygXYKrhGksg5Yd7LxIveSJYqC9D+EsX/y3f3GCT+J
+         GuPRjy4SiP8+Qs+YYeEWnY+hftgmZJC2Og6b3anQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
-        Andrew Lunn <andrew@lunn.ch>,
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Johan Hovold <johan@kernel.org>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 099/116] net: mdio: thunder: Fix a double free issue in the .remove function
+Subject: [PATCH 5.10 210/252] net: hso: check for allocation failure in hso_create_bulk_serial_device()
 Date:   Mon, 31 May 2021 15:14:35 +0200
-Message-Id: <20210531130643.493455174@linuxfoundation.org>
+Message-Id: <20210531130705.154655315@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit a93a0a15876d2a077a3bc260b387d2457a051f24 ]
+[ Upstream commit 31db0dbd72444abe645d90c20ecb84d668f5af5e ]
 
-'bus->mii_bus' have been allocated with 'devm_mdiobus_alloc_size()' in the
-probe function. So it must not be freed explicitly or there will be a
-double free.
+In current kernels, small allocations never actually fail so this
+patch shouldn't affect runtime.
 
-Remove the incorrect 'mdiobus_free' in the remove function.
+Originally this error handling code written with the idea that if
+the "serial->tiocmget" allocation failed, then we would continue
+operating instead of bailing out early.  But in later years we added
+an unchecked dereference on the next line.
 
-Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+	serial->tiocmget->serial_state_notification = kzalloc();
+        ^^^^^^^^^^^^^^^^^^
+
+Since these allocations are never going fail in real life, this is
+mostly a philosophical debate, but I think bailing out early is the
+correct behavior that the user would want.  And generally it's safer to
+bail as soon an error happens.
+
+Fixes: af0de1303c4e ("usb: hso: obey DMA rules in tiocmget")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio-thunder.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/usb/hso.c | 37 ++++++++++++++++++-------------------
+ 1 file changed, 18 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/net/phy/mdio-thunder.c b/drivers/net/phy/mdio-thunder.c
-index 564616968cad..c0c922eff760 100644
---- a/drivers/net/phy/mdio-thunder.c
-+++ b/drivers/net/phy/mdio-thunder.c
-@@ -129,7 +129,6 @@ static void thunder_mdiobus_pci_remove(struct pci_dev *pdev)
- 			continue;
- 
- 		mdiobus_unregister(bus->mii_bus);
--		mdiobus_free(bus->mii_bus);
- 		oct_mdio_writeq(0, bus->register_base + SMI_EN);
+diff --git a/drivers/net/usb/hso.c b/drivers/net/usb/hso.c
+index 01566e4d2003..88f87787833c 100644
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -2618,29 +2618,28 @@ static struct hso_device *hso_create_bulk_serial_device(
+ 		num_urbs = 2;
+ 		serial->tiocmget = kzalloc(sizeof(struct hso_tiocmget),
+ 					   GFP_KERNEL);
++		if (!serial->tiocmget)
++			goto exit;
+ 		serial->tiocmget->serial_state_notification
+ 			= kzalloc(sizeof(struct hso_serial_state_notification),
+ 					   GFP_KERNEL);
+-		/* it isn't going to break our heart if serial->tiocmget
+-		 *  allocation fails don't bother checking this.
+-		 */
+-		if (serial->tiocmget && serial->tiocmget->serial_state_notification) {
+-			tiocmget = serial->tiocmget;
+-			tiocmget->endp = hso_get_ep(interface,
+-						    USB_ENDPOINT_XFER_INT,
+-						    USB_DIR_IN);
+-			if (!tiocmget->endp) {
+-				dev_err(&interface->dev, "Failed to find INT IN ep\n");
+-				goto exit;
+-			}
+-
+-			tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
+-			if (tiocmget->urb) {
+-				mutex_init(&tiocmget->mutex);
+-				init_waitqueue_head(&tiocmget->waitq);
+-			} else
+-				hso_free_tiomget(serial);
++		if (!serial->tiocmget->serial_state_notification)
++			goto exit;
++		tiocmget = serial->tiocmget;
++		tiocmget->endp = hso_get_ep(interface,
++					    USB_ENDPOINT_XFER_INT,
++					    USB_DIR_IN);
++		if (!tiocmget->endp) {
++			dev_err(&interface->dev, "Failed to find INT IN ep\n");
++			goto exit;
+ 		}
++
++		tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
++		if (tiocmget->urb) {
++			mutex_init(&tiocmget->mutex);
++			init_waitqueue_head(&tiocmget->waitq);
++		} else
++			hso_free_tiomget(serial);
  	}
- 	pci_set_drvdata(pdev, NULL);
+ 	else
+ 		num_urbs = 1;
 -- 
 2.30.2
 
