@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4B81395C1D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62DF9395CA1
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232115AbhEaN2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34110 "EHLO mail.kernel.org"
+        id S231916AbhEaNgH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:36:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232332AbhEaN0Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:26:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5CADE61408;
-        Mon, 31 May 2021 13:21:15 +0000 (UTC)
+        id S231562AbhEaNdd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:33:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6ABE61437;
+        Mon, 31 May 2021 13:24:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467275;
-        bh=RoB6vYWZYdd+NFdYaGdOcUCdT3LohU7v+XM3Bfae6t4=;
+        s=korg; t=1622467483;
+        bh=GQydZjDT4wPdUn9WToJFxN5ZGS2Al09Z1XjGbD6BL0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rk/uJ8TqZFvBjM6bt39RX2zx6wD4yKdBjUiXk6jdE62NBOBOdMe/r7MMdmhH4Rtgu
-         50meuk7Hp04gni1qaGgmBWhmkyGj+hqXYVOSGDR+a2XTrgMJVzDQjQs8XlIsZsdzYZ
-         LDFeS8FVibQz2WTDk8RPhkZwoW8NfW5fQuPl832M=
+        b=NTJlJ2TiPozxSxoC0aD0gOnBmi9Szo+sxJ/CIXijZLxU+a0Xmrivr+tFnGH9f7ap3
+         knzlQxHgEpIqxnq8xuryWnbTsf3aWFtmVf8Calfts1BN8TxIh8JId5Y3+gl+DPfa9X
+         P8wCdCPFSD27nZxX2YoHise0ATshXAlTh2n/JzEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 46/66] libertas: register sysfs groups properly
+Subject: [PATCH 4.19 083/116] libertas: register sysfs groups properly
 Date:   Mon, 31 May 2021 15:14:19 +0200
-Message-Id: <20210531130637.709465215@linuxfoundation.org>
+Message-Id: <20210531130642.970757917@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -62,10 +62,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 4 insertions(+), 24 deletions(-)
 
 diff --git a/drivers/net/wireless/marvell/libertas/mesh.c b/drivers/net/wireless/marvell/libertas/mesh.c
-index d0c881dd5846..f1e9cbcfdc16 100644
+index b0cb16ef8d1d..b313c78e2154 100644
 --- a/drivers/net/wireless/marvell/libertas/mesh.c
 +++ b/drivers/net/wireless/marvell/libertas/mesh.c
-@@ -797,19 +797,6 @@ static const struct attribute_group mesh_ie_group = {
+@@ -793,19 +793,6 @@ static const struct attribute_group mesh_ie_group = {
  	.attrs = mesh_ie_attrs,
  };
  
@@ -85,7 +85,7 @@ index d0c881dd5846..f1e9cbcfdc16 100644
  
  /***************************************************************************
   * Initializing and starting, stopping mesh
-@@ -1021,6 +1008,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
+@@ -1005,6 +992,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
  	SET_NETDEV_DEV(priv->mesh_dev, priv->dev->dev.parent);
  
  	mesh_dev->flags |= IFF_BROADCAST | IFF_MULTICAST;
@@ -96,7 +96,7 @@ index d0c881dd5846..f1e9cbcfdc16 100644
  	/* Register virtual mesh interface */
  	ret = register_netdev(mesh_dev);
  	if (ret) {
-@@ -1028,19 +1019,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
+@@ -1012,19 +1003,10 @@ static int lbs_add_mesh(struct lbs_private *priv)
  		goto err_free_netdev;
  	}
  
@@ -116,8 +116,8 @@ index d0c881dd5846..f1e9cbcfdc16 100644
  err_free_netdev:
  	free_netdev(mesh_dev);
  
-@@ -1063,8 +1045,6 @@ void lbs_remove_mesh(struct lbs_private *priv)
- 	lbs_deb_enter(LBS_DEB_MESH);
+@@ -1045,8 +1027,6 @@ void lbs_remove_mesh(struct lbs_private *priv)
+ 
  	netif_stop_queue(mesh_dev);
  	netif_carrier_off(mesh_dev);
 -	sysfs_remove_group(&(mesh_dev->dev.kobj), &lbs_mesh_attr_group);
