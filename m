@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E9135395EAA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 27CDC3961DC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232818AbhEaOBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
+        id S233449AbhEaOrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39874 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233103AbhEaN73 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 001F76193D;
-        Mon, 31 May 2021 13:36:07 +0000 (UTC)
+        id S234248AbhEaOpL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C568613F0;
+        Mon, 31 May 2021 13:55:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468168;
-        bh=7QYHg/G0vqSBhvu7nR1ZgYEMhMPQcwZuTaOunGLXAVU=;
+        s=korg; t=1622469315;
+        bh=M5Vqk5ugMIIh4h20ZWW0tucgDHWgiPHKo6LZY12DEQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f6ij2rW5KS8ozC+z9dWp5q/nsaqjl2tz/p9Rc8QOF90z6epMO6bTw4nH/hAiw4nE6
-         z9xAkY5tVynsSviuDlCqeMGXWti+XSahLTH+NtIXylQ3g22ZOxDRNmuv2bkQ9by8ff
-         7g1ylb4Pv3HN9VLhQaa/f8NhSUw+NfptJE+BISgU=
+        b=i6a3JRwm89OZ54RQUg5kBJMDt5Y0JVV9cm//xvw3K/RMFpao3zO1nn3jvEQJi7kRG
+         MYjhAPYT5Kd2RXswo+4Xuo+D8aF0eQH/SOuCcmrlSJgA2kynZ7iJjvRQ4/oXz7U1bk
+         v1GIeVBKpM59qfv31CvpaSSek1lJPVJrLsqt3bns=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 141/252] Revert "net: caif: replace BUG_ON with recovery code"
+        stable@vger.kernel.org,
+        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
+        Jean Delvare <jdelvare@suse.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 5.12 151/296] i2c: i801: Dont generate an interrupt on bus reset
 Date:   Mon, 31 May 2021 15:13:26 +0200
-Message-Id: <20210531130702.805609121@linuxfoundation.org>
+Message-Id: <20210531130708.944797002@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit 4df07045fcfd684379a394d0f2aa0cc4067bda2a ]
+commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
 
-This reverts commit c5dea815834c7d2e9fc633785455bc428b7a1956.
+Now that the i2c-i801 driver supports interrupts, setting the KILL bit
+in a attempt to recover from a timed out transaction triggers an
+interrupt. Unfortunately, the interrupt handler (i801_isr) is not
+prepared for this situation and will try to process the interrupt as
+if it was signaling the end of a successful transaction. In the case
+of a block transaction, this can result in an out-of-range memory
+access.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+This condition was reproduced several times by syzbot:
+https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
+https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
+https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
+https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
+https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
+https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
+So disable interrupts while trying to reset the bus. Interrupts will
+be enabled again for the following transaction.
 
-The original change here was pointless as dev can never be NULL in this
-function so the claim in the changelog that this "fixes" anything is
-incorrect (also the developer forgot about panic_on_warn).  A follow-up
-change will resolve this issue properly.
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-19-gregkh@linuxfoundation.org
+Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
+Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/caif/caif_serial.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
-index bcc14c5875bf..4cc0d91d9c87 100644
---- a/drivers/net/caif/caif_serial.c
-+++ b/drivers/net/caif/caif_serial.c
-@@ -270,9 +270,7 @@ static netdev_tx_t caif_xmit(struct sk_buff *skb, struct net_device *dev)
- {
- 	struct ser_device *ser;
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -395,11 +395,9 @@ static int i801_check_post(struct i801_p
+ 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+ 		/* try to stop the current command */
+ 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
+-		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
+-		       SMBHSTCNT(priv));
++		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
+ 		usleep_range(1000, 2000);
+-		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
+-		       SMBHSTCNT(priv));
++		outb_p(0, SMBHSTCNT(priv));
  
--	if (WARN_ON(!dev))
--		return -EINVAL;
--
-+	BUG_ON(dev == NULL);
- 	ser = netdev_priv(dev);
- 
- 	/* Send flow off once, on high water mark */
--- 
-2.30.2
-
+ 		/* Check if it worked */
+ 		status = inb_p(SMBHSTSTS(priv));
 
 
