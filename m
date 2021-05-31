@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 324B7396302
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EA73962D9
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234055AbhEaPDG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:03:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51052 "EHLO mail.kernel.org"
+        id S234261AbhEaPB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:01:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233886AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 11:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB876144C;
-        Mon, 31 May 2021 14:01:56 +0000 (UTC)
+        id S234371AbhEaO7V (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:59:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A409A61CE2;
+        Mon, 31 May 2021 14:01:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469717;
-        bh=G7KWddFnIFA5vGUykSrwE8VeJpGBNbRHrsZ6D+pCwYs=;
+        s=korg; t=1622469683;
+        bh=7PFeLZafVQ6dj3ubSamHOGzkWKXqeD/Q2Y4Acl122fg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RSw9DfoC348OSURHLmTdW2lVtCChYj3ycRmK4VpxhEtA7BpqBlDuOnCUc7pVVQp0o
-         DDPZ5WHlkEU2PZvNxYlFXOw0x66Qa4C2PZECo4UFRrCvilE0S12MdCrgEeTxKmyPb1
-         i5/gzLvjWBH6xeaxw8SogTIxqRXVl3S29cCLCUk8=
+        b=ps5Lb4c6qxxhWy2Kbxf9Ccm9C+9NgdHlASqoGvvKDaYg6mGyFhFDGCFyUEJ605fsj
+         BZcg9t3l3JFOynRagCXyor93uUP2MejKal4E+fH3ivcELxQ66paZ5yghWuFItTiPa0
+         m1SsKAvcStKikYONJNYl3rwVceWF07Be1INpr++Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
-        Cong Wang <cong.wang@bytedance.com>,
+        stable@vger.kernel.org, Russell King <rmk+kernel@armlinux.org.uk>,
+        Stefan Chulski <stefanc@marvell.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 283/296] net: zero-initialize tc skb extension on allocation
-Date:   Mon, 31 May 2021 15:15:38 +0200
-Message-Id: <20210531130713.235575370@linuxfoundation.org>
+Subject: [PATCH 5.12 284/296] net: mvpp2: add buffer header handling in RX
+Date:   Mon, 31 May 2021 15:15:39 +0200
+Message-Id: <20210531130713.267499876@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -41,173 +41,155 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Stefan Chulski <stefanc@marvell.com>
 
-[ Upstream commit 9453d45ecb6c2199d72e73c993e9d98677a2801b ]
+[ Upstream commit 17f9c1b63cdd4439523cfcdf5683e5070b911f24 ]
 
-Function skb_ext_add() doesn't initialize created skb extension with any
-value and leaves it up to the user. However, since extension of type
-TC_SKB_EXT originally contained only single value tc_skb_ext->chain its
-users used to just assign the chain value without setting whole extension
-memory to zero first. This assumption changed when TC_SKB_EXT extension was
-extended with additional fields but not all users were updated to
-initialize the new fields which leads to use of uninitialized memory
-afterwards. UBSAN log:
+If Link Partner sends frames larger than RX buffer size, MAC mark it
+as oversize but still would pass it to the Packet Processor.
+In this scenario, Packet Processor scatter frame between multiple buffers,
+but only a single buffer would be returned to the Buffer Manager pool and
+it would not refill the poll.
 
-[  778.299821] UBSAN: invalid-load in net/openvswitch/flow.c:899:28
-[  778.301495] load of value 107 is not a valid value for type '_Bool'
-[  778.303215] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7+ #2
-[  778.304933] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-[  778.307901] Call Trace:
-[  778.308680]  <IRQ>
-[  778.309358]  dump_stack+0xbb/0x107
-[  778.310307]  ubsan_epilogue+0x5/0x40
-[  778.311167]  __ubsan_handle_load_invalid_value.cold+0x43/0x48
-[  778.312454]  ? memset+0x20/0x40
-[  778.313230]  ovs_flow_key_extract.cold+0xf/0x14 [openvswitch]
-[  778.314532]  ovs_vport_receive+0x19e/0x2e0 [openvswitch]
-[  778.315749]  ? ovs_vport_find_upcall_portid+0x330/0x330 [openvswitch]
-[  778.317188]  ? create_prof_cpu_mask+0x20/0x20
-[  778.318220]  ? arch_stack_walk+0x82/0xf0
-[  778.319153]  ? secondary_startup_64_no_verify+0xb0/0xbb
-[  778.320399]  ? stack_trace_save+0x91/0xc0
-[  778.321362]  ? stack_trace_consume_entry+0x160/0x160
-[  778.322517]  ? lock_release+0x52e/0x760
-[  778.323444]  netdev_frame_hook+0x323/0x610 [openvswitch]
-[  778.324668]  ? ovs_netdev_get_vport+0xe0/0xe0 [openvswitch]
-[  778.325950]  __netif_receive_skb_core+0x771/0x2db0
-[  778.327067]  ? lock_downgrade+0x6e0/0x6f0
-[  778.328021]  ? lock_acquire+0x565/0x720
-[  778.328940]  ? generic_xdp_tx+0x4f0/0x4f0
-[  778.329902]  ? inet_gro_receive+0x2a7/0x10a0
-[  778.330914]  ? lock_downgrade+0x6f0/0x6f0
-[  778.331867]  ? udp4_gro_receive+0x4c4/0x13e0
-[  778.332876]  ? lock_release+0x52e/0x760
-[  778.333808]  ? dev_gro_receive+0xcc8/0x2380
-[  778.334810]  ? lock_downgrade+0x6f0/0x6f0
-[  778.335769]  __netif_receive_skb_list_core+0x295/0x820
-[  778.336955]  ? process_backlog+0x780/0x780
-[  778.337941]  ? mlx5e_rep_tc_netdevice_event_unregister+0x20/0x20 [mlx5_core]
-[  778.339613]  ? seqcount_lockdep_reader_access.constprop.0+0xa7/0xc0
-[  778.341033]  ? kvm_clock_get_cycles+0x14/0x20
-[  778.342072]  netif_receive_skb_list_internal+0x5f5/0xcb0
-[  778.343288]  ? __kasan_kmalloc+0x7a/0x90
-[  778.344234]  ? mlx5e_handle_rx_cqe_mpwrq+0x9e0/0x9e0 [mlx5_core]
-[  778.345676]  ? mlx5e_xmit_xdp_frame_mpwqe+0x14d0/0x14d0 [mlx5_core]
-[  778.347140]  ? __netif_receive_skb_list_core+0x820/0x820
-[  778.348351]  ? mlx5e_post_rx_mpwqes+0xa6/0x25d0 [mlx5_core]
-[  778.349688]  ? napi_gro_flush+0x26c/0x3c0
-[  778.350641]  napi_complete_done+0x188/0x6b0
-[  778.351627]  mlx5e_napi_poll+0x373/0x1b80 [mlx5_core]
-[  778.352853]  __napi_poll+0x9f/0x510
-[  778.353704]  ? mlx5_flow_namespace_set_mode+0x260/0x260 [mlx5_core]
-[  778.355158]  net_rx_action+0x34c/0xa40
-[  778.356060]  ? napi_threaded_poll+0x3d0/0x3d0
-[  778.357083]  ? sched_clock_cpu+0x18/0x190
-[  778.358041]  ? __common_interrupt+0x8e/0x1a0
-[  778.359045]  __do_softirq+0x1ce/0x984
-[  778.359938]  __irq_exit_rcu+0x137/0x1d0
-[  778.360865]  irq_exit_rcu+0xa/0x20
-[  778.361708]  common_interrupt+0x80/0xa0
-[  778.362640]  </IRQ>
-[  778.363212]  asm_common_interrupt+0x1e/0x40
-[  778.364204] RIP: 0010:native_safe_halt+0xe/0x10
-[  778.365273] Code: 4f ff ff ff 4c 89 e7 e8 50 3f 40 fe e9 dc fe ff ff 48 89 df e8 43 3f 40 fe eb 90 cc e9 07 00 00 00 0f 00 2d 74 05 62 00 fb f4 <c3> 90 e9 07 00 00 00 0f 00 2d 64 05 62 00 f4 c3 cc cc 0f 1f 44 00
-[  778.369355] RSP: 0018:ffffffff84407e48 EFLAGS: 00000246
-[  778.370570] RAX: ffff88842de46a80 RBX: ffffffff84425840 RCX: ffffffff83418468
-[  778.372143] RDX: 000000000026f1da RSI: 0000000000000004 RDI: ffffffff8343af5e
-[  778.373722] RBP: fffffbfff0884b08 R08: 0000000000000000 R09: ffff88842de46bcb
-[  778.375292] R10: ffffed1085bc8d79 R11: 0000000000000001 R12: 0000000000000000
-[  778.376860] R13: ffffffff851124a0 R14: 0000000000000000 R15: dffffc0000000000
-[  778.378491]  ? rcu_eqs_enter.constprop.0+0xb8/0xe0
-[  778.379606]  ? default_idle_call+0x5e/0xe0
-[  778.380578]  default_idle+0xa/0x10
-[  778.381406]  default_idle_call+0x96/0xe0
-[  778.382350]  do_idle+0x3d4/0x550
-[  778.383153]  ? arch_cpu_idle_exit+0x40/0x40
-[  778.384143]  cpu_startup_entry+0x19/0x20
-[  778.385078]  start_kernel+0x3c7/0x3e5
-[  778.385978]  secondary_startup_64_no_verify+0xb0/0xbb
+Patch add handling of oversize error with buffer header handling, so all
+buffers would be returned to the Buffer Manager pool.
 
-Fix the issue by providing new function tc_skb_ext_alloc() that allocates
-tc skb extension and initializes its memory to 0 before returning it to the
-caller. Change all existing users to use new API instead of calling
-skb_ext_add() directly.
-
-Fixes: 038ebb1a713d ("net/sched: act_ct: fix miss set mru for ovs after defrag in act_ct")
-Fixes: d29334c15d33 ("net/sched: act_api: fix miss set post_ct for ovs after do conntrack in act_ct")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
-Acked-by: Cong Wang <cong.wang@bytedance.com>
+Fixes: 3f518509dedc ("ethernet: Add new driver for Marvell Armada 375 network unit")
+Reported-by: Russell King <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Stefan Chulski <stefanc@marvell.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c |  2 +-
- drivers/net/ethernet/mellanox/mlx5/core/en_tc.c     |  2 +-
- include/net/pkt_cls.h                               | 11 +++++++++++
- net/sched/cls_api.c                                 |  2 +-
- 4 files changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/marvell/mvpp2/mvpp2.h    | 22 ++++++++
+ .../net/ethernet/marvell/mvpp2/mvpp2_main.c   | 54 +++++++++++++++----
+ 2 files changed, 67 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
-index 065126370acd..96ba027dbef3 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
-@@ -645,7 +645,7 @@ bool mlx5e_rep_tc_update_skb(struct mlx5_cqe64 *cqe,
- 	}
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+index 8edba5ea90f0..4a61c90003b5 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2.h
+@@ -993,6 +993,14 @@ enum mvpp22_ptp_packet_format {
  
- 	if (chain) {
--		tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
-+		tc_skb_ext = tc_skb_ext_alloc(skb);
- 		if (!tc_skb_ext) {
- 			WARN_ON(1);
- 			return false;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-index 840cc9d8a2ee..78a1403c9802 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
-@@ -4924,7 +4924,7 @@ bool mlx5e_tc_update_skb(struct mlx5_cqe64 *cqe,
- 	}
+ #define MVPP2_DESC_DMA_MASK	DMA_BIT_MASK(40)
  
- 	if (chain) {
--		tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
-+		tc_skb_ext = tc_skb_ext_alloc(skb);
- 		if (WARN_ON(!tc_skb_ext))
- 			return false;
++/* Buffer header info bits */
++#define MVPP2_B_HDR_INFO_MC_ID_MASK	0xfff
++#define MVPP2_B_HDR_INFO_MC_ID(info)	((info) & MVPP2_B_HDR_INFO_MC_ID_MASK)
++#define MVPP2_B_HDR_INFO_LAST_OFFS	12
++#define MVPP2_B_HDR_INFO_LAST_MASK	BIT(12)
++#define MVPP2_B_HDR_INFO_IS_LAST(info) \
++	   (((info) & MVPP2_B_HDR_INFO_LAST_MASK) >> MVPP2_B_HDR_INFO_LAST_OFFS)
++
+ struct mvpp2_tai;
  
-diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
-index 255e4f4b521f..ec7823921bd2 100644
---- a/include/net/pkt_cls.h
-+++ b/include/net/pkt_cls.h
-@@ -709,6 +709,17 @@ tc_cls_common_offload_init(struct flow_cls_common_offload *cls_common,
- 		cls_common->extack = extack;
+ /* Definitions */
+@@ -1002,6 +1010,20 @@ struct mvpp2_rss_table {
+ 	u32 indir[MVPP22_RSS_TABLE_ENTRIES];
+ };
+ 
++struct mvpp2_buff_hdr {
++	__le32 next_phys_addr;
++	__le32 next_dma_addr;
++	__le16 byte_count;
++	__le16 info;
++	__le16 reserved1;	/* bm_qset (for future use, BM) */
++	u8 next_phys_addr_high;
++	u8 next_dma_addr_high;
++	__le16 reserved2;
++	__le16 reserved3;
++	__le16 reserved4;
++	__le16 reserved5;
++};
++
+ /* Shared Packet Processor resources */
+ struct mvpp2 {
+ 	/* Shared registers' base addresses */
+diff --git a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+index 1767c60056c5..6c81e4f175ac 100644
+--- a/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
++++ b/drivers/net/ethernet/marvell/mvpp2/mvpp2_main.c
+@@ -3840,6 +3840,35 @@ mvpp2_run_xdp(struct mvpp2_port *port, struct mvpp2_rx_queue *rxq,
+ 	return ret;
  }
  
-+#if IS_ENABLED(CONFIG_NET_TC_SKB_EXT)
-+static inline struct tc_skb_ext *tc_skb_ext_alloc(struct sk_buff *skb)
++static void mvpp2_buff_hdr_pool_put(struct mvpp2_port *port, struct mvpp2_rx_desc *rx_desc,
++				    int pool, u32 rx_status)
 +{
-+	struct tc_skb_ext *tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
++	phys_addr_t phys_addr, phys_addr_next;
++	dma_addr_t dma_addr, dma_addr_next;
++	struct mvpp2_buff_hdr *buff_hdr;
 +
-+	if (tc_skb_ext)
-+		memset(tc_skb_ext, 0, sizeof(*tc_skb_ext));
-+	return tc_skb_ext;
++	phys_addr = mvpp2_rxdesc_dma_addr_get(port, rx_desc);
++	dma_addr = mvpp2_rxdesc_cookie_get(port, rx_desc);
++
++	do {
++		buff_hdr = (struct mvpp2_buff_hdr *)phys_to_virt(phys_addr);
++
++		phys_addr_next = le32_to_cpu(buff_hdr->next_phys_addr);
++		dma_addr_next = le32_to_cpu(buff_hdr->next_dma_addr);
++
++		if (port->priv->hw_version >= MVPP22) {
++			phys_addr_next |= ((u64)buff_hdr->next_phys_addr_high << 32);
++			dma_addr_next |= ((u64)buff_hdr->next_dma_addr_high << 32);
++		}
++
++		mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
++
++		phys_addr = phys_addr_next;
++		dma_addr = dma_addr_next;
++
++	} while (!MVPP2_B_HDR_INFO_IS_LAST(le16_to_cpu(buff_hdr->info)));
 +}
-+#endif
 +
- enum tc_matchall_command {
- 	TC_CLSMATCHALL_REPLACE,
- 	TC_CLSMATCHALL_DESTROY,
-diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
-index 340d5af86e87..94f6942d7ec1 100644
---- a/net/sched/cls_api.c
-+++ b/net/sched/cls_api.c
-@@ -1624,7 +1624,7 @@ int tcf_classify_ingress(struct sk_buff *skb,
+ /* Main rx processing */
+ static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
+ 		    int rx_todo, struct mvpp2_rx_queue *rxq)
+@@ -3886,14 +3915,6 @@ static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
+ 			MVPP2_RXD_BM_POOL_ID_OFFS;
+ 		bm_pool = &port->priv->bm_pools[pool];
  
- 	/* If we missed on some chain */
- 	if (ret == TC_ACT_UNSPEC && last_executed_chain) {
--		ext = skb_ext_add(skb, TC_SKB_EXT);
-+		ext = tc_skb_ext_alloc(skb);
- 		if (WARN_ON_ONCE(!ext))
- 			return TC_ACT_SHOT;
- 		ext->chain = last_executed_chain;
+-		/* In case of an error, release the requested buffer pointer
+-		 * to the Buffer Manager. This request process is controlled
+-		 * by the hardware, and the information about the buffer is
+-		 * comprised by the RX descriptor.
+-		 */
+-		if (rx_status & MVPP2_RXD_ERR_SUMMARY)
+-			goto err_drop_frame;
+-
+ 		if (port->priv->percpu_pools) {
+ 			pp = port->priv->page_pool[pool];
+ 			dma_dir = page_pool_get_dma_dir(pp);
+@@ -3905,6 +3926,18 @@ static int mvpp2_rx(struct mvpp2_port *port, struct napi_struct *napi,
+ 					rx_bytes + MVPP2_MH_SIZE,
+ 					dma_dir);
+ 
++		/* Buffer header not supported */
++		if (rx_status & MVPP2_RXD_BUF_HDR)
++			goto err_drop_frame;
++
++		/* In case of an error, release the requested buffer pointer
++		 * to the Buffer Manager. This request process is controlled
++		 * by the hardware, and the information about the buffer is
++		 * comprised by the RX descriptor.
++		 */
++		if (rx_status & MVPP2_RXD_ERR_SUMMARY)
++			goto err_drop_frame;
++
+ 		/* Prefetch header */
+ 		prefetch(data);
+ 
+@@ -3986,7 +4019,10 @@ err_drop_frame:
+ 		dev->stats.rx_errors++;
+ 		mvpp2_rx_error(port, rx_desc);
+ 		/* Return the buffer to the pool */
+-		mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
++		if (rx_status & MVPP2_RXD_BUF_HDR)
++			mvpp2_buff_hdr_pool_put(port, rx_desc, pool, rx_status);
++		else
++			mvpp2_bm_pool_put(port, pool, dma_addr, phys_addr);
+ 	}
+ 
+ 	rcu_read_unlock();
 -- 
 2.30.2
 
