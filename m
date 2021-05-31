@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E27395E6B
+	by mail.lfdr.de (Postfix) with ESMTP id B9AC7395E6C
 	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbhEaN6b (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:58:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60840 "EHLO mail.kernel.org"
+        id S232996AbhEaN6c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:58:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232656AbhEaN42 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:56:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 191E861929;
-        Mon, 31 May 2021 13:34:40 +0000 (UTC)
+        id S232664AbhEaN4a (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:56:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DAEDB613EE;
+        Mon, 31 May 2021 13:34:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468081;
-        bh=RqXk2yi0BUOZJ/yOhOEQKEeAozBKF0mcnoPjQEu93TE=;
+        s=korg; t=1622468084;
+        bh=iFArcbvKtYJvof7yNv8WzwPi1yTQYK+5m5SCzPnKboA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p44UR1mLIKpWPxYDSjAwWU/qhi35Qkoj1+0VRHud6zE4yygKSOX4wEIb2cpxs4WEb
-         kpZtemQWsOzw1uilmjj/F5Z34NIAA7bIJIw27Z9KOHbqVHEvcTZdBVbyIfVHem/rvl
-         E81AOIpxd5jNZ3y6KOGiii4Ea+BbjjFqi/qt4EbY=
+        b=Q3fEDqzlD1yYTwCCp+BA3/jCZ9APsQ0hrhurH49RuFLL+vGoREdY7nStD4OKpw2f4
+         G8P9s1VrEmDgQq0YeLyPcxNPROylJQB/EB/UNfCSHXfaeXtAP7TQ+u7ruEIfm2laZG
+         D1WdUrvnNIgDNeyeaK/FXBoVHBtNed4zvT1jo7Ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
+        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
         Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 108/252] tipc: wait and exit until all work queues are done
-Date:   Mon, 31 May 2021 15:12:53 +0200
-Message-Id: <20210531130701.656863490@linuxfoundation.org>
+Subject: [PATCH 5.10 109/252] tipc: skb_linearize the head skb when reassembling msgs
+Date:   Mon, 31 May 2021 15:12:54 +0200
+Message-Id: <20210531130701.687309979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -42,86 +42,93 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Xin Long <lucien.xin@gmail.com>
 
-commit 04c26faa51d1e2fe71cf13c45791f5174c37f986 upstream.
+commit b7df21cf1b79ab7026f545e7bf837bd5750ac026 upstream.
 
-On some host, a crash could be triggered simply by repeating these
-commands several times:
+It's not a good idea to append the frag skb to a skb's frag_list if
+the frag_list already has skbs from elsewhere, such as this skb was
+created by pskb_copy() where the frag_list was cloned (all the skbs
+in it were skb_get'ed) and shared by multiple skbs.
 
-  # modprobe tipc
-  # tipc bearer enable media udp name UDP1 localip 127.0.0.1
-  # rmmod tipc
+However, the new appended frag skb should have been only seen by the
+current skb. Otherwise, it will cause use after free crashes as this
+appended frag skb are seen by multiple skbs but it only got skb_get
+called once.
 
-  [] BUG: unable to handle kernel paging request at ffffffffc096bb00
-  [] Workqueue: events 0xffffffffc096bb00
+The same thing happens with a skb updated by pskb_may_pull() with a
+skb_cloned skb. Li Shuang has reported quite a few crashes caused
+by this when doing testing over macvlan devices:
+
+  [] kernel BUG at net/core/skbuff.c:1970!
   [] Call Trace:
-  []  ? process_one_work+0x1a7/0x360
-  []  ? worker_thread+0x30/0x390
-  []  ? create_worker+0x1a0/0x1a0
-  []  ? kthread+0x116/0x130
-  []  ? kthread_flush_work_fn+0x10/0x10
-  []  ? ret_from_fork+0x35/0x40
+  []  skb_clone+0x4d/0xb0
+  []  macvlan_broadcast+0xd8/0x160 [macvlan]
+  []  macvlan_process_broadcast+0x148/0x150 [macvlan]
+  []  process_one_work+0x1a7/0x360
+  []  worker_thread+0x30/0x390
 
-When removing the TIPC module, the UDP tunnel sock will be delayed to
-release in a work queue as sock_release() can't be done in rtnl_lock().
-If the work queue is schedule to run after the TIPC module is removed,
-kernel will crash as the work queue function cleanup_beareri() code no
-longer exists when trying to invoke it.
+  [] kernel BUG at mm/usercopy.c:102!
+  [] Call Trace:
+  []  __check_heap_object+0xd3/0x100
+  []  __check_object_size+0xff/0x16b
+  []  simple_copy_to_iter+0x1c/0x30
+  []  __skb_datagram_iter+0x7d/0x310
+  []  __skb_datagram_iter+0x2a5/0x310
+  []  skb_copy_datagram_iter+0x3b/0x90
+  []  tipc_recvmsg+0x14a/0x3a0 [tipc]
+  []  ____sys_recvmsg+0x91/0x150
+  []  ___sys_recvmsg+0x7b/0xc0
 
-To fix it, this patch introduce a member wq_count in tipc_net to track
-the numbers of work queues in schedule, and  wait and exit until all
-work queues are done in tipc_exit_net().
+  [] kernel BUG at mm/slub.c:305!
+  [] Call Trace:
+  []  <IRQ>
+  []  kmem_cache_free+0x3ff/0x400
+  []  __netif_receive_skb_core+0x12c/0xc40
+  []  ? kmem_cache_alloc+0x12e/0x270
+  []  netif_receive_skb_internal+0x3d/0xb0
+  []  ? get_rx_page_info+0x8e/0xa0 [be2net]
+  []  be_poll+0x6ef/0xd00 [be2net]
+  []  ? irq_exit+0x4f/0x100
+  []  net_rx_action+0x149/0x3b0
 
-Fixes: d0f91938bede ("tipc: add ip/udp media type")
-Reported-by: Shuang Li <shuali@redhat.com>
+  ...
+
+This patch is to fix it by linearizing the head skb if it has frag_list
+set in tipc_buf_append(). Note that we choose to do this before calling
+skb_unshare(), as __skb_linearize() will avoid skb_copy(). Also, we can
+not just drop the frag_list either as the early time.
+
+Fixes: 45c8b7b175ce ("tipc: allow non-linear first fragment buffer")
+Reported-by: Li Shuang <shuali@redhat.com>
 Signed-off-by: Xin Long <lucien.xin@gmail.com>
 Acked-by: Jon Maloy <jmaloy@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/core.c      |    2 ++
- net/tipc/core.h      |    2 ++
- net/tipc/udp_media.c |    2 ++
- 3 files changed, 6 insertions(+)
+ net/tipc/msg.c |    9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -121,6 +121,8 @@ static void __net_exit tipc_exit_net(str
- #ifdef CONFIG_TIPC_CRYPTO
- 	tipc_crypto_stop(&tipc_net(net)->crypto_tx);
- #endif
-+	while (atomic_read(&tn->wq_count))
-+		cond_resched();
- }
- 
- static void __net_exit tipc_pernet_pre_exit(struct net *net)
---- a/net/tipc/core.h
-+++ b/net/tipc/core.h
-@@ -151,6 +151,8 @@ struct tipc_net {
- #endif
- 	/* Work item for net finalize */
- 	struct tipc_net_work final_work;
-+	/* The numbers of work queues in schedule */
-+	atomic_t wq_count;
- };
- 
- static inline struct tipc_net *tipc_net(struct net *net)
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -806,6 +806,7 @@ static void cleanup_bearer(struct work_s
- 		kfree_rcu(rcast, rcu);
+--- a/net/tipc/msg.c
++++ b/net/tipc/msg.c
+@@ -151,18 +151,13 @@ int tipc_buf_append(struct sk_buff **hea
+ 		if (unlikely(head))
+ 			goto err;
+ 		*buf = NULL;
++		if (skb_has_frag_list(frag) && __skb_linearize(frag))
++			goto err;
+ 		frag = skb_unshare(frag, GFP_ATOMIC);
+ 		if (unlikely(!frag))
+ 			goto err;
+ 		head = *headbuf = frag;
+ 		TIPC_SKB_CB(head)->tail = NULL;
+-		if (skb_is_nonlinear(head)) {
+-			skb_walk_frags(head, tail) {
+-				TIPC_SKB_CB(head)->tail = tail;
+-			}
+-		} else {
+-			skb_frag_list_init(head);
+-		}
+ 		return 0;
  	}
  
-+	atomic_dec(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	dst_cache_destroy(&ub->rcast.dst_cache);
- 	udp_tunnel_sock_release(ub->ubsock);
- 	synchronize_net();
-@@ -826,6 +827,7 @@ static void tipc_udp_disable(struct tipc
- 	RCU_INIT_POINTER(ub->bearer, NULL);
- 
- 	/* sock_release need to be done outside of rtnl lock */
-+	atomic_inc(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	INIT_WORK(&ub->work, cleanup_bearer);
- 	schedule_work(&ub->work);
- }
 
 
