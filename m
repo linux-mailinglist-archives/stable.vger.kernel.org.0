@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA455395CB2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E52F395F14
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:06:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232503AbhEaNgk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
+        id S231261AbhEaOHi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:07:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232749AbhEaNe2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:34:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C9C7613FA;
-        Mon, 31 May 2021 13:25:01 +0000 (UTC)
+        id S232561AbhEaOFb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:05:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A2D661960;
+        Mon, 31 May 2021 13:38:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467502;
-        bh=p2V8FW946HAQAcQlj3WWOfmp0I6aEIEC/WxxkIaR6kU=;
+        s=korg; t=1622468320;
+        bh=ROmstazyoaFNN3theMl0eig7ltzXRdcQMLKvT3gtATw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aMW9bn0Cfsbdi7TLyz3rsO5QMLVpM2TU6Dbnr2c6njfSabIbZtI09KQzFxpjlHc3G
-         sDnBkPAB+n6Vf3mIAmhLDYyqzQYDmr4svnS3ISeLDMJ8DVffIkhIitSZdWS+H8t3Pl
-         w2wRE3wNN3u4c3hq3/efKCdF0bK32ImR1apbYvWE=
+        b=ISkvwxMLAKdhf5XGIDJiXFV9c/0NyVS4cy5l7ca3QrZN89uBYOQd/rjK9LVF88gTs
+         WEMAn5fFasLiNyXSgf0fV6gmpTtlcT2zEnpODUYsv3kLq2WsgQsIwDnWQ6h4YCesaw
+         UN8SsVwFirvHH0cGNoSI2EzqImJF/5eyKsNiazAc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 089/116] btrfs: do not BUG_ON in link_to_fixup_dir
+Subject: [PATCH 5.10 200/252] net: fec: fix the potential memory leak in fec_enet_init()
 Date:   Mon, 31 May 2021 15:14:25 +0200
-Message-Id: <20210531130643.161305310@linuxfoundation.org>
+Message-Id: <20210531130704.811954649@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,74 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
+[ Upstream commit 619fee9eb13b5d29e4267cb394645608088c28a8 ]
 
-While doing error injection testing I got the following panic
+If the memory allocated for cbd_base is failed, it should
+free the memory allocated for the queues, otherwise it causes
+memory leak.
 
-  kernel BUG at fs/btrfs/tree-log.c:1862!
-  invalid opcode: 0000 [#1] SMP NOPTI
-  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
-  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
-  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
-  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
-  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
-  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
-  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
-  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
-  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
-  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
-  Call Trace:
-   replay_one_buffer+0x409/0x470
-   ? btree_read_extent_buffer_pages+0xd0/0x110
-   walk_up_log_tree+0x157/0x1e0
-   walk_log_tree+0xa6/0x1d0
-   btrfs_recover_log_trees+0x1da/0x360
-   ? replay_one_extent+0x7b0/0x7b0
-   open_ctree+0x1486/0x1720
-   btrfs_mount_root.cold+0x12/0xea
-   ? __kmalloc_track_caller+0x12f/0x240
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   vfs_kern_mount.part.0+0x71/0xb0
-   btrfs_mount+0x10d/0x380
-   ? vfs_parse_fs_string+0x4d/0x90
-   legacy_get_tree+0x24/0x40
-   vfs_get_tree+0x22/0xb0
-   path_mount+0x433/0xa10
-   __x64_sys_mount+0xe3/0x120
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x44/0xae
+And if the memory allocated for the queues is failed, it can
+return error directly.
 
-We can get -EIO or any number of legitimate errors from
-btrfs_search_slot(), panicing here is not the appropriate response.  The
-error path for this code handles errors properly, simply return the
-error.
-
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 59d0f7465644 ("net: fec: init multi queue date structure")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-log.c | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 7b940264c7b9..1cd610ddbb24 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1770,8 +1770,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
- 		ret = btrfs_update_inode(trans, root, inode);
- 	} else if (ret == -EEXIST) {
- 		ret = 0;
--	} else {
--		BUG(); /* Logic Error */
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 55c28fbc5f9e..960def41cc55 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3277,7 +3277,9 @@ static int fec_enet_init(struct net_device *ndev)
+ 		return ret;
  	}
- 	iput(inode);
  
+-	fec_enet_alloc_queue(ndev);
++	ret = fec_enet_alloc_queue(ndev);
++	if (ret)
++		return ret;
+ 
+ 	bd_size = (fep->total_tx_ring_size + fep->total_rx_ring_size) * dsize;
+ 
+@@ -3285,7 +3287,8 @@ static int fec_enet_init(struct net_device *ndev)
+ 	cbd_base = dmam_alloc_coherent(&fep->pdev->dev, bd_size, &bd_dma,
+ 				       GFP_KERNEL);
+ 	if (!cbd_base) {
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto free_queue_mem;
+ 	}
+ 
+ 	/* Get the Ethernet address */
+@@ -3363,6 +3366,10 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fec_enet_update_ethtool_stats(ndev);
+ 
+ 	return 0;
++
++free_queue_mem:
++	fec_enet_free_queue(ndev);
++	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.30.2
 
