@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 32BA8395DDC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65A1F396136
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231826AbhEaNva (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:51:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55092 "EHLO mail.kernel.org"
+        id S233913AbhEaOhg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:37:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232374AbhEaNtN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:49:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 510B86162E;
-        Mon, 31 May 2021 13:31:29 +0000 (UTC)
+        id S232540AbhEaOf3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:35:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B8A61C4A;
+        Mon, 31 May 2021 13:50:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467889;
-        bh=jjaXlbtyJiRj1P+l5mUfsCFqIybcq8PmYGxgHVVNIvM=;
+        s=korg; t=1622469047;
+        bh=3rfqlxhrh9or818ZTbuEK6qjk9t0H0vQtu/oWp/5ZiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JQPwmr9m5V+ku/MhlFiMk4ZbICpowqEsQi1WYTRb1bKTpUjhioEac0ebVA3ZI92CE
-         ZYi1N26FSe3jE72arv2VY5tvArzr3eJSfGP24zmtO82WjXYwBJeWFBe9+5qzYoWV9Q
-         +XWdy7yQD/sHQBFvKbRQU2XBF2K1CkrBtCYetdUI=
+        b=xye3T5gXt9BxopFfq5iq08vyHSjTPWknHZiH4rJHXzz7i6lPkD9M/GORSJjelmFk7
+         M9YIuPAxHnDmAK+gVVVu3JD/fVqUMsGAb98QHOY51DDFUbSftMtP3N+b3G5K765Pks
+         jhsSsRIYl7PnJbnxo+F4N8IWkf6c/NOzSW6o+NHk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
         Jouni Malinen <jouni@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 037/252] ath10k: Fix TKIP Michael MIC verification for PCIe
-Date:   Mon, 31 May 2021 15:11:42 +0200
-Message-Id: <20210531130659.254248089@linuxfoundation.org>
+Subject: [PATCH 5.12 048/296] ath10k: drop MPDU which has discard flag set by firmware for SDIO
+Date:   Mon, 31 May 2021 15:11:43 +0200
+Message-Id: <20210531130705.449513946@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,55 +42,61 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wen Gong <wgong@codeaurora.org>
 
-commit 0dc267b13f3a7e8424a898815dd357211b737330 upstream.
+commit 079a108feba474b4b32bd3471db03e11f2f83b81 upstream.
 
-TKIP Michael MIC was not verified properly for PCIe cases since the
-validation steps in ieee80211_rx_h_michael_mic_verify() in mac80211 did
-not get fully executed due to unexpected flag values in
-ieee80211_rx_status.
+When the discard flag is set by the firmware for an MPDU, it should be
+dropped. This allows a mitigation for CVE-2020-24588 to be implemented
+in the firmware.
 
-Fix this by setting the flags property to meet mac80211 expectations for
-performing Michael MIC validation there. This fixes CVE-2020-26141. It
-does the same as ath10k_htt_rx_proc_rx_ind_hl() for SDIO which passed
-MIC verification case. This applies only to QCA6174/QCA9377 PCIe.
-
-Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
+Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.c3f1d42c6746.I795593fcaae941c471425b8c7d5f7bb185d29142@changeid
+Link: https://lore.kernel.org/r/20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c |   10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/net/wireless/ath/ath10k/htt_rx.c  |    5 +++++
+ drivers/net/wireless/ath/ath10k/rx_desc.h |   14 +++++++++++++-
+ 2 files changed, 18 insertions(+), 1 deletion(-)
 
 --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
 +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -1974,6 +1974,11 @@ static void ath10k_htt_rx_h_mpdu(struct
- 		}
+@@ -2312,6 +2312,11 @@ static bool ath10k_htt_rx_proc_rx_ind_hl
+ 	fw_desc = &rx->fw_desc;
+ 	rx_desc_len = fw_desc->len;
  
- 		ath10k_htt_rx_h_csum_offload(msdu);
++	if (fw_desc->u.bits.discard) {
++		ath10k_dbg(ar, ATH10K_DBG_HTT, "htt discard mpdu\n");
++		goto err;
++	}
 +
-+		if (frag && !fill_crypt_header &&
-+		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
-+			status->flag &= ~RX_FLAG_MMIC_STRIPPED;
+ 	/* I have not yet seen any case where num_mpdu_ranges > 1.
+ 	 * qcacld does not seem handle that case either, so we introduce the
+ 	 * same limitiation here as well.
+--- a/drivers/net/wireless/ath/ath10k/rx_desc.h
++++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
+@@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
+ #define FW_RX_DESC_UDP              (1 << 6)
+ 
+ struct fw_rx_desc_hl {
+-	u8 info0;
++	union {
++		struct {
++		u8 discard:1,
++		   forward:1,
++		   any_err:1,
++		   dup_err:1,
++		   reserved:1,
++		   inspect:1,
++		   extension:2;
++		} bits;
++		u8 info0;
++	} u;
 +
- 		ath10k_htt_rx_h_undecap(ar, msdu, status, first_hdr, enctype,
- 					is_decrypted);
- 
-@@ -1991,6 +1996,11 @@ static void ath10k_htt_rx_h_mpdu(struct
- 
- 		hdr = (void *)msdu->data;
- 		hdr->frame_control &= ~__cpu_to_le16(IEEE80211_FCTL_PROTECTED);
-+
-+		if (frag && !fill_crypt_header &&
-+		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
-+			status->flag &= ~RX_FLAG_IV_STRIPPED &
-+					~RX_FLAG_MMIC_STRIPPED;
- 	}
- }
- 
+ 	u8 version;
+ 	u8 len;
+ 	u8 flags;
 
 
