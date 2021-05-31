@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AC24395F55
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF5EC395D6C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232680AbhEaOKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
+        id S232301AbhEaNpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:45:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232282AbhEaOIC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:08:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A24D061969;
-        Mon, 31 May 2021 13:39:45 +0000 (UTC)
+        id S232294AbhEaNni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:43:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 71E176141A;
+        Mon, 31 May 2021 13:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468386;
-        bh=qEwVxB+9KP8Lo3sPFcFtCEPaxzHUlgDG/ZzsD58swkA=;
+        s=korg; t=1622467740;
+        bh=uezxJvycNkTzWWdG2Ib8ONvFnB0mypIVT8Dl0Jn9muc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uADlVqSy2r4ylT57gSFv8SgQuLbFIDjPMflMRwq0ZgI0P2h9UfyaKv+sSzokJoKYH
-         V79FYYUUWLfTM+ACx6sQ7DDpXhr0gumAi9QUaqEsBDjkeEjEcpMecWKrCfCgfatrd2
-         yq3FJIQU2GrNued7ly0X2K79VSPRi7HalCA69B7I=
+        b=x6Z7MHnZW/iIXJZwmgULYpN5FHcS34gNEISV6otDE1ofIl3yn2HMMMzkfhmGcBT5y
+         f6ZYXSMFaMOZoJofqesOr+JHzvh8ruWilW4AEIWm4BkHoeDjtKYUNdz5FCGhFX59an
+         YCtgEAHuase5exTVUeJx8nYBqelvoPRd1wU/K+bo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiaran Zhang <zhangjiaran@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 222/252] net: hns3: fix incorrect resp_msg issue
+Subject: [PATCH 4.14 62/79] drm/amdgpu: Fix a use-after-free
 Date:   Mon, 31 May 2021 15:14:47 +0200
-Message-Id: <20210531130705.545137286@linuxfoundation.org>
+Message-Id: <20210531130637.981012920@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiaran Zhang <zhangjiaran@huawei.com>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit a710b9ffbebaf713f7dbd4dbd9524907e5d66f33 ]
+[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
 
-In hclge_mbx_handler(), if there are two consecutive mailbox
-messages that requires resp_msg, the resp_msg is not cleared
-after processing the first message, which will cause the resp_msg
-data of second message incorrect.
+looks like we forget to set ttm->sg to NULL.
+Hit panic below
 
-Fix it by clearing the resp_msg before processing every mailbox
-message.
+[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
+[ 1235.989074] Call Trace:
+[ 1235.991751]  sg_free_table+0x17/0x20
+[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
+[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
+[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
+[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
+[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
+[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
+[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
+[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
+[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
+[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
 
-Fixes: bb5790b71bad ("net: hns3: refactor mailbox response scheme between PF and VF")
-Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-index e0254672831f..2c2d53f5c56e 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
-@@ -678,7 +678,6 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
- 	unsigned int flag;
- 	int ret = 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index d057bc29bf4c..b84ef2295d4f 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1010,6 +1010,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_tt *ttm)
  
--	memset(&resp_msg, 0, sizeof(resp_msg));
- 	/* handle all the mailbox requests in the queue */
- 	while (!hclge_cmd_crq_empty(&hdev->hw)) {
- 		if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state)) {
-@@ -706,6 +705,9 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
- 
- 		trace_hclge_pf_mbx_get(hdev, req);
- 
-+		/* clear the resp_msg before processing every mailbox message */
-+		memset(&resp_msg, 0, sizeof(resp_msg));
-+
- 		switch (req->msg.code) {
- 		case HCLGE_MBX_MAP_RING_TO_VECTOR:
- 			ret = hclge_map_unmap_ring_to_vf_vector(vport, true,
+ 	if (gtt && gtt->userptr) {
+ 		kfree(ttm->sg);
++		ttm->sg = NULL;
+ 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
+ 		return;
+ 	}
 -- 
 2.30.2
 
