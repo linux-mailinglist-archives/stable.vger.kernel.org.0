@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AC6E2395B85
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5331395CB6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231905AbhEaNV2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:21:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
+        id S231996AbhEaNgw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:36:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231566AbhEaNTz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECAA7613B9;
-        Mon, 31 May 2021 13:18:13 +0000 (UTC)
+        id S231629AbhEaNdY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:33:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 779266143B;
+        Mon, 31 May 2021 13:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467094;
-        bh=o1Vg1+Yrw0GnXAW2r/u+OLWNaxvLVS4WPTHwmj0OT+E=;
+        s=korg; t=1622467470;
+        bh=tQZdtYbWLdg5SswCUN0BLKrwEcQO7/7BTQOA25kVGX4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eAB9i2TIueVxmhkp1FP9HMMbX3lKqwZtP1XYydcxeMc3o3hahlG+xBBGAyTpS3t82
-         7J4dDDruemSrXZt0wX8uoCLzRsAU5HRV2zilXq758A1Aywvbu5OxFDbKPNfylmn5Tm
-         a6eQL+md7YMyE+EaUt3mXOoARMmI2n4bVTSaHK08=
+        b=PcanPdL+ghM51iPoNiBY+Nng/venKJ/aIzy/vd/ZNrs0ry+lK4XhTya+AciNALLPE
+         +wQ/PBAJOaGP6wdB88eH1n8TeeVnN6c/M4fDXSGaDZzuP6m9N+WfEeRfSUUPM6Pi74
+         z7bB2QNjbhcPJZSHiW10cNZ+PGnkCcL3nGEbrnjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 48/54] scsi: libsas: Use _safe() loop in sas_resume_port()
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Du Cheng <ducheng2@gmail.com>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 078/116] net: caif: remove BUG_ON(dev == NULL) in caif_xmit
 Date:   Mon, 31 May 2021 15:14:14 +0200
-Message-Id: <20210531130636.574545730@linuxfoundation.org>
+Message-Id: <20210531130642.799243355@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Du Cheng <ducheng2@gmail.com>
 
-[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
+[ Upstream commit 65a67792e3416f7c5d7daa47d99334cbb19a7449 ]
 
-If sas_notify_lldd_dev_found() fails then this code calls:
+The condition of dev == NULL is impossible in caif_xmit(), hence it is
+for the removal.
 
-	sas_unregister_dev(port, dev);
+Explanation:
+The static caif_xmit() is only called upon via a function pointer
+`ndo_start_xmit` defined in include/linux/netdevice.h:
+```
+struct net_device_ops {
+    ...
+    netdev_tx_t     (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev);
+    ...
+}
+```
 
-which removes "dev", our list iterator, from the list.  This could lead to
-an endless loop.  We need to use list_for_each_entry_safe().
+The exhausive list of call points are:
+```
+drivers/net/ethernet/qualcomm/rmnet/rmnet_map_command.c
+    dev->netdev_ops->ndo_start_xmit(skb, dev);
+    ^                                    ^
 
-Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
-Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
-Reviewed-by: John Garry <john.garry@huawei.com>
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+drivers/infiniband/ulp/opa_vnic/opa_vnic_netdev.c
+    struct opa_vnic_adapter *adapter = opa_vnic_priv(netdev);
+			     ^                       ^
+    return adapter->rn_ops->ndo_start_xmit(skb, netdev); // adapter would crash first
+	   ^                                    ^
+
+drivers/usb/gadget/function/f_ncm.c
+    ncm->netdev->netdev_ops->ndo_start_xmit(NULL, ncm->netdev);
+	      ^                                   ^
+
+include/linux/netdevice.h
+static inline netdev_tx_t __netdev_start_xmit(...
+{
+    return ops->ndo_start_xmit(skb, dev);
+				    ^
+}
+
+    const struct net_device_ops *ops = dev->netdev_ops;
+				       ^
+    rc = __netdev_start_xmit(ops, skb, dev, more);
+				       ^
+```
+
+In each of the enumerated scenarios, it is impossible for the NULL-valued dev to
+reach the caif_xmit() without crashing the kernel earlier, therefore `BUG_ON(dev ==
+NULL)` is rather useless, hence the removal.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Du Cheng <ducheng2@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-20-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_port.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/caif/caif_serial.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
-index d3c5297c6c89..30e0730f613e 100644
---- a/drivers/scsi/libsas/sas_port.c
-+++ b/drivers/scsi/libsas/sas_port.c
-@@ -41,7 +41,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
- 
- static void sas_resume_port(struct asd_sas_phy *phy)
+diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+index a0f954f36c09..94d5ce9419ca 100644
+--- a/drivers/net/caif/caif_serial.c
++++ b/drivers/net/caif/caif_serial.c
+@@ -279,7 +279,6 @@ static int caif_xmit(struct sk_buff *skb, struct net_device *dev)
  {
--	struct domain_device *dev;
-+	struct domain_device *dev, *n;
- 	struct asd_sas_port *port = phy->port;
- 	struct sas_ha_struct *sas_ha = phy->ha;
- 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
-@@ -60,7 +60,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
- 	 * 1/ presume every device came back
- 	 * 2/ force the next revalidation to check all expander phys
- 	 */
--	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
-+	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
- 		int i, rc;
+ 	struct ser_device *ser;
  
- 		rc = sas_notify_lldd_dev_found(dev);
+-	BUG_ON(dev == NULL);
+ 	ser = netdev_priv(dev);
+ 
+ 	/* Send flow off once, on high water mark */
 -- 
 2.30.2
 
