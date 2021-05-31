@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D1E395D10
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E6BA396210
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232608AbhEaNk7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:40:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43832 "EHLO mail.kernel.org"
+        id S232855AbhEaOuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:50:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232363AbhEaNjF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:39:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AC2ED61408;
-        Mon, 31 May 2021 13:26:50 +0000 (UTC)
+        id S233263AbhEaOsk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:48:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DCC6145C;
+        Mon, 31 May 2021 13:56:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467611;
-        bh=gerKS9RKs58vxAFlg4+VQiIAmxVzLNiW/vg2IF1A3Sg=;
+        s=korg; t=1622469399;
+        bh=jI99WAe9RVtRbs+Gt1kQRnnslk5QCXfmsL4bZR6wSPQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xq8wO9NZaqtCpuWMQu/Gz2BoKIz4WvIu76xE1/lYYn5Y5mA3EM+qqqcJqMPK2uN5p
-         C7aKhuR4odoLZftCsY3BEC5fLDdki6wd3Szg8P9CxVKKCrswNYeEjtE9ZFVhjdeDhd
-         yKTlrOFmxnZF6z0T4rKmrGO0MDALZ6o+iW/ZrHZA=
+        b=mTC0sCOG4vDJ4EP+ni5c3chEDWioq9Vai/do/l9qAfILv1PDXAahZtf0Y0q+Mvvr+
+         I6RGzwroSE/9SHNuW/MkipLfHXelsPchABKY0kxWlevkRzfEam7F1xmbpBtqwOaCiw
+         QnigGx5tibwtOlOqNaGWwZ+vhGTJFgRoKULeIyEg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.14 14/79] mac80211: prevent mixed key and fragment cache attacks
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Vinod Koul <vkoul@kernel.org>, Sinan Kaya <okaya@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 184/296] Revert "dmaengine: qcom_hidma: Check for driver register failure"
 Date:   Mon, 31 May 2021 15:13:59 +0200
-Message-Id: <20210531130636.463978144@linuxfoundation.org>
+Message-Id: <20210531130710.055787064@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,99 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 94034c40ab4a3fcf581fbc7f8fdf4e29943c4a24 upstream.
+[ Upstream commit 43ed0fcf613a87dd0221ec72d1ade4d6544f2ffc ]
 
-Simultaneously prevent mixed key attacks (CVE-2020-24587) and fragment
-cache attacks (CVE-2020-24586). This is accomplished by assigning a
-unique color to every key (per interface) and using this to track which
-key was used to decrypt a fragment. When reassembling frames, it is
-now checked whether all fragments were decrypted using the same key.
+This reverts commit a474b3f0428d6b02a538aa10b3c3b722751cb382.
 
-To assure that fragment cache attacks are also prevented, the ID that is
-assigned to keys is unique even over (re)associations and (re)connects.
-This means fragments separated by a (re)association or (re)connect will
-not be reassembled. Because mac80211 now also prevents the reassembly of
-mixed encrypted and plaintext fragments, all cache attacks are prevented.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.3f8290e59823.I622a67769ed39257327a362cfc09c812320eb979@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original change is NOT correct, as it does not correctly unwind from
+the resources that was allocated before the call to
+platform_driver_register().
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Acked-By: Vinod Koul <vkoul@kernel.org>
+Acked-By: Sinan Kaya <okaya@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-51-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/ieee80211_i.h |    1 +
- net/mac80211/key.c         |    7 +++++++
- net/mac80211/key.h         |    2 ++
- net/mac80211/rx.c          |    6 ++++++
- 4 files changed, 16 insertions(+)
+ drivers/dma/qcom/hidma_mgmt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -99,6 +99,7 @@ struct ieee80211_fragment_entry {
- 	u8 rx_queue;
- 	bool check_sequential_pn; /* needed for CCMP/GCMP */
- 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
-+	unsigned int key_color;
- };
- 
- 
---- a/net/mac80211/key.c
-+++ b/net/mac80211/key.c
-@@ -647,6 +647,7 @@ int ieee80211_key_link(struct ieee80211_
- 		       struct ieee80211_sub_if_data *sdata,
- 		       struct sta_info *sta)
- {
-+	static atomic_t key_color = ATOMIC_INIT(0);
- 	struct ieee80211_local *local = sdata->local;
- 	struct ieee80211_key *old_key;
- 	int idx = key->conf.keyidx;
-@@ -682,6 +683,12 @@ int ieee80211_key_link(struct ieee80211_
- 	key->sdata = sdata;
- 	key->sta = sta;
- 
-+	/*
-+	 * Assign a unique ID to every key so we can easily prevent mixed
-+	 * key and fragment cache attacks.
-+	 */
-+	key->color = atomic_inc_return(&key_color);
-+
- 	increment_tailroom_need_count(sdata);
- 
- 	ieee80211_key_replace(sdata, sta, pairwise, old_key, key);
---- a/net/mac80211/key.h
-+++ b/net/mac80211/key.h
-@@ -127,6 +127,8 @@ struct ieee80211_key {
- 	} debugfs;
+diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
+index 806ca02c52d7..fe87b01f7a4e 100644
+--- a/drivers/dma/qcom/hidma_mgmt.c
++++ b/drivers/dma/qcom/hidma_mgmt.c
+@@ -418,8 +418,9 @@ static int __init hidma_mgmt_init(void)
+ 		hidma_mgmt_of_populate_channels(child);
+ 	}
  #endif
+-	return platform_driver_register(&hidma_mgmt_driver);
++	platform_driver_register(&hidma_mgmt_driver);
  
-+	unsigned int color;
-+
- 	/*
- 	 * key config, must be last because it contains key
- 	 * material as variable length member
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2029,6 +2029,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 			 * next fragment has a sequential PN value.
- 			 */
- 			entry->check_sequential_pn = true;
-+			entry->key_color = rx->key->color;
- 			memcpy(entry->last_pn,
- 			       rx->key->u.ccmp.rx_pn[queue],
- 			       IEEE80211_CCMP_PN_LEN);
-@@ -2066,6 +2067,11 @@ ieee80211_rx_h_defragment(struct ieee802
- 
- 		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
-+
-+		/* Prevent mixed key and fragment cache attacks */
-+		if (entry->key_color != rx->key->color)
-+			return RX_DROP_UNUSABLE;
-+
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
- 			pn[i]++;
++	return 0;
+ }
+ module_init(hidma_mgmt_init);
+ MODULE_LICENSE("GPL v2");
+-- 
+2.30.2
+
 
 
