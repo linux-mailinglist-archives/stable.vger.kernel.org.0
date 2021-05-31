@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A713139626B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:55:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8815E396087
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:26:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233135AbhEaO40 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:56:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
+        id S233950AbhEaO1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48842 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232626AbhEaOyC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:54:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0F4DD61CAC;
-        Mon, 31 May 2021 13:59:14 +0000 (UTC)
+        id S233894AbhEaOZf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:25:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26CE261AC0;
+        Mon, 31 May 2021 13:46:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469555;
-        bh=kEqZaRDMA6nbc5KtPc99Zqt3YTBcosbI8H0fk5s158A=;
+        s=korg; t=1622468815;
+        bh=u6KUzoNmaj446JcGXtccmmHxdzE/YktDjb/D4QpT4/c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pOETWC48/LX2zlr2AI88OPcyood/tdLfr504mzM7YVx1TXQnwIjY1wbqO5bqJ4g/V
-         HHHrX0kEHMoP4xKnV19ckIyeb4znqPaFBRWq5qlHcThZ/bCdLRmnpOpO2znrMX9aqG
-         4PyI2z2M9kwN9mCZgSC+zHOjssuvhw5z/vJy8Jnc=
+        b=iX5mxmJEwyn4651fwgMtIo+OxH7AJ6sagzu2Lejh5DOx2RvWM5QkQruJ6thQpiu70
+         cznT8yoZGy338HTAoefSuIs8VO7YTMV8Klz2Vl5Cad/KLU7ROkOIaZDxkebed8VIQ9
+         l0hZOx8kN7dlezu7diVMVzm7b4sBnaY9o9TI1Dkw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jim Ma <majinjing3@gmail.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 241/296] tls splice: check SPLICE_F_NONBLOCK instead of MSG_DONTWAIT
-Date:   Mon, 31 May 2021 15:14:56 +0200
-Message-Id: <20210531130711.896742931@linuxfoundation.org>
+Subject: [PATCH 5.4 140/177] net: fec: fix the potential memory leak in fec_enet_init()
+Date:   Mon, 31 May 2021 15:14:57 +0200
+Message-Id: <20210531130652.779806420@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,73 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jim Ma <majinjing3@gmail.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit 974271e5ed45cfe4daddbeb16224a2156918530e ]
+[ Upstream commit 619fee9eb13b5d29e4267cb394645608088c28a8 ]
 
-In tls_sw_splice_read, checkout MSG_* is inappropriate, should use
-SPLICE_*, update tls_wait_data to accept nonblock arguments instead
-of flags for recvmsg and splice.
+If the memory allocated for cbd_base is failed, it should
+free the memory allocated for the queues, otherwise it causes
+memory leak.
 
-Fixes: c46234ebb4d1 ("tls: RX path for ktls")
-Signed-off-by: Jim Ma <majinjing3@gmail.com>
+And if the memory allocated for the queues is failed, it can
+return error directly.
+
+Fixes: 59d0f7465644 ("net: fec: init multi queue date structure")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tls/tls_sw.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
-index 01d933ae5f16..6086cf4f10a7 100644
---- a/net/tls/tls_sw.c
-+++ b/net/tls/tls_sw.c
-@@ -37,6 +37,7 @@
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index fd7fc6f20c9d..b1856552ab81 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3274,7 +3274,9 @@ static int fec_enet_init(struct net_device *ndev)
+ 		return ret;
+ 	}
  
- #include <linux/sched/signal.h>
- #include <linux/module.h>
-+#include <linux/splice.h>
- #include <crypto/aead.h>
+-	fec_enet_alloc_queue(ndev);
++	ret = fec_enet_alloc_queue(ndev);
++	if (ret)
++		return ret;
  
- #include <net/strparser.h>
-@@ -1281,7 +1282,7 @@ int tls_sw_sendpage(struct sock *sk, struct page *page,
+ 	bd_size = (fep->total_tx_ring_size + fep->total_rx_ring_size) * dsize;
+ 
+@@ -3282,7 +3284,8 @@ static int fec_enet_init(struct net_device *ndev)
+ 	cbd_base = dmam_alloc_coherent(&fep->pdev->dev, bd_size, &bd_dma,
+ 				       GFP_KERNEL);
+ 	if (!cbd_base) {
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto free_queue_mem;
+ 	}
+ 
+ 	/* Get the Ethernet address */
+@@ -3360,6 +3363,10 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fec_enet_update_ethtool_stats(ndev);
+ 
+ 	return 0;
++
++free_queue_mem:
++	fec_enet_free_queue(ndev);
++	return ret;
  }
  
- static struct sk_buff *tls_wait_data(struct sock *sk, struct sk_psock *psock,
--				     int flags, long timeo, int *err)
-+				     bool nonblock, long timeo, int *err)
- {
- 	struct tls_context *tls_ctx = tls_get_ctx(sk);
- 	struct tls_sw_context_rx *ctx = tls_sw_ctx_rx(tls_ctx);
-@@ -1306,7 +1307,7 @@ static struct sk_buff *tls_wait_data(struct sock *sk, struct sk_psock *psock,
- 		if (sock_flag(sk, SOCK_DONE))
- 			return NULL;
- 
--		if ((flags & MSG_DONTWAIT) || !timeo) {
-+		if (nonblock || !timeo) {
- 			*err = -EAGAIN;
- 			return NULL;
- 		}
-@@ -1786,7 +1787,7 @@ int tls_sw_recvmsg(struct sock *sk,
- 		bool async_capable;
- 		bool async = false;
- 
--		skb = tls_wait_data(sk, psock, flags, timeo, &err);
-+		skb = tls_wait_data(sk, psock, flags & MSG_DONTWAIT, timeo, &err);
- 		if (!skb) {
- 			if (psock) {
- 				int ret = __tcp_bpf_recvmsg(sk, psock,
-@@ -1990,9 +1991,9 @@ ssize_t tls_sw_splice_read(struct socket *sock,  loff_t *ppos,
- 
- 	lock_sock(sk);
- 
--	timeo = sock_rcvtimeo(sk, flags & MSG_DONTWAIT);
-+	timeo = sock_rcvtimeo(sk, flags & SPLICE_F_NONBLOCK);
- 
--	skb = tls_wait_data(sk, NULL, flags, timeo, &err);
-+	skb = tls_wait_data(sk, NULL, flags & SPLICE_F_NONBLOCK, timeo, &err);
- 	if (!skb)
- 		goto splice_read_end;
- 
+ #ifdef CONFIG_OF
 -- 
 2.30.2
 
