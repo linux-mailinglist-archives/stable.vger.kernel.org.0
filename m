@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1FB3396115
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:34:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68CCC395DD0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232789AbhEaOfi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:35:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33150 "EHLO mail.kernel.org"
+        id S232054AbhEaNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233669AbhEaOdb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:33:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D8BEC613B4;
-        Mon, 31 May 2021 13:50:07 +0000 (UTC)
+        id S231960AbhEaNrp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B79561420;
+        Mon, 31 May 2021 13:30:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469008;
-        bh=2/O+k+1G/PXQ2nFOWXizGHcE7185hUsTaFemAusCs5c=;
+        s=korg; t=1622467854;
+        bh=In3SRlmwIXS6GnGw4LfTj5o4BRoVVGBqZCE0Gzaw+R0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l1jCylg6vl6N5IR2lRrGxRBZ8NJz25S8VOQwvSKJdItGI2WsQa4kapteAQD6QM0tx
-         1M4fzStCZMA78YVxLlMmMR0Qf0F8o9gkBq7EvDAg7jGSfX09rCjenfD34zTMzIyWvy
-         J/HG3o5vzO40PQULVUdEVlQZ9uBspLfr004AxM0E=
+        b=nsZrtMi1dWpAbOjsnJa5LKjRscwIrpXa1V8g+ZLRdovxrrL4ZDzXra7aY9lvuj7QK
+         SIbcXXlfZVuf9aZgChiVFAitHfvr9uJrasBgMJTEm3jVWQ6bAqJAOzajLzyBAas35D
+         +G0oTlZfx7M5ONt5oKiDXRbBxcwP9vbePWrQft2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 035/296] mac80211: assure all fragments are encrypted
+Subject: [PATCH 5.10 025/252] mac80211: properly handle A-MSDUs that start with an RFC 1042 header
 Date:   Mon, 31 May 2021 15:11:30 +0200
-Message-Id: <20210531130704.995510531@linuxfoundation.org>
+Message-Id: <20210531130658.836824690@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,76 +41,74 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
+commit a1d5ff5651ea592c67054233b14b30bf4452999c upstream.
 
-Do not mix plaintext and encrypted fragments in protected Wi-Fi
-networks. This fixes CVE-2020-26147.
-
-Previously, an attacker was able to first forward a legitimate encrypted
-fragment towards a victim, followed by a plaintext fragment. The
-encrypted and plaintext fragment would then be reassembled. For further
-details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
-Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
-
-Because of this change there are now two equivalent conditions in the
-code to determine if a received fragment requires sequential PNs, so we
-also move this test to a separate function to make the code easier to
-maintain.
+Properly parse A-MSDUs whose first 6 bytes happen to equal a rfc1042
+header. This can occur in practice when the destination MAC address
+equals AA:AA:03:00:00:00. More importantly, this simplifies the next
+patch to mitigate A-MSDU injection attacks.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
+Link: https://lore.kernel.org/r/20210511200110.0b2b886492f0.I23dd5d685fe16d3b0ec8106e8f01b59f499dffed@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ include/net/cfg80211.h |    4 ++--
+ net/mac80211/rx.c      |    2 +-
+ net/wireless/util.c    |    4 ++--
+ 3 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2193,6 +2193,16 @@ ieee80211_reassemble_find(struct ieee802
- 	return NULL;
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -5624,7 +5624,7 @@ unsigned int ieee80211_get_mesh_hdrlen(s
+  */
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ 				  const u8 *addr, enum nl80211_iftype iftype,
+-				  u8 data_offset);
++				  u8 data_offset, bool is_amsdu);
+ 
+ /**
+  * ieee80211_data_to_8023 - convert an 802.11 data frame to 802.3
+@@ -5636,7 +5636,7 @@ int ieee80211_data_to_8023_exthdr(struct
+ static inline int ieee80211_data_to_8023(struct sk_buff *skb, const u8 *addr,
+ 					 enum nl80211_iftype iftype)
+ {
+-	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0);
++	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0, false);
  }
  
-+static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
-+{
-+	return rx->key &&
-+		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
-+		ieee80211_has_protected(fc);
-+}
-+
- static ieee80211_rx_result debug_noinline
- ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ /**
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2692,7 +2692,7 @@ __ieee80211_rx_h_amsdu(struct ieee80211_
+ 	if (ieee80211_data_to_8023_exthdr(skb, &ethhdr,
+ 					  rx->sdata->vif.addr,
+ 					  rx->sdata->vif.type,
+-					  data_offset))
++					  data_offset, true))
+ 		return RX_DROP_UNUSABLE;
+ 
+ 	ieee80211_amsdu_to_8023s(skb, &frame_list, dev->dev_addr,
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -541,7 +541,7 @@ EXPORT_SYMBOL(ieee80211_get_mesh_hdrlen)
+ 
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ 				  const u8 *addr, enum nl80211_iftype iftype,
+-				  u8 data_offset)
++				  u8 data_offset, bool is_amsdu)
  {
-@@ -2237,12 +2247,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		/* This is the first fragment of a new frame. */
- 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
- 						 rx->seqno_idx, &(rx->skb));
--		if (rx->key &&
--		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
--		    ieee80211_has_protected(fc)) {
-+		if (requires_sequential_pn(rx, fc)) {
- 			int queue = rx->security_idx;
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	struct {
+@@ -629,7 +629,7 @@ int ieee80211_data_to_8023_exthdr(struct
+ 	skb_copy_bits(skb, hdrlen, &payload, sizeof(payload));
+ 	tmp.h_proto = payload.proto;
  
- 			/* Store CCMP/GCMP PN so that we can verify that the
-@@ -2284,11 +2289,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
- 		int queue;
- 
--		if (!rx->key ||
--		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
-+		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+-	if (likely((ether_addr_equal(payload.hdr, rfc1042_header) &&
++	if (likely((!is_amsdu && ether_addr_equal(payload.hdr, rfc1042_header) &&
+ 		    tmp.h_proto != htons(ETH_P_AARP) &&
+ 		    tmp.h_proto != htons(ETH_P_IPX)) ||
+ 		   ether_addr_equal(payload.hdr, bridge_tunnel_header)))
 
 
