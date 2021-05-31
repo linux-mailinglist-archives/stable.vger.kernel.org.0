@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F3C4395BE2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C462D3961FC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbhEaNZk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54898 "EHLO mail.kernel.org"
+        id S231691AbhEaOtl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:49:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40316 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232046AbhEaNXh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 05178613F0;
-        Mon, 31 May 2021 13:20:01 +0000 (UTC)
+        id S233589AbhEaOrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5D84661C8B;
+        Mon, 31 May 2021 13:55:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467202;
-        bh=VUkXni8VD8M+F+ZXalHvbx5D6hIVk3gCjfblHUEORMo=;
+        s=korg; t=1622469358;
+        bh=N6QBhbaoixqNSH7hQZQXy04G9OzUiSPwdaXmmotnH0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvvOhYnhBlMhMQDQ4HAOfa+y9EB95cD9HxVR7lDgxaK5dMA6flYP1wW5iuqcWbrXY
-         IytmCbQJga3ygpl/MVbXdatyISCqV1L2argqR2Oq4z5+o+k81IY1Cb98Vj6TS0ZY8C
-         0+GYszeItfis6hpm5h6faJOWvN5EjQyc2uVYVu3w=
+        b=RSTdotlYRfWKePpI7h4+Ex04WN4XZnD2U/bK4KAaK4UtHKuvFt5lhCg+RoNq8bXa6
+         e/F3SCYt/r5U5F9IBXpZXZsE2BIRW8FfuLTJSKTCvYO7mvw1KjLzVLcB596+drN7S/
+         E+wXoxQOF3GimrksqD1SxOfaotYX1iZXM+UJLfdo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 08/66] net: hso: fix control-request directions
+        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
+        Atul Gopinathan <atulgopinathan@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 166/296] serial: max310x: unregister uart driver in case of failure and abort
 Date:   Mon, 31 May 2021 15:13:41 +0200
-Message-Id: <20210531130636.531176269@linuxfoundation.org>
+Message-Id: <20210531130709.452194626@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,45 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
+[ Upstream commit 3890e3dea315f1a257d1b940a2a4e2fa16a7b095 ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+The macro "spi_register_driver" invokes the function
+"__spi_register_driver()" which has a return type of int and can fail,
+returning a negative value in such a case. This is currently ignored and
+the init() function yields success even if the spi driver failed to
+register.
 
-Fix the tiocmset and rfkill requests which erroneously used
-usb_rcvctrlpipe().
+Fix this by collecting the return value of "__spi_register_driver()" and
+also unregister the uart driver in case of failure.
 
-Fixes: 72dc1c096c70 ("HSO: add option hso driver")
-Cc: stable@vger.kernel.org      # 2.6.27
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-12-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/max310x.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -1703,7 +1703,7 @@ static int hso_serial_tiocmset(struct tt
- 	spin_unlock_irqrestore(&serial->serial_lock, flags);
+diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
+index 93f69b66b896..43e55e6abea6 100644
+--- a/drivers/tty/serial/max310x.c
++++ b/drivers/tty/serial/max310x.c
+@@ -1518,10 +1518,12 @@ static int __init max310x_uart_init(void)
+ 		return ret;
  
- 	return usb_control_msg(serial->parent->usb,
--			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
-+			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
- 			       0x21, val, if_num, NULL, 0,
- 			       USB_CTRL_SET_TIMEOUT);
+ #ifdef CONFIG_SPI_MASTER
+-	spi_register_driver(&max310x_spi_driver);
++	ret = spi_register_driver(&max310x_spi_driver);
++	if (ret)
++		uart_unregister_driver(&max310x_uart);
+ #endif
+ 
+-	return 0;
++	return ret;
  }
-@@ -2451,7 +2451,7 @@ static int hso_rfkill_set_block(void *da
- 	if (hso_dev->usb_gone)
- 		rv = 0;
- 	else
--		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
-+		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
- 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
- 				       USB_CTRL_SET_TIMEOUT);
- 	mutex_unlock(&hso_dev->mutex);
+ module_init(max310x_uart_init);
+ 
+-- 
+2.30.2
+
 
 
