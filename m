@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6551B395D7F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B20A395FA8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:12:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232083AbhEaNqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:46:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49272 "EHLO mail.kernel.org"
+        id S232216AbhEaONk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:13:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40230 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233083AbhEaNom (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:44:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1525D61417;
-        Mon, 31 May 2021 13:29:27 +0000 (UTC)
+        id S233345AbhEaOLg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:11:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 03D806140B;
+        Mon, 31 May 2021 13:41:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467768;
-        bh=o1Vg1+Yrw0GnXAW2r/u+OLWNaxvLVS4WPTHwmj0OT+E=;
+        s=korg; t=1622468473;
+        bh=RkNj7Sxouky+EMx7MnkcMWjpYcOVlf2hJ4xc/nFXHn0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jipZPhLgMBFL9ML4cex6eM56a+XQedSNLO6yYRfjSgYA7cFljAXQND4uSSCEz4h4+
-         fTjtrnUPA96mrWREdILoJtnvBLnLh/ptGH3aZ9O4cgPaxLKYmXR6FRH2n7aYgjhYpt
-         RJYrtWwGlZ3cQd5sU+MQmPBSH4JPvuo7XjoA3Fow=
+        b=cG6z8VNTOv5Mr+sRvGUii8gonD7r8YtjSh4kRhT5gN2Hb235E0F3gLZlq4o+CtpI+
+         n2+x8fqbp9MlV3hhWmDdYgoV64i0rZ09zrxKUHe8tPc/vcErNM0DMm14RpzfkV4Ck5
+         nbcEihOmkNKoQyF1HZcx4w4n6TqwJbnuqXqDsa1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dan Carpenter <dan.carpenter@oracle.com>,
         "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 72/79] scsi: libsas: Use _safe() loop in sas_resume_port()
+Subject: [PATCH 5.10 232/252] scsi: libsas: Use _safe() loop in sas_resume_port()
 Date:   Mon, 31 May 2021 15:14:57 +0200
-Message-Id: <20210531130638.298606074@linuxfoundation.org>
+Message-Id: <20210531130705.884177492@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
-index d3c5297c6c89..30e0730f613e 100644
+index 19cf418928fa..e3d03d744713 100644
 --- a/drivers/scsi/libsas/sas_port.c
 +++ b/drivers/scsi/libsas/sas_port.c
-@@ -41,7 +41,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
+@@ -25,7 +25,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
  
  static void sas_resume_port(struct asd_sas_phy *phy)
  {
@@ -75,7 +75,7 @@ index d3c5297c6c89..30e0730f613e 100644
  	struct asd_sas_port *port = phy->port;
  	struct sas_ha_struct *sas_ha = phy->ha;
  	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
-@@ -60,7 +60,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+@@ -44,7 +44,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
  	 * 1/ presume every device came back
  	 * 2/ force the next revalidation to check all expander phys
  	 */
