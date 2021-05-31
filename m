@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 65A1F396136
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EB77E395E3F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:54:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233913AbhEaOhg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59384 "EHLO mail.kernel.org"
+        id S232012AbhEaN4X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:56:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55372 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232540AbhEaOf3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 12B8A61C4A;
-        Mon, 31 May 2021 13:50:46 +0000 (UTC)
+        id S232102AbhEaNxw (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:53:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F6E66191C;
+        Mon, 31 May 2021 13:33:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469047;
-        bh=3rfqlxhrh9or818ZTbuEK6qjk9t0H0vQtu/oWp/5ZiU=;
+        s=korg; t=1622468011;
+        bh=1o2+Is/pQJipStDRXaYgWWfEyZRlUpcSGH2OSIKcdBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xye3T5gXt9BxopFfq5iq08vyHSjTPWknHZiH4rJHXzz7i6lPkD9M/GORSJjelmFk7
-         M9YIuPAxHnDmAK+gVVVu3JD/fVqUMsGAb98QHOY51DDFUbSftMtP3N+b3G5K765Pks
-         jhsSsRIYl7PnJbnxo+F4N8IWkf6c/NOzSW6o+NHk=
+        b=HjOGV+C6niZKQarOvl5KSWSACnm2p/FO1MGER8vi+3sw6aFpzdtnM9ROZYrZLKk/U
+         z9OcaSnXdsy/U1B49k1RVGPUY0ZzctdnA3fzX69T0bMpnGA4jKGZyugQ860bj94iE+
+         o/67JrNaBQiZS7e5N3OWRPg7bYwauAWatyYeDt2w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        stable@vger.kernel.org, Sriram R <srirrama@codeaurora.org>,
         Jouni Malinen <jouni@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 048/296] ath10k: drop MPDU which has discard flag set by firmware for SDIO
+Subject: [PATCH 5.10 038/252] ath10k: Validate first subframe of A-MSDU before processing the list
 Date:   Mon, 31 May 2021 15:11:43 +0200
-Message-Id: <20210531130705.449513946@linuxfoundation.org>
+Message-Id: <20210531130659.287223417@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wen Gong <wgong@codeaurora.org>
+From: Sriram R <srirrama@codeaurora.org>
 
-commit 079a108feba474b4b32bd3471db03e11f2f83b81 upstream.
+commit 62a8ff67eba52dae9b107e1fb8827054ed00a265 upstream.
 
-When the discard flag is set by the firmware for an MPDU, it should be
-dropped. This allows a mitigation for CVE-2020-24588 to be implemented
-in the firmware.
+In certain scenarios a normal MSDU can be received as an A-MSDU when
+the A-MSDU present bit of a QoS header gets flipped during reception.
+Since this bit is unauthenticated, the hardware crypto engine can pass
+the frame to the driver without any error indication.
 
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
+This could result in processing unintended subframes collected in the
+A-MSDU list. Hence, validate A-MSDU list by checking if the first frame
+has a valid subframe header.
+
+Comparing the non-aggregated MSDU and an A-MSDU, the fields of the first
+subframe DA matches the LLC/SNAP header fields of a normal MSDU.
+In order to avoid processing such frames, add a validation to
+filter such A-MSDU frames where the first subframe header DA matches
+with the LLC/SNAP header pattern.
+
+Tested-on: QCA9984 hw1.0 PCI 10.4-3.10-00047
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Sriram R <srirrama@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.11968c725b5c.Idd166365ebea2771c0c0a38c78b5060750f90e17@changeid
+Link: https://lore.kernel.org/r/20210511200110.e6f5eb7b9847.I38a77ae26096862527a5eab73caebd7346af8b66@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c  |    5 +++++
- drivers/net/wireless/ath/ath10k/rx_desc.h |   14 +++++++++++++-
- 2 files changed, 18 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c |   61 ++++++++++++++++++++++++++++---
+ 1 file changed, 57 insertions(+), 4 deletions(-)
 
 --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
 +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -2312,6 +2312,11 @@ static bool ath10k_htt_rx_proc_rx_ind_hl
- 	fw_desc = &rx->fw_desc;
- 	rx_desc_len = fw_desc->len;
+@@ -2108,14 +2108,62 @@ static void ath10k_htt_rx_h_unchain(stru
+ 	ath10k_unchain_msdu(amsdu, unchain_cnt);
+ }
  
-+	if (fw_desc->u.bits.discard) {
-+		ath10k_dbg(ar, ATH10K_DBG_HTT, "htt discard mpdu\n");
-+		goto err;
++static bool ath10k_htt_rx_validate_amsdu(struct ath10k *ar,
++					 struct sk_buff_head *amsdu)
++{
++	u8 *subframe_hdr;
++	struct sk_buff *first;
++	bool is_first, is_last;
++	struct htt_rx_desc *rxd;
++	struct ieee80211_hdr *hdr;
++	size_t hdr_len, crypto_len;
++	enum htt_rx_mpdu_encrypt_type enctype;
++	int bytes_aligned = ar->hw_params.decap_align_bytes;
++
++	first = skb_peek(amsdu);
++
++	rxd = (void *)first->data - sizeof(*rxd);
++	hdr = (void *)rxd->rx_hdr_status;
++
++	is_first = !!(rxd->msdu_end.common.info0 &
++		      __cpu_to_le32(RX_MSDU_END_INFO0_FIRST_MSDU));
++	is_last = !!(rxd->msdu_end.common.info0 &
++		     __cpu_to_le32(RX_MSDU_END_INFO0_LAST_MSDU));
++
++	/* Return in case of non-aggregated msdu */
++	if (is_first && is_last)
++		return true;
++
++	/* First msdu flag is not set for the first msdu of the list */
++	if (!is_first)
++		return false;
++
++	enctype = MS(__le32_to_cpu(rxd->mpdu_start.info0),
++		     RX_MPDU_START_INFO0_ENCRYPT_TYPE);
++
++	hdr_len = ieee80211_hdrlen(hdr->frame_control);
++	crypto_len = ath10k_htt_rx_crypto_param_len(ar, enctype);
++
++	subframe_hdr = (u8 *)hdr + round_up(hdr_len, bytes_aligned) +
++		       crypto_len;
++
++	/* Validate if the amsdu has a proper first subframe.
++	 * There are chances a single msdu can be received as amsdu when
++	 * the unauthenticated amsdu flag of a QoS header
++	 * gets flipped in non-SPP AMSDU's, in such cases the first
++	 * subframe has llc/snap header in place of a valid da.
++	 * return false if the da matches rfc1042 pattern
++	 */
++	if (ether_addr_equal(subframe_hdr, rfc1042_header))
++		return false;
++
++	return true;
++}
++
+ static bool ath10k_htt_rx_amsdu_allowed(struct ath10k *ar,
+ 					struct sk_buff_head *amsdu,
+ 					struct ieee80211_rx_status *rx_status)
+ {
+-	/* FIXME: It might be a good idea to do some fuzzy-testing to drop
+-	 * invalid/dangerous frames.
+-	 */
+-
+ 	if (!rx_status->freq) {
+ 		ath10k_dbg(ar, ATH10K_DBG_HTT, "no channel configured; ignoring frame(s)!\n");
+ 		return false;
+@@ -2126,6 +2174,11 @@ static bool ath10k_htt_rx_amsdu_allowed(
+ 		return false;
+ 	}
+ 
++	if (!ath10k_htt_rx_validate_amsdu(ar, amsdu)) {
++		ath10k_dbg(ar, ATH10K_DBG_HTT, "invalid amsdu received\n");
++		return false;
 +	}
 +
- 	/* I have not yet seen any case where num_mpdu_ranges > 1.
- 	 * qcacld does not seem handle that case either, so we introduce the
- 	 * same limitiation here as well.
---- a/drivers/net/wireless/ath/ath10k/rx_desc.h
-+++ b/drivers/net/wireless/ath/ath10k/rx_desc.h
-@@ -1282,7 +1282,19 @@ struct fw_rx_desc_base {
- #define FW_RX_DESC_UDP              (1 << 6)
+ 	return true;
+ }
  
- struct fw_rx_desc_hl {
--	u8 info0;
-+	union {
-+		struct {
-+		u8 discard:1,
-+		   forward:1,
-+		   any_err:1,
-+		   dup_err:1,
-+		   reserved:1,
-+		   inspect:1,
-+		   extension:2;
-+		} bits;
-+		u8 info0;
-+	} u;
-+
- 	u8 version;
- 	u8 len;
- 	u8 flags;
 
 
