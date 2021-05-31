@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 033C4396132
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:35:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 32BA8395DDC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233492AbhEaOh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60988 "EHLO mail.kernel.org"
+        id S231826AbhEaNva (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233059AbhEaOfK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E875061C47;
-        Mon, 31 May 2021 13:50:41 +0000 (UTC)
+        id S232374AbhEaNtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:49:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 510B86162E;
+        Mon, 31 May 2021 13:31:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469042;
-        bh=1dCvVlGuxfmLXgO3Knl11lfZ+HgO81o6Inj7BWyWH6o=;
+        s=korg; t=1622467889;
+        bh=jjaXlbtyJiRj1P+l5mUfsCFqIybcq8PmYGxgHVVNIvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xpgYApiraIGAM+TEZRDtnDqRgNPGLaGuGhDoBOc6T7n4r+59QXCl2ohLYirjQ2Pzn
-         1SPNkpUbcCZx5v0yvqOwBQUIf2kvLoEx35OazHvhrIYSViZgquabUkbn5ual4TKpym
-         YPRjWw02vKkx80s+ahbjC502GaFpU7jCNCKRhHUQ=
+        b=JQPwmr9m5V+ku/MhlFiMk4ZbICpowqEsQi1WYTRb1bKTpUjhioEac0ebVA3ZI92CE
+         ZYi1N26FSe3jE72arv2VY5tvArzr3eJSfGP24zmtO82WjXYwBJeWFBe9+5qzYoWV9Q
+         +XWdy7yQD/sHQBFvKbRQU2XBF2K1CkrBtCYetdUI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
         Jouni Malinen <jouni@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 047/296] ath10k: drop fragments with multicast DA for SDIO
+Subject: [PATCH 5.10 037/252] ath10k: Fix TKIP Michael MIC verification for PCIe
 Date:   Mon, 31 May 2021 15:11:42 +0200
-Message-Id: <20210531130705.411694840@linuxfoundation.org>
+Message-Id: <20210531130659.254248089@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,47 +42,55 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Wen Gong <wgong@codeaurora.org>
 
-commit 40e7462dad6f3d06efdb17d26539e61ab6e34db1 upstream.
+commit 0dc267b13f3a7e8424a898815dd357211b737330 upstream.
 
-Fragmentation is not used with multicast frames. Discard unexpected
-fragments with multicast DA. This fixes CVE-2020-26145.
+TKIP Michael MIC was not verified properly for PCIe cases since the
+validation steps in ieee80211_rx_h_michael_mic_verify() in mac80211 did
+not get fully executed due to unexpected flag values in
+ieee80211_rx_status.
 
-Tested-on: QCA6174 hw3.2 SDIO WLAN.RMH.4.4.1-00049
+Fix this by setting the flags property to meet mac80211 expectations for
+performing Michael MIC validation there. This fixes CVE-2020-26141. It
+does the same as ath10k_htt_rx_proc_rx_ind_hl() for SDIO which passed
+MIC verification case. This applies only to QCA6174/QCA9377 PCIe.
+
+Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.9ca6ca7945a9.I1e18b514590af17c155bda86699bc3a971a8dcf4@changeid
+Link: https://lore.kernel.org/r/20210511200110.c3f1d42c6746.I795593fcaae941c471425b8c7d5f7bb185d29142@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/ath/ath10k/htt_rx.c |    9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt_rx.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
 --- a/drivers/net/wireless/ath/ath10k/htt_rx.c
 +++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
-@@ -2617,6 +2617,13 @@ static bool ath10k_htt_rx_proc_rx_frag_i
- 	rx_desc = (struct htt_hl_rx_desc *)(skb->data + tot_hdr_len);
- 	rx_desc_info = __le32_to_cpu(rx_desc->info);
+@@ -1974,6 +1974,11 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 		}
  
-+	hdr = (struct ieee80211_hdr *)((u8 *)rx_desc + rx_hl->fw_desc.len);
+ 		ath10k_htt_rx_h_csum_offload(msdu);
 +
-+	if (is_multicast_ether_addr(hdr->addr1)) {
-+		/* Discard the fragment with multicast DA */
-+		goto err;
-+	}
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_MMIC_STRIPPED;
 +
- 	if (!MS(rx_desc_info, HTT_RX_DESC_HL_INFO_ENCRYPTED)) {
- 		spin_unlock_bh(&ar->data_lock);
- 		return ath10k_htt_rx_proc_rx_ind_hl(htt, &resp->rx_ind_hl, skb,
-@@ -2624,8 +2631,6 @@ static bool ath10k_htt_rx_proc_rx_frag_i
- 						    HTT_RX_NON_TKIP_MIC);
+ 		ath10k_htt_rx_h_undecap(ar, msdu, status, first_hdr, enctype,
+ 					is_decrypted);
+ 
+@@ -1991,6 +1996,11 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 
+ 		hdr = (void *)msdu->data;
+ 		hdr->frame_control &= ~__cpu_to_le16(IEEE80211_FCTL_PROTECTED);
++
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_IV_STRIPPED &
++					~RX_FLAG_MMIC_STRIPPED;
  	}
- 
--	hdr = (struct ieee80211_hdr *)((u8 *)rx_desc + rx_hl->fw_desc.len);
--
- 	if (ieee80211_has_retry(hdr->frame_control))
- 		goto err;
+ }
  
 
 
