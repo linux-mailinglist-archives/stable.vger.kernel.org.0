@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 947D3395D88
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B800E396061
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbhEaNrR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:47:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49708 "EHLO mail.kernel.org"
+        id S232322AbhEaOZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46050 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232757AbhEaNpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:45:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD46261415;
-        Mon, 31 May 2021 13:29:41 +0000 (UTC)
+        id S233408AbhEaOX0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A73A0613F2;
+        Mon, 31 May 2021 13:45:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467782;
-        bh=SOIkqthu+jcwGxaEf1kbni/BuJeajPxGrKkNdiRXLYI=;
+        s=korg; t=1622468745;
+        bh=RQhlUaPK0txnvTpB8EbPl0THdMYPjTwx7mfDkn3q924=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r02g0xGEsjFvP/qKOOGHnouRHMYeHi35iePbJUcRnCPo/k5qqYr4tP0dOmvT4bD0u
-         1IUisZfPwqw5Fi0vmpII1Qw5ELuoG+hUKGJAEXdat87umWFNbZ8xF/vuwntkxmvba7
-         y+Iyn47i352rI6wYzvOAkd9mX3ZCZrDxDlBVOtYE=
+        b=AT0LtAN3gOqVaUxrSb6Ku69evSyr2h9bh2Z9INbEhgKQv/Pn6n5hEFFAF8lPJ31lN
+         V2Dc6Vq8qkUwV1aPZu5iPJtj2dfVtaCVg2zYZvJOMaxMWOWJBP0wvYWh2KnyL9ZKgS
+         +cSAY6KPfLUPD6upprXBn/7NmWbygZ/CYSmT4O5o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.14 42/79] i2c: s3c2410: fix possible NULL pointer deref on read message after write
-Date:   Mon, 31 May 2021 15:14:27 +0200
-Message-Id: <20210531130637.360477622@linuxfoundation.org>
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 111/177] Revert "ASoC: cs43130: fix a NULL pointer dereference"
+Date:   Mon, 31 May 2021 15:14:28 +0200
+Message-Id: <20210531130651.752580694@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 24990423267ec283b9d86f07f362b753eb9b0ed5 upstream.
+[ Upstream commit fdda0dd2686ecd1f2e616c9e0366ea71b40c485d ]
 
-Interrupt handler processes multiple message write requests one after
-another, till the driver message queue is drained.  However if driver
-encounters a read message without preceding START, it stops the I2C
-transfer as it is an invalid condition for the controller.  At least the
-comment describes a requirement "the controller forces us to send a new
-START when we change direction".  This stop results in clearing the
-message queue (i2c->msg = NULL).
+This reverts commit a2be42f18d409213bb7e7a736e3ef6ba005115bb.
 
-The code however immediately jumped back to label "retry_write" which
-dereferenced the "i2c->msg" making it a possible NULL pointer
-dereference.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-The Coverity analysis:
-1. Condition !is_msgend(i2c), taking false branch.
-   if (!is_msgend(i2c)) {
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-2. Condition !is_lastmsg(i2c), taking true branch.
-   } else if (!is_lastmsg(i2c)) {
+The original patch here is not correct, sysfs files that were created
+are not unwound.
 
-3. Condition i2c->msg->flags & 1, taking true branch.
-   if (i2c->msg->flags & I2C_M_RD) {
-
-4. write_zero_model: Passing i2c to s3c24xx_i2c_stop, which sets i2c->msg to NULL.
-   s3c24xx_i2c_stop(i2c, -EINVAL);
-
-5. Jumping to label retry_write.
-   goto retry_write;
-
-6. var_deref_model: Passing i2c to is_msgend, which dereferences null i2c->msg.
-   if (!is_msgend(i2c)) {"
-
-All previous calls to s3c24xx_i2c_stop() in this interrupt service
-routine are followed by jumping to end of function (acknowledging
-the interrupt and returning).  This seems a reasonable choice also here
-since message buffer was entirely emptied.
-
-Addresses-Coverity: Explicit null dereferenced
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-57-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c |    3 +++
- 1 file changed, 3 insertions(+)
+ sound/soc/codecs/cs43130.c | 2 --
+ 1 file changed, 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -495,7 +495,10 @@ static int i2c_s3c_irq_nextbyte(struct s
- 					 * forces us to send a new START
- 					 * when we change direction
- 					 */
-+					dev_dbg(i2c->dev,
-+						"missing START before write->read\n");
- 					s3c24xx_i2c_stop(i2c, -EINVAL);
-+					break;
- 				}
+diff --git a/sound/soc/codecs/cs43130.c b/sound/soc/codecs/cs43130.c
+index 7fb34422a2a4..bb46e993c353 100644
+--- a/sound/soc/codecs/cs43130.c
++++ b/sound/soc/codecs/cs43130.c
+@@ -2319,8 +2319,6 @@ static int cs43130_probe(struct snd_soc_component *component)
+ 			return ret;
  
- 				goto retry_write;
+ 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
+-		if (!cs43130->wq)
+-			return -ENOMEM;
+ 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
+ 	}
+ 
+-- 
+2.30.2
+
 
 
