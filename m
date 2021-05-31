@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EF38396016
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 588F3395D3D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232385AbhEaOWl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43952 "EHLO mail.kernel.org"
+        id S232380AbhEaNnS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:43:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233484AbhEaOTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:19:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9FE0B61480;
-        Mon, 31 May 2021 13:44:13 +0000 (UTC)
+        id S232086AbhEaNlO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:41:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9409A61464;
+        Mon, 31 May 2021 13:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468654;
-        bh=mWIerrBkTmGAiPqq4/5pbusujt03ZxEDyB82koPWxkA=;
+        s=korg; t=1622467680;
+        bh=1PgQGrBxZKLTbNoxeWWMZoJhX1q0eSCDcQ56kDC7YE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbEA74yROW/PAJlft3JBcom5dyEwl9T3RCO5Gw6MI/6WEJaYgDMprswZFe1Odtuhl
-         tjHqZuGxKkyoXn1Y5mdOvCcKqqBv51Cllws+iDevGXXS1QKY0gBsb55pHtov7vZFPW
-         5f0xN1S1GobUiI3qcnreAskWLzac4NA1Pk2lxtj8=
+        b=10DDRrL4/db/t0HsBsAhAmiPyjIfbT4BlC3jLh2CxG+S5G4Z9M3/0Dfs3fRp404hH
+         ol2K5BOViKtJAkzORDMlPgV6OB0KJkN2c3lVgsa7Ew15tpwAOc7YhgDWl0WYilA0qF
+         bD7mzS2N3s7RvaUTcAJVp+6zPzXH/yAxqVk2qT2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladyslav Tarasiuk <vladyslavt@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
+        stable@vger.kernel.org,
+        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 074/177] net/mlx4: Fix EEPROM dump support
+Subject: [PATCH 4.14 06/79] NFC: nci: fix memory leak in nci_allocate_device
 Date:   Mon, 31 May 2021 15:13:51 +0200
-Message-Id: <20210531130650.449472291@linuxfoundation.org>
+Message-Id: <20210531130636.204157923@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,198 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit db825feefc6868896fed5e361787ba3bee2fd906 upstream.
+commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
 
-Fix SFP and QSFP* EEPROM queries by setting i2c_address, offset and page
-number correctly. For SFP set the following params:
-- I2C address for offsets 0-255 is 0x50. For 256-511 - 0x51.
-- Page number is zero.
-- Offset is 0-255.
+nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
+Fix this by freeing hci_dev in nci_free_device.
 
-At the same time, QSFP* parameters are different:
-- I2C address is always 0x50.
-- Page number is not limited to zero.
-- Offset is 0-255 for page zero and 128-255 for others.
+BUG: memory leak
+unreferenced object 0xffff888111ea6800 (size 1024):
+  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
+    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
+    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
+    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
+    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
+    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
+    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
+    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
+    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
+    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
+    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
 
-To set parameters accordingly to cable used, implement function to query
-module ID and implement respective helper functions to set parameters
-correctly.
-
-Fixes: 135dd9594f12 ("net/mlx4_en: ethtool, Remove unsupported SFP EEPROM high pages query")
-Signed-off-by: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
-Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    4 
- drivers/net/ethernet/mellanox/mlx4/port.c       |  107 +++++++++++++++++++++++-
- 2 files changed, 104 insertions(+), 7 deletions(-)
+ include/net/nfc/nci_core.h |    1 +
+ net/nfc/nci/core.c         |    1 +
+ net/nfc/nci/hci.c          |    5 +++++
+ 3 files changed, 7 insertions(+)
 
---- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
-@@ -2011,8 +2011,6 @@ static int mlx4_en_set_tunable(struct ne
- 	return ret;
- }
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -310,6 +310,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
+ 		      struct sk_buff **resp);
  
--#define MLX4_EEPROM_PAGE_LEN 256
--
- static int mlx4_en_get_module_info(struct net_device *dev,
- 				   struct ethtool_modinfo *modinfo)
+ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
++void nci_hci_deallocate(struct nci_dev *ndev);
+ int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
+ 		       const u8 *param, size_t param_len);
+ int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -1187,6 +1187,7 @@ EXPORT_SYMBOL(nci_allocate_device);
+ void nci_free_device(struct nci_dev *ndev)
  {
-@@ -2047,7 +2045,7 @@ static int mlx4_en_get_module_info(struc
- 		break;
- 	case MLX4_MODULE_ID_SFP:
- 		modinfo->type = ETH_MODULE_SFF_8472;
--		modinfo->eeprom_len = MLX4_EEPROM_PAGE_LEN;
-+		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
- 		break;
- 	default:
- 		return -EINVAL;
---- a/drivers/net/ethernet/mellanox/mlx4/port.c
-+++ b/drivers/net/ethernet/mellanox/mlx4/port.c
-@@ -1973,6 +1973,7 @@ EXPORT_SYMBOL(mlx4_get_roce_gid_from_sla
- #define I2C_ADDR_LOW  0x50
- #define I2C_ADDR_HIGH 0x51
- #define I2C_PAGE_SIZE 256
-+#define I2C_HIGH_PAGE_SIZE 128
- 
- /* Module Info Data */
- struct mlx4_cable_info {
-@@ -2026,6 +2027,88 @@ static inline const char *cable_info_mad
- 	return "Unknown Error";
+ 	nfc_free_device(ndev->nfc_dev);
++	nci_hci_deallocate(ndev);
+ 	kfree(ndev);
  }
+ EXPORT_SYMBOL(nci_free_device);
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -807,3 +807,8 @@ struct nci_hci_dev *nci_hci_allocate(str
  
-+static int mlx4_get_module_id(struct mlx4_dev *dev, u8 port, u8 *module_id)
+ 	return hdev;
+ }
++
++void nci_hci_deallocate(struct nci_dev *ndev)
 +{
-+	struct mlx4_cmd_mailbox *inbox, *outbox;
-+	struct mlx4_mad_ifc *inmad, *outmad;
-+	struct mlx4_cable_info *cable_info;
-+	int ret;
-+
-+	inbox = mlx4_alloc_cmd_mailbox(dev);
-+	if (IS_ERR(inbox))
-+		return PTR_ERR(inbox);
-+
-+	outbox = mlx4_alloc_cmd_mailbox(dev);
-+	if (IS_ERR(outbox)) {
-+		mlx4_free_cmd_mailbox(dev, inbox);
-+		return PTR_ERR(outbox);
-+	}
-+
-+	inmad = (struct mlx4_mad_ifc *)(inbox->buf);
-+	outmad = (struct mlx4_mad_ifc *)(outbox->buf);
-+
-+	inmad->method = 0x1; /* Get */
-+	inmad->class_version = 0x1;
-+	inmad->mgmt_class = 0x1;
-+	inmad->base_version = 0x1;
-+	inmad->attr_id = cpu_to_be16(0xFF60); /* Module Info */
-+
-+	cable_info = (struct mlx4_cable_info *)inmad->data;
-+	cable_info->dev_mem_address = 0;
-+	cable_info->page_num = 0;
-+	cable_info->i2c_addr = I2C_ADDR_LOW;
-+	cable_info->size = cpu_to_be16(1);
-+
-+	ret = mlx4_cmd_box(dev, inbox->dma, outbox->dma, port, 3,
-+			   MLX4_CMD_MAD_IFC, MLX4_CMD_TIME_CLASS_C,
-+			   MLX4_CMD_NATIVE);
-+	if (ret)
-+		goto out;
-+
-+	if (be16_to_cpu(outmad->status)) {
-+		/* Mad returned with bad status */
-+		ret = be16_to_cpu(outmad->status);
-+		mlx4_warn(dev,
-+			  "MLX4_CMD_MAD_IFC Get Module ID attr(%x) port(%d) i2c_addr(%x) offset(%d) size(%d): Response Mad Status(%x) - %s\n",
-+			  0xFF60, port, I2C_ADDR_LOW, 0, 1, ret,
-+			  cable_info_mad_err_str(ret));
-+		ret = -ret;
-+		goto out;
-+	}
-+	cable_info = (struct mlx4_cable_info *)outmad->data;
-+	*module_id = cable_info->data[0];
-+out:
-+	mlx4_free_cmd_mailbox(dev, inbox);
-+	mlx4_free_cmd_mailbox(dev, outbox);
-+	return ret;
++	kfree(ndev->hci_dev);
 +}
-+
-+static void mlx4_sfp_eeprom_params_set(u8 *i2c_addr, u8 *page_num, u16 *offset)
-+{
-+	*i2c_addr = I2C_ADDR_LOW;
-+	*page_num = 0;
-+
-+	if (*offset < I2C_PAGE_SIZE)
-+		return;
-+
-+	*i2c_addr = I2C_ADDR_HIGH;
-+	*offset -= I2C_PAGE_SIZE;
-+}
-+
-+static void mlx4_qsfp_eeprom_params_set(u8 *i2c_addr, u8 *page_num, u16 *offset)
-+{
-+	/* Offsets 0-255 belong to page 0.
-+	 * Offsets 256-639 belong to pages 01, 02, 03.
-+	 * For example, offset 400 is page 02: 1 + (400 - 256) / 128 = 2
-+	 */
-+	if (*offset < I2C_PAGE_SIZE)
-+		*page_num = 0;
-+	else
-+		*page_num = 1 + (*offset - I2C_PAGE_SIZE) / I2C_HIGH_PAGE_SIZE;
-+	*i2c_addr = I2C_ADDR_LOW;
-+	*offset -= *page_num * I2C_HIGH_PAGE_SIZE;
-+}
-+
- /**
-  * mlx4_get_module_info - Read cable module eeprom data
-  * @dev: mlx4_dev.
-@@ -2045,12 +2128,30 @@ int mlx4_get_module_info(struct mlx4_dev
- 	struct mlx4_cmd_mailbox *inbox, *outbox;
- 	struct mlx4_mad_ifc *inmad, *outmad;
- 	struct mlx4_cable_info *cable_info;
--	u16 i2c_addr;
-+	u8 module_id, i2c_addr, page_num;
- 	int ret;
- 
- 	if (size > MODULE_INFO_MAX_READ)
- 		size = MODULE_INFO_MAX_READ;
- 
-+	ret = mlx4_get_module_id(dev, port, &module_id);
-+	if (ret)
-+		return ret;
-+
-+	switch (module_id) {
-+	case MLX4_MODULE_ID_SFP:
-+		mlx4_sfp_eeprom_params_set(&i2c_addr, &page_num, &offset);
-+		break;
-+	case MLX4_MODULE_ID_QSFP:
-+	case MLX4_MODULE_ID_QSFP_PLUS:
-+	case MLX4_MODULE_ID_QSFP28:
-+		mlx4_qsfp_eeprom_params_set(&i2c_addr, &page_num, &offset);
-+		break;
-+	default:
-+		mlx4_err(dev, "Module ID not recognized: %#x\n", module_id);
-+		return -EINVAL;
-+	}
-+
- 	inbox = mlx4_alloc_cmd_mailbox(dev);
- 	if (IS_ERR(inbox))
- 		return PTR_ERR(inbox);
-@@ -2076,11 +2177,9 @@ int mlx4_get_module_info(struct mlx4_dev
- 		 */
- 		size -= offset + size - I2C_PAGE_SIZE;
- 
--	i2c_addr = I2C_ADDR_LOW;
--
- 	cable_info = (struct mlx4_cable_info *)inmad->data;
- 	cable_info->dev_mem_address = cpu_to_be16(offset);
--	cable_info->page_num = 0;
-+	cable_info->page_num = page_num;
- 	cable_info->i2c_addr = i2c_addr;
- 	cable_info->size = cpu_to_be16(size);
- 
 
 
