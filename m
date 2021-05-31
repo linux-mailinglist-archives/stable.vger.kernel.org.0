@@ -2,36 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9CBB396227
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 75E13395D26
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233650AbhEaOvo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S232646AbhEaNlx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231411AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EFEA613F3;
-        Mon, 31 May 2021 13:57:11 +0000 (UTC)
+        id S232920AbhEaNjt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 84F4161463;
+        Mon, 31 May 2021 13:27:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469432;
-        bh=/5mkWMxrniQRM0OIO+l/RFMqZzon2mnA8svi+4FOsBY=;
+        s=korg; t=1622467643;
+        bh=Dj6Jllpbs8IJQDtualjDiRT8lckR010B7rApBCt/tVQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tb1XqJiZf+RcO/IRPEFsI/zkxoasOj/t0swu6WOTOHmSToPiibpaB9IQNAWfm7QHh
-         o6FFMxcZAv2qkMxVXkWwPWuB6XC26noZJfPsLWmBgPUbv3RCvQWZTzcQu99zVTRfHJ
-         GWib79DMLcIEftalivuLO53JZshNLom/V4GtYOYg=
+        b=uzuTRcAhOy7IEko92avprLT0tAHkc1t+unr9lmiyaAp++kU0xp1WvcQt/T7JTI7Y0
+         UDShKlzkfq7ocIF6qCl4HQqsJFlMvUTYjKerf5PA0rB2khxlgBLpyXD3swep50Ivja
+         9/hS5WFSyJukqVFm0T5a3CDVZU4AaisQulx22gR8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 195/296] media: gspca: properly check for errors in po1030_probe()
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 25/79] USB: trancevibrator: fix control-request direction
 Date:   Mon, 31 May 2021 15:14:10 +0200
-Message-Id: <20210531130710.430819134@linuxfoundation.org>
+Message-Id: <20210531130636.808140268@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +38,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+commit 746e4acf87bcacf1406e05ef24a0b7139147c63e upstream.
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Fix the set-speed request which erroneously used USB_DIR_IN and update
+the default timeout argument to match (same value).
+
+Fixes: 5638e4d92e77 ("USB: add PlayStation 2 Trance Vibrator driver")
+Cc: stable@vger.kernel.org      # 2.6.19
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210521133109.17396-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/usb/misc/trancevibrator.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index 7bdbb8065146..8fd99ceee4b6 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -155,6 +155,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
- {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
- 
- 	if (force_sensor) {
-@@ -173,10 +174,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
- 		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
- 	}
- 
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
--- 
-2.30.2
-
+--- a/drivers/usb/misc/trancevibrator.c
++++ b/drivers/usb/misc/trancevibrator.c
+@@ -72,9 +72,9 @@ static ssize_t set_speed(struct device *
+ 	/* Set speed */
+ 	retval = usb_control_msg(tv->udev, usb_sndctrlpipe(tv->udev, 0),
+ 				 0x01, /* vendor request: set speed */
+-				 USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_OTHER,
++				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
+ 				 tv->speed, /* speed value */
+-				 0, NULL, 0, USB_CTRL_GET_TIMEOUT);
++				 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		tv->speed = old;
+ 		dev_dbg(&tv->udev->dev, "retval = %d\n", retval);
 
 
