@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AD65396182
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ED268395DF8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233742AbhEaOlh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38020 "EHLO mail.kernel.org"
+        id S232636AbhEaNwa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:52:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234163AbhEaOjf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8D07561C61;
-        Mon, 31 May 2021 13:52:48 +0000 (UTC)
+        id S233256AbhEaNu2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:50:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AD3361431;
+        Mon, 31 May 2021 13:31:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469169;
-        bh=5LlACC9eb6jvWorU9pDA7NG43+2mm3M4Wkkm+rUdpr0=;
+        s=korg; t=1622467919;
+        bh=wfHtREpFmlGBcwyHVdlPE0JPPJA1LE83SdAOS4fMfQk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u948Eu2R5SmR/pQhoIh2DsXwARsudSjQsbJAfr8300gDwW09032gzZ9aWeJI0a6t5
-         V3odYLt66Q65NHL4VPt5+N/ZWlxO20GLPBpSShp8kEiF2a9H7nkpDqkfQ1/BpHsW6Y
-         N2FAYigdDvApmem52eu9hYRCo7XCoWc4BeJVu3Yk=
+        b=bsP8Qn4azXNpg1LzGOWl1RKzQ7B18zOLUlgxX5S0f+5E96i+UqjJ6vcmftrf6I/YZ
+         h8KO++96HhUy7NeufVaf3S4So60Xuu3NdeCAuDhXTrSlYE2mGpKFy5gof/VNb7xAzl
+         mO2hQevy4TMHA2EiJRf9H5/Dlx7ovdYV1O8yIW4g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 060/296] drm/amdgpu/jpeg2.0: add cancel_delayed_work_sync before power gate
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jason Wessel <jason.wessel@windriver.com>
+Subject: [PATCH 5.10 050/252] kgdb: fix gcc-11 warnings harder
 Date:   Mon, 31 May 2021 15:11:55 +0200
-Message-Id: <20210531130705.852828791@linuxfoundation.org>
+Message-Id: <20210531130659.678217373@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit ff48f6dbf0ff896c98d167a67a5b975fb034356b upstream.
+commit bda7d3ab06f19c02dcef61fefcb9dd954dfd5e4f upstream.
 
-Add cancel_delayed_work_sync before set power gating state
-to avoid race condition issue when power gating.
+40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation") tried to fix up
+the gcc-11 complaints in this file by just reformatting the #defines.
+That worked for gcc 11.1.0, but in gcc 11.1.1 as shipped by Fedora 34,
+the warning came back for one of the #defines.
 
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fix this up again by putting { } around the if statement, now it is
+quiet again.
+
+Fixes: 40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation")
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Link: https://lore.kernel.org/r/20210520130839.51987-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/misc/kgdbts.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_0.c
-@@ -172,6 +172,8 @@ static int jpeg_v2_0_hw_fini(void *handl
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 
-+	cancel_delayed_work_sync(&adev->vcn.idle_work);
-+
- 	if (adev->jpeg.cur_state != AMD_PG_STATE_GATE &&
- 	      RREG32_SOC15(JPEG, 0, mmUVD_JRBC_STATUS))
- 		jpeg_v2_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -100,8 +100,9 @@
+ 		printk(KERN_INFO a);	\
+ } while (0)
+ #define v2printk(a...) do {		\
+-	if (verbose > 1)		\
++	if (verbose > 1) {		\
+ 		printk(KERN_INFO a);	\
++	}				\
+ 	touch_nmi_watchdog();		\
+ } while (0)
+ #define eprintk(a...) do {		\
 
 
