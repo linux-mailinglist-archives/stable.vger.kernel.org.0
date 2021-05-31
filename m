@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B597395D0B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C112395D1F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232592AbhEaNkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
+        id S232601AbhEaNlt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:41:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44430 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232236AbhEaNgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5561861403;
-        Mon, 31 May 2021 13:25:47 +0000 (UTC)
+        id S232859AbhEaNjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:39:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 60D126145D;
+        Mon, 31 May 2021 13:27:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467547;
-        bh=5DpGA1KMFU7ZPxexWARaQNUL3rVmBIhU43e6YNWNlMc=;
+        s=korg; t=1622467634;
+        bh=pBN3k1dfVhUrsTdxrEuc87G1WviUMAzn0aTgiovF7hg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/fSyOy2RAPnAk98Eq/qWNXVi98jr0ZYw5WI2Ns3Q/ZqWDWonvAmlXjQlHjk/ZtH3
-         7PwGPREWj2laIs8LRr75agdZLSicXeCidOHak7w4Un9ko0X6mmkZBLk2eM9EMrRFOX
-         l1+iUVYnLgDq3KSkbq39HUkhFRcEGIgik//FxipY=
+        b=lwy97F44RR4X4MLjSBy07POp6xUI7BR6hBBOcdCB1iRlfIrzLz6NFiruPg4s5+gWV
+         adwZrlKMpqCVWiv0f8sugagpq/26Pvv04gvKUOnza26o6Lo5TIodWO6lJprE+FMqEZ
+         Yg+La0yl1yvBEzYkp0TEv5p3pB8Pp5U4p4EQ3JEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
-        Andrew Lunn <andrew@lunn.ch>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 071/116] net: dsa: fix a crash if ->get_sset_count() fails
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.14 22/79] mei: request autosuspend after sending rx flow control
 Date:   Mon, 31 May 2021 15:14:07 +0200
-Message-Id: <20210531130642.551687572@linuxfoundation.org>
+Message-Id: <20210531130636.714647662@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit a269333fa5c0c8e53c92b5a28a6076a28cde3e83 upstream.
+commit bbf0a94744edfeee298e4a9ab6fd694d639a5cdf upstream.
 
-If ds->ops->get_sset_count() fails then it "count" is a negative error
-code such as -EOPNOTSUPP.  Because "i" is an unsigned int, the negative
-error code is type promoted to a very high value and the loop will
-corrupt memory until the system crashes.
+A rx flow control waiting in the control queue may block autosuspend.
+Re-request autosuspend after flow control been sent to unblock
+the transition to the low power state.
 
-Fix this by checking for error codes and changing the type of "i" to
-just int.
-
-Fixes: badf3ada60ab ("net: dsa: Provide CPU port statistics to master netdev")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/dsa/master.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/misc/mei/interrupt.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/dsa/master.c
-+++ b/net/dsa/master.c
-@@ -87,8 +87,7 @@ static void dsa_master_get_strings(struc
- 	struct dsa_switch *ds = cpu_dp->ds;
- 	int port = cpu_dp->index;
- 	int len = ETH_GSTRING_LEN;
--	int mcount = 0, count;
--	unsigned int i;
-+	int mcount = 0, count, i;
- 	uint8_t pfx[4];
- 	uint8_t *ndata;
+--- a/drivers/misc/mei/interrupt.c
++++ b/drivers/misc/mei/interrupt.c
+@@ -220,6 +220,9 @@ static int mei_cl_irq_read(struct mei_cl
+ 		return ret;
+ 	}
  
-@@ -118,6 +117,8 @@ static void dsa_master_get_strings(struc
- 		 */
- 		ds->ops->get_strings(ds, port, stringset, ndata);
- 		count = ds->ops->get_sset_count(ds, port, stringset);
-+		if (count < 0)
-+			return;
- 		for (i = 0; i < count; i++) {
- 			memmove(ndata + (i * len + sizeof(pfx)),
- 				ndata + i * len, len - sizeof(pfx));
++	pm_runtime_mark_last_busy(dev->dev);
++	pm_request_autosuspend(dev->dev);
++
+ 	list_move_tail(&cb->list, &cl->rd_pending);
+ 
+ 	return 0;
 
 
