@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B9AC7395E6C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A025F396011
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232996AbhEaN6c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:58:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
+        id S232568AbhEaOWe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:22:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232664AbhEaN4a (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:56:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DAEDB613EE;
-        Mon, 31 May 2021 13:34:43 +0000 (UTC)
+        id S232171AbhEaOQp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:16:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D37619AB;
+        Mon, 31 May 2021 13:43:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468084;
-        bh=iFArcbvKtYJvof7yNv8WzwPi1yTQYK+5m5SCzPnKboA=;
+        s=korg; t=1622468598;
+        bh=hqjHEKA1VFp8vfRcd3TJbg14kJYkSHRd9WCLyH65Z3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q3fEDqzlD1yYTwCCp+BA3/jCZ9APsQ0hrhurH49RuFLL+vGoREdY7nStD4OKpw2f4
-         G8P9s1VrEmDgQq0YeLyPcxNPROylJQB/EB/UNfCSHXfaeXtAP7TQ+u7ruEIfm2laZG
-         D1WdUrvnNIgDNeyeaK/FXBoVHBtNed4zvT1jo7Ws=
+        b=sQ/Zr6Ke1hyIGqnDs0iqPMm5TjqbaOnZrH7SW3GU+Er0dtbg1NG31G5b738dIxV8l
+         Py+RaqwYkZZqEX3Rid2v7uKeZd4og8A1Frmn4bmNXLHZkc8M89qwuPTzfC+axmVILo
+         DSIIS3T1xGpk4GgM/LjWydoLqEL8aMfIQUmJDX9s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Shuang <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 109/252] tipc: skb_linearize the head skb when reassembling msgs
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 017/177] cfg80211: mitigate A-MSDU aggregation attacks
 Date:   Mon, 31 May 2021 15:12:54 +0200
-Message-Id: <20210531130701.687309979@linuxfoundation.org>
+Message-Id: <20210531130648.512596218@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit b7df21cf1b79ab7026f545e7bf837bd5750ac026 upstream.
+commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
 
-It's not a good idea to append the frag skb to a skb's frag_list if
-the frag_list already has skbs from elsewhere, such as this skb was
-created by pskb_copy() where the frag_list was cloned (all the skbs
-in it were skb_get'ed) and shared by multiple skbs.
+Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
+destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
+header, and if so dropping the complete A-MSDU frame. This mitigates
+known attacks, although new (unknown) aggregation-based attacks may
+remain possible.
 
-However, the new appended frag skb should have been only seen by the
-current skb. Otherwise, it will cause use after free crashes as this
-appended frag skb are seen by multiple skbs but it only got skb_get
-called once.
+This defense works because in A-MSDU aggregation injection attacks, a
+normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
+the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
+header. In other words, the destination MAC address of the first A-MSDU
+subframe contains the start of an RFC1042 header during an aggregation
+attack. We can detect this and thereby prevent this specific attack.
+For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
+Through Frame Aggregation and Fragmentation".
 
-The same thing happens with a skb updated by pskb_may_pull() with a
-skb_cloned skb. Li Shuang has reported quite a few crashes caused
-by this when doing testing over macvlan devices:
+Note that for kernel 4.9 and above this patch depends on "mac80211:
+properly handle A-MSDUs that start with a rfc1042 header". Otherwise
+this patch has no impact and attacks will remain possible.
 
-  [] kernel BUG at net/core/skbuff.c:1970!
-  [] Call Trace:
-  []  skb_clone+0x4d/0xb0
-  []  macvlan_broadcast+0xd8/0x160 [macvlan]
-  []  macvlan_process_broadcast+0x148/0x150 [macvlan]
-  []  process_one_work+0x1a7/0x360
-  []  worker_thread+0x30/0x390
-
-  [] kernel BUG at mm/usercopy.c:102!
-  [] Call Trace:
-  []  __check_heap_object+0xd3/0x100
-  []  __check_object_size+0xff/0x16b
-  []  simple_copy_to_iter+0x1c/0x30
-  []  __skb_datagram_iter+0x7d/0x310
-  []  __skb_datagram_iter+0x2a5/0x310
-  []  skb_copy_datagram_iter+0x3b/0x90
-  []  tipc_recvmsg+0x14a/0x3a0 [tipc]
-  []  ____sys_recvmsg+0x91/0x150
-  []  ___sys_recvmsg+0x7b/0xc0
-
-  [] kernel BUG at mm/slub.c:305!
-  [] Call Trace:
-  []  <IRQ>
-  []  kmem_cache_free+0x3ff/0x400
-  []  __netif_receive_skb_core+0x12c/0xc40
-  []  ? kmem_cache_alloc+0x12e/0x270
-  []  netif_receive_skb_internal+0x3d/0xb0
-  []  ? get_rx_page_info+0x8e/0xa0 [be2net]
-  []  be_poll+0x6ef/0xd00 [be2net]
-  []  ? irq_exit+0x4f/0x100
-  []  net_rx_action+0x149/0x3b0
-
-  ...
-
-This patch is to fix it by linearizing the head skb if it has frag_list
-set in tipc_buf_append(). Note that we choose to do this before calling
-skb_unshare(), as __skb_linearize() will avoid skb_copy(). Also, we can
-not just drop the frag_list either as the early time.
-
-Fixes: 45c8b7b175ce ("tipc: allow non-linear first fragment buffer")
-Reported-by: Li Shuang <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/msg.c |    9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/wireless/util.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/tipc/msg.c
-+++ b/net/tipc/msg.c
-@@ -151,18 +151,13 @@ int tipc_buf_append(struct sk_buff **hea
- 		if (unlikely(head))
- 			goto err;
- 		*buf = NULL;
-+		if (skb_has_frag_list(frag) && __skb_linearize(frag))
-+			goto err;
- 		frag = skb_unshare(frag, GFP_ATOMIC);
- 		if (unlikely(!frag))
- 			goto err;
- 		head = *headbuf = frag;
- 		TIPC_SKB_CB(head)->tail = NULL;
--		if (skb_is_nonlinear(head)) {
--			skb_walk_frags(head, tail) {
--				TIPC_SKB_CB(head)->tail = tail;
--			}
--		} else {
--			skb_frag_list_init(head);
--		}
- 		return 0;
- 	}
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -681,6 +681,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
+ 		remaining = skb->len - offset;
+ 		if (subframe_len > remaining)
+ 			goto purge;
++		/* mitigate A-MSDU aggregation injection attacks */
++		if (ether_addr_equal(eth.h_dest, rfc1042_header))
++			goto purge;
  
+ 		offset += sizeof(struct ethhdr);
+ 		last = remaining <= subframe_len + padding;
 
 
