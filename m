@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EE3EC395F76
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8EE23395D96
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhEaOLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:11:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40232 "EHLO mail.kernel.org"
+        id S232081AbhEaNrr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50196 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233497AbhEaOJf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:09:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2C2561370;
-        Mon, 31 May 2021 13:40:20 +0000 (UTC)
+        id S232856AbhEaNpn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:45:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EBFC56142B;
+        Mon, 31 May 2021 13:29:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468421;
-        bh=EJaGrKNSQsHsjeAio+/+bon96Z7M3SGXwfhDl1TK6qA=;
+        s=korg; t=1622467797;
+        bh=0rp0hbiB+Kp09uOC7vDu7Mo1v4hoq6zkxNkJXxDq77U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fGKUZKBnMXsDeReSd5qVUkCGkvWuq9CW8f/PS+8K2b04nKGr1lIQXkewzaH9H0ZmE
-         ikdXJD5pC/yd/ooj7BXbu7vM4r4m5NlJaLrJfVhkC8zLAt5WTR8TspzdOCHx5SYXXR
-         TtyyXFfeiTyTLwEuHA4x9p65RysGU+Y+NkUSUDlQ=
+        b=nLcujQKuAMn9KTUUXCadW0Mlia+Zs9/L4K4H2VVHcRPZDu/alc94CIXOLlu4ia3mT
+         3BVgesU+PcAKPMM5m1Ku+0TN/8GNBroN+cccSlHD9k1jwjdV3zXKVAxJAS3fugEd+/
+         uYWW1YrvAQ5hSPl8N6ihE5WWTWidh9BrXltOQzUw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 237/252] sch_dsmark: fix a NULL deref in qdisc_reset()
+        stable@vger.kernel.org, Mike Kravetz <mike.kravetz@oracle.com>,
+        Nathan Chancellor <natechancellor@gmail.com>,
+        Davidlohr Bueso <dbueso@suse.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Ilie Halip <ilie.halip@gmail.com>,
+        David Bolvansky <david.bolvansky@gmail.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.14 77/79] hugetlbfs: hugetlb_fault_mutex_hash() cleanup
 Date:   Mon, 31 May 2021 15:15:02 +0200
-Message-Id: <20210531130706.054683132@linuxfoundation.org>
+Message-Id: <20210531130638.466476865@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,76 +45,128 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 9b76eade16423ef06829cccfe3e100cfce31afcd ]
+commit 552546366a30d88bd1d6f5efe848b2ab50fd57e5 upstream.
 
-If Qdisc_ops->init() is failed, Qdisc_ops->reset() would be called.
-When dsmark_init(Qdisc_ops->init()) is failed, it possibly doesn't
-initialize dsmark_qdisc_data->q. But dsmark_reset(Qdisc_ops->reset())
-uses dsmark_qdisc_data->q pointer wihtout any null checking.
-So, panic would occur.
+A new clang diagnostic (-Wsizeof-array-div) warns about the calculation
+to determine the number of u32's in an array of unsigned longs.
+Suppress warning by adding parentheses.
 
-Test commands:
-    sysctl net.core.default_qdisc=dsmark -w
-    ip link add dummy0 type dummy
-    ip link add vw0 link dummy0 type virt_wifi
-    ip link set vw0 up
+While looking at the above issue, noticed that the 'address' parameter
+to hugetlb_fault_mutex_hash is no longer used.  So, remove it from the
+definition and all callers.
 
-Splat looks like:
-KASAN: null-ptr-deref in range [0x0000000000000018-0x000000000000001f]
-CPU: 3 PID: 684 Comm: ip Not tainted 5.12.0+ #910
-RIP: 0010:qdisc_reset+0x2b/0x680
-Code: 1f 44 00 00 48 b8 00 00 00 00 00 fc ff df 41 57 41 56 41 55 41 54
-55 48 89 fd 48 83 c7 18 53 48 89 fa 48 c1 ea 03 48 83 ec 20 <80> 3c 02
-00 0f 85 09 06 00 00 4c 8b 65 18 0f 1f 44 00 00 65 8b 1d
-RSP: 0018:ffff88800fda6bf8 EFLAGS: 00010282
-RAX: dffffc0000000000 RBX: ffff8880050ed800 RCX: 0000000000000000
-RDX: 0000000000000003 RSI: ffffffff99e34100 RDI: 0000000000000018
-RBP: 0000000000000000 R08: fffffbfff346b553 R09: fffffbfff346b553
-R10: 0000000000000001 R11: fffffbfff346b552 R12: ffffffffc0824940
-R13: ffff888109e83800 R14: 00000000ffffffff R15: ffffffffc08249e0
-FS:  00007f5042287680(0000) GS:ffff888119800000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000055ae1f4dbd90 CR3: 0000000006760002 CR4: 00000000003706e0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? rcu_read_lock_bh_held+0xa0/0xa0
- dsmark_reset+0x3d/0xf0 [sch_dsmark]
- qdisc_reset+0xa9/0x680
- qdisc_destroy+0x84/0x370
- qdisc_create_dflt+0x1fe/0x380
- attach_one_default_qdisc.constprop.41+0xa4/0x180
- dev_activate+0x4d5/0x8c0
- ? __dev_open+0x268/0x390
- __dev_open+0x270/0x390
+No functional change.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20190919011847.18400-1-mike.kravetz@oracle.com
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Nathan Chancellor <natechancellor@gmail.com>
+Reviewed-by: Davidlohr Bueso <dbueso@suse.de>
+Reviewed-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Ilie Halip <ilie.halip@gmail.com>
+Cc: David Bolvansky <david.bolvansky@gmail.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_dsmark.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ fs/hugetlbfs/inode.c    |    4 ++--
+ include/linux/hugetlb.h |    2 +-
+ mm/hugetlb.c            |   11 +++++------
+ mm/userfaultfd.c        |    2 +-
+ 4 files changed, 9 insertions(+), 10 deletions(-)
 
-diff --git a/net/sched/sch_dsmark.c b/net/sched/sch_dsmark.c
-index 2b88710994d7..76ed1a05ded2 100644
---- a/net/sched/sch_dsmark.c
-+++ b/net/sched/sch_dsmark.c
-@@ -406,7 +406,8 @@ static void dsmark_reset(struct Qdisc *sch)
- 	struct dsmark_qdisc_data *p = qdisc_priv(sch);
+--- a/fs/hugetlbfs/inode.c
++++ b/fs/hugetlbfs/inode.c
+@@ -436,7 +436,7 @@ static void remove_inode_hugepages(struc
+ 			u32 hash;
  
- 	pr_debug("%s(sch %p,[qdisc %p])\n", __func__, sch, p);
--	qdisc_reset(p->q);
-+	if (p->q)
-+		qdisc_reset(p->q);
- 	sch->qstats.backlog = 0;
- 	sch->q.qlen = 0;
+ 			index = page->index;
+-			hash = hugetlb_fault_mutex_hash(h, mapping, index, 0);
++			hash = hugetlb_fault_mutex_hash(h, mapping, index);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 			/*
+@@ -618,7 +618,7 @@ static long hugetlbfs_fallocate(struct f
+ 		addr = index * hpage_size;
+ 
+ 		/* mutex taken here, fault path and hole punch */
+-		hash = hugetlb_fault_mutex_hash(h, mapping, index, addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, index);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 		/* See if already present in mapping to avoid alloc/free */
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -123,7 +123,7 @@ void free_huge_page(struct page *page);
+ void hugetlb_fix_reserve_counts(struct inode *inode);
+ extern struct mutex *hugetlb_fault_mutex_table;
+ u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+-				pgoff_t idx, unsigned long address);
++				pgoff_t idx);
+ 
+ pte_t *huge_pmd_share(struct mm_struct *mm, unsigned long addr, pud_t *pud);
+ 
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -3802,8 +3802,7 @@ retry:
+ 			 * handling userfault.  Reacquire after handling
+ 			 * fault to make calling code simpler.
+ 			 */
+-			hash = hugetlb_fault_mutex_hash(h, mapping, idx,
+-							address);
++			hash = hugetlb_fault_mutex_hash(h, mapping, idx);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			ret = handle_userfault(&vmf, VM_UFFD_MISSING);
+ 			mutex_lock(&hugetlb_fault_mutex_table[hash]);
+@@ -3916,7 +3915,7 @@ backout_unlocked:
+ 
+ #ifdef CONFIG_SMP
+ u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+-			    pgoff_t idx, unsigned long address)
++			    pgoff_t idx)
+ {
+ 	unsigned long key[2];
+ 	u32 hash;
+@@ -3924,7 +3923,7 @@ u32 hugetlb_fault_mutex_hash(struct hsta
+ 	key[0] = (unsigned long) mapping;
+ 	key[1] = idx;
+ 
+-	hash = jhash2((u32 *)&key, sizeof(key)/sizeof(u32), 0);
++	hash = jhash2((u32 *)&key, sizeof(key)/(sizeof(u32)), 0);
+ 
+ 	return hash & (num_fault_mutexes - 1);
  }
--- 
-2.30.2
-
+@@ -3934,7 +3933,7 @@ u32 hugetlb_fault_mutex_hash(struct hsta
+  * return 0 and avoid the hashing overhead.
+  */
+ u32 hugetlb_fault_mutex_hash(struct hstate *h, struct address_space *mapping,
+-			    pgoff_t idx, unsigned long address)
++			    pgoff_t idx)
+ {
+ 	return 0;
+ }
+@@ -3979,7 +3978,7 @@ int hugetlb_fault(struct mm_struct *mm,
+ 	 * get spurious allocation failures if two CPUs race to instantiate
+ 	 * the same page in the page cache.
+ 	 */
+-	hash = hugetlb_fault_mutex_hash(h, mapping, idx, address);
++	hash = hugetlb_fault_mutex_hash(h, mapping, idx);
+ 	mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 	entry = huge_ptep_get(ptep);
+--- a/mm/userfaultfd.c
++++ b/mm/userfaultfd.c
+@@ -272,7 +272,7 @@ retry:
+ 		 */
+ 		idx = linear_page_index(dst_vma, dst_addr);
+ 		mapping = dst_vma->vm_file->f_mapping;
+-		hash = hugetlb_fault_mutex_hash(h, mapping, idx, dst_addr);
++		hash = hugetlb_fault_mutex_hash(h, mapping, idx);
+ 		mutex_lock(&hugetlb_fault_mutex_table[hash]);
+ 
+ 		err = -ENOMEM;
 
 
