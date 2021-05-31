@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A02D395D0D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DFB94395BD6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231866AbhEaNky (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:40:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40218 "EHLO mail.kernel.org"
+        id S232031AbhEaNZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:25:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232222AbhEaNgY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:36:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EE3726138C;
-        Mon, 31 May 2021 13:25:49 +0000 (UTC)
+        id S232333AbhEaNXD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:23:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 186B2613B4;
+        Mon, 31 May 2021 13:19:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467550;
-        bh=b71SBhQkLUOf6GBO37cJl0H9l5cJbYbHDn/ybg4UNOo=;
+        s=korg; t=1622467184;
+        bh=SOIkqthu+jcwGxaEf1kbni/BuJeajPxGrKkNdiRXLYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vN35TSvXaQs1vNzb6qVVXWkzFE+b+e5qquh1YoA7FPecIERKp/MXfoJRnKM0SKnAO
-         HxHMoNBxk1gx2i3VRA0aNr3uQsPDjCB+KYtAJiSWVYNubCjERPjxa1oFmcFsVL8C8o
-         rN2iIx2IciyGXhoQ7S/BtRTSJURf8FoH+6vcKDWM=
+        b=HBQ53WqemU+qBZqvFrsUfL7kPn9GJC+wIQ7+pUnkIf0b4mnJwHTqIMcOmmEzxkWlz
+         lGAJAYOEQoNUBp3lCSgqNxspVQt51nF617KHF+dDHSeDwWpes8+ic2KVcbSOWDGnfg
+         GcLeRdltzHR/nV7wblqwJunGObdTz6pDi6i/7qXQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
         Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
         Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.19 072/116] i2c: s3c2410: fix possible NULL pointer deref on read message after write
+Subject: [PATCH 4.9 35/66] i2c: s3c2410: fix possible NULL pointer deref on read message after write
 Date:   Mon, 31 May 2021 15:14:08 +0200
-Message-Id: <20210531130642.595831487@linuxfoundation.org>
+Message-Id: <20210531130637.372592171@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -91,7 +91,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/i2c/busses/i2c-s3c2410.c
 +++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -493,7 +493,10 @@ static int i2c_s3c_irq_nextbyte(struct s
+@@ -495,7 +495,10 @@ static int i2c_s3c_irq_nextbyte(struct s
  					 * forces us to send a new START
  					 * when we change direction
  					 */
