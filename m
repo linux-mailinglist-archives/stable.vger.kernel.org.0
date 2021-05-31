@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A025F396011
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 559A139619B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232568AbhEaOWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43914 "EHLO mail.kernel.org"
+        id S233657AbhEaOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:43:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232171AbhEaOQp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:16:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D2D37619AB;
-        Mon, 31 May 2021 13:43:17 +0000 (UTC)
+        id S232361AbhEaOli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8946191A;
+        Mon, 31 May 2021 13:53:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468598;
-        bh=hqjHEKA1VFp8vfRcd3TJbg14kJYkSHRd9WCLyH65Z3E=;
+        s=korg; t=1622469232;
+        bh=RLc5HdfSuRXEJT6fKHrR0akzAXP6BjMfCmZNsOjN9DE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sQ/Zr6Ke1hyIGqnDs0iqPMm5TjqbaOnZrH7SW3GU+Er0dtbg1NG31G5b738dIxV8l
-         Py+RaqwYkZZqEX3Rid2v7uKeZd4og8A1Frmn4bmNXLHZkc8M89qwuPTzfC+axmVILo
-         DSIIS3T1xGpk4GgM/LjWydoLqEL8aMfIQUmJDX9s=
+        b=l9pK5HgzF+fru0hL9cXkiY29f3gc5qZjalbz5w2e0ESJ+UJ+spBpW49HrTfjQbiJH
+         nvhu3uSaZwRvZaNdwLs7AFfTaUsN3Be+HolOda8RmAk+h0tbfFFaE1buFUUr2rrqSC
+         aOhhpW0879iMCQuSrmzV2GGNtx/wqcBYhQ/4wZjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 017/177] cfg80211: mitigate A-MSDU aggregation attacks
+        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
+        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
+Subject: [PATCH 5.12 119/296] net/mlx5e: Fix multipath lag activation
 Date:   Mon, 31 May 2021 15:12:54 +0200
-Message-Id: <20210531130648.512596218@linuxfoundation.org>
+Message-Id: <20210531130707.916635764@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,49 +39,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Dima Chumak <dchumak@nvidia.com>
 
-commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
+commit 97817fcc684ed01497bd19d0cd4dea699665b9cf upstream.
 
-Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
-destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
-header, and if so dropping the complete A-MSDU frame. This mitigates
-known attacks, although new (unknown) aggregation-based attacks may
-remain possible.
+When handling FIB_EVENT_ENTRY_REPLACE event for a new multipath route,
+lag activation can be missed if a stale (struct lag_mp)->mfi pointer
+exists, which was associated with an older multipath route that had been
+removed.
 
-This defense works because in A-MSDU aggregation injection attacks, a
-normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
-the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
-header. In other words, the destination MAC address of the first A-MSDU
-subframe contains the start of an RFC1042 header during an aggregation
-attack. We can detect this and thereby prevent this specific attack.
-For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
-Through Frame Aggregation and Fragmentation".
+Normally, when a route is removed, it triggers mlx5_lag_fib_event(),
+which handles FIB_EVENT_ENTRY_DEL and clears mfi pointer. But, if
+mlx5_lag_check_prereq() condition isn't met, for example when eswitch is
+in legacy mode, the fib event is skipped and mfi pointer becomes stale.
 
-Note that for kernel 4.9 and above this patch depends on "mac80211:
-properly handle A-MSDUs that start with a rfc1042 header". Otherwise
-this patch has no impact and attacks will remain possible.
+Fix by resetting mfi pointer to NULL every time mlx5_lag_mp_init() is
+called.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
+Signed-off-by: Dima Chumak <dchumak@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/wireless/util.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/net/wireless/util.c
-+++ b/net/wireless/util.c
-@@ -681,6 +681,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
- 		remaining = skb->len - offset;
- 		if (subframe_len > remaining)
- 			goto purge;
-+		/* mitigate A-MSDU aggregation injection attacks */
-+		if (ether_addr_equal(eth.h_dest, rfc1042_header))
-+			goto purge;
+--- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
+@@ -307,6 +307,11 @@ int mlx5_lag_mp_init(struct mlx5_lag *ld
+ 	struct lag_mp *mp = &ldev->lag_mp;
+ 	int err;
  
- 		offset += sizeof(struct ethhdr);
- 		last = remaining <= subframe_len + padding;
++	/* always clear mfi, as it might become stale when a route delete event
++	 * has been missed
++	 */
++	mp->mfi = NULL;
++
+ 	if (mp->fib_nb.notifier_call)
+ 		return 0;
+ 
+@@ -335,4 +340,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag
+ 	unregister_fib_notifier(&init_net, &mp->fib_nb);
+ 	destroy_workqueue(mp->wq);
+ 	mp->fib_nb.notifier_call = NULL;
++	mp->mfi = NULL;
+ }
 
 
