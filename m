@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA90E3960A0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7982C3962D0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbhEaOal (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:30:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55752 "EHLO mail.kernel.org"
+        id S232559AbhEaPBI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:01:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51028 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233627AbhEaO1E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:27:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 984F961603;
-        Mon, 31 May 2021 13:47:11 +0000 (UTC)
+        id S234050AbhEaO5U (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:57:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 61E6661CC0;
+        Mon, 31 May 2021 14:00:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468832;
-        bh=oDXOI3keOXquPD0I5GwHQPyZVkHkLMoK4hqike9WHE4=;
+        s=korg; t=1622469613;
+        bh=ZkS9w7HymYeiWss7Yqmd0vpm+kQ5ikWbWZJWXV2QQGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jsu3owTI13HN9F9jbngxlomuJFQ/p925peakAu6bQd23N+iFBh99zCl+kpLTMOwZd
-         b+MjG5Be43KULxq7NVv30uqAiDiILj3vCgRSmawCCMuHTU+iYZM3FL2igqQ8O73FBe
-         ZMt9oSDn8fknj3SksUnU3FmQ6rJg+umUOgxt3sRw=
+        b=UCduiBaMPpAYsbNvAD6fcxPyCIk9OmDhTNZIWqXHn9pcHb8P7Unn1Zna6xU3IA5AR
+         61HtVHW+VozXXQlUHGcXgp7VznF84GYd6S5Go55lXeUp48sQfxrzUkYcyK1vWT0m4+
+         bNBWytheUm1vS2wwIngfNoyqncJkVBrNiqzv03zQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
-        Juergen Gross <jgross@suse.com>,
-        Yunsheng Lin <linyunsheng@huawei.com>,
+        stable@vger.kernel.org, Edwin Peer <edwin.peer@broadcom.com>,
+        Andy Gospodarek <gospo@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 145/177] net: sched: fix packet stuck problem for lockless qdisc
+Subject: [PATCH 5.12 247/296] bnxt_en: Include new P5 HV definition in VF check.
 Date:   Mon, 31 May 2021 15:15:02 +0200
-Message-Id: <20210531130652.944216581@linuxfoundation.org>
+Message-Id: <20210531130712.080325432@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,197 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Andy Gospodarek <gospo@broadcom.com>
 
-[ Upstream commit a90c57f2cedd52a511f739fb55e6244e22e1a2fb ]
+[ Upstream commit ab21494be9dc7d62736c5fcd06be65d49df713ee ]
 
-Lockless qdisc has below concurrent problem:
-    cpu0                 cpu1
-     .                     .
-q->enqueue                 .
-     .                     .
-qdisc_run_begin()          .
-     .                     .
-dequeue_skb()              .
-     .                     .
-sch_direct_xmit()          .
-     .                     .
-     .                q->enqueue
-     .             qdisc_run_begin()
-     .            return and do nothing
-     .                     .
-qdisc_run_end()            .
+Otherwise, some of the recently added HyperV VF IDs would not be
+recognized as VF devices and they would not initialize properly.
 
-cpu1 enqueue a skb without calling __qdisc_run() because cpu0
-has not released the lock yet and spin_trylock() return false
-for cpu1 in qdisc_run_begin(), and cpu0 do not see the skb
-enqueued by cpu1 when calling dequeue_skb() because cpu1 may
-enqueue the skb after cpu0 calling dequeue_skb() and before
-cpu0 calling qdisc_run_end().
-
-Lockless qdisc has below another concurrent problem when
-tx_action is involved:
-
-cpu0(serving tx_action)     cpu1             cpu2
-          .                   .                .
-          .              q->enqueue            .
-          .            qdisc_run_begin()       .
-          .              dequeue_skb()         .
-          .                   .            q->enqueue
-          .                   .                .
-          .             sch_direct_xmit()      .
-          .                   .         qdisc_run_begin()
-          .                   .       return and do nothing
-          .                   .                .
- clear __QDISC_STATE_SCHED    .                .
- qdisc_run_begin()            .                .
- return and do nothing        .                .
-          .                   .                .
-          .            qdisc_run_end()         .
-
-This patch fixes the above data race by:
-1. If the first spin_trylock() return false and STATE_MISSED is
-   not set, set STATE_MISSED and retry another spin_trylock() in
-   case other CPU may not see STATE_MISSED after it releases the
-   lock.
-2. reschedule if STATE_MISSED is set after the lock is released
-   at the end of qdisc_run_end().
-
-For tx_action case, STATE_MISSED is also set when cpu1 is at the
-end if qdisc_run_end(), so tx_action will be rescheduled again
-to dequeue the skb enqueued by cpu2.
-
-Clear STATE_MISSED before retrying a dequeuing when dequeuing
-returns NULL in order to reduce the overhead of the second
-spin_trylock() and __netif_schedule() calling.
-
-Also clear the STATE_MISSED before calling __netif_schedule()
-at the end of qdisc_run_end() to avoid doing another round of
-dequeuing in the pfifo_fast_dequeue().
-
-The performance impact of this patch, tested using pktgen and
-dummy netdev with pfifo_fast qdisc attached:
-
- threads  without+this_patch   with+this_patch      delta
-    1        2.61Mpps            2.60Mpps           -0.3%
-    2        3.97Mpps            3.82Mpps           -3.7%
-    4        5.62Mpps            5.59Mpps           -0.5%
-    8        2.78Mpps            2.77Mpps           -0.3%
-   16        2.22Mpps            2.22Mpps           -0.0%
-
-Fixes: 6b3ba9146fe6 ("net: sched: allow qdiscs to handle locking")
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Tested-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Fixes: 7fbf359bb2c1 ("bnxt_en: Add PCI IDs for Hyper-V VF devices.")
+Reviewed-by: Edwin Peer <edwin.peer@broadcom.com>
+Signed-off-by: Andy Gospodarek <gospo@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h | 35 ++++++++++++++++++++++++++++++++++-
- net/sched/sch_generic.c   | 19 +++++++++++++++++++
- 2 files changed, 53 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index b2ceec7b280d..0852f3e51360 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -36,6 +36,7 @@ struct qdisc_rate_table {
- enum qdisc_state_t {
- 	__QDISC_STATE_SCHED,
- 	__QDISC_STATE_DEACTIVATED,
-+	__QDISC_STATE_MISSED,
- };
- 
- struct qdisc_size_table {
-@@ -156,8 +157,33 @@ static inline bool qdisc_is_empty(const struct Qdisc *qdisc)
- static inline bool qdisc_run_begin(struct Qdisc *qdisc)
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt.c b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+index cf4249d59383..fc7345e57bc1 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -282,7 +282,8 @@ static bool bnxt_vf_pciid(enum board_idx idx)
  {
- 	if (qdisc->flags & TCQ_F_NOLOCK) {
-+		if (spin_trylock(&qdisc->seqlock))
-+			goto nolock_empty;
-+
-+		/* If the MISSED flag is set, it means other thread has
-+		 * set the MISSED flag before second spin_trylock(), so
-+		 * we can return false here to avoid multi cpus doing
-+		 * the set_bit() and second spin_trylock() concurrently.
-+		 */
-+		if (test_bit(__QDISC_STATE_MISSED, &qdisc->state))
-+			return false;
-+
-+		/* Set the MISSED flag before the second spin_trylock(),
-+		 * if the second spin_trylock() return false, it means
-+		 * other cpu holding the lock will do dequeuing for us
-+		 * or it will see the MISSED flag set after releasing
-+		 * lock and reschedule the net_tx_action() to do the
-+		 * dequeuing.
-+		 */
-+		set_bit(__QDISC_STATE_MISSED, &qdisc->state);
-+
-+		/* Retry again in case other CPU may not see the new flag
-+		 * after it releases the lock at the end of qdisc_run_end().
-+		 */
- 		if (!spin_trylock(&qdisc->seqlock))
- 			return false;
-+
-+nolock_empty:
- 		WRITE_ONCE(qdisc->empty, false);
- 	} else if (qdisc_is_running(qdisc)) {
- 		return false;
-@@ -173,8 +199,15 @@ static inline bool qdisc_run_begin(struct Qdisc *qdisc)
- static inline void qdisc_run_end(struct Qdisc *qdisc)
- {
- 	write_seqcount_end(&qdisc->running);
--	if (qdisc->flags & TCQ_F_NOLOCK)
-+	if (qdisc->flags & TCQ_F_NOLOCK) {
- 		spin_unlock(&qdisc->seqlock);
-+
-+		if (unlikely(test_bit(__QDISC_STATE_MISSED,
-+				      &qdisc->state))) {
-+			clear_bit(__QDISC_STATE_MISSED, &qdisc->state);
-+			__netif_schedule(qdisc);
-+		}
-+	}
+ 	return (idx == NETXTREME_C_VF || idx == NETXTREME_E_VF ||
+ 		idx == NETXTREME_S_VF || idx == NETXTREME_C_VF_HV ||
+-		idx == NETXTREME_E_VF_HV || idx == NETXTREME_E_P5_VF);
++		idx == NETXTREME_E_VF_HV || idx == NETXTREME_E_P5_VF ||
++		idx == NETXTREME_E_P5_VF_HV);
  }
  
- static inline bool qdisc_may_bulk(const struct Qdisc *qdisc)
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index 6e6147a81bc3..0723e7858658 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -645,8 +645,10 @@ static struct sk_buff *pfifo_fast_dequeue(struct Qdisc *qdisc)
- {
- 	struct pfifo_fast_priv *priv = qdisc_priv(qdisc);
- 	struct sk_buff *skb = NULL;
-+	bool need_retry = true;
- 	int band;
- 
-+retry:
- 	for (band = 0; band < PFIFO_FAST_BANDS && !skb; band++) {
- 		struct skb_array *q = band2list(priv, band);
- 
-@@ -657,6 +659,23 @@ static struct sk_buff *pfifo_fast_dequeue(struct Qdisc *qdisc)
- 	}
- 	if (likely(skb)) {
- 		qdisc_update_stats_at_dequeue(qdisc, skb);
-+	} else if (need_retry &&
-+		   test_bit(__QDISC_STATE_MISSED, &qdisc->state)) {
-+		/* Delay clearing the STATE_MISSED here to reduce
-+		 * the overhead of the second spin_trylock() in
-+		 * qdisc_run_begin() and __netif_schedule() calling
-+		 * in qdisc_run_end().
-+		 */
-+		clear_bit(__QDISC_STATE_MISSED, &qdisc->state);
-+
-+		/* Make sure dequeuing happens after clearing
-+		 * STATE_MISSED.
-+		 */
-+		smp_mb__after_atomic();
-+
-+		need_retry = false;
-+
-+		goto retry;
- 	} else {
- 		WRITE_ONCE(qdisc->empty, true);
- 	}
+ #define DB_CP_REARM_FLAGS	(DB_KEY_CP | DB_IDX_VALID)
 -- 
 2.30.2
 
