@@ -2,34 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2017395C9A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9135395EAA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231947AbhEaNfo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:35:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39080 "EHLO mail.kernel.org"
+        id S232818AbhEaOBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:01:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232114AbhEaNdU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:33:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 677B6613F0;
-        Mon, 31 May 2021 13:24:21 +0000 (UTC)
+        id S233103AbhEaN73 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:59:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 001F76193D;
+        Mon, 31 May 2021 13:36:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467462;
-        bh=wLTcEg0Z9vVBFyBZ+RfAbUKqhMeJpZDMSjpBxZ40i/Y=;
+        s=korg; t=1622468168;
+        bh=7QYHg/G0vqSBhvu7nR1ZgYEMhMPQcwZuTaOunGLXAVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iM6wzOQ6QfWJCXz0PEQha9491SJNo7nLDT9smu1/dCban0g9EOqlBYoN3mQ9mE1LX
-         J97VVE4R5aigIwdUVqHtvNFweVUkfse9n6eTvGqZiPzRtm9Z2jqdadwzxrxx7NDUHS
-         dZTwU0kwHayrU3JTAJCPIm3ORwQPmKY1+jpcKAVY=
+        b=f6ij2rW5KS8ozC+z9dWp5q/nsaqjl2tz/p9Rc8QOF90z6epMO6bTw4nH/hAiw4nE6
+         z9xAkY5tVynsSviuDlCqeMGXWti+XSahLTH+NtIXylQ3g22ZOxDRNmuv2bkQ9by8ff
+         7g1ylb4Pv3HN9VLhQaa/f8NhSUw+NfptJE+BISgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 029/116] USB: trancevibrator: fix control-request direction
-Date:   Mon, 31 May 2021 15:13:25 +0200
-Message-Id: <20210531130641.153387826@linuxfoundation.org>
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 141/252] Revert "net: caif: replace BUG_ON with recovery code"
+Date:   Mon, 31 May 2021 15:13:26 +0200
+Message-Id: <20210531130702.805609121@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,39 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 746e4acf87bcacf1406e05ef24a0b7139147c63e upstream.
+[ Upstream commit 4df07045fcfd684379a394d0f2aa0cc4067bda2a ]
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+This reverts commit c5dea815834c7d2e9fc633785455bc428b7a1956.
 
-Fix the set-speed request which erroneously used USB_DIR_IN and update
-the default timeout argument to match (same value).
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Fixes: 5638e4d92e77 ("USB: add PlayStation 2 Trance Vibrator driver")
-Cc: stable@vger.kernel.org      # 2.6.19
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Link: https://lore.kernel.org/r/20210521133109.17396-1-johan@kernel.org
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original change here was pointless as dev can never be NULL in this
+function so the claim in the changelog that this "fixes" anything is
+incorrect (also the developer forgot about panic_on_warn).  A follow-up
+change will resolve this issue properly.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-19-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/trancevibrator.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/caif/caif_serial.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/misc/trancevibrator.c
-+++ b/drivers/usb/misc/trancevibrator.c
-@@ -59,9 +59,9 @@ static ssize_t speed_store(struct device
- 	/* Set speed */
- 	retval = usb_control_msg(tv->udev, usb_sndctrlpipe(tv->udev, 0),
- 				 0x01, /* vendor request: set speed */
--				 USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_OTHER,
-+				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
- 				 tv->speed, /* speed value */
--				 0, NULL, 0, USB_CTRL_GET_TIMEOUT);
-+				 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
- 	if (retval) {
- 		tv->speed = old;
- 		dev_dbg(&tv->udev->dev, "retval = %d\n", retval);
+diff --git a/drivers/net/caif/caif_serial.c b/drivers/net/caif/caif_serial.c
+index bcc14c5875bf..4cc0d91d9c87 100644
+--- a/drivers/net/caif/caif_serial.c
++++ b/drivers/net/caif/caif_serial.c
+@@ -270,9 +270,7 @@ static netdev_tx_t caif_xmit(struct sk_buff *skb, struct net_device *dev)
+ {
+ 	struct ser_device *ser;
+ 
+-	if (WARN_ON(!dev))
+-		return -EINVAL;
+-
++	BUG_ON(dev == NULL);
+ 	ser = netdev_priv(dev);
+ 
+ 	/* Send flow off once, on high water mark */
+-- 
+2.30.2
+
 
 
