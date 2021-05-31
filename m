@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 19FB1396159
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DBC3D395E07
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231704AbhEaOkA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60912 "EHLO mail.kernel.org"
+        id S232161AbhEaNxX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:53:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55082 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233412AbhEaOhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CDED616EA;
-        Mon, 31 May 2021 13:51:31 +0000 (UTC)
+        id S232307AbhEaNvO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:51:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A37EB613EA;
+        Mon, 31 May 2021 13:32:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469092;
-        bh=SLvqaojeofwp8GZw65DhfTi37SwMU3e5Yhve4mFHEco=;
+        s=korg; t=1622467938;
+        bh=JZciasEvEPmMhPJ2Yltw5AYj7KSxC5rV+XIOgYsS43U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0aoJGUMXskw/SpsnVslbphjHBwqf+41u+ytoowVNKs0rCbqLkQxg3o19ZL3sJnuP5
-         lo9zU+bG1GhZyy8OE4kL+gJ3Gq2giKGj9zukNcAvDirNy7OrbXgjAoswNu0IxGnPYH
-         2XzakU95zL1JsnyWGFPYLmwlMQwkUdWij4ld1PFE=
+        b=yx1aN+ECmWH84CDjMx3R4Ke2eMuzkYSrLThSeM5UyPAidaBVsAXUGHGt196NVtdyp
+         87/ZLETbAIxpEHFnvdPKVN7ER1TRPbHPqON9v6e5aDGPStlk9klpU2jA6aOBVRdhJ1
+         b39Rc2N5FmTg0eeSLds+ckx5jpuSX3ly7t11BAT0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: [PATCH 5.12 067/296] misc/uss720: fix memory leak in uss720_probe
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Wanpeng Li <wanpengli@tencent.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.10 057/252] KVM: X86: Fix vCPU preempted state from guests point of view
 Date:   Mon, 31 May 2021 15:12:02 +0200
-Message-Id: <20210531130706.097305789@linuxfoundation.org>
+Message-Id: <20210531130659.917507144@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Wanpeng Li <wanpengli@tencent.com>
 
-commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
+commit 1eff0ada88b48e4ac1e3fe26483b3684fedecd27 upstream.
 
-uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
-Fix this by decreasing the refcount of usbdev by usb_put_dev.
+Commit 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's
+CPUID) avoids to access pv tlb shootdown host side logic when this pv feature
+is not exposed to guest, however, kvm_steal_time.preempted not only leveraged
+by pv tlb shootdown logic but also mitigate the lock holder preemption issue.
+>From guest's point of view, vCPU is always preempted since we lose the reset
+of kvm_steal_time.preempted before vmentry if pv tlb shootdown feature is not
+exposed. This patch fixes it by clearing kvm_steal_time.preempted before
+vmentry.
 
-BUG: memory leak
-unreferenced object 0xffff888101113800 (size 2048):
-  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
-    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
-  backtrace:
-    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
-    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
-    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
-    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
-    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
-    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
-    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
-    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
-    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
-    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 66570e966dd9 (kvm: x86: only provide PV features if enabled in guest's CPUID)
+Reviewed-by: Sean Christopherson <seanjc@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wanpeng Li <wanpengli@tencent.com>
+Message-Id: <1621339235-11131-3-git-send-email-wanpengli@tencent.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/uss720.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kvm/x86.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -736,6 +736,7 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3006,6 +3006,8 @@ static void record_steal_time(struct kvm
+ 				       st->preempted & KVM_VCPU_FLUSH_TLB);
+ 		if (xchg(&st->preempted, 0) & KVM_VCPU_FLUSH_TLB)
+ 			kvm_vcpu_flush_tlb_guest(vcpu);
++	} else {
++		st->preempted = 0;
+ 	}
  
- 	usb_set_intfdata(intf, pp);
-+	usb_put_dev(usbdev);
- 	return 0;
- 
- probe_abort:
+ 	vcpu->arch.st.preempted = 0;
 
 
