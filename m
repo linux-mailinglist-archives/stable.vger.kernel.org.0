@@ -2,98 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D8E0F39585A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 11:45:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C20D395886
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 11:58:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231208AbhEaJrb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 05:47:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56110 "EHLO mail.kernel.org"
+        id S231271AbhEaJ7c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 05:59:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57624 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231172AbhEaJra (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 05:47:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 11BFE6103E;
-        Mon, 31 May 2021 09:45:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622454351;
-        bh=jF62RzkWE7fS2aErLRL97R4fHohCVIw0Or/yoZ4tfN4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/0IKrQFbRJkV+NAU7aBGlJgPdUhoLQrHQmidvU9HQFHvpZNCma1Lpj7doG6kpxf6
-         CtIs4xXX9BM6osGWtIMaR5+qiRucS+ZPyH0EjvQm1LkSWCXk9nC3k9rSmh3qKCG6tj
-         sXVyUIH9UZWVNRGru9Hd3ljVdwvjl9Jq/o0JtqDhzxsnjzYDwFroB8qF7qS/zWGEFM
-         o4cKPcxJQiTyzfJWwIVixIOjvsRRQpNTmNaYVufpx+RacjfttK5Nj2WU6EDD/A2M5n
-         o/KpQagRejQjH3AWp3GDvS01Pkm2lG9tAEGep/GnFbEZGNFt9Gnkys6mPqteIGVTZM
-         r/RQXDEYvPTeA==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1lneUU-0003JP-Dy; Mon, 31 May 2021 11:45:46 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Eero Lehtinen <debiangamer2@gmail.com>,
-        Johan Hovold <johan@kernel.org>,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, Antti Palosaari <crope@iki.fi>
-Subject: [PATCH v2 3/3] media: rtl28xxu: fix zero-length control request
-Date:   Mon, 31 May 2021 11:44:34 +0200
-Message-Id: <20210531094434.12651-4-johan@kernel.org>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531094434.12651-1-johan@kernel.org>
-References: <20210531094434.12651-1-johan@kernel.org>
+        id S231239AbhEaJ7b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 05:59:31 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id BF500610A0;
+        Mon, 31 May 2021 09:57:51 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lnegA-004Z7v-3a; Mon, 31 May 2021 10:57:50 +0100
+From:   Marc Zyngier <maz@kernel.org>
+To:     kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org,
+        linux-kernel@vger.kernel.org
+Cc:     Catalin Marinas <catalin.marinas@arm.com>,
+        Will Deacon <will@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        James Morse <james.morse@arm.com>,
+        Lorenzo Pieralisi <lorenzo.pieralisi@arm.com>,
+        Hanjun Guo <guohanjun@huawei.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Eric Biederman <ebiederm@xmission.com>,
+        Bhupesh SHARMA <bhupesh.sharma@linaro.org>,
+        AKASHI Takahiro <takahiro.akashi@linaro.org>,
+        Dave Young <dyoung@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Moritz Fischer <mdf@kernel.org>, kernel-team@android.com,
+        stable@vger.kernel.org
+Subject: [PATCH v2 1/5] arm64: kexec_file: Forbid non-crash kernels
+Date:   Mon, 31 May 2021 10:57:16 +0100
+Message-Id: <20210531095720.77469-2-maz@kernel.org>
+X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210531095720.77469-1-maz@kernel.org>
+References: <20210531095720.77469-1-maz@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: kexec@lists.infradead.org, linux-arm-kernel@lists.infradead.org, linux-kernel@vger.kernel.org, catalin.marinas@arm.com, will@kernel.org, ardb@kernel.org, mark.rutland@arm.com, james.morse@arm.com, lorenzo.pieralisi@arm.com, guohanjun@huawei.com, sudeep.holla@arm.com, ebiederm@xmission.com, bhupesh.sharma@linaro.org, takahiro.akashi@linaro.org, dyoung@redhat.com, akpm@linux-foundation.org, mdf@kernel.org, kernel-team@android.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+It has been reported that kexec_file doesn't really work on arm64.
+It completely ignores any of the existing reservations, which results
+in the secondary kernel being loaded where the GICv3 LPI tables live,
+or even corrupting the ACPI tables.
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+Since only crash kernels are imune to this as they use a reserved
+memory region, disable the non-crash kernel use case. Further
+patches will try and restore the functionality.
 
-The driver uses a zero-length i2c-read request for type detection so
-update the control-request code to use usb_sndctrlpipe() in this case.
-
-Note that actually trying to read the i2c register in question does not
-work as the register might not exist (e.g. depending on the demodulator)
-as reported by Eero Lehtinen <debiangamer2@gmail.com>.
-
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Reported-by: Eero Lehtinen <debiangamer2@gmail.com>
-Tested-by: Eero Lehtinen <debiangamer2@gmail.com>
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Reported-by: Moritz Fischer <mdf@kernel.org>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
+Cc: stable@vger.kernel.org # 5.10
 ---
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/arm64/kernel/kexec_image.c | 20 ++++++++++++++++++++
+ 1 file changed, 20 insertions(+)
 
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index 97ed17a141bb..a6124472cb06 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -37,7 +37,16 @@ static int rtl28xxu_ctrl_msg(struct dvb_usb_device *d, struct rtl28xxu_req *req)
- 	} else {
- 		/* read */
- 		requesttype = (USB_TYPE_VENDOR | USB_DIR_IN);
--		pipe = usb_rcvctrlpipe(d->udev, 0);
+diff --git a/arch/arm64/kernel/kexec_image.c b/arch/arm64/kernel/kexec_image.c
+index 9ec34690e255..acf9cd251307 100644
+--- a/arch/arm64/kernel/kexec_image.c
++++ b/arch/arm64/kernel/kexec_image.c
+@@ -145,3 +145,23 @@ const struct kexec_file_ops kexec_image_ops = {
+ 	.verify_sig = image_verify_sig,
+ #endif
+ };
 +
-+		/*
-+		 * Zero-length transfers must use usb_sndctrlpipe() and
-+		 * rtl28xxu_identify_state() uses a zero-length i2c read
-+		 * command to determine the chip type.
-+		 */
-+		if (req->size)
-+			pipe = usb_rcvctrlpipe(d->udev, 0);
-+		else
-+			pipe = usb_sndctrlpipe(d->udev, 0);
- 	}
- 
- 	ret = usb_control_msg(d->udev, pipe, 0, requesttype, req->value,
++/**
++ * arch_kexec_locate_mem_hole - Find free memory to place the segments.
++ * @kbuf:                       Parameters for the memory search.
++ *
++ * On success, kbuf->mem will have the start address of the memory region found.
++ *
++ * Return: 0 on success, negative errno on error.
++ */
++int arch_kexec_locate_mem_hole(struct kexec_buf *kbuf)
++{
++	/*
++	 * For the time being, kexec_file_load isn't reliable except
++	 * for crash kernel. Say sorry to the user.
++	 */
++	if (kbuf->image->type != KEXEC_TYPE_CRASH)
++		return -EADDRNOTAVAIL;
++
++	return kexec_locate_mem_hole(kbuf);
++}
 -- 
-2.31.1
+2.30.2
 
