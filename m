@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E0320395FD9
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A0763961DA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231289AbhEaOQo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42684 "EHLO mail.kernel.org"
+        id S233110AbhEaOrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40320 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233626AbhEaOOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ED026199C;
-        Mon, 31 May 2021 13:42:26 +0000 (UTC)
+        id S234239AbhEaOpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 925C8613F8;
+        Mon, 31 May 2021 13:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468547;
-        bh=68svN8qALJMVamZXMkW6w5NBf89LKW/Z7/CfJcreCr0=;
+        s=korg; t=1622469313;
+        bh=aOlcn23V0UQT39ZgZpudsLUFxOp0lAMHzhJLtuLLew0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eRbZmuRx+YrcJt16g9jnvKdcgPdPGMNkuXFMXKMs+U1VF6pGlXdJM0tDcgnCtUEep
-         8PzrOUvsgBxQBG0Con1bJhWWVJ3W2Bjst5BoQPTYq6jcmWFxXTKUoTOEQOsFiEC6VP
-         7DnDMw0xQqdpePrJXhncwKtrYuxeqd50UdL7FmBk=
+        b=TyTUWcVTVoKHhrX6TTzQFaiSyTlRXaSyWdnm4ZRxY1u8CLgFFvi6GYZaIbKDBlQcC
+         ZGu2BaQ2NvPcZumu/tZftlvfISZoXZ70LJHJWs/HBUxfwlNN41hVEVtSDuP0IdfHQf
+         /yeCTavG6JCdRm4jhBINWpbBRtK8Rj7cD8gvkGJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 031/177] drm/amdgpu/vcn1: add cancel_delayed_work_sync before power gate
+        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
+        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
+        Hoang Le <hoang.h.le@dektech.com.au>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 133/296] Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
 Date:   Mon, 31 May 2021 15:13:08 +0200
-Message-Id: <20210531130649.002914653@linuxfoundation.org>
+Message-Id: <20210531130708.366974621@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Hoang Le <hoang.h.le@dektech.com.au>
 
-commit b95f045ea35673572ef46d6483ad8bd6d353d63c upstream.
+commit 75016891357a628d2b8acc09e2b9b2576c18d318 upstream.
 
-Add cancel_delayed_work_sync before set power gating state
-to avoid race condition issue when power gating.
+This reverts commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046.
+Above fix is not correct and caused memory leak issue.
 
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 6bf24dc0cc0c ("net:tipc: Fix a double free in tipc_sk_mcast_rcv")
+Acked-by: Jon Maloy <jmaloy@redhat.com>
+Acked-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
+Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ net/tipc/socket.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v1_0.c
-@@ -233,9 +233,13 @@ static int vcn_v1_0_hw_fini(void *handle
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	struct amdgpu_ring *ring = &adev->vcn.inst->ring_dec;
- 
-+	cancel_delayed_work_sync(&adev->vcn.idle_work);
-+
- 	if ((adev->pg_flags & AMD_PG_SUPPORT_VCN_DPG) ||
--		RREG32_SOC15(VCN, 0, mmUVD_STATUS))
-+		(adev->vcn.cur_state != AMD_PG_STATE_GATE &&
-+		 RREG32_SOC15(VCN, 0, mmUVD_STATUS))) {
- 		vcn_v1_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
-+	}
- 
- 	ring->sched.ready = false;
- 
+--- a/net/tipc/socket.c
++++ b/net/tipc/socket.c
+@@ -1265,7 +1265,10 @@ void tipc_sk_mcast_rcv(struct net *net,
+ 		spin_lock_bh(&inputq->lock);
+ 		if (skb_peek(arrvq) == skb) {
+ 			skb_queue_splice_tail_init(&tmpq, inputq);
+-			__skb_dequeue(arrvq);
++			/* Decrease the skb's refcnt as increasing in the
++			 * function tipc_skb_peek
++			 */
++			kfree_skb(__skb_dequeue(arrvq));
+ 		}
+ 		spin_unlock_bh(&inputq->lock);
+ 		__skb_queue_purge(&tmpq);
 
 
