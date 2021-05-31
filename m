@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 25DB5395D97
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:46:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C264D395F78
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231330AbhEaNrw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:47:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50374 "EHLO mail.kernel.org"
+        id S230385AbhEaOLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:11:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232707AbhEaNpt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:45:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B53BE613F1;
-        Mon, 31 May 2021 13:30:02 +0000 (UTC)
+        id S233507AbhEaOJg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:09:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 669E461463;
+        Mon, 31 May 2021 13:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467803;
-        bh=rf7cPGlsr9r9IO8aorgESSi4+8J3E7tJY5mVpyKmSEU=;
+        s=korg; t=1622468427;
+        bh=nk4yxqwhuy0fshY82HCpICQe/4osT6W/KMcAUXyxtyU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sUUjB/AEn8jve2LVXmmLtkGaS/ShZApcx6DZuR8Dc5Z2NSgEABRlah8vsCwSb+DIU
-         eL/Cy+Jxcto+duADvv3de2l9CNKQOVC7XROvCUmPyoUUpbZL+etR9sZ5Zeur1723+I
-         GdsBM7F7q9RIQeviCxKg0+IvWvOEkjlc+zVrmDVA=
+        b=Z8EzPOTeCCEV2TtVMqon5yr80IrQ5Wedrud4iR+estoRFSNkAMmBaMK3IRUQVGrxs
+         HJSs79ULTafR2d7HMo18Fyr1Ld+knoZ1kNOjnXFxQgRI6uFeKZ9DkNQdUke+5pMUUi
+         4TQxFqKRQyReLILH4rotYKP5jrvYD+okXWLbDhDw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
-        Chunfeng Yun <chunfeng.yun@mediatek.com>
-Subject: [PATCH 4.14 79/79] usb: core: reduce power-on-good delay time of root hub
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        linux-mips@vger.kernel.org,
+        Manuel Lauss <manuel.lauss@googlemail.com>,
+        Ralf Baechle <ralf@linux-mips.org>,
+        Manuel Lauss <manuel.lauss@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 239/252] MIPS: alchemy: xxs1500: add gpio-au1000.h header file
 Date:   Mon, 31 May 2021 15:15:04 +0200
-Message-Id: <20210531130638.527025575@linuxfoundation.org>
+Message-Id: <20210531130706.125564066@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,39 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunfeng Yun <chunfeng.yun@mediatek.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 90d28fb53d4a51299ff324dede015d5cb11b88a2 upstream.
+[ Upstream commit ff4cff962a7eedc73e54b5096693da7f86c61346 ]
 
-Return the exactly delay time given by root hub descriptor,
-this helps to reduce resume time etc.
+board-xxs1500.c references 2 functions without declaring them, so add
+the header file to placate the build.
 
-Due to the root hub descriptor is usually provided by the host
-controller driver, if there is compatibility for a root hub,
-we can fix it easily without affect other root hub
+../arch/mips/alchemy/board-xxs1500.c: In function 'board_setup':
+../arch/mips/alchemy/board-xxs1500.c:56:2: error: implicit declaration of function 'alchemy_gpio1_input_enable' [-Werror=implicit-function-declaration]
+   56 |  alchemy_gpio1_input_enable();
+../arch/mips/alchemy/board-xxs1500.c:57:2: error: implicit declaration of function 'alchemy_gpio2_enable'; did you mean 'alchemy_uart_enable'? [-Werror=implicit-function-declaration]
+   57 |  alchemy_gpio2_enable();
 
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
-Link: https://lore.kernel.org/r/1618017645-12259-1-git-send-email-chunfeng.yun@mediatek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 8e026910fcd4 ("MIPS: Alchemy: merge GPR/MTX-1/XXS1500 board code into single files")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Cc: linux-mips@vger.kernel.org
+Cc: Manuel Lauss <manuel.lauss@googlemail.com>
+Cc: Ralf Baechle <ralf@linux-mips.org>
+Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.h |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ arch/mips/alchemy/board-xxs1500.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/core/hub.h
-+++ b/drivers/usb/core/hub.h
-@@ -152,8 +152,10 @@ static inline unsigned hub_power_on_good
- {
- 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
+diff --git a/arch/mips/alchemy/board-xxs1500.c b/arch/mips/alchemy/board-xxs1500.c
+index b184baa4e56a..f175bce2987f 100644
+--- a/arch/mips/alchemy/board-xxs1500.c
++++ b/arch/mips/alchemy/board-xxs1500.c
+@@ -18,6 +18,7 @@
+ #include <asm/reboot.h>
+ #include <asm/setup.h>
+ #include <asm/mach-au1x00/au1000.h>
++#include <asm/mach-au1x00/gpio-au1000.h>
+ #include <prom.h>
  
--	/* Wait at least 100 msec for power to become stable */
--	return max(delay, 100U);
-+	if (!hub->hdev->parent)	/* root hub */
-+		return delay;
-+	else /* Wait at least 100 msec for power to become stable */
-+		return max(delay, 100U);
- }
- 
- static inline int hub_port_debounce_be_connected(struct usb_hub *hub,
+ const char *get_system_type(void)
+-- 
+2.30.2
+
 
 
