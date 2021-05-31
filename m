@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A13B9396021
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD7AE395EE2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233128AbhEaOXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
+        id S232308AbhEaOFE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:05:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232971AbhEaORg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:17:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B1AD8613E4;
-        Mon, 31 May 2021 13:43:38 +0000 (UTC)
+        id S232081AbhEaOCx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:02:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 345C56194D;
+        Mon, 31 May 2021 13:37:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468619;
-        bh=aEFSvsSsem7Qli/Aw9qGJLdRqG0zPZdwFN513yQQtiY=;
+        s=korg; t=1622468243;
+        bh=v6OOnt1SXHiN/AItB/mVsWX4OlFRu1mfmCztys9CYok=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g53RDwfxhemh0J2JkgSK6NFmY/rouRaXJ3vxBjkz/E1BTX4MSVcxw7YaZI/BN9/AD
-         MS6Utqi/F8Skc6/AW5s8VyqerAjxw/ilgJnKwDVBQ2osbjXf4j6kOtSe7d9xJoAQUG
-         d5sAbPrU7BqHWw0FUXsNZrbdxESW19fMR50eoLLo=
+        b=aUbEpVhOG8JHKIY4xkwTn0xNeFq6c5Z2JG12Slp/aF2PiVSsStWWcflf1gJougqIa
+         2NtqalaDn4jqIVG+VbZl6HT/Rq4Biv2SoX0Ew6jfKg/K2JIZeno/xXwmRbfDgZiYJI
+         F9+3jGOu8YEtaghule194xkOnqdfi+5BTodr6exM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
-        Felipe Balbi <balbi@kernel.org>,
-        Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Subject: [PATCH 5.4 061/177] usb: dwc3: gadget: Properly track pending and queued SG
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 153/252] isdn: mISDN: correctly handle ph_info allocation failure in hfcsusb_ph_info
 Date:   Mon, 31 May 2021 15:13:38 +0200
-Message-Id: <20210531130650.013959872@linuxfoundation.org>
+Message-Id: <20210531130703.204915629@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,87 +40,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-commit 25dda9fc56bd90d45f9a4516bcfa5211e61b4290 upstream.
+[ Upstream commit 5265db2ccc735e2783b790d6c19fb5cee8c025ed ]
 
-The driver incorrectly uses req->num_pending_sgs to track both the
-number of pending and queued SG entries. It only prepares the next
-request if the previous is done, and it doesn't update num_pending_sgs
-until there is TRB completion interrupt. This may starve the controller
-of more TRBs until the num_pending_sgs is decremented.
+Modify return type of hfcusb_ph_info to int, so that we can pass error
+value up the call stack when allocation of ph_info fails. Also change
+three of four call sites to actually account for the memory failure.
+The fourth, in ph_state_nt, is infeasible to change as it is in turn
+called by ph_state which is used as a function pointer argument to
+mISDN_initdchannel, which would necessitate changing its signature
+and updating all the places where it is used (too many).
 
-Fix this by decrementing the num_pending_sgs after they are queued and
-properly track both num_mapped_sgs and num_queued_sgs.
+Fixes original flawed commit (38d22659803a) from the University of
+Minnesota.
 
-Fixes: c96e6725db9d ("usb: dwc3: gadget: Correct the logic for queuing sgs")
-Cc: <stable@vger.kernel.org>
-Reported-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Tested-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Acked-by: Felipe Balbi <balbi@kernel.org>
-Signed-off-by: Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-Link: https://lore.kernel.org/r/ba24591dbcaad8f244a3e88bd449bb7205a5aec3.1620874069.git.Thinh.Nguyen@synopsys.com
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-48-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/gadget.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -1162,6 +1162,7 @@ static void dwc3_prepare_one_trb_sg(stru
- 			req->start_sg = sg_next(s);
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 4bb470d3963d..cd5642cef01f 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -46,7 +46,7 @@ static void hfcsusb_start_endpoint(struct hfcsusb *hw, int channel);
+ static void hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel);
+ static int  hfcsusb_setup_bch(struct bchannel *bch, int protocol);
+ static void deactivate_bchannel(struct bchannel *bch);
+-static void hfcsusb_ph_info(struct hfcsusb *hw);
++static int  hfcsusb_ph_info(struct hfcsusb *hw);
  
- 		req->num_queued_sgs++;
-+		req->num_pending_sgs--;
- 
- 		/*
- 		 * The number of pending SG entries may not correspond to the
-@@ -1169,7 +1170,7 @@ static void dwc3_prepare_one_trb_sg(stru
- 		 * don't include unused SG entries.
- 		 */
- 		if (length == 0) {
--			req->num_pending_sgs -= req->request.num_mapped_sgs - req->num_queued_sgs;
-+			req->num_pending_sgs = 0;
- 			break;
- 		}
- 
-@@ -2602,15 +2603,15 @@ static int dwc3_gadget_ep_reclaim_trb_sg
- 	struct dwc3_trb *trb = &dep->trb_pool[dep->trb_dequeue];
- 	struct scatterlist *sg = req->sg;
- 	struct scatterlist *s;
--	unsigned int pending = req->num_pending_sgs;
-+	unsigned int num_queued = req->num_queued_sgs;
- 	unsigned int i;
- 	int ret = 0;
- 
--	for_each_sg(sg, s, pending, i) {
-+	for_each_sg(sg, s, num_queued, i) {
- 		trb = &dep->trb_pool[dep->trb_dequeue];
- 
- 		req->sg = sg_next(s);
--		req->num_pending_sgs--;
-+		req->num_queued_sgs--;
- 
- 		ret = dwc3_gadget_ep_reclaim_completed_trb(dep, req,
- 				trb, event, status, true);
-@@ -2633,7 +2634,7 @@ static int dwc3_gadget_ep_reclaim_trb_li
- 
- static bool dwc3_gadget_ep_request_completed(struct dwc3_request *req)
+ /* start next background transfer for control channel */
+ static void
+@@ -241,7 +241,7 @@ hfcusb_l2l1B(struct mISDNchannel *ch, struct sk_buff *skb)
+  * send full D/B channel status information
+  * as MPH_INFORMATION_IND
+  */
+-static void
++static int
+ hfcsusb_ph_info(struct hfcsusb *hw)
  {
--	return req->num_pending_sgs == 0;
-+	return req->num_pending_sgs == 0 && req->num_queued_sgs == 0;
+ 	struct ph_info *phi;
+@@ -249,6 +249,9 @@ hfcsusb_ph_info(struct hfcsusb *hw)
+ 	int i;
+ 
+ 	phi = kzalloc(struct_size(phi, bch, dch->dev.nrbchan), GFP_ATOMIC);
++	if (!phi)
++		return -ENOMEM;
++
+ 	phi->dch.ch.protocol = hw->protocol;
+ 	phi->dch.ch.Flags = dch->Flags;
+ 	phi->dch.state = dch->state;
+@@ -260,6 +263,8 @@ hfcsusb_ph_info(struct hfcsusb *hw)
+ 	_queue_data(&dch->dev.D, MPH_INFORMATION_IND, MISDN_ID_ANY,
+ 		    struct_size(phi, bch, dch->dev.nrbchan), phi, GFP_ATOMIC);
+ 	kfree(phi);
++
++	return 0;
  }
  
- static int dwc3_gadget_ep_cleanup_completed_request(struct dwc3_ep *dep,
-@@ -2642,7 +2643,7 @@ static int dwc3_gadget_ep_cleanup_comple
- {
- 	int ret;
+ /*
+@@ -344,8 +349,7 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 			ret = l1_event(dch->l1, hh->prim);
+ 		break;
+ 	case MPH_INFORMATION_REQ:
+-		hfcsusb_ph_info(hw);
+-		ret = 0;
++		ret = hfcsusb_ph_info(hw);
+ 		break;
+ 	}
  
--	if (req->num_pending_sgs)
-+	if (req->request.num_mapped_sgs)
- 		ret = dwc3_gadget_ep_reclaim_trb_sg(dep, req, event,
- 				status);
- 	else
+@@ -400,8 +404,7 @@ hfc_l1callback(struct dchannel *dch, u_int cmd)
+ 			       hw->name, __func__, cmd);
+ 		return -1;
+ 	}
+-	hfcsusb_ph_info(hw);
+-	return 0;
++	return hfcsusb_ph_info(hw);
+ }
+ 
+ static int
+@@ -743,8 +746,7 @@ hfcsusb_setup_bch(struct bchannel *bch, int protocol)
+ 			handle_led(hw, (bch->nr == 1) ? LED_B1_OFF :
+ 				   LED_B2_OFF);
+ 	}
+-	hfcsusb_ph_info(hw);
+-	return 0;
++	return hfcsusb_ph_info(hw);
+ }
+ 
+ static void
+-- 
+2.30.2
+
 
 
