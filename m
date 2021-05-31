@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D4539625D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:54:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DBCA395CF5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbhEaOzh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:55:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47912 "EHLO mail.kernel.org"
+        id S232290AbhEaNkU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234041AbhEaOxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:53:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D51AB61CAB;
-        Mon, 31 May 2021 13:58:38 +0000 (UTC)
+        id S232348AbhEaNh2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:37:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2F8613CD;
+        Mon, 31 May 2021 13:26:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469519;
-        bh=8VXHNWCK7AGK9cnWLvPrdHbOKwzor6W1humTzPDrbf8=;
+        s=korg; t=1622467574;
+        bh=ev+ZyfKJKelas2MiisSa+ROoXFnwsFoXUAEUIwVoMqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O7gc7ZzPaS+OoSu5ANF7O/z9Wjb+hmCdCRv5tf+0DKsPSRKLIRcaKrVt4zQbKPiL+
-         5tGyo3Uz62JL1JzajpyxNUzPrtTzmEY7YMPFy1mTq8e3UWSeVtFy552gUasqruP0B2
-         iaSV7o3lh8k/9tLp7hz/gcfbtydydOBobSnU2Zas=
+        b=aJ2suZiDADu/RQibSgcD6uwfv9WveqwohzmNShJe7rX305D9K3vrxAi7LAO/Wf25P
+         fJDbn6R8Ur5Cd+k/SchzR1DXDNBCYP12iNbAFQ5SGOpz5D7Yd1Q42wtpx8C804F5O4
+         nUmBysPHS73+1SfBKSJW3CyJIVTYsb/nWb37hrK4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alex Elder <elder@linaro.org>,
+        stable@vger.kernel.org,
+        Piotr Skajewski <piotrx.skajewski@intel.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Mateusz Palczewski <mateusz.palczewski@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 228/296] net: ipa: memory region array is variable size
+Subject: [PATCH 4.19 107/116] ixgbe: fix large MTU request from VF
 Date:   Mon, 31 May 2021 15:14:43 +0200
-Message-Id: <20210531130711.487772273@linuxfoundation.org>
+Message-Id: <20210531130643.750059202@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,80 +45,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Elder <elder@linaro.org>
+From: Jesse Brandeburg <jesse.brandeburg@intel.com>
 
-[ Upstream commit 440c3247cba3d9433ac435d371dd7927d68772a7 ]
+[ Upstream commit 63e39d29b3da02e901349f6cd71159818a4737a6 ]
 
-IPA configuration data includes an array of memory region
-descriptors.  That was a fixed-size array at one time, but
-at some point we started defining it such that it was only
-as big as required for a given platform.  The actual number
-of entries in the array is recorded in the configuration data
-along with the array.
+Check that the MTU value requested by the VF is in the supported
+range of MTUs before attempting to set the VF large packet enable,
+otherwise reject the request. This also avoids unnecessary
+register updates in the case of the 82599 controller.
 
-A loop in ipa_mem_config() still assumes the array has entries
-for all defined memory region IDs.  As a result, this loop can
-go past the end of the actual array and attempt to write
-"canary" values based on nonsensical data.
-
-Fix this, by stashing the number of entries in the array, and
-using that rather than IPA_MEM_COUNT in the initialization loop
-found in ipa_mem_config().
-
-The only remaining use of IPA_MEM_COUNT is in a validation check
-to ensure configuration data doesn't have too many entries.
-That's fine for now.
-
-Fixes: 3128aae8c439a ("net: ipa: redefine struct ipa_mem_data")
-Signed-off-by: Alex Elder <elder@linaro.org>
+Fixes: 872844ddb9e4 ("ixgbe: Enable jumbo frames support w/ SR-IOV")
+Co-developed-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
+Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Co-developed-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa.h     | 2 ++
- drivers/net/ipa/ipa_mem.c | 3 ++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/ipa/ipa.h b/drivers/net/ipa/ipa.h
-index 802077631371..2734a5164b92 100644
---- a/drivers/net/ipa/ipa.h
-+++ b/drivers/net/ipa/ipa.h
-@@ -56,6 +56,7 @@ enum ipa_flag {
-  * @mem_virt:		Virtual address of IPA-local memory space
-  * @mem_offset:		Offset from @mem_virt used for access to IPA memory
-  * @mem_size:		Total size (bytes) of memory at @mem_virt
-+ * @mem_count:		Number of entries in the mem array
-  * @mem:		Array of IPA-local memory region descriptors
-  * @imem_iova:		I/O virtual address of IPA region in IMEM
-  * @imem_size;		Size of IMEM region
-@@ -102,6 +103,7 @@ struct ipa {
- 	void *mem_virt;
- 	u32 mem_offset;
- 	u32 mem_size;
-+	u32 mem_count;
- 	const struct ipa_mem *mem;
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+index f6ffd9fb2079..8aaf856771d7 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
+@@ -467,12 +467,16 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
+ 	return err;
+ }
  
- 	unsigned long imem_iova;
-diff --git a/drivers/net/ipa/ipa_mem.c b/drivers/net/ipa/ipa_mem.c
-index f25029b9ec85..c1294d7ebdad 100644
---- a/drivers/net/ipa/ipa_mem.c
-+++ b/drivers/net/ipa/ipa_mem.c
-@@ -181,7 +181,7 @@ int ipa_mem_config(struct ipa *ipa)
- 	 * for the region, write "canary" values in the space prior to
- 	 * the region's base address.
- 	 */
--	for (mem_id = 0; mem_id < IPA_MEM_COUNT; mem_id++) {
-+	for (mem_id = 0; mem_id < ipa->mem_count; mem_id++) {
- 		const struct ipa_mem *mem = &ipa->mem[mem_id];
- 		u16 canary_count;
- 		__le32 *canary;
-@@ -488,6 +488,7 @@ int ipa_mem_init(struct ipa *ipa, const struct ipa_mem_data *mem_data)
- 	ipa->mem_size = resource_size(res);
+-static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
++static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
+ {
+ 	struct ixgbe_hw *hw = &adapter->hw;
+-	int max_frame = msgbuf[1];
+ 	u32 max_frs;
  
- 	/* The ipa->mem[] array is indexed by enum ipa_mem_id values */
-+	ipa->mem_count = mem_data->local_count;
- 	ipa->mem = mem_data->local;
++	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
++		e_err(drv, "VF max_frame %d out of range\n", max_frame);
++		return -EINVAL;
++	}
++
+ 	/*
+ 	 * For 82599EB we have to keep all PFs and VFs operating with
+ 	 * the same max_frame value in order to avoid sending an oversize
+@@ -532,12 +536,6 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
+ 		}
+ 	}
  
- 	ret = ipa_imem_init(ipa, mem_data->imem_addr, mem_data->imem_size);
+-	/* MTU < 68 is an error and causes problems on some kernels */
+-	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
+-		e_err(drv, "VF max_frame %d out of range\n", max_frame);
+-		return -EINVAL;
+-	}
+-
+ 	/* pull current max frame size from hardware */
+ 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
+ 	max_frs &= IXGBE_MHADD_MFS_MASK;
+@@ -1240,7 +1238,7 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
+ 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
+ 		break;
+ 	case IXGBE_VF_SET_LPE:
+-		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
++		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
+ 		break;
+ 	case IXGBE_VF_SET_MACVLAN:
+ 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
 -- 
 2.30.2
 
