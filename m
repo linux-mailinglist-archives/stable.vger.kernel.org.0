@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A399E395E82
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:58:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 37004396184
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232167AbhEaN7t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:59:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59856 "EHLO mail.kernel.org"
+        id S232146AbhEaOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:41:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231765AbhEaN5T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:57:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 48DAD6192B;
-        Mon, 31 May 2021 13:35:05 +0000 (UTC)
+        id S234179AbhEaOjg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:39:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EC49061C62;
+        Mon, 31 May 2021 13:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468105;
-        bh=NCzz0MCtWRPBgWtEN04unSgfqF8uHrAdQhKjuqSnVoE=;
+        s=korg; t=1622469166;
+        bh=a6U4P9qpJ+bpOtv1WRP3SiEYiF7qP2V/P3fQITGQGZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MHp5o+80/5hAsUoXnCkagNfch5UB54SkccT44yZZCWFSqA6zhuzJcyF7lSuJvgzIw
-         6j0tydc74OTBJ3+2BvRAjRuKXBZm73Q38U64VoXaFZicCpnyp58rdDG+WJ18AvPOZw
-         qSj7/Smn8AQEaLpvDvb7lz4QzTthRV9t3scLP92c=
+        b=Intgpqb2olZsXW4hqI2sRB0RGt6v+IFmYX9g8MM//MAh3vXikYBt5C3MHd3Z1ipiH
+         D5vcEd+LBDXVU/I7rCaXHH7AkpF9nYuOKKhWNAXIFUbLnXJSQv35nF2eNHO/a4CdvI
+         zA4JCinENGw8OdgW3sEr3B3PHhO4ctpwAwfD9Vyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 5.10 083/252] USB: serial: ftdi_sio: add IDs for IDS GmbH Products
+        Peter Ganzhorn <peter.ganzhorn@googlemail.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.12 093/296] xhci: Fix 5.12 regression of missing xHC cache clearing command after a Stall
 Date:   Mon, 31 May 2021 15:12:28 +0200
-Message-Id: <20210531130700.808664535@linuxfoundation.org>
+Message-Id: <20210531130707.032553686@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit c5a80540e425a5f9a82b0f3163e3b6a4331f33bc upstream.
+commit a7f2e9272aff1ccfe0fc801dab1d5a7a1c6b7ed2 upstream.
 
-Add the IDS GmbH Vendor ID and the Product IDs for SI31A (2xRS232)
-and CM31A (LoRaWAN Modem).
+If endpoints halts due to a stall then the dequeue pointer read from
+hardware may already be set ahead of the stalled TRB.
+After commit 674f8438c121 ("xhci: split handling halted endpoints into two
+steps") in 5.12 xhci driver won't issue a Set TR Dequeue if hardware
+dequeue pointer is already in the right place.
 
-Signed-off-by: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Turns out the "Set TR Dequeue pointer" command is anyway needed as it in
+addition to moving the dequeue pointer also clears endpoint state and
+cache.
+
+Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
+Cc: <stable@vger.kernel.org> # 5.12
+Reported-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
+Tested-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20210525074100.1154090-3-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
- 2 files changed, 10 insertions(+)
+ drivers/usb/host/xhci-ring.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1034,6 +1034,9 @@ static const struct usb_device_id id_tab
- 	/* Sienna devices */
- 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
- 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
-+	/* IDS GmbH devices */
-+	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
-+	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1568,6 +1568,13 @@
- #define UNJO_ISODEBUG_V1_PID		0x150D
+--- a/drivers/usb/host/xhci-ring.c
++++ b/drivers/usb/host/xhci-ring.c
+@@ -934,14 +934,18 @@ static int xhci_invalidate_cancelled_tds
+ 			continue;
+ 		}
+ 		/*
+-		 * If ring stopped on the TD we need to cancel, then we have to
++		 * If a ring stopped on the TD we need to cancel then we have to
+ 		 * move the xHC endpoint ring dequeue pointer past this TD.
++		 * Rings halted due to STALL may show hw_deq is past the stalled
++		 * TD, but still require a set TR Deq command to flush xHC cache.
+ 		 */
+ 		hw_deq = xhci_get_hw_deq(xhci, ep->vdev, ep->ep_index,
+ 					 td->urb->stream_id);
+ 		hw_deq &= ~0xf;
  
- /*
-+ * IDS GmbH
-+ */
-+#define IDS_VID				0x2CAF
-+#define IDS_SI31A_PID			0x13A2
-+#define IDS_CM31A_PID			0x13A3
-+
-+/*
-  * U-Blox products (http://www.u-blox.com).
-  */
- #define UBLOX_VID			0x1546
+-		if (trb_in_td(xhci, td->start_seg, td->first_trb,
++		if (td->cancel_status == TD_HALTED) {
++			cached_td = td;
++		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
+ 			      td->last_trb, hw_deq, false)) {
+ 			switch (td->cancel_status) {
+ 			case TD_CLEARED: /* TD is already no-op */
 
 
