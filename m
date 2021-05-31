@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 118CC396185
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71C9F395DFE
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233956AbhEaOlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38034 "EHLO mail.kernel.org"
+        id S230415AbhEaNwu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:52:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56074 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234187AbhEaOjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25448613EB;
-        Mon, 31 May 2021 13:52:53 +0000 (UTC)
+        id S231799AbhEaNur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:50:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BBA8061434;
+        Mon, 31 May 2021 13:32:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469174;
-        bh=axbAyOi48Hmr3K74CrPJHT6/KFmTBpUvIncWdwiQ5Hk=;
+        s=korg; t=1622467925;
+        bh=8sBlBF3aZ7IQ3aX/sNN68lKWcwkvZUQSjfXUGH8riqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EMNtBZ/628Os5i9ObpVAxjFOMH/1FXXKt5RLq2gmnuXtg5bCB4FhTYgUzTVxC4OQQ
-         AH8+vg92qJu7rf1cAdYCM06KhgJAIeOMmFB6C6gpvf/Wr4di9N98DTDiLQZ8gbo5Fc
-         fAyytcvcs8OB0CY6/qs7eldLScE9AIAruMcf4si8=
+        b=Sd/jz7YCxyqOQG/USjUKJZQZB+DQ83me+C+ro8+ldIBbYbSv/hAzpUUkid6ZLB54K
+         TmnEQEkfFNdRefP0I7qkFnpTAXsspH1Ws/ie8UGC1N6030i9uq+AjXDVduisXQOb55
+         deKEe4c97A5BqPcUR1s62MNGadA1fEvX2SbzSjw8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
         Tycho Andersen <tycho@tycho.pizza>,
         Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.12 062/296] Documentation: seccomp: Fix user notification documentation
+        Kees Cook <keescook@chromium.org>,
+        Rodrigo Campos <rodrigo@kinvolk.io>
+Subject: [PATCH 5.10 052/252] seccomp: Refactor notification handler to prepare for new semantics
 Date:   Mon, 31 May 2021 15:11:57 +0200
-Message-Id: <20210531130705.925373382@linuxfoundation.org>
+Message-Id: <20210531130659.748784740@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,48 +44,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sargun Dhillon <sargun@sargun.me>
 
-commit aac902925ea646e461c95edc98a8a57eb0def917 upstream.
+commit ddc473916955f7710d1eb17c1273d91c8622a9fe upstream.
 
-The documentation had some previously incorrect information about how
-userspace notifications (and responses) were handled due to a change
-from a previously proposed patchset.
+This refactors the user notification code to have a do / while loop around
+the completion condition. This has a small change in semantic, in that
+previously we ignored addfd calls upon wakeup if the notification had been
+responded to, but instead with the new change we check for an outstanding
+addfd calls prior to returning to userspace.
 
+Rodrigo Campos also identified a bug that can result in addfd causing
+an early return, when the supervisor didn't actually handle the
+syscall [1].
+
+[1]: https://lore.kernel.org/lkml/20210413160151.3301-1-rodrigo@kinvolk.io/
+
+Fixes: 7cf97b125455 ("seccomp: Introduce addfd ioctl to seccomp user notifier")
 Signed-off-by: Sargun Dhillon <sargun@sargun.me>
 Acked-by: Tycho Andersen <tycho@tycho.pizza>
 Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Tested-by: Rodrigo Campos <rodrigo@kinvolk.io>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210517193908.3113-2-sargun@sargun.me
+Link: https://lore.kernel.org/r/20210517193908.3113-3-sargun@sargun.me
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/userspace-api/seccomp_filter.rst |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ kernel/seccomp.c |   30 ++++++++++++++++--------------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
 
---- a/Documentation/userspace-api/seccomp_filter.rst
-+++ b/Documentation/userspace-api/seccomp_filter.rst
-@@ -250,14 +250,14 @@ Users can read via ``ioctl(SECCOMP_IOCTL
- seccomp notification fd to receive a ``struct seccomp_notif``, which contains
- five members: the input length of the structure, a unique-per-filter ``id``,
- the ``pid`` of the task which triggered this request (which may be 0 if the
--task is in a pid ns not visible from the listener's pid namespace), a ``flags``
--member which for now only has ``SECCOMP_NOTIF_FLAG_SIGNALED``, representing
--whether or not the notification is a result of a non-fatal signal, and the
--``data`` passed to seccomp. Userspace can then make a decision based on this
--information about what to do, and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a
--response, indicating what should be returned to userspace. The ``id`` member of
--``struct seccomp_notif_resp`` should be the same ``id`` as in ``struct
--seccomp_notif``.
-+task is in a pid ns not visible from the listener's pid namespace). The
-+notification also contains the ``data`` passed to seccomp, and a filters flag.
-+The structure should be zeroed out prior to calling the ioctl.
-+
-+Userspace can then make a decision based on this information about what to do,
-+and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a response, indicating what should be
-+returned to userspace. The ``id`` member of ``struct seccomp_notif_resp`` should
-+be the same ``id`` as in ``struct seccomp_notif``.
+--- a/kernel/seccomp.c
++++ b/kernel/seccomp.c
+@@ -864,28 +864,30 @@ static int seccomp_do_user_notification(
  
- It is worth noting that ``struct seccomp_data`` contains the values of register
- arguments to the syscall, but does not contain pointers to memory. The task's
+ 	up(&match->notif->request);
+ 	wake_up_poll(&match->wqh, EPOLLIN | EPOLLRDNORM);
+-	mutex_unlock(&match->notify_lock);
+ 
+ 	/*
+ 	 * This is where we wait for a reply from userspace.
+ 	 */
+-wait:
+-	err = wait_for_completion_interruptible(&n.ready);
+-	mutex_lock(&match->notify_lock);
+-	if (err == 0) {
+-		/* Check if we were woken up by a addfd message */
++	do {
++		mutex_unlock(&match->notify_lock);
++		err = wait_for_completion_interruptible(&n.ready);
++		mutex_lock(&match->notify_lock);
++		if (err != 0)
++			goto interrupted;
++
+ 		addfd = list_first_entry_or_null(&n.addfd,
+ 						 struct seccomp_kaddfd, list);
+-		if (addfd && n.state != SECCOMP_NOTIFY_REPLIED) {
++		/* Check if we were woken up by a addfd message */
++		if (addfd)
+ 			seccomp_handle_addfd(addfd);
+-			mutex_unlock(&match->notify_lock);
+-			goto wait;
+-		}
+-		ret = n.val;
+-		err = n.error;
+-		flags = n.flags;
+-	}
+ 
++	}  while (n.state != SECCOMP_NOTIFY_REPLIED);
++
++	ret = n.val;
++	err = n.error;
++	flags = n.flags;
++
++interrupted:
+ 	/* If there were any pending addfd calls, clear them out */
+ 	list_for_each_entry_safe(addfd, tmp, &n.addfd, list) {
+ 		/* The process went away before we got a chance to handle it */
 
 
