@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 006FF395D84
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 467AC39608C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:26:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232539AbhEaNrE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:47:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49452 "EHLO mail.kernel.org"
+        id S231855AbhEaO2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:28:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231580AbhEaNo6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:44:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E90066141C;
-        Mon, 31 May 2021 13:29:30 +0000 (UTC)
+        id S232226AbhEaO0F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:26:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D72E26162B;
+        Mon, 31 May 2021 13:46:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467771;
-        bh=chRS472GWhhR5JQis0YvThFSqaRbPhgR2khsjQae0nI=;
+        s=korg; t=1622468818;
+        bh=/KPhMXtE6Gel3LC66DtyO7p+G798alWq8oCpoGdXxYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LvAca1uiB9lzMnP0Inotcmlt1EDphV9TcY5YZY72FtrO1AmBWqgMWPbkm7r8jYxnY
-         PJFkHKachhUZNAHvDZ5K9971uxWRivXhX9h+vXJANvpIHMSjYaGUzSI1QRYc0MkRoX
-         BYzGSwumc+CYOAjiQTcgt+blVjZh/Sbz0Rh5PmN4=
+        b=MWGO5GdLnbhfFus1U7J6Q7SbSCN687C2Agnzqz1jPJms+bUDV8Pr3i6MpRz8c3+1a
+         HNjPPX6MqcY2VLzuGX3S5hfAdSHUsS0BqQ+ynFzUhfzBSLYSWKzWldaJFUGIxV4Uxo
+         +SRVPiOf93bNgWcuZCwYoLGkJ2VMokqgKMVBEJLw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 73/79] ipv6: record frag_max_size in atomic fragments in input path
+Subject: [PATCH 5.4 141/177] net: mdio: thunder: Fix a double free issue in the .remove function
 Date:   Mon, 31 May 2021 15:14:58 +0200
-Message-Id: <20210531130638.331799659@linuxfoundation.org>
+Message-Id: <20210531130652.815942801@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,44 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Francesco Ruggeri <fruggeri@arista.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit e29f011e8fc04b2cdc742a2b9bbfa1b62518381a ]
+[ Upstream commit a93a0a15876d2a077a3bc260b387d2457a051f24 ]
 
-Commit dbd1759e6a9c ("ipv6: on reassembly, record frag_max_size")
-filled the frag_max_size field in IP6CB in the input path.
-The field should also be filled in case of atomic fragments.
+'bus->mii_bus' have been allocated with 'devm_mdiobus_alloc_size()' in the
+probe function. So it must not be freed explicitly or there will be a
+double free.
 
-Fixes: dbd1759e6a9c ('ipv6: on reassembly, record frag_max_size')
-Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
+Remove the incorrect 'mdiobus_free' in the remove function.
+
+Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/reassembly.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/phy/mdio-thunder.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv6/reassembly.c b/net/ipv6/reassembly.c
-index 6dea6e92e686..b2f7a335a12b 100644
---- a/net/ipv6/reassembly.c
-+++ b/net/ipv6/reassembly.c
-@@ -347,7 +347,7 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
- 	hdr = ipv6_hdr(skb);
- 	fhdr = (struct frag_hdr *)skb_transport_header(skb);
+diff --git a/drivers/net/phy/mdio-thunder.c b/drivers/net/phy/mdio-thunder.c
+index b6128ae7f14f..1e2f57ed1ef7 100644
+--- a/drivers/net/phy/mdio-thunder.c
++++ b/drivers/net/phy/mdio-thunder.c
+@@ -126,7 +126,6 @@ static void thunder_mdiobus_pci_remove(struct pci_dev *pdev)
+ 			continue;
  
--	if (!(fhdr->frag_off & htons(0xFFF9))) {
-+	if (!(fhdr->frag_off & htons(IP6_OFFSET | IP6_MF))) {
- 		/* It is not a fragmented frame */
- 		skb->transport_header += sizeof(struct frag_hdr);
- 		__IP6_INC_STATS(net,
-@@ -355,6 +355,8 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
- 
- 		IP6CB(skb)->nhoff = (u8 *)fhdr - skb_network_header(skb);
- 		IP6CB(skb)->flags |= IP6SKB_FRAGMENTED;
-+		IP6CB(skb)->frag_max_size = ntohs(hdr->payload_len) +
-+					    sizeof(struct ipv6hdr);
- 		return 1;
+ 		mdiobus_unregister(bus->mii_bus);
+-		mdiobus_free(bus->mii_bus);
+ 		oct_mdio_writeq(0, bus->register_base + SMI_EN);
  	}
- 
+ 	pci_set_drvdata(pdev, NULL);
 -- 
 2.30.2
 
