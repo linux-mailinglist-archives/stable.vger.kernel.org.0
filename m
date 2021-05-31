@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC8E9395C40
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:29:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 603F0395C41
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:29:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232195AbhEaNaf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:30:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34110 "EHLO mail.kernel.org"
+        id S232224AbhEaNah (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:30:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232185AbhEaN21 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:28:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 16DA6613D7;
-        Mon, 31 May 2021 13:22:08 +0000 (UTC)
+        id S232084AbhEaN20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:28:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B791A613E4;
+        Mon, 31 May 2021 13:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467329;
-        bh=SLvqaojeofwp8GZw65DhfTi37SwMU3e5Yhve4mFHEco=;
+        s=korg; t=1622467332;
+        bh=ywB2cFMPpqaEpnvYOs74WDZywKlF4/f8tX+kCnLOTaw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OtAgvUKeULhcOj7sNuqd/IOpeoLJC57OfI0WR05Eu5SHR7MT//AwASHebzoLGSL8C
-         To/E3lxvzLrnATRMJ+fxfYhGVjSfNCBFREmn4RGD87fh0ku/BOJJfTwWoOMQB771rh
-         kXMkXerchngG2nnEvPyhK5acNaUQOwJGupmZFD2c=
+        b=CbimDNbma2AF+zKQMdwnaMzP3wgXg1dl4amRubchgH+Q9q4s0Tl8Wd+HBRJaI9vky
+         8lJz35e8uOmukcD8+o4hdFXatLGMnBE9DYM3pdh4oWIDw5NNj5QUy9IVCOaX54F8Kw
+         NXZ8elv/sk/hwg5cKerErY/4dbLfj91LUNhalJrI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: [PATCH 4.19 024/116] misc/uss720: fix memory leak in uss720_probe
-Date:   Mon, 31 May 2021 15:13:20 +0200
-Message-Id: <20210531130640.982881786@linuxfoundation.org>
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 4.19 025/116] thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
+Date:   Mon, 31 May 2021 15:13:21 +0200
+Message-Id: <20210531130641.023278261@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
 References: <20210531130640.131924542@linuxfoundation.org>
@@ -40,52 +40,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
+commit b106776080a1cf953a1b2fd50cb2a995db4732be upstream.
 
-uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
-Fix this by decreasing the refcount of usbdev by usb_put_dev.
+Up to 64 bytes of data can be read from NVM in one go. Read address
+must be dword aligned. Data is read into a local buffer.
 
-BUG: memory leak
-unreferenced object 0xffff888101113800 (size 2048):
-  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
-    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
-  backtrace:
-    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
-    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
-    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
-    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
-    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
-    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
-    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
-    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
-    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
-    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+If caller asks to read data starting at an unaligned address then full
+dword is anyway read from NVM into a local buffer. Data is then copied
+from the local buffer starting at the unaligned offset to the caller
+buffer.
 
-Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In cases where asked data length + unaligned offset is over 64 bytes
+we need to make sure we don't read past the 64 bytes in the local
+buffer when copying to caller buffer, and make sure that we don't
+skip copying unaligned offset bytes from local buffer anymore after
+the first round of 64 byte NVM data read.
+
+Fixes: 3e13676862f9 ("thunderbolt: Add support for DMA configuration based mailbox")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/uss720.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/thunderbolt/dma_port.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -736,6 +736,7 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
+--- a/drivers/thunderbolt/dma_port.c
++++ b/drivers/thunderbolt/dma_port.c
+@@ -367,15 +367,15 @@ int dma_port_flash_read(struct tb_dma_po
+ 			void *buf, size_t size)
+ {
+ 	unsigned int retries = DMA_PORT_RETRIES;
+-	unsigned int offset;
+-
+-	offset = address & 3;
+-	address = address & ~3;
  
- 	usb_set_intfdata(intf, pp);
-+	usb_put_dev(usbdev);
- 	return 0;
+ 	do {
+-		u32 nbytes = min_t(u32, size, MAIL_DATA_DWORDS * 4);
++		unsigned int offset;
++		size_t nbytes;
+ 		int ret;
  
- probe_abort:
++		offset = address & 3;
++		nbytes = min_t(size_t, size + offset, MAIL_DATA_DWORDS * 4);
++
+ 		ret = dma_port_flash_read_block(dma, address, dma->buf,
+ 						ALIGN(nbytes, 4));
+ 		if (ret) {
+@@ -387,6 +387,7 @@ int dma_port_flash_read(struct tb_dma_po
+ 			return ret;
+ 		}
+ 
++		nbytes -= offset;
+ 		memcpy(buf, dma->buf + offset, nbytes);
+ 
+ 		size -= nbytes;
 
 
