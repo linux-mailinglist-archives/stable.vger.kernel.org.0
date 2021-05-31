@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 16285395E6A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9659A396199
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232989AbhEaN63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:58:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60806 "EHLO mail.kernel.org"
+        id S233597AbhEaOns (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:43:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232620AbhEaN40 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:56:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 710006192C;
-        Mon, 31 May 2021 13:34:38 +0000 (UTC)
+        id S233673AbhEaOli (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 796E861919;
+        Mon, 31 May 2021 13:53:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468079;
-        bh=vndSlYSGYchL3keAPdNoutOaMYOLvKAcEYArJWcKzoQ=;
+        s=korg; t=1622469229;
+        bh=ar+aDV48hz+TlJIly4vTP7FKaU4frXR+kFh9l1z7fSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O+NF8dcP+O8mWHks5QlCs9I7ziRVYVUd+Eya6PiBfB6UQhttRK2r9Ja1zqJlNLnjP
-         8r30tai98gt/zV6aQD1BLbapzze/HPe9ji0n7iqmUBKuBM8Gan4qpSNa8P96+vkpCP
-         Xc5A66rMYA/UtaBuUw+WEEqpZUkh+dZblHf2OCGc=
+        b=u7fRD+1jcpKX9um6wEPC7NExmyvL9lAFC4/jJrifUFpB5E1/JxClXlNHGQ1kHW2XO
+         9kWqkqZCLZ7gm8KGQ79myPddhnZtE22tdLUNj00wMlkG2DjYI8zxV1pqIv0LM2y1gs
+         3uixIvDmAOeDetJQ+fqNhO0FdPAvteICoWQvCUgQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Tung Nguyen <tung.q.nguyen@dektech.com.au>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 107/252] Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
-Date:   Mon, 31 May 2021 15:12:52 +0200
-Message-Id: <20210531130701.626595051@linuxfoundation.org>
+        stable@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
+        Aya Levin <ayal@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>
+Subject: [PATCH 5.12 118/296] net/mlx5e: reset XPS on error flow if netdev isnt registered yet
+Date:   Mon, 31 May 2021 15:12:53 +0200
+Message-Id: <20210531130707.885383533@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Saeed Mahameed <saeedm@nvidia.com>
 
-commit 75016891357a628d2b8acc09e2b9b2576c18d318 upstream.
+commit 77ecd10d0a8aaa6e4871d8c63626e4c9fc5e47db upstream.
 
-This reverts commit 6bf24dc0cc0cc43b29ba344b66d78590e687e046.
-Above fix is not correct and caused memory leak issue.
+mlx5e_attach_netdev can be called prior to registering the netdevice:
+Example stack:
 
-Fixes: 6bf24dc0cc0c ("net:tipc: Fix a double free in tipc_sk_mcast_rcv")
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Acked-by: Tung Nguyen <tung.q.nguyen@dektech.com.au>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+ipoib_new_child_link ->
+ipoib_intf_init->
+rdma_init_netdev->
+mlx5_rdma_setup_rn->
+
+mlx5e_attach_netdev->
+mlx5e_num_channels_changed ->
+mlx5e_set_default_xps_cpumasks ->
+netif_set_xps_queue ->
+__netif_set_xps_queue -> kmalloc
+
+If any later stage fails at any point after mlx5e_num_channels_changed()
+returns, XPS allocated maps will never be freed as they
+are only freed during netdev unregistration, which will never happen for
+yet to be registered netdevs.
+
+Fixes: 3909a12e7913 ("net/mlx5e: Fix configuration of XPS cpumasks and netdev queues in corner cases")
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/socket.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/net/tipc/socket.c
-+++ b/net/tipc/socket.c
-@@ -1244,7 +1244,10 @@ void tipc_sk_mcast_rcv(struct net *net,
- 		spin_lock_bh(&inputq->lock);
- 		if (skb_peek(arrvq) == skb) {
- 			skb_queue_splice_tail_init(&tmpq, inputq);
--			__skb_dequeue(arrvq);
-+			/* Decrease the skb's refcnt as increasing in the
-+			 * function tipc_skb_peek
-+			 */
-+			kfree_skb(__skb_dequeue(arrvq));
- 		}
- 		spin_unlock_bh(&inputq->lock);
- 		__skb_queue_purge(&tmpq);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5604,6 +5604,11 @@ static void mlx5e_update_features(struct
+ 	rtnl_unlock();
+ }
+ 
++static void mlx5e_reset_channels(struct net_device *netdev)
++{
++	netdev_reset_tc(netdev);
++}
++
+ int mlx5e_attach_netdev(struct mlx5e_priv *priv)
+ {
+ 	const bool take_rtnl = priv->netdev->reg_state == NETREG_REGISTERED;
+@@ -5658,6 +5663,7 @@ err_cleanup_tx:
+ 	profile->cleanup_tx(priv);
+ 
+ out:
++	mlx5e_reset_channels(priv->netdev);
+ 	set_bit(MLX5E_STATE_DESTROYING, &priv->state);
+ 	cancel_work_sync(&priv->update_stats_work);
+ 	return err;
+@@ -5675,6 +5681,7 @@ void mlx5e_detach_netdev(struct mlx5e_pr
+ 
+ 	profile->cleanup_rx(priv);
+ 	profile->cleanup_tx(priv);
++	mlx5e_reset_channels(priv->netdev);
+ 	cancel_work_sync(&priv->update_stats_work);
+ }
+ 
 
 
