@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AA3C3396260
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:54:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CABE39607A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233739AbhEaOzn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:55:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45320 "EHLO mail.kernel.org"
+        id S233386AbhEaO1U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:27:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48834 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234035AbhEaOxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:53:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2BB4D61CA8;
-        Mon, 31 May 2021 13:58:27 +0000 (UTC)
+        id S233075AbhEaOZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:25:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CB7F861A2B;
+        Mon, 31 May 2021 13:46:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469508;
-        bh=KehBeMlUcm4nj9j+kHyJww7Flwp46LChGWKgxp7iCQA=;
+        s=korg; t=1622468792;
+        bh=V6Ht5Q1d7BA+Esqjk6ydJwBvQnSAYZKpF8/BlSXnVyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wbjqZRdd8e2V/rFimnzDYIER0bo2dxwG4w94Eak7Q4lWycdgM3sMXxeVgq0I/axPh
-         JyBQgWWdFhdxLCv0v0J/e9wNgd00Txahf2tRoanYf2CKb4PI7l8yQzL8+FKIgh5421
-         feOU4Sr7tX4NCEiqRmliZBtU5rBFHlmGtoozQmYA=
+        b=jKZ8Hhe9Ap0Ii2LylgUe6RiZrHYLWfbydB7aVqafKm50FfBuVU+kxqkMKL8bb4EEr
+         MXbcDiC/tsPbbw8xH4aXnKYSSn/o3edcVteiN/OoyMckH3irsPUcCHzX4ioXiAooBC
+         OKzMOuJNg5JYipmUlC8QcWU5o8c+YO5qUFmcpByA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pawel Laszczak <pawell@cadence.com>,
-        Peter Chen <peter.chen@kernel.org>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 225/296] usb: cdnsp: Fix lack of removing request from pending list.
+Subject: [PATCH 5.4 123/177] btrfs: return whole extents in fiemap
 Date:   Mon, 31 May 2021 15:14:40 +0200
-Message-Id: <20210531130711.387687081@linuxfoundation.org>
+Message-Id: <20210531130652.173259255@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,58 +40,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pawel Laszczak <pawell@cadence.com>
+From: Boris Burkov <boris@bur.io>
 
-[ Upstream commit 3b414d1b0107fa51ad6063de9752d4b2a8063980 ]
+[ Upstream commit 15c7745c9a0078edad1f7df5a6bb7b80bc8cca23 ]
 
-Patch fixes lack of removing request from ep->pending_list on failure
-of the stop endpoint command. Driver even after failing this command
-must remove request from ep->pending_list.
-Without this fix driver can stuck in cdnsp_gadget_ep_disable function
-in loop:
-        while (!list_empty(&pep->pending_list)) {
-                preq = next_request(&pep->pending_list);
-                cdnsp_ep_dequeue(pep, preq);
-        }
+  `xfs_io -c 'fiemap <off> <len>' <file>`
 
-Fixes: 3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Link: https://lore.kernel.org/r/20210420042813.34917-1-pawell@gli-login.cadence.com
-Signed-off-by: Peter Chen <peter.chen@kernel.org>
+can give surprising results on btrfs that differ from xfs.
+
+btrfs prints out extents trimmed to fit the user input. If the user's
+fiemap request has an offset, then rather than returning each whole
+extent which intersects that range, we also trim the start extent to not
+have start < off.
+
+Documentation in filesystems/fiemap.txt and the xfs_io man page suggests
+that returning the whole extent is expected.
+
+Some cases which all yield the same fiemap in xfs, but not btrfs:
+  dd if=/dev/zero of=$f bs=4k count=1
+  sudo xfs_io -c 'fiemap 0 1024' $f
+    0: [0..7]: 26624..26631
+  sudo xfs_io -c 'fiemap 2048 1024' $f
+    0: [4..7]: 26628..26631
+  sudo xfs_io -c 'fiemap 2048 4096' $f
+    0: [4..7]: 26628..26631
+  sudo xfs_io -c 'fiemap 3584 512' $f
+    0: [7..7]: 26631..26631
+  sudo xfs_io -c 'fiemap 4091 5' $f
+    0: [7..6]: 26631..26630
+
+I believe this is a consequence of the logic for merging contiguous
+extents represented by separate extent items. That logic needs to track
+the last offset as it loops through the extent items, which happens to
+pick up the start offset on the first iteration, and trim off the
+beginning of the full extent. To fix it, start `off` at 0 rather than
+`start` so that we keep the iteration/merging intact without cutting off
+the start of the extent.
+
+after the fix, all the above commands give:
+
+  0: [0..7]: 26624..26631
+
+The merging logic is exercised by fstest generic/483, and I have written
+a new fstest for checking we don't have backwards or zero-length fiemaps
+for cases like those above.
+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Boris Burkov <boris@bur.io>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/cdns3/cdnsp-gadget.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ fs/btrfs/extent_io.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/cdns3/cdnsp-gadget.c b/drivers/usb/cdns3/cdnsp-gadget.c
-index 56707b6b0f57..c083985e387b 100644
---- a/drivers/usb/cdns3/cdnsp-gadget.c
-+++ b/drivers/usb/cdns3/cdnsp-gadget.c
-@@ -422,17 +422,17 @@ unmap:
- int cdnsp_ep_dequeue(struct cdnsp_ep *pep, struct cdnsp_request *preq)
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 95205bde240f..eca3abc1a7cd 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -4648,7 +4648,7 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+ 		__u64 start, __u64 len)
  {
- 	struct cdnsp_device *pdev = pep->pdev;
--	int ret;
-+	int ret_stop = 0;
-+	int ret_rem;
+ 	int ret = 0;
+-	u64 off = start;
++	u64 off;
+ 	u64 max = start + len;
+ 	u32 flags = 0;
+ 	u32 found_type;
+@@ -4684,6 +4684,11 @@ int extent_fiemap(struct inode *inode, struct fiemap_extent_info *fieinfo,
+ 		goto out_free_ulist;
+ 	}
  
- 	trace_cdnsp_request_dequeue(preq);
++	/*
++	 * We can't initialize that to 'start' as this could miss extents due
++	 * to extent item merging
++	 */
++	off = 0;
+ 	start = round_down(start, btrfs_inode_sectorsize(inode));
+ 	len = round_up(max, btrfs_inode_sectorsize(inode)) - start;
  
--	if (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_RUNNING) {
--		ret = cdnsp_cmd_stop_ep(pdev, pep);
--		if (ret)
--			return ret;
--	}
-+	if (GET_EP_CTX_STATE(pep->out_ctx) == EP_STATE_RUNNING)
-+		ret_stop = cdnsp_cmd_stop_ep(pdev, pep);
-+
-+	ret_rem = cdnsp_remove_request(pdev, preq, pep);
- 
--	return cdnsp_remove_request(pdev, preq, pep);
-+	return ret_rem ? ret_rem : ret_stop;
- }
- 
- static void cdnsp_zero_in_ctx(struct cdnsp_device *pdev)
 -- 
 2.30.2
 
