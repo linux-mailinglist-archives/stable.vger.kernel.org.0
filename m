@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5850C396074
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B597395D0B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233662AbhEaO1I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:27:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
+        id S232592AbhEaNkw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40216 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233614AbhEaOZD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:25:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DE39B61A19;
-        Mon, 31 May 2021 13:46:19 +0000 (UTC)
+        id S232236AbhEaNgY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:36:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5561861403;
+        Mon, 31 May 2021 13:25:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468780;
-        bh=1NEL+GcIiRtjPVEvr2hIegNN3AwAHmDg7Vo8080uR6A=;
+        s=korg; t=1622467547;
+        bh=5DpGA1KMFU7ZPxexWARaQNUL3rVmBIhU43e6YNWNlMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uvkD1gbE9vQgOPn6bG8/gJS86QK67ybzyQBHpFZXE0N0NGa/mOmQ+kQy/t0cfFNUO
-         wNJ4ZZ/180sG+ADCcq+EURHxCtveBiRaTo0UnrtSzdu9Na77+HcDhieBzUGiVudYb2
-         NVfERGucd7C0LyBvt5OyejRFTelORWXfm9CuwBQI=
+        b=j/fSyOy2RAPnAk98Eq/qWNXVi98jr0ZYw5WI2Ns3Q/ZqWDWonvAmlXjQlHjk/ZtH3
+         7PwGPREWj2laIs8LRr75agdZLSicXeCidOHak7w4Un9ko0X6mmkZBLk2eM9EMrRFOX
+         l1+iUVYnLgDq3KSkbq39HUkhFRcEGIgik//FxipY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 090/177] Revert "serial: max310x: pass return value of spi_register_driver"
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 071/116] net: dsa: fix a crash if ->get_sset_count() fails
 Date:   Mon, 31 May 2021 15:14:07 +0200
-Message-Id: <20210531130651.007865053@linuxfoundation.org>
+Message-Id: <20210531130642.551687572@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b0a85abbe92e1a6f3e8580a4590fa7245de7090b ]
+commit a269333fa5c0c8e53c92b5a28a6076a28cde3e83 upstream.
 
-This reverts commit 51f689cc11333944c7a457f25ec75fcb41e99410.
+If ds->ops->get_sset_count() fails then it "count" is a negative error
+code such as -EOPNOTSUPP.  Because "i" is an unsigned int, the negative
+error code is type promoted to a very high value and the loop will
+corrupt memory until the system crashes.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+Fix this by checking for error codes and changing the type of "i" to
+just int.
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-This change did not properly unwind from the error condition, so it was
-not correct.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Acked-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-11-gregkh@linuxfoundation.org
+Fixes: badf3ada60ab ("net: dsa: Provide CPU port statistics to master netdev")
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/dsa/master.c |    5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 8434bd5a8ec7..f60b7b86d099 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1527,10 +1527,10 @@ static int __init max310x_uart_init(void)
- 		return ret;
+--- a/net/dsa/master.c
++++ b/net/dsa/master.c
+@@ -87,8 +87,7 @@ static void dsa_master_get_strings(struc
+ 	struct dsa_switch *ds = cpu_dp->ds;
+ 	int port = cpu_dp->index;
+ 	int len = ETH_GSTRING_LEN;
+-	int mcount = 0, count;
+-	unsigned int i;
++	int mcount = 0, count, i;
+ 	uint8_t pfx[4];
+ 	uint8_t *ndata;
  
- #ifdef CONFIG_SPI_MASTER
--	ret = spi_register_driver(&max310x_spi_driver);
-+	spi_register_driver(&max310x_spi_driver);
- #endif
- 
--	return ret;
-+	return 0;
- }
- module_init(max310x_uart_init);
- 
--- 
-2.30.2
-
+@@ -118,6 +117,8 @@ static void dsa_master_get_strings(struc
+ 		 */
+ 		ds->ops->get_strings(ds, port, stringset, ndata);
+ 		count = ds->ops->get_sset_count(ds, port, stringset);
++		if (count < 0)
++			return;
+ 		for (i = 0; i < count; i++) {
+ 			memmove(ndata + (i * len + sizeof(pfx)),
+ 				ndata + i * len, len - sizeof(pfx));
 
 
