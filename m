@@ -2,37 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1655C395CC0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB98395D87
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232547AbhEaNhL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:37:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38860 "EHLO mail.kernel.org"
+        id S231210AbhEaNrP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:47:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231712AbhEaNfM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:35:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 39A2F61440;
-        Mon, 31 May 2021 13:25:10 +0000 (UTC)
+        id S230308AbhEaNpK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:45:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F87A6141E;
+        Mon, 31 May 2021 13:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467510;
-        bh=+bdAPR770A/6qlrJOq4AoDxXZQSCfeehkvgjE5IZtFU=;
+        s=korg; t=1622467784;
+        bh=KHU6nK91ps5fgJ0M+8gUgacb8bal347koAIiWci8V5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dzBQF24uQA6Px27Buc7va37jS29znohKcqPObfCowO6V0+IvDl9+Y2GfOECXJxhLE
-         JaSDh2ltkqeg8v6Mlo+zWu5FY1mi5oI+skJh9M6VTsTcjSE+maoW1O+BQ6H4Du6+fW
-         AB88HBOqLaKatrJOCLzV0FgNWLNvoXX2eVHwrpk0=
+        b=gP6WAQrANAtfMi3zQZeBByLmUbCPhp0ElpfUH1p3fnaCsKp8J/iD0OA+mKW2DJGtj
+         4iLHt2JG2RlW2sJlTHNqSQQ+Yh2DOE7zBdAGSbWFOU0vtEq82wgYJzgfIt/Q58JL49
+         KaMea4XAqE5PmVM3S5Alqa/VXRQ8NljnEeFUMStw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Stefan Metzmacher <metze@samba.org>,
-        Shyam Prasad N <sprasad@microsoft.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 092/116] SMB3: incorrect file id in requests compounded with open
+        stable@vger.kernel.org,
+        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
+        Jean Delvare <jdelvare@suse.de>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>
+Subject: [PATCH 4.14 43/79] i2c: i801: Dont generate an interrupt on bus reset
 Date:   Mon, 31 May 2021 15:14:28 +0200
-Message-Id: <20210531130643.260729898@linuxfoundation.org>
+Message-Id: <20210531130637.392721855@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,42 +43,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Jean Delvare <jdelvare@suse.de>
 
-[ Upstream commit c0d46717b95735b0eacfddbcca9df37a49de9c7a ]
+commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
 
-See MS-SMB2 3.2.4.1.4, file ids in compounded requests should be set to
-0xFFFFFFFFFFFFFFFF (we were treating it as u32 not u64 and setting
-it incorrectly).
+Now that the i2c-i801 driver supports interrupts, setting the KILL bit
+in a attempt to recover from a timed out transaction triggers an
+interrupt. Unfortunately, the interrupt handler (i801_isr) is not
+prepared for this situation and will try to process the interrupt as
+if it was signaling the end of a successful transaction. In the case
+of a block transaction, this can result in an out-of-range memory
+access.
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Stefan Metzmacher <metze@samba.org>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This condition was reproduced several times by syzbot:
+https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
+https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
+https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
+https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
+https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
+https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
+
+So disable interrupts while trying to reset the bus. Interrupts will
+be enabled again for the following transaction.
+
+Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
+Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
+Signed-off-by: Jean Delvare <jdelvare@suse.de>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/cifs/smb2pdu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/i2c/busses/i2c-i801.c |    6 ++----
+ 1 file changed, 2 insertions(+), 4 deletions(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index 07d1c79a79ea..43478ec6fd67 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3124,10 +3124,10 @@ smb2_new_read_req(void **buf, unsigned int *total_len,
- 			 * Related requests use info from previous read request
- 			 * in chain.
- 			 */
--			shdr->SessionId = 0xFFFFFFFF;
-+			shdr->SessionId = 0xFFFFFFFFFFFFFFFF;
- 			shdr->TreeId = 0xFFFFFFFF;
--			req->PersistentFileId = 0xFFFFFFFF;
--			req->VolatileFileId = 0xFFFFFFFF;
-+			req->PersistentFileId = 0xFFFFFFFFFFFFFFFF;
-+			req->VolatileFileId = 0xFFFFFFFFFFFFFFFF;
- 		}
- 	}
- 	if (remaining_bytes > io_parms->length)
--- 
-2.30.2
-
+--- a/drivers/i2c/busses/i2c-i801.c
++++ b/drivers/i2c/busses/i2c-i801.c
+@@ -379,11 +379,9 @@ static int i801_check_post(struct i801_p
+ 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
+ 		/* try to stop the current command */
+ 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
+-		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
+-		       SMBHSTCNT(priv));
++		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
+ 		usleep_range(1000, 2000);
+-		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
+-		       SMBHSTCNT(priv));
++		outb_p(0, SMBHSTCNT(priv));
+ 
+ 		/* Check if it worked */
+ 		status = inb_p(SMBHSTSTS(priv));
 
 
