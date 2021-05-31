@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E653960D5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0707D39629B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:57:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233708AbhEaObr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
+        id S233322AbhEaO6o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:58:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50816 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233999AbhEaO3h (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:29:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 440CD61C27;
-        Mon, 31 May 2021 13:48:39 +0000 (UTC)
+        id S234209AbhEaO4p (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:56:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A2C4F61CBF;
+        Mon, 31 May 2021 14:00:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468919;
-        bh=uJvxStNRGL8ZMqTvhb7qpbB1W1mC9gnlKx7vYR510TA=;
+        s=korg; t=1622469610;
+        bh=HwDx/tnX6hrkMgeAvjZu9FGgdS+sIWoW5N0fDqQF49A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IppzKfFzcl8f5ApIbcFPMyZMtDfjSM2QjvwQ5hYcb2U051FRED9zaafutDYEntMYM
-         Euuqk7BPN3+5byrIxA0F64OdGOjcGENiCgUuHndRJNqZ0TMLJTmhxWkDwmZS/q4qnX
-         v10pzC7Ipwbl86TdlHkbyTfRVVyGj0y5QMKfX63k=
+        b=g1bRrC8fX65i/iwLUWfcHFNWPW5hlDXynHTHg/RdsMO0OdLOf7fTGDwch0UFPJ+PR
+         NQYfyCDj3MYMuDOt0gwaEiA+Jd+GGuyrtu3SsztmHxWILWVSPeEXyKYNqig+tCzWIH
+         4kN9H0u3xL2Do4aXXSIXd2bQxocHQebWk4R7VQLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 162/177] scsi: libsas: Use _safe() loop in sas_resume_port()
+        stable@vger.kernel.org, Dan Carpenter <dan.carpenter@oracle.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 264/296] iommu/vt-d: Check for allocation failure in aux_detach_device()
 Date:   Mon, 31 May 2021 15:15:19 +0200
-Message-Id: <20210531130653.527014111@linuxfoundation.org>
+Message-Id: <20210531130712.622927316@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,47 +42,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
+[ Upstream commit 1a590a1c8bf46bf80ea12b657ca44c345531ac80 ]
 
-If sas_notify_lldd_dev_found() fails then this code calls:
+In current kernels small allocations never fail, but checking for
+allocation failure is the correct thing to do.
 
-	sas_unregister_dev(port, dev);
-
-which removes "dev", our list iterator, from the list.  This could lead to
-an endless loop.  We need to use list_for_each_entry_safe().
-
-Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
-Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
-Reviewed-by: John Garry <john.garry@huawei.com>
+Fixes: 18abda7a2d55 ("iommu/vt-d: Fix general protection fault in aux_detach_device()")
 Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Acked-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/YJuobKuSn81dOPLd@mwanda
+Link: https://lore.kernel.org/r/20210519015027.108468-2-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/libsas/sas_port.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/iommu/intel/iommu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
-index 7c86fd248129..f751a12f92ea 100644
---- a/drivers/scsi/libsas/sas_port.c
-+++ b/drivers/scsi/libsas/sas_port.c
-@@ -25,7 +25,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
+diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+index 7e551da6c1fb..2569585ffcd4 100644
+--- a/drivers/iommu/intel/iommu.c
++++ b/drivers/iommu/intel/iommu.c
+@@ -4626,6 +4626,8 @@ static int auxiliary_link_device(struct dmar_domain *domain,
  
- static void sas_resume_port(struct asd_sas_phy *phy)
- {
--	struct domain_device *dev;
-+	struct domain_device *dev, *n;
- 	struct asd_sas_port *port = phy->port;
- 	struct sas_ha_struct *sas_ha = phy->ha;
- 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
-@@ -44,7 +44,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
- 	 * 1/ presume every device came back
- 	 * 2/ force the next revalidation to check all expander phys
- 	 */
--	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
-+	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
- 		int i, rc;
- 
- 		rc = sas_notify_lldd_dev_found(dev);
+ 	if (!sinfo) {
+ 		sinfo = kzalloc(sizeof(*sinfo), GFP_ATOMIC);
++		if (!sinfo)
++			return -ENOMEM;
+ 		sinfo->domain = domain;
+ 		sinfo->pdev = dev;
+ 		list_add(&sinfo->link_phys, &info->subdevices);
 -- 
 2.30.2
 
