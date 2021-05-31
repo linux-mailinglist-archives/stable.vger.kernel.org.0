@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C940D395C7B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BE912395BAA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232638AbhEaNd0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:33:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
+        id S231974AbhEaNXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:23:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54726 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232161AbhEaNbZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:31:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0A25D613B6;
-        Mon, 31 May 2021 13:23:35 +0000 (UTC)
+        id S232069AbhEaNVZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:21:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB43961376;
+        Mon, 31 May 2021 13:19:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467416;
-        bh=vRqAwUqYtFJ1JEWXTPZFIsAOh+Kh2rbyILSszCFx2fw=;
+        s=korg; t=1622467141;
+        bh=pgZ2CMmgdSfi7hwcQaR3X6G3luSLViZGApZz7TBRRgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oeEfACIamPmDRERrZIpYbCC+/ustdhrmWCF2YRlNFZRsRpnl9cxDmrLqJLn6U8F/D
-         rjUHToqtT8mEFc5JN6CE8xLHv6t97oa/OA5Ke8r7hUkwDgz0PuMlXWnSqMO7oZi/5w
-         JUYxUbNwVj14v/mi9I254UNRaihGqOyUIddK2+Jc=
+        b=Lo/BO92ThpFhhvnLHCiDaL28QhafE9H/DPZ9fp0t3M4cYQj0tlKTqIG3AWLefzr7b
+         lZr7sASDfsawgUB2SXG1GalYsStTXo3LD2XwK1lOxE8FeltP84tklBwiMfQGb9hXJV
+         QKP56qaI1x2qIupGqR3kH/l/1voyNTqX2x3Juic0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Ovidiu Panait <ovidiu.panait@windriver.com>
-Subject: [PATCH 4.19 057/116] bpf: Fix mask direction swap upon off reg sign change
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.9 20/66] USB: trancevibrator: fix control-request direction
 Date:   Mon, 31 May 2021 15:13:53 +0200
-Message-Id: <20210531130642.106387425@linuxfoundation.org>
+Message-Id: <20210531130636.903057564@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +38,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Johan Hovold <johan@kernel.org>
 
-commit bb01a1bba579b4b1c5566af24d95f1767859771e upstream
+commit 746e4acf87bcacf1406e05ef24a0b7139147c63e upstream.
 
-Masking direction as indicated via mask_to_left is considered to be
-calculated once and then used to derive pointer limits. Thus, this
-needs to be placed into bpf_sanitize_info instead so we can pass it
-to sanitize_ptr_alu() call after the pointer move. Piotr noticed a
-corner case where the off reg causes masking direction change which
-then results in an incorrect final aux->alu_limit.
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
-Fixes: 7fedb63a8307 ("bpf: Tighten speculative pointer arithmetic mask")
-Reported-by: Piotr Krysiuk <piotras@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Fix the set-speed request which erroneously used USB_DIR_IN and update
+the default timeout argument to match (same value).
+
+Fixes: 5638e4d92e77 ("USB: add PlayStation 2 Trance Vibrator driver")
+Cc: stable@vger.kernel.org      # 2.6.19
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210521133109.17396-1-johan@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   22 ++++++++++++----------
- 1 file changed, 12 insertions(+), 10 deletions(-)
+ drivers/usb/misc/trancevibrator.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2738,18 +2738,10 @@ enum {
- };
- 
- static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
--			      const struct bpf_reg_state *off_reg,
--			      u32 *alu_limit, u8 opcode)
-+			      u32 *alu_limit, bool mask_to_left)
- {
--	bool off_is_neg = off_reg->smin_value < 0;
--	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
--			    (opcode == BPF_SUB && !off_is_neg);
- 	u32 max = 0, ptr_limit = 0;
- 
--	if (!tnum_is_const(off_reg->var_off) &&
--	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
--		return REASON_BOUNDS;
--
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
- 		/* Offset 0 is out-of-bounds, but acceptable start for the
-@@ -2817,6 +2809,7 @@ static bool sanitize_needed(u8 opcode)
- 
- struct bpf_sanitize_info {
- 	struct bpf_insn_aux_data aux;
-+	bool mask_to_left;
- };
- 
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
-@@ -2848,7 +2841,16 @@ static int sanitize_ptr_alu(struct bpf_v
- 	if (vstate->speculative)
- 		goto do_sim;
- 
--	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
-+	if (!commit_window) {
-+		if (!tnum_is_const(off_reg->var_off) &&
-+		    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
-+			return REASON_BOUNDS;
-+
-+		info->mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
-+				     (opcode == BPF_SUB && !off_is_neg);
-+	}
-+
-+	err = retrieve_ptr_limit(ptr_reg, &alu_limit, info->mask_to_left);
- 	if (err < 0)
- 		return err;
- 
+--- a/drivers/usb/misc/trancevibrator.c
++++ b/drivers/usb/misc/trancevibrator.c
+@@ -74,9 +74,9 @@ static ssize_t set_speed(struct device *
+ 	/* Set speed */
+ 	retval = usb_control_msg(tv->udev, usb_sndctrlpipe(tv->udev, 0),
+ 				 0x01, /* vendor request: set speed */
+-				 USB_DIR_IN | USB_TYPE_VENDOR | USB_RECIP_OTHER,
++				 USB_DIR_OUT | USB_TYPE_VENDOR | USB_RECIP_OTHER,
+ 				 tv->speed, /* speed value */
+-				 0, NULL, 0, USB_CTRL_GET_TIMEOUT);
++				 0, NULL, 0, USB_CTRL_SET_TIMEOUT);
+ 	if (retval) {
+ 		tv->speed = old;
+ 		dev_dbg(&tv->udev->dev, "retval = %d\n", retval);
 
 
