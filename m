@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B8758395B8B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:20:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9907F395F4F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231837AbhEaNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:21:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
+        id S232508AbhEaOJ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:09:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231823AbhEaNUD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:20:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 234386135D;
-        Mon, 31 May 2021 13:18:20 +0000 (UTC)
+        id S232270AbhEaOH5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFA6861962;
+        Mon, 31 May 2021 13:39:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467101;
-        bh=2DKgRIUx3bq4bj2n7TveWOz0TPwQ1RJ+G6bHpOUG4Y0=;
+        s=korg; t=1622468375;
+        bh=FbchGuyAEMtbN0+/wE1KtzCZb8uk4wJGjnk+iKF2RW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UldYwMDCEXgBfzPCNJpwLovVefGRYpGncnKVWEwJOEXoOXGYuC+RL2Wnm3Ukhzc//
-         MndCNoybVjc1Y6SGWW7QBb/WcEN9iABFwJnuY6qVSjCk/l0mSIWdnddTASfYMIhy4q
-         F2BKaxf83vjvmk5LmrwAY5o/7WI1mwZbHuVMh+H8=
+        b=1nENtSTngr6BMGMe5V+F2o9x0g6VBABfg+4gmV3RPZ8Bfym6QKM6yxTWl17mpLrRc
+         42QCehYbufi8FWpRMY8vSS+U1HQH3OQqDpCWUNtYxD6GASTHtWaJ7Ntl3hds0VNJY8
+         oHGcfiWRxxyhhkuU517ffdy9w2YD9erjZWR/oDIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zou Wei <zou_wei@huawei.com>,
+        Georgi Djakov <djakov@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 51/54] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
+Subject: [PATCH 5.10 192/252] interconnect: qcom: Add missing MODULE_DEVICE_TABLE
 Date:   Mon, 31 May 2021 15:14:17 +0200
-Message-Id: <20210531130636.666522100@linuxfoundation.org>
+Message-Id: <20210531130704.528644462@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,48 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
+[ Upstream commit 1fd86e280d8b21762901e43d42d66dbfe8b8e0d3 ]
 
-rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
-when this watchdog driver is built as a loadable module, there is a
-build error since the rt_sysc_membase symbol is not exported.
-Export it to quell the build error.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
-
-Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: John Crispin <john@phrozen.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620704673-104205-1-git-send-email-zou_wei@huawei.com
+Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
+Signed-off-by: Georgi Djakov <djakov@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/of.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/interconnect/qcom/bcm-voter.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/arch/mips/ralink/of.c
-+++ b/arch/mips/ralink/of.c
-@@ -10,6 +10,7 @@
+diff --git a/drivers/interconnect/qcom/bcm-voter.c b/drivers/interconnect/qcom/bcm-voter.c
+index 7c3ef817e99c..dd0e3bd50b94 100644
+--- a/drivers/interconnect/qcom/bcm-voter.c
++++ b/drivers/interconnect/qcom/bcm-voter.c
+@@ -370,6 +370,7 @@ static const struct of_device_id bcm_voter_of_match[] = {
+ 	{ .compatible = "qcom,bcm-voter" },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, bcm_voter_of_match);
  
- #include <linux/io.h>
- #include <linux/clk.h>
-+#include <linux/export.h>
- #include <linux/init.h>
- #include <linux/sizes.h>
- #include <linux/of_fdt.h>
-@@ -27,6 +28,7 @@
- 
- __iomem void *rt_sysc_membase;
- __iomem void *rt_memc_membase;
-+EXPORT_SYMBOL_GPL(rt_sysc_membase);
- 
- __iomem void *plat_of_remap_node(const char *node)
- {
+ static struct platform_driver qcom_icc_bcm_voter_driver = {
+ 	.probe = qcom_icc_bcm_voter_probe,
+-- 
+2.30.2
+
 
 
