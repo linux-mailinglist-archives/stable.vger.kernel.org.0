@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20B303961BD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EDF9D395E54
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233726AbhEaOpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:45:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37862 "EHLO mail.kernel.org"
+        id S232840AbhEaN5U (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:57:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233335AbhEaOlX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:41:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AD4C261C68;
-        Mon, 31 May 2021 13:53:17 +0000 (UTC)
+        id S231848AbhEaNzQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:55:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E0DC6143E;
+        Mon, 31 May 2021 13:34:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469198;
-        bh=xagvrzRcVIBO+CNLCyaW5UeI3FqC/1oW+yIpTa01+fk=;
+        s=korg; t=1622468048;
+        bh=auPDlSkBHh/2qxmhAoXyu3jcfuFKyKBpO/M1guYP74M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wrDRBfmbs2vyRHqbWV//WwXLn8r79vKkjcSCAY+yB0tJZMYibG68m+DxkpPd51SA7
-         n/BtneM3eKIpFe3YCp8nhWZ320GToB3nH4PX7ckPoEUJsoCRBtO0+puy7lbf4FN3IG
-         u1Z1zGXgz0DArdsHx3NVCBahoX3B02RePHwt8pFI=
+        b=a64ifoQ+VbWJRFJsHbJewTcYjQ8yH4RqsZhDwSt4iYzsET5NvJCIW2rsVu5mbWqvB
+         3t29czVB90n5kt7DBH/VvavPjpaJ60VH/cLRBlbreBF9d+VZUFmg8Ynfq7G38ONiJe
+         FYMoB2nn+iR7WKVG6koKxO5vYuCzzKg3FmPeuDDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Adam Thomson <Adam.Thomson.Opensource@diasemi.com>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 5.12 107/296] usb: typec: tcpm: Use LE to CPU conversion when accessing msg->header
+        stable@vger.kernel.org, Saeed Mahameed <saeedm@nvidia.com>,
+        Aya Levin <ayal@nvidia.com>, Tariq Toukan <tariqt@nvidia.com>
+Subject: [PATCH 5.10 097/252] net/mlx5e: reset XPS on error flow if netdev isnt registered yet
 Date:   Mon, 31 May 2021 15:12:42 +0200
-Message-Id: <20210531130707.537266142@linuxfoundation.org>
+Message-Id: <20210531130701.279525401@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,49 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Saeed Mahameed <saeedm@nvidia.com>
 
-commit c58bbe3477f75deb7883983e6cf428404a107555 upstream.
+commit 77ecd10d0a8aaa6e4871d8c63626e4c9fc5e47db upstream.
 
-Sparse is not happy about strict type handling:
-  .../typec/tcpm/tcpm.c:2720:27: warning: restricted __le16 degrades to integer
-  .../typec/tcpm/tcpm.c:2814:32: warning: restricted __le16 degrades to integer
+mlx5e_attach_netdev can be called prior to registering the netdevice:
+Example stack:
 
-Fix this by converting LE to CPU before use.
+ipoib_new_child_link ->
+ipoib_intf_init->
+rdma_init_netdev->
+mlx5_rdma_setup_rn->
 
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Fixes: 64f7c494a3c0 ("typec: tcpm: Add support for sink PPS related messages")
-Cc: stable <stable@vger.kernel.org>
-Cc: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Reviewed-by: Guenter Roeck <linux@roeck-us.net>
-Reviewed-by: Adam Thomson <Adam.Thomson.Opensource@diasemi.com>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210519100358.64018-1-andriy.shevchenko@linux.intel.com
+mlx5e_attach_netdev->
+mlx5e_num_channels_changed ->
+mlx5e_set_default_xps_cpumasks ->
+netif_set_xps_queue ->
+__netif_set_xps_queue -> kmalloc
+
+If any later stage fails at any point after mlx5e_num_channels_changed()
+returns, XPS allocated maps will never be freed as they
+are only freed during netdev unregistration, which will never happen for
+yet to be registered netdevs.
+
+Fixes: 3909a12e7913 ("net/mlx5e: Fix configuration of XPS cpumasks and netdev queues in corner cases")
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/tcpm/tcpm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -2697,7 +2697,7 @@ static void tcpm_pd_ext_msg_request(stru
- 	enum pd_ext_msg_type type = pd_header_type_le(msg->header);
- 	unsigned int data_size = pd_ext_header_data_size_le(msg->ext_msg.header);
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -5385,6 +5385,11 @@ err_free_netdev:
+ 	return NULL;
+ }
  
--	if (!(msg->ext_msg.header & PD_EXT_HDR_CHUNKED)) {
-+	if (!(le16_to_cpu(msg->ext_msg.header) & PD_EXT_HDR_CHUNKED)) {
- 		tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
- 		tcpm_log(port, "Unchunked extended messages unsupported");
- 		return;
-@@ -2791,7 +2791,7 @@ static void tcpm_pd_rx_handler(struct kt
- 				 "Data role mismatch, initiating error recovery");
- 			tcpm_set_state(port, ERROR_RECOVERY, 0);
- 		} else {
--			if (msg->header & PD_HEADER_EXT_HDR)
-+			if (le16_to_cpu(msg->header) & PD_HEADER_EXT_HDR)
- 				tcpm_pd_ext_msg_request(port, msg);
- 			else if (cnt)
- 				tcpm_pd_data_request(port, msg);
++static void mlx5e_reset_channels(struct net_device *netdev)
++{
++	netdev_reset_tc(netdev);
++}
++
+ int mlx5e_attach_netdev(struct mlx5e_priv *priv)
+ {
+ 	const bool take_rtnl = priv->netdev->reg_state == NETREG_REGISTERED;
+@@ -5438,6 +5443,7 @@ err_cleanup_tx:
+ 	profile->cleanup_tx(priv);
+ 
+ out:
++	mlx5e_reset_channels(priv->netdev);
+ 	set_bit(MLX5E_STATE_DESTROYING, &priv->state);
+ 	cancel_work_sync(&priv->update_stats_work);
+ 	return err;
+@@ -5455,6 +5461,7 @@ void mlx5e_detach_netdev(struct mlx5e_pr
+ 
+ 	profile->cleanup_rx(priv);
+ 	profile->cleanup_tx(priv);
++	mlx5e_reset_channels(priv->netdev);
+ 	cancel_work_sync(&priv->update_stats_work);
+ }
+ 
 
 
