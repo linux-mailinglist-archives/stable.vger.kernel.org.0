@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1EC6E39614F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9BB97395DC1
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232622AbhEaOiw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:38:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60316 "EHLO mail.kernel.org"
+        id S231934AbhEaNuw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:50:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233643AbhEaOgU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:36:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C4F1661C4F;
-        Mon, 31 May 2021 13:51:20 +0000 (UTC)
+        id S232207AbhEaNrH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB5A56161C;
+        Mon, 31 May 2021 13:30:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469081;
-        bh=XSgpYZSS1A43AEYXwsuaBxUBHSVjgtsQgACDshoxKDc=;
+        s=korg; t=1622467833;
+        bh=c2Ydtpu8WFdXD9/MbJ9qltC44GUSDVsmkHak/Ob/xFw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NiQxlKXOQ/xFWhw+GQxGUBlp8fmK9ybfzpI1iXYSefAdYiZJaB+OGOxUPYe1dyyhU
-         1MAmf2l5LaADamulKgbV12Ri3+z0I7K18QHiBBwV0sKvi6REOIyBIqFMQXZ1K7/4Hf
-         85XYwToG9P47VFsFYQ7n+/AqPc1l5mTrV8os0uAc=
+        b=gSyg4j8Hff6rm9UDGpFWGQzTyouAR7g2mEjM66UbPmmdc9CB6+U7b2R5DJkdZeIbF
+         4RHGgNN6DHeKaCIV0IQ2rxk4jPuw+EBIkSenKMP465Hya/L9bMECaWton04C2j2rq0
+         ot/t4X4raEj6/MloRA0Tlcoet19qGjyR0YWJUeXs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.12 027/296] perf scripts python: exported-sql-viewer.py: Fix copy to clipboard from Top Calls by elapsed Time report
-Date:   Mon, 31 May 2021 15:11:22 +0200
-Message-Id: <20210531130704.695539522@linuxfoundation.org>
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 018/252] proc: Check /proc/$pid/attr/ writes against file opener
+Date:   Mon, 31 May 2021 15:11:23 +0200
+Message-Id: <20210531130658.597576820@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit a6172059758ba1b496ae024cece7d5bdc8d017db upstream.
+commit bfb819ea20ce8bbeeba17e1a6418bf8bda91fc28 upstream.
 
-Provide missing argument to prevent following error when copying a
-selection to the clipboard:
+Fix another "confused deputy" weakness[1]. Writes to /proc/$pid/attr/
+files need to check the opener credentials, since these fds do not
+transition state across execve(). Without this, it is possible to
+trick another process (which may have different credentials) to write
+to its own /proc/$pid/attr/ files, leading to unexpected and possibly
+exploitable behaviors.
 
-Traceback (most recent call last):
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4041, in <lambda>
-    menu.addAction(CreateAction("&Copy selection", "Copy to clipboard", lambda: CopyCellsToClipboardHdr(self.view), self.view))
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4021, in CopyCellsToClipboardHdr
-    CopyCellsToClipboard(view, False, True)
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4018, in CopyCellsToClipboard
-    view.CopyCellsToClipboard(view, as_csv, with_hdr)
-  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3871, in CopyTableCellsToClipboard
-    val = model.headerData(col, Qt.Horizontal)
-TypeError: headerData() missing 1 required positional argument: 'role'
+[1] https://www.kernel.org/doc/html/latest/security/credentials.html?highlight=confused#open-file-credentials
 
-Fixes: 96c43b9a7ab3b ("perf scripts python: exported-sql-viewer.py: Add copy to clipboard")
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210521092053.25683-2-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/proc/base.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -3868,7 +3868,7 @@ def CopyTableCellsToClipboard(view, as_c
- 	if with_hdr:
- 		model = indexes[0].model()
- 		for col in range(min_col, max_col + 1):
--			val = model.headerData(col, Qt.Horizontal)
-+			val = model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
- 			if as_csv:
- 				text += sep + ToCSValue(val)
- 				sep = ","
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2704,6 +2704,10 @@ static ssize_t proc_pid_attr_write(struc
+ 	void *page;
+ 	int rv;
+ 
++	/* A task may only write when it was the opener. */
++	if (file->f_cred != current_real_cred())
++		return -EPERM;
++
+ 	rcu_read_lock();
+ 	task = pid_task(proc_pid(inode), PIDTYPE_PID);
+ 	if (!task) {
 
 
