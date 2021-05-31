@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3ED72395C3C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 800483961CC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbhEaNaG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:30:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60152 "EHLO mail.kernel.org"
+        id S233690AbhEaOqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:46:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232294AbhEaN2E (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:28:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2615561376;
-        Mon, 31 May 2021 13:22:02 +0000 (UTC)
+        id S233962AbhEaOoL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:44:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 036FE61C7A;
+        Mon, 31 May 2021 13:54:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467324;
-        bh=oRToud7KoChH4nC6fVZXtwAHXTLxa9slLHXrdvWlHGY=;
+        s=korg; t=1622469292;
+        bh=ecVOHXG2H/p/BcQ8/ULU/fY1B/iSnZOBzF+lCQL9Ejk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=alpzgHdRKSzX96djwcXPGKg5PvK7DeEphiTG/qAq5+wxq/G1/5/u3NmGSkAAwf32J
-         tkf9F0jiM8IZkVZ02rW6I5rtl+weo5xdU/9Rwcfkr00ZjbAG0We0q6+phgQt1RAj/h
-         K0ybCjn+U5/X+I0+DKVjBKW5H77tCDI5ca0bkYz0=
+        b=jknpNU86m5uT3fXRE13tk7m9Ga9D0tL0cRodZuVQWGnpGAtMP9rX5yeeVTXbCznV5
+         vzP26Z5QaqTkCpzgkAQRvFRteMuPOf0xbdLo87uKbkq/nHTBsiE+BDESn7YtO1wlzO
+         fFz/M59Nsm2tGvAjtAoBq7v7lKSFQ7iWoZyUdFps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.19 022/116] dm snapshot: properly fix a crash when an origin has no snapshots
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 143/296] net: dsa: sja1105: update existing VLANs from the bridge VLAN list
 Date:   Mon, 31 May 2021 15:13:18 +0200
-Message-Id: <20210531130640.904356684@linuxfoundation.org>
+Message-Id: <20210531130708.679794153@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 7e768532b2396bcb7fbf6f82384b85c0f1d2f197 upstream.
+commit b38e659de966a122fe2cb178c1e39c9bea06bc62 upstream.
 
-If an origin target has no snapshots, o->split_boundary is set to 0.
-This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+When running this sequence of operations:
 
-Fix this by initializing chunk_size, and in turn split_boundary, to
-rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
-into "unsigned" type.
+ip link add br0 type bridge vlan_filtering 1
+ip link set swp4 master br0
+bridge vlan add dev swp4 vid 1
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+We observe the traffic sent on swp4 is still untagged, even though the
+bridge has overwritten the existing VLAN entry:
+
+port    vlan ids
+swp4     1 PVID
+
+br0      1 PVID Egress Untagged
+
+This happens because we didn't consider that the 'bridge vlan add'
+command just overwrites VLANs like it's nothing. We treat the 'vid 1
+pvid untagged' and the 'vid 1' as two separate VLANs, and the first
+still has precedence when calling sja1105_build_vlan_table. Obviously
+there is a disagreement regarding semantics, and we end up doing
+something unexpected from the PoV of the bridge.
+
+Let's actually consider an "existing VLAN" to be one which is on the
+same port, and has the same VLAN ID, as one we already have, and update
+it if it has different flags than we do.
+
+The first blamed commit is the one introducing the bug, the second one
+is the latest on top of which the bugfix still applies.
+
+Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
+Fixes: 5899ee367ab3 ("net: dsa: tag_8021q: add a context structure")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/dm-snap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -794,7 +794,7 @@ static int dm_add_exception(void *contex
- static uint32_t __minimum_chunk_size(struct origin *o)
- {
- 	struct dm_snapshot *snap;
--	unsigned chunk_size = 0;
-+	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -2817,11 +2817,22 @@ static int sja1105_vlan_add_one(struct d
+ 	bool pvid = flags & BRIDGE_VLAN_INFO_PVID;
+ 	struct sja1105_bridge_vlan *v;
  
- 	if (o)
- 		list_for_each_entry(snap, &o->snapshots, list)
+-	list_for_each_entry(v, vlan_list, list)
+-		if (v->port == port && v->vid == vid &&
+-		    v->untagged == untagged && v->pvid == pvid)
++	list_for_each_entry(v, vlan_list, list) {
++		if (v->port == port && v->vid == vid) {
+ 			/* Already added */
+-			return 0;
++			if (v->untagged == untagged && v->pvid == pvid)
++				/* Nothing changed */
++				return 0;
++
++			/* It's the same VLAN, but some of the flags changed
++			 * and the user did not bother to delete it first.
++			 * Update it and trigger sja1105_build_vlan_table.
++			 */
++			v->untagged = untagged;
++			v->pvid = pvid;
++			return 1;
++		}
++	}
+ 
+ 	v = kzalloc(sizeof(*v), GFP_KERNEL);
+ 	if (!v) {
 
 
