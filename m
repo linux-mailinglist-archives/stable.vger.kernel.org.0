@@ -2,38 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 70C073960D4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9E653960D5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233701AbhEaObo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54710 "EHLO mail.kernel.org"
+        id S233708AbhEaObr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233993AbhEaO3g (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:29:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7C54261C2B;
-        Mon, 31 May 2021 13:48:36 +0000 (UTC)
+        id S233999AbhEaO3h (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 440CD61C27;
+        Mon, 31 May 2021 13:48:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468916;
-        bh=udF61iovPAdU6ur1TYq0jtlIjT3KUEKu/qIh0tV5UYI=;
+        s=korg; t=1622468919;
+        bh=uJvxStNRGL8ZMqTvhb7qpbB1W1mC9gnlKx7vYR510TA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pIpwXDKs4Sb5sDxWm4Idi7SNhhs69WowucjBTmGqwf8J0j+aMUVbkjplDqsg0/sS2
-         ZpNdX1d4xspVSGIGYGTf3LTSGcl/bKGvAyP+PnSyRtwhaQXQmwt2xbaQZW378ACcqP
-         QPhyMHIeqVbdnXGwSuq4ktRlGV3xDJqReJ5AEqU0=
+        b=IppzKfFzcl8f5ApIbcFPMyZMtDfjSM2QjvwQ5hYcb2U051FRED9zaafutDYEntMYM
+         Euuqk7BPN3+5byrIxA0F64OdGOjcGENiCgUuHndRJNqZ0TMLJTmhxWkDwmZS/q4qnX
+         v10pzC7Ipwbl86TdlHkbyTfRVVyGj0y5QMKfX63k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Skajewski <piotrx.skajewski@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 161/177] ixgbe: fix large MTU request from VF
-Date:   Mon, 31 May 2021 15:15:18 +0200
-Message-Id: <20210531130653.486039410@linuxfoundation.org>
+Subject: [PATCH 5.4 162/177] scsi: libsas: Use _safe() loop in sas_resume_port()
+Date:   Mon, 31 May 2021 15:15:19 +0200
+Message-Id: <20210531130653.527014111@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
 References: <20210531130647.887605866@linuxfoundation.org>
@@ -45,74 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit 63e39d29b3da02e901349f6cd71159818a4737a6 ]
+[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
 
-Check that the MTU value requested by the VF is in the supported
-range of MTUs before attempting to set the VF large packet enable,
-otherwise reject the request. This also avoids unnecessary
-register updates in the case of the 82599 controller.
+If sas_notify_lldd_dev_found() fails then this code calls:
 
-Fixes: 872844ddb9e4 ("ixgbe: Enable jumbo frames support w/ SR-IOV")
-Co-developed-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Co-developed-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+	sas_unregister_dev(port, dev);
+
+which removes "dev", our list iterator, from the list.  This could lead to
+an endless loop.  We need to use list_for_each_entry_safe().
+
+Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
+Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ drivers/scsi/libsas/sas_port.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-index 537dfff585e0..47a920128760 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -467,12 +467,16 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
- 	return err;
- }
+diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
+index 7c86fd248129..f751a12f92ea 100644
+--- a/drivers/scsi/libsas/sas_port.c
++++ b/drivers/scsi/libsas/sas_port.c
+@@ -25,7 +25,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
  
--static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
-+static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
+ static void sas_resume_port(struct asd_sas_phy *phy)
  {
- 	struct ixgbe_hw *hw = &adapter->hw;
--	int max_frame = msgbuf[1];
- 	u32 max_frs;
+-	struct domain_device *dev;
++	struct domain_device *dev, *n;
+ 	struct asd_sas_port *port = phy->port;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+ 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
+@@ -44,7 +44,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+ 	 * 1/ presume every device came back
+ 	 * 2/ force the next revalidation to check all expander phys
+ 	 */
+-	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
++	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+ 		int i, rc;
  
-+	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
-+		e_err(drv, "VF max_frame %d out of range\n", max_frame);
-+		return -EINVAL;
-+	}
-+
- 	/*
- 	 * For 82599EB we have to keep all PFs and VFs operating with
- 	 * the same max_frame value in order to avoid sending an oversize
-@@ -533,12 +537,6 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
- 		}
- 	}
- 
--	/* MTU < 68 is an error and causes problems on some kernels */
--	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
--		e_err(drv, "VF max_frame %d out of range\n", max_frame);
--		return -EINVAL;
--	}
--
- 	/* pull current max frame size from hardware */
- 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
- 	max_frs &= IXGBE_MHADD_MFS_MASK;
-@@ -1249,7 +1247,7 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
- 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
- 		break;
- 	case IXGBE_VF_SET_LPE:
--		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
-+		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
- 		break;
- 	case IXGBE_VF_SET_MACVLAN:
- 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
+ 		rc = sas_notify_lldd_dev_found(dev);
 -- 
 2.30.2
 
