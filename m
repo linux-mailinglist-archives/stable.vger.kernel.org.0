@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F1A396017
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA72A39623F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:52:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231376AbhEaOWq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
+        id S232123AbhEaOxd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:53:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48180 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233475AbhEaOTI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:19:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EB19619AC;
-        Mon, 31 May 2021 13:44:20 +0000 (UTC)
+        id S233365AbhEaOv3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:51:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18E6861CA0;
+        Mon, 31 May 2021 13:57:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468661;
-        bh=83hgqXB9c02SMS7hFiF02T7zD6l8Ptsb4vG8PVf3AIE=;
+        s=korg; t=1622469479;
+        bh=L6/9C92JDBgplMtoVklmzjavKJBt2S6f6PqJFK2r8qA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m1ZEvdQnlpAm2aiSSa464oOu0hSHr0F66A2yGI+J1UDbHSqwBYBQhqS344bjJqcRG
-         fWcrTRa28Q+lFl16KK7FA7svvT7wiS2sB1Ku9fTt7WAVAfJgg7VIp9Pv7cVCfwXm6S
-         kkjYJWuOYxhE3JNM+TyZ/iZ59viWdJ9XM6eA9AT8=
+        b=J3kOyBS8MorSooisz3o2mXO8r0gRyj8cKgkPzs+85hKBClQPuzqD1zQEDjys1ohbw
+         mVrpxyLxSEuWNhgdAjfC67MMXxDqugJvMDNHyLLoHS6JizIXajLWmg3TknoC6nSscn
+         f0rYS/C7sgMoyWvAbK9DRegtG/4qZjyGITxg5V2g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Shuang Li <shuali@redhat.com>,
-        Xin Long <lucien.xin@gmail.com>, Jon Maloy <jmaloy@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 076/177] tipc: wait and exit until all work queues are done
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 178/296] Revert "isdn: mISDNinfineon: fix potential NULL pointer dereference"
 Date:   Mon, 31 May 2021 15:13:53 +0200
-Message-Id: <20210531130650.520391414@linuxfoundation.org>
+Message-Id: <20210531130709.852188279@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,89 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 04c26faa51d1e2fe71cf13c45791f5174c37f986 upstream.
+[ Upstream commit abd7bca23bd4247124265152d00ffd4b2b0d6877 ]
 
-On some host, a crash could be triggered simply by repeating these
-commands several times:
+This reverts commit d721fe99f6ada070ae8fc0ec3e01ce5a42def0d9.
 
-  # modprobe tipc
-  # tipc bearer enable media udp name UDP1 localip 127.0.0.1
-  # rmmod tipc
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-  [] BUG: unable to handle kernel paging request at ffffffffc096bb00
-  [] Workqueue: events 0xffffffffc096bb00
-  [] Call Trace:
-  []  ? process_one_work+0x1a7/0x360
-  []  ? worker_thread+0x30/0x390
-  []  ? create_worker+0x1a0/0x1a0
-  []  ? kthread+0x116/0x130
-  []  ? kthread_flush_work_fn+0x10/0x10
-  []  ? ret_from_fork+0x35/0x40
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-When removing the TIPC module, the UDP tunnel sock will be delayed to
-release in a work queue as sock_release() can't be done in rtnl_lock().
-If the work queue is schedule to run after the TIPC module is removed,
-kernel will crash as the work queue function cleanup_beareri() code no
-longer exists when trying to invoke it.
+The original commit was incorrect, it should have never have used
+"unlikely()" and if it ever does trigger, resources are left grabbed.
 
-To fix it, this patch introduce a member wq_count in tipc_net to track
-the numbers of work queues in schedule, and  wait and exit until all
-work queues are done in tipc_exit_net().
+Given there are no users for this code around, I'll just revert this and
+leave it "as is" as the odds that ioremap() will ever fail here is
+horrendiously low.
 
-Fixes: d0f91938bede ("tipc: add ip/udp media type")
-Reported-by: Shuang Li <shuali@redhat.com>
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-41-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/core.c      |    3 +++
- net/tipc/core.h      |    2 ++
- net/tipc/udp_media.c |    2 ++
- 3 files changed, 7 insertions(+)
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
---- a/net/tipc/core.c
-+++ b/net/tipc/core.c
-@@ -107,6 +107,9 @@ static void __net_exit tipc_exit_net(str
- 	tipc_bcast_stop(net);
- 	tipc_nametbl_stop(net);
- 	tipc_sk_rht_destroy(net);
-+
-+	while (atomic_read(&tn->wq_count))
-+		cond_resched();
- }
- 
- static struct pernet_operations tipc_net_ops = {
---- a/net/tipc/core.h
-+++ b/net/tipc/core.h
-@@ -143,6 +143,8 @@ struct tipc_net {
- 
- 	/* Work item for net finalize */
- 	struct tipc_net_work final_work;
-+	/* The numbers of work queues in schedule */
-+	atomic_t wq_count;
- };
- 
- static inline struct tipc_net *tipc_net(struct net *net)
---- a/net/tipc/udp_media.c
-+++ b/net/tipc/udp_media.c
-@@ -802,6 +802,7 @@ static void cleanup_bearer(struct work_s
- 		kfree_rcu(rcast, rcu);
- 	}
- 
-+	atomic_dec(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	dst_cache_destroy(&ub->rcast.dst_cache);
- 	udp_tunnel_sock_release(ub->ubsock);
- 	synchronize_net();
-@@ -822,6 +823,7 @@ static void tipc_udp_disable(struct tipc
- 	RCU_INIT_POINTER(ub->bearer, NULL);
- 
- 	/* sock_release need to be done outside of rtnl lock */
-+	atomic_inc(&tipc_net(sock_net(ub->ubsock->sk))->wq_count);
- 	INIT_WORK(&ub->work, cleanup_bearer);
- 	schedule_work(&ub->work);
- }
+diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+index a16c7a2a7f3d..fa9c491f9c38 100644
+--- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
++++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
+@@ -697,11 +697,8 @@ setup_io(struct inf_hw *hw)
+ 				(ulong)hw->addr.start, (ulong)hw->addr.size);
+ 			return err;
+ 		}
+-		if (hw->ci->addr_mode == AM_MEMIO) {
++		if (hw->ci->addr_mode == AM_MEMIO)
+ 			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
+-			if (unlikely(!hw->addr.p))
+-				return -ENOMEM;
+-		}
+ 		hw->addr.mode = hw->ci->addr_mode;
+ 		if (debug & DEBUG_HW)
+ 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
+-- 
+2.30.2
+
 
 
