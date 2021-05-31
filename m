@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF20395DC3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 289AA395DC5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231204AbhEaNuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:50:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
+        id S232117AbhEaNu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:50:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232591AbhEaNrM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:47:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 72E5B615A0;
-        Mon, 31 May 2021 13:30:35 +0000 (UTC)
+        id S231984AbhEaNrU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E429D61613;
+        Mon, 31 May 2021 13:30:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467836;
-        bh=yJaSPk+SA3ZD/Iq4qFmrm8UN3AxhOPuQ3d7rZwmtAN4=;
+        s=korg; t=1622467841;
+        bh=ZriBpfqZx+VdzBDKFmZ5z/xlbGXCH2QH075GN56+CV0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWn8ddvQKoopIKrQBdBmaG2ZK3anCtDaJJXIaTyWwNp3cFGR2fyg69PWJpZX2iBWm
-         4Ot6e+b3CJVMk0lcga68+68Ih2+91kx6an+G8S5bn/gx4sCRXpteKxym4pjIzeVNYC
-         GSycxX8cblzOstPDwY2b0cSLxCxHARaTMNSjk0/c=
+        b=jhdI/oiLGSncuNSlhkLX9fmUrXvQAGhOmKac8Ec3wl+6NloCqRoG72jTiIJPPSObw
+         ssbLyGeqMJh7YEK6NFeS8ChSjDoRCQRBfpwbUFlL/TqpWSwTjn4h4CR+4boWKN+1vr
+         lng/7qPbDVw2Ut7ggJqRu0K28i/WZP2ANMFh26pk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
+        Davide Caratti <dcaratti@redhat.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 019/252] net: hso: fix control-request directions
-Date:   Mon, 31 May 2021 15:11:24 +0200
-Message-Id: <20210531130658.634814832@linuxfoundation.org>
+Subject: [PATCH 5.10 020/252] net/sched: fq_pie: re-factor fix for fq_pie endless loop
+Date:   Mon, 31 May 2021 15:11:25 +0200
+Message-Id: <20210531130658.667709190@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -39,45 +40,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Davide Caratti <dcaratti@redhat.com>
 
-commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
+commit 3a62fed2fd7b6fea96d720e779cafc30dfb3a22e upstream.
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+the patch that fixed an endless loop in_fq_pie_init() was not considering
+that 65535 is a valid class id. The correct bugfix for this infinite loop
+is to change 'idx' to become an u32, like Colin proposed in the past [1].
 
-Fix the tiocmset and rfkill requests which erroneously used
-usb_rcvctrlpipe().
+Fix this as follows:
+ - restore 65536 as maximum possible values of 'flows_cnt'
+ - use u32 'idx' when iterating on 'q->flows'
+ - fix the TDC selftest
 
-Fixes: 72dc1c096c70 ("HSO: add option hso driver")
-Cc: stable@vger.kernel.org      # 2.6.27
-Signed-off-by: Johan Hovold <johan@kernel.org>
+This reverts commit bb2f930d6dd708469a587dc9ed1efe1ef969c0bf.
+
+[1] https://lore.kernel.org/netdev/20210407163808.499027-1-colin.king@canonical.com/
+
+CC: Colin Ian King <colin.king@canonical.com>
+CC: stable@vger.kernel.org
+Fixes: bb2f930d6dd7 ("net/sched: fix infinite loop in sch_fq_pie")
+Fixes: ec97ecf1ebe4 ("net: sched: add Flow Queue PIE packet scheduler")
+Signed-off-by: Davide Caratti <dcaratti@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/hso.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/sched/sch_fq_pie.c                                         |   10 +++++-----
+ tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json |    8 ++++----
+ 2 files changed, 9 insertions(+), 9 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -1689,7 +1689,7 @@ static int hso_serial_tiocmset(struct tt
- 	spin_unlock_irqrestore(&serial->serial_lock, flags);
+--- a/net/sched/sch_fq_pie.c
++++ b/net/sched/sch_fq_pie.c
+@@ -297,9 +297,9 @@ static int fq_pie_change(struct Qdisc *s
+ 			goto flow_error;
+ 		}
+ 		q->flows_cnt = nla_get_u32(tb[TCA_FQ_PIE_FLOWS]);
+-		if (!q->flows_cnt || q->flows_cnt >= 65536) {
++		if (!q->flows_cnt || q->flows_cnt > 65536) {
+ 			NL_SET_ERR_MSG_MOD(extack,
+-					   "Number of flows must range in [1..65535]");
++					   "Number of flows must range in [1..65536]");
+ 			goto flow_error;
+ 		}
+ 	}
+@@ -367,7 +367,7 @@ static void fq_pie_timer(struct timer_li
+ 	struct fq_pie_sched_data *q = from_timer(q, t, adapt_timer);
+ 	struct Qdisc *sch = q->sch;
+ 	spinlock_t *root_lock; /* to lock qdisc for probability calculations */
+-	u16 idx;
++	u32 idx;
  
- 	return usb_control_msg(serial->parent->usb,
--			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
-+			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
- 			       0x21, val, if_num, NULL, 0,
- 			       USB_CTRL_SET_TIMEOUT);
- }
-@@ -2436,7 +2436,7 @@ static int hso_rfkill_set_block(void *da
- 	if (hso_dev->usb_gone)
- 		rv = 0;
- 	else
--		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
-+		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
- 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
- 				       USB_CTRL_SET_TIMEOUT);
- 	mutex_unlock(&hso_dev->mutex);
+ 	root_lock = qdisc_lock(qdisc_root_sleeping(sch));
+ 	spin_lock(root_lock);
+@@ -388,7 +388,7 @@ static int fq_pie_init(struct Qdisc *sch
+ {
+ 	struct fq_pie_sched_data *q = qdisc_priv(sch);
+ 	int err;
+-	u16 idx;
++	u32 idx;
+ 
+ 	pie_params_init(&q->p_params);
+ 	sch->limit = 10 * 1024;
+@@ -500,7 +500,7 @@ static int fq_pie_dump_stats(struct Qdis
+ static void fq_pie_reset(struct Qdisc *sch)
+ {
+ 	struct fq_pie_sched_data *q = qdisc_priv(sch);
+-	u16 idx;
++	u32 idx;
+ 
+ 	INIT_LIST_HEAD(&q->new_flows);
+ 	INIT_LIST_HEAD(&q->old_flows);
+--- a/tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json
++++ b/tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json
+@@ -9,11 +9,11 @@
+         "setup": [
+             "$IP link add dev $DUMMY type dummy || /bin/true"
+         ],
+-        "cmdUnderTest": "$TC qdisc add dev $DUMMY root fq_pie flows 65536",
+-        "expExitCode": "2",
++        "cmdUnderTest": "$TC qdisc add dev $DUMMY handle 1: root fq_pie flows 65536",
++        "expExitCode": "0",
+         "verifyCmd": "$TC qdisc show dev $DUMMY",
+-        "matchPattern": "qdisc",
+-        "matchCount": "0",
++        "matchPattern": "qdisc fq_pie 1: root refcnt 2 limit 10240p flows 65536",
++        "matchCount": "1",
+         "teardown": [
+             "$IP link del dev $DUMMY"
+         ]
 
 
