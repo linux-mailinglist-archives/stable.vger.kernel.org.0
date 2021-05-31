@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DE380395DFF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EFFE1395DFD
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232847AbhEaNwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:52:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
+        id S232825AbhEaNws (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:52:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231691AbhEaNur (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231678AbhEaNur (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 31 May 2021 09:50:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E6066162C;
-        Mon, 31 May 2021 13:32:07 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B08576162F;
+        Mon, 31 May 2021 13:32:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467927;
-        bh=Bzk3q18Rykvj7pc36KDsfBnTnyDHicERbODMBtkjrJI=;
+        s=korg; t=1622467930;
+        bh=SLvqaojeofwp8GZw65DhfTi37SwMU3e5Yhve4mFHEco=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VC7FE5rYnxoTkAwNPEDi05gwapXsLUNEF5FxL0A8NPUrGBemHJ28EqBn4yXSfZ76x
-         l/BqyePg3HEnNMg6ugGziKI/i4N1vOxgiCvGkccdWt5jJxIDwZRsc15K6GLaydw7LN
-         s/4NPSMk0UuNhYZ8qpOdEtluB/bsx2JTli/ZfwMQ=
+        b=K4ufZt9TOOmxtkjImLcAiTztMqgXzhq7hblvZxnlfgGIQyODrBSiqe2UWOMYFafr1
+         qmELZINEzi2iu5PtSt75FQid/AfAW0YBPq4iBpes+7Nb+gxXp5oJM/gcUxFFS0qAhO
+         +UTHmdSWiydO0LVHJOyoLlLY+UpuJ2xoqsW5P4NQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Ondrej Mosnacek <omosnace@redhat.com>
-Subject: [PATCH 5.10 053/252] serial: core: fix suspicious security_locked_down() call
-Date:   Mon, 31 May 2021 15:11:58 +0200
-Message-Id: <20210531130659.786984803@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>
+Subject: [PATCH 5.10 054/252] misc/uss720: fix memory leak in uss720_probe
+Date:   Mon, 31 May 2021 15:11:59 +0200
+Message-Id: <20210531130659.817655580@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -39,60 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ondrej Mosnacek <omosnace@redhat.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 5e722b217ad3cf41f5504db80a68062df82b5242 upstream.
+commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
 
-The commit that added this check did so in a very strange way - first
-security_locked_down() is called, its value stored into retval, and if
-it's nonzero, then an additional check is made for (change_irq ||
-change_port), and if this is true, the function returns. However, if
-the goto exit branch is not taken, the code keeps the retval value and
-continues executing the function. Then, depending on whether
-uport->ops->verify_port is set, the retval value may or may not be reset
-to zero and eventually the error value from security_locked_down() may
-abort the function a few lines below.
+uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
+Fix this by decreasing the refcount of usbdev by usb_put_dev.
 
-I will go out on a limb and assume that this isn't the intended behavior
-and that an error value from security_locked_down() was supposed to
-abort the function only in case (change_irq || change_port) is true.
+BUG: memory leak
+unreferenced object 0xffff888101113800 (size 2048):
+  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
+  hex dump (first 32 bytes):
+    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
+    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
+  backtrace:
+    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
+    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
+    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
+    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
+    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
+    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
+    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
+    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
+    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
+    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
+    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
 
-Note that security_locked_down() should be called last in any series of
-checks, since the SELinux implementation of this hook will do a check
-against the policy and generate an audit record in case of denial. If
-the operation was to carry on after calling security_locked_down(), then
-the SELinux denial record would be bogus.
-
-See commit 59438b46471a ("security,lockdown,selinux: implement SELinux
-lockdown") for how SELinux implements this hook.
-
-Fixes: 794edf30ee6c ("lockdown: Lock down TIOCSSERIAL")
-Acked-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210507115719.140799-1-omosnace@redhat.com
+Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/serial_core.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/usb/misc/uss720.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/tty/serial/serial_core.c
-+++ b/drivers/tty/serial/serial_core.c
-@@ -865,9 +865,11 @@ static int uart_set_info(struct tty_stru
- 		goto check_and_exit;
- 	}
+--- a/drivers/usb/misc/uss720.c
++++ b/drivers/usb/misc/uss720.c
+@@ -736,6 +736,7 @@ static int uss720_probe(struct usb_inter
+ 	parport_announce_port(pp);
  
--	retval = security_locked_down(LOCKDOWN_TIOCSSERIAL);
--	if (retval && (change_irq || change_port))
--		goto exit;
-+	if (change_irq || change_port) {
-+		retval = security_locked_down(LOCKDOWN_TIOCSSERIAL);
-+		if (retval)
-+			goto exit;
-+	}
+ 	usb_set_intfdata(intf, pp);
++	usb_put_dev(usbdev);
+ 	return 0;
  
- 	/*
- 	 * Ask the low level driver to verify the settings.
+ probe_abort:
 
 
