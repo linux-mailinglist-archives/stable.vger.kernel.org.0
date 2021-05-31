@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BFB395F17
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:06:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B2E6395B36
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233001AbhEaOHk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:07:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36868 "EHLO mail.kernel.org"
+        id S231683AbhEaNSW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:18:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53514 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232691AbhEaOFW (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:05:22 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 87F40613A9;
-        Mon, 31 May 2021 13:38:26 +0000 (UTC)
+        id S231663AbhEaNST (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C4AC36135D;
+        Mon, 31 May 2021 13:16:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468307;
-        bh=ZqLak8BtxpSBoSac6F+jFOun1e3iSVOTf+B9UAhpitk=;
+        s=korg; t=1622466999;
+        bh=MvJFFWkWQkinB1xG6V0udxxPs18hrtjOttKpB5EZfhE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgcyTCUsz/9kpOl1a66AmNp/SWzGcxHpvWfno8qFE7UcVL4bzGJAwRtp50BKNwAbL
-         aOE2w6CSMTQei0SZ8TJAmZZdkiBdoZDqcdQv5JW2H/3T9D8rOTts3FWAoFOjSDdnm6
-         AfsyOKUrRASVb/SwW603e2bC6fvDRU/WO+acvAKg=
+        b=f9IJZAk4efcwMRkj9crTlybrQUJ2VrYG186lDBBQpMgklCzmi72g66mVPFH4sReUp
+         EsWfslroCcV08LGaM1sL+u8z0Dy1mIO5ySAi7EAYsh4zfOdzbJV+rJAv3ISr4wS3gv
+         WOw+SM4M3N7zvF3pI62KRSqYgTQTNU64kQE5jeEk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 159/252] ASoC: cs43130: handle errors in cs43130_probe() properly
+        stable@vger.kernel.org, Zolton Jheng <s6668c2t@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.4 18/54] USB: serial: pl2303: add device id for ADLINK ND-6530 GC
 Date:   Mon, 31 May 2021 15:13:44 +0200
-Message-Id: <20210531130703.410683666@linuxfoundation.org>
+Message-Id: <20210531130635.668182895@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +39,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Zolton Jheng <s6668c2t@gmail.com>
 
-[ Upstream commit 2da441a6491d93eff8ffff523837fd621dc80389 ]
+commit f8e8c1b2f782e7391e8a1c25648ce756e2a7d481 upstream.
 
-cs43130_probe() does not do any valid error checking of things it
-initializes, OR what it does, it does not unwind properly if there are
-errors.
+This adds the device id for the ADLINK ND-6530 which is a PL2303GC based
+device.
 
-Fix this up by moving the sysfs files to an attribute group so the
-driver core will correctly add/remove them all at once and handle errors
-with them, and correctly check for creating a new workqueue and
-unwinding if that fails.
-
-Cc: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-58-gregkh@linuxfoundation.org
+Signed-off-by: Zolton Jheng <s6668c2t@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/cs43130.c | 28 ++++++++++++++--------------
- 1 file changed, 14 insertions(+), 14 deletions(-)
+ drivers/usb/serial/pl2303.c |    1 +
+ drivers/usb/serial/pl2303.h |    1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/sound/soc/codecs/cs43130.c b/sound/soc/codecs/cs43130.c
-index bb46e993c353..8f70dee95878 100644
---- a/sound/soc/codecs/cs43130.c
-+++ b/sound/soc/codecs/cs43130.c
-@@ -1735,6 +1735,14 @@ static DEVICE_ATTR(hpload_dc_r, 0444, cs43130_show_dc_r, NULL);
- static DEVICE_ATTR(hpload_ac_l, 0444, cs43130_show_ac_l, NULL);
- static DEVICE_ATTR(hpload_ac_r, 0444, cs43130_show_ac_r, NULL);
+--- a/drivers/usb/serial/pl2303.c
++++ b/drivers/usb/serial/pl2303.c
+@@ -102,6 +102,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(SONY_VENDOR_ID, SONY_QN3USB_PRODUCT_ID) },
+ 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
+ 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
++	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
+ 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
+ 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
+ 	{ }					/* Terminating entry */
+--- a/drivers/usb/serial/pl2303.h
++++ b/drivers/usb/serial/pl2303.h
+@@ -156,6 +156,7 @@
+ /* ADLINK ND-6530 RS232,RS485 and RS422 adapter */
+ #define ADLINK_VENDOR_ID		0x0b63
+ #define ADLINK_ND6530_PRODUCT_ID	0x6530
++#define ADLINK_ND6530GC_PRODUCT_ID	0x653a
  
-+static struct attribute *hpload_attrs[] = {
-+	&dev_attr_hpload_dc_l.attr,
-+	&dev_attr_hpload_dc_r.attr,
-+	&dev_attr_hpload_ac_l.attr,
-+	&dev_attr_hpload_ac_r.attr,
-+};
-+ATTRIBUTE_GROUPS(hpload);
-+
- static struct reg_sequence hp_en_cal_seq[] = {
- 	{CS43130_INT_MASK_4, CS43130_INT_MASK_ALL},
- 	{CS43130_HP_MEAS_LOAD_1, 0},
-@@ -2302,23 +2310,15 @@ static int cs43130_probe(struct snd_soc_component *component)
- 
- 	cs43130->hpload_done = false;
- 	if (cs43130->dc_meas) {
--		ret = device_create_file(component->dev, &dev_attr_hpload_dc_l);
--		if (ret < 0)
--			return ret;
--
--		ret = device_create_file(component->dev, &dev_attr_hpload_dc_r);
--		if (ret < 0)
--			return ret;
--
--		ret = device_create_file(component->dev, &dev_attr_hpload_ac_l);
--		if (ret < 0)
--			return ret;
--
--		ret = device_create_file(component->dev, &dev_attr_hpload_ac_r);
--		if (ret < 0)
-+		ret = sysfs_create_groups(&component->dev->kobj, hpload_groups);
-+		if (ret)
- 			return ret;
- 
- 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
-+		if (!cs43130->wq) {
-+			sysfs_remove_groups(&component->dev->kobj, hpload_groups);
-+			return -ENOMEM;
-+		}
- 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
- 	}
- 
--- 
-2.30.2
-
+ /* SMART USB Serial Adapter */
+ #define SMART_VENDOR_ID	0x0b8c
 
 
