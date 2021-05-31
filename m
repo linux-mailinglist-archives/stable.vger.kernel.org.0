@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2605139628B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F880396082
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:25:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234219AbhEaO5l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45736 "EHLO mail.kernel.org"
+        id S233831AbhEaO1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:27:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234091AbhEaOxo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:53:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EDE461CB2;
-        Mon, 31 May 2021 13:59:05 +0000 (UTC)
+        id S232509AbhEaOZb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:25:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D9E8C61108;
+        Mon, 31 May 2021 13:46:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469546;
-        bh=pBUucN1CUmgv4k81TvkPDg3hIErTW1iRDuFbp3Yj5vw=;
+        s=korg; t=1622468805;
+        bh=TEOEsm9FkAMDY1iDoO46SUPaqgDaz+h+P0e3/lQ2fJM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXEYY/ofeG7zzZ2f4qgsaSlT1oT7HdeMuGmbPJtMjvvg9T0n5cXoRQySm6CGE7zfI
-         TalZR0UWAg5/6OToGiCF5Lm4QtD2eG8m9KRLspK9zUsngj00b5xUNv0kLR2Jg6AmZC
-         Eq45jJocaHhglg4/aD1zcqSXWbz8P2QqFl5pMBqQ=
+        b=ob/BEOgisFt/BJo3aUIjuGy+2IvXDqI3PLGsvNjxE9a/B9grSmv/bEdNFsip71+vJ
+         B5PPCwPITMB5VboDnjCBSIwXH+AqY1KJklHWo3KbpcdgOwVleGH4buslXwR4y7GrIk
+         HRPBQ9kHwtNOm2PKiTvkIpVJdPBJZ9m5LOxhj/Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Russell King <rmk+kernel@armlinux.org.uk>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
         Andrew Lunn <andrew@lunn.ch>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 237/296] net: mdio: thunder: Fix a double free issue in the .remove function
-Date:   Mon, 31 May 2021 15:14:52 +0200
-Message-Id: <20210531130711.769463303@linuxfoundation.org>
+Subject: [PATCH 5.4 136/177] net: dsa: fix error code getting shifted with 4 in dsa_slave_get_sset_count
+Date:   Mon, 31 May 2021 15:14:53 +0200
+Message-Id: <20210531130652.636646813@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,38 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit a93a0a15876d2a077a3bc260b387d2457a051f24 ]
+[ Upstream commit b94cbc909f1d80378a1f541968309e5c1178c98b ]
 
-'bus->mii_bus' have been allocated with 'devm_mdiobus_alloc_size()' in the
-probe function. So it must not be freed explicitly or there will be a
-double free.
+DSA implements a bunch of 'standardized' ethtool statistics counters,
+namely tx_packets, tx_bytes, rx_packets, rx_bytes. So whatever the
+hardware driver returns in .get_sset_count(), we need to add 4 to that.
 
-Remove the incorrect 'mdiobus_free' in the remove function.
+That is ok, except that .get_sset_count() can return a negative error
+code, for example:
 
-Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+b53_get_sset_count
+-> phy_ethtool_get_sset_count
+   -> return -EIO
+
+-EIO is -5, and with 4 added to it, it becomes -1, aka -EPERM. One can
+imagine that certain error codes may even become positive, although
+based on code inspection I did not see instances of that.
+
+Check the error code first, if it is negative return it as-is.
+
+Based on a similar patch for dsa_master_get_strings from Dan Carpenter:
+https://patchwork.kernel.org/project/netdevbpf/patch/YJaSe3RPgn7gKxZv@mwanda/
+
+Fixes: 91da11f870f0 ("net: Distributed Switch Architecture protocol support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
 Reviewed-by: Andrew Lunn <andrew@lunn.ch>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/mdio-thunder.c | 1 -
- 1 file changed, 1 deletion(-)
+ net/dsa/slave.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/mdio/mdio-thunder.c b/drivers/net/mdio/mdio-thunder.c
-index 3d7eda99d34e..dd7430c998a2 100644
---- a/drivers/net/mdio/mdio-thunder.c
-+++ b/drivers/net/mdio/mdio-thunder.c
-@@ -126,7 +126,6 @@ static void thunder_mdiobus_pci_remove(struct pci_dev *pdev)
- 			continue;
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 06f8874d53ee..75b4cd4bcafb 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -692,13 +692,15 @@ static int dsa_slave_get_sset_count(struct net_device *dev, int sset)
+ 	struct dsa_switch *ds = dp->ds;
  
- 		mdiobus_unregister(bus->mii_bus);
--		mdiobus_free(bus->mii_bus);
- 		oct_mdio_writeq(0, bus->register_base + SMI_EN);
+ 	if (sset == ETH_SS_STATS) {
+-		int count;
++		int count = 0;
+ 
+-		count = 4;
+-		if (ds->ops->get_sset_count)
+-			count += ds->ops->get_sset_count(ds, dp->index, sset);
++		if (ds->ops->get_sset_count) {
++			count = ds->ops->get_sset_count(ds, dp->index, sset);
++			if (count < 0)
++				return count;
++		}
+ 
+-		return count;
++		return count + 4;
  	}
- 	pci_release_regions(pdev);
+ 
+ 	return -EOPNOTSUPP;
 -- 
 2.30.2
 
