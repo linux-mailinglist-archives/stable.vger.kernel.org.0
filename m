@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7D34396255
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:53:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B347B395F4D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234352AbhEaOzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:55:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46632 "EHLO mail.kernel.org"
+        id S232488AbhEaOJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:09:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40228 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232301AbhEaOwT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:52:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A778961932;
-        Mon, 31 May 2021 13:58:22 +0000 (UTC)
+        id S231995AbhEaOHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F30C561407;
+        Mon, 31 May 2021 13:39:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469503;
-        bh=mc9qPXOYM9BuhwrCiFltIAGr2dsvj56kwEtrxC/IiC0=;
+        s=korg; t=1622468361;
+        bh=5yKAetD6fBSFYX8g+Wb/K3Pxi1ZrMI3kph2aD+o7LMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xwW9rDh+pQTgdWDihO6zdo6lGu4IoybtVHbcmvi0aqOM2cMywRmZOvvZy4OvLsl2E
-         uTh34s04Wd5WltfeVi52kp9D8JuQQkgpYt36Pa0eA4enW95yxhpQm4SyfIUpkUFcZ4
-         kQY3UbegM8U7RJ1jetZiKXWHQBENMlXjePWfXE2M=
+        b=F3GPl+0mbfhOyodiGximl6im61AweW3aU83dAP0d8X9eT+Jo4BSTS/B5HRzsUkypj
+         WzuPCwh7IxbeX6LdBfuG0bQSqxlkFpIk6QbQCIlJ2XVUnAlp/o6dPd3ElWD+bWFFcK
+         0OXnDIgSUxBGxwj9blKghAi8TcmYj5cxVvJ3ElBQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Subbaraman Narayanamurthy <subbaram@codeaurora.org>,
-        Matthias Kaehlcke <mka@chromium.org>,
-        Georgi Djakov <djakov@kernel.org>,
+        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 223/296] interconnect: qcom: bcm-voter: add a missing of_node_put()
-Date:   Mon, 31 May 2021 15:14:38 +0200
-Message-Id: <20210531130711.325292247@linuxfoundation.org>
+Subject: [PATCH 5.10 214/252] mld: fix panic in mld_newpack()
+Date:   Mon, 31 May 2021 15:14:39 +0200
+Message-Id: <20210531130705.287398057@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,43 +40,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
+From: Taehee Yoo <ap420073@gmail.com>
 
-[ Upstream commit a00593737f8bac2c9e97b696e7ff84a4446653e8 ]
+[ Upstream commit 020ef930b826d21c5446fdc9db80fd72a791bc21 ]
 
-Add a missing of_node_put() in of_bcm_voter_get() to avoid the
-reference leak.
+mld_newpack() doesn't allow to allocate high order page,
+only order-0 allocation is allowed.
+If headroom size is too large, a kernel panic could occur in skb_put().
 
-Signed-off-by: Subbaraman Narayanamurthy <subbaram@codeaurora.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Link: https://lore.kernel.org/r/1619116570-13308-1-git-send-email-subbaram@codeaurora.org
-Fixes: 976daac4a1c5 ("interconnect: qcom: Consolidate interconnect RPMh support")
-Signed-off-by: Georgi Djakov <djakov@kernel.org>
+Test commands:
+    ip netns del A
+    ip netns del B
+    ip netns add A
+    ip netns add B
+    ip link add veth0 type veth peer name veth1
+    ip link set veth0 netns A
+    ip link set veth1 netns B
+
+    ip netns exec A ip link set lo up
+    ip netns exec A ip link set veth0 up
+    ip netns exec A ip -6 a a 2001:db8:0::1/64 dev veth0
+    ip netns exec B ip link set lo up
+    ip netns exec B ip link set veth1 up
+    ip netns exec B ip -6 a a 2001:db8:0::2/64 dev veth1
+    for i in {1..99}
+    do
+        let A=$i-1
+        ip netns exec A ip link add ip6gre$i type ip6gre \
+	local 2001:db8:$A::1 remote 2001:db8:$A::2 encaplimit 100
+        ip netns exec A ip -6 a a 2001:db8:$i::1/64 dev ip6gre$i
+        ip netns exec A ip link set ip6gre$i up
+
+        ip netns exec B ip link add ip6gre$i type ip6gre \
+	local 2001:db8:$A::2 remote 2001:db8:$A::1 encaplimit 100
+        ip netns exec B ip -6 a a 2001:db8:$i::2/64 dev ip6gre$i
+        ip netns exec B ip link set ip6gre$i up
+    done
+
+Splat looks like:
+kernel BUG at net/core/skbuff.c:110!
+invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
+CPU: 0 PID: 7 Comm: kworker/0:1 Not tainted 5.12.0+ #891
+Workqueue: ipv6_addrconf addrconf_dad_work
+RIP: 0010:skb_panic+0x15d/0x15f
+Code: 92 fe 4c 8b 4c 24 10 53 8b 4d 70 45 89 e0 48 c7 c7 00 ae 79 83
+41 57 41 56 41 55 48 8b 54 24 a6 26 f9 ff <0f> 0b 48 8b 6c 24 20 89
+34 24 e8 4a 4e 92 fe 8b 34 24 48 c7 c1 20
+RSP: 0018:ffff88810091f820 EFLAGS: 00010282
+RAX: 0000000000000089 RBX: ffff8881086e9000 RCX: 0000000000000000
+RDX: 0000000000000089 RSI: 0000000000000008 RDI: ffffed1020123efb
+RBP: ffff888005f6eac0 R08: ffffed1022fc0031 R09: ffffed1022fc0031
+R10: ffff888117e00187 R11: ffffed1022fc0030 R12: 0000000000000028
+R13: ffff888008284eb0 R14: 0000000000000ed8 R15: 0000000000000ec0
+FS:  0000000000000000(0000) GS:ffff888117c00000(0000)
+knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f8b801c5640 CR3: 0000000033c2c006 CR4: 00000000003706f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ skb_put.cold.104+0x22/0x22
+ ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
+ ? rcu_read_lock_sched_held+0x91/0xc0
+ mld_newpack+0x398/0x8f0
+ ? ip6_mc_hdr.isra.26.constprop.46+0x600/0x600
+ ? lock_contended+0xc40/0xc40
+ add_grhead.isra.33+0x280/0x380
+ add_grec+0x5ca/0xff0
+ ? mld_sendpack+0xf40/0xf40
+ ? lock_downgrade+0x690/0x690
+ mld_send_initial_cr.part.34+0xb9/0x180
+ ipv6_mc_dad_complete+0x15d/0x1b0
+ addrconf_dad_completed+0x8d2/0xbb0
+ ? lock_downgrade+0x690/0x690
+ ? addrconf_rs_timer+0x660/0x660
+ ? addrconf_dad_work+0x73c/0x10e0
+ addrconf_dad_work+0x73c/0x10e0
+
+Allowing high order page allocation could fix this problem.
+
+Fixes: 72e09ad107e7 ("ipv6: avoid high order allocations")
+Signed-off-by: Taehee Yoo <ap420073@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/interconnect/qcom/bcm-voter.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/ipv6/mcast.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/interconnect/qcom/bcm-voter.c b/drivers/interconnect/qcom/bcm-voter.c
-index 1cc565bce2f4..dd18cd8474f8 100644
---- a/drivers/interconnect/qcom/bcm-voter.c
-+++ b/drivers/interconnect/qcom/bcm-voter.c
-@@ -1,6 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-- * Copyright (c) 2020, The Linux Foundation. All rights reserved.
-+ * Copyright (c) 2020-2021, The Linux Foundation. All rights reserved.
-  */
+diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
+index 8cd2782a31e4..9fb5077f8e9a 100644
+--- a/net/ipv6/mcast.c
++++ b/net/ipv6/mcast.c
+@@ -1601,10 +1601,7 @@ static struct sk_buff *mld_newpack(struct inet6_dev *idev, unsigned int mtu)
+ 		     IPV6_TLV_PADN, 0 };
  
- #include <asm/div64.h>
-@@ -205,6 +205,7 @@ struct bcm_voter *of_bcm_voter_get(struct device *dev, const char *name)
- 	}
- 	mutex_unlock(&bcm_voter_lock);
+ 	/* we assume size > sizeof(ra) here */
+-	/* limit our allocations to order-0 page */
+-	size = min_t(int, size, SKB_MAX_ORDER(0, 0));
+ 	skb = sock_alloc_send_skb(sk, size, 1, &err);
+-
+ 	if (!skb)
+ 		return NULL;
  
-+	of_node_put(node);
- 	return voter;
- }
- EXPORT_SYMBOL_GPL(of_bcm_voter_get);
 -- 
 2.30.2
 
