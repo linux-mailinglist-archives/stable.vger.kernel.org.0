@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDD1D395C99
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71A8A395EB5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232132AbhEaNff (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:35:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38858 "EHLO mail.kernel.org"
+        id S232941AbhEaOCe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:02:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232572AbhEaNdF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:33:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A946B60FE8;
-        Mon, 31 May 2021 13:24:10 +0000 (UTC)
+        id S232573AbhEaOAL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:00:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 995A161448;
+        Mon, 31 May 2021 13:36:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467451;
-        bh=OI1MzTlrPra/8J7dXlEnffBWudBTuDaZWh2wlwr5ZW4=;
+        s=korg; t=1622468184;
+        bh=4ozrvRKhSBrWO0tggrN1VXdEGw7IK6RcQBaEEf1bDNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pjC6iR3GQkdFNweURmVkNdBbS+742Lf3n7H44cv6KG5M8hYR7l+2K3dSnSOLRfq/f
-         cvIE5RsHP7qnDJ16QPoFg65jogekZgo/2m6F9Z/ShxJba9qzQHTf8sow+I64VgyJCs
-         jQTN0z5zZ3tgIqWH2NGFL0dGUzJW5rck1rPlwcY0=
+        b=yJ8+3ZroFgcvNe/ZB0NtP4kIWX5+5tyDJJHYrlkatbr9W+tk2t43k4qOiMbTQsLzD
+         UNVKbICNiTZWF+hKMmwr1f+gmcfvmjuP8Him1YBvjij1vRM9xAFUyMwovaJy4S46OS
+         9KPUcm555O+sG5hS8NmzPNglxWo+tISt2WtqfG54=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 035/116] USB: serial: ftdi_sio: add IDs for IDS GmbH Products
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>,
+        Atul Gopinathan <atulgopinathan@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 146/252] ALSA: sb8: Add a comment note regarding an unused pointer
 Date:   Mon, 31 May 2021 15:13:31 +0200
-Message-Id: <20210531130641.353925747@linuxfoundation.org>
+Message-Id: <20210531130702.977822817@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
+From: Atul Gopinathan <atulgopinathan@gmail.com>
 
-commit c5a80540e425a5f9a82b0f3163e3b6a4331f33bc upstream.
+[ Upstream commit a28591f61b60fac820c6de59826ffa710e5e314e ]
 
-Add the IDS GmbH Vendor ID and the Product IDs for SI31A (2xRS232)
-and CM31A (LoRaWAN Modem).
+The field "fm_res" of "struct snd_sb8" is never used/dereferenced
+throughout the sb8.c code. Therefore there is no need for any null value
+check after the "request_region()".
 
-Signed-off-by: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Add a comment note to make developers know about this and prevent any
+"NULL check" patches on this part of code.
+
+Cc: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-36-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
- 2 files changed, 10 insertions(+)
+ sound/isa/sb/sb8.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1024,6 +1024,9 @@ static const struct usb_device_id id_tab
- 	/* Sienna devices */
- 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
- 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
-+	/* IDS GmbH devices */
-+	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
-+	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1568,6 +1568,13 @@
- #define UNJO_ISODEBUG_V1_PID		0x150D
+diff --git a/sound/isa/sb/sb8.c b/sound/isa/sb/sb8.c
+index ae93191ffdc9..8b21920be4bb 100644
+--- a/sound/isa/sb/sb8.c
++++ b/sound/isa/sb/sb8.c
+@@ -94,7 +94,11 @@ static int snd_sb8_probe(struct device *pdev, unsigned int dev)
+ 	acard = card->private_data;
+ 	card->private_free = snd_sb8_free;
  
- /*
-+ * IDS GmbH
-+ */
-+#define IDS_VID				0x2CAF
-+#define IDS_SI31A_PID			0x13A2
-+#define IDS_CM31A_PID			0x13A3
-+
-+/*
-  * U-Blox products (http://www.u-blox.com).
-  */
- #define UBLOX_VID			0x1546
+-	/* block the 0x388 port to avoid PnP conflicts */
++	/*
++	 * Block the 0x388 port to avoid PnP conflicts.
++	 * No need to check this value after request_region,
++	 * as we never do anything with it.
++	 */
+ 	acard->fm_res = request_region(0x388, 4, "SoundBlaster FM");
+ 
+ 	if (port[dev] != SNDRV_AUTO_PORT) {
+-- 
+2.30.2
+
 
 
