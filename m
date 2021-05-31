@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D536395B54
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 86FF739620C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231848AbhEaNTa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:19:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53778 "EHLO mail.kernel.org"
+        id S232359AbhEaOuP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:50:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231714AbhEaNSv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:18:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D02E86124C;
-        Mon, 31 May 2021 13:17:10 +0000 (UTC)
+        id S233891AbhEaOrn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BD5360FF0;
+        Mon, 31 May 2021 13:56:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467031;
-        bh=fluzT7fwjIXE+lJDPa2Bk62kZPmj+6G7s/3PJo2b+/0=;
+        s=korg; t=1622469394;
+        bh=cPwcKQnQxS1/1/Xv3aws8qFtnBrWEAHlB+cKwVlNVms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xg7Exj5qRp792foaXJHFzc8huqjKvy7mRJUWfjHJDNy4ZTwW4dsfBWH8//zQDgYxN
-         fI3dtypldQMM27FGFznLWSzpSyFW0u7wWus1yTGCRIgyePLX48wLBw9CUSXCqU/cXX
-         LdXnN+aP5Wn7oqUASzihuHow50HfBG4irvgyr8R8=
+        b=1C5lbNSRFBBEnoEGEGddmk5qWW7jixhjmtQhWFUYkrTlmIBSkw/tcrZRW7pGNv0sd
+         LPeMCTEQvWpvpeeyPBtOLpPy8YgXO+XO23R5lAOwJ8/KTH7eLpQ3TCHu5iOn3fbAgj
+         HfqAgWEB7fab/3ztcT7yOZP6zO60/LqsqZW7LdPo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Kai-Heng Feng <kai.heng.feng@canonical.com>,
-        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 31/54] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+Subject: [PATCH 5.12 182/296] Revert "isdn: mISDN: Fix potential NULL pointer dereference of kzalloc"
 Date:   Mon, 31 May 2021 15:13:57 +0200
-Message-Id: <20210531130636.058797805@linuxfoundation.org>
+Message-Id: <20210531130709.983479633@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,90 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kai-Heng Feng <kai.heng.feng@canonical.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
+[ Upstream commit 36a2c87f7ed9e305d05b9a5c044cc6c494771504 ]
 
-hp_accel can take almost two seconds to resume on some HP laptops.
+This reverts commit 38d22659803a033b1b66cd2624c33570c0dde77d.
 
-The bottleneck is on evaluating _INI, which is only needed to run once.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Resolve the issue by only invoking _INI when it's necessary. Namely, on
-probe and on hibernation restore.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
-Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
-Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+While it looks like the original change is correct, it is not, as none
+of the setup actually happens, and the error value is not propagated
+upwards.
+
+Cc: Aditya Pakki <pakki001@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-47-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
- drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
- 2 files changed, 22 insertions(+), 1 deletion(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
-index c439c827eea8..0ef759671b54 100644
---- a/drivers/misc/lis3lv02d/lis3lv02d.h
-+++ b/drivers/misc/lis3lv02d/lis3lv02d.h
-@@ -284,6 +284,7 @@ struct lis3lv02d {
- 	int			regs_size;
- 	u8                      *reg_cache;
- 	bool			regs_stored;
-+	bool			init_required;
- 	u8                      odr_mask;  /* ODR bit mask */
- 	u8			whoami;    /* indicates measurement precision */
- 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
-diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
-index 10ce6cba4455..a06262e91a93 100644
---- a/drivers/platform/x86/hp_accel.c
-+++ b/drivers/platform/x86/hp_accel.c
-@@ -101,6 +101,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
- static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
- {
- 	struct acpi_device *dev = lis3->bus_priv;
-+	if (!lis3->init_required)
-+		return 0;
-+
- 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
- 				 NULL, NULL) != AE_OK)
- 		return -EINVAL;
-@@ -361,6 +364,7 @@ static int lis3lv02d_add(struct acpi_device *device)
- 	}
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 70061991915a..4bb470d3963d 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -249,9 +249,6 @@ hfcsusb_ph_info(struct hfcsusb *hw)
+ 	int i;
  
- 	/* call the core layer do its init */
-+	lis3_dev.init_required = true;
- 	ret = lis3lv02d_init_device(&lis3_dev);
- 	if (ret)
- 		return ret;
-@@ -408,11 +412,27 @@ static int lis3lv02d_suspend(struct device *dev)
- 
- static int lis3lv02d_resume(struct device *dev)
- {
-+	lis3_dev.init_required = false;
-+	lis3lv02d_poweron(&lis3_dev);
-+	return 0;
-+}
-+
-+static int lis3lv02d_restore(struct device *dev)
-+{
-+	lis3_dev.init_required = true;
- 	lis3lv02d_poweron(&lis3_dev);
- 	return 0;
- }
- 
--static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
-+static const struct dev_pm_ops hp_accel_pm = {
-+	.suspend = lis3lv02d_suspend,
-+	.resume = lis3lv02d_resume,
-+	.freeze = lis3lv02d_suspend,
-+	.thaw = lis3lv02d_resume,
-+	.poweroff = lis3lv02d_suspend,
-+	.restore = lis3lv02d_restore,
-+};
-+
- #define HP_ACCEL_PM (&hp_accel_pm)
- #else
- #define HP_ACCEL_PM NULL
+ 	phi = kzalloc(struct_size(phi, bch, dch->dev.nrbchan), GFP_ATOMIC);
+-	if (!phi)
+-		return;
+-
+ 	phi->dch.ch.protocol = hw->protocol;
+ 	phi->dch.ch.Flags = dch->Flags;
+ 	phi->dch.state = dch->state;
 -- 
 2.30.2
 
