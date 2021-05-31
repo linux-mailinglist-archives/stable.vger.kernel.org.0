@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CABF3395C1F
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5893A396229
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232382AbhEaN2c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:28:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34272 "EHLO mail.kernel.org"
+        id S231918AbhEaOvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231809AbhEaN0d (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:26:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B36246140D;
-        Mon, 31 May 2021 13:21:23 +0000 (UTC)
+        id S231542AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CBFC613F6;
+        Mon, 31 May 2021 13:57:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467284;
-        bh=bQTwDNRg4wlvy4CnpmCNGOGOfxE8v07s9eUsZv6x00g=;
+        s=korg; t=1622469436;
+        bh=iSEmKE8r5JSK7hSp+AFegfddZIAUEcasH3dWqdBytFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxOdwkMMDsBDd/8aokYFYq3makqaFshoMlDLeYN02ih0ZZYwpx9GI6pvNrOY36oI9
-         k8unSEVO0/C9QAJ+sxEWC/atIPLtWknQjBaPL1jPJaUK09Wq1F2nfezNPAmRnh+M5i
-         9YKwuVzeRaV7aFEPYMart+2bekANdtKRAVUui61g=
+        b=nPagPWxuLINAoB6wzXzNt5vkbuKp71tyv5NSOUPI32xawyMKPhVwV8ATEAfSI8gfk
+         1SB4idxIGdkTyd59lVtRIeS2qPDbmLuUpVZFs2TCUCz/jGVEb/5ZW5//cIY1/6J+w6
+         pzm2uVAH4F2gF4WayhUYJ7Za5r17KgCiO8ZdyWcM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Atul Gopinathan <atulgopinathan@gmail.com>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Tom Seewald <tseewald@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 39/66] serial: max310x: unregister uart driver in case of failure and abort
+Subject: [PATCH 5.12 197/296] net: liquidio: Add missing null pointer checks
 Date:   Mon, 31 May 2021 15:14:12 +0200
-Message-Id: <20210531130637.493185674@linuxfoundation.org>
+Message-Id: <20210531130710.495052712@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,233 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Tom Seewald <tseewald@gmail.com>
 
-[ Upstream commit 3890e3dea315f1a257d1b940a2a4e2fa16a7b095 ]
+[ Upstream commit dbc97bfd3918ed9268bfc174cae8a7d6b3d51aad ]
 
-The macro "spi_register_driver" invokes the function
-"__spi_register_driver()" which has a return type of int and can fail,
-returning a negative value in such a case. This is currently ignored and
-the init() function yields success even if the spi driver failed to
-register.
+The functions send_rx_ctrl_cmd() in both liquidio/lio_main.c and
+liquidio/lio_vf_main.c do not check if the call to
+octeon_alloc_soft_command() fails and returns a null pointer. Both
+functions also return void so errors are not propagated back to the
+caller.
 
-Fix this by collecting the return value of "__spi_register_driver()" and
-also unregister the uart driver in case of failure.
+Fix these issues by updating both instances of send_rx_ctrl_cmd() to
+return an integer rather than void, and have them return -ENOMEM if an
+allocation failure occurs. Also update all callers of send_rx_ctrl_cmd()
+so that they now check the return value.
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-12-gregkh@linuxfoundation.org
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Tom Seewald <tseewald@gmail.com>
+Link: https://lore.kernel.org/r/20210503115736.2104747-66-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ .../net/ethernet/cavium/liquidio/lio_main.c   | 28 +++++++++++++------
+ .../ethernet/cavium/liquidio/lio_vf_main.c    | 27 +++++++++++++-----
+ 2 files changed, 40 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index 80ab672d61cc..febbacecb3ba 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1385,10 +1385,12 @@ static int __init max310x_uart_init(void)
- 		return ret;
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+index 6fa570068648..591229b96257 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+@@ -1153,7 +1153,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
+  * @lio: per-network private data
+  * @start_stop: whether to start or stop
+  */
+-static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
++static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ {
+ 	struct octeon_soft_command *sc;
+ 	union octnet_cmd *ncmd;
+@@ -1161,11 +1161,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	int retval;
  
- #ifdef CONFIG_SPI_MASTER
--	spi_register_driver(&max310x_spi_driver);
-+	ret = spi_register_driver(&max310x_spi_driver);
+ 	if (oct->props[lio->ifidx].rx_on == start_stop)
+-		return;
++		return 0;
+ 
+ 	sc = (struct octeon_soft_command *)
+ 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+ 					  16, 0);
++	if (!sc) {
++		netif_info(lio, rx_err, lio->netdev,
++			   "Failed to allocate octeon_soft_command struct\n");
++		return -ENOMEM;
++	}
+ 
+ 	ncmd = (union octnet_cmd *)sc->virtdptr;
+ 
+@@ -1187,18 +1192,19 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	if (retval == IQ_SEND_FAILED) {
+ 		netif_info(lio, rx_err, lio->netdev, "Failed to send RX Control message\n");
+ 		octeon_free_soft_command(oct, sc);
+-		return;
+ 	} else {
+ 		/* Sleep on a wait queue till the cond flag indicates that the
+ 		 * response arrived or timed-out.
+ 		 */
+ 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+ 		if (retval)
+-			return;
++			return retval;
+ 
+ 		oct->props[lio->ifidx].rx_on = start_stop;
+ 		WRITE_ONCE(sc->caller_is_done, true);
+ 	}
++
++	return retval;
+ }
+ 
+ /**
+@@ -1773,6 +1779,7 @@ static int liquidio_open(struct net_device *netdev)
+ 	struct octeon_device_priv *oct_priv =
+ 		(struct octeon_device_priv *)oct->priv;
+ 	struct napi_struct *napi, *n;
++	int ret = 0;
+ 
+ 	if (oct->props[lio->ifidx].napi_enabled == 0) {
+ 		tasklet_disable(&oct_priv->droq_tasklet);
+@@ -1808,7 +1815,9 @@ static int liquidio_open(struct net_device *netdev)
+ 	netif_info(lio, ifup, lio->netdev, "Interface Open, ready for traffic\n");
+ 
+ 	/* tell Octeon to start forwarding packets to host */
+-	send_rx_ctrl_cmd(lio, 1);
++	ret = send_rx_ctrl_cmd(lio, 1);
 +	if (ret)
-+		uart_unregister_driver(&max310x_uart);
- #endif
++		return ret;
+ 
+ 	/* start periodical statistics fetch */
+ 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
+@@ -1819,7 +1828,7 @@ static int liquidio_open(struct net_device *netdev)
+ 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
+ 		 netdev->name);
  
 -	return 0;
 +	return ret;
  }
- module_init(max310x_uart_init);
  
+ /**
+@@ -1833,6 +1842,7 @@ static int liquidio_stop(struct net_device *netdev)
+ 	struct octeon_device_priv *oct_priv =
+ 		(struct octeon_device_priv *)oct->priv;
+ 	struct napi_struct *napi, *n;
++	int ret = 0;
+ 
+ 	ifstate_reset(lio, LIO_IFSTATE_RUNNING);
+ 
+@@ -1849,7 +1859,9 @@ static int liquidio_stop(struct net_device *netdev)
+ 	lio->link_changes++;
+ 
+ 	/* Tell Octeon that nic interface is down. */
+-	send_rx_ctrl_cmd(lio, 0);
++	ret = send_rx_ctrl_cmd(lio, 0);
++	if (ret)
++		return ret;
+ 
+ 	if (OCTEON_CN23XX_PF(oct)) {
+ 		if (!oct->msix_on)
+@@ -1884,7 +1896,7 @@ static int liquidio_stop(struct net_device *netdev)
+ 
+ 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /**
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
+index 516f166ceff8..ffddb3126a32 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
+@@ -595,7 +595,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
+  * @lio: per-network private data
+  * @start_stop: whether to start or stop
+  */
+-static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
++static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ {
+ 	struct octeon_device *oct = (struct octeon_device *)lio->oct_dev;
+ 	struct octeon_soft_command *sc;
+@@ -603,11 +603,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	int retval;
+ 
+ 	if (oct->props[lio->ifidx].rx_on == start_stop)
+-		return;
++		return 0;
+ 
+ 	sc = (struct octeon_soft_command *)
+ 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+ 					  16, 0);
++	if (!sc) {
++		netif_info(lio, rx_err, lio->netdev,
++			   "Failed to allocate octeon_soft_command struct\n");
++		return -ENOMEM;
++	}
+ 
+ 	ncmd = (union octnet_cmd *)sc->virtdptr;
+ 
+@@ -635,11 +640,13 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 		 */
+ 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
+ 		if (retval)
+-			return;
++			return retval;
+ 
+ 		oct->props[lio->ifidx].rx_on = start_stop;
+ 		WRITE_ONCE(sc->caller_is_done, true);
+ 	}
++
++	return retval;
+ }
+ 
+ /**
+@@ -906,6 +913,7 @@ static int liquidio_open(struct net_device *netdev)
+ 	struct octeon_device_priv *oct_priv =
+ 		(struct octeon_device_priv *)oct->priv;
+ 	struct napi_struct *napi, *n;
++	int ret = 0;
+ 
+ 	if (!oct->props[lio->ifidx].napi_enabled) {
+ 		tasklet_disable(&oct_priv->droq_tasklet);
+@@ -932,11 +940,13 @@ static int liquidio_open(struct net_device *netdev)
+ 					(LIQUIDIO_NDEV_STATS_POLL_TIME_MS));
+ 
+ 	/* tell Octeon to start forwarding packets to host */
+-	send_rx_ctrl_cmd(lio, 1);
++	ret = send_rx_ctrl_cmd(lio, 1);
++	if (ret)
++		return ret;
+ 
+ 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n", netdev->name);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /**
+@@ -950,9 +960,12 @@ static int liquidio_stop(struct net_device *netdev)
+ 	struct octeon_device_priv *oct_priv =
+ 		(struct octeon_device_priv *)oct->priv;
+ 	struct napi_struct *napi, *n;
++	int ret = 0;
+ 
+ 	/* tell Octeon to stop forwarding packets to host */
+-	send_rx_ctrl_cmd(lio, 0);
++	ret = send_rx_ctrl_cmd(lio, 0);
++	if (ret)
++		return ret;
+ 
+ 	netif_info(lio, ifdown, lio->netdev, "Stopping interface!\n");
+ 	/* Inform that netif carrier is down */
+@@ -986,7 +999,7 @@ static int liquidio_stop(struct net_device *netdev)
+ 
+ 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
+ 
+-	return 0;
++	return ret;
+ }
+ 
+ /**
 -- 
 2.30.2
 
