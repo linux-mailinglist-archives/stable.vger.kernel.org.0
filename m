@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4053C395CAB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD9BD396059
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232369AbhEaNg1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40214 "EHLO mail.kernel.org"
+        id S232793AbhEaOZU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47632 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232708AbhEaNeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:34:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83396613EE;
-        Mon, 31 May 2021 13:24:48 +0000 (UTC)
+        id S233561AbhEaOXC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 07B9261554;
+        Mon, 31 May 2021 13:45:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467489;
-        bh=NVhnBFxxbsod3bZ71tcKvqdmuRUUR+JQxC8nBsemxoY=;
+        s=korg; t=1622468728;
+        bh=VB4Y1FojBfYAa5ucDtj+uTAZT4JTj8xqxuUainiCfUA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOMBNZcleDlUyUMShTXu7y6Tr8O+TTkNrVNKyBhtiNZQQ+dRf7e3plpmM6tkoAXPV
-         Hggp1O33Ur2FqC7T/L9/DsG55hBOsGHxtLaL5wiJqYDM2A/3C8qA7EZ+zN/PUshZS2
-         N7PEKloboCRcc2Uh7FccxM1EpGHbqJLVanlryNfM=
+        b=JsvWAmaxBj/qtc3gzpoJMoPdFAg6ykTn+8Ie7xdg0Z8YSj73kriqyhRz0qpwYOdbZ
+         GTP5rhzY/BL9hvDVZlLlSxF0rCFNLWN0WMy45/kyasW0KiFiLuFx9rJhSs6j2AvfE8
+         ByoASPjImwY+aeMJHPdwgfzqSwT14Da23y1CNTOQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Young <sean@mess.org>,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
+        stable@vger.kernel.org, Anirudh Rayabharam <mail@anirudhrb.com>,
+        Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 085/116] media: dvb: Add check on sp8870_readreg return
+Subject: [PATCH 5.4 104/177] ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()
 Date:   Mon, 31 May 2021 15:14:21 +0200
-Message-Id: <20210531130643.030295334@linuxfoundation.org>
+Message-Id: <20210531130651.501755649@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,38 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit c6d822c56e7fd29e6fa1b1bb91b98f6a1e942b3c ]
+[ Upstream commit 54433367840b46a1555c8ed36c4c0cfc5dbf1358 ]
 
-The function sp8870_readreg returns a negative value when i2c_transfer
-fails so properly check for this and return the error if it happens.
+Propagate error code from failure of ath6kl_wmi_cmd_send() to the
+caller.
 
-Cc: Sean Young <sean@mess.org>
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-60-gregkh@linuxfoundation.org
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-44-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/dvb-frontends/sp8870.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/wireless/ath/ath6kl/debug.c | 5 ++++-
+ drivers/net/wireless/ath/ath6kl/wmi.c   | 4 +---
+ 2 files changed, 5 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/media/dvb-frontends/sp8870.c b/drivers/media/dvb-frontends/sp8870.c
-index 8d31cf3f4f07..3a577788041d 100644
---- a/drivers/media/dvb-frontends/sp8870.c
-+++ b/drivers/media/dvb-frontends/sp8870.c
-@@ -293,7 +293,9 @@ static int sp8870_set_frontend_parameters(struct dvb_frontend *fe)
- 	sp8870_writereg(state, 0xc05, reg0xc05);
+diff --git a/drivers/net/wireless/ath/ath6kl/debug.c b/drivers/net/wireless/ath/ath6kl/debug.c
+index 54337d60f288..085a134069f7 100644
+--- a/drivers/net/wireless/ath/ath6kl/debug.c
++++ b/drivers/net/wireless/ath/ath6kl/debug.c
+@@ -1027,14 +1027,17 @@ static ssize_t ath6kl_lrssi_roam_write(struct file *file,
+ {
+ 	struct ath6kl *ar = file->private_data;
+ 	unsigned long lrssi_roam_threshold;
++	int ret;
  
- 	// read status reg in order to clear pending irqs
--	sp8870_readreg(state, 0x200);
-+	err = sp8870_readreg(state, 0x200);
-+	if (err < 0)
-+		return err;
+ 	if (kstrtoul_from_user(user_buf, count, 0, &lrssi_roam_threshold))
+ 		return -EINVAL;
  
- 	// system controller start
- 	sp8870_microcontroller_start(state);
+ 	ar->lrssi_roam_threshold = lrssi_roam_threshold;
+ 
+-	ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
++	ret = ath6kl_wmi_set_roam_lrssi_cmd(ar->wmi, ar->lrssi_roam_threshold);
+ 
++	if (ret)
++		return ret;
+ 	return count;
+ }
+ 
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index d27b4088b874..c610fe21c85c 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -776,10 +776,8 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
+ 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
+ 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
+ 
+-	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
++	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
+ 			    NO_SYNC_WMIFLAG);
+-
+-	return 0;
+ }
+ 
+ int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
 -- 
 2.30.2
 
