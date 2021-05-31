@@ -2,104 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B872B396831
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 20:56:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 26378396838
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 21:01:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbhEaS60 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 14:58:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46452 "EHLO
+        id S230523AbhEaTDe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 15:03:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230174AbhEaS60 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 14:58:26 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77B6C061574
-        for <stable@vger.kernel.org>; Mon, 31 May 2021 11:56:45 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622487402;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=s2Pu6ejKWB5msdCqEd70HYQYbTLOsOrtztgSLt8OIvs=;
-        b=QTaltaUjANtCeNhgVoUwkqUVY9pbFWBo/olXZuAyZAZEo204LyOBE28tvRh1HSXnsFjMN8
-        TNgHxVJQqdWrYdBOBfYMqdIautPWrhd32UjFPRyrw916mclkMbCTGF5uyUqHrGVUzc4M8H
-        6N4l3a/1hfLcVJocEfWsPN+tu85C+wUdqyl2T561QxiocDGXDOPVZ/tTkILkclKpS7xhfC
-        PxKaCPwJjktGEZQZw3k9lvyIuVm3LpdZQ0DiALhSaiQQlHXpJEpRh+lkz9cGNfWAOHusNW
-        ZPFmvKVKQs5gaFKfzMxs/FAMr+2H1twaSyfbAcA1HjSjT/o2HX6dFTTdUi5vcg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622487402;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=s2Pu6ejKWB5msdCqEd70HYQYbTLOsOrtztgSLt8OIvs=;
-        b=Oz/iL25m4HFHKJmSbVZkGQ2cwnUdNJjOpShpV6PbQWbuWNIXl4aW7RjoaCeq1vq8KfCi4Z
-        Z8KUCPJ1otnMRaBg==
-To:     Andy Lutomirski <luto@kernel.org>, x86@kernel.org
-Cc:     Dave Hansen <dave.hansen@intel.com>,
-        Andy Lutomirski <luto@kernel.org>, stable@vger.kernel.org,
-        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
-Subject: Re: [RFC v2 1/2] x86/fpu: Fix state corruption in __fpu__restore_sig()
-In-Reply-To: <871r9n5iit.ffs@nanos.tec.linutronix.de>
-References: <cover.1622351443.git.luto@kernel.org> <b69df1e42d1235996682178013f61d4120b3b361.1622351443.git.luto@kernel.org> <871r9n5iit.ffs@nanos.tec.linutronix.de>
-Date:   Mon, 31 May 2021 20:56:42 +0200
-Message-ID: <87fsy24tqt.ffs@nanos.tec.linutronix.de>
+        with ESMTP id S230174AbhEaTDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 15:03:33 -0400
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93CF5C061574
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 12:01:53 -0700 (PDT)
+Received: by mail-pg1-x52f.google.com with SMTP id q15so8928106pgg.12
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 12:01:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=2oLNqQLwPRAvL9eaUm6Td4vP4JSSp/qH98mUFC5nmhY=;
+        b=wkf4EDAubKQfJx/95jt4OBRfV7THJ6Fav3HQnVRNtdHBuWzm01uAoN+vYUCTVvNIE3
+         oHs6mEFT2jEi77rfPHKHMT45Ch1ZFZt+nFPiZgzoGUdtrlt/Ls/jK0FMux6OAc2mD4at
+         POpQBKCvSRfNtn7F7i+LiCsDLjA/Y7SbcVdE5+QmJU8N8+Y37eP/J2vkH3ToaI9nto64
+         ypOObG0U1onZsG6s7/5EtkGLO5LIZEmoLB4bZtpWn5C9KaWgUdlZn673JLvfIoAsdVCq
+         RbRS9mE4sg487K0A+qNP6zrTEI5BZOXKM7J+kxUk/JWNlepfGRmtTQ2qrBpaU4dHAQlW
+         cpUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=2oLNqQLwPRAvL9eaUm6Td4vP4JSSp/qH98mUFC5nmhY=;
+        b=lpAnK8VkNSdbBUiASNI/QK1Bewtiom3bnTgTOn2fz1dkhZm8h9hfUq5ySmPUMjc7TE
+         zFRG44cuzjo/GfC4LJUSpBtzHIoVox2hvQCPkWmSIw5CiCGvCnq1wIQCwr/XbQlL0HQW
+         mLgnfIBzziNS4BzC0Vro/wiUYe2ODmQtGKhwoS3KmoBvgYU5FaJTqSmjXZUXK2AmmqXI
+         ASfYk4V15gCWkkNm1yGI/M2YX3G5i3mHVL18MVvI+TlbS56g8qXMMFcogCSsTwl8t+bc
+         Zj8853/kG+ZrELbv/D5X/mKTaPe/ScMx5x5bwwXShcNg3bLHjDNY6vz+Sr1YypFTsL/L
+         ehIQ==
+X-Gm-Message-State: AOAM5325og9xABfjARhmkxk/QEdr/txVjZrtQLyL074mAa6BhZGE7otq
+        9IuVPYPr61n3clTmRGMmIvkAP15Q7rE+ETnC
+X-Google-Smtp-Source: ABdhPJxkPFsv3iQrJZuRFISklpgt5xNpqEOFyV/PEvQTPDMqsMLf/Aa9zur9y7SjQBERxAgPmM76wg==
+X-Received: by 2002:a62:55c4:0:b029:2e8:f854:d31c with SMTP id j187-20020a6255c40000b02902e8f854d31cmr17982202pfb.59.1622487712746;
+        Mon, 31 May 2021 12:01:52 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p14sm11577857pjh.27.2021.05.31.12.01.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 May 2021 12:01:52 -0700 (PDT)
+Message-ID: <60b532a0.1c69fb81.45354.4cfe@mx.google.com>
+Date:   Mon, 31 May 2021 12:01:52 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.234-79-g1cf75ca15187
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 132 runs,
+ 1 regressions (v4.14.234-79-g1cf75ca15187)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 31 2021 at 12:01, Thomas Gleixner wrote:
+stable-rc/queue/4.14 baseline: 132 runs, 1 regressions (v4.14.234-79-g1cf75=
+ca15187)
 
-> On Sat, May 29 2021 at 22:12, Andy Lutomirski wrote:
->>  /*
->> - * Clear the FPU state back to init state.
->> - *
->> - * Called by sys_execve(), by the signal handler code and by various
->> - * error paths.
->> + * Reset current's user FPU states to the init states.  The caller promises
->> + * that current's supervisor states (in memory or CPU regs as appropriate)
->> + * as well as the XSAVE header in memory are intact.
->>   */
->> -static void fpu__clear(struct fpu *fpu, bool user_only)
->> +void fpu__clear_user_states(struct fpu *fpu)
->>  {
->>  	WARN_ON_FPU(fpu != &current->thread.fpu);
->>  
->>  	if (!static_cpu_has(X86_FEATURE_FPU)) {
->
-> This can only be safely called if XSAVES is available. So this check is
-> bogus as it actually should check for !XSAVES. And if at all it should
-> be:
->
->    if (WARN_ON_ONCE(!XSAVES))
->       ....
->
-> This is exactly the stuff which causes subtle problems down the road.
->
-> I have no idea why you are insisting on having this conditional at the
-> call site. It's just an invitation for trouble because someone finds
-> this function and calls it unconditionally. And he will miss the
-> 'promise' part in the comment as I did.
+Regressions Summary
+-------------------
 
-And of course there is:
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
 
-__fpu__restore_sig()
 
-	if (!buf) {
-                fpu__clear_user_states(fpu);
-                return 0;
-        }
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.234-79-g1cf75ca15187/plan/baseline/
 
-and
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.234-79-g1cf75ca15187
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1cf75ca15187afbd1e23baeaa9737f7751253ef0 =
 
-handle_signal()
 
-   if (!failed)
-      fpu__clear_user_states(fpu);
 
-which invoke that function unconditionally.
+Test Regressions
+---------------- =
 
-Thanks,
 
-        tglx
+
+platform       | arch  | lab          | compiler | defconfig | regressions
+---------------+-------+--------------+----------+-----------+------------
+meson-gxm-q200 | arm64 | lab-baylibre | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b4fc0db768712867b3afa8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-79-g1cf75ca15187/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-79-g1cf75ca15187/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b4fc0db768712867b3a=
+fa9
+        failing since 91 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
+t fail: v4.14.222-120-gdc8887cba23e) =
+
+ =20
