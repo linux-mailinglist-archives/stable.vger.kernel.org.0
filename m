@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B2452395ED0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:02:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 00D18395C74
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232388AbhEaOD7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:03:59 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37386 "EHLO mail.kernel.org"
+        id S232174AbhEaNdV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:33:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232862AbhEaOB4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:01:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 786FA6138C;
-        Mon, 31 May 2021 13:37:01 +0000 (UTC)
+        id S231783AbhEaNbN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:31:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F1EE61423;
+        Mon, 31 May 2021 13:23:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468222;
-        bh=lGqqaLBNP/9QRAroFbTLl3k3cLDdzW2qBzFiLQ2qiP0=;
+        s=korg; t=1622467403;
+        bh=tWeKI9rmRdr0PTEUBfR6LTALPuFkgRkfD8XHLww8JPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bHfMlo/M6WBYci6+RPPep7tOLBS3/CCLUFauoCqbGaMDJPJAf7Q3mqT7sPb0MvRBo
-         MtXqCXM/K3rauwDc1Q7fX8yGSGy4sLowNzqp01r+MsJ/7LjiCrhlXG67+V6tGx0kH1
-         la1V9LY/OSOQevLHwKqqaggVe0vdmh6feu1t/aLU=
+        b=snp7xD7qt61Ck1xlWxZyEo5hE3c0jj1p0NcL7YKk24ADsY18KJGA1ioqCirKAj3m0
+         LfV5i+8yz8H7hcPEzp7d3Gr4wkLvDv0Hasoyj8c0zkxOculdCiBmqHpU6BrNbroDcr
+         AjjXyJQ9U3DaBgfYgce08ee1843hb0ajDqtlnGOA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 163/252] media: gspca: mt9m111: Check write_bridge for timeout
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 4.19 052/116] bpf: Move sanitize_val_alu out of op switch
 Date:   Mon, 31 May 2021 15:13:48 +0200
-Message-Id: <20210531130703.552806031@linuxfoundation.org>
+Message-Id: <20210531130641.935700816@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,61 +42,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-[ Upstream commit e932f5b458eee63d013578ea128b9ff8ef5f5496 ]
+commit f528819334881fd622fdadeddb3f7edaed8b7c9b upstream.
 
-If m5602_write_bridge times out, it will return a negative error value.
-So properly check for this and handle the error correctly instead of
-just ignoring it.
+Add a small sanitize_needed() helper function and move sanitize_val_alu()
+out of the main opcode switch. In upcoming work, we'll move sanitize_ptr_alu()
+as well out of its opcode switch so this helps to streamline both.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-62-gregkh@linuxfoundation.org
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[fllinden@amazon.com: backported to 5.4]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ kernel/bpf/verifier.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-index 50481dc928d0..bf1af6ed9131 100644
---- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
- int mt9m111_probe(struct sd *sd)
- {
- 	u8 data[2] = {0x00, 0x00};
--	int i;
-+	int i, err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2815,6 +2815,11 @@ static int sanitize_val_alu(struct bpf_v
+ 	return update_alu_sanitation_state(aux, BPF_ALU_NON_POINTER, 0);
+ }
  
- 	if (force_sensor) {
-@@ -213,15 +213,17 @@ int mt9m111_probe(struct sd *sd)
- 	/* Do the preinit */
- 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
- 		if (preinit_mt9m111[i][0] == BRIDGE) {
--			m5602_write_bridge(sd,
--				preinit_mt9m111[i][1],
--				preinit_mt9m111[i][2]);
-+			err = m5602_write_bridge(sd,
-+					preinit_mt9m111[i][1],
-+					preinit_mt9m111[i][2]);
- 		} else {
- 			data[0] = preinit_mt9m111[i][2];
- 			data[1] = preinit_mt9m111[i][3];
--			m5602_write_sensor(sd,
--				preinit_mt9m111[i][1], data, 2);
-+			err = m5602_write_sensor(sd,
-+					preinit_mt9m111[i][1], data, 2);
- 		}
-+		if (err < 0)
-+			return err;
++static bool sanitize_needed(u8 opcode)
++{
++	return opcode == BPF_ADD || opcode == BPF_SUB;
++}
++
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+ 			    struct bpf_insn *insn,
+ 			    const struct bpf_reg_state *ptr_reg,
+@@ -3207,11 +3212,14 @@ static int adjust_scalar_min_max_vals(st
+ 		return 0;
  	}
  
- 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
--- 
-2.30.2
-
+-	switch (opcode) {
+-	case BPF_ADD:
++	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_val_alu(env, insn);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, NULL, NULL);
++	}
++
++	switch (opcode) {
++	case BPF_ADD:
+ 		if (signed_add_overflows(dst_reg->smin_value, smin_val) ||
+ 		    signed_add_overflows(dst_reg->smax_value, smax_val)) {
+ 			dst_reg->smin_value = S64_MIN;
+@@ -3231,9 +3239,6 @@ static int adjust_scalar_min_max_vals(st
+ 		dst_reg->var_off = tnum_add(dst_reg->var_off, src_reg.var_off);
+ 		break;
+ 	case BPF_SUB:
+-		ret = sanitize_val_alu(env, insn);
+-		if (ret < 0)
+-			return sanitize_err(env, insn, ret, NULL, NULL);
+ 		if (signed_sub_overflows(dst_reg->smin_value, smax_val) ||
+ 		    signed_sub_overflows(dst_reg->smax_value, smin_val)) {
+ 			/* Overflow possible, we know nothing */
 
 
