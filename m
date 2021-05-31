@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D00396141
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36343395E34
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234015AbhEaOho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33164 "EHLO mail.kernel.org"
+        id S232112AbhEaNz1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:55:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233401AbhEaOfg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9AEBC61C43;
-        Mon, 31 May 2021 13:50:59 +0000 (UTC)
+        id S232808AbhEaNxX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:53:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 270436190A;
+        Mon, 31 May 2021 13:33:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469060;
-        bh=nyc10DwBaetmEFQ6b1FKSSzvX7sk3sts3UMZXY6bnJs=;
+        s=korg; t=1622467997;
+        bh=QLBD041yQo5NyAE2ImFoaa9Bz71vfy3icMW+1NbCstQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1UPTP5t87/+3iXiwrRumUtDVCZL9QCIriTYW7s0To2R+FibAvqZ8ZL71TK2jqMcNR
-         ycDYvPyT76fugXX8QtD3uWHxQR4Q6uiNVWRZiyuccCiZMJm6v2dwdogb2RBQ4VE6eS
-         NstLOT61v5jiCvZmxLonBih7YFwvk7yEBNAHHNmY=
+        b=UjkYNGGw5Y65BdkPFicJybamxVB60rVRUMn33aFsCVoxwUpNIIAMFY7x1+sDlrEeL
+         wYZ9+4EhGonU4HUJ3jiQOaqPAzRBMqhYYXYwx5RGsIpmVCzCs1Yg6KMPFj6FYn97UQ
+         mMm/1C/hcp9Z1CZ/W8hbt2KaudO1bDbwQOi/QpIY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Florian Dazinger <spam02@dazinger.net>,
-        Guoqing Jiang <jiangguoqing@kylinos.cn>,
-        Christoph Hellwig <hch@lst.de>, Song Liu <song@kernel.org>
-Subject: [PATCH 5.12 053/296] md/raid5: remove an incorrect assert in in_chunk_boundary
+        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
+        Likun Gao <Likun.Gao@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 043/252] drm/amdkfd: correct sienna_cichlid SDMA RLC register offset error
 Date:   Mon, 31 May 2021 15:11:48 +0200
-Message-Id: <20210531130705.606176292@linuxfoundation.org>
+Message-Id: <20210531130659.457476819@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,35 +40,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Kevin Wang <kevin1.wang@amd.com>
 
-commit cc146267914950b12c2bdee68c1e9e5453c81cde upstream.
+commit ba515a5821dc0d101ded0379b14b1d1471ebfaba upstream.
 
-Now that the original bdev is stored in the bio this assert is incorrect
-and will trigger for any partitioned raid5 device.
+1.correct KFD SDMA RLC queue register offset error.
+(all sdma rlc register offset is base on SDMA0.RLC0_RLC0_RB_CNTL)
+2.HQD_N_REGS (19+6+7+12)
+  12: the 2 more resgisters than navi1x (SDMAx_RLCy_MIDCMD_DATA{9,10})
 
-Reported-by: Florian Dazinger <spam02@dazinger.net>
-Tested-by: Florian Dazinger <spam02@dazinger.net>
-Cc: stable@vger.kernel.org # 5.12
-Fixes: 309dca309fc3 ("block: store a block_device pointer in struct bio"),
-Reviewed-by:  Guoqing Jiang <jiangguoqing@kylinos.cn>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Song Liu <song@kernel.org>
+the patch also can be fixed NULL pointer issue when read
+/sys/kernel/debug/kfd/hqds on sienna_cichlid chip.
+
+Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
+Reviewed-by: Likun Gao <Likun.Gao@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/md/raid5.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/drivers/md/raid5.c
-+++ b/drivers/md/raid5.c
-@@ -5310,8 +5310,6 @@ static int in_chunk_boundary(struct mdde
- 	unsigned int chunk_sectors;
- 	unsigned int bio_sectors = bio_sectors(bio);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c
+@@ -157,16 +157,16 @@ static uint32_t get_sdma_rlc_reg_offset(
+ 				mmSDMA0_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
+ 		break;
+ 	case 1:
+-		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA1, 0,
++		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
+ 				mmSDMA1_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
+ 		break;
+ 	case 2:
+-		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA2, 0,
+-				mmSDMA2_RLC0_RB_CNTL) - mmSDMA2_RLC0_RB_CNTL;
++		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
++				mmSDMA2_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
+ 		break;
+ 	case 3:
+-		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA3, 0,
+-				mmSDMA3_RLC0_RB_CNTL) - mmSDMA2_RLC0_RB_CNTL;
++		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
++				mmSDMA3_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
+ 		break;
+ 	}
  
--	WARN_ON_ONCE(bio->bi_bdev->bd_partno);
--
- 	chunk_sectors = min(conf->chunk_sectors, conf->prev_chunk_sectors);
- 	return  chunk_sectors >=
- 		((sector & (chunk_sectors - 1)) + bio_sectors);
+@@ -451,7 +451,7 @@ static int hqd_sdma_dump_v10_3(struct kg
+ 			engine_id, queue_id);
+ 	uint32_t i = 0, reg;
+ #undef HQD_N_REGS
+-#define HQD_N_REGS (19+6+7+10)
++#define HQD_N_REGS (19+6+7+12)
+ 
+ 	*dump = kmalloc(HQD_N_REGS*2*sizeof(uint32_t), GFP_KERNEL);
+ 	if (*dump == NULL)
 
 
