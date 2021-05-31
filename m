@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BB6473960CA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 548253962B3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233441AbhEaObe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56132 "EHLO mail.kernel.org"
+        id S234121AbhEaPAh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:00:37 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51252 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233825AbhEaO33 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:29:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3187961C25;
-        Mon, 31 May 2021 13:48:22 +0000 (UTC)
+        id S234186AbhEaO5f (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:57:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28F2B61CC6;
+        Mon, 31 May 2021 14:00:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468903;
-        bh=uS8+4oKfWZJY8Y8Wuwo953RpPRVLkzyt/KFj9P9//+g=;
+        s=korg; t=1622469644;
+        bh=UNlO1fM6zCSxN2GOwmtuEV0qOlY3BkYmF6gkGidp3oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kxY6FClKKi6SzRpSlhfnBlVVWCeQFlbF+/AWnKoKwigm0qhI+LuTOblYroaDITHLd
-         MDpvJBj/alWfpcThIh1kFExSF91ZkB5cY8knKQRvvfabu5NDK/Q1Kgc4VGqoTvK/Sz
-         jtN6SzqbyLjhxTw4MvqRJCoV6mzG9z8QivoY6jh4=
+        b=EO4hbvvpSggBPEh9zS3iVz03BqC8E4jSYayvGZ711tdRts67Ivu5YSEluLXpogi9t
+         tyMIHeduFtE+TggxcwTtiTF8aHcI6FIF9w8ZsZm2ze9sWMapCtC0ug2hyPlWF5MyVe
+         EzDjswpZVe1ho5qM1N3J1Pp37Af121vqk2XUb1DQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 173/177] net: hns3: check the return of skb_checksum_help()
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 275/296] ipv6: record frag_max_size in atomic fragments in input path
 Date:   Mon, 31 May 2021 15:15:30 +0200
-Message-Id: <20210531130653.913525384@linuxfoundation.org>
+Message-Id: <20210531130712.981493141@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-commit 9bb5a495424fd4bfa672eb1f31481248562fa156 upstream.
+[ Upstream commit e29f011e8fc04b2cdc742a2b9bbfa1b62518381a ]
 
-Currently skb_checksum_help()'s return is ignored, but it may
-return error when it fails to allocate memory when linearizing.
+Commit dbd1759e6a9c ("ipv6: on reassembly, record frag_max_size")
+filled the frag_max_size field in IP6CB in the input path.
+The field should also be filled in case of atomic fragments.
 
-So adds checking for the return of skb_checksum_help().
-
-Fixes: 76ad4f0ee747("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Fixes: dbd1759e6a9c ('ipv6: on reassembly, record frag_max_size')
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ net/ipv6/reassembly.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -810,8 +810,6 @@ static bool hns3_tunnel_csum_bug(struct
- 	      l4.udp->dest == htons(4790))))
- 		return false;
+diff --git a/net/ipv6/reassembly.c b/net/ipv6/reassembly.c
+index 47a0dc46cbdb..28e44782c94d 100644
+--- a/net/ipv6/reassembly.c
++++ b/net/ipv6/reassembly.c
+@@ -343,7 +343,7 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
+ 	hdr = ipv6_hdr(skb);
+ 	fhdr = (struct frag_hdr *)skb_transport_header(skb);
  
--	skb_checksum_help(skb);
--
- 	return true;
- }
+-	if (!(fhdr->frag_off & htons(0xFFF9))) {
++	if (!(fhdr->frag_off & htons(IP6_OFFSET | IP6_MF))) {
+ 		/* It is not a fragmented frame */
+ 		skb->transport_header += sizeof(struct frag_hdr);
+ 		__IP6_INC_STATS(net,
+@@ -351,6 +351,8 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
  
-@@ -889,8 +887,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 			/* the stack computes the IP header already,
- 			 * driver calculate l4 checksum when not TSO.
- 			 */
--			skb_checksum_help(skb);
--			return 0;
-+			return skb_checksum_help(skb);
- 		}
- 
- 		hns3_set_outer_l2l3l4(skb, ol4_proto, ol_type_vlan_len_msec);
-@@ -935,7 +932,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 		break;
- 	case IPPROTO_UDP:
- 		if (hns3_tunnel_csum_bug(skb))
--			break;
-+			return skb_checksum_help(skb);
- 
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
-@@ -960,8 +957,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 		/* the stack computes the IP header already,
- 		 * driver calculate l4 checksum when not TSO.
- 		 */
--		skb_checksum_help(skb);
--		return 0;
-+		return skb_checksum_help(skb);
+ 		IP6CB(skb)->nhoff = (u8 *)fhdr - skb_network_header(skb);
+ 		IP6CB(skb)->flags |= IP6SKB_FRAGMENTED;
++		IP6CB(skb)->frag_max_size = ntohs(hdr->payload_len) +
++					    sizeof(struct ipv6hdr);
+ 		return 1;
  	}
  
- 	return 0;
+-- 
+2.30.2
+
 
 
