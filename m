@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9F234396029
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EF1A395C57
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:30:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233518AbhEaOXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43918 "EHLO mail.kernel.org"
+        id S232340AbhEaNbZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:31:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233477AbhEaOTH (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:19:07 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BACB9619B1;
-        Mon, 31 May 2021 13:44:18 +0000 (UTC)
+        id S232495AbhEaN3Y (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:29:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AE2F561428;
+        Mon, 31 May 2021 13:22:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468659;
-        bh=JBSLpIk7IyqoMi+9Q0jkhDuovnT7vIc/YhCLvxfejXM=;
+        s=korg; t=1622467364;
+        bh=RuZndJVQ92C/+DrkI/Yutl4IKpxCviT106YkaDWphJ8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DXLRyy8k8L+uVrXyZpPmh+pEZ3zukRyh9VGvWqNE1nVijM2ikPRJxvjzjQJHldibd
-         dym0Zexu38mRh3/0GXOUXeWyJzgmRfNz4MbD8EJfCshpU/bpLv6LfBgfMcFeZXEWHm
-         hCUjO2SJx+IUZ95b/SqL2uYvWdbYTFCWrnGmtFgE=
+        b=CXnSdgv1CD4o1CoLtbL2ehqN37AKBoyOSM5RmzkE96pWRQiBy/0ETDMrBvLp42S1u
+         ie8gsgNdWtAVWqLe50sXzFM2xn4Y/I3s8bJRCj7EUOmkjIcO/x83xsqvvTpN6kfZ9I
+         hOUyihRUsHeN/yPXm1KyQgY4QLY51Qi0QwcUtBY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jerry Hoemann <jerry.hoemann@hpe.com>,
-        Randy Wright <rwright@hpe.com>
-Subject: [PATCH 5.4 049/177] serial: 8250_pci: Add support for new HPE serial device
+        stable@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+        Alan Stern <stern@rowland.harvard.edu>,
+        syzbot+882a85c0c8ec4a3e2281@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 030/116] USB: usbfs: Dont WARN about excessively large memory allocations
 Date:   Mon, 31 May 2021 15:13:26 +0200
-Message-Id: <20210531130649.622225112@linuxfoundation.org>
+Message-Id: <20210531130641.186520192@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,69 +40,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Wright <rwright@hpe.com>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit e0e24208792080135248f23fdf6d51aa2e04df05 upstream.
+commit 4f2629ea67e7225c3fd292c7fe4f5b3c9d6392de upstream.
 
-Add support for new HPE serial device.  It is MSI enabled,
-but otherwise similar to legacy HP server serial devices.
+Syzbot found that the kernel generates a WARNing if the user tries to
+submit a bulk transfer through usbfs with a buffer that is way too
+large.  This isn't a bug in the kernel; it's merely an invalid request
+from the user and the usbfs code does handle it correctly.
 
-Tested-by: Jerry Hoemann <jerry.hoemann@hpe.com>
-Signed-off-by: Randy Wright <rwright@hpe.com>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1621009614-28836-1-git-send-email-rwright@hpe.com
+In theory the same thing can happen with async transfers, or with the
+packet descriptor table for isochronous transfers.
+
+To prevent the MM subsystem from complaining about these bad
+allocation requests, add the __GFP_NOWARN flag to the kmalloc calls
+for these buffers.
+
+CC: Andrew Morton <akpm@linux-foundation.org>
+CC: <stable@vger.kernel.org>
+Reported-and-tested-by: syzbot+882a85c0c8ec4a3e2281@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20210518201835.GA1140918@rowland.harvard.edu
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_pci.c |   18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ drivers/usb/core/devio.c |   11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_pci.c
-+++ b/drivers/tty/serial/8250/8250_pci.c
-@@ -58,6 +58,8 @@ struct serial_private {
- 	int			line[0];
- };
- 
-+#define PCI_DEVICE_ID_HPE_PCI_SERIAL	0x37e
+--- a/drivers/usb/core/devio.c
++++ b/drivers/usb/core/devio.c
+@@ -1189,7 +1189,12 @@ static int proc_bulk(struct usb_dev_stat
+ 	ret = usbfs_increase_memory_usage(len1 + sizeof(struct urb));
+ 	if (ret)
+ 		return ret;
+-	tbuf = kmalloc(len1, GFP_KERNEL);
 +
- static const struct pci_device_id pci_use_msi[] = {
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9900,
- 			 0xA000, 0x1000) },
-@@ -65,6 +67,8 @@ static const struct pci_device_id pci_us
- 			 0xA000, 0x1000) },
- 	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_NETMOS, PCI_DEVICE_ID_NETMOS_9922,
- 			 0xA000, 0x1000) },
-+	{ PCI_DEVICE_SUB(PCI_VENDOR_ID_HP_3PAR, PCI_DEVICE_ID_HPE_PCI_SERIAL,
-+			 PCI_ANY_ID, PCI_ANY_ID) },
- 	{ }
- };
- 
-@@ -1966,6 +1970,16 @@ static struct pci_serial_quirk pci_seria
- 		.setup		= pci_hp_diva_setup,
- 	},
- 	/*
-+	 * HPE PCI serial device
-+	 */
-+	{
-+		.vendor         = PCI_VENDOR_ID_HP_3PAR,
-+		.device         = PCI_DEVICE_ID_HPE_PCI_SERIAL,
-+		.subvendor      = PCI_ANY_ID,
-+		.subdevice      = PCI_ANY_ID,
-+		.setup		= pci_hp_diva_setup,
-+	},
 +	/*
- 	 * Intel
- 	 */
- 	{
-@@ -4932,6 +4946,10 @@ static const struct pci_device_id serial
- 	{	PCI_VENDOR_ID_HP, PCI_DEVICE_ID_HP_DIVA_AUX,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
- 		pbn_b2_1_115200 },
-+	/* HPE PCI serial device */
-+	{	PCI_VENDOR_ID_HP_3PAR, PCI_DEVICE_ID_HPE_PCI_SERIAL,
-+		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
-+		pbn_b1_1_115200 },
- 
- 	{	PCI_VENDOR_ID_DCI, PCI_DEVICE_ID_DCI_PCCOM2,
- 		PCI_ANY_ID, PCI_ANY_ID, 0, 0,
++	 * len1 can be almost arbitrarily large.  Don't WARN if it's
++	 * too big, just fail the request.
++	 */
++	tbuf = kmalloc(len1, GFP_KERNEL | __GFP_NOWARN);
+ 	if (!tbuf) {
+ 		ret = -ENOMEM;
+ 		goto done;
+@@ -1631,7 +1636,7 @@ static int proc_do_submiturb(struct usb_
+ 	if (num_sgs) {
+ 		as->urb->sg = kmalloc_array(num_sgs,
+ 					    sizeof(struct scatterlist),
+-					    GFP_KERNEL);
++					    GFP_KERNEL | __GFP_NOWARN);
+ 		if (!as->urb->sg) {
+ 			ret = -ENOMEM;
+ 			goto error;
+@@ -1666,7 +1671,7 @@ static int proc_do_submiturb(struct usb_
+ 					(uurb_start - as->usbm->vm_start);
+ 		} else {
+ 			as->urb->transfer_buffer = kmalloc(uurb->buffer_length,
+-					GFP_KERNEL);
++					GFP_KERNEL | __GFP_NOWARN);
+ 			if (!as->urb->transfer_buffer) {
+ 				ret = -ENOMEM;
+ 				goto error;
 
 
