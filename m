@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B6D93961D5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8A5395EA3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233232AbhEaOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40310 "EHLO mail.kernel.org"
+        id S232055AbhEaOBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:01:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59812 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234224AbhEaOpI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:45:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B83661C81;
-        Mon, 31 May 2021 13:54:59 +0000 (UTC)
+        id S233026AbhEaN7T (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:59:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DD26144A;
+        Mon, 31 May 2021 13:35:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469300;
-        bh=GC20++aDWXWjAwVWjhff/cyE8r7hxikoUf77SG5cBCQ=;
+        s=korg; t=1622468157;
+        bh=xDh8vqmsD0PqY7lkpUvW7q/+AmZ23MBZFO5QElc9QaU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sgRAaE0npCQxlTvZfVZU6xBtCKqaqM10HRKmgQx+NC0QJYsj6gIimC+Gcq1EtmaVj
-         hRLXVC5O+E9rjmv5JSLlwEu4v816c5DgMcCS6v4FgQrvLsX4XpXJE8glp1RGbyt6d3
-         +EdmbLk4eYobIdPurzcgNt4ihwVnc5CGPy4IxbOY=
+        b=G47usS7AbMo17a9AtkDd3oAvUmQnEJ6hbh+hGOCLM13Wh4m35I9gM2x5NmsfJhDGj
+         zdrjnIjDHrEC9ZQQywn6JHSMrADTfgtfz8migfrou8ci0vSg5KWiyJmrIGN06di4Qj
+         VR0bYg2aTssVoHedAoHE0+coY/9224IKHgMejViE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 146/296] net: dsa: sja1105: add error handling in sja1105_setup()
-Date:   Mon, 31 May 2021 15:13:21 +0200
-Message-Id: <20210531130708.772941823@linuxfoundation.org>
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 137/252] Revert "net: fujitsu: fix a potential NULL pointer dereference"
+Date:   Mon, 31 May 2021 15:13:22 +0200
+Message-Id: <20210531130702.665726757@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,67 +41,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit cec279a898a3b004411682f212215ccaea1cd0fb upstream.
+[ Upstream commit 5f94eaa4ee23e80841fa359a372f84cfe25daee1 ]
 
-If any of sja1105_static_config_load(), sja1105_clocking_setup() or
-sja1105_devlink_setup() fails, we can't just return in the middle of
-sja1105_setup() or memory will leak. Add a cleanup path.
+This reverts commit 9f4d6358e11bbc7b839f9419636188e4151fb6e4.
 
-Fixes: 0a7bdbc23d8a ("net: dsa: sja1105: move devlink param code to sja1105_devlink.c")
-Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original change does not change any behavior as the caller of this
+function onlyu checks for "== -1" as an error condition so this error is
+not handled properly.  Remove this change and it will be fixed up
+properly in a later commit.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-15-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c |   17 ++++++++++++++---
- 1 file changed, 14 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/fujitsu/fmvj18x_cs.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -2986,13 +2986,13 @@ static int sja1105_setup(struct dsa_swit
- 	rc = sja1105_static_config_load(priv, ports);
- 	if (rc < 0) {
- 		dev_err(ds->dev, "Failed to load static config: %d\n", rc);
--		return rc;
-+		goto out_ptp_clock_unregister;
- 	}
- 	/* Configure the CGU (PHY link modes and speeds) */
- 	rc = sja1105_clocking_setup(priv);
- 	if (rc < 0) {
- 		dev_err(ds->dev, "Failed to configure MII clocking: %d\n", rc);
--		return rc;
-+		goto out_static_config_free;
- 	}
- 	/* On SJA1105, VLAN filtering per se is always enabled in hardware.
- 	 * The only thing we can do to disable it is lie about what the 802.1Q
-@@ -3013,7 +3013,7 @@ static int sja1105_setup(struct dsa_swit
+diff --git a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
+index a7b7a4aace79..dc90c61fc827 100644
+--- a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
++++ b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
+@@ -547,11 +547,6 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
+ 	return -1;
  
- 	rc = sja1105_devlink_setup(ds);
- 	if (rc < 0)
--		return rc;
-+		goto out_static_config_free;
+     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
+-    if (!base) {
+-	    pcmcia_release_window(link, link->resource[2]);
+-	    return -ENOMEM;
+-    }
+-
+     pcmcia_map_mem_page(link, link->resource[2], 0);
  
- 	/* The DSA/switchdev model brings up switch ports in standalone mode by
- 	 * default, and that means vlan_filtering is 0 since they're not under
-@@ -3022,6 +3022,17 @@ static int sja1105_setup(struct dsa_swit
- 	rtnl_lock();
- 	rc = sja1105_setup_8021q_tagging(ds, true);
- 	rtnl_unlock();
-+	if (rc)
-+		goto out_devlink_teardown;
-+
-+	return 0;
-+
-+out_devlink_teardown:
-+	sja1105_devlink_teardown(ds);
-+out_ptp_clock_unregister:
-+	sja1105_ptp_clock_unregister(ds);
-+out_static_config_free:
-+	sja1105_static_config_free(&priv->static_config);
- 
- 	return rc;
- }
+     /*
+-- 
+2.30.2
+
 
 
