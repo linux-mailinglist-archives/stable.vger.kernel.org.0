@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3AE6A395EE6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A5BC3396022
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232532AbhEaOFM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36536 "EHLO mail.kernel.org"
+        id S233574AbhEaOXD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47634 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233147AbhEaOC7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:02:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A5C4613FF;
-        Mon, 31 May 2021 13:37:30 +0000 (UTC)
+        id S233617AbhEaOVR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 89534619B9;
+        Mon, 31 May 2021 13:44:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468251;
-        bh=eThF42QgHM2ceyuUbfHXSeQsf1W1pocY7rix57lF/sE=;
+        s=korg; t=1622468674;
+        bh=gG6HC9ah17z0IQSAObJ8OUJHcUi6DQ8G3ViJkwYZNzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N7+7l8FzR6FrlJZ7ZFAd0n44QTVxtiTClZC+19QfAC3xfaTxMJVGabr1cTD6nr/W5
-         aEuSYQEf9+bhP61WoYZexqSB29i/l/m0kztz7JdUr8NZQX/AHU0kyIfQKBGBf7MEl0
-         W5lBopEj6s4+GYFlTjQULTcSjpGuxFxRUOynQdKM=
+        b=Ew75sL0wO3DbyMY+9ySNo9yAkho3hQd4BQMKeHLf3/bAi/l/TIRvUi24kZGqM2999
+         /uqQ4qxrnkhPfj7FabC2kj9Yn6GOcbW0toc8xkNV9fLPW6N5Sx8u2dZhvHyjUE0PXT
+         M407P7ROvqHpZBsgiL8b+9BnujYOtA1kQ7ksk4RA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Stafford Horne <shorne@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 173/252] openrisc: Define memory barrier mb
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 081/177] net: dsa: sja1105: error out on unsupported PHY mode
 Date:   Mon, 31 May 2021 15:13:58 +0200
-Message-Id: <20210531130703.887278106@linuxfoundation.org>
+Message-Id: <20210531130650.706192588@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,48 +39,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 8b549c18ae81dbc36fb11e4aa08b8378c599ca95 ]
+commit 6729188d2646709941903052e4b78e1d82c239b9 upstream.
 
-This came up in the discussion of the requirements of qspinlock on an
-architecture.  OpenRISC uses qspinlock, but it was noticed that the
-memmory barrier was not defined.
+The driver continues probing when a port is configured for an
+unsupported PHY interface type, instead it should stop.
 
-Peter defined it in the mail thread writing:
-
-    As near as I can tell this should do. The arch spec only lists
-    this one instruction and the text makes it sound like a completion
-    barrier.
-
-This is correct so applying this patch.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-[shorne@gmail.com:Turned the mail into a patch]
-Signed-off-by: Stafford Horne <shorne@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/openrisc/include/asm/barrier.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
- create mode 100644 arch/openrisc/include/asm/barrier.h
+ drivers/net/dsa/sja1105/sja1105_main.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
-new file mode 100644
-index 000000000000..7538294721be
---- /dev/null
-+++ b/arch/openrisc/include/asm/barrier.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_BARRIER_H
-+#define __ASM_BARRIER_H
-+
-+#define mb() asm volatile ("l.msync" ::: "memory")
-+
-+#include <asm-generic/barrier.h>
-+
-+#endif /* __ASM_BARRIER_H */
--- 
-2.30.2
-
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -178,6 +178,7 @@ static int sja1105_init_mii_settings(str
+ 		default:
+ 			dev_err(dev, "Unsupported PHY mode %s!\n",
+ 				phy_modes(ports[i].phy_mode));
++			return -EINVAL;
+ 		}
+ 
+ 		mii->phy_mac[i] = ports[i].role;
 
 
