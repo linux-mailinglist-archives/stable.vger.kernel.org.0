@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7197B395BA6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D537B395D3C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232214AbhEaNXF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:23:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S232132AbhEaNnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:43:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232042AbhEaNVB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:21:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ED3BC6124C;
-        Mon, 31 May 2021 13:18:49 +0000 (UTC)
+        id S232624AbhEaNlJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:41:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EA6661460;
+        Mon, 31 May 2021 13:27:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467130;
-        bh=qV6TjxRzFkTszZxjTSxMjoDNCeRNFJ1aKFDu2S8CsF8=;
+        s=korg; t=1622467675;
+        bh=k5A3H3REnK5KkvSyWYlgxwEuPJD3vdtkKgliojMJyjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vKC3iQwnEZ4dL7664+Bc/31b3JQ3T5p82r3nVwBzgyqxRV763VXYU0Vy+TfuO76xj
-         yVd/f2EJXFGnQXRWFRHiWK7n2blHUXAUddKBpQwRsWZ1DCJbk1MqzcbAviHcZNz1tG
-         a+PFwuZzi61DIws4FL1Ua7N5EOGXX10kkyV9qQxE=
+        b=H3byL2bpDOC8Z/QWwFGohYVhswz1FhmfM56+wYn4vga8X1/rb7P0VQSExyI56DpkL
+         E/AIUoPWCnvmVKcOUPDCBZyZD3BFQVApiP5fOqpiBmlPqTp7+Cg0u7agb2y1YsOPO9
+         dn0DLPHoIRj5tnFut6q5u2NxZkHOHy3gYZViDZjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: [PATCH 4.9 16/66] misc/uss720: fix memory leak in uss720_probe
+        stable@vger.kernel.org, Felipe Balbi <balbi@kernel.org>,
+        Jack Pham <jackp@codeaurora.org>
+Subject: [PATCH 4.14 04/79] usb: dwc3: gadget: Enable suspend events
 Date:   Mon, 31 May 2021 15:13:49 +0200
-Message-Id: <20210531130636.775142341@linuxfoundation.org>
+Message-Id: <20210531130636.143877931@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Jack Pham <jackp@codeaurora.org>
 
-commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
+commit d1d90dd27254c44d087ad3f8b5b3e4fff0571f45 upstream.
 
-uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
-Fix this by decreasing the refcount of usbdev by usb_put_dev.
+commit 72704f876f50 ("dwc3: gadget: Implement the suspend entry event
+handler") introduced (nearly 5 years ago!) an interrupt handler for
+U3/L1-L2 suspend events.  The problem is that these events aren't
+currently enabled in the DEVTEN register so the handler is never
+even invoked.  Fix this simply by enabling the corresponding bit
+in dwc3_gadget_enable_irq() using the same revision check as found
+in the handler.
 
-BUG: memory leak
-unreferenced object 0xffff888101113800 (size 2048):
-  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
-    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
-  backtrace:
-    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
-    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
-    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
-    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
-    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
-    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
-    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
-    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
-    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
-    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
-
-Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
+Fixes: 72704f876f50 ("dwc3: gadget: Implement the suspend entry event handler")
+Acked-by: Felipe Balbi <balbi@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
 Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20210428090111.3370-1-jackp@codeaurora.org
+[jackp@codeaurora.org: backport to pre-5.7 by replacing
+ DWC3_IS_VER_PRIOR check with direct comparison of dwc->revision]
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/uss720.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/dwc3/gadget.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -750,6 +750,7 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -1829,6 +1829,10 @@ static void dwc3_gadget_enable_irq(struc
+ 	if (dwc->revision < DWC3_REVISION_250A)
+ 		reg |= DWC3_DEVTEN_ULSTCNGEN;
  
- 	usb_set_intfdata(intf, pp);
-+	usb_put_dev(usbdev);
- 	return 0;
++	/* On 2.30a and above this bit enables U3/L2-L1 Suspend Events */
++	if (dwc->revision >= DWC3_REVISION_230A)
++		reg |= DWC3_DEVTEN_EOPFEN;
++
+ 	dwc3_writel(dwc->regs, DWC3_DEVTEN, reg);
+ }
  
- probe_abort:
 
 
