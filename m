@@ -2,41 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CC1C8395BDB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 192A7395F04
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232140AbhEaNZZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55814 "EHLO mail.kernel.org"
+        id S231918AbhEaOGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37786 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231784AbhEaNXT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 812AC613EA;
-        Mon, 31 May 2021 13:19:49 +0000 (UTC)
+        id S233304AbhEaOEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:04:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77F0C61955;
+        Mon, 31 May 2021 13:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467190;
-        bh=MMnFp0T8Q5Qa7GEVvTicWKpu6W2R1PK1VHfWtYeSJy4=;
+        s=korg; t=1622468285;
+        bh=o19B04rDSAAxX/tFaxndazizN7mBByLIkn3rVKEeiCs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tiorAll7X6fe9tDBoVHoXUEoHCabg/EMnlIwnsSN28cnOJJoh9lSANLjntYzTGd/a
-         32onf9jsISU3+7ip0Y4BkcJQsON1+B+D/ufI4+WoXMGmPXEvVpaFEc8kgDXwDCiqBV
-         BZ/JNfxl/bpDJdc83LmTbEwiFONrVrCNwGj1Ew64=
+        b=Bj3mYa00D8JXhSn/yxHn5G6cJEypJZ8Vq7mzWFq6PkLVtktMGw1vuEKoQHApEdysu
+         idUHE6v6SOuJpr22a7/5pXqRT2v7lMlpYVDrfLWUwxqCeS/Mf+W5lKlIWpTEb4FopH
+         OM5Qnk/u2XkZpZ6MMA0NyUTewXofxBYWeo9qE94E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 4.9 37/66] perf jevents: Fix getting maximum number of fds
+        stable@vger.kernel.org,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 185/252] drm/amdgpu: stop touching sched.ready in the backend
 Date:   Mon, 31 May 2021 15:14:10 +0200
-Message-Id: <20210531130637.433041731@linuxfoundation.org>
+Message-Id: <20210531130704.291953609@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,41 +41,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Christian König <christian.koenig@amd.com>
 
-commit 75ea44e356b5de8c817f821c9dd68ae329e82add upstream.
+[ Upstream commit a2b4785f01280a4291edb9fda69032fc2e4bfd3f ]
 
-On some hosts, rlim.rlim_max can be returned as RLIM_INFINITY.
-By casting it to int, it is interpreted as -1, which will cause get_maxfds
-to return 0, causing "Invalid argument" errors in nftw() calls.
-Fix this by casting the second argument of min() to rlim_t instead.
+This unfortunately comes up in regular intervals and breaks
+GPU reset for the engine in question.
 
-Fixes: 80eeb67fe577 ("perf jevents: Program to convert JSON file")
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
-Link: http://lore.kernel.org/lkml/20210525160758.97829-1-nbd@nbd.name
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The sched.ready flag controls if an engine can't get working
+during hw_init, but should never be set to false during hw_fini.
+
+v2: squash in unused variable fix (Alex)
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/pmu-events/jevents.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c | 2 --
+ drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c | 2 --
+ drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 5 -----
+ drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c  | 8 +-------
+ 4 files changed, 1 insertion(+), 16 deletions(-)
 
---- a/tools/perf/pmu-events/jevents.c
-+++ b/tools/perf/pmu-events/jevents.c
-@@ -603,7 +603,7 @@ static int get_maxfds(void)
- 	struct rlimit rlim;
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+index 845306f63cdb..63b350182389 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
+@@ -198,8 +198,6 @@ static int jpeg_v2_5_hw_fini(void *handle)
+ 		if (adev->jpeg.cur_state != AMD_PG_STATE_GATE &&
+ 		      RREG32_SOC15(JPEG, i, mmUVD_JRBC_STATUS))
+ 			jpeg_v2_5_set_powergating_state(adev, AMD_PG_STATE_GATE);
+-
+-		ring->sched.ready = false;
+ 	}
  
- 	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
--		return min((int)rlim.rlim_max / 2, 512);
-+		return min(rlim.rlim_max / 2, (rlim_t)512);
+ 	return 0;
+diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
+index 3a0dff53654d..9259e35f0f55 100644
+--- a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
+@@ -166,8 +166,6 @@ static int jpeg_v3_0_hw_fini(void *handle)
+ 	      RREG32_SOC15(JPEG, 0, mmUVD_JRBC_STATUS))
+ 		jpeg_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
  
- 	return 512;
+-	ring->sched.ready = false;
+-
+ 	return 0;
  }
+ 
+diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+index 2a485052e3ab..1bd330d43147 100644
+--- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
++++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
+@@ -476,11 +476,6 @@ static void sdma_v5_2_gfx_stop(struct amdgpu_device *adev)
+ 		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
+ 		WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_IB_CNTL), ib_cntl);
+ 	}
+-
+-	sdma0->sched.ready = false;
+-	sdma1->sched.ready = false;
+-	sdma2->sched.ready = false;
+-	sdma3->sched.ready = false;
+ }
+ 
+ /**
+diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+index b5f8f3d731cb..700621ddc02e 100644
+--- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
+@@ -346,7 +346,7 @@ static int vcn_v3_0_hw_fini(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
+ 	struct amdgpu_ring *ring;
+-	int i, j;
++	int i;
+ 
+ 	for (i = 0; i < adev->vcn.num_vcn_inst; ++i) {
+ 		if (adev->vcn.harvest_config & (1 << i))
+@@ -361,12 +361,6 @@ static int vcn_v3_0_hw_fini(void *handle)
+ 				vcn_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
+ 			}
+ 		}
+-		ring->sched.ready = false;
+-
+-		for (j = 0; j < adev->vcn.num_enc_rings; ++j) {
+-			ring = &adev->vcn.inst[i].ring_enc[j];
+-			ring->sched.ready = false;
+-		}
+ 	}
+ 
+ 	return 0;
+-- 
+2.30.2
+
 
 
