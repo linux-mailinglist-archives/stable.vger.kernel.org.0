@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 31C50396145
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:36:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D8621395DBF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233765AbhEaOht (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:37:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59608 "EHLO mail.kernel.org"
+        id S230104AbhEaNuu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:50:50 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232180AbhEaOfj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:35:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8007C61C4C;
-        Mon, 31 May 2021 13:51:15 +0000 (UTC)
+        id S232394AbhEaNrC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 30F3761606;
+        Mon, 31 May 2021 13:30:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469076;
-        bh=bn9Yfc60NCXCqvjOeeCmlfBl45qIlI/F7Dn3brpeL7c=;
+        s=korg; t=1622467824;
+        bh=XSgpYZSS1A43AEYXwsuaBxUBHSVjgtsQgACDshoxKDc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B0KL793YtMXnIlKi3Gwz485NCKO+YvyLTkZiHUiky+FAzgBc74Z2TgyM7Q65qOBs0
-         R2j6Y3FXGJQAEDCG+P6nQdC8aKeZ1uUTPLn78A/U5ZHiNhsrY1JRY0UUQGu83aQpaR
-         AAkqRqlsNo9CjJgPV9Mc4JTA6Dc9mO6uzwlR8lX0=
+        b=s9JiQWxFmeEN0z0ASnmCvmjAnesjAckBCiXVvneIBwsyuw2ekEm42f/VR/mw2yqJq
+         9HoC/kizINVbmew5YdC/6k0STL5tEc51FDGYcYLsstexltkkNGhJXJUGbX3ODlzzcw
+         yECuz7qojT5nFXXK2ybz7lmr7aQA9Ft+0D0/UTTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Jiri Olsa <jolsa@redhat.com>,
         Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.12 025/296] perf intel-pt: Fix sample instruction bytes
+Subject: [PATCH 5.10 015/252] perf scripts python: exported-sql-viewer.py: Fix copy to clipboard from Top Calls by elapsed Time report
 Date:   Mon, 31 May 2021 15:11:20 +0200
-Message-Id: <20210531130704.627016278@linuxfoundation.org>
+Message-Id: <20210531130658.496894732@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,98 +42,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adrian Hunter <adrian.hunter@intel.com>
 
-commit c954eb72b31a9dc56c99b450253ec5b121add320 upstream.
+commit a6172059758ba1b496ae024cece7d5bdc8d017db upstream.
 
-The decoder reports the current instruction if it was decoded. In some
-cases the current instruction is not decoded, in which case the instruction
-bytes length must be set to zero. Ensure that is always done.
+Provide missing argument to prevent following error when copying a
+selection to the clipboard:
 
-Note perf script can anyway get the instruction bytes for any samples where
-they are not present.
+Traceback (most recent call last):
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4041, in <lambda>
+    menu.addAction(CreateAction("&Copy selection", "Copy to clipboard", lambda: CopyCellsToClipboardHdr(self.view), self.view))
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4021, in CopyCellsToClipboardHdr
+    CopyCellsToClipboard(view, False, True)
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 4018, in CopyCellsToClipboard
+    view.CopyCellsToClipboard(view, as_csv, with_hdr)
+  File "tools/perf/scripts/python/exported-sql-viewer.py", line 3871, in CopyTableCellsToClipboard
+    val = model.headerData(col, Qt.Horizontal)
+TypeError: headerData() missing 1 required positional argument: 'role'
 
-Also note, that there is a redundant "ptq->insn_len = 0" statement which is
-not removed until a subsequent patch in order to make this patch apply
-cleanly to stable branches.
-
-Example:
-
-A machne that supports TSX is required. It will have flag "rtm". Kernel
-parameter tsx=on may be required.
-
- # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
- rtm
-
-Test program:
-
- #include <stdio.h>
- #include <immintrin.h>
-
- int main()
- {
-        int x = 0;
-
-        if (_xbegin() == _XBEGIN_STARTED) {
-                x = 1;
-                _xabort(1);
-        } else {
-                printf("x = %d\n", x);
-        }
-        return 0;
- }
-
-Compile with -mrtm i.e.
-
- gcc -Wall -Wextra -mrtm xabort.c -o xabort
-
-Record:
-
- perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
-
-Before:
-
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          mov $0xffffffff, %eax
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          mov $0xffffffff, %eax
-
-After:
-
- # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
-          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          xbegin 0x6
-          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          xabort $0x1
-
-Fixes: faaa87680b25d ("perf intel-pt/bts: Report instruction bytes and length in sample")
+Fixes: 96c43b9a7ab3b ("perf scripts python: exported-sql-viewer.py: Add copy to clipboard")
 Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
 Cc: Jiri Olsa <jolsa@redhat.com>
 Cc: stable@vger.kernel.org
-Link: http://lore.kernel.org/lkml/20210519074515.9262-3-adrian.hunter@intel.com
+Link: http://lore.kernel.org/lkml/20210521092053.25683-2-adrian.hunter@intel.com
 Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/util/intel-pt.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/perf/scripts/python/exported-sql-viewer.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/tools/perf/util/intel-pt.c
-+++ b/tools/perf/util/intel-pt.c
-@@ -707,8 +707,10 @@ static int intel_pt_walk_next_insn(struc
- 
- 			*ip += intel_pt_insn->length;
- 
--			if (to_ip && *ip == to_ip)
-+			if (to_ip && *ip == to_ip) {
-+				intel_pt_insn->length = 0;
- 				goto out_no_cache;
-+			}
- 
- 			if (*ip >= al.map->end)
- 				break;
-@@ -1198,6 +1200,7 @@ static void intel_pt_set_pid_tid_cpu(str
- 
- static void intel_pt_sample_flags(struct intel_pt_queue *ptq)
- {
-+	ptq->insn_len = 0;
- 	if (ptq->state->flags & INTEL_PT_ABORT_TX) {
- 		ptq->flags = PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT;
- 	} else if (ptq->state->flags & INTEL_PT_ASYNC) {
+--- a/tools/perf/scripts/python/exported-sql-viewer.py
++++ b/tools/perf/scripts/python/exported-sql-viewer.py
+@@ -3868,7 +3868,7 @@ def CopyTableCellsToClipboard(view, as_c
+ 	if with_hdr:
+ 		model = indexes[0].model()
+ 		for col in range(min_col, max_col + 1):
+-			val = model.headerData(col, Qt.Horizontal)
++			val = model.headerData(col, Qt.Horizontal, Qt.DisplayRole)
+ 			if as_csv:
+ 				text += sep + ToCSValue(val)
+ 				sep = ","
 
 
