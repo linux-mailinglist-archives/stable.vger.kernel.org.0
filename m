@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B01A39610C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:33:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A8E3E395DEB
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232515AbhEaOfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:35:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
+        id S232032AbhEaNvt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55360 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233790AbhEaOdG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:33:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 039B76103E;
-        Mon, 31 May 2021 13:49:46 +0000 (UTC)
+        id S232997AbhEaNto (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:49:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9779761423;
+        Mon, 31 May 2021 13:31:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468987;
-        bh=u6TgoZ0K28l+UN68umsfGYwPBSs31uoQ2h/44usjM7U=;
+        s=korg; t=1622467906;
+        bh=AmrhDOsbgb8ET6hHVS+twAXyCohgKOjmLp+05L67JBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hu5bFKMgpi9nwPZfWEwMXIbEQO+K6pl1Ee1VWs/DWjbnQwsiUNXCL11YvWmrR70qQ
-         LUc6+h+a80dqqCC5L0+8iVvjruvgcmxgv/k2txn7G5MqmzhfUaJc98CSwpPc7nMT+a
-         YTo35hm5RpZbrHJ+fYfrkIPAhXTBJvd90gn56PvY=
+        b=0pslpdRPSHcNUSScS3Pe5X+pV5f7EJfcp6iX6CLsqtP7GeF8R2nJSDVOL7uV/8h97
+         lN2MwFKEScvOYjdKYInCIhtNjG5yamZgarcZT6EF/UsB+15OKw5bM/qSOim5tSWE8r
+         XekmofAx3pbeF7TMRG1W/85L47B09A1XVgoqsljs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.12 019/296] mtd: rawnand: fsmc: Fix external use of SW Hamming ECC helper
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 009/252] ALSA: usb-audio: scarlett2: Improve driver startup messages
 Date:   Mon, 31 May 2021 15:11:14 +0200
-Message-Id: <20210531130704.407146577@linuxfoundation.org>
+Message-Id: <20210531130658.294375327@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,60 +39,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-commit ad9ffdce453934cdc22fac0a0268119bd630260f upstream.
+commit 265d1a90e4fb6d3264d8122fbd10760e5e733be6 upstream.
 
-Since the Hamming software ECC engine has been updated to become a
-proper and independent ECC engine, it is now mandatory to either
-initialize the engine before using any one of his functions or use one
-of the bare helpers which only perform the calculations. As there is no
-actual need for a proper ECC initialization, let's just use the bare
-helper instead of the rawnand one.
+Add separate init function to call the existing controls_create
+function so a custom error can be displayed if initialisation fails.
 
-Fixes: 90ccf0a0192f ("mtd: nand: ecc-hamming: Rename the exported functions")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210413161840.345208-3-miquel.raynal@bootlin.com
+Use info level instead of error for notifications.
+
+Display the VID/PID so device_setup is targeted to the right device.
+
+Display "enabled" message to easily confirm that the driver is loaded.
+
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/b5d140c65f640faf2427e085fbbc0297b32e5fce.1621584566.git.g@b4.vu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/fsmc_nand.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ sound/usb/mixer_quirks.c        |    2 -
+ sound/usb/mixer_scarlett_gen2.c |   79 +++++++++++++++++++++++++---------------
+ sound/usb/mixer_scarlett_gen2.h |    2 -
+ 3 files changed, 52 insertions(+), 31 deletions(-)
 
---- a/drivers/mtd/nand/raw/fsmc_nand.c
-+++ b/drivers/mtd/nand/raw/fsmc_nand.c
-@@ -25,6 +25,7 @@
- #include <linux/sched.h>
- #include <linux/types.h>
- #include <linux/mtd/mtd.h>
-+#include <linux/mtd/nand-ecc-sw-hamming.h>
- #include <linux/mtd/rawnand.h>
- #include <linux/platform_device.h>
- #include <linux/of.h>
-@@ -432,6 +433,15 @@ static int fsmc_read_hwecc_ecc1(struct n
- 	return 0;
+--- a/sound/usb/mixer_quirks.c
++++ b/sound/usb/mixer_quirks.c
+@@ -3017,7 +3017,7 @@ int snd_usb_mixer_apply_create_quirk(str
+ 	case USB_ID(0x1235, 0x8203): /* Focusrite Scarlett 6i6 2nd Gen */
+ 	case USB_ID(0x1235, 0x8204): /* Focusrite Scarlett 18i8 2nd Gen */
+ 	case USB_ID(0x1235, 0x8201): /* Focusrite Scarlett 18i20 2nd Gen */
+-		err = snd_scarlett_gen2_controls_create(mixer);
++		err = snd_scarlett_gen2_init(mixer);
+ 		break;
+ 
+ 	case USB_ID(0x041e, 0x323b): /* Creative Sound Blaster E1 */
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -1997,38 +1997,11 @@ static int scarlett2_mixer_status_create
+ 	return usb_submit_urb(mixer->urb, GFP_KERNEL);
  }
  
-+static int fsmc_correct_ecc1(struct nand_chip *chip,
-+			     unsigned char *buf,
-+			     unsigned char *read_ecc,
-+			     unsigned char *calc_ecc)
-+{
-+	return ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
-+				      chip->ecc.size, false);
-+}
-+
- /* Count the number of 0's in buff upto a max of max_bits */
- static int count_written_bits(u8 *buff, int size, int max_bits)
+-/* Entry point */
+-int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer)
++int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer,
++				      const struct scarlett2_device_info *info)
  {
-@@ -917,7 +927,7 @@ static int fsmc_nand_attach_chip(struct
- 	case NAND_ECC_ENGINE_TYPE_ON_HOST:
- 		dev_info(host->dev, "Using 1-bit HW ECC scheme\n");
- 		nand->ecc.calculate = fsmc_read_hwecc_ecc1;
--		nand->ecc.correct = rawnand_sw_hamming_correct;
-+		nand->ecc.correct = fsmc_correct_ecc1;
- 		nand->ecc.hwctl = fsmc_enable_hwecc;
- 		nand->ecc.bytes = 3;
- 		nand->ecc.strength = 1;
+-	const struct scarlett2_device_info *info;
+ 	int err;
+ 
+-	/* only use UAC_VERSION_2 */
+-	if (!mixer->protocol)
+-		return 0;
+-
+-	switch (mixer->chip->usb_id) {
+-	case USB_ID(0x1235, 0x8203):
+-		info = &s6i6_gen2_info;
+-		break;
+-	case USB_ID(0x1235, 0x8204):
+-		info = &s18i8_gen2_info;
+-		break;
+-	case USB_ID(0x1235, 0x8201):
+-		info = &s18i20_gen2_info;
+-		break;
+-	default: /* device not (yet) supported */
+-		return -EINVAL;
+-	}
+-
+-	if (!(mixer->chip->setup & SCARLETT2_ENABLE)) {
+-		usb_audio_err(mixer->chip,
+-			"Focusrite Scarlett Gen 2 Mixer Driver disabled; "
+-			"use options snd_usb_audio device_setup=1 "
+-			"to enable and report any issues to g@b4.vu");
+-		return 0;
+-	}
+-
+ 	/* Initialise private data, routing, sequence number */
+ 	err = scarlett2_init_private(mixer, info);
+ 	if (err < 0)
+@@ -2073,3 +2046,51 @@ int snd_scarlett_gen2_controls_create(st
+ 
+ 	return 0;
+ }
++
++int snd_scarlett_gen2_init(struct usb_mixer_interface *mixer)
++{
++	struct snd_usb_audio *chip = mixer->chip;
++	const struct scarlett2_device_info *info;
++	int err;
++
++	/* only use UAC_VERSION_2 */
++	if (!mixer->protocol)
++		return 0;
++
++	switch (chip->usb_id) {
++	case USB_ID(0x1235, 0x8203):
++		info = &s6i6_gen2_info;
++		break;
++	case USB_ID(0x1235, 0x8204):
++		info = &s18i8_gen2_info;
++		break;
++	case USB_ID(0x1235, 0x8201):
++		info = &s18i20_gen2_info;
++		break;
++	default: /* device not (yet) supported */
++		return -EINVAL;
++	}
++
++	if (!(chip->setup & SCARLETT2_ENABLE)) {
++		usb_audio_info(chip,
++			"Focusrite Scarlett Gen 2 Mixer Driver disabled; "
++			"use options snd_usb_audio vid=0x%04x pid=0x%04x "
++			"device_setup=1 to enable and report any issues "
++			"to g@b4.vu",
++			USB_ID_VENDOR(chip->usb_id),
++			USB_ID_PRODUCT(chip->usb_id));
++		return 0;
++	}
++
++	usb_audio_info(chip,
++		"Focusrite Scarlett Gen 2 Mixer Driver enabled pid=0x%04x",
++		USB_ID_PRODUCT(chip->usb_id));
++
++	err = snd_scarlett_gen2_controls_create(mixer, info);
++	if (err < 0)
++		usb_audio_err(mixer->chip,
++			      "Error initialising Scarlett Mixer Driver: %d",
++			      err);
++
++	return err;
++}
+--- a/sound/usb/mixer_scarlett_gen2.h
++++ b/sound/usb/mixer_scarlett_gen2.h
+@@ -2,6 +2,6 @@
+ #ifndef __USB_MIXER_SCARLETT_GEN2_H
+ #define __USB_MIXER_SCARLETT_GEN2_H
+ 
+-int snd_scarlett_gen2_controls_create(struct usb_mixer_interface *mixer);
++int snd_scarlett_gen2_init(struct usb_mixer_interface *mixer);
+ 
+ #endif /* __USB_MIXER_SCARLETT_GEN2_H */
 
 
