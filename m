@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E187395C37
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E025396205
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231842AbhEaNaB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:30:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        id S232598AbhEaOty (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:49:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232233AbhEaN1o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:27:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB61B61411;
-        Mon, 31 May 2021 13:21:52 +0000 (UTC)
+        id S233815AbhEaOrj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E63606191E;
+        Mon, 31 May 2021 13:56:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467313;
-        bh=bheYGG7vuUwa7yhKOAyYQmPLaWEEOI/9mYqtVVQsg8U=;
+        s=korg; t=1622469378;
+        bh=f7xo5Baq/NNGrrGMaFEX6Kfo0QCLpjcjety3hgUcbks=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TZqLhqHCo9jE82xOj2voEgJ0S5zdJzhw9GWvPIA6woMhd0waPktn19OB9RQJlLqOW
-         r9HET/BlfwWDJaGLExHirnd4aDlDSzUVIlDo3C0zx7B3/xQTiotDMUDBZFj1a5miLc
-         Xp4NniDuOKcqxHUcuCRztq+9cJIXasoqVsvvGd7c=
+        b=iVOlVO9J/Qn4tBLkWasIj8/eQMj+oqqOBOTiflyg4viykXSH/z04W0nqNZrSp+1jw
+         IdVmyFFbLaoGx5CRrgqEa3BOMIP+1RGtlnOf+EqY/6FXpHtRatC1j2Dd0yx1kMwSjb
+         XvcYliLbPDj8z6PMmpk+xe7aOUn7vEoceF3AVGFE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.19 019/116] mac80211: do not accept/forward invalid EAPOL frames
+        stable@vger.kernel.org, DENG Qingfang <dqfext@gmail.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 140/296] net: dsa: mt7530: fix VLAN traffic leaks
 Date:   Mon, 31 May 2021 15:13:15 +0200
-Message-Id: <20210531130640.807868073@linuxfoundation.org>
+Message-Id: <20210531130708.586422546@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,103 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: DENG Qingfang <dqfext@gmail.com>
 
-commit a8c4d76a8dd4fb9666fc8919a703d85fb8f44ed8 upstream.
+commit 474a2ddaa192777522a7499784f1d60691cd831a upstream.
 
-EAPOL frames are used for authentication and key management between the
-AP and each individual STA associated in the BSS. Those frames are not
-supposed to be sent by one associated STA to another associated STA
-(either unicast for broadcast/multicast).
+PCR_MATRIX field was set to all 1's when VLAN filtering is enabled, but
+was not reset when it is disabled, which may cause traffic leaks:
 
-Similarly, in 802.11 they're supposed to be sent to the authenticator
-(AP) address.
+	ip link add br0 type bridge vlan_filtering 1
+	ip link add br1 type bridge vlan_filtering 1
+	ip link set swp0 master br0
+	ip link set swp1 master br1
+	ip link set br0 type bridge vlan_filtering 0
+	ip link set br1 type bridge vlan_filtering 0
+	# traffic in br0 and br1 will start leaking to each other
 
-Since it is possible for unexpected EAPOL frames to result in misbehavior
-in supplicant implementations, it is better for the AP to not allow such
-cases to be forwarded to other clients either directly, or indirectly if
-the AP interface is part of a bridge.
+As port_bridge_{add,del} have set up PCR_MATRIX properly, remove the
+PCR_MATRIX write from mt7530_port_set_vlan_aware.
 
-Accept EAPOL (control port) frames only if they're transmitted to the
-own address, or, due to interoperability concerns, to the PAE group
-address.
-
-Disable forwarding of EAPOL (or well, the configured control port
-protocol) frames back to wireless medium in all cases. Previously, these
-frames were accepted from fully authenticated and authorized stations
-and also from unauthenticated stations for one of the cases.
-
-Additionally, to avoid forwarding by the bridge, rewrite the PAE group
-address case to the local MAC address.
-
-Cc: stable@vger.kernel.org
-Co-developed-by: Jouni Malinen <jouni@codeaurora.org>
-Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.cb327ed0cabe.Ib7dcffa2a31f0913d660de65ba3c8aca75b1d10f@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Fixes: 83163f7dca56 ("net: dsa: mediatek: add VLAN support for MT7530")
+Signed-off-by: DENG Qingfang <dqfext@gmail.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ drivers/net/dsa/mt7530.c |    8 --------
+ 1 file changed, 8 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2408,13 +2408,13 @@ static bool ieee80211_frame_allowed(stru
- 	struct ethhdr *ehdr = (struct ethhdr *) rx->skb->data;
+--- a/drivers/net/dsa/mt7530.c
++++ b/drivers/net/dsa/mt7530.c
+@@ -1214,14 +1214,6 @@ mt7530_port_set_vlan_aware(struct dsa_sw
+ {
+ 	struct mt7530_priv *priv = ds->priv;
  
- 	/*
--	 * Allow EAPOL frames to us/the PAE group address regardless
--	 * of whether the frame was encrypted or not.
-+	 * Allow EAPOL frames to us/the PAE group address regardless of
-+	 * whether the frame was encrypted or not, and always disallow
-+	 * all other destination addresses for them.
- 	 */
--	if (ehdr->h_proto == rx->sdata->control_port_protocol &&
--	    (ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
--	     ether_addr_equal(ehdr->h_dest, pae_group_addr)))
--		return true;
-+	if (unlikely(ehdr->h_proto == rx->sdata->control_port_protocol))
-+		return ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
-+		       ether_addr_equal(ehdr->h_dest, pae_group_addr);
- 
- 	if (ieee80211_802_1x_port_control(rx) ||
- 	    ieee80211_drop_unencrypted(rx, fc))
-@@ -2438,8 +2438,28 @@ static void ieee80211_deliver_skb_to_loc
- 		cfg80211_rx_control_port(dev, skb, noencrypt);
- 		dev_kfree_skb(skb);
- 	} else {
-+		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
-+
- 		memset(skb->cb, 0, sizeof(skb->cb));
- 
-+		/*
-+		 * 802.1X over 802.11 requires that the authenticator address
-+		 * be used for EAPOL frames. However, 802.1X allows the use of
-+		 * the PAE group address instead. If the interface is part of
-+		 * a bridge and we pass the frame with the PAE group address,
-+		 * then the bridge will forward it to the network (even if the
-+		 * client was not associated yet), which isn't supposed to
-+		 * happen.
-+		 * To avoid that, rewrite the destination address to our own
-+		 * address, so that the authenticator (e.g. hostapd) will see
-+		 * the frame, but bridge won't forward it anywhere else. Note
-+		 * that due to earlier filtering, the only other address can
-+		 * be the PAE group address.
-+		 */
-+		if (unlikely(skb->protocol == sdata->control_port_protocol &&
-+			     !ether_addr_equal(ehdr->h_dest, sdata->vif.addr)))
-+			ether_addr_copy(ehdr->h_dest, sdata->vif.addr);
-+
- 		/* deliver to local stack */
- 		if (rx->napi)
- 			napi_gro_receive(rx->napi, skb);
-@@ -2479,6 +2499,7 @@ ieee80211_deliver_skb(struct ieee80211_r
- 	if ((sdata->vif.type == NL80211_IFTYPE_AP ||
- 	     sdata->vif.type == NL80211_IFTYPE_AP_VLAN) &&
- 	    !(sdata->flags & IEEE80211_SDATA_DONT_BRIDGE_PACKETS) &&
-+	    ehdr->h_proto != rx->sdata->control_port_protocol &&
- 	    (sdata->vif.type != NL80211_IFTYPE_AP_VLAN || !sdata->u.vlan.sta)) {
- 		if (is_multicast_ether_addr(ehdr->h_dest) &&
- 		    ieee80211_vif_get_num_mcast_if(sdata) != 0) {
+-	/* The real fabric path would be decided on the membership in the
+-	 * entry of VLAN table. PCR_MATRIX set up here with ALL_MEMBERS
+-	 * means potential VLAN can be consisting of certain subset of all
+-	 * ports.
+-	 */
+-	mt7530_rmw(priv, MT7530_PCR_P(port),
+-		   PCR_MATRIX_MASK, PCR_MATRIX(MT7530_ALL_MEMBERS));
+-
+ 	/* Trapped into security mode allows packet forwarding through VLAN
+ 	 * table lookup. CPU port is set to fallback mode to let untagged
+ 	 * frames pass through.
 
 
