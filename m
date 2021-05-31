@@ -2,28 +2,28 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CD4513968DA
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 22:31:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F0F63968DF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 22:31:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232228AbhEaUc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 16:32:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38940 "EHLO
+        id S232123AbhEaUdA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 16:33:00 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232123AbhEaUcs (ORCPT
+        with ESMTP id S232142AbhEaUcs (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 16:32:48 -0400
 Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2CB42C061756;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8882DC061760;
         Mon, 31 May 2021 13:30:31 -0700 (PDT)
 Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
         (Exim 4.94.2)
         (envelope-from <johannes@sipsolutions.net>)
-        id 1lnoYP-000F87-AE; Mon, 31 May 2021 22:30:29 +0200
+        id 1lnoYP-000F87-L1; Mon, 31 May 2021 22:30:29 +0200
 From:   Johannes Berg <johannes@sipsolutions.net>
 To:     linux-wireless@vger.kernel.org
 Cc:     stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Subject: [PATCH v4.9 02/10] mac80211: prevent mixed key and fragment cache attacks
-Date:   Mon, 31 May 2021 22:30:13 +0200
-Message-Id: <20210531203021.180010-3-johannes@sipsolutions.net>
+Subject: [PATCH v4.9 03/10] mac80211: properly handle A-MSDUs that start with an RFC 1042 header
+Date:   Mon, 31 May 2021 22:30:14 +0200
+Message-Id: <20210531203021.180010-4-johannes@sipsolutions.net>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531203021.180010-1-johannes@sipsolutions.net>
 References: <20210531203021.180010-1-johannes@sipsolutions.net>
@@ -35,105 +35,83 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 94034c40ab4a3fcf581fbc7f8fdf4e29943c4a24 upstream.
+commit a1d5ff5651ea592c67054233b14b30bf4452999c upstream.
 
-Simultaneously prevent mixed key attacks (CVE-2020-24587) and fragment
-cache attacks (CVE-2020-24586). This is accomplished by assigning a
-unique color to every key (per interface) and using this to track which
-key was used to decrypt a fragment. When reassembling frames, it is
-now checked whether all fragments were decrypted using the same key.
-
-To assure that fragment cache attacks are also prevented, the ID that is
-assigned to keys is unique even over (re)associations and (re)connects.
-This means fragments separated by a (re)association or (re)connect will
-not be reassembled. Because mac80211 now also prevents the reassembly of
-mixed encrypted and plaintext fragments, all cache attacks are prevented.
+Properly parse A-MSDUs whose first 6 bytes happen to equal a rfc1042
+header. This can occur in practice when the destination MAC address
+equals AA:AA:03:00:00:00. More importantly, this simplifies the next
+patch to mitigate A-MSDU injection attacks.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.3f8290e59823.I622a67769ed39257327a362cfc09c812320eb979@changeid
+Link: https://lore.kernel.org/r/20210511200110.0b2b886492f0.I23dd5d685fe16d3b0ec8106e8f01b59f499dffed@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 ---
- net/mac80211/ieee80211_i.h | 1 +
- net/mac80211/key.c         | 7 +++++++
- net/mac80211/key.h         | 2 ++
- net/mac80211/rx.c          | 6 ++++++
- 4 files changed, 16 insertions(+)
+ include/net/cfg80211.h | 5 +++--
+ net/mac80211/rx.c      | 3 ++-
+ net/wireless/util.c    | 5 +++--
+ 3 files changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 9c20c53f6729..5bca7994b58c 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -97,6 +97,7 @@ struct ieee80211_fragment_entry {
- 	u8 rx_queue;
- 	bool check_sequential_pn; /* needed for CCMP/GCMP */
- 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
-+	unsigned int key_color;
- };
+diff --git a/include/net/cfg80211.h b/include/net/cfg80211.h
+index 28a0d7a8c142..ba388549b38c 100644
+--- a/include/net/cfg80211.h
++++ b/include/net/cfg80211.h
+@@ -4056,7 +4056,8 @@ unsigned int ieee80211_get_mesh_hdrlen(struct ieee80211s_hdr *meshhdr);
+  * Return: 0 on success. Non-zero on error.
+  */
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+-				  const u8 *addr, enum nl80211_iftype iftype);
++				  const u8 *addr, enum nl80211_iftype iftype,
++				  bool is_amsdu);
  
- 
-diff --git a/net/mac80211/key.c b/net/mac80211/key.c
-index 6e02f8dfce2b..4e23f240f599 100644
---- a/net/mac80211/key.c
-+++ b/net/mac80211/key.c
-@@ -647,6 +647,7 @@ int ieee80211_key_link(struct ieee80211_key *key,
- 		       struct sta_info *sta)
+ /**
+  * ieee80211_data_to_8023 - convert an 802.11 data frame to 802.3
+@@ -4068,7 +4069,7 @@ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ static inline int ieee80211_data_to_8023(struct sk_buff *skb, const u8 *addr,
+ 					 enum nl80211_iftype iftype)
  {
- 	struct ieee80211_local *local = sdata->local;
-+	static atomic_t key_color = ATOMIC_INIT(0);
- 	struct ieee80211_key *old_key;
- 	int idx = key->conf.keyidx;
- 	bool pairwise = key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE;
-@@ -658,6 +659,12 @@ int ieee80211_key_link(struct ieee80211_key *key,
- 	bool delay_tailroom = sdata->vif.type == NL80211_IFTYPE_STATION;
- 	int ret;
+-	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype);
++	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, false);
+ }
  
-+	/*
-+	 * Assign a unique ID to every key so we can easily prevent mixed
-+	 * key and fragment cache attacks.
-+	 */
-+	key->color = atomic_inc_return(&key_color);
-+
- 	mutex_lock(&sdata->local->key_mtx);
- 
- 	if (sta && pairwise)
-diff --git a/net/mac80211/key.h b/net/mac80211/key.h
-index 4aa20cef0859..2749a7d05e76 100644
---- a/net/mac80211/key.h
-+++ b/net/mac80211/key.h
-@@ -127,6 +127,8 @@ struct ieee80211_key {
- 	} debugfs;
- #endif
- 
-+	unsigned int color;
-+
- 	/*
- 	 * key config, must be last because it contains key
- 	 * material as variable length member
+ /**
 diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
-index e5760492c27d..d3aee2859f0a 100644
+index d3aee2859f0a..6c54941a3265 100644
 --- a/net/mac80211/rx.c
 +++ b/net/mac80211/rx.c
-@@ -2004,6 +2004,7 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
- 			 * next fragment has a sequential PN value.
- 			 */
- 			entry->check_sequential_pn = true;
-+			entry->key_color = rx->key->color;
- 			memcpy(entry->last_pn,
- 			       rx->key->u.ccmp.rx_pn[queue],
- 			       IEEE80211_CCMP_PN_LEN);
-@@ -2041,6 +2042,11 @@ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+@@ -2428,7 +2428,8 @@ ieee80211_rx_h_amsdu(struct ieee80211_rx_data *rx)
  
- 		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
-+
-+		/* Prevent mixed key and fragment cache attacks */
-+		if (entry->key_color != rx->key->color)
-+			return RX_DROP_UNUSABLE;
-+
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
- 			pn[i]++;
+ 	if (ieee80211_data_to_8023_exthdr(skb, &ethhdr,
+ 					  rx->sdata->vif.addr,
+-					  rx->sdata->vif.type))
++					  rx->sdata->vif.type,
++					  true))
+ 		return RX_DROP_UNUSABLE;
+ 
+ 	ieee80211_amsdu_to_8023s(skb, &frame_list, dev->dev_addr,
+diff --git a/net/wireless/util.c b/net/wireless/util.c
+index 262922cf6a0c..8c67b7cf1def 100644
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -421,7 +421,8 @@ unsigned int ieee80211_get_mesh_hdrlen(struct ieee80211s_hdr *meshhdr)
+ EXPORT_SYMBOL(ieee80211_get_mesh_hdrlen);
+ 
+ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+-				  const u8 *addr, enum nl80211_iftype iftype)
++				  const u8 *addr, enum nl80211_iftype iftype,
++				  bool is_amsdu)
+ {
+ 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
+ 	struct {
+@@ -509,7 +510,7 @@ int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
+ 	skb_copy_bits(skb, hdrlen, &payload, sizeof(payload));
+ 	tmp.h_proto = payload.proto;
+ 
+-	if (likely((ether_addr_equal(payload.hdr, rfc1042_header) &&
++	if (likely((!is_amsdu && ether_addr_equal(payload.hdr, rfc1042_header) &&
+ 		    tmp.h_proto != htons(ETH_P_AARP) &&
+ 		    tmp.h_proto != htons(ETH_P_IPX)) ||
+ 		   ether_addr_equal(payload.hdr, bridge_tunnel_header)))
 -- 
 2.31.1
 
