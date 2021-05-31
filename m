@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E3D49395E8E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E2C7D3961CA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232322AbhEaOAf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:00:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60906 "EHLO mail.kernel.org"
+        id S231144AbhEaOqF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:46:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38038 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232992AbhEaN6b (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:58:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 53FB96193B;
-        Mon, 31 May 2021 13:35:37 +0000 (UTC)
+        id S233400AbhEaOnl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:43:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8EBC061C7B;
+        Mon, 31 May 2021 13:54:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468137;
-        bh=40J/3GWj3gKLWslHKs2Yo2Y6QSbX0dqakuseEQRoHDE=;
+        s=korg; t=1622469287;
+        bh=HiOvjCQCv3zPlI3AUKE8DHyP5utmuZ4ksqp3ezGvYmE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wk1aW+FJdvlX+S3Cfkk6lj5vkSiM9Z8l0ARatRytblvROUQ+f+PS5oLI9eIYvBiFl
-         oPg6wvrOVJGe8L8y7ty+Ta77ZX6EUraO4UvZ2jI1OJVgryVMXH9iwmFL7z35JQ0usT
-         HQvT4KIcf5onxAr0WvjAHeU7Z670se1w0HvMtQK8=
+        b=pGW1jfWcaWu/NcU53EAKUfnWNFi/OAfPjekc9vRt36wkiJDmih+4cgvx/veT642JB
+         QxSMjVyvNr+pX9DKmkQJJJ9qOqrFFtfFZ9o+s1O1EsaMZNE6ag6VMtpn+M4b9mppyV
+         P3tsdNuuCJ8WCYo+MrdB5mLjMvs45uYXyTU0pQcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zou Wei <zou_wei@huawei.com>,
-        Bartosz Golaszewski <bgolaszewski@baylibre.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 131/252] gpio: cadence: Add missing MODULE_DEVICE_TABLE
+        stable@vger.kernel.org, Florian Fainelli <f.fainelli@gmail.com>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 141/296] net: dsa: bcm_sf2: Fix bcm_sf2_reg_rgmii_cntrl() call for non-RGMII port
 Date:   Mon, 31 May 2021 15:13:16 +0200
-Message-Id: <20210531130702.460158818@linuxfoundation.org>
+Message-Id: <20210531130708.617807416@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zou Wei <zou_wei@huawei.com>
+From: Florian Fainelli <f.fainelli@gmail.com>
 
-[ Upstream commit 1e948b1752b58c9c570989ab29ceef5b38fdccda ]
+commit fc516d3a6aa2c6ffe27d0da8818d13839e023e7e upstream.
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+We cannot call bcm_sf2_reg_rgmii_cntrl() for a port that is not RGMII,
+yet we do that in bcm_sf2_sw_mac_link_up() irrespective of the port's
+interface. Move that read until we have properly qualified the PHY
+interface mode. This avoids triggering a warning on 7278 platforms that
+have GMII ports.
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zou Wei <zou_wei@huawei.com>
-Signed-off-by: Bartosz Golaszewski <bgolaszewski@baylibre.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 55cfeb396965 ("net: dsa: bcm_sf2: add function finding RGMII register")
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Acked-by: Rafał Miłecki <rafal@milecki.pl>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-cadence.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/dsa/bcm_sf2.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpio/gpio-cadence.c b/drivers/gpio/gpio-cadence.c
-index a4d3239d2594..4ab3fcd9b9ba 100644
---- a/drivers/gpio/gpio-cadence.c
-+++ b/drivers/gpio/gpio-cadence.c
-@@ -278,6 +278,7 @@ static const struct of_device_id cdns_of_ids[] = {
- 	{ .compatible = "cdns,gpio-r1p02" },
- 	{ /* sentinel */ },
- };
-+MODULE_DEVICE_TABLE(of, cdns_of_ids);
+--- a/drivers/net/dsa/bcm_sf2.c
++++ b/drivers/net/dsa/bcm_sf2.c
+@@ -775,11 +775,9 @@ static void bcm_sf2_sw_mac_link_up(struc
+ 	bcm_sf2_sw_mac_link_set(ds, port, interface, true);
  
- static struct platform_driver cdns_gpio_driver = {
- 	.driver = {
--- 
-2.30.2
-
+ 	if (port != core_readl(priv, CORE_IMP0_PRT_ID)) {
+-		u32 reg_rgmii_ctrl;
++		u32 reg_rgmii_ctrl = 0;
+ 		u32 reg, offset;
+ 
+-		reg_rgmii_ctrl = bcm_sf2_reg_rgmii_cntrl(priv, port);
+-
+ 		if (priv->type == BCM4908_DEVICE_ID ||
+ 		    priv->type == BCM7445_DEVICE_ID)
+ 			offset = CORE_STS_OVERRIDE_GMIIP_PORT(port);
+@@ -790,6 +788,7 @@ static void bcm_sf2_sw_mac_link_up(struc
+ 		    interface == PHY_INTERFACE_MODE_RGMII_TXID ||
+ 		    interface == PHY_INTERFACE_MODE_MII ||
+ 		    interface == PHY_INTERFACE_MODE_REVMII) {
++			reg_rgmii_ctrl = bcm_sf2_reg_rgmii_cntrl(priv, port);
+ 			reg = reg_readl(priv, reg_rgmii_ctrl);
+ 			reg &= ~(RX_PAUSE_EN | TX_PAUSE_EN);
+ 
 
 
