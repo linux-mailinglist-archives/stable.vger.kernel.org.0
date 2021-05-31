@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C85D5395FF3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E187395C37
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232865AbhEaORe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:17:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S231842AbhEaNaB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:30:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233754AbhEaOPd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:15:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 23B876147E;
-        Mon, 31 May 2021 13:42:46 +0000 (UTC)
+        id S232233AbhEaN1o (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:27:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB61B61411;
+        Mon, 31 May 2021 13:21:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468566;
-        bh=axbAyOi48Hmr3K74CrPJHT6/KFmTBpUvIncWdwiQ5Hk=;
+        s=korg; t=1622467313;
+        bh=bheYGG7vuUwa7yhKOAyYQmPLaWEEOI/9mYqtVVQsg8U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lqPi9lCECghzAY6Kvk3y67xkkluC/CWtxzTpHkDEdTmLixPEkV7+6swBI+BmH8ldF
-         drAO+SMKpEgwyyUG417kw+YYdIh8la+hTG1WA1KmMGFxpDkIVmgLR+wmcwkaQV6xl4
-         vBHCb3EjKA194/163l8A/arGc6g9ZF4K/8bi3yE0=
+        b=TZqLhqHCo9jE82xOj2voEgJ0S5zdJzhw9GWvPIA6woMhd0waPktn19OB9RQJlLqOW
+         r9HET/BlfwWDJaGLExHirnd4aDlDSzUVIlDo3C0zx7B3/xQTiotDMUDBZFj1a5miLc
+         Xp4NniDuOKcqxHUcuCRztq+9cJIXasoqVsvvGd7c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sargun Dhillon <sargun@sargun.me>,
-        Tycho Andersen <tycho@tycho.pizza>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Kees Cook <keescook@chromium.org>
-Subject: [PATCH 5.4 038/177] Documentation: seccomp: Fix user notification documentation
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.19 019/116] mac80211: do not accept/forward invalid EAPOL frames
 Date:   Mon, 31 May 2021 15:13:15 +0200
-Message-Id: <20210531130649.242377413@linuxfoundation.org>
+Message-Id: <20210531130640.807868073@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +39,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sargun Dhillon <sargun@sargun.me>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit aac902925ea646e461c95edc98a8a57eb0def917 upstream.
+commit a8c4d76a8dd4fb9666fc8919a703d85fb8f44ed8 upstream.
 
-The documentation had some previously incorrect information about how
-userspace notifications (and responses) were handled due to a change
-from a previously proposed patchset.
+EAPOL frames are used for authentication and key management between the
+AP and each individual STA associated in the BSS. Those frames are not
+supposed to be sent by one associated STA to another associated STA
+(either unicast for broadcast/multicast).
 
-Signed-off-by: Sargun Dhillon <sargun@sargun.me>
-Acked-by: Tycho Andersen <tycho@tycho.pizza>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Fixes: 6a21cc50f0c7 ("seccomp: add a return code to trap to userspace")
+Similarly, in 802.11 they're supposed to be sent to the authenticator
+(AP) address.
+
+Since it is possible for unexpected EAPOL frames to result in misbehavior
+in supplicant implementations, it is better for the AP to not allow such
+cases to be forwarded to other clients either directly, or indirectly if
+the AP interface is part of a bridge.
+
+Accept EAPOL (control port) frames only if they're transmitted to the
+own address, or, due to interoperability concerns, to the PAE group
+address.
+
+Disable forwarding of EAPOL (or well, the configured control port
+protocol) frames back to wireless medium in all cases. Previously, these
+frames were accepted from fully authenticated and authorized stations
+and also from unauthenticated stations for one of the cases.
+
+Additionally, to avoid forwarding by the bridge, rewrite the PAE group
+address case to the local MAC address.
+
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210517193908.3113-2-sargun@sargun.me
+Co-developed-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20210511200110.cb327ed0cabe.Ib7dcffa2a31f0913d660de65ba3c8aca75b1d10f@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- Documentation/userspace-api/seccomp_filter.rst |   16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ net/mac80211/rx.c |   33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
---- a/Documentation/userspace-api/seccomp_filter.rst
-+++ b/Documentation/userspace-api/seccomp_filter.rst
-@@ -250,14 +250,14 @@ Users can read via ``ioctl(SECCOMP_IOCTL
- seccomp notification fd to receive a ``struct seccomp_notif``, which contains
- five members: the input length of the structure, a unique-per-filter ``id``,
- the ``pid`` of the task which triggered this request (which may be 0 if the
--task is in a pid ns not visible from the listener's pid namespace), a ``flags``
--member which for now only has ``SECCOMP_NOTIF_FLAG_SIGNALED``, representing
--whether or not the notification is a result of a non-fatal signal, and the
--``data`` passed to seccomp. Userspace can then make a decision based on this
--information about what to do, and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a
--response, indicating what should be returned to userspace. The ``id`` member of
--``struct seccomp_notif_resp`` should be the same ``id`` as in ``struct
--seccomp_notif``.
-+task is in a pid ns not visible from the listener's pid namespace). The
-+notification also contains the ``data`` passed to seccomp, and a filters flag.
-+The structure should be zeroed out prior to calling the ioctl.
-+
-+Userspace can then make a decision based on this information about what to do,
-+and ``ioctl(SECCOMP_IOCTL_NOTIF_SEND)`` a response, indicating what should be
-+returned to userspace. The ``id`` member of ``struct seccomp_notif_resp`` should
-+be the same ``id`` as in ``struct seccomp_notif``.
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2408,13 +2408,13 @@ static bool ieee80211_frame_allowed(stru
+ 	struct ethhdr *ehdr = (struct ethhdr *) rx->skb->data;
  
- It is worth noting that ``struct seccomp_data`` contains the values of register
- arguments to the syscall, but does not contain pointers to memory. The task's
+ 	/*
+-	 * Allow EAPOL frames to us/the PAE group address regardless
+-	 * of whether the frame was encrypted or not.
++	 * Allow EAPOL frames to us/the PAE group address regardless of
++	 * whether the frame was encrypted or not, and always disallow
++	 * all other destination addresses for them.
+ 	 */
+-	if (ehdr->h_proto == rx->sdata->control_port_protocol &&
+-	    (ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
+-	     ether_addr_equal(ehdr->h_dest, pae_group_addr)))
+-		return true;
++	if (unlikely(ehdr->h_proto == rx->sdata->control_port_protocol))
++		return ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
++		       ether_addr_equal(ehdr->h_dest, pae_group_addr);
+ 
+ 	if (ieee80211_802_1x_port_control(rx) ||
+ 	    ieee80211_drop_unencrypted(rx, fc))
+@@ -2438,8 +2438,28 @@ static void ieee80211_deliver_skb_to_loc
+ 		cfg80211_rx_control_port(dev, skb, noencrypt);
+ 		dev_kfree_skb(skb);
+ 	} else {
++		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
++
+ 		memset(skb->cb, 0, sizeof(skb->cb));
+ 
++		/*
++		 * 802.1X over 802.11 requires that the authenticator address
++		 * be used for EAPOL frames. However, 802.1X allows the use of
++		 * the PAE group address instead. If the interface is part of
++		 * a bridge and we pass the frame with the PAE group address,
++		 * then the bridge will forward it to the network (even if the
++		 * client was not associated yet), which isn't supposed to
++		 * happen.
++		 * To avoid that, rewrite the destination address to our own
++		 * address, so that the authenticator (e.g. hostapd) will see
++		 * the frame, but bridge won't forward it anywhere else. Note
++		 * that due to earlier filtering, the only other address can
++		 * be the PAE group address.
++		 */
++		if (unlikely(skb->protocol == sdata->control_port_protocol &&
++			     !ether_addr_equal(ehdr->h_dest, sdata->vif.addr)))
++			ether_addr_copy(ehdr->h_dest, sdata->vif.addr);
++
+ 		/* deliver to local stack */
+ 		if (rx->napi)
+ 			napi_gro_receive(rx->napi, skb);
+@@ -2479,6 +2499,7 @@ ieee80211_deliver_skb(struct ieee80211_r
+ 	if ((sdata->vif.type == NL80211_IFTYPE_AP ||
+ 	     sdata->vif.type == NL80211_IFTYPE_AP_VLAN) &&
+ 	    !(sdata->flags & IEEE80211_SDATA_DONT_BRIDGE_PACKETS) &&
++	    ehdr->h_proto != rx->sdata->control_port_protocol &&
+ 	    (sdata->vif.type != NL80211_IFTYPE_AP_VLAN || !sdata->u.vlan.sta)) {
+ 		if (is_multicast_ether_addr(ehdr->h_dest) &&
+ 		    ieee80211_vif_get_num_mcast_if(sdata) != 0) {
 
 
