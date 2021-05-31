@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3045B39618A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE380395DFF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:51:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232977AbhEaOlz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38036 "EHLO mail.kernel.org"
+        id S232847AbhEaNwv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:52:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234194AbhEaOjh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6C4861C5E;
-        Mon, 31 May 2021 13:52:56 +0000 (UTC)
+        id S231691AbhEaNur (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:50:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3E6066162C;
+        Mon, 31 May 2021 13:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469177;
-        bh=Y7gPqA2FJ85axZFS15qE4ple5UmOcKAzqJuaDpE6BSI=;
+        s=korg; t=1622467927;
+        bh=Bzk3q18Rykvj7pc36KDsfBnTnyDHicERbODMBtkjrJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dj/fZ5y0RmagtFpGQS0BUCJgvugIy743GMdXcDUXYEuxPNZWjr/CG1oOs3Pfu/9sc
-         spMATJgakBbExBmNwGZ+QmQ3uCF21qqZ+cOO466LSI1AFAWqpNDAsaeohwiDat4Bjx
-         rnJBNL+UhqYziFlGbXR3yNR8h0HzbONj90ElynJM=
+        b=VC7FE5rYnxoTkAwNPEDi05gwapXsLUNEF5FxL0A8NPUrGBemHJ28EqBn4yXSfZ76x
+         l/BqyePg3HEnNMg6ugGziKI/i4N1vOxgiCvGkccdWt5jJxIDwZRsc15K6GLaydw7LN
+         s/4NPSMk0UuNhYZ8qpOdEtluB/bsx2JTli/ZfwMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Chen Huang <chenhuang5@huawei.com>,
-        Palmer Dabbelt <palmerdabbelt@google.com>
-Subject: [PATCH 5.12 063/296] riscv: stacktrace: fix the riscv stacktrace when CONFIG_FRAME_POINTER enabled
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Ondrej Mosnacek <omosnace@redhat.com>
+Subject: [PATCH 5.10 053/252] serial: core: fix suspicious security_locked_down() call
 Date:   Mon, 31 May 2021 15:11:58 +0200
-Message-Id: <20210531130705.961214426@linuxfoundation.org>
+Message-Id: <20210531130659.786984803@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,84 +39,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Huang <chenhuang5@huawei.com>
+From: Ondrej Mosnacek <omosnace@redhat.com>
 
-commit eac2f3059e02382d91f8c887462083841d6ea2a3 upstream.
+commit 5e722b217ad3cf41f5504db80a68062df82b5242 upstream.
 
-As [1] and [2] said, the arch_stack_walk should not to trace itself, or it will
-leave the trace unexpectedly when called. The example is when we do "cat
-/sys/kernel/debug/page_owner", all pages' stack is the same.
+The commit that added this check did so in a very strange way - first
+security_locked_down() is called, its value stored into retval, and if
+it's nonzero, then an additional check is made for (change_irq ||
+change_port), and if this is true, the function returns. However, if
+the goto exit branch is not taken, the code keeps the retval value and
+continues executing the function. Then, depending on whether
+uport->ops->verify_port is set, the retval value may or may not be reset
+to zero and eventually the error value from security_locked_down() may
+abort the function a few lines below.
 
-arch_stack_walk+0x18/0x20
-stack_trace_save+0x40/0x60
-register_dummy_stack+0x24/0x5e
-init_page_owner+0x2e
+I will go out on a limb and assume that this isn't the intended behavior
+and that an error value from security_locked_down() was supposed to
+abort the function only in case (change_irq || change_port) is true.
 
-So we use __builtin_frame_address(1) as the first frame to be walked. And mark
-the arch_stack_walk() noinline.
+Note that security_locked_down() should be called last in any series of
+checks, since the SELinux implementation of this hook will do a check
+against the policy and generate an audit record in case of denial. If
+the operation was to carry on after calling security_locked_down(), then
+the SELinux denial record would be bogus.
 
-We found that pr_cont will affact pages' stack whose task state is RUNNING when
-testing "echo t > /proc/sysrq-trigger". So move the place of pr_cont and mark
-the function dump_backtrace() noinline.
+See commit 59438b46471a ("security,lockdown,selinux: implement SELinux
+lockdown") for how SELinux implements this hook.
 
-Also we move the case when task == NULL into else branch, and test for it in
-"echo c > /proc/sysrq-trigger".
-
-[1] https://lore.kernel.org/lkml/20210319184106.5688-1-mark.rutland@arm.com/
-[2] https://lore.kernel.org/lkml/20210317142050.57712-1-chenjun102@huawei.com/
-
-Signed-off-by: Chen Huang <chenhuang5@huawei.com>
-Fixes: 5d8544e2d007 ("RISC-V: Generic library routines and assembly")
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmerdabbelt@google.com>
+Fixes: 794edf30ee6c ("lockdown: Lock down TIOCSSERIAL")
+Acked-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Ondrej Mosnacek <omosnace@redhat.com>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210507115719.140799-1-omosnace@redhat.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/stacktrace.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/tty/serial/serial_core.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/kernel/stacktrace.c
-+++ b/arch/riscv/kernel/stacktrace.c
-@@ -27,10 +27,10 @@ void notrace walk_stackframe(struct task
- 		fp = frame_pointer(regs);
- 		sp = user_stack_pointer(regs);
- 		pc = instruction_pointer(regs);
--	} else if (task == NULL || task == current) {
--		fp = (unsigned long)__builtin_frame_address(0);
--		sp = sp_in_global;
--		pc = (unsigned long)walk_stackframe;
-+	} else if (task == current) {
-+		fp = (unsigned long)__builtin_frame_address(1);
-+		sp = (unsigned long)__builtin_frame_address(0);
-+		pc = (unsigned long)__builtin_return_address(0);
- 	} else {
- 		/* task blocked in __switch_to */
- 		fp = task->thread.s[0];
-@@ -106,15 +106,15 @@ static bool print_trace_address(void *ar
- 	return true;
- }
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -865,9 +865,11 @@ static int uart_set_info(struct tty_stru
+ 		goto check_and_exit;
+ 	}
  
--void dump_backtrace(struct pt_regs *regs, struct task_struct *task,
-+noinline void dump_backtrace(struct pt_regs *regs, struct task_struct *task,
- 		    const char *loglvl)
- {
--	pr_cont("%sCall Trace:\n", loglvl);
- 	walk_stackframe(task, regs, print_trace_address, (void *)loglvl);
- }
+-	retval = security_locked_down(LOCKDOWN_TIOCSSERIAL);
+-	if (retval && (change_irq || change_port))
+-		goto exit;
++	if (change_irq || change_port) {
++		retval = security_locked_down(LOCKDOWN_TIOCSSERIAL);
++		if (retval)
++			goto exit;
++	}
  
- void show_stack(struct task_struct *task, unsigned long *sp, const char *loglvl)
- {
-+	pr_cont("%sCall Trace:\n", loglvl);
- 	dump_backtrace(NULL, task, loglvl);
- }
- 
-@@ -139,7 +139,7 @@ unsigned long get_wchan(struct task_stru
- 
- #ifdef CONFIG_STACKTRACE
- 
--void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
-+noinline void arch_stack_walk(stack_trace_consume_fn consume_entry, void *cookie,
- 		     struct task_struct *task, struct pt_regs *regs)
- {
- 	walk_stackframe(task, regs, consume_entry, cookie);
+ 	/*
+ 	 * Ask the low level driver to verify the settings.
 
 
