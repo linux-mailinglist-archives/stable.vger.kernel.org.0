@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E6BA396210
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 91241395BB4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232855AbhEaOuk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:50:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40254 "EHLO mail.kernel.org"
+        id S231826AbhEaNX7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:23:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233263AbhEaOsk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:48:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 44DCC6145C;
-        Mon, 31 May 2021 13:56:39 +0000 (UTC)
+        id S231783AbhEaNWA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:22:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1BC9D613DF;
+        Mon, 31 May 2021 13:19:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469399;
-        bh=jI99WAe9RVtRbs+Gt1kQRnnslk5QCXfmsL4bZR6wSPQ=;
+        s=korg; t=1622467159;
+        bh=p0M35ZuhraTzJFRk38f5OpfvjSEJJ1YHLVPO5NrabxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mTC0sCOG4vDJ4EP+ni5c3chEDWioq9Vai/do/l9qAfILv1PDXAahZtf0Y0q+Mvvr+
-         I6RGzwroSE/9SHNuW/MkipLfHXelsPchABKY0kxWlevkRzfEam7F1xmbpBtqwOaCiw
-         QnigGx5tibwtOlOqNaGWwZ+vhGTJFgRoKULeIyEg=
+        b=WnjlHjA/MJjT3JZRn8QxcXv3EMJotcoqPAKxWelewqdAFlFLYQsV6iLfsaur8uSaA
+         0+pDBT2YJ1eJzwNVxVRo4jKTY1Vctt4dmaPuzWa635TALLbq5LOTzOpOeuFqzt4iNf
+         +yjghROfo5bEwxmOrsYAhAr/CcXPO1xLg+GfVxGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
-        Vinod Koul <vkoul@kernel.org>, Sinan Kaya <okaya@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 184/296] Revert "dmaengine: qcom_hidma: Check for driver register failure"
+        stable@vger.kernel.org, stable@kernel.vger.org,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
+Subject: [PATCH 4.9 26/66] net: usb: fix memory leak in smsc75xx_bind
 Date:   Mon, 31 May 2021 15:13:59 +0200
-Message-Id: <20210531130710.055787064@linuxfoundation.org>
+Message-Id: <20210531130637.098537307@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,51 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-[ Upstream commit 43ed0fcf613a87dd0221ec72d1ade4d6544f2ffc ]
+commit 46a8b29c6306d8bbfd92b614ef65a47c900d8e70 upstream.
 
-This reverts commit a474b3f0428d6b02a538aa10b3c3b722751cb382.
+Syzbot reported memory leak in smsc75xx_bind().
+The problem was is non-freed memory in case of
+errors after memory allocation.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
+backtrace:
+  [<ffffffff84245b62>] kmalloc include/linux/slab.h:556 [inline]
+  [<ffffffff84245b62>] kzalloc include/linux/slab.h:686 [inline]
+  [<ffffffff84245b62>] smsc75xx_bind+0x7a/0x334 drivers/net/usb/smsc75xx.c:1460
+  [<ffffffff82b5b2e6>] usbnet_probe+0x3b6/0xc30 drivers/net/usb/usbnet.c:1728
 
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original change is NOT correct, as it does not correctly unwind from
-the resources that was allocated before the call to
-platform_driver_register().
-
-Cc: Aditya Pakki <pakki001@umn.edu>
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Acked-By: Sinan Kaya <okaya@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-51-gregkh@linuxfoundation.org
+Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
+Cc: stable@kernel.vger.org
+Reported-and-tested-by: syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/hidma_mgmt.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/net/usb/smsc75xx.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
-index 806ca02c52d7..fe87b01f7a4e 100644
---- a/drivers/dma/qcom/hidma_mgmt.c
-+++ b/drivers/dma/qcom/hidma_mgmt.c
-@@ -418,8 +418,9 @@ static int __init hidma_mgmt_init(void)
- 		hidma_mgmt_of_populate_channels(child);
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -1497,7 +1497,7 @@ static int smsc75xx_bind(struct usbnet *
+ 	ret = smsc75xx_wait_ready(dev, 0);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
+-		return ret;
++		goto err;
  	}
- #endif
--	return platform_driver_register(&hidma_mgmt_driver);
-+	platform_driver_register(&hidma_mgmt_driver);
  
-+	return 0;
+ 	smsc75xx_init_mac_address(dev);
+@@ -1506,7 +1506,7 @@ static int smsc75xx_bind(struct usbnet *
+ 	ret = smsc75xx_reset(dev);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
+-		return ret;
++		goto err;
+ 	}
+ 
+ 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
+@@ -1515,6 +1515,10 @@ static int smsc75xx_bind(struct usbnet *
+ 	dev->net->hard_header_len += SMSC75XX_TX_OVERHEAD;
+ 	dev->hard_mtu = dev->net->mtu + dev->net->hard_header_len;
+ 	return 0;
++
++err:
++	kfree(pdata);
++	return ret;
  }
- module_init(hidma_mgmt_init);
- MODULE_LICENSE("GPL v2");
--- 
-2.30.2
-
+ 
+ static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
 
 
