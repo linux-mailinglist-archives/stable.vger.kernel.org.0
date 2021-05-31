@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6589395C5A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1341F395B96
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:20:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232363AbhEaNb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:31:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        id S231714AbhEaNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:22:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54382 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232507AbhEaN3Z (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:29:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 59FA7613EF;
-        Mon, 31 May 2021 13:22:46 +0000 (UTC)
+        id S232144AbhEaNUT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:20:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BB10E61375;
+        Mon, 31 May 2021 13:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467366;
-        bh=pkENjceWvvQTLhaUKmJP3HeNrQDY+i5ko6l6lM1M2HA=;
+        s=korg; t=1622467114;
+        bh=W8qLB1IxyBrH6Z8d5bzb0KjvzyD5cfI5yUv0UxgfFQU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VpNGJb1A03qWvrFZAfsVIum8t5m1vA1YKx3RFoI891K9oytZ+VzXLUJhvnEfK7CZu
-         cAr4G/fqTqw8HeQxFla2dewM7xwdItT69NAnSlshNPDSJMr9ijKfdGRc0clCbEznqd
-         3M0XPoV9DOoVXL7CqGV1qT+WuttJoVOP0UxWJlLQ=
+        b=kyIE6SRy1oOoXvEjkWzMIhe9gbqhzYjrJI1V61pDv8nlpU7mJ6Dns7b/lmKvtFnMN
+         NupznTUYV5E74kd56N84IRnj7/tX3hg9KijmsmcU8Vx33TO44qAQZccU1osQDKKtnD
+         kKOABGdHNHXKHEBFcOgrWmOuXqD/nuFyw5UlAjdk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.vger.org,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
-Subject: [PATCH 4.19 039/116] net: usb: fix memory leak in smsc75xx_bind
+        stable@vger.kernel.org, Finn Behrens <me@kloenk.de>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Nicolas Schier <nicolas@fjasle.eu>
+Subject: [PATCH 4.9 02/66] tweewide: Fix most Shebang lines
 Date:   Mon, 31 May 2021 15:13:35 +0200
-Message-Id: <20210531130641.490394948@linuxfoundation.org>
+Message-Id: <20210531130636.341656226@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,60 +40,264 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Finn Behrens <me@kloenk.de>
 
-commit 46a8b29c6306d8bbfd92b614ef65a47c900d8e70 upstream.
+commit c25ce589dca10d64dde139ae093abc258a32869c upstream.
 
-Syzbot reported memory leak in smsc75xx_bind().
-The problem was is non-freed memory in case of
-errors after memory allocation.
+Change every shebang which does not need an argument to use /usr/bin/env.
+This is needed as not every distro has everything under /usr/bin,
+sometimes not even bash.
 
-backtrace:
-  [<ffffffff84245b62>] kmalloc include/linux/slab.h:556 [inline]
-  [<ffffffff84245b62>] kzalloc include/linux/slab.h:686 [inline]
-  [<ffffffff84245b62>] smsc75xx_bind+0x7a/0x334 drivers/net/usb/smsc75xx.c:1460
-  [<ffffffff82b5b2e6>] usbnet_probe+0x3b6/0xc30 drivers/net/usb/usbnet.c:1728
-
-Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
-Cc: stable@kernel.vger.org
-Reported-and-tested-by: syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Finn Behrens <me@kloenk.de>
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+[nicolas@fjasle.eu: update contexts for v4.9, adapt for old scripts]
+Signed-off-by: Nicolas Schier <nicolas@fjasle.eu>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/usb/smsc75xx.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ Documentation/sphinx/parse-headers.pl                          |    2 +-
+ Documentation/target/tcm_mod_builder.py                        |    2 +-
+ Documentation/trace/postprocess/decode_msr.py                  |    2 +-
+ Documentation/trace/postprocess/trace-pagealloc-postprocess.pl |    2 +-
+ Documentation/trace/postprocess/trace-vmscan-postprocess.pl    |    2 +-
+ arch/ia64/scripts/unwcheck.py                                  |    2 +-
+ scripts/analyze_suspend.py                                     |    2 +-
+ scripts/bloat-o-meter                                          |    2 +-
+ scripts/bootgraph.pl                                           |    2 +-
+ scripts/checkincludes.pl                                       |    2 +-
+ scripts/checkstack.pl                                          |    2 +-
+ scripts/config                                                 |    2 +-
+ scripts/diffconfig                                             |    2 +-
+ scripts/dtc/dt_to_config                                       |    2 +-
+ scripts/extract_xc3028.pl                                      |    2 +-
+ scripts/get_dvb_firmware                                       |    2 +-
+ scripts/markup_oops.pl                                         |    2 +-
+ scripts/profile2linkerlist.pl                                  |    2 +-
+ scripts/show_delta                                             |    2 +-
+ scripts/stackdelta                                             |    2 +-
+ scripts/tracing/draw_functrace.py                              |    2 +-
+ tools/kvm/kvm_stat/kvm_stat                                    |    2 +-
+ tools/perf/python/tracepoint.py                                |    2 +-
+ tools/perf/python/twatch.py                                    |    2 +-
+ tools/perf/scripts/python/sched-migration.py                   |    2 +-
+ tools/perf/util/setup.py                                       |    2 +-
+ tools/testing/ktest/compare-ktest-sample.pl                    |    2 +-
+ 27 files changed, 27 insertions(+), 27 deletions(-)
 
---- a/drivers/net/usb/smsc75xx.c
-+++ b/drivers/net/usb/smsc75xx.c
-@@ -1495,7 +1495,7 @@ static int smsc75xx_bind(struct usbnet *
- 	ret = smsc75xx_wait_ready(dev, 0);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
--		return ret;
-+		goto err;
- 	}
+--- a/Documentation/sphinx/parse-headers.pl
++++ b/Documentation/sphinx/parse-headers.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ use strict;
+ use Text::Tabs;
  
- 	smsc75xx_init_mac_address(dev);
-@@ -1504,7 +1504,7 @@ static int smsc75xx_bind(struct usbnet *
- 	ret = smsc75xx_reset(dev);
- 	if (ret < 0) {
- 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
--		return ret;
-+		goto err;
- 	}
+--- a/Documentation/target/tcm_mod_builder.py
++++ b/Documentation/target/tcm_mod_builder.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ # The TCM v4 multi-protocol fabric module generation script for drivers/target/$NEW_MOD
+ #
+ # Copyright (c) 2010 Rising Tide Systems
+--- a/Documentation/trace/postprocess/decode_msr.py
++++ b/Documentation/trace/postprocess/decode_msr.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ # add symbolic names to read_msr / write_msr in trace
+ # decode_msr msr-index.h < trace
+ import sys
+--- a/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
++++ b/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ # This is a POC (proof of concept or piece of crap, take your pick) for reading the
+ # text representation of trace output related to page allocation. It makes an attempt
+ # to extract some high-level information on what is going on. The accuracy of the parser
+--- a/Documentation/trace/postprocess/trace-vmscan-postprocess.pl
++++ b/Documentation/trace/postprocess/trace-vmscan-postprocess.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ # This is a POC for reading the text representation of trace output related to
+ # page reclaim. It makes an attempt to extract some high-level information on
+ # what is going on. The accuracy of the parser may vary
+--- a/arch/ia64/scripts/unwcheck.py
++++ b/arch/ia64/scripts/unwcheck.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # Usage: unwcheck.py FILE
+ #
+--- a/scripts/analyze_suspend.py
++++ b/scripts/analyze_suspend.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # Tool for analyzing suspend/resume timing
+ # Copyright (c) 2013, Intel Corporation.
+--- a/scripts/bloat-o-meter
++++ b/scripts/bloat-o-meter
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # Copyright 2004 Matt Mackall <mpm@selenic.com>
+ #
+--- a/scripts/bootgraph.pl
++++ b/scripts/bootgraph.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
  
- 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
-@@ -1514,6 +1514,10 @@ static int smsc75xx_bind(struct usbnet *
- 	dev->hard_mtu = dev->net->mtu + dev->net->hard_header_len;
- 	dev->net->max_mtu = MAX_SINGLE_PACKET_SIZE;
- 	return 0;
-+
-+err:
-+	kfree(pdata);
-+	return ret;
- }
+ # Copyright 2008, Intel Corporation
+ #
+--- a/scripts/checkincludes.pl
++++ b/scripts/checkincludes.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ #
+ # checkincludes: find/remove files included more than once
+ #
+--- a/scripts/checkstack.pl
++++ b/scripts/checkstack.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
  
- static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
+ #	Check the stack usage of functions
+ #
+--- a/scripts/config
++++ b/scripts/config
+@@ -1,4 +1,4 @@
+-#!/bin/bash
++#!/usr/bin/env bash
+ # Manipulate options in a .config file from the command line
+ 
+ myname=${0##*/}
+--- a/scripts/diffconfig
++++ b/scripts/diffconfig
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # diffconfig - a tool to compare .config files.
+ #
+--- a/scripts/dtc/dt_to_config
++++ b/scripts/dtc/dt_to_config
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ # Copyright 2016 by Frank Rowand
+ # Copyright 2016 by Gaurav Minocha
+--- a/scripts/extract_xc3028.pl
++++ b/scripts/extract_xc3028.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ # Copyright (c) Mauro Carvalho Chehab <mchehab@infradead.org>
+ # Released under GPLv2
+--- a/scripts/get_dvb_firmware
++++ b/scripts/get_dvb_firmware
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ #     DVB firmware extractor
+ #
+ #     (c) 2004 Andrew de Quincey
+--- a/scripts/markup_oops.pl
++++ b/scripts/markup_oops.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ use File::Basename;
+ use Math::BigInt;
+--- a/scripts/profile2linkerlist.pl
++++ b/scripts/profile2linkerlist.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ #
+ # Takes a (sorted) output of readprofile and turns it into a list suitable for
+--- a/scripts/show_delta
++++ b/scripts/show_delta
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # show_deltas: Read list of printk messages instrumented with
+ # time data, and format with time deltas.
+--- a/scripts/stackdelta
++++ b/scripts/stackdelta
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ # Read two files produced by the stackusage script, and show the
+ # delta between them.
+--- a/scripts/tracing/draw_functrace.py
++++ b/scripts/tracing/draw_functrace.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ 
+ """
+ Copyright 2008 (c) Frederic Weisbecker <fweisbec@gmail.com>
+--- a/tools/kvm/kvm_stat/kvm_stat
++++ b/tools/kvm/kvm_stat/kvm_stat
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # top-like utility for displaying kvm statistics
+ #
+--- a/tools/perf/python/tracepoint.py
++++ b/tools/perf/python/tracepoint.py
+@@ -1,4 +1,4 @@
+-#! /usr/bin/python
++#! /usr/bin/env python
+ # -*- python -*-
+ # -*- coding: utf-8 -*-
+ 
+--- a/tools/perf/python/twatch.py
++++ b/tools/perf/python/twatch.py
+@@ -1,4 +1,4 @@
+-#! /usr/bin/python
++#! /usr/bin/env python
+ # -*- python -*-
+ # -*- coding: utf-8 -*-
+ #   twatch - Experimental use of the perf python interface
+--- a/tools/perf/scripts/python/sched-migration.py
++++ b/tools/perf/scripts/python/sched-migration.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python
++#!/usr/bin/env python
+ #
+ # Cpu task migration overview toy
+ #
+--- a/tools/perf/util/setup.py
++++ b/tools/perf/util/setup.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/python2
++#!/usr/bin/env python2
+ 
+ from distutils.core import setup, Extension
+ from os import getenv
+--- a/tools/testing/ktest/compare-ktest-sample.pl
++++ b/tools/testing/ktest/compare-ktest-sample.pl
+@@ -1,4 +1,4 @@
+-#!/usr/bin/perl
++#!/usr/bin/env perl
+ 
+ open (IN,"ktest.pl");
+ while (<IN>) {
 
 
