@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7DBCA395CF5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C08395D6A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232290AbhEaNkU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:40:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44100 "EHLO mail.kernel.org"
+        id S230339AbhEaNpg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:45:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232348AbhEaNh2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:37:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EF2F8613CD;
-        Mon, 31 May 2021 13:26:13 +0000 (UTC)
+        id S232331AbhEaNnK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:43:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1C829613D7;
+        Mon, 31 May 2021 13:28:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467574;
-        bh=ev+ZyfKJKelas2MiisSa+ROoXFnwsFoXUAEUIwVoMqM=;
+        s=korg; t=1622467729;
+        bh=Dv1gPJz98h71tKkFr3ikWvxAKFWRsMK+BBbWvj2Tgjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aJ2suZiDADu/RQibSgcD6uwfv9WveqwohzmNShJe7rX305D9K3vrxAi7LAO/Wf25P
-         fJDbn6R8Ur5Cd+k/SchzR1DXDNBCYP12iNbAFQ5SGOpz5D7Yd1Q42wtpx8C804F5O4
-         nUmBysPHS73+1SfBKSJW3CyJIVTYsb/nWb37hrK4=
+        b=OYYLmgR5IT/cJeDv3BfhWKKhMKKBE06JKyIY65dIf+Dvx5cDr/Odc81YsH60EdBvI
+         ukNhtF45lbEGiQOdSfnNdQRyttKbkvy7fHAdSkRujS7sIsIs4+plPiPo0cEe7+BUWy
+         K6svABQ3J4rzFlzsU32DUAWtVhwQL/CzABLAHDIk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Piotr Skajewski <piotrx.skajewski@intel.com>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Konrad Jankowski <konrad0.jankowski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 107/116] ixgbe: fix large MTU request from VF
+Subject: [PATCH 4.14 58/79] btrfs: do not BUG_ON in link_to_fixup_dir
 Date:   Mon, 31 May 2021 15:14:43 +0200
-Message-Id: <20210531130643.750059202@linuxfoundation.org>
+Message-Id: <20210531130637.856622078@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,74 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Josef Bacik <josef@toxicpanda.com>
 
-[ Upstream commit 63e39d29b3da02e901349f6cd71159818a4737a6 ]
+[ Upstream commit 91df99a6eb50d5a1bc70fff4a09a0b7ae6aab96d ]
 
-Check that the MTU value requested by the VF is in the supported
-range of MTUs before attempting to set the VF large packet enable,
-otherwise reject the request. This also avoids unnecessary
-register updates in the case of the 82599 controller.
+While doing error injection testing I got the following panic
 
-Fixes: 872844ddb9e4 ("ixgbe: Enable jumbo frames support w/ SR-IOV")
-Co-developed-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Piotr Skajewski <piotrx.skajewski@intel.com>
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Co-developed-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Signed-off-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+  kernel BUG at fs/btrfs/tree-log.c:1862!
+  invalid opcode: 0000 [#1] SMP NOPTI
+  CPU: 1 PID: 7836 Comm: mount Not tainted 5.13.0-rc1+ #305
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.13.0-2.fc32 04/01/2014
+  RIP: 0010:link_to_fixup_dir+0xd5/0xe0
+  RSP: 0018:ffffb5800180fa30 EFLAGS: 00010216
+  RAX: fffffffffffffffb RBX: 00000000fffffffb RCX: ffff8f595287faf0
+  RDX: ffffb5800180fa37 RSI: ffff8f5954978800 RDI: 0000000000000000
+  RBP: ffff8f5953af9450 R08: 0000000000000019 R09: 0000000000000001
+  R10: 000151f408682970 R11: 0000000120021001 R12: ffff8f5954978800
+  R13: ffff8f595287faf0 R14: ffff8f5953c77dd0 R15: 0000000000000065
+  FS:  00007fc5284c8c40(0000) GS:ffff8f59bbd00000(0000) knlGS:0000000000000000
+  CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  CR2: 00007fc5287f47c0 CR3: 000000011275e002 CR4: 0000000000370ee0
+  Call Trace:
+   replay_one_buffer+0x409/0x470
+   ? btree_read_extent_buffer_pages+0xd0/0x110
+   walk_up_log_tree+0x157/0x1e0
+   walk_log_tree+0xa6/0x1d0
+   btrfs_recover_log_trees+0x1da/0x360
+   ? replay_one_extent+0x7b0/0x7b0
+   open_ctree+0x1486/0x1720
+   btrfs_mount_root.cold+0x12/0xea
+   ? __kmalloc_track_caller+0x12f/0x240
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   vfs_kern_mount.part.0+0x71/0xb0
+   btrfs_mount+0x10d/0x380
+   ? vfs_parse_fs_string+0x4d/0x90
+   legacy_get_tree+0x24/0x40
+   vfs_get_tree+0x22/0xb0
+   path_mount+0x433/0xa10
+   __x64_sys_mount+0xe3/0x120
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+We can get -EIO or any number of legitimate errors from
+btrfs_search_slot(), panicing here is not the appropriate response.  The
+error path for this code handles errors properly, simply return the
+error.
+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ fs/btrfs/tree-log.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-index f6ffd9fb2079..8aaf856771d7 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c
-@@ -467,12 +467,16 @@ static int ixgbe_set_vf_vlan(struct ixgbe_adapter *adapter, int add, int vid,
- 	return err;
- }
- 
--static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
-+static int ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 max_frame, u32 vf)
- {
- 	struct ixgbe_hw *hw = &adapter->hw;
--	int max_frame = msgbuf[1];
- 	u32 max_frs;
- 
-+	if (max_frame < ETH_MIN_MTU || max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
-+		e_err(drv, "VF max_frame %d out of range\n", max_frame);
-+		return -EINVAL;
-+	}
-+
- 	/*
- 	 * For 82599EB we have to keep all PFs and VFs operating with
- 	 * the same max_frame value in order to avoid sending an oversize
-@@ -532,12 +536,6 @@ static s32 ixgbe_set_vf_lpe(struct ixgbe_adapter *adapter, u32 *msgbuf, u32 vf)
- 		}
+diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
+index e40c27aec949..035a2e2be156 100644
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -1629,8 +1629,6 @@ static noinline int link_to_fixup_dir(struct btrfs_trans_handle *trans,
+ 		ret = btrfs_update_inode(trans, root, inode);
+ 	} else if (ret == -EEXIST) {
+ 		ret = 0;
+-	} else {
+-		BUG(); /* Logic Error */
  	}
+ 	iput(inode);
  
--	/* MTU < 68 is an error and causes problems on some kernels */
--	if (max_frame > IXGBE_MAX_JUMBO_FRAME_SIZE) {
--		e_err(drv, "VF max_frame %d out of range\n", max_frame);
--		return -EINVAL;
--	}
--
- 	/* pull current max frame size from hardware */
- 	max_frs = IXGBE_READ_REG(hw, IXGBE_MAXFRS);
- 	max_frs &= IXGBE_MHADD_MFS_MASK;
-@@ -1240,7 +1238,7 @@ static int ixgbe_rcv_msg_from_vf(struct ixgbe_adapter *adapter, u32 vf)
- 		retval = ixgbe_set_vf_vlan_msg(adapter, msgbuf, vf);
- 		break;
- 	case IXGBE_VF_SET_LPE:
--		retval = ixgbe_set_vf_lpe(adapter, msgbuf, vf);
-+		retval = ixgbe_set_vf_lpe(adapter, msgbuf[1], vf);
- 		break;
- 	case IXGBE_VF_SET_MACVLAN:
- 		retval = ixgbe_set_vf_macvlan_msg(adapter, msgbuf, vf);
 -- 
 2.30.2
 
