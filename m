@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A2B13962D6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BB3A395F7E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234246AbhEaPBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51032 "EHLO mail.kernel.org"
+        id S231826AbhEaOL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:11:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40496 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234372AbhEaO7V (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:59:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DFC5F61CCA;
-        Mon, 31 May 2021 14:01:07 +0000 (UTC)
+        id S232475AbhEaOJ5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:09:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2E46761971;
+        Mon, 31 May 2021 13:40:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469668;
-        bh=YN6Fa8RGRjU2S+rc9v9z1tqAVO9HBMiiCFEcAkIYEvk=;
+        s=korg; t=1622468429;
+        bh=1hTUnAuEtZd3tinnFT/q6OSKEpQDZ08WXxy2j2oPjDo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iVXZAHQGhFbb0Q8NYyJb4hwtb8VPyyYETfZIOcZxpyG9XPL6VPeQLyVA/e+RyB09R
-         GlOUDm6eIjCIDf7jGjw8Kt2BvKHFvslQ6hJoFjetgCTjDRFBezwam/s5YOkhJxTu5B
-         mwqcXf3aaq9dsryF/DCPtp0EtngEjMXPYJ+JtnLc=
+        b=fyK7YX0eQPiyDcklCMKUyqT7tRp+Hbjv//nYNz0pKVoxRPUWbssOtHAN/AGsBUM2g
+         qPsHGIH5GNTWLbto6pAOewcrBGeh8KPrMtMMUnsyhOYvpSr7TnWthnBIiku1S7gjH2
+         OGI4jWADC95T/u+P/4AJZThWQewMI2N56m15WeC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Wiedmann <jwi@linux.ibm.com>,
-        Karsten Graul <kgraul@linux.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 250/296] net/smc: remove device from smcd_dev_list after failed device_add()
+Subject: [PATCH 5.10 240/252] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
 Date:   Mon, 31 May 2021 15:15:05 +0200
-Message-Id: <20210531130712.173086965@linuxfoundation.org>
+Message-Id: <20210531130706.159826423@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,54 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Wiedmann <jwi@linux.ibm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 444d7be9532dcfda8e0385226c862fd7e986f607 ]
+[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
 
-If the device_add() for a smcd_dev fails, there's no cleanup step that
-rolls back the earlier list_add(). The device subsequently gets freed,
-and we end up with a corrupted list.
+rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
+when this watchdog driver is built as a loadable module, there is a
+build error since the rt_sysc_membase symbol is not exported.
+Export it to quell the build error.
 
-Add some error handling that removes the device from the list.
+ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
 
-Fixes: c6ba7c9ba43d ("net/smc: add base infrastructure for SMC-D and ISM")
-Signed-off-by: Julian Wiedmann <jwi@linux.ibm.com>
-Signed-off-by: Karsten Graul <kgraul@linux.ibm.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/smc/smc_ism.c | 11 ++++++++++-
- 1 file changed, 10 insertions(+), 1 deletion(-)
+ arch/mips/ralink/of.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
-index 94b31f2551bc..967712ba52a0 100644
---- a/net/smc/smc_ism.c
-+++ b/net/smc/smc_ism.c
-@@ -429,6 +429,8 @@ EXPORT_SYMBOL_GPL(smcd_alloc_dev);
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index cbae9d23ab7f..a971f1aca096 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -8,6 +8,7 @@
  
- int smcd_register_dev(struct smcd_dev *smcd)
+ #include <linux/io.h>
+ #include <linux/clk.h>
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/sizes.h>
+ #include <linux/of_fdt.h>
+@@ -25,6 +26,7 @@
+ 
+ __iomem void *rt_sysc_membase;
+ __iomem void *rt_memc_membase;
++EXPORT_SYMBOL_GPL(rt_sysc_membase);
+ 
+ __iomem void *plat_of_remap_node(const char *node)
  {
-+	int rc;
-+
- 	mutex_lock(&smcd_dev_list.mutex);
- 	if (list_empty(&smcd_dev_list.list)) {
- 		u8 *system_eid = NULL;
-@@ -448,7 +450,14 @@ int smcd_register_dev(struct smcd_dev *smcd)
- 			    dev_name(&smcd->dev), smcd->pnetid,
- 			    smcd->pnetid_by_user ? " (user defined)" : "");
- 
--	return device_add(&smcd->dev);
-+	rc = device_add(&smcd->dev);
-+	if (rc) {
-+		mutex_lock(&smcd_dev_list.mutex);
-+		list_del(&smcd->list);
-+		mutex_unlock(&smcd_dev_list.mutex);
-+	}
-+
-+	return rc;
- }
- EXPORT_SYMBOL_GPL(smcd_register_dev);
- 
 -- 
 2.30.2
 
