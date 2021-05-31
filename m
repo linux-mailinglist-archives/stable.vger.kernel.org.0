@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F01A5395B7A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:19:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7BCF396039
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:22:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232040AbhEaNVB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:21:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55676 "EHLO mail.kernel.org"
+        id S233423AbhEaOXg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232054AbhEaNTm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AF1E3613AE;
-        Mon, 31 May 2021 13:18:00 +0000 (UTC)
+        id S233855AbhEaOVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5E2D614A5;
+        Mon, 31 May 2021 13:44:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467081;
-        bh=5fp3MjrKAC2WSM1qfhveeP88VClaFP0FfjyYIT8g5is=;
+        s=korg; t=1622468693;
+        bh=z+/5tn69O4lDfkdl4hIO0G1kWdU3MNyAixm7+h6BMKc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2CzrSKxFvmEcP1u+wM/MMpaL5pni8xrkF6IIZFOvooC5namyIN/leUCl4nppdKQy
-         qPxQRQArTekLEey9eXf3KTfEB4ld9ZAJNvFlFD2AeYccx6Kios2H6wHoGlBESJhS7Y
-         7HQ9T85kwA04vZyNe9PvcBOt5TTvaLzL6nEC/VSk=
+        b=DRc+s48RU1RBmw8U7QBnGzTJ8/bR8K7i6lBfPGKLgF/Br4KXjNO9akup7Ie70Z88Y
+         2KCe5UG8h86B5JV7/L9bqvLLXfsnPv/brwUVQkAP1P/xH/fL3vlFR7jfLy2vyx9BXY
+         cAqZ50REQ6DcwwbmnDbF0fTvKUi76y22in98tP8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 4.4 06/54] mac80211: assure all fragments are encrypted
+        stable@vger.kernel.org, Zheyu Ma <zheyuma97@gmail.com>
+Subject: [PATCH 5.4 055/177] serial: rp2: use request_firmware instead of request_firmware_nowait
 Date:   Mon, 31 May 2021 15:13:32 +0200
-Message-Id: <20210531130635.274133294@linuxfoundation.org>
+Message-Id: <20210531130649.817358038@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,78 +38,267 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
+commit 016002848c82eeb5d460489ce392d91fe18c475c upstream.
 
-Do not mix plaintext and encrypted fragments in protected Wi-Fi
-networks. This fixes CVE-2020-26147.
+In 'rp2_probe', the driver registers 'rp2_uart_interrupt' then calls
+'rp2_fw_cb' through 'request_firmware_nowait'. In 'rp2_fw_cb', if the
+firmware don't exists, function just return without initializing ports
+of 'rp2_card'. But now the interrupt handler function has been
+registered, and when an interrupt comes, 'rp2_uart_interrupt' may access
+those ports then causing NULL pointer dereference or other bugs.
 
-Previously, an attacker was able to first forward a legitimate encrypted
-fragment towards a victim, followed by a plaintext fragment. The
-encrypted and plaintext fragment would then be reassembled. For further
-details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
-Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
+Because the driver does some initialization work in 'rp2_fw_cb', in
+order to make the driver ready to handle interrupts, 'request_firmware'
+should be used instead of asynchronous 'request_firmware_nowait'.
 
-Because of this change there are now two equivalent conditions in the
-code to determine if a received fragment requires sequential PNs, so we
-also move this test to a separate function to make the code easier to
-maintain.
+This report reveals it:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+INFO: trying to register non-static key.
+the code is fine but needs lockdep annotation.
+turning off the locking correctness validator.
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef-dirty #45
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-
+gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:77 [inline]
+ dump_stack+0xec/0x156 lib/dump_stack.c:118
+ assign_lock_key kernel/locking/lockdep.c:727 [inline]
+ register_lock_class+0x14e5/0x1ba0 kernel/locking/lockdep.c:753
+ __lock_acquire+0x187/0x3750 kernel/locking/lockdep.c:3303
+ lock_acquire+0x124/0x340 kernel/locking/lockdep.c:3907
+ __raw_spin_lock include/linux/spinlock_api_smp.h:142 [inline]
+ _raw_spin_lock+0x32/0x50 kernel/locking/spinlock.c:144
+ spin_lock include/linux/spinlock.h:329 [inline]
+ rp2_ch_interrupt drivers/tty/serial/rp2.c:466 [inline]
+ rp2_asic_interrupt.isra.9+0x15d/0x990 drivers/tty/serial/rp2.c:493
+ rp2_uart_interrupt+0x49/0xe0 drivers/tty/serial/rp2.c:504
+ __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
+ handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
+ handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
+ handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
+ generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
+ handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
+ do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
+ common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
+ </IRQ>
+RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
+Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 c2 2f 8c 48 89 e5 e8 fb 31 e7 f8
+8b 05 75 af 8d 03 85 c0 7e 07 0f 00 2d 8a 61 65 00 fb f4 <5d> c3 90 90 90
+90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
+RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
+RAX: 0000000000000000 RBX: ffffffff8bde7e48 RCX: ffffffff88a21285
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2fc200
+RBP: ffff88806b71fcc8 R08: fffffbfff185f840 R09: fffffbfff185f840
+R10: 0000000000000001 R11: fffffbfff185f840 R12: 0000000000000002
+R13: ffffffff8bea18a0 R14: 0000000000000000 R15: 0000000000000000
+ arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
+ default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
+ arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
+ default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
+ cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+ do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
+ cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
+ start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+BUG: unable to handle kernel NULL pointer dereference at 0000000000000010
+PGD 8000000056d27067 P4D 8000000056d27067 PUD 56d28067 PMD 0
+Oops: 0000 [#1] PREEMPT SMP KASAN PTI
+CPU: 2 PID: 0 Comm: swapper/2 Not tainted 4.19.177-gdba4159c14ef-dirty #45
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.12.0-59-
+gc9ba5276e321-prebuilt.qemu.org 04/01/2014
+RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
+RIP: 0010:rp2_ch_interrupt drivers/tty/serial/rp2.c:472 [inline]
+RIP: 0010:rp2_asic_interrupt.isra.9+0x181/0x990 drivers/tty/serial/rp2.c:
+493
+Code: df e8 43 5d c2 05 48 8d 83 e8 01 00 00 48 89 85 60 ff ff ff 48 c1 e8
+03 42 80 3c 30 00 0f 85 aa 07 00 00 48 8b 83 e8 01 00 00 <8b> 40 10 89 c1
+89 85 68 ff ff ff 48 8b 83 e8 01 00 00 89 48 10 83
+RSP: 0018:ffff88806c287cd0 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: ffff88806ade6820 RCX: ffffffff814300b1
+RDX: 1ffff1100d5bcd06 RSI: 0000000000000004 RDI: ffff88806ade6820
+RBP: ffff88806c287db8 R08: ffffed100d5bcd05 R09: ffffed100d5bcd05
+R10: 0000000000000001 R11: ffffed100d5bcd04 R12: ffffc90001e00000
+R13: ffff888069654e10 R14: dffffc0000000000 R15: ffff888069654df0
+FS:  0000000000000000(0000) GS:ffff88806c280000(0000) knlGS:
+0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000010 CR3: 000000006892c000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+ <IRQ>
+ rp2_uart_interrupt+0x49/0xe0 drivers/tty/serial/rp2.c:504
+ __handle_irq_event_percpu+0xfb/0x770 kernel/irq/handle.c:149
+ handle_irq_event_percpu+0x79/0x150 kernel/irq/handle.c:189
+ handle_irq_event+0xac/0x140 kernel/irq/handle.c:206
+ handle_fasteoi_irq+0x232/0x5c0 kernel/irq/chip.c:725
+ generic_handle_irq_desc include/linux/irqdesc.h:155 [inline]
+ handle_irq+0x230/0x3a0 arch/x86/kernel/irq_64.c:87
+ do_IRQ+0xa7/0x1e0 arch/x86/kernel/irq.c:247
+ common_interrupt+0xf/0xf arch/x86/entry/entry_64.S:670
+ </IRQ>
+RIP: 0010:native_safe_halt+0x28/0x30 arch/x86/include/asm/irqflags.h:61
+Code: 00 00 55 be 04 00 00 00 48 c7 c7 00 c2 2f 8c 48 89 e5 e8 fb 31 e7
+f8 8b 05 75 af 8d 03 85 c0 7e 07 0f 00 2d 8a 61 65 00 fb f4 <5d> c3 90
+90 90 90 90 90 0f 1f 44 00 00 55 48 89 e5 41 57 41 56 41
+RSP: 0018:ffff88806b71fcc8 EFLAGS: 00000246 ORIG_RAX: ffffffffffffffde
+RAX: 0000000000000000 RBX: ffffffff8bde7e48 RCX: ffffffff88a21285
+RDX: 0000000000000000 RSI: 0000000000000004 RDI: ffffffff8c2fc200
+RBP: ffff88806b71fcc8 R08: fffffbfff185f840 R09: fffffbfff185f840
+R10: 0000000000000001 R11: fffffbfff185f840 R12: 0000000000000002
+R13: ffffffff8bea18a0 R14: 0000000000000000 R15: 0000000000000000
+ arch_safe_halt arch/x86/include/asm/paravirt.h:94 [inline]
+ default_idle+0x6f/0x360 arch/x86/kernel/process.c:557
+ arch_cpu_idle+0xf/0x20 arch/x86/kernel/process.c:548
+ default_idle_call+0x3b/0x60 kernel/sched/idle.c:93
+ cpuidle_idle_call kernel/sched/idle.c:153 [inline]
+ do_idle+0x2ab/0x3c0 kernel/sched/idle.c:263
+ cpu_startup_entry+0xcb/0xe0 kernel/sched/idle.c:369
+ start_secondary+0x3b8/0x4e0 arch/x86/kernel/smpboot.c:271
+ secondary_startup_64+0xa4/0xb0 arch/x86/kernel/head_64.S:243
+Modules linked in:
+Dumping ftrace buffer:
+   (ftrace buffer empty)
+CR2: 0000000000000010
+---[ end trace 11804dbb55cb1a64 ]---
+RIP: 0010:readl arch/x86/include/asm/io.h:59 [inline]
+RIP: 0010:rp2_ch_interrupt drivers/tty/serial/rp2.c:472 [inline]
+RIP: 0010:rp2_asic_interrupt.isra.9+0x181/0x990 drivers/tty/serial/rp2.c:
+493
+Code: df e8 43 5d c2 05 48 8d 83 e8 01 00 00 48 89 85 60 ff ff ff 48 c1
+e8 03 42 80 3c 30 00 0f 85 aa 07 00 00 48 8b 83 e8 01 00 00 <8b> 40 10 89
+c1 89 85 68 ff ff ff 48 8b 83 e8 01 00 00 89 48 10 83
+RSP: 0018:ffff88806c287cd0 EFLAGS: 00010046
+RAX: 0000000000000000 RBX: ffff88806ade6820 RCX: ffffffff814300b1
+RDX: 1ffff1100d5bcd06 RSI: 0000000000000004 RDI: ffff88806ade6820
+RBP: ffff88806c287db8 R08: ffffed100d5bcd05 R09: ffffed100d5bcd05
+R10: 0000000000000001 R11: ffffed100d5bcd04 R12: ffffc90001e00000
+R13: ffff888069654e10 R14: dffffc0000000000 R15: ffff888069654df0
+FS:  0000000000000000(0000) GS:ffff88806c280000(0000) knlGS:
+0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000000000000010 CR3: 000000006892c000 CR4: 00000000000006e0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Link: https://lore.kernel.org/r/1621577323-1541-1-git-send-email-zheyuma97@gmail.com
+Cc: stable <stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ drivers/tty/serial/rp2.c |   52 +++++++++++++++--------------------------------
+ 1 file changed, 17 insertions(+), 35 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -1807,6 +1807,16 @@ ieee80211_reassemble_find(struct ieee802
- 	return NULL;
+--- a/drivers/tty/serial/rp2.c
++++ b/drivers/tty/serial/rp2.c
+@@ -195,7 +195,6 @@ struct rp2_card {
+ 	void __iomem			*bar0;
+ 	void __iomem			*bar1;
+ 	spinlock_t			card_lock;
+-	struct completion		fw_loaded;
+ };
+ 
+ #define RP_ID(prod) PCI_VDEVICE(RP, (prod))
+@@ -664,17 +663,10 @@ static void rp2_remove_ports(struct rp2_
+ 	card->initialized_ports = 0;
  }
  
-+static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
-+{
-+	return rx->key &&
-+		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
-+		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
-+		ieee80211_has_protected(fc);
-+}
-+
- static ieee80211_rx_result debug_noinline
- ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+-static void rp2_fw_cb(const struct firmware *fw, void *context)
++static int rp2_load_firmware(struct rp2_card *card, const struct firmware *fw)
  {
-@@ -1852,12 +1862,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		/* This is the first fragment of a new frame. */
- 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
- 						 rx->seqno_idx, &(rx->skb));
--		if (rx->key &&
--		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
--		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
--		    ieee80211_has_protected(fc)) {
-+		if (requires_sequential_pn(rx, fc)) {
- 			int queue = rx->security_idx;
+-	struct rp2_card *card = context;
+ 	resource_size_t phys_base;
+-	int i, rc = -ENOENT;
+-
+-	if (!fw) {
+-		dev_err(&card->pdev->dev, "cannot find '%s' firmware image\n",
+-			RP2_FW_NAME);
+-		goto no_fw;
+-	}
++	int i, rc = 0;
  
- 			/* Store CCMP/GCMP PN so that we can verify that the
-@@ -1899,11 +1904,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
- 		int queue;
+ 	phys_base = pci_resource_start(card->pdev, 1);
  
--		if (!rx->key ||
--		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
--		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
-+		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+@@ -720,23 +712,13 @@ static void rp2_fw_cb(const struct firmw
+ 		card->initialized_ports++;
+ 	}
+ 
+-	release_firmware(fw);
+-no_fw:
+-	/*
+-	 * rp2_fw_cb() is called from a workqueue long after rp2_probe()
+-	 * has already returned success.  So if something failed here,
+-	 * we'll just leave the now-dormant device in place until somebody
+-	 * unbinds it.
+-	 */
+-	if (rc)
+-		dev_warn(&card->pdev->dev, "driver initialization failed\n");
+-
+-	complete(&card->fw_loaded);
++	return rc;
+ }
+ 
+ static int rp2_probe(struct pci_dev *pdev,
+ 				   const struct pci_device_id *id)
+ {
++	const struct firmware *fw;
+ 	struct rp2_card *card;
+ 	struct rp2_uart_port *ports;
+ 	void __iomem * const *bars;
+@@ -747,7 +729,6 @@ static int rp2_probe(struct pci_dev *pde
+ 		return -ENOMEM;
+ 	pci_set_drvdata(pdev, card);
+ 	spin_lock_init(&card->card_lock);
+-	init_completion(&card->fw_loaded);
+ 
+ 	rc = pcim_enable_device(pdev);
+ 	if (rc)
+@@ -780,21 +761,23 @@ static int rp2_probe(struct pci_dev *pde
+ 		return -ENOMEM;
+ 	card->ports = ports;
+ 
+-	rc = devm_request_irq(&pdev->dev, pdev->irq, rp2_uart_interrupt,
+-			      IRQF_SHARED, DRV_NAME, card);
+-	if (rc)
++	rc = request_firmware(&fw, RP2_FW_NAME, &pdev->dev);
++	if (rc < 0) {
++		dev_err(&pdev->dev, "cannot find '%s' firmware image\n",
++			RP2_FW_NAME);
+ 		return rc;
++	}
+ 
+-	/*
+-	 * Only catastrophic errors (e.g. ENOMEM) are reported here.
+-	 * If the FW image is missing, we'll find out in rp2_fw_cb()
+-	 * and print an error message.
+-	 */
+-	rc = request_firmware_nowait(THIS_MODULE, 1, RP2_FW_NAME, &pdev->dev,
+-				     GFP_KERNEL, card, rp2_fw_cb);
++	rc = rp2_load_firmware(card, fw);
++
++	release_firmware(fw);
++	if (rc < 0)
++		return rc;
++
++	rc = devm_request_irq(&pdev->dev, pdev->irq, rp2_uart_interrupt,
++			      IRQF_SHARED, DRV_NAME, card);
+ 	if (rc)
+ 		return rc;
+-	dev_dbg(&pdev->dev, "waiting for firmware blob...\n");
+ 
+ 	return 0;
+ }
+@@ -803,7 +786,6 @@ static void rp2_remove(struct pci_dev *p
+ {
+ 	struct rp2_card *card = pci_get_drvdata(pdev);
+ 
+-	wait_for_completion(&card->fw_loaded);
+ 	rp2_remove_ports(card);
+ }
+ 
 
 
