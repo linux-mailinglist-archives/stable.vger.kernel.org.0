@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CA39C3962FD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B674D395ED5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233926AbhEaPC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:02:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51184 "EHLO mail.kernel.org"
+        id S231917AbhEaOEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:04:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37418 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233880AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 11:00:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A9C6124C;
-        Mon, 31 May 2021 14:14:34 +0000 (UTC)
+        id S232887AbhEaOCA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:02:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A59561942;
+        Mon, 31 May 2021 13:37:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622470474;
-        bh=NVax9bSoI2rTxw5JlgzogZU7L09xE+j3DWWyfPipJjw=;
+        s=korg; t=1622468230;
+        bh=IoHREpO8T5t2jYw8sNsJ9hikV2tRTqlyPUYv5iO8hbQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VioWoJvh9TyKccdPxt2UP8qEV52yDT9SWqr2hdYfD7+5L4PdMvq69K1ll7J3T1vsl
-         RHV6p+bqsw4c4aYSpX7zVyeG04X1aDFdIgO2N4NVC0s/Q6cv3FMK/BjobMuJpX47Sy
-         K0FElr+ttyLmzDKz5GOsMVmRrgijkvPU9Cw7xf90=
+        b=Psap7DKq9hVYIUbXmJg35nU3lVOvgajoprmDNxadXXbD7OLxFUH7CKpU/896I6TH9
+         +0qlvE6UDptSsBn4LPbp/+hnmB/8EpCH8GqG8fenmPkkrOgqZGcFct7qXicmEtwauK
+         CZeXT09XwtVJG5a5GJqz463JIauoEGL33PaKW2Mg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 4.4 25/54] NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 166/252] Revert "net: liquidio: fix a NULL pointer dereference"
 Date:   Mon, 31 May 2021 15:13:51 +0200
-Message-Id: <20210531130635.878749264@linuxfoundation.org>
+Message-Id: <20210531130703.647903665@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,36 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit e67afa7ee4a59584d7253e45d7f63b9528819a13 upstream.
+[ Upstream commit 4fd798a5a89114c1892574c50f2aebd49bc5b4f5 ]
 
-Since commit bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors"),
-nfs42_proc_llseek would return -EOPNOTSUPP rather than -ENOTSUPP when
-SEEK_DATA on NFSv4.0/v4.1.
+This reverts commit fe543b2f174f34a7a751aa08b334fe6b105c4569.
 
-This will lead xfstests generic/285 not run on NFSv4.0/v4.1 when set the
-CONFIG_NFS_V4_2, rather than run failed.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Fixes: bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors")
-Cc: <stable.vger.kernel.org> # 4.2
-Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+While the original commit does keep the immediate "NULL dereference"
+from happening, it does not properly propagate the error back to the
+callers, AND it does not fix this same identical issue in the
+drivers/net/ethernet/cavium/liquidio/lio_vf_main.c for some reason.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-65-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/nfs4file.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cavium/liquidio/lio_main.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
---- a/fs/nfs/nfs4file.c
-+++ b/fs/nfs/nfs4file.c
-@@ -168,7 +168,7 @@ static loff_t nfs4_file_llseek(struct fi
- 	case SEEK_HOLE:
- 	case SEEK_DATA:
- 		ret = nfs42_proc_llseek(filep, offset, whence);
--		if (ret != -ENOTSUPP)
-+		if (ret != -EOPNOTSUPP)
- 			return ret;
- 	default:
- 		return nfs_file_llseek(filep, offset, whence);
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+index 7d00d3a8ded4..e4c220f30040 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+@@ -1166,11 +1166,6 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	sc = (struct octeon_soft_command *)
+ 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+ 					  16, 0);
+-	if (!sc) {
+-		netif_info(lio, rx_err, lio->netdev,
+-			   "Failed to allocate octeon_soft_command\n");
+-		return;
+-	}
+ 
+ 	ncmd = (union octnet_cmd *)sc->virtdptr;
+ 
+-- 
+2.30.2
+
 
 
