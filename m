@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9BAC2395D5B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:43:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 513E7395C05
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232454AbhEaNoy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:44:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
+        id S231990AbhEaN13 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:27:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33248 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232858AbhEaNmf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:42:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 902006147D;
-        Mon, 31 May 2021 13:28:22 +0000 (UTC)
+        id S232267AbhEaNZ3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:25:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DC1B61404;
+        Mon, 31 May 2021 13:20:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467703;
-        bh=iFoHbmoRfsF8UqahWydgX8ijJLz5v2TsAOTGswzRmLY=;
+        s=korg; t=1622467250;
+        bh=o1Vg1+Yrw0GnXAW2r/u+OLWNaxvLVS4WPTHwmj0OT+E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FdJDsdtSMa2BqQXpvONuQjleF9Hlk++6NDWeEfsRAfRIQkWktlkD6M4Bgu6oiPzXf
-         zVhrpFKD+Xp+AfHZJNAWMU+WKutVcQBhvZE6yLedXbpOEbEIJmUQKZahYn7/tQ+Z9B
-         +oEDiDt78I+DVZXskCQCn3Pe8YUHrfFXTajz12Hc=
+        b=dC9lpN1dGXrfDPCJbTTq5r4Sfyyb7VDpshASnqy3hBWeezK+LV7DxGpBinv8c4Z08
+         IL2kWiCt/yQ1e4SdXgjVFvjKV3+fOZEenE7v/0947NpNSfJUp2pedzlimUZfTC0WIS
+         J3gm6mMEh9K4VxQmrO5v+bwLKevmXlRXAxAfkePA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Seewald <tseewald@gmail.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 49/79] char: hpet: add checks after calling ioremap
+Subject: [PATCH 4.9 61/66] scsi: libsas: Use _safe() loop in sas_resume_port()
 Date:   Mon, 31 May 2021 15:14:34 +0200
-Message-Id: <20210531130637.580292263@linuxfoundation.org>
+Message-Id: <20210531130638.186124063@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,44 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
+[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
 
-The function hpet_resources() calls ioremap() two times, but in both
-cases it does not check if ioremap() returned a null pointer. Fix this
-by adding null pointer checks and returning an appropriate error.
+If sas_notify_lldd_dev_found() fails then this code calls:
 
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+	sas_unregister_dev(port, dev);
+
+which removes "dev", our list iterator, from the list.  This could lead to
+an endless loop.  We need to use list_for_each_entry_safe().
+
+Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
+Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/libsas/sas_port.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index 05ca269ddd05..b9935675085c 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -977,6 +977,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 	if (ACPI_SUCCESS(status)) {
- 		hdp->hd_phys_address = addr.address.minimum;
- 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
+index d3c5297c6c89..30e0730f613e 100644
+--- a/drivers/scsi/libsas/sas_port.c
++++ b/drivers/scsi/libsas/sas_port.c
+@@ -41,7 +41,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
-@@ -990,6 +992,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 		hdp->hd_phys_address = fixmem32->address;
- 		hdp->hd_address = ioremap(fixmem32->address,
- 						HPET_RANGE_SIZE);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+ static void sas_resume_port(struct asd_sas_phy *phy)
+ {
+-	struct domain_device *dev;
++	struct domain_device *dev, *n;
+ 	struct asd_sas_port *port = phy->port;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+ 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
+@@ -60,7 +60,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+ 	 * 1/ presume every device came back
+ 	 * 2/ force the next revalidation to check all expander phys
+ 	 */
+-	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
++	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+ 		int i, rc;
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
+ 		rc = sas_notify_lldd_dev_found(dev);
 -- 
 2.30.2
 
