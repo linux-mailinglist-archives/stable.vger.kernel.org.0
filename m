@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 69D8F395F5D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:09:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 99119395CF6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232988AbhEaOKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:10:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39886 "EHLO mail.kernel.org"
+        id S231901AbhEaNkV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44432 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232953AbhEaOIb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:08:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3721561970;
-        Mon, 31 May 2021 13:39:48 +0000 (UTC)
+        id S232251AbhEaNhv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:37:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B515A61406;
+        Mon, 31 May 2021 13:26:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468388;
-        bh=9hketVnH5oSWAlUu7aodZlXpngTzaW7b/FvgDTNxkbM=;
+        s=korg; t=1622467587;
+        bh=lLdB2C7FvsBE8EVewfRYKHQ7yxsd5rLBd+AkuN39X6Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K45ZeLtyBDGsuIOYB/5zaE43zVS7L+u8BeUEPhadWrzA0AiFa8if+5BkGNDPRnsE9
-         rHWjowxSzR3Nbb7lCFTtvsoimtX84T6GyoHNEXdvRV7Sw7e9j4x49COr5s/YNbw6er
-         VAvnY2lKhvc+5anTkqJHjdUdXNq1PZtEgJ6ZiPMo=
+        b=UWsp/e6YXL4U9KcaAFAGXzZkC/1CoSLhZfXijiu9uAgufSWm/gNfTzOYJvyZNDpUf
+         fgDE8il/o6O/xIaxv4qpAgcMO1iGYh7eciW0usapaZkIVjb6LblsuhUiPEwHWszbre
+         AHZ0PEK8kzmW0oAVsB0Aj+H5NtPMUk4ubla+LXkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 223/252] net: hns3: put off calling register_netdev() until client initialize complete
+Subject: [PATCH 4.19 112/116] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
 Date:   Mon, 31 May 2021 15:14:48 +0200
-Message-Id: <20210531130705.577439219@linuxfoundation.org>
+Message-Id: <20210531130643.911662126@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,136 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jian Shen <shenjian15@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit a289a7e5c1d49b7d47df9913c1cc81fb48fab613 ]
+[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
 
-Currently, the netdevice is registered before client initializing
-complete. So there is a timewindow between netdevice available
-and usable. In this case, if user try to change the channel number
-or ring param, it may cause the hns3_set_rx_cpu_rmap() being called
-twice, and report bug.
+rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
+when this watchdog driver is built as a loadable module, there is a
+build error since the rt_sysc_membase symbol is not exported.
+Export it to quell the build error.
 
-[47199.416502] hns3 0000:35:00.0 eth1: set channels: tqp_num=1, rxfh=0
-[47199.430340] hns3 0000:35:00.0 eth1: already uninitialized
-[47199.438554] hns3 0000:35:00.0: rss changes from 4 to 1
-[47199.511854] hns3 0000:35:00.0: Channels changed, rss_size from 4 to 1, tqps from 4 to 1
-[47200.163524] ------------[ cut here ]------------
-[47200.171674] kernel BUG at lib/cpu_rmap.c:142!
-[47200.177847] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
-[47200.185259] Modules linked in: hclge(+) hns3(-) hns3_cae(O) hns_roce_hw_v2 hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O) [last unloaded: hclge]
-[47200.205912] CPU: 1 PID: 8260 Comm: ethtool Tainted: G           O      5.11.0-rc3+ #1
-[47200.215601] Hardware name:  , xxxxxx 02/04/2021
-[47200.223052] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
-[47200.230188] pc : cpu_rmap_add+0x38/0x40
-[47200.237472] lr : irq_cpu_rmap_add+0x84/0x140
-[47200.243291] sp : ffff800010e93a30
-[47200.247295] x29: ffff800010e93a30 x28: ffff082100584880
-[47200.254155] x27: 0000000000000000 x26: 0000000000000000
-[47200.260712] x25: 0000000000000000 x24: 0000000000000004
-[47200.267241] x23: ffff08209ba03000 x22: ffff08209ba038c0
-[47200.273789] x21: 000000000000003f x20: ffff0820e2bc1680
-[47200.280400] x19: ffff0820c970ec80 x18: 00000000000000c0
-[47200.286944] x17: 0000000000000000 x16: ffffb43debe4a0d0
-[47200.293456] x15: fffffc2082990600 x14: dead000000000122
-[47200.300059] x13: ffffffffffffffff x12: 000000000000003e
-[47200.306606] x11: ffff0820815b8080 x10: ffff53e411988000
-[47200.313171] x9 : 0000000000000000 x8 : ffff0820e2bc1700
-[47200.319682] x7 : 0000000000000000 x6 : 000000000000003f
-[47200.326170] x5 : 0000000000000040 x4 : ffff800010e93a20
-[47200.332656] x3 : 0000000000000004 x2 : ffff0820c970ec80
-[47200.339168] x1 : ffff0820e2bc1680 x0 : 0000000000000004
-[47200.346058] Call trace:
-[47200.349324]  cpu_rmap_add+0x38/0x40
-[47200.354300]  hns3_set_rx_cpu_rmap+0x6c/0xe0 [hns3]
-[47200.362294]  hns3_reset_notify_init_enet+0x1cc/0x340 [hns3]
-[47200.370049]  hns3_change_channels+0x40/0xb0 [hns3]
-[47200.376770]  hns3_set_channels+0x12c/0x2a0 [hns3]
-[47200.383353]  ethtool_set_channels+0x140/0x250
-[47200.389772]  dev_ethtool+0x714/0x23d0
-[47200.394440]  dev_ioctl+0x4cc/0x640
-[47200.399277]  sock_do_ioctl+0x100/0x2a0
-[47200.404574]  sock_ioctl+0x28c/0x470
-[47200.409079]  __arm64_sys_ioctl+0xb4/0x100
-[47200.415217]  el0_svc_common.constprop.0+0x84/0x210
-[47200.422088]  do_el0_svc+0x28/0x34
-[47200.426387]  el0_svc+0x28/0x70
-[47200.431308]  el0_sync_handler+0x1a4/0x1b0
-[47200.436477]  el0_sync+0x174/0x180
-[47200.441562] Code: 11000405 79000c45 f8247861 d65f03c0 (d4210000)
-[47200.448869] ---[ end trace a01efe4ce42e5f34 ]---
+ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
 
-The process is like below:
-excuting hns3_client_init
-|
-register_netdev()
-|                           hns3_set_channels()
-|                           |
-hns3_set_rx_cpu_rmap()      hns3_reset_notify_uninit_enet()
-|                               |
-|                            quit without calling function
-|                            hns3_free_rx_cpu_rmap for flag
-|                            HNS3_NIC_STATE_INITED is unset.
-|                           |
-|                           hns3_reset_notify_init_enet()
-|                               |
-set HNS3_NIC_STATE_INITED    call hns3_set_rx_cpu_rmap()-- crash
-
-Fix it by calling register_netdev() at the end of function
-hns3_client_init().
-
-Fixes: 08a100689d4b ("net: hns3: re-organize vector handle")
-Signed-off-by: Jian Shen <shenjian15@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ arch/mips/ralink/of.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index ef3148919970..25fcb624ac20 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -4113,12 +4113,6 @@ static int hns3_client_init(struct hnae3_handle *handle)
- 	if (ret)
- 		goto out_init_phy;
+diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
+index 1ada8492733b..92b3d4849996 100644
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -10,6 +10,7 @@
  
--	ret = register_netdev(netdev);
--	if (ret) {
--		dev_err(priv->dev, "probe register netdev fail!\n");
--		goto out_reg_netdev_fail;
--	}
--
- 	/* the device can work without cpu rmap, only aRFS needs it */
- 	ret = hns3_set_rx_cpu_rmap(netdev);
- 	if (ret)
-@@ -4146,17 +4140,23 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ #include <linux/io.h>
+ #include <linux/clk.h>
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/sizes.h>
+ #include <linux/of_fdt.h>
+@@ -27,6 +28,7 @@
  
- 	set_bit(HNS3_NIC_STATE_INITED, &priv->state);
+ __iomem void *rt_sysc_membase;
+ __iomem void *rt_memc_membase;
++EXPORT_SYMBOL_GPL(rt_sysc_membase);
  
-+	ret = register_netdev(netdev);
-+	if (ret) {
-+		dev_err(priv->dev, "probe register netdev fail!\n");
-+		goto out_reg_netdev_fail;
-+	}
-+
- 	if (netif_msg_drv(handle))
- 		hns3_info_show(priv);
- 
- 	return ret;
- 
-+out_reg_netdev_fail:
-+	hns3_dbg_uninit(handle);
- out_client_start:
- 	hns3_free_rx_cpu_rmap(netdev);
- 	hns3_nic_uninit_irq(priv);
- out_init_irq_fail:
--	unregister_netdev(netdev);
--out_reg_netdev_fail:
- 	hns3_uninit_phy(netdev);
- out_init_phy:
- 	hns3_uninit_all_ring(priv);
+ __iomem void *plat_of_remap_node(const char *node)
+ {
 -- 
 2.30.2
 
