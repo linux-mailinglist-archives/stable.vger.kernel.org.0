@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A75A395B6C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 98A30396020
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231997AbhEaNUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:20:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
+        id S233562AbhEaOXC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231996AbhEaNT0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A14FF61370;
-        Mon, 31 May 2021 13:17:45 +0000 (UTC)
+        id S232842AbhEaORd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:17:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A968619B2;
+        Mon, 31 May 2021 13:43:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467066;
-        bh=QiJfQQ2lGAhjue+n+IK7CmDXRyJYeulPWGflo0C2kKM=;
+        s=korg; t=1622468616;
+        bh=RzFbbpwa7Yp8R+q5O798s43vbcoxm8pztewk0n6GN6w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dpDE/OyjOjNatyxWb7AY1YqKPBRbG2TeadOFj6o592/SCdvwgDM3AGAcFdFtwJHb9
-         eJcdtg7DRcng4ZgqOocXHQ1xnpEpJCn3NcOHjOxE9HF7zNJZmm9JyGB5IZeemxpRNX
-         X4hdJCsgLbCrwXzqQQ0VNftPTbPpkw2RPIze2ZRo=
+        b=z/WjIszXHjFuWJgwusOirBnREICJweMOjQ99V7vx4Fc6WDMcvGIV9uyGTwLp5H1cA
+         J8gRym7ZMNb/sjWWceCtCyuJf4lSNK6y4V0mY9hJbkknzu5Kxz/eniTYoCkZ6eiHEz
+         NCdv4GzPirJ2tD+Xazad6V88XG2G47Q7Uk0q239Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: [PATCH 4.4 10/54] misc/uss720: fix memory leak in uss720_probe
-Date:   Mon, 31 May 2021 15:13:36 +0200
-Message-Id: <20210531130635.408957459@linuxfoundation.org>
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Daniel Lezcano <daniel.lezcano@linaro.org>
+Subject: [PATCH 5.4 060/177] thermal/drivers/intel: Initialize RW trip to THERMAL_TEMP_INVALID
+Date:   Mon, 31 May 2021 15:13:37 +0200
+Message-Id: <20210531130649.984180458@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +40,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
+commit eb8500b874cf295971a6a2a04e14eb0854197a3c upstream.
 
-uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
-Fix this by decreasing the refcount of usbdev by usb_put_dev.
+After commit 81ad4276b505 ("Thermal: Ignore invalid trip points") all
+user_space governor notifications via RW trip point is broken in intel
+thermal drivers. This commits marks trip_points with value of 0 during
+call to thermal_zone_device_register() as invalid. RW trip points can be
+0 as user space will set the correct trip temperature later.
 
-BUG: memory leak
-unreferenced object 0xffff888101113800 (size 2048):
-  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
-    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
-  backtrace:
-    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
-    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
-    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
-    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
-    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
-    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
-    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
-    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
-    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
-    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+During driver init, x86_package_temp and all int340x drivers sets RW trip
+temperature as 0. This results in all these trips marked as invalid by
+the thermal core.
 
-Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this initialize RW trips to THERMAL_TEMP_INVALID instead of 0.
+
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
+Link: https://lore.kernel.org/r/20210430122343.1789899-1-srinivas.pandruvada@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/uss720.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c |    4 ++++
+ drivers/thermal/intel/x86_pkg_temp_thermal.c                 |    2 +-
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -753,6 +753,7 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+@@ -230,6 +230,8 @@ struct int34x_thermal_zone *int340x_ther
+ 	if (ACPI_FAILURE(status))
+ 		trip_cnt = 0;
+ 	else {
++		int i;
++
+ 		int34x_thermal_zone->aux_trips =
+ 			kcalloc(trip_cnt,
+ 				sizeof(*int34x_thermal_zone->aux_trips),
+@@ -240,6 +242,8 @@ struct int34x_thermal_zone *int340x_ther
+ 		}
+ 		trip_mask = BIT(trip_cnt) - 1;
+ 		int34x_thermal_zone->aux_trip_nr = trip_cnt;
++		for (i = 0; i < trip_cnt; ++i)
++			int34x_thermal_zone->aux_trips[i] = THERMAL_TEMP_INVALID;
+ 	}
  
- 	usb_set_intfdata(intf, pp);
-+	usb_put_dev(usbdev);
+ 	trip_cnt = int340x_thermal_read_trips(int34x_thermal_zone);
+--- a/drivers/thermal/intel/x86_pkg_temp_thermal.c
++++ b/drivers/thermal/intel/x86_pkg_temp_thermal.c
+@@ -164,7 +164,7 @@ static int sys_get_trip_temp(struct ther
+ 	if (thres_reg_value)
+ 		*temp = zonedev->tj_max - thres_reg_value * 1000;
+ 	else
+-		*temp = 0;
++		*temp = THERMAL_TEMP_INVALID;
+ 	pr_debug("sys_get_trip_temp %d\n", *temp);
+ 
  	return 0;
- 
- probe_abort:
 
 
