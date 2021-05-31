@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EDDB6396284
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2EE0E395CC5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233304AbhEaO53 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:29 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47898 "EHLO mail.kernel.org"
+        id S232116AbhEaNhc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:37:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233045AbhEaOzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:55:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 86C2661CB6;
-        Mon, 31 May 2021 13:59:37 +0000 (UTC)
+        id S232616AbhEaNfX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:35:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AFA7F61444;
+        Mon, 31 May 2021 13:25:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469578;
-        bh=PzC1/aHqCfv71WlG8DDX9grk2xusdWHpo+JrJJTeOp8=;
+        s=korg; t=1622467518;
+        bh=k5C6B80V97/999w9lzY6hsrf7kvKwJWQtz5GjPSoiEQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G+jF2tbbHM1QeozK6q8m1rV53EyDTFnL+2fAfyxMYR4TjrHYQoJlriTZ7jza7EcNv
-         EnSGMXFkms5oP3/zRE2mK64is8E+P9leTjOrw/HA8M88xBHw8QI57XEwC9etfnsJqN
-         cIY2vOK9QfDZj4YDunQqZLeVCvyM8rMlTGRqu3B8=
+        b=ipg98l41S28DP03KsYAJBj379LkppS/QY3xUoGQCALV0gbZFInzzD2Q9zcbbwh2xh
+         cYCF9WTC0IGqETsbWcDYBK63L8GCbc1D2mr6qlGlkQMaVlrAujZre4WT3whbwmMAlF
+         iJW5vq+ysdfxIA0N1GIxbbq1VzH0ATAEwYkWfy+4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
+        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
         =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 216/296] drm/amdgpu: stop touching sched.ready in the backend
+Subject: [PATCH 4.19 095/116] drm/amdgpu: Fix a use-after-free
 Date:   Mon, 31 May 2021 15:14:31 +0200
-Message-Id: <20210531130711.107040431@linuxfoundation.org>
+Message-Id: <20210531130643.355967281@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian König <christian.koenig@amd.com>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit a2b4785f01280a4291edb9fda69032fc2e4bfd3f ]
+[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
 
-This unfortunately comes up in regular intervals and breaks
-GPU reset for the engine in question.
+looks like we forget to set ttm->sg to NULL.
+Hit panic below
 
-The sched.ready flag controls if an engine can't get working
-during hw_init, but should never be set to false during hw_fini.
+[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
+[ 1235.989074] Call Trace:
+[ 1235.991751]  sg_free_table+0x17/0x20
+[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
+[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
+[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
+[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
+[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
+[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
+[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
+[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
+[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
+[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
 
-v2: squash in unused variable fix (Alex)
-
-Signed-off-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c | 2 --
- drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c | 2 --
- drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c | 5 -----
- drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c  | 8 +-------
- 4 files changed, 1 insertion(+), 16 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-index c6724a0e0c43..dc947c8ffe21 100644
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v2_5.c
-@@ -198,8 +198,6 @@ static int jpeg_v2_5_hw_fini(void *handle)
- 		if (adev->jpeg.cur_state != AMD_PG_STATE_GATE &&
- 		      RREG32_SOC15(JPEG, i, mmUVD_JRBC_STATUS))
- 			jpeg_v2_5_set_powergating_state(adev, AMD_PG_STATE_GATE);
--
--		ring->sched.ready = false;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 757fa486aac4..50807d621eca 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1277,6 +1277,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_tt *ttm)
+ 	if (gtt && gtt->userptr) {
+ 		amdgpu_ttm_tt_set_user_pages(ttm, NULL);
+ 		kfree(ttm->sg);
++		ttm->sg = NULL;
+ 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
+ 		return;
  	}
- 
- 	return 0;
-diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-index e8fbb2a0de34..1d354245678d 100644
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-@@ -166,8 +166,6 @@ static int jpeg_v3_0_hw_fini(void *handle)
- 	      RREG32_SOC15(JPEG, 0, mmUVD_JRBC_STATUS))
- 		jpeg_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
- 
--	ring->sched.ready = false;
--
- 	return 0;
- }
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-index 690a5090475a..32c6aa03d267 100644
---- a/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-+++ b/drivers/gpu/drm/amd/amdgpu/sdma_v5_2.c
-@@ -470,11 +470,6 @@ static void sdma_v5_2_gfx_stop(struct amdgpu_device *adev)
- 		ib_cntl = REG_SET_FIELD(ib_cntl, SDMA0_GFX_IB_CNTL, IB_ENABLE, 0);
- 		WREG32(sdma_v5_2_get_reg_offset(adev, i, mmSDMA0_GFX_IB_CNTL), ib_cntl);
- 	}
--
--	sdma0->sched.ready = false;
--	sdma1->sched.ready = false;
--	sdma2->sched.ready = false;
--	sdma3->sched.ready = false;
- }
- 
- /**
-diff --git a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-index 9b844e9fb16f..ebbc04ff5da0 100644
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v3_0.c
-@@ -368,7 +368,7 @@ static int vcn_v3_0_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
- 	struct amdgpu_ring *ring;
--	int i, j;
-+	int i;
- 
- 	for (i = 0; i < adev->vcn.num_vcn_inst; ++i) {
- 		if (adev->vcn.harvest_config & (1 << i))
-@@ -383,12 +383,6 @@ static int vcn_v3_0_hw_fini(void *handle)
- 				vcn_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
- 			}
- 		}
--		ring->sched.ready = false;
--
--		for (j = 0; j < adev->vcn.num_enc_rings; ++j) {
--			ring = &adev->vcn.inst[i].ring_enc[j];
--			ring->sched.ready = false;
--		}
- 	}
- 
- 	return 0;
 -- 
 2.30.2
 
