@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9103039615A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F1FE3395DEC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232127AbhEaOkC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60974 "EHLO mail.kernel.org"
+        id S232351AbhEaNvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55338 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232374AbhEaOhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 549E961C51;
-        Mon, 31 May 2021 13:51:23 +0000 (UTC)
+        id S232907AbhEaNtm (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:49:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB3F5613B4;
+        Mon, 31 May 2021 13:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469083;
-        bh=Yij9AYDeavoAhzFiZR7co5W/gtlRzghlzkpTvWbeV3k=;
+        s=korg; t=1622467903;
+        bh=vWzu84KDPR4m9KQqki4TpwcoGMXj2QMHBkh1UmR+CQE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQ3BuRypTzzuUwgK5Fk0EDtjOqmILxPWyDQQSqwv57dWI4Km0Dnujsz6Kve2X3AtL
-         kCbi1yZSKTCIIIjX6DdKVNESfo3EDm++VpjcHIT/cUx02XDZzNp+BzF6RaTqc1iXYn
-         vDaxxLSw6saYxyZvU5YS1VKYcasL1pipBfX59dcs=
+        b=KxIvX+e3pTN+YEjYw7N25Cm1uhLYRK1C2jl0Ik6iLX1dmZpkrbLeyJ+GNHSoR/nUU
+         h39e125CLR2MUHE9B6kvbZQoyL3B7nuWo0oKbsOh6917mGZmyGZF87UM8k8c32XRCg
+         YOgZrJYKWvlKHT301TEA5T8ZSwBgQ5eOpoia/sLQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Miquel Raynal <miquel.raynal@bootlin.com>
-Subject: [PATCH 5.12 018/296] mtd: rawnand: tmio: Fix external use of SW Hamming ECC helper
+        stable@vger.kernel.org, "Geoffrey D. Bennett" <g@b4.vu>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 008/252] ALSA: usb-audio: scarlett2: Fix device hang with ehci-pci
 Date:   Mon, 31 May 2021 15:11:13 +0200
-Message-Id: <20210531130704.375707167@linuxfoundation.org>
+Message-Id: <20210531130658.263869279@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,51 +39,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miquel Raynal <miquel.raynal@bootlin.com>
+From: Geoffrey D. Bennett <g@b4.vu>
 
-commit 6a4c5ada577467a5f79e06f2c5e69c09983c22fb upstream.
+commit 764fa6e686e0107c0357a988d193de04cf047583 upstream.
 
-Since the Hamming software ECC engine has been updated to become a
-proper and independent ECC engine, it is now mandatory to either
-initialize the engine before using any one of his functions or use one
-of the bare helpers which only perform the calculations. As there is no
-actual need for a proper ECC initialization, let's just use the bare
-helper instead of the rawnand one.
+Use usb_rcvctrlpipe() not usb_sndctrlpipe() for USB control input in
+the Scarlett Gen 2 mixer driver. This fixes the device hang during
+initialisation when used with the ehci-pci host driver.
 
-Fixes: 90ccf0a0192f ("mtd: nand: ecc-hamming: Rename the exported functions")
-Cc: stable@vger.kernel.org
-Signed-off-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Link: https://lore.kernel.org/linux-mtd/20210413161840.345208-7-miquel.raynal@bootlin.com
+Fixes: 9e4d5c1be21f ("ALSA: usb-audio: Scarlett Gen 2 mixer interface")
+Signed-off-by: Geoffrey D. Bennett <g@b4.vu>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/66a3d05dac325d5b53e4930578e143cef1f50dbe.1621584566.git.g@b4.vu
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mtd/nand/raw/tmio_nand.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/usb/mixer_scarlett_gen2.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mtd/nand/raw/tmio_nand.c
-+++ b/drivers/mtd/nand/raw/tmio_nand.c
-@@ -34,6 +34,7 @@
- #include <linux/interrupt.h>
- #include <linux/ioport.h>
- #include <linux/mtd/mtd.h>
-+#include <linux/mtd/nand-ecc-sw-hamming.h>
- #include <linux/mtd/rawnand.h>
- #include <linux/mtd/partitions.h>
- #include <linux/slab.h>
-@@ -292,11 +293,12 @@ static int tmio_nand_correct_data(struct
- 	int r0, r1;
+--- a/sound/usb/mixer_scarlett_gen2.c
++++ b/sound/usb/mixer_scarlett_gen2.c
+@@ -635,7 +635,7 @@ static int scarlett2_usb(
+ 	/* send a second message to get the response */
  
- 	/* assume ecc.size = 512 and ecc.bytes = 6 */
--	r0 = rawnand_sw_hamming_correct(chip, buf, read_ecc, calc_ecc);
-+	r0 = ecc_sw_hamming_correct(buf, read_ecc, calc_ecc,
-+				    chip->ecc.size, false);
- 	if (r0 < 0)
- 		return r0;
--	r1 = rawnand_sw_hamming_correct(chip, buf + 256, read_ecc + 3,
--					calc_ecc + 3);
-+	r1 = ecc_sw_hamming_correct(buf + 256, read_ecc + 3, calc_ecc + 3,
-+				    chip->ecc.size, false);
- 	if (r1 < 0)
- 		return r1;
- 	return r0 + r1;
+ 	err = snd_usb_ctl_msg(mixer->chip->dev,
+-			usb_sndctrlpipe(mixer->chip->dev, 0),
++			usb_rcvctrlpipe(mixer->chip->dev, 0),
+ 			SCARLETT2_USB_VENDOR_SPECIFIC_CMD_RESP,
+ 			USB_RECIP_INTERFACE | USB_TYPE_CLASS | USB_DIR_IN,
+ 			0,
 
 
