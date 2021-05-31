@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DEF71396207
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 04A09395D44
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:42:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232824AbhEaOt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:49:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
+        id S231827AbhEaNni (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:43:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44428 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233849AbhEaOrk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:47:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DC0E61925;
-        Mon, 31 May 2021 13:56:25 +0000 (UTC)
+        id S232384AbhEaNlo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:41:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7936F61477;
+        Mon, 31 May 2021 13:28:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469386;
-        bh=euRLIJDH25ZoSnSBxdxzZ317rlc/qZqkNqj/3eTS1xc=;
+        s=korg; t=1622467688;
+        bh=ONqF2jea033Q9uVGbSv2lZdy42nvNKvFYGlyf2LhVL0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zs6xoAnd9Uvpnk4PRpZB8QZaY93NZmfnzZTEsawKeS/evXe3rYMTIDq+1VztsFrgp
-         dtGEc9FRRBMAZ7D4o+lC2QDcRv9yrb94Zx29ghfygn2DLxGruzIZb3fwBGXIVpo/z5
-         OLddCBm6nuY2rqOESr36KyASCn7ANreQEosN1ga8=
+        b=WOU9czcGFsep0WK7oF54ZjG2zwj1sxxUTBTkh6ScIBjVWMcxs9tES4xTUTigBeJXN
+         9wAxSelYCgYd9OKS3RiWymf/zCz95fEkE6xRDxWZ9oqMYMYmUU4lYITMmQgdjVRWmW
+         II7J25/4xW4VAS7AAl4JALLBI1BvHiYgQqC1onyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 179/296] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 4.14 09/79] perf intel-pt: Fix sample instruction bytes
 Date:   Mon, 31 May 2021 15:13:54 +0200
-Message-Id: <20210531130709.883243622@linuxfoundation.org>
+Message-Id: <20210531130636.302642078@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +40,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Adrian Hunter <adrian.hunter@intel.com>
 
-[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
+commit c954eb72b31a9dc56c99b450253ec5b121add320 upstream.
 
-Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
-and hw->ci->addr_mode respectively, to be before the subsequent checks
-for memory IO mode (and possible ioremap calls in this case).
+The decoder reports the current instruction if it was decoded. In some
+cases the current instruction is not decoded, in which case the instruction
+bytes length must be set to zero. Ensure that is always done.
 
-Also introduce ioremap error checks at both locations. This allows
-resources to be properly freed on ioremap failure, as when the caller
-of setup_io then subsequently calls release_io via its error path,
-release_io can now correctly determine the mode as it has been set
-before the ioremap call.
+Note perf script can anyway get the instruction bytes for any samples where
+they are not present.
 
-Finally, refactor release_io function so that it will call
-release_mem_region in the memory IO case, regardless of whether or not
-hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
-released on failure.
+Also note, that there is a redundant "ptq->insn_len = 0" statement which is
+not removed until a subsequent patch in order to make this patch apply
+cleanly to stable branches.
 
-This properly implements the original reverted commit (d721fe99f6ad)
-from the University of Minnesota, whilst also implementing the ioremap
-check for the hw->ci->cfg_mode if block as well.
+Example:
 
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+A machne that supports TSX is required. It will have flag "rtm". Kernel
+parameter tsx=on may be required.
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-index fa9c491f9c38..88d592bafdb0 100644
---- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-@@ -630,17 +630,19 @@ static void
- release_io(struct inf_hw *hw)
+ # for w in `cat /proc/cpuinfo | grep -m1 flags `;do echo $w | grep rtm ; done
+ rtm
+
+Test program:
+
+ #include <stdio.h>
+ #include <immintrin.h>
+
+ int main()
  {
- 	if (hw->cfg.mode) {
--		if (hw->cfg.p) {
-+		if (hw->cfg.mode == AM_MEMIO) {
- 			release_mem_region(hw->cfg.start, hw->cfg.size);
--			iounmap(hw->cfg.p);
-+			if (hw->cfg.p)
-+				iounmap(hw->cfg.p);
- 		} else
- 			release_region(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = AM_NONE;
- 	}
- 	if (hw->addr.mode) {
--		if (hw->addr.p) {
-+		if (hw->addr.mode == AM_MEMIO) {
- 			release_mem_region(hw->addr.start, hw->addr.size);
--			iounmap(hw->addr.p);
-+			if (hw->addr.p)
-+				iounmap(hw->addr.p);
- 		} else
- 			release_region(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = AM_NONE;
-@@ -670,9 +672,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
- 			return err;
- 		}
--		if (hw->ci->cfg_mode == AM_MEMIO)
--			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = hw->ci->cfg_mode;
-+		if (hw->ci->cfg_mode == AM_MEMIO) {
-+			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
-+			if (!hw->cfg.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->cfg.start,
-@@ -697,9 +702,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->addr.start, (ulong)hw->addr.size);
- 			return err;
- 		}
--		if (hw->ci->addr_mode == AM_MEMIO)
--			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = hw->ci->addr_mode;
-+		if (hw->ci->addr_mode == AM_MEMIO) {
-+			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
-+			if (!hw->addr.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->addr.start,
--- 
-2.30.2
+        int x = 0;
 
+        if (_xbegin() == _XBEGIN_STARTED) {
+                x = 1;
+                _xabort(1);
+        } else {
+                printf("x = %d\n", x);
+        }
+        return 0;
+ }
+
+Compile with -mrtm i.e.
+
+ gcc -Wall -Wextra -mrtm xabort.c -o xabort
+
+Record:
+
+ perf record -e intel_pt/cyc/u --filter 'filter main @ ./xabort' ./xabort
+
+Before:
+
+ # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
+          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          mov $0xffffffff, %eax
+          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          mov $0xffffffff, %eax
+
+After:
+
+ # perf script --itrace=xe -F+flags,+insn,-period --xed --ns
+          xabort  1478 [007] 92161.431348581:   transactions:   x                              400b81 main+0x14 (/root/xabort)          xbegin 0x6
+          xabort  1478 [007] 92161.431348624:   transactions:   tx abrt                        400b93 main+0x26 (/root/xabort)          xabort $0x1
+
+Fixes: faaa87680b25d ("perf intel-pt/bts: Report instruction bytes and length in sample")
+Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: stable@vger.kernel.org
+Link: http://lore.kernel.org/lkml/20210519074515.9262-3-adrian.hunter@intel.com
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ tools/perf/util/intel-pt.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+--- a/tools/perf/util/intel-pt.c
++++ b/tools/perf/util/intel-pt.c
+@@ -535,8 +535,10 @@ static int intel_pt_walk_next_insn(struc
+ 
+ 			*ip += intel_pt_insn->length;
+ 
+-			if (to_ip && *ip == to_ip)
++			if (to_ip && *ip == to_ip) {
++				intel_pt_insn->length = 0;
+ 				goto out_no_cache;
++			}
+ 
+ 			if (*ip >= al.map->end)
+ 				break;
+@@ -923,6 +925,7 @@ static void intel_pt_set_pid_tid_cpu(str
+ 
+ static void intel_pt_sample_flags(struct intel_pt_queue *ptq)
+ {
++	ptq->insn_len = 0;
+ 	if (ptq->state->flags & INTEL_PT_ABORT_TX) {
+ 		ptq->flags = PERF_IP_FLAG_BRANCH | PERF_IP_FLAG_TX_ABORT;
+ 	} else if (ptq->state->flags & INTEL_PT_ASYNC) {
 
 
