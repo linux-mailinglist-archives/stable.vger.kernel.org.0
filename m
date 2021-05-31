@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C11EA395C17
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8758395B8B
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:20:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbhEaN2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:28:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60152 "EHLO mail.kernel.org"
+        id S231837AbhEaNVo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:21:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55014 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231917AbhEaN0J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:26:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 34C2C61406;
-        Mon, 31 May 2021 13:21:09 +0000 (UTC)
+        id S231823AbhEaNUD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:20:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 234386135D;
+        Mon, 31 May 2021 13:18:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467270;
-        bh=d31Yhnkyy17E4yy6rXixvQwo0TFmxk7sTDaVwYUlXLg=;
+        s=korg; t=1622467101;
+        bh=2DKgRIUx3bq4bj2n7TveWOz0TPwQ1RJ+G6bHpOUG4Y0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MrydVErGYeX0+xwuhdMzRpOqPnDkaiBbIHeFI0aa2Njkli6NjoUo05Frs2a2VX27Z
-         3E7x8KtSg29MokwMjDemjmsXPX0C9UJuLTLY6Y4yHRYKSjK2snE4CXhw8PVFsJfkLv
-         EMpRg6AZkded+uuZTYBnjdy5fd6tkzQM0QckQ6Y4=
+        b=UldYwMDCEXgBfzPCNJpwLovVefGRYpGncnKVWEwJOEXoOXGYuC+RL2Wnm3Ukhzc//
+         MndCNoybVjc1Y6SGWW7QBb/WcEN9iABFwJnuY6qVSjCk/l0mSIWdnddTASfYMIhy4q
+         F2BKaxf83vjvmk5LmrwAY5o/7WI1mwZbHuVMh+H8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Phillip Potter <phil@philpotter.co.uk>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Wim Van Sebroeck <wim@iguana.be>,
+        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
+        linux-watchdog@vger.kernel.org,
+        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 44/66] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+Subject: [PATCH 4.4 51/54] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
 Date:   Mon, 31 May 2021 15:14:17 +0200
-Message-Id: <20210531130637.648671068@linuxfoundation.org>
+Message-Id: <20210531130636.666522100@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,98 +44,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
+[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
 
-Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
-and hw->ci->addr_mode respectively, to be before the subsequent checks
-for memory IO mode (and possible ioremap calls in this case).
+rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
+when this watchdog driver is built as a loadable module, there is a
+build error since the rt_sysc_membase symbol is not exported.
+Export it to quell the build error.
 
-Also introduce ioremap error checks at both locations. This allows
-resources to be properly freed on ioremap failure, as when the caller
-of setup_io then subsequently calls release_io via its error path,
-release_io can now correctly determine the mode as it has been set
-before the ioremap call.
+ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
 
-Finally, refactor release_io function so that it will call
-release_mem_region in the memory IO case, regardless of whether or not
-hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
-released on failure.
-
-This properly implements the original reverted commit (d721fe99f6ad)
-from the University of Minnesota, whilst also implementing the ioremap
-check for the hw->ci->cfg_mode if block as well.
-
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Guenter Roeck <linux@roeck-us.net>
+Cc: Wim Van Sebroeck <wim@iguana.be>
+Cc: John Crispin <john@phrozen.org>
+Cc: linux-mips@vger.kernel.org
+Cc: linux-watchdog@vger.kernel.org
+Acked-by: Guenter Roeck <linux@roeck-us.net>
+Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ arch/mips/ralink/of.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-index d5bdbaf93a1a..d0b6377b9834 100644
---- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-@@ -645,17 +645,19 @@ static void
- release_io(struct inf_hw *hw)
+--- a/arch/mips/ralink/of.c
++++ b/arch/mips/ralink/of.c
+@@ -10,6 +10,7 @@
+ 
+ #include <linux/io.h>
+ #include <linux/clk.h>
++#include <linux/export.h>
+ #include <linux/init.h>
+ #include <linux/sizes.h>
+ #include <linux/of_fdt.h>
+@@ -27,6 +28,7 @@
+ 
+ __iomem void *rt_sysc_membase;
+ __iomem void *rt_memc_membase;
++EXPORT_SYMBOL_GPL(rt_sysc_membase);
+ 
+ __iomem void *plat_of_remap_node(const char *node)
  {
- 	if (hw->cfg.mode) {
--		if (hw->cfg.p) {
-+		if (hw->cfg.mode == AM_MEMIO) {
- 			release_mem_region(hw->cfg.start, hw->cfg.size);
--			iounmap(hw->cfg.p);
-+			if (hw->cfg.p)
-+				iounmap(hw->cfg.p);
- 		} else
- 			release_region(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = AM_NONE;
- 	}
- 	if (hw->addr.mode) {
--		if (hw->addr.p) {
-+		if (hw->addr.mode == AM_MEMIO) {
- 			release_mem_region(hw->addr.start, hw->addr.size);
--			iounmap(hw->addr.p);
-+			if (hw->addr.p)
-+				iounmap(hw->addr.p);
- 		} else
- 			release_region(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = AM_NONE;
-@@ -685,9 +687,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
- 			return err;
- 		}
--		if (hw->ci->cfg_mode == AM_MEMIO)
--			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = hw->ci->cfg_mode;
-+		if (hw->ci->cfg_mode == AM_MEMIO) {
-+			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
-+			if (!hw->cfg.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->cfg.start,
-@@ -712,9 +717,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->addr.start, (ulong)hw->addr.size);
- 			return err;
- 		}
--		if (hw->ci->addr_mode == AM_MEMIO)
--			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = hw->ci->addr_mode;
-+		if (hw->ci->addr_mode == AM_MEMIO) {
-+			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
-+			if (!hw->addr.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->addr.start,
--- 
-2.30.2
-
 
 
