@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6167D395B66
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:18:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BAC2E395EFB
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:04:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231974AbhEaNUI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:20:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55182 "EHLO mail.kernel.org"
+        id S232936AbhEaOGF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:06:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231847AbhEaNTT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:19:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DF4B6138C;
-        Mon, 31 May 2021 13:17:38 +0000 (UTC)
+        id S231726AbhEaOEA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:04:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0FDDC6145E;
+        Mon, 31 May 2021 13:37:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467058;
-        bh=eThF42QgHM2ceyuUbfHXSeQsf1W1pocY7rix57lF/sE=;
+        s=korg; t=1622468279;
+        bh=vzRtq7W+5Gr3V2A6lBxrmmAgXkBMLq/lOSIWT4Bm3f0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mwIqGzGhVATUw/wiPz+FBElZ24DQiCzN16RyQpFB8t21G3RXT+8OO3cXKpz0MHBb3
-         bUBg5S3ACOanmkv6rt5UDUloEfTcLqi009renLw1LFiX2pd0LMsEqfpM6jQt4VT55B
-         /vS8jHjmPnuObFgNtKHWquUK8Ao+9ZuQdHqQaSY8=
+        b=RyABLmkAGYMmpZxvh6pqVNU17NQz9wg42lMsEVpRjPN7pKpvlICzWaT9y5be/nvVf
+         58KybDiIYOHAkmkPTBPkOjjlIDvXSYoQQLJH1a2GsCYwqQ/RS/NQ75vZKbEVuW1QS/
+         VhUkNMeAoVgzDec1BpBOfTVjZvtOLJrfP7gsTpY0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Peter Zijlstra <peterz@infradead.org>,
-        Stafford Horne <shorne@gmail.com>,
+        stable@vger.kernel.org, xinhui pan <xinhui.pan@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.4 41/54] openrisc: Define memory barrier mb
-Date:   Mon, 31 May 2021 15:14:07 +0200
-Message-Id: <20210531130636.363318707@linuxfoundation.org>
+Subject: [PATCH 5.10 183/252] drm/amdgpu: Fix a use-after-free
+Date:   Mon, 31 May 2021 15:14:08 +0200
+Message-Id: <20210531130704.227893979@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
-References: <20210531130635.070310929@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +41,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: xinhui pan <xinhui.pan@amd.com>
 
-[ Upstream commit 8b549c18ae81dbc36fb11e4aa08b8378c599ca95 ]
+[ Upstream commit 1e5c37385097c35911b0f8a0c67ffd10ee1af9a2 ]
 
-This came up in the discussion of the requirements of qspinlock on an
-architecture.  OpenRISC uses qspinlock, but it was noticed that the
-memmory barrier was not defined.
+looks like we forget to set ttm->sg to NULL.
+Hit panic below
 
-Peter defined it in the mail thread writing:
+[ 1235.844104] general protection fault, probably for non-canonical address 0x6b6b6b6b6b6b7b4b: 0000 [#1] SMP DEBUG_PAGEALLOC NOPTI
+[ 1235.989074] Call Trace:
+[ 1235.991751]  sg_free_table+0x17/0x20
+[ 1235.995667]  amdgpu_ttm_backend_unbind.cold+0x4d/0xf7 [amdgpu]
+[ 1236.002288]  amdgpu_ttm_backend_destroy+0x29/0x130 [amdgpu]
+[ 1236.008464]  ttm_tt_destroy+0x1e/0x30 [ttm]
+[ 1236.013066]  ttm_bo_cleanup_memtype_use+0x51/0xa0 [ttm]
+[ 1236.018783]  ttm_bo_release+0x262/0xa50 [ttm]
+[ 1236.023547]  ttm_bo_put+0x82/0xd0 [ttm]
+[ 1236.027766]  amdgpu_bo_unref+0x26/0x50 [amdgpu]
+[ 1236.032809]  amdgpu_amdkfd_gpuvm_alloc_memory_of_gpu+0x7aa/0xd90 [amdgpu]
+[ 1236.040400]  kfd_ioctl_alloc_memory_of_gpu+0xe2/0x330 [amdgpu]
+[ 1236.046912]  kfd_ioctl+0x463/0x690 [amdgpu]
 
-    As near as I can tell this should do. The arch spec only lists
-    this one instruction and the text makes it sound like a completion
-    barrier.
-
-This is correct so applying this patch.
-
-Signed-off-by: Peter Zijlstra <peterz@infradead.org>
-[shorne@gmail.com:Turned the mail into a patch]
-Signed-off-by: Stafford Horne <shorne@gmail.com>
+Signed-off-by: xinhui pan <xinhui.pan@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/openrisc/include/asm/barrier.h | 9 +++++++++
- 1 file changed, 9 insertions(+)
- create mode 100644 arch/openrisc/include/asm/barrier.h
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/openrisc/include/asm/barrier.h b/arch/openrisc/include/asm/barrier.h
-new file mode 100644
-index 000000000000..7538294721be
---- /dev/null
-+++ b/arch/openrisc/include/asm/barrier.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __ASM_BARRIER_H
-+#define __ASM_BARRIER_H
-+
-+#define mb() asm volatile ("l.msync" ::: "memory")
-+
-+#include <asm-generic/barrier.h>
-+
-+#endif /* __ASM_BARRIER_H */
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+index 532250c2b19e..5207ad654f18 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c
+@@ -1381,6 +1381,7 @@ static void amdgpu_ttm_tt_unpopulate(struct ttm_bo_device *bdev, struct ttm_tt *
+ 	if (gtt && gtt->userptr) {
+ 		amdgpu_ttm_tt_set_user_pages(ttm, NULL);
+ 		kfree(ttm->sg);
++		ttm->sg = NULL;
+ 		ttm->page_flags &= ~TTM_PAGE_FLAG_SG;
+ 		return;
+ 	}
 -- 
 2.30.2
 
