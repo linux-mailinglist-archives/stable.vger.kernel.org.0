@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1363396107
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:33:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FF20395DC3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233113AbhEaOfR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:35:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
+        id S231204AbhEaNuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:50:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233944AbhEaOdI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:33:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 45C4061C39;
-        Mon, 31 May 2021 13:49:52 +0000 (UTC)
+        id S232591AbhEaNrM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 72E5B615A0;
+        Mon, 31 May 2021 13:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468992;
-        bh=MdXx8nvefx0CsVv8KljOMYZO5YFzTnvk+ckz98B0Rd4=;
+        s=korg; t=1622467836;
+        bh=yJaSPk+SA3ZD/Iq4qFmrm8UN3AxhOPuQ3d7rZwmtAN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uJYonJheKUryZoEQP+ybEBiQjTvQiwdmxMHraL4RjOrZuExBr2PtGEW+hnt7S4C0/
-         X3rhqPpcV1AmRz3mpTORQeHeL5jIgBWtlD+m9mZRZugaDHYAV3A0ZXk2ZuiZxUx5i1
-         51dF1MdCRFyXi0dPbhdz0xZZGTSsy1dKJnyKOCZM=
+        b=DWn8ddvQKoopIKrQBdBmaG2ZK3anCtDaJJXIaTyWwNp3cFGR2fyg69PWJpZX2iBWm
+         4Ot6e+b3CJVMk0lcga68+68Ih2+91kx6an+G8S5bn/gx4sCRXpteKxym4pjIzeVNYC
+         GSycxX8cblzOstPDwY2b0cSLxCxHARaTMNSjk0/c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Adrian Hunter <adrian.hunter@intel.com>,
-        Jiri Olsa <jolsa@redhat.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>
-Subject: [PATCH 5.12 029/296] perf scripts python: exported-sql-viewer.py: Fix warning display
+        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 019/252] net: hso: fix control-request directions
 Date:   Mon, 31 May 2021 15:11:24 +0200
-Message-Id: <20210531130704.773620786@linuxfoundation.org>
+Message-Id: <20210531130658.634814832@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,46 +39,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adrian Hunter <adrian.hunter@intel.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit f56299a9c998e0bfbd4ab07cafe9eb8444512448 upstream.
+commit 1a6e9a9c68c1f183872e4bcc947382111c2e04eb upstream.
 
-Deprecation warnings are useful only for the developer, not an end user.
-Display warnings only when requested using the python -W option. This
-stops the display of warnings like:
+The direction of the pipe argument must match the request-type direction
+bit or control requests may fail depending on the host-controller-driver
+implementation.
 
- tools/perf/scripts/python/exported-sql-viewer.py:5102: DeprecationWarning:
-         an integer is required (got type PySide2.QtCore.Qt.AlignmentFlag).
-         Implicit conversion to integers using __int__ is deprecated, and
-         may be removed in a future version of Python.
-    err = app.exec_()
+Fix the tiocmset and rfkill requests which erroneously used
+usb_rcvctrlpipe().
 
-Since the warning can be fixed only in PySide2, we must wait for it to
-be finally fixed there.
-
-Signed-off-by: Adrian Hunter <adrian.hunter@intel.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: stable@vger.kernel.org      # v5.3+
-Link: http://lore.kernel.org/lkml/20210521092053.25683-4-adrian.hunter@intel.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 72dc1c096c70 ("HSO: add option hso driver")
+Cc: stable@vger.kernel.org      # 2.6.27
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/perf/scripts/python/exported-sql-viewer.py |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/net/usb/hso.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/tools/perf/scripts/python/exported-sql-viewer.py
-+++ b/tools/perf/scripts/python/exported-sql-viewer.py
-@@ -91,6 +91,11 @@
- from __future__ import print_function
+--- a/drivers/net/usb/hso.c
++++ b/drivers/net/usb/hso.c
+@@ -1689,7 +1689,7 @@ static int hso_serial_tiocmset(struct tt
+ 	spin_unlock_irqrestore(&serial->serial_lock, flags);
  
- import sys
-+# Only change warnings if the python -W option was not used
-+if not sys.warnoptions:
-+	import warnings
-+	# PySide2 causes deprecation warnings, ignore them.
-+	warnings.filterwarnings("ignore", category=DeprecationWarning)
- import argparse
- import weakref
- import threading
+ 	return usb_control_msg(serial->parent->usb,
+-			       usb_rcvctrlpipe(serial->parent->usb, 0), 0x22,
++			       usb_sndctrlpipe(serial->parent->usb, 0), 0x22,
+ 			       0x21, val, if_num, NULL, 0,
+ 			       USB_CTRL_SET_TIMEOUT);
+ }
+@@ -2436,7 +2436,7 @@ static int hso_rfkill_set_block(void *da
+ 	if (hso_dev->usb_gone)
+ 		rv = 0;
+ 	else
+-		rv = usb_control_msg(hso_dev->usb, usb_rcvctrlpipe(hso_dev->usb, 0),
++		rv = usb_control_msg(hso_dev->usb, usb_sndctrlpipe(hso_dev->usb, 0),
+ 				       enabled ? 0x82 : 0x81, 0x40, 0, 0, NULL, 0,
+ 				       USB_CTRL_SET_TIMEOUT);
+ 	mutex_unlock(&hso_dev->mutex);
 
 
