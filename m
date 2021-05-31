@@ -2,34 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 785E2395EA6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 58202395EA8
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232076AbhEaOBc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:01:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59856 "EHLO mail.kernel.org"
+        id S232803AbhEaOBd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:01:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59926 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233048AbhEaN7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EFB7561933;
-        Mon, 31 May 2021 13:35:59 +0000 (UTC)
+        id S233064AbhEaN7X (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:59:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9C7DA61935;
+        Mon, 31 May 2021 13:36:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468160;
-        bh=3Dbt6QMFQJ+5uUFwcM6yTQ8Yvxyht9pncCIVnfvtdLI=;
+        s=korg; t=1622468163;
+        bh=mcsPY8Xc2q/p/Dt2uGk6HUl2ZNEAW7uSXSay5z7Nj0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LOVW51t1lletf4/uvL0M6+Lar+Piw40i1UWb2bLKJ9YP+xwmDHO5sbtCMszHgdAaI
-         O0D3spOHB6vmaWGhZnFwmVmYoVBxTybGYRhWRb3ECocafpq09M/5caMHbb7pNPXD+A
-         fKQIhaN26wRt0hFYizDAJ6rZk4x26ZmHEHv+CcTA=
+        b=e86MvXAdR3z4uKp2pIVolRyQO8SM1wgcFt3GPbk8SHLNeAIKjfD+KWVBT12evK+no
+         Sr4gVX+FJvO+HL8E16Ca903RcpiNii2/8M9YYXvlAesty0TohMWZz733QRaAMXwYLq
+         na3eKV+qvkzaFG/80xFNcjSkw8Z7fGZZH0ra1SBc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Anirudh Rayabharam <mail@anirudhrb.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Ursula Braun <ubraun@linux.ibm.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 138/252] net: fujitsu: fix potential null-ptr-deref
-Date:   Mon, 31 May 2021 15:13:23 +0200
-Message-Id: <20210531130702.703959552@linuxfoundation.org>
+Subject: [PATCH 5.10 139/252] Revert "net/smc: fix a NULL pointer dereference"
+Date:   Mon, 31 May 2021 15:13:24 +0200
+Message-Id: <20210531130702.742848350@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -41,40 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 52202be1cd996cde6e8969a128dc27ee45a7cb5e ]
+[ Upstream commit 5369ead83f5aff223b6418c99cb1fe9a8f007363 ]
 
-In fmvj18x_get_hwinfo(), if ioremap fails there will be NULL pointer
-deref. To fix this, check the return value of ioremap and return -1
-to the caller in case of failure.
+This reverts commit e183d4e414b64711baf7a04e214b61969ca08dfa.
 
-Cc: "David S. Miller" <davem@davemloft.net>
-Acked-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-16-gregkh@linuxfoundation.org
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit causes a memory leak and does not properly fix the
+issue it claims to fix.  I will send a follow-on patch to resolve this
+properly.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Ursula Braun <ubraun@linux.ibm.com>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-17-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/fujitsu/fmvj18x_cs.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ net/smc/smc_ism.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-index dc90c61fc827..b0c0504950d8 100644
---- a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-+++ b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-@@ -547,6 +547,11 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
- 	return -1;
- 
-     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
-+    if (!base) {
-+	pcmcia_release_window(link, link->resource[2]);
-+	return -1;
-+    }
-+
-     pcmcia_map_mem_page(link, link->resource[2], 0);
- 
-     /*
+diff --git a/net/smc/smc_ism.c b/net/smc/smc_ism.c
+index 6abbdd09a580..b4a9fe452470 100644
+--- a/net/smc/smc_ism.c
++++ b/net/smc/smc_ism.c
+@@ -319,11 +319,6 @@ struct smcd_dev *smcd_alloc_dev(struct device *parent, const char *name,
+ 	init_waitqueue_head(&smcd->lgrs_deleted);
+ 	smcd->event_wq = alloc_ordered_workqueue("ism_evt_wq-%s)",
+ 						 WQ_MEM_RECLAIM, name);
+-	if (!smcd->event_wq) {
+-		kfree(smcd->conn);
+-		kfree(smcd);
+-		return NULL;
+-	}
+ 	return smcd;
+ }
+ EXPORT_SYMBOL_GPL(smcd_alloc_dev);
 -- 
 2.30.2
 
