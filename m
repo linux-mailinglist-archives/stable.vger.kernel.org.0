@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D29B53961DB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C469395C6C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:31:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231667AbhEaOrQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:47:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
+        id S231898AbhEaNci (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:32:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38512 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234245AbhEaOpL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:45:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9612A61C7E;
-        Mon, 31 May 2021 13:55:17 +0000 (UTC)
+        id S231903AbhEaNam (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:30:42 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4339A6142C;
+        Mon, 31 May 2021 13:23:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469318;
-        bh=LaB3UTQvPX++WABDJkqPhH0V1OsEQ6q1tF4fYa/kK94=;
+        s=korg; t=1622467392;
+        bh=zrSSD5pNPwNmFPdwAPPZmx+5i/cwBL/iK4acZnwDC+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NrFJyFiboCmm6tF9GQrwAPf9muhUdnOhkIYpT3ssW/ynB9qWEF0+YaiOCY5yXV0fk
-         DAnDlLI4hpnUbE2Y6gmZxcvM6Bfj1dU8uFJ37hsm48sdaz/gGKIfIvPv+8qxJqs1aj
-         Yie1O6UmnrvQhwMJd+H8myYcu7c20QdovOJt0AYY=
+        b=S6QFN66wNwOdEgOVM9NsxfhwQR0DiQXuHMsv/FE//m64MQW8oGmtAHBnOVdPvYI8y
+         cdE3uNjG2AdW+4wNQA1c7xCaD6z1mNLlpbkErbHH3YHu5HeYBHZn6pcy3aM2SPm3wO
+         6sxNJLf+iZj/Eg8ZvOPDYUd3uwpQ8hj+ETScPmP8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Fabrizio Castro <fabrizio.castro.jz@renesas.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.12 152/296] i2c: sh_mobile: Use new clock calculation formulas for RZ/G2E
+        stable@vger.kernel.org, Linh Phung <linh.phung.jy@renesas.com>,
+        Wolfram Sang <wsa+renesas@sang-engineering.com>,
+        Ulrich Hecht <uli+renesas@fpond.eu>,
+        Geert Uytterhoeven <geert+renesas@glider.be>
+Subject: [PATCH 4.19 031/116] serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
 Date:   Mon, 31 May 2021 15:13:27 +0200
-Message-Id: <20210531130708.977765480@linuxfoundation.org>
+Message-Id: <20210531130641.225362520@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,31 +43,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-commit c4740e293c93c747e65d53d9aacc2ba8521d1489 upstream.
+commit 2ea2e019c190ee3973ef7bcaf829d8762e56e635 upstream.
 
-When switching the Gen3 SoCs to the new clock calculation formulas, the
-match entry for RZ/G2E added in commit 51243b73455f2d12 ("i2c:
-sh_mobile: Add support for r8a774c0 (RZ/G2E)") was forgotten.
+The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
+FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
+ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
+can write an out-of-range value, touching reserved bits.
 
-Fixes: e8a27567509b2439 ("i2c: sh_mobile: use new clock calculation formulas for Gen3")
+Fix this by limiting the trigger value to the FIFO size minus one.
+Reverse the order of the checks, to avoid rx_trig becoming zero if the
+FIFO size is one.
+
+Note that this change has no impact on other SCIF variants, as their
+maximum supported trigger value is lower than the FIFO size anyway, and
+the code below takes care of enforcing these limits.
+
+Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
+Reported-by: Linh Phung <linh.phung.jy@renesas.com>
+Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
+Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
 Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Reviewed-by: Fabrizio Castro <fabrizio.castro.jz@renesas.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-sh_mobile.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/sh-sci.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/i2c/busses/i2c-sh_mobile.c
-+++ b/drivers/i2c/busses/i2c-sh_mobile.c
-@@ -807,7 +807,7 @@ static const struct sh_mobile_dt_config
- static const struct of_device_id sh_mobile_i2c_dt_ids[] = {
- 	{ .compatible = "renesas,iic-r8a73a4", .data = &fast_clock_dt_config },
- 	{ .compatible = "renesas,iic-r8a7740", .data = &r8a7740_dt_config },
--	{ .compatible = "renesas,iic-r8a774c0", .data = &fast_clock_dt_config },
-+	{ .compatible = "renesas,iic-r8a774c0", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7790", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7791", .data = &v2_freq_calc_dt_config },
- 	{ .compatible = "renesas,iic-r8a7792", .data = &v2_freq_calc_dt_config },
+--- a/drivers/tty/serial/sh-sci.c
++++ b/drivers/tty/serial/sh-sci.c
+@@ -1026,10 +1026,10 @@ static int scif_set_rtrg(struct uart_por
+ {
+ 	unsigned int bits;
+ 
++	if (rx_trig >= port->fifosize)
++		rx_trig = port->fifosize - 1;
+ 	if (rx_trig < 1)
+ 		rx_trig = 1;
+-	if (rx_trig >= port->fifosize)
+-		rx_trig = port->fifosize;
+ 
+ 	/* HSCIF can be set to an arbitrary level. */
+ 	if (sci_getreg(port, HSRTRGR)->size) {
 
 
