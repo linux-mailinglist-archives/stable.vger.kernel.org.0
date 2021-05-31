@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7174396282
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 23ACB395CC6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234115AbhEaO51 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:57:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47906 "EHLO mail.kernel.org"
+        id S232014AbhEaNhe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:37:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38982 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233034AbhEaOzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:55:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E811161CB4;
-        Mon, 31 May 2021 13:59:34 +0000 (UTC)
+        id S232006AbhEaNfV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:35:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A0F561442;
+        Mon, 31 May 2021 13:25:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469575;
-        bh=FXLswEYKyKfl1A9x8S/+L7ZjrBmTg0dp7L1wTtKjkxw=;
+        s=korg; t=1622467515;
+        bh=ELrSf7ipyOGhnwcsBgG+KpJ2zLw5e3XoUzLD75AMy1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WNexFiesPZqscUhv6FyoMaWvnO/KR9wKnQcNwj5HkBHstg27RLaYlhOD2EEJeP8ah
-         3q+BimomXrSXr6W4dI27SuIZEl7Y1ChaFs2epBFGQkKoMeO6pUJLlL1WNcTWsoKkAs
-         BlEsUKopfg9dk/c6L60EsBKlBAhSPUycWRAMQqYo=
+        b=lDV4Q3oazJtiFGJ+8hInd/2wl2+EaeGG9yx1989m565XwNzZcZftb/hY+ukZNFsca
+         uUklFvhqwlu5WC+JF3v9IXHLOYuRFTnEyOYrR+c2JM3L8SX0EfGz6Avy+ZysR5dFo1
+         4LV6NdlqxfNqrn+MkMaOi0H7xXdL38AF7m8WoOpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lang Yu <Lang.Yu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=83nig?= <christian.koenig@amd.com>,
-        Andrey Grodzovsky <andrey.grodzovsky@amd.com>,
+        stable@vger.kernel.org, Jingwen Chen <Jingwen.Chen2@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 215/296] drm/amd/amdgpu: fix a potential deadlock in gpu reset
+Subject: [PATCH 4.19 094/116] drm/amd/amdgpu: fix refcount leak
 Date:   Mon, 31 May 2021 15:14:30 +0200
-Message-Id: <20210531130711.076994090@linuxfoundation.org>
+Message-Id: <20210531130643.323804707@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,89 +41,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lang Yu <Lang.Yu@amd.com>
+From: Jingwen Chen <Jingwen.Chen2@amd.com>
 
-[ Upstream commit 9c2876d56f1ce9b6b2072f1446fb1e8d1532cb3d ]
+[ Upstream commit fa7e6abc75f3d491bc561734312d065dc9dc2a77 ]
 
-When amdgpu_ib_ring_tests failed, the reset logic called
-amdgpu_device_ip_suspend twice, then deadlock occurred.
-Deadlock log:
+[Why]
+the gem object rfb->base.obj[0] is get according to num_planes
+in amdgpufb_create, but is not put according to num_planes
 
-[  805.655192] amdgpu 0000:04:00.0: amdgpu: ib ring test failed (-110).
-[  806.290952] [drm] free PSP TMR buffer
+[How]
+put rfb->base.obj[0] in amdgpu_fbdev_destroy according to num_planes
 
-[  806.319406] ============================================
-[  806.320315] WARNING: possible recursive locking detected
-[  806.321225] 5.11.0-custom #1 Tainted: G        W  OEL
-[  806.322135] --------------------------------------------
-[  806.323043] cat/2593 is trying to acquire lock:
-[  806.323825] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.325668]
-               but task is already holding lock:
-[  806.326664] ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.328430]
-               other info that might help us debug this:
-[  806.329539]  Possible unsafe locking scenario:
-
-[  806.330549]        CPU0
-[  806.330983]        ----
-[  806.331416]   lock(&adev->dm.dc_lock);
-[  806.332086]   lock(&adev->dm.dc_lock);
-[  806.332738]
-                *** DEADLOCK ***
-
-[  806.333747]  May be due to missing lock nesting notation
-
-[  806.334899] 3 locks held by cat/2593:
-[  806.335537]  #0: ffff888100d3f1b8 (&attr->mutex){+.+.}-{3:3}, at: simple_attr_read+0x4e/0x110
-[  806.337009]  #1: ffff888136b1fd78 (&adev->reset_sem){++++}-{3:3}, at: amdgpu_device_lock_adev+0x42/0x94 [amdgpu]
-[  806.339018]  #2: ffff888136b1cdc8 (&adev->dm.dc_lock){+.+.}-{3:3}, at: dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.340869]
-               stack backtrace:
-[  806.341621] CPU: 6 PID: 2593 Comm: cat Tainted: G        W  OEL    5.11.0-custom #1
-[  806.342921] Hardware name: AMD Celadon-CZN/Celadon-CZN, BIOS WLD0C23N_Weekly_20_12_2 12/23/2020
-[  806.344413] Call Trace:
-[  806.344849]  dump_stack+0x93/0xbd
-[  806.345435]  __lock_acquire.cold+0x18a/0x2cf
-[  806.346179]  lock_acquire+0xca/0x390
-[  806.346807]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.347813]  __mutex_lock+0x9b/0x930
-[  806.348454]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.349434]  ? amdgpu_device_indirect_rreg+0x58/0x70 [amdgpu]
-[  806.350581]  ? _raw_spin_unlock_irqrestore+0x47/0x50
-[  806.351437]  ? dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.352437]  ? rcu_read_lock_sched_held+0x4f/0x80
-[  806.353252]  ? rcu_read_lock_sched_held+0x4f/0x80
-[  806.354064]  mutex_lock_nested+0x1b/0x20
-[  806.354747]  ? mutex_lock_nested+0x1b/0x20
-[  806.355457]  dm_suspend+0xb8/0x1d0 [amdgpu]
-[  806.356427]  ? soc15_common_set_clockgating_state+0x17d/0x19 [amdgpu]
-[  806.357736]  amdgpu_device_ip_suspend_phase1+0x78/0xd0 [amdgpu]
-[  806.360394]  amdgpu_device_ip_suspend+0x21/0x70 [amdgpu]
-[  806.362926]  amdgpu_device_pre_asic_reset+0xb3/0x270 [amdgpu]
-[  806.365560]  amdgpu_device_gpu_recover.cold+0x679/0x8eb [amdgpu]
-
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Acked-by: Christian KÃnig <christian.koenig@amd.com>
-Reviewed-by: Andrey Grodzovsky <andrey.grodzovsky@amd.com>
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 5eee251e3335..85d90e857693 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -4356,7 +4356,6 @@ out:
- 			r = amdgpu_ib_ring_tests(tmp_adev);
- 			if (r) {
- 				dev_err(tmp_adev->dev, "ib ring test failed (%d).\n", r);
--				r = amdgpu_device_ip_suspend(tmp_adev);
- 				need_full_reset = true;
- 				r = -EAGAIN;
- 				goto end;
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+index 69c5d22f29bd..d55ff59584c8 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fb.c
+@@ -297,10 +297,13 @@ out:
+ static int amdgpu_fbdev_destroy(struct drm_device *dev, struct amdgpu_fbdev *rfbdev)
+ {
+ 	struct amdgpu_framebuffer *rfb = &rfbdev->rfb;
++	int i;
+ 
+ 	drm_fb_helper_unregister_fbi(&rfbdev->helper);
+ 
+ 	if (rfb->base.obj[0]) {
++		for (i = 0; i < rfb->base.format->num_planes; i++)
++			drm_gem_object_put(rfb->base.obj[0]);
+ 		amdgpufb_destroy_pinned_object(rfb->base.obj[0]);
+ 		rfb->base.obj[0] = NULL;
+ 		drm_framebuffer_unregister_private(&rfb->base);
 -- 
 2.30.2
 
