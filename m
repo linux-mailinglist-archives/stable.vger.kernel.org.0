@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A529B396264
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:54:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 66E1E395CF2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232862AbhEaOzv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:55:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
+        id S231624AbhEaNkS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44098 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234040AbhEaOxQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:53:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A0FD61CA6;
-        Mon, 31 May 2021 13:58:41 +0000 (UTC)
+        id S231560AbhEaNh1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:37:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2354D6145E;
+        Mon, 31 May 2021 13:26:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469522;
-        bh=ZVRUcOSvAINhYD9WrYhTBPu86cPPOFC09xaeCR1Yfh8=;
+        s=korg; t=1622467576;
+        bh=PCg0zHwCKIdVTKf5I8vRIK0jC9BXhIWMSDVCnQXMyWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZiArtgy3O187sWQytPbgFiK6t62emdeyEnE9Y16kel2g2tv26sbDAdmXjkFUNsw2C
-         i4HLRK3Q6r3leTQ8l5s0jDWaBHUeysqs5Q0p5hIacDIHR4xaFs1tqcA0xpMaRri5+S
-         Vmr4Jk+CrMgWCxDjpw5Hsg2edBm6VMmweWvRq7rs=
+        b=NLtOa76N9fUFi0yRnljBBh9y9MAAI8yGlADTERo75zrffRoJKs43B6wQDC10ast9C
+         n6sIC03cZt4B6T55zN7hx2AHDIt1+U6JaD/eGTrolwFvdtIGhwLoYIK16cIDzQpFxs
+         USzQNAHo3HmFZ6mCkfjqU77fscFuRxUzlYfC0THg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Eric Farman <farman@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>,
-        Matthew Rosato <mjrosato@linux.ibm.com>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Dan Carpenter <dan.carpenter@oracle.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 229/296] vfio-ccw: Check initialized flag in cp_init()
+Subject: [PATCH 4.19 108/116] scsi: libsas: Use _safe() loop in sas_resume_port()
 Date:   Mon, 31 May 2021 15:14:44 +0200
-Message-Id: <20210531130711.517434247@linuxfoundation.org>
+Message-Id: <20210531130643.781611211@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,46 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Farman <farman@linux.ibm.com>
+From: Dan Carpenter <dan.carpenter@oracle.com>
 
-[ Upstream commit c6c82e0cd8125d30f2f1b29205c7e1a2f1a6785b ]
+[ Upstream commit 8c7e7b8486cda21269d393245883c5e4737d5ee7 ]
 
-We have a really nice flag in the channel_program struct that
-indicates if it had been initialized by cp_init(), and use it
-as a guard in the other cp accessor routines, but not for a
-duplicate call into cp_init(). The possibility of this occurring
-is low, because that flow is protected by the private->io_mutex
-and FSM CP_PROCESSING state. But then why bother checking it
-in (for example) cp_prefetch() then?
+If sas_notify_lldd_dev_found() fails then this code calls:
 
-Let's just be consistent and check for that in cp_init() too.
+	sas_unregister_dev(port, dev);
 
-Fixes: 71189f263f8a3 ("vfio-ccw: make it safe to access channel programs")
-Signed-off-by: Eric Farman <farman@linux.ibm.com>
-Reviewed-by: Cornelia Huck <cohuck@redhat.com>
-Acked-by: Matthew Rosato <mjrosato@linux.ibm.com>
-Message-Id: <20210511195631.3995081-2-farman@linux.ibm.com>
-Signed-off-by: Cornelia Huck <cohuck@redhat.com>
+which removes "dev", our list iterator, from the list.  This could lead to
+an endless loop.  We need to use list_for_each_entry_safe().
+
+Link: https://lore.kernel.org/r/YKUeq6gwfGcvvhty@mwanda
+Fixes: 303694eeee5e ("[SCSI] libsas: suspend / resume support")
+Reviewed-by: John Garry <john.garry@huawei.com>
+Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/s390/cio/vfio_ccw_cp.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/scsi/libsas/sas_port.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/s390/cio/vfio_ccw_cp.c b/drivers/s390/cio/vfio_ccw_cp.c
-index b9febc581b1f..8d1b2771c1aa 100644
---- a/drivers/s390/cio/vfio_ccw_cp.c
-+++ b/drivers/s390/cio/vfio_ccw_cp.c
-@@ -638,6 +638,10 @@ int cp_init(struct channel_program *cp, struct device *mdev, union orb *orb)
- 	static DEFINE_RATELIMIT_STATE(ratelimit_state, 5 * HZ, 1);
- 	int ret;
+diff --git a/drivers/scsi/libsas/sas_port.c b/drivers/scsi/libsas/sas_port.c
+index fad23dd39114..1a0b2ce398f7 100644
+--- a/drivers/scsi/libsas/sas_port.c
++++ b/drivers/scsi/libsas/sas_port.c
+@@ -41,7 +41,7 @@ static bool phy_is_wideport_member(struct asd_sas_port *port, struct asd_sas_phy
  
-+	/* this is an error in the caller */
-+	if (cp->initialized)
-+		return -EBUSY;
-+
- 	/*
- 	 * We only support prefetching the channel program. We assume all channel
- 	 * programs executed by supported guests likewise support prefetching.
+ static void sas_resume_port(struct asd_sas_phy *phy)
+ {
+-	struct domain_device *dev;
++	struct domain_device *dev, *n;
+ 	struct asd_sas_port *port = phy->port;
+ 	struct sas_ha_struct *sas_ha = phy->ha;
+ 	struct sas_internal *si = to_sas_internal(sas_ha->core.shost->transportt);
+@@ -60,7 +60,7 @@ static void sas_resume_port(struct asd_sas_phy *phy)
+ 	 * 1/ presume every device came back
+ 	 * 2/ force the next revalidation to check all expander phys
+ 	 */
+-	list_for_each_entry(dev, &port->dev_list, dev_list_node) {
++	list_for_each_entry_safe(dev, n, &port->dev_list, dev_list_node) {
+ 		int i, rc;
+ 
+ 		rc = sas_notify_lldd_dev_found(dev);
 -- 
 2.30.2
 
