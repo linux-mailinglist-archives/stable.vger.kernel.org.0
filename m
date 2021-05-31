@@ -2,40 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C8E3395C0A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D461395F3D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231843AbhEaN1k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:27:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33428 "EHLO mail.kernel.org"
+        id S230375AbhEaOJs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:09:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231866AbhEaNZj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:25:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C9D6C61396;
-        Mon, 31 May 2021 13:20:54 +0000 (UTC)
+        id S233101AbhEaOHD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:07:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48951613AD;
+        Mon, 31 May 2021 13:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467255;
-        bh=VNoJb72BASLscbJ76MB5QsneL7jW1r5so6opZSHcc3Y=;
+        s=korg; t=1622468353;
+        bh=DQknK+guMV8EB2YI3n8n9bEN8CPrQG+Hf0znxpFfcVk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sest4B5M2l6adbgCIyZvA2B3kdW8htVgP1F3Xbb/zehFmvfsLs43TepFVRzFnhcov
-         6EuUvF46v0mRRnXqPrg/nwYFROP/TfUUi3yM+Axz/Sbi5GAHqbd2cB8ALNXuzGNy3o
-         M8TIa64YcjFMxtJDu6joJMiW48235ubnrEiNIGGE=
+        b=ri61RxphaYGF1yNHZ/VD0Y5WH+SrpgDGvI69qVDVIiDVvF+DWsJJkf9lBZ0GNWTTN
+         qpQYbZnShaSAU/pKD20ThbhrpZXvLPLoYFlCDQ4XfXU5fJJ9B8meL4Tv0GJppNG5t+
+         TJuUj96pmbIGe05S73CS985zcMGCI0skKlQJflXg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        linux-mips@vger.kernel.org,
-        Manuel Lauss <manuel.lauss@googlemail.com>,
-        Ralf Baechle <ralf@linux-mips.org>,
-        Manuel Lauss <manuel.lauss@gmail.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 63/66] MIPS: alchemy: xxs1500: add gpio-au1000.h header file
+Subject: [PATCH 5.10 211/252] net: bnx2: Fix error return code in bnx2_init_board()
 Date:   Mon, 31 May 2021 15:14:36 +0200
-Message-Id: <20210531130638.246710532@linuxfoundation.org>
+Message-Id: <20210531130705.188298167@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,44 +42,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit ff4cff962a7eedc73e54b5096693da7f86c61346 ]
+[ Upstream commit 28c66b6da4087b8cfe81c2ec0a46eb6116dafda9 ]
 
-board-xxs1500.c references 2 functions without declaring them, so add
-the header file to placate the build.
+Fix to return -EPERM from the error handling case instead of 0, as done
+elsewhere in this function.
 
-../arch/mips/alchemy/board-xxs1500.c: In function 'board_setup':
-../arch/mips/alchemy/board-xxs1500.c:56:2: error: implicit declaration of function 'alchemy_gpio1_input_enable' [-Werror=implicit-function-declaration]
-   56 |  alchemy_gpio1_input_enable();
-../arch/mips/alchemy/board-xxs1500.c:57:2: error: implicit declaration of function 'alchemy_gpio2_enable'; did you mean 'alchemy_uart_enable'? [-Werror=implicit-function-declaration]
-   57 |  alchemy_gpio2_enable();
-
-Fixes: 8e026910fcd4 ("MIPS: Alchemy: merge GPR/MTX-1/XXS1500 board code into single files")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: linux-mips@vger.kernel.org
-Cc: Manuel Lauss <manuel.lauss@googlemail.com>
-Cc: Ralf Baechle <ralf@linux-mips.org>
-Acked-by: Manuel Lauss <manuel.lauss@gmail.com>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fixes: b6016b767397 ("[BNX2]: New Broadcom gigabit network driver.")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/alchemy/board-xxs1500.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/broadcom/bnx2.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/mips/alchemy/board-xxs1500.c b/arch/mips/alchemy/board-xxs1500.c
-index 0fc53e08a894..c05f7376148a 100644
---- a/arch/mips/alchemy/board-xxs1500.c
-+++ b/arch/mips/alchemy/board-xxs1500.c
-@@ -30,6 +30,7 @@
- #include <asm/bootinfo.h>
- #include <asm/reboot.h>
- #include <asm/mach-au1x00/au1000.h>
-+#include <asm/mach-au1x00/gpio-au1000.h>
- #include <prom.h>
+diff --git a/drivers/net/ethernet/broadcom/bnx2.c b/drivers/net/ethernet/broadcom/bnx2.c
+index 3e8a179f39db..633b10389653 100644
+--- a/drivers/net/ethernet/broadcom/bnx2.c
++++ b/drivers/net/ethernet/broadcom/bnx2.c
+@@ -8247,9 +8247,9 @@ bnx2_init_board(struct pci_dev *pdev, struct net_device *dev)
+ 		BNX2_WR(bp, PCI_COMMAND, reg);
+ 	} else if ((BNX2_CHIP_ID(bp) == BNX2_CHIP_ID_5706_A1) &&
+ 		!(bp->flags & BNX2_FLAG_PCIX)) {
+-
+ 		dev_err(&pdev->dev,
+ 			"5706 A1 can only be used in a PCIX bus, aborting\n");
++		rc = -EPERM;
+ 		goto err_out_unmap;
+ 	}
  
- const char *get_system_type(void)
 -- 
 2.30.2
 
