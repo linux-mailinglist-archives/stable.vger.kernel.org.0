@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB98395D87
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:45:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FBA1395BF6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231210AbhEaNrP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:47:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49706 "EHLO mail.kernel.org"
+        id S232158AbhEaN0d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:26:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230308AbhEaNpK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:45:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3F87A6141E;
-        Mon, 31 May 2021 13:29:44 +0000 (UTC)
+        id S232026AbhEaNYd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:24:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 45E3761400;
+        Mon, 31 May 2021 13:20:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467784;
-        bh=KHU6nK91ps5fgJ0M+8gUgacb8bal347koAIiWci8V5k=;
+        s=korg; t=1622467230;
+        bh=DbpjfWwOX5w4DXwVz2QROu43Vb5DxDjYUSn+itNusMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gP6WAQrANAtfMi3zQZeBByLmUbCPhp0ElpfUH1p3fnaCsKp8J/iD0OA+mKW2DJGtj
-         4iLHt2JG2RlW2sJlTHNqSQQ+Yh2DOE7zBdAGSbWFOU0vtEq82wgYJzgfIt/Q58JL49
-         KaMea4XAqE5PmVM3S5Alqa/VXRQ8NljnEeFUMStw=
+        b=OY0hFupVA1oASWdgzEQLnOa0W+RP8a7nt5HMvg7ejS/ilFr+onnIJi5ilAOnohfcs
+         GURvjA5vVE0DPtXgp6+l2s2OmWY0J0vwMfySQYmkfqiWtX8uy3GypzPNz9EKp6EX6q
+         JT/CDlKDSmSxmKUpUY7O+c3Jjm2CwWt/9ZbXFBnw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com,
-        Jean Delvare <jdelvare@suse.de>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 4.14 43/79] i2c: i801: Dont generate an interrupt on bus reset
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Russell King <rmk+kernel@armlinux.org.uk>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 55/66] net: mdio: thunder: Fix a double free issue in the .remove function
 Date:   Mon, 31 May 2021 15:14:28 +0200
-Message-Id: <20210531130637.392721855@linuxfoundation.org>
+Message-Id: <20210531130637.993814794@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,56 +43,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jean Delvare <jdelvare@suse.de>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit e4d8716c3dcec47f1557024add24e1f3c09eb24b upstream.
+[ Upstream commit a93a0a15876d2a077a3bc260b387d2457a051f24 ]
 
-Now that the i2c-i801 driver supports interrupts, setting the KILL bit
-in a attempt to recover from a timed out transaction triggers an
-interrupt. Unfortunately, the interrupt handler (i801_isr) is not
-prepared for this situation and will try to process the interrupt as
-if it was signaling the end of a successful transaction. In the case
-of a block transaction, this can result in an out-of-range memory
-access.
+'bus->mii_bus' have been allocated with 'devm_mdiobus_alloc_size()' in the
+probe function. So it must not be freed explicitly or there will be a
+double free.
 
-This condition was reproduced several times by syzbot:
-https://syzkaller.appspot.com/bug?extid=ed71512d469895b5b34e
-https://syzkaller.appspot.com/bug?extid=8c8dedc0ba9e03f6c79e
-https://syzkaller.appspot.com/bug?extid=c8ff0b6d6c73d81b610e
-https://syzkaller.appspot.com/bug?extid=33f6c360821c399d69eb
-https://syzkaller.appspot.com/bug?extid=be15dc0b1933f04b043a
-https://syzkaller.appspot.com/bug?extid=b4d3fd1dfd53e90afd79
+Remove the incorrect 'mdiobus_free' in the remove function.
 
-So disable interrupts while trying to reset the bus. Interrupts will
-be enabled again for the following transaction.
-
-Fixes: 636752bcb517 ("i2c-i801: Enable IRQ for SMBus transactions")
-Reported-by: syzbot+b4d3fd1dfd53e90afd79@syzkaller.appspotmail.com
-Signed-off-by: Jean Delvare <jdelvare@suse.de>
-Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Tested-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 379d7ac7ca31 ("phy: mdio-thunder: Add driver for Cavium Thunder SoC MDIO buses.")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Russell King <rmk+kernel@armlinux.org.uk>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-i801.c |    6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/net/phy/mdio-thunder.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/i2c/busses/i2c-i801.c
-+++ b/drivers/i2c/busses/i2c-i801.c
-@@ -379,11 +379,9 @@ static int i801_check_post(struct i801_p
- 		dev_err(&priv->pci_dev->dev, "Transaction timeout\n");
- 		/* try to stop the current command */
- 		dev_dbg(&priv->pci_dev->dev, "Terminating the current operation\n");
--		outb_p(inb_p(SMBHSTCNT(priv)) | SMBHSTCNT_KILL,
--		       SMBHSTCNT(priv));
-+		outb_p(SMBHSTCNT_KILL, SMBHSTCNT(priv));
- 		usleep_range(1000, 2000);
--		outb_p(inb_p(SMBHSTCNT(priv)) & (~SMBHSTCNT_KILL),
--		       SMBHSTCNT(priv));
-+		outb_p(0, SMBHSTCNT(priv));
+diff --git a/drivers/net/phy/mdio-thunder.c b/drivers/net/phy/mdio-thunder.c
+index 564616968cad..c0c922eff760 100644
+--- a/drivers/net/phy/mdio-thunder.c
++++ b/drivers/net/phy/mdio-thunder.c
+@@ -129,7 +129,6 @@ static void thunder_mdiobus_pci_remove(struct pci_dev *pdev)
+ 			continue;
  
- 		/* Check if it worked */
- 		status = inb_p(SMBHSTSTS(priv));
+ 		mdiobus_unregister(bus->mii_bus);
+-		mdiobus_free(bus->mii_bus);
+ 		oct_mdio_writeq(0, bus->register_base + SMI_EN);
+ 	}
+ 	pci_set_drvdata(pdev, NULL);
+-- 
+2.30.2
+
 
 
