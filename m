@@ -2,35 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BF2639617A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:39:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D813D396179
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:39:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233393AbhEaOl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232036AbhEaOl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 May 2021 10:41:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37856 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:37862 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234110AbhEaOjU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234107AbhEaOjU (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 31 May 2021 10:39:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E1151616EB;
-        Mon, 31 May 2021 13:52:18 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DB36D6135D;
+        Mon, 31 May 2021 13:52:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469139;
-        bh=ynVL04ift/6egESuTKn/Fk2adUED9rKiBWSXS2RVsvc=;
+        s=korg; t=1622469142;
+        bh=po92fyaU31d9OfaH20goi4hugIcHBnKfk/b12o0pnSQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vRnv7Bd5lAslfs/fw5EDSjArGixS+mbX9KtDzr+HlMtXr3Dst1wC1FIylibpihmvK
-         W0M5ZMX3IddB1Mw56+wKhpmXa1paDdL3J76GRKb9dZlDJSqy3EKoMtK0b5nN9iOiRY
-         JDSJp/9bMDDohg6qaQiI725WbpnFo62AI36pAaME=
+        b=ckoxx8C+w/6lLyD8MgWQc+tkcD9qSyik0l5iwc9LTrEJgmCypfStISXmyDOnV+D5F
+         SzRVc1Q9Ng2ZsKEiBmVTBfeUfsKz5SGy0eLIO75lJJup58uQbntANpoC3htpbYiaoF
+         6G/B7nHLVWU8H/Kvgf0/Q1orG49o7zFpnLFRqc0E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Tachici <alexandru.tachici@analog.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.12 084/296] iio: adc: ad7192: handle regulator voltage error first
-Date:   Mon, 31 May 2021 15:12:19 +0200
-Message-Id: <20210531130706.691400827@linuxfoundation.org>
+        stable@vger.kernel.org, ChiaWei Wang <chiawei_wang@aspeedtech.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Andrew Jeffery <andrew@aj.id.au>
+Subject: [PATCH 5.12 085/296] serial: 8250: Add UART_BUG_TXRACE workaround for Aspeed VUART
+Date:   Mon, 31 May 2021 15:12:20 +0200
+Message-Id: <20210531130706.731805073@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -42,63 +40,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexandru Ardelean <aardelean@deviqon.com>
+From: Andrew Jeffery <andrew@aj.id.au>
 
-commit b0f27fca5a6c7652e265aae6a4452ce2f2ed64da upstream.
+commit df8f2be2fd0b44b2cb6077068f52e05f0ac40897 upstream.
 
-This change fixes a corner-case, where for a zero regulator value, the
-driver would exit early, initializing the driver only partially.
-The driver would be in an unknown state.
+Aspeed Virtual UARTs directly bridge e.g. the system console UART on the
+LPC bus to the UART interface on the BMC's internal APB. As such there's
+no RS-232 signalling involved - the UART interfaces on each bus are
+directly connected as the producers and consumers of the one set of
+FIFOs.
 
-This change reworks the code to check regulator_voltage() return value
-for negative (error) first, and return early. This is the more common
-idiom.
+The APB in the AST2600 generally runs at 100MHz while the LPC bus peaks
+at 33MHz. The difference in clock speeds exposes a race in the VUART
+design where a Tx data burst on the APB interface can result in a byte
+lost on the LPC interface. The symptom is LSR[DR] remains clear on the
+LPC interface despite data being present in its Rx FIFO, while LSR[THRE]
+remains clear on the APB interface as the host has not consumed the data
+the BMC has transmitted. In this state, the UART has stalled and no
+further data can be transmitted without manual intervention (e.g.
+resetting the FIFOs, resulting in loss of data).
 
-Also, this change is removing the 'voltage_uv' variable and using the 'ret'
-value directly. The only place where 'voltage_uv' is being used is to
-compute the internal reference voltage, and the type of this variable is
-'int' (same are for 'ret'). Using only 'ret' avoids having to assign it on
-the error path.
+The recommended work-around is to insert a read cycle on the APB
+interface between writes to THR.
 
-Fixes: ab0afa65bbc7 ("staging: iio: adc: ad7192: fail probe on get_voltage")
-Cc: Alexandru Tachici <alexandru.tachici@analog.com>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
+Cc: ChiaWei Wang <chiawei_wang@aspeedtech.com>
+Tested-by: ChiaWei Wang <chiawei_wang@aspeedtech.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Signed-off-by: Andrew Jeffery <andrew@aj.id.au>
+Cc: stable <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20210520021334.497341-2-andrew@aj.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7192.c |   11 ++++-------
- 1 file changed, 4 insertions(+), 7 deletions(-)
+ drivers/tty/serial/8250/8250.h              |    1 +
+ drivers/tty/serial/8250/8250_aspeed_vuart.c |    1 +
+ drivers/tty/serial/8250/8250_port.c         |   12 ++++++++++++
+ 3 files changed, 14 insertions(+)
 
---- a/drivers/iio/adc/ad7192.c
-+++ b/drivers/iio/adc/ad7192.c
-@@ -912,7 +912,7 @@ static int ad7192_probe(struct spi_devic
- {
- 	struct ad7192_state *st;
- 	struct iio_dev *indio_dev;
--	int ret, voltage_uv = 0;
-+	int ret;
+--- a/drivers/tty/serial/8250/8250.h
++++ b/drivers/tty/serial/8250/8250.h
+@@ -88,6 +88,7 @@ struct serial8250_config {
+ #define UART_BUG_NOMSR	(1 << 2)	/* UART has buggy MSR status bits (Au1x00) */
+ #define UART_BUG_THRE	(1 << 3)	/* UART has buggy THRE reassertion */
+ #define UART_BUG_PARITY	(1 << 4)	/* UART mishandles parity if FIFO enabled */
++#define UART_BUG_TXRACE	(1 << 5)	/* UART Tx fails to set remote DR */
  
- 	if (!spi->irq) {
- 		dev_err(&spi->dev, "no IRQ?\n");
-@@ -949,15 +949,12 @@ static int ad7192_probe(struct spi_devic
- 		goto error_disable_avdd;
- 	}
  
--	voltage_uv = regulator_get_voltage(st->avdd);
--
--	if (voltage_uv > 0) {
--		st->int_vref_mv = voltage_uv / 1000;
--	} else {
--		ret = voltage_uv;
-+	ret = regulator_get_voltage(st->avdd);
-+	if (ret < 0) {
- 		dev_err(&spi->dev, "Device tree error, reference voltage undefined\n");
- 		goto error_disable_avdd;
- 	}
-+	st->int_vref_mv = ret / 1000;
+ #ifdef CONFIG_SERIAL_8250_SHARE_IRQ
+--- a/drivers/tty/serial/8250/8250_aspeed_vuart.c
++++ b/drivers/tty/serial/8250/8250_aspeed_vuart.c
+@@ -403,6 +403,7 @@ static int aspeed_vuart_probe(struct pla
+ 	port.port.status = UPSTAT_SYNC_FIFO;
+ 	port.port.dev = &pdev->dev;
+ 	port.port.has_sysrq = IS_ENABLED(CONFIG_SERIAL_8250_CONSOLE);
++	port.bugs |= UART_BUG_TXRACE;
  
- 	spi_set_drvdata(spi, indio_dev);
- 	st->chip_info = of_device_get_match_data(&spi->dev);
+ 	rc = sysfs_create_group(&vuart->dev->kobj, &aspeed_vuart_attr_group);
+ 	if (rc < 0)
+--- a/drivers/tty/serial/8250/8250_port.c
++++ b/drivers/tty/serial/8250/8250_port.c
+@@ -1815,6 +1815,18 @@ void serial8250_tx_chars(struct uart_825
+ 	count = up->tx_loadsz;
+ 	do {
+ 		serial_out(up, UART_TX, xmit->buf[xmit->tail]);
++		if (up->bugs & UART_BUG_TXRACE) {
++			/*
++			 * The Aspeed BMC virtual UARTs have a bug where data
++			 * may get stuck in the BMC's Tx FIFO from bursts of
++			 * writes on the APB interface.
++			 *
++			 * Delay back-to-back writes by a read cycle to avoid
++			 * stalling the VUART. Read a register that won't have
++			 * side-effects and discard the result.
++			 */
++			serial_in(up, UART_SCR);
++		}
+ 		xmit->tail = (xmit->tail + 1) & (UART_XMIT_SIZE - 1);
+ 		port->icount.tx++;
+ 		if (uart_circ_empty(xmit))
 
 
