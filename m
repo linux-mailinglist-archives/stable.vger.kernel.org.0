@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 289AA395DC5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 19DD0396116
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:34:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232117AbhEaNu6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:50:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49808 "EHLO mail.kernel.org"
+        id S233180AbhEaOfj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:35:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33112 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231984AbhEaNrU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:47:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E429D61613;
-        Mon, 31 May 2021 13:30:40 +0000 (UTC)
+        id S232743AbhEaOd2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:33:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C91760724;
+        Mon, 31 May 2021 13:49:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467841;
-        bh=ZriBpfqZx+VdzBDKFmZ5z/xlbGXCH2QH075GN56+CV0=;
+        s=korg; t=1622468995;
+        bh=xVJhIR6yeYnq39OwuPLzjwMfvlcOB85wgS/nnUJeizI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jhdI/oiLGSncuNSlhkLX9fmUrXvQAGhOmKac8Ec3wl+6NloCqRoG72jTiIJPPSObw
-         ssbLyGeqMJh7YEK6NFeS8ChSjDoRCQRBfpwbUFlL/TqpWSwTjn4h4CR+4boWKN+1vr
-         lng/7qPbDVw2Ut7ggJqRu0K28i/WZP2ANMFh26pk=
+        b=W9mjE+KSb06B/ggrWX1Qwv91jhmvNEMf5+wFSv4tPKKGQYzWdEtPFAWRM7jTLcoIy
+         Bd7jNzwxjfskigosP5pbCO67hwPt8Qr4zP/FdYjsbXijbK7+fXiK9WTUdhw8xLoKBr
+         bVmig4jon/+SlegUolgn3oEn7gGGQZ41l8CrQQho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Colin Ian King <colin.king@canonical.com>,
-        Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 020/252] net/sched: fq_pie: re-factor fix for fq_pie endless loop
+        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 030/296] proc: Check /proc/$pid/attr/ writes against file opener
 Date:   Mon, 31 May 2021 15:11:25 +0200
-Message-Id: <20210531130658.667709190@linuxfoundation.org>
+Message-Id: <20210531130704.809305391@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +39,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 3a62fed2fd7b6fea96d720e779cafc30dfb3a22e upstream.
+commit bfb819ea20ce8bbeeba17e1a6418bf8bda91fc28 upstream.
 
-the patch that fixed an endless loop in_fq_pie_init() was not considering
-that 65535 is a valid class id. The correct bugfix for this infinite loop
-is to change 'idx' to become an u32, like Colin proposed in the past [1].
+Fix another "confused deputy" weakness[1]. Writes to /proc/$pid/attr/
+files need to check the opener credentials, since these fds do not
+transition state across execve(). Without this, it is possible to
+trick another process (which may have different credentials) to write
+to its own /proc/$pid/attr/ files, leading to unexpected and possibly
+exploitable behaviors.
 
-Fix this as follows:
- - restore 65536 as maximum possible values of 'flows_cnt'
- - use u32 'idx' when iterating on 'q->flows'
- - fix the TDC selftest
+[1] https://www.kernel.org/doc/html/latest/security/credentials.html?highlight=confused#open-file-credentials
 
-This reverts commit bb2f930d6dd708469a587dc9ed1efe1ef969c0bf.
-
-[1] https://lore.kernel.org/netdev/20210407163808.499027-1-colin.king@canonical.com/
-
-CC: Colin Ian King <colin.king@canonical.com>
-CC: stable@vger.kernel.org
-Fixes: bb2f930d6dd7 ("net/sched: fix infinite loop in sch_fq_pie")
-Fixes: ec97ecf1ebe4 ("net: sched: add Flow Queue PIE packet scheduler")
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_fq_pie.c                                         |   10 +++++-----
- tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json |    8 ++++----
- 2 files changed, 9 insertions(+), 9 deletions(-)
+ fs/proc/base.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/net/sched/sch_fq_pie.c
-+++ b/net/sched/sch_fq_pie.c
-@@ -297,9 +297,9 @@ static int fq_pie_change(struct Qdisc *s
- 			goto flow_error;
- 		}
- 		q->flows_cnt = nla_get_u32(tb[TCA_FQ_PIE_FLOWS]);
--		if (!q->flows_cnt || q->flows_cnt >= 65536) {
-+		if (!q->flows_cnt || q->flows_cnt > 65536) {
- 			NL_SET_ERR_MSG_MOD(extack,
--					   "Number of flows must range in [1..65535]");
-+					   "Number of flows must range in [1..65536]");
- 			goto flow_error;
- 		}
- 	}
-@@ -367,7 +367,7 @@ static void fq_pie_timer(struct timer_li
- 	struct fq_pie_sched_data *q = from_timer(q, t, adapt_timer);
- 	struct Qdisc *sch = q->sch;
- 	spinlock_t *root_lock; /* to lock qdisc for probability calculations */
--	u16 idx;
-+	u32 idx;
+--- a/fs/proc/base.c
++++ b/fs/proc/base.c
+@@ -2703,6 +2703,10 @@ static ssize_t proc_pid_attr_write(struc
+ 	void *page;
+ 	int rv;
  
- 	root_lock = qdisc_lock(qdisc_root_sleeping(sch));
- 	spin_lock(root_lock);
-@@ -388,7 +388,7 @@ static int fq_pie_init(struct Qdisc *sch
- {
- 	struct fq_pie_sched_data *q = qdisc_priv(sch);
- 	int err;
--	u16 idx;
-+	u32 idx;
- 
- 	pie_params_init(&q->p_params);
- 	sch->limit = 10 * 1024;
-@@ -500,7 +500,7 @@ static int fq_pie_dump_stats(struct Qdis
- static void fq_pie_reset(struct Qdisc *sch)
- {
- 	struct fq_pie_sched_data *q = qdisc_priv(sch);
--	u16 idx;
-+	u32 idx;
- 
- 	INIT_LIST_HEAD(&q->new_flows);
- 	INIT_LIST_HEAD(&q->old_flows);
---- a/tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json
-+++ b/tools/testing/selftests/tc-testing/tc-tests/qdiscs/fq_pie.json
-@@ -9,11 +9,11 @@
-         "setup": [
-             "$IP link add dev $DUMMY type dummy || /bin/true"
-         ],
--        "cmdUnderTest": "$TC qdisc add dev $DUMMY root fq_pie flows 65536",
--        "expExitCode": "2",
-+        "cmdUnderTest": "$TC qdisc add dev $DUMMY handle 1: root fq_pie flows 65536",
-+        "expExitCode": "0",
-         "verifyCmd": "$TC qdisc show dev $DUMMY",
--        "matchPattern": "qdisc",
--        "matchCount": "0",
-+        "matchPattern": "qdisc fq_pie 1: root refcnt 2 limit 10240p flows 65536",
-+        "matchCount": "1",
-         "teardown": [
-             "$IP link del dev $DUMMY"
-         ]
++	/* A task may only write when it was the opener. */
++	if (file->f_cred != current_real_cred())
++		return -EPERM;
++
+ 	rcu_read_lock();
+ 	task = pid_task(proc_pid(inode), PIDTYPE_PID);
+ 	if (!task) {
 
 
