@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12A4B3961D4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F09C1395C3E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbhEaOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:47:11 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
+        id S232211AbhEaNa3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:30:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34108 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234227AbhEaOpJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:45:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 25FEE61C84;
-        Mon, 31 May 2021 13:55:01 +0000 (UTC)
+        id S231873AbhEaN21 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:28:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3CE6141A;
+        Mon, 31 May 2021 13:22:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469302;
-        bh=U7ubMBqioOt7j6nprRGfQT/T68oUMEcDQugGFGj0zs0=;
+        s=korg; t=1622467334;
+        bh=ghJlHISIwMV6ckKz9tND7oFq3ItGdIrmuf7LwbT+Pus=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUvLyviiAyROsAR7tkIt0b9WVyiJbzIf9hgikaVt9ZdJZHUOpxfUoQqN5FWCPQuOL
-         3DHr8ibRVPsrEDJNdU0N90ZqnobwmdNvnaROLDKpfk+GjEjtMBAMUl6YPdY6GnORGV
-         qdL4bk4lDumtrr6WHbEhZgj5Hk/3ctBKKy8zgET8=
+        b=JvYqaXAgIZvNId2++M23BsgiDoLTFOP/2JAva7GyBahHMWUm/ofEqfOdhXceDBESq
+         3uCJAKqe93+fvd+Dx4PPaLTgioAewSh/AEdqLHXGL9o7D2R8yI7MAPAB7Sp0R1Icb+
+         FHnGmD5orwFaeKhVfm8vzEaIaY58nMWTeGHiz8tQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 147/296] net: dsa: sja1105: call dsa_unregister_switch when allocating memory fails
+        stable@vger.kernel.org,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 4.19 026/116] mei: request autosuspend after sending rx flow control
 Date:   Mon, 31 May 2021 15:13:22 +0200
-Message-Id: <20210531130708.811823022@linuxfoundation.org>
+Message-Id: <20210531130641.053432241@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,68 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit dc596e3fe63f88e3d1e509f64e7f761cd4135538 upstream.
+commit bbf0a94744edfeee298e4a9ab6fd694d639a5cdf upstream.
 
-Unlike other drivers which pretty much end their .probe() execution with
-dsa_register_switch(), the sja1105 does some extra stuff. When that
-fails with -ENOMEM, the driver is quick to return that, forgetting to
-call dsa_unregister_switch(). Not critical, but a bug nonetheless.
+A rx flow control waiting in the control queue may block autosuspend.
+Re-request autosuspend after flow control been sent to unblock
+the transition to the low power state.
 
-Fixes: 4d7525085a9b ("net: dsa: sja1105: offload the Credit-Based Shaper qdisc")
-Fixes: a68578c20a96 ("net: dsa: Make deferred_xmit private to sja1105")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20210526193334.445759-1-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c |   15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/misc/mei/interrupt.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -3683,8 +3683,10 @@ static int sja1105_probe(struct spi_devi
- 		priv->cbs = devm_kcalloc(dev, priv->info->num_cbs_shapers,
- 					 sizeof(struct sja1105_cbs_entry),
- 					 GFP_KERNEL);
--		if (!priv->cbs)
--			return -ENOMEM;
-+		if (!priv->cbs) {
-+			rc = -ENOMEM;
-+			goto out_unregister_switch;
-+		}
+--- a/drivers/misc/mei/interrupt.c
++++ b/drivers/misc/mei/interrupt.c
+@@ -224,6 +224,9 @@ static int mei_cl_irq_read(struct mei_cl
+ 		return ret;
  	}
  
- 	/* Connections between dsa_port and sja1105_port */
-@@ -3709,7 +3711,7 @@ static int sja1105_probe(struct spi_devi
- 			dev_err(ds->dev,
- 				"failed to create deferred xmit thread: %d\n",
- 				rc);
--			goto out;
-+			goto out_destroy_workers;
- 		}
- 		skb_queue_head_init(&sp->xmit_queue);
- 		sp->xmit_tpid = ETH_P_SJA1105;
-@@ -3719,7 +3721,8 @@ static int sja1105_probe(struct spi_devi
- 	}
++	pm_runtime_mark_last_busy(dev->dev);
++	pm_request_autosuspend(dev->dev);
++
+ 	list_move_tail(&cb->list, &cl->rd_pending);
  
  	return 0;
--out:
-+
-+out_destroy_workers:
- 	while (port-- > 0) {
- 		struct sja1105_port *sp = &priv->ports[port];
- 
-@@ -3728,6 +3731,10 @@ out:
- 
- 		kthread_destroy_worker(sp->xmit_worker);
- 	}
-+
-+out_unregister_switch:
-+	dsa_unregister_switch(ds);
-+
- 	return rc;
- }
- 
 
 
