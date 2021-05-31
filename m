@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8122B3962AD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:58:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EA673960D9
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:30:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232844AbhEaPAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:00:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:51030 "EHLO mail.kernel.org"
+        id S232781AbhEaOcI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:32:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55142 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231585AbhEaO5U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:57:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4155F61402;
-        Mon, 31 May 2021 14:00:17 +0000 (UTC)
+        id S234094AbhEaOaG (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:30:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AB4E361C2A;
+        Mon, 31 May 2021 13:48:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469617;
-        bh=e9Kvj+llEdXdE4vFZ3aybTT3zMofuM2ZWeu75cRbXRo=;
+        s=korg; t=1622468925;
+        bh=jUSSOftiFGWwySWvoECQjy5aAWLT7qMSEDz43KYH+Eo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gdgUNBI9d3VNyYhCh7KATkkcWBtenbgJE5wdzarlhwBe0Yr3Kw5BLb/E8Uc84i2D9
-         zSbz1YN0+/zUtIHkxXyjLFpuWe5Bqb9jbapH/8wHbtIS0hvCXPo5/KfZ4AuHyYXAm2
-         ixA8vH+zBnJsula4w+wLMW4NEwBk+EbcLd7XFyVY=
+        b=Pp/G6PFY0xnakQ/N6jiu2ov+K2Gzx2I6CVXE4xTpaCSMKrkh0/T37tSEXL2lInxwZ
+         tAH72XaTIuxyYzpUvYPmffWQD9zDwcJXJH35b85PkUaWCQH2dwuLphA0KjKlf9XUiw
+         uO2q9qXbUS0+/oRcdF+OTrD7CKPrYwnGrG0AW5Q4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Raju Rangoju <rajur@chelsio.com>,
+        stable@vger.kernel.org, Francesco Ruggeri <fruggeri@arista.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 266/296] cxgb4: avoid accessing registers when clearing filters
+Subject: [PATCH 5.4 164/177] ipv6: record frag_max_size in atomic fragments in input path
 Date:   Mon, 31 May 2021 15:15:21 +0200
-Message-Id: <20210531130712.685566907@linuxfoundation.org>
+Message-Id: <20210531130653.593442531@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,36 +40,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <rajur@chelsio.com>
+From: Francesco Ruggeri <fruggeri@arista.com>
 
-[ Upstream commit 88c380df84fbd03f9b137c2b9d0a44b9f2f553b0 ]
+[ Upstream commit e29f011e8fc04b2cdc742a2b9bbfa1b62518381a ]
 
-Hardware register having the server TID base can contain
-invalid values when adapter is in bad state (for example,
-due to AER fatal error). Reading these invalid values in the
-register can lead to out-of-bound memory access. So, fix
-by using the saved server TID base when clearing filters.
+Commit dbd1759e6a9c ("ipv6: on reassembly, record frag_max_size")
+filled the frag_max_size field in IP6CB in the input path.
+The field should also be filled in case of atomic fragments.
 
-Fixes: b1a79360ee86 ("cxgb4: Delete all hash and TCAM filters before resource cleanup")
-Signed-off-by: Raju Rangoju <rajur@chelsio.com>
+Fixes: dbd1759e6a9c ('ipv6: on reassembly, record frag_max_size')
+Signed-off-by: Francesco Ruggeri <fruggeri@arista.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/reassembly.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-index bde8494215c4..e664e05b9f02 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_filter.c
-@@ -1042,7 +1042,7 @@ void clear_all_filters(struct adapter *adapter)
- 				cxgb4_del_filter(dev, f->tid, &f->fs);
- 		}
+diff --git a/net/ipv6/reassembly.c b/net/ipv6/reassembly.c
+index c8cf1bbad74a..45ee1971d998 100644
+--- a/net/ipv6/reassembly.c
++++ b/net/ipv6/reassembly.c
+@@ -344,7 +344,7 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
+ 	hdr = ipv6_hdr(skb);
+ 	fhdr = (struct frag_hdr *)skb_transport_header(skb);
  
--		sb = t4_read_reg(adapter, LE_DB_SRVR_START_INDEX_A);
-+		sb = adapter->tids.stid_base;
- 		for (i = 0; i < sb; i++) {
- 			f = (struct filter_entry *)adapter->tids.tid_tab[i];
+-	if (!(fhdr->frag_off & htons(0xFFF9))) {
++	if (!(fhdr->frag_off & htons(IP6_OFFSET | IP6_MF))) {
+ 		/* It is not a fragmented frame */
+ 		skb->transport_header += sizeof(struct frag_hdr);
+ 		__IP6_INC_STATS(net,
+@@ -352,6 +352,8 @@ static int ipv6_frag_rcv(struct sk_buff *skb)
+ 
+ 		IP6CB(skb)->nhoff = (u8 *)fhdr - skb_network_header(skb);
+ 		IP6CB(skb)->flags |= IP6SKB_FRAGMENTED;
++		IP6CB(skb)->frag_max_size = ntohs(hdr->payload_len) +
++					    sizeof(struct ipv6hdr);
+ 		return 1;
+ 	}
  
 -- 
 2.30.2
