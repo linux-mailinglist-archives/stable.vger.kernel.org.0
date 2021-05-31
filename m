@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 24252395FDF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A4BD3961FA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:48:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233251AbhEaOQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43916 "EHLO mail.kernel.org"
+        id S234178AbhEaOtk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:49:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40322 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233664AbhEaOO4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:14:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7100961999;
-        Mon, 31 May 2021 13:42:31 +0000 (UTC)
+        id S233362AbhEaOrN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:47:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E28961C90;
+        Mon, 31 May 2021 13:56:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468551;
-        bh=3N0ezVeZkrEOInXsqK+PFhmFlFUqU5U/DaZLgbTEMLg=;
+        s=korg; t=1622469368;
+        bh=d5hGgpFXl/WfnpQuNaib7PPQjw6cDvtuUJzj/dDkc3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u30/iWSrSiCfHggXhNmboHutJUWzhL1VPR87hHnaqtD8pISjj+D35brzMJue1nKTU
-         wxzjZkzdmXmlpd633C3G/32ilENTpyDhiAgAN4ujLVqSkUOo49Cum3zHt68MJOsOi6
-         jxrqRl6uU3OQoJDUV0gc0ikDEHcfsjkc5cx8z7sQ=
+        b=p5M/5jffvW4Jvi5C+g7if6OMIYZkG44XZ1xEpPmB0lPQmnAr2K2dP0VBwEBjRhUDN
+         Mts7rTo29FCnGtPpPvrhnMF348lS5DHbiSAG3hqYIiQq3GBdIE8SUVF2xUj6RWmmjJ
+         bAfvg445e/ml6jGEFfN0hP5g23u6EsieFovgZ6y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 033/177] drm/amdgpu/vcn2.5: add cancel_delayed_work_sync before power gate
-Date:   Mon, 31 May 2021 15:13:10 +0200
-Message-Id: <20210531130649.068609990@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.12 136/296] spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+Date:   Mon, 31 May 2021 15:13:11 +0200
+Message-Id: <20210531130708.460737566@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,33 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 2fb536ea42d557f39f70c755f68e1aa1ad466c55 upstream.
+commit 680ec0549a055eb464dce6ffb4bfb736ef87236e upstream.
 
-Add cancel_delayed_work_sync before set power gating state
-to avoid race condition issue when power gating.
+'dspi_request_dma()' should be undone by a 'dspi_release_dma()' call in the
+error handling path of the probe function, as already done in the remove
+function
 
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/d51caaac747277a1099ba8dea07acd85435b857e.1620587472.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-fsl-dspi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-+++ b/drivers/gpu/drm/amd/amdgpu/vcn_v2_5.c
-@@ -302,6 +302,8 @@ static int vcn_v2_5_hw_fini(void *handle
- 	struct amdgpu_ring *ring;
- 	int i;
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1375,11 +1375,13 @@ poll_mode:
+ 	ret = spi_register_controller(ctlr);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "Problem registering DSPI ctlr\n");
+-		goto out_free_irq;
++		goto out_release_dma;
+ 	}
  
-+	cancel_delayed_work_sync(&adev->vcn.idle_work);
-+
- 	for (i = 0; i < adev->vcn.num_vcn_inst; ++i) {
- 		if (adev->vcn.harvest_config & (1 << i))
- 			continue;
+ 	return ret;
+ 
++out_release_dma:
++	dspi_release_dma(dspi);
+ out_free_irq:
+ 	if (dspi->irq)
+ 		free_irq(dspi->irq, dspi);
 
 
