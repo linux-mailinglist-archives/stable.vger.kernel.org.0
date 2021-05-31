@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1D82395F52
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A80363960BF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231562AbhEaOKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:10:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40564 "EHLO mail.kernel.org"
+        id S230104AbhEaObS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55734 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232894AbhEaOIB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:08:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6CB496145B;
-        Mon, 31 May 2021 13:39:40 +0000 (UTC)
+        id S233703AbhEaO3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3371661C1F;
+        Mon, 31 May 2021 13:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468381;
-        bh=rBrdI77HY/HSOdFz+fqOt2pQNvjFD10h6ks7goS58YE=;
+        s=korg; t=1622468876;
+        bh=qAcEArfJowDiphG82Df+QPZjdC+ibKj+ovBM/xfGHbY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t5JaUHQIRA+AFSnz1gvi+f9CiGHXFyrj0ZzUq9+ZjvoGPjvPppT3ueme5Jry03eHt
-         uNrc4rl5hgLKljv9vqw+xcEEgoXE0C9E1hxySaR2wCv2H6FdnKrVsjTyJ9bYMDyRVk
-         CqW30BuJ3tI0QRdOu9lv2jW1z5M3hjoXrghDh794=
+        b=pAtCm53k2YV2c+Yo7SBnZtRnpfB9KxOUou26KhJmPN/IU1SuH92mM2CU2ZW4IXfuw
+         PGU7M10SkrtNq0oEXf0MEs7hPthrGmRozKoAnVCqcXFkf9vIAWGNKV4twWLkD9xjPr
+         ZwyyfyhLkcBBZs0Uk6VL6xynTkMzzQZQeQvbIyvQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, David Awogbemila <awogbemila@google.com>,
-        Willem de Brujin <willemb@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 220/252] gve: Correct SKB queue index validation.
+Subject: [PATCH 5.4 128/177] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
 Date:   Mon, 31 May 2021 15:14:45 +0200
-Message-Id: <20210531130705.480272383@linuxfoundation.org>
+Message-Id: <20210531130652.347034209@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,35 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Awogbemila <awogbemila@google.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit fbd4a28b4fa66faaa7f510c0adc531d37e0a7848 ]
+[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
 
-SKBs with skb_get_queue_mapping(skb) == tx_cfg.num_queues should also be
-considered invalid.
+The intel_punit_ipc driver might be compiled as a module.
+When udev handles the event of the devices appearing
+the intel_punit_ipc module is missing.
 
-Fixes: f5cedc84a30d ("gve: Add transmit and receive support")
-Signed-off-by: David Awogbemila <awogbemila@google.com>
-Acked-by: Willem de Brujin <willemb@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/google/gve/gve_tx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/intel_punit_ipc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/google/gve/gve_tx.c b/drivers/net/ethernet/google/gve/gve_tx.c
-index 30532ee28dd3..b653197b34d1 100644
---- a/drivers/net/ethernet/google/gve/gve_tx.c
-+++ b/drivers/net/ethernet/google/gve/gve_tx.c
-@@ -482,7 +482,7 @@ netdev_tx_t gve_tx(struct sk_buff *skb, struct net_device *dev)
- 	struct gve_tx_ring *tx;
- 	int nsegs;
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index fa97834fdb78..ccb44f2eb240 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -328,6 +328,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
+ 	{ "INT34D4", 0 },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
  
--	WARN(skb_get_queue_mapping(skb) > priv->tx_cfg.num_queues,
-+	WARN(skb_get_queue_mapping(skb) >= priv->tx_cfg.num_queues,
- 	     "skb queue index out of range");
- 	tx = &priv->tx[skb_get_queue_mapping(skb)];
- 	if (unlikely(gve_maybe_stop_tx(tx, skb))) {
+ static struct platform_driver intel_punit_ipc_driver = {
+ 	.probe = intel_punit_ipc_probe,
 -- 
 2.30.2
 
