@@ -2,205 +2,416 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id AD55C39698B
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 00:07:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA02C396993
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 00:11:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231708AbhEaWJd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 18:09:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52756 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231305AbhEaWJd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 18:09:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C2A35610E7;
-        Mon, 31 May 2021 22:07:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1622498872;
-        bh=ASh2aCUCOotb5nFuB+1kM4/b9E8KAlizeh7bFVGZAr4=;
-        h=Date:From:To:Subject:From;
-        b=OhiczRUCLpnvXicMLFCL8PquZw8SbB4oaEc6TjKYwDLdqDspedJH3c7SOAwe6nAlu
-         aCr8UZBGZnlNzEKYenchs250C3ew2D5JbH038R1+u78m438rHjKd+1Y8zrrlQAJSNC
-         Dqf9fAxm9ytfNMsEwv++4vtdb1Y57dTDqB6eG4/8=
-Date:   Mon, 31 May 2021 15:07:51 -0700
-From:   akpm@linux-foundation.org
-To:     gechangwei@live.cn, ghe@suse.com, jack@suse.cz, jlbec@evilplan.org,
-        joseph.qi@linux.alibaba.com, junxiao.bi@oracle.com,
-        mark@fasheh.com, mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable@vger.kernel.org
-Subject:  + ocfs2-fix-data-corruption-by-fallocate.patch added to
- -mm tree
-Message-ID: <20210531220751.wp6zM2ghS%akpm@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S232227AbhEaWNe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 18:13:34 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60898 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231305AbhEaWNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 18:13:33 -0400
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716B6C061574
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 15:11:52 -0700 (PDT)
+Received: by mail-pl1-x633.google.com with SMTP id c13so893434plz.0
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 15:11:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=85OGj36jGDy0F2U1b7TPMjEE4QwQM6K140Qy4lnOUfs=;
+        b=osFxhLt5KBzXfUoYM53A3eHebnfgp+P1KHNYh9U67sfRL2LGCqsJ5LOllNguzwNx6L
+         BuiZj+sO4fxTfRxbajbe8fuiAxy58VRsElirCd1HYxTvKM0neawXDdTX8UrAPi9oQiS1
+         nrVNUQaKTUTTfJk3Wn/y7myKhotiiAgls7UyWm2A0ufeHDpLvFRoirYPXuPAH+yW04BU
+         wZW+/phtUSE9saAVs8txEPKHUQrYCgWaUHxNBcStRywdmJYuoF7AJUuJc5okekx67Ifp
+         6Cpx3+RtUZeGgE7/qBkQgAx6bD7mZUf6RPT5ihUL/T7ieVE7Yxc54ZF4UXSAzreNv7Kh
+         +2YA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=85OGj36jGDy0F2U1b7TPMjEE4QwQM6K140Qy4lnOUfs=;
+        b=f1qZnkX+fcmC8cwGZBPaN5N/k8hNWcHDd7jV2DU6oNRnsMCFdeN7a6muEKZYyg+kLX
+         zIli9DM5jbWQN8AEDk0CWcsvvZXT5eBEkMF/zTwokn5eXBN1YOmVvGm97ANp1zpbKrZr
+         fR8cUb3V7oX3ZjBATdQJPeaaHJTJAD7R3ZQmza4DaCrhNQsHi5EprHhEmeWEUgp4Kiu0
+         ceCBQubUtLu3BSgFjX/QJZrW/HmeX2esvkkrvp2zQ3mxNVug4UO2jVvW4fqedbyypuGc
+         oZSL7Va8qRdJf2OUhXRVLkkK8m2VDnI4AeBYdHnrECFafOAxNSq2jq8iOQRfGC3PIu3S
+         LeQw==
+X-Gm-Message-State: AOAM532/hQulTbfvlrqAKjEsMy7wDxtbhWP8vy/V4/ZguE5pYj+xsO6k
+        XZYNLlQnlPQ12LEObM8SmXG8bHVnUzqaaO9Z
+X-Google-Smtp-Source: ABdhPJzn/tHoGZM7wr1DAGoh72xbnMMsN6fk0nf944UX459qnuQTFinZSOMpd15P2RZ8irqvgLR+Lw==
+X-Received: by 2002:a17:902:a40f:b029:fe:fee9:92fe with SMTP id p15-20020a170902a40fb02900fefee992femr21241929plq.26.1622499111742;
+        Mon, 31 May 2021 15:11:51 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id q23sm12689782pgj.61.2021.05.31.15.11.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 31 May 2021 15:11:51 -0700 (PDT)
+Message-ID: <60b55f27.1c69fb81.e9e7b.84f0@mx.google.com>
+Date:   Mon, 31 May 2021 15:11:51 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.4.270-55-gcc9e380567a5
+X-Kernelci-Branch: linux-4.4.y
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.4.y baseline: 94 runs,
+ 9 regressions (v4.4.270-55-gcc9e380567a5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/linux-4.4.y baseline: 94 runs, 9 regressions (v4.4.270-55-gcc9e38=
+0567a5)
 
-The patch titled
-     Subject: ocfs2: fix data corruption by fallocate
-has been added to the -mm tree.  Its filename is
-     ocfs2-fix-data-corruption-by-fallocate.patch
+Regressions Summary
+-------------------
 
-This patch should soon appear at
-    https://ozlabs.org/~akpm/mmots/broken-out/ocfs2-fix-data-corruption-by-fallocate.patch
-and later at
-    https://ozlabs.org/~akpm/mmotm/broken-out/ocfs2-fix-data-corruption-by-fallocate.patch
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
+g | 1          =
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-The -mm tree is included into linux-next and is updated
-there every 3-4 working days
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-------------------------------------------------------
-From: Junxiao Bi <junxiao.bi@oracle.com>
-Subject: ocfs2: fix data corruption by fallocate
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-When fallocate punches holes out of inode size, if original isize is in
-the middle of last cluster, then the part from isize to the end of the
-cluster will be zeroed with buffer write, at that time isize is not yet
-updated to match the new size, if writeback is kicked in, it will invoke
-ocfs2_writepage()->block_write_full_page() where the pages out of inode
-size will be dropped.  That will cause file corruption.  Fix this by zero
-out eof blocks when extending the inode size.
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-Running the following command with qemu-image 4.2.1 can get a corrupted
-coverted image file easily.
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
-             -O qcow2 -o compat=1.1 $qcow_image.conv
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-The usage of fallocate in qemu is like this, it first punches holes out of
-inode size, then extend the inode size.
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
 
-    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
-    fallocate(11, 0, 2276196352, 65536) = 0
 
-v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
-v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.4.y/kern=
+el/v4.4.270-55-gcc9e380567a5/plan/baseline/
 
-Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.4.y
+  Describe: v4.4.270-55-gcc9e380567a5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      cc9e380567a562d19cf6d396c943a37064e08f8e =
 
- fs/ocfs2/file.c |   55 +++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 5 deletions(-)
 
---- a/fs/ocfs2/file.c~ocfs2-fix-data-corruption-by-fallocate
-+++ a/fs/ocfs2/file.c
-@@ -1856,6 +1856,45 @@ out:
- }
- 
- /*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
-+/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
-@@ -1865,7 +1904,7 @@ static int __ocfs2_change_file_space(str
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1896,6 +1935,7 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1903,7 +1943,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1957,6 +1997,14 @@ static int __ocfs2_change_file_space(str
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1973,9 +2021,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
-_
 
-Patches currently in -mm which might be from junxiao.bi@oracle.com are
+Test Regressions
+---------------- =
 
-ocfs2-fix-data-corruption-by-fallocate.patch
 
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+dove-cubox          | arm  | lab-pengutronix | gcc-8    | mvebu_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b524966b9bdfe0c5b3b004
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: mvebu_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dov=
+e-cubox.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/mvebu_v7_defconfig/gcc-8/lab-pengutronix/baseline-dov=
+e-cubox.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b524966b9bdfe0c5b3b=
+005
+        failing since 4 days (last pass: v4.4.270, first fail: v4.4.270-4-g=
+50a10183be62) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b525a3bf9815b7eab3afc8
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b525a3bf9815b7eab3a=
+fc9
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b5260f5bab40fdc7b3afb6
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b5260f5bab40fdc7b3a=
+fb7
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b525bae003d83453b3afb3
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
+rt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
+rt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b525bae003d83453b3a=
+fb4
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv2 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b536a5a23c04ed5eb3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-virt-gicv2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-virt-gicv2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b536a5a23c04ed5eb3a=
+f98
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-baylibre    | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b5257bbf9815b7eab3af9a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-baylibre/baseline-qemu_a=
+rm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b5257bbf9815b7eab3a=
+f9b
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-broonie     | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b525abe003d83453b3afae
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-broonie/baseline-qemu_ar=
+m-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b525abe003d83453b3a=
+faf
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-cip         | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b5258c903eabb104b3afb7
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
+rt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-cip/baseline-qemu_arm-vi=
+rt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b5258c903eabb104b3a=
+fb8
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =
+
+
+
+platform            | arch | lab             | compiler | defconfig        =
+  | regressions
+--------------------+------+-----------------+----------+------------------=
+--+------------
+qemu_arm-virt-gicv3 | arm  | lab-collabora   | gcc-8    | multi_v7_defconfi=
+g | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b5361e7b0fc9ef90b3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-virt-gicv3.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.4.y/v4.4.270=
+-55-gcc9e380567a5/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-qemu_=
+arm-virt-gicv3.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b5361e7b0fc9ef90b3a=
+f98
+        failing since 198 days (last pass: v4.4.243-14-gcb8e837cb602, first=
+ fail: v4.4.243-20-g3c35b64319c2) =
+
+ =20
