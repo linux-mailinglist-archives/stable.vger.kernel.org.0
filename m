@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0569A395CBB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 941643961E3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232356AbhEaNhA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:37:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38922 "EHLO mail.kernel.org"
+        id S233824AbhEaOrk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232585AbhEaNdK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:33:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 644A5613B9;
-        Mon, 31 May 2021 13:24:13 +0000 (UTC)
+        id S232009AbhEaOpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A252C61C83;
+        Mon, 31 May 2021 13:55:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467454;
-        bh=G9Djgm5+D9+1oVWiiL+Z96/5chrPLDcwDNTHkHXHhyk=;
+        s=korg; t=1622469331;
+        bh=kezQKjHOc9G5y7JOeaR1tVS84j6O+vmfVzO6uJyggVc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XnKd/+LXxZj8DI+L3FimOlzhz03+vGpmQw6iyWXzmaXQHpLVa/VfM/+KReP5cJyy1
-         9rkAivQewb5PiglTuVQhOMENCWOQQbDkdoD6xGHa92XGyvczXaphKn/CrJ07kWC40Y
-         tr8IwNLqg6shQw/U4Qw5Riu8T6ZvgIVAYbbxbmOc=
+        b=HqZszcyLDi+gboX1du93WZiDCxZq34R/qh8YbZi1adpmju8MgGuG2oGQXA0W25xbQ
+         cIJYmYt7J4v8YckCFY7dKYtPlHCGg5DpNijplOHfP4EEjk0NSzXyech783PIiYGXXj
+         UJszL+G2+Tgwutx7WGkYW+E4+XcRCGB9tLgOfb6M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zolton Jheng <s6668c2t@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 036/116] USB: serial: pl2303: add device id for ADLINK ND-6530 GC
+        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 157/296] mptcp: avoid error message on infinite mapping
 Date:   Mon, 31 May 2021 15:13:32 +0200
-Message-Id: <20210531130641.385701804@linuxfoundation.org>
+Message-Id: <20210531130709.141161639@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +40,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zolton Jheng <s6668c2t@gmail.com>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit f8e8c1b2f782e7391e8a1c25648ce756e2a7d481 upstream.
+commit 3ed0a585bfadb6bd7080f11184adbc9edcce7dbc upstream.
 
-This adds the device id for the ADLINK ND-6530 which is a PL2303GC based
-device.
+Another left-over. Avoid flooding dmesg with useless text,
+we already have a MIB for that event.
 
-Signed-off-by: Zolton Jheng <s6668c2t@gmail.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 648ef4b88673 ("mptcp: Implement MPTCP receive path")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/pl2303.c |    1 +
- drivers/usb/serial/pl2303.h |    1 +
- 2 files changed, 2 insertions(+)
+ net/mptcp/subflow.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/serial/pl2303.c
-+++ b/drivers/usb/serial/pl2303.c
-@@ -107,6 +107,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(SONY_VENDOR_ID, SONY_QN3USB_PRODUCT_ID) },
- 	{ USB_DEVICE(SANWA_VENDOR_ID, SANWA_PRODUCT_ID) },
- 	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530_PRODUCT_ID) },
-+	{ USB_DEVICE(ADLINK_VENDOR_ID, ADLINK_ND6530GC_PRODUCT_ID) },
- 	{ USB_DEVICE(SMART_VENDOR_ID, SMART_PRODUCT_ID) },
- 	{ USB_DEVICE(AT_VENDOR_ID, AT_VTKIT3_PRODUCT_ID) },
- 	{ }					/* Terminating entry */
---- a/drivers/usb/serial/pl2303.h
-+++ b/drivers/usb/serial/pl2303.h
-@@ -152,6 +152,7 @@
- /* ADLINK ND-6530 RS232,RS485 and RS422 adapter */
- #define ADLINK_VENDOR_ID		0x0b63
- #define ADLINK_ND6530_PRODUCT_ID	0x6530
-+#define ADLINK_ND6530GC_PRODUCT_ID	0x653a
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -839,7 +839,6 @@ static enum mapping_status get_mapping_s
  
- /* SMART USB Serial Adapter */
- #define SMART_VENDOR_ID	0x0b8c
+ 	data_len = mpext->data_len;
+ 	if (data_len == 0) {
+-		pr_err("Infinite mapping not handled");
+ 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_INFINITEMAPRX);
+ 		return MAPPING_INVALID;
+ 	}
 
 
