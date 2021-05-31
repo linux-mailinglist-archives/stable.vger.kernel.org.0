@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A099739601B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B43395B9A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:21:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233295AbhEaOWw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:22:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
+        id S232263AbhEaNWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:22:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233096AbhEaORv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:17:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 741BB619AD;
-        Mon, 31 May 2021 13:43:53 +0000 (UTC)
+        id S232163AbhEaNUY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:20:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF6966138C;
+        Mon, 31 May 2021 13:18:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468634;
-        bh=z9tkXdkGHZYW3L/hJSHJ85y13emu4R6Xi41u2+p9kAE=;
+        s=korg; t=1622467117;
+        bh=EISD/zBZ3lO6zdRqdgHn7/U/qjj2NvGunw7ZBINjZ54=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pqtkN9yGl4S797GczttlG1O+Ik8X0kwcIUs3UiGTHTGpt0WNx+cy13pK8Dyf1cUEg
-         vCzIwYrqlHI8Cl57jroY9x5gLL0hUOqbI+rP1V2Ix6cvouGXt/MBmdMtgutj4a+O0E
-         STPjupna0S/UU3kS51tFRn3ZrAqHzJ34N1vtFPmU=
+        b=G8p+xgCAqpeX4BhJ59vNog1hprxF3TpDKYmkw/kkyRvp+W7r+PZfm1bANYPbK6hSA
+         CzsdH8EzPvkUyD99FJD+nCmrCwreJUquS7gKbID5/dSTFkwRg/6X9HNFNyCcqL99eZ
+         7ZGorp4w2EjZCxAGNjstljh4hadzkQeeEwh2Y2GM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, zhouchuangao <zhouchuangao@vivo.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>
-Subject: [PATCH 5.4 066/177] fs/nfs: Use fatal_signal_pending instead of signal_pending
-Date:   Mon, 31 May 2021 15:13:43 +0200
-Message-Id: <20210531130650.179734331@linuxfoundation.org>
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.9 11/66] cfg80211: mitigate A-MSDU aggregation attacks
+Date:   Mon, 31 May 2021 15:13:44 +0200
+Message-Id: <20210531130636.621943688@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,41 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: zhouchuangao <zhouchuangao@vivo.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit bb002388901151fe35b6697ab116f6ed0721a9ed upstream.
+commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
 
-We set the state of the current process to TASK_KILLABLE via
-prepare_to_wait(). Should we use fatal_signal_pending() to detect
-the signal here?
+Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
+destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
+header, and if so dropping the complete A-MSDU frame. This mitigates
+known attacks, although new (unknown) aggregation-based attacks may
+remain possible.
 
-Fixes: b4868b44c562 ("NFSv4: Wait for stateid updates after CLOSE/OPEN_DOWNGRADE")
-Signed-off-by: zhouchuangao <zhouchuangao@vivo.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+This defense works because in A-MSDU aggregation injection attacks, a
+normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
+the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
+header. In other words, the destination MAC address of the first A-MSDU
+subframe contains the start of an RFC1042 header during an aggregation
+attack. We can detect this and thereby prevent this specific attack.
+For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
+Through Frame Aggregation and Fragmentation".
+
+Note that for kernel 4.9 and above this patch depends on "mac80211:
+properly handle A-MSDUs that start with a rfc1042 header". Otherwise
+this patch has no impact and attacks will remain possible.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/nfs4proc.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/wireless/util.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/nfs/nfs4proc.c
-+++ b/fs/nfs/nfs4proc.c
-@@ -1647,7 +1647,7 @@ static void nfs_set_open_stateid_locked(
- 		rcu_read_unlock();
- 		trace_nfs4_open_stateid_update_wait(state->inode, stateid, 0);
+--- a/net/wireless/util.c
++++ b/net/wireless/util.c
+@@ -768,6 +768,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
+ 		remaining = skb->len - offset;
+ 		if (subframe_len > remaining)
+ 			goto purge;
++		/* mitigate A-MSDU aggregation injection attacks */
++		if (ether_addr_equal(eth.h_dest, rfc1042_header))
++			goto purge;
  
--		if (!signal_pending(current)) {
-+		if (!fatal_signal_pending(current)) {
- 			if (schedule_timeout(5*HZ) == 0)
- 				status = -EAGAIN;
- 			else
-@@ -3416,7 +3416,7 @@ static bool nfs4_refresh_open_old_statei
- 		write_sequnlock(&state->seqlock);
- 		trace_nfs4_close_stateid_update_wait(state->inode, dst, 0);
- 
--		if (signal_pending(current))
-+		if (fatal_signal_pending(current))
- 			status = -EINTR;
- 		else
- 			if (schedule_timeout(5*HZ) != 0)
+ 		offset += sizeof(struct ethhdr);
+ 		last = remaining <= subframe_len + padding;
 
 
