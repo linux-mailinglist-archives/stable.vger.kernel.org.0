@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 39C03395C13
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C021C395D31
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232278AbhEaN1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:27:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33678 "EHLO mail.kernel.org"
+        id S232829AbhEaNmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:42:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232289AbhEaNZw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:25:52 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BAAC3613FE;
-        Mon, 31 May 2021 13:21:04 +0000 (UTC)
+        id S232385AbhEaNkf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:40:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8BE61008;
+        Mon, 31 May 2021 13:27:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467265;
-        bh=JB+XAR5JtrB+x/U79H63DAkfAF0TATzHm4+NdNpp6qI=;
+        s=korg; t=1622467659;
+        bh=HE40aT572Easr1+T7vuzEOoYZJJvy2UR7sPn41n8k2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GVXnIYOs1d0h3jfG+A7xmofD+paA9yGZe8SUuyUhHPBA1mwbQDUs4P9SgavVmWMxv
-         JWtoiWEk4JnVxRbseMgLuNlMdapJMjIlJPWIuDAEFJQXzb8yUJYT0vCjp/8tnEV7fS
-         9zG7dC/3CjxIcpQrI0Tso4gcGaoKzCdUrmbUo6n0=
+        b=MhrNzl7pai2ElVCaNGrdWpmj1EwMoO6Sr6TbnpvlohQr6kN8bqCvayk++B7Ehvsp1
+         XLiTJRtpFKqrBQfBdNqAL78l8dGU8Aw76OBC9QgBOfQ1VyF77w+zaGM65Xug8Avyld
+         4gYZQPnq0s+5CWos+3FHK+vTi1nzA9g85dnm22EE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Seewald <tseewald@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 42/66] char: hpet: add checks after calling ioremap
+        stable@vger.kernel.org,
+        Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>,
+        Juergen Borleis <jbe@pengutronix.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.14 30/79] USB: serial: ftdi_sio: add IDs for IDS GmbH Products
 Date:   Mon, 31 May 2021 15:14:15 +0200
-Message-Id: <20210531130637.587949680@linuxfoundation.org>
+Message-Id: <20210531130636.969911111@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+References: <20210531130636.002722319@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
 
-[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
+commit c5a80540e425a5f9a82b0f3163e3b6a4331f33bc upstream.
 
-The function hpet_resources() calls ioremap() two times, but in both
-cases it does not check if ioremap() returned a null pointer. Fix this
-by adding null pointer checks and returning an appropriate error.
+Add the IDS GmbH Vendor ID and the Product IDs for SI31A (2xRS232)
+and CM31A (LoRaWAN Modem).
 
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
+Signed-off-by: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
+Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/usb/serial/ftdi_sio.c     |    3 +++
+ drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
+ 2 files changed, 10 insertions(+)
 
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index bedfd2412ec1..7975ddd40b35 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -976,6 +976,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 	if (ACPI_SUCCESS(status)) {
- 		hdp->hd_phys_address = addr.address.minimum;
- 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+--- a/drivers/usb/serial/ftdi_sio.c
++++ b/drivers/usb/serial/ftdi_sio.c
+@@ -1029,6 +1029,9 @@ static const struct usb_device_id id_tab
+ 	/* Sienna devices */
+ 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
+ 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
++	/* IDS GmbH devices */
++	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
++	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
+ 	/* U-Blox devices */
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
+ 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
+--- a/drivers/usb/serial/ftdi_sio_ids.h
++++ b/drivers/usb/serial/ftdi_sio_ids.h
+@@ -1568,6 +1568,13 @@
+ #define UNJO_ISODEBUG_V1_PID		0x150D
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
-@@ -989,6 +991,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 		hdp->hd_phys_address = fixmem32->address;
- 		hdp->hd_address = ioremap(fixmem32->address,
- 						HPET_RANGE_SIZE);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
- 
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
--- 
-2.30.2
-
+ /*
++ * IDS GmbH
++ */
++#define IDS_VID				0x2CAF
++#define IDS_SI31A_PID			0x13A2
++#define IDS_CM31A_PID			0x13A3
++
++/*
+  * U-Blox products (http://www.u-blox.com).
+  */
+ #define UBLOX_VID			0x1546
 
 
