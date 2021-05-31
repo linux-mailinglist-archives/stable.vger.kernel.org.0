@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F924395FFB
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 01E28395E9D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233024AbhEaOR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:17:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
+        id S232426AbhEaOBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:01:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32912 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233780AbhEaOPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:15:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 55A5F6147D;
-        Mon, 31 May 2021 13:42:53 +0000 (UTC)
+        id S232116AbhEaN6w (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:58:52 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A365761446;
+        Mon, 31 May 2021 13:35:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468573;
-        bh=zaqc71jmfjSYAhxJFkH0vlK71+sUttf04PqO/8IWQqE=;
+        s=korg; t=1622468143;
+        bh=sVg6SB/8K3yyZdgO0ZP29Rf+pPOA/vY5LIPQHKTVJMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wyK2zyYRmm2jfnNaQHXlfaibCAGYb/ugR4lcPcqXAWWxylRLddsyLcC+ZZsSK+xvO
-         m0d95e3agqE+PrIb4TSaAfDzNyiDNcHftXw2i6tAI81ovwms7pMEgUlADOAt0AYU+N
-         q5d8Km25IJIZq/UbQJhKtIIrRCf9MT9BP6DzEaKA=
+        b=oaV1w7xAK2j2hjdP1tE8FzpvPM27ryHJRT2HAMoEjYBEc0jyZ0mTmprnA0y5jAtnf
+         IkMx5cd9sSvTwv+YrxKgljVQCnSLFAf4LlcPJJxgX5YSopMsnlcRSHadhAfxyjSMMZ
+         CAH+JGzxg8c5av6HJRcp3vU1cpgvze/I/HyHweDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 5.4 041/177] thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 133/252] Revert "media: usb: gspca: add a missed check for goto_low_power"
 Date:   Mon, 31 May 2021 15:13:18 +0200
-Message-Id: <20210531130649.344025343@linuxfoundation.org>
+Message-Id: <20210531130702.528154745@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,63 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b106776080a1cf953a1b2fd50cb2a995db4732be upstream.
+[ Upstream commit fd013265e5b5576a74a033920d6c571e08d7c423 ]
 
-Up to 64 bytes of data can be read from NVM in one go. Read address
-must be dword aligned. Data is read into a local buffer.
+This reverts commit 5b711870bec4dc9a6d705d41e127e73944fa3650.
 
-If caller asks to read data starting at an unaligned address then full
-dword is anyway read from NVM into a local buffer. Data is then copied
-from the local buffer starting at the unaligned offset to the caller
-buffer.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-In cases where asked data length + unaligned offset is over 64 bytes
-we need to make sure we don't read past the 64 bytes in the local
-buffer when copying to caller buffer, and make sure that we don't
-skip copying unaligned offset bytes from local buffer anymore after
-the first round of 64 byte NVM data read.
+Upon review, this commit was found to do does nothing useful as a user
+can do nothing with this information and if an error did happen, the
+code would continue on as before.  Because of this, just revert it.
 
-Fixes: 3e13676862f9 ("thunderbolt: Add support for DMA configuration based mailbox")
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-7-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/dma_port.c |   11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ drivers/media/usb/gspca/cpia1.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/thunderbolt/dma_port.c
-+++ b/drivers/thunderbolt/dma_port.c
-@@ -364,15 +364,15 @@ int dma_port_flash_read(struct tb_dma_po
- 			void *buf, size_t size)
+diff --git a/drivers/media/usb/gspca/cpia1.c b/drivers/media/usb/gspca/cpia1.c
+index a4f7431486f3..d93d384286c1 100644
+--- a/drivers/media/usb/gspca/cpia1.c
++++ b/drivers/media/usb/gspca/cpia1.c
+@@ -1424,7 +1424,6 @@ static int sd_config(struct gspca_dev *gspca_dev,
  {
- 	unsigned int retries = DMA_PORT_RETRIES;
--	unsigned int offset;
--
--	offset = address & 3;
--	address = address & ~3;
+ 	struct sd *sd = (struct sd *) gspca_dev;
+ 	struct cam *cam;
+-	int ret;
  
- 	do {
--		u32 nbytes = min_t(u32, size, MAIL_DATA_DWORDS * 4);
-+		unsigned int offset;
-+		size_t nbytes;
- 		int ret;
+ 	sd->mainsFreq = FREQ_DEF == V4L2_CID_POWER_LINE_FREQUENCY_60HZ;
+ 	reset_camera_params(gspca_dev);
+@@ -1436,10 +1435,7 @@ static int sd_config(struct gspca_dev *gspca_dev,
+ 	cam->cam_mode = mode;
+ 	cam->nmodes = ARRAY_SIZE(mode);
  
-+		offset = address & 3;
-+		nbytes = min_t(size_t, size + offset, MAIL_DATA_DWORDS * 4);
-+
- 		ret = dma_port_flash_read_block(dma, address, dma->buf,
- 						ALIGN(nbytes, 4));
- 		if (ret) {
-@@ -384,6 +384,7 @@ int dma_port_flash_read(struct tb_dma_po
- 			return ret;
- 		}
- 
-+		nbytes -= offset;
- 		memcpy(buf, dma->buf + offset, nbytes);
- 
- 		size -= nbytes;
+-	ret = goto_low_power(gspca_dev);
+-	if (ret)
+-		gspca_err(gspca_dev, "Cannot go to low power mode: %d\n",
+-			  ret);
++	goto_low_power(gspca_dev);
+ 	/* Check the firmware version. */
+ 	sd->params.version.firmwareVersion = 0;
+ 	get_version_information(gspca_dev);
+-- 
+2.30.2
+
 
 
