@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DEEA395ED4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:02:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B8968395B44
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:17:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232528AbhEaOEB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:04:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
+        id S231690AbhEaNSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:18:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53662 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232873AbhEaOB7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:01:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CDB5861947;
-        Mon, 31 May 2021 13:37:06 +0000 (UTC)
+        id S231772AbhEaNSc (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:32 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 125EC61377;
+        Mon, 31 May 2021 13:16:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468227;
-        bh=/5mkWMxrniQRM0OIO+l/RFMqZzon2mnA8svi+4FOsBY=;
+        s=korg; t=1622467012;
+        bh=YuuDDbunUMPyy+mqVzckjE5gDPn/e+4GqX6B5PBFjTA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z9yv1IWSTahLD9ZqSPpu/7vk4bZtlvaZ56T5k1lfI62uoUBn1TXvIzGBWWPctMIqR
-         gozeqBettORYua6IBmuqXc9DEszGDRpfoVtzMKS1w0tb4UUDV+JzT4i01DQb8y27eB
-         nBxcGOEc1IsD/dkWwir6tbjCo7r33Iwyj1uI30M8=
+        b=bdVhXS9RQcKTn2DnmMAmXkX4wr1H46oiOQfiJcTVnx13ejNUDDLQg77qjp8UoV/wG
+         ce7RJr9/Ivd8N1PQRKf5mzYpykTEfBuxZwI/aLLxGwI8zDiUuA1xToqYzNVNhd5IT5
+         po328+hiF7dpwy2MwftOPxmoirpermUxamWZZL/8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 165/252] media: gspca: properly check for errors in po1030_probe()
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.4 24/54] NFS: Dont corrupt the value of pg_bytes_written in nfs_do_recoalesce()
 Date:   Mon, 31 May 2021 15:13:50 +0200
-Message-Id: <20210531130703.616876282@linuxfoundation.org>
+Message-Id: <20210531130635.850766475@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +39,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+commit 0d0ea309357dea0d85a82815f02157eb7fcda39f upstream.
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+The value of mirror->pg_bytes_written should only be updated after a
+successful attempt to flush out the requests on the list.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Fixes: a7d42ddb3099 ("nfs: add mirroring support to pgio layer")
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ fs/nfs/pagelist.c |   12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index 7bdbb8065146..8fd99ceee4b6 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -155,6 +155,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
+--- a/fs/nfs/pagelist.c
++++ b/fs/nfs/pagelist.c
+@@ -993,17 +993,16 @@ static void nfs_pageio_doio(struct nfs_p
  {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+ 	struct nfs_pgio_mirror *mirror = nfs_pgio_current_mirror(desc);
  
- 	if (force_sensor) {
-@@ -173,10 +174,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
- 		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
+-
+ 	if (!list_empty(&mirror->pg_list)) {
+ 		int error = desc->pg_ops->pg_doio(desc);
+ 		if (error < 0)
+ 			desc->pg_error = error;
+-		else
++		if (list_empty(&mirror->pg_list)) {
+ 			mirror->pg_bytes_written += mirror->pg_count;
+-	}
+-	if (list_empty(&mirror->pg_list)) {
+-		mirror->pg_count = 0;
+-		mirror->pg_base = 0;
++			mirror->pg_count = 0;
++			mirror->pg_base = 0;
++			mirror->pg_recoalesce = 0;
++		}
  	}
+ }
  
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
--- 
-2.30.2
-
+@@ -1089,7 +1088,6 @@ static int nfs_do_recoalesce(struct nfs_
+ 
+ 	do {
+ 		list_splice_init(&mirror->pg_list, &head);
+-		mirror->pg_bytes_written -= mirror->pg_count;
+ 		mirror->pg_count = 0;
+ 		mirror->pg_base = 0;
+ 		mirror->pg_recoalesce = 0;
 
 
