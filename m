@@ -2,113 +2,211 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CBC43966C4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 19:19:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4EA213963EF
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:39:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232720AbhEaRV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 13:21:26 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51992 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbhEaRUk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 13:20:40 -0400
-Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40996C0431FC;
-        Mon, 31 May 2021 08:34:35 -0700 (PDT)
-Received: by mail-pj1-x1034.google.com with SMTP id b15-20020a17090a550fb029015dad75163dso195798pji.0;
-        Mon, 31 May 2021 08:34:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=YIxlSk91TuUABFkgr/k5Yi3OXLq37Uwi7gnEsi3Btt4=;
-        b=qA1l1Pe1DWi2hEyakId/vhm80G9PN4zkftLWig/60q0ofmynv4I1G8aZ4XXV8vQXbj
-         WVB3kXNm6E9OQqjJHiGyxRZ4c1O7V6o3ncjQi0a93RiGYfFi0E8e13d2PiXvRRCrvXeo
-         PxyrN926RykD739bnPk8dOe43GPF0cRbDyF+0JY/9LeFfP/QNriKZ1VCACRAz+ZLWGpS
-         ebwNvVgr1Hm4u180TAnKmKaDiv3MKIAflhjnlBVeS/Jox/Qzzz1CtYBWk8lY9KeIvlCw
-         079N4B+ZGg1KzzZQBPpXNkkBwkWpqlhD5eooQ/TctDSzGJQMcJDEIgewQN8d9v1Dn0Uy
-         qJOQ==
+        id S232604AbhEaPkq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:40:46 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:25058 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234444AbhEaPjP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 11:39:15 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622475445;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=YwRXfWjrxYK9Y84Eg/D6Foi/lMqmaHTjbxdXaDwY3uk=;
+        b=V2fuK6W9DIEBR3G+CzKtPhsupOjIOCRtZvPAwwz0SXuFiWnm8kSwtabMtbU1AsMdhahYK0
+        lqwIi/r2O9oYhG4VkLbBe5//PokwXEce8Vyj987NMU70jMOCHIgMpsh37AsPDh3mmT9Uhc
+        g3efdCnVWboJUZ8n4Yi2ZxoGpd+/Tos=
+Received: from mail-ej1-f69.google.com (mail-ej1-f69.google.com
+ [209.85.218.69]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-289-vQ6jptDkOFaG1msVp87lug-1; Mon, 31 May 2021 11:37:21 -0400
+X-MC-Unique: vQ6jptDkOFaG1msVp87lug-1
+Received: by mail-ej1-f69.google.com with SMTP id f1-20020a1709064941b02903f6b5ef17bfso262417ejt.20
+        for <stable@vger.kernel.org>; Mon, 31 May 2021 08:37:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
          :content-transfer-encoding;
-        bh=YIxlSk91TuUABFkgr/k5Yi3OXLq37Uwi7gnEsi3Btt4=;
-        b=MEo2pALqI07o9n8WYQfD+2n6uBfxVJm7eeVVMDauOC8qev/JLSXYqDMmw15PBYbP4A
-         /FhYvxf4aielTZwkGzHl/q8FOPWaJXFs9FQt6kT1q5HaZa8nhAErrFuGCGcyvNd5kKqK
-         speVMhhtVcpVU+NKuOP7dgxAPyoEVBg8S+epmjDig1njCXz/vUoMe2c+ZpnZ0P5RfUcL
-         WGU2inTeT9ZrRH3gbfKswOUce+0KezyAuaPByNtJBOEOGaLU5X/h27QZgM4mTiOl13qC
-         M4hKMjHyUV6IgYz6tfvWq3w7U56QmmNqWtvvN8OEcqorkXb3Ed5XGeUcEQ3TL4idGqh1
-         xlYQ==
-X-Gm-Message-State: AOAM5307BxTkcIe/IAMqMYxsqHAI2TKIZnaoOuQTXKe/qqbjV8MLODr5
-        TTrBuL+9QJQ3BpjA1g68Inh3XGZ5ylqw9Q==
-X-Google-Smtp-Source: ABdhPJxBeDoQ03UvPdZrXyEDANCwqA6KpN9Fw8xlBY8PZqLQZjNg5gycu4uQgC25e5/u1f8AccrWlg==
-X-Received: by 2002:a17:90a:aa12:: with SMTP id k18mr19852008pjq.232.1622475274796;
-        Mon, 31 May 2021 08:34:34 -0700 (PDT)
-Received: from WRT-WX9.. ([141.164.41.4])
-        by smtp.gmail.com with ESMTPSA id q91sm4369382pja.50.2021.05.31.08.34.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 May 2021 08:34:34 -0700 (PDT)
-From:   Changbin Du <changbin.du@gmail.com>
-To:     Alexander Viro <viro@zeniv.linux.org.uk>
-Cc:     "David S. Miller" <davem@davemloft.net>,
-        Jakub Kici nski <kuba@kernel.org>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        Changbin Du <changbin.du@gmail.com>, stable@vger.kernel.org,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        David Laight <David.Laight@ACULAB.COM>
-Subject: [PATCH] nsfs: fix oops when ns->ops is not provided
-Date:   Mon, 31 May 2021 23:34:10 +0800
-Message-Id: <20210531153410.93150-1-changbin.du@gmail.com>
-X-Mailer: git-send-email 2.30.2
+        bh=YwRXfWjrxYK9Y84Eg/D6Foi/lMqmaHTjbxdXaDwY3uk=;
+        b=tsIYyWY8/8AfuS0H0hSm56puE2c8lZQz+C88UWdEOKwycVaGJNOiBMBuOmjoPnIKDA
+         MFXpXVerqqtvwmpbxOUY9YePiN/Ueg6TqDFuTm9/dnyxanDMKnR5NOeEGJyCSS7pPkJ6
+         K5XHLsg7LeBXMKzJrBcq9Ym1aOR1+fk7fGRKK3L+xiPk8dgJiPJ2QMhgDMgl3ggYvbZK
+         sqBrXIROZd/+gT6N7oWsFBdeDJJY5nIm04EjD8KGSVs7bqjuz7vw13C1+uNLXxQbpmOf
+         etbSlqEp2MMbcyFydocIod06oLjriG0npAEl2TqhA0W2Zz4pERz29sZ5yGcmUXDmDZKI
+         4gyA==
+X-Gm-Message-State: AOAM533x87l1aubU34ATyks0MJw8HcdXif5bTA9N4+D+m04erhZAZbi6
+        jEh+UUQ2/096MOWKlDGbZ8vVjA7wAV0io2jtiij9Ed6gjpK5q56ZfdOefdCctyb5VFVzQ/OCgF9
+        hN93q9/Qoivt/fj/Y
+X-Received: by 2002:a17:906:365a:: with SMTP id r26mr14583312ejb.340.1622475440712;
+        Mon, 31 May 2021 08:37:20 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJyOyvrU05/63C7HwZCpW38F1gh4JXf2DYk2FBsuy6DpJpsS+ORIHpxhLpKFwFn0J1vJbcIwMg==
+X-Received: by 2002:a17:906:365a:: with SMTP id r26mr14583298ejb.340.1622475440542;
+        Mon, 31 May 2021 08:37:20 -0700 (PDT)
+Received: from ?IPv6:2001:b07:6468:f312:c8dd:75d4:99ab:290a? ([2001:b07:6468:f312:c8dd:75d4:99ab:290a])
+        by smtp.gmail.com with ESMTPSA id e22sm7312716edu.35.2021.05.31.08.37.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 May 2021 08:37:19 -0700 (PDT)
+Subject: Re: [PATCH v3 | stable v5.4 1/3] x86/kvm: Teardown PV features on
+ boot CPU as well
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        stable@vger.kernel.org
+Cc:     Andrea Righi <andrea.righi@canonical.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+References: <20210531140347.42681-1-krzysztof.kozlowski@canonical.com>
+ <20210531140347.42681-2-krzysztof.kozlowski@canonical.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Message-ID: <a6b79959-c988-576e-75ee-047ee3f6f8cb@redhat.com>
+Date:   Mon, 31 May 2021 17:37:18 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210531140347.42681-2-krzysztof.kozlowski@canonical.com>
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-We should not create inode for disabled namespace. A disabled namespace
-sets its ns->ops to NULL. Kernel could panic if we try to create a inode
-for such namespace.
+On 31/05/21 16:03, Krzysztof Kozlowski wrote:
+> From: Vitaly Kuznetsov <vkuznets@redhat.com>
+> 
+> commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
+> 
+> Various PV features (Async PF, PV EOI, steal time) work through memory
+> shared with hypervisor and when we restore from hibernation we must
+> properly teardown all these features to make sure hypervisor doesn't
+> write to stale locations after we jump to the previously hibernated kernel
+> (which can try to place anything there). For secondary CPUs the job is
+> already done by kvm_cpu_down_prepare(), register syscore ops to do
+> the same for boot CPU.
+> 
+> Krzysztof:
+> This fixes memory corruption visible after second resume from
+> hibernation:
+> 
+>    BUG: Bad page state in process dbus-daemon  pfn:18b01
+>    page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+>    flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+>    raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+>    raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+>    page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+>    bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+> 
+> Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+> Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
+> Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+> Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+> [krzysztof: Extend the commit message]
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+> ---
+>   arch/x86/kernel/kvm.c | 57 +++++++++++++++++++++++++++++++------------
+>   1 file changed, 41 insertions(+), 16 deletions(-)
+> 
+> diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+> index e820568ed4d5..82a2756e0ef8 100644
+> --- a/arch/x86/kernel/kvm.c
+> +++ b/arch/x86/kernel/kvm.c
+> @@ -24,6 +24,7 @@
+>   #include <linux/debugfs.h>
+>   #include <linux/nmi.h>
+>   #include <linux/swait.h>
+> +#include <linux/syscore_ops.h>
+>   #include <asm/timer.h>
+>   #include <asm/cpu.h>
+>   #include <asm/traps.h>
+> @@ -428,6 +429,25 @@ static void __init sev_map_percpu_data(void)
+>   	}
+>   }
+>   
+> +static void kvm_guest_cpu_offline(void)
+> +{
+> +	kvm_disable_steal_time();
+> +	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+> +		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+> +	kvm_pv_disable_apf();
+> +	apf_task_wake_all();
+> +}
+> +
+> +static int kvm_cpu_online(unsigned int cpu)
+> +{
+> +	unsigned long flags;
+> +
+> +	local_irq_save(flags);
+> +	kvm_guest_cpu_init();
+> +	local_irq_restore(flags);
+> +	return 0;
+> +}
+> +
+>   #ifdef CONFIG_SMP
+>   #define KVM_IPI_CLUSTER_SIZE	(2 * BITS_PER_LONG)
+>   
+> @@ -547,31 +567,34 @@ static void __init kvm_smp_prepare_boot_cpu(void)
+>   	kvm_spinlock_init();
+>   }
+>   
+> -static void kvm_guest_cpu_offline(void)
+> +static int kvm_cpu_down_prepare(unsigned int cpu)
+>   {
+> -	kvm_disable_steal_time();
+> -	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+> -		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+> -	kvm_pv_disable_apf();
+> -	apf_task_wake_all();
+> -}
+> +	unsigned long flags;
+>   
+> -static int kvm_cpu_online(unsigned int cpu)
+> -{
+> -	local_irq_disable();
+> -	kvm_guest_cpu_init();
+> -	local_irq_enable();
+> +	local_irq_save(flags);
+> +	kvm_guest_cpu_offline();
+> +	local_irq_restore(flags);
+>   	return 0;
+>   }
+>   
+> -static int kvm_cpu_down_prepare(unsigned int cpu)
+> +#endif
+> +
+> +static int kvm_suspend(void)
+>   {
+> -	local_irq_disable();
+>   	kvm_guest_cpu_offline();
+> -	local_irq_enable();
+> +
+>   	return 0;
+>   }
+> -#endif
+> +
+> +static void kvm_resume(void)
+> +{
+> +	kvm_cpu_online(raw_smp_processor_id());
+> +}
+> +
+> +static struct syscore_ops kvm_syscore_ops = {
+> +	.suspend	= kvm_suspend,
+> +	.resume		= kvm_resume,
+> +};
+>   
+>   static void __init kvm_apf_trap_init(void)
+>   {
+> @@ -649,6 +672,8 @@ static void __init kvm_guest_init(void)
+>   	kvm_guest_cpu_init();
+>   #endif
+>   
+> +	register_syscore_ops(&kvm_syscore_ops);
+> +
+>   	/*
+>   	 * Hard lockup detection is enabled by default. Disable it, as guests
+>   	 * can get false positives too easily, for example if the host is
+> 
 
-Here is an example oops in socket ioctl cmd SIOCGSKNS when NET_NS is
-disabled. Kernel panicked wherever nsfs trys to access ns->ops since the
-proc_ns_operations is not implemented in this case.
-
-[7.670023] Unable to handle kernel NULL pointer dereference at virtual address 00000010
-[7.670268] pgd = 32b54000
-[7.670544] [00000010] *pgd=00000000
-[7.671861] Internal error: Oops: 5 [#1] SMP ARM
-[7.672315] Modules linked in:
-[7.672918] CPU: 0 PID: 1 Comm: systemd Not tainted 5.13.0-rc3-00375-g6799d4f2da49 #16
-[7.673309] Hardware name: Generic DT based system
-[7.673642] PC is at nsfs_evict+0x24/0x30
-[7.674486] LR is at clear_inode+0x20/0x9c
-
-So let's reject such request for disabled namespace.
-
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
-Cc: <stable@vger.kernel.org>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: David Laight <David.Laight@ACULAB.COM>
----
- fs/nsfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/fs/nsfs.c b/fs/nsfs.c
-index 800c1d0eb0d0..6c055eb7757b 100644
---- a/fs/nsfs.c
-+++ b/fs/nsfs.c
-@@ -62,6 +62,10 @@ static int __ns_get_path(struct path *path, struct ns_common *ns)
- 	struct inode *inode;
- 	unsigned long d;
- 
-+	/* In case the namespace is not actually enabled. */
-+	if (!ns->ops)
-+		return -EOPNOTSUPP;
-+
- 	rcu_read_lock();
- 	d = atomic_long_read(&ns->stashed);
- 	if (!d)
--- 
-2.30.2
+Acked-by: Paolo Bonzini <pbonzini@redhat.com>
 
