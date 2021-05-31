@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 29D30395FC3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F5F5395C4A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:29:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232628AbhEaOQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43228 "EHLO mail.kernel.org"
+        id S232146AbhEaNbH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:31:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:32882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232959AbhEaONc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:13:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 827F361990;
-        Mon, 31 May 2021 13:41:59 +0000 (UTC)
+        id S231714AbhEaN3F (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:29:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A1061417;
+        Mon, 31 May 2021 13:22:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468520;
-        bh=S8M50Q+Qnm9A9PP5c/wurdP8TrU5ZvgOK7CcFShJzcM=;
+        s=korg; t=1622467342;
+        bh=1PgQGrBxZKLTbNoxeWWMZoJhX1q0eSCDcQ56kDC7YE4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nL63BWKm7crhqLcpryBNtoK5Oqz8vGF5ggyNySVDcXEeLnwl+RETjE20dPT9oiug0
-         TuRdr5H09xbmX+ZcMK0j5bNBq6MuzLW21FoGihm9JCfVNskfAvhOUI0mxzVoaAngD7
-         bXe8SfAfawpxWkDKDbXxv8kSh71bZxZZtGvnZB1A=
+        b=mhGUU9wNNCGPsCVv/8+0xoftDPcHGAjepqdLRoemUYMKp/uMmDg2ZchqImPekF/OQ
+         O0dkvriD+qkekmFr854xgqqlqx311ElyMqX8azJFUXAd34QYM7vl5l8V4DYW9I2iSS
+         mRKMOtd/cKghrJYHqbsuMBCJmFgLsD5yCjMYRNFs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 021/177] mac80211: prevent attacks on TKIP/WEP as well
-Date:   Mon, 31 May 2021 15:12:58 +0200
-Message-Id: <20210531130648.651922496@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.19 003/116] NFC: nci: fix memory leak in nci_allocate_device
+Date:   Mon, 31 May 2021 15:12:59 +0200
+Message-Id: <20210531130640.253575757@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,72 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-commit 7e44a0b597f04e67eee8cdcbe7ee706c6f5de38b upstream.
+commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
 
-Similar to the issues fixed in previous patches, TKIP and WEP
-should be protected even if for TKIP we have the Michael MIC
-protecting it, and WEP is broken anyway.
+nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
+Fix this by freeing hci_dev in nci_free_device.
 
-However, this also somewhat protects potential other algorithms
-that drivers might implement.
+BUG: memory leak
+unreferenced object 0xffff888111ea6800 (size 1024):
+  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
+    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
+    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
+    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
+    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
+    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
+    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
+    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
+    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
+    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
+    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210511200110.430e8c202313.Ia37e4e5b6b3eaab1a5ae050e015f6c92859dbe27@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c       |   12 ++++++++++++
- net/mac80211/sta_info.h |    3 ++-
- 2 files changed, 14 insertions(+), 1 deletion(-)
+ include/net/nfc/nci_core.h |    1 +
+ net/nfc/nci/core.c         |    1 +
+ net/nfc/nci/hci.c          |    5 +++++
+ 3 files changed, 7 insertions(+)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2234,6 +2234,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 			 * next fragment has a sequential PN value.
- 			 */
- 			entry->check_sequential_pn = true;
-+			entry->is_protected = true;
- 			entry->key_color = rx->key->color;
- 			memcpy(entry->last_pn,
- 			       rx->key->u.ccmp.rx_pn[queue],
-@@ -2246,6 +2247,9 @@ ieee80211_rx_h_defragment(struct ieee802
- 				     sizeof(rx->key->u.gcmp.rx_pn[queue]));
- 			BUILD_BUG_ON(IEEE80211_CCMP_PN_LEN !=
- 				     IEEE80211_GCMP_PN_LEN);
-+		} else if (rx->key && ieee80211_has_protected(fc)) {
-+			entry->is_protected = true;
-+			entry->key_color = rx->key->color;
- 		}
- 		return RX_QUEUED;
- 	}
-@@ -2287,6 +2291,14 @@ ieee80211_rx_h_defragment(struct ieee802
- 		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
-+	} else if (entry->is_protected &&
-+		   (!rx->key || !ieee80211_has_protected(fc) ||
-+		    rx->key->color != entry->key_color)) {
-+		/* Drop this as a mixed key or fragment cache attack, even
-+		 * if for TKIP Michael MIC should protect us, and WEP is a
-+		 * lost cause anyway.
-+		 */
-+		return RX_DROP_UNUSABLE;
- 	}
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -310,6 +310,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
+ 		      struct sk_buff **resp);
  
- 	skb_pull(rx->skb, ieee80211_hdrlen(fc));
---- a/net/mac80211/sta_info.h
-+++ b/net/mac80211/sta_info.h
-@@ -443,7 +443,8 @@ struct ieee80211_fragment_entry {
- 	u16 extra_len;
- 	u16 last_frag;
- 	u8 rx_queue;
--	bool check_sequential_pn; /* needed for CCMP/GCMP */
-+	u8 check_sequential_pn:1, /* needed for CCMP/GCMP */
-+	   is_protected:1;
- 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
- 	unsigned int key_color;
- };
+ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
++void nci_hci_deallocate(struct nci_dev *ndev);
+ int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
+ 		       const u8 *param, size_t param_len);
+ int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -1187,6 +1187,7 @@ EXPORT_SYMBOL(nci_allocate_device);
+ void nci_free_device(struct nci_dev *ndev)
+ {
+ 	nfc_free_device(ndev->nfc_dev);
++	nci_hci_deallocate(ndev);
+ 	kfree(ndev);
+ }
+ EXPORT_SYMBOL(nci_free_device);
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -807,3 +807,8 @@ struct nci_hci_dev *nci_hci_allocate(str
+ 
+ 	return hdev;
+ }
++
++void nci_hci_deallocate(struct nci_dev *ndev)
++{
++	kfree(ndev->hci_dev);
++}
 
 
