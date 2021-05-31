@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BB3F395F33
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A1F5395CD1
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233216AbhEaOJF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:09:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38074 "EHLO mail.kernel.org"
+        id S232039AbhEaNiN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:38:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39186 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233341AbhEaOG7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:06:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D81D06145A;
-        Mon, 31 May 2021 13:39:07 +0000 (UTC)
+        id S232065AbhEaNfs (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:35:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40A4861402;
+        Mon, 31 May 2021 13:25:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468348;
-        bh=fVtXkXD+/BOb/Io/Itap4nrx98lmkco/71vPEM+NNs4=;
+        s=korg; t=1622467528;
+        bh=aHgdC1DNDuMLYTb0kZUNu6qqLmfrPL6M0Y/kheqV9Lk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tExrkwvrp+388QAwHnYwvV6WtS4aU6u8oSKEROgdTVK0DIddOg7AgYmj8sSJYrOQm
-         kzg87bGDc7an3pmxEHFU69Wjipubu32UQi1CJFdvfbja4x/nAxEVt98DYH/pMzUnGx
-         WFgIsOFujyZUsW/D28BJmqDHrSaEcfYRtZoYLx1E=
+        b=DEF/rKeMVmnl+UOz9UAvrGh5oHY8/7gLvhipKFSJ2qlyaElu3G6QFN4CjaFx3WUEb
+         WB4CeR4P/EQZx/+XrXKyjyfREEqvxOA+T8Jnq3w5lN+ddwEY9PqOQY87LqzsHLTGLW
+         55bUg1m2N+jOxSEg942osCizmoKYIzj45YF992pI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Michal Kubecek <mkubecek@suse.cz>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Yunsheng Lin <linyunsheng@huawei.com>,
+        stable@vger.kernel.org, Fugang Duan <fugang.duan@nxp.com>,
+        Joakim Zhang <qiangqing.zhang@nxp.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 209/252] net: sched: fix tx action reschedule issue with stopped queue
+Subject: [PATCH 4.19 098/116] net: fec: fix the potential memory leak in fec_enet_init()
 Date:   Mon, 31 May 2021 15:14:34 +0200
-Message-Id: <20210531130705.122890788@linuxfoundation.org>
+Message-Id: <20210531130643.461976714@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,118 +41,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Fugang Duan <fugang.duan@nxp.com>
 
-[ Upstream commit dcad9ee9e0663d74a89b25b987f9c7be86432812 ]
+[ Upstream commit 619fee9eb13b5d29e4267cb394645608088c28a8 ]
 
-The netdev qeueue might be stopped when byte queue limit has
-reached or tx hw ring is full, net_tx_action() may still be
-rescheduled if STATE_MISSED is set, which consumes unnecessary
-cpu without dequeuing and transmiting any skb because the
-netdev queue is stopped, see qdisc_run_end().
+If the memory allocated for cbd_base is failed, it should
+free the memory allocated for the queues, otherwise it causes
+memory leak.
 
-This patch fixes it by checking the netdev queue state before
-calling qdisc_run() and clearing STATE_MISSED if netdev queue is
-stopped during qdisc_run(), the net_tx_action() is rescheduled
-again when netdev qeueue is restarted, see netif_tx_wake_queue().
+And if the memory allocated for the queues is failed, it can
+return error directly.
 
-As there is time window between netif_xmit_frozen_or_stopped()
-checking and STATE_MISSED clearing, between which STATE_MISSED
-may set by net_tx_action() scheduled by netif_tx_wake_queue(),
-so set the STATE_MISSED again if netdev queue is restarted.
-
-Fixes: 6b3ba9146fe6 ("net: sched: allow qdiscs to handle locking")
-Reported-by: Michal Kubecek <mkubecek@suse.cz>
-Acked-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Fixes: 59d0f7465644 ("net: fec: init multi queue date structure")
+Signed-off-by: Fugang Duan <fugang.duan@nxp.com>
+Signed-off-by: Joakim Zhang <qiangqing.zhang@nxp.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c          |  3 ++-
- net/sched/sch_generic.c | 27 ++++++++++++++++++++++++++-
- 2 files changed, 28 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/freescale/fec_main.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index 76a932c52255..0c9ce36afc8c 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -3764,7 +3764,8 @@ static inline int __dev_xmit_skb(struct sk_buff *skb, struct Qdisc *q,
- 
- 	if (q->flags & TCQ_F_NOLOCK) {
- 		rc = q->enqueue(skb, q, &to_free) & NET_XMIT_MASK;
--		qdisc_run(q);
-+		if (likely(!netif_xmit_frozen_or_stopped(txq)))
-+			qdisc_run(q);
- 
- 		if (unlikely(to_free))
- 			kfree_skb_list(to_free);
-diff --git a/net/sched/sch_generic.c b/net/sched/sch_generic.c
-index e6844d3567ca..854d2b38db85 100644
---- a/net/sched/sch_generic.c
-+++ b/net/sched/sch_generic.c
-@@ -35,6 +35,25 @@
- const struct Qdisc_ops *default_qdisc_ops = &pfifo_fast_ops;
- EXPORT_SYMBOL(default_qdisc_ops);
- 
-+static void qdisc_maybe_clear_missed(struct Qdisc *q,
-+				     const struct netdev_queue *txq)
-+{
-+	clear_bit(__QDISC_STATE_MISSED, &q->state);
-+
-+	/* Make sure the below netif_xmit_frozen_or_stopped()
-+	 * checking happens after clearing STATE_MISSED.
-+	 */
-+	smp_mb__after_atomic();
-+
-+	/* Checking netif_xmit_frozen_or_stopped() again to
-+	 * make sure STATE_MISSED is set if the STATE_MISSED
-+	 * set by netif_tx_wake_queue()'s rescheduling of
-+	 * net_tx_action() is cleared by the above clear_bit().
-+	 */
-+	if (!netif_xmit_frozen_or_stopped(txq))
-+		set_bit(__QDISC_STATE_MISSED, &q->state);
-+}
-+
- /* Main transmission queue. */
- 
- /* Modifications to data participating in scheduling must be protected with
-@@ -74,6 +93,7 @@ static inline struct sk_buff *__skb_dequeue_bad_txq(struct Qdisc *q)
- 			}
- 		} else {
- 			skb = SKB_XOFF_MAGIC;
-+			qdisc_maybe_clear_missed(q, txq);
- 		}
+diff --git a/drivers/net/ethernet/freescale/fec_main.c b/drivers/net/ethernet/freescale/fec_main.c
+index 7d1a669416f2..6b9eada1feb2 100644
+--- a/drivers/net/ethernet/freescale/fec_main.c
++++ b/drivers/net/ethernet/freescale/fec_main.c
+@@ -3221,7 +3221,9 @@ static int fec_enet_init(struct net_device *ndev)
+ 		return ret;
  	}
  
-@@ -242,6 +262,7 @@ static struct sk_buff *dequeue_skb(struct Qdisc *q, bool *validate,
- 			}
- 		} else {
- 			skb = NULL;
-+			qdisc_maybe_clear_missed(q, txq);
- 		}
- 		if (lock)
- 			spin_unlock(lock);
-@@ -251,8 +272,10 @@ validate:
- 	*validate = true;
+-	fec_enet_alloc_queue(ndev);
++	ret = fec_enet_alloc_queue(ndev);
++	if (ret)
++		return ret;
  
- 	if ((q->flags & TCQ_F_ONETXQUEUE) &&
--	    netif_xmit_frozen_or_stopped(txq))
-+	    netif_xmit_frozen_or_stopped(txq)) {
-+		qdisc_maybe_clear_missed(q, txq);
- 		return skb;
-+	}
+ 	bd_size = (fep->total_tx_ring_size + fep->total_rx_ring_size) * dsize;
  
- 	skb = qdisc_dequeue_skb_bad_txq(q);
- 	if (unlikely(skb)) {
-@@ -311,6 +334,8 @@ bool sch_direct_xmit(struct sk_buff *skb, struct Qdisc *q,
- 		HARD_TX_LOCK(dev, txq, smp_processor_id());
- 		if (!netif_xmit_frozen_or_stopped(txq))
- 			skb = dev_hard_start_xmit(skb, dev, txq, &ret);
-+		else
-+			qdisc_maybe_clear_missed(q, txq);
+@@ -3229,7 +3231,8 @@ static int fec_enet_init(struct net_device *ndev)
+ 	cbd_base = dmam_alloc_coherent(&fep->pdev->dev, bd_size, &bd_dma,
+ 				       GFP_KERNEL);
+ 	if (!cbd_base) {
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto free_queue_mem;
+ 	}
  
- 		HARD_TX_UNLOCK(dev, txq);
- 	} else {
+ 	memset(cbd_base, 0, bd_size);
+@@ -3309,6 +3312,10 @@ static int fec_enet_init(struct net_device *ndev)
+ 		fec_enet_update_ethtool_stats(ndev);
+ 
+ 	return 0;
++
++free_queue_mem:
++	fec_enet_free_queue(ndev);
++	return ret;
+ }
+ 
+ #ifdef CONFIG_OF
 -- 
 2.30.2
 
