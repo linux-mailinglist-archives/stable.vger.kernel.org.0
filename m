@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A82CE395CA5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AA63396047
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:22:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231678AbhEaNgR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39238 "EHLO mail.kernel.org"
+        id S233798AbhEaOXt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48850 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232642AbhEaNd1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:33:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B8A76143C;
-        Mon, 31 May 2021 13:24:37 +0000 (UTC)
+        id S233861AbhEaOVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 40CB0619CB;
+        Mon, 31 May 2021 13:45:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467477;
-        bh=qimJcXLAlvslZZS3a36NHFGUNOy7xM10vdpvTwjf1k8=;
+        s=korg; t=1622468716;
+        bh=YMUIRBqPsKnP1v3cJ/Dw9pNi02k97cYZ5bin7a9UhRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zvZ2DSnKwg+tvkDsAHoGq4mx0gOxJk3iT2Sp0CTgGGoJ5WLLI34dHstpl/fhghd16
-         bkK7c3UDCM4Wh4S+WG+pNEHCfJqeX2ZjPO+7EbLoga3rRrxgT1LgrkwssC71kQtcgr
-         FL9ud5Oh2UEcB1sivchHJYUT7NrZkEKbFp29IHsA=
+        b=13P3syLVuRdV+IfHtmowW3KIvPcs0SszUqId4rfbukpLHkBkl4S7QawNyC3I7BQzi
+         74/jewcPkyMTx85amAztwOSfrV13yAQBULrYa6sCEKbZnBFXVSGn1oIv6Dl90dR1Fh
+         qSUizHixHmkuDtenos5eq6bdTmY378i9mV9AJu5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 081/116] isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+        stable@vger.kernel.org, Aditya Pakki <pakki001@umn.edu>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 100/177] Revert "ALSA: usx2y: Fix potential NULL pointer dereference"
 Date:   Mon, 31 May 2021 15:14:17 +0200
-Message-Id: <20210531130642.909457873@linuxfoundation.org>
+Message-Id: <20210531130651.352230755@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,96 +39,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit c446f0d4702d316e1c6bf621f70e79678d28830a ]
+[ Upstream commit 4667a6fc1777ce071504bab570d3599107f4790f ]
 
-Move hw->cfg.mode and hw->addr.mode assignments from hw->ci->cfg_mode
-and hw->ci->addr_mode respectively, to be before the subsequent checks
-for memory IO mode (and possible ioremap calls in this case).
+This reverts commit a2c6433ee5a35a8de6d563f6512a26f87835ea0f.
 
-Also introduce ioremap error checks at both locations. This allows
-resources to be properly freed on ioremap failure, as when the caller
-of setup_io then subsequently calls release_io via its error path,
-release_io can now correctly determine the mode as it has been set
-before the ioremap call.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Finally, refactor release_io function so that it will call
-release_mem_region in the memory IO case, regardless of whether or not
-hw->cfg.p/hw->addr.p are NULL. This means resources are then properly
-released on failure.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-This properly implements the original reverted commit (d721fe99f6ad)
-from the University of Minnesota, whilst also implementing the ioremap
-check for the hw->ci->cfg_mode if block as well.
+The original patch was incorrect, and would leak memory if the error
+path the patch added was hit.
 
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-42-gregkh@linuxfoundation.org
+Cc: Aditya Pakki <pakki001@umn.edu>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210503115736.2104747-37-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/isdn/hardware/mISDN/mISDNinfineon.c | 24 ++++++++++++++-------
- 1 file changed, 16 insertions(+), 8 deletions(-)
+ sound/usb/usx2y/usb_stream.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/isdn/hardware/mISDN/mISDNinfineon.c b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-index 3e01012be4ab..95a0d728eecc 100644
---- a/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-+++ b/drivers/isdn/hardware/mISDN/mISDNinfineon.c
-@@ -645,17 +645,19 @@ static void
- release_io(struct inf_hw *hw)
- {
- 	if (hw->cfg.mode) {
--		if (hw->cfg.p) {
-+		if (hw->cfg.mode == AM_MEMIO) {
- 			release_mem_region(hw->cfg.start, hw->cfg.size);
--			iounmap(hw->cfg.p);
-+			if (hw->cfg.p)
-+				iounmap(hw->cfg.p);
- 		} else
- 			release_region(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = AM_NONE;
+diff --git a/sound/usb/usx2y/usb_stream.c b/sound/usb/usx2y/usb_stream.c
+index 091c071b270a..6bba17bf689a 100644
+--- a/sound/usb/usx2y/usb_stream.c
++++ b/sound/usb/usx2y/usb_stream.c
+@@ -91,12 +91,7 @@ static int init_urbs(struct usb_stream_kernel *sk, unsigned use_packsize,
+ 
+ 	for (u = 0; u < USB_STREAM_NURBS; ++u) {
+ 		sk->inurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
+-		if (!sk->inurb[u])
+-			return -ENOMEM;
+-
+ 		sk->outurb[u] = usb_alloc_urb(sk->n_o_ps, GFP_KERNEL);
+-		if (!sk->outurb[u])
+-			return -ENOMEM;
  	}
- 	if (hw->addr.mode) {
--		if (hw->addr.p) {
-+		if (hw->addr.mode == AM_MEMIO) {
- 			release_mem_region(hw->addr.start, hw->addr.size);
--			iounmap(hw->addr.p);
-+			if (hw->addr.p)
-+				iounmap(hw->addr.p);
- 		} else
- 			release_region(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = AM_NONE;
-@@ -685,9 +687,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->cfg.start, (ulong)hw->cfg.size);
- 			return err;
- 		}
--		if (hw->ci->cfg_mode == AM_MEMIO)
--			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
- 		hw->cfg.mode = hw->ci->cfg_mode;
-+		if (hw->ci->cfg_mode == AM_MEMIO) {
-+			hw->cfg.p = ioremap(hw->cfg.start, hw->cfg.size);
-+			if (!hw->cfg.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO cfg %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->cfg.start,
-@@ -712,9 +717,12 @@ setup_io(struct inf_hw *hw)
- 				(ulong)hw->addr.start, (ulong)hw->addr.size);
- 			return err;
- 		}
--		if (hw->ci->addr_mode == AM_MEMIO)
--			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
- 		hw->addr.mode = hw->ci->addr_mode;
-+		if (hw->ci->addr_mode == AM_MEMIO) {
-+			hw->addr.p = ioremap(hw->addr.start, hw->addr.size);
-+			if (!hw->addr.p)
-+				return -ENOMEM;
-+		}
- 		if (debug & DEBUG_HW)
- 			pr_notice("%s: IO addr %lx (%lu bytes) mode%d\n",
- 				  hw->name, (ulong)hw->addr.start,
+ 
+ 	if (init_pipe_urbs(sk, use_packsize, sk->inurb, indata, dev, in_pipe) ||
 -- 
 2.30.2
 
