@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68E87395D2D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 555DF396226
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232808AbhEaNmg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:42:36 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44890 "EHLO mail.kernel.org"
+        id S233583AbhEaOvm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40792 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232409AbhEaNkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 691EA61459;
-        Mon, 31 May 2021 13:27:30 +0000 (UTC)
+        id S231637AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E91E61400;
+        Mon, 31 May 2021 13:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467651;
-        bh=lt7IgVqniB7ZiD/JA5DsU0X9tS2/T41Pz6ywahkI++M=;
+        s=korg; t=1622469439;
+        bh=4q0YyHM0SbsFNSLazTrvIfuRC/KdV8PwvZYubE5KCAw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IxKMw4zkULx4CAIebjWJSZPKa8fVmPEa47Ius4/OeqOs1UXVbYpt3eDCy7z7Xk8NT
-         LOJ5+33lZM44Jo6a6/qs/ocdlpHaAmhObEFPpgvv63Ra9Ja0QQHfhqumb+OBgyAyLh
-         ZIaJVspS/JFEeTRom3/FtWItztGj+LtXjb65/xSA=
+        b=0q2vFTCwMemZ420iq3TxxpuoedyOGV+Fh3TC2L1WY9u+EMn8o7Lhh2mcMM+kph8cq
+         pXxu58mCI2ACyF03AwJpyV94vyyVx2o17NB1c6hoPmgw7+zulftUoqiNYlR9Vko856
+         iJ07urG272A20Rn8FMBrNhon+eiU5xR1c2dHkDvk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean MacLennan <seanm@seanm.ca>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 28/79] USB: serial: ti_usb_3410_5052: add startech.com device id
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 198/296] Revert "brcmfmac: add a check for the status of usb_register"
 Date:   Mon, 31 May 2021 15:14:13 +0200
-Message-Id: <20210531130636.907374949@linuxfoundation.org>
+Message-Id: <20210531130710.536328981@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +40,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean MacLennan <seanm@seanm.ca>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 89b1a3d811e6f8065d6ae8a25e7682329b4a31e2 upstream.
+[ Upstream commit 30a350947692f794796f563029d29764497f2887 ]
 
-This adds support for the Startech.com generic serial to USB converter.
-It seems to be a bone stock TI_3410. I have been using this patch for
-years.
+This reverts commit 42daad3343be4a4e1ee03e30a5f5cc731dadfef5.
 
-Signed-off-by: Sean MacLennan <seanm@seanm.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original commit here did nothing to actually help if usb_register()
+failed, so it gives a "false sense of security" when there is none.  The
+correct solution is to correctly unwind from this error.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-69-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ti_usb_3410_5052.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/drivers/usb/serial/ti_usb_3410_5052.c
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c
-@@ -41,6 +41,7 @@
- /* Vendor and product ids */
- #define TI_VENDOR_ID			0x0451
- #define IBM_VENDOR_ID			0x04b3
-+#define STARTECH_VENDOR_ID		0x14b0
- #define TI_3410_PRODUCT_ID		0x3410
- #define IBM_4543_PRODUCT_ID		0x4543
- #define IBM_454B_PRODUCT_ID		0x454b
-@@ -378,6 +379,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 586f4dfc638b..d2a803fc8ac6 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -1586,10 +1586,6 @@ void brcmf_usb_exit(void)
  
-@@ -416,6 +418,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
- 
+ void brcmf_usb_register(void)
+ {
+-	int ret;
+-
+ 	brcmf_dbg(USB, "Enter\n");
+-	ret = usb_register(&brcmf_usbdrvr);
+-	if (ret)
+-		brcmf_err("usb_register failed %d\n", ret);
++	usb_register(&brcmf_usbdrvr);
+ }
+-- 
+2.30.2
+
 
 
