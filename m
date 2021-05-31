@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C8A5395EA3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7487B395FFA
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232055AbhEaOBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59812 "EHLO mail.kernel.org"
+        id S233416AbhEaOR5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:17:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43520 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233026AbhEaN7T (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 66DD26144A;
-        Mon, 31 May 2021 13:35:57 +0000 (UTC)
+        id S233832AbhEaOPu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:15:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4BCD16199E;
+        Mon, 31 May 2021 13:43:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468157;
-        bh=xDh8vqmsD0PqY7lkpUvW7q/+AmZ23MBZFO5QElc9QaU=;
+        s=korg; t=1622468583;
+        bh=piYdyNL1WQOyltnBpIV83mNDkIEQloyOxsth3vJvFG8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=G47usS7AbMo17a9AtkDd3oAvUmQnEJ6hbh+hGOCLM13Wh4m35I9gM2x5NmsfJhDGj
-         zdrjnIjDHrEC9ZQQywn6JHSMrADTfgtfz8migfrou8ci0vSg5KWiyJmrIGN06di4Qj
-         VR0bYg2aTssVoHedAoHE0+coY/9224IKHgMejViE=
+        b=WSODk3LqPvQh1V4jbyAsqqVdc27eDN2ScWzhGh8dT58h24wx1LNPAfKR5cI0NN/AT
+         kDIyWKa6rY1x2JYheCWywFTD6SsTIXBYlEwhL8L2Wep2RMHQ/rdVkvysRpurrEbyrt
+         RSt6HZRzWuwOkCrg/Ab2hAy9UsqxcSLxzdElr+hQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 137/252] Revert "net: fujitsu: fix a potential NULL pointer dereference"
+        stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Stable@vger.kernel.org
+Subject: [PATCH 5.4 045/177] iio: adc: ad7768-1: Fix too small buffer passed to iio_push_to_buffers_with_timestamp()
 Date:   Mon, 31 May 2021 15:13:22 +0200
-Message-Id: <20210531130702.665726757@linuxfoundation.org>
+Message-Id: <20210531130649.469463176@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,53 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 
-[ Upstream commit 5f94eaa4ee23e80841fa359a372f84cfe25daee1 ]
+commit a1caeebab07e9d72eec534489f47964782b93ba9 upstream.
 
-This reverts commit 9f4d6358e11bbc7b839f9419636188e4151fb6e4.
+Add space for the timestamp to be inserted.  Also ensure correct
+alignment for passing to iio_push_to_buffers_with_timestamp()
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original change does not change any behavior as the caller of this
-function onlyu checks for "== -1" as an error condition so this error is
-not handled properly.  Remove this change and it will be fixed up
-properly in a later commit.
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Cc: David S. Miller <davem@davemloft.net>
-Reviewed-by: Dominik Brodowski <linux@dominikbrodowski.net>
-Link: https://lore.kernel.org/r/20210503115736.2104747-15-gregkh@linuxfoundation.org
+Fixes: a5f8c7da3dbe ("iio: adc: Add AD7768-1 ADC basic support")
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Link: https://lore.kernel.org/r/20210501165314.511954-2-jic23@kernel.org
+Cc: <Stable@vger.kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/fujitsu/fmvj18x_cs.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/iio/adc/ad7768-1.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-index a7b7a4aace79..dc90c61fc827 100644
---- a/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-+++ b/drivers/net/ethernet/fujitsu/fmvj18x_cs.c
-@@ -547,11 +547,6 @@ static int fmvj18x_get_hwinfo(struct pcmcia_device *link, u_char *node_id)
- 	return -1;
+--- a/drivers/iio/adc/ad7768-1.c
++++ b/drivers/iio/adc/ad7768-1.c
+@@ -166,6 +166,10 @@ struct ad7768_state {
+ 	 * transfer buffers to live in their own cache lines.
+ 	 */
+ 	union {
++		struct {
++			__be32 chan;
++			s64 timestamp;
++		} scan;
+ 		__be32 d32;
+ 		u8 d8[2];
+ 	} data ____cacheline_aligned;
+@@ -459,11 +463,11 @@ static irqreturn_t ad7768_trigger_handle
  
-     base = ioremap(link->resource[2]->start, resource_size(link->resource[2]));
--    if (!base) {
--	    pcmcia_release_window(link, link->resource[2]);
--	    return -ENOMEM;
--    }
--
-     pcmcia_map_mem_page(link, link->resource[2], 0);
+ 	mutex_lock(&st->lock);
  
-     /*
--- 
-2.30.2
-
+-	ret = spi_read(st->spi, &st->data.d32, 3);
++	ret = spi_read(st->spi, &st->data.scan.chan, 3);
+ 	if (ret < 0)
+ 		goto err_unlock;
+ 
+-	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.d32,
++	iio_push_to_buffers_with_timestamp(indio_dev, &st->data.scan,
+ 					   iio_get_time_ns(indio_dev));
+ 
+ 	iio_trigger_notify_done(indio_dev->trig);
 
 
