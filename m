@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 67E413962BD
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0EC3962BC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:59:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbhEaPAt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232845AbhEaPAt (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 31 May 2021 11:00:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50548 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:51412 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234464AbhEaO7v (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:59:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6871D61CCF;
-        Mon, 31 May 2021 14:01:46 +0000 (UTC)
+        id S234473AbhEaO74 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:59:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 152B1610A0;
+        Mon, 31 May 2021 14:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469707;
-        bh=vzxe5RBV3H/MfIGhpKZ9xquYtTg69dSwFf4whXhWzhY=;
+        s=korg; t=1622469709;
+        bh=oZCdYh0GaTNFh1JuReU6Saj09bvN5Xj5UfK1544qd3s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gekw9juYjW4hmaFJc/EcVNy9tbTghTimiuksVZ74+ro1yhxxTV2542FSGGwBdQF6O
-         NyQOq5tamDWoBcmMum+ynFSY3yyB/pFtH3PQKTeRiqHnCDt4DqZF+o/7d3+HSQIj07
-         Kk3nr+4xeyACfi6ivqN/m8jIyFAvVwukRKlVH51k=
+        b=zI8am+hqB0q/8S7jBXhZoRR5Rd5VP4YCNJ7wD/ZFZFfjPdcJtnyjzF5QANCk/hsWY
+         RAD5kiDlCGbCQ+FFo3ZorIw8e8sIMqDh93dEo0FQpAPRxNAg3bVXpc5KeTUDBcgVRt
+         r5ZShHLfGVLXODnIU8XSb8DONr2PlZvm2mUIFO0Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Subject: [PATCH 5.12 289/296] samples/bpf: Consider frame size in tx_only of xdpsock sample
-Date:   Mon, 31 May 2021 15:15:44 +0200
-Message-Id: <20210531130713.426786858@linuxfoundation.org>
+        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 290/296] net: hns3: check the return of skb_checksum_help()
+Date:   Mon, 31 May 2021 15:15:45 +0200
+Message-Id: <20210531130713.457954250@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -41,36 +40,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Yunsheng Lin <linyunsheng@huawei.com>
 
-commit 3b80d106e110d39d3f678954d3b55078669cf07e upstream.
+commit 9bb5a495424fd4bfa672eb1f31481248562fa156 upstream.
 
-Fix the tx_only micro-benchmark in xdpsock to take frame size into
-consideration. It was hardcoded to the default value of frame_size
-which is 4K. Changing this on the command line to 2K made half of the
-packets illegal as they were outside the umem and were therefore
-discarded by the kernel.
+Currently skb_checksum_help()'s return is ignored, but it may
+return error when it fails to allocate memory when linearizing.
 
-Fixes: 46738f73ea4f ("samples/bpf: add use of need_wakeup flag in xdpsock")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Maciej Fijalkowski <maciej.fijalkowski@intel.com>
-Link: https://lore.kernel.org/bpf/20210506124349.6666-1-magnus.karlsson@gmail.com
+So adds checking for the return of skb_checksum_help().
+
+Fixes: 76ad4f0ee747("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
+Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
+Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- samples/bpf/xdpsock_user.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |   10 +++-------
+ 1 file changed, 3 insertions(+), 7 deletions(-)
 
---- a/samples/bpf/xdpsock_user.c
-+++ b/samples/bpf/xdpsock_user.c
-@@ -1282,7 +1282,7 @@ static void tx_only(struct xsk_socket_in
- 	for (i = 0; i < batch_size; i++) {
- 		struct xdp_desc *tx_desc = xsk_ring_prod__tx_desc(&xsk->tx,
- 								  idx + i);
--		tx_desc->addr = (*frame_nb + i) << XSK_UMEM__DEFAULT_FRAME_SHIFT;
-+		tx_desc->addr = (*frame_nb + i) * opt_xsk_frame_size;
- 		tx_desc->len = PKT_SIZE;
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -840,8 +840,6 @@ static bool hns3_tunnel_csum_bug(struct
+ 	      l4.udp->dest == htons(4790))))
+ 		return false;
+ 
+-	skb_checksum_help(skb);
+-
+ 	return true;
+ }
+ 
+@@ -919,8 +917,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 			/* the stack computes the IP header already,
+ 			 * driver calculate l4 checksum when not TSO.
+ 			 */
+-			skb_checksum_help(skb);
+-			return 0;
++			return skb_checksum_help(skb);
+ 		}
+ 
+ 		hns3_set_outer_l2l3l4(skb, ol4_proto, ol_type_vlan_len_msec);
+@@ -965,7 +962,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 		break;
+ 	case IPPROTO_UDP:
+ 		if (hns3_tunnel_csum_bug(skb))
+-			break;
++			return skb_checksum_help(skb);
+ 
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
+ 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
+@@ -990,8 +987,7 @@ static int hns3_set_l2l3l4(struct sk_buf
+ 		/* the stack computes the IP header already,
+ 		 * driver calculate l4 checksum when not TSO.
+ 		 */
+-		skb_checksum_help(skb);
+-		return 0;
++		return skb_checksum_help(skb);
  	}
  
+ 	return 0;
 
 
