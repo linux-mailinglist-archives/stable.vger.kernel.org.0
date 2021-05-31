@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BD3FD395F94
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:11:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C9453396291
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232029AbhEaONF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:13:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40994 "EHLO mail.kernel.org"
+        id S232657AbhEaO54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:57:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50542 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233306AbhEaOLB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:11:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B36ED61008;
-        Mon, 31 May 2021 13:40:56 +0000 (UTC)
+        id S232715AbhEaOzo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:55:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 813E161CB9;
+        Mon, 31 May 2021 13:59:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468457;
-        bh=YkqUDYWS6J6RK4cCwoTYGe+hTHoCWzpzNwFSw0XN9SA=;
+        s=korg; t=1622469596;
+        bh=VbXNcN5hRMR5igrKD8LF/UDBIKVDYuctbJYbHnb8lJ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dOk8hYLWqr3fcZrC02l7rNlcf77IsGwtj+jpNHmM+d5n+5d6w6osOE/dAGsKH7ZHQ
-         26fKfyoZCiSAOqNK7e45dmpBWkivOzgAp7imM+tdIrUKqyw1vN7vTKYRb+GlVYoPvP
-         +RVHnOYJeBsokYETSZnQ4weMEIcxIUuDMKWsEOfQ=
+        b=doxz23dW46dtBByYPU21XCHhM+OBI6QavxSgr35zOAcURAXVkDgpwzAgzwCni+41e
+         6J4lLEJu1C8+bHqjOCgP39tSCI0mzmnrbZKBWenvRHu+qWOd7R+7DHbW+nMbeaDgRT
+         gAbpgeoG9BCnPpsdDfSOPpL1hz8AUKZnhcknaMXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johan Hovold <johan@kernel.org>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 249/252] net: hso: bail out on interrupt URB allocation failure
+        stable@vger.kernel.org, Jian Shen <shenjian15@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 259/296] net: hns3: put off calling register_netdev() until client initialize complete
 Date:   Mon, 31 May 2021 15:15:14 +0200
-Message-Id: <20210531130706.452230115@linuxfoundation.org>
+Message-Id: <20210531130712.461131344@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +41,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Hovold <johan@kernel.org>
+From: Jian Shen <shenjian15@huawei.com>
 
-commit 4d52ebc7ace491d58f96d1f4a1cb9070c506b2e7 upstream.
+[ Upstream commit a289a7e5c1d49b7d47df9913c1cc81fb48fab613 ]
 
-Commit 31db0dbd7244 ("net: hso: check for allocation failure in
-hso_create_bulk_serial_device()") recently started returning an error
-when the driver fails to allocate resources for the interrupt endpoint
-and tiocmget functionality.
+Currently, the netdevice is registered before client initializing
+complete. So there is a timewindow between netdevice available
+and usable. In this case, if user try to change the channel number
+or ring param, it may cause the hns3_set_rx_cpu_rmap() being called
+twice, and report bug.
 
-For consistency let's bail out from probe also if the URB allocation
-fails.
+[47199.416502] hns3 0000:35:00.0 eth1: set channels: tqp_num=1, rxfh=0
+[47199.430340] hns3 0000:35:00.0 eth1: already uninitialized
+[47199.438554] hns3 0000:35:00.0: rss changes from 4 to 1
+[47199.511854] hns3 0000:35:00.0: Channels changed, rss_size from 4 to 1, tqps from 4 to 1
+[47200.163524] ------------[ cut here ]------------
+[47200.171674] kernel BUG at lib/cpu_rmap.c:142!
+[47200.177847] Internal error: Oops - BUG: 0 [#1] PREEMPT SMP
+[47200.185259] Modules linked in: hclge(+) hns3(-) hns3_cae(O) hns_roce_hw_v2 hnae3 vfio_iommu_type1 vfio_pci vfio_virqfd vfio pv680_mii(O) [last unloaded: hclge]
+[47200.205912] CPU: 1 PID: 8260 Comm: ethtool Tainted: G           O      5.11.0-rc3+ #1
+[47200.215601] Hardware name:  , xxxxxx 02/04/2021
+[47200.223052] pstate: 60400009 (nZCv daif +PAN -UAO -TCO BTYPE=--)
+[47200.230188] pc : cpu_rmap_add+0x38/0x40
+[47200.237472] lr : irq_cpu_rmap_add+0x84/0x140
+[47200.243291] sp : ffff800010e93a30
+[47200.247295] x29: ffff800010e93a30 x28: ffff082100584880
+[47200.254155] x27: 0000000000000000 x26: 0000000000000000
+[47200.260712] x25: 0000000000000000 x24: 0000000000000004
+[47200.267241] x23: ffff08209ba03000 x22: ffff08209ba038c0
+[47200.273789] x21: 000000000000003f x20: ffff0820e2bc1680
+[47200.280400] x19: ffff0820c970ec80 x18: 00000000000000c0
+[47200.286944] x17: 0000000000000000 x16: ffffb43debe4a0d0
+[47200.293456] x15: fffffc2082990600 x14: dead000000000122
+[47200.300059] x13: ffffffffffffffff x12: 000000000000003e
+[47200.306606] x11: ffff0820815b8080 x10: ffff53e411988000
+[47200.313171] x9 : 0000000000000000 x8 : ffff0820e2bc1700
+[47200.319682] x7 : 0000000000000000 x6 : 000000000000003f
+[47200.326170] x5 : 0000000000000040 x4 : ffff800010e93a20
+[47200.332656] x3 : 0000000000000004 x2 : ffff0820c970ec80
+[47200.339168] x1 : ffff0820e2bc1680 x0 : 0000000000000004
+[47200.346058] Call trace:
+[47200.349324]  cpu_rmap_add+0x38/0x40
+[47200.354300]  hns3_set_rx_cpu_rmap+0x6c/0xe0 [hns3]
+[47200.362294]  hns3_reset_notify_init_enet+0x1cc/0x340 [hns3]
+[47200.370049]  hns3_change_channels+0x40/0xb0 [hns3]
+[47200.376770]  hns3_set_channels+0x12c/0x2a0 [hns3]
+[47200.383353]  ethtool_set_channels+0x140/0x250
+[47200.389772]  dev_ethtool+0x714/0x23d0
+[47200.394440]  dev_ioctl+0x4cc/0x640
+[47200.399277]  sock_do_ioctl+0x100/0x2a0
+[47200.404574]  sock_ioctl+0x28c/0x470
+[47200.409079]  __arm64_sys_ioctl+0xb4/0x100
+[47200.415217]  el0_svc_common.constprop.0+0x84/0x210
+[47200.422088]  do_el0_svc+0x28/0x34
+[47200.426387]  el0_svc+0x28/0x70
+[47200.431308]  el0_sync_handler+0x1a4/0x1b0
+[47200.436477]  el0_sync+0x174/0x180
+[47200.441562] Code: 11000405 79000c45 f8247861 d65f03c0 (d4210000)
+[47200.448869] ---[ end trace a01efe4ce42e5f34 ]---
 
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Reviewed-by: Dan Carpenter <dan.carpenter@oracle.com>
+The process is like below:
+excuting hns3_client_init
+|
+register_netdev()
+|                           hns3_set_channels()
+|                           |
+hns3_set_rx_cpu_rmap()      hns3_reset_notify_uninit_enet()
+|                               |
+|                            quit without calling function
+|                            hns3_free_rx_cpu_rmap for flag
+|                            HNS3_NIC_STATE_INITED is unset.
+|                           |
+|                           hns3_reset_notify_init_enet()
+|                               |
+set HNS3_NIC_STATE_INITED    call hns3_set_rx_cpu_rmap()-- crash
+
+Fix it by calling register_netdev() at the end of function
+hns3_client_init().
+
+Fixes: 08a100689d4b ("net: hns3: re-organize vector handle")
+Signed-off-by: Jian Shen <shenjian15@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/hso.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
---- a/drivers/net/usb/hso.c
-+++ b/drivers/net/usb/hso.c
-@@ -2635,14 +2635,14 @@ static struct hso_device *hso_create_bul
- 		}
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+index 0f70158c2551..cd37f0e35431 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
+@@ -4287,12 +4287,6 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 	if (ret)
+ 		goto out_init_phy;
  
- 		tiocmget->urb = usb_alloc_urb(0, GFP_KERNEL);
--		if (tiocmget->urb) {
--			mutex_init(&tiocmget->mutex);
--			init_waitqueue_head(&tiocmget->waitq);
--		} else
--			hso_free_tiomget(serial);
+-	ret = register_netdev(netdev);
+-	if (ret) {
+-		dev_err(priv->dev, "probe register netdev fail!\n");
+-		goto out_reg_netdev_fail;
 -	}
--	else
-+		if (!tiocmget->urb)
-+			goto exit;
-+
-+		mutex_init(&tiocmget->mutex);
-+		init_waitqueue_head(&tiocmget->waitq);
-+	} else {
- 		num_urbs = 1;
-+	}
+-
+ 	/* the device can work without cpu rmap, only aRFS needs it */
+ 	ret = hns3_set_rx_cpu_rmap(netdev);
+ 	if (ret)
+@@ -4325,17 +4319,23 @@ static int hns3_client_init(struct hnae3_handle *handle)
+ 	if (ae_dev->dev_version >= HNAE3_DEVICE_VERSION_V3)
+ 		set_bit(HNAE3_PFLAG_LIMIT_PROMISC, &handle->supported_pflags);
  
- 	if (hso_serial_common_create(serial, num_urbs, BULK_URB_RX_SIZE,
- 				     BULK_URB_TX_SIZE))
++	ret = register_netdev(netdev);
++	if (ret) {
++		dev_err(priv->dev, "probe register netdev fail!\n");
++		goto out_reg_netdev_fail;
++	}
++
+ 	if (netif_msg_drv(handle))
+ 		hns3_info_show(priv);
+ 
+ 	return ret;
+ 
++out_reg_netdev_fail:
++	hns3_dbg_uninit(handle);
+ out_client_start:
+ 	hns3_free_rx_cpu_rmap(netdev);
+ 	hns3_nic_uninit_irq(priv);
+ out_init_irq_fail:
+-	unregister_netdev(netdev);
+-out_reg_netdev_fail:
+ 	hns3_uninit_phy(netdev);
+ out_init_phy:
+ 	hns3_uninit_all_ring(priv);
+-- 
+2.30.2
+
 
 
