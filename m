@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F268396128
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 299E8395DE0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233705AbhEaOgW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:36:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60316 "EHLO mail.kernel.org"
+        id S232349AbhEaNve (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234113AbhEaOeU (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:34:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A44E61423;
-        Mon, 31 May 2021 13:50:31 +0000 (UTC)
+        id S230282AbhEaNtD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:49:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4446C6162A;
+        Mon, 31 May 2021 13:31:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469031;
-        bh=WJOoif5h4cUqEFlsrpmCMdIooQCY5qPCJRqgK2enOko=;
+        s=korg; t=1622467878;
+        bh=+Sfi8s7A1nGCPQVj80KMR8qISvr0cOzdeM3hlbLdyxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lbFSCKhqpst879je3deouVNyDk+3GcqlB8g2omTyqNjgQQYtIXB9lhrojaXy+iTz4
-         dkm+i8+ubDBTd0RbE2E4PfIj6qflggV7MGtPU40oUFx5qgmgQKL0sIHWhjS2IqEyiQ
-         4ajXFooMlSIMc2Xp0SYvyg0zp8ViqYQnLvHqWiPU=
+        b=G+bhqvUOUsn1bsDnLxnf4FSOzz3MuwbG8CjY/aVz09Oop73ST4V8kTmkcQARkhf8C
+         wFY9VJkkLBpZFq6mnd4B/ad6hQmzcP1I5NScOxt9S0xv7vmQK4kLyDBaKUSYL4zKbX
+         ccO9vK23JFAOeEoROoyL0pG+qKziU349kOqgPxgo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 043/296] mac80211: do not accept/forward invalid EAPOL frames
+Subject: [PATCH 5.10 033/252] ath10k: add CCMP PN replay protection for fragmented frames for PCIe
 Date:   Mon, 31 May 2021 15:11:38 +0200
-Message-Id: <20210531130705.282715166@linuxfoundation.org>
+Message-Id: <20210531130659.103755794@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,103 +40,189 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-commit a8c4d76a8dd4fb9666fc8919a703d85fb8f44ed8 upstream.
+commit a1166b2653db2f3de7338b9fb8a0f6e924b904ee upstream.
 
-EAPOL frames are used for authentication and key management between the
-AP and each individual STA associated in the BSS. Those frames are not
-supposed to be sent by one associated STA to another associated STA
-(either unicast for broadcast/multicast).
+PN replay check for not fragmented frames is finished in the firmware,
+but this was not done for fragmented frames when ath10k is used with
+QCA6174/QCA6377 PCIe. mac80211 has the function
+ieee80211_rx_h_defragment() for PN replay check for fragmented frames,
+but this does not get checked with QCA6174 due to the
+ieee80211_has_protected() condition not matching the cleared Protected
+bit case.
 
-Similarly, in 802.11 they're supposed to be sent to the authenticator
-(AP) address.
+Validate the PN of received fragmented frames within ath10k when CCMP is
+used and drop the fragment if the PN is not correct (incremented by
+exactly one from the previous fragment). This applies only for
+QCA6174/QCA6377 PCIe.
 
-Since it is possible for unexpected EAPOL frames to result in misbehavior
-in supplicant implementations, it is better for the AP to not allow such
-cases to be forwarded to other clients either directly, or indirectly if
-the AP interface is part of a bridge.
-
-Accept EAPOL (control port) frames only if they're transmitted to the
-own address, or, due to interoperability concerns, to the PAE group
-address.
-
-Disable forwarding of EAPOL (or well, the configured control port
-protocol) frames back to wireless medium in all cases. Previously, these
-frames were accepted from fully authenticated and authorized stations
-and also from unauthenticated stations for one of the cases.
-
-Additionally, to avoid forwarding by the bridge, rewrite the PAE group
-address case to the local MAC address.
+Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
 
 Cc: stable@vger.kernel.org
-Co-developed-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
 Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
-Link: https://lore.kernel.org/r/20210511200110.cb327ed0cabe.Ib7dcffa2a31f0913d660de65ba3c8aca75b1d10f@changeid
+Link: https://lore.kernel.org/r/20210511200110.9ba2664866a4.I756e47b67e210dba69966d989c4711ffc02dc6bc@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/rx.c |   33 +++++++++++++++++++++++++++------
- 1 file changed, 27 insertions(+), 6 deletions(-)
+ drivers/net/wireless/ath/ath10k/htt.h    |    1 
+ drivers/net/wireless/ath/ath10k/htt_rx.c |   99 +++++++++++++++++++++++++++++--
+ 2 files changed, 96 insertions(+), 4 deletions(-)
 
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2530,13 +2530,13 @@ static bool ieee80211_frame_allowed(stru
- 	struct ethhdr *ehdr = (struct ethhdr *) rx->skb->data;
+--- a/drivers/net/wireless/ath/ath10k/htt.h
++++ b/drivers/net/wireless/ath/ath10k/htt.h
+@@ -845,6 +845,7 @@ enum htt_security_types {
  
- 	/*
--	 * Allow EAPOL frames to us/the PAE group address regardless
--	 * of whether the frame was encrypted or not.
-+	 * Allow EAPOL frames to us/the PAE group address regardless of
-+	 * whether the frame was encrypted or not, and always disallow
-+	 * all other destination addresses for them.
- 	 */
--	if (ehdr->h_proto == rx->sdata->control_port_protocol &&
--	    (ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
--	     ether_addr_equal(ehdr->h_dest, pae_group_addr)))
--		return true;
-+	if (unlikely(ehdr->h_proto == rx->sdata->control_port_protocol))
-+		return ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
-+		       ether_addr_equal(ehdr->h_dest, pae_group_addr);
+ #define ATH10K_HTT_TXRX_PEER_SECURITY_MAX 2
+ #define ATH10K_TXRX_NUM_EXT_TIDS 19
++#define ATH10K_TXRX_NON_QOS_TID 16
  
- 	if (ieee80211_802_1x_port_control(rx) ||
- 	    ieee80211_drop_unencrypted(rx, fc))
-@@ -2561,8 +2561,28 @@ static void ieee80211_deliver_skb_to_loc
- 		cfg80211_rx_control_port(dev, skb, noencrypt);
- 		dev_kfree_skb(skb);
- 	} else {
-+		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
+ enum htt_security_flags {
+ #define HTT_SECURITY_TYPE_MASK 0x7F
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -1746,16 +1746,87 @@ static void ath10k_htt_rx_h_csum_offload
+ 	msdu->ip_summed = ath10k_htt_rx_get_csum_state(msdu);
+ }
+ 
++static u64 ath10k_htt_rx_h_get_pn(struct ath10k *ar, struct sk_buff *skb,
++				  u16 offset,
++				  enum htt_rx_mpdu_encrypt_type enctype)
++{
++	struct ieee80211_hdr *hdr;
++	u64 pn = 0;
++	u8 *ehdr;
 +
- 		memset(skb->cb, 0, sizeof(skb->cb));
- 
-+		/*
-+		 * 802.1X over 802.11 requires that the authenticator address
-+		 * be used for EAPOL frames. However, 802.1X allows the use of
-+		 * the PAE group address instead. If the interface is part of
-+		 * a bridge and we pass the frame with the PAE group address,
-+		 * then the bridge will forward it to the network (even if the
-+		 * client was not associated yet), which isn't supposed to
-+		 * happen.
-+		 * To avoid that, rewrite the destination address to our own
-+		 * address, so that the authenticator (e.g. hostapd) will see
-+		 * the frame, but bridge won't forward it anywhere else. Note
-+		 * that due to earlier filtering, the only other address can
-+		 * be the PAE group address.
-+		 */
-+		if (unlikely(skb->protocol == sdata->control_port_protocol &&
-+			     !ether_addr_equal(ehdr->h_dest, sdata->vif.addr)))
-+			ether_addr_copy(ehdr->h_dest, sdata->vif.addr);
++	hdr = (struct ieee80211_hdr *)(skb->data + offset);
++	ehdr = skb->data + offset + ieee80211_hdrlen(hdr->frame_control);
 +
- 		/* deliver to local stack */
- 		if (rx->list)
- 			list_add_tail(&skb->list, rx->list);
-@@ -2602,6 +2622,7 @@ ieee80211_deliver_skb(struct ieee80211_r
- 	if ((sdata->vif.type == NL80211_IFTYPE_AP ||
- 	     sdata->vif.type == NL80211_IFTYPE_AP_VLAN) &&
- 	    !(sdata->flags & IEEE80211_SDATA_DONT_BRIDGE_PACKETS) &&
-+	    ehdr->h_proto != rx->sdata->control_port_protocol &&
- 	    (sdata->vif.type != NL80211_IFTYPE_AP_VLAN || !sdata->u.vlan.sta)) {
- 		if (is_multicast_ether_addr(ehdr->h_dest) &&
- 		    ieee80211_vif_get_num_mcast_if(sdata) != 0) {
++	if (enctype == HTT_RX_MPDU_ENCRYPT_AES_CCM_WPA2) {
++		pn = ehdr[0];
++		pn |= (u64)ehdr[1] << 8;
++		pn |= (u64)ehdr[4] << 16;
++		pn |= (u64)ehdr[5] << 24;
++		pn |= (u64)ehdr[6] << 32;
++		pn |= (u64)ehdr[7] << 40;
++	}
++	return pn;
++}
++
++static bool ath10k_htt_rx_h_frag_pn_check(struct ath10k *ar,
++					  struct sk_buff *skb,
++					  u16 peer_id,
++					  u16 offset,
++					  enum htt_rx_mpdu_encrypt_type enctype)
++{
++	struct ath10k_peer *peer;
++	union htt_rx_pn_t *last_pn, new_pn = {0};
++	struct ieee80211_hdr *hdr;
++	bool more_frags;
++	u8 tid, frag_number;
++	u32 seq;
++
++	peer = ath10k_peer_find_by_id(ar, peer_id);
++	if (!peer) {
++		ath10k_dbg(ar, ATH10K_DBG_HTT, "invalid peer for frag pn check\n");
++		return false;
++	}
++
++	hdr = (struct ieee80211_hdr *)(skb->data + offset);
++	if (ieee80211_is_data_qos(hdr->frame_control))
++		tid = ieee80211_get_tid(hdr);
++	else
++		tid = ATH10K_TXRX_NON_QOS_TID;
++
++	last_pn = &peer->frag_tids_last_pn[tid];
++	new_pn.pn48 = ath10k_htt_rx_h_get_pn(ar, skb, offset, enctype);
++	more_frags = ieee80211_has_morefrags(hdr->frame_control);
++	frag_number = le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_FRAG;
++	seq = (__le16_to_cpu(hdr->seq_ctrl) & IEEE80211_SCTL_SEQ) >> 4;
++
++	if (frag_number == 0) {
++		last_pn->pn48 = new_pn.pn48;
++		peer->frag_tids_seq[tid] = seq;
++	} else {
++		if (seq != peer->frag_tids_seq[tid])
++			return false;
++
++		if (new_pn.pn48 != last_pn->pn48 + 1)
++			return false;
++
++		last_pn->pn48 = new_pn.pn48;
++	}
++
++	return true;
++}
++
+ static void ath10k_htt_rx_h_mpdu(struct ath10k *ar,
+ 				 struct sk_buff_head *amsdu,
+ 				 struct ieee80211_rx_status *status,
+ 				 bool fill_crypt_header,
+ 				 u8 *rx_hdr,
+-				 enum ath10k_pkt_rx_err *err)
++				 enum ath10k_pkt_rx_err *err,
++				 u16 peer_id,
++				 bool frag)
+ {
+ 	struct sk_buff *first;
+ 	struct sk_buff *last;
+-	struct sk_buff *msdu;
++	struct sk_buff *msdu, *temp;
+ 	struct htt_rx_desc *rxd;
+ 	struct ieee80211_hdr *hdr;
+ 	enum htt_rx_mpdu_encrypt_type enctype;
+@@ -1768,6 +1839,7 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 	bool is_decrypted;
+ 	bool is_mgmt;
+ 	u32 attention;
++	bool frag_pn_check = true;
+ 
+ 	if (skb_queue_empty(amsdu))
+ 		return;
+@@ -1866,6 +1938,24 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 	}
+ 
+ 	skb_queue_walk(amsdu, msdu) {
++		if (frag && !fill_crypt_header && is_decrypted &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_AES_CCM_WPA2)
++			frag_pn_check = ath10k_htt_rx_h_frag_pn_check(ar,
++								      msdu,
++								      peer_id,
++								      0,
++								      enctype);
++
++		if (!frag_pn_check) {
++			/* Discard the fragment with invalid PN */
++			temp = msdu->prev;
++			__skb_unlink(msdu, amsdu);
++			dev_kfree_skb_any(msdu);
++			msdu = temp;
++			frag_pn_check = true;
++			continue;
++		}
++
+ 		ath10k_htt_rx_h_csum_offload(msdu);
+ 		ath10k_htt_rx_h_undecap(ar, msdu, status, first_hdr, enctype,
+ 					is_decrypted);
+@@ -2071,7 +2161,8 @@ static int ath10k_htt_rx_handle_amsdu(st
+ 		ath10k_htt_rx_h_unchain(ar, &amsdu, &drop_cnt, &unchain_cnt);
+ 
+ 	ath10k_htt_rx_h_filter(ar, &amsdu, rx_status, &drop_cnt_filter);
+-	ath10k_htt_rx_h_mpdu(ar, &amsdu, rx_status, true, first_hdr, &err);
++	ath10k_htt_rx_h_mpdu(ar, &amsdu, rx_status, true, first_hdr, &err, 0,
++			     false);
+ 	msdus_to_queue = skb_queue_len(&amsdu);
+ 	ath10k_htt_rx_h_enqueue(ar, &amsdu, rx_status);
+ 
+@@ -3027,7 +3118,7 @@ static int ath10k_htt_rx_in_ord_ind(stru
+ 			ath10k_htt_rx_h_ppdu(ar, &amsdu, status, vdev_id);
+ 			ath10k_htt_rx_h_filter(ar, &amsdu, status, NULL);
+ 			ath10k_htt_rx_h_mpdu(ar, &amsdu, status, false, NULL,
+-					     NULL);
++					     NULL, peer_id, frag);
+ 			ath10k_htt_rx_h_enqueue(ar, &amsdu, status);
+ 			break;
+ 		case -EAGAIN:
 
 
