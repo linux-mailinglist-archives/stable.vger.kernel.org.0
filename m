@@ -2,90 +2,154 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 876FD39685D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 21:30:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4753E39685F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 21:30:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231228AbhEaTcC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 15:32:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53762 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230308AbhEaTb5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 15:31:57 -0400
-Received: from mail-pf1-x430.google.com (mail-pf1-x430.google.com [IPv6:2607:f8b0:4864:20::430])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0ECEC061574;
-        Mon, 31 May 2021 12:30:15 -0700 (PDT)
-Received: by mail-pf1-x430.google.com with SMTP id q25so1853518pfh.7;
-        Mon, 31 May 2021 12:30:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=I2yhzivGSYJwC2Jt9lkfIkUrKLXKvMaTyAMZKWM7ooo=;
-        b=UUn+4vUea7q/bSqwu5h5P7rYN+t0++cugdmEPb5F64WxhFUxdMgqcg+5Io2HKqSaI/
-         SNAs27u5G/eraR+E831SrS+UmVCklPVEzidi4prA2wOses/8AMPtAcKXvL3gApYCvoAw
-         2s0iRz1YrQOtJOcaesuP/budC1Zq5sFO5/8eNRpblTsZoDVNzAGVaAcqaXUEwY7Rc5tl
-         Tnt/QcnwsYOk5E8oWm2IK/KoMCNnPjbWsAYKKdjbotbQg5hx9s9i859hgLmPV+zDa/Lj
-         8unMCUEPvt8VIF1ppJZEHTNv6MFO0Mx31rFIbp9T3NGTcC9RtZ7MMCeppa8LksJeDwc3
-         VCBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:from:in-reply-to:subject:to:cc
-         :content-transfer-encoding;
-        bh=I2yhzivGSYJwC2Jt9lkfIkUrKLXKvMaTyAMZKWM7ooo=;
-        b=FOuepRpjUw+1bkrtMlMrjI1gFlTefb9Obo8lSQllThQGl8dXd78tN6J1ZetXdTmjvX
-         Zk8qtfNPXW3P/ZfuyRgKCCQXjZlZT5xamuEchFMapqttqfS5mtt+lqACeApKnvAPiY8c
-         HhyFOLnyGrBv6lxixnQjUiU5oacJCPBMB4llEyCof7sj92u1KABhi94RH/3Wrr+MqxAf
-         QOxDcE2Jn+20h+9y1vSqQODELAMprWtI4MTlidtFYVIsz68NNhNpn96bvwVJvtClxGqY
-         Z+iXzyhWyQPtJXTmYbbyUEdTp2rocMhGyK4e7m9YFVEPkeLdGDCZI306kwDf2xDV0XjC
-         n//g==
-X-Gm-Message-State: AOAM532mxCgzJu29uy6914j4qlgAfNdCjY1OHegZmmWiYWsyhgUjcX1+
-        vgN5Lu8JWE+8KsqfJtmW9tMRtN4RuRoduWSCeg4=
-X-Google-Smtp-Source: ABdhPJzJL6bh+NfD86E3MTbBnzMshBap5ysb2bfxntvROnbn8j6gzVTL5+ZvIJ+uKZQfyqou9VTBUQ==
-X-Received: by 2002:a63:6f4e:: with SMTP id k75mr24475396pgc.434.1622489415064;
-        Mon, 31 May 2021 12:30:15 -0700 (PDT)
-Received: from cl-arch-kdev (cl-arch-kdev.xen.prgmr.com. [2605:2700:0:2:a800:ff:fed6:fc0d])
-        by smtp.gmail.com with ESMTPSA id x13sm13210315pja.3.2021.05.31.12.30.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 31 May 2021 12:30:14 -0700 (PDT)
-Message-ID: <60b53946.1c69fb81.ad18b.99e5@mx.google.com>
-Date:   Mon, 31 May 2021 12:30:14 -0700 (PDT)
-X-Google-Original-Date: Mon, 31 May 2021 19:30:13 GMT
-From:   Fox Chen <foxhlchen@gmail.com>
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-Subject: RE: [PATCH 5.12 000/296] 5.12.9-rc1 review
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org,
-        Fox Chen <foxhlchen@gmail.com>
-Content-Transfer-Encoding: 7bit
+        id S231192AbhEaTcc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 15:32:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45370 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230308AbhEaTcb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 15:32:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 581F9611CA;
+        Mon, 31 May 2021 19:30:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622489451;
+        bh=+Xa/mUULT45XAb8V1mCc5ppcSk4L9xFWlVukaW6HlW0=;
+        h=In-Reply-To:References:Date:From:To:Cc:Subject:From;
+        b=ZaQ4jV5hLmg1V6iFbgsYzVW6DS4IUC576mGQ3j7A1PG0NMZyR1w6+BJDMkspnxDrN
+         NyOg0BSquTxWzOGul7pgwMp4avAON01b2F2mw6iRE/sVZKmBvjltMnbN+DJ8JksbZI
+         NNCUrkH58C0pHOSGu0iP7tByXPBuJmrwgJC6mRqRQObBlgyUqRugQav4qjAp8t7YUs
+         4MAbcdsVHk0+CUgx5CphdPVJP2xiXOTWHWA9rolJz+zRZJEm0OH4EX61QVBwyo1Xpx
+         yNW1OKg7GfFqAwz+lUmt0pq0JbARuwWaeEyZCWSAyJbDLGvfCV8FGxGdC10MVsgctd
+         Rj8eXRRG9Zr6Q==
+Received: from compute2.internal (compute2.nyi.internal [10.202.2.42])
+        by mailauth.nyi.internal (Postfix) with ESMTP id 6776127C0054;
+        Mon, 31 May 2021 15:30:50 -0400 (EDT)
+Received: from imap21 ([10.202.2.71])
+  by compute2.internal (MEProxy); Mon, 31 May 2021 15:30:50 -0400
+X-ME-Sender: <xms:aTm1YH7M2GMheZ_9b12B8frP82yctRyxAO2YCIlDUgVuazxPFm9CTg>
+    <xme:aTm1YM5hJluhL7EZl2Fy2Dw22n_ENufrhKvcG8XyzH44hJcmZOKyRgq52b9CwXm3s
+    jaqr_BstR9fj16nKFE>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdelfedgudegtdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefofgggkfgjfhffhffvufgtgfesthhqredtreerjeenucfhrhhomhepfdet
+    nhguhicunfhuthhomhhirhhskhhifdcuoehluhhtoheskhgvrhhnvghlrdhorhhgqeenuc
+    ggtffrrghtthgvrhhnpedvleehjeejvefhuddtgeegffdtjedtffegveethedvgfejieev
+    ieeufeevuedvteenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfh
+    hrohhmpegrnhguhidomhgvshhmthhprghuthhhphgvrhhsohhnrghlihhthidqudduiedu
+    keehieefvddqvdeifeduieeitdekqdhluhhtoheppehkvghrnhgvlhdrohhrgheslhhinh
+    hugidrlhhuthhordhush
+X-ME-Proxy: <xmx:aTm1YOcQfxASbiKxGNOndboPG0HJJ391ueck49aUwV1RjxXSSY7nKg>
+    <xmx:aTm1YIIoIVsdd9YCTK9g2jkNQoaDFmcR524ZJI1_hJmzKxmnR9eugg>
+    <xmx:aTm1YLLPnudnhIv_j4y1x7_xKf1FFoqbTfZQpvztHGGOBIl3aQwRzQ>
+    <xmx:ajm1YCVh_c0PhwAVCrDIvvXImPBtDsvCyU8zwoLYJs-Pxav2G_EU8LxVdf4>
+Received: by mailuser.nyi.internal (Postfix, from userid 501)
+        id B8EF751C0060; Mon, 31 May 2021 15:30:48 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
+User-Agent: Cyrus-JMAP/3.5.0-alpha0-519-g27a961944e-fm-20210531.001-g27a96194
+Mime-Version: 1.0
+Message-Id: <71af931b-4328-44b9-8b03-7c155ee8b2d2@www.fastmail.com>
+In-Reply-To: <87fsy24tqt.ffs@nanos.tec.linutronix.de>
+References: <cover.1622351443.git.luto@kernel.org>
+ <b69df1e42d1235996682178013f61d4120b3b361.1622351443.git.luto@kernel.org>
+ <871r9n5iit.ffs@nanos.tec.linutronix.de>
+ <87fsy24tqt.ffs@nanos.tec.linutronix.de>
+Date:   Mon, 31 May 2021 12:30:28 -0700
+From:   "Andy Lutomirski" <luto@kernel.org>
+To:     "Thomas Gleixner" <tglx@linutronix.de>,
+        "the arch/x86 maintainers" <x86@kernel.org>
+Cc:     "Dave Hansen" <dave.hansen@intel.com>, stable@vger.kernel.org,
+        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Subject: =?UTF-8?Q?Re:_[RFC_v2_1/2]_x86/fpu:_Fix_state_corruption_in_=5F=5Ffpu=5F?=
+ =?UTF-8?Q?=5Frestore=5Fsig()?=
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 May 2021 15:10:55 +0200, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> This is the start of the stable review cycle for the 5.12.9 release.
-> There are 296 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.12.9-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.12.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-5.12.9-rc1 Successfully Compiled and booted on my Raspberry PI 4b (8g) (bcm2711)
-                
-Tested-by: Fox Chen <foxhlchen@gmail.com>
 
+On Mon, May 31, 2021, at 11:56 AM, Thomas Gleixner wrote:
+> On Mon, May 31 2021 at 12:01, Thomas Gleixner wrote:
+>=20
+> > On Sat, May 29 2021 at 22:12, Andy Lutomirski wrote:
+> >>  /*
+> >> - * Clear the FPU state back to init state.
+> >> - *
+> >> - * Called by sys_execve(), by the signal handler code and by vario=
+us
+> >> - * error paths.
+> >> + * Reset current's user FPU states to the init states.  The caller=
+ promises
+> >> + * that current's supervisor states (in memory or CPU regs as appr=
+opriate)
+> >> + * as well as the XSAVE header in memory are intact.
+> >>   */
+> >> -static void fpu__clear(struct fpu *fpu, bool user_only)
+> >> +void fpu__clear_user_states(struct fpu *fpu)
+> >>  {
+> >>  	WARN_ON_FPU(fpu !=3D &current->thread.fpu);
+> >> =20
+> >>  	if (!static_cpu_has(X86_FEATURE_FPU)) {
+> >
+> > This can only be safely called if XSAVES is available. So this check=
+ is
+> > bogus as it actually should check for !XSAVES. And if at all it shou=
+ld
+> > be:
+> >
+> >    if (WARN_ON_ONCE(!XSAVES))
+> >       ....
+> >
+> > This is exactly the stuff which causes subtle problems down the road=
+.
+> >
+> > I have no idea why you are insisting on having this conditional at t=
+he
+> > call site. It's just an invitation for trouble because someone finds=
+
+> > this function and calls it unconditionally. And he will miss the
+> > 'promise' part in the comment as I did.
+>=20
+> And of course there is:
+>=20
+> __fpu__restore_sig()
+>=20
+> 	if (!buf) {
+>                 fpu__clear_user_states(fpu);
+>                 return 0;
+>         }
+>=20
+> and
+>=20
+> handle_signal()
+>=20
+>    if (!failed)
+>       fpu__clear_user_states(fpu);
+
+This looks okay.
+
+Really there are two callers of fpu__clear_all() that are special:
+
+execve:  Just in case some part of the xstate buffer mode that=E2=80=99s=
+ supposed to be invariant got corrupted or in case there is some side ch=
+annel that can leak the INIT-but-not-zeroed contents of a state to user =
+code, we should really wipe the memory completely across privilege bound=
+aries.
+
+__fpu__restore_sig: the utterly daft copy from user space needs special =
+recovery.
+
+Maybe the right solution is to rename it. Instead of fpu__clear_all(), h=
+ow about fpu__wipe_and_reset()?
+
+>=20
+> which invoke that function unconditionally.
+>=20
+> Thanks,
+>=20
+>         tglx
+>=20
