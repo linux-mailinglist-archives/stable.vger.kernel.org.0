@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B50F395D77
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:44:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 28260395CED
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:38:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbhEaNq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:46:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50844 "EHLO mail.kernel.org"
+        id S231860AbhEaNkI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:40:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44088 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233024AbhEaNoZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:44:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1DA0C6148E;
-        Mon, 31 May 2021 13:29:14 +0000 (UTC)
+        id S232277AbhEaNh0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:37:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 42B7E613C1;
+        Mon, 31 May 2021 13:26:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467755;
-        bh=9OkA6C1b4toyGNfdPwPuomEDTENyBWcRtxdmU9HDPDk=;
+        s=korg; t=1622467571;
+        bh=kNsR7JH7HUPqnQDYu7+mJD6fvOY6gA/unXCy4XOe1RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWHdisYN64V3au4MbyTmGCLmg2OYohKeLg4shEttqMblkbVIxAGAtiZPGcd8M84nl
-         mKOd9SRz43IA40CpjY3AHr0IdymFAENzG5Aja+vzU29bNFT9goX59dQ2yg2O9vy4cI
-         KzaBmiofHP/LRtrTALCMKr6QXynT6+y5jD1y/eDE=
+        b=uQdh1sTLKIrMD0kOp1OAbD6m9g1zp2p2/AWRIjoT8AnipqrtzK1Yi+1F17jVcoDbI
+         0vMh2JAhjH2PfdHt8ObkqW6k07ng8zZD0xgdycvz7CmU7c0X8Bu4JoSkrtaPBa7Od0
+         jCSmVKA4YaHanxoQVtfoLCFirCXVcERX+g8kN/pw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 67/79] mld: fix panic in mld_newpack()
+        stable@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+        Chunfeng Yun <chunfeng.yun@mediatek.com>
+Subject: [PATCH 4.19 116/116] usb: core: reduce power-on-good delay time of root hub
 Date:   Mon, 31 May 2021 15:14:52 +0200
-Message-Id: <20210531130638.134648749@linuxfoundation.org>
+Message-Id: <20210531130644.055697545@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,112 +39,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Chunfeng Yun <chunfeng.yun@mediatek.com>
 
-[ Upstream commit 020ef930b826d21c5446fdc9db80fd72a791bc21 ]
+commit 90d28fb53d4a51299ff324dede015d5cb11b88a2 upstream.
 
-mld_newpack() doesn't allow to allocate high order page,
-only order-0 allocation is allowed.
-If headroom size is too large, a kernel panic could occur in skb_put().
+Return the exactly delay time given by root hub descriptor,
+this helps to reduce resume time etc.
 
-Test commands:
-    ip netns del A
-    ip netns del B
-    ip netns add A
-    ip netns add B
-    ip link add veth0 type veth peer name veth1
-    ip link set veth0 netns A
-    ip link set veth1 netns B
+Due to the root hub descriptor is usually provided by the host
+controller driver, if there is compatibility for a root hub,
+we can fix it easily without affect other root hub
 
-    ip netns exec A ip link set lo up
-    ip netns exec A ip link set veth0 up
-    ip netns exec A ip -6 a a 2001:db8:0::1/64 dev veth0
-    ip netns exec B ip link set lo up
-    ip netns exec B ip link set veth1 up
-    ip netns exec B ip -6 a a 2001:db8:0::2/64 dev veth1
-    for i in {1..99}
-    do
-        let A=$i-1
-        ip netns exec A ip link add ip6gre$i type ip6gre \
-	local 2001:db8:$A::1 remote 2001:db8:$A::2 encaplimit 100
-        ip netns exec A ip -6 a a 2001:db8:$i::1/64 dev ip6gre$i
-        ip netns exec A ip link set ip6gre$i up
-
-        ip netns exec B ip link add ip6gre$i type ip6gre \
-	local 2001:db8:$A::2 remote 2001:db8:$A::1 encaplimit 100
-        ip netns exec B ip -6 a a 2001:db8:$i::2/64 dev ip6gre$i
-        ip netns exec B ip link set ip6gre$i up
-    done
-
-Splat looks like:
-kernel BUG at net/core/skbuff.c:110!
-invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-CPU: 0 PID: 7 Comm: kworker/0:1 Not tainted 5.12.0+ #891
-Workqueue: ipv6_addrconf addrconf_dad_work
-RIP: 0010:skb_panic+0x15d/0x15f
-Code: 92 fe 4c 8b 4c 24 10 53 8b 4d 70 45 89 e0 48 c7 c7 00 ae 79 83
-41 57 41 56 41 55 48 8b 54 24 a6 26 f9 ff <0f> 0b 48 8b 6c 24 20 89
-34 24 e8 4a 4e 92 fe 8b 34 24 48 c7 c1 20
-RSP: 0018:ffff88810091f820 EFLAGS: 00010282
-RAX: 0000000000000089 RBX: ffff8881086e9000 RCX: 0000000000000000
-RDX: 0000000000000089 RSI: 0000000000000008 RDI: ffffed1020123efb
-RBP: ffff888005f6eac0 R08: ffffed1022fc0031 R09: ffffed1022fc0031
-R10: ffff888117e00187 R11: ffffed1022fc0030 R12: 0000000000000028
-R13: ffff888008284eb0 R14: 0000000000000ed8 R15: 0000000000000ec0
-FS:  0000000000000000(0000) GS:ffff888117c00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f8b801c5640 CR3: 0000000033c2c006 CR4: 00000000003706f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- skb_put.cold.104+0x22/0x22
- ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- ? rcu_read_lock_sched_held+0x91/0xc0
- mld_newpack+0x398/0x8f0
- ? ip6_mc_hdr.isra.26.constprop.46+0x600/0x600
- ? lock_contended+0xc40/0xc40
- add_grhead.isra.33+0x280/0x380
- add_grec+0x5ca/0xff0
- ? mld_sendpack+0xf40/0xf40
- ? lock_downgrade+0x690/0x690
- mld_send_initial_cr.part.34+0xb9/0x180
- ipv6_mc_dad_complete+0x15d/0x1b0
- addrconf_dad_completed+0x8d2/0xbb0
- ? lock_downgrade+0x690/0x690
- ? addrconf_rs_timer+0x660/0x660
- ? addrconf_dad_work+0x73c/0x10e0
- addrconf_dad_work+0x73c/0x10e0
-
-Allowing high order page allocation could fix this problem.
-
-Fixes: 72e09ad107e7 ("ipv6: avoid high order allocations")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Signed-off-by: Chunfeng Yun <chunfeng.yun@mediatek.com>
+Link: https://lore.kernel.org/r/1618017645-12259-1-git-send-email-chunfeng.yun@mediatek.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/mcast.c | 3 ---
- 1 file changed, 3 deletions(-)
+ drivers/usb/core/hub.h |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 959057515fc9..f3a291a9b2f8 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -1580,10 +1580,7 @@ static struct sk_buff *mld_newpack(struct inet6_dev *idev, unsigned int mtu)
- 		     IPV6_TLV_PADN, 0 };
+--- a/drivers/usb/core/hub.h
++++ b/drivers/usb/core/hub.h
+@@ -146,8 +146,10 @@ static inline unsigned hub_power_on_good
+ {
+ 	unsigned delay = hub->descriptor->bPwrOn2PwrGood * 2;
  
- 	/* we assume size > sizeof(ra) here */
--	/* limit our allocations to order-0 page */
--	size = min_t(int, size, SKB_MAX_ORDER(0, 0));
- 	skb = sock_alloc_send_skb(sk, size, 1, &err);
--
- 	if (!skb)
- 		return NULL;
+-	/* Wait at least 100 msec for power to become stable */
+-	return max(delay, 100U);
++	if (!hub->hdev->parent)	/* root hub */
++		return delay;
++	else /* Wait at least 100 msec for power to become stable */
++		return max(delay, 100U);
+ }
  
--- 
-2.30.2
-
+ static inline int hub_port_debounce_be_connected(struct usb_hub *hub,
 
 
