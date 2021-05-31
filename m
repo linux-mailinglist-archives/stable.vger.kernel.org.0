@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AB5C395EC1
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:47 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8422D395FD6
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233201AbhEaODR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:03:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36738 "EHLO mail.kernel.org"
+        id S231837AbhEaOQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43708 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230288AbhEaOBK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:01:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 220216193F;
-        Mon, 31 May 2021 13:36:40 +0000 (UTC)
+        id S233536AbhEaOOJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:14:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F3A661465;
+        Mon, 31 May 2021 13:42:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468201;
-        bh=e20Lmk7MCMyMXAM/WcjTRVpXTDQARr5G0Blz+3SQKm4=;
+        s=korg; t=1622468540;
+        bh=4eTbK71wXiAy9iR8F5TQTcOGUOabaygBHcmgKZtBN4k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wTtYADXPVxbbVEmC7R2WO5ytpzLvbmnOJzzzyWOIWPu/NrmbL4y0g15auDOhAHy5u
-         OAwUPCZJf29F2W3p+s02SPJPac06EfdiAfIoFEroyl4qkC6DBMCo1M17qe6SCuzyTB
-         CzGnlwqPs7u0B5TwgklrsU8hc0cqVvCD7kHBGYoc=
+        b=tdIOtdty9K1FxoNG3cHkAizg9HGktUerDhybfNp2C5ar0FwazJNovFoxwlsB3GWHK
+         EtCMfcpqYjlZcHoMHQVlXclNVPDGoRSTwXSrfU8jkJHKIKm89E1M4DNua2UfRLNw8d
+         MvSE4XUprbb+kSQiBIvjkJ32AQHzW2Rv+GoTuJqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
-        Wolfram Sang <wsa@kernel.org>
-Subject: [PATCH 5.10 120/252] i2c: s3c2410: fix possible NULL pointer deref on read message after write
+        stable@vger.kernel.org, Wen Gong <wgong@codeaurora.org>,
+        Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 028/177] ath10k: Fix TKIP Michael MIC verification for PCIe
 Date:   Mon, 31 May 2021 15:13:05 +0200
-Message-Id: <20210531130702.073322977@linuxfoundation.org>
+Message-Id: <20210531130648.887525257@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,67 +40,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+From: Wen Gong <wgong@codeaurora.org>
 
-commit 24990423267ec283b9d86f07f362b753eb9b0ed5 upstream.
+commit 0dc267b13f3a7e8424a898815dd357211b737330 upstream.
 
-Interrupt handler processes multiple message write requests one after
-another, till the driver message queue is drained.  However if driver
-encounters a read message without preceding START, it stops the I2C
-transfer as it is an invalid condition for the controller.  At least the
-comment describes a requirement "the controller forces us to send a new
-START when we change direction".  This stop results in clearing the
-message queue (i2c->msg = NULL).
+TKIP Michael MIC was not verified properly for PCIe cases since the
+validation steps in ieee80211_rx_h_michael_mic_verify() in mac80211 did
+not get fully executed due to unexpected flag values in
+ieee80211_rx_status.
 
-The code however immediately jumped back to label "retry_write" which
-dereferenced the "i2c->msg" making it a possible NULL pointer
-dereference.
+Fix this by setting the flags property to meet mac80211 expectations for
+performing Michael MIC validation there. This fixes CVE-2020-26141. It
+does the same as ath10k_htt_rx_proc_rx_ind_hl() for SDIO which passed
+MIC verification case. This applies only to QCA6174/QCA9377 PCIe.
 
-The Coverity analysis:
-1. Condition !is_msgend(i2c), taking false branch.
-   if (!is_msgend(i2c)) {
+Tested-on: QCA6174 hw3.2 PCI WLAN.RM.4.4.1-00110-QCARMSWP-1
 
-2. Condition !is_lastmsg(i2c), taking true branch.
-   } else if (!is_lastmsg(i2c)) {
-
-3. Condition i2c->msg->flags & 1, taking true branch.
-   if (i2c->msg->flags & I2C_M_RD) {
-
-4. write_zero_model: Passing i2c to s3c24xx_i2c_stop, which sets i2c->msg to NULL.
-   s3c24xx_i2c_stop(i2c, -EINVAL);
-
-5. Jumping to label retry_write.
-   goto retry_write;
-
-6. var_deref_model: Passing i2c to is_msgend, which dereferences null i2c->msg.
-   if (!is_msgend(i2c)) {"
-
-All previous calls to s3c24xx_i2c_stop() in this interrupt service
-routine are followed by jumping to end of function (acknowledging
-the interrupt and returning).  This seems a reasonable choice also here
-since message buffer was entirely emptied.
-
-Addresses-Coverity: Explicit null dereferenced
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Wen Gong <wgong@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20210511200110.c3f1d42c6746.I795593fcaae941c471425b8c7d5f7bb185d29142@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/i2c/busses/i2c-s3c2410.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/ath/ath10k/htt_rx.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/drivers/i2c/busses/i2c-s3c2410.c
-+++ b/drivers/i2c/busses/i2c-s3c2410.c
-@@ -483,7 +483,10 @@ static int i2c_s3c_irq_nextbyte(struct s
- 					 * forces us to send a new START
- 					 * when we change direction
- 					 */
-+					dev_dbg(i2c->dev,
-+						"missing START before write->read\n");
- 					s3c24xx_i2c_stop(i2c, -EINVAL);
-+					break;
- 				}
+--- a/drivers/net/wireless/ath/ath10k/htt_rx.c
++++ b/drivers/net/wireless/ath/ath10k/htt_rx.c
+@@ -1967,6 +1967,11 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 		}
  
- 				goto retry_write;
+ 		ath10k_htt_rx_h_csum_offload(msdu);
++
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_MMIC_STRIPPED;
++
+ 		ath10k_htt_rx_h_undecap(ar, msdu, status, first_hdr, enctype,
+ 					is_decrypted);
+ 
+@@ -1984,6 +1989,11 @@ static void ath10k_htt_rx_h_mpdu(struct
+ 
+ 		hdr = (void *)msdu->data;
+ 		hdr->frame_control &= ~__cpu_to_le16(IEEE80211_FCTL_PROTECTED);
++
++		if (frag && !fill_crypt_header &&
++		    enctype == HTT_RX_MPDU_ENCRYPT_TKIP_WPA)
++			status->flag &= ~RX_FLAG_IV_STRIPPED &
++					~RX_FLAG_MMIC_STRIPPED;
+ 	}
+ }
+ 
 
 
