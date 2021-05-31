@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA7B395EEF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B3C79396221
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232131AbhEaOFc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36984 "EHLO mail.kernel.org"
+        id S231997AbhEaOv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40312 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233045AbhEaODb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:03:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id D164361404;
-        Mon, 31 May 2021 13:37:45 +0000 (UTC)
+        id S233895AbhEaOtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5E7C4613EE;
+        Mon, 31 May 2021 13:56:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468266;
-        bh=hniJiFp2sLbqLGigdh4OnKrH/Op3ooEehqon8f4Ojzo=;
+        s=korg; t=1622469416;
+        bh=A2WEoULKf3UGbZpFCnzA4fcaKOiqPYWyi3rwCwUC4BI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S5hnKOkXKLpKWbi7GU+ZhSHIMdWSUxgoPoK+A4Ecjl36Q4mW5/gHgo1jU237B0vPX
-         61XA5V+2diickvRbGYUm3UWZBzYuo+d3dZDWJSZv0xLDpGRalqopTOwgilgc76AKYO
-         eaOwOaYRJgnZOAzDT0GFc3o+LN9sR5QMYW39x8Hc=
+        b=EVeISOl5gSxo5V5/nDr8sr4SaSwuhTcK6TUUPuobaU5EDTIEZ3q50kPoRZKhHN6uw
+         WXHax6u5iCa9tVHAiQaxGYRbV9M5WSAFsUgCJPLXbybHq0upe3jj1Fz1CPsCQ5TUM7
+         UVaOuxRwe69nK4FaLBE7PBn2/Rmo7Zua80pNm/+U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Teava Radu <rateava@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 179/252] platform/x86: touchscreen_dmi: Add info for the Mediacom Winpad 7.0 W700 tablet
+Subject: [PATCH 5.12 189/296] ASoC: cs43130: handle errors in cs43130_probe() properly
 Date:   Mon, 31 May 2021 15:14:04 +0200
-Message-Id: <20210531130704.098872356@linuxfoundation.org>
+Message-Id: <20210531130710.222986403@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,41 +39,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Teava Radu <rateava@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 39a6172ea88b3117353ae16cbb0a53cd80a9340a ]
+[ Upstream commit 2da441a6491d93eff8ffff523837fd621dc80389 ]
 
-Add touchscreen info for the Mediacom Winpad 7.0 W700 tablet.
-Tested on 5.11 hirsute.
-Note: it's hw clone to Wintron surftab 7.
+cs43130_probe() does not do any valid error checking of things it
+initializes, OR what it does, it does not unwind properly if there are
+errors.
 
-Signed-off-by: Teava Radu <rateava@gmail.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210504185746.175461-6-hdegoede@redhat.com
+Fix this up by moving the sysfs files to an attribute group so the
+driver core will correctly add/remove them all at once and handle errors
+with them, and correctly check for creating a new workqueue and
+unwinding if that fails.
+
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-58-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ sound/soc/codecs/cs43130.c | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index c4de932302d6..e1455f1d2472 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -1043,6 +1043,14 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BIOS_VERSION, "jumperx.T87.KFBNEEA"),
- 		},
- 	},
-+	{
-+		/* Mediacom WinPad 7.0 W700 (same hw as Wintron surftab 7") */
-+		.driver_data = (void *)&trekstor_surftab_wintron70_data,
-+		.matches = {
-+			DMI_MATCH(DMI_SYS_VENDOR, "MEDIACOM"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "WinPad 7 W10 - WPW700"),
-+		},
-+	},
- 	{
- 		/* Mediacom Flexbook Edge 11 (same hw as TS Primebook C11) */
- 		.driver_data = (void *)&trekstor_primebook_c11_data,
+diff --git a/sound/soc/codecs/cs43130.c b/sound/soc/codecs/cs43130.c
+index c2b6f0ae6d57..80cd3ea0c157 100644
+--- a/sound/soc/codecs/cs43130.c
++++ b/sound/soc/codecs/cs43130.c
+@@ -1735,6 +1735,14 @@ static DEVICE_ATTR(hpload_dc_r, 0444, cs43130_show_dc_r, NULL);
+ static DEVICE_ATTR(hpload_ac_l, 0444, cs43130_show_ac_l, NULL);
+ static DEVICE_ATTR(hpload_ac_r, 0444, cs43130_show_ac_r, NULL);
+ 
++static struct attribute *hpload_attrs[] = {
++	&dev_attr_hpload_dc_l.attr,
++	&dev_attr_hpload_dc_r.attr,
++	&dev_attr_hpload_ac_l.attr,
++	&dev_attr_hpload_ac_r.attr,
++};
++ATTRIBUTE_GROUPS(hpload);
++
+ static struct reg_sequence hp_en_cal_seq[] = {
+ 	{CS43130_INT_MASK_4, CS43130_INT_MASK_ALL},
+ 	{CS43130_HP_MEAS_LOAD_1, 0},
+@@ -2302,23 +2310,15 @@ static int cs43130_probe(struct snd_soc_component *component)
+ 
+ 	cs43130->hpload_done = false;
+ 	if (cs43130->dc_meas) {
+-		ret = device_create_file(component->dev, &dev_attr_hpload_dc_l);
+-		if (ret < 0)
+-			return ret;
+-
+-		ret = device_create_file(component->dev, &dev_attr_hpload_dc_r);
+-		if (ret < 0)
+-			return ret;
+-
+-		ret = device_create_file(component->dev, &dev_attr_hpload_ac_l);
+-		if (ret < 0)
+-			return ret;
+-
+-		ret = device_create_file(component->dev, &dev_attr_hpload_ac_r);
+-		if (ret < 0)
++		ret = sysfs_create_groups(&component->dev->kobj, hpload_groups);
++		if (ret)
+ 			return ret;
+ 
+ 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
++		if (!cs43130->wq) {
++			sysfs_remove_groups(&component->dev->kobj, hpload_groups);
++			return -ENOMEM;
++		}
+ 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
+ 	}
+ 
 -- 
 2.30.2
 
