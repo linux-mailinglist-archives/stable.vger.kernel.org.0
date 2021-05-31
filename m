@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA0CE39615B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0729B395DF0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:50:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbhEaOkF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32786 "EHLO mail.kernel.org"
+        id S230323AbhEaNwD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:52:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233060AbhEaOhT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:37:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2F12D616E8;
-        Mon, 31 May 2021 13:51:25 +0000 (UTC)
+        id S233130AbhEaNuA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:50:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B6A2613C8;
+        Mon, 31 May 2021 13:31:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469086;
-        bh=HEc68bgK13no4zXPtk4WED1UrAbOth3Jpk/lUOjy+XQ=;
+        s=korg; t=1622467914;
+        bh=dDO8IvkNPOq4l1134DqE7t1K1s+XGFot/hxwoHQv+W4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X0lTAwesIjQqpl84vrCx7xymqO/ogyNMJEHEeGATLOq8TjrN6Ody5BWNPVZ2ie1WH
-         4zzidySYGADWLH3Aj79km4UGrb10t//yZqWd75mFFT3BHbrBZ43bs5Nc2pG1CseU0g
-         X7QTH5+CyGWV5LbNpMJAtKg0kIwJrVokgW2K/5Ls=
+        b=BJ4rNZ0/4sutzQRLdxjeCu5f4Yi9VOvpJQYQ/pcGD06iVqIttFhEmxFwuzxfuKR9N
+         xfmOrLbHMqQP9r83GsMRd8HMi0t8UheHygMt5SLHH0QJ9rgeaMCW/oz5KNzBSdyPc3
+         2qjCHZmUlU/XJI0ZnfzTNmzArKfd40Qf8MzU/dR4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kevin Wang <kevin1.wang@amd.com>,
-        Likun Gao <Likun.Gao@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.12 057/296] drm/amdkfd: correct sienna_cichlid SDMA RLC register offset error
-Date:   Mon, 31 May 2021 15:11:52 +0200
-Message-Id: <20210531130705.746967937@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Ellerman <mpe@ellerman.id.au>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/252] selftests/gpio: Move include of lib.mk up
+Date:   Mon, 31 May 2021 15:11:53 +0200
+Message-Id: <20210531130659.617139127@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,59 +40,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Wang <kevin1.wang@amd.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit ba515a5821dc0d101ded0379b14b1d1471ebfaba upstream.
+[ Upstream commit 449539da2e237336bc750b41f1736a77f9aca25c ]
 
-1.correct KFD SDMA RLC queue register offset error.
-(all sdma rlc register offset is base on SDMA0.RLC0_RLC0_RB_CNTL)
-2.HQD_N_REGS (19+6+7+12)
-  12: the 2 more resgisters than navi1x (SDMAx_RLCy_MIDCMD_DATA{9,10})
+Move the include of lib.mk up so that in a subsequent patch we can use
+OUTPUT, which is initialised by lib.mk, in the definition of the GPIO
+variables.
 
-the patch also can be fixed NULL pointer issue when read
-/sys/kernel/debug/kfd/hqds on sienna_cichlid chip.
-
-Signed-off-by: Kevin Wang <kevin1.wang@amd.com>
-Reviewed-by: Likun Gao <Likun.Gao@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ tools/testing/selftests/gpio/Makefile | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gfx_v10_3.c
-@@ -156,16 +156,16 @@ static uint32_t get_sdma_rlc_reg_offset(
- 				mmSDMA0_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
- 		break;
- 	case 1:
--		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA1, 0,
-+		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
- 				mmSDMA1_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
- 		break;
- 	case 2:
--		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA2, 0,
--				mmSDMA2_RLC0_RB_CNTL) - mmSDMA2_RLC0_RB_CNTL;
-+		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
-+				mmSDMA2_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
- 		break;
- 	case 3:
--		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA3, 0,
--				mmSDMA3_RLC0_RB_CNTL) - mmSDMA2_RLC0_RB_CNTL;
-+		sdma_engine_reg_base = SOC15_REG_OFFSET(SDMA0, 0,
-+				mmSDMA3_RLC0_RB_CNTL) - mmSDMA0_RLC0_RB_CNTL;
- 		break;
- 	}
+diff --git a/tools/testing/selftests/gpio/Makefile b/tools/testing/selftests/gpio/Makefile
+index c85fb5acf5f4..615c8a953ade 100644
+--- a/tools/testing/selftests/gpio/Makefile
++++ b/tools/testing/selftests/gpio/Makefile
+@@ -13,6 +13,9 @@ TEST_PROGS := gpio-mockup.sh
+ TEST_FILES := gpio-mockup-sysfs.sh
+ TEST_GEN_PROGS_EXTENDED := gpio-mockup-chardev
  
-@@ -450,7 +450,7 @@ static int hqd_sdma_dump_v10_3(struct kg
- 			engine_id, queue_id);
- 	uint32_t i = 0, reg;
- #undef HQD_N_REGS
--#define HQD_N_REGS (19+6+7+10)
-+#define HQD_N_REGS (19+6+7+12)
++KSFT_KHDR_INSTALL := 1
++include ../lib.mk
++
+ GPIODIR := $(realpath ../../../gpio)
+ GPIOOBJ := gpio-utils.o
  
- 	*dump = kmalloc(HQD_N_REGS*2*sizeof(uint32_t), GFP_KERNEL);
- 	if (*dump == NULL)
+@@ -21,9 +24,6 @@ override define CLEAN
+ 	$(MAKE) -C $(GPIODIR) OUTPUT=$(GPIODIR)/ clean
+ endef
+ 
+-KSFT_KHDR_INSTALL := 1
+-include ../lib.mk
+-
+ $(TEST_GEN_PROGS_EXTENDED): $(GPIODIR)/$(GPIOOBJ)
+ 
+ $(GPIODIR)/$(GPIOOBJ):
+-- 
+2.30.2
+
 
 
