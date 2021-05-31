@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1341F395B96
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:20:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F32AE395EBB
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231714AbhEaNWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:22:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54382 "EHLO mail.kernel.org"
+        id S231929AbhEaOCy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:02:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36394 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232144AbhEaNUT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:20:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id BB10E61375;
-        Mon, 31 May 2021 13:18:33 +0000 (UTC)
+        id S232220AbhEaOAv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:00:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88E7A610A1;
+        Mon, 31 May 2021 13:36:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467114;
-        bh=W8qLB1IxyBrH6Z8d5bzb0KjvzyD5cfI5yUv0UxgfFQU=;
+        s=korg; t=1622468193;
+        bh=CYQKF+DdtAEsj/IX896Zmy3CtQSrgoPkEKKP8PgHfr0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyIE6SRy1oOoXvEjkWzMIhe9gbqhzYjrJI1V61pDv8nlpU7mJ6Dns7b/lmKvtFnMN
-         NupznTUYV5E74kd56N84IRnj7/tX3hg9KijmsmcU8Vx33TO44qAQZccU1osQDKKtnD
-         kKOABGdHNHXKHEBFcOgrWmOuXqD/nuFyw5UlAjdk=
+        b=DSYJHdyAfR2ES1lFQC17Gq6y0VAt3M6I7hDQvDYdQJDnuLMz2aRVl+bOmp5UxwENx
+         M/vBCLjtOkAbFPG7yhpLtkEeE3ww0PGx8ooJLwJc2zFdfenwdcSTWqyYw3srC7ienr
+         vLk+NpjF8v9jSCFx/hO9qMKulp6RTZVpcYB3q+Ls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Finn Behrens <me@kloenk.de>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Nicolas Schier <nicolas@fjasle.eu>
-Subject: [PATCH 4.9 02/66] tweewide: Fix most Shebang lines
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Kalle Valo <kvalo@codeaurora.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 150/252] Revert "ath6kl: return error code in ath6kl_wmi_set_roam_lrssi_cmd()"
 Date:   Mon, 31 May 2021 15:13:35 +0200
-Message-Id: <20210531130636.341656226@linuxfoundation.org>
+Message-Id: <20210531130703.105239043@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,264 +40,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Finn Behrens <me@kloenk.de>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit c25ce589dca10d64dde139ae093abc258a32869c upstream.
+[ Upstream commit efba106f89fc6848726716c101f4c84e88720a9c ]
 
-Change every shebang which does not need an argument to use /usr/bin/env.
-This is needed as not every distro has everything under /usr/bin,
-sometimes not even bash.
+This reverts commit fc6a6521556c8250e356ddc6a3f2391aa62dc976.
 
-Signed-off-by: Finn Behrens <me@kloenk.de>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-[nicolas@fjasle.eu: update contexts for v4.9, adapt for old scripts]
-Signed-off-by: Nicolas Schier <nicolas@fjasle.eu>
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
+
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The change being reverted does NOTHING as the caller to this function
+does not even look at the return value of the call.  So the "claim" that
+this fixed an an issue is not true.  It will be fixed up properly in a
+future patch by propagating the error up the stack correctly.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-43-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/sphinx/parse-headers.pl                          |    2 +-
- Documentation/target/tcm_mod_builder.py                        |    2 +-
- Documentation/trace/postprocess/decode_msr.py                  |    2 +-
- Documentation/trace/postprocess/trace-pagealloc-postprocess.pl |    2 +-
- Documentation/trace/postprocess/trace-vmscan-postprocess.pl    |    2 +-
- arch/ia64/scripts/unwcheck.py                                  |    2 +-
- scripts/analyze_suspend.py                                     |    2 +-
- scripts/bloat-o-meter                                          |    2 +-
- scripts/bootgraph.pl                                           |    2 +-
- scripts/checkincludes.pl                                       |    2 +-
- scripts/checkstack.pl                                          |    2 +-
- scripts/config                                                 |    2 +-
- scripts/diffconfig                                             |    2 +-
- scripts/dtc/dt_to_config                                       |    2 +-
- scripts/extract_xc3028.pl                                      |    2 +-
- scripts/get_dvb_firmware                                       |    2 +-
- scripts/markup_oops.pl                                         |    2 +-
- scripts/profile2linkerlist.pl                                  |    2 +-
- scripts/show_delta                                             |    2 +-
- scripts/stackdelta                                             |    2 +-
- scripts/tracing/draw_functrace.py                              |    2 +-
- tools/kvm/kvm_stat/kvm_stat                                    |    2 +-
- tools/perf/python/tracepoint.py                                |    2 +-
- tools/perf/python/twatch.py                                    |    2 +-
- tools/perf/scripts/python/sched-migration.py                   |    2 +-
- tools/perf/util/setup.py                                       |    2 +-
- tools/testing/ktest/compare-ktest-sample.pl                    |    2 +-
- 27 files changed, 27 insertions(+), 27 deletions(-)
+ drivers/net/wireless/ath/ath6kl/wmi.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/Documentation/sphinx/parse-headers.pl
-+++ b/Documentation/sphinx/parse-headers.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- use strict;
- use Text::Tabs;
+diff --git a/drivers/net/wireless/ath/ath6kl/wmi.c b/drivers/net/wireless/ath/ath6kl/wmi.c
+index dbc47702a268..99be0d20f9a5 100644
+--- a/drivers/net/wireless/ath/ath6kl/wmi.c
++++ b/drivers/net/wireless/ath/ath6kl/wmi.c
+@@ -776,8 +776,10 @@ int ath6kl_wmi_set_roam_lrssi_cmd(struct wmi *wmi, u8 lrssi)
+ 	cmd->info.params.roam_rssi_floor = DEF_LRSSI_ROAM_FLOOR;
+ 	cmd->roam_ctrl = WMI_SET_LRSSI_SCAN_PARAMS;
  
---- a/Documentation/target/tcm_mod_builder.py
-+++ b/Documentation/target/tcm_mod_builder.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- # The TCM v4 multi-protocol fabric module generation script for drivers/target/$NEW_MOD
- #
- # Copyright (c) 2010 Rising Tide Systems
---- a/Documentation/trace/postprocess/decode_msr.py
-+++ b/Documentation/trace/postprocess/decode_msr.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- # add symbolic names to read_msr / write_msr in trace
- # decode_msr msr-index.h < trace
- import sys
---- a/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
-+++ b/Documentation/trace/postprocess/trace-pagealloc-postprocess.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- # This is a POC (proof of concept or piece of crap, take your pick) for reading the
- # text representation of trace output related to page allocation. It makes an attempt
- # to extract some high-level information on what is going on. The accuracy of the parser
---- a/Documentation/trace/postprocess/trace-vmscan-postprocess.pl
-+++ b/Documentation/trace/postprocess/trace-vmscan-postprocess.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- # This is a POC for reading the text representation of trace output related to
- # page reclaim. It makes an attempt to extract some high-level information on
- # what is going on. The accuracy of the parser may vary
---- a/arch/ia64/scripts/unwcheck.py
-+++ b/arch/ia64/scripts/unwcheck.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # Usage: unwcheck.py FILE
- #
---- a/scripts/analyze_suspend.py
-+++ b/scripts/analyze_suspend.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # Tool for analyzing suspend/resume timing
- # Copyright (c) 2013, Intel Corporation.
---- a/scripts/bloat-o-meter
-+++ b/scripts/bloat-o-meter
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # Copyright 2004 Matt Mackall <mpm@selenic.com>
- #
---- a/scripts/bootgraph.pl
-+++ b/scripts/bootgraph.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
+-	return ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
++	ath6kl_wmi_cmd_send(wmi, 0, skb, WMI_SET_ROAM_CTRL_CMDID,
+ 			    NO_SYNC_WMIFLAG);
++
++	return 0;
+ }
  
- # Copyright 2008, Intel Corporation
- #
---- a/scripts/checkincludes.pl
-+++ b/scripts/checkincludes.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- #
- # checkincludes: find/remove files included more than once
- #
---- a/scripts/checkstack.pl
-+++ b/scripts/checkstack.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- #	Check the stack usage of functions
- #
---- a/scripts/config
-+++ b/scripts/config
-@@ -1,4 +1,4 @@
--#!/bin/bash
-+#!/usr/bin/env bash
- # Manipulate options in a .config file from the command line
- 
- myname=${0##*/}
---- a/scripts/diffconfig
-+++ b/scripts/diffconfig
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # diffconfig - a tool to compare .config files.
- #
---- a/scripts/dtc/dt_to_config
-+++ b/scripts/dtc/dt_to_config
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- # Copyright 2016 by Frank Rowand
- # Copyright 2016 by Gaurav Minocha
---- a/scripts/extract_xc3028.pl
-+++ b/scripts/extract_xc3028.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- # Copyright (c) Mauro Carvalho Chehab <mchehab@infradead.org>
- # Released under GPLv2
---- a/scripts/get_dvb_firmware
-+++ b/scripts/get_dvb_firmware
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- #     DVB firmware extractor
- #
- #     (c) 2004 Andrew de Quincey
---- a/scripts/markup_oops.pl
-+++ b/scripts/markup_oops.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- use File::Basename;
- use Math::BigInt;
---- a/scripts/profile2linkerlist.pl
-+++ b/scripts/profile2linkerlist.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- #
- # Takes a (sorted) output of readprofile and turns it into a list suitable for
---- a/scripts/show_delta
-+++ b/scripts/show_delta
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # show_deltas: Read list of printk messages instrumented with
- # time data, and format with time deltas.
---- a/scripts/stackdelta
-+++ b/scripts/stackdelta
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- # Read two files produced by the stackusage script, and show the
- # delta between them.
---- a/scripts/tracing/draw_functrace.py
-+++ b/scripts/tracing/draw_functrace.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- 
- """
- Copyright 2008 (c) Frederic Weisbecker <fweisbec@gmail.com>
---- a/tools/kvm/kvm_stat/kvm_stat
-+++ b/tools/kvm/kvm_stat/kvm_stat
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # top-like utility for displaying kvm statistics
- #
---- a/tools/perf/python/tracepoint.py
-+++ b/tools/perf/python/tracepoint.py
-@@ -1,4 +1,4 @@
--#! /usr/bin/python
-+#! /usr/bin/env python
- # -*- python -*-
- # -*- coding: utf-8 -*-
- 
---- a/tools/perf/python/twatch.py
-+++ b/tools/perf/python/twatch.py
-@@ -1,4 +1,4 @@
--#! /usr/bin/python
-+#! /usr/bin/env python
- # -*- python -*-
- # -*- coding: utf-8 -*-
- #   twatch - Experimental use of the perf python interface
---- a/tools/perf/scripts/python/sched-migration.py
-+++ b/tools/perf/scripts/python/sched-migration.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python
-+#!/usr/bin/env python
- #
- # Cpu task migration overview toy
- #
---- a/tools/perf/util/setup.py
-+++ b/tools/perf/util/setup.py
-@@ -1,4 +1,4 @@
--#!/usr/bin/python2
-+#!/usr/bin/env python2
- 
- from distutils.core import setup, Extension
- from os import getenv
---- a/tools/testing/ktest/compare-ktest-sample.pl
-+++ b/tools/testing/ktest/compare-ktest-sample.pl
-@@ -1,4 +1,4 @@
--#!/usr/bin/perl
-+#!/usr/bin/env perl
- 
- open (IN,"ktest.pl");
- while (<IN>) {
+ int ath6kl_wmi_force_roam_cmd(struct wmi *wmi, const u8 *bssid)
+-- 
+2.30.2
+
 
 
