@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 559A139619B
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:42:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C2E9395E72
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:57:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233657AbhEaOnt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:43:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
+        id S231485AbhEaN6w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:58:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232361AbhEaOli (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:41:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C8946191A;
-        Mon, 31 May 2021 13:53:52 +0000 (UTC)
+        id S232732AbhEaN4u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:56:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9CD87613F3;
+        Mon, 31 May 2021 13:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469232;
-        bh=RLc5HdfSuRXEJT6fKHrR0akzAXP6BjMfCmZNsOjN9DE=;
+        s=korg; t=1622468087;
+        bh=d5hGgpFXl/WfnpQuNaib7PPQjw6cDvtuUJzj/dDkc3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l9pK5HgzF+fru0hL9cXkiY29f3gc5qZjalbz5w2e0ESJ+UJ+spBpW49HrTfjQbiJH
-         nvhu3uSaZwRvZaNdwLs7AFfTaUsN3Be+HolOda8RmAk+h0tbfFFaE1buFUUr2rrqSC
-         aOhhpW0879iMCQuSrmzV2GGNtx/wqcBYhQ/4wZjY=
+        b=Y2jY3V41q6TGQHc/RyUHVshVt1yXjSx+BmLNFr0lpXhe1lSk5Z+8j0ZG8gChzK1Ti
+         thATdknMEgAEg7TqlTzLcwPWMJQ7aJVSobeyrEtZOYEb1PQhwVlRzVBrL1cmmmLUkL
+         92eLxPjzKQgx3Z4ExAEFtLf8zq3CRGXJFPCtbjbg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.12 119/296] net/mlx5e: Fix multipath lag activation
-Date:   Mon, 31 May 2021 15:12:54 +0200
-Message-Id: <20210531130707.916635764@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Vladimir Oltean <olteanv@gmail.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.10 110/252] spi: spi-fsl-dspi: Fix a resource leak in an error handling path
+Date:   Mon, 31 May 2021 15:12:55 +0200
+Message-Id: <20210531130701.717075542@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +41,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dima Chumak <dchumak@nvidia.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-commit 97817fcc684ed01497bd19d0cd4dea699665b9cf upstream.
+commit 680ec0549a055eb464dce6ffb4bfb736ef87236e upstream.
 
-When handling FIB_EVENT_ENTRY_REPLACE event for a new multipath route,
-lag activation can be missed if a stale (struct lag_mp)->mfi pointer
-exists, which was associated with an older multipath route that had been
-removed.
+'dspi_request_dma()' should be undone by a 'dspi_release_dma()' call in the
+error handling path of the probe function, as already done in the remove
+function
 
-Normally, when a route is removed, it triggers mlx5_lag_fib_event(),
-which handles FIB_EVENT_ENTRY_DEL and clears mfi pointer. But, if
-mlx5_lag_check_prereq() condition isn't met, for example when eswitch is
-in legacy mode, the fib event is skipped and mfi pointer becomes stale.
-
-Fix by resetting mfi pointer to NULL every time mlx5_lag_mp_init() is
-called.
-
-Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 90ba37033cb9 ("spi: spi-fsl-dspi: Add DMA support for Vybrid")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/d51caaac747277a1099ba8dea07acd85435b857e.1620587472.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/spi/spi-fsl-dspi.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-@@ -307,6 +307,11 @@ int mlx5_lag_mp_init(struct mlx5_lag *ld
- 	struct lag_mp *mp = &ldev->lag_mp;
- 	int err;
+--- a/drivers/spi/spi-fsl-dspi.c
++++ b/drivers/spi/spi-fsl-dspi.c
+@@ -1375,11 +1375,13 @@ poll_mode:
+ 	ret = spi_register_controller(ctlr);
+ 	if (ret != 0) {
+ 		dev_err(&pdev->dev, "Problem registering DSPI ctlr\n");
+-		goto out_free_irq;
++		goto out_release_dma;
+ 	}
  
-+	/* always clear mfi, as it might become stale when a route delete event
-+	 * has been missed
-+	 */
-+	mp->mfi = NULL;
-+
- 	if (mp->fib_nb.notifier_call)
- 		return 0;
+ 	return ret;
  
-@@ -335,4 +340,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag
- 	unregister_fib_notifier(&init_net, &mp->fib_nb);
- 	destroy_workqueue(mp->wq);
- 	mp->fib_nb.notifier_call = NULL;
-+	mp->mfi = NULL;
- }
++out_release_dma:
++	dspi_release_dma(dspi);
+ out_free_irq:
+ 	if (dspi->irq)
+ 		free_irq(dspi->irq, dspi);
 
 
