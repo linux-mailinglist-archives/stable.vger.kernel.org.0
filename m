@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E0EF395F89
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:10:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 71DAE39628C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:56:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbhEaOMa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:12:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39886 "EHLO mail.kernel.org"
+        id S234222AbhEaO5q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:57:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48408 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232920AbhEaOKb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:10:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5F6161982;
-        Mon, 31 May 2021 13:40:42 +0000 (UTC)
+        id S232364AbhEaOzg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:55:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64C3261935;
+        Mon, 31 May 2021 13:59:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468443;
-        bh=WNWi9ETWNpjH0SogOcI22UVQ+IWwA1oLOtN8+tlbYRY=;
+        s=korg; t=1622469587;
+        bh=I3MFQZEYwlfs0WAgyazAsru7RkY9wmdUF6WGBdOVvN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IJjuQvsa/JVmNHC7YlUMgWNrB7HLFjFhqbcKQQKklgelFbXHUQsu40lfkeWYHoji3
-         jra+2FIo42+HFMR9WI3HpeJqc8W6zsWEtbUu9S+5so2OXgF4hGOvHJlFIYW2O7O3qY
-         2mS0l23OZNk4WDPRaxc6T+YxIIOvWiCiTTFtJexs=
+        b=FWiVZySAWZLjIVSYVXDtTkDP36zCS49dMNPQZfoZ6WPAPDoHcnxuDMNAVtQlfGWvZ
+         XMa4wkTzTXpZGuOHrQPZ0sr0BpSC57K1GNUC9teYJpHE59Cab/eH6gM6V1VNXDgddY
+         5Qn7IzChjdAPGfuzCQVDgYFJgIWkIzi1ZL6iGQwQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Yunsheng Lin <linyunsheng@huawei.com>,
-        Huazhong Tan <tanhuazhong@huawei.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 245/252] net: hns3: check the return of skb_checksum_help()
-Date:   Mon, 31 May 2021 15:15:10 +0200
-Message-Id: <20210531130706.333682445@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Jean-Philippe Brucker <jean-philippe@linaro.org>,
+        Joerg Roedel <jroedel@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 256/296] iommu/amd: Clear DMA ops when switching domain
+Date:   Mon, 31 May 2021 15:15:11 +0200
+Message-Id: <20210531130712.363990117@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,64 +40,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yunsheng Lin <linyunsheng@huawei.com>
+From: Jean-Philippe Brucker <jean-philippe@linaro.org>
 
-commit 9bb5a495424fd4bfa672eb1f31481248562fa156 upstream.
+[ Upstream commit d6177a6556f853785867e2ec6d5b7f4906f0d809 ]
 
-Currently skb_checksum_help()'s return is ignored, but it may
-return error when it fails to allocate memory when linearizing.
+Since commit 08a27c1c3ecf ("iommu: Add support to change default domain
+of an iommu group") a user can switch a device between IOMMU and direct
+DMA through sysfs. This doesn't work for AMD IOMMU at the moment because
+dev->dma_ops is not cleared when switching from a DMA to an identity
+IOMMU domain. The DMA layer thus attempts to use the dma-iommu ops on an
+identity domain, causing an oops:
 
-So adds checking for the return of skb_checksum_help().
+  # echo 0000:00:05.0 > /sys/sys/bus/pci/drivers/e1000e/unbind
+  # echo identity > /sys/bus/pci/devices/0000:00:05.0/iommu_group/type
+  # echo 0000:00:05.0 > /sys/sys/bus/pci/drivers/e1000e/bind
+   ...
+  BUG: kernel NULL pointer dereference, address: 0000000000000028
+   ...
+   Call Trace:
+    iommu_dma_alloc
+    e1000e_setup_tx_resources
+    e1000e_open
 
-Fixes: 76ad4f0ee747("net: hns3: Add support of HNS3 Ethernet Driver for hip08 SoC")
-Fixes: 3db084d28dc0("net: hns3: Fix for vxlan tx checksum bug")
-Signed-off-by: Yunsheng Lin <linyunsheng@huawei.com>
-Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Since iommu_change_dev_def_domain() calls probe_finalize() again, clear
+the dma_ops there like Vt-d does.
+
+Fixes: 08a27c1c3ecf ("iommu: Add support to change default domain of an iommu group")
+Signed-off-by: Jean-Philippe Brucker <jean-philippe@linaro.org>
+Link: https://lore.kernel.org/r/20210422094216.2282097-1-jean-philippe@linaro.org
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c |   10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+ drivers/iommu/amd/iommu.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -792,8 +792,6 @@ static bool hns3_tunnel_csum_bug(struct
- 	      l4.udp->dest == htons(4790))))
- 		return false;
- 
--	skb_checksum_help(skb);
--
- 	return true;
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index a69a8b573e40..7de7a260706b 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1747,6 +1747,8 @@ static void amd_iommu_probe_finalize(struct device *dev)
+ 	domain = iommu_get_domain_for_dev(dev);
+ 	if (domain->type == IOMMU_DOMAIN_DMA)
+ 		iommu_setup_dma_ops(dev, IOVA_START_PFN << PAGE_SHIFT, 0);
++	else
++		set_dma_ops(dev, NULL);
  }
  
-@@ -871,8 +869,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 			/* the stack computes the IP header already,
- 			 * driver calculate l4 checksum when not TSO.
- 			 */
--			skb_checksum_help(skb);
--			return 0;
-+			return skb_checksum_help(skb);
- 		}
- 
- 		hns3_set_outer_l2l3l4(skb, ol4_proto, ol_type_vlan_len_msec);
-@@ -917,7 +914,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 		break;
- 	case IPPROTO_UDP:
- 		if (hns3_tunnel_csum_bug(skb))
--			break;
-+			return skb_checksum_help(skb);
- 
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4CS_B, 1);
- 		hns3_set_field(*type_cs_vlan_tso, HNS3_TXD_L4T_S,
-@@ -942,8 +939,7 @@ static int hns3_set_l2l3l4(struct sk_buf
- 		/* the stack computes the IP header already,
- 		 * driver calculate l4 checksum when not TSO.
- 		 */
--		skb_checksum_help(skb);
--		return 0;
-+		return skb_checksum_help(skb);
- 	}
- 
- 	return 0;
+ static void amd_iommu_release_device(struct device *dev)
+-- 
+2.30.2
+
 
 
