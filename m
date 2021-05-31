@@ -2,35 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C360395C97
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:34:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C5A03961E4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232672AbhEaNfX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:35:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40248 "EHLO mail.kernel.org"
+        id S233619AbhEaOrl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39882 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232141AbhEaNcd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:32:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6726061374;
-        Mon, 31 May 2021 13:24:05 +0000 (UTC)
+        id S232057AbhEaOpj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 31E2061C7C;
+        Mon, 31 May 2021 13:55:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467446;
-        bh=Mk4o9uFlCsJBUKxFvG8cLh23CumCW1e+sTx+Z8/w7iQ=;
+        s=korg; t=1622469325;
+        bh=I5a+M1mq2tbIyq1O9E0WWCz4d2J/neNykuabz8sEmh4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zflqik+zESAOJrVeT05UBfXxCpT+wunEXw3iVgxYePBshzgQjpNmwB8CYAwSw8NgX
-         a56xK/Z6D17DnG/Qkv0lJRtzlkNBIZBLVOYwzPLfwBUsdMVayOFn5zJJ+iV1Po1feX
-         DHxuzEBOKqOr9jBzWZXFhZuILCbRvaVxuXNd/hwE=
+        b=WT+0Y5iHZLWx1NzRd+AFGoaZbN45Z6kyKSgmR+I6WF4LBreDysVBytwxC57+t4OKu
+         9je27jvalKchi7we0g4qW2MqJDHRKLQKPF9l2fPIvgf3Vo6+Bh0BGp0FnaNVwbFABz
+         IwWV8qhOJqnbiE7pdY0A2IvNUnzdtBxQMOkypdxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean MacLennan <seanm@seanm.ca>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 033/116] USB: serial: ti_usb_3410_5052: add startech.com device id
-Date:   Mon, 31 May 2021 15:13:29 +0200
-Message-Id: <20210531130641.288062762@linuxfoundation.org>
+        stable@vger.kernel.org, Felix Fietkau <nbd@nbd.name>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Andi Kleen <ak@linux.intel.com>, Jiri Olsa <jolsa@redhat.com>,
+        Mark Rutland <mark.rutland@arm.com>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>
+Subject: [PATCH 5.12 155/296] perf jevents: Fix getting maximum number of fds
+Date:   Mon, 31 May 2021 15:13:30 +0200
+Message-Id: <20210531130709.076907449@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,47 +45,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean MacLennan <seanm@seanm.ca>
+From: Felix Fietkau <nbd@nbd.name>
 
-commit 89b1a3d811e6f8065d6ae8a25e7682329b4a31e2 upstream.
+commit 75ea44e356b5de8c817f821c9dd68ae329e82add upstream.
 
-This adds support for the Startech.com generic serial to USB converter.
-It seems to be a bone stock TI_3410. I have been using this patch for
-years.
+On some hosts, rlim.rlim_max can be returned as RLIM_INFINITY.
+By casting it to int, it is interpreted as -1, which will cause get_maxfds
+to return 0, causing "Invalid argument" errors in nftw() calls.
+Fix this by casting the second argument of min() to rlim_t instead.
 
-Signed-off-by: Sean MacLennan <seanm@seanm.ca>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 80eeb67fe577 ("perf jevents: Program to convert JSON file")
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Sukadev Bhattiprolu <sukadev@linux.vnet.ibm.com>
+Link: http://lore.kernel.org/lkml/20210525160758.97829-1-nbd@nbd.name
+Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/ti_usb_3410_5052.c |    3 +++
- 1 file changed, 3 insertions(+)
+ tools/perf/pmu-events/jevents.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/ti_usb_3410_5052.c
-+++ b/drivers/usb/serial/ti_usb_3410_5052.c
-@@ -37,6 +37,7 @@
- /* Vendor and product ids */
- #define TI_VENDOR_ID			0x0451
- #define IBM_VENDOR_ID			0x04b3
-+#define STARTECH_VENDOR_ID		0x14b0
- #define TI_3410_PRODUCT_ID		0x3410
- #define IBM_4543_PRODUCT_ID		0x4543
- #define IBM_454B_PRODUCT_ID		0x454b
-@@ -374,6 +375,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
+--- a/tools/perf/pmu-events/jevents.c
++++ b/tools/perf/pmu-events/jevents.c
+@@ -958,7 +958,7 @@ static int get_maxfds(void)
+ 	struct rlimit rlim;
  
-@@ -412,6 +414,7 @@ static const struct usb_device_id ti_id_
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1131_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1150_PRODUCT_ID) },
- 	{ USB_DEVICE(MXU1_VENDOR_ID, MXU1_1151_PRODUCT_ID) },
-+	{ USB_DEVICE(STARTECH_VENDOR_ID, TI_3410_PRODUCT_ID) },
- 	{ }	/* terminator */
- };
+ 	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0)
+-		return min((int)rlim.rlim_max / 2, 512);
++		return min(rlim.rlim_max / 2, (rlim_t)512);
  
+ 	return 512;
+ }
 
 
