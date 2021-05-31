@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5B973960BE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AC24395F55
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbhEaObN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:31:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55744 "EHLO mail.kernel.org"
+        id S232680AbhEaOKF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:10:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40580 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233729AbhEaO3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:29:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7754A61621;
-        Mon, 31 May 2021 13:48:01 +0000 (UTC)
+        id S232282AbhEaOIC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:08:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A24D061969;
+        Mon, 31 May 2021 13:39:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468882;
-        bh=++LW60jO3k9mXh6igm2eVWQTWvkp/K+wt3ocYKaL7h4=;
+        s=korg; t=1622468386;
+        bh=qEwVxB+9KP8Lo3sPFcFtCEPaxzHUlgDG/ZzsD58swkA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGzAz0YpD0PGizC+khFFReS1DoFfExmExUQr6zTp7IeO6Qsk8NyU9cOJnxniG5jFv
-         a6pTDa0E2IB7JnwuSAQ0cojd6LmHHv75hbK3OTk+gibqvCHyLxHj5pR6C+/OCgwB0C
-         WRPJAXZYtTs/IsCXcRDlBMbarRbGFCIJS4OWup2w=
+        b=uADlVqSy2r4ylT57gSFv8SgQuLbFIDjPMflMRwq0ZgI0P2h9UfyaKv+sSzokJoKYH
+         V79FYYUUWLfTM+ACx6sQ7DDpXhr0gumAi9QUaqEsBDjkeEjEcpMecWKrCfCgfatrd2
+         yq3FJIQU2GrNued7ly0X2K79VSPRi7HalCA69B7I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Steve French <stfrench@microsoft.com>,
-        Stefan Metzmacher <metze@samba.org>,
-        Shyam Prasad N <sprasad@microsoft.com>,
+        stable@vger.kernel.org, Jiaran Zhang <zhangjiaran@huawei.com>,
+        Huazhong Tan <tanhuazhong@huawei.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 130/177] SMB3: incorrect file id in requests compounded with open
+Subject: [PATCH 5.10 222/252] net: hns3: fix incorrect resp_msg issue
 Date:   Mon, 31 May 2021 15:14:47 +0200
-Message-Id: <20210531130652.425371951@linuxfoundation.org>
+Message-Id: <20210531130705.545137286@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,40 +41,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steve French <stfrench@microsoft.com>
+From: Jiaran Zhang <zhangjiaran@huawei.com>
 
-[ Upstream commit c0d46717b95735b0eacfddbcca9df37a49de9c7a ]
+[ Upstream commit a710b9ffbebaf713f7dbd4dbd9524907e5d66f33 ]
 
-See MS-SMB2 3.2.4.1.4, file ids in compounded requests should be set to
-0xFFFFFFFFFFFFFFFF (we were treating it as u32 not u64 and setting
-it incorrectly).
+In hclge_mbx_handler(), if there are two consecutive mailbox
+messages that requires resp_msg, the resp_msg is not cleared
+after processing the first message, which will cause the resp_msg
+data of second message incorrect.
 
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Reported-by: Stefan Metzmacher <metze@samba.org>
-Reviewed-by: Shyam Prasad N <sprasad@microsoft.com>
+Fix it by clearing the resp_msg before processing every mailbox
+message.
+
+Fixes: bb5790b71bad ("net: hns3: refactor mailbox response scheme between PF and VF")
+Signed-off-by: Jiaran Zhang <zhangjiaran@huawei.com>
+Signed-off-by: Huazhong Tan <tanhuazhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
-index c02983ebd763..e068f82ffedd 100644
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -3611,10 +3611,10 @@ smb2_new_read_req(void **buf, unsigned int *total_len,
- 			 * Related requests use info from previous read request
- 			 * in chain.
- 			 */
--			shdr->SessionId = 0xFFFFFFFF;
-+			shdr->SessionId = 0xFFFFFFFFFFFFFFFF;
- 			shdr->TreeId = 0xFFFFFFFF;
--			req->PersistentFileId = 0xFFFFFFFF;
--			req->VolatileFileId = 0xFFFFFFFF;
-+			req->PersistentFileId = 0xFFFFFFFFFFFFFFFF;
-+			req->VolatileFileId = 0xFFFFFFFFFFFFFFFF;
- 		}
- 	}
- 	if (remaining_bytes > io_parms->length)
+diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+index e0254672831f..2c2d53f5c56e 100644
+--- a/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
++++ b/drivers/net/ethernet/hisilicon/hns3/hns3pf/hclge_mbx.c
+@@ -678,7 +678,6 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 	unsigned int flag;
+ 	int ret = 0;
+ 
+-	memset(&resp_msg, 0, sizeof(resp_msg));
+ 	/* handle all the mailbox requests in the queue */
+ 	while (!hclge_cmd_crq_empty(&hdev->hw)) {
+ 		if (test_bit(HCLGE_STATE_CMD_DISABLE, &hdev->state)) {
+@@ -706,6 +705,9 @@ void hclge_mbx_handler(struct hclge_dev *hdev)
+ 
+ 		trace_hclge_pf_mbx_get(hdev, req);
+ 
++		/* clear the resp_msg before processing every mailbox message */
++		memset(&resp_msg, 0, sizeof(resp_msg));
++
+ 		switch (req->msg.code) {
+ 		case HCLGE_MBX_MAP_RING_TO_VECTOR:
+ 			ret = hclge_map_unmap_ring_to_vf_vector(vport, true,
 -- 
 2.30.2
 
