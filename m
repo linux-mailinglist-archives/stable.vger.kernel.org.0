@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BCE2F395FE4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:15:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BF8B7395E8D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233351AbhEaORG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:17:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43970 "EHLO mail.kernel.org"
+        id S232203AbhEaOAe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:00:34 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60840 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233717AbhEaOPQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:15:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC3D6199D;
-        Mon, 31 May 2021 13:42:40 +0000 (UTC)
+        id S230339AbhEaN6b (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:58:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7548261440;
+        Mon, 31 May 2021 13:35:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468561;
-        bh=wfHtREpFmlGBcwyHVdlPE0JPPJA1LE83SdAOS4fMfQk=;
+        s=korg; t=1622468135;
+        bh=Pv3bP2PMj6YOQykP7mK1HxW1+69TEd2XZ+M7eh5YLp0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kF1wIseIRrzR5H32eF+OQOqkEwUcYjz+TTo0pqKUbkZ5guDkv7khMI8wfhmvVhiZp
-         XVT3S8jFFP+QQJbw5FkmSca8HvD9wsmyuiRB/wiBjEcTESguCcShwMKOpw1GtG1gkP
-         rIvF0ZztOwF6JlqArjiaRn0Rc4caYmUHF0wYmOj4=
+        b=JiD9VlMh/wMM7ktt2+fhN9M71biNbpS1gAOb3fhy6b/C+qtGpD+0YpEvnE/ZGz3B0
+         rvD253ucD3a2cMivr907xT0VJvBemwb+18q378bsNREsQ5LJ2cE6MWpDlhTwzxgeBM
+         z5lkSt4A2gSwm6CDdPnaZq5/fTCNBLqhnfWaFM0A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Daniel Thompson <daniel.thompson@linaro.org>,
-        Jason Wessel <jason.wessel@windriver.com>
-Subject: [PATCH 5.4 037/177] kgdb: fix gcc-11 warnings harder
-Date:   Mon, 31 May 2021 15:13:14 +0200
-Message-Id: <20210531130649.211361830@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        =?UTF-8?q?=C3=89ric=20Piel?= <eric.piel@trempplin-utc.net>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 130/252] platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+Date:   Mon, 31 May 2021 15:13:15 +0200
+Message-Id: <20210531130702.430082836@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,40 +42,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Kai-Heng Feng <kai.heng.feng@canonical.com>
 
-commit bda7d3ab06f19c02dcef61fefcb9dd954dfd5e4f upstream.
+[ Upstream commit 79d341e26ebcdbc622348aaaab6f8f89b6fdb25f ]
 
-40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation") tried to fix up
-the gcc-11 complaints in this file by just reformatting the #defines.
-That worked for gcc 11.1.0, but in gcc 11.1.1 as shipped by Fedora 34,
-the warning came back for one of the #defines.
+hp_accel can take almost two seconds to resume on some HP laptops.
 
-Fix this up again by putting { } around the if statement, now it is
-quiet again.
+The bottleneck is on evaluating _INI, which is only needed to run once.
 
-Fixes: 40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation")
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Daniel Thompson <daniel.thompson@linaro.org>
-Cc: Jason Wessel <jason.wessel@windriver.com>
-Link: https://lore.kernel.org/r/20210520130839.51987-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Resolve the issue by only invoking _INI when it's necessary. Namely, on
+probe and on hibernation restore.
+
+Signed-off-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+Acked-by: Éric Piel <eric.piel@trempplin-utc.net>
+Link: https://lore.kernel.org/r/20210430060736.590321-1-kai.heng.feng@canonical.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/kgdbts.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/misc/lis3lv02d/lis3lv02d.h |  1 +
+ drivers/platform/x86/hp_accel.c    | 22 +++++++++++++++++++++-
+ 2 files changed, 22 insertions(+), 1 deletion(-)
 
---- a/drivers/misc/kgdbts.c
-+++ b/drivers/misc/kgdbts.c
-@@ -100,8 +100,9 @@
- 		printk(KERN_INFO a);	\
- } while (0)
- #define v2printk(a...) do {		\
--	if (verbose > 1)		\
-+	if (verbose > 1) {		\
- 		printk(KERN_INFO a);	\
-+	}				\
- 	touch_nmi_watchdog();		\
- } while (0)
- #define eprintk(a...) do {		\
+diff --git a/drivers/misc/lis3lv02d/lis3lv02d.h b/drivers/misc/lis3lv02d/lis3lv02d.h
+index c394c0b08519..7ac788fae1b8 100644
+--- a/drivers/misc/lis3lv02d/lis3lv02d.h
++++ b/drivers/misc/lis3lv02d/lis3lv02d.h
+@@ -271,6 +271,7 @@ struct lis3lv02d {
+ 	int			regs_size;
+ 	u8                      *reg_cache;
+ 	bool			regs_stored;
++	bool			init_required;
+ 	u8                      odr_mask;  /* ODR bit mask */
+ 	u8			whoami;    /* indicates measurement precision */
+ 	s16 (*read_data) (struct lis3lv02d *lis3, int reg);
+diff --git a/drivers/platform/x86/hp_accel.c b/drivers/platform/x86/hp_accel.c
+index 799cbe2ffcf3..8c0867bda828 100644
+--- a/drivers/platform/x86/hp_accel.c
++++ b/drivers/platform/x86/hp_accel.c
+@@ -88,6 +88,9 @@ MODULE_DEVICE_TABLE(acpi, lis3lv02d_device_ids);
+ static int lis3lv02d_acpi_init(struct lis3lv02d *lis3)
+ {
+ 	struct acpi_device *dev = lis3->bus_priv;
++	if (!lis3->init_required)
++		return 0;
++
+ 	if (acpi_evaluate_object(dev->handle, METHOD_NAME__INI,
+ 				 NULL, NULL) != AE_OK)
+ 		return -EINVAL;
+@@ -356,6 +359,7 @@ static int lis3lv02d_add(struct acpi_device *device)
+ 	}
+ 
+ 	/* call the core layer do its init */
++	lis3_dev.init_required = true;
+ 	ret = lis3lv02d_init_device(&lis3_dev);
+ 	if (ret)
+ 		return ret;
+@@ -403,11 +407,27 @@ static int lis3lv02d_suspend(struct device *dev)
+ 
+ static int lis3lv02d_resume(struct device *dev)
+ {
++	lis3_dev.init_required = false;
++	lis3lv02d_poweron(&lis3_dev);
++	return 0;
++}
++
++static int lis3lv02d_restore(struct device *dev)
++{
++	lis3_dev.init_required = true;
+ 	lis3lv02d_poweron(&lis3_dev);
+ 	return 0;
+ }
+ 
+-static SIMPLE_DEV_PM_OPS(hp_accel_pm, lis3lv02d_suspend, lis3lv02d_resume);
++static const struct dev_pm_ops hp_accel_pm = {
++	.suspend = lis3lv02d_suspend,
++	.resume = lis3lv02d_resume,
++	.freeze = lis3lv02d_suspend,
++	.thaw = lis3lv02d_resume,
++	.poweroff = lis3lv02d_suspend,
++	.restore = lis3lv02d_restore,
++};
++
+ #define HP_ACCEL_PM (&hp_accel_pm)
+ #else
+ #define HP_ACCEL_PM NULL
+-- 
+2.30.2
+
 
 
