@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55DC7395EDE
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A82F395B48
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:17:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232088AbhEaOFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35734 "EHLO mail.kernel.org"
+        id S231810AbhEaNTD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:19:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54130 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232637AbhEaOCL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:02:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FC9961949;
-        Mon, 31 May 2021 13:37:12 +0000 (UTC)
+        id S231585AbhEaNSj (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:39 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7D5436135D;
+        Mon, 31 May 2021 13:16:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468233;
-        bh=TF/qj6MsyTfCWW6Sy3Xf+5vmaVBmzcfNfgM/oOfTEJY=;
+        s=korg; t=1622467019;
+        bh=XntJUmCQNVkL9KpdkGWTUBrJf5ZXOanf4b/a8zaRpZc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1hVIIPzsDLABg0g/BNQI4zzo8zSjQRDBAtp10rYqTtYHKlVJXmF9KY76Dg60cEVFB
-         BEonFAKTQ0dn+M2Vqs3qRASx27cTN+06CbV1lTFtkXD0wJBSr07e7nuoAkD3GpGF9h
-         CJBdOyDOcv+Z9tetOxHjL4QG4fHEuH/qyP8yjrnk=
+        b=0aafhbO3nWKxJJesJfbWg/LBoxQCqZngW9ZevY9jMSNoNYKzz2+sfgcaJBJy90FWq
+         HKLiJjVK7+SYs7ZJmq2MH+53CRJTdo6UtDGHkx8OL4h2sCNVdB98P8f09pui+KwyK6
+         tzK3K+pu56ZvJUL3Y5fQ1SqxShCho+ZiqK3C8G5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Tom Seewald <tseewald@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 167/252] net: liquidio: Add missing null pointer checks
+        stable@vger.kernel.org, Vladyslav Tarasiuk <vladyslavt@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 26/54] net/mlx4: Fix EEPROM dump support
 Date:   Mon, 31 May 2021 15:13:52 +0200
-Message-Id: <20210531130703.684325664@linuxfoundation.org>
+Message-Id: <20210531130635.908432119@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,235 +40,198 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
 
-[ Upstream commit dbc97bfd3918ed9268bfc174cae8a7d6b3d51aad ]
+commit db825feefc6868896fed5e361787ba3bee2fd906 upstream.
 
-The functions send_rx_ctrl_cmd() in both liquidio/lio_main.c and
-liquidio/lio_vf_main.c do not check if the call to
-octeon_alloc_soft_command() fails and returns a null pointer. Both
-functions also return void so errors are not propagated back to the
-caller.
+Fix SFP and QSFP* EEPROM queries by setting i2c_address, offset and page
+number correctly. For SFP set the following params:
+- I2C address for offsets 0-255 is 0x50. For 256-511 - 0x51.
+- Page number is zero.
+- Offset is 0-255.
 
-Fix these issues by updating both instances of send_rx_ctrl_cmd() to
-return an integer rather than void, and have them return -ENOMEM if an
-allocation failure occurs. Also update all callers of send_rx_ctrl_cmd()
-so that they now check the return value.
+At the same time, QSFP* parameters are different:
+- I2C address is always 0x50.
+- Page number is not limited to zero.
+- Offset is 0-255 for page zero and 128-255 for others.
 
-Cc: David S. Miller <davem@davemloft.net>
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-66-gregkh@linuxfoundation.org
+To set parameters accordingly to cable used, implement function to query
+module ID and implement respective helper functions to set parameters
+correctly.
+
+Fixes: 135dd9594f12 ("net/mlx4_en: ethtool, Remove unsupported SFP EEPROM high pages query")
+Signed-off-by: Vladyslav Tarasiuk <vladyslavt@nvidia.com>
+Signed-off-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/cavium/liquidio/lio_main.c   | 28 +++++++++++++------
- .../ethernet/cavium/liquidio/lio_vf_main.c    | 27 +++++++++++++-----
- 2 files changed, 40 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |    4 
+ drivers/net/ethernet/mellanox/mlx4/port.c       |  107 +++++++++++++++++++++++-
+ 2 files changed, 104 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-index e4c220f30040..e0d18e917108 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
-@@ -1153,7 +1153,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
-  * @lio: per-network private data
-  * @start_stop: whether to start or stop
-  */
--static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
-+static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+--- a/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx4/en_ethtool.c
+@@ -1907,8 +1907,6 @@ static int mlx4_en_set_tunable(struct ne
+ 	return ret;
+ }
+ 
+-#define MLX4_EEPROM_PAGE_LEN 256
+-
+ static int mlx4_en_get_module_info(struct net_device *dev,
+ 				   struct ethtool_modinfo *modinfo)
  {
- 	struct octeon_soft_command *sc;
- 	union octnet_cmd *ncmd;
-@@ -1161,11 +1161,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	int retval;
+@@ -1943,7 +1941,7 @@ static int mlx4_en_get_module_info(struc
+ 		break;
+ 	case MLX4_MODULE_ID_SFP:
+ 		modinfo->type = ETH_MODULE_SFF_8472;
+-		modinfo->eeprom_len = MLX4_EEPROM_PAGE_LEN;
++		modinfo->eeprom_len = ETH_MODULE_SFF_8472_LEN;
+ 		break;
+ 	default:
+ 		return -ENOSYS;
+--- a/drivers/net/ethernet/mellanox/mlx4/port.c
++++ b/drivers/net/ethernet/mellanox/mlx4/port.c
+@@ -1283,6 +1283,7 @@ EXPORT_SYMBOL(mlx4_get_roce_gid_from_sla
+ #define I2C_ADDR_LOW  0x50
+ #define I2C_ADDR_HIGH 0x51
+ #define I2C_PAGE_SIZE 256
++#define I2C_HIGH_PAGE_SIZE 128
  
- 	if (oct->props[lio->ifidx].rx_on == start_stop)
--		return;
-+		return 0;
+ /* Module Info Data */
+ struct mlx4_cable_info {
+@@ -1336,6 +1337,88 @@ static inline const char *cable_info_mad
+ 	return "Unknown Error";
+ }
  
- 	sc = (struct octeon_soft_command *)
- 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
- 					  16, 0);
-+	if (!sc) {
-+		netif_info(lio, rx_err, lio->netdev,
-+			   "Failed to allocate octeon_soft_command struct\n");
-+		return -ENOMEM;
-+	}
- 
- 	ncmd = (union octnet_cmd *)sc->virtdptr;
- 
-@@ -1187,18 +1192,19 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	if (retval == IQ_SEND_FAILED) {
- 		netif_info(lio, rx_err, lio->netdev, "Failed to send RX Control message\n");
- 		octeon_free_soft_command(oct, sc);
--		return;
- 	} else {
- 		/* Sleep on a wait queue till the cond flag indicates that the
- 		 * response arrived or timed-out.
- 		 */
- 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
- 		if (retval)
--			return;
-+			return retval;
- 
- 		oct->props[lio->ifidx].rx_on = start_stop;
- 		WRITE_ONCE(sc->caller_is_done, true);
- 	}
++static int mlx4_get_module_id(struct mlx4_dev *dev, u8 port, u8 *module_id)
++{
++	struct mlx4_cmd_mailbox *inbox, *outbox;
++	struct mlx4_mad_ifc *inmad, *outmad;
++	struct mlx4_cable_info *cable_info;
++	int ret;
 +
-+	return retval;
- }
- 
- /**
-@@ -1773,6 +1779,7 @@ static int liquidio_open(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	if (oct->props[lio->ifidx].napi_enabled == 0) {
- 		tasklet_disable(&oct_priv->droq_tasklet);
-@@ -1808,7 +1815,9 @@ static int liquidio_open(struct net_device *netdev)
- 	netif_info(lio, ifup, lio->netdev, "Interface Open, ready for traffic\n");
- 
- 	/* tell Octeon to start forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 1);
-+	ret = send_rx_ctrl_cmd(lio, 1);
-+	if (ret)
-+		return ret;
- 
- 	/* start periodical statistics fetch */
- 	INIT_DELAYED_WORK(&lio->stats_wk.work, lio_fetch_stats);
-@@ -1819,7 +1828,7 @@ static int liquidio_open(struct net_device *netdev)
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n",
- 		 netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -1833,6 +1842,7 @@ static int liquidio_stop(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	ifstate_reset(lio, LIO_IFSTATE_RUNNING);
- 
-@@ -1849,7 +1859,9 @@ static int liquidio_stop(struct net_device *netdev)
- 	lio->link_changes++;
- 
- 	/* Tell Octeon that nic interface is down. */
--	send_rx_ctrl_cmd(lio, 0);
-+	ret = send_rx_ctrl_cmd(lio, 0);
-+	if (ret)
-+		return ret;
- 
- 	if (OCTEON_CN23XX_PF(oct)) {
- 		if (!oct->msix_on)
-@@ -1884,7 +1896,7 @@ static int liquidio_stop(struct net_device *netdev)
- 
- 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
-diff --git a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-index 103440f97bc8..226a7842d2fd 100644
---- a/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-+++ b/drivers/net/ethernet/cavium/liquidio/lio_vf_main.c
-@@ -595,7 +595,7 @@ static void octeon_destroy_resources(struct octeon_device *oct)
-  * @lio: per-network private data
-  * @start_stop: whether to start or stop
-  */
--static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
-+static int send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- {
- 	struct octeon_device *oct = (struct octeon_device *)lio->oct_dev;
- 	struct octeon_soft_command *sc;
-@@ -603,11 +603,16 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 	int retval;
- 
- 	if (oct->props[lio->ifidx].rx_on == start_stop)
--		return;
-+		return 0;
- 
- 	sc = (struct octeon_soft_command *)
- 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
- 					  16, 0);
-+	if (!sc) {
-+		netif_info(lio, rx_err, lio->netdev,
-+			   "Failed to allocate octeon_soft_command struct\n");
-+		return -ENOMEM;
-+	}
- 
- 	ncmd = (union octnet_cmd *)sc->virtdptr;
- 
-@@ -635,11 +640,13 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
- 		 */
- 		retval = wait_for_sc_completion_timeout(oct, sc, 0);
- 		if (retval)
--			return;
-+			return retval;
- 
- 		oct->props[lio->ifidx].rx_on = start_stop;
- 		WRITE_ONCE(sc->caller_is_done, true);
- 	}
++	inbox = mlx4_alloc_cmd_mailbox(dev);
++	if (IS_ERR(inbox))
++		return PTR_ERR(inbox);
 +
-+	return retval;
- }
- 
++	outbox = mlx4_alloc_cmd_mailbox(dev);
++	if (IS_ERR(outbox)) {
++		mlx4_free_cmd_mailbox(dev, inbox);
++		return PTR_ERR(outbox);
++	}
++
++	inmad = (struct mlx4_mad_ifc *)(inbox->buf);
++	outmad = (struct mlx4_mad_ifc *)(outbox->buf);
++
++	inmad->method = 0x1; /* Get */
++	inmad->class_version = 0x1;
++	inmad->mgmt_class = 0x1;
++	inmad->base_version = 0x1;
++	inmad->attr_id = cpu_to_be16(0xFF60); /* Module Info */
++
++	cable_info = (struct mlx4_cable_info *)inmad->data;
++	cable_info->dev_mem_address = 0;
++	cable_info->page_num = 0;
++	cable_info->i2c_addr = I2C_ADDR_LOW;
++	cable_info->size = cpu_to_be16(1);
++
++	ret = mlx4_cmd_box(dev, inbox->dma, outbox->dma, port, 3,
++			   MLX4_CMD_MAD_IFC, MLX4_CMD_TIME_CLASS_C,
++			   MLX4_CMD_NATIVE);
++	if (ret)
++		goto out;
++
++	if (be16_to_cpu(outmad->status)) {
++		/* Mad returned with bad status */
++		ret = be16_to_cpu(outmad->status);
++		mlx4_warn(dev,
++			  "MLX4_CMD_MAD_IFC Get Module ID attr(%x) port(%d) i2c_addr(%x) offset(%d) size(%d): Response Mad Status(%x) - %s\n",
++			  0xFF60, port, I2C_ADDR_LOW, 0, 1, ret,
++			  cable_info_mad_err_str(ret));
++		ret = -ret;
++		goto out;
++	}
++	cable_info = (struct mlx4_cable_info *)outmad->data;
++	*module_id = cable_info->data[0];
++out:
++	mlx4_free_cmd_mailbox(dev, inbox);
++	mlx4_free_cmd_mailbox(dev, outbox);
++	return ret;
++}
++
++static void mlx4_sfp_eeprom_params_set(u8 *i2c_addr, u8 *page_num, u16 *offset)
++{
++	*i2c_addr = I2C_ADDR_LOW;
++	*page_num = 0;
++
++	if (*offset < I2C_PAGE_SIZE)
++		return;
++
++	*i2c_addr = I2C_ADDR_HIGH;
++	*offset -= I2C_PAGE_SIZE;
++}
++
++static void mlx4_qsfp_eeprom_params_set(u8 *i2c_addr, u8 *page_num, u16 *offset)
++{
++	/* Offsets 0-255 belong to page 0.
++	 * Offsets 256-639 belong to pages 01, 02, 03.
++	 * For example, offset 400 is page 02: 1 + (400 - 256) / 128 = 2
++	 */
++	if (*offset < I2C_PAGE_SIZE)
++		*page_num = 0;
++	else
++		*page_num = 1 + (*offset - I2C_PAGE_SIZE) / I2C_HIGH_PAGE_SIZE;
++	*i2c_addr = I2C_ADDR_LOW;
++	*offset -= *page_num * I2C_HIGH_PAGE_SIZE;
++}
++
  /**
-@@ -906,6 +913,7 @@ static int liquidio_open(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
+  * mlx4_get_module_info - Read cable module eeprom data
+  * @dev: mlx4_dev.
+@@ -1355,12 +1438,30 @@ int mlx4_get_module_info(struct mlx4_dev
+ 	struct mlx4_cmd_mailbox *inbox, *outbox;
+ 	struct mlx4_mad_ifc *inmad, *outmad;
+ 	struct mlx4_cable_info *cable_info;
+-	u16 i2c_addr;
++	u8 module_id, i2c_addr, page_num;
+ 	int ret;
  
- 	if (!oct->props[lio->ifidx].napi_enabled) {
- 		tasklet_disable(&oct_priv->droq_tasklet);
-@@ -932,11 +940,13 @@ static int liquidio_open(struct net_device *netdev)
- 					(LIQUIDIO_NDEV_STATS_POLL_TIME_MS));
+ 	if (size > MODULE_INFO_MAX_READ)
+ 		size = MODULE_INFO_MAX_READ;
  
- 	/* tell Octeon to start forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 1);
-+	ret = send_rx_ctrl_cmd(lio, 1);
++	ret = mlx4_get_module_id(dev, port, &module_id);
 +	if (ret)
 +		return ret;
++
++	switch (module_id) {
++	case MLX4_MODULE_ID_SFP:
++		mlx4_sfp_eeprom_params_set(&i2c_addr, &page_num, &offset);
++		break;
++	case MLX4_MODULE_ID_QSFP:
++	case MLX4_MODULE_ID_QSFP_PLUS:
++	case MLX4_MODULE_ID_QSFP28:
++		mlx4_qsfp_eeprom_params_set(&i2c_addr, &page_num, &offset);
++		break;
++	default:
++		mlx4_err(dev, "Module ID not recognized: %#x\n", module_id);
++		return -EINVAL;
++	}
++
+ 	inbox = mlx4_alloc_cmd_mailbox(dev);
+ 	if (IS_ERR(inbox))
+ 		return PTR_ERR(inbox);
+@@ -1386,11 +1487,9 @@ int mlx4_get_module_info(struct mlx4_dev
+ 		 */
+ 		size -= offset + size - I2C_PAGE_SIZE;
  
- 	dev_info(&oct->pci_dev->dev, "%s interface is opened\n", netdev->name);
+-	i2c_addr = I2C_ADDR_LOW;
+-
+ 	cable_info = (struct mlx4_cable_info *)inmad->data;
+ 	cable_info->dev_mem_address = cpu_to_be16(offset);
+-	cable_info->page_num = 0;
++	cable_info->page_num = page_num;
+ 	cable_info->i2c_addr = i2c_addr;
+ 	cable_info->size = cpu_to_be16(size);
  
--	return 0;
-+	return ret;
- }
- 
- /**
-@@ -950,9 +960,12 @@ static int liquidio_stop(struct net_device *netdev)
- 	struct octeon_device_priv *oct_priv =
- 		(struct octeon_device_priv *)oct->priv;
- 	struct napi_struct *napi, *n;
-+	int ret = 0;
- 
- 	/* tell Octeon to stop forwarding packets to host */
--	send_rx_ctrl_cmd(lio, 0);
-+	ret = send_rx_ctrl_cmd(lio, 0);
-+	if (ret)
-+		return ret;
- 
- 	netif_info(lio, ifdown, lio->netdev, "Stopping interface!\n");
- 	/* Inform that netif carrier is down */
-@@ -986,7 +999,7 @@ static int liquidio_stop(struct net_device *netdev)
- 
- 	dev_info(&oct->pci_dev->dev, "%s interface is stopped\n", netdev->name);
- 
--	return 0;
-+	return ret;
- }
- 
- /**
--- 
-2.30.2
-
 
 
