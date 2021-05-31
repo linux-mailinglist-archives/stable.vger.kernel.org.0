@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C7EF39605A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 496E7395BF2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:24:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233032AbhEaOZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:25:21 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48844 "EHLO mail.kernel.org"
+        id S231855AbhEaN02 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:26:28 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55358 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232905AbhEaOXY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:23:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 32C0A61418;
-        Mon, 31 May 2021 13:45:37 +0000 (UTC)
+        id S231693AbhEaNYZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:24:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 33D1B613F3;
+        Mon, 31 May 2021 13:20:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468737;
-        bh=FjffVfX7ZHBpMoEV5UGia/iEkAw5C7P7xXuBqUhqT+g=;
+        s=korg; t=1622467223;
+        bh=GvlQdk9QCCLzZXEPL977abyqEv1/ZvCdrDypFc/1g1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y2rmouE15oqI27OD+mhszOjkz4taK1/7Zg9nDUKDLATsrrrMaEDP0Lrl5Pe+q2Y8U
-         C5SfRDaxm/kwxoNU3xhLqvXXYKo5oukkbp04kvBwXUVpH7Pp7CTsqk2rIAWIsrqQhu
-         WSfnstd2UitNPsLs4L8r3+5xlSQClVqykJZjgjXQ=
+        b=LAWXCS2gSMfAzrdRfvHsosS3dklJuTriEdGk0wHsTZmmBKA50ncgGv29ZwlPl/cS2
+         5AjQMZD5RKqVod7B56iDXpk+54BMRh9xUqmVi/DW58EUXiYtFgezpYSfzB+14Uu7SB
+         pk4CRFKNKFc9ZnLUADNdFVOWfhmDpDNB20vgnqTU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vinod Koul <vkoul@kernel.org>,
-        Sinan Kaya <okaya@kernel.org>,
-        Phillip Potter <phil@philpotter.co.uk>,
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 108/177] dmaengine: qcom_hidma: comment platform_driver_register call
+Subject: [PATCH 4.9 52/66] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
 Date:   Mon, 31 May 2021 15:14:25 +0200
-Message-Id: <20210531130651.640740130@linuxfoundation.org>
+Message-Id: <20210531130637.904676621@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Potter <phil@philpotter.co.uk>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 4df2a8b0ad634d98a67e540a4e18a60f943e7d9f ]
+[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
 
-Place a comment in hidma_mgmt_init explaining why success must
-currently be assumed, due to the cleanup issue that would need to
-be considered were this module ever to be unloadable or were this
-platform_driver_register call ever to fail.
+The intel_punit_ipc driver might be compiled as a module.
+When udev handles the event of the devices appearing
+the intel_punit_ipc module is missing.
 
-Acked-By: Vinod Koul <vkoul@kernel.org>
-Acked-By: Sinan Kaya <okaya@kernel.org>
-Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
-Link: https://lore.kernel.org/r/20210503115736.2104747-52-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
+
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/qcom/hidma_mgmt.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/platform/x86/intel_punit_ipc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/dma/qcom/hidma_mgmt.c b/drivers/dma/qcom/hidma_mgmt.c
-index fe87b01f7a4e..62026607f3f8 100644
---- a/drivers/dma/qcom/hidma_mgmt.c
-+++ b/drivers/dma/qcom/hidma_mgmt.c
-@@ -418,6 +418,20 @@ static int __init hidma_mgmt_init(void)
- 		hidma_mgmt_of_populate_channels(child);
- 	}
- #endif
-+	/*
-+	 * We do not check for return value here, as it is assumed that
-+	 * platform_driver_register must not fail. The reason for this is that
-+	 * the (potential) hidma_mgmt_of_populate_channels calls above are not
-+	 * cleaned up if it does fail, and to do this work is quite
-+	 * complicated. In particular, various calls of of_address_to_resource,
-+	 * of_irq_to_resource, platform_device_register_full, of_dma_configure,
-+	 * and of_msi_configure which then call other functions and so on, must
-+	 * be cleaned up - this is not a trivial exercise.
-+	 *
-+	 * Currently, this module is not intended to be unloaded, and there is
-+	 * no module_exit function defined which does the needed cleanup. For
-+	 * this reason, we have to assume success here.
-+	 */
- 	platform_driver_register(&hidma_mgmt_driver);
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index b7dfe06261f1..9865d11eda75 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -330,6 +330,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
+ 	{ "INT34D4", 0 },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
  
- 	return 0;
+ static struct platform_driver intel_punit_ipc_driver = {
+ 	.probe = intel_punit_ipc_probe,
 -- 
 2.30.2
 
