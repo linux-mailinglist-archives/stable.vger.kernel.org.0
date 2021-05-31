@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B5CFE395EEC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 318F039621D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:49:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbhEaOF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:05:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36896 "EHLO mail.kernel.org"
+        id S231987AbhEaOvW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40314 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232731AbhEaOD0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:03:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 49BB861951;
-        Mon, 31 May 2021 13:37:43 +0000 (UTC)
+        id S233750AbhEaOtN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1426661929;
+        Mon, 31 May 2021 13:56:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468263;
-        bh=EQuL5AWD/fApjp0/wL1bMQy/0dIiryBUxf0x/fpQz9U=;
+        s=korg; t=1622469410;
+        bh=w6PHIeP+6wvAl57XhxGtKV/10eR+mrKICHgDdT2CgXc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jSLt7Rq1mwPV03NCNQGPqpcbhOSmUlKsiRVGvgGaJtLXtKHGiOwpT1oDJNvhjKLdR
-         MELkRhQHlgyCMKpuKarM2S2VPVQnIVsFIoKRRtBColcqDq5uIu2H3bd+j296IWWdO6
-         JbxukurSVWvJTOzap/UveEEhrX/yG9emc3JdVT+Q=
+        b=Akv/mH4qS/LPMjQt9WMiwxUZDCCvIweOQUHfJdHKkipvlO5epgIpTw78YAg8sQUuW
+         s7vgURHvprwUlJ+JIlQibLd5UQNfv0VMHAYeSDBIj+rJ8aU+Oh3A1AGOwjKY4oZ5kT
+         hD+XNNgVkI2Ro0hif5+2sC9x0VBgk6bobn580crA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 178/252] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
+Subject: [PATCH 5.12 188/296] Revert "ASoC: cs43130: fix a NULL pointer dereference"
 Date:   Mon, 31 May 2021 15:14:03 +0200
-Message-Id: <20210531130704.060200896@linuxfoundation.org>
+Message-Id: <20210531130710.189634689@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,36 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
+[ Upstream commit fdda0dd2686ecd1f2e616c9e0366ea71b40c485d ]
 
-The intel_punit_ipc driver might be compiled as a module.
-When udev handles the event of the devices appearing
-the intel_punit_ipc module is missing.
+This reverts commit a2be42f18d409213bb7e7a736e3ef6ba005115bb.
 
-Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+The original patch here is not correct, sysfs files that were created
+are not unwound.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: Mark Brown <broonie@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-57-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/intel_punit_ipc.c | 1 +
- 1 file changed, 1 insertion(+)
+ sound/soc/codecs/cs43130.c | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
-index 05cced59e251..f58b8543f6ac 100644
---- a/drivers/platform/x86/intel_punit_ipc.c
-+++ b/drivers/platform/x86/intel_punit_ipc.c
-@@ -312,6 +312,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
- 	{ "INT34D4", 0 },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
+diff --git a/sound/soc/codecs/cs43130.c b/sound/soc/codecs/cs43130.c
+index 80bc7c10ed75..c2b6f0ae6d57 100644
+--- a/sound/soc/codecs/cs43130.c
++++ b/sound/soc/codecs/cs43130.c
+@@ -2319,8 +2319,6 @@ static int cs43130_probe(struct snd_soc_component *component)
+ 			return ret;
  
- static struct platform_driver intel_punit_ipc_driver = {
- 	.probe = intel_punit_ipc_probe,
+ 		cs43130->wq = create_singlethread_workqueue("cs43130_hp");
+-		if (!cs43130->wq)
+-			return -ENOMEM;
+ 		INIT_WORK(&cs43130->work, cs43130_imp_meas);
+ 	}
+ 
 -- 
 2.30.2
 
