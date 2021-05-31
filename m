@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3DC2395D16
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:39:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B5CFE395EEC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:03:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232382AbhEaNlK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:41:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44078 "EHLO mail.kernel.org"
+        id S232579AbhEaOF1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:05:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232719AbhEaNjZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:39:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6DFB76140A;
-        Mon, 31 May 2021 13:27:01 +0000 (UTC)
+        id S232731AbhEaOD0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:03:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 49BB861951;
+        Mon, 31 May 2021 13:37:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467622;
-        bh=ZEGf2reNL4H1XF6cGdD9sjD/2MfA2uYjRz9dQzAea9E=;
+        s=korg; t=1622468263;
+        bh=EQuL5AWD/fApjp0/wL1bMQy/0dIiryBUxf0x/fpQz9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xjxl/P4yEJhbOR5McIS2QBdvY00Rl/sSb6fqTPbGhg52NRXofv24ipb+ZqQ+Gz8Dw
-         PXbNmZLbr/J+riN2PJJkAy5q/Ix7Qtx7JAfGtsCQm/nm75rS3QL589NLZCy3+x+e85
-         SDcgOY+UUSDTQfnuSbSmGBq4fSywcRkhkDUkS9p8=
+        b=jSLt7Rq1mwPV03NCNQGPqpcbhOSmUlKsiRVGvgGaJtLXtKHGiOwpT1oDJNvhjKLdR
+         MELkRhQHlgyCMKpuKarM2S2VPVQnIVsFIoKRRtBColcqDq5uIu2H3bd+j296IWWdO6
+         JbxukurSVWvJTOzap/UveEEhrX/yG9emc3JdVT+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mikulas Patocka <mpatocka@redhat.com>,
-        Mike Snitzer <snitzer@redhat.com>
-Subject: [PATCH 4.14 18/79] dm snapshot: properly fix a crash when an origin has no snapshots
+        stable@vger.kernel.org,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 178/252] platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
 Date:   Mon, 31 May 2021 15:14:03 +0200
-Message-Id: <20210531130636.589649095@linuxfoundation.org>
+Message-Id: <20210531130704.060200896@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,35 +41,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mikulas Patocka <mpatocka@redhat.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-commit 7e768532b2396bcb7fbf6f82384b85c0f1d2f197 upstream.
+[ Upstream commit bc1eca606d8084465e6f89fd646cc71defbad490 ]
 
-If an origin target has no snapshots, o->split_boundary is set to 0.
-This causes BUG_ON(sectors <= 0) in block/bio.c:bio_split().
+The intel_punit_ipc driver might be compiled as a module.
+When udev handles the event of the devices appearing
+the intel_punit_ipc module is missing.
 
-Fix this by initializing chunk_size, and in turn split_boundary, to
-rounddown_pow_of_two(UINT_MAX) -- the largest power of two that fits
-into "unsigned" type.
+Append MODULE_DEVICE_TABLE for ACPI case to fix the loading issue.
 
-Signed-off-by: Mikulas Patocka <mpatocka@redhat.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20210519101521.79338-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-snap.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/platform/x86/intel_punit_ipc.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/md/dm-snap.c
-+++ b/drivers/md/dm-snap.c
-@@ -793,7 +793,7 @@ static int dm_add_exception(void *contex
- static uint32_t __minimum_chunk_size(struct origin *o)
- {
- 	struct dm_snapshot *snap;
--	unsigned chunk_size = 0;
-+	unsigned chunk_size = rounddown_pow_of_two(UINT_MAX);
+diff --git a/drivers/platform/x86/intel_punit_ipc.c b/drivers/platform/x86/intel_punit_ipc.c
+index 05cced59e251..f58b8543f6ac 100644
+--- a/drivers/platform/x86/intel_punit_ipc.c
++++ b/drivers/platform/x86/intel_punit_ipc.c
+@@ -312,6 +312,7 @@ static const struct acpi_device_id punit_ipc_acpi_ids[] = {
+ 	{ "INT34D4", 0 },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(acpi, punit_ipc_acpi_ids);
  
- 	if (o)
- 		list_for_each_entry(snap, &o->snapshots, list)
+ static struct platform_driver intel_punit_ipc_driver = {
+ 	.probe = intel_punit_ipc_probe,
+-- 
+2.30.2
+
 
 
