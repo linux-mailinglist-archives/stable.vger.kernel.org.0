@@ -2,35 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D2FE6395FC2
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 53B9D395C22
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:27:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232575AbhEaOQF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:16:05 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S232131AbhEaN2l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:28:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60794 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232648AbhEaON3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:13:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 30E5C619A5;
-        Mon, 31 May 2021 13:41:57 +0000 (UTC)
+        id S232198AbhEaN0q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:26:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 233E36140C;
+        Mon, 31 May 2021 13:21:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468517;
-        bh=7iCJiHDNrA8MBJ+K6dL/sbizJIJktohVytlNUMosXPQ=;
+        s=korg; t=1622467286;
+        bh=b3pmMKSMIis0eLRJjqWpyPQkSXcECBa6GkjTSEfZtjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oLRirgP2RfJkGPsSkjLDm8hnmLFl/oXkjueKGCu7Ca8JhvfizjhtoAOxCOlHmnAE4
-         OkqQfFNBO5bmQmu93hKNBJlDHLXR0fBb12MtM+wTm0Ockdz/xQSSAdg/NiOfpOzyBT
-         jpxl5d5VYKF+INKR5zKM2qTB8iWfzk76rXS8yyYI=
+        b=qYQP7iuaCuA+4wipdvp4DZJUfd9L95bosMCe7XTJddE3P2tIcHGjQXxlVQIcfQU8j
+         lJWz+sRxtu1moFYIVtgQdvPtUgexCBhbK9XcD83w09m/SA11xa4hPTOHYVFkCUszbU
+         MV5G9XXazb0rc35VpHaMeNkWzkGM/v62C6kGdjM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4 020/177] mac80211: check defrag PN against current frame
+        Stephen Brennan <stephen.s.brennan@oracle.com>,
+        Aruna Ramakrishna <aruna.ramakrishna@oracle.com>,
+        Khalid Aziz <khalid.aziz@oracle.com>
+Subject: [PATCH 4.19 001/116] mm, vmstat: drop zone->lock in /proc/pagetypeinfo
 Date:   Mon, 31 May 2021 15:12:57 +0200
-Message-Id: <20210531130648.613512994@linuxfoundation.org>
+Message-Id: <20210531130640.181738450@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -38,120 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johannes Berg <johannes.berg@intel.com>
+From: Stephen Brennan <stephen.s.brennan@oracle.com>
 
-commit bf30ca922a0c0176007e074b0acc77ed345e9990 upstream.
+Commit 93b3a674485f6a4b8ffff85d1682d5e8b7c51560 upstream
 
-As pointed out by Mathy Vanhoef, we implement the RX PN check
-on fragmented frames incorrectly - we check against the last
-received PN prior to the new frame, rather than to the one in
-this frame itself.
+Commit 93b3a674485f ("mm,vmstat: reduce zone->lock holding time by
+/proc/pagetypeinfo") upstream caps the number of iterations over each
+free_list at 100,000, and also drops the zone->lock in between each
+migrate type. Capping the iteration count alters the file contents in
+some cases, which means this approach may not be suitable for stable
+backports.
 
-Prior patches addressed the security issue here, but in order
-to be able to reason better about the code, fix it to really
-compare against the current frame's PN, not the last stored
-one.
+However, dropping zone->lock in between migrate types (and, as a result,
+page orders) will not change the /proc/pagetypeinfo file contents. It
+can significantly reduce the length of time spent with IRQs disabled,
+which can prevent missed interrupts or soft lockups which we have
+observed on systems with particularly large memory.
 
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20210511200110.bfbc340ff071.Id0b690e581da7d03d76df90bb0e3fd55930bc8a0@changeid
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
+Thus, this commit is a modified version of the upstream one which only
+drops the lock in between migrate types.
+
+Fixes: 467c996c1e19 ("Print out statistics in relation to fragmentation avoidance to /proc/pagetypeinfo")
+Signed-off-by: Stephen Brennan <stephen.s.brennan@oracle.com>
+Reviewed-by: Aruna Ramakrishna <aruna.ramakrishna@oracle.com>
+Reviewed-by: Khalid Aziz <khalid.aziz@oracle.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |   11 +++++++++--
- net/mac80211/rx.c          |    5 ++---
- net/mac80211/wpa.c         |   13 +++++++++----
- 3 files changed, 20 insertions(+), 9 deletions(-)
+ mm/vmstat.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -222,8 +222,15 @@ struct ieee80211_rx_data {
- 	 */
- 	int security_idx;
- 
--	u32 tkip_iv32;
--	u16 tkip_iv16;
-+	union {
-+		struct {
-+			u32 iv32;
-+			u16 iv16;
-+		} tkip;
-+		struct {
-+			u8 pn[IEEE80211_CCMP_PN_LEN];
-+		} ccm_gcm;
-+	};
- };
- 
- struct ieee80211_csa_settings {
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2268,7 +2268,6 @@ ieee80211_rx_h_defragment(struct ieee802
- 	if (entry->check_sequential_pn) {
- 		int i;
- 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
--		int queue;
- 
- 		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
-@@ -2283,8 +2282,8 @@ ieee80211_rx_h_defragment(struct ieee802
- 			if (pn[i])
- 				break;
+--- a/mm/vmstat.c
++++ b/mm/vmstat.c
+@@ -1384,6 +1384,9 @@ static void pagetypeinfo_showfree_print(
+ 			list_for_each(curr, &area->free_list[mtype])
+ 				freecount++;
+ 			seq_printf(m, "%6lu ", freecount);
++			spin_unlock_irq(&zone->lock);
++			cond_resched();
++			spin_lock_irq(&zone->lock);
  		}
--		queue = rx->security_idx;
--		rpn = rx->key->u.ccmp.rx_pn[queue];
-+
-+		rpn = rx->ccm_gcm.pn;
- 		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
- 			return RX_DROP_UNUSABLE;
- 		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
---- a/net/mac80211/wpa.c
-+++ b/net/mac80211/wpa.c
-@@ -3,6 +3,7 @@
-  * Copyright 2002-2004, Instant802 Networks, Inc.
-  * Copyright 2008, Jouni Malinen <j@w1.fi>
-  * Copyright (C) 2016-2017 Intel Deutschland GmbH
-+ * Copyright (C) 2020-2021 Intel Corporation
-  */
- 
- #include <linux/netdevice.h>
-@@ -167,8 +168,8 @@ ieee80211_rx_h_michael_mic_verify(struct
- 
- update_iv:
- 	/* update IV in key information to be able to detect replays */
--	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip_iv32;
--	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip_iv16;
-+	rx->key->u.tkip.rx[rx->security_idx].iv32 = rx->tkip.iv32;
-+	rx->key->u.tkip.rx[rx->security_idx].iv16 = rx->tkip.iv16;
- 
- 	return RX_CONTINUE;
- 
-@@ -294,8 +295,8 @@ ieee80211_crypto_tkip_decrypt(struct iee
- 					  key, skb->data + hdrlen,
- 					  skb->len - hdrlen, rx->sta->sta.addr,
- 					  hdr->addr1, hwaccel, rx->security_idx,
--					  &rx->tkip_iv32,
--					  &rx->tkip_iv16);
-+					  &rx->tkip.iv32,
-+					  &rx->tkip.iv16);
- 	if (res != TKIP_DECRYPT_OK)
- 		return RX_DROP_UNUSABLE;
- 
-@@ -553,6 +554,8 @@ ieee80211_crypto_ccmp_decrypt(struct iee
- 		}
- 
- 		memcpy(key->u.ccmp.rx_pn[queue], pn, IEEE80211_CCMP_PN_LEN);
-+		if (unlikely(ieee80211_is_frag(hdr)))
-+			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
+ 		seq_putc(m, '\n');
  	}
- 
- 	/* Remove CCMP header and MIC */
-@@ -781,6 +784,8 @@ ieee80211_crypto_gcmp_decrypt(struct iee
- 		}
- 
- 		memcpy(key->u.gcmp.rx_pn[queue], pn, IEEE80211_GCMP_PN_LEN);
-+		if (unlikely(ieee80211_is_frag(hdr)))
-+			memcpy(rx->ccm_gcm.pn, pn, IEEE80211_CCMP_PN_LEN);
- 	}
- 
- 	/* Remove GCMP header and MIC */
 
 
