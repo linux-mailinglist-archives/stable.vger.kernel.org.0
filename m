@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 495333961B9
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 36083395EC4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:01:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233170AbhEaOph (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:45:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37858 "EHLO mail.kernel.org"
+        id S230424AbhEaOD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:03:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234012AbhEaOn2 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:43:28 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9724161C6E;
-        Mon, 31 May 2021 13:54:07 +0000 (UTC)
+        id S232043AbhEaOBY (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:01:24 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6EE1E61403;
+        Mon, 31 May 2021 13:36:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469248;
-        bh=aDdELBJolIwaHwa7WqyX+ylH/b6zpzeXArGxknQS0QA=;
+        s=korg; t=1622468211;
+        bh=aAVtE617rl5nQDpqiNCoWaWMLuSU+g+6+Vz1RfPlFH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fNghIA8ZDPNqZSJNM5gpwC5TpXFFEJ02vQqdAnLeMte/++VtpxR5xkTUM33LceW5l
-         eIChd6xeZlVztHyzKwNrxWeH9Eu6q8GDxGIRlJ6PeR+gCGJUNijqZmCotoN+LfwEI+
-         o27i9gVjWC6inwZY1ZKRjlMNtgrTUZuoeepTcyGU=
+        b=LR+HTBc/rlWeb2lo7RCUYvmPXODof7tzi3kZSaAZ5KfJjwTNS5FGBRF0xvVricEIq
+         j2QYTK62OXyBtTctc6JvziSbMBlaU2T+wblS6sJBXUSPTTNehObeOFxMRORvf8qXpF
+         8LEeWIAgsSKlIx7Jae9F3SHsKwVyw1DhSJJ1xQ1M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jianbo Liu <jianbol@nvidia.com>,
-        Ariel Levkovich <lariel@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.12 124/296] net/mlx5: Set reformat action when needed for termination rules
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.10 114/252] net: dsa: sja1105: update existing VLANs from the bridge VLAN list
 Date:   Mon, 31 May 2021 15:12:59 +0200
-Message-Id: <20210531130708.074277791@linuxfoundation.org>
+Message-Id: <20210531130701.847779032@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +39,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jianbo Liu <jianbol@nvidia.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 442b3d7b671bcb779ebdad46edd08051eb8b28d9 upstream.
+commit b38e659de966a122fe2cb178c1e39c9bea06bc62 upstream.
 
-For remote mirroring, after the tunnel packets are received, they are
-decapsulated and sent to representor, then re-encapsulated and sent
-out over another tunnel. So reformat action is set only when the
-destination is required to do encapsulation.
+When running this sequence of operations:
 
-Fixes: 249ccc3c95bd ("net/mlx5e: Add support for offloading traffic from uplink to uplink")
-Signed-off-by: Jianbo Liu <jianbol@nvidia.com>
-Reviewed-by: Ariel Levkovich <lariel@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+ip link add br0 type bridge vlan_filtering 1
+ip link set swp4 master br0
+bridge vlan add dev swp4 vid 1
+
+We observe the traffic sent on swp4 is still untagged, even though the
+bridge has overwritten the existing VLAN entry:
+
+port    vlan ids
+swp4     1 PVID
+
+br0      1 PVID Egress Untagged
+
+This happens because we didn't consider that the 'bridge vlan add'
+command just overwrites VLANs like it's nothing. We treat the 'vid 1
+pvid untagged' and the 'vid 1' as two separate VLANs, and the first
+still has precedence when calling sja1105_build_vlan_table. Obviously
+there is a disagreement regarding semantics, and we end up doing
+something unexpected from the PoV of the bridge.
+
+Let's actually consider an "existing VLAN" to be one which is on the
+same port, and has the same VLAN ID, as one we already have, and update
+it if it has different flags than we do.
+
+The first blamed commit is the one introducing the bug, the second one
+is the latest on top of which the bugfix still applies.
+
+Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
+Fixes: 5899ee367ab3 ("net: dsa: tag_8021q: add a context structure")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c |   31 +++-------
- 1 file changed, 10 insertions(+), 21 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   19 +++++++++++++++----
+ 1 file changed, 15 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/eswitch_offloads_termtbl.c
-@@ -171,19 +171,6 @@ mlx5_eswitch_termtbl_put(struct mlx5_esw
- 	}
- }
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -2756,11 +2756,22 @@ static int sja1105_vlan_add_one(struct d
+ 	bool pvid = flags & BRIDGE_VLAN_INFO_PVID;
+ 	struct sja1105_bridge_vlan *v;
  
--static bool mlx5_eswitch_termtbl_is_encap_reformat(struct mlx5_pkt_reformat *rt)
--{
--	switch (rt->reformat_type) {
--	case MLX5_REFORMAT_TYPE_L2_TO_VXLAN:
--	case MLX5_REFORMAT_TYPE_L2_TO_NVGRE:
--	case MLX5_REFORMAT_TYPE_L2_TO_L2_TUNNEL:
--	case MLX5_REFORMAT_TYPE_L2_TO_L3_TUNNEL:
--		return true;
--	default:
--		return false;
--	}
--}
--
- static void
- mlx5_eswitch_termtbl_actions_move(struct mlx5_flow_act *src,
- 				  struct mlx5_flow_act *dst)
-@@ -201,14 +188,6 @@ mlx5_eswitch_termtbl_actions_move(struct
- 			memset(&src->vlan[1], 0, sizeof(src->vlan[1]));
- 		}
- 	}
--
--	if (src->action & MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT &&
--	    mlx5_eswitch_termtbl_is_encap_reformat(src->pkt_reformat)) {
--		src->action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
--		dst->action |= MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
--		dst->pkt_reformat = src->pkt_reformat;
--		src->pkt_reformat = NULL;
--	}
- }
- 
- static bool mlx5_eswitch_offload_is_uplink_port(const struct mlx5_eswitch *esw,
-@@ -278,6 +257,14 @@ mlx5_eswitch_add_termtbl_rule(struct mlx
- 		if (dest[i].type != MLX5_FLOW_DESTINATION_TYPE_VPORT)
- 			continue;
- 
-+		if (attr->dests[num_vport_dests].flags & MLX5_ESW_DEST_ENCAP) {
-+			term_tbl_act.action |= MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
-+			term_tbl_act.pkt_reformat = attr->dests[num_vport_dests].pkt_reformat;
-+		} else {
-+			term_tbl_act.action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
-+			term_tbl_act.pkt_reformat = NULL;
-+		}
+-	list_for_each_entry(v, vlan_list, list)
+-		if (v->port == port && v->vid == vid &&
+-		    v->untagged == untagged && v->pvid == pvid)
++	list_for_each_entry(v, vlan_list, list) {
++		if (v->port == port && v->vid == vid) {
+ 			/* Already added */
+-			return 0;
++			if (v->untagged == untagged && v->pvid == pvid)
++				/* Nothing changed */
++				return 0;
 +
- 		/* get the terminating table for the action list */
- 		tt = mlx5_eswitch_termtbl_get_create(esw, &term_tbl_act,
- 						     &dest[i], attr);
-@@ -299,6 +286,8 @@ mlx5_eswitch_add_termtbl_rule(struct mlx
- 		goto revert_changes;
++			/* It's the same VLAN, but some of the flags changed
++			 * and the user did not bother to delete it first.
++			 * Update it and trigger sja1105_build_vlan_table.
++			 */
++			v->untagged = untagged;
++			v->pvid = pvid;
++			return 1;
++		}
++	}
  
- 	/* create the FTE */
-+	flow_act->action &= ~MLX5_FLOW_CONTEXT_ACTION_PACKET_REFORMAT;
-+	flow_act->pkt_reformat = NULL;
- 	rule = mlx5_add_flow_rules(fdb, spec, flow_act, dest, num_dest);
- 	if (IS_ERR(rule))
- 		goto revert_changes;
+ 	v = kzalloc(sizeof(*v), GFP_KERNEL);
+ 	if (!v) {
 
 
