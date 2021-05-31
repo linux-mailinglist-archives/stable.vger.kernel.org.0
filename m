@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C674395BA7
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:21:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CA39C3962FD
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231959AbhEaNXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:23:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55814 "EHLO mail.kernel.org"
+        id S233926AbhEaPC5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:02:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51184 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231908AbhEaNVS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:21:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6D811613D0;
-        Mon, 31 May 2021 13:18:55 +0000 (UTC)
+        id S233880AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 11:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38A9C6124C;
+        Mon, 31 May 2021 14:14:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467135;
-        bh=c7LAnNImmbmD5FoTJxvj7L73x8QcJ/gmdK+hMOJSk30=;
+        s=korg; t=1622470474;
+        bh=NVax9bSoI2rTxw5JlgzogZU7L09xE+j3DWWyfPipJjw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4/NmkikJvBjuxwBvvSyVj8vwB6YhADv6pWZOzHsozkNfirKgUotJe8gWQFnaqkNy
-         rbovH5fezurvYFTqq7UckFEil1KqN0M+UK+sFN9m5TzijX0YqTjq+WWjVzzKHhNuoY
-         PtvnELWfakIA2lAQhkRBQRIbApRXhpYmGkxP+xHU=
+        b=VioWoJvh9TyKccdPxt2UP8qEV52yDT9SWqr2hdYfD7+5L4PdMvq69K1ll7J3T1vsl
+         RHV6p+bqsw4c4aYSpX7zVyeG04X1aDFdIgO2N4NVC0s/Q6cv3FMK/BjobMuJpX47Sy
+         K0FElr+ttyLmzDKz5GOsMVmRrgijkvPU9Cw7xf90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lucas Stankus <lucas.p.stankus@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 4.9 18/66] staging: iio: cdc: ad7746: avoid overwrite of num_channels
+        stable@vger.kernel.org, Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: [PATCH 4.4 25/54] NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
 Date:   Mon, 31 May 2021 15:13:51 +0200
-Message-Id: <20210531130636.836362465@linuxfoundation.org>
+Message-Id: <20210531130635.878749264@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,33 +39,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stankus <lucas.p.stankus@gmail.com>
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
-commit 04f5b9f539ce314f758d919a14dc7a669f3b7838 upstream.
+commit e67afa7ee4a59584d7253e45d7f63b9528819a13 upstream.
 
-AD7745 devices don't have the CIN2 pins and therefore can't handle related
-channels. Forcing the number of AD7746 channels may lead to enabling more
-channels than what the hardware actually supports.
-Avoid num_channels being overwritten after first assignment.
+Since commit bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors"),
+nfs42_proc_llseek would return -EOPNOTSUPP rather than -ENOTSUPP when
+SEEK_DATA on NFSv4.0/v4.1.
 
-Signed-off-by: Lucas Stankus <lucas.p.stankus@gmail.com>
-Fixes: 83e416f458d53 ("staging: iio: adc: Replace, rewrite ad7745 from scratch.")
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Cc: <Stable@vger.kernel.org>
+This will lead xfstests generic/285 not run on NFSv4.0/v4.1 when set the
+CONFIG_NFS_V4_2, rather than run failed.
+
+Fixes: bdcc2cd14e4e ("NFSv4.2: handle NFS-specific llseek errors")
+Cc: <stable.vger.kernel.org> # 4.2
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/iio/cdc/ad7746.c |    1 -
- 1 file changed, 1 deletion(-)
+ fs/nfs/nfs4file.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/staging/iio/cdc/ad7746.c
-+++ b/drivers/staging/iio/cdc/ad7746.c
-@@ -714,7 +714,6 @@ static int ad7746_probe(struct i2c_clien
- 		indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	else
- 		indio_dev->num_channels =  ARRAY_SIZE(ad7746_channels) - 2;
--	indio_dev->num_channels = ARRAY_SIZE(ad7746_channels);
- 	indio_dev->modes = INDIO_DIRECT_MODE;
- 
- 	if (pdata) {
+--- a/fs/nfs/nfs4file.c
++++ b/fs/nfs/nfs4file.c
+@@ -168,7 +168,7 @@ static loff_t nfs4_file_llseek(struct fi
+ 	case SEEK_HOLE:
+ 	case SEEK_DATA:
+ 		ret = nfs42_proc_llseek(filep, offset, whence);
+-		if (ret != -ENOTSUPP)
++		if (ret != -EOPNOTSUPP)
+ 			return ret;
+ 	default:
+ 		return nfs_file_llseek(filep, offset, whence);
 
 
