@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FA1C396111
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F973395DCC
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232707AbhEaOfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33146 "EHLO mail.kernel.org"
+        id S232216AbhEaNvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50178 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232797AbhEaOd3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:33:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99A356140F;
-        Mon, 31 May 2021 13:50:02 +0000 (UTC)
+        id S231243AbhEaNrl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BE6B561627;
+        Mon, 31 May 2021 13:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469003;
-        bh=O2pdtjBSU917Z2IF7mGx9kj02gLwPzoy/zbq64DineQ=;
+        s=korg; t=1622467849;
+        bh=T2aOxwHhEh3izbHcJtJRL4ysV0iWGTj2YbWnPLwTJXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wpU08FGpzgQSgSxKJg5Qz7Ic1zwAfY4X1ml2zna40yQ8vwwc07IhWw3iaq+YYov0s
-         vWBC797hgDYNpAbRaoSs4f8ABipV54YM+s3pe1zVRoLQCm92uvZUGmpvGBJ6ULTdY2
-         jMAF6joVMouINQEPqj66ycATVu7Ai/3qTooGbmsg=
+        b=WcIPPbEswh5J14Qopss4bMEHINoS8tcbRkHQKDVdsFYblzMr23o0YSMUQXEJqm0su
+         9vJnbKs1SDJap8t6KTEtAeD1IWblBtSbNBAwzA0IVUmdYbvnaO8CNWKkMFQ0FcMTFn
+         qFYegmqJvZVL9DAG90DlzH43a7AawTu5TlkhBy9Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Davide Caratti <dcaratti@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 033/296] net/sched: fq_pie: fix OOB access in the traffic path
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 023/252] mac80211: assure all fragments are encrypted
 Date:   Mon, 31 May 2021 15:11:28 +0200
-Message-Id: <20210531130704.925411251@linuxfoundation.org>
+Message-Id: <20210531130658.772098116@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,117 +39,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Davide Caratti <dcaratti@redhat.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit e70f7a11876a1a788ceadf75e9e5f7af2c868680 upstream.
+commit 965a7d72e798eb7af0aa67210e37cf7ecd1c9cad upstream.
 
-the following script:
+Do not mix plaintext and encrypted fragments in protected Wi-Fi
+networks. This fixes CVE-2020-26147.
 
-  # tc qdisc add dev eth0 handle 0x1 root fq_pie flows 2
-  # tc qdisc add dev eth0 clsact
-  # tc filter add dev eth0 egress matchall action skbedit priority 0x10002
-  # ping 192.0.2.2 -I eth0 -c2 -w1 -q
+Previously, an attacker was able to first forward a legitimate encrypted
+fragment towards a victim, followed by a plaintext fragment. The
+encrypted and plaintext fragment would then be reassembled. For further
+details see Section 6.3 and Appendix D in the paper "Fragment and Forge:
+Breaking Wi-Fi Through Frame Aggregation and Fragmentation".
 
-produces the following splat:
+Because of this change there are now two equivalent conditions in the
+code to determine if a received fragment requires sequential PNs, so we
+also move this test to a separate function to make the code easier to
+maintain.
 
- BUG: KASAN: slab-out-of-bounds in fq_pie_qdisc_enqueue+0x1314/0x19d0 [sch_fq_pie]
- Read of size 4 at addr ffff888171306924 by task ping/942
-
- CPU: 3 PID: 942 Comm: ping Not tainted 5.12.0+ #441
- Hardware name: Red Hat KVM, BIOS 1.11.1-4.module+el8.1.0+4066+0f1aadab 04/01/2014
- Call Trace:
-  dump_stack+0x92/0xc1
-  print_address_description.constprop.7+0x1a/0x150
-  kasan_report.cold.13+0x7f/0x111
-  fq_pie_qdisc_enqueue+0x1314/0x19d0 [sch_fq_pie]
-  __dev_queue_xmit+0x1034/0x2b10
-  ip_finish_output2+0xc62/0x2120
-  __ip_finish_output+0x553/0xea0
-  ip_output+0x1ca/0x4d0
-  ip_send_skb+0x37/0xa0
-  raw_sendmsg+0x1c4b/0x2d00
-  sock_sendmsg+0xdb/0x110
-  __sys_sendto+0x1d7/0x2b0
-  __x64_sys_sendto+0xdd/0x1b0
-  do_syscall_64+0x3c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
- RIP: 0033:0x7fe69735c3eb
- Code: 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 f3 0f 1e fa 48 8d 05 75 42 2c 00 41 89 ca 8b 00 85 c0 75 14 b8 2c 00 00 00 0f 05 <48> 3d 00 f0 ff ff 77 75 c3 0f 1f 40 00 41 57 4d 89 c7 41 56 41 89
- RSP: 002b:00007fff06d7fb38 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
- RAX: ffffffffffffffda RBX: 000055e961413700 RCX: 00007fe69735c3eb
- RDX: 0000000000000040 RSI: 000055e961413700 RDI: 0000000000000003
- RBP: 0000000000000040 R08: 000055e961410500 R09: 0000000000000010
- R10: 0000000000000000 R11: 0000000000000246 R12: 00007fff06d81260
- R13: 00007fff06d7fb40 R14: 00007fff06d7fc30 R15: 000055e96140f0a0
-
- Allocated by task 917:
-  kasan_save_stack+0x19/0x40
-  __kasan_kmalloc+0x7f/0xa0
-  __kmalloc_node+0x139/0x280
-  fq_pie_init+0x555/0x8e8 [sch_fq_pie]
-  qdisc_create+0x407/0x11b0
-  tc_modify_qdisc+0x3c2/0x17e0
-  rtnetlink_rcv_msg+0x346/0x8e0
-  netlink_rcv_skb+0x120/0x380
-  netlink_unicast+0x439/0x630
-  netlink_sendmsg+0x719/0xbf0
-  sock_sendmsg+0xe2/0x110
-  ____sys_sendmsg+0x5ba/0x890
-  ___sys_sendmsg+0xe9/0x160
-  __sys_sendmsg+0xd3/0x170
-  do_syscall_64+0x3c/0x80
-  entry_SYSCALL_64_after_hwframe+0x44/0xae
-
- The buggy address belongs to the object at ffff888171306800
-  which belongs to the cache kmalloc-256 of size 256
- The buggy address is located 36 bytes to the right of
-  256-byte region [ffff888171306800, ffff888171306900)
- The buggy address belongs to the page:
- page:00000000bcfb624e refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x171306
- head:00000000bcfb624e order:1 compound_mapcount:0
- flags: 0x17ffffc0010200(slab|head|node=0|zone=2|lastcpupid=0x1fffff)
- raw: 0017ffffc0010200 dead000000000100 dead000000000122 ffff888100042b40
- raw: 0000000000000000 0000000000100010 00000001ffffffff 0000000000000000
- page dumped because: kasan: bad access detected
-
- Memory state around the buggy address:
-  ffff888171306800: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-  ffff888171306880: 00 00 00 00 00 00 00 00 00 00 00 00 fc fc fc fc
- >ffff888171306900: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-                                ^
-  ffff888171306980: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-  ffff888171306a00: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-
-fix fq_pie traffic path to avoid selecting 'q->flows + q->flows_cnt' as a
-valid flow: it's an address beyond the allocated memory.
-
-Fixes: ec97ecf1ebe4 ("net: sched: add Flow Queue PIE packet scheduler")
-CC: stable@vger.kernel.org
-Signed-off-by: Davide Caratti <dcaratti@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.30c4394bb835.I5acfdb552cc1d20c339c262315950b3eac491397@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/sch_fq_pie.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ net/mac80211/rx.c |   23 ++++++++++++-----------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
---- a/net/sched/sch_fq_pie.c
-+++ b/net/sched/sch_fq_pie.c
-@@ -138,8 +138,15 @@ static int fq_pie_qdisc_enqueue(struct s
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2204,6 +2204,16 @@ ieee80211_reassemble_find(struct ieee802
+ 	return NULL;
+ }
  
- 	/* Classifies packet into corresponding flow */
- 	idx = fq_pie_classify(skb, sch, &ret);
--	sel_flow = &q->flows[idx];
-+	if (idx == 0) {
-+		if (ret & __NET_XMIT_BYPASS)
-+			qdisc_qstats_drop(sch);
-+		__qdisc_drop(skb, to_free);
-+		return ret;
-+	}
-+	idx--;
++static bool requires_sequential_pn(struct ieee80211_rx_data *rx, __le16 fc)
++{
++	return rx->key &&
++		(rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
++		 rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
++		ieee80211_has_protected(fc);
++}
++
+ static ieee80211_rx_result debug_noinline
+ ieee80211_rx_h_defragment(struct ieee80211_rx_data *rx)
+ {
+@@ -2248,12 +2258,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		/* This is the first fragment of a new frame. */
+ 		entry = ieee80211_reassemble_add(rx->sdata, frag, seq,
+ 						 rx->seqno_idx, &(rx->skb));
+-		if (rx->key &&
+-		    (rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_CCMP_256 ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP ||
+-		     rx->key->conf.cipher == WLAN_CIPHER_SUITE_GCMP_256) &&
+-		    ieee80211_has_protected(fc)) {
++		if (requires_sequential_pn(rx, fc)) {
+ 			int queue = rx->security_idx;
  
-+	sel_flow = &q->flows[idx];
- 	/* Checks whether adding a new packet would exceed memory limit */
- 	get_pie_cb(skb)->mem_usage = skb->truesize;
- 	memory_limited = q->memory_usage > q->memory_limit + skb->truesize;
+ 			/* Store CCMP/GCMP PN so that we can verify that the
+@@ -2295,11 +2300,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 		u8 pn[IEEE80211_CCMP_PN_LEN], *rpn;
+ 		int queue;
+ 
+-		if (!rx->key ||
+-		    (rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_CCMP_256 &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP &&
+-		     rx->key->conf.cipher != WLAN_CIPHER_SUITE_GCMP_256))
++		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
 
 
