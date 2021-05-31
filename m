@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C9BA395BE0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:23:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 60BC339602E
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231952AbhEaNZe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:25:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54850 "EHLO mail.kernel.org"
+        id S233578AbhEaOXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43306 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232023AbhEaNX3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:23:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 566636108D;
-        Mon, 31 May 2021 13:19:59 +0000 (UTC)
+        id S233086AbhEaORk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:17:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7E8561416;
+        Mon, 31 May 2021 13:43:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467199;
-        bh=N2/kFzxbkVvTsF9N8fTSf6aT6iuKAiyLrkMeEZNFbgE=;
+        s=korg; t=1622468624;
+        bh=VwB1v0Ir/EDDvDAd/knyzwsehag3a40nMAVmm/IYTJk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p0CY5HSM58UZHVK9mOnufajxUBAgUW7QlGJ4q2NNciA2kOsMl32vksRic8qidKtSw
-         ktbf3WUNwqopeEhuLmmLgrEaCQKRx0mBvgifx0tHZKrURN0HsTCL5XCxcYEJsnCWkW
-         EOgnGWiNgnnzeSd8djra3vJlt7b9y0qi1WFVPzlE=
+        b=WUJj0hsB9WlEaOPq6eMwTFp9UomlxYoXdQV0jnimliswd1nfXkmOFaYwdOZfUf0F4
+         ZH4Gy2AWcKeZR+y3Ws2iGjb9uC1cxV0YOqF9OYtOB70EBi+ftF9pp+CbW/lH22q2Ej
+         ea7w+AlPok5ZWa0TIa//UbSa8H3shQXqV47pCKwA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kees Cook <keescook@chromium.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.9 07/66] proc: Check /proc/$pid/attr/ writes against file opener
+        stable@vger.kernel.org, stable@kernel.vger.org,
+        Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 063/177] net: usb: fix memory leak in smsc75xx_bind
 Date:   Mon, 31 May 2021 15:13:40 +0200
-Message-Id: <20210531130636.500666511@linuxfoundation.org>
+Message-Id: <20210531130650.078858716@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
-References: <20210531130636.254683895@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,40 +41,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit bfb819ea20ce8bbeeba17e1a6418bf8bda91fc28 upstream.
+commit 46a8b29c6306d8bbfd92b614ef65a47c900d8e70 upstream.
 
-Fix another "confused deputy" weakness[1]. Writes to /proc/$pid/attr/
-files need to check the opener credentials, since these fds do not
-transition state across execve(). Without this, it is possible to
-trick another process (which may have different credentials) to write
-to its own /proc/$pid/attr/ files, leading to unexpected and possibly
-exploitable behaviors.
+Syzbot reported memory leak in smsc75xx_bind().
+The problem was is non-freed memory in case of
+errors after memory allocation.
 
-[1] https://www.kernel.org/doc/html/latest/security/credentials.html?highlight=confused#open-file-credentials
+backtrace:
+  [<ffffffff84245b62>] kmalloc include/linux/slab.h:556 [inline]
+  [<ffffffff84245b62>] kzalloc include/linux/slab.h:686 [inline]
+  [<ffffffff84245b62>] smsc75xx_bind+0x7a/0x334 drivers/net/usb/smsc75xx.c:1460
+  [<ffffffff82b5b2e6>] usbnet_probe+0x3b6/0xc30 drivers/net/usb/usbnet.c:1728
 
-Fixes: 1da177e4c3f41 ("Linux-2.6.12-rc2")
-Cc: stable@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: d0cad871703b ("smsc75xx: SMSC LAN75xx USB gigabit ethernet adapter driver")
+Cc: stable@kernel.vger.org
+Reported-and-tested-by: syzbot+b558506ba8165425fee2@syzkaller.appspotmail.com
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/base.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/usb/smsc75xx.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/proc/base.c
-+++ b/fs/proc/base.c
-@@ -2522,6 +2522,10 @@ static ssize_t proc_pid_attr_write(struc
- 	ssize_t length;
- 	struct task_struct *task = get_proc_task(inode);
+--- a/drivers/net/usb/smsc75xx.c
++++ b/drivers/net/usb/smsc75xx.c
+@@ -1482,7 +1482,7 @@ static int smsc75xx_bind(struct usbnet *
+ 	ret = smsc75xx_wait_ready(dev, 0);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "device not ready in smsc75xx_bind\n");
+-		return ret;
++		goto err;
+ 	}
  
-+	/* A task may only write when it was the opener. */
-+	if (file->f_cred != current_real_cred())
-+		return -EPERM;
+ 	smsc75xx_init_mac_address(dev);
+@@ -1491,7 +1491,7 @@ static int smsc75xx_bind(struct usbnet *
+ 	ret = smsc75xx_reset(dev);
+ 	if (ret < 0) {
+ 		netdev_warn(dev->net, "smsc75xx_reset error %d\n", ret);
+-		return ret;
++		goto err;
+ 	}
+ 
+ 	dev->net->netdev_ops = &smsc75xx_netdev_ops;
+@@ -1501,6 +1501,10 @@ static int smsc75xx_bind(struct usbnet *
+ 	dev->hard_mtu = dev->net->mtu + dev->net->hard_header_len;
+ 	dev->net->max_mtu = MAX_SINGLE_PACKET_SIZE;
+ 	return 0;
 +
- 	length = -ESRCH;
- 	if (!task)
- 		goto out_no_task;
++err:
++	kfree(pdata);
++	return ret;
+ }
+ 
+ static void smsc75xx_unbind(struct usbnet *dev, struct usb_interface *intf)
 
 
