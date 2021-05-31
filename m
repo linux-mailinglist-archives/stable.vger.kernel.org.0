@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C4C73967D4
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 20:26:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA1393967E3
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 20:26:28 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232023AbhEaS1v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 14:27:51 -0400
-Received: from smtp-fw-9103.amazon.com ([207.171.188.200]:25787 "EHLO
-        smtp-fw-9103.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232062AbhEaS1j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 14:27:39 -0400
+        id S232258AbhEaS2F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 14:28:05 -0400
+Received: from smtp-fw-2101.amazon.com ([72.21.196.25]:5652 "EHLO
+        smtp-fw-2101.amazon.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232349AbhEaS1l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 14:27:41 -0400
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
   d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1622485560; x=1654021560;
+  t=1622485562; x=1654021562;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=BZjquoJ/oQFDtgT3SLoaHv/l88D2w92qL1biojPQlSY=;
-  b=rBCxrtmdC+4pwnZ5SmTX/L9BVOL4DsWDrnod0b4VTHwjdGrIwwVaNIjx
-   kRKvomOx0IhETv+VxbRb3Rw6omt6DJtM2KJuHvAqnttDbmYnW8qM98KOv
-   RlOqeWIB8M4/NMfQ+URL7xSlGnqQrnKpQHy1XuFzrLq7fI+35Yf2LcH3p
-   I=;
+  bh=EIJ00SxiePLgpGoSZ+qLpbWmjIH5Msrq+HOnEFARCR0=;
+  b=bVMyP/33R0kpDHlnAOrYZF4Dm5BFwjA97QotJhGQus04H19b2XUzw4MM
+   V/DxFTwY4edJv21aCHCIn91qCz7K25j6vGOxmUBIPj/II6XF0cBEsPDHL
+   3DOw+6Ry0TvOKkshbGdlF1XpGlvrvWL40dzzH880AfqkW8iD7IXQgU3i0
+   w=;
 X-IronPort-AV: E=Sophos;i="5.83,238,1616457600"; 
-   d="scan'208";a="935853352"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-1e-c7c08562.us-east-1.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP; 31 May 2021 18:25:59 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (iad55-ws-svc-p15-lb9-vlan3.iad.amazon.com [10.40.159.166])
-        by email-inbound-relay-1e-c7c08562.us-east-1.amazon.com (Postfix) with ESMTPS id 9BD96240AF2;
+   d="scan'208";a="112734623"
+Received: from iad12-co-svc-p1-lb1-vlan2.amazon.com (HELO email-inbound-relay-2a-f14f4a47.us-west-2.amazon.com) ([10.43.8.2])
+  by smtp-border-fw-2101.iad2.amazon.com with ESMTP; 31 May 2021 18:26:00 +0000
+Received: from EX13MTAUEA002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-2a-f14f4a47.us-west-2.amazon.com (Postfix) with ESMTPS id BD7F9A21A2;
         Mon, 31 May 2021 18:25:58 +0000 (UTC)
-Received: from EX13D25UWC004.ant.amazon.com (10.43.162.201) by
- EX13MTAUWC001.ant.amazon.com (10.43.162.135) with Microsoft SMTP Server (TLS)
+Received: from EX13D10UEA003.ant.amazon.com (10.43.61.26) by
+ EX13MTAUEA002.ant.amazon.com (10.43.61.77) with Microsoft SMTP Server (TLS)
  id 15.0.1497.18; Mon, 31 May 2021 18:25:58 +0000
-Received: from EX13MTAUWC001.ant.amazon.com (10.43.162.135) by
- EX13D25UWC004.ant.amazon.com (10.43.162.201) with Microsoft SMTP Server (TLS)
- id 15.0.1497.18; Mon, 31 May 2021 18:25:57 +0000
+Received: from EX13MTAUEA001.ant.amazon.com (10.43.61.82) by
+ EX13D10UEA003.ant.amazon.com (10.43.61.26) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.18; Mon, 31 May 2021 18:25:58 +0000
 Received: from dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com
- (172.19.206.175) by mail-relay.amazon.com (10.43.162.232) with Microsoft SMTP
- Server id 15.0.1497.18 via Frontend Transport; Mon, 31 May 2021 18:25:57
+ (172.19.206.175) by mail-relay.amazon.com (10.43.61.243) with Microsoft SMTP
+ Server id 15.0.1497.18 via Frontend Transport; Mon, 31 May 2021 18:25:58
  +0000
 Received: by dev-dsk-fllinden-2c-d7720709.us-west-2.amazon.com (Postfix, from userid 6262777)
-        id 8CDF1120; Mon, 31 May 2021 18:25:57 +0000 (UTC)
+        id 8D63E146B; Mon, 31 May 2021 18:25:57 +0000 (UTC)
 From:   Frank van der Linden <fllinden@amazon.com>
 To:     <stable@vger.kernel.org>
 CC:     <bpf@vger.kernel.org>, <daniel@iogearbox.net>
-Subject: [PATCH v2 4.14 08/17] bpf: Tighten speculative pointer arithmetic mask
-Date:   Mon, 31 May 2021 18:25:47 +0000
-Message-ID: <20210531182556.25277-9-fllinden@amazon.com>
+Subject: [PATCH v2 4.14 09/17] bpf: Update selftests to reflect new error states
+Date:   Mon, 31 May 2021 18:25:48 +0000
+Message-ID: <20210531182556.25277-10-fllinden@amazon.com>
 X-Mailer: git-send-email 2.23.4
 In-Reply-To: <20210531182556.25277-1-fllinden@amazon.com>
 References: <20210531182556.25277-1-fllinden@amazon.com>
@@ -58,195 +58,228 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 7fedb63a8307dda0ec3b8969a3b233a1dd7ea8e0 upstream.
+commit d7a5091351756d0ae8e63134313c455624e36a13 upstream.
 
-This work tightens the offset mask we use for unprivileged pointer arithmetic
-in order to mitigate a corner case reported by Piotr and Benedict where in
-the speculative domain it is possible to advance, for example, the map value
-pointer by up to value_size-1 out-of-bounds in order to leak kernel memory
-via side-channel to user space.
+Update various selftest error messages:
 
-Before this change, the computed ptr_limit for retrieve_ptr_limit() helper
-represents largest valid distance when moving pointer to the right or left
-which is then fed as aux->alu_limit to generate masking instructions against
-the offset register. After the change, the derived aux->alu_limit represents
-the largest potential value of the offset register which we mask against which
-is just a narrower subset of the former limit.
+ * The 'Rx tried to sub from different maps, paths, or prohibited types'
+   is reworked into more specific/differentiated error messages for better
+   guidance.
 
-For minimal complexity, we call sanitize_ptr_alu() from 2 observation points
-in adjust_ptr_min_max_vals(), that is, before and after the simulated alu
-operation. In the first step, we retieve the alu_state and alu_limit before
-the operation as well as we branch-off a verifier path and push it to the
-verification stack as we did before which checks the dst_reg under truncation,
-in other words, when the speculative domain would attempt to move the pointer
-out-of-bounds.
+ * The change into 'value -4294967168 makes map_value pointer be out of
+   bounds' is due to moving the mixed bounds check into the speculation
+   handling and thus occuring slightly later than above mentioned sanity
+   check.
 
-In the second step, we retrieve the new alu_limit and calculate the absolute
-distance between both. Moreover, we commit the alu_state and final alu_limit
-via update_alu_sanitation_state() to the env's instruction aux data, and bail
-out from there if there is a mismatch due to coming from different verification
-paths with different states.
+ * The change into 'math between map_value pointer and register with
+   unbounded min value' is similarly due to register sanity check coming
+   before the mixed bounds check.
 
-Reported-by: Piotr Krysiuk <piotras@gmail.com>
-Reported-by: Benedict Schlueter <benedict.schlueter@rub.de>
+ * The case of 'map access: known scalar += value_ptr from different maps'
+   now loads fine given masks are the same from the different paths (despite
+   max map value size being different).
+
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Reviewed-by: John Fastabend <john.fastabend@gmail.com>
 Acked-by: Alexei Starovoitov <ast@kernel.org>
-Tested-by: Benedict Schlueter <benedict.schlueter@rub.de>
-[fllinden@amazon.com: backported to 4.14]
+[fllinden@amazon.com - 4.14 backport, account for split test_verifier and
+different / missing tests]
 Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 ---
- kernel/bpf/verifier.c | 70 +++++++++++++++++++++++++++----------------
- 1 file changed, 44 insertions(+), 26 deletions(-)
+ tools/testing/selftests/bpf/test_verifier.c | 34 ++++++++-------------
+ 1 file changed, 12 insertions(+), 22 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index f76177a37b18..1a39a89e1584 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2039,7 +2039,7 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
- 	bool off_is_neg = off_reg->smin_value < 0;
- 	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
- 			    (opcode == BPF_SUB && !off_is_neg);
--	u32 off, max = 0, ptr_limit = 0;
-+	u32 max = 0, ptr_limit = 0;
- 
- 	if (!tnum_is_const(off_reg->var_off) &&
- 	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
-@@ -2048,23 +2048,18 @@ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
- 	switch (ptr_reg->type) {
- 	case PTR_TO_STACK:
- 		/* Offset 0 is out-of-bounds, but acceptable start for the
--		 * left direction, see BPF_REG_FP.
-+		 * left direction, see BPF_REG_FP. Also, unknown scalar
-+		 * offset where we would need to deal with min/max bounds is
-+		 * currently prohibited for unprivileged.
- 		 */
- 		max = MAX_BPF_STACK + mask_to_left;
--		off = ptr_reg->off + ptr_reg->var_off.value;
--		if (mask_to_left)
--			ptr_limit = MAX_BPF_STACK + off;
--		else
--			ptr_limit = -off - 1;
-+		ptr_limit = -(ptr_reg->var_off.value + ptr_reg->off);
- 		break;
- 	case PTR_TO_MAP_VALUE:
- 		max = ptr_reg->map_ptr->value_size;
--		if (mask_to_left) {
--			ptr_limit = ptr_reg->umax_value + ptr_reg->off;
--		} else {
--			off = ptr_reg->smin_value + ptr_reg->off;
--			ptr_limit = ptr_reg->map_ptr->value_size - off - 1;
--		}
-+		ptr_limit = (mask_to_left ?
-+			     ptr_reg->smin_value :
-+			     ptr_reg->umax_value) + ptr_reg->off;
- 		break;
- 	default:
- 		return REASON_TYPE;
-@@ -2119,10 +2114,12 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
- 			    const struct bpf_reg_state *off_reg,
--			    struct bpf_reg_state *dst_reg)
-+			    struct bpf_reg_state *dst_reg,
-+			    struct bpf_insn_aux_data *tmp_aux,
-+			    const bool commit_window)
- {
-+	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
- 	struct bpf_verifier_state *vstate = env->cur_state;
--	struct bpf_insn_aux_data *aux = cur_aux(env);
- 	bool off_is_neg = off_reg->smin_value < 0;
- 	bool ptr_is_dst_reg = ptr_reg == dst_reg;
- 	u8 opcode = BPF_OP(insn->code);
-@@ -2141,18 +2138,33 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	if (vstate->speculative)
- 		goto do_sim;
- 
--	alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
--	alu_state |= ptr_is_dst_reg ?
--		     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
--
- 	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
- 	if (err < 0)
- 		return err;
- 
-+	if (commit_window) {
-+		/* In commit phase we narrow the masking window based on
-+		 * the observed pointer move after the simulated operation.
-+		 */
-+		alu_state = tmp_aux->alu_state;
-+		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
-+	} else {
-+		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
-+		alu_state |= ptr_is_dst_reg ?
-+			     BPF_ALU_SANITIZE_SRC : BPF_ALU_SANITIZE_DST;
-+	}
-+
- 	err = update_alu_sanitation_state(aux, alu_state, alu_limit);
- 	if (err < 0)
- 		return err;
- do_sim:
-+	/* If we're in commit phase, we're done here given we already
-+	 * pushed the truncated dst_reg into the speculative verification
-+	 * stack.
-+	 */
-+	if (commit_window)
-+		return 0;
-+
- 	/* Simulate and find potential out-of-bounds access under
- 	 * speculative execution from truncation as a result of
- 	 * masking when off was not within expected range. If off
-@@ -2262,6 +2274,7 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
- 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
- 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
-+	struct bpf_insn_aux_data tmp_aux = {};
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 dst = insn->dst_reg;
- 	int ret;
-@@ -2314,12 +2327,15 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 	    !check_reg_sane_offset(env, ptr_reg, ptr_reg->type))
- 		return -EINVAL;
- 
--	switch (opcode) {
--	case BPF_ADD:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
-+	if (sanitize_needed(opcode)) {
-+		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
-+				       &tmp_aux, false);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
-+	}
- 
-+	switch (opcode) {
-+	case BPF_ADD:
- 		/* We can take a fixed offset as long as it doesn't overflow
- 		 * the s32 'off' field
- 		 */
-@@ -2370,10 +2386,6 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 		}
- 		break;
- 	case BPF_SUB:
--		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
--		if (ret < 0)
--			return sanitize_err(env, insn, ret, off_reg, dst_reg);
--
- 		if (dst_reg == off_reg) {
- 			/* scalar -= pointer.  Creates an unknown scalar */
- 			if (!env->allow_ptr_leaks)
-@@ -2463,6 +2475,12 @@ static int adjust_ptr_min_max_vals(struct bpf_verifier_env *env,
- 
- 	if (sanitize_check_bounds(env, insn, dst_reg) < 0)
- 		return -EACCES;
-+	if (sanitize_needed(opcode)) {
-+		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
-+				       &tmp_aux, true);
-+		if (ret < 0)
-+			return sanitize_err(env, insn, ret, off_reg, dst_reg);
-+	}
- 
- 	return 0;
- }
+diff --git a/tools/testing/selftests/bpf/test_verifier.c b/tools/testing/selftests/bpf/test_verifier.c
+index 43d91b2d2a21..bab9942b20b2 100644
+--- a/tools/testing/selftests/bpf/test_verifier.c
++++ b/tools/testing/selftests/bpf/test_verifier.c
+@@ -2243,7 +2243,7 @@ static struct bpf_test tests[] = {
+ 			BPF_STX_MEM(BPF_DW, BPF_REG_1, BPF_REG_0, -8),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 stack pointer arithmetic goes out of range",
+ 		.result_unpriv = REJECT,
+ 		.result = ACCEPT,
+ 	},
+@@ -6220,7 +6220,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6245,7 +6244,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6272,7 +6270,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6298,7 +6295,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R8 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6347,7 +6343,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6419,7 +6414,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6471,7 +6465,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6499,7 +6492,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6526,7 +6518,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6556,7 +6547,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R7 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 	},
+ 	{
+@@ -6615,7 +6605,6 @@ static struct bpf_test tests[] = {
+ 		},
+ 		.fixup_map1 = { 3 },
+ 		.errstr = "unbounded min value",
+-		.errstr_unpriv = "R1 has unknown scalar with mixed signed bounds",
+ 		.result = REJECT,
+ 		.result_unpriv = REJECT,
+ 	},
+@@ -7779,7 +7768,7 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "R0 tried to subtract pointer from scalar",
+ 		.result = REJECT,
+ 	},
+@@ -7794,7 +7783,7 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.result_unpriv = REJECT,
+ 		.result = ACCEPT,
+ 	},
+@@ -7806,22 +7795,23 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "R0 tried to subtract pointer from scalar",
+ 		.result = REJECT,
+ 	},
+ 	{
+ 		"check deducing bounds from const, 4",
+ 		.insns = {
++			BPF_MOV64_REG(BPF_REG_6, BPF_REG_1),
+ 			BPF_MOV64_IMM(BPF_REG_0, 0),
+ 			BPF_JMP_IMM(BPF_JSLE, BPF_REG_0, 0, 1),
+ 			BPF_EXIT_INSN(),
+ 			BPF_JMP_IMM(BPF_JSGE, BPF_REG_0, 0, 1),
+ 			BPF_EXIT_INSN(),
+-			BPF_ALU64_REG(BPF_SUB, BPF_REG_1, BPF_REG_0),
++			BPF_ALU64_REG(BPF_SUB, BPF_REG_6, BPF_REG_0),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R6 has pointer with unsupported alu operation",
+ 		.result_unpriv = REJECT,
+ 		.result = ACCEPT,
+ 	},
+@@ -7833,7 +7823,7 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "R0 tried to subtract pointer from scalar",
+ 		.result = REJECT,
+ 	},
+@@ -7846,7 +7836,7 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "R0 tried to subtract pointer from scalar",
+ 		.result = REJECT,
+ 	},
+@@ -7860,7 +7850,7 @@ static struct bpf_test tests[] = {
+ 				    offsetof(struct __sk_buff, mark)),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R1 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "dereference of modified ctx ptr",
+ 		.result = REJECT,
+ 	},
+@@ -7874,7 +7864,7 @@ static struct bpf_test tests[] = {
+ 				    offsetof(struct __sk_buff, mark)),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R1 tried to add from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "dereference of modified ctx ptr",
+ 		.result = REJECT,
+ 	},
+@@ -7886,7 +7876,7 @@ static struct bpf_test tests[] = {
+ 			BPF_ALU64_REG(BPF_SUB, BPF_REG_0, BPF_REG_1),
+ 			BPF_EXIT_INSN(),
+ 		},
+-		.errstr_unpriv = "R0 tried to sub from different maps, paths, or prohibited types",
++		.errstr_unpriv = "R1 has pointer with unsupported alu operation",
+ 		.errstr = "R0 tried to subtract pointer from scalar",
+ 		.result = REJECT,
+ 	},
 -- 
 2.23.4
 
