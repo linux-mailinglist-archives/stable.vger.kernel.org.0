@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 800483961CC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAA0E395C3F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:28:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233690AbhEaOqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:46:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40210 "EHLO mail.kernel.org"
+        id S232223AbhEaNad (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:30:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34114 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233962AbhEaOoL (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:44:11 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 036FE61C7A;
-        Mon, 31 May 2021 13:54:51 +0000 (UTC)
+        id S231864AbhEaN20 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:28:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A94661414;
+        Mon, 31 May 2021 13:22:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469292;
-        bh=ecVOHXG2H/p/BcQ8/ULU/fY1B/iSnZOBzF+lCQL9Ejk=;
+        s=korg; t=1622467326;
+        bh=rxiVWhRFjxc11PiobM7mz1F4cSS4dIpzOp1jHyGjH3E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jknpNU86m5uT3fXRE13tk7m9Ga9D0tL0cRodZuVQWGnpGAtMP9rX5yeeVTXbCznV5
-         vzP26Z5QaqTkCpzgkAQRvFRteMuPOf0xbdLo87uKbkq/nHTBsiE+BDESn7YtO1wlzO
-         fFz/M59Nsm2tGvAjtAoBq7v7lKSFQ7iWoZyUdFps=
+        b=lusIRIni1Dlu+h/zKIZCBb1ZH1m0zopujMRquQPhPQsgN9p0fuwWPWAOimNCytYOJ
+         lupAFWzUHwm5MSBZ93iycOMrqAGY6WXCWswtnLpdARFaUMGXh3DEorFk+e5TRijdlS
+         TRAcsoktmsoOrdioatKyodnuDhWSY2RFTZRvhG7M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 143/296] net: dsa: sja1105: update existing VLANs from the bridge VLAN list
-Date:   Mon, 31 May 2021 15:13:18 +0200
-Message-Id: <20210531130708.679794153@linuxfoundation.org>
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Daniel Thompson <daniel.thompson@linaro.org>,
+        Jason Wessel <jason.wessel@windriver.com>
+Subject: [PATCH 4.19 023/116] kgdb: fix gcc-11 warnings harder
+Date:   Mon, 31 May 2021 15:13:19 +0200
+Message-Id: <20210531130640.942959126@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,75 +40,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit b38e659de966a122fe2cb178c1e39c9bea06bc62 upstream.
+commit bda7d3ab06f19c02dcef61fefcb9dd954dfd5e4f upstream.
 
-When running this sequence of operations:
+40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation") tried to fix up
+the gcc-11 complaints in this file by just reformatting the #defines.
+That worked for gcc 11.1.0, but in gcc 11.1.1 as shipped by Fedora 34,
+the warning came back for one of the #defines.
 
-ip link add br0 type bridge vlan_filtering 1
-ip link set swp4 master br0
-bridge vlan add dev swp4 vid 1
+Fix this up again by putting { } around the if statement, now it is
+quiet again.
 
-We observe the traffic sent on swp4 is still untagged, even though the
-bridge has overwritten the existing VLAN entry:
-
-port    vlan ids
-swp4     1 PVID
-
-br0      1 PVID Egress Untagged
-
-This happens because we didn't consider that the 'bridge vlan add'
-command just overwrites VLANs like it's nothing. We treat the 'vid 1
-pvid untagged' and the 'vid 1' as two separate VLANs, and the first
-still has precedence when calling sja1105_build_vlan_table. Obviously
-there is a disagreement regarding semantics, and we end up doing
-something unexpected from the PoV of the bridge.
-
-Let's actually consider an "existing VLAN" to be one which is on the
-same port, and has the same VLAN ID, as one we already have, and update
-it if it has different flags than we do.
-
-The first blamed commit is the one introducing the bug, the second one
-is the latest on top of which the bugfix still applies.
-
-Fixes: ec5ae61076d0 ("net: dsa: sja1105: save/restore VLANs using a delta commit method")
-Fixes: 5899ee367ab3 ("net: dsa: tag_8021q: add a context structure")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 40cc3a80bb42 ("kgdb: fix gcc-11 warning on indentation")
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Daniel Thompson <daniel.thompson@linaro.org>
+Cc: Jason Wessel <jason.wessel@windriver.com>
+Link: https://lore.kernel.org/r/20210520130839.51987-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/sja1105/sja1105_main.c |   19 +++++++++++++++----
- 1 file changed, 15 insertions(+), 4 deletions(-)
+ drivers/misc/kgdbts.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/net/dsa/sja1105/sja1105_main.c
-+++ b/drivers/net/dsa/sja1105/sja1105_main.c
-@@ -2817,11 +2817,22 @@ static int sja1105_vlan_add_one(struct d
- 	bool pvid = flags & BRIDGE_VLAN_INFO_PVID;
- 	struct sja1105_bridge_vlan *v;
- 
--	list_for_each_entry(v, vlan_list, list)
--		if (v->port == port && v->vid == vid &&
--		    v->untagged == untagged && v->pvid == pvid)
-+	list_for_each_entry(v, vlan_list, list) {
-+		if (v->port == port && v->vid == vid) {
- 			/* Already added */
--			return 0;
-+			if (v->untagged == untagged && v->pvid == pvid)
-+				/* Nothing changed */
-+				return 0;
-+
-+			/* It's the same VLAN, but some of the flags changed
-+			 * and the user did not bother to delete it first.
-+			 * Update it and trigger sja1105_build_vlan_table.
-+			 */
-+			v->untagged = untagged;
-+			v->pvid = pvid;
-+			return 1;
-+		}
-+	}
- 
- 	v = kzalloc(sizeof(*v), GFP_KERNEL);
- 	if (!v) {
+--- a/drivers/misc/kgdbts.c
++++ b/drivers/misc/kgdbts.c
+@@ -112,8 +112,9 @@
+ 		printk(KERN_INFO a);	\
+ } while (0)
+ #define v2printk(a...) do {		\
+-	if (verbose > 1)		\
++	if (verbose > 1) {		\
+ 		printk(KERN_INFO a);	\
++	}				\
+ 	touch_nmi_watchdog();		\
+ } while (0)
+ #define eprintk(a...) do {		\
 
 
