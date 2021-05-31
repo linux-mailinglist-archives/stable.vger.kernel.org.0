@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68CCC395DD0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 119CD395DD2
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232054AbhEaNvK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:51:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50206 "EHLO mail.kernel.org"
+        id S232283AbhEaNvL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231960AbhEaNrp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:47:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B79561420;
-        Mon, 31 May 2021 13:30:54 +0000 (UTC)
+        id S231845AbhEaNru (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:47:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECAE361422;
+        Mon, 31 May 2021 13:30:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467854;
-        bh=In3SRlmwIXS6GnGw4LfTj5o4BRoVVGBqZCE0Gzaw+R0=;
+        s=korg; t=1622467857;
+        bh=xeakNeHo+vWY6mJu9AUXZCwYLaHsdw4m/zc8lvHTY5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nsZrtMi1dWpAbOjsnJa5LKjRscwIrpXa1V8g+ZLRdovxrrL4ZDzXra7aY9lvuj7QK
-         SIbcXXlfZVuf9aZgChiVFAitHfvr9uJrasBgMJTEm3jVWQ6bAqJAOzajLzyBAas35D
-         +G0oTlZfx7M5ONt5oKiDXRbBxcwP9vbePWrQft2o=
+        b=2leKYaunzcZ1+dZ3kzYIvS05zPeyV66nwxZ4zeR/YQRtJGVg8ysdYR1BaXNnt4pJI
+         l46KyqHFXtex8sk542/GLkBerdKJEBXAv3Xw44SkugTy1RXYOGVlLqG2wqkvil+p/N
+         Ca6MM+dcO+B6aAhdwYEW9JSclw5sWOXAhTHdw4rY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.10 025/252] mac80211: properly handle A-MSDUs that start with an RFC 1042 header
-Date:   Mon, 31 May 2021 15:11:30 +0200
-Message-Id: <20210531130658.836824690@linuxfoundation.org>
+Subject: [PATCH 5.10 026/252] cfg80211: mitigate A-MSDU aggregation attacks
+Date:   Mon, 31 May 2021 15:11:31 +0200
+Message-Id: <20210531130658.868333020@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
 References: <20210531130657.971257589@linuxfoundation.org>
@@ -41,74 +41,47 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit a1d5ff5651ea592c67054233b14b30bf4452999c upstream.
+commit 2b8a1fee3488c602aca8bea004a087e60806a5cf upstream.
 
-Properly parse A-MSDUs whose first 6 bytes happen to equal a rfc1042
-header. This can occur in practice when the destination MAC address
-equals AA:AA:03:00:00:00. More importantly, this simplifies the next
-patch to mitigate A-MSDU injection attacks.
+Mitigate A-MSDU injection attacks (CVE-2020-24588) by detecting if the
+destination address of a subframe equals an RFC1042 (i.e., LLC/SNAP)
+header, and if so dropping the complete A-MSDU frame. This mitigates
+known attacks, although new (unknown) aggregation-based attacks may
+remain possible.
+
+This defense works because in A-MSDU aggregation injection attacks, a
+normal encrypted Wi-Fi frame is turned into an A-MSDU frame. This means
+the first 6 bytes of the first A-MSDU subframe correspond to an RFC1042
+header. In other words, the destination MAC address of the first A-MSDU
+subframe contains the start of an RFC1042 header during an aggregation
+attack. We can detect this and thereby prevent this specific attack.
+For details, see Section 7.2 of "Fragment and Forge: Breaking Wi-Fi
+Through Frame Aggregation and Fragmentation".
+
+Note that for kernel 4.9 and above this patch depends on "mac80211:
+properly handle A-MSDUs that start with a rfc1042 header". Otherwise
+this patch has no impact and attacks will remain possible.
 
 Cc: stable@vger.kernel.org
 Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.0b2b886492f0.I23dd5d685fe16d3b0ec8106e8f01b59f499dffed@changeid
+Link: https://lore.kernel.org/r/20210511200110.25d93176ddaf.I9e265b597f2cd23eb44573f35b625947b386a9de@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/cfg80211.h |    4 ++--
- net/mac80211/rx.c      |    2 +-
- net/wireless/util.c    |    4 ++--
- 3 files changed, 5 insertions(+), 5 deletions(-)
+ net/wireless/util.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/include/net/cfg80211.h
-+++ b/include/net/cfg80211.h
-@@ -5624,7 +5624,7 @@ unsigned int ieee80211_get_mesh_hdrlen(s
-  */
- int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
- 				  const u8 *addr, enum nl80211_iftype iftype,
--				  u8 data_offset);
-+				  u8 data_offset, bool is_amsdu);
- 
- /**
-  * ieee80211_data_to_8023 - convert an 802.11 data frame to 802.3
-@@ -5636,7 +5636,7 @@ int ieee80211_data_to_8023_exthdr(struct
- static inline int ieee80211_data_to_8023(struct sk_buff *skb, const u8 *addr,
- 					 enum nl80211_iftype iftype)
- {
--	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0);
-+	return ieee80211_data_to_8023_exthdr(skb, NULL, addr, iftype, 0, false);
- }
- 
- /**
---- a/net/mac80211/rx.c
-+++ b/net/mac80211/rx.c
-@@ -2692,7 +2692,7 @@ __ieee80211_rx_h_amsdu(struct ieee80211_
- 	if (ieee80211_data_to_8023_exthdr(skb, &ethhdr,
- 					  rx->sdata->vif.addr,
- 					  rx->sdata->vif.type,
--					  data_offset))
-+					  data_offset, true))
- 		return RX_DROP_UNUSABLE;
- 
- 	ieee80211_amsdu_to_8023s(skb, &frame_list, dev->dev_addr,
 --- a/net/wireless/util.c
 +++ b/net/wireless/util.c
-@@ -541,7 +541,7 @@ EXPORT_SYMBOL(ieee80211_get_mesh_hdrlen)
+@@ -771,6 +771,9 @@ void ieee80211_amsdu_to_8023s(struct sk_
+ 		remaining = skb->len - offset;
+ 		if (subframe_len > remaining)
+ 			goto purge;
++		/* mitigate A-MSDU aggregation injection attacks */
++		if (ether_addr_equal(eth.h_dest, rfc1042_header))
++			goto purge;
  
- int ieee80211_data_to_8023_exthdr(struct sk_buff *skb, struct ethhdr *ehdr,
- 				  const u8 *addr, enum nl80211_iftype iftype,
--				  u8 data_offset)
-+				  u8 data_offset, bool is_amsdu)
- {
- 	struct ieee80211_hdr *hdr = (struct ieee80211_hdr *) skb->data;
- 	struct {
-@@ -629,7 +629,7 @@ int ieee80211_data_to_8023_exthdr(struct
- 	skb_copy_bits(skb, hdrlen, &payload, sizeof(payload));
- 	tmp.h_proto = payload.proto;
- 
--	if (likely((ether_addr_equal(payload.hdr, rfc1042_header) &&
-+	if (likely((!is_amsdu && ether_addr_equal(payload.hdr, rfc1042_header) &&
- 		    tmp.h_proto != htons(ETH_P_AARP) &&
- 		    tmp.h_proto != htons(ETH_P_IPX)) ||
- 		   ether_addr_equal(payload.hdr, bridge_tunnel_header)))
+ 		offset += sizeof(struct ethhdr);
+ 		last = remaining <= subframe_len + padding;
 
 
