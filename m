@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 941643961E3
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6E37395B31
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233824AbhEaOrk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:47:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40790 "EHLO mail.kernel.org"
+        id S231618AbhEaNSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:18:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53266 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232009AbhEaOpj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:45:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A252C61C83;
-        Mon, 31 May 2021 13:55:30 +0000 (UTC)
+        id S231585AbhEaNSM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A76D660FE8;
+        Mon, 31 May 2021 13:16:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469331;
-        bh=kezQKjHOc9G5y7JOeaR1tVS84j6O+vmfVzO6uJyggVc=;
+        s=korg; t=1622466992;
+        bh=59LrN1uH1YeHYW5tSQYt3+6lzE+XUQW+Snp+U7mfbwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HqZszcyLDi+gboX1du93WZiDCxZq34R/qh8YbZi1adpmju8MgGuG2oGQXA0W25xbQ
-         cIJYmYt7J4v8YckCFY7dKYtPlHCGg5DpNijplOHfP4EEjk0NSzXyech783PIiYGXXj
-         UJszL+G2+Tgwutx7WGkYW+E4+XcRCGB9tLgOfb6M=
+        b=NAad6x2XGbIGQUeulDh+ZaMtMbGP+B7EbVDUS8O1Yy0wGWgnwVtuRYV9XzQqM+Y97
+         C3ApanZMdoCKIMscTDFliPOx831q2GA3u4GdNrheLAyI/dwdJpoGg9OamBqT5JTYBq
+         2pJcHwpS/GRy/NhkGAk5H8VpkEo5nJyjbKU5kwXA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 157/296] mptcp: avoid error message on infinite mapping
-Date:   Mon, 31 May 2021 15:13:32 +0200
-Message-Id: <20210531130709.141161639@linuxfoundation.org>
+        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 4.4 07/54] mac80211: prevent mixed key and fragment cache attacks
+Date:   Mon, 31 May 2021 15:13:33 +0200
+Message-Id: <20210531130635.308851787@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,31 +39,99 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
 
-commit 3ed0a585bfadb6bd7080f11184adbc9edcce7dbc upstream.
+commit 94034c40ab4a3fcf581fbc7f8fdf4e29943c4a24 upstream.
 
-Another left-over. Avoid flooding dmesg with useless text,
-we already have a MIB for that event.
+Simultaneously prevent mixed key attacks (CVE-2020-24587) and fragment
+cache attacks (CVE-2020-24586). This is accomplished by assigning a
+unique color to every key (per interface) and using this to track which
+key was used to decrypt a fragment. When reassembling frames, it is
+now checked whether all fragments were decrypted using the same key.
 
-Fixes: 648ef4b88673 ("mptcp: Implement MPTCP receive path")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+To assure that fragment cache attacks are also prevented, the ID that is
+assigned to keys is unique even over (re)associations and (re)connects.
+This means fragments separated by a (re)association or (re)connect will
+not be reassembled. Because mac80211 now also prevents the reassembly of
+mixed encrypted and plaintext fragments, all cache attacks are prevented.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+Link: https://lore.kernel.org/r/20210511200110.3f8290e59823.I622a67769ed39257327a362cfc09c812320eb979@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mptcp/subflow.c |    1 -
- 1 file changed, 1 deletion(-)
+ net/mac80211/ieee80211_i.h |    1 +
+ net/mac80211/key.c         |    7 +++++++
+ net/mac80211/key.h         |    2 ++
+ net/mac80211/rx.c          |    6 ++++++
+ 4 files changed, 16 insertions(+)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -839,7 +839,6 @@ static enum mapping_status get_mapping_s
+--- a/net/mac80211/ieee80211_i.h
++++ b/net/mac80211/ieee80211_i.h
+@@ -94,6 +94,7 @@ struct ieee80211_fragment_entry {
+ 	u8 rx_queue;
+ 	bool check_sequential_pn; /* needed for CCMP/GCMP */
+ 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
++	unsigned int key_color;
+ };
  
- 	data_len = mpext->data_len;
- 	if (data_len == 0) {
--		pr_err("Infinite mapping not handled");
- 		MPTCP_INC_STATS(sock_net(ssk), MPTCP_MIB_INFINITEMAPRX);
- 		return MAPPING_INVALID;
- 	}
+ 
+--- a/net/mac80211/key.c
++++ b/net/mac80211/key.c
+@@ -645,6 +645,7 @@ int ieee80211_key_link(struct ieee80211_
+ 		       struct ieee80211_sub_if_data *sdata,
+ 		       struct sta_info *sta)
+ {
++	static atomic_t key_color = ATOMIC_INIT(0);
+ 	struct ieee80211_local *local = sdata->local;
+ 	struct ieee80211_key *old_key;
+ 	int idx = key->conf.keyidx;
+@@ -680,6 +681,12 @@ int ieee80211_key_link(struct ieee80211_
+ 	key->sdata = sdata;
+ 	key->sta = sta;
+ 
++	/*
++	 * Assign a unique ID to every key so we can easily prevent mixed
++	 * key and fragment cache attacks.
++	 */
++	key->color = atomic_inc_return(&key_color);
++
+ 	increment_tailroom_need_count(sdata);
+ 
+ 	ieee80211_key_replace(sdata, sta, pairwise, old_key, key);
+--- a/net/mac80211/key.h
++++ b/net/mac80211/key.h
+@@ -123,6 +123,8 @@ struct ieee80211_key {
+ 	} debugfs;
+ #endif
+ 
++	unsigned int color;
++
+ 	/*
+ 	 * key config, must be last because it contains key
+ 	 * material as variable length member
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -1869,6 +1869,7 @@ ieee80211_rx_h_defragment(struct ieee802
+ 			 * next fragment has a sequential PN value.
+ 			 */
+ 			entry->check_sequential_pn = true;
++			entry->key_color = rx->key->color;
+ 			memcpy(entry->last_pn,
+ 			       rx->key->u.ccmp.rx_pn[queue],
+ 			       IEEE80211_CCMP_PN_LEN);
+@@ -1906,6 +1907,11 @@ ieee80211_rx_h_defragment(struct ieee802
+ 
+ 		if (!requires_sequential_pn(rx, fc))
+ 			return RX_DROP_UNUSABLE;
++
++		/* Prevent mixed key and fragment cache attacks */
++		if (entry->key_color != rx->key->color)
++			return RX_DROP_UNUSABLE;
++
+ 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
+ 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
+ 			pn[i]++;
 
 
