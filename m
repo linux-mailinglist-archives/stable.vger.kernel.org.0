@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 12C6D395D28
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:40:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4C1F395F01
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:04:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232699AbhEaNmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42864 "EHLO mail.kernel.org"
+        id S232972AbhEaOGb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:06:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37788 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232953AbhEaNj6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:39:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3214A61370;
-        Mon, 31 May 2021 13:27:25 +0000 (UTC)
+        id S233308AbhEaOEZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:04:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4036F613FE;
+        Mon, 31 May 2021 13:38:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467645;
-        bh=cFKdeZRAsalLgHDr88RrC/uO12YQi4x7nN+X157/FWI=;
+        s=korg; t=1622468288;
+        bh=26WxNwO+8uDhnOWKEyMtx1cDFa5fjm15bHmqxO787rI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TJwZ2Lkeu2cZ8M5/NfSRF4AQeToggDOuxBygj7Cea4g60e5378nNvRo5LfOC/L/6P
-         ypq7MdRSImbkxS8vMXiyWLiJsZ4FABZg9H2x6YRvdtF8u5q9Nj1Z/YY4rhBid5c4JE
-         CbnGegBNqr6PMU3kEXV3GMET1tFSF/+PCYtEiieM=
+        b=Jph21xLh5Jg9m2WzP5NLRUqaKM0C8UStYiLsDdSevD4rzBkVdbkxZtd9mPHH3lNNV
+         B4V6IYCP0A4nArK2wsA7qzdMlKaMGtAj1UykZCuFkibJTI/U7s2D7FA9q8t6QAAxIW
+         lHr3I0OxTGrGeFmVYDYH+7m77UNWHn2tN6/OtTV0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Linh Phung <linh.phung.jy@renesas.com>,
-        Wolfram Sang <wsa+renesas@sang-engineering.com>,
-        Ulrich Hecht <uli+renesas@fpond.eu>,
-        Geert Uytterhoeven <geert+renesas@glider.be>
-Subject: [PATCH 4.14 26/79] serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
+        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 186/252] platform/x86: touchscreen_dmi: Add info for the Chuwi Hi10 Pro (CWI529) tablet
 Date:   Mon, 31 May 2021 15:14:11 +0200
-Message-Id: <20210531130636.845790318@linuxfoundation.org>
+Message-Id: <20210531130704.328268519@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,49 +39,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 2ea2e019c190ee3973ef7bcaf829d8762e56e635 upstream.
+[ Upstream commit e68671e9e1275dfdda333c3e83b6d28963af16b6 ]
 
-The Receive FIFO Data Count Trigger field (RTRG[6:0]) in the Receive
-FIFO Data Count Trigger Register (HSRTRGR) of HSCIF can only hold values
-ranging from 0-127.  As the FIFO size is equal to 128 on HSCIF, the user
-can write an out-of-range value, touching reserved bits.
+Add touchscreen info for the Chuwi Hi10 Pro (CWI529) tablet. This includes
+info for getting the firmware directly from the UEFI, so that the user does
+not need to manually install the firmware in /lib/firmware/silead.
 
-Fix this by limiting the trigger value to the FIFO size minus one.
-Reverse the order of the checks, to avoid rx_trig becoming zero if the
-FIFO size is one.
+This change will make the touchscreen on these devices work OOTB,
+without requiring any manual setup.
 
-Note that this change has no impact on other SCIF variants, as their
-maximum supported trigger value is lower than the FIFO size anyway, and
-the code below takes care of enforcing these limits.
-
-Fixes: a380ed461f66d1b8 ("serial: sh-sci: implement FIFO threshold register setting")
-Reported-by: Linh Phung <linh.phung.jy@renesas.com>
-Reviewed-by: Wolfram Sang <wsa+renesas@sang-engineering.com>
-Reviewed-by: Ulrich Hecht <uli+renesas@fpond.eu>
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/5eff320aef92ffb33d00e57979fd3603bbb4a70f.1620648218.git.geert+renesas@glider.be
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20210520093228.7439-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/sh-sci.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/platform/x86/touchscreen_dmi.c | 35 ++++++++++++++++++++++++++
+ 1 file changed, 35 insertions(+)
 
---- a/drivers/tty/serial/sh-sci.c
-+++ b/drivers/tty/serial/sh-sci.c
-@@ -994,10 +994,10 @@ static int scif_set_rtrg(struct uart_por
- {
- 	unsigned int bits;
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index e1455f1d2472..3743d895399e 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -115,6 +115,32 @@ static const struct ts_dmi_data chuwi_hi10_plus_data = {
+ 	.properties     = chuwi_hi10_plus_props,
+ };
  
-+	if (rx_trig >= port->fifosize)
-+		rx_trig = port->fifosize - 1;
- 	if (rx_trig < 1)
- 		rx_trig = 1;
--	if (rx_trig >= port->fifosize)
--		rx_trig = port->fifosize;
- 
- 	/* HSCIF can be set to an arbitrary level. */
- 	if (sci_getreg(port, HSRTRGR)->size) {
++static const struct property_entry chuwi_hi10_pro_props[] = {
++	PROPERTY_ENTRY_U32("touchscreen-min-x", 8),
++	PROPERTY_ENTRY_U32("touchscreen-min-y", 8),
++	PROPERTY_ENTRY_U32("touchscreen-size-x", 1912),
++	PROPERTY_ENTRY_U32("touchscreen-size-y", 1272),
++	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
++	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-pro.fw"),
++	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
++	PROPERTY_ENTRY_BOOL("silead,home-button"),
++	{ }
++};
++
++static const struct ts_dmi_data chuwi_hi10_pro_data = {
++	.embedded_fw = {
++		.name	= "silead/gsl1680-chuwi-hi10-pro.fw",
++		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
++		.length	= 42504,
++		.sha256	= { 0xdb, 0x92, 0x68, 0xa8, 0xdb, 0x81, 0x31, 0x00,
++			    0x1f, 0x58, 0x89, 0xdb, 0x19, 0x1b, 0x15, 0x8c,
++			    0x05, 0x14, 0xf4, 0x95, 0xba, 0x15, 0x45, 0x98,
++			    0x42, 0xa3, 0xbb, 0x65, 0xe3, 0x30, 0xa5, 0x93 },
++	},
++	.acpi_name      = "MSSL1680:00",
++	.properties     = chuwi_hi10_pro_props,
++};
++
+ static const struct property_entry chuwi_vi8_props[] = {
+ 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
+ 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
+@@ -872,6 +898,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
+ 		},
+ 	},
++	{
++		/* Chuwi Hi10 Prus (CWI597) */
++		.driver_data = (void *)&chuwi_hi10_pro_data,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
++			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
+-- 
+2.30.2
+
 
 
