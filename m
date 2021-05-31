@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7421A395E55
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:56:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 449A73961B0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:43:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231563AbhEaN5W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:57:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59856 "EHLO mail.kernel.org"
+        id S232258AbhEaOpT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:45:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36376 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231295AbhEaNzT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:55:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0EF5261921;
-        Mon, 31 May 2021 13:34:10 +0000 (UTC)
+        id S233571AbhEaOlb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:41:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2016961C69;
+        Mon, 31 May 2021 13:53:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468051;
-        bh=RLc5HdfSuRXEJT6fKHrR0akzAXP6BjMfCmZNsOjN9DE=;
+        s=korg; t=1622469203;
+        bh=jFKVi9XL6ixV0hbqfoPYTOQJnIaF9QxvbHICEOH5Dn8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xVSqywR4caDJHGKGk8wKaGpZYydvv+rSaaZXSMKqNM1yOojdx0ECF/ADRkIBWLzfx
-         ZVWvt+m+DuCkADPp9bcBY3eYtGmvjW5yhKsGPUE87i7UVmRPhLZ2c4xoFuRtXrAaMu
-         mP8lZ/qc4j3JUzT+yg/09y/qkvZh98s/QB5rPN3Y=
+        b=ltHowRXi9PDEigMVmg4ePToab6FNMgbwipF316mNLvz9+tZXfZLmIm08Zpvi5/CHk
+         2rcfZdnOt8wqNkKGWAJT1EtubmkKap8XdTcJZUuYkbPZd6h+OO8cSnCrU9k7y58soj
+         SRmBX9Ws0UxGnMGhbSCNl64D+VR27e8BIdadkxbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dima Chumak <dchumak@nvidia.com>,
-        Roi Dayan <roid@nvidia.com>, Saeed Mahameed <saeedm@nvidia.com>
-Subject: [PATCH 5.10 098/252] net/mlx5e: Fix multipath lag activation
-Date:   Mon, 31 May 2021 15:12:43 +0200
-Message-Id: <20210531130701.310427606@linuxfoundation.org>
+        stable@vger.kernel.org, Guenter Roeck <linux@roeck-us.net>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Kyle Tso <kyletso@google.com>
+Subject: [PATCH 5.12 109/296] usb: typec: tcpm: Respond Not_Supported if no snk_vdo
+Date:   Mon, 31 May 2021 15:12:44 +0200
+Message-Id: <20210531130707.603616914@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,51 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dima Chumak <dchumak@nvidia.com>
+From: Kyle Tso <kyletso@google.com>
 
-commit 97817fcc684ed01497bd19d0cd4dea699665b9cf upstream.
+commit a20dcf53ea9836387b229c4878f9559cf1b55b71 upstream.
 
-When handling FIB_EVENT_ENTRY_REPLACE event for a new multipath route,
-lag activation can be missed if a stale (struct lag_mp)->mfi pointer
-exists, which was associated with an older multipath route that had been
-removed.
+If snk_vdo is not populated from fwnode, it implies the port does not
+support responding to SVDM commands. Not_Supported Message shall be sent
+if the contract is in PD3. And for PD2, the port shall ignore the
+commands.
 
-Normally, when a route is removed, it triggers mlx5_lag_fib_event(),
-which handles FIB_EVENT_ENTRY_DEL and clears mfi pointer. But, if
-mlx5_lag_check_prereq() condition isn't met, for example when eswitch is
-in legacy mode, the fib event is skipped and mfi pointer becomes stale.
-
-Fix by resetting mfi pointer to NULL every time mlx5_lag_mp_init() is
-called.
-
-Fixes: 544fe7c2e654 ("net/mlx5e: Activate HW multipath and handle port affinity based on FIB events")
-Signed-off-by: Dima Chumak <dchumak@nvidia.com>
-Reviewed-by: Roi Dayan <roid@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: 193a68011fdc ("staging: typec: tcpm: Respond to Discover Identity commands")
+Cc: stable <stable@vger.kernel.org>
+Reviewed-by: Guenter Roeck <linux@roeck-us.net>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210523015855.1785484-3-kyletso@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/usb/typec/tcpm/tcpm.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/lag_mp.c
-@@ -307,6 +307,11 @@ int mlx5_lag_mp_init(struct mlx5_lag *ld
- 	struct lag_mp *mp = &ldev->lag_mp;
- 	int err;
- 
-+	/* always clear mfi, as it might become stale when a route delete event
-+	 * has been missed
-+	 */
-+	mp->mfi = NULL;
-+
- 	if (mp->fib_nb.notifier_call)
- 		return 0;
- 
-@@ -335,4 +340,5 @@ void mlx5_lag_mp_cleanup(struct mlx5_lag
- 	unregister_fib_notifier(&init_net, &mp->fib_nb);
- 	destroy_workqueue(mp->wq);
- 	mp->fib_nb.notifier_call = NULL;
-+	mp->mfi = NULL;
- }
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -2410,7 +2410,10 @@ static void tcpm_pd_data_request(struct
+ 					   NONE_AMS);
+ 		break;
+ 	case PD_DATA_VENDOR_DEF:
+-		tcpm_handle_vdm_request(port, msg->payload, cnt);
++		if (tcpm_vdm_ams(port) || port->nr_snk_vdo)
++			tcpm_handle_vdm_request(port, msg->payload, cnt);
++		else if (port->negotiated_rev > PD_REV20)
++			tcpm_pd_handle_msg(port, PD_MSG_CTRL_NOT_SUPP, NONE_AMS);
+ 		break;
+ 	case PD_DATA_BIST:
+ 		port->bist_request = le32_to_cpu(msg->payload[0]);
 
 
