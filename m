@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D9D54395FF6
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:20:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id ABBE4395E98
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:59:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233310AbhEaORm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:17:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43306 "EHLO mail.kernel.org"
+        id S232689AbhEaOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:00:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59374 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233781AbhEaOPj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:15:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C493C619A1;
-        Mon, 31 May 2021 13:42:50 +0000 (UTC)
+        id S232065AbhEaN6u (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:58:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B32561936;
+        Mon, 31 May 2021 13:35:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468571;
-        bh=SLvqaojeofwp8GZw65DhfTi37SwMU3e5Yhve4mFHEco=;
+        s=korg; t=1622468140;
+        bh=29yBi7z/CJIiEuekGlfUeyaZL3+2djxDR7+tD7HwhU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ar3+hJZ3TzM5Mis9Wg0tTa3kijCVn1H4LMQFArObMWAzHAAHG4DiH3rg6zZsKuyfb
-         DMwsmNatPDPZcAsM26BXhgGLgqCCDGJMhLeP1nwLghrVuERkHHK4cjWJP8CiuI6El6
-         R4OWmRqiiz4/0yl6V5ER44qI0GGIsL7J6MMKoCfE=
+        b=qFHveuq1xI0N6yw4lwyj2SpgcV3yoF2c5lrmt8FSsg5eB4OF2tVyIWzUepE892z/S
+         +7BMjZ4OKBAVneR2fA1ae3IEYk+jKXxTTb8BKTzSMtRsBkJpt2kpocpnin9bylISRY
+         3LxWRbMqn8lIZQrGVterHU4LIJX2/xFYs+mqrovk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: [PATCH 5.4 040/177] misc/uss720: fix memory leak in uss720_probe
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        linux-crypto@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 132/252] Revert "crypto: cavium/nitrox - add an error message to explain the failure of pci_request_mem_regions"
 Date:   Mon, 31 May 2021 15:13:17 +0200
-Message-Id: <20210531130649.313099268@linuxfoundation.org>
+Message-Id: <20210531130702.491494728@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,52 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit dcb4b8ad6a448532d8b681b5d1a7036210b622de upstream.
+[ Upstream commit 6a3239a738d86c5e9b5aad17fefe2c2bfd6ced83 ]
 
-uss720_probe forgets to decrease the refcount of usbdev in uss720_probe.
-Fix this by decreasing the refcount of usbdev by usb_put_dev.
+This reverts commit 9fcddaf2e28d779cb946d23838ba6d50f299aa80 as it was
+submitted under a fake name and we can not knowingly accept anonymous
+contributions to the repository.
 
-BUG: memory leak
-unreferenced object 0xffff888101113800 (size 2048):
-  comm "kworker/0:1", pid 7, jiffies 4294956777 (age 28.870s)
-  hex dump (first 32 bytes):
-    ff ff ff ff 31 00 00 00 00 00 00 00 00 00 00 00  ....1...........
-    00 00 00 00 00 00 00 00 00 00 00 00 03 00 00 00  ................
-  backtrace:
-    [<ffffffff82b8e822>] kmalloc include/linux/slab.h:554 [inline]
-    [<ffffffff82b8e822>] kzalloc include/linux/slab.h:684 [inline]
-    [<ffffffff82b8e822>] usb_alloc_dev+0x32/0x450 drivers/usb/core/usb.c:582
-    [<ffffffff82b98441>] hub_port_connect drivers/usb/core/hub.c:5129 [inline]
-    [<ffffffff82b98441>] hub_port_connect_change drivers/usb/core/hub.c:5363 [inline]
-    [<ffffffff82b98441>] port_event drivers/usb/core/hub.c:5509 [inline]
-    [<ffffffff82b98441>] hub_event+0x1171/0x20c0 drivers/usb/core/hub.c:5591
-    [<ffffffff81259229>] process_one_work+0x2c9/0x600 kernel/workqueue.c:2275
-    [<ffffffff81259b19>] worker_thread+0x59/0x5d0 kernel/workqueue.c:2421
-    [<ffffffff81261228>] kthread+0x178/0x1b0 kernel/kthread.c:292
-    [<ffffffff8100227f>] ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:294
+This commit was part of a submission "test" to the Linux kernel
+community by some "researchers" at umn.edu.  As outlined at:
+	https://www-users.cs.umn.edu/%7Ekjlu/papers/full-disclosure.pdf
+it was done so as an attempt to submit a known-buggy patch to see if it
+could get by our review.  However, the submission turned out to actually
+be correct, and not have a bug in it as the author did not understand
+how the PCI driver model works at all, and so the submission was
+accepted.
 
-Fixes: 0f36163d3abe ("[PATCH] usb: fix uss720 schedule with interrupts off")
-Cc: stable <stable@vger.kernel.org>
-Reported-by: syzbot+636c58f40a86b4a879e7@syzkaller.appspotmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Link: https://lore.kernel.org/r/20210514124348.6587-1-mudongliangabcd@gmail.com
+As this change is of useless consequence, there is no loss of
+functionality in reverting it.
+
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Cc: linux-crypto@vger.kernel.org
+Acked-by: Herbert Xu <herbert@gondor.apana.org.au>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Link: https://lore.kernel.org/r/YIkTi9a3nnL50wMq@kroah.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/misc/uss720.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/crypto/cavium/nitrox/nitrox_main.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/misc/uss720.c
-+++ b/drivers/usb/misc/uss720.c
-@@ -736,6 +736,7 @@ static int uss720_probe(struct usb_inter
- 	parport_announce_port(pp);
- 
- 	usb_set_intfdata(intf, pp);
-+	usb_put_dev(usbdev);
- 	return 0;
- 
- probe_abort:
+diff --git a/drivers/crypto/cavium/nitrox/nitrox_main.c b/drivers/crypto/cavium/nitrox/nitrox_main.c
+index 9d14be97e381..cee2a2713038 100644
+--- a/drivers/crypto/cavium/nitrox/nitrox_main.c
++++ b/drivers/crypto/cavium/nitrox/nitrox_main.c
+@@ -451,7 +451,6 @@ static int nitrox_probe(struct pci_dev *pdev,
+ 	err = pci_request_mem_regions(pdev, nitrox_driver_name);
+ 	if (err) {
+ 		pci_disable_device(pdev);
+-		dev_err(&pdev->dev, "Failed to request mem regions!\n");
+ 		return err;
+ 	}
+ 	pci_set_master(pdev);
+-- 
+2.30.2
+
 
 
