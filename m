@@ -2,35 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 20071396110
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:33:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E8D0395DD1
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:49:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233504AbhEaOfh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:35:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59468 "EHLO mail.kernel.org"
+        id S232321AbhEaNvO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:51:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54042 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233273AbhEaOda (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:33:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 960C261430;
-        Mon, 31 May 2021 13:50:10 +0000 (UTC)
+        id S231211AbhEaNsE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:48:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CCE1D61622;
+        Mon, 31 May 2021 13:30:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469011;
-        bh=KDHKU3N21GX6pSlwKIfOGNIzIdGOtC5sWfcdFEVS2N8=;
+        s=korg; t=1622467860;
+        bh=DIFYrT2z8Z4Kuj0PmEbVG74kAJb7U1+6y4XM77k6v8w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+W7x/pzZ6wnfeyDogzYy1BgRcApOZSfZzqTv/WGRIKXvW/T4W+/KX2Q9yNNGatjj
-         Iv8jfROXu9/rB/OFEXrWCQmh3/4jWt224gGTUbph1sRE4KNZn9EY2ANK7pJEi9Xy+G
-         9RK+9wVuEG+0AewxQ7uSjaC5/DKVYqXSmi2BLN3s=
+        b=rBEASu/OX/NDsFMthqpHPoNNqF6zBEGqyNInQzCHm/E4pa+rjpKkFlm7fHwGrJPjH
+         dLnccrEK+k/nPME5SAtw4ajsOyqofOPo7EuhhQHHBbtuL8/r11O/HgE+kNvR7kyOiE
+         IPySrdo0973PNSAt7sAvwN5vBhdPe2fQA2ryjtd4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.12 036/296] mac80211: prevent mixed key and fragment cache attacks
-Date:   Mon, 31 May 2021 15:11:31 +0200
-Message-Id: <20210531130705.033887804@linuxfoundation.org>
+        stable@vger.kernel.org, Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 027/252] mac80211: drop A-MSDUs on old ciphers
+Date:   Mon, 31 May 2021 15:11:32 +0200
+Message-Id: <20210531130658.908265900@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,99 +38,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit 94034c40ab4a3fcf581fbc7f8fdf4e29943c4a24 upstream.
+commit 270032a2a9c4535799736142e1e7c413ca7b836e upstream.
 
-Simultaneously prevent mixed key attacks (CVE-2020-24587) and fragment
-cache attacks (CVE-2020-24586). This is accomplished by assigning a
-unique color to every key (per interface) and using this to track which
-key was used to decrypt a fragment. When reassembling frames, it is
-now checked whether all fragments were decrypted using the same key.
+With old ciphers (WEP and TKIP) we shouldn't be using A-MSDUs
+since A-MSDUs are only supported if we know that they are, and
+the only practical way for that is HT support which doesn't
+support old ciphers.
 
-To assure that fragment cache attacks are also prevented, the ID that is
-assigned to keys is unique even over (re)associations and (re)connects.
-This means fragments separated by a (re)association or (re)connect will
-not be reassembled. Because mac80211 now also prevents the reassembly of
-mixed encrypted and plaintext fragments, all cache attacks are prevented.
+However, we would normally accept them anyway. Since we check
+the MMIC before deaggregating A-MSDUs, and the A-MSDU bit in
+the QoS header is not protected in TKIP (or WEP), this enables
+attacks similar to CVE-2020-24588. To prevent that, drop A-MSDUs
+completely with old ciphers.
 
 Cc: stable@vger.kernel.org
-Signed-off-by: Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
-Link: https://lore.kernel.org/r/20210511200110.3f8290e59823.I622a67769ed39257327a362cfc09c812320eb979@changeid
+Link: https://lore.kernel.org/r/20210511200110.076543300172.I548e6e71f1ee9cad4b9a37bf212ae7db723587aa@changeid
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mac80211/ieee80211_i.h |    1 +
- net/mac80211/key.c         |    7 +++++++
- net/mac80211/key.h         |    2 ++
- net/mac80211/rx.c          |    6 ++++++
- 4 files changed, 16 insertions(+)
+ net/mac80211/rx.c |   19 ++++++++++++++++++-
+ 1 file changed, 18 insertions(+), 1 deletion(-)
 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -97,6 +97,7 @@ struct ieee80211_fragment_entry {
- 	u8 rx_queue;
- 	bool check_sequential_pn; /* needed for CCMP/GCMP */
- 	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
-+	unsigned int key_color;
- };
- 
- 
---- a/net/mac80211/key.c
-+++ b/net/mac80211/key.c
-@@ -799,6 +799,7 @@ int ieee80211_key_link(struct ieee80211_
- 		       struct ieee80211_sub_if_data *sdata,
- 		       struct sta_info *sta)
- {
-+	static atomic_t key_color = ATOMIC_INIT(0);
- 	struct ieee80211_key *old_key;
- 	int idx = key->conf.keyidx;
- 	bool pairwise = key->conf.flags & IEEE80211_KEY_FLAG_PAIRWISE;
-@@ -850,6 +851,12 @@ int ieee80211_key_link(struct ieee80211_
- 	key->sdata = sdata;
- 	key->sta = sta;
- 
-+	/*
-+	 * Assign a unique ID to every key so we can easily prevent mixed
-+	 * key and fragment cache attacks.
-+	 */
-+	key->color = atomic_inc_return(&key_color);
-+
- 	increment_tailroom_need_count(sdata);
- 
- 	ret = ieee80211_key_replace(sdata, sta, pairwise, old_key, key);
---- a/net/mac80211/key.h
-+++ b/net/mac80211/key.h
-@@ -128,6 +128,8 @@ struct ieee80211_key {
- 	} debugfs;
- #endif
- 
-+	unsigned int color;
-+
- 	/*
- 	 * key config, must be last because it contains key
- 	 * material as variable length member
 --- a/net/mac80211/rx.c
 +++ b/net/mac80211/rx.c
-@@ -2254,6 +2254,7 @@ ieee80211_rx_h_defragment(struct ieee802
- 			 * next fragment has a sequential PN value.
- 			 */
- 			entry->check_sequential_pn = true;
-+			entry->key_color = rx->key->color;
- 			memcpy(entry->last_pn,
- 			       rx->key->u.ccmp.rx_pn[queue],
- 			       IEEE80211_CCMP_PN_LEN);
-@@ -2291,6 +2292,11 @@ ieee80211_rx_h_defragment(struct ieee802
+@@ -6,7 +6,7 @@
+  * Copyright 2007-2010	Johannes Berg <johannes@sipsolutions.net>
+  * Copyright 2013-2014  Intel Mobile Communications GmbH
+  * Copyright(c) 2015 - 2017 Intel Deutschland GmbH
+- * Copyright (C) 2018-2020 Intel Corporation
++ * Copyright (C) 2018-2021 Intel Corporation
+  */
  
- 		if (!requires_sequential_pn(rx, fc))
- 			return RX_DROP_UNUSABLE;
-+
-+		/* Prevent mixed key and fragment cache attacks */
-+		if (entry->key_color != rx->key->color)
+ #include <linux/jiffies.h>
+@@ -2749,6 +2749,23 @@ ieee80211_rx_h_amsdu(struct ieee80211_rx
+ 	if (is_multicast_ether_addr(hdr->addr1))
+ 		return RX_DROP_UNUSABLE;
+ 
++	if (rx->key) {
++		/*
++		 * We should not receive A-MSDUs on pre-HT connections,
++		 * and HT connections cannot use old ciphers. Thus drop
++		 * them, as in those cases we couldn't even have SPP
++		 * A-MSDUs or such.
++		 */
++		switch (rx->key->conf.cipher) {
++		case WLAN_CIPHER_SUITE_WEP40:
++		case WLAN_CIPHER_SUITE_WEP104:
++		case WLAN_CIPHER_SUITE_TKIP:
 +			return RX_DROP_UNUSABLE;
++		default:
++			break;
++		}
++	}
 +
- 		memcpy(pn, entry->last_pn, IEEE80211_CCMP_PN_LEN);
- 		for (i = IEEE80211_CCMP_PN_LEN - 1; i >= 0; i--) {
- 			pn[i]++;
+ 	return __ieee80211_rx_h_amsdu(rx, 0);
+ }
+ 
 
 
