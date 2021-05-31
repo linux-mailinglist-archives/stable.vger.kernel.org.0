@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 75DDA39622C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F607396043
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:22:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231594AbhEaOvu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:51:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45938 "EHLO mail.kernel.org"
+        id S231560AbhEaOXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:23:45 -0400
+Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232043AbhEaOtn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:49:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7083961C9B;
-        Mon, 31 May 2021 13:57:27 +0000 (UTC)
+        id S233858AbhEaOVb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:21:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 38E89619CE;
+        Mon, 31 May 2021 13:45:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469447;
-        bh=gvmv6dZueX+ccYGnRveAXVCBHyGB4Q5Y5MB37H0YJkY=;
+        s=korg; t=1622468711;
+        bh=Rscp51ovqLmDUNfUFa2XZ7mpfE6USMATUbLjCF+mfnE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z+UBex+DuAeEEFGmfjmUg5aYJQR3vA/eB1NP8s9/lS0G3k2BvSUKG437sEYM24V/W
-         dCDlp59QR8PbE36qUjNzsuZ7C0/ELwqzhW06HcsUw+5me+QGCoSDqF96WsPD8bN0jm
-         VkKOGMqgULtSvlVamSwqM431wWX3PmBr+q0pzqwY=
+        b=CuG1W5JR/KXa3H0pc8i/j8L42lRK+VD+jGTYWY2YTtQsfE9sNKI97emQ6e5NGZFq9
+         Lq3Y26gP6IYB7T+mKsOmsSHQz9ikf98vxkqxCcHm97dchvUfyS+3SRTSe5oX3+ZOqG
+         NentCk2DR/IArKEL/888+2/E/9ypMLF6biVeB6Ds=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        Boris Burkov <boris@bur.io>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 200/296] btrfs: return whole extents in fiemap
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 098/177] Revert "ALSA: gus: add a check of the status of snd_ctl_add"
 Date:   Mon, 31 May 2021 15:14:15 +0200
-Message-Id: <20210531130710.608274346@linuxfoundation.org>
+Message-Id: <20210531130651.277675142@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +39,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Boris Burkov <boris@bur.io>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 15c7745c9a0078edad1f7df5a6bb7b80bc8cca23 ]
+[ Upstream commit 1dacca7fa1ebea47d38d20cd2df37094805d2649 ]
 
-  `xfs_io -c 'fiemap <off> <len>' <file>`
+This reverts commit 0f25e000cb4398081748e54f62a902098aa79ec1.
 
-can give surprising results on btrfs that differ from xfs.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-btrfs prints out extents trimmed to fit the user input. If the user's
-fiemap request has an offset, then rather than returning each whole
-extent which intersects that range, we also trim the start extent to not
-have start < off.
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
 
-Documentation in filesystems/fiemap.txt and the xfs_io man page suggests
-that returning the whole extent is expected.
+The original commit did nothing if there was an error, except to print
+out a message, which is pointless.  So remove the commit as it gives a
+"false sense of doing something".
 
-Some cases which all yield the same fiemap in xfs, but not btrfs:
-  dd if=/dev/zero of=$f bs=4k count=1
-  sudo xfs_io -c 'fiemap 0 1024' $f
-    0: [0..7]: 26624..26631
-  sudo xfs_io -c 'fiemap 2048 1024' $f
-    0: [4..7]: 26628..26631
-  sudo xfs_io -c 'fiemap 2048 4096' $f
-    0: [4..7]: 26628..26631
-  sudo xfs_io -c 'fiemap 3584 512' $f
-    0: [7..7]: 26631..26631
-  sudo xfs_io -c 'fiemap 4091 5' $f
-    0: [7..6]: 26631..26630
-
-I believe this is a consequence of the logic for merging contiguous
-extents represented by separate extent items. That logic needs to track
-the last offset as it loops through the extent items, which happens to
-pick up the start offset on the first iteration, and trim off the
-beginning of the full extent. To fix it, start `off` at 0 rather than
-`start` so that we keep the iteration/merging intact without cutting off
-the start of the extent.
-
-after the fix, all the above commands give:
-
-  0: [0..7]: 26624..26631
-
-The merging logic is exercised by fstest generic/483, and I have written
-a new fstest for checking we don't have backwards or zero-length fiemaps
-for cases like those above.
-
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Boris Burkov <boris@bur.io>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Cc: Kangjie Lu <kjlu@umn.edu>
+Reviewed-by: Takashi Iwai <tiwai@suse.de>
+Link: https://lore.kernel.org/r/20210503115736.2104747-33-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/extent_io.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ sound/isa/gus/gus_main.c | 13 ++-----------
+ 1 file changed, 2 insertions(+), 11 deletions(-)
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 910769d5fcdb..1eb5d22d5373 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -4975,7 +4975,7 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
- 		  u64 start, u64 len)
+diff --git a/sound/isa/gus/gus_main.c b/sound/isa/gus/gus_main.c
+index af6b4d89d695..39911a637e80 100644
+--- a/sound/isa/gus/gus_main.c
++++ b/sound/isa/gus/gus_main.c
+@@ -77,17 +77,8 @@ static const struct snd_kcontrol_new snd_gus_joystick_control = {
+ 
+ static void snd_gus_init_control(struct snd_gus_card *gus)
  {
- 	int ret = 0;
--	u64 off = start;
-+	u64 off;
- 	u64 max = start + len;
- 	u32 flags = 0;
- 	u32 found_type;
-@@ -5010,6 +5010,11 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
- 		goto out_free_ulist;
- 	}
+-	int ret;
+-
+-	if (!gus->ace_flag) {
+-		ret =
+-			snd_ctl_add(gus->card,
+-					snd_ctl_new1(&snd_gus_joystick_control,
+-						gus));
+-		if (ret)
+-			snd_printk(KERN_ERR "gus: snd_ctl_add failed: %d\n",
+-					ret);
+-	}
++	if (!gus->ace_flag)
++		snd_ctl_add(gus->card, snd_ctl_new1(&snd_gus_joystick_control, gus));
+ }
  
-+	/*
-+	 * We can't initialize that to 'start' as this could miss extents due
-+	 * to extent item merging
-+	 */
-+	off = 0;
- 	start = round_down(start, btrfs_inode_sectorsize(inode));
- 	len = round_up(max, btrfs_inode_sectorsize(inode)) - start;
- 
+ /*
 -- 
 2.30.2
 
