@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F7BA395EA5
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B6D93961D5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:46:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232022AbhEaOBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59814 "EHLO mail.kernel.org"
+        id S233232AbhEaOrL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:47:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233027AbhEaN7U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8C9B61443;
-        Mon, 31 May 2021 13:35:54 +0000 (UTC)
+        id S234224AbhEaOpI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:45:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B83661C81;
+        Mon, 31 May 2021 13:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468155;
-        bh=b2hoTEC5uqobuuzMRsBFsNEWCV8ogZnhjo5R2n1ILIw=;
+        s=korg; t=1622469300;
+        bh=GC20++aDWXWjAwVWjhff/cyE8r7hxikoUf77SG5cBCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EwgvvK5nSLj2d16aB/L3L3HCj/xs//oJ+Xx/Nsw2JfEAQ+JvOGMMhbVTaOhkWY1r9
-         ihhQ+xdAJBcupfTqkfKOBFe9ieSuGDokrJJ3CqJ083yDtJN6N0gfbyi+hxEqezVdbg
-         EBGmQN6hj1HyELbMXr91bVyZaLs/etnz/uFhCZPo=
+        b=sgRAaE0npCQxlTvZfVZU6xBtCKqaqM10HRKmgQx+NC0QJYsj6gIimC+Gcq1EtmaVj
+         hRLXVC5O+E9rjmv5JSLlwEu4v816c5DgMcCS6v4FgQrvLsX4XpXJE8glp1RGbyt6d3
+         +EdmbLk4eYobIdPurzcgNt4ihwVnc5CGPy4IxbOY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jiri Slaby <jirislaby@kernel.org>,
-        Atul Gopinathan <atulgopinathan@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 136/252] serial: max310x: unregister uart driver in case of failure and abort
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 146/296] net: dsa: sja1105: add error handling in sja1105_setup()
 Date:   Mon, 31 May 2021 15:13:21 +0200
-Message-Id: <20210531130702.635838545@linuxfoundation.org>
+Message-Id: <20210531130708.772941823@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,49 +39,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Atul Gopinathan <atulgopinathan@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 3890e3dea315f1a257d1b940a2a4e2fa16a7b095 ]
+commit cec279a898a3b004411682f212215ccaea1cd0fb upstream.
 
-The macro "spi_register_driver" invokes the function
-"__spi_register_driver()" which has a return type of int and can fail,
-returning a negative value in such a case. This is currently ignored and
-the init() function yields success even if the spi driver failed to
-register.
+If any of sja1105_static_config_load(), sja1105_clocking_setup() or
+sja1105_devlink_setup() fails, we can't just return in the middle of
+sja1105_setup() or memory will leak. Add a cleanup path.
 
-Fix this by collecting the return value of "__spi_register_driver()" and
-also unregister the uart driver in case of failure.
-
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Signed-off-by: Atul Gopinathan <atulgopinathan@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-12-gregkh@linuxfoundation.org
+Fixes: 0a7bdbc23d8a ("net: dsa: sja1105: move devlink param code to sja1105_devlink.c")
+Fixes: 8aa9ebccae87 ("net: dsa: Introduce driver for NXP SJA1105 5-port L2 switch")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/max310x.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/dsa/sja1105/sja1105_main.c |   17 ++++++++++++++---
+ 1 file changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/tty/serial/max310x.c b/drivers/tty/serial/max310x.c
-index f60b7b86d099..5bf8dd6198bb 100644
---- a/drivers/tty/serial/max310x.c
-+++ b/drivers/tty/serial/max310x.c
-@@ -1527,10 +1527,12 @@ static int __init max310x_uart_init(void)
- 		return ret;
+--- a/drivers/net/dsa/sja1105/sja1105_main.c
++++ b/drivers/net/dsa/sja1105/sja1105_main.c
+@@ -2986,13 +2986,13 @@ static int sja1105_setup(struct dsa_swit
+ 	rc = sja1105_static_config_load(priv, ports);
+ 	if (rc < 0) {
+ 		dev_err(ds->dev, "Failed to load static config: %d\n", rc);
+-		return rc;
++		goto out_ptp_clock_unregister;
+ 	}
+ 	/* Configure the CGU (PHY link modes and speeds) */
+ 	rc = sja1105_clocking_setup(priv);
+ 	if (rc < 0) {
+ 		dev_err(ds->dev, "Failed to configure MII clocking: %d\n", rc);
+-		return rc;
++		goto out_static_config_free;
+ 	}
+ 	/* On SJA1105, VLAN filtering per se is always enabled in hardware.
+ 	 * The only thing we can do to disable it is lie about what the 802.1Q
+@@ -3013,7 +3013,7 @@ static int sja1105_setup(struct dsa_swit
  
- #ifdef CONFIG_SPI_MASTER
--	spi_register_driver(&max310x_spi_driver);
-+	ret = spi_register_driver(&max310x_spi_driver);
-+	if (ret)
-+		uart_unregister_driver(&max310x_uart);
- #endif
+ 	rc = sja1105_devlink_setup(ds);
+ 	if (rc < 0)
+-		return rc;
++		goto out_static_config_free;
  
--	return 0;
-+	return ret;
+ 	/* The DSA/switchdev model brings up switch ports in standalone mode by
+ 	 * default, and that means vlan_filtering is 0 since they're not under
+@@ -3022,6 +3022,17 @@ static int sja1105_setup(struct dsa_swit
+ 	rtnl_lock();
+ 	rc = sja1105_setup_8021q_tagging(ds, true);
+ 	rtnl_unlock();
++	if (rc)
++		goto out_devlink_teardown;
++
++	return 0;
++
++out_devlink_teardown:
++	sja1105_devlink_teardown(ds);
++out_ptp_clock_unregister:
++	sja1105_ptp_clock_unregister(ds);
++out_static_config_free:
++	sja1105_static_config_free(&priv->static_config);
+ 
+ 	return rc;
  }
- module_init(max310x_uart_init);
- 
--- 
-2.30.2
-
 
 
