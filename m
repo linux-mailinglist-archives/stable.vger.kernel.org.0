@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C021C395D31
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:41:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B410395F0F
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:05:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232829AbhEaNmk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:42:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44892 "EHLO mail.kernel.org"
+        id S231968AbhEaOHc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:07:32 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36896 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232385AbhEaNkf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:40:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7F8BE61008;
-        Mon, 31 May 2021 13:27:38 +0000 (UTC)
+        id S230228AbhEaOFZ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:05:25 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0266B61959;
+        Mon, 31 May 2021 13:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467659;
-        bh=HE40aT572Easr1+T7vuzEOoYZJJvy2UR7sPn41n8k2g=;
+        s=korg; t=1622468315;
+        bh=n97F+ZLhQ9CwY5LY4xYgveO1AjYL5dnfmnQQ1mqHSLM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MhrNzl7pai2ElVCaNGrdWpmj1EwMoO6Sr6TbnpvlohQr6kN8bqCvayk++B7Ehvsp1
-         XLiTJRtpFKqrBQfBdNqAL78l8dGU8Aw76OBC9QgBOfQ1VyF77w+zaGM65Xug8Avyld
-         4gYZQPnq0s+5CWos+3FHK+vTi1nzA9g85dnm22EE=
+        b=n7P7GFuyN/IFJfa3uXuHcnxN4XeqAYXHo9Ovt5OxjD3Lk98F4qkUnQZfGeRH4Zn8W
+         GA2q1iqu5kwPf9Mr1tjGl3q7YYt/JTA8Cmf1IkOUpApKCWRHpFXaxcgFdtvp9s+LdD
+         b09NZeNcmNroaudepkePKslXytTvNAUpwdJeM4yQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>,
-        Juergen Borleis <jbe@pengutronix.de>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 30/79] USB: serial: ftdi_sio: add IDs for IDS GmbH Products
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 190/252] net: dsa: fix error code getting shifted with 4 in dsa_slave_get_sset_count
 Date:   Mon, 31 May 2021 15:14:15 +0200
-Message-Id: <20210531130636.969911111@linuxfoundation.org>
+Message-Id: <20210531130704.465504535@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
-References: <20210531130636.002722319@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,50 +42,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit c5a80540e425a5f9a82b0f3163e3b6a4331f33bc upstream.
+[ Upstream commit b94cbc909f1d80378a1f541968309e5c1178c98b ]
 
-Add the IDS GmbH Vendor ID and the Product IDs for SI31A (2xRS232)
-and CM31A (LoRaWAN Modem).
+DSA implements a bunch of 'standardized' ethtool statistics counters,
+namely tx_packets, tx_bytes, rx_packets, rx_bytes. So whatever the
+hardware driver returns in .get_sset_count(), we need to add 4 to that.
 
-Signed-off-by: Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
-Signed-off-by: Juergen Borleis <jbe@pengutronix.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+That is ok, except that .get_sset_count() can return a negative error
+code, for example:
+
+b53_get_sset_count
+-> phy_ethtool_get_sset_count
+   -> return -EIO
+
+-EIO is -5, and with 4 added to it, it becomes -1, aka -EPERM. One can
+imagine that certain error codes may even become positive, although
+based on code inspection I did not see instances of that.
+
+Check the error code first, if it is negative return it as-is.
+
+Based on a similar patch for dsa_master_get_strings from Dan Carpenter:
+https://patchwork.kernel.org/project/netdevbpf/patch/YJaSe3RPgn7gKxZv@mwanda/
+
+Fixes: 91da11f870f0 ("net: Distributed Switch Architecture protocol support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/serial/ftdi_sio.c     |    3 +++
- drivers/usb/serial/ftdi_sio_ids.h |    7 +++++++
- 2 files changed, 10 insertions(+)
+ net/dsa/slave.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/drivers/usb/serial/ftdi_sio.c
-+++ b/drivers/usb/serial/ftdi_sio.c
-@@ -1029,6 +1029,9 @@ static const struct usb_device_id id_tab
- 	/* Sienna devices */
- 	{ USB_DEVICE(FTDI_VID, FTDI_SIENNA_PID) },
- 	{ USB_DEVICE(ECHELON_VID, ECHELON_U20_PID) },
-+	/* IDS GmbH devices */
-+	{ USB_DEVICE(IDS_VID, IDS_SI31A_PID) },
-+	{ USB_DEVICE(IDS_VID, IDS_CM31A_PID) },
- 	/* U-Blox devices */
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ZED_PID) },
- 	{ USB_DEVICE(UBLOX_VID, UBLOX_C099F9P_ODIN_PID) },
---- a/drivers/usb/serial/ftdi_sio_ids.h
-+++ b/drivers/usb/serial/ftdi_sio_ids.h
-@@ -1568,6 +1568,13 @@
- #define UNJO_ISODEBUG_V1_PID		0x150D
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index c6806eef906f..9281c9c6a253 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -746,13 +746,15 @@ static int dsa_slave_get_sset_count(struct net_device *dev, int sset)
+ 	struct dsa_switch *ds = dp->ds;
  
- /*
-+ * IDS GmbH
-+ */
-+#define IDS_VID				0x2CAF
-+#define IDS_SI31A_PID			0x13A2
-+#define IDS_CM31A_PID			0x13A3
-+
-+/*
-  * U-Blox products (http://www.u-blox.com).
-  */
- #define UBLOX_VID			0x1546
+ 	if (sset == ETH_SS_STATS) {
+-		int count;
++		int count = 0;
+ 
+-		count = 4;
+-		if (ds->ops->get_sset_count)
+-			count += ds->ops->get_sset_count(ds, dp->index, sset);
++		if (ds->ops->get_sset_count) {
++			count = ds->ops->get_sset_count(ds, dp->index, sset);
++			if (count < 0)
++				return count;
++		}
+ 
+-		return count;
++		return count + 4;
+ 	}
+ 
+ 	return -EOPNOTSUPP;
+-- 
+2.30.2
+
 
 
