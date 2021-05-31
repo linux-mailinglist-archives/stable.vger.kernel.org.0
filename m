@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F5F5395C4A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:29:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B736395FD0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:14:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232146AbhEaNbH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:31:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:32882 "EHLO mail.kernel.org"
+        id S233018AbhEaOQd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:16:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43304 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231714AbhEaN3F (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:29:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 83A1061417;
-        Mon, 31 May 2021 13:22:21 +0000 (UTC)
+        id S232860AbhEaONi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:13:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A98061469;
+        Mon, 31 May 2021 13:42:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467342;
-        bh=1PgQGrBxZKLTbNoxeWWMZoJhX1q0eSCDcQ56kDC7YE4=;
+        s=korg; t=1622468523;
+        bh=gsXOuKmnPq6FsTcw5IbiriUv48/9mznqgUojDMFrieI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mhGUU9wNNCGPsCVv/8+0xoftDPcHGAjepqdLRoemUYMKp/uMmDg2ZchqImPekF/OQ
-         O0dkvriD+qkekmFr854xgqqlqx311ElyMqX8azJFUXAd34QYM7vl5l8V4DYW9I2iSS
-         mRKMOtd/cKghrJYHqbsuMBCJmFgLsD5yCjMYRNFs=
+        b=WFTy4gsmaE7ccvI4JXjFsPCuV3urQSkUTTLnJv2A7LULCKCA9vLG1HQZJeADkCt+0
+         LEyx/Ofj9wQHb72qPdG+9IHDlTqI2/FHwlDjKBem0SUu8DIQabiFFSmfFkLV+No/cT
+         WH6V88HIq1JbghtNHqCMx0AqYDueeEC5qHG4Xbpw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
-        Dongliang Mu <mudongliangabcd@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.19 003/116] NFC: nci: fix memory leak in nci_allocate_device
+        stable@vger.kernel.org, Jouni Malinen <jouni@codeaurora.org>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.4 022/177] mac80211: do not accept/forward invalid EAPOL frames
 Date:   Mon, 31 May 2021 15:12:59 +0200
-Message-Id: <20210531130640.253575757@linuxfoundation.org>
+Message-Id: <20210531130648.690917403@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,81 +39,103 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Johannes Berg <johannes.berg@intel.com>
 
-commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
+commit a8c4d76a8dd4fb9666fc8919a703d85fb8f44ed8 upstream.
 
-nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
-Fix this by freeing hci_dev in nci_free_device.
+EAPOL frames are used for authentication and key management between the
+AP and each individual STA associated in the BSS. Those frames are not
+supposed to be sent by one associated STA to another associated STA
+(either unicast for broadcast/multicast).
 
-BUG: memory leak
-unreferenced object 0xffff888111ea6800 (size 1024):
-  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
-    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
-    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
-    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
-    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
-    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
-    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
-    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
-    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
-    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
-    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
-    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
-    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
-    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
-    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
-    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+Similarly, in 802.11 they're supposed to be sent to the authenticator
+(AP) address.
 
-Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
-Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Since it is possible for unexpected EAPOL frames to result in misbehavior
+in supplicant implementations, it is better for the AP to not allow such
+cases to be forwarded to other clients either directly, or indirectly if
+the AP interface is part of a bridge.
+
+Accept EAPOL (control port) frames only if they're transmitted to the
+own address, or, due to interoperability concerns, to the PAE group
+address.
+
+Disable forwarding of EAPOL (or well, the configured control port
+protocol) frames back to wireless medium in all cases. Previously, these
+frames were accepted from fully authenticated and authorized stations
+and also from unauthenticated stations for one of the cases.
+
+Additionally, to avoid forwarding by the bridge, rewrite the PAE group
+address case to the local MAC address.
+
+Cc: stable@vger.kernel.org
+Co-developed-by: Jouni Malinen <jouni@codeaurora.org>
+Signed-off-by: Jouni Malinen <jouni@codeaurora.org>
+Link: https://lore.kernel.org/r/20210511200110.cb327ed0cabe.Ib7dcffa2a31f0913d660de65ba3c8aca75b1d10f@changeid
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/nfc/nci_core.h |    1 +
- net/nfc/nci/core.c         |    1 +
- net/nfc/nci/hci.c          |    5 +++++
- 3 files changed, 7 insertions(+)
+ net/mac80211/rx.c |   33 +++++++++++++++++++++++++++------
+ 1 file changed, 27 insertions(+), 6 deletions(-)
 
---- a/include/net/nfc/nci_core.h
-+++ b/include/net/nfc/nci_core.h
-@@ -310,6 +310,7 @@ int nci_nfcc_loopback(struct nci_dev *nd
- 		      struct sk_buff **resp);
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -2484,13 +2484,13 @@ static bool ieee80211_frame_allowed(stru
+ 	struct ethhdr *ehdr = (struct ethhdr *) rx->skb->data;
  
- struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
-+void nci_hci_deallocate(struct nci_dev *ndev);
- int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
- 		       const u8 *param, size_t param_len);
- int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
---- a/net/nfc/nci/core.c
-+++ b/net/nfc/nci/core.c
-@@ -1187,6 +1187,7 @@ EXPORT_SYMBOL(nci_allocate_device);
- void nci_free_device(struct nci_dev *ndev)
- {
- 	nfc_free_device(ndev->nfc_dev);
-+	nci_hci_deallocate(ndev);
- 	kfree(ndev);
- }
- EXPORT_SYMBOL(nci_free_device);
---- a/net/nfc/nci/hci.c
-+++ b/net/nfc/nci/hci.c
-@@ -807,3 +807,8 @@ struct nci_hci_dev *nci_hci_allocate(str
+ 	/*
+-	 * Allow EAPOL frames to us/the PAE group address regardless
+-	 * of whether the frame was encrypted or not.
++	 * Allow EAPOL frames to us/the PAE group address regardless of
++	 * whether the frame was encrypted or not, and always disallow
++	 * all other destination addresses for them.
+ 	 */
+-	if (ehdr->h_proto == rx->sdata->control_port_protocol &&
+-	    (ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
+-	     ether_addr_equal(ehdr->h_dest, pae_group_addr)))
+-		return true;
++	if (unlikely(ehdr->h_proto == rx->sdata->control_port_protocol))
++		return ether_addr_equal(ehdr->h_dest, rx->sdata->vif.addr) ||
++		       ether_addr_equal(ehdr->h_dest, pae_group_addr);
  
- 	return hdev;
- }
+ 	if (ieee80211_802_1x_port_control(rx) ||
+ 	    ieee80211_drop_unencrypted(rx, fc))
+@@ -2514,8 +2514,28 @@ static void ieee80211_deliver_skb_to_loc
+ 		cfg80211_rx_control_port(dev, skb, noencrypt);
+ 		dev_kfree_skb(skb);
+ 	} else {
++		struct ethhdr *ehdr = (void *)skb_mac_header(skb);
 +
-+void nci_hci_deallocate(struct nci_dev *ndev)
-+{
-+	kfree(ndev->hci_dev);
-+}
+ 		memset(skb->cb, 0, sizeof(skb->cb));
+ 
++		/*
++		 * 802.1X over 802.11 requires that the authenticator address
++		 * be used for EAPOL frames. However, 802.1X allows the use of
++		 * the PAE group address instead. If the interface is part of
++		 * a bridge and we pass the frame with the PAE group address,
++		 * then the bridge will forward it to the network (even if the
++		 * client was not associated yet), which isn't supposed to
++		 * happen.
++		 * To avoid that, rewrite the destination address to our own
++		 * address, so that the authenticator (e.g. hostapd) will see
++		 * the frame, but bridge won't forward it anywhere else. Note
++		 * that due to earlier filtering, the only other address can
++		 * be the PAE group address.
++		 */
++		if (unlikely(skb->protocol == sdata->control_port_protocol &&
++			     !ether_addr_equal(ehdr->h_dest, sdata->vif.addr)))
++			ether_addr_copy(ehdr->h_dest, sdata->vif.addr);
++
+ 		/* deliver to local stack */
+ 		if (rx->napi)
+ 			napi_gro_receive(rx->napi, skb);
+@@ -2555,6 +2575,7 @@ ieee80211_deliver_skb(struct ieee80211_r
+ 	if ((sdata->vif.type == NL80211_IFTYPE_AP ||
+ 	     sdata->vif.type == NL80211_IFTYPE_AP_VLAN) &&
+ 	    !(sdata->flags & IEEE80211_SDATA_DONT_BRIDGE_PACKETS) &&
++	    ehdr->h_proto != rx->sdata->control_port_protocol &&
+ 	    (sdata->vif.type != NL80211_IFTYPE_AP_VLAN || !sdata->u.vlan.sta)) {
+ 		if (is_multicast_ether_addr(ehdr->h_dest) &&
+ 		    ieee80211_vif_get_num_mcast_if(sdata) != 0) {
 
 
