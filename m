@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CB0FE39623A
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:51:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DEEA395ED4
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:02:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233300AbhEaOxW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:53:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47908 "EHLO mail.kernel.org"
+        id S232528AbhEaOEB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:04:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37400 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233202AbhEaOvQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:51:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DDD5361445;
-        Mon, 31 May 2021 13:57:50 +0000 (UTC)
+        id S232873AbhEaOB7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:01:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id CDB5861947;
+        Mon, 31 May 2021 13:37:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469471;
-        bh=T73aE6qjderFT5AXqvF+eWkmvZ0i4FnAsV5zIEkKxBo=;
+        s=korg; t=1622468227;
+        bh=/5mkWMxrniQRM0OIO+l/RFMqZzon2mnA8svi+4FOsBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IkFiCQw5dP7F2vSmG2Rc9u9WLG4537yedQ/SVR4UNy9HCFCDa7LtSYGs8WA9yhbWy
-         NxrRs72d+iSnTLZbLeEVe+xYmqOuiSrpRV1cMrXO7dCysjflDe1sTRCbwvmno+aR+R
-         0Ns2w1mem9II8tYRCQQPxuTUDnx8o03TC95GzUiY=
+        b=Z9yv1IWSTahLD9ZqSPpu/7vk4bZtlvaZ56T5k1lfI62uoUBn1TXvIzGBWWPctMIqR
+         gozeqBettORYua6IBmuqXc9DEszGDRpfoVtzMKS1w0tb4UUDV+JzT4i01DQb8y27eB
+         nBxcGOEc1IsD/dkWwir6tbjCo7r33Iwyj1uI30M8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 175/296] Revert "ALSA: gus: add a check of the status of snd_ctl_add"
+        stable@vger.kernel.org,
+        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 165/252] media: gspca: properly check for errors in po1030_probe()
 Date:   Mon, 31 May 2021 15:13:50 +0200
-Message-Id: <20210531130709.761042182@linuxfoundation.org>
+Message-Id: <20210531130703.616876282@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,55 +42,48 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 1dacca7fa1ebea47d38d20cd2df37094805d2649 ]
+[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
 
-This reverts commit 0f25e000cb4398081748e54f62a902098aa79ec1.
+If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
+initialize the device but return the error to the calling funtion.
 
-Because of recent interactions with developers from @umn.edu, all
-commits from them have been recently re-reviewed to ensure if they were
-correct or not.
-
-Upon review, this commit was found to be incorrect for the reasons
-below, so it must be reverted.  It will be fixed up "correctly" in a
-later kernel change.
-
-The original commit did nothing if there was an error, except to print
-out a message, which is pointless.  So remove the commit as it gives a
-"false sense of doing something".
-
-Cc: Kangjie Lu <kjlu@umn.edu>
-Reviewed-by: Takashi Iwai <tiwai@suse.de>
-Link: https://lore.kernel.org/r/20210503115736.2104747-33-gregkh@linuxfoundation.org
+Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/isa/gus/gus_main.c | 13 ++-----------
- 1 file changed, 2 insertions(+), 11 deletions(-)
+ drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/sound/isa/gus/gus_main.c b/sound/isa/gus/gus_main.c
-index afc088f0377c..b7518122a10d 100644
---- a/sound/isa/gus/gus_main.c
-+++ b/sound/isa/gus/gus_main.c
-@@ -77,17 +77,8 @@ static const struct snd_kcontrol_new snd_gus_joystick_control = {
- 
- static void snd_gus_init_control(struct snd_gus_card *gus)
+diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+index 7bdbb8065146..8fd99ceee4b6 100644
+--- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
++++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
+@@ -155,6 +155,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
+ int po1030_probe(struct sd *sd)
  {
--	int ret;
--
--	if (!gus->ace_flag) {
--		ret =
--			snd_ctl_add(gus->card,
--					snd_ctl_new1(&snd_gus_joystick_control,
--						gus));
--		if (ret)
--			snd_printk(KERN_ERR "gus: snd_ctl_add failed: %d\n",
--					ret);
--	}
-+	if (!gus->ace_flag)
-+		snd_ctl_add(gus->card, snd_ctl_new1(&snd_gus_joystick_control, gus));
- }
+ 	u8 dev_id_h = 0, i;
++	int err;
+ 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
  
- /*
+ 	if (force_sensor) {
+@@ -173,10 +174,13 @@ int po1030_probe(struct sd *sd)
+ 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
+ 		u8 data = preinit_po1030[i][2];
+ 		if (preinit_po1030[i][0] == SENSOR)
+-			m5602_write_sensor(sd,
+-				preinit_po1030[i][1], &data, 1);
++			err = m5602_write_sensor(sd, preinit_po1030[i][1],
++						 &data, 1);
+ 		else
+-			m5602_write_bridge(sd, preinit_po1030[i][1], data);
++			err = m5602_write_bridge(sd, preinit_po1030[i][1],
++						 data);
++		if (err < 0)
++			return err;
+ 	}
+ 
+ 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
 -- 
 2.30.2
 
