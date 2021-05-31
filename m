@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2744839616E
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AA946395E2D
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:53:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233892AbhEaOkd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36602 "EHLO mail.kernel.org"
+        id S231970AbhEaNzW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:55:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56076 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233992AbhEaOhk (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:37:40 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A8138617ED;
-        Mon, 31 May 2021 13:52:08 +0000 (UTC)
+        id S232823AbhEaNws (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:52:48 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 53E1261374;
+        Mon, 31 May 2021 13:33:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469129;
-        bh=Xdmu0No1qD89vu5RbDro4R5XL0d4XQoB0rtetHFaD4I=;
+        s=korg; t=1622467980;
+        bh=p4SeauKvWNvBbIefRbr7Lnfw2yPF1ndxnI34Ps1hVpg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=077L/n5tFwbDF1hJBBxSNHZ//gBSApCABcbLiePCY35/9z3RwsRp4MaOPITXiqsr5
-         j6XMzLWNXTC7EnDG5byQHK4Hs00QNeHb6FJqQioA+g9KjvoeLEtO+S1prVBtSeebUE
-         7IH5O7MQ8X0gu4oxlXS1ZhIJosC/V+rVivDAKJDo=
+        b=eIEdmzLKpYexqJKOvUf8IcsRNuVt2GI1we5R6nJ3Oc8Vub91BB5PfExvtkscKQDr6
+         OKLHcH/XRV+staBZNJUvT+5M0H1kSuLWojBU53qZ9xevCG3w2LDSnfDDUKQA90OXFL
+         FxWrSVpIDCzKbuuODtlZwA6TNX4fKVL9R14fL8ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Alexandru Ardelean <ardeleanalex@gmail.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Alexandru Ardelean <aardelean@deviqon.com>,
-        Stable@vger.kernel.org
-Subject: [PATCH 5.12 080/296] iio: adc: ad7124: Fix potential overflow due to non sequential channel numbers
-Date:   Mon, 31 May 2021 15:12:15 +0200
-Message-Id: <20210531130706.553969054@linuxfoundation.org>
+        stable@vger.kernel.org, Sachi King <nakato@nakato.io>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>
+Subject: [PATCH 5.10 071/252] serial: 8250_dw: Add device HID for new AMD UART controller
+Date:   Mon, 31 May 2021 15:12:16 +0200
+Message-Id: <20210531130700.402224806@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-References: <20210531130703.762129381@linuxfoundation.org>
+In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
+References: <20210531130657.971257589@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,48 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+From: Maximilian Luz <luzmaximilian@gmail.com>
 
-commit f2a772c51206b0c3f262e4f6a3812c89a650191b upstream.
+commit 3c35d2a960c0077a4cb09bf4989f45d289332ea0 upstream.
 
-Channel numbering must start at 0 and then not have any holes, or
-it is possible to overflow the available storage.  Note this bug was
-introduced as part of a fix to ensure we didn't rely on the ordering
-of child nodes.  So we need to support arbitrary ordering but they all
-need to be there somewhere.
+Add device HID AMDI0022 to the AMD UART controller driver match table
+and create a platform device for it. This controller can be found on
+Microsoft Surface Laptop 4 devices and seems similar enough that we can
+just copy the existing AMDI0020 entries.
 
-Note I hit this when using qemu to test the rest of this series.
-Arguably this isn't the best fix, but it is probably the most minimal
-option for backporting etc.
-
-Alexandru's sign-off is here because he carried this patch in a larger
-set that Jonathan then applied.
-
-Fixes: d7857e4ee1ba6 ("iio: adc: ad7124: Fix DT channel configuration")
-Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Alexandru Ardelean <aardelean@deviqon.com>
-Cc: <Stable@vger.kernel.org>
+Cc: <stable@vger.kernel.org> # 5.10+
+Tested-by: Sachi King <nakato@nakato.io>
+Acked-by: Andy Shevchenko <andy.shevchenko@gmail.com> # for 8250_dw part
+Signed-off-by: Maximilian Luz <luzmaximilian@gmail.com>
+Link: https://lore.kernel.org/r/20210512210413.1982933-1-luzmaximilian@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/ad7124.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/acpi/acpi_apd.c           |    1 +
+ drivers/tty/serial/8250/8250_dw.c |    1 +
+ 2 files changed, 2 insertions(+)
 
---- a/drivers/iio/adc/ad7124.c
-+++ b/drivers/iio/adc/ad7124.c
-@@ -616,6 +616,13 @@ static int ad7124_of_parse_channel_confi
- 		if (ret)
- 			goto err;
- 
-+		if (channel >= indio_dev->num_channels) {
-+			dev_err(indio_dev->dev.parent,
-+				"Channel index >= number of channels\n");
-+			ret = -EINVAL;
-+			goto err;
-+		}
-+
- 		ret = of_property_read_u32_array(child, "diff-channels",
- 						 ain, 2);
- 		if (ret)
+--- a/drivers/acpi/acpi_apd.c
++++ b/drivers/acpi/acpi_apd.c
+@@ -226,6 +226,7 @@ static const struct acpi_device_id acpi_
+ 	{ "AMDI0010", APD_ADDR(wt_i2c_desc) },
+ 	{ "AMD0020", APD_ADDR(cz_uart_desc) },
+ 	{ "AMDI0020", APD_ADDR(cz_uart_desc) },
++	{ "AMDI0022", APD_ADDR(cz_uart_desc) },
+ 	{ "AMD0030", },
+ 	{ "AMD0040", APD_ADDR(fch_misc_desc)},
+ 	{ "HYGO0010", APD_ADDR(wt_i2c_desc) },
+--- a/drivers/tty/serial/8250/8250_dw.c
++++ b/drivers/tty/serial/8250/8250_dw.c
+@@ -714,6 +714,7 @@ static const struct acpi_device_id dw825
+ 	{ "APMC0D08", 0},
+ 	{ "AMD0020", 0 },
+ 	{ "AMDI0020", 0 },
++	{ "AMDI0022", 0 },
+ 	{ "BRCM2032", 0 },
+ 	{ "HISI0031", 0 },
+ 	{ },
 
 
