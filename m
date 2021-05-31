@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 98A30396020
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:21:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B577395BC0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:22:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233562AbhEaOXC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:23:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43166 "EHLO mail.kernel.org"
+        id S232056AbhEaNYa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:24:30 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55470 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232842AbhEaORd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:17:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A968619B2;
-        Mon, 31 May 2021 13:43:36 +0000 (UTC)
+        id S232136AbhEaNWd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:22:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C5981613F1;
+        Mon, 31 May 2021 13:19:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468616;
-        bh=RzFbbpwa7Yp8R+q5O798s43vbcoxm8pztewk0n6GN6w=;
+        s=korg; t=1622467172;
+        bh=ict/plTIWqsJHRgy11dlNo/KavL7Yza9sFhmQRHRQyw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z/WjIszXHjFuWJgwusOirBnREICJweMOjQ99V7vx4Fc6WDMcvGIV9uyGTwLp5H1cA
-         J8gRym7ZMNb/sjWWceCtCyuJf4lSNK6y4V0mY9hJbkknzu5Kxz/eniTYoCkZ6eiHEz
-         NCdv4GzPirJ2tD+Xazad6V88XG2G47Q7Uk0q239Y=
+        b=JrCXPL4+pWXhe5SCrO0k2rgpYXzGOw/YFAhBwvPsWPz0wivH4DtrtS/e0xTWb05EJ
+         QuQ4DLbZiWSnNp5OMDexYQ02NQvMU7tR9DOhRxmWRWw2bezkGGvnPcqrzhdrSpOOUX
+         +INbtMYzxoHOs69iWPqvxGrsteDNxpg+isw92sWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Daniel Lezcano <daniel.lezcano@linaro.org>
-Subject: [PATCH 5.4 060/177] thermal/drivers/intel: Initialize RW trip to THERMAL_TEMP_INVALID
+        Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        "Pavel Machek (CIP)" <pavel@denx.de>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 4.9 04/66] netfilter: x_tables: Use correct memory barriers.
 Date:   Mon, 31 May 2021 15:13:37 +0200
-Message-Id: <20210531130649.984180458@linuxfoundation.org>
+Message-Id: <20210531130636.409645724@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+References: <20210531130636.254683895@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,62 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
 
-commit eb8500b874cf295971a6a2a04e14eb0854197a3c upstream.
+commit 175e476b8cdf2a4de7432583b49c871345e4f8a1 upstream.
 
-After commit 81ad4276b505 ("Thermal: Ignore invalid trip points") all
-user_space governor notifications via RW trip point is broken in intel
-thermal drivers. This commits marks trip_points with value of 0 during
-call to thermal_zone_device_register() as invalid. RW trip points can be
-0 as user space will set the correct trip temperature later.
+When a new table value was assigned, it was followed by a write memory
+barrier. This ensured that all writes before this point would complete
+before any writes after this point. However, to determine whether the
+rules are unused, the sequence counter is read. To ensure that all
+writes have been done before these reads, a full memory barrier is
+needed, not just a write memory barrier. The same argument applies when
+incrementing the counter, before the rules are read.
 
-During driver init, x86_package_temp and all int340x drivers sets RW trip
-temperature as 0. This results in all these trips marked as invalid by
-the thermal core.
+Changing to using smp_mb() instead of smp_wmb() fixes the kernel panic
+reported in cc00bcaa5899 (which is still present), while still
+maintaining the same speed of replacing tables.
 
-To fix this initialize RW trips to THERMAL_TEMP_INVALID instead of 0.
+The smb_mb() barriers potentially slow the packet path, however testing
+has shown no measurable change in performance on a 4-core MIPS64
+platform.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Link: https://lore.kernel.org/r/20210430122343.1789899-1-srinivas.pandruvada@linux.intel.com
+Fixes: 7f5c6d4f665b ("netfilter: get rid of atomic ops in fast path")
+Signed-off-by: Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+[Ported to stable, affected barrier is added by d3d40f237480abf3268956daf18cdc56edd32834 in mainline]
+Signed-off-by: Pavel Machek (CIP) <pavel@denx.de>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c |    4 ++++
- drivers/thermal/intel/x86_pkg_temp_thermal.c                 |    2 +-
- 2 files changed, 5 insertions(+), 1 deletion(-)
+ include/linux/netfilter/x_tables.h |    2 +-
+ net/netfilter/x_tables.c           |    3 +++
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-+++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
-@@ -230,6 +230,8 @@ struct int34x_thermal_zone *int340x_ther
- 	if (ACPI_FAILURE(status))
- 		trip_cnt = 0;
- 	else {
-+		int i;
+--- a/include/linux/netfilter/x_tables.h
++++ b/include/linux/netfilter/x_tables.h
+@@ -334,7 +334,7 @@ static inline unsigned int xt_write_recs
+ 	 * since addend is most likely 1
+ 	 */
+ 	__this_cpu_add(xt_recseq.sequence, addend);
+-	smp_wmb();
++	smp_mb();
+ 
+ 	return addend;
+ }
+--- a/net/netfilter/x_tables.c
++++ b/net/netfilter/x_tables.c
+@@ -1173,6 +1173,9 @@ xt_replace_table(struct xt_table *table,
+ 	smp_wmb();
+ 	table->private = newinfo;
+ 
++	/* make sure all cpus see new ->private value */
++	smp_mb();
 +
- 		int34x_thermal_zone->aux_trips =
- 			kcalloc(trip_cnt,
- 				sizeof(*int34x_thermal_zone->aux_trips),
-@@ -240,6 +242,8 @@ struct int34x_thermal_zone *int340x_ther
- 		}
- 		trip_mask = BIT(trip_cnt) - 1;
- 		int34x_thermal_zone->aux_trip_nr = trip_cnt;
-+		for (i = 0; i < trip_cnt; ++i)
-+			int34x_thermal_zone->aux_trips[i] = THERMAL_TEMP_INVALID;
- 	}
- 
- 	trip_cnt = int340x_thermal_read_trips(int34x_thermal_zone);
---- a/drivers/thermal/intel/x86_pkg_temp_thermal.c
-+++ b/drivers/thermal/intel/x86_pkg_temp_thermal.c
-@@ -164,7 +164,7 @@ static int sys_get_trip_temp(struct ther
- 	if (thres_reg_value)
- 		*temp = zonedev->tj_max - thres_reg_value * 1000;
- 	else
--		*temp = 0;
-+		*temp = THERMAL_TEMP_INVALID;
- 	pr_debug("sys_get_trip_temp %d\n", *temp);
- 
- 	return 0;
+ 	/*
+ 	 * Even though table entries have now been swapped, other CPU's
+ 	 * may still be using the old entries. This is okay, because
 
 
