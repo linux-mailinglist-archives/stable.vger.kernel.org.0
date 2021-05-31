@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B76395CAF
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 18A8D396057
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232399AbhEaNgb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 09:36:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40220 "EHLO mail.kernel.org"
+        id S231838AbhEaOZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:25:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48836 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232709AbhEaNeV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:34:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4974161445;
-        Mon, 31 May 2021 13:24:51 +0000 (UTC)
+        id S232768AbhEaOXE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:23:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 840E96141E;
+        Mon, 31 May 2021 13:45:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622467491;
-        bh=6ojWN7MjokRzrhXaTS7naqgOE5nUzbyfaJtwki3P4lE=;
+        s=korg; t=1622468733;
+        bh=cmvl3lmxDmIROeHOoE0A5c/xC3Cp4aQM9DxioMsIpKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iUwVJk+Ilbp3hBADR0/iILKrMuj/tteW0YsW45WsiEGsul2VIoj+yMe9F11vZ922G
-         wVeXit7PvsqW/Qzo1LrspkT4ujjUCgt5C4+q9vlZtIMyIY/Ik5Xl2oQc5KW0MswOJ5
-         QQEkOIhzQFX0XsZIJebFPB+0PRJVco3LPHdideF4=
+        b=Vf/AM1fO8GvhIOvrRsZ4sbdfzmgHSaE+33lhuEIPQVXdGjDU47RcqwKV8QgMG0v94
+         /KylkK4zzzhS7EX3dei4AWU4Dc22CfV4nM6T8qO7+Bre6gxieRHwSQSV3YF7gmvQU0
+         0ANJrCCb4gbebRPFp/YbAzRR+B9MWbqUjNj+w3mY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
+        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+        Phillip Potter <phil@philpotter.co.uk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 086/116] media: gspca: properly check for errors in po1030_probe()
-Date:   Mon, 31 May 2021 15:14:22 +0200
-Message-Id: <20210531130643.067018381@linuxfoundation.org>
+Subject: [PATCH 5.4 106/177] isdn: mISDN: correctly handle ph_info allocation failure in hfcsusb_ph_info
+Date:   Mon, 31 May 2021 15:14:23 +0200
+Message-Id: <20210531130651.569751086@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,50 +40,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Phillip Potter <phil@philpotter.co.uk>
 
-[ Upstream commit dacb408ca6f0e34df22b40d8dd5fae7f8e777d84 ]
+[ Upstream commit 5265db2ccc735e2783b790d6c19fb5cee8c025ed ]
 
-If m5602_write_sensor() or m5602_write_bridge() fail, do not continue to
-initialize the device but return the error to the calling funtion.
+Modify return type of hfcusb_ph_info to int, so that we can pass error
+value up the call stack when allocation of ph_info fails. Also change
+three of four call sites to actually account for the memory failure.
+The fourth, in ph_state_nt, is infeasible to change as it is in turn
+called by ph_state which is used as a function pointer argument to
+mISDN_initdchannel, which would necessitate changing its signature
+and updating all the places where it is used (too many).
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Link: https://lore.kernel.org/r/20210503115736.2104747-64-gregkh@linuxfoundation.org
+Fixes original flawed commit (38d22659803a) from the University of
+Minnesota.
+
+Cc: David S. Miller <davem@davemloft.net>
+Signed-off-by: Phillip Potter <phil@philpotter.co.uk>
+Link: https://lore.kernel.org/r/20210503115736.2104747-48-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_po1030.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ drivers/isdn/hardware/mISDN/hfcsusb.c | 18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_po1030.c b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-index 37d2891e5f5b..81d8eb72ac41 100644
---- a/drivers/media/usb/gspca/m5602/m5602_po1030.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_po1030.c
-@@ -159,6 +159,7 @@ static const struct v4l2_ctrl_config po1030_greenbal_cfg = {
- int po1030_probe(struct sd *sd)
- {
- 	u8 dev_id_h = 0, i;
-+	int err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+diff --git a/drivers/isdn/hardware/mISDN/hfcsusb.c b/drivers/isdn/hardware/mISDN/hfcsusb.c
+index 7a051435c406..1f89378b5623 100644
+--- a/drivers/isdn/hardware/mISDN/hfcsusb.c
++++ b/drivers/isdn/hardware/mISDN/hfcsusb.c
+@@ -46,7 +46,7 @@ static void hfcsusb_start_endpoint(struct hfcsusb *hw, int channel);
+ static void hfcsusb_stop_endpoint(struct hfcsusb *hw, int channel);
+ static int  hfcsusb_setup_bch(struct bchannel *bch, int protocol);
+ static void deactivate_bchannel(struct bchannel *bch);
+-static void hfcsusb_ph_info(struct hfcsusb *hw);
++static int  hfcsusb_ph_info(struct hfcsusb *hw);
  
- 	if (force_sensor) {
-@@ -177,10 +178,13 @@ int po1030_probe(struct sd *sd)
- 	for (i = 0; i < ARRAY_SIZE(preinit_po1030); i++) {
- 		u8 data = preinit_po1030[i][2];
- 		if (preinit_po1030[i][0] == SENSOR)
--			m5602_write_sensor(sd,
--				preinit_po1030[i][1], &data, 1);
-+			err = m5602_write_sensor(sd, preinit_po1030[i][1],
-+						 &data, 1);
- 		else
--			m5602_write_bridge(sd, preinit_po1030[i][1], data);
-+			err = m5602_write_bridge(sd, preinit_po1030[i][1],
-+						 data);
-+		if (err < 0)
-+			return err;
+ /* start next background transfer for control channel */
+ static void
+@@ -241,7 +241,7 @@ hfcusb_l2l1B(struct mISDNchannel *ch, struct sk_buff *skb)
+  * send full D/B channel status information
+  * as MPH_INFORMATION_IND
+  */
+-static void
++static int
+ hfcsusb_ph_info(struct hfcsusb *hw)
+ {
+ 	struct ph_info *phi;
+@@ -249,6 +249,9 @@ hfcsusb_ph_info(struct hfcsusb *hw)
+ 	int i;
+ 
+ 	phi = kzalloc(struct_size(phi, bch, dch->dev.nrbchan), GFP_ATOMIC);
++	if (!phi)
++		return -ENOMEM;
++
+ 	phi->dch.ch.protocol = hw->protocol;
+ 	phi->dch.ch.Flags = dch->Flags;
+ 	phi->dch.state = dch->state;
+@@ -261,6 +264,8 @@ hfcsusb_ph_info(struct hfcsusb *hw)
+ 		    sizeof(struct ph_info_dch) + dch->dev.nrbchan *
+ 		    sizeof(struct ph_info_ch), phi, GFP_ATOMIC);
+ 	kfree(phi);
++
++	return 0;
+ }
+ 
+ /*
+@@ -345,8 +350,7 @@ hfcusb_l2l1D(struct mISDNchannel *ch, struct sk_buff *skb)
+ 			ret = l1_event(dch->l1, hh->prim);
+ 		break;
+ 	case MPH_INFORMATION_REQ:
+-		hfcsusb_ph_info(hw);
+-		ret = 0;
++		ret = hfcsusb_ph_info(hw);
+ 		break;
  	}
  
- 	if (m5602_read_sensor(sd, PO1030_DEVID_H, &dev_id_h, 1))
+@@ -401,8 +405,7 @@ hfc_l1callback(struct dchannel *dch, u_int cmd)
+ 			       hw->name, __func__, cmd);
+ 		return -1;
+ 	}
+-	hfcsusb_ph_info(hw);
+-	return 0;
++	return hfcsusb_ph_info(hw);
+ }
+ 
+ static int
+@@ -744,8 +747,7 @@ hfcsusb_setup_bch(struct bchannel *bch, int protocol)
+ 			handle_led(hw, (bch->nr == 1) ? LED_B1_OFF :
+ 				   LED_B2_OFF);
+ 	}
+-	hfcsusb_ph_info(hw);
+-	return 0;
++	return hfcsusb_ph_info(hw);
+ }
+ 
+ static void
 -- 
 2.30.2
 
