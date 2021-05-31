@@ -2,37 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A64043962DC
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:00:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 324B7396302
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 17:01:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234282AbhEaPBb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 11:01:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50816 "EHLO mail.kernel.org"
+        id S234055AbhEaPDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 11:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:51052 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233394AbhEaO6o (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:58:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0355D61941;
-        Mon, 31 May 2021 14:01:02 +0000 (UTC)
+        id S233886AbhEaPAg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 11:00:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EDB876144C;
+        Mon, 31 May 2021 14:01:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469663;
-        bh=HOX5LR0FiUkuLoTNRGZcS2IkEKUB436J8i0VyPpfkGE=;
+        s=korg; t=1622469717;
+        bh=G7KWddFnIFA5vGUykSrwE8VeJpGBNbRHrsZ6D+pCwYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wDYUJvzA+6B29A3loXVMU5YeZr1wxqncwh3ualbORUw4soLS4ZzWaiFDEIKbldLyi
-         GSM8Es2c7WtTpNuS+If2XHcQADgVI+g8tco2OIpHLp3JscJvi3fbpIQ7kXvBCC6AWa
-         RvtDFDTKPNvnlN3KUF7glsMdwinZzcDIvNZdiSp0=
+        b=RSw9DfoC348OSURHLmTdW2lVtCChYj3ycRmK4VpxhEtA7BpqBlDuOnCUc7pVVQp0o
+         DDPZ5WHlkEU2PZvNxYlFXOw0x66Qa4C2PZECo4UFRrCvilE0S12MdCrgEeTxKmyPb1
+         i5/gzLvjWBH6xeaxw8SogTIxqRXVl3S29cCLCUk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Wim Van Sebroeck <wim@iguana.be>,
-        John Crispin <john@phrozen.org>, linux-mips@vger.kernel.org,
-        linux-watchdog@vger.kernel.org,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+        stable@vger.kernel.org, Vlad Buslov <vladbu@nvidia.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 282/296] MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
-Date:   Mon, 31 May 2021 15:15:37 +0200
-Message-Id: <20210531130713.204046329@linuxfoundation.org>
+Subject: [PATCH 5.12 283/296] net: zero-initialize tc skb extension on allocation
+Date:   Mon, 31 May 2021 15:15:38 +0200
+Message-Id: <20210531130713.235575370@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -44,51 +41,173 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit fef532ea0cd871afab7d9a7b6e9da99ac2c24371 ]
+[ Upstream commit 9453d45ecb6c2199d72e73c993e9d98677a2801b ]
 
-rt2880_wdt.c uses (well, attempts to use) rt_sysc_membase. However,
-when this watchdog driver is built as a loadable module, there is a
-build error since the rt_sysc_membase symbol is not exported.
-Export it to quell the build error.
+Function skb_ext_add() doesn't initialize created skb extension with any
+value and leaves it up to the user. However, since extension of type
+TC_SKB_EXT originally contained only single value tc_skb_ext->chain its
+users used to just assign the chain value without setting whole extension
+memory to zero first. This assumption changed when TC_SKB_EXT extension was
+extended with additional fields but not all users were updated to
+initialize the new fields which leads to use of uninitialized memory
+afterwards. UBSAN log:
 
-ERROR: modpost: "rt_sysc_membase" [drivers/watchdog/rt2880_wdt.ko] undefined!
+[  778.299821] UBSAN: invalid-load in net/openvswitch/flow.c:899:28
+[  778.301495] load of value 107 is not a valid value for type '_Bool'
+[  778.303215] CPU: 0 PID: 0 Comm: swapper/0 Not tainted 5.12.0-rc7+ #2
+[  778.304933] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[  778.307901] Call Trace:
+[  778.308680]  <IRQ>
+[  778.309358]  dump_stack+0xbb/0x107
+[  778.310307]  ubsan_epilogue+0x5/0x40
+[  778.311167]  __ubsan_handle_load_invalid_value.cold+0x43/0x48
+[  778.312454]  ? memset+0x20/0x40
+[  778.313230]  ovs_flow_key_extract.cold+0xf/0x14 [openvswitch]
+[  778.314532]  ovs_vport_receive+0x19e/0x2e0 [openvswitch]
+[  778.315749]  ? ovs_vport_find_upcall_portid+0x330/0x330 [openvswitch]
+[  778.317188]  ? create_prof_cpu_mask+0x20/0x20
+[  778.318220]  ? arch_stack_walk+0x82/0xf0
+[  778.319153]  ? secondary_startup_64_no_verify+0xb0/0xbb
+[  778.320399]  ? stack_trace_save+0x91/0xc0
+[  778.321362]  ? stack_trace_consume_entry+0x160/0x160
+[  778.322517]  ? lock_release+0x52e/0x760
+[  778.323444]  netdev_frame_hook+0x323/0x610 [openvswitch]
+[  778.324668]  ? ovs_netdev_get_vport+0xe0/0xe0 [openvswitch]
+[  778.325950]  __netif_receive_skb_core+0x771/0x2db0
+[  778.327067]  ? lock_downgrade+0x6e0/0x6f0
+[  778.328021]  ? lock_acquire+0x565/0x720
+[  778.328940]  ? generic_xdp_tx+0x4f0/0x4f0
+[  778.329902]  ? inet_gro_receive+0x2a7/0x10a0
+[  778.330914]  ? lock_downgrade+0x6f0/0x6f0
+[  778.331867]  ? udp4_gro_receive+0x4c4/0x13e0
+[  778.332876]  ? lock_release+0x52e/0x760
+[  778.333808]  ? dev_gro_receive+0xcc8/0x2380
+[  778.334810]  ? lock_downgrade+0x6f0/0x6f0
+[  778.335769]  __netif_receive_skb_list_core+0x295/0x820
+[  778.336955]  ? process_backlog+0x780/0x780
+[  778.337941]  ? mlx5e_rep_tc_netdevice_event_unregister+0x20/0x20 [mlx5_core]
+[  778.339613]  ? seqcount_lockdep_reader_access.constprop.0+0xa7/0xc0
+[  778.341033]  ? kvm_clock_get_cycles+0x14/0x20
+[  778.342072]  netif_receive_skb_list_internal+0x5f5/0xcb0
+[  778.343288]  ? __kasan_kmalloc+0x7a/0x90
+[  778.344234]  ? mlx5e_handle_rx_cqe_mpwrq+0x9e0/0x9e0 [mlx5_core]
+[  778.345676]  ? mlx5e_xmit_xdp_frame_mpwqe+0x14d0/0x14d0 [mlx5_core]
+[  778.347140]  ? __netif_receive_skb_list_core+0x820/0x820
+[  778.348351]  ? mlx5e_post_rx_mpwqes+0xa6/0x25d0 [mlx5_core]
+[  778.349688]  ? napi_gro_flush+0x26c/0x3c0
+[  778.350641]  napi_complete_done+0x188/0x6b0
+[  778.351627]  mlx5e_napi_poll+0x373/0x1b80 [mlx5_core]
+[  778.352853]  __napi_poll+0x9f/0x510
+[  778.353704]  ? mlx5_flow_namespace_set_mode+0x260/0x260 [mlx5_core]
+[  778.355158]  net_rx_action+0x34c/0xa40
+[  778.356060]  ? napi_threaded_poll+0x3d0/0x3d0
+[  778.357083]  ? sched_clock_cpu+0x18/0x190
+[  778.358041]  ? __common_interrupt+0x8e/0x1a0
+[  778.359045]  __do_softirq+0x1ce/0x984
+[  778.359938]  __irq_exit_rcu+0x137/0x1d0
+[  778.360865]  irq_exit_rcu+0xa/0x20
+[  778.361708]  common_interrupt+0x80/0xa0
+[  778.362640]  </IRQ>
+[  778.363212]  asm_common_interrupt+0x1e/0x40
+[  778.364204] RIP: 0010:native_safe_halt+0xe/0x10
+[  778.365273] Code: 4f ff ff ff 4c 89 e7 e8 50 3f 40 fe e9 dc fe ff ff 48 89 df e8 43 3f 40 fe eb 90 cc e9 07 00 00 00 0f 00 2d 74 05 62 00 fb f4 <c3> 90 e9 07 00 00 00 0f 00 2d 64 05 62 00 f4 c3 cc cc 0f 1f 44 00
+[  778.369355] RSP: 0018:ffffffff84407e48 EFLAGS: 00000246
+[  778.370570] RAX: ffff88842de46a80 RBX: ffffffff84425840 RCX: ffffffff83418468
+[  778.372143] RDX: 000000000026f1da RSI: 0000000000000004 RDI: ffffffff8343af5e
+[  778.373722] RBP: fffffbfff0884b08 R08: 0000000000000000 R09: ffff88842de46bcb
+[  778.375292] R10: ffffed1085bc8d79 R11: 0000000000000001 R12: 0000000000000000
+[  778.376860] R13: ffffffff851124a0 R14: 0000000000000000 R15: dffffc0000000000
+[  778.378491]  ? rcu_eqs_enter.constprop.0+0xb8/0xe0
+[  778.379606]  ? default_idle_call+0x5e/0xe0
+[  778.380578]  default_idle+0xa/0x10
+[  778.381406]  default_idle_call+0x96/0xe0
+[  778.382350]  do_idle+0x3d4/0x550
+[  778.383153]  ? arch_cpu_idle_exit+0x40/0x40
+[  778.384143]  cpu_startup_entry+0x19/0x20
+[  778.385078]  start_kernel+0x3c7/0x3e5
+[  778.385978]  secondary_startup_64_no_verify+0xb0/0xbb
 
-Fixes: 473cf939ff34 ("watchdog: add ralink watchdog driver")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Guenter Roeck <linux@roeck-us.net>
-Cc: Wim Van Sebroeck <wim@iguana.be>
-Cc: John Crispin <john@phrozen.org>
-Cc: linux-mips@vger.kernel.org
-Cc: linux-watchdog@vger.kernel.org
-Acked-by: Guenter Roeck <linux@roeck-us.net>
-Signed-off-by: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
+Fix the issue by providing new function tc_skb_ext_alloc() that allocates
+tc skb extension and initializes its memory to 0 before returning it to the
+caller. Change all existing users to use new API instead of calling
+skb_ext_add() directly.
+
+Fixes: 038ebb1a713d ("net/sched: act_ct: fix miss set mru for ovs after defrag in act_ct")
+Fixes: d29334c15d33 ("net/sched: act_api: fix miss set post_ct for ovs after do conntrack in act_ct")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Acked-by: Cong Wang <cong.wang@bytedance.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/mips/ralink/of.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c |  2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c     |  2 +-
+ include/net/pkt_cls.h                               | 11 +++++++++++
+ net/sched/cls_api.c                                 |  2 +-
+ 4 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/arch/mips/ralink/of.c b/arch/mips/ralink/of.c
-index 8286c3521476..3c3d07cd8066 100644
---- a/arch/mips/ralink/of.c
-+++ b/arch/mips/ralink/of.c
-@@ -8,6 +8,7 @@
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+index 065126370acd..96ba027dbef3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/tc.c
+@@ -645,7 +645,7 @@ bool mlx5e_rep_tc_update_skb(struct mlx5_cqe64 *cqe,
+ 	}
  
- #include <linux/io.h>
- #include <linux/clk.h>
-+#include <linux/export.h>
- #include <linux/init.h>
- #include <linux/sizes.h>
- #include <linux/of_fdt.h>
-@@ -25,6 +26,7 @@
+ 	if (chain) {
+-		tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
++		tc_skb_ext = tc_skb_ext_alloc(skb);
+ 		if (!tc_skb_ext) {
+ 			WARN_ON(1);
+ 			return false;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 840cc9d8a2ee..78a1403c9802 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -4924,7 +4924,7 @@ bool mlx5e_tc_update_skb(struct mlx5_cqe64 *cqe,
+ 	}
  
- __iomem void *rt_sysc_membase;
- __iomem void *rt_memc_membase;
-+EXPORT_SYMBOL_GPL(rt_sysc_membase);
+ 	if (chain) {
+-		tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
++		tc_skb_ext = tc_skb_ext_alloc(skb);
+ 		if (WARN_ON(!tc_skb_ext))
+ 			return false;
  
- __iomem void *plat_of_remap_node(const char *node)
- {
+diff --git a/include/net/pkt_cls.h b/include/net/pkt_cls.h
+index 255e4f4b521f..ec7823921bd2 100644
+--- a/include/net/pkt_cls.h
++++ b/include/net/pkt_cls.h
+@@ -709,6 +709,17 @@ tc_cls_common_offload_init(struct flow_cls_common_offload *cls_common,
+ 		cls_common->extack = extack;
+ }
+ 
++#if IS_ENABLED(CONFIG_NET_TC_SKB_EXT)
++static inline struct tc_skb_ext *tc_skb_ext_alloc(struct sk_buff *skb)
++{
++	struct tc_skb_ext *tc_skb_ext = skb_ext_add(skb, TC_SKB_EXT);
++
++	if (tc_skb_ext)
++		memset(tc_skb_ext, 0, sizeof(*tc_skb_ext));
++	return tc_skb_ext;
++}
++#endif
++
+ enum tc_matchall_command {
+ 	TC_CLSMATCHALL_REPLACE,
+ 	TC_CLSMATCHALL_DESTROY,
+diff --git a/net/sched/cls_api.c b/net/sched/cls_api.c
+index 340d5af86e87..94f6942d7ec1 100644
+--- a/net/sched/cls_api.c
++++ b/net/sched/cls_api.c
+@@ -1624,7 +1624,7 @@ int tcf_classify_ingress(struct sk_buff *skb,
+ 
+ 	/* If we missed on some chain */
+ 	if (ret == TC_ACT_UNSPEC && last_executed_chain) {
+-		ext = skb_ext_add(skb, TC_SKB_EXT);
++		ext = tc_skb_ext_alloc(skb);
+ 		if (WARN_ON_ONCE(!ext))
+ 			return TC_ACT_SHOT;
+ 		ext->chain = last_executed_chain;
 -- 
 2.30.2
 
