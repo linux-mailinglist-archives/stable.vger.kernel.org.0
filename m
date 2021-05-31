@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DC73839606C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:24:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D579395CD0
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:36:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233473AbhEaOZp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:25:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46052 "EHLO mail.kernel.org"
+        id S232022AbhEaNiP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:38:15 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39236 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233287AbhEaOXd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:23:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F809619D0;
-        Mon, 31 May 2021 13:45:59 +0000 (UTC)
+        id S231990AbhEaNfr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:35:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B7ED561401;
+        Mon, 31 May 2021 13:25:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468759;
-        bh=lGqqaLBNP/9QRAroFbTLl3k3cLDdzW2qBzFiLQ2qiP0=;
+        s=korg; t=1622467526;
+        bh=891bHmpN95ZD6fwRgVJVLBZFvKFAEX193O2rvDRXrio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=e6ZBiu5jkc6mDzo1M3xkJ+TOydAH+xQjUR+9zZgu+bRchd0OI/bxoUKI6bexELeQZ
-         +Dv/oSK+7JcJzvEmKIHOuJdc9ey0PdExtlKxN/rZzFrgj1wqbcD0JtNzlB0knAqg5p
-         Mf26OTKtVGVxkLVCGu9JdSm3N5aqJtWH7BbTHHqk=
+        b=zuqHMJky8/woai5YVDh+/guL1rLeY29JZuuw8c24wOSflCR4zbMLDzDEKnoYDYqwz
+         bMKUEB+cFO5myRanpskqqQ7ut/YB1Gv584tGI10b3lMKHeSdHTGaXI0IstP0migl4m
+         JAMKVRI1KlKuBDjP1AEeMIXPkUQbyZa/BezfpeDU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+samsung@kernel.org>,
-        Alaa Emad <alaaemadhossney.ae@gmail.com>,
+        stable@vger.kernel.org, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 116/177] media: gspca: mt9m111: Check write_bridge for timeout
+Subject: [PATCH 4.19 097/116] net: dsa: fix error code getting shifted with 4 in dsa_slave_get_sset_count
 Date:   Mon, 31 May 2021 15:14:33 +0200
-Message-Id: <20210531130651.918846570@linuxfoundation.org>
+Message-Id: <20210531130643.424966581@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-References: <20210531130647.887605866@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+References: <20210531130640.131924542@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,59 +42,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alaa Emad <alaaemadhossney.ae@gmail.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit e932f5b458eee63d013578ea128b9ff8ef5f5496 ]
+[ Upstream commit b94cbc909f1d80378a1f541968309e5c1178c98b ]
 
-If m5602_write_bridge times out, it will return a negative error value.
-So properly check for this and handle the error correctly instead of
-just ignoring it.
+DSA implements a bunch of 'standardized' ethtool statistics counters,
+namely tx_packets, tx_bytes, rx_packets, rx_bytes. So whatever the
+hardware driver returns in .get_sset_count(), we need to add 4 to that.
 
-Cc: Mauro Carvalho Chehab <mchehab+samsung@kernel.org>
-Signed-off-by: Alaa Emad <alaaemadhossney.ae@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-62-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+That is ok, except that .get_sset_count() can return a negative error
+code, for example:
+
+b53_get_sset_count
+-> phy_ethtool_get_sset_count
+   -> return -EIO
+
+-EIO is -5, and with 4 added to it, it becomes -1, aka -EPERM. One can
+imagine that certain error codes may even become positive, although
+based on code inspection I did not see instances of that.
+
+Check the error code first, if it is negative return it as-is.
+
+Based on a similar patch for dsa_master_get_strings from Dan Carpenter:
+https://patchwork.kernel.org/project/netdevbpf/patch/YJaSe3RPgn7gKxZv@mwanda/
+
+Fixes: 91da11f870f0 ("net: Distributed Switch Architecture protocol support")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/gspca/m5602/m5602_mt9m111.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ net/dsa/slave.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-index 50481dc928d0..bf1af6ed9131 100644
---- a/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-+++ b/drivers/media/usb/gspca/m5602/m5602_mt9m111.c
-@@ -195,7 +195,7 @@ static const struct v4l2_ctrl_config mt9m111_greenbal_cfg = {
- int mt9m111_probe(struct sd *sd)
- {
- 	u8 data[2] = {0x00, 0x00};
--	int i;
-+	int i, err;
- 	struct gspca_dev *gspca_dev = (struct gspca_dev *)sd;
+diff --git a/net/dsa/slave.c b/net/dsa/slave.c
+index 11f1560de639..b887d9edb9c3 100644
+--- a/net/dsa/slave.c
++++ b/net/dsa/slave.c
+@@ -598,13 +598,15 @@ static int dsa_slave_get_sset_count(struct net_device *dev, int sset)
+ 	struct dsa_switch *ds = dp->ds;
  
- 	if (force_sensor) {
-@@ -213,15 +213,17 @@ int mt9m111_probe(struct sd *sd)
- 	/* Do the preinit */
- 	for (i = 0; i < ARRAY_SIZE(preinit_mt9m111); i++) {
- 		if (preinit_mt9m111[i][0] == BRIDGE) {
--			m5602_write_bridge(sd,
--				preinit_mt9m111[i][1],
--				preinit_mt9m111[i][2]);
-+			err = m5602_write_bridge(sd,
-+					preinit_mt9m111[i][1],
-+					preinit_mt9m111[i][2]);
- 		} else {
- 			data[0] = preinit_mt9m111[i][2];
- 			data[1] = preinit_mt9m111[i][3];
--			m5602_write_sensor(sd,
--				preinit_mt9m111[i][1], data, 2);
-+			err = m5602_write_sensor(sd,
-+					preinit_mt9m111[i][1], data, 2);
- 		}
-+		if (err < 0)
-+			return err;
+ 	if (sset == ETH_SS_STATS) {
+-		int count;
++		int count = 0;
+ 
+-		count = 4;
+-		if (ds->ops->get_sset_count)
+-			count += ds->ops->get_sset_count(ds, dp->index, sset);
++		if (ds->ops->get_sset_count) {
++			count = ds->ops->get_sset_count(ds, dp->index, sset);
++			if (count < 0)
++				return count;
++		}
+ 
+-		return count;
++		return count + 4;
  	}
  
- 	if (m5602_read_sensor(sd, MT9M111_SC_CHIPVER, data, 2))
+ 	return -EOPNOTSUPP;
 -- 
 2.30.2
 
