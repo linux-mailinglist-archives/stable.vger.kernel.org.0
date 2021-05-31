@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B87A39616C
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B2DD939616A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:38:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232624AbhEaOkb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:40:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33234 "EHLO mail.kernel.org"
+        id S233848AbhEaOk3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:40:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33264 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233740AbhEaOhi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S233980AbhEaOhi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 31 May 2021 10:37:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0C53761C53;
-        Mon, 31 May 2021 13:51:57 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A16A161C55;
+        Mon, 31 May 2021 13:52:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469118;
-        bh=DSf4XqPjzvaq/zKi0DCw4Gh+8Dfiy3EAaMlzty3/gvc=;
+        s=korg; t=1622469121;
+        bh=CnVjX5vT2irg3av9FDImDH3Pys1rwVPHHG4quadwNt8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SGJes3KFifNnDCfJtaksxrhDcwybXmKrHesDBq0Fk7RB28IJjo6SgR8weDgIVZk2+
-         /JEd11G5dFxHGkF6WVsqTXeZH2uR1uZtzZALFb7JyrlbEEAVMz4Ch5KL0ZKxUDlcaN
-         2tEj1SY3abUGWi/OXBtulDls/7lFd2wCW5cqsexc=
+        b=uT3gajvOXLGuXmYwPowBMz6fwU+xPozLUT1kmUY1QkPSayg9kpn5Gutx9FFX8z5QT
+         pmx0RK1rnbM5585fHLTxzXrM+OSU+uwGTskpKaxh5+Q5dvWXDt8eS5afMk+PhuJ9j1
+         QNRfNRp3e3c2qBzLcM7GAEQjDGRdmy0NWn+NFyeg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Mauro Carvalho Chehab <mchehab+huawei@kernel.org>,
-        Rui Miguel Silva <rui.silva@linaro.org>,
+        Alexandru Tachici <alexandru.tachici@analog.com>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Alexandru Ardelean <ardeleanalex@gmail.com>,
         Stable@vger.kernel.org,
         Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.12 076/296] iio: gyro: fxas21002c: balance runtime power in error path
-Date:   Mon, 31 May 2021 15:12:11 +0200
-Message-Id: <20210531130706.410618809@linuxfoundation.org>
+Subject: [PATCH 5.12 077/296] iio: dac: ad5770r: Put fwnode in error case during ->probe()
+Date:   Mon, 31 May 2021 15:12:12 +0200
+Message-Id: <20210531130706.440210824@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -42,43 +43,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rui Miguel Silva <rui.silva@linaro.org>
+From: Andy Shevchenko <andy.shevchenko@gmail.com>
 
-commit 2a54c8c9ebc2006bf72554afc84ffc67768979a0 upstream.
+commit 98b7b0ca0828907dbb706387c11356a45463e2ea upstream.
 
-If we fail to read temperature or axis we need to decrement the
-runtime pm reference count to trigger autosuspend.
+device_for_each_child_node() bumps a reference counting of a returned variable.
+We have to balance it whenever we return to the caller.
 
-Add the call to pm_put to do that in case of error.
-
-Fixes: a0701b6263ae ("iio: gyro: add core driver for fxas21002c")
-Suggested-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Signed-off-by: Rui Miguel Silva <rui.silva@linaro.org>
-Link: https://lore.kernel.org/linux-iio/CBBZA9T1OY9C.2611WSV49DV2G@arch-thunder/
+Fixes: cbbb819837f6 ("iio: dac: ad5770r: Add AD5770R support")
+Cc: Alexandru Tachici <alexandru.tachici@analog.com>
+Signed-off-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+Reviewed-by: Alexandru Ardelean <ardeleanalex@gmail.com>
+Link: https://lore.kernel.org/r/20210510095649.3302835-1-andy.shevchenko@gmail.com
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/gyro/fxas21002c_core.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/iio/dac/ad5770r.c |   16 +++++++++++-----
+ 1 file changed, 11 insertions(+), 5 deletions(-)
 
---- a/drivers/iio/gyro/fxas21002c_core.c
-+++ b/drivers/iio/gyro/fxas21002c_core.c
-@@ -399,6 +399,7 @@ static int fxas21002c_temp_get(struct fx
- 	ret = regmap_field_read(data->regmap_fields[F_TEMP], &temp);
- 	if (ret < 0) {
- 		dev_err(dev, "failed to read temp: %d\n", ret);
-+		fxas21002c_pm_put(data);
- 		goto data_unlock;
+--- a/drivers/iio/dac/ad5770r.c
++++ b/drivers/iio/dac/ad5770r.c
+@@ -524,23 +524,29 @@ static int ad5770r_channel_config(struct
+ 	device_for_each_child_node(&st->spi->dev, child) {
+ 		ret = fwnode_property_read_u32(child, "num", &num);
+ 		if (ret)
+-			return ret;
+-		if (num >= AD5770R_MAX_CHANNELS)
+-			return -EINVAL;
++			goto err_child_out;
++		if (num >= AD5770R_MAX_CHANNELS) {
++			ret = -EINVAL;
++			goto err_child_out;
++		}
+ 
+ 		ret = fwnode_property_read_u32_array(child,
+ 						     "adi,range-microamp",
+ 						     tmp, 2);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
+ 
+ 		min = tmp[0] / 1000;
+ 		max = tmp[1] / 1000;
+ 		ret = ad5770r_store_output_range(st, min, max, num);
+ 		if (ret)
+-			return ret;
++			goto err_child_out;
  	}
  
-@@ -432,6 +433,7 @@ static int fxas21002c_axis_get(struct fx
- 			       &axis_be, sizeof(axis_be));
- 	if (ret < 0) {
- 		dev_err(dev, "failed to read axis: %d: %d\n", index, ret);
-+		fxas21002c_pm_put(data);
- 		goto data_unlock;
- 	}
++	return 0;
++
++err_child_out:
++	fwnode_handle_put(child);
+ 	return ret;
+ }
  
 
 
