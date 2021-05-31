@@ -2,33 +2,34 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37004396184
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:40:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30D493961C5
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:44:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232146AbhEaOlm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:41:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38018 "EHLO mail.kernel.org"
+        id S231809AbhEaOp6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:45:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38022 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234179AbhEaOjg (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:39:36 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EC49061C62;
-        Mon, 31 May 2021 13:52:45 +0000 (UTC)
+        id S233319AbhEaOni (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:43:38 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 446A161C75;
+        Mon, 31 May 2021 13:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622469166;
-        bh=a6U4P9qpJ+bpOtv1WRP3SiEYiF7qP2V/P3fQITGQGZg=;
+        s=korg; t=1622469281;
+        bh=HCi1AXBOtmxa8GKjBhYrMrWk+dDUVRBScLcK/48cENE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Intgpqb2olZsXW4hqI2sRB0RGt6v+IFmYX9g8MM//MAh3vXikYBt5C3MHd3Z1ipiH
-         D5vcEd+LBDXVU/I7rCaXHH7AkpF9nYuOKKhWNAXIFUbLnXJSQv35nF2eNHO/a4CdvI
-         zA4JCinENGw8OdgW3sEr3B3PHhO4ctpwAwfD9Vyg=
+        b=XJcChXDSH6nLBqOA6LUjV0f85I/g5bsXhuxCTVmZEOKeYxDH60SMrZ92wI3bzUJE0
+         oISU58ZCK7gfr6+EDt9kVAAIGDdcOmO6TrAsMN0P0eY75u5DSyB5jDvb0x96LM0Fq5
+         Z6y5QzgUmdtxaqAv/oDeyTw4p28VRX3dD3NpvfOk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Peter Ganzhorn <peter.ganzhorn@googlemail.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.12 093/296] xhci: Fix 5.12 regression of missing xHC cache clearing command after a Stall
-Date:   Mon, 31 May 2021 15:12:28 +0200
-Message-Id: <20210531130707.032553686@linuxfoundation.org>
+        "chenxiang (M)" <chenxiang66@hisilicon.com>,
+        Saravana Kannan <saravanak@google.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 5.12 094/296] drivers: base: Fix device link removal
+Date:   Mon, 31 May 2021 15:12:29 +0200
+Message-Id: <20210531130707.072584005@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
 References: <20210531130703.762129381@linuxfoundation.org>
@@ -40,53 +41,133 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 
-commit a7f2e9272aff1ccfe0fc801dab1d5a7a1c6b7ed2 upstream.
+commit 80dd33cf72d1ab4f0af303f1fa242c6d6c8d328f upstream.
 
-If endpoints halts due to a stall then the dequeue pointer read from
-hardware may already be set ahead of the stalled TRB.
-After commit 674f8438c121 ("xhci: split handling halted endpoints into two
-steps") in 5.12 xhci driver won't issue a Set TR Dequeue if hardware
-dequeue pointer is already in the right place.
+When device_link_free() drops references to the supplier and
+consumer devices of the device link going away and the reference
+being dropped turns out to be the last one for any of those
+device objects, its ->release callback will be invoked and it
+may sleep which goes against the SRCU callback execution
+requirements.
 
-Turns out the "Set TR Dequeue pointer" command is anyway needed as it in
-addition to moving the dequeue pointer also clears endpoint state and
-cache.
+To address this issue, make the device link removal code carry out
+the device_link_free() actions preceded by SRCU synchronization from
+a separate work item (the "long" workqueue is used for that, because
+it does not matter when the device link memory is released and it may
+take time to get to that point) instead of using SRCU callbacks.
 
-Fixes: 674f8438c121 ("xhci: split handling halted endpoints into two steps")
-Cc: <stable@vger.kernel.org> # 5.12
-Reported-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
-Tested-by: Peter Ganzhorn <peter.ganzhorn@googlemail.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20210525074100.1154090-3-mathias.nyman@linux.intel.com
+While at it, make the code work analogously when SRCU is not enabled
+to reduce the differences between the SRCU and non-SRCU cases.
+
+Fixes: 843e600b8a2b ("driver core: Fix sleeping in invalid context during device link deletion")
+Cc: stable <stable@vger.kernel.org>
+Reported-by: chenxiang (M) <chenxiang66@hisilicon.com>
+Tested-by: chenxiang (M) <chenxiang66@hisilicon.com>
+Reviewed-by: Saravana Kannan <saravanak@google.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/5722787.lOV4Wx5bFT@kreacher
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/base/core.c    |   37 +++++++++++++++++++++++--------------
+ include/linux/device.h |    6 ++----
+ 2 files changed, 25 insertions(+), 18 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -934,14 +934,18 @@ static int xhci_invalidate_cancelled_tds
- 			continue;
- 		}
- 		/*
--		 * If ring stopped on the TD we need to cancel, then we have to
-+		 * If a ring stopped on the TD we need to cancel then we have to
- 		 * move the xHC endpoint ring dequeue pointer past this TD.
-+		 * Rings halted due to STALL may show hw_deq is past the stalled
-+		 * TD, but still require a set TR Deq command to flush xHC cache.
- 		 */
- 		hw_deq = xhci_get_hw_deq(xhci, ep->vdev, ep->ep_index,
- 					 td->urb->stream_id);
- 		hw_deq &= ~0xf;
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -192,6 +192,11 @@ int device_links_read_lock_held(void)
+ {
+ 	return srcu_read_lock_held(&device_links_srcu);
+ }
++
++static void device_link_synchronize_removal(void)
++{
++	synchronize_srcu(&device_links_srcu);
++}
+ #else /* !CONFIG_SRCU */
+ static DECLARE_RWSEM(device_links_lock);
  
--		if (trb_in_td(xhci, td->start_seg, td->first_trb,
-+		if (td->cancel_status == TD_HALTED) {
-+			cached_td = td;
-+		} else if (trb_in_td(xhci, td->start_seg, td->first_trb,
- 			      td->last_trb, hw_deq, false)) {
- 			switch (td->cancel_status) {
- 			case TD_CLEARED: /* TD is already no-op */
+@@ -222,6 +227,10 @@ int device_links_read_lock_held(void)
+ 	return lockdep_is_held(&device_links_lock);
+ }
+ #endif
++
++static inline void device_link_synchronize_removal(void)
++{
++}
+ #endif /* !CONFIG_SRCU */
+ 
+ static bool device_is_ancestor(struct device *dev, struct device *target)
+@@ -443,8 +452,13 @@ static struct attribute *devlink_attrs[]
+ };
+ ATTRIBUTE_GROUPS(devlink);
+ 
+-static void device_link_free(struct device_link *link)
++static void device_link_release_fn(struct work_struct *work)
+ {
++	struct device_link *link = container_of(work, struct device_link, rm_work);
++
++	/* Ensure that all references to the link object have been dropped. */
++	device_link_synchronize_removal();
++
+ 	while (refcount_dec_not_one(&link->rpm_active))
+ 		pm_runtime_put(link->supplier);
+ 
+@@ -453,24 +467,19 @@ static void device_link_free(struct devi
+ 	kfree(link);
+ }
+ 
+-#ifdef CONFIG_SRCU
+-static void __device_link_free_srcu(struct rcu_head *rhead)
+-{
+-	device_link_free(container_of(rhead, struct device_link, rcu_head));
+-}
+-
+ static void devlink_dev_release(struct device *dev)
+ {
+ 	struct device_link *link = to_devlink(dev);
+ 
+-	call_srcu(&device_links_srcu, &link->rcu_head, __device_link_free_srcu);
+-}
+-#else
+-static void devlink_dev_release(struct device *dev)
+-{
+-	device_link_free(to_devlink(dev));
++	INIT_WORK(&link->rm_work, device_link_release_fn);
++	/*
++	 * It may take a while to complete this work because of the SRCU
++	 * synchronization in device_link_release_fn() and if the consumer or
++	 * supplier devices get deleted when it runs, so put it into the "long"
++	 * workqueue.
++	 */
++	queue_work(system_long_wq, &link->rm_work);
+ }
+-#endif
+ 
+ static struct class devlink_class = {
+ 	.name = "devlink",
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -566,7 +566,7 @@ struct device {
+  * @flags: Link flags.
+  * @rpm_active: Whether or not the consumer device is runtime-PM-active.
+  * @kref: Count repeated addition of the same link.
+- * @rcu_head: An RCU head to use for deferred execution of SRCU callbacks.
++ * @rm_work: Work structure used for removing the link.
+  * @supplier_preactivated: Supplier has been made active before consumer probe.
+  */
+ struct device_link {
+@@ -579,9 +579,7 @@ struct device_link {
+ 	u32 flags;
+ 	refcount_t rpm_active;
+ 	struct kref kref;
+-#ifdef CONFIG_SRCU
+-	struct rcu_head rcu_head;
+-#endif
++	struct work_struct rm_work;
+ 	bool supplier_preactivated; /* Owned by consumer probe. */
+ };
+ 
 
 
