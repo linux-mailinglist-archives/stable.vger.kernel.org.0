@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4C1F395F01
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:04:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B1C8C39622A
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:50:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232972AbhEaOGb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:06:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37788 "EHLO mail.kernel.org"
+        id S231189AbhEaOvr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:51:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45736 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233308AbhEaOEZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:04:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4036F613FE;
-        Mon, 31 May 2021 13:38:07 +0000 (UTC)
+        id S230518AbhEaOtl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:49:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 320F961C9D;
+        Mon, 31 May 2021 13:57:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468288;
-        bh=26WxNwO+8uDhnOWKEyMtx1cDFa5fjm15bHmqxO787rI=;
+        s=korg; t=1622469434;
+        bh=HJ7qAgUp3pfDTGdMoTByNj0yMeZBO441FzbToT+maD0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jph21xLh5Jg9m2WzP5NLRUqaKM0C8UStYiLsDdSevD4rzBkVdbkxZtd9mPHH3lNNV
-         B4V6IYCP0A4nArK2wsA7qzdMlKaMGtAj1UykZCuFkibJTI/U7s2D7FA9q8t6QAAxIW
-         lHr3I0OxTGrGeFmVYDYH+7m77UNWHn2tN6/OtTV0=
+        b=AduvClokyIvzCCN9H3+VeC8AsfxQw+/eD3HH9vMHbECQj+2VS4r4Cj/pKVbEJgtZh
+         S0vEXlHv1xnnlNo4Ntpa88OO2d7A/XeFssqMzogdf663WsA98L+xbLCt6yTG7ahZ4o
+         yo9rXBwmreY/a0cMiZ0PL3FJE7Rg5G94FbkCKbvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hans de Goede <hdegoede@redhat.com>,
+        stable@vger.kernel.org, Kangjie Lu <kjlu@umn.edu>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 186/252] platform/x86: touchscreen_dmi: Add info for the Chuwi Hi10 Pro (CWI529) tablet
+Subject: [PATCH 5.12 196/296] Revert "net: liquidio: fix a NULL pointer dereference"
 Date:   Mon, 31 May 2021 15:14:11 +0200
-Message-Id: <20210531130704.328268519@linuxfoundation.org>
+Message-Id: <20210531130710.463681892@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+References: <20210531130703.762129381@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,77 +40,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit e68671e9e1275dfdda333c3e83b6d28963af16b6 ]
+[ Upstream commit 4fd798a5a89114c1892574c50f2aebd49bc5b4f5 ]
 
-Add touchscreen info for the Chuwi Hi10 Pro (CWI529) tablet. This includes
-info for getting the firmware directly from the UEFI, so that the user does
-not need to manually install the firmware in /lib/firmware/silead.
+This reverts commit fe543b2f174f34a7a751aa08b334fe6b105c4569.
 
-This change will make the touchscreen on these devices work OOTB,
-without requiring any manual setup.
+Because of recent interactions with developers from @umn.edu, all
+commits from them have been recently re-reviewed to ensure if they were
+correct or not.
 
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20210520093228.7439-1-hdegoede@redhat.com
+Upon review, this commit was found to be incorrect for the reasons
+below, so it must be reverted.  It will be fixed up "correctly" in a
+later kernel change.
+
+While the original commit does keep the immediate "NULL dereference"
+from happening, it does not properly propagate the error back to the
+callers, AND it does not fix this same identical issue in the
+drivers/net/ethernet/cavium/liquidio/lio_vf_main.c for some reason.
+
+Cc: Kangjie Lu <kjlu@umn.edu>
+Cc: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210503115736.2104747-65-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/touchscreen_dmi.c | 35 ++++++++++++++++++++++++++
- 1 file changed, 35 insertions(+)
+ drivers/net/ethernet/cavium/liquidio/lio_main.c | 5 -----
+ 1 file changed, 5 deletions(-)
 
-diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
-index e1455f1d2472..3743d895399e 100644
---- a/drivers/platform/x86/touchscreen_dmi.c
-+++ b/drivers/platform/x86/touchscreen_dmi.c
-@@ -115,6 +115,32 @@ static const struct ts_dmi_data chuwi_hi10_plus_data = {
- 	.properties     = chuwi_hi10_plus_props,
- };
+diff --git a/drivers/net/ethernet/cavium/liquidio/lio_main.c b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+index 7c5af4beedc6..6fa570068648 100644
+--- a/drivers/net/ethernet/cavium/liquidio/lio_main.c
++++ b/drivers/net/ethernet/cavium/liquidio/lio_main.c
+@@ -1166,11 +1166,6 @@ static void send_rx_ctrl_cmd(struct lio *lio, int start_stop)
+ 	sc = (struct octeon_soft_command *)
+ 		octeon_alloc_soft_command(oct, OCTNET_CMD_SIZE,
+ 					  16, 0);
+-	if (!sc) {
+-		netif_info(lio, rx_err, lio->netdev,
+-			   "Failed to allocate octeon_soft_command\n");
+-		return;
+-	}
  
-+static const struct property_entry chuwi_hi10_pro_props[] = {
-+	PROPERTY_ENTRY_U32("touchscreen-min-x", 8),
-+	PROPERTY_ENTRY_U32("touchscreen-min-y", 8),
-+	PROPERTY_ENTRY_U32("touchscreen-size-x", 1912),
-+	PROPERTY_ENTRY_U32("touchscreen-size-y", 1272),
-+	PROPERTY_ENTRY_BOOL("touchscreen-swapped-x-y"),
-+	PROPERTY_ENTRY_STRING("firmware-name", "gsl1680-chuwi-hi10-pro.fw"),
-+	PROPERTY_ENTRY_U32("silead,max-fingers", 10),
-+	PROPERTY_ENTRY_BOOL("silead,home-button"),
-+	{ }
-+};
-+
-+static const struct ts_dmi_data chuwi_hi10_pro_data = {
-+	.embedded_fw = {
-+		.name	= "silead/gsl1680-chuwi-hi10-pro.fw",
-+		.prefix = { 0xf0, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00 },
-+		.length	= 42504,
-+		.sha256	= { 0xdb, 0x92, 0x68, 0xa8, 0xdb, 0x81, 0x31, 0x00,
-+			    0x1f, 0x58, 0x89, 0xdb, 0x19, 0x1b, 0x15, 0x8c,
-+			    0x05, 0x14, 0xf4, 0x95, 0xba, 0x15, 0x45, 0x98,
-+			    0x42, 0xa3, 0xbb, 0x65, 0xe3, 0x30, 0xa5, 0x93 },
-+	},
-+	.acpi_name      = "MSSL1680:00",
-+	.properties     = chuwi_hi10_pro_props,
-+};
-+
- static const struct property_entry chuwi_vi8_props[] = {
- 	PROPERTY_ENTRY_U32("touchscreen-min-x", 4),
- 	PROPERTY_ENTRY_U32("touchscreen-min-y", 6),
-@@ -872,6 +898,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
- 			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
- 		},
- 	},
-+	{
-+		/* Chuwi Hi10 Prus (CWI597) */
-+		.driver_data = (void *)&chuwi_hi10_pro_data,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "Hampoo"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
-+			DMI_MATCH(DMI_BOARD_NAME, "Cherry Trail CR"),
-+		},
-+	},
- 	{
- 		/* Chuwi Vi8 (CWI506) */
- 		.driver_data = (void *)&chuwi_vi8_data,
+ 	ncmd = (union octnet_cmd *)sc->virtdptr;
+ 
 -- 
 2.30.2
 
