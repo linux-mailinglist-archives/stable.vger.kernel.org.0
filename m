@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A429395EB0
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:00:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0DD1A395B2C
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 15:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232260AbhEaOCD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:02:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60414 "EHLO mail.kernel.org"
+        id S231579AbhEaNSL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 09:18:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:53064 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232505AbhEaN76 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 09:59:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7CC7961441;
-        Mon, 31 May 2021 13:36:18 +0000 (UTC)
+        id S231370AbhEaNSD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 09:18:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2231960FE8;
+        Mon, 31 May 2021 13:16:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468178;
-        bh=H3RWPZJkjVUorJnG3KIjbbaqmQVKkbapPblliMH5WxE=;
+        s=korg; t=1622466982;
+        bh=kme6q4zv+U3QITOnFZDU90hVd4mfIb3z1exUdsxjoF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBUI6ilMNXZKbNi4ihJrZye8MJ231VUgoTJG8jDCD9DJVrIHWxpTn1oMe4Mt9u7db
-         VLC28OnGz2gU/W2QntVtuwUBhAJRQovaNT4Lj0zKTS8PnknalgwA+yC2LMwEWxv79O
-         iQyz9aAb3ITKHXe4Se5soAIO7wuJ0v9OczRsSm70=
+        b=WqquW7G7y3xf5koScYOC7XWHe0MEvXWr5iDKBGD3GVJ1RCVAIftJRe1UUR9rcCRja
+         yDeFe+1XZQ61b/fQLJJ583a0XkSIPYSXj41fdJeIlh17JyHFlYyGdC4yqlgCSZsBVk
+         dlDDWpQj4Dc91AzkjutyXEfK6+jxxHjPQrcQlijs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Tom Seewald <tseewald@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 144/252] char: hpet: add checks after calling ioremap
+        stable@vger.kernel.org,
+        syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com,
+        Dongliang Mu <mudongliangabcd@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.4 03/54] NFC: nci: fix memory leak in nci_allocate_device
 Date:   Mon, 31 May 2021 15:13:29 +0200
-Message-Id: <20210531130702.910000177@linuxfoundation.org>
+Message-Id: <20210531130635.183575653@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130635.070310929@linuxfoundation.org>
+References: <20210531130635.070310929@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,46 +41,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Seewald <tseewald@gmail.com>
+From: Dongliang Mu <mudongliangabcd@gmail.com>
 
-[ Upstream commit b11701c933112d49b808dee01cb7ff854ba6a77a ]
+commit e0652f8bb44d6294eeeac06d703185357f25d50b upstream.
 
-The function hpet_resources() calls ioremap() two times, but in both
-cases it does not check if ioremap() returned a null pointer. Fix this
-by adding null pointer checks and returning an appropriate error.
+nfcmrvl_disconnect fails to free the hci_dev field in struct nci_dev.
+Fix this by freeing hci_dev in nci_free_device.
 
-Signed-off-by: Tom Seewald <tseewald@gmail.com>
-Link: https://lore.kernel.org/r/20210503115736.2104747-30-gregkh@linuxfoundation.org
+BUG: memory leak
+unreferenced object 0xffff888111ea6800 (size 1024):
+  comm "kworker/1:0", pid 19, jiffies 4294942308 (age 13.580s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 60 fd 0c 81 88 ff ff  .........`......
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<000000004bc25d43>] kmalloc include/linux/slab.h:552 [inline]
+    [<000000004bc25d43>] kzalloc include/linux/slab.h:682 [inline]
+    [<000000004bc25d43>] nci_hci_allocate+0x21/0xd0 net/nfc/nci/hci.c:784
+    [<00000000c59cff92>] nci_allocate_device net/nfc/nci/core.c:1170 [inline]
+    [<00000000c59cff92>] nci_allocate_device+0x10b/0x160 net/nfc/nci/core.c:1132
+    [<00000000006e0a8e>] nfcmrvl_nci_register_dev+0x10a/0x1c0 drivers/nfc/nfcmrvl/main.c:153
+    [<000000004da1b57e>] nfcmrvl_probe+0x223/0x290 drivers/nfc/nfcmrvl/usb.c:345
+    [<00000000d506aed9>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+    [<00000000f5009125>] driver_probe_device+0x84/0x100 drivers/base/dd.c:740
+    [<000000000ce658ca>] __device_attach_driver+0xee/0x110 drivers/base/dd.c:846
+    [<000000007067d05f>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:431
+    [<00000000f8e13372>] __device_attach+0x122/0x250 drivers/base/dd.c:914
+    [<000000009cf68860>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:491
+    [<00000000359c965a>] device_add+0x5be/0xc30 drivers/base/core.c:3109
+    [<00000000086e4bd3>] usb_set_configuration+0x9d9/0xb90 drivers/usb/core/message.c:2164
+    [<00000000ca036872>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<00000000d40d36f6>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<00000000bc632c92>] really_probe+0x159/0x4a0 drivers/base/dd.c:554
+
+Reported-by: syzbot+19bcfc64a8df1318d1c3@syzkaller.appspotmail.com
+Fixes: 11f54f228643 ("NFC: nci: Add HCI over NCI protocol support")
+Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/char/hpet.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ include/net/nfc/nci_core.h |    1 +
+ net/nfc/nci/core.c         |    1 +
+ net/nfc/nci/hci.c          |    5 +++++
+ 3 files changed, 7 insertions(+)
 
-diff --git a/drivers/char/hpet.c b/drivers/char/hpet.c
-index 6f13def6c172..8b55085650ad 100644
---- a/drivers/char/hpet.c
-+++ b/drivers/char/hpet.c
-@@ -969,6 +969,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 	if (ACPI_SUCCESS(status)) {
- 		hdp->hd_phys_address = addr.address.minimum;
- 		hdp->hd_address = ioremap(addr.address.minimum, addr.address.address_length);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+--- a/include/net/nfc/nci_core.h
++++ b/include/net/nfc/nci_core.h
+@@ -300,6 +300,7 @@ int nci_core_conn_create(struct nci_dev
+ int nci_core_conn_close(struct nci_dev *ndev, u8 conn_id);
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
-@@ -982,6 +984,8 @@ static acpi_status hpet_resources(struct acpi_resource *res, void *data)
- 		hdp->hd_phys_address = fixmem32->address;
- 		hdp->hd_address = ioremap(fixmem32->address,
- 						HPET_RANGE_SIZE);
-+		if (!hdp->hd_address)
-+			return AE_ERROR;
+ struct nci_hci_dev *nci_hci_allocate(struct nci_dev *ndev);
++void nci_hci_deallocate(struct nci_dev *ndev);
+ int nci_hci_send_event(struct nci_dev *ndev, u8 gate, u8 event,
+ 		       const u8 *param, size_t param_len);
+ int nci_hci_send_cmd(struct nci_dev *ndev, u8 gate,
+--- a/net/nfc/nci/core.c
++++ b/net/nfc/nci/core.c
+@@ -1099,6 +1099,7 @@ EXPORT_SYMBOL(nci_allocate_device);
+ void nci_free_device(struct nci_dev *ndev)
+ {
+ 	nfc_free_device(ndev->nfc_dev);
++	nci_hci_deallocate(ndev);
+ 	kfree(ndev);
+ }
+ EXPORT_SYMBOL(nci_free_device);
+--- a/net/nfc/nci/hci.c
++++ b/net/nfc/nci/hci.c
+@@ -798,3 +798,8 @@ struct nci_hci_dev *nci_hci_allocate(str
  
- 		if (hpet_is_known(hdp)) {
- 			iounmap(hdp->hd_address);
--- 
-2.30.2
-
+ 	return hdev;
+ }
++
++void nci_hci_deallocate(struct nci_dev *ndev)
++{
++	kfree(ndev->hci_dev);
++}
 
 
