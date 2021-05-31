@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B347B395F4D
-	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:08:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C01063960C1
+	for <lists+stable@lfdr.de>; Mon, 31 May 2021 16:29:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232488AbhEaOJ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 10:09:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40228 "EHLO mail.kernel.org"
+        id S233247AbhEaOb1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 10:31:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55802 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231995AbhEaOHf (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 10:07:35 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id F30C561407;
-        Mon, 31 May 2021 13:39:20 +0000 (UTC)
+        id S233741AbhEaO3H (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 31 May 2021 10:29:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1EC2E61420;
+        Mon, 31 May 2021 13:48:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622468361;
-        bh=5yKAetD6fBSFYX8g+Wb/K3Pxi1ZrMI3kph2aD+o7LMo=;
+        s=korg; t=1622468887;
+        bh=dutP2hyGs4F8Z4v+JyMkt+banxkxYy0tH1KYmtDZQTo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F3GPl+0mbfhOyodiGximl6im61AweW3aU83dAP0d8X9eT+Jo4BSTS/B5HRzsUkypj
-         WzuPCwh7IxbeX6LdBfuG0bQSqxlkFpIk6QbQCIlJ2XVUnAlp/o6dPd3ElWD+bWFFcK
-         0OXnDIgSUxBGxwj9blKghAi8TcmYj5cxVvJ3ElBQ=
+        b=EhCKxcMiMe4M8g2ROpKb3cJapjJfJDrdyh6RGFI4WE70dXuAquaEmcnYb1ILSI+To
+         1lrpS/3f0HMb39gX+OuxmC2ksL99O+2CxPDU1nHzd2lmBEiHBDLmqirJOnix/pqDOC
+         4lLhpZU4Qku2WJw/sqoOSsTWRe2bBu+e0bp9vbY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Taehee Yoo <ap420073@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Kalle Valo <kvalo@codeaurora.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 214/252] mld: fix panic in mld_newpack()
+Subject: [PATCH 5.4 122/177] brcmfmac: properly check for bus register errors
 Date:   Mon, 31 May 2021 15:14:39 +0200
-Message-Id: <20210531130705.287398057@linuxfoundation.org>
+Message-Id: <20210531130652.135811116@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-References: <20210531130657.971257589@linuxfoundation.org>
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+References: <20210531130647.887605866@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,110 +39,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Taehee Yoo <ap420073@gmail.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 020ef930b826d21c5446fdc9db80fd72a791bc21 ]
+[ Upstream commit 419b4a142a7ece36cebcd434f8ce2af59ef94b85 ]
 
-mld_newpack() doesn't allow to allocate high order page,
-only order-0 allocation is allowed.
-If headroom size is too large, a kernel panic could occur in skb_put().
+The brcmfmac driver ignores any errors on initialization with the
+different busses by deferring the initialization to a workqueue and
+ignoring all possible errors that might happen.  Fix up all of this by
+only allowing the module to load if all bus registering worked properly.
 
-Test commands:
-    ip netns del A
-    ip netns del B
-    ip netns add A
-    ip netns add B
-    ip link add veth0 type veth peer name veth1
-    ip link set veth0 netns A
-    ip link set veth1 netns B
-
-    ip netns exec A ip link set lo up
-    ip netns exec A ip link set veth0 up
-    ip netns exec A ip -6 a a 2001:db8:0::1/64 dev veth0
-    ip netns exec B ip link set lo up
-    ip netns exec B ip link set veth1 up
-    ip netns exec B ip -6 a a 2001:db8:0::2/64 dev veth1
-    for i in {1..99}
-    do
-        let A=$i-1
-        ip netns exec A ip link add ip6gre$i type ip6gre \
-	local 2001:db8:$A::1 remote 2001:db8:$A::2 encaplimit 100
-        ip netns exec A ip -6 a a 2001:db8:$i::1/64 dev ip6gre$i
-        ip netns exec A ip link set ip6gre$i up
-
-        ip netns exec B ip link add ip6gre$i type ip6gre \
-	local 2001:db8:$A::2 remote 2001:db8:$A::1 encaplimit 100
-        ip netns exec B ip -6 a a 2001:db8:$i::2/64 dev ip6gre$i
-        ip netns exec B ip link set ip6gre$i up
-    done
-
-Splat looks like:
-kernel BUG at net/core/skbuff.c:110!
-invalid opcode: 0000 [#1] SMP DEBUG_PAGEALLOC KASAN PTI
-CPU: 0 PID: 7 Comm: kworker/0:1 Not tainted 5.12.0+ #891
-Workqueue: ipv6_addrconf addrconf_dad_work
-RIP: 0010:skb_panic+0x15d/0x15f
-Code: 92 fe 4c 8b 4c 24 10 53 8b 4d 70 45 89 e0 48 c7 c7 00 ae 79 83
-41 57 41 56 41 55 48 8b 54 24 a6 26 f9 ff <0f> 0b 48 8b 6c 24 20 89
-34 24 e8 4a 4e 92 fe 8b 34 24 48 c7 c1 20
-RSP: 0018:ffff88810091f820 EFLAGS: 00010282
-RAX: 0000000000000089 RBX: ffff8881086e9000 RCX: 0000000000000000
-RDX: 0000000000000089 RSI: 0000000000000008 RDI: ffffed1020123efb
-RBP: ffff888005f6eac0 R08: ffffed1022fc0031 R09: ffffed1022fc0031
-R10: ffff888117e00187 R11: ffffed1022fc0030 R12: 0000000000000028
-R13: ffff888008284eb0 R14: 0000000000000ed8 R15: 0000000000000ec0
-FS:  0000000000000000(0000) GS:ffff888117c00000(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007f8b801c5640 CR3: 0000000033c2c006 CR4: 00000000003706f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
- ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- ? ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- skb_put.cold.104+0x22/0x22
- ip6_mc_hdr.isra.26.constprop.46+0x12a/0x600
- ? rcu_read_lock_sched_held+0x91/0xc0
- mld_newpack+0x398/0x8f0
- ? ip6_mc_hdr.isra.26.constprop.46+0x600/0x600
- ? lock_contended+0xc40/0xc40
- add_grhead.isra.33+0x280/0x380
- add_grec+0x5ca/0xff0
- ? mld_sendpack+0xf40/0xf40
- ? lock_downgrade+0x690/0x690
- mld_send_initial_cr.part.34+0xb9/0x180
- ipv6_mc_dad_complete+0x15d/0x1b0
- addrconf_dad_completed+0x8d2/0xbb0
- ? lock_downgrade+0x690/0x690
- ? addrconf_rs_timer+0x660/0x660
- ? addrconf_dad_work+0x73c/0x10e0
- addrconf_dad_work+0x73c/0x10e0
-
-Allowing high order page allocation could fix this problem.
-
-Fixes: 72e09ad107e7 ("ipv6: avoid high order allocations")
-Signed-off-by: Taehee Yoo <ap420073@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Cc: Kalle Valo <kvalo@codeaurora.org>
+Link: https://lore.kernel.org/r/20210503115736.2104747-70-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/mcast.c | 3 ---
- 1 file changed, 3 deletions(-)
+ .../broadcom/brcm80211/brcmfmac/bcmsdh.c      |  8 +---
+ .../broadcom/brcm80211/brcmfmac/bus.h         | 19 ++++++++-
+ .../broadcom/brcm80211/brcmfmac/core.c        | 42 ++++++++-----------
+ .../broadcom/brcm80211/brcmfmac/pcie.c        |  9 +---
+ .../broadcom/brcm80211/brcmfmac/pcie.h        |  5 ---
+ .../broadcom/brcm80211/brcmfmac/usb.c         |  4 +-
+ 6 files changed, 41 insertions(+), 46 deletions(-)
 
-diff --git a/net/ipv6/mcast.c b/net/ipv6/mcast.c
-index 8cd2782a31e4..9fb5077f8e9a 100644
---- a/net/ipv6/mcast.c
-+++ b/net/ipv6/mcast.c
-@@ -1601,10 +1601,7 @@ static struct sk_buff *mld_newpack(struct inet6_dev *idev, unsigned int mtu)
- 		     IPV6_TLV_PADN, 0 };
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+index fc12598b2dd3..c492d2d2db1d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bcmsdh.c
+@@ -1168,13 +1168,9 @@ static struct sdio_driver brcmf_sdmmc_driver = {
+ 	},
+ };
  
- 	/* we assume size > sizeof(ra) here */
--	/* limit our allocations to order-0 page */
--	size = min_t(int, size, SKB_MAX_ORDER(0, 0));
- 	skb = sock_alloc_send_skb(sk, size, 1, &err);
+-void brcmf_sdio_register(void)
++int brcmf_sdio_register(void)
+ {
+-	int ret;
 -
- 	if (!skb)
- 		return NULL;
+-	ret = sdio_register_driver(&brcmf_sdmmc_driver);
+-	if (ret)
+-		brcmf_err("sdio_register_driver failed: %d\n", ret);
++	return sdio_register_driver(&brcmf_sdmmc_driver);
+ }
  
+ void brcmf_sdio_exit(void)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
+index 623c0168da79..8b27494a5d3d 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/bus.h
+@@ -274,11 +274,26 @@ void brcmf_bus_add_txhdrlen(struct device *dev, uint len);
+ 
+ #ifdef CONFIG_BRCMFMAC_SDIO
+ void brcmf_sdio_exit(void);
+-void brcmf_sdio_register(void);
++int brcmf_sdio_register(void);
++#else
++static inline void brcmf_sdio_exit(void) { }
++static inline int brcmf_sdio_register(void) { return 0; }
+ #endif
++
+ #ifdef CONFIG_BRCMFMAC_USB
+ void brcmf_usb_exit(void);
+-void brcmf_usb_register(void);
++int brcmf_usb_register(void);
++#else
++static inline void brcmf_usb_exit(void) { }
++static inline int brcmf_usb_register(void) { return 0; }
++#endif
++
++#ifdef CONFIG_BRCMFMAC_PCIE
++void brcmf_pcie_exit(void);
++int brcmf_pcie_register(void);
++#else
++static inline void brcmf_pcie_exit(void) { }
++static inline int brcmf_pcie_register(void) { return 0; }
+ #endif
+ 
+ #endif /* BRCMFMAC_BUS_H */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+index e9bb8dbdc9aa..edb79e9665dc 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/core.c
+@@ -1438,40 +1438,34 @@ void brcmf_bus_change_state(struct brcmf_bus *bus, enum brcmf_bus_state state)
+ 	}
+ }
+ 
+-static void brcmf_driver_register(struct work_struct *work)
+-{
+-#ifdef CONFIG_BRCMFMAC_SDIO
+-	brcmf_sdio_register();
+-#endif
+-#ifdef CONFIG_BRCMFMAC_USB
+-	brcmf_usb_register();
+-#endif
+-#ifdef CONFIG_BRCMFMAC_PCIE
+-	brcmf_pcie_register();
+-#endif
+-}
+-static DECLARE_WORK(brcmf_driver_work, brcmf_driver_register);
+-
+ int __init brcmf_core_init(void)
+ {
+-	if (!schedule_work(&brcmf_driver_work))
+-		return -EBUSY;
++	int err;
++
++	err = brcmf_sdio_register();
++	if (err)
++		return err;
++
++	err = brcmf_usb_register();
++	if (err)
++		goto error_usb_register;
+ 
++	err = brcmf_pcie_register();
++	if (err)
++		goto error_pcie_register;
+ 	return 0;
++
++error_pcie_register:
++	brcmf_usb_exit();
++error_usb_register:
++	brcmf_sdio_exit();
++	return err;
+ }
+ 
+ void __exit brcmf_core_exit(void)
+ {
+-	cancel_work_sync(&brcmf_driver_work);
+-
+-#ifdef CONFIG_BRCMFMAC_SDIO
+ 	brcmf_sdio_exit();
+-#endif
+-#ifdef CONFIG_BRCMFMAC_USB
+ 	brcmf_usb_exit();
+-#endif
+-#ifdef CONFIG_BRCMFMAC_PCIE
+ 	brcmf_pcie_exit();
+-#endif
+ }
+ 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+index cb68f54a9c56..bda042138e96 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
+@@ -2137,15 +2137,10 @@ static struct pci_driver brcmf_pciedrvr = {
+ };
+ 
+ 
+-void brcmf_pcie_register(void)
++int brcmf_pcie_register(void)
+ {
+-	int err;
+-
+ 	brcmf_dbg(PCIE, "Enter\n");
+-	err = pci_register_driver(&brcmf_pciedrvr);
+-	if (err)
+-		brcmf_err(NULL, "PCIE driver registration failed, err=%d\n",
+-			  err);
++	return pci_register_driver(&brcmf_pciedrvr);
+ }
+ 
+ 
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
+index d026401d2001..8e6c227e8315 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.h
+@@ -11,9 +11,4 @@ struct brcmf_pciedev {
+ 	struct brcmf_pciedev_info *devinfo;
+ };
+ 
+-
+-void brcmf_pcie_exit(void);
+-void brcmf_pcie_register(void);
+-
+-
+ #endif /* BRCMFMAC_PCIE_H */
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+index 6f41d28930e4..3b897f040371 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/usb.c
+@@ -1558,8 +1558,8 @@ void brcmf_usb_exit(void)
+ 	usb_deregister(&brcmf_usbdrvr);
+ }
+ 
+-void brcmf_usb_register(void)
++int brcmf_usb_register(void)
+ {
+ 	brcmf_dbg(USB, "Enter\n");
+-	usb_register(&brcmf_usbdrvr);
++	return usb_register(&brcmf_usbdrvr);
+ }
 -- 
 2.30.2
 
