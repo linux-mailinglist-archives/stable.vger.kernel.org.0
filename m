@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 086FB396F02
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 10:34:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 41EE6396F04
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 10:34:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233165AbhFAIf4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 04:35:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37392 "EHLO mail.kernel.org"
+        id S233160AbhFAIgF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 04:36:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37538 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232963AbhFAIfz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 04:35:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F42561263;
-        Tue,  1 Jun 2021 08:34:13 +0000 (UTC)
+        id S232963AbhFAIgF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 04:36:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F21796128A;
+        Tue,  1 Jun 2021 08:34:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622536453;
-        bh=GdebqU1EV06E3Xssayj3o+b88YgOxl+3jm279G6qFeM=;
+        s=korg; t=1622536463;
+        bh=jrGtV81zEF22VjBsFFB1+Cj1FdCExlMBXPoPr5aQg4g=;
         h=From:To:Cc:Subject:Date:From;
-        b=sih1DaLhxq2X+7l16y0GqsrRnryWC0bbSU5Gg2HQV3eRy6sMNGoaUJLkLur2eNTs/
-         I+Hi+ZHwIuwuTDrjJtw+Uaxy9PWRQ3SVmQjxoK62GPwbh/pk5nSRTnsNDkbdP8YAsB
-         lw37wLp1PX4nPxovbpHfMA8m3vXlTvyHUr02oGGs=
+        b=kfGeGGXTbLtuRzbOqiPe5WOtpYoqRof8fitCMCHtq2N6YNBV8EeuH2goYj32gsRBt
+         0vUwJWOE5Nvge/LZkC6rs2A5IHn6MfxK38eIWHNow9DsL7KPwgzuiUBoGygLmjVpWs
+         dluL21q19EDk6ITDgqAViRADen1S5TF6Fi0wkxZQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,37 +27,37 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
         lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
         f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: [PATCH 4.14 00/84] 4.14.235-rc2 review
-Date:   Tue,  1 Jun 2021 10:34:11 +0200
-Message-Id: <20210601072913.387837810@linuxfoundation.org>
+Subject: [PATCH 4.9 00/71] 4.9.271-rc2 review
+Date:   Tue,  1 Jun 2021 10:34:21 +0200
+Message-Id: <20210601081514.670960578@linuxfoundation.org>
 X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 User-Agent: quilt/0.66
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.235-rc2.gz
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.271-rc2.gz
 X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-4.14.y
+X-KernelTest-Branch: linux-4.9.y
 X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 4.14.235-rc2
-X-KernelTest-Deadline: 2021-06-03T07:29+00:00
+X-KernelTest-Version: 4.9.271-rc2
+X-KernelTest-Deadline: 2021-06-03T08:15+00:00
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 4.14.235 release.
-There are 84 patches in this series, all will be posted as a response
+This is the start of the stable review cycle for the 4.9.271 release.
+There are 71 patches in this series, all will be posted as a response
 to this one.  If anyone has any issues with these being applied, please
 let me know.
 
-Responses should be made by Thu, 03 Jun 2021 07:28:28 +0000.
+Responses should be made by Thu, 03 Jun 2021 08:15:02 +0000.
 Anything received after that time might be too late.
 
 The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.235-rc2.gz
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.271-rc2.gz
 or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 and the diffstat can be found below.
 
 thanks,
@@ -68,13 +68,10 @@ greg k-h
 Pseudo-Shortlog of commits:
 
 Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 4.14.235-rc2
+    Linux 4.9.271-rc2
 
 Chunfeng Yun <chunfeng.yun@mediatek.com>
     usb: core: reduce power-on-good delay time of root hub
-
-Jesse Brandeburg <jesse.brandeburg@intel.com>
-    drivers/net/ethernet: clean up unused assignments
 
 Mike Kravetz <mike.kravetz@oracle.com>
     hugetlbfs: hugetlb_fault_mutex_hash() cleanup
@@ -88,17 +85,8 @@ Randy Dunlap <rdunlap@infradead.org>
 Taehee Yoo <ap420073@gmail.com>
     sch_dsmark: fix a NULL deref in qdisc_reset()
 
-Francesco Ruggeri <fruggeri@arista.com>
-    ipv6: record frag_max_size in atomic fragments in input path
-
 Dan Carpenter <dan.carpenter@oracle.com>
     scsi: libsas: Use _safe() loop in sas_resume_port()
-
-Jesse Brandeburg <jesse.brandeburg@intel.com>
-    ixgbe: fix large MTU request from VF
-
-Jussi Maki <joamaki@gmail.com>
-    bpf: Set mac_len in bpf_skb_change_head
 
 Dan Carpenter <dan.carpenter@oracle.com>
     ASoC: cs35l33: fix an error code in probe()
@@ -124,14 +112,8 @@ Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 xinhui pan <xinhui.pan@amd.com>
     drm/amdgpu: Fix a use-after-free
 
-Steve French <stfrench@microsoft.com>
-    SMB3: incorrect file id in requests compounded with open
-
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
     platform/x86: intel_punit_ipc: Append MODULE_DEVICE_TABLE for ACPI
-
-Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-    platform/x86: hp-wireless: add AMD's hardware id to the supported list
 
 Josef Bacik <josef@toxicpanda.com>
     btrfs: do not BUG_ON in link_to_fixup_dir
@@ -190,9 +172,6 @@ Hoang Le <hoang.h.le@dektech.com.au>
 Vladyslav Tarasiuk <vladyslavt@nvidia.com>
     net/mlx4: Fix EEPROM dump support
 
-Neil Armstrong <narmstrong@baylibre.com>
-    drm/meson: fix shutdown crash when component not probed
-
 Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
     NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
 
@@ -205,11 +184,11 @@ Dan Carpenter <dan.carpenter@oracle.com>
 Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
     Bluetooth: cmtp: fix file refcount when cmtp_attach_device fails
 
+William A. Kennington III <wak@google.com>
+    spi: Fix use-after-free with devm_spi_alloc_*
+
 Pavel Skripkin <paskripkin@gmail.com>
     net: usb: fix memory leak in smsc75xx_bind
-
-Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-    usb: gadget: udc: renesas_usb3: Fix a race in usb3_start_pipen()
 
 Zolton Jheng <s6668c2t@gmail.com>
     USB: serial: pl2303: add device id for ADLINK ND-6530 GC
@@ -226,9 +205,6 @@ Sean MacLennan <seanm@seanm.ca>
 Zheyu Ma <zheyuma97@gmail.com>
     serial: rp2: use 'request_firmware' instead of 'request_firmware_nowait'
 
-Geert Uytterhoeven <geert+renesas@glider.be>
-    serial: sh-sci: Fix off-by-one error in FIFO threshold register setting
-
 Johan Hovold <johan@kernel.org>
     USB: trancevibrator: fix control-request direction
 
@@ -240,9 +216,6 @@ Lucas Stankus <lucas.p.stankus@gmail.com>
 
 Alexander Usyskin <alexander.usyskin@intel.com>
     mei: request autosuspend after sending rx flow control
-
-Mathias Nyman <mathias.nyman@linux.intel.com>
-    thunderbolt: dma_port: Fix NVM read buffer bounds and offset issue
 
 Dongliang Mu <mudongliangabcd@gmail.com>
     misc/uss720: fix memory leak in uss720_probe
@@ -292,15 +265,6 @@ Johan Hovold <johan@kernel.org>
 Kees Cook <keescook@chromium.org>
     proc: Check /proc/$pid/attr/ writes against file opener
 
-Adrian Hunter <adrian.hunter@intel.com>
-    perf intel-pt: Fix transaction abort handling
-
-Adrian Hunter <adrian.hunter@intel.com>
-    perf intel-pt: Fix sample instruction bytes
-
-Rolf Eike Beer <eb@emlix.com>
-    iommu/vt-d: Fix sysfs leak in alloc_iommu()
-
 Anna Schumaker <Anna.Schumaker@Netapp.com>
     NFSv4: Fix a NULL pointer dereference in pnfs_mark_matching_lsegs_return()
 
@@ -309,9 +273,6 @@ Dongliang Mu <mudongliangabcd@gmail.com>
 
 Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
     netfilter: x_tables: Use correct memory barriers.
-
-Jack Pham <jackp@codeaurora.org>
-    usb: dwc3: gadget: Enable suspend events
 
 Andy Shevchenko <andriy.shevchenko@linux.intel.com>
     scripts: switch explicitly to Python 3
@@ -340,11 +301,9 @@ Diffstat:
  drivers/char/hpet.c                                |   4 +
  drivers/dma/qcom/hidma_mgmt.c                      |  14 ++
  drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c            |   1 +
- drivers/gpu/drm/meson/meson_drv.c                  |   9 +-
  drivers/i2c/busses/i2c-i801.c                      |   6 +-
  drivers/i2c/busses/i2c-s3c2410.c                   |   3 +
  drivers/iio/adc/ad7793.c                           |   1 +
- drivers/iommu/dmar.c                               |   4 +-
  drivers/isdn/hardware/mISDN/mISDNinfineon.c        |  24 ++--
  drivers/md/dm-snap.c                               |   2 +-
  drivers/media/dvb-frontends/sp8870.c               |   4 +-
@@ -354,44 +313,27 @@ Diffstat:
  drivers/misc/mei/interrupt.c                       |   3 +
  drivers/net/caif/caif_serial.c                     |   1 -
  drivers/net/ethernet/broadcom/bnx2.c               |   2 +-
- drivers/net/ethernet/brocade/bna/bnad.c            |   7 +-
- drivers/net/ethernet/dec/tulip/de4x5.c             |   4 +-
- drivers/net/ethernet/dec/tulip/media.c             |   5 -
  drivers/net/ethernet/fujitsu/fmvj18x_cs.c          |   5 +
- drivers/net/ethernet/intel/ixgbe/ixgbe_sriov.c     |  16 +--
  drivers/net/ethernet/mellanox/mlx4/en_ethtool.c    |   4 +-
- drivers/net/ethernet/mellanox/mlx4/en_tx.c         |   2 +-
  drivers/net/ethernet/mellanox/mlx4/port.c          | 107 ++++++++++++++-
- drivers/net/ethernet/micrel/ksz884x.c              |   3 +-
- drivers/net/ethernet/neterion/vxge/vxge-traffic.c  |  32 ++---
- drivers/net/ethernet/sfc/falcon/farch.c            |  29 ++--
- drivers/net/ethernet/sis/sis900.c                  |   5 +-
- drivers/net/ethernet/synopsys/dwc-xlgmac-common.c  |   2 +-
- drivers/net/ethernet/ti/davinci_emac.c             |   5 +-
  drivers/net/ethernet/ti/netcp_core.c               |   2 +-
- drivers/net/ethernet/ti/tlan.c                     |   4 +-
- drivers/net/ethernet/via/via-velocity.c            |  13 --
  drivers/net/phy/mdio-octeon.c                      |   2 -
  drivers/net/phy/mdio-thunder.c                     |   1 -
  drivers/net/usb/hso.c                              |   4 +-
  drivers/net/usb/smsc75xx.c                         |   8 +-
  drivers/net/wireless/ath/ath10k/htt_rx.c           |  61 ++++++++-
  drivers/net/wireless/marvell/libertas/mesh.c       |  28 +---
- drivers/platform/x86/hp-wireless.c                 |   2 +
  drivers/platform/x86/hp_accel.c                    |  22 ++-
  drivers/platform/x86/intel_punit_ipc.c             |   1 +
  drivers/scsi/BusLogic.c                            |   6 +-
  drivers/scsi/BusLogic.h                            |   2 +-
  drivers/scsi/libsas/sas_port.c                     |   4 +-
+ drivers/spi/spi.c                                  |   9 +-
  drivers/staging/emxx_udc/emxx_udc.c                |   4 +-
  drivers/staging/iio/cdc/ad7746.c                   |   1 -
- drivers/thunderbolt/dma_port.c                     |  11 +-
  drivers/tty/serial/max310x.c                       |   6 +-
  drivers/tty/serial/rp2.c                           |  52 +++----
- drivers/tty/serial/sh-sci.c                        |   4 +-
  drivers/usb/core/hub.h                             |   6 +-
- drivers/usb/dwc3/gadget.c                          |   4 +
- drivers/usb/gadget/udc/renesas_usb3.c              |   5 +-
  drivers/usb/misc/trancevibrator.c                  |   4 +-
  drivers/usb/misc/uss720.c                          |   1 +
  drivers/usb/serial/ftdi_sio.c                      |   3 +
@@ -401,29 +343,26 @@ Diffstat:
  drivers/usb/serial/pl2303.h                        |   1 +
  drivers/usb/serial/ti_usb_3410_5052.c              |   3 +
  fs/btrfs/tree-log.c                                |   2 -
- fs/cifs/smb2pdu.c                                  |   6 +-
  fs/hugetlbfs/inode.c                               |   4 +-
  fs/nfs/filelayout/filelayout.c                     |   2 +-
  fs/nfs/nfs4file.c                                  |   2 +-
  fs/nfs/pagelist.c                                  |  12 +-
- fs/nfs/pnfs.c                                      |  15 +--
+ fs/nfs/pnfs.c                                      |  17 ++-
  fs/proc/base.c                                     |   4 +
  include/linux/hugetlb.h                            |   2 +-
  include/linux/netfilter/x_tables.h                 |   2 +-
+ include/linux/spi/spi.h                            |   3 +
  include/net/cfg80211.h                             |   5 +-
  include/net/nfc/nci_core.h                         |   1 +
- mm/hugetlb.c                                       |  11 +-
- mm/userfaultfd.c                                   |   2 +-
+ mm/hugetlb.c                                       |   8 +-
  mm/vmstat.c                                        |   3 +
  net/bluetooth/cmtp/core.c                          |   5 +
- net/core/filter.c                                  |   1 +
  net/ipv6/mcast.c                                   |   3 -
- net/ipv6/reassembly.c                              |   4 +-
  net/mac80211/ieee80211_i.h                         |  36 ++---
  net/mac80211/iface.c                               |   9 +-
  net/mac80211/key.c                                 |   7 +
  net/mac80211/key.h                                 |   2 +
- net/mac80211/rx.c                                  | 150 ++++++++++++++++-----
+ net/mac80211/rx.c                                  | 151 ++++++++++++++++-----
  net/mac80211/sta_info.c                            |   4 +
  net/mac80211/sta_info.h                            |  31 +++++
  net/mac80211/wpa.c                                 |  12 +-
@@ -434,28 +373,29 @@ Diffstat:
  net/tipc/msg.c                                     |   9 +-
  net/tipc/socket.c                                  |   5 +-
  net/wireless/util.c                                |   8 +-
+ scripts/analyze_suspend.py                         |   2 +-
  scripts/bloat-o-meter                              |   2 +-
+ scripts/bootgraph.pl                               |   2 +-
+ scripts/checkincludes.pl                           |   2 +-
+ scripts/checkstack.pl                              |   2 +-
  scripts/config                                     |   2 +-
  scripts/diffconfig                                 |   2 +-
+ scripts/dtc/dt_to_config                           |   2 +-
+ scripts/extract_xc3028.pl                          |   2 +-
+ scripts/get_dvb_firmware                           |   2 +-
+ scripts/markup_oops.pl                             |   2 +-
+ scripts/profile2linkerlist.pl                      |   2 +-
  scripts/show_delta                                 |   2 +-
- scripts/sphinx-pre-install                         |   2 +-
+ scripts/stackdelta                                 |   2 +-
  scripts/tracing/draw_functrace.py                  |   2 +-
  sound/soc/codecs/cs35l33.c                         |   1 +
  tools/kvm/kvm_stat/kvm_stat                        |   2 +-
  tools/perf/pmu-events/jevents.c                    |   2 +-
  tools/perf/python/tracepoint.py                    |   2 +-
  tools/perf/python/twatch.py                        |   2 +-
- tools/perf/scripts/python/call-graph-from-sql.py   |   2 +-
  tools/perf/scripts/python/sched-migration.py       |   2 +-
- tools/perf/tests/attr.py                           |   2 +-
- .../perf/util/intel-pt-decoder/intel-pt-decoder.c  |   6 +-
- tools/perf/util/intel-pt.c                         |   5 +-
  tools/perf/util/setup.py                           |   2 +-
- tools/power/pm-graph/analyze_boot.py               |   2 +-
- tools/power/pm-graph/analyze_suspend.py            |   2 +-
- .../x86/intel_pstate_tracer/intel_pstate_tracer.py |   2 +-
  tools/testing/ktest/compare-ktest-sample.pl        |   2 +-
- tools/testing/selftests/tc-testing/tdc_batch.py    |   2 +-
- 129 files changed, 685 insertions(+), 359 deletions(-)
+ 108 files changed, 610 insertions(+), 262 deletions(-)
 
 
