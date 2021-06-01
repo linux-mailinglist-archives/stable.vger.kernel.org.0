@@ -2,239 +2,352 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 83EDA397072
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 11:32:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D0BB939717E
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 12:31:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233299AbhFAJe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 05:34:28 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233237AbhFAJe2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 05:34:28 -0400
-Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB57BC061574
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 02:32:46 -0700 (PDT)
-Received: by mail-ed1-x52b.google.com with SMTP id dg27so6718194edb.12
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 02:32:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=fHw4ZWuyvNTlnwaFaZfgex/OMd+zKnx4/Agz2TtONeQ=;
-        b=yv6feGYELgn+8OwtbsI4GmssW+drxxCPt++Ja6yrHXEFAF+WbUSdU9Ra3Qr2a4OOtw
-         yXwyiJTEB5IJGpCaJcJdvRI37wgd8PLtSXblBnx3oLZM3G4rytLXF064aa/Y2DwbDNZB
-         vnRQEL1yZOEyL5w+a3RtzT1XYqEXRR6Y1gYETZiQubnGCVPUfe9Ha+O+B+bJTSioSKhG
-         ZJJRCnDpLxbks8XvUkxoBeprp9cHS1VRBF2p/6AHsA7cd46YuRqNRvAYJ93LYjmS2tpe
-         Wr3HjHU3oiER7B1B1RhdV5O6KserwGyLBRZ3By121ftBFAmvaHwjInLaq6KP8AOuHdka
-         emng==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=fHw4ZWuyvNTlnwaFaZfgex/OMd+zKnx4/Agz2TtONeQ=;
-        b=WBqD5m/Y2LNLt7J4lDaMIN/RL3KQrdgoUv56w16l/Ku4W2Utm9RZYwu4/dFQ7yv1r0
-         Hbd2JGxChOvKGElqVIdoKQMq1NCsVwO2vQ7zF/Uaoohd+h+C0Pj1dudN02/liRE2XJMs
-         9VqoH/tAHmVGYjFQZJbQciTU4qfLSXNiLI6y9IXECFoOGxbaWtYGuEHu6TA5cjMaeoFR
-         YZq2mfqwFcqE0wAJU2ehGoYOGn8/KCeD5nADeKwW5eRU8Tr0Bjcaw9HdU7y5tJnJMndV
-         w83RhyFn8PNOHjKI7lh2JGfoH7eau6DKN6MFce4ZnjLnLLar8Fz+j1o+jeKlqqio0cp0
-         zLEQ==
-X-Gm-Message-State: AOAM531pyij8DGlLk5bNZtEm/Zbhgpuwx8jLtipzsNIROAzz5rM6elnS
-        7cRrzY9nEp6dbSm0CDqNIK81EXOtAYUK797Lipw11A==
-X-Google-Smtp-Source: ABdhPJwbKb2JxZd97XUfBzbSl9OUS1rQtgJuB7iMPIER2LH9Z7Y9/OPCj4J/38ZoIJsrfXqAzwlOZlwOseFw6/ucEi8=
-X-Received: by 2002:aa7:d786:: with SMTP id s6mr30590261edq.239.1622539965289;
- Tue, 01 Jun 2021 02:32:45 -0700 (PDT)
+        id S231726AbhFAKc5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 06:32:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56068 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230170AbhFAKc4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 06:32:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D3C27613AE;
+        Tue,  1 Jun 2021 10:31:13 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1622543474;
+        bh=fl8VNl9TqP3khbfwUMkhTIymXCSPUlhAC5mgMDd2g2c=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Ri6a2us2QchtkzhESsFeM3QbKoMjRSO1/Vzgwxj7ymei/Z3o+nXdbvzsjkRppxCIP
+         xV6NzW0irMM8eu9HrFfeIgDSwtYggqS8UahzUR8zp2hnwKh1DYeNe7NC1hRgcEuhMS
+         9QrHO/aIH/pcH3wI/+R22NkTBPwxJkQfAYK0tg0s=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     linux-kernel@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, stable@vger.kernel.org
+Subject: [PATCH 4.4 00/64] 4.4.271-rc2 review
+Date:   Tue,  1 Jun 2021 12:31:11 +0200
+Message-Id: <20210601103052.063407107@linuxfoundation.org>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-References: <20210531130640.131924542@linuxfoundation.org>
-In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Jun 2021 15:02:32 +0530
-Message-ID: <CA+G9fYszhenHuzfsv+yu+JKoSD+r8nNV7z8WXgzBcmu7J3+hoQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 000/116] 4.19.193-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: quilt/0.66
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.271-rc2.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-4.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 4.4.271-rc2
+X-KernelTest-Deadline: 2021-06-03T10:30+00:00
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 May 2021 at 18:55, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.193 release.
-> There are 116 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.193-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This is the start of the stable review cycle for the 4.4.271 release.
+There are 64 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Responses should be made by Thu, 03 Jun 2021 10:30:37 +0000.
+Anything received after that time might be too late.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.4.271-rc2.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.4.y
+and the diffstat can be found below.
 
-## Build
-* kernel: 4.19.193-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.19.y
-* git commit: a36d9536769615470fb664509e528787a54a26fa
-* git describe: v4.19.192-117-ga36d95367696
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.192-117-ga36d95367696
+thanks,
 
-## No regressions (compared to v4.19.191-50-g01268129ebb2)
+greg k-h
 
-##  Fixes (compared to v4.19.191-50-g01268129ebb2)
-* ltp-mm-tests
-  - ksm03
-  - ksm03_1
+-------------
+Pseudo-Shortlog of commits:
 
-* ltp-syscalls-tests
-  - semctl09
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 4.4.271-rc2
 
-NOTE: The LTP test suite upgraded to latest release version LTP 20210524.
+Jan Beulich <JBeulich@suse.com>
+    x86/entry/64: Add instruction suffix
 
-## Test result summary
- total: 72900, pass: 57060, fail: 2715, skip: 12247, xfail: 878,
+Jan Beulich <JBeulich@suse.com>
+    x86/asm: Add instruction suffixes to bitops
 
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 25 total, 25 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 39 total, 39 passed, 0 failed
-* s390: 9 total, 9 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 15 total, 15 passed, 0 failed
+H. Peter Anvin <hpa@zytor.com>
+    x86, asm: change the GEN_*_RMWcc() macros to not quote the condition
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-vsyscall-mode-native-
-* kselftest-vsyscall-mode-none-
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* ssuite
-* v4l2-compliance
+Chunfeng Yun <chunfeng.yun@mediatek.com>
+    usb: core: reduce power-on-good delay time of root hub
 
---
-Naresh Kamboju
-https://lkft.linaro.org
+Lin Ma <linma@zju.edu.cn>
+    bluetooth: eliminate the potential race condition when removing the HCI controller
+
+Mike Kravetz <mike.kravetz@oracle.com>
+    hugetlbfs: hugetlb_fault_mutex_hash() cleanup
+
+Randy Dunlap <rdunlap@infradead.org>
+    MIPS: ralink: export rt_sysc_membase for rt2880_wdt.c
+
+Randy Dunlap <rdunlap@infradead.org>
+    MIPS: alchemy: xxs1500: add gpio-au1000.h header file
+
+Taehee Yoo <ap420073@gmail.com>
+    sch_dsmark: fix a NULL deref in qdisc_reset()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    scsi: libsas: Use _safe() loop in sas_resume_port()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    staging: emxx_udc: fix loop in _nbu2ss_nuke()
+
+Taehee Yoo <ap420073@gmail.com>
+    mld: fix panic in mld_newpack()
+
+Zhen Lei <thunder.leizhen@huawei.com>
+    net: bnx2: Fix error return code in bnx2_init_board()
+
+Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+    net: netcp: Fix an error message
+
+xinhui pan <xinhui.pan@amd.com>
+    drm/amdgpu: Fix a use-after-free
+
+Josef Bacik <josef@toxicpanda.com>
+    btrfs: do not BUG_ON in link_to_fixup_dir
+
+Peter Zijlstra <peterz@infradead.org>
+    openrisc: Define memory barrier mb
+
+Matt Wang <wwentao@vmware.com>
+    scsi: BusLogic: Fix 64-bit system enumeration error for Buslogic
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    media: gspca: properly check for errors in po1030_probe()
+
+Alaa Emad <alaaemadhossney.ae@gmail.com>
+    media: dvb: Add check on sp8870_readreg return
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    libertas: register sysfs groups properly
+
+Phillip Potter <phil@philpotter.co.uk>
+    isdn: mISDNinfineon: check/cleanup ioremap failure correctly in setup_io
+
+Tom Seewald <tseewald@gmail.com>
+    char: hpet: add checks after calling ioremap
+
+Du Cheng <ducheng2@gmail.com>
+    net: caif: remove BUG_ON(dev == NULL) in caif_xmit
+
+Anirudh Rayabharam <mail@anirudhrb.com>
+    net: fujitsu: fix potential null-ptr-deref
+
+Kai-Heng Feng <kai.heng.feng@canonical.com>
+    platform/x86: hp_accel: Avoid invoking _INI to speed up resume
+
+Jean Delvare <jdelvare@suse.de>
+    i2c: i801: Don't generate an interrupt on bus reset
+
+Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+    i2c: s3c2410: fix possible NULL pointer deref on read message after write
+
+Xin Long <lucien.xin@gmail.com>
+    tipc: skb_linearize the head skb when reassembling msgs
+
+Hoang Le <hoang.h.le@dektech.com.au>
+    Revert "net:tipc: Fix a double free in tipc_sk_mcast_rcv"
+
+Vladyslav Tarasiuk <vladyslavt@nvidia.com>
+    net/mlx4: Fix EEPROM dump support
+
+Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+    NFSv4: Fix v4.0/v4.1 SEEK_DATA return -ENOTSUPP when set NFS_V4_2 config
+
+Trond Myklebust <trond.myklebust@hammerspace.com>
+    NFS: Don't corrupt the value of pg_bytes_written in nfs_do_recoalesce()
+
+Dan Carpenter <dan.carpenter@oracle.com>
+    NFS: fix an incorrect limit in filelayout_decode_layout()
+
+Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
+    Bluetooth: cmtp: fix file refcount when cmtp_attach_device fails
+
+Lukas Wunner <lukas@wunner.de>
+    spi: spi-sh: Fix use-after-free on unbind
+
+William A. Kennington III <wak@google.com>
+    spi: Fix use-after-free with devm_spi_alloc_*
+
+Pavel Skripkin <paskripkin@gmail.com>
+    net: usb: fix memory leak in smsc75xx_bind
+
+Zolton Jheng <s6668c2t@gmail.com>
+    USB: serial: pl2303: add device id for ADLINK ND-6530 GC
+
+Dominik Andreas Schorpp <dominik.a.schorpp@ids.de>
+    USB: serial: ftdi_sio: add IDs for IDS GmbH Products
+
+Daniele Palmas <dnlplm@gmail.com>
+    USB: serial: option: add Telit LE910-S1 compositions 0x7010, 0x7011
+
+Zheyu Ma <zheyuma97@gmail.com>
+    serial: rp2: use 'request_firmware' instead of 'request_firmware_nowait'
+
+Johan Hovold <johan@kernel.org>
+    USB: trancevibrator: fix control-request direction
+
+YueHaibing <yuehaibing@huawei.com>
+    iio: adc: ad7793: Add missing error code in ad7793_setup()
+
+Lucas Stankus <lucas.p.stankus@gmail.com>
+    staging: iio: cdc: ad7746: avoid overwrite of num_channels
+
+Alexander Usyskin <alexander.usyskin@intel.com>
+    mei: request autosuspend after sending rx flow control
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    misc/uss720: fix memory leak in uss720_probe
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    kgdb: fix gcc-11 warnings harder
+
+Mikulas Patocka <mpatocka@redhat.com>
+    dm snapshot: properly fix a crash when an origin has no snapshots
+
+Wen Gong <wgong@codeaurora.org>
+    mac80211: extend protection against mixed key and fragment cache attacks
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: do not accept/forward invalid EAPOL frames
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: prevent attacks on TKIP/WEP as well
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: check defrag PN against current frame
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: add fragment cache to sta_info
+
+Johannes Berg <johannes.berg@intel.com>
+    mac80211: drop A-MSDUs on old ciphers
+
+Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+    cfg80211: mitigate A-MSDU aggregation attacks
+
+Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+    mac80211: properly handle A-MSDUs that start with an RFC 1042 header
+
+Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+    mac80211: prevent mixed key and fragment cache attacks
+
+Mathy Vanhoef <Mathy.Vanhoef@kuleuven.be>
+    mac80211: assure all fragments are encrypted
+
+Johan Hovold <johan@kernel.org>
+    net: hso: fix control-request directions
+
+Kees Cook <keescook@chromium.org>
+    proc: Check /proc/$pid/attr/ writes against file opener
+
+Dongliang Mu <mudongliangabcd@gmail.com>
+    NFC: nci: fix memory leak in nci_allocate_device
+
+Mark Tomlinson <mark.tomlinson@alliedtelesis.co.nz>
+    netfilter: x_tables: Use correct memory barriers.
+
+Stephen Brennan <stephen.s.brennan@oracle.com>
+    mm, vmstat: drop zone->lock in /proc/pagetypeinfo
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                        |   4 +-
+ arch/mips/alchemy/board-xxs1500.c               |   1 +
+ arch/mips/ralink/of.c                           |   2 +
+ arch/openrisc/include/asm/barrier.h             |   9 ++
+ arch/x86/entry/entry_64.S                       |   2 +-
+ arch/x86/include/asm/atomic.h                   |   8 +-
+ arch/x86/include/asm/atomic64_64.h              |   8 +-
+ arch/x86/include/asm/bitops.h                   |  29 ++---
+ arch/x86/include/asm/local.h                    |   8 +-
+ arch/x86/include/asm/percpu.h                   |   2 +-
+ arch/x86/include/asm/preempt.h                  |   2 +-
+ arch/x86/include/asm/rmwcc.h                    |   4 +-
+ drivers/char/hpet.c                             |   4 +
+ drivers/gpu/drm/amd/amdgpu/amdgpu_ttm.c         |   1 +
+ drivers/i2c/busses/i2c-i801.c                   |   6 +-
+ drivers/i2c/busses/i2c-s3c2410.c                |   4 +-
+ drivers/iio/adc/ad7793.c                        |   1 +
+ drivers/isdn/hardware/mISDN/mISDNinfineon.c     |  24 ++--
+ drivers/md/dm-snap.c                            |   2 +-
+ drivers/media/dvb-frontends/sp8870.c            |   4 +-
+ drivers/media/usb/gspca/m5602/m5602_po1030.c    |  10 +-
+ drivers/misc/kgdbts.c                           |   3 +-
+ drivers/misc/lis3lv02d/lis3lv02d.h              |   1 +
+ drivers/misc/mei/interrupt.c                    |   3 +
+ drivers/net/caif/caif_serial.c                  |   1 -
+ drivers/net/ethernet/broadcom/bnx2.c            |   2 +-
+ drivers/net/ethernet/fujitsu/fmvj18x_cs.c       |   5 +
+ drivers/net/ethernet/mellanox/mlx4/en_ethtool.c |   4 +-
+ drivers/net/ethernet/mellanox/mlx4/port.c       | 107 ++++++++++++++++-
+ drivers/net/ethernet/ti/netcp_core.c            |   2 +-
+ drivers/net/usb/hso.c                           |   4 +-
+ drivers/net/usb/smsc75xx.c                      |   8 +-
+ drivers/net/wireless/libertas/mesh.c            |  28 +----
+ drivers/platform/x86/hp_accel.c                 |  22 +++-
+ drivers/scsi/BusLogic.c                         |   6 +-
+ drivers/scsi/BusLogic.h                         |   2 +-
+ drivers/scsi/libsas/sas_port.c                  |   4 +-
+ drivers/spi/spi-sh.c                            |  14 +--
+ drivers/spi/spi.c                               |   9 +-
+ drivers/staging/emxx_udc/emxx_udc.c             |   4 +-
+ drivers/staging/iio/cdc/ad7746.c                |   1 -
+ drivers/tty/serial/rp2.c                        |  52 +++------
+ drivers/usb/core/hub.h                          |   6 +-
+ drivers/usb/misc/trancevibrator.c               |   4 +-
+ drivers/usb/misc/uss720.c                       |   1 +
+ drivers/usb/serial/ftdi_sio.c                   |   3 +
+ drivers/usb/serial/ftdi_sio_ids.h               |   7 ++
+ drivers/usb/serial/option.c                     |   4 +
+ drivers/usb/serial/pl2303.c                     |   1 +
+ drivers/usb/serial/pl2303.h                     |   1 +
+ fs/btrfs/tree-log.c                             |   2 -
+ fs/hugetlbfs/inode.c                            |   4 +-
+ fs/nfs/filelayout/filelayout.c                  |   2 +-
+ fs/nfs/nfs4file.c                               |   2 +-
+ fs/nfs/pagelist.c                               |  12 +-
+ fs/proc/base.c                                  |   4 +
+ include/linux/hugetlb.h                         |   2 +-
+ include/linux/ieee80211.h                       |  10 ++
+ include/linux/netfilter/x_tables.h              |   2 +-
+ include/linux/spi/spi.h                         |   3 +
+ include/net/nfc/nci_core.h                      |   1 +
+ mm/hugetlb.c                                    |   8 +-
+ mm/vmstat.c                                     |   3 +
+ net/bluetooth/cmtp/core.c                       |   5 +
+ net/bluetooth/hci_core.c                        |  13 ++-
+ net/ipv6/mcast.c                                |   3 -
+ net/mac80211/ieee80211_i.h                      |  36 +++---
+ net/mac80211/iface.c                            |   9 +-
+ net/mac80211/key.c                              |   7 ++
+ net/mac80211/key.h                              |   2 +
+ net/mac80211/rx.c                               | 148 +++++++++++++++++++-----
+ net/mac80211/sta_info.c                         |   4 +
+ net/mac80211/sta_info.h                         |  31 +++++
+ net/mac80211/wpa.c                              |  12 +-
+ net/netfilter/x_tables.c                        |   3 +
+ net/nfc/nci/core.c                              |   1 +
+ net/nfc/nci/hci.c                               |   5 +
+ net/sched/sch_dsmark.c                          |   3 +-
+ net/tipc/msg.c                                  |   9 +-
+ net/tipc/socket.c                               |   5 +-
+ net/wireless/util.c                             |  15 ++-
+ 81 files changed, 551 insertions(+), 259 deletions(-)
+
+
