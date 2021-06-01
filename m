@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E7AA3972AE
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 13:44:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C77803972B0
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 13:45:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233750AbhFALqM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 07:46:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
+        id S233703AbhFALqk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 07:46:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233703AbhFALqM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 07:46:12 -0400
+        id S233336AbhFALqk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 07:46:40 -0400
 Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id 0A177610A0;
-        Tue,  1 Jun 2021 11:44:31 +0000 (UTC)
+        by mail.kernel.org (Postfix) with ESMTPSA id 543FD61376;
+        Tue,  1 Jun 2021 11:44:59 +0000 (UTC)
 Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
         by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
         (Exim 4.94.2)
         (envelope-from <maz@kernel.org>)
-        id 1lo2ov-004o6Y-3K; Tue, 01 Jun 2021 12:44:29 +0100
-Date:   Tue, 01 Jun 2021 12:44:28 +0100
-Message-ID: <87v96x24ir.wl-maz@kernel.org>
+        id 1lo2pN-004o73-Ei; Tue, 01 Jun 2021 12:44:57 +0100
+Date:   Tue, 01 Jun 2021 12:44:55 +0100
+Message-ID: <87tumh24i0.wl-maz@kernel.org>
 From:   Marc Zyngier <maz@kernel.org>
 To:     Zenghui Yu <yuzenghui@huawei.com>
 Cc:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <gregkh@linuxfoundation.org>, <sashal@kernel.org>,
         <alexandru.elisei@arm.com>, <wanghaibin.wang@huawei.com>
-Subject: Re: [PATCH stable-5.12.y backport 1/2] KVM: arm64: Commit pending PC adjustemnts before returning to userspace
-In-Reply-To: <20210601111238.1059-2-yuzenghui@huawei.com>
+Subject: Re: [PATCH stable-5.12.y backport 2/2] KVM: arm64: Resolve all pending PC updates before immediate exit
+In-Reply-To: <20210601111238.1059-3-yuzenghui@huawei.com>
 References: <20210601111238.1059-1-yuzenghui@huawei.com>
-        <20210601111238.1059-2-yuzenghui@huawei.com>
+        <20210601111238.1059-3-yuzenghui@huawei.com>
 User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
  FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
  (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
@@ -45,71 +45,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Zenghui,
-
-Thanks for having a go at the backport.
-
-On Tue, 01 Jun 2021 12:12:37 +0100,
+On Tue, 01 Jun 2021 12:12:38 +0100,
 Zenghui Yu <yuzenghui@huawei.com> wrote:
 > 
-> From: Marc Zyngier <maz@kernel.org>
+> commit e3e880bb1518eb10a4b4bb4344ed614d6856f190 upstream.
 > 
-> commit 26778aaa134a9aefdf5dbaad904054d7be9d656d upstream.
+> Commit 26778aaa134a ("KVM: arm64: Commit pending PC adjustemnts before
+> returning to userspace") fixed the PC updating issue by forcing an explicit
+> synchronisation of the exception state on vcpu exit to userspace.
 > 
-> KVM currently updates PC (and the corresponding exception state)
-> using a two phase approach: first by setting a set of flags,
-> then by converting these flags into a state update when the vcpu
-> is about to enter the guest.
+> However, we forgot to take into account the case where immediate_exit is
+> set by userspace and KVM_RUN will exit immediately. Fix it by resolving all
+> pending PC updates before returning to userspace.
 > 
-> However, this creates a disconnect with userspace if the vcpu thread
-> returns there with any exception/PC flag set. In this case, the exposed
-> context is wrong, as userspace doesn't have access to these flags
-> (they aren't architectural). It also means that these flags are
-> preserved across a reset, which isn't expected.
+> Since __kvm_adjust_pc() relies on a loaded vcpu context, I moved the
+> immediate_exit checking right after vcpu_load(). We will get some overhead
+> if immediate_exit is true (which should hopefully be rare).
 > 
-> To solve this problem, force an explicit synchronisation of the
-> exception state on vcpu exit to userspace. As an optimisation
-> for nVHE systems, only perform this when there is something pending.
-> 
-> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
-> Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
-> Reviewed-by: Zenghui Yu <yuzenghui@huawei.com>
-> Tested-by: Zenghui Yu <yuzenghui@huawei.com>
-> Signed-off-by: Marc Zyngier <maz@kernel.org>
-> Cc: stable@vger.kernel.org # 5.11
-> [yuz: stable-5.12.y backport: add __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc
->  macro manually and keep it consistent with mainline]
-
-I'd rather you allocated a new number here, irrespective of what
-mainline has (rational below).
-
+> Fixes: 26778aaa134a ("KVM: arm64: Commit pending PC adjustemnts before returning to userspace")
 > Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-> ---
->  arch/arm64/include/asm/kvm_asm.h   |  1 +
->  arch/arm64/kvm/arm.c               | 11 +++++++++++
->  arch/arm64/kvm/hyp/exception.c     |  4 ++--
->  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
->  4 files changed, 22 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
-> index a8578d650bb6..d7f769bb6c9c 100644
-> --- a/arch/arm64/include/asm/kvm_asm.h
-> +++ b/arch/arm64/include/asm/kvm_asm.h
-> @@ -57,6 +57,7 @@
->  #define __KVM_HOST_SMCCC_FUNC___kvm_get_mdcr_el2		12
->  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_save_aprs		13
->  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_restore_aprs		14
-> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
-
-This is going to generate a larger than necessary host_hcall array in
-hyp/nvhe/hyp-main.c, which we're trying to keep tightly packed for
-obvious reasons.
-
-With this nit fixed:
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Link: https://lore.kernel.org/r/20210526141831.1662-1-yuzenghui@huawei.com
+> Cc: stable@vger.kernel.org # 5.11
 
 Reviewed-by: Marc Zyngier <maz@kernel.org>
-
-Thanks,
 
 	M.
 
