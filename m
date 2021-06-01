@@ -2,76 +2,233 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C8E7397405
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:22:58 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE7F3973DD
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:09:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233853AbhFANYi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 09:24:38 -0400
-Received: from mga18.intel.com ([134.134.136.126]:55365 "EHLO mga18.intel.com"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233758AbhFANYh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 09:24:37 -0400
-IronPort-SDR: 5KRgAcjBQP/pMPsK6xP+ZytWrRvIBkkgXILCaGJokVnkSb653tBp5pQsI3qpL75qQYmSPQV0R4
- pusH6h3N2pwA==
-X-IronPort-AV: E=McAfee;i="6200,9189,10002"; a="190898394"
-X-IronPort-AV: E=Sophos;i="5.83,240,1616482800"; 
-   d="scan'208";a="190898394"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jun 2021 06:22:55 -0700
-IronPort-SDR: zoZrPeCi2RqaKqMQe4XN6qCjPMuv7NY+eqP1ba1oRMp8iUgijhuNjcmdCqRsdl3v8dovdwUeRu
- kCzY7rS9CUCw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="5.83,240,1616482800"; 
-   d="scan'208";a="549058306"
-Received: from otc-lr-04.jf.intel.com ([10.54.39.41])
-  by orsmga004.jf.intel.com with ESMTP; 01 Jun 2021 06:22:55 -0700
-From:   kan.liang@linux.intel.com
-To:     peterz@infradead.org, mingo@redhat.com,
-        linux-kernel@vger.kernel.org
-Cc:     ak@linux.intel.com, yao.jin@linux.intel.com,
-        Kan Liang <kan.liang@linux.intel.com>, stable@vger.kernel.org
-Subject: [RESEND PATCH] perf/x86/intel/uncore: Fix M2M event umask for Ice Lake server
-Date:   Tue,  1 Jun 2021 06:09:03 -0700
-Message-Id: <1622552943-119174-1-git-send-email-kan.liang@linux.intel.com>
-X-Mailer: git-send-email 2.7.4
+        id S233797AbhFANLO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 09:11:14 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35920 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233409AbhFANLN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 09:11:13 -0400
+Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C290C061574
+        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 06:09:32 -0700 (PDT)
+Received: by mail-ej1-x629.google.com with SMTP id b9so21529815ejc.13
+        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 06:09:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=EBxyeOx+3RsWJVhTTc5ohpA2jwgveNW4SF62Y0kGAg0=;
+        b=dsDckIPOp9TXBT/s7RdiUDvpov38qfYBx3AaTcisxYwVC6JrB+2zJLDNxXBoUSPQ6v
+         hvUi3rlaAGVNYmhWyr5XDrs5ZxuZH/SjH5C8s0SYrS2NnhstttWyBaRwLyK8v1ui7awm
+         sKLcam94uyM9oXyG95b+Hlqr/a5+iHlMHpVjiTdRH9JPI2dZsK+aopEPzj1CJdSkUx16
+         fxVcPQnDRfsncYCqppvgbJP5kZY6lHTSNDk6+R1I7vEGhD1hlQ1qnMLSdzUHIvcB1qvd
+         iP7PpcJa/SGPJD2N2EDiK7IcSNbnRkHUXfbc4ZNL7x5bNpL2N9PFG28C9BvdlwqYKP+v
+         7jFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=EBxyeOx+3RsWJVhTTc5ohpA2jwgveNW4SF62Y0kGAg0=;
+        b=WfCojEhaSR9sZdSuCokTxeawv4dFgIeO3ZvUbnPl//bmpKU/b2NyebibGIxcr4xKyH
+         +6eHziX06f7Pv/YoL9rLYR7rGQpwGxNYp86fpgFxk3Yc6TVG+Sw2hjWvzvBLqXVagG/K
+         iHe8ctPNx/5Hri621Q12OI9kw4lZvQyYq2AIKKR85HBojgGgez5k8H5wXlcF0rmDNrVN
+         J7iTwjlhq+HsrkXVRL07GNE9pKqb3q9sviA1z5staCiBpur3avJWqsXYPMXdwvER6abl
+         Mc4dlt9P1jxIpMi6ZrZd49QvsskfRPfatl8tCgeMojP0exx+MZYAtSi0tjTv39hpGnaF
+         w+0A==
+X-Gm-Message-State: AOAM533hMVjiGCgH51wPtre5vaw3RsARK3xijZjnQRiuV/2ENojLGopC
+        zknx5x+2MFWl4/pWHGJopJIUT3FxIOAy+HqUxmmgsA==
+X-Google-Smtp-Source: ABdhPJzaJWShJBsE42YmVPyWkCZpCfZNLRBpTqLqq7WzlxkyzfSZXMAaBRl90OZDXy16OLV8GAIvXQb7vzjAFOk/GWE=
+X-Received: by 2002:a17:906:8318:: with SMTP id j24mr10513958ejx.375.1622552970872;
+ Tue, 01 Jun 2021 06:09:30 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210601081514.670960578@linuxfoundation.org>
+In-Reply-To: <20210601081514.670960578@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 1 Jun 2021 18:39:19 +0530
+Message-ID: <CA+G9fYtDntHBQ4Tu9JpO7mtE6hLC=ATToLVub=ON7YvN04RQug@mail.gmail.com>
+Subject: Re: [PATCH 4.9 00/71] 4.9.271-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
+        Jon Hunter <jonathanh@nvidia.com>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        linux-stable <stable@vger.kernel.org>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+On Tue, 1 Jun 2021 at 14:04, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.9.271 release.
+> There are 71 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 03 Jun 2021 08:15:02 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.9.271-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.9.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Perf tool errors out with the latest event list for the Ice Lake server.
+This set of results are from 4.9.271-rc2.
 
-event syntax error: 'unc_m2m_imc_reads.to_pmm'
-                           \___ value too big for format, maximum is 255
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-The same as the Snow Ridge server, the M2M uncore unit in the Ice Lake
-server has the unit mask extension field as well.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Fixes: 2b3b76b5ec67 ("perf/x86/intel/uncore: Add Ice Lake server uncore support")
-Reported-by: Jin Yao <yao.jin@linux.intel.com>
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Cc: stable@vger.kernel.org
----
- arch/x86/events/intel/uncore_snbep.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+## Build
+* kernel: 4.9.271-rc2
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.9.y
+* git commit: 7c0244f56992aacc7d68dd6e61be593062aa0668
+* git describe: v4.9.270-72-g7c0244f56992
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.2=
+70-72-g7c0244f56992
 
-diff --git a/arch/x86/events/intel/uncore_snbep.c b/arch/x86/events/intel/uncore_snbep.c
-index acc3c0e5..06c055d 100644
---- a/arch/x86/events/intel/uncore_snbep.c
-+++ b/arch/x86/events/intel/uncore_snbep.c
-@@ -5106,9 +5106,10 @@ static struct intel_uncore_type icx_uncore_m2m = {
- 	.perf_ctr	= SNR_M2M_PCI_PMON_CTR0,
- 	.event_ctl	= SNR_M2M_PCI_PMON_CTL0,
- 	.event_mask	= SNBEP_PMON_RAW_EVENT_MASK,
-+	.event_mask_ext	= SNR_M2M_PCI_PMON_UMASK_EXT,
- 	.box_ctl	= SNR_M2M_PCI_PMON_BOX_CTL,
- 	.ops		= &snr_m2m_uncore_pci_ops,
--	.format_group	= &skx_uncore_format_group,
-+	.format_group	= &snr_m2m_uncore_format_group,
- };
- 
- static struct attribute *icx_upi_uncore_formats_attr[] = {
--- 
-2.7.4
+## No regressions (compared to v4.9.269-37-gc1efed5276d2)
 
+## Fixes (compared to v4.9.269-37-gc1efed5276d2)
+* ltp-mm-tests
+  - ksm03
+  - ksm03_1
+
+NOTE: The LTP test suite upgraded to latest release version LTP 20210524.
+
+## Test result summary
+ total: 57037, pass: 45364, fail: 1305, skip: 9522, xfail: 846,
+
+## Build Summary
+* arm: 97 total, 97 passed, 0 failed
+* arm64: 24 total, 24 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 14 total, 14 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 36 total, 36 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 14 total, 14 passed, 0 failed
+
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* ssuite
+* timesync-off
+* v4l2-compliance
+
+--
+Linaro LKFT
+https://lkft.linaro.org
