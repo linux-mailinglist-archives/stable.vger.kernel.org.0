@@ -2,74 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C5E05397A06
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:24:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 62805397A10
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:25:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234539AbhFASZu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 14:25:50 -0400
-Received: from mail.skyhub.de ([5.9.137.197]:53694 "EHLO mail.skyhub.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233853AbhFASZt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 14:25:49 -0400
-Received: from zn.tnic (p200300ec2f111d0082e984b2e91ac710.dip0.t-ipconnect.de [IPv6:2003:ec:2f11:1d00:82e9:84b2:e91a:c710])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 75E241EC01B7;
-        Tue,  1 Jun 2021 20:24:06 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1622571846;
+        id S234465AbhFAS1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 14:27:33 -0400
+Received: from Galois.linutronix.de ([193.142.43.55]:34780 "EHLO
+        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233397AbhFAS1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 14:27:32 -0400
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1622571950;
         h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
          to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=tJXA6HXVxWBrx0FMpdafT6CUV8iMBF5xHQeDny+jk8w=;
-        b=Sp9xEdkP1iBv9cZbO0Mn4+CaJvstno+vSwzYVQTaFWWB5MSoaE/igdzH8AE5b5t56A3ZGd
-        Vq4zQGdd2fgpuAvhZKV1tUGF0HfKpcBc3MyfSqQHIbiZdJJLILjzLxEao6a8ipfddoX808
-        bk+WtVkH6cvTgz27zsb1iklH1JszDUs=
-Date:   Tue, 1 Jun 2021 20:24:02 +0200
-From:   Borislav Petkov <bp@alien8.de>
-To:     Sean Christopherson <seanjc@google.com>
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>, Pu Wen <puwen@hygon.cn>,
-        Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
-        joro@8bytes.org, dave.hansen@linux.intel.com, peterz@infradead.org,
-        tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
-        sashal@kernel.org, gregkh@linuxfoundation.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/sev: Check whether SEV or SME is supported first
-Message-ID: <YLZ7Qu2fY6gmzTTN@zn.tnic>
-References: <905ecd90-54d2-35f1-c8ab-c123d8a3d9a0@hygon.cn>
- <YLSuRBzM6piigP8t@suse.de>
- <e1ad087e-a951-4128-923e-867a8b38ecec@hygon.cn>
- <YLZGuTYXDin2K9wx@zn.tnic>
- <YLZc3sFKSjpd2yPS@google.com>
- <dbc4e48f-187a-4b2d-2625-b62d334f60b2@amd.com>
- <YLZneRWzoujEe+6b@zn.tnic>
- <YLZrXEQ8w5ntu7ov@google.com>
- <YLZy+JR7TNEeNA6C@zn.tnic>
- <YLZ3k77CK+F9v8fF@google.com>
+         in-reply-to:in-reply-to:references:references;
+        bh=beT8fC3oUsFqWxn/mmXGhmMNMZgYwXE45W+eS01Tt+Y=;
+        b=EL47N+oYsaCffcQ9lZiBl5C60FkCqyNxKLxHTh7V4GiWdyBUF/NkXFAhb4tajJtFkLrMsi
+        muMIqkzoJrue/a1ZNJWFgI6oUFtun1FbajRwAytgwh77X1UsaxUamVxdff/vuXQ3UIwvRB
+        CZBflGfZz48/Km6YTcnvGhP1pVYBorl8QV9dp26rsYUHA9Mko2efoEbMSMYaT4cRAQ5mRl
+        OJOpERgvx/UqN50BJef9jJ7w9ql2RzeW+k8e5XiyLm8Esd5cCALOF6iQ+h0NSO24/mHmhe
+        9qhbdB5cAzK5T3GewIhy2gOdqEOXmk80MeeTf0hn04gVHVnhZ4EZPCgzpgs8Bg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1622571950;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=beT8fC3oUsFqWxn/mmXGhmMNMZgYwXE45W+eS01Tt+Y=;
+        b=ySL75CJyQLoX9PFwq8v0eTao2lQTNaVmkc3mWsZrnbuYavTN4fSJehZe1kp5VXBR0f5Cvq
+        /MvbLaQBqzBYKSBA==
+To:     Dave Hansen <dave.hansen@intel.com>,
+        Andy Lutomirski <luto@kernel.org>,
+        the arch/x86 maintainers <x86@kernel.org>
+Cc:     stable@vger.kernel.org,
+        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Subject: Re: [PATCH v3 3/5] x86/fpu: Clean up the fpu__clear() variants
+In-Reply-To: <aef37213-8bf1-ff89-9b41-417dcdfbe713@intel.com>
+References: <878s3u34iy.ffs@nanos.tec.linutronix.de> <603011b5-9479-3aac-78ee-74b9b5a5ef7c@kernel.org> <aef37213-8bf1-ff89-9b41-417dcdfbe713@intel.com>
+Date:   Tue, 01 Jun 2021 20:25:49 +0200
+Message-ID: <87zgw91lxu.ffs@nanos.tec.linutronix.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <YLZ3k77CK+F9v8fF@google.com>
+Content-Type: text/plain
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 01, 2021 at 06:08:19PM +0000, Sean Christopherson wrote:
-> But we have not yet verified that 0x8000001f is supported, only that the result
-> of CPUID.0x8000001f can be trusted (to handle Intel CPUs which return data from
-> the highest supported leaf if the provided leaf function is greater than the max
-> supported leaf).  Verifying that 0x8000001f is supported doesn't happen until
-> 0x8000001f is actually read, which is currently done after the RDMSR that #GPs
-> and explodes.
+On Tue, Jun 01 2021 at 11:06, Dave Hansen wrote:
+> On to patch 3:
+>
+> Nit: Could we move the detailed comments about TIF_NEED_FPU_LOAD right
+> next to the fpu__initialize() call?  It would make it painfully obvious
+> which call is responsible.  The naming isn't super helpful here.
 
-Yeah yeah, Tom just convinced me on IRC that the patch is ok after
-all... so let's do that. And again, we cannot stop hypervisors from
-doing shady things here so I don't even wanna try to. People should run
-SNP/TDX guests only anyway if they care about this stuff.
+I've done that and picked up your changelog improvements. I did some
+other tweaks myself during the day when I had a few cycles.
 
--- 
-Regards/Gruss,
-    Boris.
+Here is my current pile which is based on Andy's.
 
-https://people.kernel.org/tglx/notes-about-netiquette
+     https://tglx.de/~tglx/patches.tar
+
+Need to vanish for an hour. Can work on it afterwards again.
+
+Thanks,
+
+        Thomas
