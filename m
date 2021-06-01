@@ -2,233 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CD5E397438
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:30:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 659C3397489
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:47:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233853AbhFANcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 09:32:20 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40760 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233938AbhFANcT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 09:32:19 -0400
-Received: from mail-ej1-x62c.google.com (mail-ej1-x62c.google.com [IPv6:2a00:1450:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17E54C06174A
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 06:30:38 -0700 (PDT)
-Received: by mail-ej1-x62c.google.com with SMTP id c10so478927eja.11
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 06:30:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=kKOh4wrNyJe362NzAi1yzZCGJgSv/lcLZ6R5aT0OAQE=;
-        b=oli0AEGTibHr+X4BBq6ryNZ6kU6+VTDFuoYIpRqB62OJRMQPVRJKaYesaAqA07M4EM
-         EdbvchSzKuzv0e22u0bfHBN5cMcR3lPKE+rBI6lCeHJTYRNtBeX8ZRc+QpiZzReF7DL5
-         gCrikxlDOKXZrjcaPJNbpuVmjS9YxDBGVJ9vDyjYFX0prY0IXvzDHp/Lclf2WS+oAaRx
-         u+mPeMNB0zAngRuTxcBw8A+Iro+ieWOou+tu6BWsSwox08tRHNVXiaQ0j8qGTPUdCqVv
-         X1PnI5INMdch0RywVA3kNZ7+TzygZktxeqrqJ0gc9atCIiLLcojQPHrLH7bH/YONKGo8
-         /LWw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=kKOh4wrNyJe362NzAi1yzZCGJgSv/lcLZ6R5aT0OAQE=;
-        b=i4Q7qzGUu+/yfvotE10T8C6R/OSuTxSOC1ULsgOPplkgsrGAp1o+rI7e2pbilxdG5g
-         x68AC3tPHKxkDywNXtEdB58Jz+SASYrV2ThT1bID30Lk0Dy6Y09XoAZWbyvZcrMHE2hy
-         rMHWJeTq5egUOciy6gIlRVoP9Qm6oOaQ6wuSdxYQUMyKUh4uQLgRBy5WPKl+OANvlnsW
-         898DM5enuRX4gEyN/qlHyPSPf5jy/wNpIKjKKBXrsMGJenxR3KeADM2kFADduCg6zk0w
-         H5WdpzyBYaSM+8vv2a/ecg3DhXAJsBeS+wkWsacU7JCHWE2n45PlYSNr1LJOlhGLUhAC
-         GuTQ==
-X-Gm-Message-State: AOAM531uZf3u0cceVvmnYQkNJZQ8onUHAMjkfcoP6RW/xcLCNEnElK0j
-        mnz3WCzAOAWqLpwU0iyHDg0S9y7DtEVDh4nwhPh7NA==
-X-Google-Smtp-Source: ABdhPJz7rEw5+UuX6nNDwDbflC7I8zzwHvfk2Ad0RKiQ0Uw6pCAFxoyqfG9E6wADau5iuq+9j0y7qHlzZuEYbWu9GyI=
-X-Received: by 2002:a17:906:8394:: with SMTP id p20mr26473972ejx.170.1622554236515;
- Tue, 01 Jun 2021 06:30:36 -0700 (PDT)
+        id S234001AbhFANt2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 09:49:28 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:6117 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233584AbhFANt2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 09:49:28 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FvYLh6cJtzYnjB;
+        Tue,  1 Jun 2021 21:45:00 +0800 (CST)
+Received: from dggema764-chm.china.huawei.com (10.1.198.206) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Tue, 1 Jun 2021 21:47:44 +0800
+Received: from [10.174.185.179] (10.174.185.179) by
+ dggema764-chm.china.huawei.com (10.1.198.206) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Tue, 1 Jun 2021 21:47:43 +0800
+Subject: Re: [PATCH stable-5.12.y backport 1/2] KVM: arm64: Commit pending PC
+ adjustemnts before returning to userspace
+To:     Marc Zyngier <maz@kernel.org>
+CC:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>, <sashal@kernel.org>,
+        <alexandru.elisei@arm.com>, <wanghaibin.wang@huawei.com>
+References: <20210601111238.1059-1-yuzenghui@huawei.com>
+ <20210601111238.1059-2-yuzenghui@huawei.com> <87v96x24ir.wl-maz@kernel.org>
+From:   Zenghui Yu <yuzenghui@huawei.com>
+Message-ID: <b7cf4102-17e8-f4f8-0314-0a06d7429b4c@huawei.com>
+Date:   Tue, 1 Jun 2021 21:47:43 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64; rv:68.0) Gecko/20100101
+ Thunderbird/68.9.0
 MIME-Version: 1.0
-References: <20210601072913.387837810@linuxfoundation.org>
-In-Reply-To: <20210601072913.387837810@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Jun 2021 19:00:25 +0530
-Message-ID: <CA+G9fYtaDQWR9ir0QX9R-n_+G+8n8p0LnuoBbo6fsxFQK8j9MA@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/84] 4.14.235-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <87v96x24ir.wl-maz@kernel.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.185.179]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggema764-chm.china.huawei.com (10.1.198.206)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 1 Jun 2021 at 14:04, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.235 release.
-> There are 84 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 03 Jun 2021 07:28:28 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.235-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hi Marc,
 
-This set of results are from 4.14.235-rc2.
+On 2021/6/1 19:44, Marc Zyngier wrote:
+> Hi Zenghui,
+> 
+> Thanks for having a go at the backport.
+> 
+> On Tue, 01 Jun 2021 12:12:37 +0100,
+> Zenghui Yu <yuzenghui@huawei.com> wrote:
+>>
+>> From: Marc Zyngier <maz@kernel.org>
+>>
+>> commit 26778aaa134a9aefdf5dbaad904054d7be9d656d upstream.
+>>
+>> KVM currently updates PC (and the corresponding exception state)
+>> using a two phase approach: first by setting a set of flags,
+>> then by converting these flags into a state update when the vcpu
+>> is about to enter the guest.
+>>
+>> However, this creates a disconnect with userspace if the vcpu thread
+>> returns there with any exception/PC flag set. In this case, the exposed
+>> context is wrong, as userspace doesn't have access to these flags
+>> (they aren't architectural). It also means that these flags are
+>> preserved across a reset, which isn't expected.
+>>
+>> To solve this problem, force an explicit synchronisation of the
+>> exception state on vcpu exit to userspace. As an optimisation
+>> for nVHE systems, only perform this when there is something pending.
+>>
+>> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
+>> Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+>> Reviewed-by: Zenghui Yu <yuzenghui@huawei.com>
+>> Tested-by: Zenghui Yu <yuzenghui@huawei.com>
+>> Signed-off-by: Marc Zyngier <maz@kernel.org>
+>> Cc: stable@vger.kernel.org # 5.11
+>> [yuz: stable-5.12.y backport: add __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc
+>>  macro manually and keep it consistent with mainline]
+> 
+> I'd rather you allocated a new number here, irrespective of what
+> mainline has (rational below).
+> 
+>> Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+>> ---
+>>  arch/arm64/include/asm/kvm_asm.h   |  1 +
+>>  arch/arm64/kvm/arm.c               | 11 +++++++++++
+>>  arch/arm64/kvm/hyp/exception.c     |  4 ++--
+>>  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
+>>  4 files changed, 22 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+>> index a8578d650bb6..d7f769bb6c9c 100644
+>> --- a/arch/arm64/include/asm/kvm_asm.h
+>> +++ b/arch/arm64/include/asm/kvm_asm.h
+>> @@ -57,6 +57,7 @@
+>>  #define __KVM_HOST_SMCCC_FUNC___kvm_get_mdcr_el2		12
+>>  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_save_aprs		13
+>>  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_restore_aprs		14
+>> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
+> 
+> This is going to generate a larger than necessary host_hcall array in
+> hyp/nvhe/hyp-main.c, which we're trying to keep tightly packed for
+> obvious reasons.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+It isn't obvious to me ;-). But this creates some invalid entries
+(HVC handlers) in the host_hcall array, which is not good. I'll change
+__KVM_HOST_SMCCC_FUNC___kvm_adjust_pc to 15. Thanks for your reminder.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> With this nit fixed:
+> 
+> Reviewed-by: Marc Zyngier <maz@kernel.org>
 
-## Build
-* kernel: 4.14.235-rc2
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.14.y
-* git commit: 709fde45859bbcf6ad058f7f29761df9adfc26b4
-* git describe: v4.14.234-85-g709fde45859b
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.234-85-g709fde45859b
+Thanks!
 
-## No regressions (compared to v4.14.233-38-g535f9ea88cc8)
-
-## Fixes (compared to v4.14.233-38-g535f9ea88cc8)
-* ltp-mm-tests
-  - ksm03
-  - ksm03_1
-
-NOTE: The LTP test suite upgraded to latest release version LTP 20210524.
-
-## Test result summary
- total: 64130, pass: 51268, fail: 1497, skip: 10559, xfail: 806,
-
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 36 total, 36 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 14 total, 14 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
---
-Linaro LKFT
-https://lkft.linaro.org
+Zenghui
