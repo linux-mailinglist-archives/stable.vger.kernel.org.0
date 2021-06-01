@@ -2,19 +2,19 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 252AD397711
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 17:47:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CE232397712
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 17:47:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234525AbhFAPsm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 11:48:42 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:45152 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S234518AbhFAPsm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 11:48:42 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R211e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UazFAp6_1622562407;
+        id S234450AbhFAPsx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 11:48:53 -0400
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:45709 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S234389AbhFAPsw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 11:48:52 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R991e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=hsiangkao@linux.alibaba.com;NM=1;PH=DS;RN=10;SR=0;TI=SMTPD_---0UazFAp6_1622562407;
 Received: from e18g09479.et15sqa.tbsite.net(mailfrom:hsiangkao@linux.alibaba.com fp:SMTPD_---0UazFAp6_1622562407)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Tue, 01 Jun 2021 23:46:57 +0800
+          Tue, 01 Jun 2021 23:46:59 +0800
 From:   Gao Xiang <hsiangkao@linux.alibaba.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
@@ -25,10 +25,12 @@ Cc:     Gao Xiang <hsiangkao@linux.alibaba.com>,
         Guo Xuenan <guoxuenan@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH for-5.4.y] lib/lz4: explicitly support in-place decompression
-Date:   Tue,  1 Jun 2021 23:46:44 +0800
-Message-Id: <1622562405-63431-1-git-send-email-hsiangkao@linux.alibaba.com>
+Subject: [PATCH for-5.10.y] lib/lz4: explicitly support in-place decompression
+Date:   Tue,  1 Jun 2021 23:46:45 +0800
+Message-Id: <1622562405-63431-2-git-send-email-hsiangkao@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
+In-Reply-To: <1622562405-63431-1-git-send-email-hsiangkao@linux.alibaba.com>
+References: <1622562405-63431-1-git-send-email-hsiangkao@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
@@ -98,18 +100,18 @@ Thanks,
 Gao Xiang
 
  lib/lz4/lz4_decompress.c | 6 +++++-
- lib/lz4/lz4defs.h        | 2 ++
- 2 files changed, 7 insertions(+), 1 deletion(-)
+ lib/lz4/lz4defs.h        | 1 +
+ 2 files changed, 6 insertions(+), 1 deletion(-)
 
 diff --git a/lib/lz4/lz4_decompress.c b/lib/lz4/lz4_decompress.c
-index 0c9d3ad17e0f..4d0b59fa5550 100644
+index 00cb0d0b73e1..8a7724a6ce2f 100644
 --- a/lib/lz4/lz4_decompress.c
 +++ b/lib/lz4/lz4_decompress.c
-@@ -260,7 +260,11 @@ static FORCE_INLINE int LZ4_decompress_generic(
+@@ -263,7 +263,11 @@ static FORCE_INLINE int LZ4_decompress_generic(
  				}
  			}
  
--			memcpy(op, ip, length);
+-			LZ4_memcpy(op, ip, length);
 +			/*
 +			 * supports overlapping memory regions; only matters
 +			 * for in-place decompression scenarios
@@ -119,18 +121,17 @@ index 0c9d3ad17e0f..4d0b59fa5550 100644
  			op += length;
  
 diff --git a/lib/lz4/lz4defs.h b/lib/lz4/lz4defs.h
-index 1a7fa9d9170f..369eb181d730 100644
+index c91dd96ef629..673bd206aa98 100644
 --- a/lib/lz4/lz4defs.h
 +++ b/lib/lz4/lz4defs.h
-@@ -137,6 +137,8 @@ static FORCE_INLINE void LZ4_writeLE16(void *memPtr, U16 value)
- 	return put_unaligned_le16(value, memPtr);
- }
- 
+@@ -146,6 +146,7 @@ static FORCE_INLINE void LZ4_writeLE16(void *memPtr, U16 value)
+  * environments. This is needed when decompressing the Linux Kernel, for example.
+  */
+ #define LZ4_memcpy(dst, src, size) __builtin_memcpy(dst, src, size)
 +#define LZ4_memmove(dst, src, size) __builtin_memmove(dst, src, size)
-+
+ 
  static FORCE_INLINE void LZ4_copy8(void *dst, const void *src)
  {
- #if LZ4_ARCH64
 -- 
 1.8.3.1
 
