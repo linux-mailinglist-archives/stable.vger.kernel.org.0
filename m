@@ -2,80 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CCBEF396A5D
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 02:37:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5393F396A89
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 03:10:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232317AbhFAAjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 20:39:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35704 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232366AbhFAAjO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 31 May 2021 20:39:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C40611CB;
-        Tue,  1 Jun 2021 00:37:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1622507853;
-        bh=hSbXTlNRap0TMykMgzRT7IHS4sVlT83yO/koAonPLlA=;
-        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-        b=RBTnngxJml+laVwubXrQR8E8jWDxGtOczjthaJsEsiFZEGtTS2TxAFAS3cMh/hQb3
-         +IUuEX8weZK4X1Clyws1J/IpWtKNfwgoTfieywpzzejOM99a+Xtfq83W5qfkQ4ZkyN
-         l00OS8KceYts5fsaG+zTfmJ94VoKP9ElU/lLTeQY=
-Date:   Mon, 31 May 2021 17:37:33 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     Mina Almasry <almasrymina@google.com>
-Cc:     Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>, linux-mm@kvack.org,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH v4] mm, hugetlb: Fix simple resv_huge_pages underflow on
- UFFDIO_COPY
-Message-Id: <20210531173733.615fd539396ff7a173a2bf8b@linux-foundation.org>
-In-Reply-To: <20210528004649.85298-1-almasrymina@google.com>
-References: <20210528004649.85298-1-almasrymina@google.com>
-X-Mailer: Sylpheed 3.5.1 (GTK+ 2.24.31; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+        id S232042AbhFABLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 21:11:55 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:2805 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232035AbhFABLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 21:11:55 -0400
+Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FvDVM1ZLnzWptl;
+        Tue,  1 Jun 2021 09:05:31 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Tue, 1 Jun 2021 09:10:11 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Tue, 1 Jun 2021 09:10:10 +0800
+Subject: Re: [PATCH 5.4 000/177] 5.4.124-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210531130647.887605866@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <45fb23c6-49e7-46f4-c23b-280cd2c8d8e8@huawei.com>
+Date:   Tue, 1 Jun 2021 09:10:10 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 27 May 2021 17:46:49 -0700 Mina Almasry <almasrymina@google.com> wrote:
 
-> The userfaultfd hugetlb tests detect a resv_huge_pages underflow. This
-> happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
-> an index for which we already have a page in the cache. When this
-> happens, we allocate a second page, double consuming the reservation,
-> and then fail to insert the page into the cache and return -EEXIST.
-> 
-> To fix this, we first if there exists a page in the cache which already
-> consumed the reservation, and return -EEXIST immediately if so.
-> 
-> There is still a rare condition where we fail to copy the page contents
-> AND race with a call for hugetlb_no_page() for this index and again we
-> will underflow resv_huge_pages. That is fixed in a more complicated
-> patch not targeted for -stable.
-> 
-> Test:
-> Hacked the code locally such that resv_huge_pages underflows produce
-> a warning, then:
-> 
-> ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
-> 	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-> ./tools/testing/selftests/vm/userfaultfd hugetlb 10
-> 	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-> 
-> Both tests succeed and produce no warnings. After the
-> test runs number of free/resv hugepages is correct.
-> 
-> Signed-off-by: Mina Almasry <almasrymina@google.com>
-> Cc: Axel Rasmussen <axelrasmussen@google.com>
-> Cc: Peter Xu <peterx@redhat.com>
-> Cc: linux-mm@kvack.org
-> Cc: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: Andrew Morton <akpm@linux-foundation.org>
-> Cc: linux-mm@kvack.org
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
 
-Do we have a Fixes: for this, or is it an always-been-there issue?
+On 2021/5/31 21:12, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.124 release.
+> There are 177 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.124-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on arm64 and x86 for 5.4.124-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-5.4.y
+Version: 5.4.124-rc1
+Commit: 4142e74be32ee4ca40200301fcabfca32800f9c5
+Compiler: gcc version 7.3.0 (GCC)
+
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8897
+passed: 8897
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8897
+passed: 8897
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>、
