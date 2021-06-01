@@ -2,114 +2,239 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7811A39706E
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 11:31:28 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 83EDA397072
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 11:32:49 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233336AbhFAJdI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 05:33:08 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:45654 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233573AbhFAJdH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 05:33:07 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id F0F4D1C0B7C; Tue,  1 Jun 2021 11:31:25 +0200 (CEST)
-Date:   Tue, 1 Jun 2021 11:31:25 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: Re: [PATCH 5.10 030/252] mac80211: prevent attacks on TKIP/WEP as
- well
-Message-ID: <20210601093125.GA30646@amd>
-References: <20210531130657.971257589@linuxfoundation.org>
- <20210531130659.005193399@linuxfoundation.org>
+        id S233299AbhFAJe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 05:34:28 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43302 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233237AbhFAJe2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 05:34:28 -0400
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB57BC061574
+        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 02:32:46 -0700 (PDT)
+Received: by mail-ed1-x52b.google.com with SMTP id dg27so6718194edb.12
+        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 02:32:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc:content-transfer-encoding;
+        bh=fHw4ZWuyvNTlnwaFaZfgex/OMd+zKnx4/Agz2TtONeQ=;
+        b=yv6feGYELgn+8OwtbsI4GmssW+drxxCPt++Ja6yrHXEFAF+WbUSdU9Ra3Qr2a4OOtw
+         yXwyiJTEB5IJGpCaJcJdvRI37wgd8PLtSXblBnx3oLZM3G4rytLXF064aa/Y2DwbDNZB
+         vnRQEL1yZOEyL5w+a3RtzT1XYqEXRR6Y1gYETZiQubnGCVPUfe9Ha+O+B+bJTSioSKhG
+         ZJJRCnDpLxbks8XvUkxoBeprp9cHS1VRBF2p/6AHsA7cd46YuRqNRvAYJ93LYjmS2tpe
+         Wr3HjHU3oiER7B1B1RhdV5O6KserwGyLBRZ3By121ftBFAmvaHwjInLaq6KP8AOuHdka
+         emng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc:content-transfer-encoding;
+        bh=fHw4ZWuyvNTlnwaFaZfgex/OMd+zKnx4/Agz2TtONeQ=;
+        b=WBqD5m/Y2LNLt7J4lDaMIN/RL3KQrdgoUv56w16l/Ku4W2Utm9RZYwu4/dFQ7yv1r0
+         Hbd2JGxChOvKGElqVIdoKQMq1NCsVwO2vQ7zF/Uaoohd+h+C0Pj1dudN02/liRE2XJMs
+         9VqoH/tAHmVGYjFQZJbQciTU4qfLSXNiLI6y9IXECFoOGxbaWtYGuEHu6TA5cjMaeoFR
+         YZq2mfqwFcqE0wAJU2ehGoYOGn8/KCeD5nADeKwW5eRU8Tr0Bjcaw9HdU7y5tJnJMndV
+         w83RhyFn8PNOHjKI7lh2JGfoH7eau6DKN6MFce4ZnjLnLLar8Fz+j1o+jeKlqqio0cp0
+         zLEQ==
+X-Gm-Message-State: AOAM531pyij8DGlLk5bNZtEm/Zbhgpuwx8jLtipzsNIROAzz5rM6elnS
+        7cRrzY9nEp6dbSm0CDqNIK81EXOtAYUK797Lipw11A==
+X-Google-Smtp-Source: ABdhPJwbKb2JxZd97XUfBzbSl9OUS1rQtgJuB7iMPIER2LH9Z7Y9/OPCj4J/38ZoIJsrfXqAzwlOZlwOseFw6/ucEi8=
+X-Received: by 2002:aa7:d786:: with SMTP id s6mr30590261edq.239.1622539965289;
+ Tue, 01 Jun 2021 02:32:45 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="LZvS9be/3tNcYl/X"
-Content-Disposition: inline
-In-Reply-To: <20210531130659.005193399@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+References: <20210531130640.131924542@linuxfoundation.org>
+In-Reply-To: <20210531130640.131924542@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 1 Jun 2021 15:02:32 +0530
+Message-ID: <CA+G9fYszhenHuzfsv+yu+JKoSD+r8nNV7z8WXgzBcmu7J3+hoQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 000/116] 4.19.193-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, 31 May 2021 at 18:55, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.193 release.
+> There are 116 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.193-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
---LZvS9be/3tNcYl/X
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Hi!
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-So this changes bool variables to u8:1, but still assigns true/false
-there, which looks like "interesting" style. Should we switch to 0/1?
+## Build
+* kernel: 4.19.193-rc1
+* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
+rc.git
+* git branch: linux-4.19.y
+* git commit: a36d9536769615470fb664509e528787a54a26fa
+* git describe: v4.19.192-117-ga36d95367696
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.192-117-ga36d95367696
 
-Best regards,
-								Pavel
+## No regressions (compared to v4.19.191-50-g01268129ebb2)
 
-> --- a/net/mac80211/rx.c
-> +++ b/net/mac80211/rx.c
-> @@ -2284,6 +2284,7 @@ ieee80211_rx_h_defragment(struct ieee802
->  			 * next fragment has a sequential PN value.
->  			 */
->  			entry->check_sequential_pn =3D true;
-> +			entry->is_protected =3D true;
->  			entry->key_color =3D rx->key->color;
->  			memcpy(entry->last_pn,
->  			       rx->key->u.ccmp.rx_pn[queue],
-> @@ -2296,6 +2297,9 @@ ieee80211_rx_h_defragment(struct ieee802
->  				     sizeof(rx->key->u.gcmp.rx_pn[queue]));
->  			BUILD_BUG_ON(IEEE80211_CCMP_PN_LEN !=3D
->  				     IEEE80211_GCMP_PN_LEN);
-> +		} else if (rx->key && ieee80211_has_protected(fc)) {
-> +			entry->is_protected =3D true;
-> +			entry->key_color =3D rx->key->color;
->  		}
->  		return RX_QUEUED;
->  	}
-> @@ -2337,6 +2341,14 @@ ieee80211_rx_h_defragment(struct ieee802
->  		if (memcmp(pn, rpn, IEEE80211_CCMP_PN_LEN))
->  			return RX_DROP_UNUSABLE;
->  		memcpy(entry->last_pn, pn, IEEE80211_CCMP_PN_LEN);
-> +	} else if (entry->is_protected &&
-> +		   (!rx->key || !ieee80211_has_protected(fc) ||
-> +		    rx->key->color !=3D entry->key_color)) {
-> +		/* Drop this as a mixed key or fragment cache attack, even
-> +		 * if for TKIP Michael MIC should protect us, and WEP is a
-> +		 * lost cause anyway.
-> +		 */
-> +		return RX_DROP_UNUSABLE;
->  	}
-> =20
->  	skb_pull(rx->skb, ieee80211_hdrlen(fc));
-> --- a/net/mac80211/sta_info.h
-> +++ b/net/mac80211/sta_info.h
-> @@ -453,7 +453,8 @@ struct ieee80211_fragment_entry {
->  	u16 extra_len;
->  	u16 last_frag;
->  	u8 rx_queue;
-> -	bool check_sequential_pn; /* needed for CCMP/GCMP */
-> +	u8 check_sequential_pn:1, /* needed for CCMP/GCMP */
-> +	   is_protected:1;
->  	u8 last_pn[6]; /* PN of the last fragment if CCMP was used */
->  	unsigned int key_color;
->  };
->=20
+##  Fixes (compared to v4.19.191-50-g01268129ebb2)
+* ltp-mm-tests
+  - ksm03
+  - ksm03_1
 
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
+* ltp-syscalls-tests
+  - semctl09
 
---LZvS9be/3tNcYl/X
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+NOTE: The LTP test suite upgraded to latest release version LTP 20210524.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
+## Test result summary
+ total: 72900, pass: 57060, fail: 2715, skip: 12247, xfail: 878,
 
-iEYEARECAAYFAmC1/m0ACgkQMOfwapXb+vIl4QCeMJ0/Km/hKFlB00POoK8ZQTUB
-O1YAn1kfj4yM4Bw5QNvf3wkgAkSTrSYU
-=qtqE
------END PGP SIGNATURE-----
+## Build Summary
+* arm: 97 total, 97 passed, 0 failed
+* arm64: 25 total, 25 passed, 0 failed
+* dragonboard-410c: 1 total, 1 passed, 0 failed
+* hi6220-hikey: 1 total, 1 passed, 0 failed
+* i386: 14 total, 14 passed, 0 failed
+* juno-r2: 1 total, 1 passed, 0 failed
+* mips: 39 total, 39 passed, 0 failed
+* s390: 9 total, 9 passed, 0 failed
+* sparc: 9 total, 9 passed, 0 failed
+* x15: 1 total, 1 passed, 0 failed
+* x86: 1 total, 1 passed, 0 failed
+* x86_64: 15 total, 15 passed, 0 failed
 
---LZvS9be/3tNcYl/X--
+## Test suites summary
+* fwts
+* igt-gpu-tools
+* install-android-platform-tools-r2600
+* kselftest-
+* kselftest-android
+* kselftest-bpf
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-lkdtm
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-vsyscall-mode-native-
+* kselftest-vsyscall-mode-none-
+* kselftest-x86
+* kselftest-zram
+* kvm-unit-tests
+* libhugetlbfs
+* linux-log-parser
+* ltp-cap_bounds-tests
+* ltp-commands-tests
+* ltp-containers-tests
+* ltp-controllers-tests
+* ltp-cpuhotplug-tests
+* ltp-crypto-tests
+* ltp-cve-tests
+* ltp-dio-tests
+* ltp-fcntl-locktests-tests
+* ltp-filecaps-tests
+* ltp-fs-tests
+* ltp-fs_bind-tests
+* ltp-fs_perms_simple-tests
+* ltp-fsx-tests
+* ltp-hugetlb-tests
+* ltp-io-tests
+* ltp-ipc-tests
+* ltp-math-tests
+* ltp-mm-tests
+* ltp-nptl-tests
+* ltp-open-posix-tests
+* ltp-pty-tests
+* ltp-sched-tests
+* ltp-securebits-tests
+* ltp-syscalls-tests
+* ltp-tracing-tests
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* ssuite
+* v4l2-compliance
+
+--
+Naresh Kamboju
+https://lkft.linaro.org
