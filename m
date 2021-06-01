@@ -2,244 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 010E439773C
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 17:52:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F149839777D
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 18:06:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234525AbhFAPyd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 11:54:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39156 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234509AbhFAPyc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 11:54:32 -0400
-Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.kernel.org (Postfix) with ESMTPSA id BC14C6108D;
-        Tue,  1 Jun 2021 15:52:50 +0000 (UTC)
-Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.94.2)
-        (envelope-from <maz@kernel.org>)
-        id 1lo6hE-004qrK-Nb; Tue, 01 Jun 2021 16:52:48 +0100
-From:   Marc Zyngier <maz@kernel.org>
+        id S230523AbhFAQIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 12:08:37 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48768 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230385AbhFAQIh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 12:08:37 -0400
+Received: from bhuna.collabora.co.uk (bhuna.collabora.co.uk [IPv6:2a00:1098:0:82:1000:25:2eeb:e3e3])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC565C061574
+        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 09:06:55 -0700 (PDT)
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: tintou)
+        with ESMTPSA id 3ED2D1F42769
+Message-ID: <3724b6d19b0bf4741c44977e083c1a655df57b55.camel@collabora.com>
+Subject: virtio-net: kernel panic in virtio_net.c
+From:   Corentin =?ISO-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>
 To:     stable@vger.kernel.org
-Cc:     gregkh@linuxfoundation.org, Ricardo Koller <ricarkol@google.com>
-Subject: [PATCH][4.19-stable] KVM: arm64: Fix debug register indexing
-Date:   Tue,  1 Jun 2021 16:52:40 +0100
-Message-Id: <20210601155240.115730-1-maz@kernel.org>
-X-Mailer: git-send-email 2.30.2
+Cc:     "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date:   Tue, 01 Jun 2021 18:06:50 +0200
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-0ubuntu1 
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 62.31.163.78
-X-SA-Exim-Rcpt-To: stable@vger.kernel.org, gregkh@linuxfoundation.org, ricarkol@google.com
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit cb853ded1d25e5b026ce115dbcde69e3d7e2e831 upstream.
+I've been experiencing crashes with 5.13 that do not occur with 5.12,
+here is the crash trace:
 
-Commit 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on
-reset") flipped the register number to 0 for all the debug registers
-in the sysreg table, hereby indicating that these registers live
-in a separate shadow structure.
+[   47.713713] skbuff: skb_over_panic: text:ffffffffb73a8354 len:3762
+put:3762 head:ffff9e1e1e48e000 data:ffff9e1e1e48e010 tail:0xec2
+end:0xec0 dev:<NULL>
+[   47.716267] kernel BUG at net/core/skbuff.c:110!
+[   47.717197] invalid opcode: 0000 [#1] SMP PTI
+[   47.718049] CPU: 2 PID: 730 Comm: llvmpipe-0 Not tainted 5.13.0-
+rc3linux-v5.13-rc3-for-mesa-ci-87614d7f3282.tar.bz2 #1
+[   47.719739] Hardware name: ChromiumOS crosvm, BIOS 0 
+[   47.720656] RIP: 0010:skb_panic+0x43/0x45
+[   47.721426] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00 00 50
+ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 78 ae ef b7 e8 7f 4c fb
+ff <0f> 0b 48 8b 14 24 48 c7 c1 a0 22 d1 b7 e8 ab ff ff ff 48 c7 c6 e0
+[   47.725944] RSP: 0000:ffffacec01347c20 EFLAGS: 00010246
+[   47.726735] RAX: 000000000000008b RBX: 0000000000000010 RCX:
+00000000ffffdfff
+[   47.727820] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
+0000000000000000
+[   47.729096] RBP: ffffeb2700792380 R08: ffffffffb8144b08 R09:
+0000000000009ffb
+[   47.730260] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
+ffff9e1e1e95b300
+[   47.731411] R13: 0000000000000000 R14: ffff9e1e1e48e000 R15:
+0000000000000eb2
+[   47.732541] FS:  00007f3a82b53700(0000) GS:ffff9e1f2bd00000(0000)
+knlGS:0000000000000000
+[   47.733858] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   47.734813] CR2: 00000000010d24f8 CR3: 0000000012d6e004 CR4:
+0000000000370ee0
+[   47.735968] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[   47.737091] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[   47.738318] Call Trace:
+[   47.738812]  skb_put.cold+0x10/0x10
+[   47.739450]  page_to_skb+0xe4/0x400
+[   47.740072]  receive_buf+0x86/0x1660
+[   47.740693]  ? inet_gro_receive+0x54/0x2c0
+[   47.741279]  ? dev_gro_receive+0x194/0x6a0
+[   47.741846]  virtnet_poll+0x2b8/0x3c0
+[   47.742357]  __napi_poll+0x25/0x150
+[   47.742844]  net_rx_action+0x22f/0x280
+[   47.743388]  __do_softirq+0xba/0x264
+[   47.743947]  irq_exit_rcu+0x90/0xb0
+[   47.744435]  common_interrupt+0x40/0xa0
+[   47.744978]  ? asm_common_interrupt+0x8/0x40
+[   47.745582]  asm_common_interrupt+0x1e/0x40
+[   47.746182] RIP: 0033:0x7f3a7a276ed4
+[   47.746708] Code: a0 03 00 00 c5 fc 29 84 24 40 0f 00 00 c5 bc 54 c8
+c5 7c 28 84 24 80 01 00 00 c5 bc 59 e9 c5 fe 5b ed c5 fd 76 c0 c5 d5 fa
+c0 <c5> fd db ec c5 fd 7f 84 24 20 0f 00 00 c5 fc 5b ed c4 e2 55 b8 cb
+[   47.749292] RSP: 002b:00007f3a82b4dba0 EFLAGS: 00000212
+[   47.750006] RAX: 00007f3a8c210324 RBX: ffffffffffffffff RCX:
+ffffffffffffffff
+[   47.750964] RDX: 00007f3a8c210348 RSI: 00007f3a8c21034c RDI:
+00007f3a7c0575a0
+[   47.752049] RBP: 00007f3a82b52ca0 R08: 00007f3a8c210350 R09:
+00007f3a8c210354
+[   47.753161] R10: 00007f3a8c210358 R11: 000000000000ffef R12:
+00007f3a8c210340
+[   47.754260] R13: 00007f3a8c210344 R14: 00007f3a7c057580 R15:
+00007f3a8c21033c
+[   47.755354] Modules linked in:
+[   47.755871] ---[ end trace a8b692ea99c9cd9e ]---
+[   47.756606] RIP: 0010:skb_panic+0x43/0x45
+[   47.757297] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00 00 50
+ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 78 ae ef b7 e8 7f 4c fb
+ff <0f> 0b 48 8b 14 24 48 c7 c1 a0 22 d1 b7 e8 ab ff ff ff 48 c7 c6 e0
+[   47.760168] RSP: 0000:ffffacec01347c20 EFLAGS: 00010246
+[   47.760896] RAX: 000000000000008b RBX: 0000000000000010 RCX:
+00000000ffffdfff
+[   47.761903] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
+0000000000000000
+[   47.762945] RBP: ffffeb2700792380 R08: ffffffffb8144b08 R09:
+0000000000009ffb
+[   47.764059] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
+ffff9e1e1e95b300
+[   47.765169] R13: 0000000000000000 R14: ffff9e1e1e48e000 R15:
+0000000000000eb2
+[   47.766261] FS:  00007f3a82b53700(0000) GS:ffff9e1f2bd00000(0000)
+knlGS:0000000000000000
+[   47.767512] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[   47.768389] CR2: 00000000010d24f8 CR3: 0000000012d6e004 CR4:
+0000000000370ee0
+[   47.769381] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+0000000000000000
+[   47.770362] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+0000000000000400
+[   47.771339] Kernel panic - not syncing: Fatal exception in interrupt
+[   47.772814] Kernel Offset: 0x35c00000 from 0xffffffff81000000
+(relocation range: 0xffffffff80000000-0xffffffffbfffffff)
 
-However, the author of this patch failed to realise that all the
-accessors are using that particular index instead of the register
-encoding, resulting in all the registers hitting index 0. Not quite
-a valid implementation of the architecture...
+I've been able to bisect the issue a little bit and the issue
+disappeared after reverting the 4 following commits:
+ * fb32856b16ad9d5bcd75b76a274e2c515ac7b9d7
+ * af39c8f72301b268ad8b04bae646b6025918b82b
+ * f5d7872a8b8a3176e65dc6f7f0705ce7e9a699e6
+ * f80bd740cb7c954791279590b2e810ba6c214e52
 
-Address the issue by fixing all the accessors to use the CRm field
-of the encoding, which contains the debug register index.
+Here is my kernel config: 
+https://gitlab.freedesktop.org/tintou/mesa/-/blob/e5d6c56bfae8522e924217883d2c6a6bfc1b332b/.gitlab-ci/container/x86_64.config
 
-Fixes: 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on reset")
-Reported-by: Ricardo Koller <ricarkol@google.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
----
- arch/arm64/kvm/sys_regs.c | 42 +++++++++++++++++++--------------------
- 1 file changed, 21 insertions(+), 21 deletions(-)
-
-diff --git a/arch/arm64/kvm/sys_regs.c b/arch/arm64/kvm/sys_regs.c
-index fe97b2ad82b9..98e8bc919583 100644
---- a/arch/arm64/kvm/sys_regs.c
-+++ b/arch/arm64/kvm/sys_regs.c
-@@ -426,14 +426,14 @@ static bool trap_bvr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -441,7 +441,7 @@ static bool trap_bvr(struct kvm_vcpu *vcpu,
- static int set_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -451,7 +451,7 @@ static int set_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -461,21 +461,21 @@ static int get_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_bvr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm] = rd->val;
- }
- 
- static bool trap_bcr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -483,7 +483,7 @@ static bool trap_bcr(struct kvm_vcpu *vcpu,
- static int set_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -494,7 +494,7 @@ static int set_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -504,22 +504,22 @@ static int get_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_bcr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm] = rd->val;
- }
- 
- static bool trap_wvr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write,
--		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg]);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write,
-+		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm]);
- 
- 	return true;
- }
-@@ -527,7 +527,7 @@ static bool trap_wvr(struct kvm_vcpu *vcpu,
- static int set_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -537,7 +537,7 @@ static int set_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -547,21 +547,21 @@ static int get_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_wvr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm] = rd->val;
- }
- 
- static bool trap_wcr(struct kvm_vcpu *vcpu,
- 		     struct sys_reg_params *p,
- 		     const struct sys_reg_desc *rd)
- {
--	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (p->is_write)
- 		reg_to_dbg(vcpu, p, dbg_reg);
- 	else
- 		dbg_to_reg(vcpu, p, dbg_reg);
- 
--	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
-+	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
- 
- 	return true;
- }
-@@ -569,7 +569,7 @@ static bool trap_wcr(struct kvm_vcpu *vcpu,
- static int set_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 		const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -579,7 +579,7 @@ static int set_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static int get_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- 	const struct kvm_one_reg *reg, void __user *uaddr)
- {
--	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
-+	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
- 
- 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
- 		return -EFAULT;
-@@ -589,7 +589,7 @@ static int get_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
- static void reset_wcr(struct kvm_vcpu *vcpu,
- 		      const struct sys_reg_desc *rd)
- {
--	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg] = rd->val;
-+	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm] = rd->val;
- }
- 
- static void reset_amair_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
--- 
-2.30.2
+Regards,
+Corentin
 
