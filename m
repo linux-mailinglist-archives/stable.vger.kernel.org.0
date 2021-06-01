@@ -2,92 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 491CD3972A0
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 13:42:52 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E7AA3972AE
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 13:44:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230288AbhFALob (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 07:44:31 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44590 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230308AbhFALob (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 07:44:31 -0400
-Received: from mail-io1-xd29.google.com (mail-io1-xd29.google.com [IPv6:2607:f8b0:4864:20::d29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62579C061574
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 04:42:49 -0700 (PDT)
-Received: by mail-io1-xd29.google.com with SMTP id h7so806108iok.8
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 04:42:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to;
-        bh=psPAB9NqHofPPQuOtyDnz2jywzmWciM0sLALrIheAbI=;
-        b=oWB9VREBzenyW3LLR7LLy+bhrONuvWzAVRchXRYWFhBPdnTFvAHwhBpq0gbDscQLfn
-         UJ9rdp4D3SGz8YKUF+trqOSfeV6GHj0jF8UxKqwyxWjCzzYW06q8FVSNBaoJExoVEke5
-         HcdnzwJ9s3ntfI1opLOqHMoLE0eXAa4Eo7+ql3SSd/h7j6Kv1RY+Eguc4x3ZxgzN4msu
-         EEXNS1Pm+E22v6/DDX5gEs34g88CBbEttP9af9z9opnz1SZk2upSMAEzRIJfSUjkj5bi
-         wPSIX4UXTStSwgpVX7lwjHRerxnB5Zn26U/DRdlvoG/nTOsyTRR1FiNDpeE+AXzNieYK
-         8aKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to;
-        bh=psPAB9NqHofPPQuOtyDnz2jywzmWciM0sLALrIheAbI=;
-        b=cY5Gu6Dnla+OdHYmj8MO5YSIpJRU3oSjBulkz0sLnOe6y4BzSD5wmSjKfWtgoga6yX
-         94dpGwRNlpf2LrQKvhwTUUocONGAsPktfqMS7t2PjX2Z9bRZc2io4OyyRH5lJc9oc7Kk
-         5vBDrEc3EZtGsvPzscRMRzNeu3oAoUs9k2imhZnetN5TrvantUipFRctmSuNxlUoi0Lo
-         CXhdE0QrY0xvLQaSNTA1dGWy6nQ/1ZSepjf85qFqCmQiqUnD4fHXpNaJNwvItxxVpYcz
-         KZgBi35gXqUdSjk0RGSyFceu+yasN7ss3X32tpYigeIZwgbSrqwtz349B/9ngoN57SgM
-         FHgg==
-X-Gm-Message-State: AOAM531hilU89ohwXtFmCOmpm1+ubFW4Lspnt88HPdV8h9eAqDAqvmkY
-        iBjxQvUhDNW1waPHEEuxfHIgE/6tYz2E9NnOPlI=
-X-Google-Smtp-Source: ABdhPJxByS5/pWQ1SIv88JzwJsdaSTsYhq85MNk4hM/rnpv/V/bw25/4G54zwAZy6QRtYlP03K0X9kLcXrtW3Oc9j2U=
-X-Received: by 2002:a05:6638:2728:: with SMTP id m40mr25090602jav.55.1622547768765;
- Tue, 01 Jun 2021 04:42:48 -0700 (PDT)
-MIME-Version: 1.0
-Reply-To: patzengu@outlook.com
-Sender: jamesmarcus570@gmail.com
-Received: by 2002:a4f:612:0:0:0:0:0 with HTTP; Tue, 1 Jun 2021 04:42:48 -0700 (PDT)
-From:   Patrice Zengu <rm2568590@gmail.com>
-Date:   Tue, 1 Jun 2021 13:42:48 +0200
-X-Google-Sender-Auth: j9GB33snZ0LVJo0OYevnKFj52wc
-Message-ID: <CAB5Sy2iGQWBJ3JLAqjiPJdA11vm7=T3k-KPRbeZO_CcXX_+GNg@mail.gmail.com>
-Subject: Please co-operate with me
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+        id S233750AbhFALqM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 07:46:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55576 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233703AbhFALqM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 07:46:12 -0400
+Received: from disco-boy.misterjones.org (disco-boy.misterjones.org [51.254.78.96])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.kernel.org (Postfix) with ESMTPSA id 0A177610A0;
+        Tue,  1 Jun 2021 11:44:31 +0000 (UTC)
+Received: from 78.163-31-62.static.virginmediabusiness.co.uk ([62.31.163.78] helo=why.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <maz@kernel.org>)
+        id 1lo2ov-004o6Y-3K; Tue, 01 Jun 2021 12:44:29 +0100
+Date:   Tue, 01 Jun 2021 12:44:28 +0100
+Message-ID: <87v96x24ir.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Zenghui Yu <yuzenghui@huawei.com>
+Cc:     <stable@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+        <gregkh@linuxfoundation.org>, <sashal@kernel.org>,
+        <alexandru.elisei@arm.com>, <wanghaibin.wang@huawei.com>
+Subject: Re: [PATCH stable-5.12.y backport 1/2] KVM: arm64: Commit pending PC adjustemnts before returning to userspace
+In-Reply-To: <20210601111238.1059-2-yuzenghui@huawei.com>
+References: <20210601111238.1059-1-yuzenghui@huawei.com>
+        <20210601111238.1059-2-yuzenghui@huawei.com>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/27.1
+ (x86_64-pc-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 62.31.163.78
+X-SA-Exim-Rcpt-To: yuzenghui@huawei.com, stable@vger.kernel.org, linux-kernel@vger.kernel.org, gregkh@linuxfoundation.org, sashal@kernel.org, alexandru.elisei@arm.com, wanghaibin.wang@huawei.com
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Zenghui,
+
+Thanks for having a go at the backport.
+
+On Tue, 01 Jun 2021 12:12:37 +0100,
+Zenghui Yu <yuzenghui@huawei.com> wrote:
+> 
+> From: Marc Zyngier <maz@kernel.org>
+> 
+> commit 26778aaa134a9aefdf5dbaad904054d7be9d656d upstream.
+> 
+> KVM currently updates PC (and the corresponding exception state)
+> using a two phase approach: first by setting a set of flags,
+> then by converting these flags into a state update when the vcpu
+> is about to enter the guest.
+> 
+> However, this creates a disconnect with userspace if the vcpu thread
+> returns there with any exception/PC flag set. In this case, the exposed
+> context is wrong, as userspace doesn't have access to these flags
+> (they aren't architectural). It also means that these flags are
+> preserved across a reset, which isn't expected.
+> 
+> To solve this problem, force an explicit synchronisation of the
+> exception state on vcpu exit to userspace. As an optimisation
+> for nVHE systems, only perform this when there is something pending.
+> 
+> Reported-by: Zenghui Yu <yuzenghui@huawei.com>
+> Reviewed-by: Alexandru Elisei <alexandru.elisei@arm.com>
+> Reviewed-by: Zenghui Yu <yuzenghui@huawei.com>
+> Tested-by: Zenghui Yu <yuzenghui@huawei.com>
+> Signed-off-by: Marc Zyngier <maz@kernel.org>
+> Cc: stable@vger.kernel.org # 5.11
+> [yuz: stable-5.12.y backport: add __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc
+>  macro manually and keep it consistent with mainline]
+
+I'd rather you allocated a new number here, irrespective of what
+mainline has (rational below).
+
+> Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
+> ---
+>  arch/arm64/include/asm/kvm_asm.h   |  1 +
+>  arch/arm64/kvm/arm.c               | 11 +++++++++++
+>  arch/arm64/kvm/hyp/exception.c     |  4 ++--
+>  arch/arm64/kvm/hyp/nvhe/hyp-main.c |  8 ++++++++
+>  4 files changed, 22 insertions(+), 2 deletions(-)
+> 
+> diff --git a/arch/arm64/include/asm/kvm_asm.h b/arch/arm64/include/asm/kvm_asm.h
+> index a8578d650bb6..d7f769bb6c9c 100644
+> --- a/arch/arm64/include/asm/kvm_asm.h
+> +++ b/arch/arm64/include/asm/kvm_asm.h
+> @@ -57,6 +57,7 @@
+>  #define __KVM_HOST_SMCCC_FUNC___kvm_get_mdcr_el2		12
+>  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_save_aprs		13
+>  #define __KVM_HOST_SMCCC_FUNC___vgic_v3_restore_aprs		14
+> +#define __KVM_HOST_SMCCC_FUNC___kvm_adjust_pc			21
+
+This is going to generate a larger than necessary host_hcall array in
+hyp/nvhe/hyp-main.c, which we're trying to keep tightly packed for
+obvious reasons.
+
+With this nit fixed:
+
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+
+Thanks,
+
+	M.
+
 -- 
-Dear Friend,
-
-I am Mr.Patrice Zengu ,from Burkina Faso and i am the new bank telex
-manager of our bank here in Africa.
-
-I have the opportunity to transfer the sum of US$ 10.5Million to your
-bank account which i personally placed on an Escrow account without a
-name.
-
-I must tell you that after revision of files both old and new as the
-new telex manager ,i discovered that if these funds remains here
-without transferring it offshore,it will be lawfully recovered
-andmoved to the  Government of Burkina Faso treasury as an abandoned
-funds without any name.
-
-I want to let you know that a Burkinabe cannot stand as the depositor
-of these US dollars  since we are not allowed to operate on foreign
-currrency.I do not intend to work  and stay in Africa till the rest of
-my life.
-
-Moreso,i will not want my bank to know about these funds and if they
-happens to know probably,the funds will be moved to the Burkina Faso
-Government public treasury as an abandoned funds.
-
-I will furnish you with more details of this transfer and how it ca
-nbe perfectly and legally executed without any hitch since i am now in
-control.
-
-I am waiting to hear from you urgently to proceed.
-
-
-Yours sincerely,
-Mr.Patrice Zengu.
+Without deviation from the norm, progress is not possible.
