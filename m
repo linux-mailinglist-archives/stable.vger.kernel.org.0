@@ -2,224 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62C21396CCD
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 07:30:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F7D396D00
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 07:50:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232691AbhFAFbz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 01:31:55 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44338 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232732AbhFAFby (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 01:31:54 -0400
-Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35911C061574
-        for <stable@vger.kernel.org>; Mon, 31 May 2021 22:18:38 -0700 (PDT)
-Received: by mail-ed1-x52f.google.com with SMTP id s6so15709195edu.10
-        for <stable@vger.kernel.org>; Mon, 31 May 2021 22:18:38 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=5Y1aD/mhYzZNlmN8zlF6a252/zpnt3wSAmr/T0bADys=;
-        b=ryodzXOwQxwL3aLrspdlr1NAu++cAPzy0oA79UesMBDSH3kH1cf20gBgZNax6nz/WA
-         3Aq321jtIlj63r/YAYGkNf+V3Z8czVPtno0hiScUwkZrdK3Yg1Z/WEDEIOqqjUv+py9O
-         LLJgVOdwbWL0YKEw0A9p3DmvGbqZd0wiWZMg+Gzo+Gmj6+VMkfzFZ3lrtp3BctWz5mLy
-         bttYC/DTTMQ+44H3xxDEIuCx/Naam5BtC3eHfy5hLthE1b6lK0C8fQaiJZKqTeWiC3ZL
-         AbI+HRhreK+/b8ejCuS/TmUhYJFNG4UHIIVQx/iXs4XWqnKH/FHXdXbGnndozAhqrbOM
-         VtgA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=5Y1aD/mhYzZNlmN8zlF6a252/zpnt3wSAmr/T0bADys=;
-        b=I5hS77xhOgZ1+vQSMDxm20NRpGerLPLCkPaS5QtIbrWo575fmTZfrE5w32BTgz0a20
-         J3pwzgMzFyignEZliOOzSRhf4//NYtbkCCJu7Ya0/e5lfmXVXw0DDepNsfF8zYOFZQCF
-         NFR8G1Ik3pW78s2pMQokNwghOBDQxhgXruJqe/OFwozaKXpC0PBrUO3VN+rM2SaA8F6M
-         pZPhR6j/+F9KgPIu0URGTbmmRofnI9mTgfC/V7x/1h91kw3u6mHIZGDCZCO/gyWD8GdP
-         5/X6kBqsjZaPX7AUHSJVRiqrX7tRaTQ5CZWvXQk5JQ60O4GHGRumYuDTOuleJt/zyLZu
-         7ftQ==
-X-Gm-Message-State: AOAM531eEEnPdY6c51XsHLjY2V9vWJXzG58rLsg7gNVZD0lHg9HhO0g1
-        1x65Y/K53TgVk6ZtCseiCKUhBtkHOa4VgX/iMG4gEQ==
-X-Google-Smtp-Source: ABdhPJws6eazEJDMFUV7K/t2UAF5BhnqHE3Pc9O2LlB8ty5fj+dJDbe2wE1GcMu3uB2wJjj71qlIonwn21a2wV9jvHM=
-X-Received: by 2002:a50:9346:: with SMTP id n6mr29589751eda.365.1622524716739;
- Mon, 31 May 2021 22:18:36 -0700 (PDT)
+        id S229477AbhFAFvq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 01:51:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56798 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S232915AbhFAFvo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 01:51:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPS id 9F246613AB;
+        Tue,  1 Jun 2021 05:50:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622526603;
+        bh=VCzH3BoPB2RIkvJY/BJI5kw9URxgsqORyWnXV23YrXo=;
+        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+        b=pNOP2ymdMgMzC+vdpEpQ0qwOcs2aKyGRV2rch8h7m3jVexxV1WcObbdP9J9YUWjCj
+         1RRhh/bv33KrCYLsTQMIShCZZXu19onh2uozrNj5nXYlt2xSgU2JEqLV/+5GTTCbFs
+         AOD0OyCLC+C36Bi0NbVM4AtlukMLKKy5PDp4Ig/qI/jUBjHUCQquf8rTTtUFKaWWQC
+         LzCm28NiZTHmJS/LovD4zjpsLQb+Vg/wBIqcADATkdHRRqC3XE+goF66Ap58sBpu/6
+         voBB6rgvtib/Onzb2WMsCh6HvUO+y2vM4Ka3S9rgrSHH2AOtONxM8e74JOCnkMqIBL
+         yD9gDaCWoRl0Q==
+Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
+        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 94BB7609D9;
+        Tue,  1 Jun 2021 05:50:03 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210531130703.762129381@linuxfoundation.org>
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Jun 2021 10:48:25 +0530
-Message-ID: <CA+G9fYuO-uwwuj3DvnaKgN00mBAizA2dRLiv-jS+-bD+e1ppFQ@mail.gmail.com>
-Subject: Re: [PATCH 5.12 000/296] 5.12.9-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+Subject: Re: [RESEND PATCH] nfc: fix NULL ptr dereference in llcp_sock_getname()
+ after failed connect
+From:   patchwork-bot+netdevbpf@kernel.org
+Message-Id: <162252660360.4642.10005433752607898965.git-patchwork-notify@kernel.org>
+Date:   Tue, 01 Jun 2021 05:50:03 +0000
+References: <20210531072138.5219-1-krzysztof.kozlowski@canonical.com>
+In-Reply-To: <20210531072138.5219-1-krzysztof.kozlowski@canonical.com>
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Cc:     davem@davemloft.net, kuba@kernel.org, linville@tuxdriver.com,
+        sameo@linux.intel.com, linux-nfc@lists.01.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        thadeu.cascardo@canonical.com, stable@vger.kernel.org,
+        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
+        butterflyhuangxx@gmail.com
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 May 2021 at 19:26, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.12.9 release.
-> There are 296 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.12.9-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.12.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Hello:
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This patch was applied to netdev/net.git (refs/heads/master):
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+On Mon, 31 May 2021 09:21:38 +0200 you wrote:
+> It's possible to trigger NULL pointer dereference by local unprivileged
+> user, when calling getsockname() after failed bind() (e.g. the bind
+> fails because LLCP_SAP_MAX used as SAP):
+> 
+>   BUG: kernel NULL pointer dereference, address: 0000000000000000
+>   CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
+>   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
+>   Call Trace:
+>    llcp_sock_getname+0xb1/0xe0
+>    __sys_getpeername+0x95/0xc0
+>    ? lockdep_hardirqs_on_prepare+0xd5/0x180
+>    ? syscall_enter_from_user_mode+0x1c/0x40
+>    __x64_sys_getpeername+0x11/0x20
+>    do_syscall_64+0x36/0x70
+>    entry_SYSCALL_64_after_hwframe+0x44/0xae
+> 
+> [...]
 
-## Build
-* kernel: 5.12.9-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.12.y
-* git commit: 327e3cf768fb44b16c21a0589a492bf7bccef28b
-* git describe: v5.12.7-305-g327e3cf768fb
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.12.y/build/v5.12=
-.7-305-g327e3cf768fb
+Here is the summary with links:
+  - [RESEND] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
+    https://git.kernel.org/netdev/net/c/4ac06a1e013c
 
-## No regressions (compared to v5.12.7-8-g6fc814b4a8b3)
-
-## No fixes (compared to v5.12.7-8-g6fc814b4a8b3)
-
-## Test result summary
- total: 76833, pass: 64662, fail: 605, skip: 10956, xfail: 610,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* i386: 25 total, 25 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
+You are awesome, thank you!
 --
-Linaro LKFT
-https://lkft.linaro.org
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
