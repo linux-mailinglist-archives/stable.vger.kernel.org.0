@@ -2,121 +2,232 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 306FF3979C0
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:08:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A9A03979C4
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:08:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233971AbhFASKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 14:10:06 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48368 "EHLO
+        id S234637AbhFASKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 14:10:17 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231918AbhFASKG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 14:10:06 -0400
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85B3CC061574
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 11:08:24 -0700 (PDT)
-Received: by mail-pj1-x102f.google.com with SMTP id lx17-20020a17090b4b11b029015f3b32b8dbso1941522pjb.0
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 11:08:24 -0700 (PDT)
+        with ESMTP id S234675AbhFASKP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 14:10:15 -0400
+Received: from mail-pf1-x42f.google.com (mail-pf1-x42f.google.com [IPv6:2607:f8b0:4864:20::42f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F450C06174A
+        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 11:08:32 -0700 (PDT)
+Received: by mail-pf1-x42f.google.com with SMTP id x18so111184pfi.9
+        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 11:08:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=DnmoH9bekRYpYwPbGnzt8MqfxFmGQVDBVeFrYtSfJAg=;
-        b=jNgEdYIMirBHf1RlWUpV+0XMt7t6M9Qb3u+Dm5b2Ko72L5Q/aswYluWEgM0Cf1LWE4
-         hZ4M7fWl9C2A90MzYiCfu3In2kwCEUcJN5Zc0GAfv75NTC6ApAs0DyLtLGT5urQTNFrG
-         7bLFUJEzE9nVbsd9R+hdLTvVTbmopnWQzV0xR04k/6p3ClNRirj1x4wRe6nIlNCbWV4P
-         eWrRfI9TcM8sHd6WRL1CPUWeYcmxdECAYdhZRpp9sQDHsU7hqycvpMxzdAFmdAg7h53z
-         dCD/VRxEBLWSQ8ecq+4dmDVENZe1rttV1r5JRy+1TOOdWU1A5y1e0hi3zd5sn6bMbQ4K
-         eI/w==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=i2u2TVliPNnM2mpR3QPztFbNJdChqf/702UDfLxlfn0=;
+        b=anyJNxl7eib20yqI2kuvkICL7gAdzbfru2o15R8pZd7NxFglEI6p+2jW+r5Po47XYg
+         8juaVUF+oTKFNaUxnrXV6PYW3pCeYTmtl4XcWK5du3L3rAmhAUBOtgPzK2yk8JkEyDMJ
+         4NTeRTpRc49nStg65elBORX8L4n/0DuUWgL8ihT27/+BqXd091zYVdO85rhsN5W9pEyO
+         JTVuHYJf5BoQ60b9/6YJ4wD4TI1Lka9fZqG/FhnwICT/OWAuhUZwdyRtNayXexCRHURx
+         D+18mnJPA1P/5SRLlPsfaJsbFQnwuZmclt8MKc2qOypLPS5zHOQcozSclECECaSi/7B8
+         mIxQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=DnmoH9bekRYpYwPbGnzt8MqfxFmGQVDBVeFrYtSfJAg=;
-        b=cLG8AFdesjyaX5WPheHdmmk+tHWfJMc6KWC6lN3hgjgcZozwpQXVR6E/1NicLEsVHt
-         E09CARHhtrX/FGKND19dKdaeHSQlI2YRjiHaIZ3W9ZlgEEEx/shOd+y8fzQq2D+0325E
-         TxQdfKz23RY2kWHal7D+OrtdTBcZ2jsZ10EA28j+Jnd36wzxvLrMdXdvhHTQwcNdUPZ+
-         CxJF5O66g0ZfaqkCQj9e8h4fgqjo+QINK+1rjZuzaCLHh6YpPKlSEBx3Fu3XIx0BtOig
-         G03jha3tofUpCAUPdoh+Z1eisUQDG75CLQ31E5HWbLGnQMh4WMW6c4nh49ozv+jvP1Vz
-         ez1g==
-X-Gm-Message-State: AOAM531OsRZoIvLHsRU7oaUOz+1OqTc6YZALg7tGfumRs85Okx/xK59h
-        7GAbEMCUWmN+u/F2fgtn73X5Lw==
-X-Google-Smtp-Source: ABdhPJxKXC66gotDOyho4nO17wIW1CBqdGqeINp4HW5tpxGXIBnz8OWQp2+0yigdIN5+oThSwjq6Qg==
-X-Received: by 2002:a17:90b:17c9:: with SMTP id me9mr1124647pjb.13.1622570903889;
-        Tue, 01 Jun 2021 11:08:23 -0700 (PDT)
-Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
-        by smtp.gmail.com with ESMTPSA id mr23sm909701pjb.12.2021.06.01.11.08.23
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=i2u2TVliPNnM2mpR3QPztFbNJdChqf/702UDfLxlfn0=;
+        b=iejl2uhcBawWXdjMp6rhUArbbe3TOk5nMKXoGl+lE/u/PvmEJD/MMSRIYIi+6r9VWn
+         TuP63Eb+WUuWu9+GgX+30LU/Usz4F6fudpbJ1RPNIjNP4LfV5rkx+QJxCSmBdVzyUBc8
+         4YRsQMMm3/Gk1WEa0hF1FFQ7MuVxfeGxR1L+0NXQij4N0vj3IJL/gwJJDeuq/vok3Z+7
+         X+tO8gA4rcTh2u6bOJeJUfWgmufQ30Sxl3Qzo9e1+oKMuTwdFbRY5+F7LDqKoJpkDNJr
+         E095M66eL754DruLvR0Qsf1+oS/0N+AFClG6Ts6/uQt6tNWjMVfpP8fl7rLaQ0RqeM5g
+         uyvA==
+X-Gm-Message-State: AOAM532KLPiduWI8/CrrU6aIrb2AIoH0PZaNAQAn46h1rWR/lRuukKiJ
+        W3zZwlQaA+jjiAodFLxWVUEONs12d81oWeRA
+X-Google-Smtp-Source: ABdhPJxgAev2a0ccEFqsEJYQ59MjzLmlOir2b2txZEp0XGXKW2TVkKtO4tvk0QocxjzxB1kj4J8/EQ==
+X-Received: by 2002:a63:5522:: with SMTP id j34mr16774494pgb.148.1622570911523;
+        Tue, 01 Jun 2021 11:08:31 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id i5sm9342367pfc.139.2021.06.01.11.08.31
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jun 2021 11:08:23 -0700 (PDT)
-Date:   Tue, 1 Jun 2021 18:08:19 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     Tom Lendacky <thomas.lendacky@amd.com>, Pu Wen <puwen@hygon.cn>,
-        Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
-        joro@8bytes.org, dave.hansen@linux.intel.com, peterz@infradead.org,
-        tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
-        sashal@kernel.org, gregkh@linuxfoundation.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/sev: Check whether SEV or SME is supported first
-Message-ID: <YLZ3k77CK+F9v8fF@google.com>
-References: <YK6E5NnmRpYYDMTA@google.com>
- <905ecd90-54d2-35f1-c8ab-c123d8a3d9a0@hygon.cn>
- <YLSuRBzM6piigP8t@suse.de>
- <e1ad087e-a951-4128-923e-867a8b38ecec@hygon.cn>
- <YLZGuTYXDin2K9wx@zn.tnic>
- <YLZc3sFKSjpd2yPS@google.com>
- <dbc4e48f-187a-4b2d-2625-b62d334f60b2@amd.com>
- <YLZneRWzoujEe+6b@zn.tnic>
- <YLZrXEQ8w5ntu7ov@google.com>
- <YLZy+JR7TNEeNA6C@zn.tnic>
+        Tue, 01 Jun 2021 11:08:31 -0700 (PDT)
+Message-ID: <60b6779f.1c69fb81.3e144.c304@mx.google.com>
+Date:   Tue, 01 Jun 2021 11:08:31 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YLZy+JR7TNEeNA6C@zn.tnic>
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.234-84-g5435e59b434c
+X-Kernelci-Branch: queue/4.14
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/4.14 baseline: 157 runs,
+ 4 regressions (v4.14.234-84-g5435e59b434c)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 01, 2021, Borislav Petkov wrote:
-> On Tue, Jun 01, 2021 at 05:16:12PM +0000, Sean Christopherson wrote:
-> > The bug isn't limited to out-of-spec hardware.  At the point of #GP, sme_enable()
-> > has only verified the max leaf is greater than 0x8000001f, it has not verified
-> > that 0x8000001f is actually supported.  The APM itself declares several leafs
-> > between 0x80000000 and 0x8000001f as reserved/unsupported, so we can't argue that
-> > 0x8000001f must be supported if the max leaf is greater than 0x8000001f.
-> 
-> If a hypervisor says that 0x8000001f is supported but then we explode
-> when reading MSR_AMD64_SEV, then hypervisor gets to keep both pieces.
+stable-rc/queue/4.14 baseline: 157 runs, 4 regressions (v4.14.234-84-g5435e=
+59b434c)
 
-But in my scenario, the hypervisor has not said that 0x8000001f is valid, it has
-only said that at least one leaf > 0x8000001f is valid.
+Regressions Summary
+-------------------
 
-E.g. if a (virtual) CPU supports CPUID ranges:
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+fsl-ls2088a-rdb   | arm64 | lab-nxp       | gcc-8    | defconfig          |=
+ 1          =
 
-  0x80000000 - 0x8000000A
-  0x80000020 - 0x80000021
+meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
+ 1          =
 
-then the below check will pass as eax will be 0x80000021.
+qemu_i386         | i386  | lab-broonie   | gcc-8    | i386_defconfig     |=
+ 1          =
 
-	/* Check for the SME/SEV support leaf */
-	eax = 0x80000000;
-	ecx = 0;
-	native_cpuid(&eax, &ebx, &ecx, &edx);
-	if (eax < 0x8000001f)
-		return;
+tegra124-nyan-big | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 1          =
 
-But we have not yet verified that 0x8000001f is supported, only that the result
-of CPUID.0x8000001f can be trusted (to handle Intel CPUs which return data from
-the highest supported leaf if the provided leaf function is greater than the max
-supported leaf).  Verifying that 0x8000001f is supported doesn't happen until
-0x8000001f is actually read, which is currently done after the RDMSR that #GPs
-and explodes.
 
-> We're not going to workaround all possible insane hardware/hypervisor
-> configurations just because they dropped the ball.
-> 
-> -- 
-> Regards/Gruss,
->     Boris.
-> 
-> https://people.kernel.org/tglx/notes-about-netiquette
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.14/ker=
+nel/v4.14.234-84-g5435e59b434c/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/4.14
+  Describe: v4.14.234-84-g5435e59b434c
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      5435e59b434cd77e9e587ac2b68f2751e3fa1fd1 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+fsl-ls2088a-rdb   | arm64 | lab-nxp       | gcc-8    | defconfig          |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b63d1c21871bd83bb3af98
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm64/defconfig/gcc-8/lab-nxp/baseline-fsl-ls2088a-rdb.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b63d1c21871bd83bb3a=
+f99
+        new failure (last pass: v4.14.234-78-g1558b596dfa2) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+meson-gxm-q200    | arm64 | lab-baylibre  | gcc-8    | defconfig          |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b63ec700cdfdf087b3afad
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q20=
+0.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b63ec700cdfdf087b3a=
+fae
+        failing since 92 days (last pass: v4.14.222-11-g13b8482a0f700, firs=
+t fail: v4.14.222-120-gdc8887cba23e) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+qemu_i386         | i386  | lab-broonie   | gcc-8    | i386_defconfig     |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b63c02355003184fb3af97
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/i386/i386_defconfig/gcc-8/lab-broonie/baseline-qemu_i386.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b63c02355003184fb3a=
+f98
+        new failure (last pass: v4.14.234-78-gbf651a64dd24) =
+
+ =
+
+
+
+platform          | arch  | lab           | compiler | defconfig          |=
+ regressions
+------------------+-------+---------------+----------+--------------------+=
+------------
+tegra124-nyan-big | arm   | lab-collabora | gcc-8    | multi_v7_defconfig |=
+ 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b657cfa4ad1008ebb3affa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-tegra=
+124-nyan-big.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.14/v4.14.234=
+-84-g5435e59b434c/arm/multi_v7_defconfig/gcc-8/lab-collabora/baseline-tegra=
+124-nyan-big.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b657cfa4ad1008ebb3a=
+ffb
+        new failure (last pass: v4.14.234-79-g1cf75ca15187) =
+
+ =20
