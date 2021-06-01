@@ -2,81 +2,87 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D7F7D396D00
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 07:50:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3E6396D80
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 08:40:30 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229477AbhFAFvq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 01:51:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56798 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232915AbhFAFvo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 1 Jun 2021 01:51:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPS id 9F246613AB;
-        Tue,  1 Jun 2021 05:50:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622526603;
-        bh=VCzH3BoPB2RIkvJY/BJI5kw9URxgsqORyWnXV23YrXo=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=pNOP2ymdMgMzC+vdpEpQ0qwOcs2aKyGRV2rch8h7m3jVexxV1WcObbdP9J9YUWjCj
-         1RRhh/bv33KrCYLsTQMIShCZZXu19onh2uozrNj5nXYlt2xSgU2JEqLV/+5GTTCbFs
-         AOD0OyCLC+C36Bi0NbVM4AtlukMLKKy5PDp4Ig/qI/jUBjHUCQquf8rTTtUFKaWWQC
-         LzCm28NiZTHmJS/LovD4zjpsLQb+Vg/wBIqcADATkdHRRqC3XE+goF66Ap58sBpu/6
-         voBB6rgvtib/Onzb2WMsCh6HvUO+y2vM4Ka3S9rgrSHH2AOtONxM8e74JOCnkMqIBL
-         yD9gDaCWoRl0Q==
-Received: from pdx-korg-docbuild-2.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by pdx-korg-docbuild-2.ci.codeaurora.org (Postfix) with ESMTP id 94BB7609D9;
-        Tue,  1 Jun 2021 05:50:03 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [RESEND PATCH] nfc: fix NULL ptr dereference in llcp_sock_getname()
- after failed connect
-From:   patchwork-bot+netdevbpf@kernel.org
-Message-Id: <162252660360.4642.10005433752607898965.git-patchwork-notify@kernel.org>
-Date:   Tue, 01 Jun 2021 05:50:03 +0000
-References: <20210531072138.5219-1-krzysztof.kozlowski@canonical.com>
-In-Reply-To: <20210531072138.5219-1-krzysztof.kozlowski@canonical.com>
+        id S233000AbhFAGmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 02:42:10 -0400
+Received: from out4-smtp.messagingengine.com ([66.111.4.28]:42217 "EHLO
+        out4-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232989AbhFAGmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 02:42:09 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id B34D35C01D1;
+        Tue,  1 Jun 2021 02:40:28 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 01 Jun 2021 02:40:28 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:in-reply-to; s=fm1; bh=3SQOCHYhmE94iQdRM9MpOC8T+Wk
+        EoGFN1ZAYs1lz2Hg=; b=ke+mnos+qObHP3IMmuDePnVN/19K0iJ4gfrgKnNqG9q
+        SsBg7I70n4szd7I52b/aRhzECWKaE9KyuRIgFSFoZ4pjuCw1lNc1/rHIqnQs6R/1
+        V2mAXszTYQ8DRRc22nqYFIkXD9C8qzhYYLzG3gK8EIkI3TpBXzJc7lLbXIc9wEAq
+        H6ifVCvUKwybVoRFRbBbu/cmYquiG1iQSBWzvUVQoZIccrbQaUG9kLfRDQf4fBtC
+        rgJKKO+jwO5OXRQVLl4O2eODU9PiVxmCfq2NjIyWO1A0ccBouW35uCE2mZ5iofJo
+        LduYU9SKh+hIX6KAXKxZCX/aOWys7cvKxcDvg+1TsVQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-type:date:from:in-reply-to
+        :message-id:mime-version:references:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; bh=3SQOCH
+        YhmE94iQdRM9MpOC8T+WkEoGFN1ZAYs1lz2Hg=; b=PWJhTQhkX+n53BwWrCW+sH
+        W5T/gGznEmAwJGJzCHaZTOLWwM1o8gx0iU+GoHrxMQYcvWaQgABAalwvExex7md5
+        NIpya6JkXi0661F95owWro5TTz1TaoTG8mkZr9clVKx5GNSo3lAxwRsCXL7cyNAa
+        NbYUXg/8X0k3kp1KnuxOlXozYpymi2FPaw7CUUkvttUqagbVxizNHX185rELM/N1
+        y8IXrYVMH3d+QloQ0BM2ihgWTRle6cVkHLSRxkNt6oh3ZkBwcqyl+VCai5bPOULH
+        TDUNNZO1GG1fyV6AbO20hqvnm4ZtbRNKdVSLhuh4d5kEBnPr5ZydxQuR8yv9HlZQ
+        ==
+X-ME-Sender: <xms:XNa1YDfErpxWTL9D6EcNB6e36QOtjeBKlkAO10mZhJGHVBhbdbUurQ>
+    <xme:XNa1YJMRXZdizEklSiA7LLjR6aX9L1aFDq9ASkkKG5SjGlCiC-wB437fkZSjGd88T
+    nZ13Dl06yy7Mw>
+X-ME-Received: <xmr:XNa1YMjlTrU4BNgCgEouuNSJ5ay17OcvIlmhgXbyooEJXHKWLbMuvLewoZdV6ugUjgPlmKEjEjRIe2WQw8w_rW30ayML08Sv>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrvdelgedgudduudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepveeuhe
+    ejgfffgfeivddukedvkedtleelleeghfeljeeiueeggeevueduudekvdetnecuvehluhhs
+    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
+    hhrdgtohhm
+X-ME-Proxy: <xmx:XNa1YE_yTJ6_Q0t2kfA35EB9y-MXtXfamvUQXlR012c4ttZzsy-Cgg>
+    <xmx:XNa1YPvpjaeDvJkeH1Jjtlu16mEBjWPclZleid-CeC6XAVhj9fkCkg>
+    <xmx:XNa1YDG-7rUB5fDvHNpvHTcGAMeaCTBWXvUHFHuiUyG1OAUomDKtRg>
+    <xmx:XNa1YFDQIv3VnQK2eTpMurmMmsqDSOmKhYYuwBM9Ssw5FK1lj0kSrA>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 1 Jun 2021 02:40:28 -0400 (EDT)
+Date:   Tue, 1 Jun 2021 08:40:25 +0200
+From:   Greg KH <greg@kroah.com>
 To:     Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
-Cc:     davem@davemloft.net, kuba@kernel.org, linville@tuxdriver.com,
-        sameo@linux.intel.com, linux-nfc@lists.01.org,
-        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        thadeu.cascardo@canonical.com, stable@vger.kernel.org,
-        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
-        butterflyhuangxx@gmail.com
+Cc:     stable@vger.kernel.org, Andrea Righi <andrea.righi@canonical.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>
+Subject: Re: [PATCH v3 | stable v5.10 0/3] x86/kvm: fixes for hibernation
+Message-ID: <YLXWWWG7Ut7p3SPE@kroah.com>
+References: <20210531140526.42932-1-krzysztof.kozlowski@canonical.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210531140526.42932-1-krzysztof.kozlowski@canonical.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
-
-This patch was applied to netdev/net.git (refs/heads/master):
-
-On Mon, 31 May 2021 09:21:38 +0200 you wrote:
-> It's possible to trigger NULL pointer dereference by local unprivileged
-> user, when calling getsockname() after failed bind() (e.g. the bind
-> fails because LLCP_SAP_MAX used as SAP):
+On Mon, May 31, 2021 at 04:05:23PM +0200, Krzysztof Kozlowski wrote:
+> Hi,
 > 
->   BUG: kernel NULL pointer dereference, address: 0000000000000000
->   CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
->   Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
->   Call Trace:
->    llcp_sock_getname+0xb1/0xe0
->    __sys_getpeername+0x95/0xc0
->    ? lockdep_hardirqs_on_prepare+0xd5/0x180
->    ? syscall_enter_from_user_mode+0x1c/0x40
->    __x64_sys_getpeername+0x11/0x20
->    do_syscall_64+0x36/0x70
->    entry_SYSCALL_64_after_hwframe+0x44/0xae
+> This is version 2 of a backport for v5.10.
 > 
-> [...]
+> Changes since v2:
+> 1. Rebased v3 of v5.4 version, I kept numbering to be consistent.
+> 2. The context in patch 1/3 had to be adjusted.
 
-Here is the summary with links:
-  - [RESEND] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
-    https://git.kernel.org/netdev/net/c/4ac06a1e013c
+I also need a 5.12.y version of this series before I can apply these to
+older kernel releases.
 
-You are awesome, thank you!
---
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+thanks,
 
-
+greg k-h
