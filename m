@@ -2,58 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5393F396A89
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 03:10:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DAF51396AE8
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 04:14:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232042AbhFABLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 31 May 2021 21:11:55 -0400
-Received: from szxga01-in.huawei.com ([45.249.212.187]:2805 "EHLO
-        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232035AbhFABLz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 21:11:55 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FvDVM1ZLnzWptl;
-        Tue,  1 Jun 2021 09:05:31 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Tue, 1 Jun 2021 09:10:11 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Tue, 1 Jun 2021 09:10:10 +0800
-Subject: Re: [PATCH 5.4 000/177] 5.4.124-rc1 review
+        id S232356AbhFACPl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 31 May 2021 22:15:41 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57612 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232268AbhFACPk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 31 May 2021 22:15:40 -0400
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A3D9C061574;
+        Mon, 31 May 2021 19:14:00 -0700 (PDT)
+Received: by mail-pl1-x636.google.com with SMTP id c13so1127909plz.0;
+        Mon, 31 May 2021 19:14:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=subject:to:cc:references:from:message-id:date:user-agent
+         :mime-version:in-reply-to:content-language:content-transfer-encoding;
+        bh=FiNYOp2WDhjmbZvz+trYR0sYgu9U4pdGAJHnzSHmxdU=;
+        b=VTp/4yXUmP3jNr6GbzZ00yJnxjGd+gK2Sx8YdolKVINXM7cb1+nIBDgbq+tOHW2GLG
+         9HSl3hkt0Qv/GYpWtnsexcs5UnLNDQIRKCcee0Oy/bGuzjvjdpm6E0nTlTyA/D57H46q
+         5HoyGMv7U2sMHyWr4uk0cMsmbibC2sePMgxrg37JM8hNBcha6Q4XdAhApLrxKTtIE6hx
+         l837ZIBlTYwl/qO42YBEfQT9Fv/KkZ8L9MI9Ty63b5trzDgsOBZruAIAEumOFSBhIyDo
+         4zyqZtI9vnsnKvwYYyiRgVoWC/l7wguZ5acMvA0rTXGzLCCRgn4TAqyU5zr/QNIiaC4a
+         4VWA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
+         :user-agent:mime-version:in-reply-to:content-language
+         :content-transfer-encoding;
+        bh=FiNYOp2WDhjmbZvz+trYR0sYgu9U4pdGAJHnzSHmxdU=;
+        b=rfmRdXf/XXtESB8oTfiACouvSCfnDSR12r+TXF+76t3miuQgHpr2Dxw5glO8zSJkL3
+         /mXEe1AGFo51AJjm/lMFBJfMaTVfTCSXrcRwOgnAKrzNgF9UA/fdVIiD0eWWmzy7Oo9U
+         cpaQkHPSvraOEnbL51Bf1RPuq8FXrpC0jb9Vo+bqhlJlBn80VK/43NAKCB3eQ91Uj7br
+         b55ZxY+a2mN1ZaDqtHjrXdHQxSKlNbQCTrLN3WLsz5eABWo/STU0nQZi8cBrdPNc4A4X
+         nFkls4xRPGTXfz2pKDjm6we3nCESk8orSJIjeidyGO2SOGiJUdUbMhcjiOu+hKyCmUe7
+         pJww==
+X-Gm-Message-State: AOAM530Evrl+76JEHV9fouy1R9/8alIMhLh7av7JGjU+Tgnz1X9mPT8G
+        mHq3L5l63l+dUocq/Ic7M7/Ugn8IbyR25w==
+X-Google-Smtp-Source: ABdhPJz46Iir++2MWHS9quMBD4vqaD3PG0V5faPOmC6KTNGsevZoShoGUz+59PSsl4h4HFUogYpipQ==
+X-Received: by 2002:a17:90a:8d82:: with SMTP id d2mr22204705pjo.200.1622513639538;
+        Mon, 31 May 2021 19:13:59 -0700 (PDT)
+Received: from [192.168.1.67] (99-44-17-11.lightspeed.irvnca.sbcglobal.net. [99.44.17.11])
+        by smtp.gmail.com with ESMTPSA id j20sm11536873pfj.40.2021.05.31.19.13.53
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 31 May 2021 19:13:58 -0700 (PDT)
+Subject: Re: [PATCH 4.9 00/66] 4.9.271-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>
-CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <stable@vger.kernel.org>
-References: <20210531130647.887605866@linuxfoundation.org>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <45fb23c6-49e7-46f4-c23b-280cd2c8d8e8@huawei.com>
-Date:   Tue, 1 Jun 2021 09:10:10 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        linux-kernel@vger.kernel.org
+Cc:     torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        stable@vger.kernel.org
+References: <20210531130636.254683895@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+Message-ID: <8fbf80fa-6ccb-a775-42d7-6966871d20ad@gmail.com>
+Date:   Mon, 31 May 2021 19:13:51 -0700
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Firefox/78.0 Thunderbird/78.10.2
 MIME-Version: 1.0
-In-Reply-To: <20210531130647.887605866@linuxfoundation.org>
-Content-Type: text/plain; charset="utf-8"; format=flowed
+In-Reply-To: <20210531130636.254683895@linuxfoundation.org>
+Content-Type: text/plain; charset=utf-8
 Content-Language: en-US
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
 
-On 2021/5/31 21:12, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.4.124 release.
-> There are 177 patches in this series, all will be posted as a response
+On 5/31/2021 6:13 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.9.271 release.
+> There are 66 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 > 
@@ -61,41 +82,17 @@ On 2021/5/31 21:12, Greg Kroah-Hartman wrote:
 > Anything received after that time might be too late.
 > 
 > The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.124-rc1.gz
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.9.271-rc1.gz
 > or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.9.y
 > and the diffstat can be found below.
 > 
 > thanks,
 > 
 > greg k-h
-> 
 
-Tested on arm64 and x86 for 5.4.124-rc1,
+On ARCH_BRCMSTB, using 32-bit and 64-bit ARM kernels:
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.124-rc1
-Commit: 4142e74be32ee4ca40200301fcabfca32800f9c5
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8897
-passed: 8897
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8897
-passed: 8897
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>、
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
