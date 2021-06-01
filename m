@@ -2,130 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B94397A01
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:23:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E05397A06
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 20:24:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234740AbhFASY7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 14:24:59 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51724 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234586AbhFASY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 14:24:59 -0400
-Received: from mail-lf1-x134.google.com (mail-lf1-x134.google.com [IPv6:2a00:1450:4864:20::134])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36B45C06174A
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 11:23:17 -0700 (PDT)
-Received: by mail-lf1-x134.google.com with SMTP id r5so23265170lfr.5
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 11:23:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=g4HQ0zyETBbXwypfTphsYhXQU5jUVi5BzIgs/sw7Qr8=;
-        b=J3WL8E4quXYSmlALpA4XqSbRNMkkryxgkK8Ptt0YOOdNVi1/KYdNDnaoduKS8LK9Ge
-         +8hEjlbbF6PZpEHEiW6QJQ8UjotEyliXvpGLMrsAVg+d3vsHVhmPK2Dbx6YqMlLN/jqk
-         KNjQ2W2p7bXOzJt1psL/Gdw+VOxgShKjU5eB+tDUJMFNw51HL5vvDlU0rMkx8lyK9KPS
-         2OOZOf1DCbA6rQHNGOiChXxGknvervBMVdMqENHWVGUMjPOOMxZxeorJAj42uQAoHF8H
-         QzoTeHaAgktEa1mDkQ2VxhcU1edRIO970jXe9XT4qv4Or1wYiSBAEvGtg5CS2XforJBA
-         z2uw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=g4HQ0zyETBbXwypfTphsYhXQU5jUVi5BzIgs/sw7Qr8=;
-        b=l/IO+Lxoko46mX0gCRm3AKmc0YzgN4Zk3pPHgaEm0by8Bq1VuaA4xRpXZK2KKhBk0G
-         UnsK2LjryTiaNfRX3ScefdWZj7vrtejhHt7Q0WOM2A8F2tTCyc6LfXmKLa00j+EACN30
-         JWM0DwCL7phs4CKm/uXvsXd2xAscV8ky1Y/Gh/I024N5cbegVWV5lQx4N/wVWnkkgQdG
-         oKffHj93TnCunucn7WXdHPC/OOgyVqrzSbWio85ADisHe4VuW+1TYdDmJNJvDp/WTE3c
-         f9H6M27PJGoUSs5UxfVF0+Pq5Wf8Gw0iZMGYvGTSHmrIce88Ez9JCVr94jPpSjTHiKrM
-         scWg==
-X-Gm-Message-State: AOAM530qraoAkv3XNpz23TySpnei7pq+u8evI6pTNueE0NG8Ft/uNbvt
-        lWLvzLgkpkojF5yooPdWTbpEmChls18TkTcs1ftvfw==
-X-Google-Smtp-Source: ABdhPJy/zOQjCtEcLcO5Uub6Z8ldJ7DPIhoekfBkdbkETLyqUfALtfTlQTl8mT1jH8Rq5WPnu6ej7VpO/dwlwsmRPc0=
-X-Received: by 2002:a05:6512:220c:: with SMTP id h12mr20429141lfu.374.1622571795265;
- Tue, 01 Jun 2021 11:23:15 -0700 (PDT)
+        id S234539AbhFASZu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 14:25:50 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:53694 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S233853AbhFASZt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 14:25:49 -0400
+Received: from zn.tnic (p200300ec2f111d0082e984b2e91ac710.dip0.t-ipconnect.de [IPv6:2003:ec:2f11:1d00:82e9:84b2:e91a:c710])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 75E241EC01B7;
+        Tue,  1 Jun 2021 20:24:06 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1622571846;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=tJXA6HXVxWBrx0FMpdafT6CUV8iMBF5xHQeDny+jk8w=;
+        b=Sp9xEdkP1iBv9cZbO0Mn4+CaJvstno+vSwzYVQTaFWWB5MSoaE/igdzH8AE5b5t56A3ZGd
+        Vq4zQGdd2fgpuAvhZKV1tUGF0HfKpcBc3MyfSqQHIbiZdJJLILjzLxEao6a8ipfddoX808
+        bk+WtVkH6cvTgz27zsb1iklH1JszDUs=
+Date:   Tue, 1 Jun 2021 20:24:02 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Sean Christopherson <seanjc@google.com>
+Cc:     Tom Lendacky <thomas.lendacky@amd.com>, Pu Wen <puwen@hygon.cn>,
+        Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
+        joro@8bytes.org, dave.hansen@linux.intel.com, peterz@infradead.org,
+        tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
+        sashal@kernel.org, gregkh@linuxfoundation.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH] x86/sev: Check whether SEV or SME is supported first
+Message-ID: <YLZ7Qu2fY6gmzTTN@zn.tnic>
+References: <905ecd90-54d2-35f1-c8ab-c123d8a3d9a0@hygon.cn>
+ <YLSuRBzM6piigP8t@suse.de>
+ <e1ad087e-a951-4128-923e-867a8b38ecec@hygon.cn>
+ <YLZGuTYXDin2K9wx@zn.tnic>
+ <YLZc3sFKSjpd2yPS@google.com>
+ <dbc4e48f-187a-4b2d-2625-b62d334f60b2@amd.com>
+ <YLZneRWzoujEe+6b@zn.tnic>
+ <YLZrXEQ8w5ntu7ov@google.com>
+ <YLZy+JR7TNEeNA6C@zn.tnic>
+ <YLZ3k77CK+F9v8fF@google.com>
 MIME-Version: 1.0
-References: <20210528182752.1852002-1-nathan@kernel.org>
-In-Reply-To: <20210528182752.1852002-1-nathan@kernel.org>
-From:   Nick Desaulniers <ndesaulniers@google.com>
-Date:   Tue, 1 Jun 2021 11:23:03 -0700
-Message-ID: <CAKwvOd=Z60pm4rZw5yhpq-vCKb_xqxKa9xtgsCoknzD4VNj2wQ@mail.gmail.com>
-Subject: Re: [PATCH] powerpc/barrier: Avoid collision with clang's __lwsync macro
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        linuxppc-dev <linuxppc-dev@lists.ozlabs.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        clang-built-linux <clang-built-linux@googlegroups.com>,
-        "# 3.4.x" <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <YLZ3k77CK+F9v8fF@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, May 28, 2021 at 11:29 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> A change in clang 13 results in the __lwsync macro being defined as
-> __builtin_ppc_lwsync, which emits 'lwsync' or 'msync' depending on what
-> the target supports.
+On Tue, Jun 01, 2021 at 06:08:19PM +0000, Sean Christopherson wrote:
+> But we have not yet verified that 0x8000001f is supported, only that the result
+> of CPUID.0x8000001f can be trusted (to handle Intel CPUs which return data from
+> the highest supported leaf if the provided leaf function is greater than the max
+> supported leaf).  Verifying that 0x8000001f is supported doesn't happen until
+> 0x8000001f is actually read, which is currently done after the RDMSR that #GPs
+> and explodes.
 
-Indeed,
-$ clang --target=powerpc64le-linux-gnu -mcpu=e500 -m32
-for example.
-
-Thanks for the patch!
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-
-> This breaks the build because of -Werror in
-> arch/powerpc, along with thousands of warnings:
->
->  In file included from arch/powerpc/kernel/pmc.c:12:
->  In file included from include/linux/bug.h:5:
->  In file included from arch/powerpc/include/asm/bug.h:109:
->  In file included from include/asm-generic/bug.h:20:
->  In file included from include/linux/kernel.h:12:
->  In file included from include/linux/bitops.h:32:
->  In file included from arch/powerpc/include/asm/bitops.h:62:
->  arch/powerpc/include/asm/barrier.h:49:9: error: '__lwsync' macro redefined [-Werror,-Wmacro-redefined]
->  #define __lwsync()      __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
->         ^
->  <built-in>:308:9: note: previous definition is here
->  #define __lwsync __builtin_ppc_lwsync
->         ^
->  1 error generated.
->
-> Undefine this macro so that the runtime patching introduced by
-> commit 2d1b2027626d ("powerpc: Fixup lwsync at runtime") continues to
-> work properly with clang and the build no longer breaks.
->
-> Cc: stable@vger.kernel.org
-> Link: https://github.com/ClangBuiltLinux/linux/issues/1386
-> Link: https://github.com/llvm/llvm-project/commit/62b5df7fe2b3fda1772befeda15598fbef96a614
-> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-> ---
->  arch/powerpc/include/asm/barrier.h | 2 ++
->  1 file changed, 2 insertions(+)
->
-> diff --git a/arch/powerpc/include/asm/barrier.h b/arch/powerpc/include/asm/barrier.h
-> index 7ae29cfb06c0..f0e687236484 100644
-> --- a/arch/powerpc/include/asm/barrier.h
-> +++ b/arch/powerpc/include/asm/barrier.h
-> @@ -46,6 +46,8 @@
->  #    define SMPWMB      eieio
->  #endif
->
-> +/* clang defines this macro for a builtin, which will not work with runtime patching */
-> +#undef __lwsync
->  #define __lwsync()     __asm__ __volatile__ (stringify_in_c(LWSYNC) : : :"memory")
->  #define dma_rmb()      __lwsync()
->  #define dma_wmb()      __asm__ __volatile__ (stringify_in_c(SMPWMB) : : :"memory")
->
-> base-commit: 97e5bf604b7a0d6e1b3e00fe31d5fd4b9bffeaae
-> --
-> 2.32.0.rc0
->
-
+Yeah yeah, Tom just convinced me on IRC that the patch is ok after
+all... so let's do that. And again, we cannot stop hypervisors from
+doing shady things here so I don't even wanna try to. People should run
+SNP/TDX guests only anyway if they care about this stuff.
 
 -- 
-Thanks,
-~Nick Desaulniers
+Regards/Gruss,
+    Boris.
+
+https://people.kernel.org/tglx/notes-about-netiquette
