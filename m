@@ -2,124 +2,168 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 35D413978C6
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 19:09:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55C943978C9
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 19:09:22 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234581AbhFARKy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 13:10:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34914 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234336AbhFARKw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 13:10:52 -0400
-Received: from mail-pl1-x62e.google.com (mail-pl1-x62e.google.com [IPv6:2607:f8b0:4864:20::62e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1FFC061756
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 10:09:09 -0700 (PDT)
-Received: by mail-pl1-x62e.google.com with SMTP id t21so7237391plo.2
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 10:09:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=402d1vT6kafYaa9OYO/pPQP5D7goCvQWXQjnoTnBYFQ=;
-        b=nvD1x9UnnGp3hae8WGb9Lu3uwOLha5HnwrxcS+3j/a6aVYtpRG3lQRNKHRXn9MZsRo
-         cNHa5eqm6imtzc1nHTEQSRxeQdANEiUh5XwzWfjTcPfnBmIaFkkVijToJHe4NCFliK26
-         fKer1rpr36RWINI+Df+gLfUl/5a0QT+3O6/XxilFO9yyoVnPfBLtbTIGbobVWZHcHEg4
-         /5DB0DmTugmIZAdvxkisovnHLX0zwBq7lE9Od9xAisuJeqdsIYybWuRmHib6Fz2rJBtC
-         ZBcmcDNbyflRDUhDnexP1Tk+7wL85JusaA39AOX+dygv3qWsAOEYG7SaqDHXN9sEZNof
-         MkKA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=402d1vT6kafYaa9OYO/pPQP5D7goCvQWXQjnoTnBYFQ=;
-        b=LjxKEJdgiE7ADq9CB65WG+IxOtEQyp8kMld5fM09QKYPCS8bjBEcHRXHebASVL2fKX
-         rVE3MOMqO+roU3AKI30lV/xiwZCgkH9bsLiQd9Uah3ttMdZPrWekJqsENf5TsqElW219
-         VqS5vWKL16yejgbQNf2BzyUL5bFqsmoCioejAQNz0y9CTB9eOfCdw8oE7GTHz527HEld
-         7H3i7e6vaEL2i0mBnwaFkqG50KM7MPJTBwQWhS/itYTJz6H6WEzBNNsaCh19jqKmq9Vw
-         b1tk/fHfF/eDA/hK5DPe0X2RvzVpTYNRLpliMxsqNYjY+V66Qpb5OeGCQeAgVkpkLjyd
-         5RnQ==
-X-Gm-Message-State: AOAM530zQxOKR2HQu528zJHG5fXRijmEzAV49yP8lMz9CCDJMkOaB1np
-        F1JSadkj262r6xxhqj4oMHLDYg==
-X-Google-Smtp-Source: ABdhPJzdKyTOillNzs0rsuVx1le6bvyhxJP5iSe1FXNQm6CSoJOIo4hsR6+K15AV3rAQNWrH7caPQg==
-X-Received: by 2002:a17:902:6b42:b029:107:a6d5:fc8a with SMTP id g2-20020a1709026b42b0290107a6d5fc8amr5375144plt.76.1622567348693;
-        Tue, 01 Jun 2021 10:09:08 -0700 (PDT)
-Received: from google.com (240.111.247.35.bc.googleusercontent.com. [35.247.111.240])
-        by smtp.gmail.com with ESMTPSA id z12sm14331891pfk.45.2021.06.01.10.09.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jun 2021 10:09:07 -0700 (PDT)
-Date:   Tue, 1 Jun 2021 17:09:04 +0000
-From:   Sean Christopherson <seanjc@google.com>
-To:     Tom Lendacky <thomas.lendacky@amd.com>
-Cc:     Borislav Petkov <bp@alien8.de>, Pu Wen <puwen@hygon.cn>,
-        Joerg Roedel <jroedel@suse.de>, x86@kernel.org,
-        joro@8bytes.org, dave.hansen@linux.intel.com, peterz@infradead.org,
-        tglx@linutronix.de, mingo@redhat.com, hpa@zytor.com,
-        sashal@kernel.org, gregkh@linuxfoundation.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] x86/sev: Check whether SEV or SME is supported first
-Message-ID: <YLZpsPli0ALRISvV@google.com>
-References: <20210526072424.22453-1-puwen@hygon.cn>
- <YK6E5NnmRpYYDMTA@google.com>
- <905ecd90-54d2-35f1-c8ab-c123d8a3d9a0@hygon.cn>
- <YLSuRBzM6piigP8t@suse.de>
- <e1ad087e-a951-4128-923e-867a8b38ecec@hygon.cn>
- <YLZGuTYXDin2K9wx@zn.tnic>
- <YLZc3sFKSjpd2yPS@google.com>
- <dbc4e48f-187a-4b2d-2625-b62d334f60b2@amd.com>
+        id S234009AbhFARLC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 13:11:02 -0400
+Received: from bhuna.collabora.co.uk ([46.235.227.227]:53266 "EHLO
+        bhuna.collabora.co.uk" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S234561AbhFARLC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 13:11:02 -0400
+Received: from [127.0.0.1] (localhost [127.0.0.1])
+        (Authenticated sender: tintou)
+        with ESMTPSA id 6397F1F42680
+Message-ID: <5744b89e9a500a8c2aa97cbad850bc4797fa7115.camel@collabora.com>
+Subject: Re: virtio-net: kernel panic in virtio_net.c
+From:   Corentin =?ISO-8859-1?Q?No=EBl?= <corentin.noel@collabora.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jason Wang <jasowang@redhat.com>,
+        virtualization@lists.linux-foundation.org,
+        regressions@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Date:   Tue, 01 Jun 2021 19:09:16 +0200
+In-Reply-To: <YLZpVGDz4TVEdaK0@kroah.com>
+References: <3724b6d19b0bf4741c44977e083c1a655df57b55.camel@collabora.com>
+         <YLZpVGDz4TVEdaK0@kroah.com>
+Content-Type: text/plain; charset="UTF-8"
+User-Agent: Evolution 3.36.4-0ubuntu1 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <dbc4e48f-187a-4b2d-2625-b62d334f60b2@amd.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jun 01, 2021, Tom Lendacky wrote:
-> 
-> On 6/1/21 11:14 AM, Sean Christopherson wrote:
-> > On Tue, Jun 01, 2021, Borislav Petkov wrote:
-> >> On Mon, May 31, 2021 at 10:56:50PM +0800, Pu Wen wrote:
-> >>> Thanks for your suggestion, I'll try to set up early #GP handler to fix
-> >>> the problem.
-> >>
-> >> Why? AFAICT, you only need to return early in sme_enable() if CPUID is
-> >> not "AuthenticAMD". Just do that please.
+Le mardi 01 juin 2021 à 19:07 +0200, Greg KH a écrit :
+> On Tue, Jun 01, 2021 at 06:06:50PM +0200, Corentin Noël wrote:
+> > I've been experiencing crashes with 5.13 that do not occur with
+> > 5.12,
+> > here is the crash trace:
 > > 
-> > I don't think that would suffice, presumably MSR_AMD64_SEV doesn't exist on older
-> > AMD CPUs either.  E.g. there's no mention of MSR 0xC001_0131 in the dev's guide
-> > from 2015[*].
+> > [   47.713713] skbuff: skb_over_panic: text:ffffffffb73a8354
+> > len:3762
+> > put:3762 head:ffff9e1e1e48e000 data:ffff9e1e1e48e010 tail:0xec2
+> > end:0xec0 dev:<NULL>
+> > [   47.716267] kernel BUG at net/core/skbuff.c:110!
+> > [   47.717197] invalid opcode: 0000 [#1] SMP PTI
+> > [   47.718049] CPU: 2 PID: 730 Comm: llvmpipe-0 Not tainted 5.13.0-
+> > rc3linux-v5.13-rc3-for-mesa-ci-87614d7f3282.tar.bz2 #1
+> > [   47.719739] Hardware name: ChromiumOS crosvm, BIOS 0 
+> > [   47.720656] RIP: 0010:skb_panic+0x43/0x45
+> > [   47.721426] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00
+> > 00 50
+> > ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 78 ae ef b7 e8 7f
+> > 4c fb
+> > ff <0f> 0b 48 8b 14 24 48 c7 c1 a0 22 d1 b7 e8 ab ff ff ff 48 c7 c6
+> > e0
+> > [   47.725944] RSP: 0000:ffffacec01347c20 EFLAGS: 00010246
+> > [   47.726735] RAX: 000000000000008b RBX: 0000000000000010 RCX:
+> > 00000000ffffdfff
+> > [   47.727820] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
+> > 0000000000000000
+> > [   47.729096] RBP: ffffeb2700792380 R08: ffffffffb8144b08 R09:
+> > 0000000000009ffb
+> > [   47.730260] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
+> > ffff9e1e1e95b300
+> > [   47.731411] R13: 0000000000000000 R14: ffff9e1e1e48e000 R15:
+> > 0000000000000eb2
+> > [   47.732541] FS:  00007f3a82b53700(0000)
+> > GS:ffff9e1f2bd00000(0000)
+> > knlGS:0000000000000000
+> > [   47.733858] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [   47.734813] CR2: 00000000010d24f8 CR3: 0000000012d6e004 CR4:
+> > 0000000000370ee0
+> > [   47.735968] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+> > 0000000000000000
+> > [   47.737091] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+> > 0000000000000400
+> > [   47.738318] Call Trace:
+> > [   47.738812]  skb_put.cold+0x10/0x10
+> > [   47.739450]  page_to_skb+0xe4/0x400
+> > [   47.740072]  receive_buf+0x86/0x1660
+> > [   47.740693]  ? inet_gro_receive+0x54/0x2c0
+> > [   47.741279]  ? dev_gro_receive+0x194/0x6a0
+> > [   47.741846]  virtnet_poll+0x2b8/0x3c0
+> > [   47.742357]  __napi_poll+0x25/0x150
+> > [   47.742844]  net_rx_action+0x22f/0x280
+> > [   47.743388]  __do_softirq+0xba/0x264
+> > [   47.743947]  irq_exit_rcu+0x90/0xb0
+> > [   47.744435]  common_interrupt+0x40/0xa0
+> > [   47.744978]  ? asm_common_interrupt+0x8/0x40
+> > [   47.745582]  asm_common_interrupt+0x1e/0x40
+> > [   47.746182] RIP: 0033:0x7f3a7a276ed4
+> > [   47.746708] Code: a0 03 00 00 c5 fc 29 84 24 40 0f 00 00 c5 bc
+> > 54 c8
+> > c5 7c 28 84 24 80 01 00 00 c5 bc 59 e9 c5 fe 5b ed c5 fd 76 c0 c5
+> > d5 fa
+> > c0 <c5> fd db ec c5 fd 7f 84 24 20 0f 00 00 c5 fc 5b ed c4 e2 55 b8
+> > cb
+> > [   47.749292] RSP: 002b:00007f3a82b4dba0 EFLAGS: 00000212
+> > [   47.750006] RAX: 00007f3a8c210324 RBX: ffffffffffffffff RCX:
+> > ffffffffffffffff
+> > [   47.750964] RDX: 00007f3a8c210348 RSI: 00007f3a8c21034c RDI:
+> > 00007f3a7c0575a0
+> > [   47.752049] RBP: 00007f3a82b52ca0 R08: 00007f3a8c210350 R09:
+> > 00007f3a8c210354
+> > [   47.753161] R10: 00007f3a8c210358 R11: 000000000000ffef R12:
+> > 00007f3a8c210340
+> > [   47.754260] R13: 00007f3a8c210344 R14: 00007f3a7c057580 R15:
+> > 00007f3a8c21033c
+> > [   47.755354] Modules linked in:
+> > [   47.755871] ---[ end trace a8b692ea99c9cd9e ]---
+> > [   47.756606] RIP: 0010:skb_panic+0x43/0x45
+> > [   47.757297] Code: 4f 70 50 8b 87 bc 00 00 00 50 8b 87 b8 00 00
+> > 00 50
+> > ff b7 c8 00 00 00 4c 8b 8f c0 00 00 00 48 c7 c7 78 ae ef b7 e8 7f
+> > 4c fb
+> > ff <0f> 0b 48 8b 14 24 48 c7 c1 a0 22 d1 b7 e8 ab ff ff ff 48 c7 c6
+> > e0
+> > [   47.760168] RSP: 0000:ffffacec01347c20 EFLAGS: 00010246
+> > [   47.760896] RAX: 000000000000008b RBX: 0000000000000010 RCX:
+> > 00000000ffffdfff
+> > [   47.761903] RDX: 0000000000000000 RSI: 00000000ffffffea RDI:
+> > 0000000000000000
+> > [   47.762945] RBP: ffffeb2700792380 R08: ffffffffb8144b08 R09:
+> > 0000000000009ffb
+> > [   47.764059] R10: 00000000ffffe000 R11: 3fffffffffffffff R12:
+> > ffff9e1e1e95b300
+> > [   47.765169] R13: 0000000000000000 R14: ffff9e1e1e48e000 R15:
+> > 0000000000000eb2
+> > [   47.766261] FS:  00007f3a82b53700(0000)
+> > GS:ffff9e1f2bd00000(0000)
+> > knlGS:0000000000000000
+> > [   47.767512] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+> > [   47.768389] CR2: 00000000010d24f8 CR3: 0000000012d6e004 CR4:
+> > 0000000000370ee0
+> > [   47.769381] DR0: 0000000000000000 DR1: 0000000000000000 DR2:
+> > 0000000000000000
+> > [   47.770362] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7:
+> > 0000000000000400
+> > [   47.771339] Kernel panic - not syncing: Fatal exception in
+> > interrupt
+> > [   47.772814] Kernel Offset: 0x35c00000 from 0xffffffff81000000
+> > (relocation range: 0xffffffff80000000-0xffffffffbfffffff)
+> > 
+> > I've been able to bisect the issue a little bit and the issue
+> > disappeared after reverting the 4 following commits:
+> >  * fb32856b16ad9d5bcd75b76a274e2c515ac7b9d7
+> >  * af39c8f72301b268ad8b04bae646b6025918b82b
+> >  * f5d7872a8b8a3176e65dc6f7f0705ce7e9a699e6
+> >  * f80bd740cb7c954791279590b2e810ba6c214e52
+> > 
+> > Here is my kernel config: 
+> > https://gitlab.freedesktop.org/tintou/mesa/-/blob/e5d6c56bfae8522e924217883d2c6a6bfc1b332b/.gitlab-ci/container/x86_64.config
 > 
-> That is the reason for checking the maximum supported leaf being at least
-> 0x8000001f. If that leaf is supported, we expect the SEV status MSR to be
-> valid. The problem is that the Hygon ucode does not support the MSR in
-> question. I'm not sure what it would take for that to be added to their
-> ucode and just always return 0.
-
-Ah.  But it's also legal/possible for the max extended leaf to be greater than
-0x8000001f, e.g. 0x80000020, without 0x8000001f itself being supported.  Even
-if AMD can guarantee no such processor will exist, I don't think it would be
-illegal for a hypervisor to emulate a feature (on an "AuthenticAMD" virtual CPU)
-enumerated by a higher leaf on an older physical AMD CPU (or non-AMD CPU!) that
-doesn't support MSR_AMD64_SEV.
-
-> > I also don't see the point in checking the vendor string.  A malicious hypervisor
-> > can lie about CPUID.0x0 just as easily as it can lie about CPUID.0x8000001f, so
-> > for SEV the options are to either trust the hypervisor or eat #GPs on RDMSR for
-> > non-SEV CPUs.  If we go with "trust the hypervisor", then the original patch of
-> > hoisting the CPUID.0x8000001f check up is simpler than checking the vendor string.
+> Do you have the same problem with 5.13-rc4?
 > 
-> Because a hypervisor can put anything it wants in the CPUID 0x0 /
-> 0x80000000 fields, I don't think we can just check for "AuthenticAMD".
+> thanks,
 > 
-> If we want the read of CPUID 0x8000001f done before reading the SEV status
-> MSR, then the original patch is close, but slightly flawed, e.g. only SME
-> can be indicated but then MSR_AMD64_SEV can say SEV active.
+> greg k-h
 
-I didn't follow this.  Bare metal CPUs should never report only SME in CPUID and
-then report SEV as being active in the MSR.
+Yes I tried with rc2, rc3 and rc4 resulting to the same panic.
 
-In the SEV case, relying on CPUID in any way, shape, or form requires trusting
-the hypervisor.  The code could assert that CPUID and the MSR are consistent, but
-I don't see any value in doing so as a much more effective attack would be to
-report neither SME nor SEV as supported.
+Thanks,
+
+Corentin
+
