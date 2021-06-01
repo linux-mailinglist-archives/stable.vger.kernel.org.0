@@ -2,233 +2,300 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BE7F3973DD
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:09:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E817397404
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 15:22:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233797AbhFANLO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 09:11:14 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35920 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233409AbhFANLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 09:11:13 -0400
-Received: from mail-ej1-x629.google.com (mail-ej1-x629.google.com [IPv6:2a00:1450:4864:20::629])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C290C061574
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 06:09:32 -0700 (PDT)
-Received: by mail-ej1-x629.google.com with SMTP id b9so21529815ejc.13
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 06:09:32 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=EBxyeOx+3RsWJVhTTc5ohpA2jwgveNW4SF62Y0kGAg0=;
-        b=dsDckIPOp9TXBT/s7RdiUDvpov38qfYBx3AaTcisxYwVC6JrB+2zJLDNxXBoUSPQ6v
-         hvUi3rlaAGVNYmhWyr5XDrs5ZxuZH/SjH5C8s0SYrS2NnhstttWyBaRwLyK8v1ui7awm
-         sKLcam94uyM9oXyG95b+Hlqr/a5+iHlMHpVjiTdRH9JPI2dZsK+aopEPzj1CJdSkUx16
-         fxVcPQnDRfsncYCqppvgbJP5kZY6lHTSNDk6+R1I7vEGhD1hlQ1qnMLSdzUHIvcB1qvd
-         iP7PpcJa/SGPJD2N2EDiK7IcSNbnRkHUXfbc4ZNL7x5bNpL2N9PFG28C9BvdlwqYKP+v
-         7jFA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=EBxyeOx+3RsWJVhTTc5ohpA2jwgveNW4SF62Y0kGAg0=;
-        b=WfCojEhaSR9sZdSuCokTxeawv4dFgIeO3ZvUbnPl//bmpKU/b2NyebibGIxcr4xKyH
-         +6eHziX06f7Pv/YoL9rLYR7rGQpwGxNYp86fpgFxk3Yc6TVG+Sw2hjWvzvBLqXVagG/K
-         iHe8ctPNx/5Hri621Q12OI9kw4lZvQyYq2AIKKR85HBojgGgez5k8H5wXlcF0rmDNrVN
-         J7iTwjlhq+HsrkXVRL07GNE9pKqb3q9sviA1z5staCiBpur3avJWqsXYPMXdwvER6abl
-         Mc4dlt9P1jxIpMi6ZrZd49QvsskfRPfatl8tCgeMojP0exx+MZYAtSi0tjTv39hpGnaF
-         w+0A==
-X-Gm-Message-State: AOAM533hMVjiGCgH51wPtre5vaw3RsARK3xijZjnQRiuV/2ENojLGopC
-        zknx5x+2MFWl4/pWHGJopJIUT3FxIOAy+HqUxmmgsA==
-X-Google-Smtp-Source: ABdhPJzaJWShJBsE42YmVPyWkCZpCfZNLRBpTqLqq7WzlxkyzfSZXMAaBRl90OZDXy16OLV8GAIvXQb7vzjAFOk/GWE=
-X-Received: by 2002:a17:906:8318:: with SMTP id j24mr10513958ejx.375.1622552970872;
- Tue, 01 Jun 2021 06:09:30 -0700 (PDT)
+        id S233900AbhFANXx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 09:23:53 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:52222 "EHLO
+        smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S233758AbhFANXw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 09:23:52 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id A50B01FD2D;
+        Tue,  1 Jun 2021 13:22:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1622553730; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=n9bmauxkr3Ps73bV2OZm/3+K/1zGwQvE3BbFvnJ+0l8=;
+        b=gYobQuiDzajOJCzsnsziDE3+u5aYg3+6wGFJUTCnAzlY6/5X4NgdAL7wJBavaxJv8lmnhU
+        1PJm4tDx2NiZXjx7f+VhiFmIkMxAwTFTT5zlQKBCBiaXi0xKsHRdwpj/QW90VcFjPskbUg
+        YKBjbjM+5FSUF1iCjNCpYKZ07c7HvG0=
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 7B6CB118DD;
+        Tue,  1 Jun 2021 13:22:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1622553730; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type;
+        bh=n9bmauxkr3Ps73bV2OZm/3+K/1zGwQvE3BbFvnJ+0l8=;
+        b=gYobQuiDzajOJCzsnsziDE3+u5aYg3+6wGFJUTCnAzlY6/5X4NgdAL7wJBavaxJv8lmnhU
+        1PJm4tDx2NiZXjx7f+VhiFmIkMxAwTFTT5zlQKBCBiaXi0xKsHRdwpj/QW90VcFjPskbUg
+        YKBjbjM+5FSUF1iCjNCpYKZ07c7HvG0=
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id r4jrHII0tmCTAwAALh3uQQ
+        (envelope-from <jgross@suse.com>); Tue, 01 Jun 2021 13:22:10 +0000
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc:     Jan Beulich <jbeulich@suse.com>,
+        Boris Ostrovsky <boris.ostrovsky@oracle.com>
+From:   Juergen Gross <jgross@suse.com>
+Subject: Patch for stable 5.4 and below
+Message-ID: <82837f40-130e-c6f0-58a0-c8ff1b1d06a8@suse.com>
+Date:   Tue, 1 Jun 2021 15:22:09 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.10.0
 MIME-Version: 1.0
-References: <20210601081514.670960578@linuxfoundation.org>
-In-Reply-To: <20210601081514.670960578@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Jun 2021 18:39:19 +0530
-Message-ID: <CA+G9fYtDntHBQ4Tu9JpO7mtE6hLC=ATToLVub=ON7YvN04RQug@mail.gmail.com>
-Subject: Re: [PATCH 4.9 00/71] 4.9.271-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Shuah Khan <shuah@kernel.org>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Pavel Machek <pavel@denx.de>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        linux-stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="6eSIovdcFl3Li3hGNp1zXw0sIfWw5fPs8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 1 Jun 2021 at 14:04, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.9.271 release.
-> There are 71 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 03 Jun 2021 08:15:02 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.9.271-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.9.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--6eSIovdcFl3Li3hGNp1zXw0sIfWw5fPs8
+Content-Type: multipart/mixed; boundary="PkzywYoKduGRPnZrrjd17h4wSNhCmDYzn";
+ protected-headers="v1"
+From: Juergen Gross <jgross@suse.com>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "stable@vger.kernel.org" <stable@vger.kernel.org>
+Cc: Jan Beulich <jbeulich@suse.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Message-ID: <82837f40-130e-c6f0-58a0-c8ff1b1d06a8@suse.com>
+Subject: Patch for stable 5.4 and below
 
-This set of results are from 4.9.271-rc2.
+--PkzywYoKduGRPnZrrjd17h4wSNhCmDYzn
+Content-Type: multipart/mixed;
+ boundary="------------25B2E7372FF9E656E7053CD7"
+Content-Language: en-US
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+This is a multi-part message in MIME format.
+--------------25B2E7372FF9E656E7053CD7
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: quoted-printable
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Hi Greg,
 
-## Build
-* kernel: 4.9.271-rc2
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-4.9.y
-* git commit: 7c0244f56992aacc7d68dd6e61be593062aa0668
-* git describe: v4.9.270-72-g7c0244f56992
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.9.y/build/v4.9.2=
-70-72-g7c0244f56992
+please add the attached patch to the stable kernels 5.4 and below.
+It is a backport of upstream commit 4ba50e7c423c29639878c005732
+which already went into 5.10 and 5.12.
 
-## No regressions (compared to v4.9.269-37-gc1efed5276d2)
 
-## Fixes (compared to v4.9.269-37-gc1efed5276d2)
-* ltp-mm-tests
-  - ksm03
-  - ksm03_1
+Juergen
 
-NOTE: The LTP test suite upgraded to latest release version LTP 20210524.
+--------------25B2E7372FF9E656E7053CD7
+Content-Type: text/x-patch; charset=UTF-8;
+ name="0001-xen-pciback-redo-VF-placement-in-the-virtual-topolog.patch"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: attachment;
+ filename*0="0001-xen-pciback-redo-VF-placement-in-the-virtual-topolog.pa";
+ filename*1="tch"
 
-## Test result summary
- total: 57037, pass: 45364, fail: 1305, skip: 9522, xfail: 846,
+=46rom 4ba50e7c423c29639878c00573288869aa627068 Mon Sep 17 00:00:00 2001
+From: Jan Beulich <jbeulich@suse.com>
+Date: Tue, 18 May 2021 18:13:42 +0200
+Subject: [PATCH] xen-pciback: redo VF placement in the virtual topology
 
-## Build Summary
-* arm: 97 total, 97 passed, 0 failed
-* arm64: 24 total, 24 passed, 0 failed
-* dragonboard-410c: 1 total, 1 passed, 0 failed
-* hi6220-hikey: 1 total, 1 passed, 0 failed
-* i386: 14 total, 14 passed, 0 failed
-* juno-r2: 1 total, 1 passed, 0 failed
-* mips: 36 total, 36 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x15: 1 total, 1 passed, 0 failed
-* x86: 1 total, 1 passed, 0 failed
-* x86_64: 14 total, 14 passed, 0 failed
+The commit referenced below was incomplete: It merely affected what
+would get written to the vdev-<N> xenstore node. The guest would still
+find the function at the original function number as long as
+__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
+__xen_pcibk_get_pcifront_dev().
 
-## Test suites summary
-* fwts
-* igt-gpu-tools
-* install-android-platform-tools-r2600
-* kselftest-android
-* kselftest-bpf
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* ssuite
-* timesync-off
-* v4l2-compliance
+Undo overriding the function to zero and instead make sure that VFs at
+function zero remain alone in their slot. This has the added benefit of
+improving overall capacity, considering that there's only a total of 32
+slots available right now (PCI segment and bus can both only ever be
+zero at present).
 
---
-Linaro LKFT
-https://lkft.linaro.org
+This is upstream commit 4ba50e7c423c29639878c00573288869aa627068.
+
+Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to=20
+separate virtual slots")
+Signed-off-by: Jan Beulich <jbeulich@suse.com>
+Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
+Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse=
+=2Ecom
+Signed-off-by: Juergen Gross <jgross@suse.com>
+---
+This is a backport for stable-5.4 and below.
+---
+ drivers/xen/xen-pciback/vpci.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/xen/xen-pciback/vpci.c b/drivers/xen/xen-pciback/vpc=
+i.c
+index 4162d0e7e00d..cc7450f2b2a9 100644
+--- a/drivers/xen/xen-pciback/vpci.c
++++ b/drivers/xen/xen-pciback/vpci.c
+@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_dev=
+ice *pdev,
+ 				   struct pci_dev *dev, int devid,
+ 				   publish_pci_dev_cb publish_cb)
+ {
+-	int err =3D 0, slot, func =3D -1;
++	int err =3D 0, slot, func =3D PCI_FUNC(dev->devfn);
+ 	struct pci_dev_entry *t, *dev_entry;
+ 	struct vpci_dev_data *vpci_dev =3D pdev->pci_dev_data;
+=20
+@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_d=
+evice *pdev,
+=20
+ 	/*
+ 	 * Keep multi-function devices together on the virtual PCI bus, except
+-	 * virtual functions.
++	 * that we want to keep virtual functions at func 0 on their own. They
++	 * aren't multi-function devices and hence their presence at func 0
++	 * may cause guests to not scan the other functions.
+ 	 */
+-	if (!dev->is_virtfn) {
++	if (!dev->is_virtfn || func) {
+ 		for (slot =3D 0; slot < PCI_SLOT_MAX; slot++) {
+ 			if (list_empty(&vpci_dev->dev_list[slot]))
+ 				continue;
+=20
+ 			t =3D list_entry(list_first(&vpci_dev->dev_list[slot]),
+ 				       struct pci_dev_entry, list);
++			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
++				continue;
+=20
+ 			if (match_slot(dev, t->dev)) {
+ 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
+ 					pci_name(dev), slot,
+-					PCI_FUNC(dev->devfn));
++					func);
+ 				list_add_tail(&dev_entry->list,
+ 					      &vpci_dev->dev_list[slot]);
+-				func =3D PCI_FUNC(dev->devfn);
+ 				goto unlock;
+ 			}
+ 		}
+@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struct xen_pcibk_d=
+evice *pdev,
+ 				pci_name(dev), slot);
+ 			list_add_tail(&dev_entry->list,
+ 				      &vpci_dev->dev_list[slot]);
+-			func =3D dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
+ 			goto unlock;
+ 		}
+ 	}
+--=20
+2.26.2
+
+
+--------------25B2E7372FF9E656E7053CD7
+Content-Type: application/pgp-keys;
+ name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Transfer-Encoding: quoted-printable
+Content-Description: OpenPGP public key
+Content-Disposition: attachment;
+ filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOBy=
+cWx
+w3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJvedYm8O=
+f8Z
+d621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJNwQpd369y=
+9bf
+IhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvxXP3FAp2pkW0xq=
+G7/
+377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEBAAHNHEp1ZXJnZW4gR=
+3Jv
+c3MgPGpnQHBmdXBmLm5ldD7CwHkEEwECACMFAlOMcBYCGwMHCwkIBwMCAQYVCAIJCgsEFgIDA=
+QIe
+AQIXgAAKCRCw3p3WKL8TL0KdB/93FcIZ3GCNwFU0u3EjNbNjmXBKDY4FUGNQH2lvWAUy+dnyT=
+hpw
+dtF/jQ6j9RwE8VP0+NXcYpGJDWlNb9/JmYqLiX2Q3TyevpB0CA3dbBQp0OW0fgCetToGIQrg0=
+MbD
+1C/sEOv8Mr4NAfbauXjZlvTj30H2jO0u+6WGM6nHwbh2l5O8ZiHkH32iaSTfN7Eu5RnNVUJbv=
+oPH
+Z8SlM4KWm8rG+lIkGurqqu5gu8q8ZMKdsdGC4bBxdQKDKHEFExLJK/nRPFmAuGlId1E3fe10v=
+5QL
++qHI3EIPtyfE7i9Hz6rVwi7lWKgh7pe0ZvatAudZ+JNIlBKptb64FaiIOAWDCx1SzR9KdWVyZ=
+2Vu
+IEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+wsB5BBMBAgAjBQJTjHCvAhsDBwsJCAcDAgEGFQgCC=
+QoL
+BBYCAwECHgECF4AACgkQsN6d1ii/Ey/HmQf/RtI7kv5A2PS4RF7HoZhPVPogNVbC4YA6lW7Dr=
+Wf0
+teC0RR3MzXfy6pJ+7KLgkqMlrAbN/8Dvjoz78X+5vhH/rDLa9BuZQlhFmvcGtCF8eR0T1v0nC=
+/nu
+AFVGy+67q2DH8As3KPu0344TBDpAvr2uYM4tSqxK4DURx5INz4ZZ0WNFHcqsfvlGJALDeE0Lh=
+ITT
+d9jLzdDad1pQSToCnLl6SBJZjDOX9QQcyUigZFtCXFst4dlsvddrxyqT1f17+2cFSdu7+ynLm=
+XBK
+7abQ3rwJY8SbRO2iRulogc5vr/RLMMlscDAiDkaFQWLoqHHOdfO9rURssHNN8WkMnQfvUewRz=
+80h
+SnVlcmdlbiBHcm9zcyA8amdyb3NzQG5vdmVsbC5jb20+wsB5BBMBAgAjBQJTjHDXAhsDBwsJC=
+AcD
+AgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey8PUQf/ehmgCI9jB9hlgexLvgOtf7PJn=
+FOX
+gMLdBQgBlVPO3/D9R8LtF9DBAFPNhlrsfIG/SqICoRCqUcJ96Pn3P7UUinFG/I0ECGF4EvTE1=
+jnD
+kfJZr6jrbjgyoZHiw/4BNwSTL9rWASyLgqlA8u1mf+c2yUwcGhgkRAd1gOwungxcwzwqgljf0=
+N51
+N5JfVRHRtyfwq/ge+YEkDGcTU6Y0sPOuj4Dyfm8fJzdfHNQsWq3PnczLVELStJNdapwPOoE+l=
+otu
+fe3AM2vAEYJ9rTz3Cki4JFUsgLkHFqGZarrPGi1eyQcXeluldO3m91NK/1xMI3/+8jbO0tsn1=
+tqS
+EUGIJi7ox80eSnVlcmdlbiBHcm9zcyA8amdyb3NzQHN1c2UuZGU+wsB5BBMBAgAjBQJTjHDrA=
+hsD
+BwsJCAcDAgEGFQgCCQoLBBYCAwECHgECF4AACgkQsN6d1ii/Ey+LhQf9GL45eU5vOowA2u5N3=
+g3O
+ZUEBmDHVVbqMtzwlmNC4k9Kx39r5s2vcFl4tXqW7g9/ViXYuiDXb0RfUpZiIUW89siKrkzmQ5=
+dM7
+wRqzgJpJwK8Bn2MIxAKArekWpiCKvBOB/Cc+3EXE78XdlxLyOi/NrmSGRIov0karw2RzMNOu5=
+D+j
+LRZQd1Sv27AR+IP3I8U4aqnhLpwhK7MEy9oCILlgZ1QZe49kpcumcZKORmzBTNh30FVKK1Evm=
+V2x
+AKDoaEOgQB4iFQLhJCdP1I5aSgM5IVFdn7v5YgEYuJYx37IoN1EblHI//x/e2AaIHpzK5h88N=
+Eaw
+QsaNRpNSrcfbFmAg987ATQRTjHAWAQgAyzH6AOODMBjgfWE9VeCgsrwH3exNAU32gLq2xvjpW=
+nHI
+s98ndPUDpnoxWQugJ6MpMncr0xSwFmHEgnSEjK/PAjppgmyc57BwKII3sV4on+gDVFJR6Y8ZR=
+wgn
+BC5mVM6JjQ5xDk8WRXljExRfUX9pNhdE5eBOZJrDRoLUmmjDtKzWaDhIg/+1Hzz93X4fCQkNV=
+bVF
+LELU9bMaLPBG/x5q4iYZ2k2ex6d47YE1ZFdMm6YBYMOljGkZKwYde5ldM9mo45mmwe0icXKLk=
+pEd
+IXKTZeKDO+Hdv1aqFuAcccTg9RXDQjmwhC3yEmrmcfl0+rPghO0Iv3OOImwTEe4co3c1mwARA=
+QAB
+wsBfBBgBAgAJBQJTjHAWAhsMAAoJELDendYovxMvQ/gH/1ha96vm4P/L+bQpJwrZ/dneZcmEw=
+Tbe
+8YFsw2V/Buv6Z4Mysln3nQK5ZadD534CF7TDVft7fC4tU4PONxF5D+/tvgkPfDAfF77zy2AH1=
+vJz
+Q1fOU8lYFpZXTXIHb+559UqvIB8AdgR3SAJGHHt4RKA0F7f5ipYBBrC6cyXJyyoprT10EMvU8=
+VGi
+wXvTyJz3fjoYsdFzpWPlJEBRMedCot60g5dmbdrZ5DWClAr0yau47zpWj3enf1tLWaqcsuylW=
+svi
+uGjKGw7KHQd3bxALOknAp4dN3QwBYCKuZ7AddY9yjynVaD5X7nF9nO5BjR/i1DG86lem3iBDX=
+zXs
+ZDn8R38=3D
+=3D2wuH
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------25B2E7372FF9E656E7053CD7--
+
+--PkzywYoKduGRPnZrrjd17h4wSNhCmDYzn--
+
+--6eSIovdcFl3Li3hGNp1zXw0sIfWw5fPs8
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmC2NIEFAwAAAAAACgkQsN6d1ii/Ey9b
+xgf+J7XlPPb4iRvGsXqPixvqZ0hMDcsfusOAmPu+RK49wkMscCrlR0v7W+nLNv3n709EXHuNXQOn
+Z+BTn62flivuKv/L6Qd12IUJAe53ZPZOyeA1wkMlYq+Eg6brT1QEiswHfT0yo3UvAZhg/mX7J/q3
+P8RZiFJ9okABIUUfunMMeUwsEu4VgjCBiEBCEeVIqG9LNceQvMHT8X0nJAJOKWBQ1yoNRQJVVlFg
+SqJiJEHkb89qtj5V9h3uMwyJzyovzXKoQbaz/Fk7AdRuz7G5ztqkzb5g1PzsY/bBep71qjfNWkuM
+2Kwid/dwkZq5Ak2IU2HaB1zY2fevK76O34Gyf4vafQ==
+=Ckn/
+-----END PGP SIGNATURE-----
+
+--6eSIovdcFl3Li3hGNp1zXw0sIfWw5fPs8--
