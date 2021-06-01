@@ -2,224 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1270396DC9
-	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 09:13:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 95654396DD3
+	for <lists+stable@lfdr.de>; Tue,  1 Jun 2021 09:17:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233014AbhFAHPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 03:15:19 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39572 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231928AbhFAHPP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 03:15:15 -0400
-Received: from mail-ej1-x62a.google.com (mail-ej1-x62a.google.com [IPv6:2a00:1450:4864:20::62a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 188E9C061756
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 00:13:31 -0700 (PDT)
-Received: by mail-ej1-x62a.google.com with SMTP id lz27so20009809ejb.11
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 00:13:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc:content-transfer-encoding;
-        bh=Y4pIwun4lcYA5WBPfQTrtPC9bCpeKo1JjO9SfQad/uw=;
-        b=ORkO2FmC8O8AMwNNjRNCIacjBr3sKBcOpNP/V3v1Y9f2YtUK8BMa6WyiW5Byd/jMho
-         t5/Oumr9GuVhOkAF2C+u2l3uoZ+3ojoZI0l4ScKWXI0GVyCiy3cnafOdZ+b4tIXUuix3
-         LYsqWMWvCBJEVJN6gVwS87Pab+HNvNjcUV5Kyg2kb4yu/VNsFjsRLysxhQ4IvikwPtfQ
-         M2gbuyNKkBd1wPIf2fNkeJDdWihJLN+nlSGynl+LemiRXqYxsLbZLS/w4ZQMB7tEJoii
-         6FcL9Q3Gc+VZYM9IgYBLOUQEJjgJnax/BrAKArJR+Dl91IgxvrpzAwbM6eSeyYv9ZHC0
-         kURQ==
+        id S231139AbhFAHSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 03:18:42 -0400
+Received: from youngberry.canonical.com ([91.189.89.112]:60753 "EHLO
+        youngberry.canonical.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230326AbhFAHSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 03:18:41 -0400
+Received: from mail-wm1-f69.google.com ([209.85.128.69])
+        by youngberry.canonical.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.93)
+        (envelope-from <krzysztof.kozlowski@canonical.com>)
+        id 1lnye4-0002km-8Z
+        for stable@vger.kernel.org; Tue, 01 Jun 2021 07:17:00 +0000
+Received: by mail-wm1-f69.google.com with SMTP id l185-20020a1c25c20000b029014b0624775eso760569wml.6
+        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 00:17:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc:content-transfer-encoding;
-        bh=Y4pIwun4lcYA5WBPfQTrtPC9bCpeKo1JjO9SfQad/uw=;
-        b=VCgzPbs8KpRFfdQ64vVy3KUT1nCgmRDKtbsNhMdKu6DgyzkbIeRpzAFQb5Dc/MlxBF
-         s48eSsST44F1X72pOYDnPHnnctwzu0jsG4lGvtmmj1RhBi9gnsgHdPklPjgBg8zBex+O
-         WrEIgkPm2LN2bEBlLY9j3aEO7JLw50Zxf7xW1NOF5mByQMFjcSt9DrIEiwIlpXkw/nWe
-         Kjb852q9zXRHMIkZaGkNPJJzDHG715pZK5cZfZEESmTMIvqdUrDKOghWkwonnvJ4uB1p
-         VXSU67QifB64px9cRtuISWMbC4jJOosX2dbxu3FbtOe1jisgc2FZeUCrcUPH2xX4Eulh
-         5DBQ==
-X-Gm-Message-State: AOAM532qaTbGos9xZL7kB4NcBwZs0c1D3C5myS7BIepP9hM2im5m0ZJm
-        WDq1y/0KV3vilk+PCvP+sapcAhZA7nN9ADwE2gjZCQ==
-X-Google-Smtp-Source: ABdhPJxwTRPw1SyfjHlncNSOVorvYESoFFbXMikButATomxjuwsBtRRhsFdbrn1FLDfvVaLzKr9cQ9nL1qakihnHqzI=
-X-Received: by 2002:a17:906:5f93:: with SMTP id a19mr19302430eju.18.1622531609380;
- Tue, 01 Jun 2021 00:13:29 -0700 (PDT)
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=emyUtAWEgDmFnmhXG3HYQB6UCm32cWFuLm9kPRBLFac=;
+        b=D2+hl9C1VxCzI1yUzoG3XCT0lnVPLFRlOo3vswYATFZd3mFilqZ1SCxhyV5yuIFGEg
+         Vtq5plrburcywxYURZ/6Kd/iEt9xbE7wY1eipufvVujcd4gx4hWvX4bgm4k3oBT3iyWb
+         RI5ymQE2VRliyKRi7Q4ErlFmaJrP0ja+APbVdqvLe3h+yjE00IwHTfRspqyW5luq8zor
+         ADuWRb+F7UHsZADiXWS33/J9Ac4i9AuJe+55Y6YQX6Ip2UZl6MKIRcqpF+exJm944Ph5
+         COF6NX8wohsDLHOmRZOlRjh5OtHhB5WRqR0Ud/IYV/adpkXjkHJRm6TXc37Q9MWrnLE/
+         +yyw==
+X-Gm-Message-State: AOAM533TweAZDO1tWbDrzdzaokBubLRozNA3FXvECYijCqgsdxq6mcmM
+        8bpFsBNq0K9oxdrGY9nwURYheCQDT5Whag1Vgnj2QGuFuGxn3ubq/n6ksQhfPX+BizxMmPqU4LU
+        A8hk4i8TPi69ORSGcrKIwqtw9gkCoEkxaDQ==
+X-Received: by 2002:a05:6000:18a4:: with SMTP id b4mr24772772wri.24.1622531819761;
+        Tue, 01 Jun 2021 00:16:59 -0700 (PDT)
+X-Google-Smtp-Source: ABdhPJwV6REufv9sxaOSiw58y5Vatl+jTKAcRUTHaP2brj73CCq0LAEG/KOOw1ZnU+ZvqyOQjub/2A==
+X-Received: by 2002:a05:6000:18a4:: with SMTP id b4mr24772761wri.24.1622531819612;
+        Tue, 01 Jun 2021 00:16:59 -0700 (PDT)
+Received: from localhost.localdomain (xdsl-188-155-185-9.adslplus.ch. [188.155.185.9])
+        by smtp.gmail.com with ESMTPSA id b188sm2083869wmh.18.2021.06.01.00.16.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 01 Jun 2021 00:16:59 -0700 (PDT)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+To:     stable@vger.kernel.org
+Cc:     Andrea Righi <andrea.righi@canonical.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH v3 | stable v5.12 1/3] x86/kvm: Teardown PV features on boot CPU as well
+Date:   Tue,  1 Jun 2021 09:16:42 +0200
+Message-Id: <20210601071644.6055-1-krzysztof.kozlowski@canonical.com>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-References: <20210531130657.971257589@linuxfoundation.org>
-In-Reply-To: <20210531130657.971257589@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 1 Jun 2021 12:43:18 +0530
-Message-ID: <CA+G9fYtU3_=W-Y-SG9rdQV-JXLT82bciuy0FJ_ykcOnr4LCqQQ@mail.gmail.com>
-Subject: Re: [PATCH 5.10 000/252] 5.10.42-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     open list <linux-kernel@vger.kernel.org>,
-        Shuah Khan <shuah@kernel.org>,
-        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
-        linux-stable <stable@vger.kernel.org>,
-        Pavel Machek <pavel@denx.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Guenter Roeck <linux@roeck-us.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 31 May 2021 at 19:03, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.10.42 release.
-> There are 252 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.10.42-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
+commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Various PV features (Async PF, PV EOI, steal time) work through memory
+shared with hypervisor and when we restore from hibernation we must
+properly teardown all these features to make sure hypervisor doesn't
+write to stale locations after we jump to the previously hibernated kernel
+(which can try to place anything there). For secondary CPUs the job is
+already done by kvm_cpu_down_prepare(), register syscore ops to do
+the same for boot CPU.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Krzysztof:
+This fixes memory corruption visible after second resume from
+hibernation:
 
-## Build
-* kernel: 5.10.42-rc1
-* git: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-=
-rc.git
-* git branch: linux-5.10.y
-* git commit: 2a1bdede969e234cf4e4e8d31566ea1804d3b443
-* git describe: v5.10.40-263-g2a1bdede969e
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10=
-.40-263-g2a1bdede969e
+  BUG: Bad page state in process dbus-daemon  pfn:18b01
+  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
 
-## No regressions (compared to v5.10.40-10-gec1cc3ee7be2)
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+[krzysztof: Extend the commit message, adjust for v5.10 context]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+---
+ arch/x86/kernel/kvm.c | 57 +++++++++++++++++++++++++++++++------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
 
-## No fixes (compared to v5.10.40-10-gec1cc3ee7be2)
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index 78bb0fae3982..5ae57be19187 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -26,6 +26,7 @@
+ #include <linux/kprobes.h>
+ #include <linux/nmi.h>
+ #include <linux/swait.h>
++#include <linux/syscore_ops.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -460,6 +461,25 @@ static bool pv_tlb_flush_supported(void)
+ 
+ static DEFINE_PER_CPU(cpumask_var_t, __pv_cpu_mask);
+ 
++static void kvm_guest_cpu_offline(void)
++{
++	kvm_disable_steal_time();
++	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
++		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
++	kvm_pv_disable_apf();
++	apf_task_wake_all();
++}
++
++static int kvm_cpu_online(unsigned int cpu)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	kvm_guest_cpu_init();
++	local_irq_restore(flags);
++	return 0;
++}
++
+ #ifdef CONFIG_SMP
+ 
+ static bool pv_ipi_supported(void)
+@@ -587,31 +607,34 @@ static void __init kvm_smp_prepare_boot_cpu(void)
+ 	kvm_spinlock_init();
+ }
+ 
+-static void kvm_guest_cpu_offline(void)
++static int kvm_cpu_down_prepare(unsigned int cpu)
+ {
+-	kvm_disable_steal_time();
+-	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+-		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+-	kvm_pv_disable_apf();
+-	apf_task_wake_all();
+-}
++	unsigned long flags;
+ 
+-static int kvm_cpu_online(unsigned int cpu)
+-{
+-	local_irq_disable();
+-	kvm_guest_cpu_init();
+-	local_irq_enable();
++	local_irq_save(flags);
++	kvm_guest_cpu_offline();
++	local_irq_restore(flags);
+ 	return 0;
+ }
+ 
+-static int kvm_cpu_down_prepare(unsigned int cpu)
++#endif
++
++static int kvm_suspend(void)
+ {
+-	local_irq_disable();
+ 	kvm_guest_cpu_offline();
+-	local_irq_enable();
++
+ 	return 0;
+ }
+-#endif
++
++static void kvm_resume(void)
++{
++	kvm_cpu_online(raw_smp_processor_id());
++}
++
++static struct syscore_ops kvm_syscore_ops = {
++	.suspend	= kvm_suspend,
++	.resume		= kvm_resume,
++};
+ 
+ static void kvm_flush_tlb_others(const struct cpumask *cpumask,
+ 			const struct flush_tlb_info *info)
+@@ -681,6 +704,8 @@ static void __init kvm_guest_init(void)
+ 	kvm_guest_cpu_init();
+ #endif
+ 
++	register_syscore_ops(&kvm_syscore_ops);
++
+ 	/*
+ 	 * Hard lockup detection is enabled by default. Disable it, as guests
+ 	 * can get false positives too easily, for example if the host is
+-- 
+2.27.0
 
-## Test result summary
- total: 74784, pass: 63100, fail: 550, skip: 10569, xfail: 565,
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 193 total, 193 passed, 0 failed
-* arm64: 27 total, 27 passed, 0 failed
-* i386: 25 total, 25 passed, 0 failed
-* mips: 45 total, 45 passed, 0 failed
-* parisc: 9 total, 9 passed, 0 failed
-* powerpc: 27 total, 27 passed, 0 failed
-* riscv: 21 total, 21 passed, 0 failed
-* s390: 18 total, 18 passed, 0 failed
-* sh: 18 total, 18 passed, 0 failed
-* sparc: 9 total, 9 passed, 0 failed
-* x86_64: 27 total, 27 passed, 0 failed
-
-## Test suites summary
-* fwts
-* kselftest-android
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-lkdtm
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* linux-log-parser
-* ltp-cap_bounds-tests
-* ltp-commands-tests
-* ltp-containers-tests
-* ltp-controllers-tests
-* ltp-cpuhotplug-tests
-* ltp-crypto-tests
-* ltp-cve-tests
-* ltp-dio-tests
-* ltp-fcntl-locktests-tests
-* ltp-filecaps-tests
-* ltp-fs-tests
-* ltp-fs_bind-tests
-* ltp-fs_perms_simple-tests
-* ltp-fsx-tests
-* ltp-hugetlb-tests
-* ltp-io-tests
-* ltp-ipc-tests
-* ltp-math-tests
-* ltp-mm-tests
-* ltp-nptl-tests
-* ltp-open-posix-tests
-* ltp-pty-tests
-* ltp-sched-tests
-* ltp-securebits-tests
-* ltp-syscalls-tests
-* ltp-tracing-tests
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-
---
-Naresh Kamboju
-https://lkft.linaro.org
