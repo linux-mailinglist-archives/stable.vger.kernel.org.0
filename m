@@ -2,80 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9ECB6398D5D
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 16:46:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E721A398D76
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 16:51:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230072AbhFBOrt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 10:47:49 -0400
-Received: from Galois.linutronix.de ([193.142.43.55]:40350 "EHLO
-        galois.linutronix.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229586AbhFBOrt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 10:47:49 -0400
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622645164;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=o4hONCFQBcPOxlxyQ9LyYWxu0os9m0Btu4PMhynyl2o=;
-        b=nQL/05UddfciHYwDihadZs3yYtqYkqUoqQ85iB85Hh5QwJvgRGXqN78rqWgLOVuE+GXcpq
-        InpfyKB5L8CBrhB1DvTf5/xYeZ/NRg/um9nnuvYhQB5TQAY/atFJsCcUoQKBSONWDmA8F4
-        cEPUAf0I4G6gUyU22oWYuwDvTRYrVj/UMPBkzF3O2iPWUURYeOCg0Ulj90iuq6n14OTUQI
-        2vU4OMx3EAxqk6l9F0FcQSnUw9sASWY/zVQLvK3ZFviXKpfraY/vb/HCGfvQNlxredjwrf
-        RQBJIdeesk2wqqC/KixInKadrIsVanbHd3CEKflJiDQKe3FEs/MS5obietgk+Q==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622645164;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=o4hONCFQBcPOxlxyQ9LyYWxu0os9m0Btu4PMhynyl2o=;
-        b=6truFWXPjcwI2gFE9yAy2Yll/2thUzrz7O7D6f0GZuUJbYNgKfA5jLSwtnogCqkm7OdeQz
-        8LPVijtH8rAhmiBw==
-To:     Borislav Petkov <bp@alien8.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-        Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yu-cheng Yu <yu-cheng.yu@intel.com>,
-        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: Re: [patch 2/8] x86/fpu: Prevent state corruption in __fpu__restore_sig()
-In-Reply-To: <YLeDx+EohkPpjabd@zn.tnic>
-References: <20210602095543.149814064@linutronix.de> <20210602101618.462908825@linutronix.de> <YLeDx+EohkPpjabd@zn.tnic>
-Date:   Wed, 02 Jun 2021 16:46:04 +0200
-Message-ID: <874keg1g0j.ffs@nanos.tec.linutronix.de>
+        id S230031AbhFBOw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 10:52:56 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33712 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230029AbhFBOwz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Jun 2021 10:52:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 93571613AD;
+        Wed,  2 Jun 2021 14:51:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1622645472;
+        bh=MoofaNMPSrJx2DYfO5c3J16PHX/4qCv0f1dHWFHh4ls=;
+        h=Subject:To:From:Date:From;
+        b=AOZ1arbIuej6esZMKqMfY9mhxc9VP2t0aqbRiKWxH0+WzLs8qHTR6hnY9QEf9IHCK
+         rQSZMl4DTJzJzOb8/OXsXjgt0AsSPegKv8oFKlxXOOPSh4TrnRaG5lbeLM3Qvx95Cb
+         NroYpVyC5vvWFt9Tzvs1DAgjliICuH4/fCNbcSq8=
+Subject: patch "usb: dwc3: gadget: Bail from dwc3_gadget_exit() if dwc->gadget is" added to usb-linus
+To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
+        peter.chen@kernel.org, stable@vger.kernel.org
+From:   <gregkh@linuxfoundation.org>
+Date:   Wed, 02 Jun 2021 16:51:09 +0200
+Message-ID: <162264546935130@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 02 2021 at 15:12, Borislav Petkov wrote:
->>  /* Validate an xstate header supplied by userspace (ptrace or sigreturn=
-) */
->> -int validate_user_xstate_header(const struct xstate_header *hdr)
->> +static int validate_user_xstate_header(const struct xstate_header *hdr)
->
-> Can't do that yet - that one is still called from regset.c:
->
-> arch/x86/kernel/fpu/regset.c: In function =E2=80=98xstateregs_set=E2=80=
-=99:
-> arch/x86/kernel/fpu/regset.c:135:10: error: implicit declaration of funct=
-ion =E2=80=98validate_user_xstate_header=E2=80=99 [-Werror=3Dimplicit-funct=
-ion-declaration]
->   135 |    ret =3D validate_user_xstate_header(&xsave->header);
->       |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~
-> cc1: some warnings being treated as errors
->
-> Maybe after the 5th patch which kills that usage too.
 
-Gah, yes. I had the patches ordered differently and then failed to do a
-full step by step recompile after reshuffling them. Fixed localy.
+This is a note to let you know that I've just added the patch titled
 
-Thanks,
+    usb: dwc3: gadget: Bail from dwc3_gadget_exit() if dwc->gadget is
 
-        tglx
+to my usb git tree which can be found at
+    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
+in the usb-linus branch.
+
+The patch will show up in the next release of the linux-next tree
+(usually sometime within the next 24 hours during the week.)
+
+The patch will hopefully also be merged in Linus's tree for the
+next -rc kernel release.
+
+If you have any questions about this process, please let me know.
+
+
+From 03715ea2e3dbbc56947137ce3b4ac18a726b2f87 Mon Sep 17 00:00:00 2001
+From: Jack Pham <jackp@codeaurora.org>
+Date: Fri, 28 May 2021 09:04:05 -0700
+Subject: usb: dwc3: gadget: Bail from dwc3_gadget_exit() if dwc->gadget is
+ NULL
+
+There exists a possible scenario in which dwc3_gadget_init() can fail:
+during during host -> peripheral mode switch in dwc3_set_mode(), and
+a pending gadget driver fails to bind.  Then, if the DRD undergoes
+another mode switch from peripheral->host the resulting
+dwc3_gadget_exit() will attempt to reference an invalid and dangling
+dwc->gadget pointer as well as call dma_free_coherent() on unmapped
+DMA pointers.
+
+The exact scenario can be reproduced as follows:
+ - Start DWC3 in peripheral mode
+ - Configure ConfigFS gadget with FunctionFS instance (or use g_ffs)
+ - Run FunctionFS userspace application (open EPs, write descriptors, etc)
+ - Bind gadget driver to DWC3's UDC
+ - Switch DWC3 to host mode
+   => dwc3_gadget_exit() is called. usb_del_gadget() will put the
+	ConfigFS driver instance on the gadget_driver_pending_list
+ - Stop FunctionFS application (closes the ep files)
+ - Switch DWC3 to peripheral mode
+   => dwc3_gadget_init() fails as usb_add_gadget() calls
+	check_pending_gadget_drivers() and attempts to rebind the UDC
+	to the ConfigFS gadget but fails with -19 (-ENODEV) because the
+	FFS instance is not in FFS_ACTIVE state (userspace has not
+	re-opened and written the descriptors yet, i.e. desc_ready!=0).
+ - Switch DWC3 back to host mode
+   => dwc3_gadget_exit() is called again, but this time dwc->gadget
+	is invalid.
+
+Although it can be argued that userspace should take responsibility
+for ensuring that the FunctionFS application be ready prior to
+allowing the composite driver bind to the UDC, failure to do so
+should not result in a panic from the kernel driver.
+
+Fix this by setting dwc->gadget to NULL in the failure path of
+dwc3_gadget_init() and add a check to dwc3_gadget_exit() to bail out
+unless the gadget pointer is valid.
+
+Fixes: e81a7018d93a ("usb: dwc3: allocate gadget structure dynamically")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Peter Chen <peter.chen@kernel.org>
+Signed-off-by: Jack Pham <jackp@codeaurora.org>
+Link: https://lore.kernel.org/r/20210528160405.17550-1-jackp@codeaurora.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/usb/dwc3/gadget.c | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
+index 2577488456da..88270eee8a48 100644
+--- a/drivers/usb/dwc3/gadget.c
++++ b/drivers/usb/dwc3/gadget.c
+@@ -4045,6 +4045,7 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+ 	dwc3_gadget_free_endpoints(dwc);
+ err4:
+ 	usb_put_gadget(dwc->gadget);
++	dwc->gadget = NULL;
+ err3:
+ 	dma_free_coherent(dwc->sysdev, DWC3_BOUNCE_SIZE, dwc->bounce,
+ 			dwc->bounce_addr);
+@@ -4064,6 +4065,9 @@ int dwc3_gadget_init(struct dwc3 *dwc)
+ 
+ void dwc3_gadget_exit(struct dwc3 *dwc)
+ {
++	if (!dwc->gadget)
++		return;
++
+ 	usb_del_gadget(dwc->gadget);
+ 	dwc3_gadget_free_endpoints(dwc);
+ 	usb_put_gadget(dwc->gadget);
+-- 
+2.31.1
+
+
