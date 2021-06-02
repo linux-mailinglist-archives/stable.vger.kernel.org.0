@@ -2,116 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D5319399034
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 18:42:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E9A81399116
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 19:06:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229926AbhFBQno (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 12:43:44 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40844 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229625AbhFBQnn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 12:43:43 -0400
-Received: from mail-pg1-x532.google.com (mail-pg1-x532.google.com [IPv6:2607:f8b0:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43C90C061574
-        for <stable@vger.kernel.org>; Wed,  2 Jun 2021 09:42:00 -0700 (PDT)
-Received: by mail-pg1-x532.google.com with SMTP id e22so2700026pgv.10
-        for <stable@vger.kernel.org>; Wed, 02 Jun 2021 09:42:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=jlekstrand-net.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=gPVNq3xY6/pVhK42Qp957298GnOdq1x2LLqM9lPcSF0=;
-        b=WwIZN77eYfoJ1K/hpdlXAfsBsosrcxsjt80seY3+/6dr7oWCnGj51ZBiJy2woMqt0C
-         +8BJ2GHg+hJs8owJOO1RK3FyvbAnjwpmsAxzzS9InZP8e65RGM5pMTJ5VnDI93yx/6tX
-         Nc4Yw/C6dYPdSU/dDxYD+tqgDTrAX+cE43hJGGQ/02vkv2+zwLemKDFEV7TNupN0txqk
-         Xomz1eJ8T0MnOgpFjqXuqatz/OXsCRUCJzjvGKknUWG0h387SFc2N+/vueMreiMmzXVt
-         LscFzQkInVvCrpP3aAEBmhPxNv8iEqsLmFe62VA9HIW6XUpha1PtAodV0fTkBsUcDvQI
-         Wg5A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=gPVNq3xY6/pVhK42Qp957298GnOdq1x2LLqM9lPcSF0=;
-        b=iJ5DgU3QPOjBvj6PpXki+ScyVjB/9hv8sWxyTD8XJzCBN0z3JlCBoHPldz+CEZ3EYk
-         CIlin92ZHlBsnE8/UQBdwPs5/kwqXI5LSKaH9sqbWo889NPSVR4IcDk80et4FaOBogrJ
-         yynJpTGfPBjnC8v06Hfkh2ZLVpjl/B6tRc7QY66B7DOyCEGKUMS+w0vIRoQyCENuzV3E
-         xk+B8nMm5vWYN21dDD+0ERW2tCtQ3BFXSsv5kSDqXZwApBx3gihHXFZTXnnYGkJ4GZ8L
-         5XxIh/Fa39M6fla2axGF6dqLQNJyJAOkd9erBkS3u7L7kVnblK/6oGbLvKWm0+9dICb+
-         Zo7Q==
-X-Gm-Message-State: AOAM532em4yPzOGgzwFL1cjzkb26TZxYqpP3KpfvvtDSL6/DzIGK0Q9C
-        MQ3fX+nInsg0frFoJlr/fZ3Lfg==
-X-Google-Smtp-Source: ABdhPJxlqXWTNaqRa5erKgD5YGNKy4A/O7o19m2tpIvDsZcU/e33F551nOmmOZC0UVcLlzWTNFe8aA==
-X-Received: by 2002:a63:f344:: with SMTP id t4mr19286061pgj.314.1622652119744;
-        Wed, 02 Jun 2021 09:41:59 -0700 (PDT)
-Received: from omlet.lan (jfdmzpr04-ext.jf.intel.com. [134.134.137.73])
-        by smtp.gmail.com with ESMTPSA id h6sm75803pjs.15.2021.06.02.09.41.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 09:41:59 -0700 (PDT)
-From:   Jason Ekstrand <jason@jlekstrand.net>
-To:     dri-devel@lists.freedesktop.org, intel-gfx@lists.freedesktop.org
-Cc:     Jason Ekstrand <jason@jlekstrand.net>,
-        Jason Ekstrand <jason.ekstrand@intel.com>,
-        Marcin Slusarz <marcin.slusarz@intel.com>,
-        stable@vger.kernel.org, Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Jon Bloomfield <jon.bloomfield@intel.com>
-Subject: [PATCH 4/5] Revert "drm/i915: Propagate errors on awaiting already signaled fences"
-Date:   Wed,  2 Jun 2021 11:41:48 -0500
-Message-Id: <20210602164149.391653-5-jason@jlekstrand.net>
-X-Mailer: git-send-email 2.31.1
-In-Reply-To: <20210602164149.391653-1-jason@jlekstrand.net>
-References: <20210602164149.391653-1-jason@jlekstrand.net>
+        id S229845AbhFBRIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 13:08:34 -0400
+Received: from mail1.perex.cz ([77.48.224.245]:40284 "EHLO mail1.perex.cz"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229625AbhFBRIe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Jun 2021 13:08:34 -0400
+X-Greylist: delayed 515 seconds by postgrey-1.27 at vger.kernel.org; Wed, 02 Jun 2021 13:08:34 EDT
+Received: from mail1.perex.cz (localhost [127.0.0.1])
+        by smtp1.perex.cz (Perex's E-mail Delivery System) with ESMTP id A8577A0042;
+        Wed,  2 Jun 2021 18:58:15 +0200 (CEST)
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.perex.cz A8577A0042
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=perex.cz; s=default;
+        t=1622653095; bh=sT4RPi+meQb9+r/aEG+lNDSsof33NXU66YQc/AJrJuc=;
+        h=Subject:To:References:Cc:From:Date:In-Reply-To:From;
+        b=EDxP/DFGEm8Ectgw2QDYhfIdSOOTmXVLGT3qWdbYXVIG7Xkc7jhLQwKPGAWO/zQ3k
+         zoWdiu+zvtIZ4/pDzh2+60fleVHOsfySK3ebUv+5TnqdTXUhVniCe1fSXTU4H6ZO/I
+         hgm3G4KtQ3ruYhj08hu4yVN0A3NQGfkH/VI/crVg=
+Received: from p1gen2.localdomain (unknown [192.168.100.98])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        (Authenticated sender: perex)
+        by mail1.perex.cz (Perex's E-mail Delivery System) with ESMTPSA;
+        Wed,  2 Jun 2021 18:58:11 +0200 (CEST)
+Subject: Re: [PATCH] ALSA: timer: Fix master timer notification
+To:     Takashi Iwai <tiwai@suse.de>, alsa-devel@alsa-project.org
+References: <20210602113823.23777-1-tiwai@suse.de>
+Cc:     stable@vger.kernel.org
+From:   Jaroslav Kysela <perex@perex.cz>
+Message-ID: <179e8e18-006d-f32b-ace9-3dd60ab7332b@perex.cz>
+Date:   Wed, 2 Jun 2021 18:58:11 +0200
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
+ Thunderbird/78.8.1
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20210602113823.23777-1-tiwai@suse.de>
+Content-Type: text/plain; charset=utf-8
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 9e31c1fe45d555a948ff66f1f0e3fe1f83ca63f7.  Ever
-since that commit, we've been having issues where a hang in one client
-can propagate to another.  In particular, a hang in an app can propagate
-to the X server which causes the whole desktop to lock up.
+On 02. 06. 21 13:38, Takashi Iwai wrote:
+> snd_timer_notify1() calls the notification to each slave for a master
+> event, but it passes a wrong event number.  It should be +10 offset,
+> corresponding to SNDRV_TIMER_EVENT_MXXX, but it's incorrectly with
+> +100 offset.  Casually this was spotted by UBSAN check via syzkaller.
+> 
+> Reported-by: syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com
+> Cc: <stable@vger.kernel.org>
+> Link: https://lore.kernel.org/r/000000000000e5560e05c3bd1d63@google.com
+> Signed-off-by: Takashi Iwai <tiwai@suse.de>
 
-Signed-off-by: Jason Ekstrand <jason.ekstrand@intel.com>
-Reported-by: Marcin Slusarz <marcin.slusarz@intel.com>
-Cc: <stable@vger.kernel.org> # v5.6+
-Cc: Jason Ekstrand <jason.ekstrand@intel.com>
-Cc: Marcin Slusarz <marcin.slusarz@intel.com>
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/3080
-Fixes: 9e31c1fe45d5 ("drm/i915: Propagate errors on awaiting already signaled fences")
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Reviewed-by: Jon Bloomfield <jon.bloomfield@intel.com>
----
- drivers/gpu/drm/i915/i915_request.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
 
-diff --git a/drivers/gpu/drm/i915/i915_request.c b/drivers/gpu/drm/i915/i915_request.c
-index 970d8f4986bbe..b796197c07722 100644
---- a/drivers/gpu/drm/i915/i915_request.c
-+++ b/drivers/gpu/drm/i915/i915_request.c
-@@ -1426,10 +1426,8 @@ i915_request_await_execution(struct i915_request *rq,
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		if (fence->context == rq->fence.context)
- 			continue;
-@@ -1527,10 +1525,8 @@ i915_request_await_dma_fence(struct i915_request *rq, struct dma_fence *fence)
- 
- 	do {
- 		fence = *child++;
--		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags)) {
--			i915_sw_fence_set_error_once(&rq->submit, fence->error);
-+		if (test_bit(DMA_FENCE_FLAG_SIGNALED_BIT, &fence->flags))
- 			continue;
--		}
- 
- 		/*
- 		 * Requests on the same timeline are explicitly ordered, along
+> ---
+>  sound/core/timer.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/sound/core/timer.c b/sound/core/timer.c
+> index 6898b1ac0d7f..92b7008fcdb8 100644
+> --- a/sound/core/timer.c
+> +++ b/sound/core/timer.c
+> @@ -520,9 +520,10 @@ static void snd_timer_notify1(struct snd_timer_instance *ti, int event)
+>  		return;
+>  	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
+>  		return;
+> +	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
+>  	list_for_each_entry(ts, &ti->slave_active_head, active_list)
+>  		if (ts->ccallback)
+> -			ts->ccallback(ts, event + 100, &tstamp, resolution);
+> +			ts->ccallback(ts, event, &tstamp, resolution);
+>  }
+>  
+>  /* start/continue a master timer */
+> 
+
+
 -- 
-2.31.1
-
+Jaroslav Kysela <perex@perex.cz>
+Linux Sound Maintainer; ALSA Project; Red Hat, Inc.
