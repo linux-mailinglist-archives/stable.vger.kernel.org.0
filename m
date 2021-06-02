@@ -2,110 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D87939937A
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 21:27:01 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D6FE63993DD
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 21:49:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229587AbhFBT2n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 15:28:43 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49374 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229552AbhFBT2m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 15:28:42 -0400
-Received: from mail-lf1-x136.google.com (mail-lf1-x136.google.com [IPv6:2a00:1450:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A121C061756;
-        Wed,  2 Jun 2021 12:26:51 -0700 (PDT)
-Received: by mail-lf1-x136.google.com with SMTP id r198so1733278lff.11;
-        Wed, 02 Jun 2021 12:26:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3eTcKsWffVVKPjZgROWnlvuBXI7UvAVKKPxxp+2QZlg=;
-        b=VmSDYsE6qXuKdsNbzP+1a5Fb8IMfzB8xg1zz8XrQUtTPsSJ0dtdnWLdzLGjyA0TyE0
-         j6Xut2notzCNhkZh2rfcRhfS8LN26+woBgoMQ30tkSBhROLRxFR4InBS4hjHfyOxKILg
-         r9SaIhBCh482gLYqcu2pDrPnU/694khEiv6VwzIw+arNZERh1KQ+lHOU6IVlf2EZRE7g
-         Z/XzZeaaG6NdLGXyh97u7Bd+AMljVPkcRa8UF1PCvZsB66/uRPHFLhyVUOso0GEhnbEC
-         pmR72bsDROB1ke0GZf7tWT2y7N15abAI3VFKVbiMt3nQXvRSUPsXILJ2yTS/emKYkyjA
-         ueZg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=3eTcKsWffVVKPjZgROWnlvuBXI7UvAVKKPxxp+2QZlg=;
-        b=hlmc/Rp5kWR0wxSjYxb5k0/2631IqzIt82nID7V2N0AIpvxPHVA9nwRYwfpULA4vHy
-         RQjKJm68H9ZgE7ke6NpbdI5Lkt24c7Y7UTKmPYhsfWTVrO2/+8tsi9tJDLukv7b46KpD
-         p1KqJQU3xYxG5i0nraRE+7eRv+0zhjls3cVy5yLMgb98iSi7fLm0Jd5U8EJpwZ9OCyh+
-         EEnvqS4e1IBGy8e5spVu7VdysaK0jBFF/69EGvdzwG0/1zK3d97sXJ3jEL/7Gv4/8mFS
-         ekqF/3PPPA1WtQo1Xk9UuRtGxOBN7ZEmM8fSaEBK0gnKt02JUPqa84J+4W8kMaB/lr4V
-         uuGQ==
-X-Gm-Message-State: AOAM530H0ex3/nA1hQvr1WKSndD7NI/WGg0jIu0GmsnqT1qqrgn2TbKR
-        4HrJtMSAPQdq7ezEpwvkvfw=
-X-Google-Smtp-Source: ABdhPJw7BLv63SqhnBYy0dv4fOThx1h0GBRVTPJ5dZ1FRG00zjHtGJK6dX7HUPLtFXA8dJX7oVIZFg==
-X-Received: by 2002:ac2:5d6c:: with SMTP id h12mr24423879lft.354.1622662009569;
-        Wed, 02 Jun 2021 12:26:49 -0700 (PDT)
-Received: from localhost.localdomain ([94.103.224.40])
-        by smtp.gmail.com with ESMTPSA id w21sm76683lfu.174.2021.06.02.12.26.48
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 02 Jun 2021 12:26:49 -0700 (PDT)
-From:   Pavel Skripkin <paskripkin@gmail.com>
-To:     davem@davemloft.net, kuba@kernel.org, tom@herbertland.com
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        syzbot+b039f5699bd82e1fb011@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: [PATCH] net: kcm: fix memory leak in kcm_sendmsg
-Date:   Wed,  2 Jun 2021 22:26:40 +0300
-Message-Id: <20210602192640.13597-1-paskripkin@gmail.com>
-X-Mailer: git-send-email 2.31.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+        id S229606AbhFBTuv convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Wed, 2 Jun 2021 15:50:51 -0400
+Received: from coyote.holtmann.net ([212.227.132.17]:45630 "EHLO
+        mail.holtmann.org" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229822AbhFBTuu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 15:50:50 -0400
+Received: from smtpclient.apple (p4fefc9d6.dip0.t-ipconnect.de [79.239.201.214])
+        by mail.holtmann.org (Postfix) with ESMTPSA id D4A83CED09;
+        Wed,  2 Jun 2021 21:57:02 +0200 (CEST)
+Content-Type: text/plain;
+        charset=us-ascii
+Mime-Version: 1.0 (Mac OS X Mail 14.0 \(3654.100.0.2.22\))
+Subject: Re: [PATCH 2/2] Bluetooth: btusb: Add 0x0b05:0x190e Realtek 8761BU
+ (ASUS BT500) device.
+From:   Marcel Holtmann <marcel@holtmann.org>
+In-Reply-To: <20210528152645.25577-2-joakim.tjernlund@infinera.com>
+Date:   Wed, 2 Jun 2021 21:49:04 +0200
+Cc:     linux-bluetooth <linux-bluetooth@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Content-Transfer-Encoding: 8BIT
+Message-Id: <A39E37D9-B579-4E78-BD88-7DED43DECD48@holtmann.org>
+References: <20210528152645.25577-1-joakim.tjernlund@infinera.com>
+ <20210528152645.25577-2-joakim.tjernlund@infinera.com>
+To:     Joakim Tjernlund <joakim.tjernlund@infinera.com>
+X-Mailer: Apple Mail (2.3654.100.0.2.22)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Syzbot reported memory leak in kcm_sendmsg()[1].
-The problem was in non-freed frag_list in case of error.
+Hi Joakim,
 
-In the while loop:
+> T:  Bus=01 Lev=01 Prnt=01 Port=08 Cnt=04 Dev#= 18 Spd=12   MxCh= 0
+> D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
+> P:  Vendor=0b05 ProdID=190e Rev= 2.00
+> S:  Manufacturer=Realtek
+> S:  Product=ASUS USB-BT500
+> S:  SerialNumber=xxxxxxxx
+> C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
+> I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
+> E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+> E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
+> I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
+> I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
+> I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
+> I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
+> I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
+> I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
+> E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+> E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
+> Signed-off-by: Joakim Tjernlund <Joakim.Tjernlund@infinera.com>
+> ---
+> drivers/bluetooth/btusb.c | 4 ++++
+> 1 file changed, 4 insertions(+)
+> 
+> diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+> index 5d603ef39bad..628f4b22cf69 100644
+> --- a/drivers/bluetooth/btusb.c
+> +++ b/drivers/bluetooth/btusb.c
+> @@ -425,6 +425,10 @@ static const struct usb_device_id blacklist_table[] = {
+> 	{ USB_DEVICE(0x0bda, 0xb009), .driver_info = BTUSB_REALTEK },
+> 	{ USB_DEVICE(0x2ff8, 0xb011), .driver_info = BTUSB_REALTEK },
+> 
+> +	/* Additional Realtek 8761BU Bluetooth devices */
+> +	{ USB_DEVICE(0x0b05, 0x190e), .driver_info = BTUSB_REALTEK |
+> +	  					     BTUSB_WIDEBAND_SPEECH },
+> +
 
-	if (head == skb)
-		skb_shinfo(head)->frag_list = tskb;
-	else
-		skb->next = tskb;
+Applying: Bluetooth: btusb: Add 0x0b05:0x190e Realtek 8761BU (ASUS BT500) device.
+.git/rebase-apply/patch:15: space before tab in indent.
+	  					     BTUSB_WIDEBAND_SPEECH },
+warning: 1 line adds whitespace errors.
 
-frag_list filled with skbs, but nothing was freeing them.
+Regards
 
-backtrace:
-  [<0000000094c02615>] __alloc_skb+0x5e/0x250 net/core/skbuff.c:198
-  [<00000000e5386cbd>] alloc_skb include/linux/skbuff.h:1083 [inline]
-  [<00000000e5386cbd>] kcm_sendmsg+0x3b6/0xa50 net/kcm/kcmsock.c:967 [1]
-  [<00000000f1613a8a>] sock_sendmsg_nosec net/socket.c:652 [inline]
-  [<00000000f1613a8a>] sock_sendmsg+0x4c/0x60 net/socket.c:672
-
-Reported-and-tested-by: syzbot+b039f5699bd82e1fb011@syzkaller.appspotmail.com
-Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
----
- net/kcm/kcmsock.c | 5 +++++
- 1 file changed, 5 insertions(+)
-
-diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-index 6201965bd822..1c572c8daced 100644
---- a/net/kcm/kcmsock.c
-+++ b/net/kcm/kcmsock.c
-@@ -1066,6 +1066,11 @@ static int kcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
- 		goto partial_message;
- 	}
- 
-+	if (skb_has_frag_list(head)) {
-+		kfree_skb_list(skb_shinfo(head)->frag_list);
-+		skb_shinfo(head)->frag_list = NULL;
-+	}
-+
- 	if (head != kcm->seq_skb)
- 		kfree_skb(head);
- 
--- 
-2.31.1
+Marcel
 
