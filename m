@@ -2,85 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1CC34397F07
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 04:25:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6107F397F7A
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 05:28:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229913AbhFBC1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 22:27:02 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45374 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229867AbhFBC1B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 22:27:01 -0400
-Received: from mail-ot1-x329.google.com (mail-ot1-x329.google.com [IPv6:2607:f8b0:4864:20::329])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69CFEC061574;
-        Tue,  1 Jun 2021 19:25:18 -0700 (PDT)
-Received: by mail-ot1-x329.google.com with SMTP id r26-20020a056830121ab02902a5ff1c9b81so1145862otp.11;
-        Tue, 01 Jun 2021 19:25:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=sender:date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=sxmNI2gtkNn2i8j5Q48ybDb0YLuu7cj+QVvQ8Fee3ho=;
-        b=CrawSiP5HLG1RLGoHW9hwJKkhlpIGUj7ewXW16QOeqPkTw2lrpmV3/7rypTx8U/7fi
-         jfHX6+2HuOVXAQXnnYTNlPOhqTCDw7jSMiCuNl+rhm1T3rdazkHsTsETD3ptAwF/uKWa
-         C+MKyXRRpJYuWk8ETjZM+hHbYCVW/kPHd6wUOxMSozSM6l1nNwWzJhpdiVUrug2T0dxg
-         amywoy9A/TPsJtNz6vkaTD3p8RVYYHlkr5dN9n3SUXOqMmaIk5+0CdxFa2w3sFQ/sdvZ
-         neEbFKR1Aibw1HU6wPC8PnXS06/B5NOEhL27ZQudvSl8HYeVi5/hMr45w+OuKzbNi33k
-         G/Ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:sender:date:from:to:cc:subject:message-id
-         :references:mime-version:content-disposition:in-reply-to;
-        bh=sxmNI2gtkNn2i8j5Q48ybDb0YLuu7cj+QVvQ8Fee3ho=;
-        b=IAhrEg25547ZIqUoKjUnUI1egklGEJ7ct1FpOCqYSvyaNOrpwTOLkIo+MwBdYmfw9u
-         +lZzaUhabORMOgy09ijyuzl2RgK/2cYBqlny3HLKNFQ4i+wMBlcc+wDWY542tGd66P+6
-         Htb8WSX+4qpBnvex/xkJsvWD25pkP5A69PXXB075s4UbsJOITmLSQ333a54yjywHSLt1
-         P0648Egu+QGjdaAt5ojwCNqenywdREtnMj+trO9VicK1SybeIhuhO+BlptrpV0gkYUYd
-         qcFU2LaeJfneGuimNvt+IIIUukjBjQYfaJEOMO13M9IwuNyGZq4rNirZehh+qFUk4Bff
-         a9zw==
-X-Gm-Message-State: AOAM5316K2LwLSw5x0Ha66ezwoCYfYP0Yw0EGQXFBtc39rJFIn3ONnB/
-        rsas76uzbysXqte4xlBv32c=
-X-Google-Smtp-Source: ABdhPJzgmBNUH27/AQkFpGzAdMqenYfNyjo/3TTuqHzbGGoMRRxHph+/MK2/C/q0beKNxkJYRoA1nw==
-X-Received: by 2002:a9d:1d45:: with SMTP id m63mr23795948otm.302.1622600717858;
-        Tue, 01 Jun 2021 19:25:17 -0700 (PDT)
-Received: from localhost ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id q17sm537770oiw.9.2021.06.01.19.25.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 01 Jun 2021 19:25:17 -0700 (PDT)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 1 Jun 2021 19:25:16 -0700
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, stable@vger.kernel.org
-Subject: Re: [PATCH 5.12 000/296] 5.12.9-rc1 review
-Message-ID: <20210602022516.GG3253484@roeck-us.net>
-References: <20210531130703.762129381@linuxfoundation.org>
+        id S231239AbhFBD3r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 23:29:47 -0400
+Received: from mail.loongson.cn ([114.242.206.163]:45696 "EHLO loongson.cn"
+        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
+        id S230511AbhFBD3q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 1 Jun 2021 23:29:46 -0400
+Received: from linux.localdomain (unknown [113.200.148.30])
+        by mail.loongson.cn (Coremail) with SMTP id AQAAf9DxH0O6+rZgh7MIAA--.9496S2;
+        Wed, 02 Jun 2021 11:27:54 +0800 (CST)
+From:   Tiezhu Yang <yangtiezhu@loongson.cn>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, bpf@vger.kernel.org
+Subject: [PATCH 4.19 0/9] bpf: fix verifier selftests on inefficient unaligned access architectures
+Date:   Wed,  2 Jun 2021 11:27:44 +0800
+Message-Id: <1622604473-781-1-git-send-email-yangtiezhu@loongson.cn>
+X-Mailer: git-send-email 2.1.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20210531130703.762129381@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID: AQAAf9DxH0O6+rZgh7MIAA--.9496S2
+X-Coremail-Antispam: 1UD129KBjvJXoW7uw1fAF4kXFW7Xw13Cr17KFg_yoW8AF4rpa
+        y8KFZ0kF4kt3Wxua47AF4UGrWrXwnYgw4UC3Wxtr1qyF18Ary8Jr4Iga45tr98Kr93Xr1F
+        v34akFn3Gw13XFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUk2b7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I2
+        0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
+        A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Xr0_Ar1l84ACjcxK6xII
+        jxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwV
+        C2z280aVCY1x0267AKxVW0oVCq3wAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC
+        0VAKzVAqx4xG6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr
+        1lOx8S6xCaFVCjc4AY6r1j6r4UM4x0Y48IcxkI7VAKI48JMxkIecxEwVAFwVW8GwCF04k2
+        0xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI
+        8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_JF0_Jw1lIxkGc2Ij64vIr41l
+        IxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Jr0_Gr1lIx
+        AIcVCF04k26cxKx2IYs7xG6rW3Jr0E3s1lIxAIcVC2z280aVAFwI0_Jr0_Gr1lIxAIcVC2
+        z280aVCY1x0267AKxVWUJVW8JbIYCTnIWIevJa73UjIFyTuYvjxUyHUqUUUUU
+X-CM-SenderInfo: p1dqw3xlh2x3gn0dqz5rrqw2lrqou0/
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 31, 2021 at 03:10:55PM +0200, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.12.9 release.
-> There are 296 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
-> Anything received after that time might be too late.
-> 
+With the following patch series, all verifier selftests pass on the archs which
+select HAVE_EFFICIENT_UNALIGNED_ACCESS.
 
-Build results:
-	total: 151 pass: 151 fail: 0
-Qemu test results:
-	total: 462 pass: 462 fail: 0
+[v2,4.19,00/19] bpf: fix verifier selftests, add CVE-2021-29155, CVE-2021-33200 fixes
+https://patchwork.kernel.org/project/netdevbpf/cover/20210528103810.22025-1-ovidiu.panait@windriver.com/
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+But on inefficient unaligned access architectures, there still exist many failures,
+so some patches about F_NEEDS_EFFICIENT_UNALIGNED_ACCESS are also needed, backport
+to 4.19 with a minor context difference.
 
-Guenter
+This patch series is based on the series (all now queued up by greg k-h):
+"bpf: fix verifier selftests, add CVE-2021-29155, CVE-2021-33200 fixes".
+
+Björn Töpel (2):
+  selftests/bpf: add "any alignment" annotation for some tests
+  selftests/bpf: Avoid running unprivileged tests with alignment
+    requirements
+
+Daniel Borkmann (2):
+  bpf: fix test suite to enable all unpriv program types
+  bpf: test make sure to run unpriv test cases in test_verifier
+
+David S. Miller (4):
+  bpf: Add BPF_F_ANY_ALIGNMENT.
+  bpf: Adjust F_NEEDS_EFFICIENT_UNALIGNED_ACCESS handling in
+    test_verifier.c
+  bpf: Make more use of 'any' alignment in test_verifier.c
+  bpf: Apply F_NEEDS_EFFICIENT_UNALIGNED_ACCESS to more ACCEPT test
+    cases.
+
+Joe Stringer (1):
+  selftests/bpf: Generalize dummy program types
+
+ include/uapi/linux/bpf.h                    |  14 ++
+ kernel/bpf/syscall.c                        |   7 +-
+ kernel/bpf/verifier.c                       |   3 +
+ tools/include/uapi/linux/bpf.h              |  14 ++
+ tools/lib/bpf/bpf.c                         |   8 +-
+ tools/lib/bpf/bpf.h                         |   2 +-
+ tools/testing/selftests/bpf/test_align.c    |   4 +-
+ tools/testing/selftests/bpf/test_verifier.c | 224 ++++++++++++++++++++--------
+ 8 files changed, 206 insertions(+), 70 deletions(-)
+
+-- 
+2.1.0
+
