@@ -2,112 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DE503982A9
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 09:07:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 30A6839850B
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 11:15:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231480AbhFBHIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 03:08:54 -0400
-Received: from [110.188.70.11] ([110.188.70.11]:55775 "EHLO spam1.hygon.cn"
-        rhost-flags-FAIL-FAIL-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229753AbhFBHIw (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Jun 2021 03:08:52 -0400
-Received: from MK-FE.hygon.cn ([172.23.18.61])
-        by spam1.hygon.cn with ESMTP id 15273S92001983;
-        Wed, 2 Jun 2021 15:03:28 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from cncheex01.Hygon.cn ([172.23.18.10])
-        by MK-FE.hygon.cn with ESMTP id 15273P1T031653;
-        Wed, 2 Jun 2021 15:03:25 +0800 (GMT-8)
-        (envelope-from puwen@hygon.cn)
-Received: from ubuntu1604-2.higon.com (172.23.18.44) by cncheex01.Hygon.cn
- (172.23.18.10) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.10; Wed, 2 Jun
- 2021 15:03:25 +0800
-From:   Pu Wen <puwen@hygon.cn>
-To:     <x86@kernel.org>
-CC:     <puwen@hygon.cn>, <thomas.lendacky@amd.com>, <bp@alien8.de>,
-        <jroedel@suse.de>, <seanjc@google.com>,
-        <dave.hansen@linux.intel.com>, <peterz@infradead.org>,
-        <mingo@redhat.com>, <hpa@zytor.com>, <sashal@kernel.org>,
-        <gregkh@linuxfoundation.org>, <linux-kernel@vger.kernel.org>,
-        <kvm@vger.kernel.org>, <stable@vger.kernel.org>
-Subject: [PATCH v2] x86/sev: Check whether SEV or SME is supported first
-Date:   Wed, 2 Jun 2021 15:02:07 +0800
-Message-ID: <20210602070207.2480-1-puwen@hygon.cn>
-X-Mailer: git-send-email 2.23.0
+        id S231566AbhFBJQl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 05:16:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47076 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231543AbhFBJQk (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Jun 2021 05:16:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9DE94610A8;
+        Wed,  2 Jun 2021 09:14:54 +0000 (UTC)
+Date:   Wed, 2 Jun 2021 11:14:51 +0200
+From:   Christian Brauner <christian.brauner@ubuntu.com>
+To:     Cong Wang <xiyou.wangcong@gmail.com>
+Cc:     Jakub Kicinski <kuba@kernel.org>,
+        Changbin Du <changbin.du@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>,
+        David Laight <David.Laight@aculab.com>
+Subject: Re: [PATCH] nsfs: fix oops when ns->ops is not provided
+Message-ID: <20210602091451.kbdul6nhobilwqvi@wittgenstein>
+References: <20210531153410.93150-1-changbin.du@gmail.com>
+ <20210531220128.26c0cb36@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <CAM_iQpUEjBDK44=mD5shkmmoDYhmHQaSZtR34rLRkgd9wSWiQQ@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7BIT
-Content-Type:   text/plain; charset=US-ASCII
-X-Originating-IP: [172.23.18.44]
-X-ClientProxiedBy: cncheex02.Hygon.cn (172.23.18.12) To cncheex01.Hygon.cn
- (172.23.18.10)
-X-MAIL: spam1.hygon.cn 15273S92001983
-X-DNSRBL: 
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CAM_iQpUEjBDK44=mD5shkmmoDYhmHQaSZtR34rLRkgd9wSWiQQ@mail.gmail.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The first two bits of the CPUID leaf 0x8000001F EAX indicate whether
-SEV or SME is supported respectively. It's better to check whether
-SEV or SME is actually supported before checking the MSR_AMD64_SEV
-to see whether SEV or SME is enabled.
+On Tue, Jun 01, 2021 at 12:51:51PM -0700, Cong Wang wrote:
+> On Mon, May 31, 2021 at 10:01 PM Jakub Kicinski <kuba@kernel.org> wrote:
+> >
+> > On Mon, 31 May 2021 23:34:10 +0800 Changbin Du wrote:
+> > > We should not create inode for disabled namespace. A disabled namespace
+> > > sets its ns->ops to NULL. Kernel could panic if we try to create a inode
+> > > for such namespace.
+> > >
+> > > Here is an example oops in socket ioctl cmd SIOCGSKNS when NET_NS is
+> > > disabled. Kernel panicked wherever nsfs trys to access ns->ops since the
+> > > proc_ns_operations is not implemented in this case.
+> > >
+> > > [7.670023] Unable to handle kernel NULL pointer dereference at virtual address 00000010
+> > > [7.670268] pgd = 32b54000
+> > > [7.670544] [00000010] *pgd=00000000
+> > > [7.671861] Internal error: Oops: 5 [#1] SMP ARM
+> > > [7.672315] Modules linked in:
+> > > [7.672918] CPU: 0 PID: 1 Comm: systemd Not tainted 5.13.0-rc3-00375-g6799d4f2da49 #16
+> > > [7.673309] Hardware name: Generic DT based system
+> > > [7.673642] PC is at nsfs_evict+0x24/0x30
+> > > [7.674486] LR is at clear_inode+0x20/0x9c
+> > >
+> > > So let's reject such request for disabled namespace.
+> > >
+> > > Signed-off-by: Changbin Du <changbin.du@gmail.com>
+> > > Cc: <stable@vger.kernel.org>
+> > > Cc: Cong Wang <xiyou.wangcong@gmail.com>
+> > > Cc: Jakub Kicinski <kuba@kernel.org>
+> > > Cc: David Laight <David.Laight@ACULAB.COM>
+> > > ---
+> > >  fs/nsfs.c | 4 ++++
+> > >  1 file changed, 4 insertions(+)
+> > >
+> > > diff --git a/fs/nsfs.c b/fs/nsfs.c
+> > > index 800c1d0eb0d0..6c055eb7757b 100644
+> > > --- a/fs/nsfs.c
+> > > +++ b/fs/nsfs.c
+> > > @@ -62,6 +62,10 @@ static int __ns_get_path(struct path *path, struct ns_common *ns)
+> > >       struct inode *inode;
+> > >       unsigned long d;
+> > >
+> > > +     /* In case the namespace is not actually enabled. */
+> > > +     if (!ns->ops)
+> > > +             return -EOPNOTSUPP;
+> > > +
+> > >       rcu_read_lock();
+> > >       d = atomic_long_read(&ns->stashed);
+> > >       if (!d)
+> >
+> > I'm not sure why we'd pick runtime checks for something that can be
+> > perfectly easily solved at compilation time. Networking should not
+> > be asking for FDs for objects which don't exist.
+> 
+> Four reasons:
+> 
+> 1) ioctl() is not a hot path, so performance is not a problem here.
 
-This is both a bare-metal issue and a guest/VM issue. Since the first
-generation Hygon Dhyana CPU doesn't support MSR_AMD64_SEV, reading that
-MSR results in a #GP - either directly from hardware in the bare-metal
-case or via the hypervisor (because the RDMSR is actually intercepted)
-in the guest/VM case, resulting in a failed boot. And since this is very
-early in the boot phase, rdmsrl_safe()/native_read_msr_safe() can't be
-used.
+Hm, I think a compile time check is better than a runtime check
+independent of performance benefits.
 
-So by checking the CPUID information before attempting the RDMSR, this
-goes back to the behavior before the patch identified in the commit
-eab696d8e8b9.
+> 
+> 2) There are 3 different places (tun has two more) that need the same
+> fix.
 
-Fixes: eab696d8e8b9 ("x86/sev: Do not require Hypervisor CPUID bit for SEV guests")
-Cc: <stable@vger.kernel.org> # v5.10+
-Signed-off-by: Pu Wen <puwen@hygon.cn>
-Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
----
-v1->v2:
-  - Provide more details with improved commit messages.
 
- arch/x86/mm/mem_encrypt_identity.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> 3) init_net always exits, except it does not have an ops when
+> CONFIG_NET_NS is disabled:
 
-diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
-index a9639f663d25..470b20208430 100644
---- a/arch/x86/mm/mem_encrypt_identity.c
-+++ b/arch/x86/mm/mem_encrypt_identity.c
-@@ -504,10 +504,6 @@ void __init sme_enable(struct boot_params *bp)
- #define AMD_SME_BIT	BIT(0)
- #define AMD_SEV_BIT	BIT(1)
- 
--	/* Check the SEV MSR whether SEV or SME is enabled */
--	sev_status   = __rdmsr(MSR_AMD64_SEV);
--	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
--
- 	/*
- 	 * Check for the SME/SEV feature:
- 	 *   CPUID Fn8000_001F[EAX]
-@@ -519,11 +515,16 @@ void __init sme_enable(struct boot_params *bp)
- 	eax = 0x8000001f;
- 	ecx = 0;
- 	native_cpuid(&eax, &ebx, &ecx, &edx);
--	if (!(eax & feature_mask))
-+	/* Check whether SEV or SME is supported */
-+	if (!(eax & (AMD_SEV_BIT | AMD_SME_BIT)))
- 		return;
- 
- 	me_mask = 1UL << (ebx & 0x3f);
- 
-+	/* Check the SEV MSR whether SEV or SME is enabled */
-+	sev_status   = __rdmsr(MSR_AMD64_SEV);
-+	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
-+
- 	/* Check if memory encryption is enabled */
- 	if (feature_mask == AMD_SME_BIT) {
- 		/*
--- 
-2.23.0
+Which is true for every namespace.
 
+> 
+> static __net_init int net_ns_net_init(struct net *net)
+> {
+> #ifdef CONFIG_NET_NS
+>         net->ns.ops = &netns_operations;
+> #endif
+>         return ns_alloc_inum(&net->ns);
+> }
+> 
+> 4) *I think* other namespaces need this fix too, for instance
+> init_ipc_ns:
+
+None of them should have paths to trigger ->ops.
+
+> 
+> struct ipc_namespace init_ipc_ns = {
+>         .ns.count = REFCOUNT_INIT(1),
+>         .user_ns = &init_user_ns,
+>         .ns.inum = PROC_IPC_INIT_INO,
+> #ifdef CONFIG_IPC_NS
+>         .ns.ops = &ipcns_operations,
+> #endif
+> };
+> 
+> whose ns->ops is NULL too if disabled.
+
+But the point is that ns->ops should never be accessed when that
+namespace type is disabled. Or in other words, the bug is that something
+in netns makes use of namespace features when they are disabled. If we
+handle ->ops being NULL we might be tapering over a real bug somewhere.
+
+Jakub's proposal in the other mail makes sense and falls in line with
+how the rest of the netns getters are implemented. For example
+get_net_ns_fd_fd():
+
+#ifdef CONFIG_NET_NS
+
+[...]
+
+struct net *get_net_ns_by_fd(int fd)
+{
+	struct file *file;
+	struct ns_common *ns;
+	struct net *net;
+
+	file = proc_ns_fget(fd);
+	if (IS_ERR(file))
+		return ERR_CAST(file);
+
+	ns = get_proc_ns(file_inode(file));
+	if (ns->ops == &netns_operations)
+		net = get_net(container_of(ns, struct net, ns));
+	else
+		net = ERR_PTR(-EINVAL);
+
+	fput(file);
+	return net;
+}
+
+#else
+struct net *get_net_ns_by_fd(int fd)
+{
+	return ERR_PTR(-EINVAL);
+}
+#endif
+EXPORT_SYMBOL_GPL(get_net_ns_by_fd);
+
+(It seems that "get_net_ns()" could also be moved into the same file as
+get_net_ns_by_fd() btw.)
+
+Christian
