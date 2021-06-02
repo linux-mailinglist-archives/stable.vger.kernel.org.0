@@ -2,92 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 561B539B265
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 08:11:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF86939B376
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 08:58:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229820AbhFDGNX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 02:13:23 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:3420 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229828AbhFDGNX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 02:13:23 -0400
-Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4FxC4g2QPcz6vFD;
-        Fri,  4 Jun 2021 14:08:35 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Fri, 4 Jun 2021 14:11:31 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Fri, 4 Jun 2021 14:11:30 +0800
-Subject: Re: Linux 4.19.193
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
-        <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
-CC:     <lwn@lwn.net>, <jslaby@suse.cz>
-References: <16227067365774@kroah.com>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <870e22ed-4a24-4f27-8eb8-a68251f5874c@huawei.com>
-Date:   Fri, 4 Jun 2021 14:11:30 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
-MIME-Version: 1.0
-In-Reply-To: <16227067365774@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+        id S230334AbhFDHAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 03:00:10 -0400
+Received: from www.linuxtv.org ([130.149.80.248]:55510 "EHLO www.linuxtv.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230269AbhFDHAH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Jun 2021 03:00:07 -0400
+Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
+        (envelope-from <mchehab@linuxtv.org>)
+        id 1lp3C5-001OIr-Nr; Fri, 04 Jun 2021 06:20:33 +0000
+From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+Date:   Wed, 02 Jun 2021 09:51:20 +0000
+Subject: [git:media_tree/master] media: ccs: Fix the op_pll_multiplier address
+To:     linuxtv-commits@linuxtv.org
+Cc:     Sakari Ailus <sakari.ailus@linux.intel.com>,
+        stable@vger.kernel.org, Bernhard Wimmer <be.wimm@gmail.com>
+Mail-followup-to: linux-media@vger.kernel.org
+Forward-to: linux-media@vger.kernel.org
+Reply-to: linux-media@vger.kernel.org
+Message-Id: <E1lp3C5-001OIr-Nr@www.linuxtv.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+This is an automatic generated email to let you know that the following patch were queued:
 
+Subject: media: ccs: Fix the op_pll_multiplier address
+Author:  Bernhard Wimmer <be.wimm@gmail.com>
+Date:    Wed Apr 21 23:33:20 2021 +0200
 
-On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
-> I'm announcing the release of the 4.19.193 kernel.
-> 
-> All users of the 4.19 kernel series must upgrade.
-> 
-> The updated 4.19.y git tree can be found at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
-> and can be browsed at the normal kernel.org git web browser:
-> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> 
-> thanks,
-> 
-> greg k-h
-> 
+According to the CCS spec the op_pll_multiplier address is 0x030e,
+not 0x031e.
 
-Tested on arm64 and x86 for 4.19.193,
+Signed-off-by: Bernhard Wimmer <be.wimm@gmail.com>
+Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Cc: stable@vger.kernel.org
+Fixes: 6493c4b777c2 ("media: smiapp: Import CCS definitions")
+Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-4.19.y
-Version: 4.19.193
-Commit: 1722257b8ececec9b3b83a8b14058f8209d78071
-Compiler: gcc version 7.3.0 (GCC)
+ drivers/media/i2c/ccs/ccs-limits.c | 4 ++++
+ drivers/media/i2c/ccs/ccs-limits.h | 4 ++++
+ drivers/media/i2c/ccs/ccs-regs.h   | 6 +++++-
+ 3 files changed, 13 insertions(+), 1 deletion(-)
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8860
-passed: 8860
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+---
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8860
-passed: 8860
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+diff --git a/drivers/media/i2c/ccs/ccs-limits.c b/drivers/media/i2c/ccs/ccs-limits.c
+index f5511789ac83..4969fa425317 100644
+--- a/drivers/media/i2c/ccs/ccs-limits.c
++++ b/drivers/media/i2c/ccs/ccs-limits.c
+@@ -1,5 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
+ 
+ #include "ccs-limits.h"
+ #include "ccs-regs.h"
+diff --git a/drivers/media/i2c/ccs/ccs-limits.h b/drivers/media/i2c/ccs/ccs-limits.h
+index 1efa43c23a2e..551d3ee9d04e 100644
+--- a/drivers/media/i2c/ccs/ccs-limits.h
++++ b/drivers/media/i2c/ccs/ccs-limits.h
+@@ -1,5 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
+ 
+ #ifndef __CCS_LIMITS_H__
+ #define __CCS_LIMITS_H__
+diff --git a/drivers/media/i2c/ccs/ccs-regs.h b/drivers/media/i2c/ccs/ccs-regs.h
+index 4b3e5df2121f..6ce84c5ecf20 100644
+--- a/drivers/media/i2c/ccs/ccs-regs.h
++++ b/drivers/media/i2c/ccs/ccs-regs.h
+@@ -1,5 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
+ /* Copyright (C) 2019--2020 Intel Corporation */
++/*
++ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
++ * do not modify.
++ */
+ 
+ #ifndef __CCS_REGS_H__
+ #define __CCS_REGS_H__
+@@ -202,7 +206,7 @@
+ #define CCS_R_OP_PIX_CLK_DIV					(0x0308 | CCS_FL_16BIT)
+ #define CCS_R_OP_SYS_CLK_DIV					(0x030a | CCS_FL_16BIT)
+ #define CCS_R_OP_PRE_PLL_CLK_DIV				(0x030c | CCS_FL_16BIT)
+-#define CCS_R_OP_PLL_MULTIPLIER					(0x031e | CCS_FL_16BIT)
++#define CCS_R_OP_PLL_MULTIPLIER					(0x030e | CCS_FL_16BIT)
+ #define CCS_R_PLL_MODE						0x0310
+ #define CCS_PLL_MODE_SHIFT					0U
+ #define CCS_PLL_MODE_MASK					0x1
