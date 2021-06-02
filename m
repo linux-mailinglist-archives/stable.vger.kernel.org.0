@@ -2,107 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0534D398F71
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 17:58:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B85D399011
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 18:36:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232236AbhFBP75 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 11:59:57 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59152 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231614AbhFBP74 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 11:59:56 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7F9C061574;
-        Wed,  2 Jun 2021 08:58:13 -0700 (PDT)
-From:   Thomas Gleixner <tglx@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622649492;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=WBUTfGNxNvSgHbeI2jsrGUtW90Hi09xpMn/ER3bz4aI=;
-        b=Q1HwTSAnNmKjG5VfbJrVPl0BZWtHe38jyV+9UlcAlmzAPTv1hMSMJ/2x+pAdZrm8h2XLiT
-        7LFtuwAc1OXzxpcZiKKFr4fCJh8iFUuRZZV3dJBkvwrbuihHZG688gdgsF69czjqnZNpBY
-        JyNMVZWiVP6xXCiOroqDBCPrN2uQqeKByOmKOt9fvAnjn26zzJmgQa4+JP9M/wjX1zRvCo
-        oej198PKio4KyPds2VpNU8j021wiDJ3atzuBneAI9ISgpD2Y/0lHOsSxpCszq4s5hYLrRj
-        OWi7hTI9dZqEZmcLKOcunI6XdT6rRrX1tpJceTQiVlE10f7OyBppl578PYm1zg==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622649492;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=WBUTfGNxNvSgHbeI2jsrGUtW90Hi09xpMn/ER3bz4aI=;
-        b=xvTHoFzERmxU1F7J1o/5k/I5q454qdshhO0o5mjdMinO9NI1Zm8xG/UHbadWCvqQF9VMJz
-        zCFIjOThBTxNewDg==
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yu-cheng Yu <yu-cheng.yu@intel.com>,
-        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com,
-        stable@vger.kernel.org
-Subject: [patch V2 2/8] x86/fpu: Prevent state corruption in __fpu__restore_sig()
-In-Reply-To: <20210602101618.462908825@linutronix.de>
-References: <20210602095543.149814064@linutronix.de> <20210602101618.462908825@linutronix.de>
-Date:   Wed, 02 Jun 2021 17:58:11 +0200
-Message-ID: <87y2bsz2b0.ffs@nanos.tec.linutronix.de>
+        id S229854AbhFBQiQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 12:38:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58466 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229647AbhFBQiP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 2 Jun 2021 12:38:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 477AA6198F;
+        Wed,  2 Jun 2021 16:36:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622651792;
+        bh=yxmMBrVLhMXxjOEKOtD+84IT4h6Nyzauv28CSHSree8=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=lUuNX/KvAS+G97NJOWoQdA4NbnanBK7e2ZO685NZylnaoLYCMRw9CUy3tpDiyoMUX
+         GZamfPuvk8O78eNkrpRFUGyAir2XmYsMo1yNFTULCl53WtJGEODuRxymZuRyKM5lQC
+         Ru6lSoA2cJlbjEiVYqU9Ah+o1WwZfYrtPD9uoPqjGnGFGZG3z1ELowyWyRpuuRZ16P
+         tAWATspjzooXE373vulMByXcnoly+QqtomlIgaDzfS10nxquF3ygDEHNfHxjX87LRj
+         xa37wmRlwWhNWum5V4PqMxEPUi2QLucRzsRyDVJKsiNpzeAcnkf5fNzN9Q2Uie4c2j
+         9I33WjZS2g6mw==
+Date:   Wed, 2 Jun 2021 09:36:31 -0700
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     Christian Brauner <christian.brauner@ubuntu.com>
+Cc:     Changbin Du <changbin.du@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        stable@vger.kernel.org, Cong Wang <xiyou.wangcong@gmail.com>,
+        David Laight <David.Laight@ACULAB.COM>
+Subject: Re: [PATCH] nsfs: fix oops when ns->ops is not provided
+Message-ID: <20210602093631.797db58f@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+In-Reply-To: <20210602091632.qijrpc2z6z44wu54@wittgenstein>
+References: <20210531153410.93150-1-changbin.du@gmail.com>
+        <20210531220128.26c0cb36@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+        <20210601080654.cl7caplm7rsagl6u@wittgenstein>
+        <20210601132602.02e92678@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+        <20210602091632.qijrpc2z6z44wu54@wittgenstein>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+On Wed, 2 Jun 2021 11:16:32 +0200 Christian Brauner wrote:
+> > diff --git a/net/socket.c b/net/socket.c
+> > index 27e3e7d53f8e..3b44f2700e0c 100644
+> > --- a/net/socket.c
+> > +++ b/net/socket.c
+> > @@ -1081,6 +1081,8 @@ static long sock_do_ioctl(struct net *net, struct socket *sock,
+> >  
+> >  struct ns_common *get_net_ns(struct ns_common *ns)
+> >  {
+> > +       if (!IS_ENABLED(CONFIG_NET_NS))
+> > +               return ERR_PTR(-EOPNOTSUPP);
+> >         return &get_net(container_of(ns, struct net, ns))->ns;
+> >  }
+> >  EXPORT_SYMBOL_GPL(get_net_ns);  
+> 
+> Yeah, that's better than my hack. :) Maybe this function should simply
+> move over to net/core/net_namespace.c with the other netns getters, e.g.
+> get_net_ns_by_fd()?
 
-The non-compacted slowpath uses __copy_from_user() and copies the entire
-user buffer into the kernel buffer, verbatim.  This means that the kernel
-buffer may now contain entirely invalid state on which XRSTOR will #GP.
-validate_user_xstate_header() can detect some of that corruption, but that
-leaves the onus on callers to clear the buffer.
-
-Prior to XSAVES support it was possible just to reinitialize the buffer,
-completely, but with supervisor states that is not longer possible as the
-buffer clearing code split got it backwards. Fixing that is possible, but
-not corrupting the state in the first place is more robust.
-
-Avoid corruption of the kernel XSAVE buffer by using copy_user_to_xstate()
-which validates the XSAVE header contents before copying the actual states
-to the kernel. copy_user_to_xstate() was previously only called for
-compacted-format kernel buffers, but it works for both compacted and
-non-compacted forms.
-
-Using it for the non-compacted form is slower because of multiple
-__copy_from_user() operations, but that cost is less important than robust
-code in an already slow path.
-
-[ Changelog polished by Dave Hansen ]
-
-Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
-Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
----
-V2: Removed the make validate_user_xstate_header() static hunks (Borislav)
----
- arch/x86/kernel/fpu/signal.c |    9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
-
---- a/arch/x86/kernel/fpu/signal.c
-+++ b/arch/x86/kernel/fpu/signal.c
-@@ -405,14 +405,7 @@ static int __fpu__restore_sig(void __use
- 	if (use_xsave() && !fx_only) {
- 		u64 init_bv = xfeatures_mask_user() & ~user_xfeatures;
- 
--		if (using_compacted_format()) {
--			ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
--		} else {
--			ret = __copy_from_user(&fpu->state.xsave, buf_fx, state_size);
--
--			if (!ret && state_size > offsetof(struct xregs_state, header))
--				ret = validate_user_xstate_header(&fpu->state.xsave.header);
--		}
-+		ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
- 		if (ret)
- 			goto err_out;
- 
+SGTM!
