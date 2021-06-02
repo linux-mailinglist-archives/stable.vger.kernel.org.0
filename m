@@ -2,103 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 524D43985EC
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 12:07:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 13FD7398649
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 12:19:42 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231770AbhFBKJh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 06:09:37 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:46644 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231364AbhFBKJh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 2 Jun 2021 06:09:37 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1loNmz-00G6Qh-Tf; Wed, 02 Jun 2021 10:07:53 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Wed, 02 Jun 2021 09:51:20 +0000
-Subject: [git:media_stage/master] media: ccs: Fix the op_pll_multiplier address
-To:     linuxtv-commits@linuxtv.org
-Cc:     stable@vger.kernel.org,
-        Sakari Ailus <sakari.ailus@linux.intel.com>,
-        Bernhard Wimmer <be.wimm@gmail.com>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1loNmz-00G6Qh-Tf@www.linuxtv.org>
+        id S232971AbhFBKUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 06:20:54 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37978 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S232698AbhFBKUH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 06:20:07 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1CD56C061355;
+        Wed,  2 Jun 2021 03:17:55 -0700 (PDT)
+Message-Id: <20210602101618.462908825@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1622629074;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=S+BtLMFUO8zq4x2FDJtHKocyWQSVYtuFhC95M+ZhZFc=;
+        b=Ii3X8E/zAVy6/kZZ9z70Oi04k6dk1NnoNWKPvnlTeAeLsKtYbILctCzDWtCCwjyv2ElSz7
+        iWFbRpqAYaUn/PwT36EOssgMkrbtOjOyh8wkB6lo/ptXTpnd4uZtrmdZrTPrkdmbw61FNc
+        RpZHYjhLglDgyUx5X2/AiL/BX9d/wKoWPuZSoeN06NoHW6Sb0fu9GEZpCcQ0c6MHEIlKdf
+        9gXbZuwbEBKpH9+bqafD+17SOm+obtFX1HETaT5RzonC5lEBd2iEF7egzNeF/bhlGsRqWN
+        Mb1hrM8nQ/Js102htKHLmu33FSOokfHAg2VXooIes8OdXv+1F/PBe8pUwzq2cg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1622629074;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:  references:references;
+        bh=S+BtLMFUO8zq4x2FDJtHKocyWQSVYtuFhC95M+ZhZFc=;
+        b=pSq2Zv33pVpLNBaXnE7UDtDhnPcjAMqQcGuB+mn9IwV8t2qimSLm0nft1UbrWdDGujz3vu
+        CgzO7/v4bW04/RCw==
+Date:   Wed, 02 Jun 2021 11:55:45 +0200
+From:   Thomas Gleixner <tglx@linutronix.de>
+To:     LKML <linux-kernel@vger.kernel.org>
+Cc:     x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+Subject: [patch 2/8] x86/fpu: Prevent state corruption in __fpu__restore_sig()
+References: <20210602095543.149814064@linutronix.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-transfer-encoding: 8-bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
+From: Thomas Gleixner <tglx@linutronix.de>
 
-Subject: media: ccs: Fix the op_pll_multiplier address
-Author:  Bernhard Wimmer <be.wimm@gmail.com>
-Date:    Wed Apr 21 23:33:20 2021 +0200
+The non-compacted slowpath uses __copy_from_user() and copies the entire
+user buffer into the kernel buffer, verbatim.  This means that the kernel
+buffer may now contain entirely invalid state on which XRSTOR will #GP.
+validate_user_xstate_header() can detect some of that corruption, but that
+leaves the onus on callers to clear the buffer.
 
-According to the CCS spec the op_pll_multiplier address is 0x030e,
-not 0x031e.
+Prior to XSAVES support it was possible just to reinitialize the buffer,
+completely, but with supervisor states that is not longer possible as the
+buffer clearing code split got it backwards. Fixing that is possible, but
+not corrupting the state in the first place is more robust.
 
-Signed-off-by: Bernhard Wimmer <be.wimm@gmail.com>
-Signed-off-by: Sakari Ailus <sakari.ailus@linux.intel.com>
+Avoid corruption of the kernel XSAVE buffer by using copy_user_to_xstate()
+which validates the XSAVE header contents before copying the actual states
+to the kernel. copy_user_to_xstate() was previously only called for
+compacted-format kernel buffers, but it works for both compacted and
+non-compacted forms.
+
+Using it for the non-compacted form is slower because of multiple
+__copy_from_user() operations, but that cost is less important than robust
+code in an already slow path.
+
+[ Changelog polished by Dave Hansen ]
+
+Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
+Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable@vger.kernel.org
-Fixes: 6493c4b777c2 ("media: smiapp: Import CCS definitions")
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-
- drivers/media/i2c/ccs/ccs-limits.c | 4 ++++
- drivers/media/i2c/ccs/ccs-limits.h | 4 ++++
- drivers/media/i2c/ccs/ccs-regs.h   | 6 +++++-
- 3 files changed, 13 insertions(+), 1 deletion(-)
-
 ---
+ arch/x86/include/asm/fpu/xstate.h |    4 ----
+ arch/x86/kernel/fpu/signal.c      |    9 +--------
+ arch/x86/kernel/fpu/xstate.c      |    2 +-
+ 3 files changed, 2 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/media/i2c/ccs/ccs-limits.c b/drivers/media/i2c/ccs/ccs-limits.c
-index f5511789ac83..4969fa425317 100644
---- a/drivers/media/i2c/ccs/ccs-limits.c
-+++ b/drivers/media/i2c/ccs/ccs-limits.c
-@@ -1,5 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
+--- a/arch/x86/include/asm/fpu/xstate.h
++++ b/arch/x86/include/asm/fpu/xstate.h
+@@ -112,8 +112,4 @@ void copy_supervisor_to_kernel(struct xr
+ void copy_dynamic_supervisor_to_kernel(struct xregs_state *xstate, u64 mask);
+ void copy_kernel_to_dynamic_supervisor(struct xregs_state *xstate, u64 mask);
  
- #include "ccs-limits.h"
- #include "ccs-regs.h"
-diff --git a/drivers/media/i2c/ccs/ccs-limits.h b/drivers/media/i2c/ccs/ccs-limits.h
-index 1efa43c23a2e..551d3ee9d04e 100644
---- a/drivers/media/i2c/ccs/ccs-limits.h
-+++ b/drivers/media/i2c/ccs/ccs-limits.h
-@@ -1,5 +1,9 @@
- /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
+-
+-/* Validate an xstate header supplied by userspace (ptrace or sigreturn) */
+-int validate_user_xstate_header(const struct xstate_header *hdr);
+-
+ #endif
+--- a/arch/x86/kernel/fpu/signal.c
++++ b/arch/x86/kernel/fpu/signal.c
+@@ -405,14 +405,7 @@ static int __fpu__restore_sig(void __use
+ 	if (use_xsave() && !fx_only) {
+ 		u64 init_bv = xfeatures_mask_user() & ~user_xfeatures;
  
- #ifndef __CCS_LIMITS_H__
- #define __CCS_LIMITS_H__
-diff --git a/drivers/media/i2c/ccs/ccs-regs.h b/drivers/media/i2c/ccs/ccs-regs.h
-index 4b3e5df2121f..6ce84c5ecf20 100644
---- a/drivers/media/i2c/ccs/ccs-regs.h
-+++ b/drivers/media/i2c/ccs/ccs-regs.h
-@@ -1,5 +1,9 @@
- /* SPDX-License-Identifier: GPL-2.0-only OR BSD-3-Clause */
- /* Copyright (C) 2019--2020 Intel Corporation */
-+/*
-+ * Generated by Documentation/driver-api/media/drivers/ccs/mk-ccs-regs;
-+ * do not modify.
-+ */
+-		if (using_compacted_format()) {
+-			ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
+-		} else {
+-			ret = __copy_from_user(&fpu->state.xsave, buf_fx, state_size);
+-
+-			if (!ret && state_size > offsetof(struct xregs_state, header))
+-				ret = validate_user_xstate_header(&fpu->state.xsave.header);
+-		}
++		ret = copy_user_to_xstate(&fpu->state.xsave, buf_fx);
+ 		if (ret)
+ 			goto err_out;
  
- #ifndef __CCS_REGS_H__
- #define __CCS_REGS_H__
-@@ -202,7 +206,7 @@
- #define CCS_R_OP_PIX_CLK_DIV					(0x0308 | CCS_FL_16BIT)
- #define CCS_R_OP_SYS_CLK_DIV					(0x030a | CCS_FL_16BIT)
- #define CCS_R_OP_PRE_PLL_CLK_DIV				(0x030c | CCS_FL_16BIT)
--#define CCS_R_OP_PLL_MULTIPLIER					(0x031e | CCS_FL_16BIT)
-+#define CCS_R_OP_PLL_MULTIPLIER					(0x030e | CCS_FL_16BIT)
- #define CCS_R_PLL_MODE						0x0310
- #define CCS_PLL_MODE_SHIFT					0U
- #define CCS_PLL_MODE_MASK					0x1
+--- a/arch/x86/kernel/fpu/xstate.c
++++ b/arch/x86/kernel/fpu/xstate.c
+@@ -515,7 +515,7 @@ int using_compacted_format(void)
+ }
+ 
+ /* Validate an xstate header supplied by userspace (ptrace or sigreturn) */
+-int validate_user_xstate_header(const struct xstate_header *hdr)
++static int validate_user_xstate_header(const struct xstate_header *hdr)
+ {
+ 	/* No unknown or supervisor features may be set */
+ 	if (hdr->xfeatures & ~xfeatures_mask_user())
+
