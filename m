@@ -2,74 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE15D39864F
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 12:19:45 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 34AA53986B9
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 12:42:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233011AbhFBKVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 2 Jun 2021 06:21:00 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38008 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232708AbhFBKUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 06:20:09 -0400
-Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28093C06138F;
-        Wed,  2 Jun 2021 03:17:58 -0700 (PDT)
-Message-Id: <20210602101618.736036127@linutronix.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1622629076;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=DGkVxXkLnQqzemQn1GsMwh95ap9O1ytCLq2NJcMCb3I=;
-        b=eAeLX8vHolaZ0+wsT8BjXrLGP+R96GYKhxd2xQ0Sp4gjnhA5B4bA+laDKs2z8vQXw9mvhU
-        Cwm4sn3M7pqiA7vQ1LAfC5WjnVVuZNYlLZ9zCfjKK7Mz1UJdydcwOdKRaMiPaVH4+YJo4l
-        TuTPmGFZFSbdmetstRT+4UOUyumhlKUw7es6SLiI9ByvbXVzFEpcCaeP+iA5/l9lyNeX3o
-        V60MaWJmtOKgNyBxR6UvFF/HJyJurvAVvnWvoIrpbI3TRdJ7Wlwuk3zRK59McOh59m26TX
-        e+MwWhxhL7zTZ0Uhsj4q27poA1JlM6YFu/xbsO6JHoe77zLldMsuSHXEr75wAw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1622629076;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:  references:references;
-        bh=DGkVxXkLnQqzemQn1GsMwh95ap9O1ytCLq2NJcMCb3I=;
-        b=4U4CsKexRwRa951J5YWB1+/oIyvk2Q1npmKhFlFHOSHHXnEMU7vPg8ZBla53uTxkObeer5
-        kzWykBpKH1WXlaCw==
-Date:   Wed, 02 Jun 2021 11:55:47 +0200
-From:   Thomas Gleixner <tglx@linutronix.de>
-To:     LKML <linux-kernel@vger.kernel.org>
-Cc:     x86@kernel.org, Andy Lutomirski <luto@kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yu-cheng Yu <yu-cheng.yu@intel.com>, stable@vger.kernel.org
-Subject: [patch 4/8] x86/fpu: Limit xstate copy size in xstateregs_set()
-References: <20210602095543.149814064@linutronix.de>
+        id S232460AbhFBKnl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 2 Jun 2021 06:43:41 -0400
+Received: from eu-smtp-delivery-151.mimecast.com ([185.58.86.151]:43014 "EHLO
+        eu-smtp-delivery-151.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S231792AbhFBKnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 2 Jun 2021 06:43:24 -0400
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) (Using
+ TLS) by relay.mimecast.com with ESMTP id
+ uk-mta-43-zpJFYy08PGmtHOmQlbJROg-1; Wed, 02 Jun 2021 11:41:36 +0100
+X-MC-Unique: zpJFYy08PGmtHOmQlbJROg-1
+Received: from AcuMS.Aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) by
+ AcuMS.aculab.com (fd9f:af1c:a25b:0:994c:f5c2:35d6:9b65) with Microsoft SMTP
+ Server (TLS) id 15.0.1497.18; Wed, 2 Jun 2021 11:41:35 +0100
+Received: from AcuMS.Aculab.com ([fe80::994c:f5c2:35d6:9b65]) by
+ AcuMS.aculab.com ([fe80::994c:f5c2:35d6:9b65%12]) with mapi id
+ 15.00.1497.018; Wed, 2 Jun 2021 11:41:35 +0100
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Christian Brauner' <christian.brauner@ubuntu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>
+CC:     Jakub Kicinski <kuba@kernel.org>,
+        Changbin Du <changbin.du@gmail.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        "David S. Miller" <davem@davemloft.net>,
+        Linux Kernel Network Developers <netdev@vger.kernel.org>,
+        LKML <linux-kernel@vger.kernel.org>,
+        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
+        stable <stable@vger.kernel.org>
+Subject: RE: [PATCH] nsfs: fix oops when ns->ops is not provided
+Thread-Topic: [PATCH] nsfs: fix oops when ns->ops is not provided
+Thread-Index: AQHXV5AByooY9TtpI0OnrqOz4Es786sAiDRw
+Date:   Wed, 2 Jun 2021 10:41:35 +0000
+Message-ID: <42fa84fe3dc148dea63096db24a039ae@AcuMS.aculab.com>
+References: <20210531153410.93150-1-changbin.du@gmail.com>
+ <20210531220128.26c0cb36@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
+ <CAM_iQpUEjBDK44=mD5shkmmoDYhmHQaSZtR34rLRkgd9wSWiQQ@mail.gmail.com>
+ <20210602091451.kbdul6nhobilwqvi@wittgenstein>
+In-Reply-To: <20210602091451.kbdul6nhobilwqvi@wittgenstein>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
+Authentication-Results: relay.mimecast.com;
+        auth=pass smtp.auth=C51A453 smtp.mailfrom=david.laight@aculab.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Content-transfer-encoding: 8-bit
+Content-Transfer-Encoding: base64
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the count argument is larger than the xstate size, this will happily
-copy beyond the end of xstate.
-
-Fixes: 91c3dba7dbc1 ("x86/fpu/xstate: Fix PTRACE frames for XSAVES")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable@vger.kernel.org
----
- arch/x86/kernel/fpu/regset.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- a/arch/x86/kernel/fpu/regset.c
-+++ b/arch/x86/kernel/fpu/regset.c
-@@ -117,7 +117,7 @@ int xstateregs_set(struct task_struct *t
- 	/*
- 	 * A whole standard-format XSAVE buffer is needed:
- 	 */
--	if ((pos != 0) || (count < fpu_user_xstate_size))
-+	if (pos != 0 || count != fpu_user_xstate_size)
- 		return -EFAULT;
- 
- 	xsave = &fpu->state.xsave;
+RnJvbTogQ2hyaXN0aWFuIEJyYXVuZXINCj4gU2VudDogMDIgSnVuZSAyMDIxIDEwOjE1DQouLi4N
+Cj4gSG0sIEkgdGhpbmsgYSBjb21waWxlIHRpbWUgY2hlY2sgaXMgYmV0dGVyIHRoYW4gYSBydW50
+aW1lIGNoZWNrDQo+IGluZGVwZW5kZW50IG9mIHBlcmZvcm1hbmNlIGJlbmVmaXRzLg0KPiANCj4g
+Pg0KPiA+IDIpIFRoZXJlIGFyZSAzIGRpZmZlcmVudCBwbGFjZXMgKHR1biBoYXMgdHdvIG1vcmUp
+IHRoYXQgbmVlZCB0aGUgc2FtZQ0KPiA+IGZpeC4NCj4gDQo+IA0KPiA+DQo+ID4gMykgaW5pdF9u
+ZXQgYWx3YXlzIGV4aXRzLCBleGNlcHQgaXQgZG9lcyBub3QgaGF2ZSBhbiBvcHMgd2hlbg0KPiA+
+IENPTkZJR19ORVRfTlMgaXMgZGlzYWJsZWQ6DQo+IA0KPiBXaGljaCBpcyB0cnVlIGZvciBldmVy
+eSBuYW1lc3BhY2UuDQo+IA0KPiA+DQo+ID4gc3RhdGljIF9fbmV0X2luaXQgaW50IG5ldF9uc19u
+ZXRfaW5pdChzdHJ1Y3QgbmV0ICpuZXQpDQo+ID4gew0KPiA+ICNpZmRlZiBDT05GSUdfTkVUX05T
+DQo+ID4gICAgICAgICBuZXQtPm5zLm9wcyA9ICZuZXRuc19vcGVyYXRpb25zOw0KPiA+ICNlbmRp
+Zg0KPiA+ICAgICAgICAgcmV0dXJuIG5zX2FsbG9jX2ludW0oJm5ldC0+bnMpOw0KPiA+IH0NCj4g
+Pg0KPiA+IDQpICpJIHRoaW5rKiBvdGhlciBuYW1lc3BhY2VzIG5lZWQgdGhpcyBmaXggdG9vLCBm
+b3IgaW5zdGFuY2UNCj4gPiBpbml0X2lwY19uczoNCj4gDQo+IE5vbmUgb2YgdGhlbSBzaG91bGQg
+aGF2ZSBwYXRocyB0byB0cmlnZ2VyIC0+b3BzLg0KPiANCj4gPg0KPiA+IHN0cnVjdCBpcGNfbmFt
+ZXNwYWNlIGluaXRfaXBjX25zID0gew0KPiA+ICAgICAgICAgLm5zLmNvdW50ID0gUkVGQ09VTlRf
+SU5JVCgxKSwNCj4gPiAgICAgICAgIC51c2VyX25zID0gJmluaXRfdXNlcl9ucywNCj4gPiAgICAg
+ICAgIC5ucy5pbnVtID0gUFJPQ19JUENfSU5JVF9JTk8sDQo+ID4gI2lmZGVmIENPTkZJR19JUENf
+TlMNCj4gPiAgICAgICAgIC5ucy5vcHMgPSAmaXBjbnNfb3BlcmF0aW9ucywNCj4gPiAjZW5kaWYN
+Cj4gPiB9Ow0KPiA+DQo+ID4gd2hvc2UgbnMtPm9wcyBpcyBOVUxMIHRvbyBpZiBkaXNhYmxlZC4N
+Cj4gDQo+IEJ1dCB0aGUgcG9pbnQgaXMgdGhhdCBucy0+b3BzIHNob3VsZCBuZXZlciBiZSBhY2Nl
+c3NlZCB3aGVuIHRoYXQNCj4gbmFtZXNwYWNlIHR5cGUgaXMgZGlzYWJsZWQuIE9yIGluIG90aGVy
+IHdvcmRzLCB0aGUgYnVnIGlzIHRoYXQgc29tZXRoaW5nDQo+IGluIG5ldG5zIG1ha2VzIHVzZSBv
+ZiBuYW1lc3BhY2UgZmVhdHVyZXMgd2hlbiB0aGV5IGFyZSBkaXNhYmxlZC4gSWYgd2UNCj4gaGFu
+ZGxlIC0+b3BzIGJlaW5nIE5VTEwgd2UgbWlnaHQgYmUgdGFwZXJpbmcgb3ZlciBhIHJlYWwgYnVn
+IHNvbWV3aGVyZS4NCj4gDQo+IEpha3ViJ3MgcHJvcG9zYWwgaW4gdGhlIG90aGVyIG1haWwgbWFr
+ZXMgc2Vuc2UgYW5kIGZhbGxzIGluIGxpbmUgd2l0aA0KPiBob3cgdGhlIHJlc3Qgb2YgdGhlIG5l
+dG5zIGdldHRlcnMgYXJlIGltcGxlbWVudGVkLiBGb3IgZXhhbXBsZQ0KPiBnZXRfbmV0X25zX2Zk
+X2ZkKCk6DQo+IA0KPiAjaWZkZWYgQ09ORklHX05FVF9OUw0KPiANCj4gWy4uLl0NCj4gDQo+IHN0
+cnVjdCBuZXQgKmdldF9uZXRfbnNfYnlfZmQoaW50IGZkKQ0KPiB7DQo+IAlzdHJ1Y3QgZmlsZSAq
+ZmlsZTsNCj4gCXN0cnVjdCBuc19jb21tb24gKm5zOw0KPiAJc3RydWN0IG5ldCAqbmV0Ow0KPiAN
+Cj4gCWZpbGUgPSBwcm9jX25zX2ZnZXQoZmQpOw0KPiAJaWYgKElTX0VSUihmaWxlKSkNCj4gCQly
+ZXR1cm4gRVJSX0NBU1QoZmlsZSk7DQo+IA0KPiAJbnMgPSBnZXRfcHJvY19ucyhmaWxlX2lub2Rl
+KGZpbGUpKTsNCj4gCWlmIChucy0+b3BzID09ICZuZXRuc19vcGVyYXRpb25zKQ0KPiAJCW5ldCA9
+IGdldF9uZXQoY29udGFpbmVyX29mKG5zLCBzdHJ1Y3QgbmV0LCBucykpOw0KPiAJZWxzZQ0KPiAJ
+CW5ldCA9IEVSUl9QVFIoLUVJTlZBTCk7DQo+IA0KPiAJZnB1dChmaWxlKTsNCj4gCXJldHVybiBu
+ZXQ7DQo+IH0NCj4gDQo+ICNlbHNlDQo+IHN0cnVjdCBuZXQgKmdldF9uZXRfbnNfYnlfZmQoaW50
+IGZkKQ0KPiB7DQo+IAlyZXR1cm4gRVJSX1BUUigtRUlOVkFMKTsNCj4gfQ0KPiAjZW5kaWYNCj4g
+RVhQT1JUX1NZTUJPTF9HUEwoZ2V0X25ldF9uc19ieV9mZCk7DQo+IA0KPiAoSXQgc2VlbXMgdGhh
+dCAiZ2V0X25ldF9ucygpIiBjb3VsZCBhbHNvIGJlIG1vdmVkIGludG8gdGhlIHNhbWUgZmlsZSBh
+cw0KPiBnZXRfbmV0X25zX2J5X2ZkKCkgYnR3LikNCg0KVGhlIGRlZmF1bHQgaW1wbGVtZW50YXRp
+b24gb3VnaHQgdG8gYmUgaW4gdGhlIC5oIGZpbGUuDQpTbyBpdCBnZXRzIGlubGluZWQgYnkgdGhl
+IGNvbXBpbGVyLg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNzIExha2VzaWRlLCBC
+cmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAxUFQsIFVLDQpSZWdp
+c3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
