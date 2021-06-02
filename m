@@ -2,72 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C978397DFC
-	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 03:19:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E1EF397E37
+	for <lists+stable@lfdr.de>; Wed,  2 Jun 2021 03:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbhFBBUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 1 Jun 2021 21:20:54 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58580 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbhFBBUy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 21:20:54 -0400
-Received: from mail-lj1-x231.google.com (mail-lj1-x231.google.com [IPv6:2a00:1450:4864:20::231])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B608AC061574
-        for <stable@vger.kernel.org>; Tue,  1 Jun 2021 18:19:11 -0700 (PDT)
-Received: by mail-lj1-x231.google.com with SMTP id o8so501961ljp.0
-        for <stable@vger.kernel.org>; Tue, 01 Jun 2021 18:19:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=mGut8Q0DbfzO3q62aXs5bXv+klr0FgFgWpVnyo0w11w=;
-        b=GDFNXcOhUtcO3zu/1bSJwdhNb0EAq1IsJFdb/JFCxQ+osKYYOl29m+f+PeeoMTRjko
-         oYkeivYwIX6iBF97/2MTszku+v4zb+ghqaSsGl4rH4lVg5CyaIqQJld9oWxfbOFU7vBr
-         4FoEjVufvEDqKzCIH3LxtbZafC387/cuHXTyCPxEYWcSCyApnlMZtqwt8t7ruEdCVW2Z
-         G23B6XAzdLm0e2AkkzBQCBhEBONGXnuvESxOWqxKNqbZciz8dCFjpDF1A2riisfEEIpM
-         jYiF/DgaPtCAUjbMO7AWqjQ+kXNilwsjTOnyRu/eyo8UCCTfr31tjuxbuKzg0pfGKL0x
-         dsGg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=mGut8Q0DbfzO3q62aXs5bXv+klr0FgFgWpVnyo0w11w=;
-        b=e+RVnidCIOGHvYhA+QVOZzaDv3TTNbQiPHkOPzcgos9mTP6iO6SPqnzJ6DM02vHMb+
-         U0RhY3sQabTYHXS39BBcwfkpD4w+kEhwrepjAvCx2rbSmzKBA6HnLjfPU/9wZrOpd83A
-         qVtJCzucU38gqlI/4OC+btPbOCERODAbED3nw7am8MKn4/LWGHX6z18J8xY9piH923W6
-         zCbJlwTOGZjnX1wI8dPdOWafp35n550tes6GzYMSiY5aCn/dgGXiZfm53eKJ2pASb3FD
-         M/xHuPLyVUvHsj3hRKd2xm0a81oJMN9OpkHIk0FroKOQYkKHSRHtV8O3KJgSBHfLNhOM
-         g89w==
-X-Gm-Message-State: AOAM530D6EVyRbeEh9uwmRTooNM90oWAJjTvHRiBHFWOjMXalajtV/qN
-        a5cvHPf/bSNMTTqUnZgNuEVlIiRhQCLfNoJggM0=
-X-Google-Smtp-Source: ABdhPJx/PYCUWshZQ89ekQwXd2iBgFUt0pK1p7QD/YziT13uGpPpFeclTbeUw61MCZfDczzUmzpOWea9LLmU6aQwnY0=
-X-Received: by 2002:a2e:a44d:: with SMTP id v13mr22948973ljn.297.1622596750031;
- Tue, 01 Jun 2021 18:19:10 -0700 (PDT)
+        id S230139AbhFBBsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 1 Jun 2021 21:48:32 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:6126 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230135AbhFBBsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 1 Jun 2021 21:48:31 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FvsJM3z25zYpms;
+        Wed,  2 Jun 2021 09:44:03 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Wed, 2 Jun 2021 09:46:47 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Wed, 2 Jun 2021 09:46:46 +0800
+Subject: Re: [PATCH 4.14 00/79] 4.14.235-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>
+CC:     <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
+        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
+        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
+        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
+        <stable@vger.kernel.org>
+References: <20210531130636.002722319@linuxfoundation.org>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <29c1fbce-0eae-902d-651f-87ac934e344c@huawei.com>
+Date:   Wed, 2 Jun 2021 09:46:46 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Received: by 2002:a19:6d17:0:0:0:0:0 with HTTP; Tue, 1 Jun 2021 18:19:09 -0700 (PDT)
-Reply-To: sroomf70@gmail.com
-From:   "Mr. Roy Halton" <royhalton11@gmail.com>
-Date:   Tue, 1 Jun 2021 18:19:09 -0700
-Message-ID: <CAAxHoUnPMX5HDT4CVyFV9F9J-sFNV1aRur6rdf9xC0nDBwHZmw@mail.gmail.com>
-Subject: Greetings,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <20210531130636.002722319@linuxfoundation.org>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Greetings,
-From Mr. Roy Halton, we notify you through our official mail but no
-respond from you before sending you with this private email hope you
-Received the Fund that was paid to your account? do not hesitate to
-keep us notice as soon as possible to enable us make the balance
-transfer into your nominated account. awaiting your urgent
-notification.
 
-Thanks
-Mr. Roy Halton,
-Foreign Remittance
 
-Best regards
-Prof. Dr Diane
-Head of Foreign Operation
+On 2021/5/31 21:13, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.14.235 release.
+> There are 79 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 02 Jun 2021 13:06:20 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.14.235-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.14.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
+> 
+
+Tested on x86 for 4.14.235-rc1,
+
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.14.y
+Version: 4.14.235-rc1
+Commit: 709fde45859bbcf6ad058f7f29761df9adfc26b4
+Compiler: gcc version 7.3.0 (GCC)
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8835
+passed: 8835
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
