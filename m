@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C95A039A6ED
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:09:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4258C39A70D
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231357AbhFCRJv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:09:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40978 "EHLO mail.kernel.org"
+        id S231704AbhFCRKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:10:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230434AbhFCRJs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:09:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A5C8D613F8;
-        Thu,  3 Jun 2021 17:08:02 +0000 (UTC)
+        id S231312AbhFCRJt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:09:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6B53613F5;
+        Thu,  3 Jun 2021 17:08:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740083;
-        bh=sbo1Pbh9+a7cNhmF+vOVwjiuZmlImMIVHoh5mBXWKgo=;
+        s=k20201202; t=1622740084;
+        bh=zU0MkSnlCA3ba2sNN4losKbwmRQ4xQd7efSCwy9AE+0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCcJ3rTCjtvQmqQ+lmenfJ7dkmyUp6PiPEbPuNsdSNUYpTlGyRnCmIuaOx0H+0ku2
-         WYWG/bUk/kl3Lpg4qYYIfEg+3a9Z6jdmnvldGRcsqPlVuBUZOciS2hezKbO4V1RD+j
-         ezhD5yOzShYGncFoX6K+cMQjU4P5JvWSZkK9QdDCCOgFEMeFWpC6/FcFt3t3lKWceM
-         Er1S3Azk0brrZAV14bfKuCXStqF0obhTtFiXQpiq59/fFfWrpL4Ljtwgf4xt1Ulhjr
-         VQBaTwNd9qievbBocpRYozsds7tuq33srJLBA2PyjU1+jOh45xauRzNh+tieHijD3Z
-         sy/mM9WyEz15w==
+        b=p7SZ9U4vp9K6BLNAP1w8J4vOL49jUORUZFfwqfod3L12Q80XYlbYyqN5XyJ4Rsxnw
+         QbnEN/eClnRhq7SkM4+CF/Ka+UbSrwQ/WHjE+9g9Oa7jmalI8gvZtjewEZlU2togtL
+         PgoVrJuAjm5CYo4HHVtBbNvORTwHrMfLcAei3gLFvpbUD6SiyhAGC/8Zhybn0nAnJU
+         3/SbMdWu9j4RkNX0F1PC1GCHRRGuENiB6OM2xC5dlg+bIfaUmeS+nh4HZjmO++Q845
+         45M44+UpKuZSGtcKd8f1g3DNlX2xukiNfvdDjEBg2EtTriRuCxEn1FnIQkt81jD0d8
+         vF/tgd+HJgJYA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.12 23/43] wq: handle VM suspension in stall detection
-Date:   Thu,  3 Jun 2021 13:07:13 -0400
-Message-Id: <20210603170734.3168284-23-sashal@kernel.org>
+Cc:     Zheyu Ma <zheyuma97@gmail.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 24/43] net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
+Date:   Thu,  3 Jun 2021 13:07:14 -0400
+Message-Id: <20210603170734.3168284-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170734.3168284-1-sashal@kernel.org>
 References: <20210603170734.3168284-1-sashal@kernel.org>
@@ -41,87 +42,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergey Senozhatsky <senozhatsky@chromium.org>
+From: Zheyu Ma <zheyuma97@gmail.com>
 
-[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
+[ Upstream commit 13a6f3153922391e90036ba2267d34eed63196fc ]
 
-If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
-once this VCPU resumes it will see the new jiffies value, while it
-may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
-VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
-There is a small chance of misreported WQ stalls in the meantime,
-because new jiffies is time_after() old 'ts + thresh'.
+When calling the 'ql_sem_spinlock', the driver has already acquired the
+spin lock, so the driver should not call 'ssleep' in atomic context.
 
-wq_watchdog_timer_fn()
-{
-	for_each_pool(pool, pi) {
-		if (time_after(jiffies, ts + thresh)) {
-			pr_emerg("BUG: workqueue lockup - pool");
-		}
-	}
-}
+This bug can be fixed by using 'mdelay' instead of 'ssleep'.
 
-Save jiffies at the beginning of this function and use that value
-for stall detection. If VM gets suspended then we continue using
-"old" jiffies value and old WQ touch timestamps. If IRQ at some
-point restarts the stall detection cycle (pvclock_touch_watchdogs())
-then old jiffies will always be before new 'ts + thresh'.
+The KASAN's log reveals it:
 
-Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Signed-off-by: Tejun Heo <tj@kernel.org>
+[    3.238124 ] BUG: scheduling while atomic: swapper/0/1/0x00000002
+[    3.238748 ] 2 locks held by swapper/0/1:
+[    3.239151 ]  #0: ffff88810177b240 (&dev->mutex){....}-{3:3}, at:
+__device_driver_lock+0x41/0x60
+[    3.240026 ]  #1: ffff888107c60e28 (&qdev->hw_lock){....}-{2:2}, at:
+ql3xxx_probe+0x2aa/0xea0
+[    3.240873 ] Modules linked in:
+[    3.241187 ] irq event stamp: 460854
+[    3.241541 ] hardirqs last  enabled at (460853): [<ffffffff843051bf>]
+_raw_spin_unlock_irqrestore+0x4f/0x70
+[    3.242245 ] hardirqs last disabled at (460854): [<ffffffff843058ca>]
+_raw_spin_lock_irqsave+0x2a/0x70
+[    3.242245 ] softirqs last  enabled at (446076): [<ffffffff846002e4>]
+__do_softirq+0x2e4/0x4b1
+[    3.242245 ] softirqs last disabled at (446069): [<ffffffff811ba5e0>]
+irq_exit_rcu+0x100/0x110
+[    3.242245 ] Preemption disabled at:
+[    3.242245 ] [<ffffffff828ca5ba>] ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ] Kernel panic - not syncing: scheduling while atomic
+[    3.242245 ] CPU: 2 PID: 1 Comm: swapper/0 Not tainted
+5.13.0-rc1-00145
+-gee7dc339169-dirty #16
+[    3.242245 ] Call Trace:
+[    3.242245 ]  dump_stack+0xba/0xf5
+[    3.242245 ]  ? ql3xxx_probe+0x1f0/0xea0
+[    3.242245 ]  panic+0x15a/0x3f2
+[    3.242245 ]  ? vprintk+0x76/0x150
+[    3.242245 ]  ? ql3xxx_probe+0x2aa/0xea0
+[    3.242245 ]  __schedule_bug+0xae/0xe0
+[    3.242245 ]  __schedule+0x72e/0xa00
+[    3.242245 ]  schedule+0x43/0xf0
+[    3.242245 ]  schedule_timeout+0x28b/0x500
+[    3.242245 ]  ? del_timer_sync+0xf0/0xf0
+[    3.242245 ]  ? msleep+0x2f/0x70
+[    3.242245 ]  msleep+0x59/0x70
+[    3.242245 ]  ql3xxx_probe+0x307/0xea0
+[    3.242245 ]  ? _raw_spin_unlock_irqrestore+0x3a/0x70
+[    3.242245 ]  ? pci_device_remove+0x110/0x110
+[    3.242245 ]  local_pci_probe+0x45/0xa0
+[    3.242245 ]  pci_device_probe+0x12b/0x1d0
+[    3.242245 ]  really_probe+0x2a9/0x610
+[    3.242245 ]  driver_probe_device+0x90/0x1d0
+[    3.242245 ]  ? mutex_lock_nested+0x1b/0x20
+[    3.242245 ]  device_driver_attach+0x68/0x70
+[    3.242245 ]  __driver_attach+0x124/0x1b0
+[    3.242245 ]  ? device_driver_attach+0x70/0x70
+[    3.242245 ]  bus_for_each_dev+0xbb/0x110
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  driver_attach+0x27/0x30
+[    3.242245 ]  bus_add_driver+0x1eb/0x2a0
+[    3.242245 ]  driver_register+0xa9/0x180
+[    3.242245 ]  __pci_register_driver+0x82/0x90
+[    3.242245 ]  ? yellowfin_init+0x25/0x25
+[    3.242245 ]  ql3xxx_driver_init+0x23/0x25
+[    3.242245 ]  do_one_initcall+0x7f/0x3d0
+[    3.242245 ]  ? rdinit_setup+0x45/0x45
+[    3.242245 ]  ? rcu_read_lock_sched_held+0x4f/0x80
+[    3.242245 ]  kernel_init_freeable+0x2aa/0x301
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  kernel_init+0x18/0x190
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ? rest_init+0x2c0/0x2c0
+[    3.242245 ]  ret_from_fork+0x1f/0x30
+[    3.242245 ] Dumping ftrace buffer:
+[    3.242245 ]    (ftrace buffer empty)
+[    3.242245 ] Kernel Offset: disabled
+[    3.242245 ] Rebooting in 1 seconds.
+
+Reported-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/workqueue.c | 12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/qlogic/qla3xxx.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/workqueue.c b/kernel/workqueue.c
-index 79f2319543ce..994eafd25d64 100644
---- a/kernel/workqueue.c
-+++ b/kernel/workqueue.c
-@@ -50,6 +50,7 @@
- #include <linux/uaccess.h>
- #include <linux/sched/isolation.h>
- #include <linux/nmi.h>
-+#include <linux/kvm_para.h>
- 
- #include "workqueue_internal.h"
- 
-@@ -5772,6 +5773,7 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
- {
- 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
- 	bool lockup_detected = false;
-+	unsigned long now = jiffies;
- 	struct worker_pool *pool;
- 	int pi;
- 
-@@ -5786,6 +5788,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
- 		if (list_empty(&pool->worklist))
- 			continue;
- 
-+		/*
-+		 * If a virtual machine is stopped by the host it can look to
-+		 * the watchdog like a stall.
-+		 */
-+		kvm_check_and_clear_guest_paused();
-+
- 		/* get the latest of pool and touched timestamps */
- 		if (pool->cpu >= 0)
- 			touched = READ_ONCE(per_cpu(wq_watchdog_touched_cpu, pool->cpu));
-@@ -5799,12 +5807,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
- 			ts = touched;
- 
- 		/* did we stall? */
--		if (time_after(jiffies, ts + thresh)) {
-+		if (time_after(now, ts + thresh)) {
- 			lockup_detected = true;
- 			pr_emerg("BUG: workqueue lockup - pool");
- 			pr_cont_pool_info(pool);
- 			pr_cont(" stuck for %us!\n",
--				jiffies_to_msecs(jiffies - pool_ts) / 1000);
-+				jiffies_to_msecs(now - pool_ts) / 1000);
- 		}
- 	}
- 
+diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
+index 214e347097a7..2376b2729633 100644
+--- a/drivers/net/ethernet/qlogic/qla3xxx.c
++++ b/drivers/net/ethernet/qlogic/qla3xxx.c
+@@ -114,7 +114,7 @@ static int ql_sem_spinlock(struct ql3_adapter *qdev,
+ 		value = readl(&port_regs->CommonRegs.semaphoreReg);
+ 		if ((value & (sem_mask >> 16)) == sem_bits)
+ 			return 0;
+-		ssleep(1);
++		mdelay(1000);
+ 	} while (--seconds);
+ 	return -1;
+ }
 -- 
 2.30.2
 
