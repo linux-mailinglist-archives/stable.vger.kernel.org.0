@@ -2,69 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 33C8E399D94
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 11:19:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A488399E14
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 11:50:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229610AbhFCJVG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 05:21:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34562 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229567AbhFCJVG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 05:21:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6AD27613B1;
-        Thu,  3 Jun 2021 09:19:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622711961;
-        bh=hNMchlf9O444bO7mxFnY6LjWcVswdmGJYNW5Cvcqp6Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=KBZnItNEhuIP6RjnuWWg2l7dErC4umNFQ3a0YEvAwBsL2QiCq2bLF7NDoxt4SGsCH
-         nCWwzbOc4ProgyI+4Aqw6rpwMykrjVR8BeEpjnEvKONqr/r4AGn4snvzfW/K9kfgFD
-         XMsfwSBKaJ0AB5VWCfLNwPzzAeNw1vLf2QQrzmv8=
-Date:   Thu, 3 Jun 2021 11:19:19 +0200
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     =?utf-8?Q?Lauren=C8=9Biu_P=C4=83ncescu?= <lpancescu@gmail.com>
-Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: Backporting fix for #199981 to 4.19.y?
-Message-ID: <YLiel5ZEcq+mlshL@kroah.com>
-References: <c75fcd12-e661-bc03-e077-077799ef1c44@gmail.com>
- <YLiNrCFFGEmltssD@kroah.com>
- <5399984e-0860-170e-377e-1f4bf3ccb3a0@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5399984e-0860-170e-377e-1f4bf3ccb3a0@gmail.com>
+        id S229719AbhFCJvu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 05:51:50 -0400
+Received: from mail-qv1-f73.google.com ([209.85.219.73]:42937 "EHLO
+        mail-qv1-f73.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbhFCJvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 05:51:50 -0400
+Received: by mail-qv1-f73.google.com with SMTP id if5-20020a0562141c45b029021fee105740so39162qvb.9
+        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 02:49:53 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=date:message-id:mime-version:subject:from:to:cc;
+        bh=vmZCbqngTpm7tAp2K8sNJMCUQyvM+b4ETSTvf8bhdN0=;
+        b=I7wdB9K8vmtF6uC4zn9AcunlOO/tAjuLKc1fWLguyixo+evPcpqGbTf6imz6wCbgoF
+         FO4xknowcBjYgFodM6oHda646Ppe2+0/fTlP6bqHyN0Obmdda2M9FGpwZ/2alTEK0zFu
+         jdSHK3AclAKFA0HdpMvGVTLbLdk7cz4TJlTUKLTrApjp5xAfu85QwmzUD72GMzW0pu09
+         u8DKcHBLr7dogtgFbOmt6VKaBg3PXkE9jDFGlG3/Ml3xmueXd44MFN7ta8TMcWpEo++I
+         62CUt6+ivNQehaxdDNklwLHk+su3nveYgviTr47LdeUepqOhpz8cCw9U1ENvAEt04M+n
+         Al0A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:message-id:mime-version:subject:from:to:cc;
+        bh=vmZCbqngTpm7tAp2K8sNJMCUQyvM+b4ETSTvf8bhdN0=;
+        b=gSHf+EZVPNRb0D5biIDm09EomEGD2juj+SZIdrgOYDRcuI1s0JBOUO+M7WopkgtBYm
+         w6Yhh/fPiSDtEnyXxYs0gCgkbBqUyqu/3cXbyHdL1foxuUU+wbSIVvdQcI1qFxLviWtz
+         b+KV9yEj9eRG0ZY6HGKFU9NBQJqZzemfsJ6l3/BI2CD7DyyxMsp/z0xVdm7QB3j+A+vq
+         jU6PB9ZIRpqGY+EYO/+GZ6SfvrHjbJHkP44kS+LlpuV/mJH5PoJbFOYKylwUBbdsLLPS
+         dB/PbfrNbrDkqyygr3n5VeDlZvi17cC3bPpQygMdB4vXPBvZStt4Zo8gg8gsLNvg2B23
+         aNtg==
+X-Gm-Message-State: AOAM5327Z01yFZWNWZ12dNLNmm05OlOBMCwhAzdluFLPufoo+1eRXD3C
+        EqU/LlqCGlCJ06z9qFiQWmzijcZ2FeA=
+X-Google-Smtp-Source: ABdhPJzQPM//koouAcGyOQfMwmc6RaUBZhppCtAOxPKFOiL6nD4RMfqevmtLMtegRNt5ClQAwmTec0eXbU8=
+X-Received: from drosen.c.googlers.com ([fda3:e722:ac3:10:24:72f4:c0a8:4e6f])
+ (user=drosen job=sendgmr) by 2002:ad4:4c0c:: with SMTP id bz12mr21689604qvb.21.1622713733247;
+ Thu, 03 Jun 2021 02:48:53 -0700 (PDT)
+Date:   Thu,  3 Jun 2021 09:48:49 +0000
+Message-Id: <20210603094849.314342-1-drosen@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.32.0.rc0.204.g9fa02ecfa5-goog
+Subject: [PATCH v2] ext4: Correct encrypted_casefolding sysfs entry
+From:   Daniel Rosenberg <drosen@google.com>
+To:     "Theodore Y . Ts'o" <tytso@mit.edu>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Andreas Dilger <adilger.kernel@dilger.ca>,
+        linux-ext4@vger.kernel.org
+Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        kernel-team@android.com, Daniel Rosenberg <drosen@google.com>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 03, 2021 at 10:24:04AM +0200, Laurențiu Păncescu wrote:
-> On 6/3/21 10:07 AM, Greg KH wrote:
-> > On Thu, Jun 03, 2021 at 09:53:46AM +0200, Laurențiu Păncescu wrote:
-> > > Hi there,
-> > > 
-> > > I'm running Debian Buster on an old Asus EeePC and I see the battery always
-> > > at 100% when unplugged, with an estimated battery life of 4200 hours, no
-> > > matter how long I've been using it without AC power.
-> > > 
-> > > I suspect this might be bug #201351, marked as duplicate of #199981 and
-> > > fixed in 5.0-rc1. Would you please consider backporting it to the 4.19 LTS
-> > > kernel?
-> > 
-> > What specific commit in Linus's tree is this so we know what to
-> > backport?
-> 
-> Hi Greg,
-> 
-> I think it's commit b1c0330823fe842dbb34641f1410f0afa51c29d3.
-> 
-> Many thanks,
-> Laurențiu
+Encrypted casefolding is only supported when both encryption and
+casefolding are both enabled in the config.
 
-That commit does not apply cleanly and I need a backported version.  Can
-you do that and test it to verify it works and then send it to us to be
-applied?
+Fixes: 471fbbea7ff7 ("ext4: handle casefolding with encryption")
+Cc: stable@vger.kernel.org # 5.13+
+Signed-off-by: Daniel Rosenberg <drosen@google.com>
+---
+ fs/ext4/sysfs.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-thanks,
+diff --git a/fs/ext4/sysfs.c b/fs/ext4/sysfs.c
+index 6f825dedc3d4..55fcab60a59a 100644
+--- a/fs/ext4/sysfs.c
++++ b/fs/ext4/sysfs.c
+@@ -315,7 +315,9 @@ EXT4_ATTR_FEATURE(verity);
+ #endif
+ EXT4_ATTR_FEATURE(metadata_csum_seed);
+ EXT4_ATTR_FEATURE(fast_commit);
++#if defined(CONFIG_UNICODE) && defined(CONFIG_FS_ENCRYPTION)
+ EXT4_ATTR_FEATURE(encrypted_casefold);
++#endif
+ 
+ static struct attribute *ext4_feat_attrs[] = {
+ 	ATTR_LIST(lazy_itable_init),
+@@ -333,7 +335,9 @@ static struct attribute *ext4_feat_attrs[] = {
+ #endif
+ 	ATTR_LIST(metadata_csum_seed),
+ 	ATTR_LIST(fast_commit),
++#if defined(CONFIG_UNICODE) && defined(CONFIG_FS_ENCRYPTION)
+ 	ATTR_LIST(encrypted_casefold),
++#endif
+ 	NULL,
+ };
+ ATTRIBUTE_GROUPS(ext4_feat);
+-- 
+2.32.0.rc0.204.g9fa02ecfa5-goog
 
-greg k-h
