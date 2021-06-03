@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBE1F39A7B0
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CAA0439A7C8
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232734AbhFCRMP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:12:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43644 "EHLO mail.kernel.org"
+        id S232233AbhFCRMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:12:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43650 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232231AbhFCRL0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:11:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4F603613F1;
-        Thu,  3 Jun 2021 17:09:41 +0000 (UTC)
+        id S232521AbhFCRL2 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:11:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7456E61406;
+        Thu,  3 Jun 2021 17:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740182;
-        bh=UFy/fNZZcXDiSUPifrg7RaZsPbIx8W3OHjSscJM5XlY=;
+        s=k20201202; t=1622740183;
+        bh=JBhipiMwPXGeOxO7JVWCFVOLodSw1xKUjG1XP1nK5+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=il4SVFmUVwrHXf5tnv+NyoIgOplmPLOIwc2ZYWAuqrAVKwPYJFN7/0cI0wj5CLLtV
-         9qwie0FruoBT55iGAmCe8InVPORu/jaUxb7nmfF2OeME7m9HIgVXFZcFSctExGtWUH
-         J+0LM7plD2OaBtd7qT0q7w6YER3RfCcmnWRruMZImzF9KkJZiurpImvaEmUbZblcr9
-         hRa6q93+z3LN6e+/DaAEo8PAMSWUFttLgEOk/RVJVXSma5T93PntN6zDrNLCyw05M3
-         ReQ4OTVOPHuMx46GWv9nUenQqu6abR9886g6UIugdF37avRxLsVRQ+9Gfnb83LK3t9
-         c3GQwWk8VPCTQ==
+        b=ZJB+8r0RErBCH3Jq5mdUsCnhpwH3BWy9zw0vJCupbZ6tSLkPOtt6Xfzc0nirSqsuM
+         82n2QmlKumpuGDMRg2UbJcWyVC0jNcXIlrUS1FNBs8X5vUQrjv1Ug+FJPvC86lffRp
+         k6zMuhy9+dqzMdHq7ArVod/0zBsnw0Hgjsn8k0d4etdB1rrSNckjdsUSkBnCHPq8V2
+         EDf30CT/mtkvDoTl18/Xgf8DS0F2xomFCYb9a5Ow9GDVS0ykyqDpqps5EjhXJymM1Y
+         P5zkCp2rOyoiynNaLI7WNcf6+8RcEFPe2qxRlh5+DArHhRsDx9Y7ot+Bptrym33XE1
+         7QAMPflyCW/Cg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Javed Hasan <jhasan@marvell.com>,
-        Himanshu Madhani <himanshu.madhani@oracle.com>,
+Cc:     Matt Wang <wwentao@vmware.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 18/31] scsi: bnx2fc: Return failure if io_req is already in ABTS processing
-Date:   Thu,  3 Jun 2021 13:09:06 -0400
-Message-Id: <20210603170919.3169112-18-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 19/31] scsi: vmw_pvscsi: Set correct residual data length
+Date:   Thu,  3 Jun 2021 13:09:07 -0400
+Message-Id: <20210603170919.3169112-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170919.3169112-1-sashal@kernel.org>
 References: <20210603170919.3169112-1-sashal@kernel.org>
@@ -43,33 +42,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Javed Hasan <jhasan@marvell.com>
+From: Matt Wang <wwentao@vmware.com>
 
-[ Upstream commit 122c81c563b0c1c6b15ff76a9159af5ee1f21563 ]
+[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
 
-Return failure from bnx2fc_eh_abort() if io_req is already in ABTS
-processing.
+Some commands (such as INQUIRY) may return less data than the initiator
+requested. To avoid conducting useless information, set the right residual
+count to make upper layer aware of this.
 
-Link: https://lore.kernel.org/r/20210519061416.19321-1-jhasan@marvell.com
-Reviewed-by: Himanshu Madhani <himanshu.madhani@oracle.com>
-Signed-off-by: Javed Hasan <jhasan@marvell.com>
+Before (INQUIRY PAGE 0xB0 with 128B buffer):
+
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
+
+Received 128 bytes of data:
+ 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+ 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+ 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+ 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+
+After:
+
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
+
+Received 64 bytes of data:
+00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+
+[mkp: clarified description]
+
+Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
+Signed-off-by: Matt Wang <wwentao@vmware.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/bnx2fc/bnx2fc_io.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/scsi/vmw_pvscsi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/bnx2fc/bnx2fc_io.c b/drivers/scsi/bnx2fc/bnx2fc_io.c
-index 401743e2b429..a0e776414889 100644
---- a/drivers/scsi/bnx2fc/bnx2fc_io.c
-+++ b/drivers/scsi/bnx2fc/bnx2fc_io.c
-@@ -1219,6 +1219,7 @@ int bnx2fc_eh_abort(struct scsi_cmnd *sc_cmd)
- 		   was a result from the ABTS request rather than the CLEANUP
- 		   request */
- 		set_bit(BNX2FC_FLAG_IO_CLEANUP,	&io_req->req_flags);
-+		rc = FAILED;
- 		goto done;
- 	}
+diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
+index 70008816c91f..0ac342b1deb9 100644
+--- a/drivers/scsi/vmw_pvscsi.c
++++ b/drivers/scsi/vmw_pvscsi.c
+@@ -574,7 +574,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
+ 		case BTSTAT_SUCCESS:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
+-			/* If everything went fine, let's move on..  */
++			/*
++			 * Commands like INQUIRY may transfer less data than
++			 * requested by the initiator via bufflen. Set residual
++			 * count to make upper layer aware of the actual amount
++			 * of data returned.
++			 */
++			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+ 			cmd->result = (DID_OK << 16);
+ 			break;
  
 -- 
 2.30.2
