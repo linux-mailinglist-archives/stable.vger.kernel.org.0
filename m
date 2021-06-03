@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4860239A772
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 69C7439A770
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232253AbhFCRLY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:11:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42858 "EHLO mail.kernel.org"
+        id S232278AbhFCRLX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:11:23 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232230AbhFCRK4 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:10:56 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E681F613F1;
-        Thu,  3 Jun 2021 17:09:10 +0000 (UTC)
+        id S232240AbhFCRK5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:10:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1676261401;
+        Thu,  3 Jun 2021 17:09:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740151;
-        bh=VHAXdjdcllNCvOk3Jm+KgEHu0Sx0iGudak86gchl8V8=;
+        s=k20201202; t=1622740152;
+        bh=YsrmrDyiB+yexP44Ab1YAEuDP9sNt8FMawYVpodek7w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MK9F05dS6qNi5c9rRdw9hI0Z5dKf1QJSDSbDo1ja23j4303ftyYEEEFCMa7Tzloxd
-         esa1M5ToE0hvMQtylm5uDW0L1q8cR+FAVrOU3RvWJS70uZDUZcqhqbaL9qilZNpC9v
-         93w15UNBDjx3BnidErVWgaw7hentGl7DjQAzPgqduglDSa6v6PcvqP3gpFVBttv+Ob
-         C0WBwfug95thpVFjivjk3Dyar47TMtu/Rc0PqFihlOYgddThnLVX4WdpO7zewOVuEQ
-         7rKgvj+eo3x8xZHBdEZb84D10CKDGhWICz5UrpBi70ZWUFrgj+p8tP1Ex/Kj0RT0je
-         KWlGmH5dG0e2Q==
+        b=L8TqXW/qaEiDnqkwOr6otyiw32rnC6ewunQiIorL2bVqgyZqXU1gwTPGLpEuZqiZM
+         Em2uYoBhvcOtusw8XeNPSpQox4MWhtYMKCLxeEVD5YzvDpmsTBTd7lA6KH9wi3cztq
+         qUC5eBE8cO4+d6m4/H0yFV+G/vCWs6tNmDcD6AUgZmTzrsaQqzyBgG3gddYrOnYbHp
+         QPieSrJRh5xfFgxv+lWdl0q+2FT/Mhk6N3WGe/yWnrJNzBTOownLCD8eEwsIyV1cxI
+         FFO/Pmq5uo6F9r3PUmtQoHBkvnzkdU6kf//4sR/zy8st1w2JI8AMH9cgirqTaiTt/x
+         3qwVzNFyee74Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     John Keeping <john@metanate.com>,
-        Mike Snitzer <snitzer@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, dm-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.10 34/39] dm verity: fix require_signatures module_param permissions
-Date:   Thu,  3 Jun 2021 13:08:24 -0400
-Message-Id: <20210603170829.3168708-34-sashal@kernel.org>
+Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 35/39] bnx2x: Fix missing error code in bnx2x_iov_init_one()
+Date:   Thu,  3 Jun 2021 13:08:25 -0400
+Message-Id: <20210603170829.3168708-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170829.3168708-1-sashal@kernel.org>
 References: <20210603170829.3168708-1-sashal@kernel.org>
@@ -42,40 +43,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: John Keeping <john@metanate.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 0c1f3193b1cdd21e7182f97dc9bca7d284d18a15 ]
+[ Upstream commit 65161c35554f7135e6656b3df1ce2c500ca0bdcf ]
 
-The third parameter of module_param() is permissions for the sysfs node
-but it looks like it is being used as the initial value of the parameter
-here.  In fact, false here equates to omitting the file from sysfs and
-does not affect the value of require_signatures.
+Eliminate the follow smatch warning:
 
-Making the parameter writable is not simple because going from
-false->true is fine but it should not be possible to remove the
-requirement to verify a signature.  But it can be useful to inspect the
-value of this parameter from userspace, so change the permissions to
-make a read-only file in sysfs.
+drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c:1227
+bnx2x_iov_init_one() warn: missing error code 'err'.
 
-Signed-off-by: John Keeping <john@metanate.com>
-Signed-off-by: Mike Snitzer <snitzer@redhat.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/dm-verity-verify-sig.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/md/dm-verity-verify-sig.c b/drivers/md/dm-verity-verify-sig.c
-index 614e43db93aa..919154ae4cae 100644
---- a/drivers/md/dm-verity-verify-sig.c
-+++ b/drivers/md/dm-verity-verify-sig.c
-@@ -15,7 +15,7 @@
- #define DM_VERITY_VERIFY_ERR(s) DM_VERITY_ROOT_HASH_VERIFICATION " " s
+diff --git a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+index 9c2f51f23035..9108b497b3c9 100644
+--- a/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
++++ b/drivers/net/ethernet/broadcom/bnx2x/bnx2x_sriov.c
+@@ -1224,8 +1224,10 @@ int bnx2x_iov_init_one(struct bnx2x *bp, int int_mode_param,
+ 		goto failed;
  
- static bool require_signatures;
--module_param(require_signatures, bool, false);
-+module_param(require_signatures, bool, 0444);
- MODULE_PARM_DESC(require_signatures,
- 		"Verify the roothash of dm-verity hash tree");
+ 	/* SR-IOV capability was enabled but there are no VFs*/
+-	if (iov->total == 0)
++	if (iov->total == 0) {
++		err = -EINVAL;
+ 		goto failed;
++	}
+ 
+ 	iov->nr_virtfn = min_t(u16, iov->total, num_vfs_param);
  
 -- 
 2.30.2
