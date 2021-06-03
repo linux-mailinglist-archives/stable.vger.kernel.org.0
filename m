@@ -2,115 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F19BD39A601
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 18:43:43 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9050439A645
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 18:52:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbhFCQp1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 12:45:27 -0400
-Received: from mail-lj1-f178.google.com ([209.85.208.178]:45806 "EHLO
-        mail-lj1-f178.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFCQp1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 12:45:27 -0400
-Received: by mail-lj1-f178.google.com with SMTP id m3so7915559lji.12;
-        Thu, 03 Jun 2021 09:43:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:in-reply-to:references
-         :mime-version:content-transfer-encoding;
-        bh=nuRSAtZPeAYZdMLrOA69vUXLR2r41hPNT21AloEibuE=;
-        b=ZQz3ZTOf0Y/MZx10PyGdhVsaZCuvAsy7tCceX45QGgZ0k9HwnJsnZHOUNiZTUPySnV
-         6UHM97aWhEt3dLkS/OPo4Gcxd8jAc2YDMWcSbGyTTpv3aRQ8Sx+NmIOopD1amVaCoh1t
-         ItjXmOyDWlzeoEMxlHKfCw0I9Xy4KeFjHe8Mn+Abt7szSRdPFCvJSv4zKhDEQebAxOgg
-         NODzemGJEe4pxXjwR8/GyISWxuRiDjD2XzBPN8VW+SJTRM9USTZpMzkiXbmO0snYY1b3
-         8NbGAoohfutQilRCnBKNfh7BLjBfgKhzSCDANjESpLJrTdrJVKfv8fmmofYJo5nRYRvb
-         XoKw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:in-reply-to
-         :references:mime-version:content-transfer-encoding;
-        bh=nuRSAtZPeAYZdMLrOA69vUXLR2r41hPNT21AloEibuE=;
-        b=nGg95zjEy0sHWi0vVchgo1xQiKwNjvfOpEhTH+NZri2mpnngdigHL/yz+ycisLKu9K
-         xbFdUaZQ5sXA7Kwh39okCUGPe3hRlkI/+xUD5azfAmSIRfrflwep9QF9PWPsWzUCeL2J
-         wVi/sxSJ0Y8btiswea5YqizhPQARdZK/honHkQj2YvTGJS5UahgkfglbAdKxZyLuPfz/
-         TO2NN8Twt/zRzPRllSFdvtdn82Znt24/8kSfMiU/2HZK+Mvp7+aYaS9Y1OcmfLjzyuhu
-         jx+WxVI0pVTERdoVEMlzwIk+OBSTWxLpaLo1KNL6/BL+LG9h0dnuTx8GgOLRE7NTvWB7
-         UMew==
-X-Gm-Message-State: AOAM530Rsfhr9nxS/HOBDIRT1uc/VbJVjghtpJm1GNovMQD+GOQeRNty
-        IRoQSGm9H/BfncjPWns9v4b7wAMuCAM=
-X-Google-Smtp-Source: ABdhPJwr9OTWggEswHE0pT6GFsR8fIogF7TJJ7dR9GipsthL0HLexmo2iSFcWhqHdJcTQninWpyWvA==
-X-Received: by 2002:a2e:a550:: with SMTP id e16mr215112ljn.136.1622738550178;
-        Thu, 03 Jun 2021 09:42:30 -0700 (PDT)
-Received: from localhost.localdomain ([94.103.224.40])
-        by smtp.gmail.com with ESMTPSA id r22sm411638ljp.129.2021.06.03.09.42.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 09:42:29 -0700 (PDT)
-Date:   Thu, 3 Jun 2021 19:42:27 +0300
-From:   Pavel Skripkin <paskripkin@gmail.com>
-To:     davem@davemloft.net, kuba@kernel.org,
-        sjur.brandeland@stericsson.com
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org,
-        syzbot+7ec324747ce876a29db6@syzkaller.appspotmail.com
-Subject: Re: [PATCH 3/4] net: caif: fix memory leak in caif_device_notify
-Message-ID: <20210603194227.18f48c58@gmail.com>
-In-Reply-To: <fcddc06204f166d2ef0d75360b89f6f629a3b0c4.1622737854.git.paskripkin@gmail.com>
-References: <cover.1622737854.git.paskripkin@gmail.com>
-        <fcddc06204f166d2ef0d75360b89f6f629a3b0c4.1622737854.git.paskripkin@gmail.com>
-X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-suse-linux-gnu)
+        id S229692AbhFCQyT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 12:54:19 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37072 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229947AbhFCQyT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 12:54:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4742261026;
+        Thu,  3 Jun 2021 16:52:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622739154;
+        bh=KpKn9XUO4iOFlgQA8QuoLpE5t3G5v8KOBO7FRLF+BAQ=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TfqaaCA2Oem5O1+1Pe9SIuXpofl3q37ZeQerDFbF2zgVGrWbZA/HFodutsm3/Zv5w
+         GBds6h8vKRMMmmS7cFoi5Ora9v1L3BUdh73Dx1Ec76WUWw3L7gGTfHq355bhtI4qWj
+         hq7gssmJquBkHj8jJdDXtWZZ8JV9bNyZ8GWol78qvdxEe1fYhheI5sS1hYBCa0Y9if
+         mAnsZR8MqY7zhqcGgsOjE+BlGvWHatvsXywbxFYJhmvT5qtHyP583YAsbnPUIvO2ya
+         3fOQDJ93m2bBAIGQu5Mj46sg3I+bkFlpvCb6WNkGtLcsl1oaI+pxpWhJ+UqREekUPW
+         wju0JjGOilRFA==
+From:   Jeff Layton <jlayton@kernel.org>
+To:     ceph-devel@vger.kernel.org, idryomov@gmail.com
+Cc:     stable@vger.kernel.org
+Subject: [PATCH 3/3] ceph: must hold snap_rwsem when filling inode for async create
+Date:   Thu,  3 Jun 2021 12:52:31 -0400
+Message-Id: <20210603165231.110559-4-jlayton@kernel.org>
+X-Mailer: git-send-email 2.31.1
+In-Reply-To: <20210603165231.110559-1-jlayton@kernel.org>
+References: <20210603165231.110559-1-jlayton@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu,  3 Jun 2021 19:39:11 +0300
-Pavel Skripkin <paskripkin@gmail.com> wrote:
+...and add a lockdep assertion for it to ceph_fill_inode().
 
-> In case of caif_enroll_dev() fail, allocated
-> link_support won't be assigned to the corresponding
-> structure. So simply free allocated pointer in case
-> of error
-> 
-> Fixes: 7c18d2205ea7 ("caif: Restructure how link caif link layer
-> enroll") Cc: stable@vger.kernel.org
-> Reported-and-tested-by:
-> syzbot+7ec324747ce876a29db6@syzkaller.appspotmail.com Signed-off-by:
-> Pavel Skripkin <paskripkin@gmail.com> ---
->  net/caif/caif_dev.c | 5 ++++-
->  1 file changed, 4 insertions(+), 1 deletion(-)
-> 
-> diff --git a/net/caif/caif_dev.c b/net/caif/caif_dev.c
-> index fffbe41440b3..440139706130 100644
-> --- a/net/caif/caif_dev.c
-> +++ b/net/caif/caif_dev.c
-> @@ -370,6 +370,7 @@ static int caif_device_notify(struct
-> notifier_block *me, unsigned long what, struct cflayer *layer,
-> *link_support; int head_room = 0;
->  	struct caif_device_entry_list *caifdevs;
-> +	int res;
->  
->  	cfg = get_cfcnfg(dev_net(dev));
->  	caifdevs = caif_device_list(dev_net(dev));
-> @@ -395,8 +396,10 @@ static int caif_device_notify(struct
-> notifier_block *me, unsigned long what, break;
->  			}
->  		}
-> -		caif_enroll_dev(dev, caifdev, link_support,
-> head_room,
-> +		res = caif_enroll_dev(dev, caifdev, link_support,
-> head_room, &layer, NULL);
-> +		if (res)
-> +			cfserl_release(link_support);
->  		caifdev->flowctrl = dev_flowctrl;
->  		break;
->  
+Cc: stable@vger.kernel.org # v5.7+
+Fixes: 9a8d03ca2e2c3 ("ceph: attempt to do async create when possible")
+Signed-off-by: Jeff Layton <jlayton@kernel.org>
+---
+ fs/ceph/file.c  | 3 +++
+ fs/ceph/inode.c | 2 ++
+ 2 files changed, 5 insertions(+)
 
-One thing Im wondering about is should I return this error
-from caif_device_notify()? I look forward to hearing your perspective on
-this question and patch series :)
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index a01ad342a91d..d3874c2df4b1 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -578,6 +578,7 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
+ 	struct ceph_inode_info *ci = ceph_inode(dir);
+ 	struct inode *inode;
+ 	struct timespec64 now;
++	struct ceph_mds_client *mdsc = ceph_sb_to_mdsc(dir->i_sb);
+ 	struct ceph_vino vino = { .ino = req->r_deleg_ino,
+ 				  .snap = CEPH_NOSNAP };
+ 
+@@ -615,8 +616,10 @@ static int ceph_finish_async_create(struct inode *dir, struct dentry *dentry,
+ 
+ 	ceph_file_layout_to_legacy(lo, &in.layout);
+ 
++	down_read(&mdsc->snap_rwsem);
+ 	ret = ceph_fill_inode(inode, NULL, &iinfo, NULL, req->r_session,
+ 			      req->r_fmode, NULL);
++	up_read(&mdsc->snap_rwsem);
+ 	if (ret) {
+ 		dout("%s failed to fill inode: %d\n", __func__, ret);
+ 		ceph_dir_clear_complete(dir);
+diff --git a/fs/ceph/inode.c b/fs/ceph/inode.c
+index e1c63adb196d..df0c8a724609 100644
+--- a/fs/ceph/inode.c
++++ b/fs/ceph/inode.c
+@@ -777,6 +777,8 @@ int ceph_fill_inode(struct inode *inode, struct page *locked_page,
+ 	umode_t mode = le32_to_cpu(info->mode);
+ 	dev_t rdev = le32_to_cpu(info->rdev);
+ 
++	lockdep_assert_held(&mdsc->snap_rwsem);
++
+ 	dout("%s %p ino %llx.%llx v %llu had %llu\n", __func__,
+ 	     inode, ceph_vinop(inode), le64_to_cpu(info->version),
+ 	     ci->i_version);
+-- 
+2.31.1
 
-
-
-With regards,
-Pavel Skripkin
