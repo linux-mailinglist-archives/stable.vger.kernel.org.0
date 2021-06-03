@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BBCEE39A867
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:20 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6714639A869
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233538AbhFCRPi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:15:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
+        id S233560AbhFCRPj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:15:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232532AbhFCRNs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:13:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C15CB61406;
-        Thu,  3 Jun 2021 17:10:41 +0000 (UTC)
+        id S231612AbhFCRNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:13:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E90CB613DE;
+        Thu,  3 Jun 2021 17:10:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740242;
-        bh=s2jVm2W43ZenVm4kjeGBcgM04M2SlKVTsilE94Vosxk=;
+        s=k20201202; t=1622740243;
+        bh=ckN1z2tVaQ1YA+b0uaeb4c69ZdcSbgwlSMC8rFkpyDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ME26G6YdATeVsM7SPKNk4ASle1tHuY+IxsD8mTqdcdDd7dcICJlAXTyFapZ36/JNf
-         abkJC9KoOGgk82ftwzXb2iEUCpbzi01zfdX0IwvGn6gOS4mOLEMQKN++Q03D+BuSip
-         jnZ0h/1YjsH23tFZtlayiASb/a8F77zdOqjiGCd4w0sxf/r2XZoLlYJy9jctxyYUiQ
-         dX5uKCS/EIoQQlaz1yQiU3yCMefshdjSYYJxZMU+RvP1iZsKZXRwzVVXbct3uwigCK
-         XjRpSQoYgdhOYOAO57YqBipESGekiWnxnennxOo/aF97xqJfoFJ/95S0kIahYVm3EY
-         ALoYIdVd0Tvww==
+        b=g2kNsl2/qQgdUyjmRGWaJCyx2w78Vcd2vvkKwacM6lOzXTNWGLCP610SRZmkNXBDI
+         fmwFrC7mK3NlwL6kPHwQTjoHbuDXl+bdRk36rVw/PgmNJXwLQ6cTRkmUgoyarREoh4
+         1o9U6sC/QyVMrsabSFtarzKaYCpRgJqQvIHYrm53U5jofi1ntyVHlv3UbfDks+rk2g
+         ZusT0Wk+SMhcb80L8T9/OMT8b+xIFLaJMOg2QIIUBved1l2LI0bsr3Jrzzl/r8d2zz
+         KFLzkwmHXpbvJcmFDfts2Rknn6fJoCRUKHnSTp1UwZB4Fl0hCKqZkAMfeLBQ7/kkuG
+         G1stiui9EwDwQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zheyu Ma <zheyuma97@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 10/18] net/qla3xxx: fix schedule while atomic in ql_sem_spinlock
-Date:   Thu,  3 Jun 2021 13:10:21 -0400
-Message-Id: <20210603171029.3169669-10-sashal@kernel.org>
+Cc:     Matt Wang <wwentao@vmware.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 11/18] scsi: vmw_pvscsi: Set correct residual data length
+Date:   Thu,  3 Jun 2021 13:10:22 -0400
+Message-Id: <20210603171029.3169669-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603171029.3169669-1-sashal@kernel.org>
 References: <20210603171029.3169669-1-sashal@kernel.org>
@@ -42,106 +42,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zheyu Ma <zheyuma97@gmail.com>
+From: Matt Wang <wwentao@vmware.com>
 
-[ Upstream commit 13a6f3153922391e90036ba2267d34eed63196fc ]
+[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
 
-When calling the 'ql_sem_spinlock', the driver has already acquired the
-spin lock, so the driver should not call 'ssleep' in atomic context.
+Some commands (such as INQUIRY) may return less data than the initiator
+requested. To avoid conducting useless information, set the right residual
+count to make upper layer aware of this.
 
-This bug can be fixed by using 'mdelay' instead of 'ssleep'.
+Before (INQUIRY PAGE 0xB0 with 128B buffer):
 
-The KASAN's log reveals it:
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
 
-[    3.238124 ] BUG: scheduling while atomic: swapper/0/1/0x00000002
-[    3.238748 ] 2 locks held by swapper/0/1:
-[    3.239151 ]  #0: ffff88810177b240 (&dev->mutex){....}-{3:3}, at:
-__device_driver_lock+0x41/0x60
-[    3.240026 ]  #1: ffff888107c60e28 (&qdev->hw_lock){....}-{2:2}, at:
-ql3xxx_probe+0x2aa/0xea0
-[    3.240873 ] Modules linked in:
-[    3.241187 ] irq event stamp: 460854
-[    3.241541 ] hardirqs last  enabled at (460853): [<ffffffff843051bf>]
-_raw_spin_unlock_irqrestore+0x4f/0x70
-[    3.242245 ] hardirqs last disabled at (460854): [<ffffffff843058ca>]
-_raw_spin_lock_irqsave+0x2a/0x70
-[    3.242245 ] softirqs last  enabled at (446076): [<ffffffff846002e4>]
-__do_softirq+0x2e4/0x4b1
-[    3.242245 ] softirqs last disabled at (446069): [<ffffffff811ba5e0>]
-irq_exit_rcu+0x100/0x110
-[    3.242245 ] Preemption disabled at:
-[    3.242245 ] [<ffffffff828ca5ba>] ql3xxx_probe+0x2aa/0xea0
-[    3.242245 ] Kernel panic - not syncing: scheduling while atomic
-[    3.242245 ] CPU: 2 PID: 1 Comm: swapper/0 Not tainted
-5.13.0-rc1-00145
--gee7dc339169-dirty #16
-[    3.242245 ] Call Trace:
-[    3.242245 ]  dump_stack+0xba/0xf5
-[    3.242245 ]  ? ql3xxx_probe+0x1f0/0xea0
-[    3.242245 ]  panic+0x15a/0x3f2
-[    3.242245 ]  ? vprintk+0x76/0x150
-[    3.242245 ]  ? ql3xxx_probe+0x2aa/0xea0
-[    3.242245 ]  __schedule_bug+0xae/0xe0
-[    3.242245 ]  __schedule+0x72e/0xa00
-[    3.242245 ]  schedule+0x43/0xf0
-[    3.242245 ]  schedule_timeout+0x28b/0x500
-[    3.242245 ]  ? del_timer_sync+0xf0/0xf0
-[    3.242245 ]  ? msleep+0x2f/0x70
-[    3.242245 ]  msleep+0x59/0x70
-[    3.242245 ]  ql3xxx_probe+0x307/0xea0
-[    3.242245 ]  ? _raw_spin_unlock_irqrestore+0x3a/0x70
-[    3.242245 ]  ? pci_device_remove+0x110/0x110
-[    3.242245 ]  local_pci_probe+0x45/0xa0
-[    3.242245 ]  pci_device_probe+0x12b/0x1d0
-[    3.242245 ]  really_probe+0x2a9/0x610
-[    3.242245 ]  driver_probe_device+0x90/0x1d0
-[    3.242245 ]  ? mutex_lock_nested+0x1b/0x20
-[    3.242245 ]  device_driver_attach+0x68/0x70
-[    3.242245 ]  __driver_attach+0x124/0x1b0
-[    3.242245 ]  ? device_driver_attach+0x70/0x70
-[    3.242245 ]  bus_for_each_dev+0xbb/0x110
-[    3.242245 ]  ? rdinit_setup+0x45/0x45
-[    3.242245 ]  driver_attach+0x27/0x30
-[    3.242245 ]  bus_add_driver+0x1eb/0x2a0
-[    3.242245 ]  driver_register+0xa9/0x180
-[    3.242245 ]  __pci_register_driver+0x82/0x90
-[    3.242245 ]  ? yellowfin_init+0x25/0x25
-[    3.242245 ]  ql3xxx_driver_init+0x23/0x25
-[    3.242245 ]  do_one_initcall+0x7f/0x3d0
-[    3.242245 ]  ? rdinit_setup+0x45/0x45
-[    3.242245 ]  ? rcu_read_lock_sched_held+0x4f/0x80
-[    3.242245 ]  kernel_init_freeable+0x2aa/0x301
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  kernel_init+0x18/0x190
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  ? rest_init+0x2c0/0x2c0
-[    3.242245 ]  ret_from_fork+0x1f/0x30
-[    3.242245 ] Dumping ftrace buffer:
-[    3.242245 ]    (ftrace buffer empty)
-[    3.242245 ] Kernel Offset: disabled
-[    3.242245 ] Rebooting in 1 seconds.
+Received 128 bytes of data:
+ 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+ 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+ 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+ 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+ 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
 
-Reported-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: Zheyu Ma <zheyuma97@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+After:
+
+$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
+SCSI Status: Good
+
+Received 64 bytes of data:
+00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
+10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
+20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
+30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+
+[mkp: clarified description]
+
+Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
+Signed-off-by: Matt Wang <wwentao@vmware.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/qlogic/qla3xxx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/scsi/vmw_pvscsi.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/qlogic/qla3xxx.c b/drivers/net/ethernet/qlogic/qla3xxx.c
-index cc53ee26bd3e..a8bb061e1a8a 100644
---- a/drivers/net/ethernet/qlogic/qla3xxx.c
-+++ b/drivers/net/ethernet/qlogic/qla3xxx.c
-@@ -115,7 +115,7 @@ static int ql_sem_spinlock(struct ql3_adapter *qdev,
- 		value = readl(&port_regs->CommonRegs.semaphoreReg);
- 		if ((value & (sem_mask >> 16)) == sem_bits)
- 			return 0;
--		ssleep(1);
-+		mdelay(1000);
- 	} while (--seconds);
- 	return -1;
- }
+diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
+index 64eb8ffb2ddf..2c707b5c7b0b 100644
+--- a/drivers/scsi/vmw_pvscsi.c
++++ b/drivers/scsi/vmw_pvscsi.c
+@@ -574,7 +574,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
+ 		case BTSTAT_SUCCESS:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED:
+ 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
+-			/* If everything went fine, let's move on..  */
++			/*
++			 * Commands like INQUIRY may transfer less data than
++			 * requested by the initiator via bufflen. Set residual
++			 * count to make upper layer aware of the actual amount
++			 * of data returned.
++			 */
++			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
+ 			cmd->result = (DID_OK << 16);
+ 			break;
+ 
 -- 
 2.30.2
 
