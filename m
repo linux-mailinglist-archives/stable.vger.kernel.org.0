@@ -2,161 +2,124 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2D98039A679
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 18:58:34 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B506D39A6B2
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:07:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229769AbhFCRAR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:00:17 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48224 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229719AbhFCRAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 13:00:17 -0400
-Received: from mail-pf1-x435.google.com (mail-pf1-x435.google.com [IPv6:2607:f8b0:4864:20::435])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FC4EC06174A
-        for <stable@vger.kernel.org>; Thu,  3 Jun 2021 09:58:21 -0700 (PDT)
-Received: by mail-pf1-x435.google.com with SMTP id f22so5397785pfn.0
-        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 09:58:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=OBJbjMndwQ4Ta9+gpAewy2QxhskK/KGKSesxDdl6N50=;
-        b=D+ULeB8B+qr/FmRpR5HW4SuYemNRP4+RvkXnbJtcyI55NhzIwQSwAFcb0y7IgOI7su
-         yO+nbZdbRUGivhcS/tYbn2fdpMHCQMoF+vj5kEEiK8sPe6Dgmb7/8zGJKvE67JQQ8GL+
-         GeAD9//tdNHaaOQc6CFtficNODq85UaSrEa3LfiMGkdFjZs88pixyvKmMt6utVeZRSAo
-         hlwtSImk9EURYtci9ZqQNB+XujsGh+3FlCWkMjx8d6hQ0CmNo/z8sUVDigF8R4kFNPMk
-         JOmoJf3sB6K8JdfPFpJhx8Qf/O/1s4HTrPwgC/GhxPjjWNRjC9zxB3kZfgvzNmfhM9VG
-         NVjg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=OBJbjMndwQ4Ta9+gpAewy2QxhskK/KGKSesxDdl6N50=;
-        b=UEHUligKyCF9m2zHliGtlDTIbS6BM1nKTvO7oAxW7XfTmaR+duyJ34aSvXtSW0dKyq
-         jgC92DM5kM5xtDHjMplaAjEaVea4LQEIOowcyFpRQLfFk/aF+g3+wRjo2mziSGnR4432
-         mtIn+r1Esv9h2DXTVCw5kP5FZ/V3v4gSLkZHKZBEE1Vs2acRQeqynMHTsassnm4CeDEE
-         R+dCdGBKt4yZ18yblj0nF2sgHerLwprLcZg5VJEtpKK1YjZsBO5FtQTQb9J4J40thkgl
-         /Uc86JBsC+V3O7hiVbM47GXYdzWMaAiUKNDy461jCkDwxfHWKJzg5vXKPPg4q7SgsL+1
-         Kw8Q==
-X-Gm-Message-State: AOAM531UWPpDdSHCgRp75tR8Wskhgz9gKPa/R6bGuuNLfd6wwhwHk/7O
-        w173I1bUp/Kki1Ok0XZWa8DJ7p8qoE9L2w==
-X-Google-Smtp-Source: ABdhPJyRQ9cLeC7RjL0/WUsu3sfwfFoavcq9FAtknb0v8cgOcJ1ZORyZWR/QT0XWYxrsNzWkvcVQKw==
-X-Received: by 2002:a63:e205:: with SMTP id q5mr426710pgh.404.1622739500576;
-        Thu, 03 Jun 2021 09:58:20 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p7sm2792925pfb.45.2021.06.03.09.58.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 09:58:20 -0700 (PDT)
-Message-ID: <60b90a2c.1c69fb81.9085d.8b75@mx.google.com>
-Date:   Thu, 03 Jun 2021 09:58:20 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S229769AbhFCRJV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:09:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40178 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229695AbhFCRJV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:09:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9D634613BA;
+        Thu,  3 Jun 2021 17:07:35 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622740056;
+        bh=se+aOlbWApVvK3k0JF45tpjgMrRLW7650QOY6f5iKO4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nqwGfm4u5tTS6urKHYq3Nnl2cJMZxBjcyC7izdfHt6weeoTeHsrx+aw7wnihf0W0z
+         CKUrqMPCkKKIXkLcDzaoraTK9PNxvZ1v9k3TyFSVivPV8WnvWrewX6XOWD6gI5aFG2
+         XqcJIsMULcjOXK26mrTyIKof7L7tgDUh3+t3nOYox1p9BYg57SjApMZhDUFDescwoe
+         gRCnK+0fFpsQH2qlvCuWWYW0ZV4yxJPrTOcO5buyhA3nb6pj5o9ZfIb5AEB6Qp/MRT
+         BArM/0ZgLZwST78GBI2GFtjSguL8H7bD364sVR5Rv+qmYq26qzHIYPfDrXYUU+Tc4A
+         7ZZu8cZ1tQ38Q==
+From:   Sasha Levin <sashal@kernel.org>
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Cc:     Marco Felsch <m.felsch@pengutronix.de>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 01/43] ASoC: max98088: fix ni clock divider calculation
+Date:   Thu,  3 Jun 2021 13:06:51 -0400
+Message-Id: <20210603170734.3168284-1-sashal@kernel.org>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.12.8-295-g4101434d85a8
-X-Kernelci-Branch: queue/5.12
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.12 baseline: 170 runs,
- 2 regressions (v5.12.8-295-g4101434d85a8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+X-stable: review
+X-Patchwork-Hint: Ignore
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.12 baseline: 170 runs, 2 regressions (v5.12.8-295-g410143=
-4d85a8)
+From: Marco Felsch <m.felsch@pengutronix.de>
 
-Regressions Summary
--------------------
+[ Upstream commit 6c9762a78c325107dc37d20ee21002b841679209 ]
 
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
+The ni1/ni2 ratio formula [1] uses the pclk which is the prescaled mclk.
+The max98088 datasheet [2] has no such formula but table-12 equals so
+we can assume that it is the same for both devices.
 
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
+While on it make use of DIV_ROUND_CLOSEST_ULL().
 
+[1] https://datasheets.maximintegrated.com/en/ds/MAX98089.pdf; page 86
+[2] https://datasheets.maximintegrated.com/en/ds/MAX98088.pdf; page 82
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.12/ker=
-nel/v5.12.8-295-g4101434d85a8/plan/baseline/
+Signed-off-by: Marco Felsch <m.felsch@pengutronix.de>
+Link: https://lore.kernel.org/r/20210423135402.32105-1-m.felsch@pengutronix.de
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ sound/soc/codecs/max98088.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.12
-  Describe: v5.12.8-295-g4101434d85a8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      4101434d85a8a9f11a1e3f2ce64f3ff119278194 =
+diff --git a/sound/soc/codecs/max98088.c b/sound/soc/codecs/max98088.c
+index 4be24e7f51c8..f8e49e45ce33 100644
+--- a/sound/soc/codecs/max98088.c
++++ b/sound/soc/codecs/max98088.c
+@@ -41,6 +41,7 @@ struct max98088_priv {
+ 	enum max98088_type devtype;
+ 	struct max98088_pdata *pdata;
+ 	struct clk *mclk;
++	unsigned char mclk_prescaler;
+ 	unsigned int sysclk;
+ 	struct max98088_cdata dai[2];
+ 	int eq_textcnt;
+@@ -998,13 +999,16 @@ static int max98088_dai1_hw_params(struct snd_pcm_substream *substream,
+        /* Configure NI when operating as master */
+        if (snd_soc_component_read(component, M98088_REG_14_DAI1_FORMAT)
+                & M98088_DAI_MAS) {
++               unsigned long pclk;
++
+                if (max98088->sysclk == 0) {
+                        dev_err(component->dev, "Invalid system clock frequency\n");
+                        return -EINVAL;
+                }
+                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
+                                * (unsigned long long int)rate;
+-               do_div(ni, (unsigned long long int)max98088->sysclk);
++               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
++               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
+                snd_soc_component_write(component, M98088_REG_12_DAI1_CLKCFG_HI,
+                        (ni >> 8) & 0x7F);
+                snd_soc_component_write(component, M98088_REG_13_DAI1_CLKCFG_LO,
+@@ -1065,13 +1069,16 @@ static int max98088_dai2_hw_params(struct snd_pcm_substream *substream,
+        /* Configure NI when operating as master */
+        if (snd_soc_component_read(component, M98088_REG_1C_DAI2_FORMAT)
+                & M98088_DAI_MAS) {
++               unsigned long pclk;
++
+                if (max98088->sysclk == 0) {
+                        dev_err(component->dev, "Invalid system clock frequency\n");
+                        return -EINVAL;
+                }
+                ni = 65536ULL * (rate < 50000 ? 96ULL : 48ULL)
+                                * (unsigned long long int)rate;
+-               do_div(ni, (unsigned long long int)max98088->sysclk);
++               pclk = DIV_ROUND_CLOSEST(max98088->sysclk, max98088->mclk_prescaler);
++               ni = DIV_ROUND_CLOSEST_ULL(ni, pclk);
+                snd_soc_component_write(component, M98088_REG_1A_DAI2_CLKCFG_HI,
+                        (ni >> 8) & 0x7F);
+                snd_soc_component_write(component, M98088_REG_1B_DAI2_CLKCFG_LO,
+@@ -1113,8 +1120,10 @@ static int max98088_dai_set_sysclk(struct snd_soc_dai *dai,
+         */
+        if ((freq >= 10000000) && (freq < 20000000)) {
+                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x10);
++               max98088->mclk_prescaler = 1;
+        } else if ((freq >= 20000000) && (freq < 30000000)) {
+                snd_soc_component_write(component, M98088_REG_10_SYS_CLK, 0x20);
++               max98088->mclk_prescaler = 2;
+        } else {
+                dev_err(component->dev, "Invalid master clock frequency\n");
+                return -EINVAL;
+-- 
+2.30.2
 
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-bcm2837-rpi-3-b-32 | arm   | lab-baylibre | gcc-8    | bcm2835_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b8d483c631a3d68cb3afb0
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.8-2=
-95-g4101434d85a8/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.8-2=
-95-g4101434d85a8/arm/bcm2835_defconfig/gcc-8/lab-baylibre/baseline-bcm2837-=
-rpi-3-b-32.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b8d483c631a3d68cb3a=
-fb1
-        new failure (last pass: v5.12.7-303-g89387db068ad) =
-
- =
-
-
-
-platform           | arch  | lab          | compiler | defconfig         | =
-regressions
--------------------+-------+--------------+----------+-------------------+-=
------------
-imx8mp-evk         | arm64 | lab-nxp      | gcc-8    | defconfig         | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b8d84fedba0e0359b3b00b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.8-2=
-95-g4101434d85a8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.12/v5.12.8-2=
-95-g4101434d85a8/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b8d84fedba0e0359b3b=
-00c
-        failing since 2 days (last pass: v5.12.7-304-g7ade597cd7c1, first f=
-ail: v5.12.7-303-g89387db068ad) =
-
- =20
