@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9494C39A72A
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B1C939A72D
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232014AbhFCRKf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:10:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:41578 "EHLO mail.kernel.org"
+        id S232026AbhFCRKg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:10:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41868 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231694AbhFCRKT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:10:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6907A61412;
-        Thu,  3 Jun 2021 17:08:33 +0000 (UTC)
+        id S231842AbhFCRKU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:10:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 992A361403;
+        Thu,  3 Jun 2021 17:08:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740114;
-        bh=P9Qcz5D9idfQ3vGcVle+BExWF7fX7lA3uv6sbk51EI0=;
+        s=k20201202; t=1622740115;
+        bh=WOLd7ah1qgxPQgGi8mtCBc+GE/1Vg1PbV/3cQNmYmbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KmYACsKCR0L1jQfaH0kBnH+CSw/fSZLXub/ar8HDPmhefQZW8tzEvKpPEH6kbw8V9
-         cxALp7uDaHphwyNWg+WgGvipKxzKK7j/wkr1flW6l/dPxFr1j0Tv6cO2F0qaiodc7K
-         M7GKysE0iO8j1axAOpAGBge5qVS0gFiIKqXGuXlIDFX0x//piJxmuWcl64H+Fo04t4
-         4n6HL4LblDygvxb/ejS0/8tw3bsVTu8iGMDysLTlxDrt5BEyNXDbgQRAQ/oYi2/Om6
-         2MbS6gQvZlRjG2aFd8Zii/Za9sMetGymKtlbIFhrZQxuQSHwqTNvDUObLck0ZGbZao
-         dqzvq3p898dAw==
+        b=WfcOTgKlmndVxQ2rrnjsDXuPlyv82APoaNEn7ZkRwH91eCF8KBnZn6P6ohaxmMZMN
+         4A3p7+m7qmZeOoWBLZ5RD/eIFelTyNNCWlcSqG1aMJ2TgpXzXtkmbjcKY5iudJq7+b
+         Id+8DkMjdJjV6ghhImgoUR0LoksHFNxdP5vcRjGFZNGmePjY5kYZ2MFa7OmazN/rgk
+         1menhVBXrqBdlvuSLtftV4VZ8gIRFzT+4iLAwu1Zfmvs2aX5sO8wEFf5lFnnlOXqbt
+         KH3flm+YAsPVz4jUF1gGNqfZXEOH4jTo8LfC1VLCheSEtSWu46HFb9bzIwNu4HMMAI
+         gAveHeewu6wfw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Saravana Kannan <saravanak@google.com>,
+Cc:     Karen Dombroski <karen.dombroski@marsbioimaging.com>,
+        Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>,
         Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/39] spi: Fix spi device unregister flow
-Date:   Thu,  3 Jun 2021 13:07:53 -0400
-Message-Id: <20210603170829.3168708-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, linux-spi@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.10 04/39] spi: spi-zynq-qspi: Fix stack violation bug
+Date:   Thu,  3 Jun 2021 13:07:54 -0400
+Message-Id: <20210603170829.3168708-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170829.3168708-1-sashal@kernel.org>
 References: <20210603170829.3168708-1-sashal@kernel.org>
@@ -42,90 +44,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Saravana Kannan <saravanak@google.com>
+From: Karen Dombroski <karen.dombroski@marsbioimaging.com>
 
-[ Upstream commit c7299fea67696db5bd09d924d1f1080d894f92ef ]
+[ Upstream commit 6d5ff8e632a4f2389c331e5554cd1c2a9a28c7aa ]
 
-When an SPI device is unregistered, the spi->controller->cleanup() is
-called in the device's release callback. That's wrong for a couple of
-reasons:
+When the number of bytes for the op is greater than one, the read could
+run off the end of the function stack and cause a crash.
 
-1. spi_dev_put() can be called before spi_add_device() is called. And
-   it's spi_add_device() that calls spi_setup(). This will cause clean()
-   to get called without the spi device ever being setup.
+This patch restores the behaviour of safely reading out of the original
+opcode location.
 
-2. There's no guarantee that the controller's driver would be present by
-   the time the spi device's release function gets called.
-
-3. It also causes "sleeping in atomic context" stack dump[1] when device
-   link deletion code does a put_device() on the spi device.
-
-Fix these issues by simply moving the cleanup from the device release
-callback to the actual spi_unregister_device() function.
-
-[1] - https://lore.kernel.org/lkml/CAHp75Vc=FCGcUyS0v6fnxme2YJ+qD+Y-hQDQLa2JhWNON9VmsQ@mail.gmail.com/
-
-Signed-off-by: Saravana Kannan <saravanak@google.com>
-Link: https://lore.kernel.org/r/20210426235638.1285530-1-saravanak@google.com
+Signed-off-by: Karen Dombroski <karen.dombroski@marsbioimaging.com>
+Signed-off-by: Amit Kumar Mahapatra <amit.kumar-mahapatra@xilinx.com>
+Link: https://lore.kernel.org/r/20210429053802.17650-3-amit.kumar-mahapatra@xilinx.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spi.c | 18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/spi/spi-zynq-qspi.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/spi/spi.c b/drivers/spi/spi.c
-index 419de3d40481..72143bc13078 100644
---- a/drivers/spi/spi.c
-+++ b/drivers/spi/spi.c
-@@ -47,10 +47,6 @@ static void spidev_release(struct device *dev)
- {
- 	struct spi_device	*spi = to_spi_device(dev);
+diff --git a/drivers/spi/spi-zynq-qspi.c b/drivers/spi/spi-zynq-qspi.c
+index 5d8a5ee62fa2..2765289028fa 100644
+--- a/drivers/spi/spi-zynq-qspi.c
++++ b/drivers/spi/spi-zynq-qspi.c
+@@ -528,18 +528,17 @@ static int zynq_qspi_exec_mem_op(struct spi_mem *mem,
+ 	struct zynq_qspi *xqspi = spi_controller_get_devdata(mem->spi->master);
+ 	int err = 0, i;
+ 	u8 *tmpbuf;
+-	u8 opcode = op->cmd.opcode;
  
--	/* spi controllers may cleanup for released devices */
--	if (spi->controller->cleanup)
--		spi->controller->cleanup(spi);
--
- 	spi_controller_put(spi->controller);
- 	kfree(spi->driver_override);
- 	kfree(spi);
-@@ -550,6 +546,12 @@ static int spi_dev_check(struct device *dev, void *data)
- 	return 0;
- }
+ 	dev_dbg(xqspi->dev, "cmd:%#x mode:%d.%d.%d.%d\n",
+-		opcode, op->cmd.buswidth, op->addr.buswidth,
++		op->cmd.opcode, op->cmd.buswidth, op->addr.buswidth,
+ 		op->dummy.buswidth, op->data.buswidth);
  
-+static void spi_cleanup(struct spi_device *spi)
-+{
-+	if (spi->controller->cleanup)
-+		spi->controller->cleanup(spi);
-+}
-+
- /**
-  * spi_add_device - Add spi_device allocated with spi_alloc_device
-  * @spi: spi_device to register
-@@ -614,11 +616,13 @@ int spi_add_device(struct spi_device *spi)
+ 	zynq_qspi_chipselect(mem->spi, true);
+ 	zynq_qspi_config_op(xqspi, mem->spi);
  
- 	/* Device may be bound to an active driver when this returns */
- 	status = device_add(&spi->dev);
--	if (status < 0)
-+	if (status < 0) {
- 		dev_err(dev, "can't add %s, status %d\n",
- 				dev_name(&spi->dev), status);
--	else
-+		spi_cleanup(spi);
-+	} else {
- 		dev_dbg(dev, "registered child %s\n", dev_name(&spi->dev));
-+	}
- 
- done:
- 	mutex_unlock(&spi_add_lock);
-@@ -705,6 +709,8 @@ void spi_unregister_device(struct spi_device *spi)
- 	if (!spi)
- 		return;
- 
-+	spi_cleanup(spi);
-+
- 	if (spi->dev.of_node) {
- 		of_node_clear_flag(spi->dev.of_node, OF_POPULATED);
- 		of_node_put(spi->dev.of_node);
+-	if (op->cmd.nbytes) {
++	if (op->cmd.opcode) {
+ 		reinit_completion(&xqspi->data_completion);
+-		xqspi->txbuf = &opcode;
++		xqspi->txbuf = (u8 *)&op->cmd.opcode;
+ 		xqspi->rxbuf = NULL;
+ 		xqspi->tx_bytes = op->cmd.nbytes;
+ 		xqspi->rx_bytes = op->cmd.nbytes;
 -- 
 2.30.2
 
