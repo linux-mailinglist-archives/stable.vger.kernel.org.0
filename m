@@ -2,101 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AFFA39A929
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:28:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5218139A932
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:29:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbhFCR35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:29:57 -0400
-Received: from mail-ua1-f53.google.com ([209.85.222.53]:37801 "EHLO
-        mail-ua1-f53.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbhFCR35 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 13:29:57 -0400
-Received: by mail-ua1-f53.google.com with SMTP id w28so3740992uae.4
-        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 10:27:56 -0700 (PDT)
+        id S229955AbhFCRb0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:31:26 -0400
+Received: from mail-pj1-f44.google.com ([209.85.216.44]:46848 "EHLO
+        mail-pj1-f44.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229695AbhFCRb0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 13:31:26 -0400
+Received: by mail-pj1-f44.google.com with SMTP id pi6-20020a17090b1e46b029015cec51d7cdso4274407pjb.5
+        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 10:29:41 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:sender:from:date:message-id:subject:to
-         :content-transfer-encoding;
-        bh=pGhIgMZ8hotLrhQgO8cruBdV/rsknz6iAGH8a40mrHI=;
-        b=JVPhR0x0SEaqfnm8z8sDxXT2SVg/rgQLVjYnsKAqBMIR2JE98mQ8WoxPhv0AvDc/Fp
-         l4HSOLIURfjaQEQljK6J3wWdmpOFkERG5elzS71jdmB9GwZ+UEinZ5ISSrvsubDmIAz5
-         soTpH6kGmBYp+0zZv8BJ4hFvwe+4ZotTyTbwZw2lc1tFgG0MWhjOtgBcnTsIrzFKqnif
-         jniTZvQ5tkRv+9uK3mHTZGeg9tNWFrNJwJdWAkk7eFyW6qw8B00uB+OdmyTdhqg5HEVL
-         neCb8EqOwb51bBEskyrHyPvrp7hbh48kg0OshHdkMWO3cFieDHGCuVINol2dI8R+zB7Y
-         VQUg==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=PMOUjlZtq6zJXarUSfW5iyc4UBwoRnkvwX39s52Lf/U=;
+        b=xviUHN+PSj4XAH7JCb6GEdZpXLtXlm1DjRP75O6PZBAHZ/WlABsJN7q7ghGTmuNreG
+         sE1nvKDLkkM4ckQyh14qPjiACXoBTJ3Z8UgV2wstLC8fWOkLcHjviUOMDNy1W2OBcGnr
+         g94TXE/UjgwmDPoI1b71O/vnOwmr47bLam7eDdQwNdjMRNMLsIrpU3rDOOAJv3HtEetq
+         UxMHPr4bGmYk6QervVw4Ce3cKFWD42P4cbFS2rHYKILxilJkHOHPfhP8uoLdwnM/Lx+7
+         qa8FDhcfRZNAdE2LkeGdpSMvf7atSy3GtsHczgKC2RLUR31/Iyyha9iUP92I4UBDR4jf
+         ghDg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:sender:from:date
-         :message-id:subject:to:content-transfer-encoding;
-        bh=pGhIgMZ8hotLrhQgO8cruBdV/rsknz6iAGH8a40mrHI=;
-        b=HD944Do+PQKsqILDGp45gEV97QA4CDExDibtq/dwSyTRt5/2gJ8x5GYnsQQPXZGlh5
-         gslmweEUX236MIZWw7B7G7gia78xfR/ykWxoI9MfbQILM8GNKZ6h78aLyqkeVsoN5n8Q
-         ITV8Rg/rt7/swZYWn4NJa8hOmA7FNsKxtWAPE5a6HTqk5YIi9Ru9Z+j5WgOpe+O0nZWR
-         Pv27qlIFkyK3vabRa02sSlNRX6HjfzhGNNuC6bawq6R4yYvoYu1bo4neIM3ZtzIM8q5+
-         EfD6zojMjX7XTDRPiJqFTuGpGikkPYeIq64q1zkfRiR71D4cZIPCoXhRwZZOJ266s82x
-         Mgfw==
-X-Gm-Message-State: AOAM533QptTGhliqk6HkvfBB2w2xWntsRy3TQMkqZID0+49uxKL0Ojtz
-        gU5A5QPBZ9hd0seJMwd6cQbGKvJr1tbU2RWOJ7c=
-X-Google-Smtp-Source: ABdhPJwAZPHTPwbmMBUkbf3J6StAGzzXgZiguY4EPgRzR/A9hWlXPOKYiSk21fDIkhvcty/7ysE1KFQUlzR37pER+oE=
-X-Received: by 2002:ab0:77c7:: with SMTP id y7mr118738uar.119.1622741215707;
- Thu, 03 Jun 2021 10:26:55 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=PMOUjlZtq6zJXarUSfW5iyc4UBwoRnkvwX39s52Lf/U=;
+        b=fDI/heauKB3XQl+hPDWLEy+p7az15nZk497exGkCX36x8VXttSzHwJsFEDW65HR46I
+         B/a/dJrW023L97mr+ttrQqO7892bE6hbXHv/pNRneKjPidebWR7iy2heYrK3INoCg08W
+         bs7WuRV5w68aXFASa8hmpzcVp0zS4mDTa9fZ9X+pygB08OsfqcHXx5dIVYTmA9khzZu8
+         VtfIhQpcq7++xPFE9cRO8j9T+GNSzH0AMrjlamcaistVFiloRD6BEgHLYddKvtV60bdg
+         1tPthPtApMpeVFD6YGB37vCUHc7eY5S3xI7aiUKdUxZA3cZL1Gc4zb2T7EzEHmIFRS8Q
+         C6zQ==
+X-Gm-Message-State: AOAM532HGniw6DsNX7RNBnsN6S3FO2W4P9VGNeuEHC0Oa4xaPpZoXnT6
+        6oo0d8W8iJXPE1lec7dYKItCJ5obj+pmkw==
+X-Google-Smtp-Source: ABdhPJy6EJpA+JOWhblJ9Z/UFMQFUpPaysbMexQRE046Xju8aFafquql8Fw8dU6Bmt7xJW8E0t1pkw==
+X-Received: by 2002:a17:90b:234d:: with SMTP id ms13mr285935pjb.135.1622741321253;
+        Thu, 03 Jun 2021 10:28:41 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o24sm3071161pgl.55.2021.06.03.10.28.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Jun 2021 10:28:40 -0700 (PDT)
+Message-ID: <60b91148.1c69fb81.9b9f8.9fac@mx.google.com>
+Date:   Thu, 03 Jun 2021 10:28:40 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Reply-To: mrsdaniella.kyle@yandex.com
-Sender: rachealgooddluck@gmail.com
-Received: by 2002:ab0:1669:0:0:0:0:0 with HTTP; Thu, 3 Jun 2021 10:26:55 -0700 (PDT)
-From:   Mrs Daniella Kyle <mrsdaniellakyle6@gmail.com>
-Date:   Thu, 3 Jun 2021 10:26:55 -0700
-X-Google-Sender-Auth: t_Vj0MhpQahHUufuKU1uzf9_nGI
-Message-ID: <CAPVyewNKW8nK=oVNkTbaet8AzztThukqTOHKPZ2rVgupjdrGQA@mail.gmail.com>
-Subject: Hi, I Compensate You With $950,000.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.41-251-g1360515527f5
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 152 runs,
+ 1 regressions (v5.10.41-251-g1360515527f5)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+stable-rc/queue/5.10 baseline: 152 runs, 1 regressions (v5.10.41-251-g13605=
+15527f5)
 
-Good Day, This message may actually come to you as surprises today, To
-be very honest with you, It is a joyful moment for me and my family
-right now, so therefore am using this opportunity to inform you that
-have successfully move to Vietnam where am currently living with my
-business partner who assisted me to complete the transfer, but due to
-the willingness and acceptance you showed during my pain have decided
-to willingly compensated you and show my gratitude to you with these
-sum of $950,000.00 Nine Hundred and fifty Thousand US Dollars).
+Regressions Summary
+-------------------
 
-I want you to accept this amount it=E2=80=99s from the bottom of my heart,
-have issued the check and instructed the bank to roll the fund on a
-master card for security reasons, you can use the card to withdraw
-money from any ATM machine worldwide with a maximum of US$10,000 per
-day.
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-My bank account manager said you can receive the card and use it
-anywhere in this global world. Go ahead contact the Global ATM
-Alliance directly with this below information. Email Address: .....
-maastercarddeptme20@yahoo.com OR atmcardroyaldepartment106@outlook.com
 
-Name: ........... ....... Global Alliance Burkina Faso
-Office Address; ...... 01BP 23 Rue Des Grands Moulins.Ouagadougou, Burkina =
-Faso
-Email Address: ..... [maastercarddeptme20@yahoo.com OR
-atmcardroyaldepartment106@outlook.com]
-Name of Manager In charge: Mrs Zoure Gueratou
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.41-251-g1360515527f5/plan/baseline/
 
-Presently, I am very busy here in Vietnam because of the investment
-projects which I and my new partner are having at hand, I have given
-instructions to the ATM Visa card office on your behalf to release the
-ATM card which I gave to you as compensation. Therefore feel free and
-get in touch with her and she will send the card and the pin code to
-you in your location in order for you to start withdrawing the
-compensation money without delay.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.41-251-g1360515527f5
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1360515527f54cb0e6fe90514e428e5f16176a7f =
 
-My family wishes you best of luck in whatever business you shall
-invest this money into. Kindly let me know as soon you received the
-card together with the pin code.
 
-Thank you
-Yours Sincerely
-Daniela Angelo Kyle
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b8df484cc5df11f1b3afaa
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.41-=
+251-g1360515527f5/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.41-=
+251-g1360515527f5/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b8df484cc5df11f1b3a=
+fab
+        new failure (last pass: v5.10.40-261-g8e56f01eb8e7) =
+
+ =20
