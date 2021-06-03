@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F297C39A7E9
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1730239A7EB
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233065AbhFCRNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:13:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42710 "EHLO mail.kernel.org"
+        id S230209AbhFCRNK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:13:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:42436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232806AbhFCRMY (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232518AbhFCRMY (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Jun 2021 13:12:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A82C361415;
-        Thu,  3 Jun 2021 17:10:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DFDFC613F8;
+        Thu,  3 Jun 2021 17:10:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740212;
-        bh=ltkAMp0vmOJzY3BoABuav09F7Gg6qRL7Ett2gEoitts=;
+        s=k20201202; t=1622740213;
+        bh=YAHO9S77zDrb16uNAp74QXiyHXooFeikNgDRDGGH4Bw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R4eVUxGkh8fsdpRFUZTnp+r87JXUJnlvrCGbif98pqXiu83YLQVNv9/mpSbs1JOjt
-         ew0GPT1mA1vmX+1Aevqg0CUIaGUuii+SCCp0zacLUSEpLoDUBqRO6Ki54NApkfXQ5C
-         o8OySDAf3BxHHm2H3Ajib1alTu6PJvHTCxR43Nn7rqux3dpaUGm2tK2e5MNNogjPvO
-         3tBeqwLPyJ1l5BQ5vNG0wbaghQ4eoGwzoF/UbUKlK59gX4NfDq/PKGpBBJtj2+VXhC
-         d5H2Z2dg8lmPR7w7WrU1AoVNt4U2iRmHpcUMxbrJnIh8AQw/luFD5OFOU7AVQuqB6I
-         x06IcZg4I7zkQ==
+        b=MPDrI6C7PBuZw15m2vztW7Gq05AYJdMBNSKDxKtcH9Mfuh8chSKrUmSC0DFwR2FOO
+         gtHm39A0/RgVogefOg767S9CJxNqzZWggJxYhKH6mUxNYGBYOSt5vf1+Q4+1m23jBC
+         lcIhkxUpiqptWNSSJx4qBooc0BcN17lZiABRqZD2+qlQ2Pf9eJSbtmcqif33EBdXOi
+         t2cQG2xFnnfY/zdvs0CsZBv1ZI9tPw7Fj+ekxxccOEbH67gGUuajJrKmW+DFApP19J
+         /xZDk6EeNOeInElUa5S/7tScQmNFHEQ55hpCZgLk7+HDoUiHq0P2w6snNeVb4CQ2J4
+         vEQLjFj0hFxpw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Shakeel Butt <shakeelb@google.com>,
-        NOMURA JUNICHI <junichi.nomura@nec.com>,
-        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        cgroups@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 10/23] cgroup: disable controllers at parse time
-Date:   Thu,  3 Jun 2021 13:09:46 -0400
-Message-Id: <20210603170959.3169420-10-sashal@kernel.org>
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Tejun Heo <tj@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 11/23] wq: handle VM suspension in stall detection
+Date:   Thu,  3 Jun 2021 13:09:47 -0400
+Message-Id: <20210603170959.3169420-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170959.3169420-1-sashal@kernel.org>
 References: <20210603170959.3169420-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -44,70 +41,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shakeel Butt <shakeelb@google.com>
+From: Sergey Senozhatsky <senozhatsky@chromium.org>
 
-[ Upstream commit 45e1ba40837ac2f6f4d4716bddb8d44bd7e4a251 ]
+[ Upstream commit 940d71c6462e8151c78f28e4919aa8882ff2054e ]
 
-This patch effectively reverts the commit a3e72739b7a7 ("cgroup: fix
-too early usage of static_branch_disable()"). The commit 6041186a3258
-("init: initialize jump labels before command line option parsing") has
-moved the jump_label_init() before parse_args() which has made the
-commit a3e72739b7a7 unnecessary. On the other hand there are
-consequences of disabling the controllers later as there are subsystems
-doing the controller checks for different decisions. One such incident
-is reported [1] regarding the memory controller and its impact on memory
-reclaim code.
+If VCPU is suspended (VM suspend) in wq_watchdog_timer_fn() then
+once this VCPU resumes it will see the new jiffies value, while it
+may take a while before IRQ detects PVCLOCK_GUEST_STOPPED on this
+VCPU and updates all the watchdogs via pvclock_touch_watchdogs().
+There is a small chance of misreported WQ stalls in the meantime,
+because new jiffies is time_after() old 'ts + thresh'.
 
-[1] https://lore.kernel.org/linux-mm/921e53f3-4b13-aab8-4a9e-e83ff15371e4@nec.com
+wq_watchdog_timer_fn()
+{
+	for_each_pool(pool, pi) {
+		if (time_after(jiffies, ts + thresh)) {
+			pr_emerg("BUG: workqueue lockup - pool");
+		}
+	}
+}
 
-Signed-off-by: Shakeel Butt <shakeelb@google.com>
-Reported-by: NOMURA JUNICHI(野村　淳一) <junichi.nomura@nec.com>
+Save jiffies at the beginning of this function and use that value
+for stall detection. If VM gets suspended then we continue using
+"old" jiffies value and old WQ touch timestamps. If IRQ at some
+point restarts the stall detection cycle (pvclock_touch_watchdogs())
+then old jiffies will always be before new 'ts + thresh'.
+
+Signed-off-by: Sergey Senozhatsky <senozhatsky@chromium.org>
 Signed-off-by: Tejun Heo <tj@kernel.org>
-Tested-by: Jun'ichi Nomura <junichi.nomura@nec.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/cgroup/cgroup.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+ kernel/workqueue.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c
-index 2a879d34bbe5..a74549693e7f 100644
---- a/kernel/cgroup/cgroup.c
-+++ b/kernel/cgroup/cgroup.c
-@@ -5347,8 +5347,6 @@ int __init cgroup_init_early(void)
- 	return 0;
- }
+diff --git a/kernel/workqueue.c b/kernel/workqueue.c
+index 1cc49340b68a..f278e2f584fd 100644
+--- a/kernel/workqueue.c
++++ b/kernel/workqueue.c
+@@ -49,6 +49,7 @@
+ #include <linux/uaccess.h>
+ #include <linux/sched/isolation.h>
+ #include <linux/nmi.h>
++#include <linux/kvm_para.h>
  
--static u16 cgroup_disable_mask __initdata;
--
- /**
-  * cgroup_init - cgroup initialization
-  *
-@@ -5408,12 +5406,8 @@ int __init cgroup_init(void)
- 		 * disabled flag and cftype registration needs kmalloc,
- 		 * both of which aren't available during early_init.
- 		 */
--		if (cgroup_disable_mask & (1 << ssid)) {
--			static_branch_disable(cgroup_subsys_enabled_key[ssid]);
--			printk(KERN_INFO "Disabling %s control group subsystem\n",
--			       ss->name);
-+		if (!cgroup_ssid_enabled(ssid))
+ #include "workqueue_internal.h"
+ 
+@@ -5555,6 +5556,7 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ {
+ 	unsigned long thresh = READ_ONCE(wq_watchdog_thresh) * HZ;
+ 	bool lockup_detected = false;
++	unsigned long now = jiffies;
+ 	struct worker_pool *pool;
+ 	int pi;
+ 
+@@ -5569,6 +5571,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ 		if (list_empty(&pool->worklist))
  			continue;
--		}
  
- 		if (cgroup1_ssid_disabled(ssid))
- 			printk(KERN_INFO "Disabling %s control group subsystem in v1 mounts\n",
-@@ -5772,7 +5766,10 @@ static int __init cgroup_disable(char *str)
- 			if (strcmp(token, ss->name) &&
- 			    strcmp(token, ss->legacy_name))
- 				continue;
--			cgroup_disable_mask |= 1 << i;
++		/*
++		 * If a virtual machine is stopped by the host it can look to
++		 * the watchdog like a stall.
++		 */
++		kvm_check_and_clear_guest_paused();
 +
-+			static_branch_disable(cgroup_subsys_enabled_key[i]);
-+			pr_info("Disabling %s control group subsystem\n",
-+				ss->name);
+ 		/* get the latest of pool and touched timestamps */
+ 		pool_ts = READ_ONCE(pool->watchdog_ts);
+ 		touched = READ_ONCE(wq_watchdog_touched);
+@@ -5587,12 +5595,12 @@ static void wq_watchdog_timer_fn(struct timer_list *unused)
+ 		}
+ 
+ 		/* did we stall? */
+-		if (time_after(jiffies, ts + thresh)) {
++		if (time_after(now, ts + thresh)) {
+ 			lockup_detected = true;
+ 			pr_emerg("BUG: workqueue lockup - pool");
+ 			pr_cont_pool_info(pool);
+ 			pr_cont(" stuck for %us!\n",
+-				jiffies_to_msecs(jiffies - pool_ts) / 1000);
++				jiffies_to_msecs(now - pool_ts) / 1000);
  		}
  	}
- 	return 1;
+ 
 -- 
 2.30.2
 
