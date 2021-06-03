@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6714639A869
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:21 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C8E3A39A871
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233560AbhFCRPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:15:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43256 "EHLO mail.kernel.org"
+        id S233614AbhFCRPt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:15:49 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43268 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231612AbhFCRNt (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232629AbhFCRNt (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Jun 2021 13:13:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E90CB613DE;
-        Thu,  3 Jun 2021 17:10:42 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1AF5861435;
+        Thu,  3 Jun 2021 17:10:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740243;
-        bh=ckN1z2tVaQ1YA+b0uaeb4c69ZdcSbgwlSMC8rFkpyDQ=;
+        s=k20201202; t=1622740244;
+        bh=Xn+/ONt5Pt1GqH/C8JI20QnMSJmyKGtIktyTBqWHYnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g2kNsl2/qQgdUyjmRGWaJCyx2w78Vcd2vvkKwacM6lOzXTNWGLCP610SRZmkNXBDI
-         fmwFrC7mK3NlwL6kPHwQTjoHbuDXl+bdRk36rVw/PgmNJXwLQ6cTRkmUgoyarREoh4
-         1o9U6sC/QyVMrsabSFtarzKaYCpRgJqQvIHYrm53U5jofi1ntyVHlv3UbfDks+rk2g
-         ZusT0Wk+SMhcb80L8T9/OMT8b+xIFLaJMOg2QIIUBved1l2LI0bsr3Jrzzl/r8d2zz
-         KFLzkwmHXpbvJcmFDfts2Rknn6fJoCRUKHnSTp1UwZB4Fl0hCKqZkAMfeLBQ7/kkuG
-         G1stiui9EwDwQ==
+        b=n7mbPQIJ1WArudVBEFpartjBuNreXnirCoows/kU6OCyT0zsXNt6hoZp3bi9SXcX1
+         y7UWwFvNEDuiJkqbTtMIE9MDZcFMzhCuIyde13gbwqrfyK2N/BSsKtJaK+VTSan/rj
+         NVHu4R6DlwkaPjW8X3UyIWag2zIzzDAzGhuZ3RsMLtMBrltu/ZG1JyV5yuDQaWpnxX
+         nNjleJGNEPPgfZPCFa8KkJyTS+JqVdDSR8JrR47ztD1gL14tkby3yHR1Km1tcmfT6V
+         C5qgacG2gVM72XPwMuBeonFx6OTQ2FtU7pwsHPzhKKUXXetGNjGlcxLY5oIu7kdXMS
+         tg2F//+dRjDhQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Matt Wang <wwentao@vmware.com>,
+Cc:     Dmitry Bogdanov <d.bogdanov@yadro.com>,
+        Roman Bolshakov <r.bolshakov@yadro.com>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 11/18] scsi: vmw_pvscsi: Set correct residual data length
-Date:   Thu,  3 Jun 2021 13:10:22 -0400
-Message-Id: <20210603171029.3169669-11-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 12/18] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
+Date:   Thu,  3 Jun 2021 13:10:23 -0400
+Message-Id: <20210603171029.3169669-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603171029.3169669-1-sashal@kernel.org>
 References: <20210603171029.3169669-1-sashal@kernel.org>
@@ -42,69 +43,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matt Wang <wwentao@vmware.com>
+From: Dmitry Bogdanov <d.bogdanov@yadro.com>
 
-[ Upstream commit e662502b3a782d479e67736a5a1c169a703d853a ]
+[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
 
-Some commands (such as INQUIRY) may return less data than the initiator
-requested. To avoid conducting useless information, set the right residual
-count to make upper layer aware of this.
+Target de-configuration panics at high CPU load because TPGT and WWPN can
+be removed on separate threads.
 
-Before (INQUIRY PAGE 0xB0 with 128B buffer):
+TPGT removal requests a reset HBA on a separate thread and waits for reset
+complete (phase1). Due to high CPU load that HBA reset can be delayed for
+some time.
 
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
+WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
+already completed and thus tgt.tgt_ops is subsequently cleared. However,
+tgt.tgt_ops is needed to process incoming traffic and therefore this will
+cause one of the following panics:
 
-Received 128 bytes of data:
- 00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
- 10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
- 20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
- 30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 40 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 50 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 60 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
- 70 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+NIP qlt_reset+0x7c/0x220 [qla2xxx]
+LR  qlt_reset+0x68/0x220 [qla2xxx]
+Call Trace:
+0xc000003ffff63a78 (unreliable)
+qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
+qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
+qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
 
-After:
+or
 
-$ sg_raw -r 128 /dev/sda 12 01 B0 00 80 00
-SCSI Status: Good
+NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
+LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
+Call Trace:
+qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
+qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
+qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
 
-Received 64 bytes of data:
-00 00 b0 00 3c 01 00 00 00 00 00 00 00 00 00 00 00 ...<............
-10 00 00 00 00 00 01 00 00 00 00 00 40 00 00 08 00 ...........@....
-20 80 00 00 00 00 00 00 00 00 00 20 00 00 00 00 00 .......... .....
-30 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ................
+or
 
-[mkp: clarified description]
+NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
+LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+Call Trace:
+0xc0000000348fba30 (unreliable)
+qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
+qla2x00_do_work+0x674/0xbf0 [qla2xxx]
+qla2x00_iocb_work_fn
 
-Link: https://lore.kernel.org/r/03C41093-B62E-43A2-913E-CFC92F1C70C3@vmware.com
-Signed-off-by: Matt Wang <wwentao@vmware.com>
+The patch fixes the issue by serializing qlt_stop_phase1() and
+qlt_stop_phase2() functions to make WWPN removal wait for phase1
+completion.
+
+Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
+Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
+Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/vmw_pvscsi.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ drivers/scsi/qla2xxx/qla_target.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/scsi/vmw_pvscsi.c b/drivers/scsi/vmw_pvscsi.c
-index 64eb8ffb2ddf..2c707b5c7b0b 100644
---- a/drivers/scsi/vmw_pvscsi.c
-+++ b/drivers/scsi/vmw_pvscsi.c
-@@ -574,7 +574,13 @@ static void pvscsi_complete_request(struct pvscsi_adapter *adapter,
- 		case BTSTAT_SUCCESS:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED:
- 		case BTSTAT_LINKED_COMMAND_COMPLETED_WITH_FLAG:
--			/* If everything went fine, let's move on..  */
-+			/*
-+			 * Commands like INQUIRY may transfer less data than
-+			 * requested by the initiator via bufflen. Set residual
-+			 * count to make upper layer aware of the actual amount
-+			 * of data returned.
-+			 */
-+			scsi_set_resid(cmd, scsi_bufflen(cmd) - e->dataLen);
- 			cmd->result = (DID_OK << 16);
- 			break;
+diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
+index 21011c5fddeb..bd8f9b03386a 100644
+--- a/drivers/scsi/qla2xxx/qla_target.c
++++ b/drivers/scsi/qla2xxx/qla_target.c
+@@ -1517,10 +1517,12 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
+ 		return;
+ 	}
  
++	mutex_lock(&tgt->ha->optrom_mutex);
+ 	mutex_lock(&vha->vha_tgt.tgt_mutex);
+ 	tgt->tgt_stop = 0;
+ 	tgt->tgt_stopped = 1;
+ 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
++	mutex_unlock(&tgt->ha->optrom_mutex);
+ 
+ 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished\n",
+ 	    tgt);
 -- 
 2.30.2
 
