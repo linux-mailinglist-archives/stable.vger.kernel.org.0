@@ -2,180 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F48A39AA03
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 20:29:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C80139AA1D
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 20:35:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbhFCSbK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 14:31:10 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50454 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229620AbhFCSbJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 14:31:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6BAF8613B1;
-        Thu,  3 Jun 2021 18:29:24 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622744965;
-        bh=PPKw50Xjz1VvI2AUNDtffDF4rwrV0zBsJwp53KN50TY=;
-        h=Subject:To:From:Date:From;
-        b=FmCM6FtN20xaCYMWjPWqXeiGwg9ccXXo/quRODaW55076x0cDYEyPDrU+fOLtqQ09
-         EQnjEqSSaVQoNXBxCHPnprqZHmKZF9ubKOvf3cdQ0oNPaPFevwoFEYL5ysko00U+gV
-         So0A6vXMhOKvqH5tzhgo31FuV1Z63kDACqARDvjk=
-Subject: patch "usb: dwc3: debugfs: Add and remove endpoint dirs dynamically" added to usb-linus
-To:     jackp@codeaurora.org, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
-From:   <gregkh@linuxfoundation.org>
-Date:   Thu, 03 Jun 2021 20:29:22 +0200
-Message-ID: <162274496225441@kroah.com>
+        id S229620AbhFCShB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 14:37:01 -0400
+Received: from mail-ej1-f68.google.com ([209.85.218.68]:43982 "EHLO
+        mail-ej1-f68.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbhFCShB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 14:37:01 -0400
+Received: by mail-ej1-f68.google.com with SMTP id ci15so10650005ejc.10
+        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 11:35:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=CBzb0xG+UvURsB9kNJTGzZDCQbolAM+N5wgrUrMHeF0=;
+        b=SidsFkk/5/65y65o2h+Eorz1CjvzkbtwqvfjTUpi9thXIAiyizUe6wrajmKMHyvv+G
+         jIe+J6aJlt1vkaVTqLywhnoU9EgZp/4TfHWL4WSjQ4LuHMw9QBOb779Yw7kkR/GwmLwV
+         YCPeUxp7XXQ8NCRFFuuvLctNiJYnG/bR6TvAi8W3np6rqT+nT8kShuQZKzaUcKtAzjSk
+         NbHt3LsIfyWNLWE1GrzuDbZCU4YnzODfDBUR3dPzo3xYnK4ugMNGpXda2owjcH+WCXnZ
+         +pdAvfMEe3B3JlZEJBPg1YZMBNhjzualvjW0ywhMogWFnPO2rX8x/K6Vp+rkn4N68RrZ
+         WoCA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=CBzb0xG+UvURsB9kNJTGzZDCQbolAM+N5wgrUrMHeF0=;
+        b=rfekXOQrp7qfTfIJ5p4vA4k+/As/1RDHjPBW/Fow3zKXfVITKgwNXJZTLUFs9PeXuu
+         /qxyqeWB7V/I+Z7YjO5WhiO0FxftEJNBbWuv9+WikkuWHwRHSkdgJ2DQE14zFLIXJAq1
+         gOHB55Mi9rUh4qGZyQvhJnYj+U0n4EMQ2Z5pNDCFvpl5UhAC3rWIjlu/yEJvO8EpwBFV
+         aljseVVilaZa0E+YKMAtZ14sgXdjoEInEOmr+jrM3vrCTyYVIyE8YCIDMaIpZCPREKxy
+         A+2t9C2npVYifnwos1SGKq+fdkWJPXD91DoGcCERb8eNSZExBYluSvLZg+W1Vm2flvaR
+         NGSg==
+X-Gm-Message-State: AOAM532XBmG4O9vHzrlw9TAfNJl1X7c3xCvfBkl48VLcjgaJnFUU0lFX
+        u0fx/soB0594HNKDld3iTcZVPoWUqZ0SMB7Aw2A=
+X-Google-Smtp-Source: ABdhPJz1HxzfFtiBMrtGWMV9KdJ/eptp3kMF10mt5dNuteFQGuSjlxad09aSDIr3xHxgqVXdvZUFNUMTRY56sI8WcPo=
+X-Received: by 2002:a17:906:2f91:: with SMTP id w17mr637933eji.443.1622745255409;
+ Thu, 03 Jun 2021 11:34:15 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+Received: by 2002:a17:906:26c4:0:0:0:0 with HTTP; Thu, 3 Jun 2021 11:34:14
+ -0700 (PDT)
+Reply-To: delivery.postoffice@post.com
+From:   Dr Fatima Salatt <adjovi.tome@gmail.com>
+Date:   Thu, 3 Jun 2021 20:34:14 +0200
+Message-ID: <CABgzn8sagk405wpU7gDdjWaW8MHUX+T2MKxYO-hkPPwNMoU4wg@mail.gmail.com>
+Subject: Your visa debit card is working online
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+ATTN; DEAR,
 
-This is a note to let you know that I've just added the patch titled
+This is Dr Fatima Salatt ,I have registered your ATM CARD to the POST
+OFFICE BENIN REPUBLIC so that they will Post it to your home address
+and I believe your current address is still the same. Your total
+amount in the envelope is $3.2 Million USD and the POST OFFICE assured
+me that there will be no stoppage until it gets to your hand. I want
+you to contact them and re- confirm your address where to Post it.
 
-    usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
+Contact Dr.Hameed Wani,
+03 BP 1000,COTONOU
+BENIN REPUBLIC.
+E-mail: (delivery.postoffice@post.com)
+Your full information for the Postal.
+PHONE NUMBER;
+FULL NAME: ==============
+COUNTRY: ==============
+CITY: ==============
+CURRENT HOME ADDRESS: ===========
+TELEPHONE/CELL PHONE NUMBER.=========
+AGE/OCCUPATION: =============
+SEX/A COPY OF YOUR IDENTIFICATION: ===============
 
-to my usb git tree which can be found at
-    git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
-in the usb-linus branch.
+The manager informed me that it will take 3 days to get to your house
+and your Envelope accumulate. Your Current address has to be
+reconfirmed when contacting the post office.
 
-The patch will show up in the next release of the linux-next tree
-(usually sometime within the next 24 hours during the week.)
-
-The patch will hopefully also be merged in Linus's tree for the
-next -rc kernel release.
-
-If you have any questions about this process, please let me know.
-
-
-From 8d396bb0a5b62b326f6be7594d8bd46b088296bd Mon Sep 17 00:00:00 2001
-From: Jack Pham <jackp@codeaurora.org>
-Date: Sat, 29 May 2021 12:29:32 -0700
-Subject: usb: dwc3: debugfs: Add and remove endpoint dirs dynamically
-
-The DWC3 DebugFS directory and files are currently created once
-during probe.  This includes creation of subdirectories for each
-of the gadget's endpoints.  This works fine for peripheral-only
-controllers, as dwc3_core_init_mode() calls dwc3_gadget_init()
-just prior to calling dwc3_debugfs_init().
-
-However, for dual-role controllers, dwc3_core_init_mode() will
-instead call dwc3_drd_init() which is problematic in a few ways.
-First, the initial state must be determined, then dwc3_set_mode()
-will have to schedule drd_work and by then dwc3_debugfs_init()
-could have already been invoked.  Even if the initial mode is
-peripheral, dwc3_gadget_init() happens after the DebugFS files
-are created, and worse so if the initial state is host and the
-controller switches to peripheral much later.  And secondly,
-even if the gadget endpoints' debug entries were successfully
-created, if the controller exits peripheral mode, its dwc3_eps
-are freed so the debug files would now hold stale references.
-
-So it is best if the DebugFS endpoint entries are created and
-removed dynamically at the same time the underlying dwc3_eps are.
-Do this by calling dwc3_debugfs_create_endpoint_dir() as each
-endpoint is created, and conversely remove the DebugFS entry when
-the endpoint is freed.
-
-Fixes: 41ce1456e1db ("usb: dwc3: core: make dwc3_set_mode() work properly")
-Cc: stable <stable@vger.kernel.org>
-Reviewed-by: Peter Chen <peter.chen@kernel.org>
-Signed-off-by: Jack Pham <jackp@codeaurora.org>
-Link: https://lore.kernel.org/r/20210529192932.22912-1-jackp@codeaurora.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/dwc3/debug.h   |  3 +++
- drivers/usb/dwc3/debugfs.c | 21 ++-------------------
- drivers/usb/dwc3/gadget.c  |  3 +++
- 3 files changed, 8 insertions(+), 19 deletions(-)
-
-diff --git a/drivers/usb/dwc3/debug.h b/drivers/usb/dwc3/debug.h
-index d0ac89c5b317..d223c54115f4 100644
---- a/drivers/usb/dwc3/debug.h
-+++ b/drivers/usb/dwc3/debug.h
-@@ -413,9 +413,12 @@ static inline const char *dwc3_gadget_generic_cmd_status_string(int status)
- 
- 
- #ifdef CONFIG_DEBUG_FS
-+extern void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep);
- extern void dwc3_debugfs_init(struct dwc3 *d);
- extern void dwc3_debugfs_exit(struct dwc3 *d);
- #else
-+static inline void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
-+{  }
- static inline void dwc3_debugfs_init(struct dwc3 *d)
- {  }
- static inline void dwc3_debugfs_exit(struct dwc3 *d)
-diff --git a/drivers/usb/dwc3/debugfs.c b/drivers/usb/dwc3/debugfs.c
-index 7146ee2ac057..5dbbe53269d3 100644
---- a/drivers/usb/dwc3/debugfs.c
-+++ b/drivers/usb/dwc3/debugfs.c
-@@ -886,30 +886,14 @@ static void dwc3_debugfs_create_endpoint_files(struct dwc3_ep *dep,
- 	}
- }
- 
--static void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep,
--		struct dentry *parent)
-+void dwc3_debugfs_create_endpoint_dir(struct dwc3_ep *dep)
- {
- 	struct dentry		*dir;
- 
--	dir = debugfs_create_dir(dep->name, parent);
-+	dir = debugfs_create_dir(dep->name, dep->dwc->root);
- 	dwc3_debugfs_create_endpoint_files(dep, dir);
- }
- 
--static void dwc3_debugfs_create_endpoint_dirs(struct dwc3 *dwc,
--		struct dentry *parent)
--{
--	int			i;
--
--	for (i = 0; i < dwc->num_eps; i++) {
--		struct dwc3_ep	*dep = dwc->eps[i];
--
--		if (!dep)
--			continue;
--
--		dwc3_debugfs_create_endpoint_dir(dep, parent);
--	}
--}
--
- void dwc3_debugfs_init(struct dwc3 *dwc)
- {
- 	struct dentry		*root;
-@@ -940,7 +924,6 @@ void dwc3_debugfs_init(struct dwc3 *dwc)
- 				&dwc3_testmode_fops);
- 		debugfs_create_file("link_state", 0644, root, dwc,
- 				    &dwc3_link_state_fops);
--		dwc3_debugfs_create_endpoint_dirs(dwc, root);
- 	}
- }
- 
-diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
-index 88270eee8a48..f14c2aa83759 100644
---- a/drivers/usb/dwc3/gadget.c
-+++ b/drivers/usb/dwc3/gadget.c
-@@ -2753,6 +2753,8 @@ static int dwc3_gadget_init_endpoint(struct dwc3 *dwc, u8 epnum)
- 	INIT_LIST_HEAD(&dep->started_list);
- 	INIT_LIST_HEAD(&dep->cancelled_list);
- 
-+	dwc3_debugfs_create_endpoint_dir(dep);
-+
- 	return 0;
- }
- 
-@@ -2796,6 +2798,7 @@ static void dwc3_gadget_free_endpoints(struct dwc3 *dwc)
- 			list_del(&dep->endpoint.ep_list);
- 		}
- 
-+		debugfs_remove_recursive(debugfs_lookup(dep->name, dwc->root));
- 		kfree(dep);
- 	}
- }
--- 
-2.31.1
-
-
+Thanks & remain blessed.
+Ms. Fatima Salatt
