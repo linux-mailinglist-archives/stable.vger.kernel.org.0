@@ -2,83 +2,91 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4301439A8F8
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:23:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D4A7139A91D
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:26:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231814AbhFCRTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:19:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50502 "EHLO mail.kernel.org"
+        id S229955AbhFCR2E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:28:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54164 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233158AbhFCRRZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:17:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1E7CB600D3;
-        Thu,  3 Jun 2021 17:11:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740294;
-        bh=LlFPovvGoLlrINgljP3dDSQqB1UiS3h0/RIhUuNscvQ=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nfnKtAYdGnlw8DdvkQyO2J0gpLT+BKr2ijTjz3eiSl8cBXnbruRX2KrNuEU3ain5k
-         pFyu6XC/YNttNwWVuerib7pxCBowASNYyHLH0TAQSfRh9iePzlGvPvUiog02Zv+npe
-         FsQXttM2MeQRsFuAyGA/sfceRq/V/uk3Ks0bZEt1Vpz/apwaCeZhOP4uM3euPTuWNv
-         slTKwdwIKNsKYCYy0Xe6Ydjsn65Qsk8N4C8DiJC4yQyN8xjMiIy/KeG9x1+O8fU8Cy
-         h0NcrbCRiQahblkygGIhGvqv9NMaRxRDUUBCRQzgUiK2noWeu6fdzpwuX26luyNiGM
-         E9si/ioLTDUuQ==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Chris Packham <chris.packham@alliedtelesis.co.nz>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        devicetree@vger.kernel.org, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.4 15/15] powerpc/fsl: set fsl,i2c-erratum-a004447 flag for P1010 i2c controllers
-Date:   Thu,  3 Jun 2021 13:11:14 -0400
-Message-Id: <20210603171114.3170086-15-sashal@kernel.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210603171114.3170086-1-sashal@kernel.org>
-References: <20210603171114.3170086-1-sashal@kernel.org>
+        id S230159AbhFCR17 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:27:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 34B9B61242;
+        Thu,  3 Jun 2021 17:26:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1622741174;
+        bh=SvjLmqQosOVfAfa0jINxvAceg4v8NligAbCfI+ROPwI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CILVnncXctECCmNZ1x+u+kCqw+UPk0PoA1+DRWaLXHqa5KlqBJBrEHpGr1Y1ctiyS
+         jVFYtzmryIRp8Hz7x2jgQQP6wEQ/ZqyeVlIXWiO3UAV+iQ2xtQ538yUSXdB9KAF/Xq
+         2uelirCdM+K8mUPEd3rqQYopHWF3y5zomHAVu3hI=
+Date:   Thu, 3 Jun 2021 19:26:12 +0200
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Daniel Rosenberg <drosen@google.com>, Chao Yu <chao@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] f2fs: Advertise encrypted casefolding in sysfs
+Message-ID: <YLkQtDZFG1xKoqE5@kroah.com>
+References: <20210603095038.314949-1-drosen@google.com>
+ <20210603095038.314949-3-drosen@google.com>
+ <YLipSQxNaUDy9Ff1@kroah.com>
+ <YLj36Fmz3dSHmkSG@google.com>
 MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YLj36Fmz3dSHmkSG@google.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Packham <chris.packham@alliedtelesis.co.nz>
+On Thu, Jun 03, 2021 at 08:40:24AM -0700, Jaegeuk Kim wrote:
+> On 06/03, Greg KH wrote:
+> > On Thu, Jun 03, 2021 at 09:50:38AM +0000, Daniel Rosenberg wrote:
+> > > Older kernels don't support encryption with casefolding. This adds
+> > > the sysfs entry encrypted_casefold to show support for those combined
+> > > features. Support for this feature was originally added by
+> > > commit 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
+> > > 
+> > > Fixes: 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
+> > > Cc: stable@vger.kernel.org # v5.11+
+> > > Signed-off-by: Daniel Rosenberg <drosen@google.com>
+> > > ---
+> > >  fs/f2fs/sysfs.c | 15 +++++++++++++--
+> > >  1 file changed, 13 insertions(+), 2 deletions(-)
+> > > 
+> > > diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+> > > index 09e3f258eb52..6604291a3cdf 100644
+> > > --- a/fs/f2fs/sysfs.c
+> > > +++ b/fs/f2fs/sysfs.c
+> > > @@ -161,6 +161,9 @@ static ssize_t features_show(struct f2fs_attr *a,
+> > >  	if (f2fs_sb_has_compression(sbi))
+> > >  		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > >  				len ? ", " : "", "compression");
+> > > +	if (f2fs_sb_has_casefold(sbi) && f2fs_sb_has_encrypt(sbi))
+> > > +		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > > +				len ? ", " : "", "encrypted_casefold");
+> > >  	len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > >  				len ? ", " : "", "pin_file");
+> > >  	len += scnprintf(buf + len, PAGE_SIZE - len, "\n");
+> > 
+> > This is a HUGE abuse of sysfs and should not be encouraged and added to.
+> 
+> This feature entry was originally added in 2017. Let me try to clean this up
+> after merging this.
 
-[ Upstream commit 19ae697a1e4edf1d755b413e3aa38da65e2db23b ]
+Thank you.
 
-The i2c controllers on the P1010 have an erratum where the documented
-scheme for i2c bus recovery will not work (A-004447). A different
-mechanism is needed which is documented in the P1010 Chip Errata Rev L.
+> > Please make these "one value per file" and do not keep growing a single
+> > file that has to be parsed otherwise you will break userspace tools.
+> > 
+> > And I don't see a Documentation/ABI/ entry for this either :(
+> 
+> There is in Documentation/ABI/testing/sysfs-fs-f2fs.
 
-Signed-off-by: Chris Packham <chris.packham@alliedtelesis.co.nz>
-Acked-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- arch/powerpc/boot/dts/fsl/p1010si-post.dtsi | 8 ++++++++
- 1 file changed, 8 insertions(+)
+So this new item was documented in the file before the kernel change was
+made?
 
-diff --git a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-index af12ead88c5f..404f570ebe23 100644
---- a/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/p1010si-post.dtsi
-@@ -122,7 +122,15 @@ memory-controller@2000 {
- 	};
- 
- /include/ "pq3-i2c-0.dtsi"
-+	i2c@3000 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "pq3-i2c-1.dtsi"
-+	i2c@3100 {
-+		fsl,i2c-erratum-a004447;
-+	};
-+
- /include/ "pq3-duart-0.dtsi"
- /include/ "pq3-espi-0.dtsi"
- 	spi0: spi@7000 {
--- 
-2.30.2
-
+greg k-h
