@@ -2,127 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D9C139AE1B
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 00:32:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 24B2139AE20
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 00:34:41 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230217AbhFCWeN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 18:34:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37170 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230158AbhFCWeM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 18:34:12 -0400
-Received: from mail-pf1-x434.google.com (mail-pf1-x434.google.com [IPv6:2607:f8b0:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50BA1C061756;
-        Thu,  3 Jun 2021 15:32:15 -0700 (PDT)
-Received: by mail-pf1-x434.google.com with SMTP id y15so6001066pfl.4;
-        Thu, 03 Jun 2021 15:32:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=VUfhHlJEUkLIR0EIxU6jXP1bVKyAro32mftomoJHVSQ=;
-        b=dUPVKRvL4ucDTigXFTP29OZzBupoPFAqKnumC/amO0ZZob6v9CW5aE4LOAqGxSf8wr
-         ANTBNXdTwzx5qLAEqsY0zwPXZIx6ivvToN4ROae9vwyVyWlzoasf45Ox7dB46fDqOYZK
-         iPcfopWe8E3qRgMt5BMYXfcgNfns7gNV7kHNZHtew3gwZ2E4NRXEGnNgJQpSwH2iJMCh
-         jaoruUrycy6WDokpMWZC7egJxhYWTzLCjfEThi6hvCdTvxgj0gNN0ZtqrKUrmqIltoux
-         Fk7/XOj4c/3WhFXPst67wIAQXDZxqAKKPpCQdJOlc8SvfBINGYo1sFqzkr2heuecq6pY
-         /Kbg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=VUfhHlJEUkLIR0EIxU6jXP1bVKyAro32mftomoJHVSQ=;
-        b=MfXYNwKUK3NeWuUpuOoeYbEgXHtTp1FSIcN6iCXbTz1RT7er4vx65zH/o7kTLWYUi/
-         OdCETT17SAgCkK+cTHxkY2jOfBS6rLABAqLM70DM55Gs4JrsvUl+35QviDJ3WpqpLeCd
-         6TXtn4yw1ElUpwBWYcnZu7DkkEyxxTZEQjtBNUpEL6F+Ca2Wh8nx11s+uefQg3rTTuLI
-         yGbwewWbxjtgQlZcHdA6lWblVnsZUtZpbDPXX4+JqXlK4km6GE8KjoWfIvvOCMU025VV
-         J7ARfzpQMMnAzSQVghrrZsd8xp2TWfKrssyqNDV8654VCvB4awOVISbqcyk9HtApl4ix
-         qatg==
-X-Gm-Message-State: AOAM530UhQfw7ovtvn926adnMLaIu7sYfR6GP4cFDhxF7Bd6fCDayD/C
-        gtVLcZmLCcKsNfb0rQawzXSFybbAJmdmWC8KISDO1cNi1H3vPQ==
-X-Google-Smtp-Source: ABdhPJzOTpRU3MtYwgO5eoq3M8jObwOxfDBiaRLRIFQsvqlRRCSPIIi4n0fauN6h3W6Gzr4IxnzGjlhxqWzJRB8nn/Y=
-X-Received: by 2002:a63:571d:: with SMTP id l29mr1628701pgb.179.1622759534685;
- Thu, 03 Jun 2021 15:32:14 -0700 (PDT)
-MIME-Version: 1.0
-References: <20210602192640.13597-1-paskripkin@gmail.com>
-In-Reply-To: <20210602192640.13597-1-paskripkin@gmail.com>
-From:   Cong Wang <xiyou.wangcong@gmail.com>
-Date:   Thu, 3 Jun 2021 15:32:03 -0700
-Message-ID: <CAM_iQpU+1UUZhP9wHok4bajmRFeocr8d2mLZ8TtxqwyWuLgMAw@mail.gmail.com>
-Subject: Re: [PATCH] net: kcm: fix memory leak in kcm_sendmsg
-To:     Pavel Skripkin <paskripkin@gmail.com>
-Cc:     David Miller <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tom Herbert <tom@herbertland.com>,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        syzbot+b039f5699bd82e1fb011@syzkaller.appspotmail.com,
-        stable <stable@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+        id S230158AbhFCWgX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 18:36:23 -0400
+Received: from linux.microsoft.com ([13.77.154.182]:45084 "EHLO
+        linux.microsoft.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229924AbhFCWgX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 18:36:23 -0400
+Received: by linux.microsoft.com (Postfix, from userid 1004)
+        id D156720B7178; Thu,  3 Jun 2021 15:34:37 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com D156720B7178
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxonhyperv.com;
+        s=default; t=1622759677;
+        bh=ioJUhKY3qUUCcIYsL/pASNHo0JgYm1RtNDDEZtn4LcE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Smx2IERIahuvzgohQwukrweRT+oaysrzB8dtE7ka8qlaOK1DpSAB1V13t7CLt/fZO
+         zwdcD0tAaKrUkgMrG7b+B8Hxrxq0QBEa28kHaaRoFCYyI285rVcqHjMBj3gFcoEohx
+         bWT61YpXadv5i3bxTtuRE6xn3RNTmRSZJirVSuh8=
+From:   longli@linuxonhyperv.com
+To:     linux-block@vger.kernel.org
+Cc:     Long Li <longli@microsoft.com>, Jens Axboe <axboe@kernel.dk>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] block: return the correct bvec when checking for gaps
+Date:   Thu,  3 Jun 2021 15:34:31 -0700
+Message-Id: <1622759671-14059-1-git-send-email-longli@linuxonhyperv.com>
+X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 2, 2021 at 12:29 PM Pavel Skripkin <paskripkin@gmail.com> wrote:
->
-> Syzbot reported memory leak in kcm_sendmsg()[1].
-> The problem was in non-freed frag_list in case of error.
->
-> In the while loop:
->
->         if (head == skb)
->                 skb_shinfo(head)->frag_list = tskb;
->         else
->                 skb->next = tskb;
->
-> frag_list filled with skbs, but nothing was freeing them.
+From: Long Li <longli@microsoft.com>
 
-What do you mean by "nothing was freeing them"?
+After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
+have multiple pages. But bio_will_gap() still assumes one page bvec while
+checking for merging. This causes data corruption on drivers relying on
+the correct merging on virt_boundary_mask.
 
-I am sure kfree_skb() will free those in frag_list:
+Fix this by returning the multi-page bvec for testing gaps for merging.
 
- 654 static void skb_release_data(struct sk_buff *skb)
- 655 {
- 656         struct skb_shared_info *shinfo = skb_shinfo(skb);
- 657         int i;
-...
- 669         if (shinfo->frag_list)
- 670                 kfree_skb_list(shinfo->frag_list);
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Cc: Pavel Begunkov <asml.silence@gmail.com>
+Cc: Ming Lei <ming.lei@redhat.com>
+Cc: Tejun Heo <tj@kernel.org>
+Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+Cc: linux-kernel@vger.kernel.org
+Cc: stable@vger.kernel.org
+Fixes: 07173c3ec276 ("block: enable multipage bvecs")
+Signed-off-by: Long Li <longli@microsoft.com>
+---
+ include/linux/bio.h | 11 ++++-------
+ 1 file changed, 4 insertions(+), 7 deletions(-)
 
+diff --git a/include/linux/bio.h b/include/linux/bio.h
+index a0b4cfdf62a4..6b2f609ccfbf 100644
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -44,9 +44,6 @@ static inline unsigned int bio_max_segs(unsigned int nr_segs)
+ #define bio_offset(bio)		bio_iter_offset((bio), (bio)->bi_iter)
+ #define bio_iovec(bio)		bio_iter_iovec((bio), (bio)->bi_iter)
+ 
+-#define bio_multiple_segments(bio)				\
+-	((bio)->bi_iter.bi_size != bio_iovec(bio).bv_len)
+-
+ #define bvec_iter_sectors(iter)	((iter).bi_size >> 9)
+ #define bvec_iter_end_sector(iter) ((iter).bi_sector + bvec_iter_sectors((iter)))
+ 
+@@ -271,7 +268,7 @@ static inline void bio_clear_flag(struct bio *bio, unsigned int bit)
+ 
+ static inline void bio_get_first_bvec(struct bio *bio, struct bio_vec *bv)
+ {
+-	*bv = bio_iovec(bio);
++	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+ }
+ 
+ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+@@ -279,10 +276,10 @@ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+ 	struct bvec_iter iter = bio->bi_iter;
+ 	int idx;
+ 
+-	if (unlikely(!bio_multiple_segments(bio))) {
+-		*bv = bio_iovec(bio);
++	/* this bio has only one bvec */
++	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
++	if (bv->bv_len == bio->bi_iter.bi_size)
+ 		return;
+-	}
+ 
+ 	bio_advance_iter(bio, &iter, iter.bi_size);
+ 
+-- 
+2.17.1
 
->
-> backtrace:
->   [<0000000094c02615>] __alloc_skb+0x5e/0x250 net/core/skbuff.c:198
->   [<00000000e5386cbd>] alloc_skb include/linux/skbuff.h:1083 [inline]
->   [<00000000e5386cbd>] kcm_sendmsg+0x3b6/0xa50 net/kcm/kcmsock.c:967 [1]
->   [<00000000f1613a8a>] sock_sendmsg_nosec net/socket.c:652 [inline]
->   [<00000000f1613a8a>] sock_sendmsg+0x4c/0x60 net/socket.c:672
->
-> Reported-and-tested-by: syzbot+b039f5699bd82e1fb011@syzkaller.appspotmail.com
-> Fixes: ab7ac4eb9832 ("kcm: Kernel Connection Multiplexor module")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-> ---
->  net/kcm/kcmsock.c | 5 +++++
->  1 file changed, 5 insertions(+)
->
-> diff --git a/net/kcm/kcmsock.c b/net/kcm/kcmsock.c
-> index 6201965bd822..1c572c8daced 100644
-> --- a/net/kcm/kcmsock.c
-> +++ b/net/kcm/kcmsock.c
-> @@ -1066,6 +1066,11 @@ static int kcm_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
->                 goto partial_message;
->         }
->
-> +       if (skb_has_frag_list(head)) {
-> +               kfree_skb_list(skb_shinfo(head)->frag_list);
-> +               skb_shinfo(head)->frag_list = NULL;
-> +       }
-> +
->         if (head != kcm->seq_skb)
->                 kfree_skb(head);
-
-This exact kfree_skb() should free those in frag_list. If the above
-if condition does not meet for some reason, then fix that condition?
-
-Thanks.
