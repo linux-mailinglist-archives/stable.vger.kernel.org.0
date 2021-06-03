@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E14939A6C3
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:09:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DE09B39A6C6
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:09:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230350AbhFCRJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:09:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40338 "EHLO mail.kernel.org"
+        id S230382AbhFCRJ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:09:29 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230333AbhFCRJ0 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:09:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 809F2613DE;
-        Thu,  3 Jun 2021 17:07:40 +0000 (UTC)
+        id S230368AbhFCRJ1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:09:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D2585613F1;
+        Thu,  3 Jun 2021 17:07:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740061;
-        bh=27kYeqCQHC+7oB//+3h8Rl8uVvRD+9U76fLMbkQRlsM=;
+        s=k20201202; t=1622740062;
+        bh=Dksp/bCgj6burLYfea58pNgbY4OU8wSkl1Iduw4ho3k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CqTVKze93Vgeq3OA+NL8bli3d2jPLOMNlfv2VC33pBPKxt/QzFdMElrrnPsfZfLtV
-         pLbMCmaruE3lYL8skMAgNlwQDfYwOo4bwf4dCILIJ6RcY7RggrFfByp2FJnRzyc7fU
-         a9wlCD1KGEwN6/GQVNkjIWuYuvXNE9cDjZQIupnpFMEqPQnyYYM8zSz/8DphLm5lWP
-         V7fX31HJDsPA+pSPDUboGHPk+LU9Xn68dYc+bUZG7FogIIjt5fDT6zNp5IJbiuxE2C
-         3Z4MIfIOc/dhuLfmIIR5NARxV7QP816+ahECz+EmhEZO2kgCZnQbJKKdO1+mvm6vff
-         VUuSeXzmfi/fw==
+        b=lJrvBo/Eu8Hp54nYWWirsxYKqXBKam9ZPJc5Hj3keEsaQA/p+GF/TJjiiuUq/xMdD
+         12qnyD+Qd9NL2EOpo0+NxonXlEY9AYpggo85Fqgw65FEwxRiU/vjDTWmTnw9I2luNx
+         Z0ehd+UvjcgKDBS6BitEnnYn3leyzU0K3I4aGZf/rY72bImKkGbBKwbHe2VkgaIpek
+         iY+PdPONAaIw2d531wUJ1OG9aR8aQYGSM92ZjGBcJUGW3ZMSWpxHcnsHYIvG2woAU7
+         gqWdbf5Np6DPDHLw6Lrm6Xi0c8b8XazWn9eovmlvnisRDhDlA3OAZqxSghq4/zglZW
+         35JQzMXXQezgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 05/43] bpf: Forbid trampoline attach for functions with variable arguments
-Date:   Thu,  3 Jun 2021 13:06:55 -0400
-Message-Id: <20210603170734.3168284-5-sashal@kernel.org>
+Cc:     Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 5.12 06/43] ASoC: codecs: lpass-rx-macro: add missing MODULE_DEVICE_TABLE
+Date:   Thu,  3 Jun 2021 13:06:56 -0400
+Message-Id: <20210603170734.3168284-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170734.3168284-1-sashal@kernel.org>
 References: <20210603170734.3168284-1-sashal@kernel.org>
@@ -44,60 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-[ Upstream commit 31379397dcc364a59ce764fabb131b645c43e340 ]
+[ Upstream commit d4335d058f8430a0ce2b43dab9531f3a3cf9fe2c ]
 
-We can't currently allow to attach functions with variable arguments.
-The problem is that we should save all the registers for arguments,
-which is probably doable, but if caller uses more than 6 arguments,
-we need stack data, which will be wrong, because of the extra stack
-frame we do in bpf trampoline, so we could crash.
+Fix module loading by adding missing MODULE_DEVICE_TABLE.
 
-Also currently there's malformed trampoline code generated for such
-functions at the moment as described in:
-
-  https://lore.kernel.org/bpf/20210429212834.82621-1-jolsa@kernel.org/
-
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20210505132529.401047-1-jolsa@kernel.org
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20210510103844.1532-1-srinivas.kandagatla@linaro.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/btf.c | 12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ sound/soc/codecs/lpass-rx-macro.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
-index b1a76fe046cb..6bd003568fa5 100644
---- a/kernel/bpf/btf.c
-+++ b/kernel/bpf/btf.c
-@@ -5126,6 +5126,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
- 	m->ret_size = ret;
+diff --git a/sound/soc/codecs/lpass-rx-macro.c b/sound/soc/codecs/lpass-rx-macro.c
+index 7878da89d8e0..b7b9c891e2f0 100644
+--- a/sound/soc/codecs/lpass-rx-macro.c
++++ b/sound/soc/codecs/lpass-rx-macro.c
+@@ -3581,6 +3581,7 @@ static const struct of_device_id rx_macro_dt_match[] = {
+ 	{ .compatible = "qcom,sm8250-lpass-rx-macro" },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(of, rx_macro_dt_match);
  
- 	for (i = 0; i < nargs; i++) {
-+		if (i == nargs - 1 && args[i].type == 0) {
-+			bpf_log(log,
-+				"The function %s with variable args is unsupported.\n",
-+				tname);
-+			return -EINVAL;
-+		}
- 		ret = __get_type_size(btf, args[i].type, &t);
- 		if (ret < 0) {
- 			bpf_log(log,
-@@ -5133,6 +5139,12 @@ int btf_distill_func_proto(struct bpf_verifier_log *log,
- 				tname, i, btf_kind_str[BTF_INFO_KIND(t->info)]);
- 			return -EINVAL;
- 		}
-+		if (ret == 0) {
-+			bpf_log(log,
-+				"The function %s has malformed void argument.\n",
-+				tname);
-+			return -EINVAL;
-+		}
- 		m->arg_size[i] = ret;
- 	}
- 	m->nr_args = nargs;
+ static struct platform_driver rx_macro_driver = {
+ 	.driver = {
 -- 
 2.30.2
 
