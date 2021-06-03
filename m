@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7450439A838
+	by mail.lfdr.de (Postfix) with ESMTP id 24E7039A837
 	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232930AbhFCROW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:14:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43620 "EHLO mail.kernel.org"
+        id S232377AbhFCROV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:14:21 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43644 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232988AbhFCRNB (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232717AbhFCRNB (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Jun 2021 13:13:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 14F776142C;
-        Thu,  3 Jun 2021 17:10:31 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4E4C261420;
+        Thu,  3 Jun 2021 17:10:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740232;
-        bh=sYYFiaSa6jR7mtASzMjv1fOrQuqDdaSGCKubgqmYfKA=;
+        s=k20201202; t=1622740234;
+        bh=bRkAKAIZhLYRbGLx3J1Wz1awKJJkJSUqxHoldhWUFiM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZ8mqEJQyH1qjxyekDmvBnPYJinRB1rF/K1mcOuYE8mjYAsUz5KwHvSFiRvfMaGgA
-         6DUpNdJ+RxtzYmoTdC+V6Ed5XDanRP6avzyZZ9E5aYwHOst1PmrkOdZWN2LoDgKsKD
-         nE7GFHg3Wy7sDfnHQbTmAKUZ5oY4RN+E/Yi0GO9bMP2m1U3VluLaLpirdgE/gKwPNf
-         14iXXAyUOamk3KKy46apxKhuHnuGy2dzjugHSS50fCIWGpKoGTWoiMoQs38VyztGhF
-         m/mR//+9z1z9akrYUoj6DTajb0y51LVrD/VyS7fqdzE+UFchJPFy/xhoD6OuxxV9X4
-         Gqi9pfA+Pf6sA==
+        b=QdStoqVRiFkOaPQklydz0FTY+SARdQKe6XiWs9DxGlqLybhQszOwQMIFwjVfVa+uQ
+         GsiFnyGoqR8D90x10QhT4Zb9+FP8y7XU6upmaT0S7uzuU13DvR8iQ3zMvZUsMKls0R
+         AnrozRDtFqJ2AEm4QvtPvsB0kvz1J6t2xAu0d6LFci1VpLY84HNwGrPVzU4CFDPGGY
+         RS6RWjk+7u0VDaBoDAsUmZgvWIgQX2c+3oGTjmAigzNY2jA59TXjTwekBnj13paSZ6
+         Ktbd72Q7TS8xw98hZ33j6EjChzSd16nSPOXWtwlogfd9ph5dsP2dQL9AO5cj7IWHIl
+         5HHbImVVqE22A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeimon <jjjinmeng.zhou@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-nfc@lists.01.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 02/18] net/nfc/rawsock.c: fix a permission check bug
-Date:   Thu,  3 Jun 2021 13:10:13 -0400
-Message-Id: <20210603171029.3169669-2-sashal@kernel.org>
+Cc:     Zou Wei <zou_wei@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.14 03/18] ASoC: sti-sas: add missing MODULE_DEVICE_TABLE
+Date:   Thu,  3 Jun 2021 13:10:14 -0400
+Message-Id: <20210603171029.3169669-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603171029.3169669-1-sashal@kernel.org>
 References: <20210603171029.3169669-1-sashal@kernel.org>
@@ -43,32 +42,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeimon <jjjinmeng.zhou@gmail.com>
+From: Zou Wei <zou_wei@huawei.com>
 
-[ Upstream commit 8ab78863e9eff11910e1ac8bcf478060c29b379e ]
+[ Upstream commit e072b2671606c77538d6a4dd5dda80b508cb4816 ]
 
-The function rawsock_create() calls a privileged function sk_alloc(), which requires a ns-aware check to check net->user_ns, i.e., ns_capable(). However, the original code checks the init_user_ns using capable(). So we replace the capable() with ns_capable().
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Jeimon <jjjinmeng.zhou@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zou Wei <zou_wei@huawei.com>
+Link: https://lore.kernel.org/r/1620789145-14936-1-git-send-email-zou_wei@huawei.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/rawsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/codecs/sti-sas.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/nfc/rawsock.c b/net/nfc/rawsock.c
-index 57a07ab80d92..bdc72737fe24 100644
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -345,7 +345,7 @@ static int rawsock_create(struct net *net, struct socket *sock,
- 		return -ESOCKTNOSUPPORT;
+diff --git a/sound/soc/codecs/sti-sas.c b/sound/soc/codecs/sti-sas.c
+index 62c618765224..730dd453a744 100644
+--- a/sound/soc/codecs/sti-sas.c
++++ b/sound/soc/codecs/sti-sas.c
+@@ -407,6 +407,7 @@ static const struct of_device_id sti_sas_dev_match[] = {
+ 	},
+ 	{},
+ };
++MODULE_DEVICE_TABLE(of, sti_sas_dev_match);
  
- 	if (sock->type == SOCK_RAW) {
--		if (!capable(CAP_NET_RAW))
-+		if (!ns_capable(net->user_ns, CAP_NET_RAW))
- 			return -EPERM;
- 		sock->ops = &rawsock_raw_ops;
- 	} else {
+ static int sti_sas_driver_probe(struct platform_device *pdev)
+ {
 -- 
 2.30.2
 
