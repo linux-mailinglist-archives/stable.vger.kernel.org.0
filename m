@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E0CD39A7DC
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63AE039A7FC
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:11:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232974AbhFCRM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:12:58 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43022 "EHLO mail.kernel.org"
+        id S232846AbhFCRN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:13:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232251AbhFCRMF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:12:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B42FD6142B;
-        Thu,  3 Jun 2021 17:10:01 +0000 (UTC)
+        id S232684AbhFCRMH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:12:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ED0D861418;
+        Thu,  3 Jun 2021 17:10:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740202;
-        bh=sYYFiaSa6jR7mtASzMjv1fOrQuqDdaSGCKubgqmYfKA=;
+        s=k20201202; t=1622740203;
+        bh=yzoWExcW1c5i7/lzVcVXYieuT2+fWopdCVviHmOuSOw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DiQxp9wUQbs+GkGCsB/x81qPcJEzg3PP48n0djf77rsFEStQ9enoN238y3Vj7a75M
-         2AcLEQMKK1EaPpm7Gidnx7ageqqc3maNQwwkBvrF84MgpJgv94aTOWjSaMOy9jDs2i
-         uiyfVhMH0DZ5ANoBSLNa4NPjdH0jx99XBFgaKaJAX8Ko96QBxqVrwUI74QTqR2lHGP
-         Q3zmiL0qzoexOWlQDqVEuzQzr8M3lafri0o7dPdE0s1YYp2z16tx2dSLS7qs3A/pPd
-         Vkia/1sczKKW8t3hF8aRVQUm1Ie2gmV+nB89W+/pZgNu6en5eDzmQFS2xFdu0szRXa
-         d4s3bTWW1tQBA==
+        b=XJ06qnTa/e+bMkY027Fy6XdaETmFkGB5hJ3PasxfwDTH/heQLQbu8bmiX2fco9N6R
+         d/059gZM/oABIPUAda6oxR6ta+moNdwpmZUPlSVQJKSUv7T0f6WFAsNgW/N32zlVLm
+         garFcXMGaKY9djWlg5qBBTUJxAmIym1U2XVNui3NUUH5lWnWbyw+9KUC3cC+laBJKs
+         24JCqj7DZe32NPNx4Dv+B7UxSAlQTnINL6xRVjuyz3oAkeV8Me57bA3/yqd3y5zlCy
+         4VKpt2tx54gkA9KGYIbo98ZwvF/UvdlGe87JB62ytvUaNdlFIdQoG7RUK5rlpm1mh5
+         MqeY77/vpoPUQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeimon <jjjinmeng.zhou@gmail.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, linux-nfc@lists.01.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 02/23] net/nfc/rawsock.c: fix a permission check bug
-Date:   Thu,  3 Jun 2021 13:09:38 -0400
-Message-Id: <20210603170959.3169420-2-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 4.19 03/23] ASoC: Intel: bytcr_rt5640: Add quirk for the Glavey TM800A550L tablet
+Date:   Thu,  3 Jun 2021 13:09:39 -0400
+Message-Id: <20210603170959.3169420-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170959.3169420-1-sashal@kernel.org>
 References: <20210603170959.3169420-1-sashal@kernel.org>
@@ -43,32 +43,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeimon <jjjinmeng.zhou@gmail.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 8ab78863e9eff11910e1ac8bcf478060c29b379e ]
+[ Upstream commit 28c268d3acdd4cbcd2ac320b85609e77f84e74a7 ]
 
-The function rawsock_create() calls a privileged function sk_alloc(), which requires a ns-aware check to check net->user_ns, i.e., ns_capable(). However, the original code checks the init_user_ns using capable(). So we replace the capable() with ns_capable().
+Add a quirk for the Glavey TM800A550L tablet, this BYTCR tablet has no CHAN
+package in its ACPI tables and uses SSP0-AIF1 rather then SSP0-AIF2 which
+is the default for BYTCR devices.
 
-Signed-off-by: Jeimon <jjjinmeng.zhou@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Link: https://lore.kernel.org/r/20210508150146.28403-1-hdegoede@redhat.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/rawsock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/intel/boards/bytcr_rt5640.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/nfc/rawsock.c b/net/nfc/rawsock.c
-index 57a07ab80d92..bdc72737fe24 100644
---- a/net/nfc/rawsock.c
-+++ b/net/nfc/rawsock.c
-@@ -345,7 +345,7 @@ static int rawsock_create(struct net *net, struct socket *sock,
- 		return -ESOCKTNOSUPPORT;
- 
- 	if (sock->type == SOCK_RAW) {
--		if (!capable(CAP_NET_RAW))
-+		if (!ns_capable(net->user_ns, CAP_NET_RAW))
- 			return -EPERM;
- 		sock->ops = &rawsock_raw_ops;
- 	} else {
+diff --git a/sound/soc/intel/boards/bytcr_rt5640.c b/sound/soc/intel/boards/bytcr_rt5640.c
+index 4ebc023f1507..077529113ee7 100644
+--- a/sound/soc/intel/boards/bytcr_rt5640.c
++++ b/sound/soc/intel/boards/bytcr_rt5640.c
+@@ -565,6 +565,17 @@ static const struct dmi_system_id byt_rt5640_quirk_table[] = {
+ 					BYT_RT5640_SSP0_AIF1 |
+ 					BYT_RT5640_MCLK_EN),
+ 	},
++	{	/* Glavey TM800A550L */
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "AMI Corporation"),
++			DMI_MATCH(DMI_BOARD_NAME, "Aptio CRB"),
++			/* Above strings are too generic, also match on BIOS version */
++			DMI_MATCH(DMI_BIOS_VERSION, "ZY-8-BI-PX4S70VTR400-X423B-005-D"),
++		},
++		.driver_data = (void *)(BYTCR_INPUT_DEFAULTS |
++					BYT_RT5640_SSP0_AIF1 |
++					BYT_RT5640_MCLK_EN),
++	},
+ 	{
+ 		.matches = {
+ 			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Hewlett-Packard"),
 -- 
 2.30.2
 
