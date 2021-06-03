@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 325C339A73C
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 490D039A740
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:10:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232157AbhFCRKq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:10:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42176 "EHLO mail.kernel.org"
+        id S232182AbhFCRKr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:10:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231960AbhFCRKd (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231968AbhFCRKd (ORCPT <rfc822;stable@vger.kernel.org>);
         Thu, 3 Jun 2021 13:10:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AAAA961415;
-        Thu,  3 Jun 2021 17:08:41 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E6D4D6140C;
+        Thu,  3 Jun 2021 17:08:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740122;
-        bh=SIe8eXwGuF5EDOSgod+gWAcNuDXLWMY0C1lPE6cQhkI=;
+        s=k20201202; t=1622740123;
+        bh=96gJs0MHtdFpp5U5h3iNdCzcmTuO23CVLlLTBMXL7KQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cubLjI7BFMPwpRpN7dLYpez4/BWgtr6A7YPeYUnraDQ5xtFfPEupA6Ny1ncPjasfS
-         wfLd24LxqSbJrHlQ+XCvXITGGU1Yxi9azpbeAXFNxqUJWP7snkmDlxAXo373DRV2Mx
-         rfb/bb21C7+L/z0Rgay08UKrI9VtOw4i0GSo19xmUM7DtcOqcYsG4VT1tNSg5Zl9Rj
-         ODK7X+i1KPgtpyEtVD1LKYFl2vAzA2Hjrfqb8WuT1Gem9AhpB/JleKlmCJ8tG9LdvA
-         6BBag5AXYqQKO17S5/4NZwhX5E1Zyw/P00W4782vgGEXMpa0PMGa8rxBQzGHLieYRL
-         9drYnh7BrIBzQ==
+        b=LfGG0TQ1BCoVuW0jycCPHlIzu463s6R2BmBG0GJEdyJe1m5rCj0VUb9b814nSigrt
+         lghqI9zDprQGkQHUxkUoe+PlRl+uiF0cbsiyIqroUM2Tu2nidOsdv///wBWoFzwNRN
+         iGuKL14Tn11W2WNwzCG1Ni5l6Tc9OyiYux/X5yjEdrupBBsrvDL6RuMuD1I7rOJeik
+         jEDF4ko1goawTY8H6sLiVsNYnzFUtZToFhbJ8cPfqZsurHRuktioHGhO2+AYjaT8gB
+         /Lp6wbf69ZbQ/jOyS7OyzsybzJHKFtPlvFZsnH8hDgkApy/VU/WFO5RuUU6a3OD1hf
+         C0JzK6fxx612w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiri Olsa <jolsa@kernel.org>, Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org,
-        bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 10/39] bpf: Add deny list of btf ids check for tracing programs
-Date:   Thu,  3 Jun 2021 13:08:00 -0400
-Message-Id: <20210603170829.3168708-10-sashal@kernel.org>
+Cc:     Eric Farman <farman@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>,
+        Matthew Rosato <mjrosato@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>, linux-s390@vger.kernel.org,
+        kvm@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 11/39] vfio-ccw: Reset FSM state to IDLE inside FSM
+Date:   Thu,  3 Jun 2021 13:08:01 -0400
+Message-Id: <20210603170829.3168708-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603170829.3168708-1-sashal@kernel.org>
 References: <20210603170829.3168708-1-sashal@kernel.org>
@@ -42,86 +44,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Olsa <jolsa@kernel.org>
+From: Eric Farman <farman@linux.ibm.com>
 
-[ Upstream commit 35e3815fa8102fab4dee75f3547472c66581125d ]
+[ Upstream commit 6c02ac4c9211edabe17bda437ac97e578756f31b ]
 
-The recursion check in __bpf_prog_enter and __bpf_prog_exit
-leaves some (not inlined) functions unprotected:
+When an I/O request is made, the fsm_io_request() routine
+moves the FSM state from IDLE to CP_PROCESSING, and then
+fsm_io_helper() moves it to CP_PENDING if the START SUBCHANNEL
+received a cc0. Yet, the error case to go from CP_PROCESSING
+back to IDLE is done after the FSM call returns.
 
-In __bpf_prog_enter:
-  - migrate_disable is called before prog->active is checked
+Let's move this up into the FSM proper, to provide some
+better symmetry when unwinding in this case.
 
-In __bpf_prog_exit:
-  - migrate_enable,rcu_read_unlock_strict are called after
-    prog->active is decreased
-
-When attaching trampoline to them we get panic like:
-
-  traps: PANIC: double fault, error_code: 0x0
-  double fault: 0000 [#1] SMP PTI
-  RIP: 0010:__bpf_prog_enter+0x4/0x50
-  ...
-  Call Trace:
-   <IRQ>
-   bpf_trampoline_6442466513_0+0x18/0x1000
-   migrate_disable+0x5/0x50
-   __bpf_prog_enter+0x9/0x50
-   bpf_trampoline_6442466513_0+0x18/0x1000
-   migrate_disable+0x5/0x50
-   __bpf_prog_enter+0x9/0x50
-   bpf_trampoline_6442466513_0+0x18/0x1000
-   migrate_disable+0x5/0x50
-   __bpf_prog_enter+0x9/0x50
-   bpf_trampoline_6442466513_0+0x18/0x1000
-   migrate_disable+0x5/0x50
-   ...
-
-Fixing this by adding deny list of btf ids for tracing
-programs and checking btf id during program verification.
-Adding above functions to this list.
-
-Suggested-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Jiri Olsa <jolsa@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210429114712.43783-1-jolsa@kernel.org
+Signed-off-by: Eric Farman <farman@linux.ibm.com>
+Reviewed-by: Cornelia Huck <cohuck@redhat.com>
+Acked-by: Matthew Rosato <mjrosato@linux.ibm.com>
+Message-Id: <20210511195631.3995081-3-farman@linux.ibm.com>
+Signed-off-by: Cornelia Huck <cohuck@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/s390/cio/vfio_ccw_fsm.c | 1 +
+ drivers/s390/cio/vfio_ccw_ops.c | 2 --
+ 2 files changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 364b9760d1a7..553e09b404be 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -12206,6 +12206,17 @@ int bpf_check_attach_target(struct bpf_verifier_log *log,
- 	return 0;
- }
- 
-+BTF_SET_START(btf_id_deny)
-+BTF_ID_UNUSED
-+#ifdef CONFIG_SMP
-+BTF_ID(func, migrate_disable)
-+BTF_ID(func, migrate_enable)
-+#endif
-+#if !defined CONFIG_PREEMPT_RCU && !defined CONFIG_TINY_RCU
-+BTF_ID(func, rcu_read_unlock_strict)
-+#endif
-+BTF_SET_END(btf_id_deny)
-+
- static int check_attach_btf_id(struct bpf_verifier_env *env)
- {
- 	struct bpf_prog *prog = env->prog;
-@@ -12265,6 +12276,9 @@ static int check_attach_btf_id(struct bpf_verifier_env *env)
- 		ret = bpf_lsm_verify_prog(&env->log, prog);
- 		if (ret < 0)
- 			return ret;
-+	} else if (prog->type == BPF_PROG_TYPE_TRACING &&
-+		   btf_id_set_contains(&btf_id_deny, btf_id)) {
-+		return -EINVAL;
+diff --git a/drivers/s390/cio/vfio_ccw_fsm.c b/drivers/s390/cio/vfio_ccw_fsm.c
+index 23e61aa638e4..e435a9cd92da 100644
+--- a/drivers/s390/cio/vfio_ccw_fsm.c
++++ b/drivers/s390/cio/vfio_ccw_fsm.c
+@@ -318,6 +318,7 @@ static void fsm_io_request(struct vfio_ccw_private *private,
  	}
  
- 	key = bpf_trampoline_compute_key(tgt_prog, btf_id);
+ err_out:
++	private->state = VFIO_CCW_STATE_IDLE;
+ 	trace_vfio_ccw_fsm_io_request(scsw->cmd.fctl, schid,
+ 				      io_region->ret_code, errstr);
+ }
+diff --git a/drivers/s390/cio/vfio_ccw_ops.c b/drivers/s390/cio/vfio_ccw_ops.c
+index 1ad5f7018ec2..2280f51dd679 100644
+--- a/drivers/s390/cio/vfio_ccw_ops.c
++++ b/drivers/s390/cio/vfio_ccw_ops.c
+@@ -276,8 +276,6 @@ static ssize_t vfio_ccw_mdev_write_io_region(struct vfio_ccw_private *private,
+ 	}
+ 
+ 	vfio_ccw_fsm_event(private, VFIO_CCW_EVENT_IO_REQ);
+-	if (region->ret_code != 0)
+-		private->state = VFIO_CCW_STATE_IDLE;
+ 	ret = (region->ret_code != 0) ? region->ret_code : count;
+ 
+ out_unlock:
 -- 
 2.30.2
 
