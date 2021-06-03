@@ -2,105 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1355939A934
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7AB0139A994
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:53:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230100AbhFCRbv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:31:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54974 "EHLO mail.kernel.org"
+        id S229983AbhFCRzO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:55:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44716 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229695AbhFCRbv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:31:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 42F596108E;
-        Thu,  3 Jun 2021 17:30:06 +0000 (UTC)
+        id S229791AbhFCRzO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:55:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2D15B61361;
+        Thu,  3 Jun 2021 17:53:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622741406;
-        bh=llvjpn94Mq/0bBFmfUQXNoQsqLHPIas8SBwQkn5JSiI=;
-        h=Subject:To:Cc:References:From:Date:In-Reply-To:From;
-        b=nAhc+KLhUgxxZc7r2vzg12qBQkePZerJV3fPOF3D30yv+zXUwWa3/TNiCfyxV5O0o
-         I7VthY0Ns3AgKPNnipqyFAPKYeLC2wcV3Ey+stQGqcmJGgjej+Vov+dUnp/2CVsDx0
-         VQu0qs0BrdQsYjfyng8hSnew6Zya/Sj8KrdXRbgmLSdbAam7TK1/a+ZCKr54/DET6Y
-         z3Wo4UU9drzRh5oZ6HS3Vgqdwrsm8CPiRetCYxyOJoha4K/9XPaUJNfSpyuu+ETd9J
-         KYXe9n3HmQq3oexxGjASqjepokvk/sDzuT/4bM1aqjM4SL4WiedHhuCbpdrR84Zu9Y
-         g1lzw15vwbqNA==
-Subject: Re: [patch 3/8] x86/fpu: Invalidate FPU state after a failed XRSTOR
- from a user buffer
-To:     Borislav Petkov <bp@alien8.de>,
-        Thomas Gleixner <tglx@linutronix.de>
-Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Yu-cheng Yu <yu-cheng.yu@intel.com>, stable@vger.kernel.org
-References: <20210602095543.149814064@linutronix.de>
- <20210602101618.627715436@linutronix.de> <YLeedfdsnsKqcbGx@zn.tnic>
-From:   Andy Lutomirski <luto@kernel.org>
-Message-ID: <6220f2da-1d5b-843c-fa82-58a28fbcdd6b@kernel.org>
-Date:   Thu, 3 Jun 2021 10:30:05 -0700
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.1
+        s=k20201202; t=1622742808;
+        bh=pDpZsiO18U3DpgGBUoBUjRv/wLt0NlND3MIarXRGoV8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Nwq9nSiBoW/Ze1Swd6Tze6bxP2LUM0bNiB/4j4SsGplCWyCz0W07OoZxwumPGWpmj
+         a/5GEzYZlV1zEcE9SNyZM7R2phDc3sJr8ot1yiMrH5itbqzcCKMxO2nwxbvniRpd+a
+         hPhTNUWTFCMx1j6PouGjKjegEdhy0FhFqXbLrDj4x5Btx/vc9Fa0VtcGIt1ab8E1wT
+         6yJPd6knHT/lU0r03vKdBq8MwU5neM1v9paHSM8Yw2A1kwNsHLajxDWIvOXiEh8deQ
+         7lPSbN5EVpr8S/jnQdyRhKF/+IRyXdDwba/EjroEcrfGU5+k7I8WewYIg3yfxacIWW
+         5g0qh3/z0pyMQ==
+Date:   Thu, 3 Jun 2021 10:53:26 -0700
+From:   Jaegeuk Kim <jaegeuk@kernel.org>
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     Daniel Rosenberg <drosen@google.com>, Chao Yu <chao@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+        Gabriel Krisman Bertazi <krisman@collabora.com>,
+        kernel-team@android.com, stable@vger.kernel.org
+Subject: Re: [PATCH v2 2/2] f2fs: Advertise encrypted casefolding in sysfs
+Message-ID: <YLkXFu4ep8tP3jsh@google.com>
+References: <20210603095038.314949-1-drosen@google.com>
+ <20210603095038.314949-3-drosen@google.com>
+ <YLipSQxNaUDy9Ff1@kroah.com>
+ <YLj36Fmz3dSHmkSG@google.com>
+ <YLkQtDZFG1xKoqE5@kroah.com>
 MIME-Version: 1.0
-In-Reply-To: <YLeedfdsnsKqcbGx@zn.tnic>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YLkQtDZFG1xKoqE5@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/2/21 8:06 AM, Borislav Petkov wrote:
-> On Wed, Jun 02, 2021 at 11:55:46AM +0200, Thomas Gleixner wrote:
->> From: Andy Lutomirski <luto@kernel.org>
->>
->> If XRSTOR fails due to sufficiently complicated paging errors (e.g.
->> concurrent TLB invalidation),
+On 06/03, Greg KH wrote:
+> On Thu, Jun 03, 2021 at 08:40:24AM -0700, Jaegeuk Kim wrote:
+> > On 06/03, Greg KH wrote:
+> > > On Thu, Jun 03, 2021 at 09:50:38AM +0000, Daniel Rosenberg wrote:
+> > > > Older kernels don't support encryption with casefolding. This adds
+> > > > the sysfs entry encrypted_casefold to show support for those combined
+> > > > features. Support for this feature was originally added by
+> > > > commit 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
+> > > > 
+> > > > Fixes: 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
+> > > > Cc: stable@vger.kernel.org # v5.11+
+> > > > Signed-off-by: Daniel Rosenberg <drosen@google.com>
+> > > > ---
+> > > >  fs/f2fs/sysfs.c | 15 +++++++++++++--
+> > > >  1 file changed, 13 insertions(+), 2 deletions(-)
+> > > > 
+> > > > diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
+> > > > index 09e3f258eb52..6604291a3cdf 100644
+> > > > --- a/fs/f2fs/sysfs.c
+> > > > +++ b/fs/f2fs/sysfs.c
+> > > > @@ -161,6 +161,9 @@ static ssize_t features_show(struct f2fs_attr *a,
+> > > >  	if (f2fs_sb_has_compression(sbi))
+> > > >  		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > > >  				len ? ", " : "", "compression");
+> > > > +	if (f2fs_sb_has_casefold(sbi) && f2fs_sb_has_encrypt(sbi))
+> > > > +		len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > > > +				len ? ", " : "", "encrypted_casefold");
+> > > >  	len += scnprintf(buf + len, PAGE_SIZE - len, "%s%s",
+> > > >  				len ? ", " : "", "pin_file");
+> > > >  	len += scnprintf(buf + len, PAGE_SIZE - len, "\n");
+> > > 
+> > > This is a HUGE abuse of sysfs and should not be encouraged and added to.
+> > 
+> > This feature entry was originally added in 2017. Let me try to clean this up
+> > after merging this.
 > 
-> I can't connect "concurrent TLB invalidation" to "sufficiently
-> complicated paging errors". Can you elaborate pls?
-
-Think "complex microarchitectural conditions".
-
-How about:
-
-As far as I can tell, both Intel and AMD consider it to be
-architecturally valid for XRSTOR to fail with #PF but nonetheless change
-user state.  The actual conditions under which this might occur are
-unclear [1], but it seems plausible that this might be triggered if one
-sibling thread unmaps a page and invalidates the shared TLB while
-another sibling thread is executing XRSTOR on the page in question.
-
-__fpu__restore_sig() can execute XRSTOR while the hardware registers are
-preserved on behalf of a different victim task (using the
-fpu_fpregs_owner_ctx mechanism), and, in theory, XRSTOR could fail but
-modify the registers.  If this happens, then there is a window in which
-__fpu__restore_sig() could schedule out and the victim task could
-schedule back in without reloading its own FPU registers.  This would
-result in part of the FPU state that __fpu__restore_sig() was attempting
-to load leaking into the victim task's user-visible state.
-
-Invalidate preserved FPU registers on XRSTOR failure to prevent this
-situation from corrupting any state.
-
-[1] Frequent readers of the errata lists might imagine "complex
-microarchitectural conditions".
-
->> +			 * failed.  In the event that the ucode was
->> +			 * unfriendly and modified the registers at all, we
->> +			 * need to make sure that we aren't corrupting an
->> +			 * innocent non-current task's registers.
->> +			 */
->> +			__cpu_invalidate_fpregs_state();
->> +		} else {
->> +			/*
->> +			 * As above, we may have just clobbered current's
->> +			 * user FPU state.  We will either successfully
->> +			 * load it or clear it below, so no action is
->> +			 * required here.
->> +			 */
->> +		}
+> Thank you.
 > 
-> I'm wondering if that comment can simply be above the TIF_NEED_FPU_LOAD
-> testing, standalone, instead of having it in an empty else? And then get
-> rid of that else.
+> > > Please make these "one value per file" and do not keep growing a single
+> > > file that has to be parsed otherwise you will break userspace tools.
+> > > 
+> > > And I don't see a Documentation/ABI/ entry for this either :(
+> > 
+> > There is in Documentation/ABI/testing/sysfs-fs-f2fs.
+> 
+> So this new item was documented in the file before the kernel change was
+> made?
 
-I'm fine either way.
+Do we need to describe all the strings in this entry?
+
+203 What:           /sys/fs/f2fs/<disk>/features
+204 Date:           July 2017
+205 Contact:        "Jaegeuk Kim" <jaegeuk@kernel.org>
+206 Description:    Shows all enabled features in current device.
+
+> 
+> greg k-h
