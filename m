@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0994B39A8A4
-	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CAAA39A8B0
+	for <lists+stable@lfdr.de>; Thu,  3 Jun 2021 19:22:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233411AbhFCRQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 13:16:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:43188 "EHLO mail.kernel.org"
+        id S232406AbhFCRRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 13:17:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43204 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233428AbhFCRPA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Thu, 3 Jun 2021 13:15:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DEE7F61440;
-        Thu,  3 Jun 2021 17:11:05 +0000 (UTC)
+        id S233529AbhFCRPh (ORCPT <rfc822;stable@vger.kernel.org>);
+        Thu, 3 Jun 2021 13:15:37 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 28E6461421;
+        Thu,  3 Jun 2021 17:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622740266;
-        bh=B9shrIN/EPsWRXvQ+usxH2+OnyYTBoJHP+2+hdRHZz0=;
+        s=k20201202; t=1622740267;
+        bh=yl8hScry4M9QShKK1y5D0Ff/KUuEs0Mjc2f0Omi24F8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aCK0sBoylN60wj1QglOXMVTzCe0DkQGddpUBnrMjZTHAwFtpycrjARiVJqTVBJLop
-         F8gKjH8H6Vf6knvV/pF572enTHRsPxTDT7U0aD4/jgSA7gujx2XAxsao9rQb9QH2nS
-         ni3ETRBtFqdMCGlDSKYnhbnESDH57eApwtKig+tvT1vl9pPx9T63XM5wsOzmQrwQiS
-         enipdePh6A3R9bAE2AcOUH4OuK4+A2YgiE3mOJUurU0mVNYEIUyiE1zgxjc6QkjSXj
-         lcvsIJKZ0VyXjFzcpf6k2avAnnsfRygvlDv4IN+xxqETD2ya92Mn2zr6jcGZTs/Qrx
-         AinIrE/HW68iQ==
+        b=C+V3GhUX93VKUV4FDST/G3iLqqBILpStvxW5bLPJdElC9H5RtYITqmQp09d47PHWC
+         vICwsZeW85A8Jn+hM4oX7M8q/VTYOu4actRBczVCBuvSTtb5uVWcp1v7wWx4n8Tf5c
+         ILeh9zwXKVrou1jsjGJmRWhm/rLhRCsfVOEkjtRJ8DXDB1MunO6vMLdibxdo32s4Vu
+         XfjDrGkPm7L4mqxHcKaQ2RrOinGQomm+5f3KfoEH0CtuN+LblyO5hfZxcwBbCxA86E
+         3LBU9zpcutHUpsNlFinpLymsMi4T1Lh993WOwHOImDr0ClNi7o8Y8lbOOQzVyBLJus
+         YZ5c18B9zpkGg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Bogdanov <d.bogdanov@yadro.com>,
-        Roman Bolshakov <r.bolshakov@yadro.com>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.9 11/17] scsi: target: qla2xxx: Wait for stop_phase1 at WWN removal
-Date:   Thu,  3 Jun 2021 13:10:46 -0400
-Message-Id: <20210603171052.3169893-11-sashal@kernel.org>
+Cc:     Zong Li <zong.li@sifive.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.9 12/17] net: macb: ensure the device is available before accessing GEMGXL control registers
+Date:   Thu,  3 Jun 2021 13:10:47 -0400
+Message-Id: <20210603171052.3169893-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210603171052.3169893-1-sashal@kernel.org>
 References: <20210603171052.3169893-1-sashal@kernel.org>
@@ -43,83 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Bogdanov <d.bogdanov@yadro.com>
+From: Zong Li <zong.li@sifive.com>
 
-[ Upstream commit 2ef7665dfd88830f15415ba007c7c9a46be7acd8 ]
+[ Upstream commit 5eff1461a6dec84f04fafa9128548bad51d96147 ]
 
-Target de-configuration panics at high CPU load because TPGT and WWPN can
-be removed on separate threads.
+If runtime power menagement is enabled, the gigabit ethernet PLL would
+be disabled after macb_probe(). During this period of time, the system
+would hang up if we try to access GEMGXL control registers.
 
-TPGT removal requests a reset HBA on a separate thread and waits for reset
-complete (phase1). Due to high CPU load that HBA reset can be delayed for
-some time.
+We can't put runtime_pm_get/runtime_pm_put/ there due to the issue of
+sleep inside atomic section (7fa2955ff70ce453 ("sh_eth: Fix sleeping
+function called from invalid context"). Add netif_running checking to
+ensure the device is available before accessing GEMGXL device.
 
-WWPN removal does qlt_stop_phase2(). There it is believed that phase1 has
-already completed and thus tgt.tgt_ops is subsequently cleared. However,
-tgt.tgt_ops is needed to process incoming traffic and therefore this will
-cause one of the following panics:
+Changed in v2:
+ - Use netif_running instead of its own flag
 
-NIP qlt_reset+0x7c/0x220 [qla2xxx]
-LR  qlt_reset+0x68/0x220 [qla2xxx]
-Call Trace:
-0xc000003ffff63a78 (unreliable)
-qlt_handle_imm_notify+0x800/0x10c0 [qla2xxx]
-qlt_24xx_atio_pkt+0x208/0x590 [qla2xxx]
-qlt_24xx_process_atio_queue+0x33c/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
-
-or
-
-NIP qlt_24xx_handle_abts+0xd0/0x2a0 [qla2xxx]
-LR  qlt_24xx_handle_abts+0xb4/0x2a0 [qla2xxx]
-Call Trace:
-qlt_24xx_handle_abts+0x90/0x2a0 [qla2xxx] (unreliable)
-qlt_24xx_process_atio_queue+0x500/0x7a0 [qla2xxx]
-qla83xx_msix_atio_q+0x54/0x90 [qla2xxx]
-
-or
-
-NIP qlt_create_sess+0x90/0x4e0 [qla2xxx]
-LR  qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-Call Trace:
-0xc0000000348fba30 (unreliable)
-qla24xx_do_nack_work+0xa8/0x180 [qla2xxx]
-qla2x00_do_work+0x674/0xbf0 [qla2xxx]
-qla2x00_iocb_work_fn
-
-The patch fixes the issue by serializing qlt_stop_phase1() and
-qlt_stop_phase2() functions to make WWPN removal wait for phase1
-completion.
-
-Link: https://lore.kernel.org/r/20210415203554.27890-1-d.bogdanov@yadro.com
-Reviewed-by: Roman Bolshakov <r.bolshakov@yadro.com>
-Signed-off-by: Dmitry Bogdanov <d.bogdanov@yadro.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Zong Li <zong.li@sifive.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/scsi/qla2xxx/qla_target.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/cadence/macb.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/scsi/qla2xxx/qla_target.c b/drivers/scsi/qla2xxx/qla_target.c
-index b889caa556a0..6ef7a094ee51 100644
---- a/drivers/scsi/qla2xxx/qla_target.c
-+++ b/drivers/scsi/qla2xxx/qla_target.c
-@@ -1224,6 +1224,7 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
- 	    "Waiting for %d IRQ commands to complete (tgt %p)",
- 	    tgt->irq_cmd_count, tgt);
+diff --git a/drivers/net/ethernet/cadence/macb.c b/drivers/net/ethernet/cadence/macb.c
+index f20718b730e5..69fa47351a32 100644
+--- a/drivers/net/ethernet/cadence/macb.c
++++ b/drivers/net/ethernet/cadence/macb.c
+@@ -2031,6 +2031,9 @@ static struct net_device_stats *gem_get_stats(struct macb *bp)
+ 	struct gem_stats *hwstat = &bp->hw_stats.gem;
+ 	struct net_device_stats *nstat = &bp->stats;
  
-+	mutex_lock(&tgt->ha->optrom_mutex);
- 	mutex_lock(&vha->vha_tgt.tgt_mutex);
- 	spin_lock_irqsave(&ha->hardware_lock, flags);
- 	while ((tgt->irq_cmd_count != 0) || (tgt->atio_irq_cmd_count != 0)) {
-@@ -1235,6 +1236,7 @@ void qlt_stop_phase2(struct qla_tgt *tgt)
- 	tgt->tgt_stopped = 1;
- 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
- 	mutex_unlock(&vha->vha_tgt.tgt_mutex);
-+	mutex_unlock(&tgt->ha->optrom_mutex);
++	if (!netif_running(bp->dev))
++		return nstat;
++
+ 	gem_update_stats(bp);
  
- 	ql_dbg(ql_dbg_tgt_mgt, vha, 0xf00c, "Stop of tgt %p finished",
- 	    tgt);
+ 	nstat->rx_errors = (hwstat->rx_frame_check_sequence_errors +
 -- 
 2.30.2
 
