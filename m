@@ -2,346 +2,331 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B9BD39AEF3
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 02:00:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2606B39AEF5
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 02:01:32 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229656AbhFDACe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 20:02:34 -0400
-Received: from mail-pg1-f180.google.com ([209.85.215.180]:36793 "EHLO
-        mail-pg1-f180.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229576AbhFDACe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 20:02:34 -0400
-Received: by mail-pg1-f180.google.com with SMTP id 27so6420282pgy.3
-        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 17:00:49 -0700 (PDT)
+        id S229758AbhFDADQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 20:03:16 -0400
+Received: from mail-pl1-f182.google.com ([209.85.214.182]:36750 "EHLO
+        mail-pl1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229576AbhFDADP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 20:03:15 -0400
+Received: by mail-pl1-f182.google.com with SMTP id x10so3741285plg.3
+        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 17:01:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=UHnNo1smfeUySO4st5sVZAJBVhR19g+rQqU7Ptar33E=;
-        b=vUfaBevAYRkpOGN76Jj/B1JZMCBjQStLu0n+j+863Bv6fAgswahQUUK+SEbvTQ/zxb
-         ADdC5Dt+9aMvGrEijg8HST0baTJmrrFx+//Kxzpl9gh3zvDQmiF5Qmav6GOpll5MB9Jn
-         POvsmfOsijZZCLtacSKGtwC59Yf8CEaRfYUwVj7snTyTFplf0PK/8rR17zYv+kZ9oyRk
-         QiEY6pGh8FNfXlMot8PkX9x47NGSiuZfjK8Wpw/gBg5NArqinjIVnHy+q5fkqMIrl9RS
-         0kyJRS/E8UK1s2GEkgFRILZQlMbLtbWTxjE5X7Nzdt7yFIjlNXgZH2yB5lLSvvZ10jcN
-         3wkQ==
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=cnqCRG3Xdy3jXY5Ykr5FLUTkHAuqGtG9k4RNJUoABKk=;
+        b=CXUJwxu70+ifql7QZPsSq6uw6vCOXPqROV6UJg98c2LHJ5Qi0yhGQw8Se778w02/nm
+         9YzdZ/rzP8jCcUXzEAbewILDIa/UiWWbRG9bPreIn1gYXjE8fTVt7KdUmT1/G10SlcVR
+         Dl50M2c0iieHqv5HlPQolecoUDVjJ71oVff3AvDE2EezzURc2aZ/HXI3nxDprf//obkr
+         /WCmbU0i5LCZ6MmhyApF9GomKT5Hy7oSUkJiBYVmsiLHtan8WEXsOv0KsRzrw6vxTGZU
+         zqb37QroFdNYh9ZdRZkW+QAshBaG3kGnDEsNHTVIZiy2JDjlyQB7kaRuu8szKtDuoyxa
+         rFDA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=UHnNo1smfeUySO4st5sVZAJBVhR19g+rQqU7Ptar33E=;
-        b=Dsp2QSJSdaj/ZhuERanHX94dYjOjByskVaV3lzEvs56heA0/30zGz8Cq4vGCB2FV9C
-         qKoXuGOpFFAx9Plj0Vy1QjYNAtxS3igCNvxa3fsPp1WJAQtlVT/TWF4WSjxOQL6NR+33
-         1BkqRrDays7amKA+fQuCkqtZCzG5AEfUCI5oNm9t2RwZhHcToduJts2C9u3ve3uybkbE
-         kQmMMY9GSaH0cHIjL/N3wyT7fehK/WdvhdIkTT/impQUMdDvjafs4E8+g0l+/vlzjK9u
-         UkyWSdrVbq6m+hZo/TDQC5qvtWdFXiw7H6Fei4OZAa/QvYLgEeOv+q5/MpxADtZk33xq
-         FBYQ==
-X-Gm-Message-State: AOAM530DINXF5garp/cid0MjGc0p2CFKG0tzYmwG2XUI0g697GrNAORl
-        6VI61AQ01H1amoOzInxMGWQDOKWbvzDAnpxrMknLzw==
-X-Google-Smtp-Source: ABdhPJwUoL6MdcFoSHMzKQOM0cf1fSq+AiBoPrcdZJZHqVEEyhhpXqM74BM4O+J0ur6YiSsZ2dzCd6k3I6uJx68jGrI=
-X-Received: by 2002:a05:6a00:c86:b029:2e9:3041:162f with SMTP id
- a6-20020a056a000c86b02902e93041162fmr1795869pfv.78.1622764788760; Thu, 03 Jun
- 2021 16:59:48 -0700 (PDT)
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=cnqCRG3Xdy3jXY5Ykr5FLUTkHAuqGtG9k4RNJUoABKk=;
+        b=VVJGe2ki2wJi2ug94NGmIIi3ysnhczyZcUnMk6Oj2cetQ7LIspSSg2Qj9BKj2WhEPi
+         P1JI8LtVHm5vvQnGsRSXctfFA7JP3bCuvnMLhCIkIHhuB/BSOFRyett2JNYxl0VrqWgF
+         rVk48lj9c2wS+we7DM4ic/CGtyUrvoqPv0Mwnz6acWHpCdOJyD725/b1hXZF4xM5kJsH
+         dEAF18SCUhjc+enjTt5gJUzaEin0SgqYktawjrIjbqlf/DHLR2VxYL4H+gsc0HYE4/HJ
+         IxOPCb9e8e7pxB1UeTztmQZGQiLBLlLWGZCUUkgmUQtaTiWnXnyKWcvYyvPSq9akXSj2
+         FpwQ==
+X-Gm-Message-State: AOAM532aq+h3jCSdkaPyeArVFvgEvJ5+aFOQqg0ITM0jUJZt+O/qFgQ7
+        vQcJlfSlCNKJEP3JaOGWkOknilXQ1kz9/w==
+X-Google-Smtp-Source: ABdhPJzWrR9DcgUq6voZ3GS2qncUYvRG/mlnbULMx+AzBwWO3/AQHBs/KOGeL9DFL5XkDwaPOJEr+w==
+X-Received: by 2002:a17:903:230b:b029:f4:b7cf:44aa with SMTP id d11-20020a170903230bb02900f4b7cf44aamr1564936plh.31.1622764816774;
+        Thu, 03 Jun 2021 17:00:16 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j16sm3040540pjn.55.2021.06.03.17.00.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 03 Jun 2021 17:00:16 -0700 (PDT)
+Message-ID: <60b96d10.1c69fb81.c79f.a498@mx.google.com>
+Date:   Thu, 03 Jun 2021 17:00:16 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <20210602234954.122199-1-mike.kravetz@oracle.com>
-In-Reply-To: <20210602234954.122199-1-mike.kravetz@oracle.com>
-From:   Mina Almasry <almasrymina@google.com>
-Date:   Thu, 3 Jun 2021 16:59:37 -0700
-Message-ID: <CAHS8izM-GU8_v2A9p0-ez+QNU=J9nh2zM6ZAkAMsNK7ubnsK3A@mail.gmail.com>
-Subject: Re: [PATCH] mm/hugetlb: expand restore_reserve_on_error functionality
-To:     Mike Kravetz <mike.kravetz@oracle.com>
-Cc:     Linux-MM <linux-mm@kvack.org>, lkml <linux-kernel@vger.kernel.org>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>,
-        Naoya Horiguchi <naoya.horiguchi@nec.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v4.14.235
+X-Kernelci-Branch: linux-4.14.y
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-4.14.y baseline: 126 runs, 7 regressions (v4.14.235)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jun 2, 2021 at 4:50 PM Mike Kravetz <mike.kravetz@oracle.com> wrote:
->
-> The routine restore_reserve_on_error is called to restore reservation
-> information when an error occurs after page allocation.  The routine
-> alloc_huge_page modifies the mapping reserve map and potentially the
-> reserve count during allocation.  If code calling alloc_huge_page
-> encounters an error after allocation and needs to free the page, the
-> reservation information needs to be adjusted.
->
-> Currently, restore_reserve_on_error only takes action on pages for which
-> the reserve count was adjusted(HPageRestoreReserve flag).  There is
-> nothing wrong with these adjustments.  However, alloc_huge_page ALWAYS
-> modifies the reserve map during allocation even if the reserve count is
-> not adjusted.  This can cause issues as observed during development of
-> this patch [1].
->
-> One specific series of operations causing an issue is:
-> - Create a shared hugetlb mapping
->   Reservations for all pages created by default
-> - Fault in a page in the mapping
->   Reservation exists so reservation count is decremented
-> - Punch a hole in the file/mapping at index previously faulted
->   Reservation and any associated pages will be removed
-> - Allocate a page to fill the hole
->   No reservation entry, so reserve count unmodified
->   Reservation entry added to map by alloc_huge_page
-> - Error after allocation and before instantiating the page
->   Reservation entry remains in map
-> - Allocate a page to fill the hole
->   Reservation entry exists, so decrement reservation count
-> This will cause a reservation count underflow as the reservation count
-> was decremented twice for the same index.
->
-> A user would observe a very large number for HugePages_Rsvd in
-> /proc/meminfo.  This would also likely cause subsequent allocations of
-> hugetlb pages to fail as it would 'appear' that all pages are reserved.
->
-> This sequence of operations is unlikely to happen, however they were
-> easily reproduced and observed using hacked up code as described in [1].
->
-> Address the issue by having the routine restore_reserve_on_error take
-> action on pages where HPageRestoreReserve is not set.  In this case, we
-> need to remove any reserve map entry created by alloc_huge_page.  A new
-> helper routine vma_del_reservation assists with this operation.
->
-> There are three callers of alloc_huge_page which do not currently call
-> restore_reserve_on error before freeing a page on error paths.  Add
-> those missing calls.
->
-> [1] https://lore.kernel.org/linux-mm/20210528005029.88088-1-almasrymina@google.com/
-> Fixes: 96b96a96ddee ("mm/hugetlb: fix huge page reservation leak in private mapping error paths"
-> Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-> Cc: <stable@vger.kernel.org>
+stable-rc/linux-4.14.y baseline: 126 runs, 7 regressions (v4.14.235)
 
-Yep, works perfectly. Thanks!
+Regressions Summary
+-------------------
 
-> ---
->  fs/hugetlbfs/inode.c    |   1 +
->  include/linux/hugetlb.h |   2 +
->  mm/hugetlb.c            | 120 ++++++++++++++++++++++++++++++++--------
->  3 files changed, 100 insertions(+), 23 deletions(-)
->
-> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> index 21f7a5c92e8a..926eeb9bf4eb 100644
-> --- a/fs/hugetlbfs/inode.c
-> +++ b/fs/hugetlbfs/inode.c
-> @@ -735,6 +735,7 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
->                 __SetPageUptodate(page);
->                 error = huge_add_to_page_cache(page, mapping, index);
->                 if (unlikely(error)) {
-> +                       restore_reserve_on_error(h, &pseudo_vma, addr, page);
->                         put_page(page);
->                         mutex_unlock(&hugetlb_fault_mutex_table[hash]);
->                         goto out;
-> diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-> index 44721df20e89..b375b31f60c4 100644
-> --- a/include/linux/hugetlb.h
-> +++ b/include/linux/hugetlb.h
-> @@ -627,6 +627,8 @@ struct page *alloc_huge_page_vma(struct hstate *h, struct vm_area_struct *vma,
->                                 unsigned long address);
->  int huge_add_to_page_cache(struct page *page, struct address_space *mapping,
->                         pgoff_t idx);
-> +void restore_reserve_on_error(struct hstate *h, struct vm_area_struct *vma,
-> +                               unsigned long address, struct page *page);
->
->  /* arch callback */
->  int __init __alloc_bootmem_huge_page(struct hstate *h);
-> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-> index 9a616b7a8563..36b691c3eabf 100644
-> --- a/mm/hugetlb.c
-> +++ b/mm/hugetlb.c
-> @@ -2259,12 +2259,18 @@ static void return_unused_surplus_pages(struct hstate *h,
->   * be restored when a newly allocated huge page must be freed.  It is
->   * to be called after calling vma_needs_reservation to determine if a
->   * reservation exists.
-> + *
-> + * vma_del_reservation is used in error paths where an entry in the reserve
-> + * map was created during huge page allocation and must be removed.  It is to
-> + * be called after calling vma_needs_reservation to determine if a reservation
-> + * exists.
->   */
->  enum vma_resv_mode {
->         VMA_NEEDS_RESV,
->         VMA_COMMIT_RESV,
->         VMA_END_RESV,
->         VMA_ADD_RESV,
-> +       VMA_DEL_RESV,
->  };
->  static long __vma_reservation_common(struct hstate *h,
->                                 struct vm_area_struct *vma, unsigned long addr,
-> @@ -2308,11 +2314,21 @@ static long __vma_reservation_common(struct hstate *h,
->                         ret = region_del(resv, idx, idx + 1);
->                 }
->                 break;
-> +       case VMA_DEL_RESV:
-> +               if (vma->vm_flags & VM_MAYSHARE) {
-> +                       region_abort(resv, idx, idx + 1, 1);
-> +                       ret = region_del(resv, idx, idx + 1);
-> +               } else {
-> +                       ret = region_add(resv, idx, idx + 1, 1, NULL, NULL);
-> +                       /* region_add calls of range 1 should never fail. */
-> +                       VM_BUG_ON(ret < 0);
-> +               }
-> +               break;
->         default:
->                 BUG();
->         }
->
-> -       if (vma->vm_flags & VM_MAYSHARE)
-> +       if (vma->vm_flags & VM_MAYSHARE || mode == VMA_DEL_RESV)
->                 return ret;
->         /*
->          * We know private mapping must have HPAGE_RESV_OWNER set.
-> @@ -2360,25 +2376,39 @@ static long vma_add_reservation(struct hstate *h,
->         return __vma_reservation_common(h, vma, addr, VMA_ADD_RESV);
->  }
->
-> +static long vma_del_reservation(struct hstate *h,
-> +                       struct vm_area_struct *vma, unsigned long addr)
-> +{
-> +       return __vma_reservation_common(h, vma, addr, VMA_DEL_RESV);
-> +}
-> +
->  /*
-> - * This routine is called to restore a reservation on error paths.  In the
-> - * specific error paths, a huge page was allocated (via alloc_huge_page)
-> - * and is about to be freed.  If a reservation for the page existed,
-> - * alloc_huge_page would have consumed the reservation and set
-> - * HPageRestoreReserve in the newly allocated page.  When the page is freed
-> - * via free_huge_page, the global reservation count will be incremented if
-> - * HPageRestoreReserve is set.  However, free_huge_page can not adjust the
-> - * reserve map.  Adjust the reserve map here to be consistent with global
-> - * reserve count adjustments to be made by free_huge_page.
-> + * This routine is called to restore reservation information on error paths.
-> + * It should ONLY be called for pages allocated via alloc_huge_page(), and
-> + * the hugetlb mutex should remain held when calling this routine.
-> + *
-> + * It handles two specific cases:
-> + * 1) A reservation was in place and page consumed the reservation.
-> + *    HPageRestoreRsvCnt is set in the page.
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+meson-gxbb-p200      | arm64  | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-HPageRestoreReserve, not HPageRestoreRsvCnt.
+meson-gxm-q200       | arm64  | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
 
-> + * 2) No reservation was in place for the page, so HPageRestoreRsvCnt is
+qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Same.
+qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Otherwise it looks good to me. Thanks!
+qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
 
-Reviewed-by: Mina Almasry <almasrymina@google.com>
+qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
 
-> + *    not set.  However, alloc_huge_page always updates the reserve map.
-> + *
-> + * In case 1, free_huge_page will increment the global reserve count.  But,
-> + * free_huge_page does not have enough context to adjust the reservation map.
-> + * This case deals primarily with private mappings.  Adjust the reserve map
-> + * here to be consistent with global reserve count adjustments to be made
-> + * by free_huge_page.  Make sure the reserve map indicates there is a
-> + * reservation present.
-> + *
-> + * In case 2, simply undo reserve map modifications done by alloc_huge_page.
->   */
-> -static void restore_reserve_on_error(struct hstate *h,
-> -                       struct vm_area_struct *vma, unsigned long address,
-> -                       struct page *page)
-> +void restore_reserve_on_error(struct hstate *h, struct vm_area_struct *vma,
-> +                       unsigned long address, struct page *page)
->  {
-> -       if (unlikely(HPageRestoreReserve(page))) {
-> -               long rc = vma_needs_reservation(h, vma, address);
-> +       long rc = vma_needs_reservation(h, vma, address);
->
-> -               if (unlikely(rc < 0)) {
-> +       if (HPageRestoreReserve(page)) {
-> +               if (unlikely(rc < 0))
->                         /*
->                          * Rare out of memory condition in reserve map
->                          * manipulation.  Clear HPageRestoreReserve so that
-> @@ -2391,16 +2421,57 @@ static void restore_reserve_on_error(struct hstate *h,
->                          * accounting of reserve counts.
->                          */
->                         ClearHPageRestoreReserve(page);
-> -               } else if (rc) {
-> -                       rc = vma_add_reservation(h, vma, address);
-> -                       if (unlikely(rc < 0))
-> +               else if (rc)
-> +                       (void)vma_add_reservation(h, vma, address);
-> +               else
-> +                       vma_end_reservation(h, vma, address);
-> +       } else {
-> +               if (!rc) {
-> +                       /*
-> +                        * This indicates there is an entry in the reserve map
-> +                        * added by alloc_huge_page.  We know it was added
-> +                        * before the alloc_huge_page call, otherwise
-> +                        * HPageRestoreReserve would be set on the page.
-> +                        * Remove the entry so that a subsequent allocation
-> +                        * does not consume a reservation.
-> +                        */
-> +                       rc = vma_del_reservation(h, vma, address);
-> +                       if (rc < 0)
->                                 /*
-> -                                * See above comment about rare out of
-> -                                * memory condition.
-> +                                * VERY rare out of memory condition.  Since
-> +                                * we can not delete the entry, set
-> +                                * HPageRestoreReserve so that the reserve
-> +                                * count will be incremented when the page
-> +                                * is freed.  This reserve will be consumed
-> +                                * on a subsequent allocation.
->                                  */
-> -                               ClearHPageRestoreReserve(page);
-> +                               SetHPageRestoreReserve(page);
-> +               } else if (rc < 0) {
-> +                       /*
-> +                        * Rare out of memory condition from
-> +                        * vma_needs_reservation call.  Memory allocation is
-> +                        * only attempted if a new entry is needed.  Therefore,
-> +                        * this implies there is not an entry in the
-> +                        * reserve map.
-> +                        *
-> +                        * For shared mappings, no entry in the map indicates
-> +                        * no reservation.  We are done.
-> +                        */
-> +                       if (!(vma->vm_flags & VM_MAYSHARE))
-> +                               /*
-> +                                * For private mappings, no entry indicates
-> +                                * a reservation is present.  Since we can
-> +                                * not add an entry, set SetHPageRestoreReserve
-> +                                * on the page so reserve count will be
-> +                                * incremented when freed.  This reserve will
-> +                                * be consumed on a subsequent allocation.
-> +                                */
-> +                               SetHPageRestoreReserve(page);
->                 } else
-> -                       vma_end_reservation(h, vma, address);
-> +                       /*
-> +                        * No reservation present, do nothing
-> +                        */
-> +                        vma_end_reservation(h, vma, address);
->         }
->  }
->
-> @@ -4176,6 +4247,8 @@ int copy_hugetlb_page_range(struct mm_struct *dst, struct mm_struct *src,
->                                 spin_lock_nested(src_ptl, SINGLE_DEPTH_NESTING);
->                                 entry = huge_ptep_get(src_pte);
->                                 if (!pte_same(src_pte_old, entry)) {
-> +                                       restore_reserve_on_error(h, vma, addr,
-> +                                                               new);
->                                         put_page(new);
->                                         /* dst_entry won't change as in child */
->                                         goto again;
-> @@ -5174,6 +5247,7 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
->         if (vm_shared || is_continue)
->                 unlock_page(page);
->  out_release_nounlock:
-> +       restore_reserve_on_error(h, dst_vma, dst_addr, page);
->         put_page(page);
->         goto out;
->  }
-> --
-> 2.31.1
->
+qemu_x86_64-uefi     | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig=
+    | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-4.14.y/ker=
+nel/v4.14.235/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-4.14.y
+  Describe: v4.14.235
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      a6b2dae3ee3a3f9f4db3fab5b4b9e493fecf4acd =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+meson-gxbb-p200      | arm64  | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b936a4079819fbf0b3afb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxbb-p200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b936a4079819fbf0b3a=
+fba
+        failing since 429 days (last pass: v4.14.172-114-g734382e2d26e, fir=
+st fail: v4.14.174-131-g234ce78cac23) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+meson-gxm-q200       | arm64  | lab-baylibre  | gcc-8    | defconfig       =
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b95a8cd4e11c1589b3af98
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm64/defconfig/gcc-8/lab-baylibre/baseline-meson-gxm-q200.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b95a8cd4e11c1589b3a=
+f99
+        failing since 70 days (last pass: v4.14.226-44-gdbfdb55a0970, first=
+ fail: v4.14.227) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm    | lab-baylibre  | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b932bb3c1dccaffeb3afac
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb=
+.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b932bb3c1dccaffeb3a=
+fad
+        failing since 201 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm    | lab-broonie   | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b932c83c1dccaffeb3afb2
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.=
+html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b932c83c1dccaffeb3a=
+fb3
+        failing since 201 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm    | lab-cip       | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b932cd8b3514b867b3afab
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b932cd8b3514b867b3a=
+fac
+        failing since 201 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+qemu_arm-versatilepb | arm    | lab-collabora | gcc-8    | versatile_defcon=
+fig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b95f796d808e1b78b3afae
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: versatile_defconfig
+  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/arm/versatile_defconfig/gcc-8/lab-collabora/baseline-qemu_arm-versatilep=
+b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b95f796d808e1b78b3a=
+faf
+        failing since 201 days (last pass: v4.14.206-21-gf1262f26e4d0, firs=
+t fail: v4.14.206-23-g520c3568920c8) =
+
+ =
+
+
+
+platform             | arch   | lab           | compiler | defconfig       =
+    | regressions
+---------------------+--------+---------------+----------+-----------------=
+----+------------
+qemu_x86_64-uefi     | x86_64 | lab-broonie   | gcc-8    | x86_64_defconfig=
+    | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60b93571c3c9b20988b3afa9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-8 (gcc (Debian 8.3.0-6) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-4.14.y/v4.14.2=
+35/x86_64/x86_64_defconfig/gcc-8/lab-broonie/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/x86/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60b93571c3c9b20988b3a=
+faa
+        failing since 2 days (last pass: v4.14.234-80-g506e0ba11512, first =
+fail: v4.14.234-85-g709fde45859b) =
+
+ =20
