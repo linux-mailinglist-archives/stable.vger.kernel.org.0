@@ -2,59 +2,132 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1259B39BD62
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 18:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A77039BDEE
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 19:02:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229809AbhFDQkp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 12:40:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229690AbhFDQko (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 12:40:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 52C8D610E7;
-        Fri,  4 Jun 2021 16:38:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622824738;
-        bh=KwdAFV0jfCDXV1fhMRJ10q3Zn2ml+o/TGxWndAzf1iU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=CrcESnY81cxpaorNOcUOD+VsbZ5dioS8sOTQ2YM8zPdNkEH6R5k2Atkx3Su+gJSUy
-         9rED1+MbC/cCU9sbvCi7TPhbA97LE68pCoV6Glrs1ukVNsfxFEp71+GbF4ssdFi0Rv
-         7S8YGOVSIeNfwrvFshNKQUo8Pfjw8mWTqInEmHpJu7ERZirb7F+qTE15fRzvQy4B20
-         HYbIbM53G3TXNBI79I6czpF69v7Y3boe4lK51ffn/mplrGf8Df0gqNkeh+uu6j4CZZ
-         OpoVzQsPur4r9/2TSbZThi65BjQsybF5hAnqnzatnTW9hk1GvGBiua+mNXjH3fHup9
-         dhRvg17pO7vUA==
-Date:   Fri, 4 Jun 2021 12:38:57 -0400
-From:   Sasha Levin <sashal@kernel.org>
-To:     Josh Triplett <josh@joshtriplett.org>
-Cc:     stable@vger.kernel.org, 989451@bugs.debian.org,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: Re: [5.10.x] Please backport "net: usb: cdc_ncm: don't spew
- notifications" (de658a195ee23ca6aaffe197d1d2ea040beea0a2)
-Message-ID: <YLpXIXV96XXv3PP5@sashalap>
-References: <YLpRCHB1R1qhBZsk@localhost>
+        id S229931AbhFDREi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 13:04:38 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53366 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229690AbhFDREh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 13:04:37 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4D3C061767;
+        Fri,  4 Jun 2021 10:02:51 -0700 (PDT)
+Date:   Fri, 04 Jun 2021 17:02:48 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1622826169;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e9M/O8z/gE/UJe1hlJepOyyETr4yp+Qwwjpm8dhZ+Xo=;
+        b=rIQividxvZTtQiiN+YPqTYPffmJfjuyTeTgrf/hkCbQNsHQ5zFI0s4wUsFa9Mg+y/eZ6AB
+        p0R5PTKbU5+qLmmHTvg0eWtM11ThdC3+2Dck/qxKNs72hEymhUVOOcuJon4f9WANCL2Ok7
+        ucQLrbSfWCY+qWbJCt9o/oy3nkGpPeJATHOOb6xvihPiwIQFIz2KdERD7yzm7VEndYrq9f
+        vynjIKiMIsnG1lwT8LLg6FVsmrZxLnlcdEjv/Np4uXIERseHOAw3Llcn5FkmfaxhvyB3LR
+        PTsnNYZ+RkncZcGzFR1WacyQK/bwJOCse2V5Kt208LZO6Ui0j6z/vgKJHTF1Cw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1622826169;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=e9M/O8z/gE/UJe1hlJepOyyETr4yp+Qwwjpm8dhZ+Xo=;
+        b=xw24C5s8ZCBh5PsUG7RBnOJgT4JTTs+yG7z7xOnTcBFWVe1x3W6dSeX1cvwPYlDQTzKywi
+        tiQ4DCe3+1dXE3Cw==
+From:   "tip-bot2 for Pu Wen" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/sev: Check SME/SEV support in CPUID first
+Cc:     Pu Wen <puwen@hygon.cn>, Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        <stable@vger.kernel.org>, x86@kernel.org,
+        linux-kernel@vger.kernel.org
+In-Reply-To: <20210602070207.2480-1-puwen@hygon.cn>
+References: <20210602070207.2480-1-puwen@hygon.cn>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <YLpRCHB1R1qhBZsk@localhost>
+Message-ID: <162282616862.29796.7534384335141540012.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 04, 2021 at 09:12:56AM -0700, Josh Triplett wrote:
->Some USB Ethernet devices using the cdc_ncm driver produce several of
->these messages per second:
->
->Jun 03 19:25:17 s kernel: cdc_ncm 3-2.2:2.0 enx(mac address): 1000 mbit/s downlink 1000 mbit/s uplink
->
->This results in substantial log noise and disk usage.
->
->Please consider backporting
->net: usb: cdc_ncm: don't spew notifications
->(git commit de658a195ee23ca6aaffe197d1d2ea040beea0a2)
->to the 5.10.x stable kernel, to fix this problem.
+The following commit has been merged into the x86/urgent branch of tip:
 
-Queued up, thanks!
+Commit-ID:     009767dbf42ac0dbe3cf48c1ee224f6b778aa85a
+Gitweb:        https://git.kernel.org/tip/009767dbf42ac0dbe3cf48c1ee224f6b778aa85a
+Author:        Pu Wen <puwen@hygon.cn>
+AuthorDate:    Wed, 02 Jun 2021 15:02:07 +08:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Fri, 04 Jun 2021 18:39:09 +02:00
 
--- 
-Thanks,
-Sasha
+x86/sev: Check SME/SEV support in CPUID first
+
+The first two bits of the CPUID leaf 0x8000001F EAX indicate whether SEV
+or SME is supported, respectively. It's better to check whether SEV or
+SME is actually supported before accessing the MSR_AMD64_SEV to check
+whether SEV or SME is enabled.
+
+This is both a bare-metal issue and a guest/VM issue. Since the first
+generation Hygon Dhyana CPU doesn't support the MSR_AMD64_SEV, reading that
+MSR results in a #GP - either directly from hardware in the bare-metal
+case or via the hypervisor (because the RDMSR is actually intercepted)
+in the guest/VM case, resulting in a failed boot. And since this is very
+early in the boot phase, rdmsrl_safe()/native_read_msr_safe() can't be
+used.
+
+So check the CPUID bits first, before accessing the MSR.
+
+ [ tlendacky: Expand and improve commit message. ]
+ [ bp: Massage commit message. ]
+
+Fixes: eab696d8e8b9 ("x86/sev: Do not require Hypervisor CPUID bit for SEV guests")
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org> # v5.10+
+Link: https://lkml.kernel.org/r/20210602070207.2480-1-puwen@hygon.cn
+---
+ arch/x86/mm/mem_encrypt_identity.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/arch/x86/mm/mem_encrypt_identity.c b/arch/x86/mm/mem_encrypt_identity.c
+index a9639f6..470b202 100644
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -504,10 +504,6 @@ void __init sme_enable(struct boot_params *bp)
+ #define AMD_SME_BIT	BIT(0)
+ #define AMD_SEV_BIT	BIT(1)
+ 
+-	/* Check the SEV MSR whether SEV or SME is enabled */
+-	sev_status   = __rdmsr(MSR_AMD64_SEV);
+-	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
+-
+ 	/*
+ 	 * Check for the SME/SEV feature:
+ 	 *   CPUID Fn8000_001F[EAX]
+@@ -519,11 +515,16 @@ void __init sme_enable(struct boot_params *bp)
+ 	eax = 0x8000001f;
+ 	ecx = 0;
+ 	native_cpuid(&eax, &ebx, &ecx, &edx);
+-	if (!(eax & feature_mask))
++	/* Check whether SEV or SME is supported */
++	if (!(eax & (AMD_SEV_BIT | AMD_SME_BIT)))
+ 		return;
+ 
+ 	me_mask = 1UL << (ebx & 0x3f);
+ 
++	/* Check the SEV MSR whether SEV or SME is enabled */
++	sev_status   = __rdmsr(MSR_AMD64_SEV);
++	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
++
+ 	/* Check if memory encryption is enabled */
+ 	if (feature_mask == AMD_SME_BIT) {
+ 		/*
