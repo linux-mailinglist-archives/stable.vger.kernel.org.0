@@ -2,229 +2,134 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 17FB939AFF5
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 03:37:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 143FB39B00D
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 03:53:34 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229907AbhFDBjh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 3 Jun 2021 21:39:37 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48908 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229758AbhFDBjg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 21:39:36 -0400
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F991C06174A
-        for <stable@vger.kernel.org>; Thu,  3 Jun 2021 18:37:51 -0700 (PDT)
-Received: by mail-pf1-x431.google.com with SMTP id f22so6346052pfn.0
-        for <stable@vger.kernel.org>; Thu, 03 Jun 2021 18:37:51 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=ZsGwYKdfyF6Vtxs0Ir51F3Iln/eNN8XJenh8Af2QhO4=;
-        b=YBCtoA3Emfyso+alZnnpPZUW+bFnEbE5YMxEwPAR5Bslx0jMFesssAQuNOhWZRiU5x
-         BVHfkk71rK98STzlWK7eVqCFrjqdhnd4G3OJ7XgIXgsCIPbZZuWoGiz6/P8YKFXzXsq8
-         A2Ude/557B9xGz4trpyu1B9Luk4XG9xH1wcEmydMgJsyZHPmn0m8GehtxV4h5yaXMfC4
-         P0y5e9iguVD+3w6C6UKbTX4+Tw8efNvOXx+H3e+6BhZHBRKY9UooYcCBQKqzrPLGqebq
-         TF7dTD4HDbhmxFEpRwiyHIJSzNEl2WkkmduQuViLmTbeIrO2tq/o8ocM8i6wykIBtTvB
-         06Bg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=ZsGwYKdfyF6Vtxs0Ir51F3Iln/eNN8XJenh8Af2QhO4=;
-        b=hqTwc74iWQ3OF7F3f6f8kMVMnah9U24gqOL4k6G+3odVMvT2+WSVHKcDHsUlHti7B7
-         MtjNQTkNhsR4/hJROCYSb8YnYJkNYKzfWyMYQBU8d7boRFnMVedyQwxdHRTmKSES5wQI
-         WxUd42mwzdgpGyN3ZabRBJHRKe5VLwCMjHVr2qaT+y2Ftehzy5b6Y7GkgGbbwyp5hjxU
-         Hz9TMl4Cf192v9fEqwuNRrhBKm7/dbliBI90JedyImSnt2BWVBFcDr4cpEnQYjTOcfi8
-         btC61/j8rw3R7vfcQPRfPXrtuHBCbqy0Fdbsh3m4MmZQGG1lHfnh1UYz8tZzrB/fvh8y
-         qJ+A==
-X-Gm-Message-State: AOAM531m6hX+6iGAa4I1dVoGb1VNoc22mpB5cnzkJZpa4z0RU+kEpCtJ
-        948EknW8gcba6L9msOswEiYHPbsAmQRoOw==
-X-Google-Smtp-Source: ABdhPJxhBLxUpjTq2nSKtSxKbL0IfX+rq3A7P7rbYOVHSEBd1VbqweoJ3eAn2ebddv6Z5VNq357ogA==
-X-Received: by 2002:a63:f341:: with SMTP id t1mr2398081pgj.260.1622770670249;
-        Thu, 03 Jun 2021 18:37:50 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id l3sm289383pgb.77.2021.06.03.18.37.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 03 Jun 2021 18:37:49 -0700 (PDT)
-Message-ID: <60b983ed.1c69fb81.3af06.1dee@mx.google.com>
-Date:   Thu, 03 Jun 2021 18:37:49 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S230039AbhFDBzS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 3 Jun 2021 21:55:18 -0400
+Received: from us-smtp-delivery-124.mimecast.com ([216.205.24.124]:55291 "EHLO
+        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230025AbhFDBzR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 3 Jun 2021 21:55:17 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1622771612;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=vqFUmniCC488GUpp4xBAu68FfZpCcKh9+CsQQqre8x4=;
+        b=Z5OELY6q6sRMO8EWcOxVcLTipq7ubdhzwyIAN6/+jwjQnrBczC+8/L9MuEkGy01fGjazNc
+        oWjN7fGjJZwzimjGHSK9Npf5MDv9pfZsj6kPRAztGv955zAc/Epzng5RNwD+qQh3MR8H8J
+        A89m2zRFuPVJkcVcHbXPHZ5Ijbh0ByI=
+Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
+ [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
+ us-mta-5-J9nU4BbfOg6zaCj2GQz7qw-1; Thu, 03 Jun 2021 21:53:30 -0400
+X-MC-Unique: J9nU4BbfOg6zaCj2GQz7qw-1
+Received: from smtp.corp.redhat.com (int-mx02.intmail.prod.int.phx2.redhat.com [10.5.11.12])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 357EE3FD4;
+        Fri,  4 Jun 2021 01:53:28 +0000 (UTC)
+Received: from T590 (ovpn-12-139.pek2.redhat.com [10.72.12.139])
+        by smtp.corp.redhat.com (Postfix) with ESMTPS id 5276460C17;
+        Fri,  4 Jun 2021 01:53:18 +0000 (UTC)
+Date:   Fri, 4 Jun 2021 09:53:15 +0800
+From:   Ming Lei <ming.lei@redhat.com>
+To:     longli@linuxonhyperv.com
+Cc:     linux-block@vger.kernel.org, Long Li <longli@microsoft.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Tejun Heo <tj@kernel.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Jeffle Xu <jefflexu@linux.alibaba.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH] block: return the correct bvec when checking for gaps
+Message-ID: <YLmHi27PT5LAwJji@T590>
+References: <1622759671-14059-1-git-send-email-longli@linuxonhyperv.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.4.124
-X-Kernelci-Branch: linux-5.4.y
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.4.y baseline: 104 runs, 4 regressions (v5.4.124)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1622759671-14059-1-git-send-email-longli@linuxonhyperv.com>
+X-Scanned-By: MIMEDefang 2.79 on 10.5.11.12
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.4.y baseline: 104 runs, 4 regressions (v5.4.124)
+Hello Long,
 
-Regressions Summary
--------------------
+On Thu, Jun 03, 2021 at 03:34:31PM -0700, longli@linuxonhyperv.com wrote:
+> From: Long Li <longli@microsoft.com>
+> 
+> After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
+> have multiple pages. But bio_will_gap() still assumes one page bvec while
+> checking for merging. This causes data corruption on drivers relying on
+> the correct merging on virt_boundary_mask.
 
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
+Can you explain the data corruption a bit? 
 
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+IMO, either single page bvec or multipage bvec should be fine, because
+bio_will_gap() just checks if the last bvec of prev bio and the 1st bvec
+of next bio can be merged.
 
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
+> 
+> Fix this by returning the multi-page bvec for testing gaps for merging.
+> 
+> Cc: Jens Axboe <axboe@kernel.dk>
+> Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+> Cc: Pavel Begunkov <asml.silence@gmail.com>
+> Cc: Ming Lei <ming.lei@redhat.com>
+> Cc: Tejun Heo <tj@kernel.org>
+> Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
+> Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
+> Cc: linux-kernel@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Fixes: 07173c3ec276 ("block: enable multipage bvecs")
+> Signed-off-by: Long Li <longli@microsoft.com>
+> ---
+>  include/linux/bio.h | 11 ++++-------
+>  1 file changed, 4 insertions(+), 7 deletions(-)
+> 
+> diff --git a/include/linux/bio.h b/include/linux/bio.h
+> index a0b4cfdf62a4..6b2f609ccfbf 100644
+> --- a/include/linux/bio.h
+> +++ b/include/linux/bio.h
+> @@ -44,9 +44,6 @@ static inline unsigned int bio_max_segs(unsigned int nr_segs)
+>  #define bio_offset(bio)		bio_iter_offset((bio), (bio)->bi_iter)
+>  #define bio_iovec(bio)		bio_iter_iovec((bio), (bio)->bi_iter)
+>  
+> -#define bio_multiple_segments(bio)				\
+> -	((bio)->bi_iter.bi_size != bio_iovec(bio).bv_len)
+> -
+>  #define bvec_iter_sectors(iter)	((iter).bi_size >> 9)
+>  #define bvec_iter_end_sector(iter) ((iter).bi_sector + bvec_iter_sectors((iter)))
+>  
+> @@ -271,7 +268,7 @@ static inline void bio_clear_flag(struct bio *bio, unsigned int bit)
+>  
+>  static inline void bio_get_first_bvec(struct bio *bio, struct bio_vec *bv)
+>  {
+> -	*bv = bio_iovec(bio);
+> +	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+>  }
+>  
+>  static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+> @@ -279,10 +276,10 @@ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
+>  	struct bvec_iter iter = bio->bi_iter;
+>  	int idx;
+>  
+> -	if (unlikely(!bio_multiple_segments(bio))) {
+> -		*bv = bio_iovec(bio);
+> +	/* this bio has only one bvec */
+> +	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
+> +	if (bv->bv_len == bio->bi_iter.bi_size)
+>  		return;
+> -	}
+>  
+>  	bio_advance_iter(bio, &iter, iter.bi_size);
 
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.4.y/kern=
-el/v5.4.124/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.4.y
-  Describe: v5.4.124
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      70154d2f82a9058e8316b6e106071c72fcc58718 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-hifive-unleashed-a00 | riscv | lab-baylibre | gcc-8    | defconfig         =
-  | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b94bc65d990e3760b3af97
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-8 (riscv64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/riscv/defconfig/gcc-8/lab-baylibre/baseline-hifive-unleashed-a00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/riscv/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b94bc65d990e3760b3a=
-f98
-        failing since 195 days (last pass: v5.4.77-152-ga3746663c3479, firs=
-t fail: v5.4.78) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-baylibre | gcc-8    | versatile_defconfi=
-g | 1          =
+The patch itself looks fine, given both bio_get_first_bvec() and bio_get_last_bvec()
+are used in bio_will_gap() only.
 
 
-  Details:     https://kernelci.org/test/plan/id/60b9494124f0b3aaeab3afa0
+Thanks,
+Ming
 
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.t=
-xt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-baylibre/baseline-qemu_arm-versatilepb.h=
-tml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b9494124f0b3aaeab3a=
-fa1
-        failing since 201 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-broonie  | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b9494d20dc60c1a7b3af9f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-broonie/baseline-qemu_arm-versatilepb.ht=
-ml
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b9494d20dc60c1a7b3a=
-fa0
-        failing since 201 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =
-
-
-
-platform             | arch  | lab          | compiler | defconfig         =
-  | regressions
----------------------+-------+--------------+----------+-------------------=
---+------------
-qemu_arm-versatilepb | arm   | lab-cip      | gcc-8    | versatile_defconfi=
-g | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60b9493b1e3c138a31b3afcb
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: versatile_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.4.y/v5.4.124=
-/arm/versatile_defconfig/gcc-8/lab-cip/baseline-qemu_arm-versatilepb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60b9493b1e3c138a31b3a=
-fcc
-        failing since 201 days (last pass: v5.4.77-44-g28fe0e171c204, first=
- fail: v5.4.77-46-ga3e34830d912) =
-
- =20
