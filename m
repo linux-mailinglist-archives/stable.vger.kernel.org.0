@@ -2,132 +2,181 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C435739B641
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 11:54:59 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 923D839B666
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 12:01:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbhFDJ4n (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 05:56:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:46586 "EHLO mail.kernel.org"
+        id S229665AbhFDKDn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 06:03:43 -0400
+Received: from mga02.intel.com ([134.134.136.20]:24877 "EHLO mga02.intel.com"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229930AbhFDJ4n (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 05:56:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96D516140C;
-        Fri,  4 Jun 2021 09:54:54 +0000 (UTC)
-Date:   Fri, 4 Jun 2021 11:54:51 +0200
-From:   Christian Brauner <christian.brauner@ubuntu.com>
-To:     Cong Wang <xiyou.wangcong@gmail.com>
-Cc:     Jakub Kicinski <kuba@kernel.org>,
-        Changbin Du <changbin.du@gmail.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        "David S. Miller" <davem@davemloft.net>,
-        Linux Kernel Network Developers <netdev@vger.kernel.org>,
-        LKML <linux-kernel@vger.kernel.org>,
-        linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-        stable <stable@vger.kernel.org>,
-        David Laight <David.Laight@aculab.com>
-Subject: Re: [PATCH] nsfs: fix oops when ns->ops is not provided
-Message-ID: <20210604095451.nkfgpsibm5nrqt3f@wittgenstein>
-References: <20210531153410.93150-1-changbin.du@gmail.com>
- <20210531220128.26c0cb36@kicinski-fedora-PC1C0HJN.hsd1.ca.comcast.net>
- <CAM_iQpUEjBDK44=mD5shkmmoDYhmHQaSZtR34rLRkgd9wSWiQQ@mail.gmail.com>
- <20210602091451.kbdul6nhobilwqvi@wittgenstein>
- <CAM_iQpUqgeoY_mA6cazUPCWwMK6yw9SaD6DRg-Ja4r6r_zOmLg@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CAM_iQpUqgeoY_mA6cazUPCWwMK6yw9SaD6DRg-Ja4r6r_zOmLg@mail.gmail.com>
+        id S229625AbhFDKDn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Jun 2021 06:03:43 -0400
+IronPort-SDR: 6g3tB455rGEcJBEnVVQTACn+ADSclwur1OWNA7zU2kvByGRBSP57XWgZ1emMaFRGpZG3ySbitC
+ IPgzVufW39Ww==
+X-IronPort-AV: E=McAfee;i="6200,9189,10004"; a="191371158"
+X-IronPort-AV: E=Sophos;i="5.83,248,1616482800"; 
+   d="scan'208";a="191371158"
+Received: from orsmga006.jf.intel.com ([10.7.209.51])
+  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2021 03:01:57 -0700
+IronPort-SDR: ymoh7XPXJRQYnN+ekf2jXA2Qqd4/RZZG5B49xYJOwRD8QTLhqr/mINRMsGv5GGiirF9gk6wPtz
+ i9YyquQecE2w==
+X-IronPort-AV: E=Sophos;i="5.83,248,1616482800"; 
+   d="scan'208";a="400913822"
+Received: from tsengwil-desk1.itwn.intel.com (HELO gar) ([10.5.224.21])
+  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2021 03:01:55 -0700
+From:   William Tseng <william.tseng@intel.com>
+To:     william.tseng@intel.com
+Cc:     Imre Deak <imre.deak@intel.com>, stable@vger.kernel.org
+Subject: [PATCH 1/2] drm/i915: Reenable LTTPR non-transparent LT mode for DPCD_REV<1.4
+Date:   Fri,  4 Jun 2021 18:01:50 +0800
+Message-Id: <20210604100150.806-1-william.tseng@intel.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jun 03, 2021 at 03:52:29PM -0700, Cong Wang wrote:
-> On Wed, Jun 2, 2021 at 2:14 AM Christian Brauner
-> <christian.brauner@ubuntu.com> wrote:
-> > But the point is that ns->ops should never be accessed when that
-> > namespace type is disabled. Or in other words, the bug is that something
-> > in netns makes use of namespace features when they are disabled. If we
-> > handle ->ops being NULL we might be tapering over a real bug somewhere.
-> 
-> It is merely a protocol between fs/nsfs.c and other namespace users,
-> so there is certainly no right or wrong here, the only question is which
-> one is better.
-> 
-> >
-> > Jakub's proposal in the other mail makes sense and falls in line with
-> > how the rest of the netns getters are implemented. For example
-> > get_net_ns_fd_fd():
-> 
-> It does not make any sense to me. get_net_ns() merely increases
-> the netns refcount, which is certainly fine for init_net too, no matter
-> CONFIG_NET_NS is enabled or disabled. Returning EOPNOTSUPP
-> there is literally saying we do not support increasing init_net refcount,
-> which is of course false.
-> 
-> > struct net *get_net_ns_by_fd(int fd)
-> > {
-> >         return ERR_PTR(-EINVAL);
-> > }
-> 
-> There is a huge difference between just increasing netns refcount
-> and retrieving it by fd, right? I have no idea why you bring this up,
-> calling them getters is missing their difference.
+From: Imre Deak <imre.deak@intel.com>
 
-This argument doesn't hold up. All netns helpers ultimately increase the
-reference count of the net namespace they find. And if any of them
-perform operations where they are called in environments wherey they
-need CONFIG_NET_NS they handle this case at compile time.
+The driver currently disables the LTTPR non-transparent link training
+mode for sinks with a DPCD_REV<1.4, based on the following description
+of the LTTPR DPCD register range in DP standard 2.0 (at the 0xF0000
+register description):
 
-(Pluse they are defined in a central place in net/net_namespace.{c,h}.
-That includes the low-level get_net() function and all the others.
-get_net_ns() is the only one that's defined out of band. So get_net_ns()
-currently is arguably also misplaced.)
+""
+LTTPR-related registers at DPCD Addresses F0000h through F02FFh are valid
+only for DPCD r1.4 (or higher).
+"""
 
-The problem I have with fixing this in nsfs is that it gives the
-impression that this is a bug in nsfs whereas it isn't and it
-potentially helps tapering over other bugs.
+The transparent link training mode should still work fine, however the
+implementation for this in some retimer FWs seems to be broken, see the
+References: link below.
 
-get_net_ns() is only called for codepaths that call into nsfs via
-open_related_ns() and it's the only namespace that does this. But
-open_related_ns() is only well defined if CONFIG_<NAMESPACE_TYPE> is
-set. For example, none of the procfs namespace f_ops will be set for
-!CONFIG_NET_NS. So clearly the socket specific getter here is buggy as
-it doesn't account for !CONFIG_NET_NS and it should be fixed.
+After discussions with DP standard authors the above "DPCD r1.4" does
+not refer to the DPCD revision (stored in the DPCD_REV reg at 0x00000),
+rather to the "LTTPR field data structure revision" stored in the
+0xF0000 reg. An update request has been filed at vesa.org (see
+wg/Link/documentComment/3746) for the upcoming v2.1 specification to
+clarify the above description along the following lines:
 
-Plus your fix leaks references to init netns without fixing get_net_ns()
-too.
-You succeed to increase the refcount of init netns in get_net_ns() but
-then you return in __ns_get_path() because ns->ops aren't set before
-ns->ops->put() can be called.  But you also _can't_ call it since it's
-not set because !CONFIG_NET_NS. So everytime you call any of those
-ioctls you increas the refcount of init net ns without decrementing it
-on failure. So the fix is buggy as it is too and would suggest you to
-fixup get_net_ns() too.
+"""
+LTTPR-related registers at DPCD Addresses F0000h through F02FFh are
+valid only for LT_TUNABLE_PHY_REPEATER_FIELD_DATA_STRUCTURE_REV 1.4 (or
+higher)
+"""
 
-Cc: <stable@vger.kernel.org>
-Cc: Cong Wang <xiyou.wangcong@gmail.com>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: David Laight <David.Laight@ACULAB.COM>
-Signed-off-by: Changbin Du <changbin.du@gmail.com>
+Based on my tests Windows uses the non-transparent link training mode
+for DPCD_REV==1.2 sinks as well (so presumably for all DPCD_REVs), and
+forcing it to use transparent mode on ICL/TGL platforms leads to the
+same LT failure as reported at the References: link.
+
+Based on the above let's assume that the transparent link training mode
+is not well tested/supported and align the code to the correct
+interpretation of what the r1.4 version refers to.
+
+References: https://gitlab.freedesktop.org/drm/intel/-/issues/3415
+Fixes: 264613b406eb ("drm/i915: Disable LTTPR support when the DPCD rev < 1.4")
+Cc: <stable@vger.kernel.org> # v5.11+
+Signed-off-by: Imre Deak <imre.deak@intel.com>
+Tested-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
+Reviewed-by: Khaled Almahallawy <khaled.almahallawy@intel.com>
 ---
- fs/nsfs.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ .../drm/i915/display/intel_dp_link_training.c | 71 +++++++++----------
+ 1 file changed, 33 insertions(+), 38 deletions(-)
 
-diff --git a/fs/nsfs.c b/fs/nsfs.c
-index 800c1d0eb0d0..6c055eb7757b 100644
---- a/fs/nsfs.c
-+++ b/fs/nsfs.c
-@@ -62,6 +62,10 @@ static int __ns_get_path(struct path *path, struct ns_common *ns)
- 	struct inode *inode;
- 	unsigned long d;
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_link_training.c b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+index 02a003fd48fb..50cae0198a3d 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_link_training.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_link_training.c
+@@ -128,49 +128,13 @@ intel_dp_set_lttpr_transparent_mode(struct intel_dp *intel_dp, bool enable)
+ 	return drm_dp_dpcd_write(&intel_dp->aux, DP_PHY_REPEATER_MODE, &val, 1) == 1;
+ }
  
-+	/* In case the namespace is not actually enabled. */
-+	if (!ns->ops)
-+		return -EOPNOTSUPP;
+-/**
+- * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
+- * @intel_dp: Intel DP struct
+- *
+- * Read the LTTPR common and DPRX capabilities and switch to non-transparent
+- * link training mode if any is detected and read the PHY capabilities for all
+- * detected LTTPRs. In case of an LTTPR detection error or if the number of
+- * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
+- * transparent mode link training mode.
+- *
+- * Returns:
+- *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
+- *       DPRX capabilities are read out.
+- *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
+- *       detection failure and the transparent LT mode was set. The DPRX
+- *       capabilities are read out.
+- *   <0  Reading out the DPRX capabilities failed.
+- */
+-int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
++static int intel_dp_init_lttpr(struct intel_dp *intel_dp)
+ {
+ 	int lttpr_count;
+-	bool ret;
+ 	int i;
+ 
+-	ret = intel_dp_read_lttpr_common_caps(intel_dp);
+-
+-	/* The DPTX shall read the DPRX caps after LTTPR detection. */
+-	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
+-		intel_dp_reset_lttpr_common_caps(intel_dp);
+-		return -EIO;
+-	}
+-
+-	if (!ret)
+-		return 0;
+-
+-	/*
+-	 * The 0xF0000-0xF02FF range is only valid if the DPCD revision is
+-	 * at least 1.4.
+-	 */
+-	if (intel_dp->dpcd[DP_DPCD_REV] < 0x14) {
+-		intel_dp_reset_lttpr_common_caps(intel_dp);
++	if (!intel_dp_read_lttpr_common_caps(intel_dp))
+ 		return 0;
+-	}
+ 
+ 	lttpr_count = drm_dp_lttpr_count(intel_dp->lttpr_common_caps);
+ 	/*
+@@ -211,6 +175,37 @@ int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
+ 
+ 	return lttpr_count;
+ }
 +
- 	rcu_read_lock();
- 	d = atomic_long_read(&ns->stashed);
- 	if (!d)
++/**
++ * intel_dp_init_lttpr_and_dprx_caps - detect LTTPR and DPRX caps, init the LTTPR link training mode
++ * @intel_dp: Intel DP struct
++ *
++ * Read the LTTPR common and DPRX capabilities and switch to non-transparent
++ * link training mode if any is detected and read the PHY capabilities for all
++ * detected LTTPRs. In case of an LTTPR detection error or if the number of
++ * LTTPRs is more than is supported (8), fall back to the no-LTTPR,
++ * transparent mode link training mode.
++ *
++ * Returns:
++ *   >0  if LTTPRs were detected and the non-transparent LT mode was set. The
++ *       DPRX capabilities are read out.
++ *    0  if no LTTPRs or more than 8 LTTPRs were detected or in case of a
++ *       detection failure and the transparent LT mode was set. The DPRX
++ *       capabilities are read out.
++ *   <0  Reading out the DPRX capabilities failed.
++ */
++int intel_dp_init_lttpr_and_dprx_caps(struct intel_dp *intel_dp)
++{
++	int lttpr_count = intel_dp_init_lttpr(intel_dp);
++
++	/* The DPTX shall read the DPRX caps after LTTPR detection. */
++	if (drm_dp_read_dpcd_caps(&intel_dp->aux, intel_dp->dpcd)) {
++		intel_dp_reset_lttpr_common_caps(intel_dp);
++		return -EIO;
++	}
++
++	return lttpr_count;
++}
+ EXPORT_SYMBOL(intel_dp_init_lttpr_and_dprx_caps);
+ 
+ static u8 dp_voltage_max(u8 preemph)
 -- 
-2.30.2
-
+2.17.1
 
