@@ -2,75 +2,92 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0F3ED39B27A
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 08:20:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 561B539B265
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 08:11:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbhFDGWG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 02:22:06 -0400
-Received: from www.linuxtv.org ([130.149.80.248]:43740 "EHLO www.linuxtv.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229871AbhFDGWG (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 02:22:06 -0400
-Received: from mchehab by www.linuxtv.org with local (Exim 4.92)
-        (envelope-from <mchehab@linuxtv.org>)
-        id 1lp3Bq-001NUH-BA; Fri, 04 Jun 2021 06:20:18 +0000
-From:   Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Date:   Wed, 02 Jun 2021 12:15:42 +0000
-Subject: [git:media_tree/master] media: rtl28xxu: fix zero-length control request
-To:     linuxtv-commits@linuxtv.org
-Cc:     Johan Hovold <johan@kernel.org>,
-        Hans Verkuil <hverkuil-cisco@xs4all.nl>,
-        stable@vger.kernel.org, Antti Palosaari <crope@iki.fi>
-Mail-followup-to: linux-media@vger.kernel.org
-Forward-to: linux-media@vger.kernel.org
-Reply-to: linux-media@vger.kernel.org
-Message-Id: <E1lp3Bq-001NUH-BA@www.linuxtv.org>
+        id S229820AbhFDGNX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 02:13:23 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:3420 "EHLO
+        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229828AbhFDGNX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 02:13:23 -0400
+Received: from dggemv704-chm.china.huawei.com (unknown [172.30.72.54])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4FxC4g2QPcz6vFD;
+        Fri,  4 Jun 2021 14:08:35 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv704-chm.china.huawei.com (10.3.19.47) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Fri, 4 Jun 2021 14:11:31 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Fri, 4 Jun 2021 14:11:30 +0800
+Subject: Re: Linux 4.19.193
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
+        <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
+CC:     <lwn@lwn.net>, <jslaby@suse.cz>
+References: <16227067365774@kroah.com>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <870e22ed-4a24-4f27-8eb8-a68251f5874c@huawei.com>
+Date:   Fri, 4 Jun 2021 14:11:30 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
+MIME-Version: 1.0
+In-Reply-To: <16227067365774@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is an automatic generated email to let you know that the following patch were queued:
 
-Subject: media: rtl28xxu: fix zero-length control request
-Author:  Johan Hovold <johan@kernel.org>
-Date:    Mon May 24 13:09:20 2021 +0200
 
-The direction of the pipe argument must match the request-type direction
-bit or control requests may fail depending on the host-controller-driver
-implementation.
+On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 4.19.193 kernel.
+> 
+> All users of the 4.19 kernel series must upgrade.
+> 
+> The updated 4.19.y git tree can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.19.y
+> and can be browsed at the normal kernel.org git web browser:
+> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-Control transfers without a data stage are treated as OUT requests by
-the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-will now trigger a warning.
+Tested on arm64 and x86 for 4.19.193,
 
-Fix the zero-length i2c-read request used for type detection by
-attempting to read a single byte instead.
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.19.y
+Version: 4.19.193
+Commit: 1722257b8ececec9b3b83a8b14058f8209d78071
+Compiler: gcc version 7.3.0 (GCC)
 
-Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-Cc: stable@vger.kernel.org      # 4.0
-Cc: Antti Palosaari <crope@iki.fi>
-Signed-off-by: Johan Hovold <johan@kernel.org>
-Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
-Signed-off-by: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+arm64:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8860
+passed: 8860
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
- drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8860
+passed: 8860
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
 
----
-
-diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-index 97ed17a141bb..2c04ed8af0e4 100644
---- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-+++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-@@ -612,8 +612,9 @@ static int rtl28xxu_read_config(struct dvb_usb_device *d)
- static int rtl28xxu_identify_state(struct dvb_usb_device *d, const char **name)
- {
- 	struct rtl28xxu_dev *dev = d_to_priv(d);
-+	u8 buf[1];
- 	int ret;
--	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 0, NULL};
-+	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 1, buf};
- 
- 	dev_dbg(&d->intf->dev, "\n");
- 
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
