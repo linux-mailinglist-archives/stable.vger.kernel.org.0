@@ -2,92 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B2F539BB2A
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 16:50:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4900639BB89
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 17:18:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229746AbhFDOwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 10:52:23 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52362 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229656AbhFDOwW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 10:52:22 -0400
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04572C061766;
-        Fri,  4 Jun 2021 07:50:24 -0700 (PDT)
-Received: by mail-ed1-x535.google.com with SMTP id dg27so11441476edb.12;
-        Fri, 04 Jun 2021 07:50:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=xuXiDAxhAZDGHBzn5BFz4xCVwXnNVv/swPLkGGY77mU=;
-        b=uFa3UKYFOGj5009UV5wo9FWfXWffDwz+02fGOiPUvhY1yFZBIVXPjuNZ8z41ruWtWj
-         i7skt9SV0yR9jMjN7+GIerfNedULwy0mMkvV+ISNNQYZx3FCnuxBBcx4wHym0wTFTZ2k
-         7naZZjIvQBOjBexYb0MIjef9C4futlC3tWrUVyvMLgHq+oL+emrJIvCHA4+MeF1U6mjz
-         R1tYWDHgAHVB4jGynA3GQc3TVE9dSyo2+oPONmsImsffXOVO5rGx9APuv8adtqjJGLsn
-         CPnEIR/B9tR/UGNBF2mkXAx+JwC74C+faww+VMwh3au/yBdBdYnRfxVB+cThVSKcRbI+
-         oj1A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=xuXiDAxhAZDGHBzn5BFz4xCVwXnNVv/swPLkGGY77mU=;
-        b=Q96p660VSdNLTPAXfUacmnYawWXBYDsLhstD0Pn/sQYF0GaFZhdNx5cWO7/hurBXtX
-         642Fww5Bil5wTvV8z8oR71V5Kx8r4VLVqk3ZfQgpRlMCNoHGQ7xgEOuV2ez5pihgretI
-         lAkaBRbNJ7Uqp/trlXX/aiM3sUbgJh41Ed/DCu4+A5PmXYtMrHVYeRbXobKpHPSY4Zfp
-         fOwh35fSc7sDzsRPOHTeyA33tvFSYOJ8W6oMYDDHXsWKY7WBqEkFdOnuB8biJduLpZf+
-         O7ZlTx0ERUO8v9TmNcNQeQuXhvawMu4CnjSh/l9XGJNZzM88e9hC64Y1gZV0Gkzu7flU
-         Njwg==
-X-Gm-Message-State: AOAM531jgUY7KejemPqNDeoV6hGk95jaUJVvzf1jlPnYP0iEChgK3R5U
-        /i1I3Bps+2kR3Ars51MlmB1FSRr3Zps=
-X-Google-Smtp-Source: ABdhPJxof6EkPq0yVWQzf/8gqpaiZgHpxdSYB2zAUkso2RpOh0aBJW8C82ZET03mK1E1Mi4RP79chA==
-X-Received: by 2002:aa7:c782:: with SMTP id n2mr5053351eds.77.1622818222268;
-        Fri, 04 Jun 2021 07:50:22 -0700 (PDT)
-Received: from [192.168.178.194] ([171.33.179.232])
-        by smtp.gmail.com with ESMTPSA id q26sm2869954ejc.3.2021.06.04.07.50.21
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 04 Jun 2021 07:50:21 -0700 (PDT)
-Subject: Re: Backporting fix for #199981 to 4.19.y?
-To:     stable@vger.kernel.org
-Cc:     linux-kernel@vger.kernel.org
-References: <c75fcd12-e661-bc03-e077-077799ef1c44@gmail.com>
- <YLiNrCFFGEmltssD@kroah.com> <5399984e-0860-170e-377e-1f4bf3ccb3a0@gmail.com>
- <YLiel5ZEcq+mlshL@kroah.com>
-From:   =?UTF-8?Q?Lauren=c8=9biu_P=c4=83ncescu?= <lpancescu@gmail.com>
-Message-ID: <addc193a-5b19-f7f3-5f26-cdce643cd436@gmail.com>
-Date:   Fri, 4 Jun 2021 16:50:19 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.10.0
+        id S230105AbhFDPTq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 11:19:46 -0400
+Received: from mail.zx2c4.com ([104.131.123.232]:54916 "EHLO mail.zx2c4.com"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229822AbhFDPTp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Jun 2021 11:19:45 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=zx2c4.com; s=20210105;
+        t=1622819875;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=yBKFhxPsXa9fMNRa2Z76DvOFp9cyO77PK+EqAtHPkcI=;
+        b=D7ylREqfEpWAWkunLfhUCnnZHyqZ6G9xnBmi+6goAPQWnlc3hJaEY+EbLZl7PTEBrGrlRD
+        sQJERMBUmNwxj3Fw/n9xnwzPBqhkLfbZLlyyhNwXiQhZQo07Fsxc/Qq2bYHl/hLCCqRdzi
+        pbsYjQ8wRns1N/RuXdA4emoV0IuJtIE=
+Received: by mail.zx2c4.com (ZX2C4 Mail Server) with ESMTPSA id 38e50d81 (TLSv1.3:AEAD-AES256-GCM-SHA384:256:NO);
+        Fri, 4 Jun 2021 15:17:55 +0000 (UTC)
+From:   "Jason A. Donenfeld" <Jason@zx2c4.com>
+To:     netdev@vger.kernel.org, davem@davemloft.net, kuba@kernel.org
+Cc:     "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Rui Salvaterra <rsalvaterra@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH net 1/9] wireguard: selftests: remove old conntrack kconfig value
+Date:   Fri,  4 Jun 2021 17:17:30 +0200
+Message-Id: <20210604151738.220232-2-Jason@zx2c4.com>
+In-Reply-To: <20210604151738.220232-1-Jason@zx2c4.com>
+References: <20210604151738.220232-1-Jason@zx2c4.com>
 MIME-Version: 1.0
-In-Reply-To: <YLiel5ZEcq+mlshL@kroah.com>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Language: en-US
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On recent kernels, this config symbol is no longer used.
 
-On 6/3/21 11:19 AM, Greg KH wrote:
-> That commit does not apply cleanly and I need a backported version.  Can
-> you do that and test it to verify it works and then send it to us to be
-> applied?
+Reported-by: Rui Salvaterra <rsalvaterra@gmail.com>
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+---
+ tools/testing/selftests/wireguard/qemu/kernel.config | 1 -
+ 1 file changed, 1 deletion(-)
 
-I now have a patch against linux-4.19.y, tested on my EeePC just now: 
-the battery status and discharge rate are shown correctly.
+diff --git a/tools/testing/selftests/wireguard/qemu/kernel.config b/tools/testing/selftests/wireguard/qemu/kernel.config
+index 4eecb432a66c..74db83a0aedd 100644
+--- a/tools/testing/selftests/wireguard/qemu/kernel.config
++++ b/tools/testing/selftests/wireguard/qemu/kernel.config
+@@ -19,7 +19,6 @@ CONFIG_NETFILTER_XTABLES=y
+ CONFIG_NETFILTER_XT_NAT=y
+ CONFIG_NETFILTER_XT_MATCH_LENGTH=y
+ CONFIG_NETFILTER_XT_MARK=y
+-CONFIG_NF_CONNTRACK_IPV4=y
+ CONFIG_NF_NAT_IPV4=y
+ CONFIG_IP_NF_IPTABLES=y
+ CONFIG_IP_NF_FILTER=y
+-- 
+2.31.1
 
-I've never submitted a patch before, should I put "commit <short-hash> 
-upstream." as the first line of my commit message, followed by another 
-line stating which branch I would like this to be merged to? Should I 
-also include the original commit message of the backported commit? And 
-then use git format-patch? I just read through [1] and [2], but they 
-don't say anything specific about commit messages for backported patches.
-
-Thanks,
-Laurențiu
-
-
-[1] https://www.kernel.org/doc/html/latest/process/submitting-patches.html
-[2] https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
