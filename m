@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6415939BCB2
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 18:12:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E628239BCB6
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 18:12:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231174AbhFDQOC convert rfc822-to-8bit (ORCPT
-        <rfc822;lists+stable@lfdr.de>); Fri, 4 Jun 2021 12:14:02 -0400
-Received: from us-smtp-delivery-44.mimecast.com ([207.211.30.44]:49006 "EHLO
+        id S231229AbhFDQOF convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Fri, 4 Jun 2021 12:14:05 -0400
+Received: from us-smtp-delivery-44.mimecast.com ([205.139.111.44]:54551 "EHLO
         us-smtp-delivery-44.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229822AbhFDQOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 12:14:01 -0400
+        by vger.kernel.org with ESMTP id S231285AbhFDQOE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 12:14:04 -0400
 Received: from mimecast-mx01.redhat.com (mimecast-mx01.redhat.com
  [209.132.183.4]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-441-qyATIiLGPKW1OSiO_cFJ0g-1; Fri, 04 Jun 2021 12:12:13 -0400
-X-MC-Unique: qyATIiLGPKW1OSiO_cFJ0g-1
+ us-mta-570-R4Pyq-bqMRaU5LPdJd6bOA-1; Fri, 04 Jun 2021 12:12:16 -0400
+X-MC-Unique: R4Pyq-bqMRaU5LPdJd6bOA-1
 Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.phx2.redhat.com [10.5.11.13])
         (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id C26C5802938;
-        Fri,  4 Jun 2021 16:12:11 +0000 (UTC)
+        by mimecast-mx01.redhat.com (Postfix) with ESMTPS id 6AA31180FD6E;
+        Fri,  4 Jun 2021 16:12:15 +0000 (UTC)
 Received: from bahia.lan (ovpn-112-232.ams2.redhat.com [10.36.112.232])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 2F2F7687CE;
-        Fri,  4 Jun 2021 16:12:09 +0000 (UTC)
+        by smtp.corp.redhat.com (Postfix) with ESMTP id CA7F060D06;
+        Fri,  4 Jun 2021 16:12:13 +0000 (UTC)
 From:   Greg Kurz <groug@kaod.org>
 To:     Miklos Szeredi <miklos@szeredi.hu>
 Cc:     linux-kernel@vger.kernel.org, Max Reitz <mreitz@redhat.com>,
         linux-fsdevel@vger.kernel.org, virtio-fs@redhat.com,
         Vivek Goyal <vgoyal@redhat.com>, Greg Kurz <groug@kaod.org>,
         stable@vger.kernel.org
-Subject: [PATCH v2 1/7] fuse: Fix crash in fuse_dentry_automount() error path
-Date:   Fri,  4 Jun 2021 18:11:50 +0200
-Message-Id: <20210604161156.408496-2-groug@kaod.org>
+Subject: [PATCH v2 3/7] fuse: Fix infinite loop in sget_fc()
+Date:   Fri,  4 Jun 2021 18:11:52 +0200
+Message-Id: <20210604161156.408496-4-groug@kaod.org>
 In-Reply-To: <20210604161156.408496-1-groug@kaod.org>
 References: <20210604161156.408496-1-groug@kaod.org>
 MIME-Version: 1.0
@@ -46,56 +46,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If fuse_fill_super_submount() returns an error, the error path
-triggers a crash:
+We don't set the SB_BORN flag on submounts. This is wrong as these
+superblocks are then considered as partially constructed or dying
+in the rest of the code and can break some assumptions.
 
-[   26.206673] BUG: kernel NULL pointer dereference, address: 0000000000000000
-[...]
-[   26.226362] RIP: 0010:__list_del_entry_valid+0x25/0x90
-[...]
-[   26.247938] Call Trace:
-[   26.248300]  fuse_mount_remove+0x2c/0x70 [fuse]
-[   26.248892]  virtio_kill_sb+0x22/0x160 [virtiofs]
-[   26.249487]  deactivate_locked_super+0x36/0xa0
-[   26.250077]  fuse_dentry_automount+0x178/0x1a0 [fuse]
+One such case is when you have a virtiofs filesystem with submounts
+and you try to mount it again : virtio_fs_get_tree() tries to obtain
+a superblock with sget_fc(). The logic in sget_fc() is to loop until
+it has either found an existing matching superblock with SB_BORN set
+or to create a brand new one. It is assumed that a superblock without
+SB_BORN is transient and the loop is restarted. Forgetting to set
+SB_BORN on submounts hence causes sget_fc() to retry forever.
 
-The crash happens because fuse_mount_remove() assumes that the FUSE
-mount was already added to list under the FUSE connection, but this
-only done after fuse_fill_super_submount() has returned success.
-
-This means that until fuse_fill_super_submount() has returned success,
-the FUSE mount isn't actually owned by the superblock. We should thus
-reclaim ownership by clearing sb->s_fs_info, which will skip the call
-to fuse_mount_remove(), and perform rollback, like virtio_fs_get_tree()
-already does for the root sb.
+Setting SB_BORN requires special care, i.e. a write barrier for
+super_cache_count() which can check SB_BORN without taking any lock.
+We should call vfs_get_tree() to deal with that but this requires
+to have a proper ->get_tree() implementation for submounts, which
+is a bigger piece of work. Go for a simple bug fix in the meatime.
 
 Fixes: bf109c64040f ("fuse: implement crossmounts")
 Cc: mreitz@redhat.com
 Cc: stable@vger.kernel.org # v5.10+
 Signed-off-by: Greg Kurz <groug@kaod.org>
-Reviewed-by: Max Reitz <mreitz@redhat.com>
 ---
- fs/fuse/dir.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/fuse/dir.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
 diff --git a/fs/fuse/dir.c b/fs/fuse/dir.c
-index 1b6c001a7dd1..01559061cbfb 100644
+index 3fd1b71e546b..3fa8604c21d5 100644
 --- a/fs/fuse/dir.c
 +++ b/fs/fuse/dir.c
-@@ -339,8 +339,12 @@ static struct vfsmount *fuse_dentry_automount(struct path *path)
- 
- 	/* Initialize superblock, making @mp_fi its root */
- 	err = fuse_fill_super_submount(sb, mp_fi);
--	if (err)
-+	if (err) {
-+		fuse_conn_put(fc);
-+		kfree(fm);
-+		sb->s_fs_info = NULL;
- 		goto out_put_sb;
-+	}
+@@ -352,6 +352,17 @@ static struct vfsmount *fuse_dentry_automount(struct path *path)
  
  	sb->s_flags |= SB_ACTIVE;
  	fsc->root = dget(sb->s_root);
++
++	/*
++	 * FIXME: setting SB_BORN requires a write barrier for
++	 *        super_cache_count(). We should actually come
++	 *        up with a proper ->get_tree() implementation
++	 *        for submounts and call vfs_get_tree() to take
++	 *        care of the write barrier.
++	 */
++	smp_wmb();
++	sb->s_flags |= SB_BORN;
++
+ 	/* We are done configuring the superblock, so unlock it */
+ 	up_write(&sb->s_umount);
+ 
 -- 
 2.31.1
 
