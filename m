@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A1B8A39B764
-	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 12:59:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 09DD339B7D3
+	for <lists+stable@lfdr.de>; Fri,  4 Jun 2021 13:24:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230034AbhFDLBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 07:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47694 "EHLO mail.kernel.org"
+        id S229740AbhFDL0k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 07:26:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59054 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229667AbhFDLBa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 07:01:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5BE96141A;
-        Fri,  4 Jun 2021 10:59:43 +0000 (UTC)
+        id S230075AbhFDL0k (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Jun 2021 07:26:40 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E3F3613AC;
+        Fri,  4 Jun 2021 11:24:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1622804384;
-        bh=o82lhaRZswax0hpaFS1sqfzayPbGyWN5GvL1Xo5IOa0=;
+        s=korg; t=1622805878;
+        bh=bmLFLJFCrvDChHo70fEd9cXVhj84IgBCSocclHs7D0U=;
         h=Subject:To:From:Date:From;
-        b=0eltMSVzdTNtJSq7G13rITXkBNMr4hh3nlVVk1IQlkviCYrAHW/sAGReNfed7rUox
-         ThN2noot6iTzjSXXwNEoGTzD9XpCNXws+9wggPiSb62HKYWDUCoDG9LK4bCcmpDYZR
-         7pJ5YH0quJ7L5RfjNKbwqBnD1MjMuFJE8p36cZDo=
-Subject: patch "usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled" added to usb-linus
-To:     narmstrong@baylibre.com, gregkh@linuxfoundation.org,
-        martin.blumenstingl@googlemail.com, stable@vger.kernel.org
+        b=zqVaHrSXpJJSwXdfIv3j2oSbhyz7VuCYx58y2UbxKnvY+d2Wzb9VP//dGCWj6JnQT
+         eg/EMZjUaVk4gL7bbpyHUDLqiegx8SLmJF5UQGSf2yr7MvQAEgetHbqt0bbDcQOquY
+         mK1PTPMoFmd4cSIXSfIecN/b5zwx/YyCo5cK4cr4=
+Subject: patch "usb: typec: tcpm: Properly handle Alert and Status Messages" added to usb-linus
+To:     kyletso@google.com, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 04 Jun 2021 12:59:33 +0200
-Message-ID: <1622804373141114@kroah.com>
+Date:   Fri, 04 Jun 2021 13:24:36 +0200
+Message-ID: <162280587682131@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -36,7 +36,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled
+    usb: typec: tcpm: Properly handle Alert and Status Messages
 
 to my usb git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/usb.git
@@ -51,64 +51,131 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 4d2aa178d2ad2fb156711113790dde13e9aa2376 Mon Sep 17 00:00:00 2001
-From: Neil Armstrong <narmstrong@baylibre.com>
-Date: Tue, 1 Jun 2021 10:48:30 +0200
-Subject: usb: dwc3-meson-g12a: fix usb2 PHY glue init when phy0 is disabled
+From 063933f47a7af01650af9c4fbcc5831f1c4eb7d9 Mon Sep 17 00:00:00 2001
+From: Kyle Tso <kyletso@google.com>
+Date: Tue, 1 Jun 2021 00:49:28 +0800
+Subject: usb: typec: tcpm: Properly handle Alert and Status Messages
 
-When only PHY1 is used (for example on Odroid-HC4), the regmap init code
-uses the usb2 ports when doesn't initialize the PHY1 regmap entry.
+When receiving Alert Message, if it is not unexpected but is
+unsupported for some reason, the port should return Not_Supported
+Message response.
 
-This fixes:
-Unable to handle kernel NULL pointer dereference at virtual address 0000000000000020
-...
-pc : regmap_update_bits_base+0x40/0xa0
-lr : dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
-...
-Call trace:
-regmap_update_bits_base+0x40/0xa0
-dwc3_meson_g12a_usb2_init_phy+0x4c/0xf8
-dwc3_meson_g12a_usb2_init+0x7c/0xc8
-dwc3_meson_g12a_usb_init+0x28/0x48
-dwc3_meson_g12a_probe+0x298/0x540
-platform_probe+0x70/0xe0
-really_probe+0xf0/0x4d8
-driver_probe_device+0xfc/0x168
-...
+Also, according to PD3.0 Spec 6.5.2.1.4 Event Flags Field, the
+OTP/OVP/OCP flags in the Event Flags field in Status Message no longer
+require Get_PPS_Status Message to clear them. Thus remove it when
+receiving Status Message with those flags being set.
 
-Fixes: 013af227f58a97 ("usb: dwc3: meson-g12a: handle the phy and glue registers separately")
-Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+In addition, add the missing AMS operations for Status Message.
+
+Fixes: 64f7c494a3c0 ("typec: tcpm: Add support for sink PPS related messages")
+Fixes: 0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
+Signed-off-by: Kyle Tso <kyletso@google.com>
+Link: https://lore.kernel.org/r/20210531164928.2368606-1-kyletso@google.com
 Cc: stable <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20210601084830.260196-1-narmstrong@baylibre.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/dwc3/dwc3-meson-g12a.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/usb/typec/tcpm/tcpm.c  | 52 ++++++++++++++++++----------------
+ include/linux/usb/pd_ext_sdb.h |  4 ---
+ 2 files changed, 27 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-meson-g12a.c b/drivers/usb/dwc3/dwc3-meson-g12a.c
-index 804957525130..ffe301d6ea35 100644
---- a/drivers/usb/dwc3/dwc3-meson-g12a.c
-+++ b/drivers/usb/dwc3/dwc3-meson-g12a.c
-@@ -651,7 +651,7 @@ static int dwc3_meson_g12a_setup_regmaps(struct dwc3_meson_g12a *priv,
- 		return PTR_ERR(priv->usb_glue_regmap);
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 6161a0c1dc0e..938a1afd43ec 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -2188,20 +2188,25 @@ static void tcpm_handle_alert(struct tcpm_port *port, const __le32 *payload,
  
- 	/* Create a regmap for each USB2 PHY control register set */
--	for (i = 0; i < priv->usb2_ports; i++) {
-+	for (i = 0; i < priv->drvdata->num_phys; i++) {
- 		struct regmap_config u2p_regmap_config = {
- 			.reg_bits = 8,
- 			.val_bits = 32,
-@@ -659,6 +659,9 @@ static int dwc3_meson_g12a_setup_regmaps(struct dwc3_meson_g12a *priv,
- 			.max_register = U2P_R1,
- 		};
+ 	if (!type) {
+ 		tcpm_log(port, "Alert message received with no type");
++		tcpm_queue_message(port, PD_MSG_CTRL_NOT_SUPP);
+ 		return;
+ 	}
  
-+		if (!strstr(priv->drvdata->phy_names[i], "usb2"))
-+			continue;
-+
- 		u2p_regmap_config.name = devm_kasprintf(priv->dev, GFP_KERNEL,
- 							"u2p-%d", i);
- 		if (!u2p_regmap_config.name)
+ 	/* Just handling non-battery alerts for now */
+ 	if (!(type & USB_PD_ADO_TYPE_BATT_STATUS_CHANGE)) {
+-		switch (port->state) {
+-		case SRC_READY:
+-		case SNK_READY:
++		if (port->pwr_role == TYPEC_SOURCE) {
++			port->upcoming_state = GET_STATUS_SEND;
++			tcpm_ams_start(port, GETTING_SOURCE_SINK_STATUS);
++		} else {
++			/*
++			 * Do not check SinkTxOk here in case the Source doesn't set its Rp to
++			 * SinkTxOk in time.
++			 */
++			port->ams = GETTING_SOURCE_SINK_STATUS;
+ 			tcpm_set_state(port, GET_STATUS_SEND, 0);
+-			break;
+-		default:
+-			tcpm_queue_message(port, PD_MSG_CTRL_WAIT);
+-			break;
+ 		}
++	} else {
++		tcpm_queue_message(port, PD_MSG_CTRL_NOT_SUPP);
+ 	}
+ }
+ 
+@@ -2445,7 +2450,12 @@ static void tcpm_pd_data_request(struct tcpm_port *port,
+ 		tcpm_pd_handle_state(port, BIST_RX, BIST, 0);
+ 		break;
+ 	case PD_DATA_ALERT:
+-		tcpm_handle_alert(port, msg->payload, cnt);
++		if (port->state != SRC_READY && port->state != SNK_READY)
++			tcpm_pd_handle_state(port, port->pwr_role == TYPEC_SOURCE ?
++					     SRC_SOFT_RESET_WAIT_SNK_TX : SNK_SOFT_RESET,
++					     NONE_AMS, 0);
++		else
++			tcpm_handle_alert(port, msg->payload, cnt);
+ 		break;
+ 	case PD_DATA_BATT_STATUS:
+ 	case PD_DATA_GET_COUNTRY_INFO:
+@@ -2769,24 +2779,16 @@ static void tcpm_pd_ext_msg_request(struct tcpm_port *port,
+ 
+ 	switch (type) {
+ 	case PD_EXT_STATUS:
+-		/*
+-		 * If PPS related events raised then get PPS status to clear
+-		 * (see USB PD 3.0 Spec, 6.5.2.4)
+-		 */
+-		if (msg->ext_msg.data[USB_PD_EXT_SDB_EVENT_FLAGS] &
+-		    USB_PD_EXT_SDB_PPS_EVENTS)
+-			tcpm_pd_handle_state(port, GET_PPS_STATUS_SEND,
+-					     GETTING_SOURCE_SINK_STATUS, 0);
+-
+-		else
+-			tcpm_pd_handle_state(port, ready_state(port), NONE_AMS, 0);
+-		break;
+ 	case PD_EXT_PPS_STATUS:
+-		/*
+-		 * For now the PPS status message is used to clear events
+-		 * and nothing more.
+-		 */
+-		tcpm_pd_handle_state(port, ready_state(port), NONE_AMS, 0);
++		if (port->ams == GETTING_SOURCE_SINK_STATUS) {
++			tcpm_ams_finish(port);
++			tcpm_set_state(port, ready_state(port), 0);
++		} else {
++			/* unexpected Status or PPS_Status Message */
++			tcpm_pd_handle_state(port, port->pwr_role == TYPEC_SOURCE ?
++					     SRC_SOFT_RESET_WAIT_SNK_TX : SNK_SOFT_RESET,
++					     NONE_AMS, 0);
++		}
+ 		break;
+ 	case PD_EXT_SOURCE_CAP_EXT:
+ 	case PD_EXT_GET_BATT_CAP:
+diff --git a/include/linux/usb/pd_ext_sdb.h b/include/linux/usb/pd_ext_sdb.h
+index 0eb83ce19597..b517ebc8f0ff 100644
+--- a/include/linux/usb/pd_ext_sdb.h
++++ b/include/linux/usb/pd_ext_sdb.h
+@@ -24,8 +24,4 @@ enum usb_pd_ext_sdb_fields {
+ #define USB_PD_EXT_SDB_EVENT_OVP		BIT(3)
+ #define USB_PD_EXT_SDB_EVENT_CF_CV_MODE		BIT(4)
+ 
+-#define USB_PD_EXT_SDB_PPS_EVENTS	(USB_PD_EXT_SDB_EVENT_OCP |	\
+-					 USB_PD_EXT_SDB_EVENT_OTP |	\
+-					 USB_PD_EXT_SDB_EVENT_OVP)
+-
+ #endif /* __LINUX_USB_PD_EXT_SDB_H */
 -- 
 2.31.1
 
