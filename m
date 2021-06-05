@@ -2,70 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 68AE239C908
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 16:25:27 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E656439CA1A
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 19:06:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229933AbhFEO1N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 10:27:13 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49806 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbhFEO1N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 10:27:13 -0400
-Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14BCC061766
-        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 07:25:12 -0700 (PDT)
-Received: by mail-qk1-x731.google.com with SMTP id r17so12259332qkp.10
-        for <stable@vger.kernel.org>; Sat, 05 Jun 2021 07:25:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=sCgHLD6NBlU0BlmNVayjptv9GC/tYBLL8ldh5JcYTrM=;
-        b=XzG0Oi/yHQD/AEBOj5PEQOn0nyL2PVWbyd6gWwG05nbRN+/iWcvJawwKf+OQBPZ1MI
-         4em4rZq3rgzmp5c7yfxeCJU+sQ20CA06x7h/BK/fzxHn68XzdKV1GwF1YSlt7JUjoVva
-         cTl39izCjbBMmqTXAWO98k2iflV6Tir7UWwtaWE8ZxSEOQoDRY55vpFQGC72n0VQnkR+
-         ybf92UhHMt+CVA9Sc1ivIsZK0x7v5Q+RFKNEk4fZcUZee83qgTi7ysLxSTcXtodGOVl2
-         cns+GJDsL6j7RxgHGJjsuqpNYMvaZfGz+fnKuHHSZwMTvJ9tqC38RBzTq6FmYKVPU/eT
-         sTTg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=sCgHLD6NBlU0BlmNVayjptv9GC/tYBLL8ldh5JcYTrM=;
-        b=fUuF/UppNN9enL8pXQTKU3rbnR9r9rYAt62gx/76GuNDJYMryPnyUSU7IrYfzVfYv6
-         +0ynHo9G05V+BoNMlpJ6Yk/7JkQmcN3hVMBZFg8mR0Sb4rvCvrDtcZFaJlyF1cLE0RUs
-         ntv91T/+SF/7jXEyDhdi5edTc3pu3xCVijn46/vHOElhKM6KNFM8B9vCgrs+iv8YTtgN
-         b+vSE6utWohQFdX1F0pfEDB6qeVQ0af2Y+yCwaEefPJ2YMqeyvVrAisbuJBsH1rXYB7V
-         i2HziiBN1UOXBucJC6pS8FBYzaqees7yjj+3856sQ0PGWT7C1orVCIJW4vxEK9klFl8v
-         2v/A==
-X-Gm-Message-State: AOAM530XIJgk9yCAFwmXaZ/gwg0jauwx4qNTj70VaIoF2bmru9yng9DF
-        OsWJ3RYC5b7dj7SbNSHISFdkDp6hEsU8Qy/Cwe4=
-X-Google-Smtp-Source: ABdhPJwAiGZUtib6crsvyUZl0XFRjEcDAfeZsSChCaWwrODfC+8rePqrgW7Pa0/lm8IPq1s1Hoom+RneFEQsLOCYjDY=
-X-Received: by 2002:a05:620a:1667:: with SMTP id d7mr9005668qko.462.1622903111765;
- Sat, 05 Jun 2021 07:25:11 -0700 (PDT)
+        id S230111AbhFERH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 13:07:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33500 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229980AbhFERH6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Jun 2021 13:07:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 51E7A61418;
+        Sat,  5 Jun 2021 17:05:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1622912758;
+        bh=fmWyoypvW3fPUSv173csHffvcTtKlC7QUujd2CkF/MI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=He3r5GiDS9qSvf93LMekqeOM7+/g/LW3ais8ANjjjYOScPwLKzZsg/LWuvMJLb+f+
+         uFZOzZZtrnyKTmE4fm6HHKDKrH2ZZxU2HznNEj9hWmKUm8XtTHXL0ujachId3dH3IS
+         vbeZFBWVqrVzC/ubCYpMMe+AdbAOX7mrwGY3anzc=
+Date:   Sat, 5 Jun 2021 19:05:53 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Pavel Machek <pavel@denx.de>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        kernel test robot <lkp@intel.com>,
+        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.10 235/252] ALSA: usb-audio: scarlett2:
+ snd_scarlett_gen2_controls_create() can be static
+Message-ID: <YLuu8eFJ7oXFHRIg@kroah.com>
+References: <20210531130657.971257589@linuxfoundation.org>
+ <20210531130705.983881838@linuxfoundation.org>
+ <20210605134222.GA28479@amd>
 MIME-Version: 1.0
-Received: by 2002:a05:622a:3cc:0:0:0:0 with HTTP; Sat, 5 Jun 2021 07:25:10
- -0700 (PDT)
-Reply-To: azizissa11011@gmail.com
-From:   "Mr.Aziz Issa" <davidkabore101@gmail.com>
-Date:   Sat, 5 Jun 2021 14:25:10 +0000
-Message-ID: <CANUPxXMEk2_=A5K=x_3keY_vLJ-owE=7ezeRx7sS9UvPztsEtA@mail.gmail.com>
-Subject: Greeting to you,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210605134222.GA28479@amd>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Greeting to you,
+On Sat, Jun 05, 2021 at 03:42:22PM +0200, Pavel Machek wrote:
+> Hi!
+> 
+> > From: kernel test robot <lkp@intel.com>
+> > 
+> > [ Upstream commit 2b899f31f1a6db2db4608bac2ac04fe2c4ad89eb ]
+> > 
+> > sound/usb/mixer_scarlett_gen2.c:2000:5: warning: symbol 'snd_scarlett_gen2_controls_create' was not declared. Should it be static?
+> > 
+> > Fixes: 265d1a90e4fb ("ALSA: usb-audio: scarlett2: Improve driver startup messages")
+> > Reported-by: kernel test robot <lkp@intel.com>
+> > Signed-off-by: kernel test robot <lkp@intel.com>
+> > Link: https://lore.kernel.org/r/20210522180900.GA83915@f59a3af2f1d9
+> > Signed-off-by: Takashi Iwai <tiwai@suse.de>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+> 
+> We normally require real, legal names for commit authors and
+> signoffs. I guess it is a bit late now, but... we don't take
+> pseudonyms so we should not take robots.
 
-I am Mr.Aziz Issa, the manager of bill and exchange at the foreign
-remittance  department in (B.O.A) Bank Ouagadougou Burkina Faso. i
-wish to transfer the sum of ($10.5 M) USD ,to your bank account and
-the fund is 100% free risk, if you're interested to partner with me.
-
-You should call me immediately (+226 72 21 62 99) as soon as you
-receive this letter for more explanation.  .
-
-Regards,
-Mr.Aziz Issa
-MY DIRECT LINE : +226 72 21 62 99
+We have long-taken patches from the kernel test robot, this is not
+something new.
