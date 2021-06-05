@@ -2,102 +2,83 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A7FE639C470
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:32:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FD2639C487
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:39:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229920AbhFEAeD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 20:34:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48900 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229886AbhFEAeD (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 20:34:03 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8B6A960E0B;
-        Sat,  5 Jun 2021 00:32:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1622853136;
-        bh=QQjCmgNhjYN8qIse5O8UtgzjzvjCWJU6m8oNOld1b0o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ItiBj6oY3FQHUzpt3l47u8FOok3N6dwfaN72iBuFJ7Y7m6ForZPTcG2xiY8YUmfie
-         ajqY9PmE7MBKIqs0z9Bli7mpPBSopNsLERbMwMJHywfutgHAGWmAHB3wx+k4wiTReF
-         45kTACVs5ahw6I+h3ch04ayCRwS7g9Ij8Iz+spbZ3CFaZKz96EM/a9umz/B/SQXeS2
-         WXRMuVQvztZRzKxWkuCQcAyCnYkJmY4ap+xFJeZHqZvZ719PcyqGKISskGpm238z8B
-         OIm1U8hz7Ua/aXTHs1d4DI4U4HSsoJ8DG1T9j/8oFZYJFsVIk0y1qZOdMnxU/nv40e
-         JZA6IEC80MjaA==
-From:   Jaegeuk Kim <jaegeuk@kernel.org>
-To:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net
-Cc:     Daniel Rosenberg <drosen@google.com>, stable@vger.kernel.org,
-        Eric Biggers <ebiggers@google.com>,
-        Chao Yu <yuchao0@huawei.com>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 1/3] f2fs: Advertise encrypted casefolding in sysfs
-Date:   Fri,  4 Jun 2021 17:32:08 -0700
-Message-Id: <20210605003210.856458-1-jaegeuk@kernel.org>
-X-Mailer: git-send-email 2.32.0.rc1.229.g3e70b5a671-goog
+        id S230299AbhFEAk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 20:40:57 -0400
+Received: from szxga01-in.huawei.com ([45.249.212.187]:3063 "EHLO
+        szxga01-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229920AbhFEAk5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 20:40:57 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.55])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4FxgcZ2V9WzWrlV;
+        Sat,  5 Jun 2021 08:34:22 +0800 (CST)
+Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
+ 15.1.2176.2; Sat, 5 Jun 2021 08:39:08 +0800
+Received: from [10.174.178.208] (10.174.178.208) by
+ dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
+ 15.1.2176.2; Sat, 5 Jun 2021 08:39:07 +0800
+Subject: Re: Linux 4.14.235
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
+        <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
+CC:     <lwn@lwn.net>, <jslaby@suse.cz>
+References: <162270673047112@kroah.com>
+From:   Samuel Zou <zou_wei@huawei.com>
+Message-ID: <8f5e6b6b-3afd-c626-245b-e3375979c4f0@huawei.com>
+Date:   Sat, 5 Jun 2021 08:39:07 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
+ Thunderbird/68.7.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <162270673047112@kroah.com>
+Content-Type: text/plain; charset="utf-8"; format=flowed
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.174.178.208]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ dggemi762-chm.china.huawei.com (10.1.198.148)
+X-CFilter-Loop: Reflected
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Rosenberg <drosen@google.com>
 
-Older kernels don't support encryption with casefolding. This adds
-the sysfs entry encrypted_casefold to show support for those combined
-features. Support for this feature was originally added by
-commit 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
 
-Fixes: 7ad08a58bf67 ("f2fs: Handle casefolding with Encryption")
-Cc: stable@vger.kernel.org # v5.11+
-Signed-off-by: Daniel Rosenberg <drosen@google.com>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Reviewed-by: Chao Yu <yuchao0@huawei.com>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
----
- fs/f2fs/sysfs.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
+> I'm announcing the release of the 4.14.235 kernel.
+> 
+> All users of the 4.14 kernel series must upgrade.
+> 
+> The updated 4.14.y git tree can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-4.14.y
+> and can be browsed at the normal kernel.org git web browser:
+> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
+> 
+> thanks,
+> 
+> greg k-h
+> 
 
-diff --git a/fs/f2fs/sysfs.c b/fs/f2fs/sysfs.c
-index 62fbe4f20dd6..4daa6aeb200b 100644
---- a/fs/f2fs/sysfs.c
-+++ b/fs/f2fs/sysfs.c
-@@ -583,6 +583,7 @@ enum feat_id {
- 	FEAT_COMPRESSION,
- 	FEAT_RO,
- 	FEAT_TEST_DUMMY_ENCRYPTION_V2,
-+	FEAT_ENCRYPTED_CASEFOLD,
- };
- 
- static ssize_t f2fs_feature_show(struct f2fs_attr *a,
-@@ -605,6 +606,7 @@ static ssize_t f2fs_feature_show(struct f2fs_attr *a,
- 	case FEAT_COMPRESSION:
- 	case FEAT_RO:
- 	case FEAT_TEST_DUMMY_ENCRYPTION_V2:
-+	case FEAT_ENCRYPTED_CASEFOLD:
- 		return sprintf(buf, "supported\n");
- 	}
- 	return 0;
-@@ -709,7 +711,10 @@ F2FS_GENERAL_RO_ATTR(avg_vblocks);
- #ifdef CONFIG_FS_ENCRYPTION
- F2FS_FEATURE_RO_ATTR(encryption, FEAT_CRYPTO);
- F2FS_FEATURE_RO_ATTR(test_dummy_encryption_v2, FEAT_TEST_DUMMY_ENCRYPTION_V2);
-+#ifdef CONFIG_UNICODE
-+F2FS_FEATURE_RO_ATTR(encrypted_casefold, FEAT_ENCRYPTED_CASEFOLD);
- #endif
-+#endif /* CONFIG_FS_ENCRYPTION */
- #ifdef CONFIG_BLK_DEV_ZONED
- F2FS_FEATURE_RO_ATTR(block_zoned, FEAT_BLKZONED);
- #endif
-@@ -822,7 +827,10 @@ static struct attribute *f2fs_feat_attrs[] = {
- #ifdef CONFIG_FS_ENCRYPTION
- 	ATTR_LIST(encryption),
- 	ATTR_LIST(test_dummy_encryption_v2),
-+#ifdef CONFIG_UNICODE
-+	ATTR_LIST(encrypted_casefold),
- #endif
-+#endif /* CONFIG_FS_ENCRYPTION */
- #ifdef CONFIG_BLK_DEV_ZONED
- 	ATTR_LIST(block_zoned),
- #endif
--- 
-2.32.0.rc1.229.g3e70b5a671-goog
+Tested on x86 for 4.14.235,
 
+Kernel repo:
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+Branch: linux-4.14.y
+Version: 4.14.235
+Commit: a6b2dae3ee3a3f9f4db3fab5b4b9e493fecf4acd
+Compiler: gcc version 7.3.0 (GCC)
+
+x86:
+--------------------------------------------------------------------
+Testcase Result Summary:
+total: 8835
+passed: 8835
+failed: 0
+timeout: 0
+--------------------------------------------------------------------
+
+Tested-by: Hulk Robot <hulkrobot@huawei.com>
