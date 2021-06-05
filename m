@@ -2,192 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3596A39C557
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 05:01:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C26A839C554
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 05:01:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbhFEDDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 23:03:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52506 "EHLO mail.kernel.org"
+        id S230297AbhFEDDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 23:03:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52550 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231132AbhFEDDQ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 23:03:16 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 54C58613FE;
-        Sat,  5 Jun 2021 03:01:15 +0000 (UTC)
+        id S230169AbhFEDDF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Fri, 4 Jun 2021 23:03:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8359D61402;
+        Sat,  5 Jun 2021 03:01:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1622862075;
-        bh=xN24bw5gXooEM2IRZG521MnKs5Y6w5rTkRSYc0gKwr8=;
+        s=korg; t=1622862078;
+        bh=4bHvHbl6CY5ATZIsrA1xqhEJ4I0Fv2cydSPOtNL8hrk=;
         h=Date:From:To:Subject:In-Reply-To:From;
-        b=c4ejkzgHkjOm8HkpHQssd90DIQFRsn4O2WO8hjj856f4VYaHuj9uypMh1GNvg1++O
-         xniKHBRqoodTlgRNtDs3dTsO4A+Vejsf7l3VxcWS6+Pgg72jX82SqaPi8MmB5/wUHE
-         /ytxKu1Jc2zatvZ0eMJrLF55+Yc23tF/pa7rmwZg=
-Date:   Fri, 04 Jun 2021 20:01:14 -0700
+        b=IH66IRT6jYWxlBiclATZOqnq8lsijIlTTnZvYlrAu5xgHNch8DEzQdSUHWM5zg0FQ
+         b/4L0kyh8He+zLZp5hUQwGmwknBW8mnDCsU4YmaEMIkMSKAjrmwNsT3Eylwah4OyYT
+         v83F6RAQJcNlFa+ojfNaMm7JsCXmU2EWj4ygKM2o=
+Date:   Fri, 04 Jun 2021 20:01:18 -0700
 From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, christian.brauner@ubuntu.com,
-        christian@brauner.io, clg@fr.ibm.com, ebiederm@xmission.com,
-        keescook@chromium.org, linux-mm@kvack.org, mark.rutland@arm.com,
-        mm-commits@vger.kernel.org, paulus@samba.org,
-        schwidefsky@de.ibm.com, stable@vger.kernel.org,
-        torvalds@linux-foundation.org
-Subject:  [patch 03/13] pid: take a reference when initializing
- `cad_pid`
-Message-ID: <20210605030114.E2boaQwOv%akpm@linux-foundation.org>
+To:     akpm@linux-foundation.org, anshuman.khandual@arm.com,
+        gerald.schaefer@linux.ibm.com, linux-mm@kvack.org,
+        mm-commits@vger.kernel.org, palmer@dabbelt.com,
+        paul.walmsley@sifive.com, stable@vger.kernel.org,
+        torvalds@linux-foundation.org, vgupta@synopsys.com
+Subject:  [patch 04/13] mm/debug_vm_pgtable: fix alignment for
+ pmd/pud_advanced_tests()
+Message-ID: <20210605030118.fd0d-oaQo%akpm@linux-foundation.org>
 In-Reply-To: <20210604200040.d8d0406caf195525620c0f3d@linux-foundation.org>
 User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
-Subject: pid: take a reference when initializing `cad_pid`
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Subject: mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
 
-During boot, kernel_init_freeable() initializes `cad_pid` to the init
-task's struct pid.  Later on, we may change `cad_pid` via a sysctl, and
-when this happens proc_do_cad_pid() will increment the refcount on the new
-pid via get_pid(), and will decrement the refcount on the old pid via
-put_pid().  As we never called get_pid() when we initialized `cad_pid`, we
-decrement a reference we never incremented, can therefore free the init
-task's struct pid early.  As there can be dangling references to the
-struct pid, we can later encounter a use-after-free (e.g.  when delivering
-signals).
+In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
+entry, and so it does not match the given pmdp/pudp and (aligned down) pfn
+any more.
 
-This was spotted when fuzzing v5.13-rc3 with Syzkaller, but seems to have
-been around since the conversion of `cad_pid` to struct pid in commit:
+For s390, this results in memory corruption, because the IDTE instruction
+used e.g. in xxx_get_and_clear() will take the vaddr for some calculations,
+in combination with the given pmdp. It will then end up with a wrong table
+origin, ending on ...ff8, and some of those wrongly set low-order bits will
+also select a wrong pagetable level for the index addition. IDTE could
+therefore invalidate (or 0x20) something outside of the page tables,
+depending on the wrongly picked index, which in turn depends on the random
+vaddr.
 
-  9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
+As result, we sometimes see "BUG task_struct (Not tainted): Padding
+overwritten" on s390, where one 0x5a padding value got overwritten with
+0x7a.
 
-... from the pre-KASAN stone age of v2.6.19.
+Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
+calculated.
 
-Fix this by getting a reference to the init task's struct pid when we
-assign it to `cad_pid`.
-
-Full KASAN splat below.
-
-==================================================================
-BUG: KASAN: use-after-free in ns_of_pid include/linux/pid.h:153 [inline]
-BUG: KASAN: use-after-free in task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-Read of size 4 at addr ffff23794dda0004 by task syz-executor.0/273
-
-CPU: 1 PID: 273 Comm: syz-executor.0 Not tainted 5.12.0-00001-g9aef892b2d15 #1
-Hardware name: linux,dummy-virt (DT)
-Call trace:
- dump_backtrace+0x0/0x4a8 arch/arm64/kernel/stacktrace.c:105
- show_stack+0x34/0x48 arch/arm64/kernel/stacktrace.c:191
- __dump_stack lib/dump_stack.c:79 [inline]
- dump_stack+0x1d4/0x2a0 lib/dump_stack.c:120
- print_address_description.constprop.11+0x60/0x3a8 mm/kasan/report.c:232
- __kasan_report mm/kasan/report.c:399 [inline]
- kasan_report+0x1e8/0x200 mm/kasan/report.c:416
- __asan_report_load4_noabort+0x30/0x48 mm/kasan/report_generic.c:308
- ns_of_pid include/linux/pid.h:153 [inline]
- task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
- do_notify_parent+0x308/0xe60 kernel/signal.c:1950
- exit_notify kernel/exit.c:682 [inline]
- do_exit+0x2334/0x2bd0 kernel/exit.c:845
- do_group_exit+0x108/0x2c8 kernel/exit.c:922
- get_signal+0x4e4/0x2a88 kernel/signal.c:2781
- do_signal arch/arm64/kernel/signal.c:882 [inline]
- do_notify_resume+0x300/0x970 arch/arm64/kernel/signal.c:936
- work_pending+0xc/0x2dc
-
-Allocated by task 0:
- kasan_save_stack+0x28/0x58 mm/kasan/common.c:38
- kasan_set_track mm/kasan/common.c:46 [inline]
- set_alloc_info mm/kasan/common.c:427 [inline]
- __kasan_slab_alloc+0x88/0xa8 mm/kasan/common.c:460
- kasan_slab_alloc include/linux/kasan.h:223 [inline]
- slab_post_alloc_hook+0x50/0x5c0 mm/slab.h:516
- slab_alloc_node mm/slub.c:2907 [inline]
- slab_alloc mm/slub.c:2915 [inline]
- kmem_cache_alloc+0x1f4/0x4c0 mm/slub.c:2920
- alloc_pid+0xdc/0xc00 kernel/pid.c:180
- copy_process+0x2794/0x5e18 kernel/fork.c:2129
- kernel_clone+0x194/0x13c8 kernel/fork.c:2500
- kernel_thread+0xd4/0x110 kernel/fork.c:2552
- rest_init+0x44/0x4a0 init/main.c:687
- arch_call_rest_init+0x1c/0x28
- start_kernel+0x520/0x554 init/main.c:1064
- 0x0
-
-Freed by task 270:
- kasan_save_stack+0x28/0x58 mm/kasan/common.c:38
- kasan_set_track+0x28/0x40 mm/kasan/common.c:46
- kasan_set_free_info+0x28/0x50 mm/kasan/generic.c:357
- ____kasan_slab_free mm/kasan/common.c:360 [inline]
- ____kasan_slab_free mm/kasan/common.c:325 [inline]
- __kasan_slab_free+0xf4/0x148 mm/kasan/common.c:367
- kasan_slab_free include/linux/kasan.h:199 [inline]
- slab_free_hook mm/slub.c:1562 [inline]
- slab_free_freelist_hook+0x98/0x260 mm/slub.c:1600
- slab_free mm/slub.c:3161 [inline]
- kmem_cache_free+0x224/0x8e0 mm/slub.c:3177
- put_pid.part.4+0xe0/0x1a8 kernel/pid.c:114
- put_pid+0x30/0x48 kernel/pid.c:109
- proc_do_cad_pid+0x190/0x1b0 kernel/sysctl.c:1401
- proc_sys_call_handler+0x338/0x4b0 fs/proc/proc_sysctl.c:591
- proc_sys_write+0x34/0x48 fs/proc/proc_sysctl.c:617
- call_write_iter include/linux/fs.h:1977 [inline]
- new_sync_write+0x3ac/0x510 fs/read_write.c:518
- vfs_write fs/read_write.c:605 [inline]
- vfs_write+0x9c4/0x1018 fs/read_write.c:585
- ksys_write+0x124/0x240 fs/read_write.c:658
- __do_sys_write fs/read_write.c:670 [inline]
- __se_sys_write fs/read_write.c:667 [inline]
- __arm64_sys_write+0x78/0xb0 fs/read_write.c:667
- __invoke_syscall arch/arm64/kernel/syscall.c:37 [inline]
- invoke_syscall arch/arm64/kernel/syscall.c:49 [inline]
- el0_svc_common.constprop.1+0x16c/0x388 arch/arm64/kernel/syscall.c:129
- do_el0_svc+0xf8/0x150 arch/arm64/kernel/syscall.c:168
- el0_svc+0x28/0x38 arch/arm64/kernel/entry-common.c:416
- el0_sync_handler+0x134/0x180 arch/arm64/kernel/entry-common.c:432
- el0_sync+0x154/0x180 arch/arm64/kernel/entry.S:701
-
-The buggy address belongs to the object at ffff23794dda0000
- which belongs to the cache pid of size 224
-The buggy address is located 4 bytes inside of
- 224-byte region [ffff23794dda0000, ffff23794dda00e0)
-The buggy address belongs to the page:
-page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x4dda0
-head:(____ptrval____) order:1 compound_mapcount:0
-flags: 0x3fffc0000010200(slab|head)
-raw: 03fffc0000010200 dead000000000100 dead000000000122 ffff23794d40d080
-raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
-page dumped because: kasan: bad access detected
-
-Memory state around the buggy address:
- ffff23794dd9ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
- ffff23794dd9ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
->ffff23794dda0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                   ^
- ffff23794dda0080: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
- ffff23794dda0100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-==================================================================
-
-Link: https://lkml.kernel.org/r/20210524172230.38715-1-mark.rutland@arm.com
-Fixes: 9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Kees Cook <keescook@chromium.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20210525130043.186290-2-gerald.schaefer@linux.ibm.com
+Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- init/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ mm/debug_vm_pgtable.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/init/main.c~pid-take-a-reference-when-initializing-cad_pid
-+++ a/init/main.c
-@@ -1537,7 +1537,7 @@ static noinline void __init kernel_init_
- 	 */
- 	set_mems_allowed(node_states[N_MEMORY]);
+--- a/mm/debug_vm_pgtable.c~mm-debug_vm_pgtable-fix-alignment-for-pmd-pud_advanced_tests
++++ a/mm/debug_vm_pgtable.c
+@@ -192,7 +192,7 @@ static void __init pmd_advanced_tests(st
  
--	cad_pid = task_pid(current);
-+	cad_pid = get_pid(task_pid(current));
+ 	pr_debug("Validating PMD advanced\n");
+ 	/* Align the address wrt HPAGE_PMD_SIZE */
+-	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
++	vaddr &= HPAGE_PMD_MASK;
  
- 	smp_prepare_cpus(setup_max_cpus);
+ 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
  
+@@ -330,7 +330,7 @@ static void __init pud_advanced_tests(st
+ 
+ 	pr_debug("Validating PUD advanced\n");
+ 	/* Align the address wrt HPAGE_PUD_SIZE */
+-	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
++	vaddr &= HPAGE_PUD_MASK;
+ 
+ 	set_pud_at(mm, vaddr, pudp, pud);
+ 	pudp_set_wrprotect(mm, vaddr, pudp);
 _
