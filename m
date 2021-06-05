@@ -2,178 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id ED93A39C55A
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 05:01:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AE11E39C598
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 05:56:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231671AbhFEDDb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 23:03:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52912 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231645AbhFEDDa (ORCPT <rfc822;stable@vger.kernel.org>);
-        Fri, 4 Jun 2021 23:03:30 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5F7D61359;
-        Sat,  5 Jun 2021 03:01:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1622862103;
-        bh=NdIejY8GZLloHA2zoJuDtW2olAnJ7qko9YZvTePC8cE=;
-        h=Date:From:To:Subject:In-Reply-To:From;
-        b=ulOZomKMv4KEdc82gI9AFyvhS8TXhiScTyP7lr3UjI8yjrcKDEpzcVQ3uFlnh9yNf
-         z9zNtiVBWmHFyAlvNpuSD1T79lMp9+0J/taUFsg7Yb1s6414/4h1IzHp4nhLad+1UH
-         Ac9Ped1uet0ZTF1+ND1X2MY+pRpGTdqDhl8ONm8w=
-Date:   Fri, 04 Jun 2021 20:01:42 -0700
-From:   Andrew Morton <akpm@linux-foundation.org>
-To:     akpm@linux-foundation.org, gechangwei@live.cn, ghe@suse.com,
-        jack@suse.cz, jlbec@evilplan.org, joseph.qi@linux.alibaba.com,
-        junxiao.bi@oracle.com, linux-mm@kvack.org, mark@fasheh.com,
-        mm-commits@vger.kernel.org, piaojun@huawei.com,
-        stable@vger.kernel.org, torvalds@linux-foundation.org
-Subject:  [patch 12/13] ocfs2: fix data corruption by fallocate
-Message-ID: <20210605030142.pXgHl9E4K%akpm@linux-foundation.org>
-In-Reply-To: <20210604200040.d8d0406caf195525620c0f3d@linux-foundation.org>
-User-Agent: s-nail v14.8.16
+        id S229881AbhFED6L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 23:58:11 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54822 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229726AbhFED6K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 23:58:10 -0400
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25F93C061766
+        for <stable@vger.kernel.org>; Fri,  4 Jun 2021 20:56:08 -0700 (PDT)
+Received: by mail-pg1-x52e.google.com with SMTP id r1so9373949pgk.8
+        for <stable@vger.kernel.org>; Fri, 04 Jun 2021 20:56:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
+        h=message-id:date:mime-version:content-transfer-encoding:subject:to
+         :from;
+        bh=9qOC68Mq/YvafLLaxJsqykBw/hc0g8T3tj1M7K8SNu8=;
+        b=GlsFA+WLCc5zo/QMdO6DbdB1BuNU66RZHtvcjSVvXVFvgf2Pvlo7TDJA/aTXMOODDM
+         i7whRFxWB+z4cy7TnifQviM2+wnBRSJOC4ax4WHwK2Z03CDqUCPhWb78OhFvQoz48zuX
+         KmL4i6YQeh6AD6/t+j2HSeWuLgXQwAOZ/p7rrTSgrHlvAmCPOY9Lcque02Y1JgtIL5PH
+         ad5nEblgceGKniyznh4b9pq77GZhWKaNNUR1LmoXIbJPrL3BqV9DWYgbZ2KTh5L06LF+
+         qglz/StTLG4Yrc0zVIKuuWn7qLq1KbOBb+npmLADSgVWH/ipprDc/4mv5ppcB5z0ezSy
+         3ThQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:message-id:date:mime-version
+         :content-transfer-encoding:subject:to:from;
+        bh=9qOC68Mq/YvafLLaxJsqykBw/hc0g8T3tj1M7K8SNu8=;
+        b=p7/5zKlZt23CGuCXo8gujptWNvHggWgRjl2FXg0TzoIml0kSEjCGpgmR5yrfr2uMb6
+         llIsjNH2QCESuvLmrr3TP4sBkC+KNXTtTngxks06RhaPp/PEVq95UT1HPxdA4wbd2fzi
+         pF3lLVg/gC3oDhMhKgckWEgesI8F/NoHIaNvasvp7Fqtbj39EXJMSJfOjHzndobM61jg
+         RNqIWxsMbuPP/SqUbMp/igfrkDvlTYWdxBv848aFF2l1lUAfeKj/yjZV9Ft3ZpgMQ9g7
+         BJ5Yz0NjCGgM7KGHaKa3cEGgfOT/jUMPu/Cfjdl/rGl7JP6b9z8G0AwMjhVB85N0lH+j
+         ybfA==
+X-Gm-Message-State: AOAM533iipO4qksLj50Bvk3cMAlghfK83bxOqnq+6l64v0bjmG3S2HLh
+        B7Jkzs1C/plm6hTxOOlppxxJiCbVH71nSMiR
+X-Google-Smtp-Source: ABdhPJxNC8a4+atx3QGo0BQ/CCgqjGTv4L/6j7GBq0p/RPZjsgxsAkvx/bkq2ntz5QRpMDlVZ/9JcQ==
+X-Received: by 2002:a63:a1c:: with SMTP id 28mr8094517pgk.440.1622865367087;
+        Fri, 04 Jun 2021 20:56:07 -0700 (PDT)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id a20sm2971028pfk.145.2021.06.04.20.56.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 04 Jun 2021 20:56:06 -0700 (PDT)
+Message-ID: <60baf5d6.1c69fb81.5f9d0.a94d@mx.google.com>
+Date:   Fri, 04 Jun 2021 20:56:06 -0700 (PDT)
+Content-Type: text/plain; charset="utf-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Kernel: v5.10.42-2-gc17d124ec70b
+X-Kernelci-Report-Type: test
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+Subject: stable-rc/queue/5.10 baseline: 197 runs,
+ 1 regressions (v5.10.42-2-gc17d124ec70b)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
-Subject: ocfs2: fix data corruption by fallocate
+stable-rc/queue/5.10 baseline: 197 runs, 1 regressions (v5.10.42-2-gc17d124=
+ec70b)
 
-When fallocate punches holes out of inode size, if original isize is in
-the middle of last cluster, then the part from isize to the end of the
-cluster will be zeroed with buffer write, at that time isize is not yet
-updated to match the new size, if writeback is kicked in, it will invoke
-ocfs2_writepage()->block_write_full_page() where the pages out of inode
-size will be dropped.  That will cause file corruption.  Fix this by zero
-out eof blocks when extending the inode size.
+Regressions Summary
+-------------------
 
-Running the following command with qemu-image 4.2.1 can get a corrupted
-coverted image file easily.
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
 
-    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
-             -O qcow2 -o compat=1.1 $qcow_image.conv
 
-The usage of fallocate in qemu is like this, it first punches holes out of
-inode size, then extend the inode size.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.42-2-gc17d124ec70b/plan/baseline/
 
-    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
-    fallocate(11, 0, 2276196352, 65536) = 0
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.42-2-gc17d124ec70b
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      c17d124ec70b853c6025a0704b3ba46f3a9148a6 =
 
-v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
-v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
 
-Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
 
- fs/ocfs2/file.c |   55 +++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 5 deletions(-)
+Test Regressions
+---------------- =
 
---- a/fs/ocfs2/file.c~ocfs2-fix-data-corruption-by-fallocate
-+++ a/fs/ocfs2/file.c
-@@ -1856,6 +1856,45 @@ out:
- }
- 
- /*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
-+/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
-@@ -1865,7 +1904,7 @@ static int __ocfs2_change_file_space(str
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1896,6 +1935,7 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1903,7 +1943,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1957,6 +1997,14 @@ static int __ocfs2_change_file_space(str
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1973,9 +2021,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
-_
+
+
+platform   | arch  | lab     | compiler | defconfig | regressions
+-----------+-------+---------+----------+-----------+------------
+imx8mp-evk | arm64 | lab-nxp | gcc-8    | defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/60bac2433f0a3b96f00c0e01
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-8 (aarch64-linux-gnu-gcc (Debian 8.3.0-2) 8.3.0)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+2-gc17d124ec70b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
+2-gc17d124ec70b/arm64/defconfig/gcc-8/lab-nxp/baseline-imx8mp-evk.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
+.05-5-g2f114cc7102b/arm64/baseline/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/60bac2433f0a3b96f00c0=
+e02
+        failing since 1 day (last pass: v5.10.40-261-g8e56f01eb8e7, first f=
+ail: v5.10.41-251-g1360515527f5) =
+
+ =20
