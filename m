@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E3339CAD8
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 22:14:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A4BF739CADE
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 22:17:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhFEUQ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 16:16:27 -0400
-Received: from mout01.posteo.de ([185.67.36.65]:43597 "EHLO mout01.posteo.de"
+        id S230050AbhFEUT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 16:19:27 -0400
+Received: from mout02.posteo.de ([185.67.36.66]:37441 "EHLO mout02.posteo.de"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229998AbhFEUQ1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Jun 2021 16:16:27 -0400
+        id S230019AbhFEUT1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Jun 2021 16:19:27 -0400
 Received: from submission (posteo.de [89.146.220.130]) 
-        by mout01.posteo.de (Postfix) with ESMTPS id B360824002B
-        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 22:14:37 +0200 (CEST)
+        by mout02.posteo.de (Postfix) with ESMTPS id 85C2D2400FE
+        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 22:17:37 +0200 (CEST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
-        t=1622924077; bh=nDHCUqSUkkNBEjr1gvugejRktRvRb7DwVwnaQYqgTkI=;
+        t=1622924257; bh=NZOncte5O8M1ElhGaxtk3ziZS6lEwWElfVWdrvWZo6U=;
         h=From:To:Cc:Subject:Date:From;
-        b=EzbdNl4bd1CDjSTTyPRw3aQwEZLt2i7oCtC39gGH3nhC0n4aFea4cWsepQz99ZqgS
-         PL7p539kxFBdzZNtHVf428jFaj338bPQNEeferqoqLq41dLg1FnzHq5ajuAo1czf/d
-         CNQUT5qw9Q2IzUI30NKI33XiVlWtai4a1Q647USSX1GPGytZNG7v6xMVvUXngbCgpm
-         4xOfnGYrOzzq6f7h+S32LqQNgQYsCNQZr6N1lCN1ROx8AQhcGQEn8dyjq3ii+jySsC
-         8jydvYJoUGxBdRW4mJlOlFvnzDe1EGCqvAYnN6gPeb2/xNawaDC7NBT9M4PY9SUhMl
-         n06LZhJn4S7+Q==
+        b=O+uhCvFGpFTj7dgCfhowJ2P9QRCjw0ve0Sg0bz4OaW8tCMaJpr5s8KMHBplVNbDj6
+         E+zVx7Zefxhvxd57oFXJTnybzBXqCV9g/gco0E59DRKyqj5slV4TZJA5p0pVj3F4su
+         qKV0AGQZ4MSqmCgrQF/789bDpDvAAIJcspUUlu3+0rWuD9EXDVhXIPADnP8zYOKGxr
+         mnTrV//pypo1wRm721wTkypaMLYKaCOK+hDBBLzc7EXLPBvso1X5qfE3avk4zvSalL
+         2JY9vBI0UNMprMWeu/YArneQpO1uk+zrpyG2MGAe4OcT+6Zii7KZBjLuIiYC01zkMX
+         IvE3kJml2khEg==
 Received: from customer (localhost [127.0.0.1])
-        by submission (posteo.de) with ESMTPSA id 4Fy9pP0X9yz9rxF;
-        Sat,  5 Jun 2021 22:14:37 +0200 (CEST)
+        by submission (posteo.de) with ESMTPSA id 4Fy9sr734Qz9rxB;
+        Sat,  5 Jun 2021 22:17:36 +0200 (CEST)
 From:   Benjamin Drung <bdrung@posteo.de>
 To:     Linus Torvalds <torvalds@linux-foundation.org>,
         Adam Goode <agoode@google.com>,
@@ -33,9 +33,9 @@ To:     Linus Torvalds <torvalds@linux-foundation.org>,
         Mauro Carvalho Chehab <mchehab@kernel.org>
 Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
         Benjamin Drung <bdrung@posteo.de>, stable@vger.kernel.org
-Subject: [PATCH v3] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
-Date:   Sat,  5 Jun 2021 20:13:33 +0000
-Message-Id: <20210605201332.52040-1-bdrung@posteo.de>
+Subject: [PATCH v4] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
+Date:   Sat,  5 Jun 2021 20:15:36 +0000
+Message-Id: <20210605201534.53114-1-bdrung@posteo.de>
 In-Reply-To: <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
 References: <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
 MIME-Version: 1.0
@@ -114,6 +114,8 @@ Signed-off-by: Benjamin Drung <bdrung@posteo.de>
 ---
  drivers/media/usb/uvc/uvc_video.c | 25 +++++++++++++++++++++++++
  1 file changed, 25 insertions(+)
+
+(now sending this patch with v4 in the subject instead of falsely v3)
 
 v2: enhanced the comment describing the quirk
 
