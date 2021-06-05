@@ -2,81 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CFF6139C8E8
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 15:42:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 68AE239C908
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 16:25:27 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229957AbhFENoM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 09:44:12 -0400
-Received: from jabberwock.ucw.cz ([46.255.230.98]:35682 "EHLO
-        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229930AbhFENoM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 09:44:12 -0400
-Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
-        id 555151C0B76; Sat,  5 Jun 2021 15:42:23 +0200 (CEST)
-Date:   Sat, 5 Jun 2021 15:42:22 +0200
-From:   Pavel Machek <pavel@denx.de>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        kernel test robot <lkp@intel.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: Re: [PATCH 5.10 235/252] ALSA: usb-audio: scarlett2:
- snd_scarlett_gen2_controls_create() can be static
-Message-ID: <20210605134222.GA28479@amd>
-References: <20210531130657.971257589@linuxfoundation.org>
- <20210531130705.983881838@linuxfoundation.org>
+        id S229933AbhFEO1N (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 10:27:13 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49806 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229930AbhFEO1N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 10:27:13 -0400
+Received: from mail-qk1-x731.google.com (mail-qk1-x731.google.com [IPv6:2607:f8b0:4864:20::731])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F14BCC061766
+        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 07:25:12 -0700 (PDT)
+Received: by mail-qk1-x731.google.com with SMTP id r17so12259332qkp.10
+        for <stable@vger.kernel.org>; Sat, 05 Jun 2021 07:25:12 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=mime-version:reply-to:from:date:message-id:subject:to;
+        bh=sCgHLD6NBlU0BlmNVayjptv9GC/tYBLL8ldh5JcYTrM=;
+        b=XzG0Oi/yHQD/AEBOj5PEQOn0nyL2PVWbyd6gWwG05nbRN+/iWcvJawwKf+OQBPZ1MI
+         4em4rZq3rgzmp5c7yfxeCJU+sQ20CA06x7h/BK/fzxHn68XzdKV1GwF1YSlt7JUjoVva
+         cTl39izCjbBMmqTXAWO98k2iflV6Tir7UWwtaWE8ZxSEOQoDRY55vpFQGC72n0VQnkR+
+         ybf92UhHMt+CVA9Sc1ivIsZK0x7v5Q+RFKNEk4fZcUZee83qgTi7ysLxSTcXtodGOVl2
+         cns+GJDsL6j7RxgHGJjsuqpNYMvaZfGz+fnKuHHSZwMTvJ9tqC38RBzTq6FmYKVPU/eT
+         sTTg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
+         :subject:to;
+        bh=sCgHLD6NBlU0BlmNVayjptv9GC/tYBLL8ldh5JcYTrM=;
+        b=fUuF/UppNN9enL8pXQTKU3rbnR9r9rYAt62gx/76GuNDJYMryPnyUSU7IrYfzVfYv6
+         +0ynHo9G05V+BoNMlpJ6Yk/7JkQmcN3hVMBZFg8mR0Sb4rvCvrDtcZFaJlyF1cLE0RUs
+         ntv91T/+SF/7jXEyDhdi5edTc3pu3xCVijn46/vHOElhKM6KNFM8B9vCgrs+iv8YTtgN
+         b+vSE6utWohQFdX1F0pfEDB6qeVQ0af2Y+yCwaEefPJ2YMqeyvVrAisbuJBsH1rXYB7V
+         i2HziiBN1UOXBucJC6pS8FBYzaqees7yjj+3856sQ0PGWT7C1orVCIJW4vxEK9klFl8v
+         2v/A==
+X-Gm-Message-State: AOAM530XIJgk9yCAFwmXaZ/gwg0jauwx4qNTj70VaIoF2bmru9yng9DF
+        OsWJ3RYC5b7dj7SbNSHISFdkDp6hEsU8Qy/Cwe4=
+X-Google-Smtp-Source: ABdhPJwAiGZUtib6crsvyUZl0XFRjEcDAfeZsSChCaWwrODfC+8rePqrgW7Pa0/lm8IPq1s1Hoom+RneFEQsLOCYjDY=
+X-Received: by 2002:a05:620a:1667:: with SMTP id d7mr9005668qko.462.1622903111765;
+ Sat, 05 Jun 2021 07:25:11 -0700 (PDT)
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-        protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-In-Reply-To: <20210531130705.983881838@linuxfoundation.org>
-User-Agent: Mutt/1.5.23 (2014-03-12)
+Received: by 2002:a05:622a:3cc:0:0:0:0 with HTTP; Sat, 5 Jun 2021 07:25:10
+ -0700 (PDT)
+Reply-To: azizissa11011@gmail.com
+From:   "Mr.Aziz Issa" <davidkabore101@gmail.com>
+Date:   Sat, 5 Jun 2021 14:25:10 +0000
+Message-ID: <CANUPxXMEk2_=A5K=x_3keY_vLJ-owE=7ezeRx7sS9UvPztsEtA@mail.gmail.com>
+Subject: Greeting to you,
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Greeting to you,
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+I am Mr.Aziz Issa, the manager of bill and exchange at the foreign
+remittance  department in (B.O.A) Bank Ouagadougou Burkina Faso. i
+wish to transfer the sum of ($10.5 M) USD ,to your bank account and
+the fund is 100% free risk, if you're interested to partner with me.
 
-Hi!
+You should call me immediately (+226 72 21 62 99) as soon as you
+receive this letter for more explanation.  .
 
-> From: kernel test robot <lkp@intel.com>
->=20
-> [ Upstream commit 2b899f31f1a6db2db4608bac2ac04fe2c4ad89eb ]
->=20
-> sound/usb/mixer_scarlett_gen2.c:2000:5: warning: symbol 'snd_scarlett_gen=
-2_controls_create' was not declared. Should it be static?
->=20
-> Fixes: 265d1a90e4fb ("ALSA: usb-audio: scarlett2: Improve driver startup =
-messages")
-> Reported-by: kernel test robot <lkp@intel.com>
-> Signed-off-by: kernel test robot <lkp@intel.com>
-> Link: https://lore.kernel.org/r/20210522180900.GA83915@f59a3af2f1d9
-> Signed-off-by: Takashi Iwai <tiwai@suse.de>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-
-We normally require real, legal names for commit authors and
-signoffs. I guess it is a bit late now, but... we don't take
-pseudonyms so we should not take robots.
-
-Best regards,
-								Pavel
---=20
-DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
-HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1
-
-iEYEARECAAYFAmC7fz0ACgkQMOfwapXb+vK5WwCeN1V8IcodHCJc1fv/6cUAec+9
-AVwAn31eohvJOOPPdFrayKktglOb327m
-=sJs1
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+Regards,
+Mr.Aziz Issa
+MY DIRECT LINE : +226 72 21 62 99
