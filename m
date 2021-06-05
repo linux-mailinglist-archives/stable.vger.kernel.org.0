@@ -2,179 +2,143 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A4BF739CADE
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 22:17:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BEF0939CAE1
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 22:21:25 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230050AbhFEUT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 16:19:27 -0400
-Received: from mout02.posteo.de ([185.67.36.66]:37441 "EHLO mout02.posteo.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230019AbhFEUT1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Jun 2021 16:19:27 -0400
-Received: from submission (posteo.de [89.146.220.130]) 
-        by mout02.posteo.de (Postfix) with ESMTPS id 85C2D2400FE
-        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 22:17:37 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
-        t=1622924257; bh=NZOncte5O8M1ElhGaxtk3ziZS6lEwWElfVWdrvWZo6U=;
-        h=From:To:Cc:Subject:Date:From;
-        b=O+uhCvFGpFTj7dgCfhowJ2P9QRCjw0ve0Sg0bz4OaW8tCMaJpr5s8KMHBplVNbDj6
-         E+zVx7Zefxhvxd57oFXJTnybzBXqCV9g/gco0E59DRKyqj5slV4TZJA5p0pVj3F4su
-         qKV0AGQZ4MSqmCgrQF/789bDpDvAAIJcspUUlu3+0rWuD9EXDVhXIPADnP8zYOKGxr
-         mnTrV//pypo1wRm721wTkypaMLYKaCOK+hDBBLzc7EXLPBvso1X5qfE3avk4zvSalL
-         2JY9vBI0UNMprMWeu/YArneQpO1uk+zrpyG2MGAe4OcT+6Zii7KZBjLuIiYC01zkMX
-         IvE3kJml2khEg==
-Received: from customer (localhost [127.0.0.1])
-        by submission (posteo.de) with ESMTPSA id 4Fy9sr734Qz9rxB;
-        Sat,  5 Jun 2021 22:17:36 +0200 (CEST)
-From:   Benjamin Drung <bdrung@posteo.de>
-To:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Adam Goode <agoode@google.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Benjamin Drung <bdrung@posteo.de>, stable@vger.kernel.org
-Subject: [PATCH v4] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
-Date:   Sat,  5 Jun 2021 20:15:36 +0000
-Message-Id: <20210605201534.53114-1-bdrung@posteo.de>
-In-Reply-To: <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
-References: <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
+        id S230036AbhFEUXM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 16:23:12 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41824 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230010AbhFEUXM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 16:23:12 -0400
+Received: from mail-lf1-x12c.google.com (mail-lf1-x12c.google.com [IPv6:2a00:1450:4864:20::12c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E383C061766;
+        Sat,  5 Jun 2021 13:21:08 -0700 (PDT)
+Received: by mail-lf1-x12c.google.com with SMTP id f11so19308256lfq.4;
+        Sat, 05 Jun 2021 13:21:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1ogeBL4TcRDY07px4nouuwmteF277fCXlnUA+B+W6KM=;
+        b=mqqKwwLvMDY3JlUWWWYLyoi/pDeqzc6aUpBSLsDNUYKPFUW/jsQUOWtQ1jnHCg5EgG
+         delRQ/eQ+VcplHkZhp8MXSXV5dpoKSK8p/iDfUdE5+SZgIAuprM6SJOmSKYwDxm4v0kH
+         ckSi4B8Zh16QiPdwmhLEW4VkWgSmxs15GjBNOBPVXohx397jOgoepgC41NLxwI/+AOge
+         jYuUEJ0nMd8+dBHADULuJwg8MNAqsidltpNHfA+UT8qzEUdvsGW0FGQs1KUm6YshjXKE
+         a5igEKJasg4hKHoao1LYFltlKKJ7CV3Wv+tg/9+mV0WV13Dog/Y03imQ4/EP5cSMxcsP
+         nsIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
+         :content-transfer-encoding;
+        bh=1ogeBL4TcRDY07px4nouuwmteF277fCXlnUA+B+W6KM=;
+        b=MyKIKk8EUOFhq3YSInc7Kd4l99mYOiYYORH02UK79p3yvvqUzDXrbNGoajRP9DK+W0
+         StiR4NRXetjJmoMDyyQ0C0zUh89MsluFRn2Nl0XfxTEFSwAYSJGjOaGzDZsaPUjex3Hj
+         P9gouvhCU4VQyPbELVJ/yJksvArwvAMEITjwLPSXTRahcRaa3MMVHNFFTyk/JecyxlJu
+         KS4wNF4/I7x8ou+k42bBb40q+KBqYZ4T3DPNp1TTE+CwBuhLwOrU9BdpCnfKyDRqyKBB
+         cvnz+/qT3wX9wAL87rdK7qfe8vvPLKKU5riqQSj9olA4j7GsNZxEeneHw6AjOduuo1yf
+         gN3w==
+X-Gm-Message-State: AOAM531hdGCRH35O/HJDf7Oc70c1g95aXW0tVClI2rIFnjmFP5+137aV
+        9Cjg5RPM6nUbiit8wAm32ZM=
+X-Google-Smtp-Source: ABdhPJyT/r2kiS8+pHX0yX1Hgi8Lw8GXSW7vBmHaEZESE8HfV+DkRY5gU8Te6n8ghcaK/KJT8CBohA==
+X-Received: by 2002:ac2:57c1:: with SMTP id k1mr1213103lfo.231.1622924466507;
+        Sat, 05 Jun 2021 13:21:06 -0700 (PDT)
+Received: from localhost.localdomain ([94.103.224.40])
+        by smtp.gmail.com with ESMTPSA id o14sm954399lfi.193.2021.06.05.13.21.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 05 Jun 2021 13:21:05 -0700 (PDT)
+From:   Pavel Skripkin <paskripkin@gmail.com>
+To:     dledford@redhat.com, jgg@ziepe.ca, leon@kernel.org,
+        shayd@nvidia.com
+Cc:     linux-rdma@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Pavel Skripkin <paskripkin@gmail.com>, stable@vger.kernel.org
+Subject: [PATCH] infiniband: core: fix memory leak
+Date:   Sat,  5 Jun 2021 23:20:51 +0300
+Message-Id: <20210605202051.14783-1-paskripkin@gmail.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The Elgato Cam Link 4K HDMI video capture card reports to support three
-different pixel formats, where the first format depends on the connected
-HDMI device.
+My local syzbot instance hit memory leak in
+copy_process(). The problem was in unputted task
+struct in _destroy_id().
 
-```
-$ v4l2-ctl -d /dev/video0 --list-formats-ext
-ioctl: VIDIOC_ENUM_FMT
-	Type: Video Capture
+Simple reproducer:
 
-	[0]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[1]: 'NV12' (Y/CbCr 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-	[2]: 'YU12' (Planar YUV 4:2:0)
-		Size: Discrete 3840x2160
-			Interval: Discrete 0.033s (29.970 fps)
-```
+int main(void)
+{
+        struct rdma_ucm_cmd_hdr *hdr;
+        struct rdma_ucm_create_id *cmd_id;
+        char cmd[sizeof(*hdr) + sizeof(*cmd_id)] = {0};
+        int fd;
 
-Changing the pixel format to anything besides the first pixel format
-does not work:
+        hdr = (struct rdma_ucm_cmd_hdr *)cmd;
+        cmd_id = (struct rdma_ucm_create_id *) (cmd + sizeof(*hdr));
 
-```
-$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
-Format Video Capture:
-	Width/Height      : 3840/2160
-	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
-	Field             : None
-	Bytes per Line    : 3840
-	Size Image        : 12441600
-	Colorspace        : sRGB
-	Transfer Function : Rec. 709
-	YCbCr/HSV Encoding: Rec. 709
-	Quantization      : Default (maps to Limited Range)
-	Flags             :
-```
+        hdr->cmd = 0;
+        hdr->in = 0x18;
+        hdr->out = 0xfa00;
 
-User space applications like VLC might show an error message on the
-terminal in that case:
+        cmd_id->uid = 0x3;
+        cmd_id->response = 0x0;
+        cmd_id->ps = 0x106;
 
-```
-libv4l2: error set_fmt gave us a different result than try_fmt!
-```
+        fd = open("/dev/infiniband/rdma_cm", O_WRONLY);
+        write(fd, cmd, sizeof(cmd));
+}
 
-Depending on the error handling of the user space applications, they
-might display a distorted video, because they use the wrong pixel format
-for decoding the stream.
+Ftrace log:
 
-The Elgato Cam Link 4K responds to the USB video probe
-VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
-second byte contains bFormatIndex (instead of being the second byte of
-bmHint). The first byte is always zero. The third byte is always 1.
+ucma_open();
+ucma_write() {
+  ucma_create_id() {
+    ucma_alloc_ctx();
+    rdma_create_user_id() {
+      rdma_restrack_new();
+      rdma_restrack_set_name() {
+        rdma_restrack_attach_task.part.0(); <--- task_struct getted
+      }
+    }
+    ucma_destroy_private_ctx() {
+      ucma_put_ctx();
+      rdma_destroy_id() {
+        _destroy_id()			    <--- id_priv freed
+      }
+    }
+  }
+}
+ucma_close();
 
-The firmware bug was reported to Elgato on 2020-12-01 and it was
-forwarded by the support team to the developers as feature request.
-There is no firmware update available since then. The latest firmware
-for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
+From previous log it's easy to undertand that
+_destroy_id() is the last place, where task_struct
+can be putted, because at the end of this function
+id_priv is freed.
 
-Therefore add a quirk to correct the malformed data structure.
+With this patch applied, above reproducer doesn't hit memory
+leak anymore.
 
-The quirk was successfully tested with VLC, OBS, and Chromium using
-different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
-1920x1080), and frame rates (29.970 and 59.940 fps).
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Benjamin Drung <bdrung@posteo.de>
+Fixes: e51060f08a61 ("IB: IP address based RDMA connection manager")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 ---
- drivers/media/usb/uvc/uvc_video.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+ drivers/infiniband/core/cma.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-(now sending this patch with v4 in the subject instead of falsely v3)
-
-v2: enhanced the comment describing the quirk
-
-v3:
-* hardcode ctrl->bmHint to 1
-* Use UVC_DBG_VIDEO instead of UVC_DBG_CONTROL (to match the rest of the
-  file)
-
-v4:
-* Replace quirk bit by specific check for USB VID:PID test
-
-I tried setting different values for bmHint, but the response from the
-Cam Link was always 1. So this patch hardcodes ctrl->bmHint to 1 as
-suggested.
-
-Patch version 4 implements the recommendation of Laurent Pinchart. It
-requires defining the device ID as variable since usb_match_one_id takes
-an pointer to it. In case more Elgato products like Game Capture
-HD 60 S+ (0fd9:006a) are affected, this version is harder to extent.
-
-Take patch version 3 or 4 depending on which version you prefer. Both
-work and are tested.
-
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index a777b389a66e..35c3ce0e0716 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -130,6 +130,31 @@ static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
- 	struct uvc_format *format = NULL;
- 	struct uvc_frame *frame = NULL;
- 	unsigned int i;
-+	static const struct usb_device_id elgato_cam_link_4k = { USB_DEVICE(0x0fd9, 0x0066) };
-+
-+	/*
-+	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
-+	 * contains bFormatIndex (instead of being the second byte of bmHint).
-+	 * The first byte is always zero. The third byte is always 1.
-+	 *
-+	 * The UVC 1.5 class specification defines the first five bits in the
-+	 * bmHint bitfield. The remaining bits are reserved and should be zero.
-+	 * Therefore a valid bmHint will be less than 32.
-+	 *
-+	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this quirk.
-+	 * MCU: 20.02.19, FPGA: 67
-+	 */
-+	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) && ctrl->bmHint > 255) {
-+		__u8 corrected_format_index;
-+
-+		corrected_format_index = ctrl->bmHint >> 8;
-+		uvc_dbg(stream->dev, VIDEO,
-+			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: 0x%02x} to {bmHint: 0x%04x, bFormatIndex: 0x%02x}.\n",
-+			ctrl->bmHint, ctrl->bFormatIndex,
-+			1, corrected_format_index);
-+		ctrl->bmHint = 1;
-+		ctrl->bFormatIndex = corrected_format_index;
-+	}
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index ab148a696c0c..2760352261b3 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -1874,6 +1874,7 @@ static void _destroy_id(struct rdma_id_private *id_priv,
  
- 	for (i = 0; i < stream->nformats; ++i) {
- 		if (stream->format[i].index == ctrl->bFormatIndex) {
+ 	kfree(id_priv->id.route.path_rec);
+ 
++	rdma_restrack_put(&id_priv->res);
+ 	put_net(id_priv->id.route.addr.dev_addr.net);
+ 	kfree(id_priv);
+ }
 -- 
-2.27.0
+2.31.1
 
