@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6730239C48C
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:40:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A60039C48E
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:41:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229853AbhFEAmA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 20:42:00 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:4476 "EHLO
+        id S230344AbhFEAm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 20:42:59 -0400
+Received: from szxga02-in.huawei.com ([45.249.212.188]:3430 "EHLO
         szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbhFEAl7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 20:41:59 -0400
-Received: from dggemv711-chm.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Fxgh40wCfzYnDG;
-        Sat,  5 Jun 2021 08:37:24 +0800 (CST)
+        with ESMTP id S229847AbhFEAm6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 20:42:58 -0400
+Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Fxghy2Yp8z6trV;
+        Sat,  5 Jun 2021 08:38:10 +0800 (CST)
 Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv711-chm.china.huawei.com (10.1.198.66) with Microsoft SMTP Server
+ dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Sat, 5 Jun 2021 08:40:10 +0800
+ 15.1.2176.2; Sat, 5 Jun 2021 08:41:10 +0800
 Received: from [10.174.178.208] (10.174.178.208) by
  dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Sat, 5 Jun 2021 08:40:09 +0800
-Subject: Re: Linux 5.4.124
+ 15.1.2176.2; Sat, 5 Jun 2021 08:41:09 +0800
+Subject: Re: Linux 5.10.42
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
         <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
 CC:     <lwn@lwn.net>, <jslaby@suse.cz>
-References: <1622706742195177@kroah.com>
+References: <162270674910125@kroah.com>
 From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <943b2bcb-fa29-87b1-fdf8-26d80d551baa@huawei.com>
-Date:   Sat, 5 Jun 2021 08:40:09 +0800
+Message-ID: <11d9ec23-ce28-5da1-3759-42abdc4013e2@huawei.com>
+Date:   Sat, 5 Jun 2021 08:41:09 +0800
 User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
  Thunderbird/68.7.0
 MIME-Version: 1.0
-In-Reply-To: <1622706742195177@kroah.com>
+In-Reply-To: <162270674910125@kroah.com>
 Content-Type: text/plain; charset="utf-8"; format=flowed
 Content-Language: en-US
 Content-Transfer-Encoding: 7bit
 X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems701-chm.china.huawei.com (10.3.19.178) To
+X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
  dggemi762-chm.china.huawei.com (10.1.198.148)
 X-CFilter-Loop: Reflected
 Precedence: bulk
@@ -49,12 +49,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
-> I'm announcing the release of the 5.4.124 kernel.
+> I'm announcing the release of the 5.10.42 kernel.
 > 
-> All users of the 5.4 kernel series must upgrade.
+> All users of the 5.10 kernel series must upgrade.
 > 
-> The updated 5.4.y git tree can be found at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.4.y
+> The updated 5.10.y git tree can be found at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
 > and can be browsed at the normal kernel.org git web browser:
 > 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
 > 
@@ -62,13 +62,14 @@ On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
 > 
 > greg k-h
 > 
-Tested on arm64 and x86 for 5.4.124,
+
+Tested on arm64 and x86 for 5.10.42,
 
 Kernel repo:
 https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.4.y
-Version: 5.4.124
-Commit: 70154d2f82a9058e8316b6e106071c72fcc58718
+Branch: linux-5.10.y
+Version: 5.10.42
+Commit: 65859eca4dff1af0db5e36d1cfbac15b834c6a65
 Compiler: gcc version 7.3.0 (GCC)
 
 arm64:
