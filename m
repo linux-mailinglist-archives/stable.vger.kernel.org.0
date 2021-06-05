@@ -2,105 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B1239C690
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 09:16:57 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF0C039C698
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 09:28:19 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbhFEHSo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 03:18:44 -0400
-Received: from mail.loongson.cn ([114.242.206.163]:45960 "EHLO loongson.cn"
-        rhost-flags-OK-OK-OK-FAIL) by vger.kernel.org with ESMTP
-        id S229850AbhFEHSn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Jun 2021 03:18:43 -0400
-Received: from [10.130.0.135] (unknown [113.200.148.30])
-        by mail.loongson.cn (Coremail) with SMTP id AQAAf9Dxv0PcJLtgBoMKAA--.12002S3;
-        Sat, 05 Jun 2021 15:16:44 +0800 (CST)
-Subject: Re: [PATCH 4.19 0/9] bpf: fix verifier selftests on inefficient
- unaligned access architectures
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-References: <1622604473-781-1-git-send-email-yangtiezhu@loongson.cn>
-Cc:     stable@vger.kernel.org, bpf@vger.kernel.org
-From:   Tiezhu Yang <yangtiezhu@loongson.cn>
-Message-ID: <70c92574-ab22-1a04-067e-4c933ef75a9a@loongson.cn>
-Date:   Sat, 5 Jun 2021 15:16:44 +0800
-User-Agent: Mozilla/5.0 (X11; Linux mips64; rv:45.0) Gecko/20100101
- Thunderbird/45.4.0
+        id S229924AbhFEHaF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 03:30:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44032 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229755AbhFEHaE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Sat, 5 Jun 2021 03:30:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E95D61205;
+        Sat,  5 Jun 2021 07:28:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1622878097;
+        bh=5g/aAviMny/1FbdkPtEqxlinD1zUu0BX5Eg+Gjxof9w=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=ecqtWV5+MliS+73h1GUVDr/6Is2BagPyHqHOLAWXmLeEsp+nor4Oi0a57xaWOWcRf
+         7Hni68QjXNX+9wxpVa6eZcO3hIXX3fdRQKfSctMxfWq+j4FJ9ca0z1MgjUFgSr3JsZ
+         NDBdYEwmgz9BhUYAxFFSJdpfG7blR0pt87qQbIqRmV7dw4tb4WoppJV7LCZ+xzA/k6
+         vqUGV1OOmqn1570/9AAFVvw0H/iGCkOrcGqldrsAovanOxS9cDp33wMGneSDJA3nLt
+         YXiAK/xIZxtdksDZYYPE2+GIrmYwQW+XY9Bje6oDYMUYvv0oQ3QbyUU3lOxzuJmXAa
+         zILBDus1uZYhg==
+Date:   Sat, 5 Jun 2021 00:28:15 -0700
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-fscrypt@vger.kernel.org
+Cc:     linux-ext4@vger.kernel.org, linux-mtd@lists.infradead.org,
+        stable@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net
+Subject: Re: [PATCH] fscrypt: don't ignore minor_hash when hash is 0
+Message-ID: <YLsnjxXpe+agF6nj@sol.localdomain>
+References: <20210527235236.2376556-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-In-Reply-To: <1622604473-781-1-git-send-email-yangtiezhu@loongson.cn>
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID: AQAAf9Dxv0PcJLtgBoMKAA--.12002S3
-X-Coremail-Antispam: 1UD129KBjvJXoWxJryrWry3JFW8ArWxJw1fWFg_yoW8Zry5pa
-        y0gFZ8tr4kt3Wxua47AF4UuFWrZ3sYgw4UC3Wftr98AF18AryxJr4Iga4YyF9xKrZ3Wr1F
-        v34aqFn5Gw1fXFJanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUvqb7Iv0xC_Kw4lb4IE77IF4wAFF20E14v26r1j6r4UM7CY07I2
-        0VC2zVCF04k26cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rw
-        A2F7IY1VAKz4vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Ar0_tr1l84ACjcxK6xII
-        jxv20xvEc7CjxVAFwI0_Cr0_Gr1UM28EF7xvwVC2z280aVAFwI0_Gr1j6F4UJwA2z4x0Y4
-        vEx4A2jsIEc7CjxVAFwI0_Cr1j6rxdM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVAC
-        Y4xI64kE6c02F40Ex7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJV
-        W8JwAm72CE4IkC6x0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lc7I2V7IY0VAS07AlzVAYIcxG
-        8wCY02Avz4vE14v_GF4l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2
-        IqxVAqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v2
-        6r126r1DMIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2
-        IY6xkF7I0E14v26r1j6r4UMIIF0xvE42xK8VAvwI8IcIk0rVWrJr0_WFyUJwCI42IY6I8E
-        87Iv67AKxVWUJVW8JwCI42IY6I8E87Iv6xkF7I0E14v26r1j6r4UYxBIdaVFxhVjvjDU0x
-        ZFpf9x07bo-BiUUUUU=
-X-CM-SenderInfo: p1dqw3xlh2x3gn0dqz5rrqw2lrqou0/
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210527235236.2376556-1-ebiggers@kernel.org>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 06/02/2021 11:27 AM, Tiezhu Yang wrote:
-> With the following patch series, all verifier selftests pass on the archs which
-> select HAVE_EFFICIENT_UNALIGNED_ACCESS.
->
-> [v2,4.19,00/19] bpf: fix verifier selftests, add CVE-2021-29155, CVE-2021-33200 fixes
-> https://patchwork.kernel.org/project/netdevbpf/cover/20210528103810.22025-1-ovidiu.panait@windriver.com/
->
-> But on inefficient unaligned access architectures, there still exist many failures,
-> so some patches about F_NEEDS_EFFICIENT_UNALIGNED_ACCESS are also needed, backport
-> to 4.19 with a minor context difference.
->
-> This patch series is based on the series (all now queued up by greg k-h):
-> "bpf: fix verifier selftests, add CVE-2021-29155, CVE-2021-33200 fixes".
->
-> Björn Töpel (2):
->    selftests/bpf: add "any alignment" annotation for some tests
->    selftests/bpf: Avoid running unprivileged tests with alignment
->      requirements
->
-> Daniel Borkmann (2):
->    bpf: fix test suite to enable all unpriv program types
->    bpf: test make sure to run unpriv test cases in test_verifier
->
-> David S. Miller (4):
->    bpf: Add BPF_F_ANY_ALIGNMENT.
->    bpf: Adjust F_NEEDS_EFFICIENT_UNALIGNED_ACCESS handling in
->      test_verifier.c
->    bpf: Make more use of 'any' alignment in test_verifier.c
->    bpf: Apply F_NEEDS_EFFICIENT_UNALIGNED_ACCESS to more ACCEPT test
->      cases.
->
-> Joe Stringer (1):
->    selftests/bpf: Generalize dummy program types
->
->   include/uapi/linux/bpf.h                    |  14 ++
->   kernel/bpf/syscall.c                        |   7 +-
->   kernel/bpf/verifier.c                       |   3 +
->   tools/include/uapi/linux/bpf.h              |  14 ++
->   tools/lib/bpf/bpf.c                         |   8 +-
->   tools/lib/bpf/bpf.h                         |   2 +-
->   tools/testing/selftests/bpf/test_align.c    |   4 +-
->   tools/testing/selftests/bpf/test_verifier.c | 224 ++++++++++++++++++++--------
->   8 files changed, 206 insertions(+), 70 deletions(-)
->
+On Thu, May 27, 2021 at 04:52:36PM -0700, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
+> 
+> When initializing a no-key name, fscrypt_fname_disk_to_usr() sets the
+> minor_hash to 0 if the (major) hash is 0.
+> 
+> This doesn't make sense because 0 is a valid hash code, so we shouldn't
+> ignore the filesystem-provided minor_hash in that case.  Fix this by
+> removing the special case for 'hash == 0'.
+> 
+> This is an old bug that appears to have originated when the encryption
+> code in ext4 and f2fs was moved into fs/crypto/.  The original ext4 and
+> f2fs code passed the hash by pointer instead of by value.  So
+> 'if (hash)' actually made sense then, as it was checking whether a
+> pointer was NULL.  But now the hashes are passed by value, and
+> filesystems just pass 0 for any hashes they don't have.  There is no
+> need to handle this any differently from the hashes actually being 0.
+> 
+> It is difficult to reproduce this bug, as it only made a difference in
+> the case where a filename's 32-bit major hash happened to be 0.
+> However, it probably had the largest chance of causing problems on
+> ubifs, since ubifs uses minor_hash to do lookups of no-key names, in
+> addition to using it as a readdir cookie.  ext4 only uses minor_hash as
+> a readdir cookie, and f2fs doesn't use minor_hash at all.
+> 
+> Fixes: 0b81d0779072 ("fs crypto: move per-file encryption from f2fs tree to fs/crypto")
+> Cc: <stable@vger.kernel.org> # v4.6+
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  fs/crypto/fname.c | 10 +++-------
+>  1 file changed, 3 insertions(+), 7 deletions(-)
+> 
 
-Hi Greg and Sasha,
+Applied to fscrypt.git#master for 5.14.
 
-Could you please apply this series to 4.19?
-Any comments will be much appreciated.
-
-Thanks,
-Tiezhu
-
+- Eric
