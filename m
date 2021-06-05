@@ -2,241 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A70F39C6B8
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 10:20:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B0D639C6F9
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 11:11:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229902AbhFEIVs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 04:21:48 -0400
-Received: from mout02.posteo.de ([185.67.36.66]:56359 "EHLO mout02.posteo.de"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S229889AbhFEIVr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Sat, 5 Jun 2021 04:21:47 -0400
-Received: from submission (posteo.de [89.146.220.130]) 
-        by mout02.posteo.de (Postfix) with ESMTPS id 66AD82400FF
-        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 10:19:58 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=posteo.de; s=2017;
-        t=1622881198; bh=nu1BLvmZrqYaytmdrBBw9GMUEofsomb+aCdcUAocJiM=;
-        h=Subject:From:To:Cc:Date:From;
-        b=BUR/4qovOyi1sZXEVZWUF+1XIOBUoPHtHHs4d4/CiZ5+jGlwDc+iOv2q0MTVFyi2k
-         p21cr1AWDgTURjymVL7RnWsiP44aPBxi/s+g1szahGQcl1jANsvzSzHFjgaoe8UZwj
-         de7C4+hW7dRl2iNSV3jEWLFiZcP2CLQ+5hXAmu+5Cexj/XjspxCAtZ1brS9QgXS/+w
-         bGLoY/Wqq0vLRTAvks2JCQ2GT4QNL6dcbC5/+DqxtBQYGtyPED7cF1kCLoOZpOFvIk
-         sRv7U+a+9ApotKbFfSomMIHrIedSFLTubDtlbbZSOad3RbQEBJVVrB22SAJbHy8EgP
-         Wu3M7tPmG67WA==
-Received: from customer (localhost [127.0.0.1])
-        by submission (posteo.de) with ESMTPSA id 4Fxsxn147nz6tmL;
-        Sat,  5 Jun 2021 10:19:57 +0200 (CEST)
-Message-ID: <9219fc970e41188db748643bb0efe6bcbef53168.camel@posteo.de>
-Subject: Re: [PATCH v2] media: uvcvideo: Fix pixel format change for Elgato
- Cam Link 4K
-From:   Benjamin Drung <bdrung@posteo.de>
-To:     Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        Adam Goode <agoode@google.com>,
-        Mauro Carvalho Chehab <mchehab@kernel.org>,
-        linux-media@vger.kernel.org, linux-kernel@vger.kernel.org,
+        id S229889AbhFEJMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 05:12:49 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:52201 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S229881AbhFEJMt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 05:12:49 -0400
+Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
+        by mailout.west.internal (Postfix) with ESMTP id 4C3231637;
+        Sat,  5 Jun 2021 05:11:01 -0400 (EDT)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute4.internal (MEProxy); Sat, 05 Jun 2021 05:11:01 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sakamocchi.jp;
+         h=from:to:cc:subject:date:message-id:mime-version
+        :content-transfer-encoding; s=fm1; bh=+FG/mfjNYGqXJsfYEvOqtoj5X2
+        IszAKf/IZh5lLmLGo=; b=rQwjE36QY+7onJt+vSIPsx1Gjg3tbHbWDa4uM7ZvNb
+        rhSiR8Nj2OWq0Rcu+Jqb1hwjESwfRt4fiBzXMUYfkjPQXcGJHybMj6dYopmw+AD3
+        S8EbRkrofUfy7F8srjaKwATXdr5gFdBuJmInGoY0HRLuC6bkUj5ce2n/ud0eJsEW
+        c4OEXqqgeKbjNUsdbDuF5OlIft6ARCO/0BX89wzeTFxM5SULxro8yMSmzMRtLoFi
+        wuFp2gqq+/oJ8YeAsj8RrYlUZahmumlByO1pHXnf+T3BJENCrYJ/YxTur4upnkV2
+        T3XjJcmd/tvcCR/Nbo8V+m38LN7EV6wzaRSa6XFWf4vQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:date:from
+        :message-id:mime-version:subject:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=+FG/mfjNYGqXJsfYE
+        vOqtoj5X2IszAKf/IZh5lLmLGo=; b=U0xCjimJ5/V8MHq78dUdDTproPSXEOLKs
+        nXEb0oKzBtPewR79Pey0zB/r+TbA/oCs01Bcv9vbcGAtWPiPZk1KFs7ZOpbm1ew2
+        tedsCdZhs3nJ84YTHF2mT2wtZNzEb9Cyt6GC+f9/V0Xybz+4r7ULB+Aj6SExud4C
+        qcKWpaaU2mc0Z6tJUQeZZsFJZ/us0uxfjNcyHmwAQiGnIWu1Bj/FZHQEVhfvlwWQ
+        vaw09UemWhAFrCjUv0xSB/p51aOn0LCt5UVhFp2cwBAtGVtKhL16U3GDPBL/wjN9
+        XOMqhccvI5+sxh0XzXIVfxZDRaf+mL4KMjrXkmCApPR5gcekpPPyw==
+X-ME-Sender: <xms:oz-7YPH9KKIp18xVZvgEfoYKgq2zPeMd3OMhAz-sVJRavOKiAXIXEQ>
+    <xme:oz-7YMXBvD_EVATh_DHqJp3lx4MFPhl0ScIj5Gfqgpr_Wc1DL5Zf_ypXcJuGTiON_
+    XLbgHzr4Avq9ye8Fpg>
+X-ME-Received: <xmr:oz-7YBLXcSj49XpwztsFucSKwD6gqw7eNSL00eJFhFd1RlG62boPHwr6frLJCzsK_BAFgGUz2migOgk1ZJV8fHfi2Gg7l7mYOkOysx_Kz_tWfWxu7jxw>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtfedgudefucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefhvffufffkofgggfestdekredtre
+    dttdenucfhrhhomhepvfgrkhgrshhhihcuufgrkhgrmhhothhouceoohdqthgrkhgrshhh
+    ihesshgrkhgrmhhotggthhhirdhjpheqnecuggftrfgrthhtvghrnhepudejteelhfdttd
+    ekgfdtueeilefhgfetjeejheekgeevuddvveegieehueeukeejnecuvehluhhsthgvrhfu
+    ihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepohdqthgrkhgrshhhihesshgrkh
+    grmhhotggthhhirdhjph
+X-ME-Proxy: <xmx:oz-7YNEqLqU-p5JrtFHg6Kcz8455dqNgh5A2cdtLtXakL2VfoqpCig>
+    <xmx:oz-7YFXFD8KgrwEKkl2-UFeyZ0BwUAVNZKusamoDW7Atflz2HzMKSw>
+    <xmx:oz-7YIP_Q-2Kv-MnYU3jS2CoBtfyQD2AJQgOmWWy2ZnMf5HknIq0Sw>
+    <xmx:pD-7YChIrNztOubValKN-G4kvcWl_HrSKS3uQoTITdXyI-0xchJnGg>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
+ 5 Jun 2021 05:10:58 -0400 (EDT)
+From:   Takashi Sakamoto <o-takashi@sakamocchi.jp>
+To:     tiwai@suse.de
+Cc:     clemens@ladisch.de, alsa-devel@alsa-project.org,
         stable@vger.kernel.org
-Date:   Sat, 05 Jun 2021 08:19:56 +0000
-In-Reply-To: <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
-References: <CAOf41NnKMks8UgM+4Z5ymNtBnioPzsTE-1fh1ERMEcFfX=UoMg@mail.gmail.com>
-         <20210604171941.66136-1-bdrung@posteo.de>
-         <YLqnU+FYSAcWwaAZ@pendragon.ideasonboard.com>
-Content-Type: text/plain; charset="UTF-8"
+Subject: [PATCH] ALSA: firewire-lib: fix the context to call snd_pcm_stop_xrun()
+Date:   Sat,  5 Jun 2021 18:10:54 +0900
+Message-Id: <20210605091054.68866-1-o-takashi@sakamocchi.jp>
+X-Mailer: git-send-email 2.27.0
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Laurent,
+In the workqueue to queue wake-up event, isochronous context is not
+processed, thus it's useless to check context for the workqueue to switch
+status of runtime for PCM substream to XRUN. On the other hand, in
+software IRQ context of 1394 OHCI, it's needed.
 
-Am Samstag, den 05.06.2021, 01:21 +0300 schrieb Laurent Pinchart:
-> Hi Benjamin,
-> 
-> Thank you for the patch.
-> 
-> On Fri, Jun 04, 2021 at 05:19:42PM +0000, Benjamin Drung wrote:
-> > The Elgato Cam Link 4K HDMI video capture card reports to support three
-> > different pixel formats, where the first format depends on the connected
-> > HDMI device.
-> > 
-> > ```
-> > $ v4l2-ctl -d /dev/video0 --list-formats-ext
-> > ioctl: VIDIOC_ENUM_FMT
-> > 	Type: Video Capture
-> > 
-> > 	[0]: 'NV12' (Y/CbCr 4:2:0)
-> > 		Size: Discrete 3840x2160
-> > 			Interval: Discrete 0.033s (29.970 fps)
-> > 	[1]: 'NV12' (Y/CbCr 4:2:0)
-> > 		Size: Discrete 3840x2160
-> > 			Interval: Discrete 0.033s (29.970 fps)
-> > 	[2]: 'YU12' (Planar YUV 4:2:0)
-> > 		Size: Discrete 3840x2160
-> > 			Interval: Discrete 0.033s (29.970 fps)
-> > ```
-> > 
-> > Changing the pixel format to anything besides the first pixel format
-> > does not work:
-> > 
-> > ```
-> > $ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
-> > Format Video Capture:
-> > 	Width/Height      : 3840/2160
-> > 	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
-> > 	Field             : None
-> > 	Bytes per Line    : 3840
-> > 	Size Image        : 12441600
-> > 	Colorspace        : sRGB
-> > 	Transfer Function : Rec. 709
-> > 	YCbCr/HSV Encoding: Rec. 709
-> > 	Quantization      : Default (maps to Limited Range)
-> > 	Flags             :
-> > ```
-> > 
-> > User space applications like VLC might show an error message on the
-> > terminal in that case:
-> > 
-> > ```
-> > libv4l2: error set_fmt gave us a different result than try_fmt!
-> > ```
-> > 
-> > Depending on the error handling of the user space applications, they
-> > might display a distorted video, because they use the wrong pixel format
-> > for decoding the stream.
-> > 
-> > The Elgato Cam Link 4K responds to the USB video probe
-> > VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
-> > second byte contains bFormatIndex (instead of being the second byte of
-> > bmHint). The first byte is always zero. The third byte is always 1.
-> > 
-> > The firmware bug was reported to Elgato on 2020-12-01 and it was
-> > forwarded by the support team to the developers as feature request.
-> > There is no firmware update available since then. The latest firmware
-> > for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
-> 
-> *sigh* :-( Same vendors are depressingly unable to perform even the most
-> basic conformance testing.
-> 
-> Thanks for all this analysis and bug reports.
-> 
-> > Therefore add a quirk to correct the malformed data structure.
-> > 
-> > The quirk was successfully tested with VLC, OBS, and Chromium using
-> > different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
-> > 1920x1080), and frame rates (29.970 and 59.940 fps).
-> > 
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Benjamin Drung <bdrung@posteo.de>
-> > ---
-> > 
-> > I am sending this patch a fourth time since I got no response and the
-> > last resend is over a month ago. This time I am including Linus Torvalds
-> > in the hope to get it reviewed.
-> 
-> The resend got to the top of my mailbox and I had time to review it
-> before it got burried again. Thanks for not giving up.
+This commit fixes the bug introduced when tasklet was replaced with
+workqueue.
 
-Thanks for reviewing the patch.
+Cc: <stable@vger.kernel.org>
+Fixes: 2b3d2987d800 ("ALSA: firewire: Replace tasklet with work")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+---
+ sound/firewire/amdtp-stream.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-> >  drivers/media/usb/uvc/uvc_driver.c | 13 +++++++++++++
-> >  drivers/media/usb/uvc/uvc_video.c  | 21 +++++++++++++++++++++
-> >  drivers/media/usb/uvc/uvcvideo.h   |  1 +
-> >  3 files changed, 35 insertions(+)
-> > 
-> > diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-> > index 9a791d8ef200..6ce58950d78b 100644
-> > --- a/drivers/media/usb/uvc/uvc_driver.c
-> > +++ b/drivers/media/usb/uvc/uvc_driver.c
-> > @@ -3164,6 +3164,19 @@ static const struct usb_device_id uvc_ids[] = {
-> >  	  .bInterfaceSubClass	= 1,
-> >  	  .bInterfaceProtocol	= 0,
-> >  	  .driver_info		= UVC_INFO_META(V4L2_META_FMT_D4XX) },
-> > +	/*
-> > +	 * Elgato Cam Link 4K
-> > +	 * Latest firmware as of 2021-03-23 needs this quirk.
-> > +	 * MCU: 20.02.19, FPGA: 67
-> > +	 */
-> > +	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
-> > +				| USB_DEVICE_ID_MATCH_INT_INFO,
-> > +	  .idVendor		= 0x0fd9,
-> > +	  .idProduct		= 0x0066,
-> > +	  .bInterfaceClass	= USB_CLASS_VIDEO,
-> > +	  .bInterfaceSubClass	= 1,
-> > +	  .bInterfaceProtocol	= 0,
-> > +	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_FIX_FORMAT_INDEX) },
-> >  	/* Generic USB Video Class */
-> >  	{ USB_INTERFACE_INFO(USB_CLASS_VIDEO, 1, UVC_PC_PROTOCOL_UNDEFINED) },
-> >  	{ USB_INTERFACE_INFO(USB_CLASS_VIDEO, 1, UVC_PC_PROTOCOL_15) },
-> > diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-> > index a777b389a66e..910d22233d74 100644
-> > --- a/drivers/media/usb/uvc/uvc_video.c
-> > +++ b/drivers/media/usb/uvc/uvc_video.c
-> > @@ -131,6 +131,27 @@ static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
-> >  	struct uvc_frame *frame = NULL;
-> >  	unsigned int i;
-> >  
-> > 
-> > +	/*
-> > +	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
-> > +	 * contains bFormatIndex (instead of being the second byte of bmHint).
-> > +	 * The first byte is always zero. The third byte is always 1.
-> > +	 *
-> > +	 * The UVC 1.5 class specification defines the first five bits in the
-> > +	 * bmHint bitfield. The remaining bits are reserved and should be zero.
-> > +	 * Therefore a valid bmHint will be less than 32.
-> > +	 */
-> > +	if (stream->dev->quirks & UVC_QUIRK_FIX_FORMAT_INDEX && ctrl->bmHint > 255) {
-> 
-> Given that this is likely not going to affect other devices (at least in
-> the same way), I'd rather test the USB VID:PID that add a quirk.
-> Something along the lines of
-> 
-> 	if (usb_match_one_id(stream->dev->intf, USB_DEVICE(0x0fd9, 0x0066)) {
-
-Adam Goode suggested that the Game Capture HD 60 S+ (0fd9:006a) from the
-same vendor is probably affected by the same bug. I cannot test this
-assumption since I don't have this device (I am open for a loaner
-device). An Internet search did not reveal bug reports in this regard.
-Most search results referred to older versions (e.g. without + or
-without S+) Do you still prefer to test the USB VID:PID?
-
-> > +		__u8 corrected_format_index;
-> > +
-> > +		corrected_format_index = ctrl->bmHint >> 8;
-> > +		uvc_dbg(stream->dev, CONTROL,
-> > +			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: 0x%02x} to {bmHint: 0x%04x, bFormatIndex: 0x%02x}.\n",
-> > +			ctrl->bmHint, ctrl->bFormatIndex,
-> > +			ctrl->bFormatIndex, corrected_format_index);
-> > +		ctrl->bmHint = ctrl->bFormatIndex;
-> 
-> According to your description above, this will always be 1. Is the third
-> byte always 1 because the driver always sets bmHint to 1, or would it
-> have a different value if we set bmHint to something else ? In the first
-> case I'd hardcode ctrl->bmHint to 1 here.
-
-I will test setting bmHint to something else than 1 to check. I will
-report back then. Either follow your sugstion or update the comment.
-
-> > +		ctrl->bFormatIndex = corrected_format_index;
-> > +	}
-> > +
-> >  	for (i = 0; i < stream->nformats; ++i) {
-> >  		if (stream->format[i].index == ctrl->bFormatIndex) {
-> >  			format = &stream->format[i];
-> > diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-> > index cce5e38133cd..cbb4ef61a64d 100644
-> > --- a/drivers/media/usb/uvc/uvcvideo.h
-> > +++ b/drivers/media/usb/uvc/uvcvideo.h
-> > @@ -209,6 +209,7 @@
-> >  #define UVC_QUIRK_RESTORE_CTRLS_ON_INIT	0x00000400
-> >  #define UVC_QUIRK_FORCE_Y8		0x00000800
-> >  #define UVC_QUIRK_FORCE_BPP		0x00001000
-> > +#define UVC_QUIRK_FIX_FORMAT_INDEX	0x00002000
-> >  
-> > 
-> >  /* Format flags */
-> >  #define UVC_FMT_FLAG_COMPRESSED		0x00000001
-> 
-
+diff --git a/sound/firewire/amdtp-stream.c b/sound/firewire/amdtp-stream.c
+index 945597ffacc2..19c343c53585 100644
+--- a/sound/firewire/amdtp-stream.c
++++ b/sound/firewire/amdtp-stream.c
+@@ -1032,7 +1032,7 @@ static void generate_pkt_descs(struct amdtp_stream *s, const __be32 *ctx_header,
+ static inline void cancel_stream(struct amdtp_stream *s)
+ {
+ 	s->packet_index = -1;
+-	if (current_work() == &s->period_work)
++	if (in_interrupt())
+ 		amdtp_stream_pcm_abort(s);
+ 	WRITE_ONCE(s->pcm_buffer_pointer, SNDRV_PCM_POS_XRUN);
+ }
+-- 
+2.27.0
 
