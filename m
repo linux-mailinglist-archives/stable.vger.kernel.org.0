@@ -2,92 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A60039C48E
-	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:41:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8135239C498
+	for <lists+stable@lfdr.de>; Sat,  5 Jun 2021 02:42:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbhFEAm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 4 Jun 2021 20:42:59 -0400
-Received: from szxga02-in.huawei.com ([45.249.212.188]:3430 "EHLO
-        szxga02-in.huawei.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbhFEAm6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 20:42:58 -0400
-Received: from dggemv703-chm.china.huawei.com (unknown [172.30.72.57])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4Fxghy2Yp8z6trV;
-        Sat,  5 Jun 2021 08:38:10 +0800 (CST)
-Received: from dggemi762-chm.china.huawei.com (10.1.198.148) by
- dggemv703-chm.china.huawei.com (10.3.19.46) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256) id
- 15.1.2176.2; Sat, 5 Jun 2021 08:41:10 +0800
-Received: from [10.174.178.208] (10.174.178.208) by
- dggemi762-chm.china.huawei.com (10.1.198.148) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id
- 15.1.2176.2; Sat, 5 Jun 2021 08:41:09 +0800
-Subject: Re: Linux 5.10.42
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <linux-kernel@vger.kernel.org>, <akpm@linux-foundation.org>,
-        <torvalds@linux-foundation.org>, <stable@vger.kernel.org>
-CC:     <lwn@lwn.net>, <jslaby@suse.cz>
-References: <162270674910125@kroah.com>
-From:   Samuel Zou <zou_wei@huawei.com>
-Message-ID: <11d9ec23-ce28-5da1-3759-42abdc4013e2@huawei.com>
-Date:   Sat, 5 Jun 2021 08:41:09 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:68.0) Gecko/20100101
- Thunderbird/68.7.0
+        id S229853AbhFEAoU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 4 Jun 2021 20:44:20 -0400
+Received: from relay12.mail.gandi.net ([217.70.178.232]:57063 "EHLO
+        relay12.mail.gandi.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231163AbhFEAoT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 4 Jun 2021 20:44:19 -0400
+Received: (Authenticated sender: josh@joshtriplett.org)
+        by relay12.mail.gandi.net (Postfix) with ESMTPSA id 21C85200002;
+        Sat,  5 Jun 2021 00:42:29 +0000 (UTC)
+Date:   Fri, 4 Jun 2021 17:42:28 -0700
+From:   Josh Triplett <josh@joshtriplett.org>
+To:     Sasha Levin <sashal@kernel.org>
+Cc:     stable@vger.kernel.org, 989451@bugs.debian.org,
+        Salvatore Bonaccorso <carnil@debian.org>
+Subject: Re: [5.10.x] Please backport "net: usb: cdc_ncm: don't spew
+ notifications" (de658a195ee23ca6aaffe197d1d2ea040beea0a2)
+Message-ID: <YLrIdCtcfHIWNAs0@localhost>
+References: <YLpRCHB1R1qhBZsk@localhost>
+ <YLpXIXV96XXv3PP5@sashalap>
 MIME-Version: 1.0
-In-Reply-To: <162270674910125@kroah.com>
-Content-Type: text/plain; charset="utf-8"; format=flowed
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.174.178.208]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- dggemi762-chm.china.huawei.com (10.1.198.148)
-X-CFilter-Loop: Reflected
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YLpXIXV96XXv3PP5@sashalap>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-
-
-On 2021/6/3 15:52, Greg Kroah-Hartman wrote:
-> I'm announcing the release of the 5.10.42 kernel.
+On Fri, Jun 04, 2021 at 12:38:57PM -0400, Sasha Levin wrote:
+> On Fri, Jun 04, 2021 at 09:12:56AM -0700, Josh Triplett wrote:
+> > Some USB Ethernet devices using the cdc_ncm driver produce several of
+> > these messages per second:
+> > 
+> > Jun 03 19:25:17 s kernel: cdc_ncm 3-2.2:2.0 enx(mac address): 1000 mbit/s downlink 1000 mbit/s uplink
+> > 
+> > This results in substantial log noise and disk usage.
+> > 
+> > Please consider backporting
+> > net: usb: cdc_ncm: don't spew notifications
+> > (git commit de658a195ee23ca6aaffe197d1d2ea040beea0a2)
+> > to the 5.10.x stable kernel, to fix this problem.
 > 
-> All users of the 5.10 kernel series must upgrade.
-> 
-> The updated 5.10.y git tree can be found at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git linux-5.10.y
-> and can be browsed at the normal kernel.org git web browser:
-> 	https://git.kernel.org/?p=linux/kernel/git/stable/linux-stable.git;a=summary
-> 
-> thanks,
-> 
-> greg k-h
-> 
+> Queued up, thanks!
 
-Tested on arm64 and x86 for 5.10.42,
-
-Kernel repo:
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version: 5.10.42
-Commit: 65859eca4dff1af0db5e36d1cfbac15b834c6a65
-Compiler: gcc version 7.3.0 (GCC)
-
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8900
-passed: 8900
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 8900
-passed: 8900
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Thank you!
