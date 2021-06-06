@@ -2,126 +2,160 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D9E039CC5C
-	for <lists+stable@lfdr.de>; Sun,  6 Jun 2021 05:06:42 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E79AF39CC64
+	for <lists+stable@lfdr.de>; Sun,  6 Jun 2021 05:09:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230085AbhFFDHY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 5 Jun 2021 23:07:24 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43986 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230075AbhFFDHY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 23:07:24 -0400
-Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 530D4C061767
-        for <stable@vger.kernel.org>; Sat,  5 Jun 2021 20:05:21 -0700 (PDT)
-Received: by mail-pg1-x52e.google.com with SMTP id t9so11132100pgn.4
-        for <stable@vger.kernel.org>; Sat, 05 Jun 2021 20:05:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=bytedance-com.20150623.gappssmtp.com; s=20150623;
-        h=from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TmNq4peZOAOyDPklFXMeKeYFKClQGReaGV/U+xkvXQ0=;
-        b=w7tT8XJpLxNPgu+o/5mF+K2jB/4Nuo2lE+4B0epXqNpufBtNPiER3R7Tss6U6gkmar
-         IQFrIZ/Whw8TqMtbCCbBq9F41ZBiIFybwAsEhPcN1iA/+JWsOXjkgVDJbHA5L8GN7YyR
-         xpbYvCGtDVd7Ayl7jcqd1/V3RElnhQAGivpppSn6L8IY9AAD98EfNpPb8WOM8DkVAsLf
-         LqlNRVZwIUtCi6ilNm9ot8vxwa/cOCRT5+fWgFVvMJRXbGk4W1OhaliyolRCJfUNCTlk
-         fiA2NbJSPmbLubBh/TfW8UECkjmQwTLQ5UT8pXaTluyg/X6VZvW6Df4/BrbJ3UkY8eXw
-         boIw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:from:to:cc:subject:date:message-id:mime-version
-         :content-transfer-encoding;
-        bh=TmNq4peZOAOyDPklFXMeKeYFKClQGReaGV/U+xkvXQ0=;
-        b=ezIgbOzH+rB+YVR6p/6Bh0vRUXBOt6C+gLbLS7B9H8H+6Md12v6aaiTMMdqgaiFals
-         uAiAgdvfk8YNm4D3IkO+xNdMtGDwrmG5pdBXkr3HNFITodCo3Sjsgf4JJ0mp6t+mGeIL
-         0DhjYwSrlVPPWlWeTVPr8QiFpTi0gyD8H2X4VsmxFwpToW85Bo8ZIiaKk+j6rqIXHbnq
-         lZhKbFDXTw51tn2/gvjwNUXcs+FhFDM5+lE+JFvBB7CwIiWDfyqXWeuj5RDweDe5gu4q
-         nkOq3NpFzBqbswiO1p04gKtOPe9p1YF+iwhwsnpTBELKGKbX5keenzvUPtFUvQq92rp5
-         DICQ==
-X-Gm-Message-State: AOAM531U/M4NhQ1/lvtdDWw+hdejCHLD6bt9nClyCd6RxsCK8v/gjz1R
-        H0ttAo6IhbcMRa0RLii39RFwOQ==
-X-Google-Smtp-Source: ABdhPJwupnG0F7AOML64hOYrBSXuTXNGc5Kpa7E8SpvMxYSBytsEswYDa/ueeM2osUYRANIxrxCxqA==
-X-Received: by 2002:aa7:8588:0:b029:28e:dfa1:e31a with SMTP id w8-20020aa785880000b029028edfa1e31amr11432836pfn.77.1622948720555;
-        Sat, 05 Jun 2021 20:05:20 -0700 (PDT)
-Received: from localhost.localdomain ([139.177.225.249])
-        by smtp.gmail.com with ESMTPSA id q23sm5435219pgj.61.2021.06.05.20.05.16
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Sat, 05 Jun 2021 20:05:20 -0700 (PDT)
-From:   Muchun Song <songmuchun@bytedance.com>
-To:     viro@zeniv.linux.org.uk, tj@kernel.org, axboe@fb.com,
-        willy@infradead.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Muchun Song <songmuchun@bytedance.com>,
-        Michal Hocko <mhocko@suse.com>, stable@vger.kernel.org
-Subject: [PATCH RESEND v3] writeback: fix obtain a reference to a freeing memcg css
-Date:   Sun,  6 Jun 2021 11:02:26 +0800
-Message-Id: <20210606030226.66667-1-songmuchun@bytedance.com>
-X-Mailer: git-send-email 2.21.0 (Apple Git-122)
+        id S230161AbhFFDLg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 5 Jun 2021 23:11:36 -0400
+Received: from perceval.ideasonboard.com ([213.167.242.64]:52148 "EHLO
+        perceval.ideasonboard.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230158AbhFFDLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 5 Jun 2021 23:11:36 -0400
+Received: from pendragon.lan (62-78-145-57.bb.dnainternet.fi [62.78.145.57])
+        by perceval.ideasonboard.com (Postfix) with ESMTPSA id 5F84E3E7;
+        Sun,  6 Jun 2021 05:09:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=ideasonboard.com;
+        s=mail; t=1622948985;
+        bh=j4MzRVnm3oEXsRZghAMIVrxyMi3svD00pa9hPdI3dMo=;
+        h=From:To:Cc:Subject:Date:From;
+        b=doVMFdnbRwYNfXotulim82PCaaDfLBdAgdIHqYSTl3aJQ/Q5MhCXmgYKUqAWliMcD
+         4YbqmwZkeecntbDE+2eqOiJTyh9AHzi1DIMMQaNy9s8CaEgO5KOOdCXJy1GBV5tpDc
+         WO11hVmpO+Rq/q1BHHM/ylBEZELr8DQFya0Ph8K0=
+From:   Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To:     linux-media@vger.kernel.org
+Cc:     Benjamin Drung <bdrung@posteo.de>, Adam Goode <agoode@google.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v5] media: uvcvideo: Fix pixel format change for Elgato Cam Link 4K
+Date:   Sun,  6 Jun 2021 06:09:28 +0300
+Message-Id: <20210606030928.9739-1-laurent.pinchart@ideasonboard.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The caller of wb_get_create() should pin the memcg, because
-wb_get_create() relies on this guarantee. The rcu read lock
-only can guarantee that the memcg css returned by css_from_id()
-cannot be released, but the reference of the memcg can be zero.
+From: Benjamin Drung <bdrung@posteo.de>
 
-  rcu_read_lock()
-  memcg_css = css_from_id()
-  wb_get_create(memcg_css)
-      cgwb_create(memcg_css)
-          // css_get can change the ref counter from 0 back to 1
-          css_get(memcg_css)
-  rcu_read_unlock()
+The Elgato Cam Link 4K HDMI video capture card reports to support three
+different pixel formats, where the first format depends on the connected
+HDMI device.
 
-Fix it by holding a reference to the css before calling
-wb_get_create(). This is not a problem I encountered in the
-real world. Just the result of a code review.
+```
+$ v4l2-ctl -d /dev/video0 --list-formats-ext
+ioctl: VIDIOC_ENUM_FMT
+	Type: Video Capture
 
-Fixes: 682aa8e1a6a1 ("writeback: implement unlocked_inode_to_wb transaction and use it for stat updates")
-Signed-off-by: Muchun Song <songmuchun@bytedance.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Acked-by: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
+	[0]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[1]: 'NV12' (Y/CbCr 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+	[2]: 'YU12' (Planar YUV 4:2:0)
+		Size: Discrete 3840x2160
+			Interval: Discrete 0.033s (29.970 fps)
+```
+
+Changing the pixel format to anything besides the first pixel format
+does not work:
+
+```
+$ v4l2-ctl -d /dev/video0 --try-fmt-video pixelformat=YU12
+Format Video Capture:
+	Width/Height      : 3840/2160
+	Pixel Format      : 'NV12' (Y/CbCr 4:2:0)
+	Field             : None
+	Bytes per Line    : 3840
+	Size Image        : 12441600
+	Colorspace        : sRGB
+	Transfer Function : Rec. 709
+	YCbCr/HSV Encoding: Rec. 709
+	Quantization      : Default (maps to Limited Range)
+	Flags             :
+```
+
+User space applications like VLC might show an error message on the
+terminal in that case:
+
+```
+libv4l2: error set_fmt gave us a different result than try_fmt!
+```
+
+Depending on the error handling of the user space applications, they
+might display a distorted video, because they use the wrong pixel format
+for decoding the stream.
+
+The Elgato Cam Link 4K responds to the USB video probe
+VS_PROBE_CONTROL/VS_COMMIT_CONTROL with a malformed data structure: The
+second byte contains bFormatIndex (instead of being the second byte of
+bmHint). The first byte is always zero. The third byte is always 1.
+
+The firmware bug was reported to Elgato on 2020-12-01 and it was
+forwarded by the support team to the developers as feature request.
+There is no firmware update available since then. The latest firmware
+for Elgato Cam Link 4K as of 2021-03-23 has MCU 20.02.19 and FPGA 67.
+
+Therefore correct the malformed data structure for this device. The
+change was successfully tested with VLC, OBS, and Chromium using
+different pixel formats (YUYV, NV12, YU12), resolutions (3840x2160,
+1920x1080), and frame rates (29.970 and 59.940 fps).
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Benjamin Drung <bdrung@posteo.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 ---
-Since this patch has not been merged to the linux-next tree,
-just resend it.
+Benjamin, could you double-check the adjustments ? I've also updated the
+commit messages to not mention a quirk anymore.
+---
+ drivers/media/usb/uvc/uvc_video.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-Changelog in v3:
- 1. Do not change GFP_ATOMIC.
- 2. Update commit log.
-
- Thanks for Michal's review and suggestions.
-
-Changelog in v2:
- 1. Replace GFP_ATOMIC with GFP_NOIO suggested by Matthew.
-
- fs/fs-writeback.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
-
-diff --git a/fs/fs-writeback.c b/fs/fs-writeback.c
-index 3ac002561327..dedde99da40d 100644
---- a/fs/fs-writeback.c
-+++ b/fs/fs-writeback.c
-@@ -506,9 +506,14 @@ static void inode_switch_wbs(struct inode *inode, int new_wb_id)
- 	/* find and pin the new wb */
- 	rcu_read_lock();
- 	memcg_css = css_from_id(new_wb_id, &memory_cgrp_subsys);
--	if (memcg_css)
--		isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
-+	if (memcg_css && !css_tryget(memcg_css))
-+		memcg_css = NULL;
- 	rcu_read_unlock();
-+	if (!memcg_css)
-+		goto out_free;
-+
-+	isw->new_wb = wb_get_create(bdi, memcg_css, GFP_ATOMIC);
-+	css_put(memcg_css);
- 	if (!isw->new_wb)
- 		goto out_free;
+diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
+index a777b389a66e..e16464606b14 100644
+--- a/drivers/media/usb/uvc/uvc_video.c
++++ b/drivers/media/usb/uvc/uvc_video.c
+@@ -127,10 +127,37 @@ int uvc_query_ctrl(struct uvc_device *dev, u8 query, u8 unit,
+ static void uvc_fixup_video_ctrl(struct uvc_streaming *stream,
+ 	struct uvc_streaming_control *ctrl)
+ {
++	static const struct usb_device_id elgato_cam_link_4k = {
++		USB_DEVICE(0x0fd9, 0x0066)
++	};
+ 	struct uvc_format *format = NULL;
+ 	struct uvc_frame *frame = NULL;
+ 	unsigned int i;
  
++	/*
++	 * The response of the Elgato Cam Link 4K is incorrect: The second byte
++	 * contains bFormatIndex (instead of being the second byte of bmHint).
++	 * The first byte is always zero. The third byte is always 1.
++	 *
++	 * The UVC 1.5 class specification defines the first five bits in the
++	 * bmHint bitfield. The remaining bits are reserved and should be zero.
++	 * Therefore a valid bmHint will be less than 32.
++	 *
++	 * Latest Elgato Cam Link 4K firmware as of 2021-03-23 needs this fix.
++	 * MCU: 20.02.19, FPGA: 67
++	 */
++	if (usb_match_one_id(stream->dev->intf, &elgato_cam_link_4k) &&
++	    ctrl->bmHint > 255) {
++		u8 corrected_format_index = ctrl->bmHint >> 8;
++
++		uvc_dbg(stream->dev, VIDEO,
++			"Correct USB video probe response from {bmHint: 0x%04x, bFormatIndex: %u} to {bmHint: 0x%04x, bFormatIndex: %u}\n",
++			ctrl->bmHint, ctrl->bFormatIndex,
++			1, corrected_format_index);
++		ctrl->bmHint = 1;
++		ctrl->bFormatIndex = corrected_format_index;
++	}
++
+ 	for (i = 0; i < stream->nformats; ++i) {
+ 		if (stream->format[i].index == ctrl->bFormatIndex) {
+ 			format = &stream->format[i];
 -- 
-2.11.0
+Regards,
+
+Laurent Pinchart
 
