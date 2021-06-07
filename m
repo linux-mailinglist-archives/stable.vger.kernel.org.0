@@ -2,146 +2,144 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 37DE939DB36
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 13:26:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B87939DBC9
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 13:55:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230272AbhFGL2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 07:28:15 -0400
-Received: from smtp-out2.suse.de ([195.135.220.29]:53620 "EHLO
+        id S230251AbhFGL5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 07:57:23 -0400
+Received: from smtp-out2.suse.de ([195.135.220.29]:56274 "EHLO
         smtp-out2.suse.de" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230139AbhFGL2O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 07:28:14 -0400
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out2.suse.de (Postfix) with ESMTP id 424941FDA1;
-        Mon,  7 Jun 2021 11:26:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1623065182; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=VYk3TJrFrr+lHEsnNaXKyTcVO01puS4pzK82H1hP8Tw=;
-        b=GtVhp/vFPwT52Kmu+aPd9eUXBqVx470QHrSFr3Wi+GEZ4FCFJWVORVIBAcEzJLNj+2QjT9
-        4ICAkXJAN1LpLPfJM1sa+kL57D5J9WTx8A9CHPQXo49ZqnZNtv/lRRFtiYhDN5EhNzfCq3
-        0LRSSXJEPF0tOKA0B01zZXmf7E9fVQ0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1623065182;
+        with ESMTP id S230193AbhFGL5W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 07:57:22 -0400
+Received: from imap.suse.de (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        (using TLSv1.2 with cipher ECDHE-ECDSA-AES128-GCM-SHA256 (128/128 bits))
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id 79F211FDC5;
+        Mon,  7 Jun 2021 11:55:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1623066930; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BqFN536PDnP3Zynyosw+raEhWyH991Zb94ulbNCCUPI=;
+        b=TfZh0rTwQFOmv60JXi81ZTOEXzkiIC1f08hfqAXbhh1wptG/d6HMQAUAD/Ryh4w+KpVOtG
+        hyb6wjs/6d5YEPr+tMVAUkxW/quPnjDnt2acUPxKG6rE6C3mKgqqGIbffeukTGRxf6/CDO
+        5nfRX0xDEGrLF1VnvcCW5Il7ybSn7sk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1623066930;
         h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=VYk3TJrFrr+lHEsnNaXKyTcVO01puS4pzK82H1hP8Tw=;
-        b=dQ6YM3Z4cmOR6ltwqi03dwdE5E99vYpusbf9kaQpvz+4gE86FCNrHCkhd5w6Tli4wE8dKT
-        hjFokvOd0L1+CzAQ==
-Received: from quack2.suse.cz (unknown [10.100.200.198])
-        by relay2.suse.de (Postfix) with ESMTP id 1FC8CA3B8F;
-        Mon,  7 Jun 2021 11:26:22 +0000 (UTC)
-Received: by quack2.suse.cz (Postfix, from userid 1000)
-        id EA0041F2CA8; Mon,  7 Jun 2021 13:26:21 +0200 (CEST)
-From:   Jan Kara <jack@suse.cz>
-To:     Jens Axboe <axboe@kernel.dk>
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Oleg Nesterov <oleg@redhat.com>, <linux-block@vger.kernel.org>,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH] rq-qos: fix missed wake-ups in rq_qos_throttle try two
-Date:   Mon,  7 Jun 2021 13:26:13 +0200
-Message-Id: <20210607112613.25344-1-jack@suse.cz>
-X-Mailer: git-send-email 2.26.2
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BqFN536PDnP3Zynyosw+raEhWyH991Zb94ulbNCCUPI=;
+        b=hJe2nXU8SuQLJ2QccHgBR3B8xjhz/y+SDzvWX2OFp2igGZoqWQXShRhJ6YJzTIA7AnuqH4
+        d/LwCpFdA+dK72BA==
+Received: from imap3-int (imap-alt.suse-dmz.suse.de [192.168.254.47])
+        by imap.suse.de (Postfix) with ESMTP id 1CD94118DD;
+        Mon,  7 Jun 2021 11:55:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1623066930; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BqFN536PDnP3Zynyosw+raEhWyH991Zb94ulbNCCUPI=;
+        b=TfZh0rTwQFOmv60JXi81ZTOEXzkiIC1f08hfqAXbhh1wptG/d6HMQAUAD/Ryh4w+KpVOtG
+        hyb6wjs/6d5YEPr+tMVAUkxW/quPnjDnt2acUPxKG6rE6C3mKgqqGIbffeukTGRxf6/CDO
+        5nfRX0xDEGrLF1VnvcCW5Il7ybSn7sk=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1623066930;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=BqFN536PDnP3Zynyosw+raEhWyH991Zb94ulbNCCUPI=;
+        b=hJe2nXU8SuQLJ2QccHgBR3B8xjhz/y+SDzvWX2OFp2igGZoqWQXShRhJ6YJzTIA7AnuqH4
+        d/LwCpFdA+dK72BA==
+Received: from director2.suse.de ([192.168.254.72])
+        by imap3-int with ESMTPSA
+        id hgKGNSwJvmCYaAAALh3uQQ
+        (envelope-from <colyli@suse.de>); Mon, 07 Jun 2021 11:55:24 +0000
+Subject: Re: [PATCH v5 2/2] bcache: avoid oversized read request in cache
+ missing code path
+To:     Christoph Hellwig <hch@lst.de>
+Cc:     axboe@kernel.dk, linux-bcache@vger.kernel.org,
+        linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Alexander Ullrich <ealex1979@gmail.com>,
+        Diego Ercolani <diego.ercolani@gmail.com>,
+        Jan Szubiak <jan.szubiak@linuxpolska.pl>,
+        Marco Rebhan <me@dblsaiko.net>,
+        Matthias Ferdinand <bcache@mfedv.net>,
+        Victor Westerhuis <victor@westerhu.is>,
+        Vojtech Pavlik <vojtech@suse.cz>,
+        Rolf Fokkens <rolf@rolffokkens.nl>,
+        Thorsten Knabe <linux@thorsten-knabe.de>,
+        stable@vger.kernel.org,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        Nix <nix@esperi.org.uk>, Takashi Iwai <tiwai@suse.com>
+References: <20210607103539.12823-1-colyli@suse.de>
+ <20210607103539.12823-3-colyli@suse.de> <20210607110657.GB6729@lst.de>
+From:   Coly Li <colyli@suse.de>
+Message-ID: <6d08d23b-b778-4e5f-a5f3-7106a42e26a1@suse.de>
+Date:   Mon, 7 Jun 2021 19:55:22 +0800
+User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:78.0)
+ Gecko/20100101 Thunderbird/78.11.0
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3920; h=from:subject; bh=fVXFw/MPglpM4nIVTV3vrCGL71nEBjBfatViHSO0Twk=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBgvgI4xJ4VX6B/zfqu0DwwCGSIJ4HtDmC9bPIi4utp 9qbVMQ2JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCYL4COAAKCRCcnaoHP2RA2UFtCA CZLfOIqozkfUq3czdJfH7X/W2qfZMe8w7UPsLc08wmzjHDvEqsQ461QekrEvLMOitphVA/MOS+NWbI OLL0RO9N5mpLUrLWFIIPXXSvOtLLUF/jXuMZqfX/V6MeYEAuxQmB0jgQ/4GPW16jSnjbmLbp2nwOmA z4L9KZUbNdjpsFmY3udg6kITd1sbxJo6yCnXGkMLExJo4czOMkg2ElpDo48ub2lNCzzzYVzkz8of/s V7HdD42hAziQUHe1Pzw4ZtilR+xX9Zs+QaQL9GyrtPNHI5/pXenaeOSzLazQN1CC4ulQTu3mYn02hu tDdVw7v6RCdIazDkpTG3M+iapVUBZD
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+In-Reply-To: <20210607110657.GB6729@lst.de>
+Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
+Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
-tried to fix a problem that a process could be sleeping in rq_qos_wait()
-without anyone to wake it up. However the fix is not complete and the
-following can still happen:
+On 6/7/21 7:06 PM, Christoph Hellwig wrote:
+> On Mon, Jun 07, 2021 at 06:35:39PM +0800, Coly Li wrote:
+>> +	/* Limitation for valid replace key size and cache_bio bvecs number */
+>> +	size_limit = min_t(unsigned int, bio_max_segs(UINT_MAX) * PAGE_SECTORS,
+>> +			   (1 << KEY_SIZE_BITS) - 1);
+> bio_max_segs kaps the argument to BIO_MAX_VECS, so you might as well
 
-CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
-rq_qos_wait()		rq_qos_wait()
-  acquire_inflight_cb() -> fails
-			  acquire_inflight_cb() -> fails
+It was suggested to not directly access BIO_MAX_VECS by you, maybe I
+misunderstood you.
 
-						completes IOs, inflight
-						  decreased
-  prepare_to_wait_exclusive()
-			  prepare_to_wait_exclusive()
-  has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
-			  has_sleeper = !wq_has_single_sleeper() -> true
-  io_schedule()		  io_schedule()
 
-Deadlock as now there's nobody to wakeup the two waiters. The logic
-automatically blocking when there are already sleepers is really subtle
-and the only way to make it work reliably is that we check whether there
-are some waiters in the queue when adding ourselves there. That way, we
-are guaranteed that at least the first process to enter the wait queue
-will recheck the waiting condition before going to sleep and thus
-guarantee forward progress.
+> directly write BIO_MAX_VECS.  Can you explain the PAGE_SECTORS here a bit
+> more? Does this code path use discontiguous per-sector allocations?
+> Preferably in a comment.
 
-Fixes: 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- block/blk-rq-qos.c   | 4 ++--
- include/linux/wait.h | 2 +-
- kernel/sched/wait.c  | 9 +++++++--
- 3 files changed, 10 insertions(+), 5 deletions(-)
 
-diff --git a/block/blk-rq-qos.c b/block/blk-rq-qos.c
-index 656460636ad3..e83af7bc7591 100644
---- a/block/blk-rq-qos.c
-+++ b/block/blk-rq-qos.c
-@@ -266,8 +266,8 @@ void rq_qos_wait(struct rq_wait *rqw, void *private_data,
- 	if (!has_sleeper && acquire_inflight_cb(rqw, private_data))
- 		return;
- 
--	prepare_to_wait_exclusive(&rqw->wait, &data.wq, TASK_UNINTERRUPTIBLE);
--	has_sleeper = !wq_has_single_sleeper(&rqw->wait);
-+	has_sleeper = !prepare_to_wait_exclusive(&rqw->wait, &data.wq,
-+						 TASK_UNINTERRUPTIBLE);
- 	do {
- 		/* The memory barrier in set_task_state saves us here. */
- 		if (data.got_token)
-diff --git a/include/linux/wait.h b/include/linux/wait.h
-index fe10e8570a52..6598ae35e1b5 100644
---- a/include/linux/wait.h
-+++ b/include/linux/wait.h
-@@ -1136,7 +1136,7 @@ do {										\
-  * Waitqueues which are removed from the waitqueue_head at wakeup time
-  */
- void prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
--void prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
-+bool prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
- long prepare_to_wait_event(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state);
- void finish_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry);
- long wait_woken(struct wait_queue_entry *wq_entry, unsigned mode, long timeout);
-diff --git a/kernel/sched/wait.c b/kernel/sched/wait.c
-index 183cc6ae68a6..76577d1642a5 100644
---- a/kernel/sched/wait.c
-+++ b/kernel/sched/wait.c
-@@ -264,17 +264,22 @@ prepare_to_wait(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_ent
- }
- EXPORT_SYMBOL(prepare_to_wait);
- 
--void
-+/* Returns true if we are the first waiter in the queue, false otherwise. */
-+bool
- prepare_to_wait_exclusive(struct wait_queue_head *wq_head, struct wait_queue_entry *wq_entry, int state)
- {
- 	unsigned long flags;
-+	bool was_empty = false;
- 
- 	wq_entry->flags |= WQ_FLAG_EXCLUSIVE;
- 	spin_lock_irqsave(&wq_head->lock, flags);
--	if (list_empty(&wq_entry->entry))
-+	if (list_empty(&wq_entry->entry)) {
-+		was_empty = list_empty(&wq_head->head);
- 		__add_wait_queue_entry_tail(wq_head, wq_entry);
-+	}
- 	set_current_state(state);
- 	spin_unlock_irqrestore(&wq_head->lock, flags);
-+	return was_empty;
- }
- EXPORT_SYMBOL(prepare_to_wait_exclusive);
- 
--- 
-2.26.2
+It is just because bch_bio_map() assume the maximum bio size is 1MB. It
+was not true since the multiple pages bvecs
+was merged in mainline kernel.
+ 
+The PAGE_SECTORS part is legacy for 1MB maximum size bio (256*4KB), it
+should be fixed/improved later to
+use multiple pages for bio size > 1MB and replace bch_bio_map().
 
+
+>> +	s->insert_bio_sectors = min3(size_limit, sectors, bio_sectors(bio));
+> Also I don't really understand the units involved here.
+> s->insert_bio_sectors, sectors, and bio_sectors is in unit of 512 byte
+> sectors.  
+
+Yes, they are in sectors, this is the maximum permitted bio size for 1MB
+bio size. Now we can have bio > 1MB, and you modify
+bio_alloc_bioset() parameter 'nr_iovecs from unsigned int to unsigned
+short, so bio-size/page-size can be > 256 and overflow,
+e.g. 258 overflows to 2, then the BUG in biovec_slab() is triggered.
+
+I feel this is a long time existing issue in bcache code, and should be
+fixed from bcache side, and your change helps to trigger
+the problem explicitly.
+
+>> -	miss = bio_next_split(bio, sectors, GFP_NOIO, &s->d->bio_split);
+>> +	miss = bio_next_split(bio, s->insert_bio_sectors, GFP_NOIO, &s->d->bio_split);
+> Overly long line.
+
+Not any more. Now the line limit is 100 characters. Though I still
+prefer 80 characters, place 86 characters in single line
+makes the change more obvious.
+
+Thanks.
+
+Coly Li
