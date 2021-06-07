@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F61A39E304
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B17B239E30D
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232138AbhFGQUn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:20:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49390 "EHLO mail.kernel.org"
+        id S233173AbhFGQUr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:20:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232859AbhFGQSl (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:18:41 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 493AD61447;
-        Mon,  7 Jun 2021 16:14:29 +0000 (UTC)
+        id S232433AbhFGQSp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:18:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 8043161601;
+        Mon,  7 Jun 2021 16:14:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082470;
-        bh=w+FWYyVwd9RSj+ZtsicAIXWoBJ04oNi5iYxYp0GNzmE=;
+        s=k20201202; t=1623082471;
+        bh=MfSr33OQR/3F0MHvDf2x2DbxuNCQgTef2ELFZ8C5Lg0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dg1okwJ72S824Mp4Yh4JKkbKECwz0uo/l5zInAboLLs9hKjpWbhpJW2DuM4RgY3Sh
-         f90PmYflkEVZQziaa/foYpi5yVPJJLpunEPBIwKtoVVrPunCf09Smu63RsHl7gj8LW
-         W8/XmscwfKRVQVQKnMM24njoZtRpSOi9cJRhMK8tkIg9QjBYpOfYkvkVfPZ+LFifJm
-         p/ZViSqQKY6Rats+cXQ1XkkpLyW6qaj6rcmYEZi82wrQNfDXRNG52i1oQgLVwpuV/e
-         Tox+2ixnjispWJiHm0Oz99nXynJfBe3JxXnjaNR567rb5iHLpDeq5tExeiQQJC/oif
-         r4LXABDcbxcBg==
+        b=iDSF1w4F7OXl+AoulCMtQKuBzWc3YdRGCPd58dLb2RMYwSoh7/hihxC8I38zOuSRj
+         U9woEoukcSwkJ+JLxbF3UEGpj8VjF4QgMINE+strz+ZJOHU4eU96EpQx3RGrbyQ8ja
+         nMpkw+h6eoYOea4aNuVWYsROPJYFEDfrHYrZ9cqBXD8EjkMw9lAF891tacBTyHtwCS
+         ij3t5ghYWmdQHC2I2hqaDeI911M6S9za34sd5QeURzACyt37eKSs6Ltpq78V5HU6eF
+         EIOIMMaDr0MrUdwAW/D5+qlT7WvjNbkO+TSeE7yGdLZDAxKvPKhJA+u46rci6hZZjg
+         PWouFdmvIATJw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lin Ma <linma@zju.edu.cn>, Marcel Holtmann <marcel@holtmann.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 15/29] Bluetooth: use correct lock to prevent UAF of hdev object
-Date:   Mon,  7 Jun 2021 12:13:56 -0400
-Message-Id: <20210607161410.3584036-15-sashal@kernel.org>
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Bart Van Assche <bvanassche@acm.org>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 16/29] scsi: target: core: Fix warning on realtime kernels
+Date:   Mon,  7 Jun 2021 12:13:57 -0400
+Message-Id: <20210607161410.3584036-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161410.3584036-1-sashal@kernel.org>
 References: <20210607161410.3584036-1-sashal@kernel.org>
@@ -42,46 +44,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit e305509e678b3a4af2b3cfd410f409f7cdaabb52 ]
+[ Upstream commit 515da6f4295c2c42b8c54572cce3d2dd1167c41e ]
 
-The hci_sock_dev_event() function will cleanup the hdev object for
-sockets even if this object may still be in used within the
-hci_sock_bound_ioctl() function, result in UAF vulnerability.
+On realtime kernels, spin_lock_irq*(spinlock_t) do not disable the
+interrupts, a call to irqs_disabled() will return false thus firing a
+warning in __transport_wait_for_tasks().
 
-This patch replace the BH context lock to serialize these affairs
-and prevent the race condition.
+Remove the warning and also replace assert_spin_locked() with
+lockdep_assert_held()
 
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Link: https://lore.kernel.org/r/20210531121326.3649-1-mlombard@redhat.com
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sock.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/target/target_core_transport.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
-index 8159b344deef..8d2c26c4b6d3 100644
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -755,7 +755,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
- 		/* Detach sockets from device */
- 		read_lock(&hci_sk_list.lock);
- 		sk_for_each(sk, &hci_sk_list.head) {
--			bh_lock_sock_nested(sk);
-+			lock_sock(sk);
- 			if (hci_pi(sk)->hdev == hdev) {
- 				hci_pi(sk)->hdev = NULL;
- 				sk->sk_err = EPIPE;
-@@ -764,7 +764,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
+diff --git a/drivers/target/target_core_transport.c b/drivers/target/target_core_transport.c
+index a16835c0bb1d..5cf9e7677926 100644
+--- a/drivers/target/target_core_transport.c
++++ b/drivers/target/target_core_transport.c
+@@ -2993,9 +2993,7 @@ __transport_wait_for_tasks(struct se_cmd *cmd, bool fabric_stop,
+ 	__releases(&cmd->t_state_lock)
+ 	__acquires(&cmd->t_state_lock)
+ {
+-
+-	assert_spin_locked(&cmd->t_state_lock);
+-	WARN_ON_ONCE(!irqs_disabled());
++	lockdep_assert_held(&cmd->t_state_lock);
  
- 				hci_dev_put(hdev);
- 			}
--			bh_unlock_sock(sk);
-+			release_sock(sk);
- 		}
- 		read_unlock(&hci_sk_list.lock);
- 	}
+ 	if (fabric_stop)
+ 		cmd->transport_state |= CMD_T_FABRIC_STOP;
 -- 
 2.30.2
 
