@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6120F39E221
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 90CA239E225
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:40 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232039AbhFGQPU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:15:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48832 "EHLO mail.kernel.org"
+        id S231590AbhFGQPZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:15:25 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231707AbhFGQOt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:14:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 85970613CA;
-        Mon,  7 Jun 2021 16:12:57 +0000 (UTC)
+        id S231721AbhFGQOu (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:14:50 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AD32A613D5;
+        Mon,  7 Jun 2021 16:12:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082378;
-        bh=n0qypTD4bUxG/tpPZRl4lP3zf6bhg7tf8aDMqqAWjSo=;
+        s=k20201202; t=1623082379;
+        bh=KKW5qRr7fS7+NBA0jnAn5p0F2zM9qjXWyvTV70NiWrY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uZoT+Ul+nsQ0iKUc9Ah7fbcZzOKhglgck1eibC0CcDWIOpib4za1UbOVN7Wc1Dt6C
-         aIpbZOQDeW+C4A3Yehe/D0KOwZGFOWGlap2unLTjupotfKzTp3pI0WEwp5gfjF+Sc6
-         gL8lAYFldUbCcu2+zK4W12soqJoygqP+N1Hrvfn+YRgjXB0fww9Kf8lBUPJsNCiPLV
-         pILgPf1BXTFJf7DMSlfj/D3xr5NDE8US74zhOSi3etFWv0Wi0UxxPzNbXklg+HlNNz
-         SYkeRUyV40ChfAL9IgE+V4iMpkCdn2P8BANcJSrr8keTDBegBMy0mzLxFzt+OvWfKR
-         tCk7ew32+PVBw==
+        b=TMkeZrbmmZfiqx/o3Qn/HNtw/mFHNXLZaeweXip2pfqqAkRW/YU8UDrBL1N3IVk2R
+         jAbMHMUZ9oVTRSS4OMzU6WWcVUhZ8KuKGJCGKWSN02xavNDbc2jjNh1QH6eya2bdIc
+         jqGDTpn1hAiuH+Hz3FyoJJGOdfxQ4lrldy1EfKJwgqhKGoQKEKA8cLuIlrXzO0U/Pz
+         XrrYBPlWituTphMH9gcOLtPqbJe8SqmoItCeixIvnchBodmqkaONs+lzYML/6wsclL
+         FLd/BKENR/qYVPY8Pnq60htZChvGz4vHYRCXHYojBd4EDiiuhdz3KE7WAOzV5ONUEN
+         ii7qYzKkNdxtA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Larry Finger <Larry.Finger@lwfinger.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 34/49] Bluetooth: Add a new USB ID for RTL8822CE
-Date:   Mon,  7 Jun 2021 12:12:00 -0400
-Message-Id: <20210607161215.3583176-34-sashal@kernel.org>
+Cc:     "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 35/49] scsi: scsi_devinfo: Add blacklist entry for HPE OPEN-V
+Date:   Mon,  7 Jun 2021 12:12:01 -0400
+Message-Id: <20210607161215.3583176-35-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -43,33 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Larry Finger <Larry.Finger@lwfinger.net>
+From: "Ewan D. Milne" <emilne@redhat.com>
 
-[ Upstream commit 4d96d3b0efee6416ef0d61b76aaac6f4a2e15b12 ]
+[ Upstream commit e57f5cd99ca60cddf40201b0f4ced9f1938e299c ]
 
-Some models of the RTL8822ce utilize a different USB ID. Add this
-new one to the Bluetooth driver.
+Apparently some arrays are now returning "HPE" as the vendor.
 
-Signed-off-by: Larry Finger <Larry.Finger@lwfinger.net>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Link: https://lore.kernel.org/r/20210601175214.25719-1-emilne@redhat.com
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/scsi/scsi_devinfo.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index 4a901508e48e..ddc7b86725cd 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -388,6 +388,8 @@ static const struct usb_device_id blacklist_table[] = {
- 	/* Realtek 8822CE Bluetooth devices */
- 	{ USB_DEVICE(0x0bda, 0xb00c), .driver_info = BTUSB_REALTEK |
- 						     BTUSB_WIDEBAND_SPEECH },
-+	{ USB_DEVICE(0x0bda, 0xc822), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
- 
- 	/* Realtek 8852AE Bluetooth devices */
- 	{ USB_DEVICE(0x0bda, 0xc852), .driver_info = BTUSB_REALTEK |
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index d92cec12454c..d33355ab6e14 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -184,6 +184,7 @@ static struct {
+ 	{"HP", "C3323-300", "4269", BLIST_NOTQ},
+ 	{"HP", "C5713A", NULL, BLIST_NOREPORTLUN},
+ 	{"HP", "DISK-SUBSYSTEM", "*", BLIST_REPORTLUN2},
++	{"HPE", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
+ 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+ 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
 -- 
 2.30.2
 
