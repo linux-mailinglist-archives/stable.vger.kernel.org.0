@@ -2,90 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B591639DE30
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 15:58:39 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 92EF639DEA4
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 16:24:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230193AbhFGOAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 10:00:20 -0400
-Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:31483 "EHLO
-        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230302AbhFGOAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 10:00:19 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UbemBfZ_1623074283;
-Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0UbemBfZ_1623074283)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 07 Jun 2021 21:58:16 +0800
-From:   Yang Wei <yang.wei@linux.alibaba.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, Yang Wei <yang.wei@linux.alibaba.com>,
-        Yang Wei <albin.yangwei@alibaba-inc.com>
-Subject: [PATCH v2 4.14] sched/fair: Optimize select_idle_cpu
-Date:   Mon,  7 Jun 2021 21:58:03 +0800
-Message-Id: <1623074283-34764-1-git-send-email-yang.wei@linux.alibaba.com>
-X-Mailer: git-send-email 1.8.3.1
+        id S230197AbhFGO0i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 10:26:38 -0400
+Received: from mail-ot1-f47.google.com ([209.85.210.47]:43743 "EHLO
+        mail-ot1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S230198AbhFGO0i (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 10:26:38 -0400
+Received: by mail-ot1-f47.google.com with SMTP id i12-20020a05683033ecb02903346fa0f74dso16836508otu.10
+        for <stable@vger.kernel.org>; Mon, 07 Jun 2021 07:24:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20161025;
+        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
+         :cc;
+        bh=4PwH1AXD3SllEEcEV6owIpVJRtalHEcUOPjpbDNsvcE=;
+        b=cnyQchdM9XN7mTX7klVDRaZAGec8Q8qrrgJsK/rY5IWCFWqXKtJigc2u5iJ3nTKhXw
+         hTCBoDi6PvaC7Qal4P5PtF+hNfxJn1UEkv9Hcf9wtTn4pAgUNqIJOUSXsbljLqmpewmm
+         o915MnvFQ1z/s12k+1IjfeYKPee8nCycjHwGg9lCiAvsiBZiU16+Oc4LGR4H6FBXGjI2
+         JoUq37/RciUGNPVXDcKoI2f+/2f4Ew1q1gKOLYe6Pnu9XuAG41djRUSa78GNxa77lzgX
+         YhOBNQ+SGZ/R7qUINBzULtCo2R7jCWVKASeTky5mGxFkxRVvoiaTjMJnE6UdLu371scO
+         kfyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
+         :message-id:subject:to:cc;
+        bh=4PwH1AXD3SllEEcEV6owIpVJRtalHEcUOPjpbDNsvcE=;
+        b=mZxEzlqTpdS6lcM719LTW0ZdElIU9Cwf1+R4HhCP2FUv89jyp6V+zRQ3C7L1ZCB0ro
+         LuyoH71uNudPbRN4lqIuRTXUDFNIykNX+OREibfsu3e8tMmdxhBFNvoOxte0CQdTZazn
+         2tg078K2ujSoHOwYHdAMponihc38Chud98kHcBeYId4ooqg2vCOE9KeS1R3WGM32U6fC
+         SFy/7pw0auL2X22wSAh+8i/l2mngtqnzDDszJeefzd9N/2J+bE75dYKXjabkYvzYvqGn
+         SDgOLj0ROoVUaiZK9/H+45I5AIjACllRN+ClYi/hJ9vnYcv09+MGZH0SFk7mxvp42AUy
+         zxSg==
+X-Gm-Message-State: AOAM533FjsR9RB0czuYr8NKeKZvU4FbS9MV+Y/5GyFYVFZgv2i0Jp71e
+        /Z8RhV2q0/YACgNOwZmi6CepWMM/OYap65OqeLapvMhT7k0Z/g==
+X-Google-Smtp-Source: ABdhPJz15LOt9hpVMXGWPSrsBD4CZ1VQ2e0HTqJhDcwL8qPa2YqaZL4KCBOgZGx/xE3Z2zHVczwClsGbRFeRlCUNwl0=
+X-Received: by 2002:a9d:7a54:: with SMTP id z20mr14261136otm.17.1623075826297;
+ Mon, 07 Jun 2021 07:23:46 -0700 (PDT)
+MIME-Version: 1.0
+References: <20210521083209.3740269-1-elver@google.com>
+In-Reply-To: <20210521083209.3740269-1-elver@google.com>
+From:   Marco Elver <elver@google.com>
+Date:   Mon, 7 Jun 2021 16:23:34 +0200
+Message-ID: <CANpmjNObVfB6AREacptbMTikzbFfGuuL49jZqPSOTUjAExyp+g@mail.gmail.com>
+Subject: [5.12.y] kfence: use TASK_IDLE when awaiting allocation
+To:     stable <stable@vger.kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     Alexander Potapenko <glider@google.com>,
+        kasan-dev <kasan-dev@googlegroups.com>
+Content-Type: text/plain; charset="UTF-8"
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cheng Jian <cj.chengjian@huawei.com>
+Dear stable maintainers,
 
-commit 60588bfa223ff675b95f866249f90616613fbe31 upstream.
+The patch "kfence: use TASK_IDLE when awaiting allocation" has landed
+in mainline as 8fd0e995cc7b, however, does not apply cleanly to 5.12.y
+due to a prerequisite patch missing.
 
-select_idle_cpu() will scan the LLC domain for idle CPUs,
-it's always expensive. so the next commit :
+My recommendation is to cherry-pick the following 2 commits to 5.12.y
+(rather than rebase 8fd0e995cc7b on top of 5.12.y):
 
-    1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
+  37c9284f6932 kfence: maximize allocation wait timeout duration
+  8fd0e995cc7b kfence: use TASK_IDLE when awaiting allocation
 
-introduces a way to limit how many CPUs we scan.
+Many thanks,
+-- Marco
 
-But it consume some CPUs out of 'nr' that are not allowed
-for the task and thus waste our attempts. The function
-always return nr_cpumask_bits, and we can't find a CPU
-which our task is allowed to run.
+---------- Forwarded message ---------
+From: Marco Elver <elver@google.com>
+Date: Fri, 21 May 2021 at 10:32
+Subject: [PATCH] kfence: use TASK_IDLE when awaiting allocation
+To: <elver@google.com>, <akpm@linux-foundation.org>
+Cc: <glider@google.com>, <dvyukov@google.com>,
+<linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+<kasan-dev@googlegroups.com>, Mel Gorman <mgorman@suse.de>,
+<stable@vger.kernel.org>
 
-Cpumask may be too big, similar to select_idle_core(), use
-per_cpu_ptr 'select_idle_mask' to prevent stack overflow.
 
-Fixes: 1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
-Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
-Link: https://lkml.kernel.org/r/20191213024530.28052-1-cj.chengjian@huawei.com
-Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
-Tested-by: Yang Wei <yang.wei@linux.alibaba.com>
+Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
+allocation counts towards load. However, for KFENCE, this does not make
+any sense, since there is no busy work we're awaiting.
+
+Instead, use TASK_IDLE via wait_event_idle() to not count towards load.
+
+BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1185565
+Fixes: 407f1d8c1b5f ("kfence: await for allocation using wait_event")
+Signed-off-by: Marco Elver <elver@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: <stable@vger.kernel.org> # v5.12+
 ---
- kernel/sched/fair.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
-
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 81096dd..37ac76d 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -5779,6 +5779,7 @@ static inline int select_idle_smt(struct task_struct *p, struct sched_domain *sd
-  */
- static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
- {
-+	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
- 	struct sched_domain *this_sd;
- 	u64 avg_cost, avg_idle;
- 	u64 time, cost;
-@@ -5809,11 +5810,11 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
- 
- 	time = local_clock();
- 
--	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
-+	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
-+
-+	for_each_cpu_wrap(cpu, cpus, target) {
- 		if (!--nr)
- 			return -1;
--		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
--			continue;
- 		if (idle_cpu(cpu))
- 			break;
- 	}
--- 
-1.8.3.1
-
+ mm/kfence/core.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
