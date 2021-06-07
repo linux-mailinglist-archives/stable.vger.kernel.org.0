@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E982D39E3BB
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:40:12 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FC2B39E3BF
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:40:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233620AbhFGQ1e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:27:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38884 "EHLO mail.kernel.org"
+        id S233712AbhFGQ1j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:27:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59806 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234032AbhFGQZO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:25:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id AFDAC6195F;
-        Mon,  7 Jun 2021 16:16:09 +0000 (UTC)
+        id S234108AbhFGQZV (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:25:21 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 17CCA6194D;
+        Mon,  7 Jun 2021 16:16:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082570;
-        bh=t4iyIFmCTN8Vmq8cgjPcdXfx+c1ojJ8KTQ2POL6uTeU=;
+        s=k20201202; t=1623082571;
+        bh=pxaClpHo2JeNFeJc9tNtN5p4nba7pPshfC+5WI2WSIY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMhxyQxqb7jpbSbESnQdvbPtonTP54FcNL4u1UFKo9EO63t+v442rQO1xKQJVUWEE
-         /RiUoJvhnTl2FV7wl/CzIlYJtb4FSX3eLgSbi7M9+SMMaZa5EtokDMDPV7az2JbaUk
-         YApt6qytEJIgueBuMTJYoCKjKmJP32tnZ3oPRWGNpEenf+ymfkG9INq9yv/Q2YSU1Q
-         dEjof78XvepcO4f/Dv8kljY3nVc7LiUtOn2ICs0JDpFTn6BaOxCxUMqEUQh9ZRVHhY
-         17fgUEAi9yQ3yOV9Wb/5J/Cd0RljmsKktUHWoF4f57veg2FCl2Ug2l650PNyD0rqT+
-         vQ+U9tnZeVcUg==
+        b=E7JnccWBKUBvqffwJrkuEouuStBtOF96DO0p8oy6MuIl74e8l2+imet0MgBVgMpku
+         EztijqIhp0eHjKiFRV75WlIY4UpnCnfQZOhubebTF5DuvL0YJ3hKxR3mLBC/w5nXcU
+         yqBwh2ZGpENs0pJzgb7xefBONW/5Mzv6+x4pC3kR4r6awAWUHxiFsovOF7/Id0SktR
+         9hzuTzoFuEn/0aX49Fqf/CGcDlDHfI4Fooa2oMTZJfMXZOCC29G4qQN6bnrpWFW3RF
+         DexxhMzUsic7WSByO6CDIW2Lo2CTL8IT9tbLPRfJ5tBKiLXsgkcKFedcwjoa2qeful
+         S1wWWvK5WbxmA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
-        syzbot+7c2bb71996f95a82524c@syzkaller.appspotmail.com,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.4 03/14] HID: usbhid: fix info leak in hid_submit_ctrl
-Date:   Mon,  7 Jun 2021 12:15:54 -0400
-Message-Id: <20210607161605.3584954-3-sashal@kernel.org>
+Cc:     Yongqiang Liu <liuyongqiang13@huawei.com>,
+        Tony Lindgren <tony@atomide.com>,
+        Sasha Levin <sashal@kernel.org>, linux-omap@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.4 04/14] ARM: OMAP2+: Fix build warning when mmc_omap is not built
+Date:   Mon,  7 Jun 2021 12:15:55 -0400
+Message-Id: <20210607161605.3584954-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161605.3584954-1-sashal@kernel.org>
 References: <20210607161605.3584954-1-sashal@kernel.org>
@@ -44,57 +43,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Rayabharam <mail@anirudhrb.com>
+From: Yongqiang Liu <liuyongqiang13@huawei.com>
 
-[ Upstream commit 6be388f4a35d2ce5ef7dbf635a8964a5da7f799f ]
+[ Upstream commit 040ab72ee10ea88e1883ad143b3e2b77596abc31 ]
 
-In hid_submit_ctrl(), the way of calculating the report length doesn't
-take into account that report->size can be zero. When running the
-syzkaller reproducer, a report of size 0 causes hid_submit_ctrl) to
-calculate transfer_buffer_length as 16384. When this urb is passed to
-the usb core layer, KMSAN reports an info leak of 16384 bytes.
+GCC reports the following warning with W=1:
 
-To fix this, first modify hid_report_len() to account for the zero
-report size case by using DIV_ROUND_UP for the division. Then, call it
-from hid_submit_ctrl().
+arch/arm/mach-omap2/board-n8x0.c:325:19: warning:
+variable 'index' set but not used [-Wunused-but-set-variable]
+325 |  int bit, *openp, index;
+    |                   ^~~~~
 
-Reported-by: syzbot+7c2bb71996f95a82524c@syzkaller.appspotmail.com
-Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
-Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fix this by moving CONFIG_MMC_OMAP to cover the rest codes
+in the n8x0_mmc_callback().
+
+Signed-off-by: Yongqiang Liu <liuyongqiang13@huawei.com>
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/usbhid/hid-core.c | 2 +-
- include/linux/hid.h           | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap2/board-n8x0.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
-index b0eeb5090c91..d51fc2be0e10 100644
---- a/drivers/hid/usbhid/hid-core.c
-+++ b/drivers/hid/usbhid/hid-core.c
-@@ -372,7 +372,7 @@ static int hid_submit_ctrl(struct hid_device *hid)
- 	raw_report = usbhid->ctrl[usbhid->ctrltail].raw_report;
- 	dir = usbhid->ctrl[usbhid->ctrltail].dir;
+diff --git a/arch/arm/mach-omap2/board-n8x0.c b/arch/arm/mach-omap2/board-n8x0.c
+index b6443a4e0c78..68af9d9566cb 100644
+--- a/arch/arm/mach-omap2/board-n8x0.c
++++ b/arch/arm/mach-omap2/board-n8x0.c
+@@ -328,6 +328,7 @@ static int n8x0_mmc_get_cover_state(struct device *dev, int slot)
  
--	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
-+	len = hid_report_len(report);
- 	if (dir == USB_DIR_OUT) {
- 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
- 		usbhid->urbctrl->transfer_buffer_length = len;
-diff --git a/include/linux/hid.h b/include/linux/hid.h
-index 19c53b64e07a..6adea5a39724 100644
---- a/include/linux/hid.h
-+++ b/include/linux/hid.h
-@@ -1119,8 +1119,7 @@ static inline void hid_hw_wait(struct hid_device *hdev)
-  */
- static inline u32 hid_report_len(struct hid_report *report)
+ static void n8x0_mmc_callback(void *data, u8 card_mask)
  {
--	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
--	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
-+	return DIV_ROUND_UP(report->size, 8) + (report->id > 0);
- }
++#ifdef CONFIG_MMC_OMAP
+ 	int bit, *openp, index;
  
- int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
+ 	if (board_is_n800()) {
+@@ -345,7 +346,6 @@ static void n8x0_mmc_callback(void *data, u8 card_mask)
+ 	else
+ 		*openp = 0;
+ 
+-#ifdef CONFIG_MMC_OMAP
+ 	omap_mmc_notify_cover_event(mmc_device, index, *openp);
+ #else
+ 	pr_warn("MMC: notify cover event not available\n");
 -- 
 2.30.2
 
