@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9325B39E238
+	by mail.lfdr.de (Postfix) with ESMTP id DBE3E39E239
 	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232179AbhFGQPv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:15:51 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48652 "EHLO mail.kernel.org"
+        id S232193AbhFGQPw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:15:52 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231901AbhFGQPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231908AbhFGQPF (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Jun 2021 12:15:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DA2B161439;
-        Mon,  7 Jun 2021 16:13:11 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4344C613F3;
+        Mon,  7 Jun 2021 16:13:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082392;
-        bh=KEn+BrAL7HcuxfY0qjHMLmBIi25/yKl2/NG/iX7SUbo=;
+        s=k20201202; t=1623082394;
+        bh=YRi77UcDOJNead1RFidPUpOuVFKS6mzpqGTWMQ3J2q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rdv2ol8ZHhWrwIwu8V6WnLuTtMG/bP3/hK1AMINNm1t8eDypl5PkL/Kl45YL0jP/h
-         rRfYLDPrYy4NF+LcMgZP//i8T/f4gue/ZagIMklCJ0KUnrk3hKsuumVigK35Veghqq
-         +Wuh/60esK9CcZ2uokHG9lby5bx/1tiSvZlAT6RI5g/BtlDK9e9TvoR2X4p/lfX+b0
-         kGFqjasKoM+VydqN4xq6MeQqrP/v+LH5EObQJfLXATojB9e46Yvyr+cd+q233hSROK
-         0XgugAkfaYkozm7xw9TwSiuzlYBNXt1dYavUyMmFHrmZ7V6VCkVj+KfjB8HlGQAQ+5
-         iPFZRWEB9poQQ==
+        b=I5KWN1gnxhUgdtUENud1/iydVw+Y613tBqjMHggu1IiFpuLaD7Wy/yt4FZZQRatkv
+         unOkGXzRxiHucq2nkY3UrYQokseFEm6yaPPb3F5fQCqRgwOf4px9OXXMNkk6JA2oP0
+         LOxw6V46jqOmK11ZVcGiwbQNgXtgoByFbGEvd4FiAzffRRKXOCMl8igHwMgLKa6teM
+         FZ75s1aI+B0z7fJ+0Svuu9PMrbTI8FZ7ypJaWwo5HuQH2WbA7ZaJjmQz3uaPgoU+1F
+         r/TA3WGe4HGGPHXSNdZzEbHAYRst03IdSJg1vORX8RNMX+RgMaeEB5Isd+OKrodZld
+         DjM5E6Wa0tIcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Victor Zhao <Victor.Zhao@amd.com>,
-        Jingwen Chen <Jingwen.Chen2@amd.com>,
-        Monk Liu <monk.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 45/49] drm/amd/amdgpu:save psp ring wptr to avoid attack
-Date:   Mon,  7 Jun 2021 12:12:11 -0400
-Message-Id: <20210607161215.3583176-45-sashal@kernel.org>
+Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
+        Abaci Robot <abaci@linux.alibaba.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 46/49] rtnetlink: Fix missing error code in rtnl_bridge_notify()
+Date:   Mon,  7 Jun 2021 12:12:12 -0400
+Message-Id: <20210607161215.3583176-46-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -45,84 +43,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Victor Zhao <Victor.Zhao@amd.com>
+From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
 
-[ Upstream commit 2370eba9f552eaae3d8aa1f70b8e9eec5c560f9e ]
+[ Upstream commit a8db57c1d285c758adc7fb43d6e2bad2554106e1 ]
 
-[Why]
-When some tools performing psp mailbox attack, the readback value
-of register can be a random value which may break psp.
+The error code is missing in this code scenario, add the error code
+'-EINVAL' to the return value 'err'.
 
-[How]
-Use a psp wptr cache machanism to aovid the change made by attack.
+Eliminate the follow smatch warning:
 
-v2: unify change and add detailed reason
+net/core/rtnetlink.c:4834 rtnl_bridge_notify() warn: missing error code
+'err'.
 
-Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
-Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
-Reviewed-by: Monk Liu <monk.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Abaci Robot <abaci@linux.alibaba.com>
+Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h | 1 +
- drivers/gpu/drm/amd/amdgpu/psp_v11_0.c  | 3 ++-
- drivers/gpu/drm/amd/amdgpu/psp_v3_1.c   | 3 ++-
- 3 files changed, 5 insertions(+), 2 deletions(-)
+ net/core/rtnetlink.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-index cb50ba445f8c..0fd62a8e68c2 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
-@@ -76,6 +76,7 @@ struct psp_ring
- 	uint64_t			ring_mem_mc_addr;
- 	void				*ring_mem_handle;
- 	uint32_t			ring_size;
-+	uint32_t			ring_wptr;
- };
+diff --git a/net/core/rtnetlink.c b/net/core/rtnetlink.c
+index 3485b16a7ff3..9ad046917b34 100644
+--- a/net/core/rtnetlink.c
++++ b/net/core/rtnetlink.c
+@@ -4833,8 +4833,10 @@ static int rtnl_bridge_notify(struct net_device *dev)
+ 	if (err < 0)
+ 		goto errout;
  
- /* More registers may will be supported */
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-index c325d6f53a71..d39735a89a25 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
-@@ -720,7 +720,7 @@ static uint32_t psp_v11_0_ring_get_wptr(struct psp_context *psp)
- 	struct amdgpu_device *adev = psp->adev;
+-	if (!skb->len)
++	if (!skb->len) {
++		err = -EINVAL;
+ 		goto errout;
++	}
  
- 	if (amdgpu_sriov_vf(adev))
--		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
-+		data = psp->km_ring.ring_wptr;
- 	else
- 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
- 
-@@ -734,6 +734,7 @@ static void psp_v11_0_ring_set_wptr(struct psp_context *psp, uint32_t value)
- 	if (amdgpu_sriov_vf(adev)) {
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, value);
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101, GFX_CTRL_CMD_ID_CONSUME_CMD);
-+		psp->km_ring.ring_wptr = value;
- 	} else
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
- }
-diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
-index f2e725f72d2f..908664a5774b 100644
---- a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
-+++ b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
-@@ -379,7 +379,7 @@ static uint32_t psp_v3_1_ring_get_wptr(struct psp_context *psp)
- 	struct amdgpu_device *adev = psp->adev;
- 
- 	if (amdgpu_sriov_vf(adev))
--		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
-+		data = psp->km_ring.ring_wptr;
- 	else
- 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
- 	return data;
-@@ -394,6 +394,7 @@ static void psp_v3_1_ring_set_wptr(struct psp_context *psp, uint32_t value)
- 		/* send interrupt to PSP for SRIOV ring write pointer update */
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
- 			GFX_CTRL_CMD_ID_CONSUME_CMD);
-+		psp->km_ring.ring_wptr = value;
- 	} else
- 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
- }
+ 	rtnl_notify(skb, net, 0, RTNLGRP_LINK, NULL, GFP_ATOMIC);
+ 	return 0;
 -- 
 2.30.2
 
