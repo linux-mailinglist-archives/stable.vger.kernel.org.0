@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5712C39E246
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FFC339E244
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232294AbhFGQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231688AbhFGQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Jun 2021 12:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231998AbhFGQPR (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232000AbhFGQPR (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Jun 2021 12:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4FD6361407;
-        Mon,  7 Jun 2021 16:13:20 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACD2C61405;
+        Mon,  7 Jun 2021 16:13:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082401;
-        bh=/KOVpH4rv9fwOqe9CmwxcXiyoVX1h85wYnu2sLJMTgc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=DkVbRWXQVNF5k0ZPI7AVXdZViVDNltT+Ilf6Mm6GZuCTzhhrY4OWEFBnmjsTDG1kz
-         ZzcEJ6+GYB5dMaQMo7sJPyTvvZYp1IUqkvcgyohbG2CQWDAJtRiav4J/q6oeTT5n1g
-         B5P9A+jQmtCdsJmTsDUMmyCjt7rtKgpFEpLeFUbD2NBBpRTZth+/pz81SKT0poMtbG
-         Sqnayjl2Hs7QRIj0RlWM4LdlevQeKOC4f6VyCX/6SobY9J9xAUnI6KHYh7fQRYqNcf
-         PFtpB+wufSHS3Zvdk+7f67Hu2L3v8+tsU4TGptOD+sT/QjNTrMFZzszxjt8UwORfrw
-         jCNj1hN05rtyQ==
+        s=k20201202; t=1623082402;
+        bh=8NROY7982HeFSxDEn9mkhUirj3sifUv/lZZ+MmRV36g=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=if/2X7twSChJ9nKEJjvRkcscY/9qrk+8Fh2FUsFUwS9Lra9mLxDBJ8pcjtCl8cyu7
+         CUFcaNpZxLxBKSKJhrDohlq8ozoR2Z5238YI/6EDk43OmyspOK610pHE5PnduAxxa8
+         G1juaXM/REwnZ4pgaQXNGNLUMhbMNyk1t4wj2XHoSSWvagN5PB2BQi0tq2LzXyzm7I
+         dqzfUAW8IA35i2rB86uzJNmZGY/6I1TiirzzGdW3PsEDfEy4Pyp6EVC+oc6R+99Ooc
+         XzxJzubY8KGfrduqepzgpKX1KkHDeLg9OFuSmM0V7OILZRGaLc3USSXPr6RI4WQxme
+         ytTmyw9oKry3w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Robertson <dan@dlrobertson.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 01/39] net: ieee802154: fix null deref in parse dev addr
-Date:   Mon,  7 Jun 2021 12:12:40 -0400
-Message-Id: <20210607161318.3583636-1-sashal@kernel.org>
+Cc:     Nirenjan Krishnan <nirenjan@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 02/39] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for Saitek X65
+Date:   Mon,  7 Jun 2021 12:12:41 -0400
+Message-Id: <20210607161318.3583636-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
+References: <20210607161318.3583636-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,51 +42,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Robertson <dan@dlrobertson.com>
+From: Nirenjan Krishnan <nirenjan@gmail.com>
 
-[ Upstream commit 9fdd04918a452980631ecc499317881c1d120b70 ]
+[ Upstream commit 25bdbfbb2d8331a67824dd03d0087e9c98835f3a ]
 
-Fix a logic error that could result in a null deref if the user sets
-the mode incorrectly for the given addr type.
+The Saitek X65 joystick has a pair of axes that were used as mouse
+pointer controls by the Windows driver. The corresponding usage page is
+the Game Controls page, which is not recognized by the generic HID
+driver, and therefore, both axes get mapped to ABS_MISC. The quirk makes
+the second axis get mapped to ABS_MISC+1, and therefore made available
+separately.
 
-Signed-off-by: Dan Robertson <dan@dlrobertson.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210423040214.15438-2-dan@dlrobertson.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index f0b47d43c9f6..b34e4f827e75 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1298,19 +1298,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
- 	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla, nl802154_dev_addr_policy, NULL))
- 		return -EINVAL;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index e220a05a05b4..c2e0c65b111b 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -1034,6 +1034,7 @@
+ #define USB_DEVICE_ID_SAITEK_X52	0x075c
+ #define USB_DEVICE_ID_SAITEK_X52_2	0x0255
+ #define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
++#define USB_DEVICE_ID_SAITEK_X65	0x0b6a
  
--	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] ||
--	    !attrs[NL802154_DEV_ADDR_ATTR_MODE] ||
--	    !(attrs[NL802154_DEV_ADDR_ATTR_SHORT] ||
--	      attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]))
-+	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] || !attrs[NL802154_DEV_ADDR_ATTR_MODE])
- 		return -EINVAL;
- 
- 	addr->pan_id = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_PAN_ID]);
- 	addr->mode = nla_get_u32(attrs[NL802154_DEV_ADDR_ATTR_MODE]);
- 	switch (addr->mode) {
- 	case NL802154_DEV_ADDR_SHORT:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_SHORT])
-+			return -EINVAL;
- 		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
- 		break;
- 	case NL802154_DEV_ADDR_EXTENDED:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_EXTENDED])
-+			return -EINVAL;
- 		addr->extended_addr = nla_get_le64(attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]);
- 		break;
- 	default:
+ #define USB_VENDOR_ID_SAMSUNG		0x0419
+ #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 2e38340e19df..2bda94199aaf 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -158,6 +158,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X65), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
 -- 
 2.30.2
 
