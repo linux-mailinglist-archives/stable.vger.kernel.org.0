@@ -2,26 +2,26 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BC87839DE24
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 15:55:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B591639DE30
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 15:58:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbhFGN5P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 09:57:15 -0400
-Received: from out30-131.freemail.mail.aliyun.com ([115.124.30.131]:50849 "EHLO
-        out30-131.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230211AbhFGN5O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 09:57:14 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R851e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04420;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UbdrxMo_1623074105;
-Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0UbdrxMo_1623074105)
+        id S230193AbhFGOAU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 10:00:20 -0400
+Received: from out4436.biz.mail.alibaba.com ([47.88.44.36]:31483 "EHLO
+        out4436.biz.mail.alibaba.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230302AbhFGOAT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 10:00:19 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R831e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=yang.wei@linux.alibaba.com;NM=1;PH=DS;RN=4;SR=0;TI=SMTPD_---0UbemBfZ_1623074283;
+Received: from localhost(mailfrom:yang.wei@linux.alibaba.com fp:SMTPD_---0UbemBfZ_1623074283)
           by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 07 Jun 2021 21:55:21 +0800
+          Mon, 07 Jun 2021 21:58:16 +0800
 From:   Yang Wei <yang.wei@linux.alibaba.com>
 To:     Greg KH <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, Yang Wei <yang.wei@linux.alibaba.com>,
         Yang Wei <albin.yangwei@alibaba-inc.com>
-Subject: [PATCH 4.19] sched/fair: Optimize select_idle_cpu
-Date:   Mon,  7 Jun 2021 21:55:05 +0800
-Message-Id: <1623074105-31985-1-git-send-email-yang.wei@linux.alibaba.com>
+Subject: [PATCH v2 4.14] sched/fair: Optimize select_idle_cpu
+Date:   Mon,  7 Jun 2021 21:58:03 +0800
+Message-Id: <1623074283-34764-1-git-send-email-yang.wei@linux.alibaba.com>
 X-Mailer: git-send-email 1.8.3.1
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
@@ -60,10 +60,10 @@ Tested-by: Yang Wei <yang.wei@linux.alibaba.com>
  1 file changed, 4 insertions(+), 3 deletions(-)
 
 diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index 80392cd..f066870 100644
+index 81096dd..37ac76d 100644
 --- a/kernel/sched/fair.c
 +++ b/kernel/sched/fair.c
-@@ -6154,6 +6154,7 @@ static inline int select_idle_smt(struct task_struct *p, struct sched_domain *sd
+@@ -5779,6 +5779,7 @@ static inline int select_idle_smt(struct task_struct *p, struct sched_domain *sd
   */
  static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
  {
@@ -71,7 +71,7 @@ index 80392cd..f066870 100644
  	struct sched_domain *this_sd;
  	u64 avg_cost, avg_idle;
  	u64 time, cost;
-@@ -6184,11 +6185,11 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
+@@ -5809,11 +5810,11 @@ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int t
  
  	time = local_clock();
  
@@ -83,7 +83,7 @@ index 80392cd..f066870 100644
  			return -1;
 -		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
 -			continue;
- 		if (available_idle_cpu(cpu))
+ 		if (idle_cpu(cpu))
  			break;
  	}
 -- 
