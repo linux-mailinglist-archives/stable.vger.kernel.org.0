@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B68E39E1C8
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8595539E1CB
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230374AbhFGQOP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:14:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47166 "EHLO mail.kernel.org"
+        id S231358AbhFGQOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:14:17 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47198 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230463AbhFGQOJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:14:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B4E1261164;
-        Mon,  7 Jun 2021 16:12:16 +0000 (UTC)
+        id S231282AbhFGQOK (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:14:10 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0E00E6135D;
+        Mon,  7 Jun 2021 16:12:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082337;
-        bh=SQ7tXB5A4f9gTKUoGUxGuZuKkrwf8dWkXFQDGeSO38Y=;
-        h=From:To:Cc:Subject:Date:From;
-        b=XyOYVvSZjNGFinYGqn+uFoY7zW24QCXdoQ2UX1JRrMQ05GrM7wAVdzMI/Pf7/o0++
-         0tF842C6cgRrDR7YnC792va/rQ7931PuIm3OO/B6wc957+BBs3gZSOAbGFfn48ZNU4
-         coqa06JlPylSksLbt1xhubq46d/o9a7dVnaugBE0gxvt0lcerj9SjrlQCaQd4nrkk1
-         r5KhPBuEH36rX5RU7XyavEkEQbvDywlaHvGpTRKw0yup7eJeVeJG01Xfdp7239yUFR
-         gIqz0fWMdb4UwzNBh8op7kkOayi3PmVB+/rtq4aIysk3F4kggpRVkFgyDFbhQRm5qq
-         hiI0hGSS5ljGQ==
+        s=k20201202; t=1623082338;
+        bh=ewBxHwmu+PcHoCfNmRdf7wetx4+AcOOFNVgj1mOHnnM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MuBrubhFrF1Mm1tHxbjkqxayTFusoXv1z3gIXd64ijYEL3QOhORl41kJFldmDgJGG
+         xsCjF1XiRVHLA8AEBkPl/d/5Uzl85jvkTgKdCWWP2U6LjUmhF+e3aHX8NxeKXV5+yi
+         C7VokQJrpdexlqHVoUOm6/V9gQ4QDEp/9485hCns8VqmkybKKlZRE1/d2U1349JCnO
+         jRLxFI8T1x+JPIPXbdsy1S3UAKfAWPcTQfAlXToBvMmUL841GmbaFUvUAokzVK5EA6
+         Z7F9KNH6UFz08miF7aJvM98bZgow0hkhFVPG7FX7qBxpQett2kWMTDoxnvKHER6sCl
+         NibkEeOuUjHPw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dan Robertson <dan@dlrobertson.com>,
-        Alexander Aring <aahringo@redhat.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>, linux-wpan@vger.kernel.org,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.12 01/49] net: ieee802154: fix null deref in parse dev addr
-Date:   Mon,  7 Jun 2021 12:11:27 -0400
-Message-Id: <20210607161215.3583176-1-sashal@kernel.org>
+Cc:     Luke D Jones <luke@ljones.dev>, Jiri Kosina <jkosina@suse.cz>,
+        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.12 02/49] HID: asus: Filter keyboard EC for old ROG keyboard
+Date:   Mon,  7 Jun 2021 12:11:28 -0400
+Message-Id: <20210607161215.3583176-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
+In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
+References: <20210607161215.3583176-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -42,51 +41,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Robertson <dan@dlrobertson.com>
+From: Luke D Jones <luke@ljones.dev>
 
-[ Upstream commit 9fdd04918a452980631ecc499317881c1d120b70 ]
+[ Upstream commit 4bfb2c72b2bfca8684c2f5c25a3119bad016a9d3 ]
 
-Fix a logic error that could result in a null deref if the user sets
-the mode incorrectly for the given addr type.
+Older ROG keyboards emit a similar stream of bytes to the new
+N-Key keyboards and require filtering to prevent a lot of
+unmapped key warnings showing. As all the ROG keyboards use
+QUIRK_USE_KBD_BACKLIGHT this is now used to branch to filtering
+in asus_raw_event.
 
-Signed-off-by: Dan Robertson <dan@dlrobertson.com>
-Acked-by: Alexander Aring <aahringo@redhat.com>
-Link: https://lore.kernel.org/r/20210423040214.15438-2-dan@dlrobertson.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Luke D Jones <luke@ljones.dev>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl802154.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
+ drivers/hid/hid-asus.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ieee802154/nl802154.c b/net/ieee802154/nl802154.c
-index 05f6bd89a7dd..0cf2374c143b 100644
---- a/net/ieee802154/nl802154.c
-+++ b/net/ieee802154/nl802154.c
-@@ -1298,19 +1298,20 @@ ieee802154_llsec_parse_dev_addr(struct nlattr *nla,
- 	if (!nla || nla_parse_nested_deprecated(attrs, NL802154_DEV_ADDR_ATTR_MAX, nla, nl802154_dev_addr_policy, NULL))
- 		return -EINVAL;
+diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
+index 2ab22b925941..1ed1c05c3d54 100644
+--- a/drivers/hid/hid-asus.c
++++ b/drivers/hid/hid-asus.c
+@@ -335,7 +335,7 @@ static int asus_raw_event(struct hid_device *hdev,
+ 	if (drvdata->quirks & QUIRK_MEDION_E1239T)
+ 		return asus_e1239t_event(drvdata, data, size);
  
--	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] ||
--	    !attrs[NL802154_DEV_ADDR_ATTR_MODE] ||
--	    !(attrs[NL802154_DEV_ADDR_ATTR_SHORT] ||
--	      attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]))
-+	if (!attrs[NL802154_DEV_ADDR_ATTR_PAN_ID] || !attrs[NL802154_DEV_ADDR_ATTR_MODE])
- 		return -EINVAL;
- 
- 	addr->pan_id = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_PAN_ID]);
- 	addr->mode = nla_get_u32(attrs[NL802154_DEV_ADDR_ATTR_MODE]);
- 	switch (addr->mode) {
- 	case NL802154_DEV_ADDR_SHORT:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_SHORT])
-+			return -EINVAL;
- 		addr->short_addr = nla_get_le16(attrs[NL802154_DEV_ADDR_ATTR_SHORT]);
- 		break;
- 	case NL802154_DEV_ADDR_EXTENDED:
-+		if (!attrs[NL802154_DEV_ADDR_ATTR_EXTENDED])
-+			return -EINVAL;
- 		addr->extended_addr = nla_get_le64(attrs[NL802154_DEV_ADDR_ATTR_EXTENDED]);
- 		break;
- 	default:
+-	if (drvdata->quirks & QUIRK_ROG_NKEY_KEYBOARD) {
++	if (drvdata->quirks & QUIRK_USE_KBD_BACKLIGHT) {
+ 		/*
+ 		 * Skip these report ID, the device emits a continuous stream associated
+ 		 * with the AURA mode it is in which looks like an 'echo'.
 -- 
 2.30.2
 
