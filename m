@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F1C939E1FC
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5DCF839E1F6
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231640AbhFGQOj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:14:39 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48082 "EHLO mail.kernel.org"
+        id S231624AbhFGQOi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:14:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48126 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231151AbhFGQOc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:14:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3C40E611BD;
-        Mon,  7 Jun 2021 16:12:40 +0000 (UTC)
+        id S231588AbhFGQOd (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:14:33 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4751B613CD;
+        Mon,  7 Jun 2021 16:12:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082360;
-        bh=h3yfU/nAkZxVju9v0orfVy4nCOFi0WzFrnNTYQYPzLc=;
+        s=k20201202; t=1623082361;
+        bh=Qyj+cZGVbnhbV2TUCEh1IxzEu0QV0k2VDEllloBFnFI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W3RUMw0NBStLauubad3yA7Cp8dbEE4bOgU01W6cycJJ8DaupCSwiHyLIdDF68Q5R5
-         TWwVWAITnJWaTXZngSowsGDqZg51VdsFhXVpj6g6JAG/17IT3Plov1LboZZdUlqaC4
-         +6UXJrwiQJApsf2uPdM9CeeDsByuXRpo4mn9sev5M8pzBb/oY7AR3jp/iEYxVnBFYR
-         WV/CUsWlqoTpRYTR6EDhP3y0zUt1yIloOonaez/bQsNnXuXJ0be46MH62kkcQc3gGH
-         kEbTPp15rc9hTQmowbHz2GUNPYkJMaaRQiWTmdjSjRoFfCdWlMuhvyapIJACoXArND
-         M3Qc9uiWtP50Q==
+        b=mvqU23Okg+hpDEhSrKd4mpHXrON80FAfPRbD54GzyyOFlLCYoAVScDLGyo8gmdixK
+         qrFksvkDzSSCEPelpWabEAnTKltdEhkwjpZoVpIU5XheEufUCQUD7ZkxeI/DnJck3+
+         wqhj2cp7EbWFdZBjt4LhktpJ+irsw2d5q/S1j/Ouu4i8v/TJWzdtbwJnTVRjwIMFPr
+         vNVhJelz42rU1fDuSlxoBs6eLl49sVbXJcEGIhfZX/+YpNKpeGOvWw56tboIt4owMO
+         tz2PszcZKt1IxgMMTs+afN+Q7UeYE03FmujYW0DA50VJuWAMmSY/LJ3ziDrFs7AwFl
+         QR6YxvPRSSMbA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+Cc:     Bob Peterson <rpeterso@redhat.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
         Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.12 20/49] gfs2: Prevent direct-I/O write fallback errors from getting lost
-Date:   Mon,  7 Jun 2021 12:11:46 -0400
-Message-Id: <20210607161215.3583176-20-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 21/49] gfs2: fix a deadlock on withdraw-during-mount
+Date:   Mon,  7 Jun 2021 12:11:47 -0400
+Message-Id: <20210607161215.3583176-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -41,37 +42,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Bob Peterson <rpeterso@redhat.com>
 
-[ Upstream commit 43a511c44e58e357a687d61a20cf5ef1dc9e5a7c ]
+[ Upstream commit 865cc3e9cc0b1d4b81c10d53174bced76decf888 ]
 
-When a direct I/O write falls entirely and falls back to buffered I/O and the
-buffered I/O fails, the write failed with return value 0 instead of the error
-number reported by the buffered I/O. Fix that.
+Before this patch, gfs2 would deadlock because of the following
+sequence during mount:
 
+mount
+   gfs2_fill_super
+      gfs2_make_fs_rw <--- Detects IO error with glock
+         kthread_stop(sdp->sd_quotad_process);
+            <--- Blocked waiting for quotad to finish
+
+logd
+   Detects IO error and the need to withdraw
+   calls gfs2_withdraw
+      gfs2_make_fs_ro
+         kthread_stop(sdp->sd_quotad_process);
+            <--- Blocked waiting for quotad to finish
+
+gfs2_quotad
+   gfs2_statfs_sync
+      gfs2_glock_wait <---- Blocked waiting for statfs glock to be granted
+
+glock_work_func
+   do_xmote <---Detects IO error, can't release glock: blocked on withdraw
+      glops->go_inval
+      glock_blocked_by_withdraw
+         requeue glock work & exit <--- work requeued, blocked by withdraw
+
+This patch makes a special exception for the statfs system inode glock,
+which allows the statfs glock UNLOCK to proceed normally. That allows the
+quotad daemon to exit during the withdraw, which allows the logd daemon
+to exit during the withdraw, which allows the mount to exit.
+
+Signed-off-by: Bob Peterson <rpeterso@redhat.com>
 Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/gfs2/glock.c | 24 +++++++++++++++++++++---
+ 1 file changed, 21 insertions(+), 3 deletions(-)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 2d500f90cdac..a86e6810237a 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -935,8 +935,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(buffered <= 0))
-+		if (unlikely(buffered <= 0)) {
-+			if (!ret)
-+				ret = buffered;
- 			goto out_unlock;
-+		}
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 9567520d79f7..142f746d7b33 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -583,6 +583,16 @@ static void finish_xmote(struct gfs2_glock *gl, unsigned int ret)
+ 	spin_unlock(&gl->gl_lockref.lock);
+ }
  
- 		/*
- 		 * We need to ensure that the page cache pages are written to
++static bool is_system_glock(struct gfs2_glock *gl)
++{
++	struct gfs2_sbd *sdp = gl->gl_name.ln_sbd;
++	struct gfs2_inode *m_ip = GFS2_I(sdp->sd_statfs_inode);
++
++	if (gl == m_ip->i_gl)
++		return true;
++	return false;
++}
++
+ /**
+  * do_xmote - Calls the DLM to change the state of a lock
+  * @gl: The lock state
+@@ -672,17 +682,25 @@ __acquires(&gl->gl_lockref.lock)
+ 	 * to see sd_log_error and withdraw, and in the meantime, requeue the
+ 	 * work for later.
+ 	 *
++	 * We make a special exception for some system glocks, such as the
++	 * system statfs inode glock, which needs to be granted before the
++	 * gfs2_quotad daemon can exit, and that exit needs to finish before
++	 * we can unmount the withdrawn file system.
++	 *
+ 	 * However, if we're just unlocking the lock (say, for unmount, when
+ 	 * gfs2_gl_hash_clear calls clear_glock) and recovery is complete
+ 	 * then it's okay to tell dlm to unlock it.
+ 	 */
+ 	if (unlikely(sdp->sd_log_error && !gfs2_withdrawn(sdp)))
+ 		gfs2_withdraw_delayed(sdp);
+-	if (glock_blocked_by_withdraw(gl)) {
+-		if (target != LM_ST_UNLOCKED ||
+-		    test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags)) {
++	if (glock_blocked_by_withdraw(gl) &&
++	    (target != LM_ST_UNLOCKED ||
++	     test_bit(SDF_WITHDRAW_RECOVERY, &sdp->sd_flags))) {
++		if (!is_system_glock(gl)) {
+ 			gfs2_glock_queue_work(gl, GL_GLOCK_DFT_HOLD);
+ 			goto out;
++		} else {
++			clear_bit(GLF_INVALIDATE_IN_PROGRESS, &gl->gl_flags);
+ 		}
+ 	}
+ 
 -- 
 2.30.2
 
