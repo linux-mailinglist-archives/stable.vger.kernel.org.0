@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 84AF739E248
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:55 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 804CD39E24B
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232010AbhFGQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232307AbhFGQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Jun 2021 12:16:13 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49988 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:48832 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232001AbhFGQPS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:15:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 016F9613D0;
-        Mon,  7 Jun 2021 16:13:22 +0000 (UTC)
+        id S232030AbhFGQPT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:15:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3DFEA613C7;
+        Mon,  7 Jun 2021 16:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082403;
-        bh=nju6YQpYseMnUGSdtKJTqaUpq2DQe+MUe1ZihKW0XQ0=;
+        s=k20201202; t=1623082404;
+        bh=FeqBGE9zqGaarMM+CfYzox4XI66YDFKHiyv3V8hjCS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y36xm6avNTBIx6OrdykrJ+KM1KU28U5OpMzjTSjzNwMNoDizlpNFHrtn8YL940sOD
-         gitoAy568iQUTaVLJAz5jlWcI5jkb4Yt4wlC1ykX5hhMscIiA50skkLAwuaEdYxcB6
-         nYdUTLdLu/NcMhc8GQ9L0zGwmUplnorWNRn6NfNI6Jum8ChyyjZ1wtTgdNGN5uHmLd
-         JO755Xaw1ewYCTLnPH+9wbRoaV2quzoma8n3xECV6G895cbkNua+b7wv03zzCWC9Z4
-         XbSAd6nJivQAHfy3X63QsOdvOkLHe8IyLhi0aqgPizFxlJ7UOM/82JB0+8WOvH6A+k
-         ZoNRm6QcQk4OQ==
+        b=UNLkMN3wtH8MHwkafrW/swqagq3ix6IL3P7oR7ITxmVGgEpz9A2i7h10aaBG6Ge+4
+         mJgctg9ns5WZDzaT2esvnKrHleJ0RZnMNy00L0KCEiQygBtWJD1zJu7eSTtOjJayJj
+         gOyekmypxzHIxvHJArBgMlluk21ZAxvadN1jufrWw01FnRl/ndNar8rJtgK7UMxp4V
+         VIdFBxy5RMJ4IFGunusEMOOuAzenHdcsuRq5QRkORVOPbRobQ9jSW9bSnYsgwK74vc
+         y2JrXzijTeePjuNfYNW4fnTZ6l6fWvuMLheC9U1eG2eQ4znwf7/dGxyf3L3g14INbB
+         ecA9Is8ltztmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/39] HID: a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4TECH NB-95
-Date:   Mon,  7 Jun 2021 12:12:42 -0400
-Message-Id: <20210607161318.3583636-3-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 04/39] HID: hid-input: add mapping for emoji picker key
+Date:   Mon,  7 Jun 2021 12:12:43 -0400
+Message-Id: <20210607161318.3583636-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
 References: <20210607161318.3583636-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -43,84 +42,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Jończyk <mat.jonczyk@o2.pl>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 9858c74c29e12be5886280725e781cb735b2aca6 ]
+[ Upstream commit 7b229b13d78d112e2c5d4a60a3c6f602289959fa ]
 
-This mouse has a horizontal wheel that requires special handling.
-Without this patch, the horizontal wheel acts like a vertical wheel.
+HUTRR101 added a new usage code for a key that is supposed to invoke and
+dismiss an emoji picker widget to assist users to locate and enter emojis.
 
-In the output of `hidrd-convert` for this mouse, there is a
-`Usage (B8h)` field. It corresponds to a byte in packets sent by the
-device that specifies which wheel generated an input event.
+This patch adds a new key definition KEY_EMOJI_PICKER and maps 0x0c/0x0d9
+usage code to this new keycode. Additionally hid-debug is adjusted to
+recognize this new usage code as well.
 
-The name "A4TECH" is spelled in all capitals on the company website.
-
-Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/Kconfig      | 4 ++--
- drivers/hid/hid-a4tech.c | 2 ++
- drivers/hid/hid-ids.h    | 1 +
- drivers/hid/hid-quirks.c | 1 +
- 4 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/hid/hid-debug.c                | 1 +
+ drivers/hid/hid-input.c                | 3 +++
+ include/uapi/linux/input-event-codes.h | 1 +
+ 3 files changed, 5 insertions(+)
 
-diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
-index 9b56226ce0d1..54bc563a8dff 100644
---- a/drivers/hid/Kconfig
-+++ b/drivers/hid/Kconfig
-@@ -93,11 +93,11 @@ menu "Special HID drivers"
- 	depends on HID
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index d7eaf9100370..982737827b87 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -929,6 +929,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_APPSELECT] = "AppSelect",
+ 	[KEY_SCREENSAVER] = "ScreenSaver",
+ 	[KEY_VOICECOMMAND] = "VoiceCommand",
++	[KEY_EMOJI_PICKER] = "EmojiPicker",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 32024905fd70..d1ab2dccf6fd 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -957,6 +957,9 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
  
- config HID_A4TECH
--	tristate "A4 tech mice"
-+	tristate "A4TECH mice"
- 	depends on HID
- 	default !EXPERT
- 	help
--	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
-+	Support for some A4TECH mice with two scroll wheels.
+ 		case 0x0cd: map_key_clear(KEY_PLAYPAUSE);	break;
+ 		case 0x0cf: map_key_clear(KEY_VOICECOMMAND);	break;
++
++		case 0x0d9: map_key_clear(KEY_EMOJI_PICKER);	break;
++
+ 		case 0x0e0: map_abs_clear(ABS_VOLUME);		break;
+ 		case 0x0e2: map_key_clear(KEY_MUTE);		break;
+ 		case 0x0e5: map_key_clear(KEY_BASSBOOST);	break;
+diff --git a/include/uapi/linux/input-event-codes.h b/include/uapi/linux/input-event-codes.h
+index ee93428ced9a..225ec87d4f22 100644
+--- a/include/uapi/linux/input-event-codes.h
++++ b/include/uapi/linux/input-event-codes.h
+@@ -611,6 +611,7 @@
+ #define KEY_VOICECOMMAND		0x246	/* Listening Voice Command */
+ #define KEY_ASSISTANT		0x247	/* AL Context-aware desktop assistant */
+ #define KEY_KBD_LAYOUT_NEXT	0x248	/* AC Next Keyboard Layout Select */
++#define KEY_EMOJI_PICKER	0x249	/* Show/hide emoji picker (HUTRR101) */
  
- config HID_ACCUTOUCH
- 	tristate "Accutouch touch device"
-diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
-index 3a8c4a5971f7..2cbc32dda7f7 100644
---- a/drivers/hid/hid-a4tech.c
-+++ b/drivers/hid/hid-a4tech.c
-@@ -147,6 +147,8 @@ static const struct hid_device_id a4_devices[] = {
- 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
- 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95),
-+		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
- 	{ }
- };
- MODULE_DEVICE_TABLE(hid, a4_devices);
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index c2e0c65b111b..951d0637cfb9 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -26,6 +26,7 @@
- #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
- #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
- #define USB_DEVICE_ID_A4TECH_RP_649	0x001a
-+#define USB_DEVICE_ID_A4TECH_NB_95	0x022b
- 
- #define USB_VENDOR_ID_AASHIMA		0x06d6
- #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 2bda94199aaf..9acfa075d4f3 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -213,6 +213,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95) },
- #endif
- #if IS_ENABLED(CONFIG_HID_ACCUTOUCH)
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
+ #define KEY_BRIGHTNESS_MIN		0x250	/* Set Brightness to Minimum */
+ #define KEY_BRIGHTNESS_MAX		0x251	/* Set Brightness to Maximum */
 -- 
 2.30.2
 
