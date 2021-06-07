@@ -2,77 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D738339D6EB
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 10:17:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id BA5E239D7E2
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 10:49:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229657AbhFGITM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 04:19:12 -0400
-Received: from out30-44.freemail.mail.aliyun.com ([115.124.30.44]:60735 "EHLO
-        out30-44.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S229545AbhFGITM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 04:19:12 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=e01e04426;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=17;SR=0;TI=SMTPD_---0UbZRCfR_1623053837;
-Received: from IT-C02W23QPG8WN.local(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UbZRCfR_1623053837)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 07 Jun 2021 16:17:18 +0800
-Subject: Re: [PATCH 4.20 1/2] perf/cgroups: Don't rotate events for cgroups
- unnecessarily
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
-        Ian Rogers <irogers@google.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Stephane Eranian <eranian@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Vince Weaver <vincent.weaver@maine.edu>,
-        Ingo Molnar <mingo@kernel.org>
-References: <20210607080017.8894-1-wenyang@linux.alibaba.com>
- <YL3URDqVmdIP9647@kroah.com>
-From:   Wen Yang <wenyang@linux.alibaba.com>
-Message-ID: <08a4df69-b37b-832d-26ae-88d6a06e4772@linux.alibaba.com>
-Date:   Mon, 7 Jun 2021 16:17:17 +0800
-User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:78.0)
- Gecko/20100101 Thunderbird/78.10.2
+        id S230313AbhFGIvA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 04:51:00 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:39728 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230311AbhFGIvA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 04:51:00 -0400
+Received: from zn.tnic (p200300ec2f0b4f006e4c94f9871f2fda.dip0.t-ipconnect.de [IPv6:2003:ec:2f0b:4f00:6e4c:94f9:871f:2fda])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A99E71EC0301;
+        Mon,  7 Jun 2021 10:49:07 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1623055747;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=rdLasSxegzkWiQ/LEYu/db+S6HGIdzjYwkuMrqrwDFg=;
+        b=cSCr2ZEYgb+YBeu8EI7Huew00jgvgLkeM68zlb2AxZ3dxb91r6wX5rUCD9DS7glplxopZI
+        R9f8ptvi2Sgovedq/L6fEOmihHmCYYLtp+vFdHc6aScsqhigx5y95yD1nfLSds7JuuH8Uf
+        4WgKwy2lA18MeE4PVmLga09Sh/YHO5Q=
+Date:   Mon, 7 Jun 2021 10:49:02 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com,
+        stable@vger.kernel.org
+Subject: Re: [patch V2 02/14] x86/fpu: Prevent state corruption in
+ __fpu__restore_sig()
+Message-ID: <YL3dfjIM9YHTW5S2@zn.tnic>
+References: <20210605234742.712464974@linutronix.de>
+ <20210606001323.067157324@linutronix.de>
 MIME-Version: 1.0
-In-Reply-To: <YL3URDqVmdIP9647@kroah.com>
-Content-Type: text/plain; charset=gbk; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210606001323.067157324@linutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Jun 06, 2021 at 01:47:44AM +0200, Thomas Gleixner wrote:
+> From: Thomas Gleixner <tglx@linutronix.de>
+> 
+> The non-compacted slowpath uses __copy_from_user() and copies the entire
+> user buffer into the kernel buffer, verbatim.  This means that the kernel
+> buffer may now contain entirely invalid state on which XRSTOR will #GP.
+> validate_user_xstate_header() can detect some of that corruption, but that
+> leaves the onus on callers to clear the buffer.
+> 
+> Prior to XSAVES support it was possible just to reinitialize the buffer,
+> completely, but with supervisor states that is not longer possible as the
+> buffer clearing code split got it backwards. Fixing that is possible, but
+> not corrupting the state in the first place is more robust.
+> 
+> Avoid corruption of the kernel XSAVE buffer by using copy_user_to_xstate()
+> which validates the XSAVE header contents before copying the actual states
+> to the kernel. copy_user_to_xstate() was previously only called for
+> compacted-format kernel buffers, but it works for both compacted and
+> non-compacted forms.
+> 
+> Using it for the non-compacted form is slower because of multiple
+> __copy_from_user() operations, but that cost is less important than robust
+> code in an already slow path.
+> 
+> [ Changelog polished by Dave Hansen ]
+> 
+> Fixes: b860eb8dce59 ("x86/fpu/xstate: Define new functions for clearing fpregs and xstates")
+> Reported-by: syzbot+2067e764dbcd10721e2e@syzkaller.appspotmail.com
+> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+> Cc: stable@vger.kernel.org
+> ---
+> V2: Removed the make validate_user_xstate_header() static hunks (Borislav)
+> ---
+>  arch/x86/kernel/fpu/signal.c |    9 +--------
+>  1 file changed, 1 insertion(+), 8 deletions(-)
 
+Very nice.
 
-ÔÚ 2021/6/7 ÏÂÎç4:09, Greg Kroah-Hartman Ð´µÀ:
-> On Mon, Jun 07, 2021 at 04:00:16PM +0800, Wen Yang wrote:
->> From: Ian Rogers <irogers@google.com>
->>
->> [ Upstream commit fd7d55172d1e2e501e6da0a5c1de25f06612dc2e ]
-> 
-> <snip>
-> 
-> If you look at the releases page of kernel.org, you will see the active
-> kernels (also the front page of kernel.org shows this).
-> 
-> So why are you sending patches for kernels that are long long
-> end-of-life?  Who is going to use these patches, and for what trees?
-> 
-> thanks,
-> 
-> greg k-h
-> 
+Reviewed-by: Borislav Petkov <bp@suse.de>
 
-Okay, thank you for your reminder.
-The 4.19 kernel is used in our environment (it is also active). This bug 
-exists in versions from 4.19 to 5.2, but in fact it only needs to be 
-fixed on 4.19, thanks
+-- 
+Regards/Gruss,
+    Boris.
 
---
-Best wishes,
-Wen
+https://people.kernel.org/tglx/notes-about-netiquette
