@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2608D39E237
+	by mail.lfdr.de (Postfix) with ESMTP id 9325B39E238
 	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:47 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbhFGQPu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:15:50 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49406 "EHLO mail.kernel.org"
+        id S232179AbhFGQPv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:15:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48652 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231881AbhFGQPE (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:15:04 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1CA0761420;
-        Mon,  7 Jun 2021 16:13:10 +0000 (UTC)
+        id S231901AbhFGQPF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:15:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DA2B161439;
+        Mon,  7 Jun 2021 16:13:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082391;
-        bh=RU63UG+hsOXLvJl/eg0xfbdqV+vXBYCf368CdSAr4J0=;
+        s=k20201202; t=1623082392;
+        bh=KEn+BrAL7HcuxfY0qjHMLmBIi25/yKl2/NG/iX7SUbo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NqLXEZOKYOgUKwUWuulhjK1oHC1Zsb/o0E79cbqVVdn8J4lSJVdjZdhEpHg+AcaqO
-         4K5v5k/uMnv2aBCfafbgekIOqiSNZVB7vDZYQ85EVtsj03KnkbJb/p77/srp+yfAFy
-         IuvBxtNaIq1L6g7N12GWlwRTjNAmM1doSkJ5Cr5aed0SPWMpQ58Bzi/GbV9HzNbYM/
-         LDp1Wr/20Uy91ooEcBq8HxQLi/qB/kLVsgNXwbiIdIO4VU/wDUfrrtwc7SSk9XKA5x
-         t9WDrwITDC2BFd3a/ycAV6h5/ea3u3kjKFeToMYnsqeDfmL4m8Ddktad5C8V63+hWb
-         G46Ph7xQQa0NA==
+        b=rdv2ol8ZHhWrwIwu8V6WnLuTtMG/bP3/hK1AMINNm1t8eDypl5PkL/Kl45YL0jP/h
+         rRfYLDPrYy4NF+LcMgZP//i8T/f4gue/ZagIMklCJ0KUnrk3hKsuumVigK35Veghqq
+         +Wuh/60esK9CcZ2uokHG9lby5bx/1tiSvZlAT6RI5g/BtlDK9e9TvoR2X4p/lfX+b0
+         kGFqjasKoM+VydqN4xq6MeQqrP/v+LH5EObQJfLXATojB9e46Yvyr+cd+q233hSROK
+         0XgugAkfaYkozm7xw9TwSiuzlYBNXt1dYavUyMmFHrmZ7V6VCkVj+KfjB8HlGQAQ+5
+         iPFZRWEB9poQQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Li <roman.li@amd.com>, Lang Yu <Lang.Yu@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Qingqing Zhuo <qingqing.zhuo@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
+Cc:     Victor Zhao <Victor.Zhao@amd.com>,
+        Jingwen Chen <Jingwen.Chen2@amd.com>,
+        Monk Liu <monk.liu@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.12 44/49] drm/amd/display: Fix potential memory leak in DMUB hw_init
-Date:   Mon,  7 Jun 2021 12:12:10 -0400
-Message-Id: <20210607161215.3583176-44-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.12 45/49] drm/amd/amdgpu:save psp ring wptr to avoid attack
+Date:   Mon,  7 Jun 2021 12:12:11 -0400
+Message-Id: <20210607161215.3583176-45-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -46,53 +45,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Victor Zhao <Victor.Zhao@amd.com>
 
-[ Upstream commit c5699e2d863f58221044efdc3fa712dd32d55cde ]
+[ Upstream commit 2370eba9f552eaae3d8aa1f70b8e9eec5c560f9e ]
 
 [Why]
-On resume we perform DMUB hw_init which allocates memory:
-dm_resume->dm_dmub_hw_init->dc_dmub_srv_create->kzalloc
-That results in memory leak in suspend/resume scenarios.
+When some tools performing psp mailbox attack, the readback value
+of register can be a random value which may break psp.
 
 [How]
-Allocate memory for the DC wrapper to DMUB only if it was not
-allocated before.
-No need to reallocate it on suspend/resume.
+Use a psp wptr cache machanism to aovid the change made by attack.
 
-Signed-off-by: Lang Yu <Lang.Yu@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+v2: unify change and add detailed reason
+
+Signed-off-by: Victor Zhao <Victor.Zhao@amd.com>
+Signed-off-by: Jingwen Chen <Jingwen.Chen2@amd.com>
+Reviewed-by: Monk Liu <monk.liu@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h | 1 +
+ drivers/gpu/drm/amd/amdgpu/psp_v11_0.c  | 3 ++-
+ drivers/gpu/drm/amd/amdgpu/psp_v3_1.c   | 3 ++-
+ 3 files changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 69023b4b0a8b..95d5bc2da178 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -871,7 +871,8 @@ static int dm_dmub_hw_init(struct amdgpu_device *adev)
- 		abm->dmcu_is_running = dmcu->funcs->is_dmcu_initialized(dmcu);
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+index cb50ba445f8c..0fd62a8e68c2 100644
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.h
+@@ -76,6 +76,7 @@ struct psp_ring
+ 	uint64_t			ring_mem_mc_addr;
+ 	void				*ring_mem_handle;
+ 	uint32_t			ring_size;
++	uint32_t			ring_wptr;
+ };
  
--	adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
-+	if (!adev->dm.dc->ctx->dmub_srv)
-+		adev->dm.dc->ctx->dmub_srv = dc_dmub_srv_create(adev->dm.dc, dmub_srv);
- 	if (!adev->dm.dc->ctx->dmub_srv) {
- 		DRM_ERROR("Couldn't allocate DC DMUB server!\n");
- 		return -ENOMEM;
-@@ -1863,7 +1864,6 @@ static int dm_suspend(void *handle)
+ /* More registers may will be supported */
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+index c325d6f53a71..d39735a89a25 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v11_0.c
+@@ -720,7 +720,7 @@ static uint32_t psp_v11_0_ring_get_wptr(struct psp_context *psp)
+ 	struct amdgpu_device *adev = psp->adev;
  
- 	amdgpu_dm_irq_suspend(adev);
+ 	if (amdgpu_sriov_vf(adev))
+-		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
++		data = psp->km_ring.ring_wptr;
+ 	else
+ 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
  
--
- 	dc_set_power_state(dm->dc, DC_ACPI_CM_POWER_STATE_D3);
+@@ -734,6 +734,7 @@ static void psp_v11_0_ring_set_wptr(struct psp_context *psp, uint32_t value)
+ 	if (amdgpu_sriov_vf(adev)) {
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102, value);
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101, GFX_CTRL_CMD_ID_CONSUME_CMD);
++		psp->km_ring.ring_wptr = value;
+ 	} else
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+ }
+diff --git a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
+index f2e725f72d2f..908664a5774b 100644
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v3_1.c
+@@ -379,7 +379,7 @@ static uint32_t psp_v3_1_ring_get_wptr(struct psp_context *psp)
+ 	struct amdgpu_device *adev = psp->adev;
  
- 	return 0;
+ 	if (amdgpu_sriov_vf(adev))
+-		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_102);
++		data = psp->km_ring.ring_wptr;
+ 	else
+ 		data = RREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67);
+ 	return data;
+@@ -394,6 +394,7 @@ static void psp_v3_1_ring_set_wptr(struct psp_context *psp, uint32_t value)
+ 		/* send interrupt to PSP for SRIOV ring write pointer update */
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_101,
+ 			GFX_CTRL_CMD_ID_CONSUME_CMD);
++		psp->km_ring.ring_wptr = value;
+ 	} else
+ 		WREG32_SOC15(MP0, 0, mmMP0_SMN_C2PMSG_67, value);
+ }
 -- 
 2.30.2
 
