@@ -2,127 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 853CD39D596
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 09:09:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 08F5039D624
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 09:35:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229578AbhFGHLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 03:11:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39982 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbhFGHLB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 03:11:01 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A2C2C061766;
-        Mon,  7 Jun 2021 00:09:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-        References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-        Content-Transfer-Encoding:Content-ID:Content-Description;
-        bh=TuqDyFF8ffS2jCcc39LRp7FhGd3Sbm44R1NXmZ9SKuU=; b=H3Es/7FrTJ7eDudl/jWxe5zNO/
-        1At0Lm3R4OdtBubx7/5X8RZRmenGJ/p7mLSFKYzxP8i0kYg58VMARJW3lFwMexyFZ6ebE3QBXcxnB
-        WbQRWEV8ztXgEI6mTTFU+xihOHQ2VyMMGXdUilyKYXDrk18Myjv2OBtvI36Ba9a8o4U4DAgikUrrs
-        RfaIXFHsIwzDraLHgxsDe1htFrd8S0kjWbv1Rb580TM9UorUSUCt81SkGPsuR44EjyUFY6G/VSewu
-        DZtvPiq8XehZI0brOQAVen7CrJiwu3VePu11Pz92+P7JP3dQXawzj20eqirawZ+TGjPKDTZ0sRgka
-        JWm72ahg==;
-Received: from hch by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lq9Nc-00FTGd-GQ; Mon, 07 Jun 2021 07:09:02 +0000
-Date:   Mon, 7 Jun 2021 08:09:00 +0100
-From:   Christoph Hellwig <hch@infradead.org>
-To:     longli@linuxonhyperv.com
-Cc:     linux-block@vger.kernel.org, Long Li <longli@microsoft.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Ming Lei <ming.lei@redhat.com>, Tejun Heo <tj@kernel.org>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Jeffle Xu <jefflexu@linux.alibaba.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [Patch v2] block: return the correct bvec when checking for gaps
-Message-ID: <YL3GDF5KiM9e69eW@infradead.org>
-References: <1622849839-5407-1-git-send-email-longli@linuxonhyperv.com>
+        id S229436AbhFGHgd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 03:36:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230289AbhFGHgb (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 03:36:31 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B9CF60720;
+        Mon,  7 Jun 2021 07:34:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1623051280;
+        bh=KSBak37M4ZNaKQDb2ZGdFQVWV6/LUhEK3kiybd0AK+g=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=uIusRuzdLnAN62qHAprxQB3QfW16uJ5EUCoJmzHb3n80mFnPKoED8ieIuWVNIJrkK
+         bFjjG1QCVX7abQ0wmxOjn7Vby8Wip4xjRbm30Sad8X1Q+TdQBOMdQU0SttI5GhqgPw
+         PUB4wP9rzkuP0hUdXyeB8NGrMmmWxI1W53VT9VVSdkvoZ5+jI10iy5/TkJeRA5x24F
+         KGRq7xmcQwHxzf7apBA6XmQmzLV3O+CnLBIOMaceA/micH5srwyJQPLiNASTjbZIBl
+         O4FmnYhY/9L7s0qIHjesoyXV/rmasaHSEoXkoBcpWwGppaQWvtWKkUCk1jnJ3o2WgP
+         Sxt4uophlVbuQ==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1lq9mK-0004AW-J9; Mon, 07 Jun 2021 09:34:33 +0200
+Date:   Mon, 7 Jun 2021 09:34:32 +0200
+From:   Johan Hovold <johan@kernel.org>
+To:     Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc:     Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
+        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, Antti Palosaari <crope@iki.fi>
+Subject: Re: [PATCH 3/3] media: rtl28xxu: fix zero-length control request
+Message-ID: <YL3MCGY5wTsW2kEF@hovoldconsulting.com>
+References: <20210524110920.24599-1-johan@kernel.org>
+ <20210524110920.24599-4-johan@kernel.org>
+ <YLSWeyy1skooTmqD@hovoldconsulting.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1622849839-5407-1-git-send-email-longli@linuxonhyperv.com>
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
+In-Reply-To: <YLSWeyy1skooTmqD@hovoldconsulting.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Jun 04, 2021 at 04:37:19PM -0700, longli@linuxonhyperv.com wrote:
-> From: Long Li <longli@microsoft.com>
+On Mon, May 31, 2021 at 09:55:39AM +0200, Johan Hovold wrote:
+> On Mon, May 24, 2021 at 01:09:20PM +0200, Johan Hovold wrote:
+> > The direction of the pipe argument must match the request-type direction
+> > bit or control requests may fail depending on the host-controller-driver
+> > implementation.
+> > 
+> > Control transfers without a data stage are treated as OUT requests by
+> > the USB stack and should be using usb_sndctrlpipe(). Failing to do so
+> > will now trigger a warning.
+> > 
+> > Fix the zero-length i2c-read request used for type detection by
+> > attempting to read a single byte instead.
+> > 
+> > Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
+> > Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
+> > Cc: stable@vger.kernel.org      # 4.0
+> > Cc: Antti Palosaari <crope@iki.fi>
+> > Signed-off-by: Johan Hovold <johan@kernel.org>
+> > ---
+> >  drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+> > index 97ed17a141bb..2c04ed8af0e4 100644
+> > --- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+> > +++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
+> > @@ -612,8 +612,9 @@ static int rtl28xxu_read_config(struct dvb_usb_device *d)
+> >  static int rtl28xxu_identify_state(struct dvb_usb_device *d, const char **name)
+> >  {
+> >  	struct rtl28xxu_dev *dev = d_to_priv(d);
+> > +	u8 buf[1];
+> >  	int ret;
+> > -	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 0, NULL};
+> > +	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 1, buf};
+> >  
+> >  	dev_dbg(&d->intf->dev, "\n");
 > 
-> After commit 07173c3ec276 ("block: enable multipage bvecs"), a bvec can
-> have multiple pages. But bio_will_gap() still assumes one page bvec while
-> checking for merging. If the pages in the bvec go across the
-> seg_boundary_mask, this check for merging can potentially succeed if only
-> the 1st page is tested, and can fail if all the pages are tested.
+> As reported here
 > 
-> Later, when SCSI builds the SG list the same check for merging is done in
-> __blk_segment_map_sg_merge() with all the pages in the bvec tested. This
-> time the check may fail if the pages in bvec go across the
-> seg_boundary_mask (but tested okay in bio_will_gap() earlier, so those
-> BIOs were merged). If this check fails, we end up with a broken SG list
-> for drivers assuming the SG list not having offsets in intermediate pages.
-> This results in incorrect pages written to the disk.
+> 	https://lore.kernel.org/r/YLSVsrhMZ2oOL1vM@hovoldconsulting.com
 > 
-> Fix this by returning the multi-page bvec when testing gaps for merging.
-> 
-> Cc: Jens Axboe <axboe@kernel.dk>
-> Cc: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-> Cc: Pavel Begunkov <asml.silence@gmail.com>
-> Cc: Ming Lei <ming.lei@redhat.com>
-> Cc: Tejun Heo <tj@kernel.org>
-> Cc: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-> Cc: Jeffle Xu <jefflexu@linux.alibaba.com>
-> Cc: linux-kernel@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Fixes: 07173c3ec276 ("block: enable multipage bvecs")
-> Signed-off-by: Long Li <longli@microsoft.com>
-> ---
-> Change from v1: add commit details on how data corruption happens
-> 
->  include/linux/bio.h | 11 ++++-------
->  1 file changed, 4 insertions(+), 7 deletions(-)
-> 
-> diff --git a/include/linux/bio.h b/include/linux/bio.h
-> index a0b4cfdf62a4..6b2f609ccfbf 100644
-> --- a/include/linux/bio.h
-> +++ b/include/linux/bio.h
-> @@ -44,9 +44,6 @@ static inline unsigned int bio_max_segs(unsigned int nr_segs)
->  #define bio_offset(bio)		bio_iter_offset((bio), (bio)->bi_iter)
->  #define bio_iovec(bio)		bio_iter_iovec((bio), (bio)->bi_iter)
->  
-> -#define bio_multiple_segments(bio)				\
-> -	((bio)->bi_iter.bi_size != bio_iovec(bio).bv_len)
-> -
->  #define bvec_iter_sectors(iter)	((iter).bi_size >> 9)
->  #define bvec_iter_end_sector(iter) ((iter).bi_sector + bvec_iter_sectors((iter)))
->  
-> @@ -271,7 +268,7 @@ static inline void bio_clear_flag(struct bio *bio, unsigned int bit)
->  
->  static inline void bio_get_first_bvec(struct bio *bio, struct bio_vec *bv)
->  {
-> -	*bv = bio_iovec(bio);
-> +	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
->  }
->  
->  static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
-> @@ -279,10 +276,10 @@ static inline void bio_get_last_bvec(struct bio *bio, struct bio_vec *bv)
->  	struct bvec_iter iter = bio->bi_iter;
->  	int idx;
->  
-> -	if (unlikely(!bio_multiple_segments(bio))) {
-> -		*bv = bio_iovec(bio);
-> +	/* this bio has only one bvec */
-> +	*bv = mp_bvec_iter_bvec(bio->bi_io_vec, bio->bi_iter);
-> +	if (bv->bv_len == bio->bi_iter.bi_size)
->  		return;
+> this patch is causing the chip type to no longer be detected correctly,
+> so please drop this one for now until this has been resolved.
 
-Nit: I'd move the comment a bit as the current placement confused me at
-first.  Also maybe use bio_get_first_bvec here to make it even more
-obvious:
+Looks like this one was applied to the media tree a couple of days after
+I sent this nonetheless.
 
-	bio_get_first_bvec(bio, bv);
-	if (bv->bv_len == bio->bi_iter.bi_size)
-		return;		/* this bio only has a single bvec */
+Can you drop this one in favour of the v2 posted here:
+
+	 https://lore.kernel.org/r/20210531094434.12651-4-johan@kernel.org
+
+or do you want me to send an incremental fix instead?
+
+Johan
