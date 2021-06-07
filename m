@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 1FFC339E244
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 84AF739E248
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231688AbhFGQQM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:16:12 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48406 "EHLO mail.kernel.org"
+        id S232010AbhFGQQN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:16:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232000AbhFGQPR (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:15:17 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACD2C61405;
-        Mon,  7 Jun 2021 16:13:21 +0000 (UTC)
+        id S232001AbhFGQPS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:15:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 016F9613D0;
+        Mon,  7 Jun 2021 16:13:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082402;
-        bh=8NROY7982HeFSxDEn9mkhUirj3sifUv/lZZ+MmRV36g=;
+        s=k20201202; t=1623082403;
+        bh=nju6YQpYseMnUGSdtKJTqaUpq2DQe+MUe1ZihKW0XQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=if/2X7twSChJ9nKEJjvRkcscY/9qrk+8Fh2FUsFUwS9Lra9mLxDBJ8pcjtCl8cyu7
-         CUFcaNpZxLxBKSKJhrDohlq8ozoR2Z5238YI/6EDk43OmyspOK610pHE5PnduAxxa8
-         G1juaXM/REwnZ4pgaQXNGNLUMhbMNyk1t4wj2XHoSSWvagN5PB2BQi0tq2LzXyzm7I
-         dqzfUAW8IA35i2rB86uzJNmZGY/6I1TiirzzGdW3PsEDfEy4Pyp6EVC+oc6R+99Ooc
-         XzxJzubY8KGfrduqepzgpKX1KkHDeLg9OFuSmM0V7OILZRGaLc3USSXPr6RI4WQxme
-         ytTmyw9oKry3w==
+        b=Y36xm6avNTBIx6OrdykrJ+KM1KU28U5OpMzjTSjzNwMNoDizlpNFHrtn8YL940sOD
+         gitoAy568iQUTaVLJAz5jlWcI5jkb4Yt4wlC1ykX5hhMscIiA50skkLAwuaEdYxcB6
+         nYdUTLdLu/NcMhc8GQ9L0zGwmUplnorWNRn6NfNI6Jum8ChyyjZ1wtTgdNGN5uHmLd
+         JO755Xaw1ewYCTLnPH+9wbRoaV2quzoma8n3xECV6G895cbkNua+b7wv03zzCWC9Z4
+         XbSAd6nJivQAHfy3X63QsOdvOkLHe8IyLhi0aqgPizFxlJ7UOM/82JB0+8WOvH6A+k
+         ZoNRm6QcQk4OQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nirenjan Krishnan <nirenjan@gmail.com>,
+Cc:     =?UTF-8?q?Mateusz=20Jo=C5=84czyk?= <mat.jonczyk@o2.pl>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
         linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 02/39] HID: quirks: Set INCREMENT_USAGE_ON_DUPLICATE for Saitek X65
-Date:   Mon,  7 Jun 2021 12:12:41 -0400
-Message-Id: <20210607161318.3583636-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 03/39] HID: a4tech: use A4_2WHEEL_MOUSE_HACK_B8 for A4TECH NB-95
+Date:   Mon,  7 Jun 2021 12:12:42 -0400
+Message-Id: <20210607161318.3583636-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
 References: <20210607161318.3583636-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -42,49 +43,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirenjan Krishnan <nirenjan@gmail.com>
+From: Mateusz Jończyk <mat.jonczyk@o2.pl>
 
-[ Upstream commit 25bdbfbb2d8331a67824dd03d0087e9c98835f3a ]
+[ Upstream commit 9858c74c29e12be5886280725e781cb735b2aca6 ]
 
-The Saitek X65 joystick has a pair of axes that were used as mouse
-pointer controls by the Windows driver. The corresponding usage page is
-the Game Controls page, which is not recognized by the generic HID
-driver, and therefore, both axes get mapped to ABS_MISC. The quirk makes
-the second axis get mapped to ABS_MISC+1, and therefore made available
-separately.
+This mouse has a horizontal wheel that requires special handling.
+Without this patch, the horizontal wheel acts like a vertical wheel.
 
-Signed-off-by: Nirenjan Krishnan <nirenjan@gmail.com>
+In the output of `hidrd-convert` for this mouse, there is a
+`Usage (B8h)` field. It corresponds to a byte in packets sent by the
+device that specifies which wheel generated an input event.
+
+The name "A4TECH" is spelled in all capitals on the company website.
+
+Signed-off-by: Mateusz Jończyk <mat.jonczyk@o2.pl>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
+ drivers/hid/Kconfig      | 4 ++--
+ drivers/hid/hid-a4tech.c | 2 ++
  drivers/hid/hid-ids.h    | 1 +
  drivers/hid/hid-quirks.c | 1 +
- 2 files changed, 2 insertions(+)
+ 4 files changed, 6 insertions(+), 2 deletions(-)
 
+diff --git a/drivers/hid/Kconfig b/drivers/hid/Kconfig
+index 9b56226ce0d1..54bc563a8dff 100644
+--- a/drivers/hid/Kconfig
++++ b/drivers/hid/Kconfig
+@@ -93,11 +93,11 @@ menu "Special HID drivers"
+ 	depends on HID
+ 
+ config HID_A4TECH
+-	tristate "A4 tech mice"
++	tristate "A4TECH mice"
+ 	depends on HID
+ 	default !EXPERT
+ 	help
+-	Support for A4 tech X5 and WOP-35 / Trust 450L mice.
++	Support for some A4TECH mice with two scroll wheels.
+ 
+ config HID_ACCUTOUCH
+ 	tristate "Accutouch touch device"
+diff --git a/drivers/hid/hid-a4tech.c b/drivers/hid/hid-a4tech.c
+index 3a8c4a5971f7..2cbc32dda7f7 100644
+--- a/drivers/hid/hid-a4tech.c
++++ b/drivers/hid/hid-a4tech.c
+@@ -147,6 +147,8 @@ static const struct hid_device_id a4_devices[] = {
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649),
+ 		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95),
++		.driver_data = A4_2WHEEL_MOUSE_HACK_B8 },
+ 	{ }
+ };
+ MODULE_DEVICE_TABLE(hid, a4_devices);
 diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index e220a05a05b4..c2e0c65b111b 100644
+index c2e0c65b111b..951d0637cfb9 100644
 --- a/drivers/hid/hid-ids.h
 +++ b/drivers/hid/hid-ids.h
-@@ -1034,6 +1034,7 @@
- #define USB_DEVICE_ID_SAITEK_X52	0x075c
- #define USB_DEVICE_ID_SAITEK_X52_2	0x0255
- #define USB_DEVICE_ID_SAITEK_X52_PRO	0x0762
-+#define USB_DEVICE_ID_SAITEK_X65	0x0b6a
+@@ -26,6 +26,7 @@
+ #define USB_DEVICE_ID_A4TECH_WCP32PU	0x0006
+ #define USB_DEVICE_ID_A4TECH_X5_005D	0x000a
+ #define USB_DEVICE_ID_A4TECH_RP_649	0x001a
++#define USB_DEVICE_ID_A4TECH_NB_95	0x022b
  
- #define USB_VENDOR_ID_SAMSUNG		0x0419
- #define USB_DEVICE_ID_SAMSUNG_IR_REMOTE	0x0001
+ #define USB_VENDOR_ID_AASHIMA		0x06d6
+ #define USB_DEVICE_ID_AASHIMA_GAMEPAD	0x0025
 diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 2e38340e19df..2bda94199aaf 100644
+index 2bda94199aaf..9acfa075d4f3 100644
 --- a/drivers/hid/hid-quirks.c
 +++ b/drivers/hid/hid-quirks.c
-@@ -158,6 +158,7 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_2), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X52_PRO), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
-+	{ HID_USB_DEVICE(USB_VENDOR_ID_SAITEK, USB_DEVICE_ID_SAITEK_X65), HID_QUIRK_INCREMENT_USAGE_ON_DUPLICATE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD2), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SEMICO, USB_DEVICE_ID_SEMICO_USB_KEYKOARD), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_SENNHEISER, USB_DEVICE_ID_SENNHEISER_BTD500USB), HID_QUIRK_NOGET },
+@@ -213,6 +213,7 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_WCP32PU) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_X5_005D) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_RP_649) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_A4TECH, USB_DEVICE_ID_A4TECH_NB_95) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ACCUTOUCH)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, USB_DEVICE_ID_ELO_ACCUTOUCH_2216) },
 -- 
 2.30.2
 
