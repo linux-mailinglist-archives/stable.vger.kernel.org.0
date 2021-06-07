@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E71439E3BC
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:40:13 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 367B539E3C1
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:40:15 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233660AbhFGQ1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:27:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59820 "EHLO mail.kernel.org"
+        id S233731AbhFGQ1l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:27:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59844 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234107AbhFGQZV (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:25:21 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 758DB6195E;
-        Mon,  7 Jun 2021 16:16:13 +0000 (UTC)
+        id S234114AbhFGQZW (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:25:22 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A3B4B6194E;
+        Mon,  7 Jun 2021 16:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082574;
-        bh=F5O9Api5/iELcugHSMjGXBouRRs5jTzjdVT1RMVHu9w=;
+        s=k20201202; t=1623082575;
+        bh=qlNtbXXsxbTqME0oD0ejxjM506VL4BEuBGE9nSVv+J0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r0ogkImyZQ38cnpanHn0ilB1fPICgPvsRzrOu2yZ7I1AQqJRSpB1dnm/qVM2kUYWT
-         F9iZJA+XVb+kXqaWbnhKCLSbReKHNnYZjNxQ2lkpvlwK7KM1shtFcMPicBOr9fVz1x
-         4R0kPDh7U2YblRaX0LRe7swIO6wsqgzg6yeq30UvehK23YXDZ1ghPvyzSxkacB+0/l
-         1c8IUXrSek88cjaZG65ksZzgBwRosKCrk/yQ5SoQFDZhYHs5gaHWX+zdVoIBWwKV96
-         jmFtKBeOMbJT38SZ1qmlN8FlATyhTzrAjYvJLL0B1ls8gDqQmsOKlstkt7e9xgRbFK
-         Je/QQffh7CNHg==
+        b=ozN7tCUp/MyXnayldHUOuxCrqyywb3ocX43/7TDMVi/RdEoU5Q7Yznt6nZmIKw57m
+         pezFfycpLbghKkwI3MVSKiEMvQzFd438K69IEuQZIZs2//fRw/C+aKjxU4RFYOJ3kp
+         b2Ep5ltFVaqwDh7MmdPmBFjv9AKRKg1QzPdafD3iDJok++JkHN0VQRcm27j9ErmcEk
+         J0V+YAFTdNZoGrhwbcbqgigLf4D70z+B5bM+UZoR1eOAud3BOGn3evOigZCcJF1h6A
+         H5O6+UZbdEfza+F2g1FxOOQvD+MdyuI//GkEU44Pp9wBwYAuiXN5UXx6niYmISdw4B
+         uaIYyHXv+XThQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hillf Danton <hdanton@sina.com>,
-        syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 4.4 06/14] gfs2: Fix use-after-free in gfs2_glock_shrink_scan
-Date:   Mon,  7 Jun 2021 12:15:57 -0400
-Message-Id: <20210607161605.3584954-6-sashal@kernel.org>
+Cc:     Lin Ma <linma@zju.edu.cn>, Marcel Holtmann <marcel@holtmann.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.4 07/14] Bluetooth: use correct lock to prevent UAF of hdev object
+Date:   Mon,  7 Jun 2021 12:15:58 -0400
+Message-Id: <20210607161605.3584954-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161605.3584954-1-sashal@kernel.org>
 References: <20210607161605.3584954-1-sashal@kernel.org>
@@ -43,49 +42,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hillf Danton <hdanton@sina.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 1ab19c5de4c537ec0d9b21020395a5b5a6c059b2 ]
+[ Upstream commit e305509e678b3a4af2b3cfd410f409f7cdaabb52 ]
 
-The GLF_LRU flag is checked under lru_lock in gfs2_glock_remove_from_lru() to
-remove the glock from the lru list in __gfs2_glock_put().
+The hci_sock_dev_event() function will cleanup the hdev object for
+sockets even if this object may still be in used within the
+hci_sock_bound_ioctl() function, result in UAF vulnerability.
 
-On the shrink scan path, the same flag is cleared under lru_lock but because
-of cond_resched_lock(&lru_lock) in gfs2_dispose_glock_lru(), progress on the
-put side can be made without deleting the glock from the lru list.
+This patch replace the BH context lock to serialize these affairs
+and prevent the race condition.
 
-Keep GLF_LRU across the race window opened by cond_resched_lock(&lru_lock) to
-ensure correct behavior on both sides - clear GLF_LRU after list_del under
-lru_lock.
-
-Reported-by: syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>
-Signed-off-by: Hillf Danton <hdanton@sina.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/glock.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/bluetooth/hci_sock.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
-index 8e8695eb652a..f115ce93dfb4 100644
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1342,6 +1342,7 @@ __acquires(&lru_lock)
- 	while(!list_empty(list)) {
- 		gl = list_entry(list->next, struct gfs2_glock, gl_lru);
- 		list_del_init(&gl->gl_lru);
-+		clear_bit(GLF_LRU, &gl->gl_flags);
- 		if (!spin_trylock(&gl->gl_lockref.lock)) {
- add_back_to_lru:
- 			list_add(&gl->gl_lru, &lru_list);
-@@ -1388,7 +1389,6 @@ static long gfs2_scan_glock_lru(int nr)
- 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
- 			list_move(&gl->gl_lru, &dispose);
- 			atomic_dec(&lru_count);
--			clear_bit(GLF_LRU, &gl->gl_flags);
- 			freed++;
- 			continue;
+diff --git a/net/bluetooth/hci_sock.c b/net/bluetooth/hci_sock.c
+index ea1cd8b21708..4ab69f6e910f 100644
+--- a/net/bluetooth/hci_sock.c
++++ b/net/bluetooth/hci_sock.c
+@@ -483,7 +483,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
+ 		/* Detach sockets from device */
+ 		read_lock(&hci_sk_list.lock);
+ 		sk_for_each(sk, &hci_sk_list.head) {
+-			bh_lock_sock_nested(sk);
++			lock_sock(sk);
+ 			if (hci_pi(sk)->hdev == hdev) {
+ 				hci_pi(sk)->hdev = NULL;
+ 				sk->sk_err = EPIPE;
+@@ -492,7 +492,7 @@ void hci_sock_dev_event(struct hci_dev *hdev, int event)
+ 
+ 				hci_dev_put(hdev);
+ 			}
+-			bh_unlock_sock(sk);
++			release_sock(sk);
  		}
+ 		read_unlock(&hci_sk_list.lock);
+ 	}
 -- 
 2.30.2
 
