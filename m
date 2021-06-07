@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E4D1939E2FD
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A5F439E2FE
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233128AbhFGQU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:20:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49082 "EHLO mail.kernel.org"
+        id S232814AbhFGQUb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:20:31 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49102 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232813AbhFGQS3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:18:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 40C8561582;
-        Mon,  7 Jun 2021 16:14:24 +0000 (UTC)
+        id S232815AbhFGQSa (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:18:30 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4C1DF61407;
+        Mon,  7 Jun 2021 16:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082464;
-        bh=aJBITtdeqrdbfjeiTs1BPtY1Q2AAO01Q1a74OYTnp6Q=;
+        s=k20201202; t=1623082466;
+        bh=rUw7BP8oocyKNmIl1hMRQzzuNIHS6uWhK3wZKD7ChF8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpuphMwjPJq+TURvifWgu9iF8JeCsHngu80+r7+4WNsmTn7P9tG/Id/kUxhhCz8ET
-         PRM2V+BOzLbWoLAoq+jQIr05zeUQPkQ5tN7Sqt9VSjM/XlCqfAoAU68wz2F69DYuwO
-         HhtbzvoYkEON4CeK1bXf0RwJzR6az7qGHEoLuzEKjKUNiCMgtTM4Kvb05MFToT85MQ
-         3QmGSX5bWWKnjKg0ITaFF0VCl73Ne7aXN2r8/pJIUfUaidOFHvmbg4UkAHuHwkg7IC
-         xlA+SbO+NRMLAu7ltCNs1UyhUUJP+oNVEyp+75az7a549j0w+nODkqSbJcjZOJtso/
-         FIYJcfDUtZB5w==
+        b=VCxp3tc/AhhHESICk59d3Ne/V46Y3Qbqo9RjeUaodE1ihWquCv/kRFryoz0fLwGoq
+         yjg12GPEpbDcYxq9wdi2CrN1R0lkUnNNRv4J24sEs3LVPMXGbAjZVot2OqYS2T7M7c
+         095QDcr9TQr01XuFLBOOYQ8Fw/IxAyfMppUGG/QuugNQr+2pDTTQUGVnAvknAXaW3+
+         s2HJV7X5VrHxADqXMQXBEPS7t1PaHl2Xp2bw0DMpMikd9fk0h+R8KOz0vGvnfrfUAM
+         +4zAj57zVzHgJ1cAkhVL0537AoAb49bv5j0xu/mc77PrNroI7DONypyuUg88vntr4Y
+         v8fbVjJtF/Lyg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
-Subject: [PATCH AUTOSEL 5.4 11/29] gfs2: Prevent direct-I/O write fallback errors from getting lost
-Date:   Mon,  7 Jun 2021 12:13:52 -0400
-Message-Id: <20210607161410.3584036-11-sashal@kernel.org>
+Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 12/29] HID: gt683r: add missing MODULE_DEVICE_TABLE
+Date:   Mon,  7 Jun 2021 12:13:53 -0400
+Message-Id: <20210607161410.3584036-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161410.3584036-1-sashal@kernel.org>
 References: <20210607161410.3584036-1-sashal@kernel.org>
@@ -41,37 +42,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Bixuan Cui <cuibixuan@huawei.com>
 
-[ Upstream commit 43a511c44e58e357a687d61a20cf5ef1dc9e5a7c ]
+[ Upstream commit a4b494099ad657f1cb85436d333cf38870ee95bc ]
 
-When a direct I/O write falls entirely and falls back to buffered I/O and the
-buffered I/O fails, the write failed with return value 0 instead of the error
-number reported by the buffered I/O. Fix that.
+This patch adds missing MODULE_DEVICE_TABLE definition which generates
+correct modalias for automatic loading of this driver when it is built
+as an external module.
 
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/gfs2/file.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/hid/hid-gt683r.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/fs/gfs2/file.c b/fs/gfs2/file.c
-index 4a10b4e7092a..69c52edf5713 100644
---- a/fs/gfs2/file.c
-+++ b/fs/gfs2/file.c
-@@ -875,8 +875,11 @@ static ssize_t gfs2_file_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 		current->backing_dev_info = inode_to_bdi(inode);
- 		buffered = iomap_file_buffered_write(iocb, from, &gfs2_iomap_ops);
- 		current->backing_dev_info = NULL;
--		if (unlikely(buffered <= 0))
-+		if (unlikely(buffered <= 0)) {
-+			if (!ret)
-+				ret = buffered;
- 			goto out_unlock;
-+		}
+diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
+index 898871c8c768..29ccb0accfba 100644
+--- a/drivers/hid/hid-gt683r.c
++++ b/drivers/hid/hid-gt683r.c
+@@ -54,6 +54,7 @@ static const struct hid_device_id gt683r_led_id[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
+ 	{ }
+ };
++MODULE_DEVICE_TABLE(hid, gt683r_led_id);
  
- 		/*
- 		 * We need to ensure that the page cache pages are written to
+ static void gt683r_brightness_set(struct led_classdev *led_cdev,
+ 				enum led_brightness brightness)
 -- 
 2.30.2
 
