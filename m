@@ -2,37 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 164F839E20C
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA70639E211
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:33 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231866AbhFGQPD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:15:03 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
+        id S231905AbhFGQPF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:15:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231621AbhFGQOm (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:14:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CC2C76141E;
-        Mon,  7 Jun 2021 16:12:49 +0000 (UTC)
+        id S231327AbhFGQOn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:14:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3EE2F61352;
+        Mon,  7 Jun 2021 16:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082370;
-        bh=0Tu5Uz0GUjDfRA36Cq/kM4LadVNUM41ye8xS8GOdVhk=;
+        s=k20201202; t=1623082372;
+        bh=cMuBQHhQV+vgwRUWp8OTz6zTtOGZM/A0iclc44jrQb0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q+qKzKEFkIuNtIUtgNM7bnoPlSFLk6MMY0ZJgkx5c3cKzHuaY6sI4FXaOfxluayUt
-         0UM9mFRU95zpWE0da6mS/ckAKHNUhmvtkX/no9XRddJ+h1jAzbE2gzE6GHeBIS4JRV
-         BzDCyU2MFo5P7IiQMJDHMkSkx0ojapvzw7iVed6O8J6obUNptYlOCeXLj8jvj6LO7k
-         uGurb6N1SIz/mN474HKqPPwy+z0o4OTgfzvImInQhttckecWYuEARXGQ3vd/Lp9G2X
-         xay9Yp/ZJCREdoY6LQDNaZXHq3fsOVk+y/5uIeNrctD/jVa8PTVAe7mRsIhNtv5lwI
-         W4j8IevOd/m+A==
+        b=sA2ia8G7r4YUTE7JGTXd8CWQkidocDF3rfUHPFPk1So9sC8LtPs4sDfltkWbqqC3L
+         lTRbwz9annAKWeogi1Yfr9WqmK8oO+wNFkKLV2+LvPtA5gQTH4H3e+IsV7+EkvaFcs
+         5HnC8nqfmvnpeMhwJ0xcKtx7/GRvmopbCFur+1wxKu4tT8zMz/yKlvhfVndDm97p4n
+         Iu4ARCsMx0C+/USdquMH3T/GMefHMbOFZSXVTNnmukX6BObfyx8c0RLdrh5NzoXXAn
+         XkR7D8qcYZ0CKukMk3buTLSBbPV5rxFYP6NrMcdZcUg1x1kgsFEpuULWDJDlRvSDKO
+         xPSnjOndJs3Tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Felix Fietkau <nbd@nbd.name>, Kalle Valo <kvalo@codeaurora.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.12 28/49] mt76: mt7921: remove leftover 80+80 HE capability
-Date:   Mon,  7 Jun 2021 12:11:54 -0400
-Message-Id: <20210607161215.3583176-28-sashal@kernel.org>
+Cc:     Hillf Danton <hdanton@sina.com>,
+        syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.12 29/49] gfs2: Fix use-after-free in gfs2_glock_shrink_scan
+Date:   Mon,  7 Jun 2021 12:11:55 -0400
+Message-Id: <20210607161215.3583176-29-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161215.3583176-1-sashal@kernel.org>
 References: <20210607161215.3583176-1-sashal@kernel.org>
@@ -44,34 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Fietkau <nbd@nbd.name>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit d4826d17b3931cf0d8351d8f614332dd4b71efc4 ]
+[ Upstream commit 1ab19c5de4c537ec0d9b21020395a5b5a6c059b2 ]
 
-Fixes interop issues with some APs that disable HE Tx if this is present
+The GLF_LRU flag is checked under lru_lock in gfs2_glock_remove_from_lru() to
+remove the glock from the lru list in __gfs2_glock_put().
 
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Kalle Valo <kvalo@codeaurora.org>
-Link: https://lore.kernel.org/r/20210528120304.34751-1-nbd@nbd.name
+On the shrink scan path, the same flag is cleared under lru_lock but because
+of cond_resched_lock(&lru_lock) in gfs2_dispose_glock_lru(), progress on the
+put side can be made without deleting the glock from the lru list.
+
+Keep GLF_LRU across the race window opened by cond_resched_lock(&lru_lock) to
+ensure correct behavior on both sides - clear GLF_LRU after list_del under
+lru_lock.
+
+Reported-by: syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/mt7921/main.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ fs/gfs2/glock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/mt7921/main.c b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-index ada943c7a950..2c781b6f89e5 100644
---- a/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-+++ b/drivers/net/wireless/mediatek/mt76/mt7921/main.c
-@@ -74,8 +74,7 @@ mt7921_init_he_caps(struct mt7921_phy *phy, enum nl80211_band band,
- 				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_IN_2G;
- 		else if (band == NL80211_BAND_5GHZ)
- 			he_cap_elem->phy_cap_info[0] =
--				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_80MHZ_IN_5G |
--				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_80PLUS80_MHZ_IN_5G;
-+				IEEE80211_HE_PHY_CAP0_CHANNEL_WIDTH_SET_40MHZ_80MHZ_IN_5G;
- 
- 		he_cap_elem->phy_cap_info[1] =
- 			IEEE80211_HE_PHY_CAP1_LDPC_CODING_IN_PAYLOAD;
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 142f746d7b33..a99e7295e19f 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1790,6 +1790,7 @@ __acquires(&lru_lock)
+ 	while(!list_empty(list)) {
+ 		gl = list_first_entry(list, struct gfs2_glock, gl_lru);
+ 		list_del_init(&gl->gl_lru);
++		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
+@@ -1835,7 +1836,6 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
+-			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
 -- 
 2.30.2
 
