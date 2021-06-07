@@ -2,157 +2,339 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AD6139E947
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 00:06:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A7E9739E967
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 00:14:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231214AbhFGWIP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 18:08:15 -0400
-Received: from mail-wm1-f42.google.com ([209.85.128.42]:55216 "EHLO
-        mail-wm1-f42.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbhFGWIM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 18:08:12 -0400
-Received: by mail-wm1-f42.google.com with SMTP id o127so566917wmo.4
-        for <stable@vger.kernel.org>; Mon, 07 Jun 2021 15:06:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=date:from:to:cc:subject:message-id:references:mime-version
-         :content-disposition:in-reply-to;
-        bh=163SqipTaPg+PcW9kBC8+x+G84vF8V3r27M2sRzbByA=;
-        b=B0k2Q/+tjKs+AJLiP0W5MHSF43zZ78cXvXajZfaM3a8VGT1wQyIdaKOgjivdg1T2LY
-         5BXs4vsgXC9CQkg+o7pQj3+/2VBP9YD31wbyYRdXH14KAJQdQD2jGMjTL/PbM1AoG0IM
-         FdgR2edhcjKBLorZGnT4xGnyKRvxiK1dW/Cz1Wsgg/Fo7rZGMLEQkyI+Hkz/1ZiMj380
-         v/aAYAV9qdjmjdXNXUYarJtYr70ICtFp3J8gwE3Qnk0/i8+QbZsT/VEopwRtQRVJr3iH
-         hGwiikChR4WkqyS5aYxR3WUBCVIyTtTy8o0uWozBrOvk4wWvS3XlagXJgWwOJUEOn2/i
-         QqEQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
-         :mime-version:content-disposition:in-reply-to;
-        bh=163SqipTaPg+PcW9kBC8+x+G84vF8V3r27M2sRzbByA=;
-        b=OSXTeMYGac818iAhB3F/iKikvR/ozAoMS/CNRszCDfHLiof/2JPloV1PDiGaAlJdqC
-         j0Gu1JJtsE0P0WRbXIhQlVD0QDUoQw3l/6dfD10JbfHFzTKG8CLxn3nBHz+pAY3SSNDa
-         bkfzDoNQeY761Whkn/JTMRRbuXy1k0YStamDcmHtQ+8hvos0Ta8lWz6DMgAZSxOZIhs5
-         9k216Gp+t2Cc8uPZ2h1FH4HHP7Tx3xri3uGxU6KstKbH8Z6fWa4+xhvIHRlQ2O8T68yP
-         42RKd10/3Hi4yDl+O2OebdLbqrSjvSRoDI1ovzlfeKhZ69P4qWJ6P+KbTsOgakegblvT
-         vRtA==
-X-Gm-Message-State: AOAM530KjGOWPS162iv/Qfzq1KkQIhsI2ggZK8RW8l1gciSsw1u3GSvu
-        pQUPIVTQ4PFI8vsiYU/XfWQ=
-X-Google-Smtp-Source: ABdhPJz9LGc9nUailOzXXV8bLM2DhLjiSv7jqX235TRaXuSsXSwVdGrsydftmH71IHkHN7m7I+HpdA==
-X-Received: by 2002:a1c:6042:: with SMTP id u63mr18457448wmb.112.1623103511680;
-        Mon, 07 Jun 2021 15:05:11 -0700 (PDT)
-Received: from debian (host-2-98-62-17.as13285.net. [2.98.62.17])
-        by smtp.gmail.com with ESMTPSA id h46sm20118919wrh.44.2021.06.07.15.05.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 07 Jun 2021 15:05:11 -0700 (PDT)
-Date:   Mon, 7 Jun 2021 23:05:09 +0100
-From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-To:     gregkh@linuxfoundation.org
-Cc:     seanjc@google.com, pbonzini@redhat.com, stable@vger.kernel.org
-Subject: Re: FAILED: patch "[PATCH] KVM: SVM: Truncate GPR value for DR and
- CR accesses in" failed to apply to 4.9-stable tree
-Message-ID: <YL6YFT2yyafXXXpM@debian>
-References: <16208162305199@kroah.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="mnEmxFYGixrcAK1l"
-Content-Disposition: inline
-In-Reply-To: <16208162305199@kroah.com>
+        id S231185AbhFGWQm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 18:16:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:50642 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S231160AbhFGWQl (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 18:16:41 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6922561185;
+        Mon,  7 Jun 2021 22:14:38 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1623104078;
+        bh=q6JbHbzGyhLnnm3HoGfRlHN0wtlZf0dqZD3faxApFm8=;
+        h=Date:From:To:Subject:From;
+        b=n4Nl4zTvQCBb24lza5nQ4v2Vk4pcRPuw+s5Riq/uECzEH1EKDXkK3jrF2zERd73LL
+         jj0vXLTYXbBUR+MOrfzdRfEhd2LadO87KhDSH/YvAehM4uJzrdvN/bjlyBZNUkFlvE
+         cNWqjCSmpEtJB3sHcn9HypytZdx9BnwrDGSpJlzU=
+Date:   Mon, 07 Jun 2021 15:14:37 -0700
+From:   akpm@linux-foundation.org
+To:     almasrymina@google.com, axelrasmussen@google.com, mhocko@suse.com,
+        mike.kravetz@oracle.com, mm-commits@vger.kernel.org,
+        naoya.horiguchi@nec.com, peterx@redhat.com,
+        songmuchun@bytedance.com, stable@vger.kernel.org
+Subject:  +
+ mm-hugetlb-expand-restore_reserve_on_error-functionality.patch added to -mm
+ tree
+Message-ID: <20210607221437.3GxgY8f__%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---mnEmxFYGixrcAK1l
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+The patch titled
+     Subject: mm/hugetlb: expand restore_reserve_on_error functionality
+has been added to the -mm tree.  Its filename is
+     mm-hugetlb-expand-restore_reserve_on_error-functionality.patch
 
-Hi Greg,
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/mm-hugetlb-expand-restore_reserve_on_error-functionality.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/mm-hugetlb-expand-restore_reserve_on_error-functionality.patch
 
-On Wed, May 12, 2021 at 12:43:50PM +0200, gregkh@linuxfoundation.org wrote:
-> 
-> The patch below does not apply to the 4.9-stable tree.
-> If someone wants it applied there, or to any other stable or longterm
-> tree, then please email the backport, including the original git commit
-> id to <stable@vger.kernel.org>.
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
 
-Here is the backport. Will also apply to 4.4-stable.
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
 
---
-Regards
-Sudip
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
 
---mnEmxFYGixrcAK1l
-Content-Type: text/x-diff; charset=us-ascii
-Content-Disposition: attachment;
-	filename="0001-KVM-SVM-Truncate-GPR-value-for-DR-and-CR-accesses-in.patch"
+------------------------------------------------------
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: mm/hugetlb: expand restore_reserve_on_error functionality
 
-From 89ffde7c080424821a70783961a7ab0dec90b9ea Mon Sep 17 00:00:00 2001
-From: Sean Christopherson <seanjc@google.com>
-Date: Wed, 21 Apr 2021 19:21:22 -0700
-Subject: [PATCH] KVM: SVM: Truncate GPR value for DR and CR accesses in
- !64-bit mode
+The routine restore_reserve_on_error is called to restore reservation
+information when an error occurs after page allocation.  The routine
+alloc_huge_page modifies the mapping reserve map and potentially the
+reserve count during allocation.  If code calling alloc_huge_page
+encounters an error after allocation and needs to free the page, the
+reservation information needs to be adjusted.
 
-commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
+Currently, restore_reserve_on_error only takes action on pages for which
+the reserve count was adjusted(HPageRestoreReserve flag).  There is
+nothing wrong with these adjustments.  However, alloc_huge_page ALWAYS
+modifies the reserve map during allocation even if the reserve count is
+not adjusted.  This can cause issues as observed during development of
+this patch [1].
 
-Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
-in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
-CRs:
+One specific series of operations causing an issue is:
+- Create a shared hugetlb mapping
+  Reservations for all pages created by default
+- Fault in a page in the mapping
+  Reservation exists so reservation count is decremented
+- Punch a hole in the file/mapping at index previously faulted
+  Reservation and any associated pages will be removed
+- Allocate a page to fill the hole
+  No reservation entry, so reserve count unmodified
+  Reservation entry added to map by alloc_huge_page
+- Error after allocation and before instantiating the page
+  Reservation entry remains in map
+- Allocate a page to fill the hole
+  Reservation entry exists, so decrement reservation count
 
-  In 64-bit mode, the operand size is fixed at 64 bits without the need
-  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
-  bits and the upper 32 bits of the destination are forced to 0.
+This will cause a reservation count underflow as the reservation count was
+decremented twice for the same index.
 
-Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
-Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
-Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: manual backport to old file]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+A user would observe a very large number for HugePages_Rsvd in
+/proc/meminfo.  This would also likely cause subsequent allocations of
+hugetlb pages to fail as it would 'appear' that all pages are reserved.
+
+This sequence of operations is unlikely to happen, however they were
+easily reproduced and observed using hacked up code as described in [1].
+
+Address the issue by having the routine restore_reserve_on_error take
+action on pages where HPageRestoreReserve is not set.  In this case, we
+need to remove any reserve map entry created by alloc_huge_page.  A new
+helper routine vma_del_reservation assists with this operation.
+
+There are three callers of alloc_huge_page which do not currently call
+restore_reserve_on error before freeing a page on error paths.  Add those
+missing calls.
+
+[1] https://lore.kernel.org/linux-mm/20210528005029.88088-1-almasrymina@google.com/
+Link: https://lkml.kernel.org/r/20210607204510.22617-1-mike.kravetz@oracle.com
+Fixes: 96b96a96ddee ("mm/hugetlb: fix huge page reservation leak in private mapping error paths"
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reviewed-by: Mina Almasry <almasrymina@google.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- arch/x86/kvm/svm.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/arch/x86/kvm/svm.c b/arch/x86/kvm/svm.c
-index 29078eaf18c9..cbc7f177bbd8 100644
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -3412,7 +3412,7 @@ static int cr_interception(struct vcpu_svm *svm)
- 	err = 0;
- 	if (cr >= 16) { /* mov to cr */
- 		cr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		switch (cr) {
- 		case 0:
- 			if (!check_selective_cr0_intercepted(svm, val))
-@@ -3457,7 +3457,7 @@ static int cr_interception(struct vcpu_svm *svm)
- 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
- 			return 1;
+ fs/hugetlbfs/inode.c    |    1 
+ include/linux/hugetlb.h |    2 
+ mm/hugetlb.c            |  122 ++++++++++++++++++++++++++++++--------
+ 3 files changed, 101 insertions(+), 24 deletions(-)
+
+--- a/fs/hugetlbfs/inode.c~mm-hugetlb-expand-restore_reserve_on_error-functionality
++++ a/fs/hugetlbfs/inode.c
+@@ -735,6 +735,7 @@ static long hugetlbfs_fallocate(struct f
+ 		__SetPageUptodate(page);
+ 		error = huge_add_to_page_cache(page, mapping, index);
+ 		if (unlikely(error)) {
++			restore_reserve_on_error(h, &pseudo_vma, addr, page);
+ 			put_page(page);
+ 			mutex_unlock(&hugetlb_fault_mutex_table[hash]);
+ 			goto out;
+--- a/include/linux/hugetlb.h~mm-hugetlb-expand-restore_reserve_on_error-functionality
++++ a/include/linux/hugetlb.h
+@@ -610,6 +610,8 @@ struct page *alloc_huge_page_vma(struct
+ 				unsigned long address);
+ int huge_add_to_page_cache(struct page *page, struct address_space *mapping,
+ 			pgoff_t idx);
++void restore_reserve_on_error(struct hstate *h, struct vm_area_struct *vma,
++				unsigned long address, struct page *page);
+ 
+ /* arch callback */
+ int __init __alloc_bootmem_huge_page(struct hstate *h);
+--- a/mm/hugetlb.c~mm-hugetlb-expand-restore_reserve_on_error-functionality
++++ a/mm/hugetlb.c
+@@ -2121,12 +2121,18 @@ out:
+  * be restored when a newly allocated huge page must be freed.  It is
+  * to be called after calling vma_needs_reservation to determine if a
+  * reservation exists.
++ *
++ * vma_del_reservation is used in error paths where an entry in the reserve
++ * map was created during huge page allocation and must be removed.  It is to
++ * be called after calling vma_needs_reservation to determine if a reservation
++ * exists.
+  */
+ enum vma_resv_mode {
+ 	VMA_NEEDS_RESV,
+ 	VMA_COMMIT_RESV,
+ 	VMA_END_RESV,
+ 	VMA_ADD_RESV,
++	VMA_DEL_RESV,
+ };
+ static long __vma_reservation_common(struct hstate *h,
+ 				struct vm_area_struct *vma, unsigned long addr,
+@@ -2170,11 +2176,21 @@ static long __vma_reservation_common(str
+ 			ret = region_del(resv, idx, idx + 1);
  		}
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
- 	kvm_complete_insn_gp(&svm->vcpu, err);
- 
-@@ -3489,13 +3489,13 @@ static int dr_interception(struct vcpu_svm *svm)
- 	if (dr >= 16) { /* mov to DRn */
- 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
- 			return 1;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		kvm_set_dr(&svm->vcpu, dr - 16, val);
- 	} else {
- 		if (!kvm_require_dr(&svm->vcpu, dr))
- 			return 1;
- 		kvm_get_dr(&svm->vcpu, dr, &val);
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
+ 		break;
++	case VMA_DEL_RESV:
++		if (vma->vm_flags & VM_MAYSHARE) {
++			region_abort(resv, idx, idx + 1, 1);
++			ret = region_del(resv, idx, idx + 1);
++		} else {
++			ret = region_add(resv, idx, idx + 1, 1, NULL, NULL);
++			/* region_add calls of range 1 should never fail. */
++			VM_BUG_ON(ret < 0);
++		}
++		break;
+ 	default:
+ 		BUG();
  	}
  
- 	skip_emulated_instruction(&svm->vcpu);
--- 
-2.30.2
+-	if (vma->vm_flags & VM_MAYSHARE)
++	if (vma->vm_flags & VM_MAYSHARE || mode == VMA_DEL_RESV)
+ 		return ret;
+ 	/*
+ 	 * We know private mapping must have HPAGE_RESV_OWNER set.
+@@ -2222,25 +2238,39 @@ static long vma_add_reservation(struct h
+ 	return __vma_reservation_common(h, vma, addr, VMA_ADD_RESV);
+ }
+ 
++static long vma_del_reservation(struct hstate *h,
++			struct vm_area_struct *vma, unsigned long addr)
++{
++	return __vma_reservation_common(h, vma, addr, VMA_DEL_RESV);
++}
++
+ /*
+- * This routine is called to restore a reservation on error paths.  In the
+- * specific error paths, a huge page was allocated (via alloc_huge_page)
+- * and is about to be freed.  If a reservation for the page existed,
+- * alloc_huge_page would have consumed the reservation and set
+- * HPageRestoreReserve in the newly allocated page.  When the page is freed
+- * via free_huge_page, the global reservation count will be incremented if
+- * HPageRestoreReserve is set.  However, free_huge_page can not adjust the
+- * reserve map.  Adjust the reserve map here to be consistent with global
+- * reserve count adjustments to be made by free_huge_page.
+- */
+-static void restore_reserve_on_error(struct hstate *h,
+-			struct vm_area_struct *vma, unsigned long address,
+-			struct page *page)
++ * This routine is called to restore reservation information on error paths.
++ * It should ONLY be called for pages allocated via alloc_huge_page(), and
++ * the hugetlb mutex should remain held when calling this routine.
++ *
++ * It handles two specific cases:
++ * 1) A reservation was in place and the page consumed the reservation.
++ *    HPageRestoreReserve is set in the page.
++ * 2) No reservation was in place for the page, so HPageRestoreReserve is
++ *    not set.  However, alloc_huge_page always updates the reserve map.
++ *
++ * In case 1, free_huge_page later in the error path will increment the
++ * global reserve count.  But, free_huge_page does not have enough context
++ * to adjust the reservation map.  This case deals primarily with private
++ * mappings.  Adjust the reserve map here to be consistent with global
++ * reserve count adjustments to be made by free_huge_page.  Make sure the
++ * reserve map indicates there is a reservation present.
++ *
++ * In case 2, simply undo reserve map modifications done by alloc_huge_page.
++ */
++void restore_reserve_on_error(struct hstate *h, struct vm_area_struct *vma,
++			unsigned long address, struct page *page)
+ {
+-	if (unlikely(HPageRestoreReserve(page))) {
+-		long rc = vma_needs_reservation(h, vma, address);
++	long rc = vma_needs_reservation(h, vma, address);
+ 
+-		if (unlikely(rc < 0)) {
++	if (HPageRestoreReserve(page)) {
++		if (unlikely(rc < 0))
+ 			/*
+ 			 * Rare out of memory condition in reserve map
+ 			 * manipulation.  Clear HPageRestoreReserve so that
+@@ -2253,16 +2283,57 @@ static void restore_reserve_on_error(str
+ 			 * accounting of reserve counts.
+ 			 */
+ 			ClearHPageRestoreReserve(page);
+-		} else if (rc) {
+-			rc = vma_add_reservation(h, vma, address);
+-			if (unlikely(rc < 0))
++		else if (rc)
++			(void)vma_add_reservation(h, vma, address);
++		else
++			vma_end_reservation(h, vma, address);
++	} else {
++		if (!rc) {
++			/*
++			 * This indicates there is an entry in the reserve map
++			 * added by alloc_huge_page.  We know it was added
++			 * before the alloc_huge_page call, otherwise
++			 * HPageRestoreReserve would be set on the page.
++			 * Remove the entry so that a subsequent allocation
++			 * does not consume a reservation.
++			 */
++			rc = vma_del_reservation(h, vma, address);
++			if (rc < 0)
+ 				/*
+-				 * See above comment about rare out of
+-				 * memory condition.
++				 * VERY rare out of memory condition.  Since
++				 * we can not delete the entry, set
++				 * HPageRestoreReserve so that the reserve
++				 * count will be incremented when the page
++				 * is freed.  This reserve will be consumed
++				 * on a subsequent allocation.
+ 				 */
+-				ClearHPageRestoreReserve(page);
++				SetHPageRestoreReserve(page);
++		} else if (rc < 0) {
++			/*
++			 * Rare out of memory condition from
++			 * vma_needs_reservation call.  Memory allocation is
++			 * only attempted if a new entry is needed.  Therefore,
++			 * this implies there is not an entry in the
++			 * reserve map.
++			 *
++			 * For shared mappings, no entry in the map indicates
++			 * no reservation.  We are done.
++			 */
++			if (!(vma->vm_flags & VM_MAYSHARE))
++				/*
++				 * For private mappings, no entry indicates
++				 * a reservation is present.  Since we can
++				 * not add an entry, set SetHPageRestoreReserve
++				 * on the page so reserve count will be
++				 * incremented when freed.  This reserve will
++				 * be consumed on a subsequent allocation.
++				 */
++				SetHPageRestoreReserve(page);
+ 		} else
+-			vma_end_reservation(h, vma, address);
++			/*
++			 * No reservation present, do nothing
++			 */
++			 vma_end_reservation(h, vma, address);
+ 	}
+ }
+ 
+@@ -4037,6 +4108,8 @@ again:
+ 				spin_lock_nested(src_ptl, SINGLE_DEPTH_NESTING);
+ 				entry = huge_ptep_get(src_pte);
+ 				if (!pte_same(src_pte_old, entry)) {
++					restore_reserve_on_error(h, vma, addr,
++								new);
+ 					put_page(new);
+ 					/* dst_entry won't change as in child */
+ 					goto again;
+@@ -5006,6 +5079,7 @@ out_release_unlock:
+ 	if (vm_shared || is_continue)
+ 		unlock_page(page);
+ out_release_nounlock:
++	restore_reserve_on_error(h, dst_vma, dst_addr, page);
+ 	put_page(page);
+ 	goto out;
+ }
+_
 
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
 
---mnEmxFYGixrcAK1l--
+mm-hugetlb-expand-restore_reserve_on_error-functionality.patch
+mm-hugetlb-alloc-the-vmemmap-pages-associated-with-each-hugetlb-page-fix.patch
+
