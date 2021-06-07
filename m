@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 4532439E362
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CA7A39E360
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233476AbhFGQXd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233464AbhFGQXd (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Jun 2021 12:23:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33386 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:33388 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232273AbhFGQVc (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S232288AbhFGQVc (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Jun 2021 12:21:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A0FFB61626;
-        Mon,  7 Jun 2021 16:15:03 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id F34886140C;
+        Mon,  7 Jun 2021 16:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082504;
-        bh=Cw4UaKHcG/ggN9nNPKsrQpMa1gOSUyjhbRfKSlwnzcY=;
+        s=k20201202; t=1623082505;
+        bh=19gHSXIC60dW7zaarG7N+n9aQV6RB3qn7dlkVnqB2sg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OWSxH6W4N40W+YoK3IZVEuP3kGeBxr92IKuleUxSJdzDXLhOsXnoTZUz7bKlLwJPS
-         rOI/OU+RPe++ND/eKKazIZORr81uavwAK2lblBDDVlVaDGTcjxb1FxTEXVwZyb2iW8
-         A/Rdw9c6QjmYjGKMQVro1es4kHQG2L6szKiQX+3ehcAWf9FCuMS0k5m9MsHWvWEB0o
-         00Xm/fh2joMdAOjgGJ+9VMI1aCrRQqOQEQ6vbLa8cBZpJ5h+D/rGMX5QiR5ER0ALKM
-         toJhu1f61Ln9eJc/Y9eX7zeNz8IkHSIm92xnC4NYM4KKH97CXKrnQtNMLMVzQaxGA/
-         XZrZbwNkdxCIg==
+        b=ZbCkgu9SOwh9ILZX+TYDCQYlEbt74nkNqZcH4Zr27kf/lD8quwXTSMETVy9ZQPk4b
+         YkOfFAUb3xVrKpF3sM7OAyCUcSsDfWfmWVmt64RfxTGJZPX/Jz2GNkESCwFuH7yUCT
+         QWB7SdAfeyciHAFv3EZ21WeKp9UwMDO5Yz1FakS53KJXonE6MMhc7yx5z7AX4zEreY
+         OBnKcoHkYZt56DTMY3sVNrzMY5ew8AaTRaV+inqlZoPStukMDG1cCWAQ631mZES3UI
+         y0XKaqRRrWdLlLtv0xU9ipIcO+jBR50cFdcFo51iQx/hJgsGHakgbf0azZF/jjS563
+         JB/vI/1O2eRPg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 12/21] ethernet: myri10ge: Fix missing error code in myri10ge_probe()
-Date:   Mon,  7 Jun 2021 12:14:39 -0400
-Message-Id: <20210607161448.3584332-12-sashal@kernel.org>
+Cc:     "Ewan D. Milne" <emilne@redhat.com>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/21] scsi: scsi_devinfo: Add blacklist entry for HPE OPEN-V
+Date:   Mon,  7 Jun 2021 12:14:40 -0400
+Message-Id: <20210607161448.3584332-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161448.3584332-1-sashal@kernel.org>
 References: <20210607161448.3584332-1-sashal@kernel.org>
@@ -43,38 +42,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: "Ewan D. Milne" <emilne@redhat.com>
 
-[ Upstream commit f336d0b93ae978f12c5e27199f828da89b91e56a ]
+[ Upstream commit e57f5cd99ca60cddf40201b0f4ced9f1938e299c ]
 
-The error code is missing in this code scenario, add the error code
-'-EINVAL' to the return value 'status'.
+Apparently some arrays are now returning "HPE" as the vendor.
 
-Eliminate the follow smatch warning:
-
-drivers/net/ethernet/myricom/myri10ge/myri10ge.c:3818 myri10ge_probe()
-warn: missing error code 'status'.
-
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lore.kernel.org/r/20210601175214.25719-1-emilne@redhat.com
+Signed-off-by: Ewan D. Milne <emilne@redhat.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/myricom/myri10ge/myri10ge.c | 1 +
+ drivers/scsi/scsi_devinfo.c | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-index 6789eed78ff7..3bc570c46f81 100644
---- a/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-+++ b/drivers/net/ethernet/myricom/myri10ge/myri10ge.c
-@@ -3853,6 +3853,7 @@ static int myri10ge_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 		dev_err(&pdev->dev,
- 			"invalid sram_size %dB or board span %ldB\n",
- 			mgp->sram_size, mgp->board_span);
-+		status = -EINVAL;
- 		goto abort_with_ioremap;
- 	}
- 	memcpy_fromio(mgp->eeprom_strings,
+diff --git a/drivers/scsi/scsi_devinfo.c b/drivers/scsi/scsi_devinfo.c
+index a08ff3bd6310..6a2a413cc97e 100644
+--- a/drivers/scsi/scsi_devinfo.c
++++ b/drivers/scsi/scsi_devinfo.c
+@@ -184,6 +184,7 @@ static struct {
+ 	{"HP", "C3323-300", "4269", BLIST_NOTQ},
+ 	{"HP", "C5713A", NULL, BLIST_NOREPORTLUN},
+ 	{"HP", "DISK-SUBSYSTEM", "*", BLIST_REPORTLUN2},
++	{"HPE", "OPEN-", "*", BLIST_REPORTLUN2 | BLIST_TRY_VPD_PAGES},
+ 	{"IBM", "AuSaV1S2", NULL, BLIST_FORCELUN},
+ 	{"IBM", "ProFibre 4000R", "*", BLIST_SPARSELUN | BLIST_LARGELUN},
+ 	{"IBM", "2105", NULL, BLIST_RETRY_HWERROR},
 -- 
 2.30.2
 
