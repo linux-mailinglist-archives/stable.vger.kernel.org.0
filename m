@@ -2,98 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 92EF639DEA4
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 16:24:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF86B39E01B
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 17:18:48 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbhFGO0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 10:26:38 -0400
-Received: from mail-ot1-f47.google.com ([209.85.210.47]:43743 "EHLO
-        mail-ot1-f47.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230198AbhFGO0i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 10:26:38 -0400
-Received: by mail-ot1-f47.google.com with SMTP id i12-20020a05683033ecb02903346fa0f74dso16836508otu.10
-        for <stable@vger.kernel.org>; Mon, 07 Jun 2021 07:24:47 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20161025;
-        h=mime-version:references:in-reply-to:from:date:message-id:subject:to
-         :cc;
-        bh=4PwH1AXD3SllEEcEV6owIpVJRtalHEcUOPjpbDNsvcE=;
-        b=cnyQchdM9XN7mTX7klVDRaZAGec8Q8qrrgJsK/rY5IWCFWqXKtJigc2u5iJ3nTKhXw
-         hTCBoDi6PvaC7Qal4P5PtF+hNfxJn1UEkv9Hcf9wtTn4pAgUNqIJOUSXsbljLqmpewmm
-         o915MnvFQ1z/s12k+1IjfeYKPee8nCycjHwGg9lCiAvsiBZiU16+Oc4LGR4H6FBXGjI2
-         JoUq37/RciUGNPVXDcKoI2f+/2f4Ew1q1gKOLYe6Pnu9XuAG41djRUSa78GNxa77lzgX
-         YhOBNQ+SGZ/R7qUINBzULtCo2R7jCWVKASeTky5mGxFkxRVvoiaTjMJnE6UdLu371scO
-         kfyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:references:in-reply-to:from:date
-         :message-id:subject:to:cc;
-        bh=4PwH1AXD3SllEEcEV6owIpVJRtalHEcUOPjpbDNsvcE=;
-        b=mZxEzlqTpdS6lcM719LTW0ZdElIU9Cwf1+R4HhCP2FUv89jyp6V+zRQ3C7L1ZCB0ro
-         LuyoH71uNudPbRN4lqIuRTXUDFNIykNX+OREibfsu3e8tMmdxhBFNvoOxte0CQdTZazn
-         2tg078K2ujSoHOwYHdAMponihc38Chud98kHcBeYId4ooqg2vCOE9KeS1R3WGM32U6fC
-         SFy/7pw0auL2X22wSAh+8i/l2mngtqnzDDszJeefzd9N/2J+bE75dYKXjabkYvzYvqGn
-         SDgOLj0ROoVUaiZK9/H+45I5AIjACllRN+ClYi/hJ9vnYcv09+MGZH0SFk7mxvp42AUy
-         zxSg==
-X-Gm-Message-State: AOAM533FjsR9RB0czuYr8NKeKZvU4FbS9MV+Y/5GyFYVFZgv2i0Jp71e
-        /Z8RhV2q0/YACgNOwZmi6CepWMM/OYap65OqeLapvMhT7k0Z/g==
-X-Google-Smtp-Source: ABdhPJz15LOt9hpVMXGWPSrsBD4CZ1VQ2e0HTqJhDcwL8qPa2YqaZL4KCBOgZGx/xE3Z2zHVczwClsGbRFeRlCUNwl0=
-X-Received: by 2002:a9d:7a54:: with SMTP id z20mr14261136otm.17.1623075826297;
- Mon, 07 Jun 2021 07:23:46 -0700 (PDT)
+        id S230217AbhFGPUi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 11:20:38 -0400
+Received: from mail.skyhub.de ([5.9.137.197]:44664 "EHLO mail.skyhub.de"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230212AbhFGPUi (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 11:20:38 -0400
+Received: from zn.tnic (p200300ec2f0b4f0010db370b6947fb68.dip0.t-ipconnect.de [IPv6:2003:ec:2f0b:4f00:10db:370b:6947:fb68])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id A2A6C1EC04CC;
+        Mon,  7 Jun 2021 17:18:45 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1623079125;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=ObAWYiNw/8+B9oIVqAJA/NZsNYIbjY5dG2+jmOLKwiU=;
+        b=fPeDa61E+opxHRpiJBZvYmj0X7rKyD8PmnsF70je/x4d9FwQyRJ7OR9HFxvyDuFh7/8aUN
+        XzvBtVEl06yriKr/iBWu2+uAZxI7w1y726RflMnDhVvkfVGtOfzCVlNTr1m+SiMfVb5N/E
+        bLbd02ZKso0AQGMEiVw0MDkizCLctfQ=
+Date:   Mon, 7 Jun 2021 17:18:38 +0200
+From:   Borislav Petkov <bp@alien8.de>
+To:     Thomas Gleixner <tglx@linutronix.de>
+Cc:     LKML <linux-kernel@vger.kernel.org>, x86@kernel.org,
+        Andy Lutomirski <luto@kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Fenghua Yu <fenghua.yu@intel.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Yu-cheng Yu <yu-cheng.yu@intel.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        stable@vger.kernel.org
+Subject: Re: [patch V2 04/14] x86/pkru: Make the fpinit state update work
+Message-ID: <YL44d9YtVJx4xS2t@zn.tnic>
+References: <20210605234742.712464974@linutronix.de>
+ <20210606001323.322361712@linutronix.de>
 MIME-Version: 1.0
-References: <20210521083209.3740269-1-elver@google.com>
-In-Reply-To: <20210521083209.3740269-1-elver@google.com>
-From:   Marco Elver <elver@google.com>
-Date:   Mon, 7 Jun 2021 16:23:34 +0200
-Message-ID: <CANpmjNObVfB6AREacptbMTikzbFfGuuL49jZqPSOTUjAExyp+g@mail.gmail.com>
-Subject: [5.12.y] kfence: use TASK_IDLE when awaiting allocation
-To:     stable <stable@vger.kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     Alexander Potapenko <glider@google.com>,
-        kasan-dev <kasan-dev@googlegroups.com>
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20210606001323.322361712@linutronix.de>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Dear stable maintainers,
+On Sun, Jun 06, 2021 at 01:47:46AM +0200, Thomas Gleixner wrote:
+> @@ -120,6 +121,8 @@ void __init check_bugs(void)
+>  
+>  	arch_smt_update();
+>  
+> +	pkru_propagate_default();
 
-The patch "kfence: use TASK_IDLE when awaiting allocation" has landed
-in mainline as 8fd0e995cc7b, however, does not apply cleanly to 5.12.y
-due to a prerequisite patch missing.
+I guess this fits better at the end of identify_boot_cpu(), which is
+pretty close to here, in the boot order.
 
-My recommendation is to cherry-pick the following 2 commits to 5.12.y
-(rather than rebase 8fd0e995cc7b on top of 5.12.y):
+Regardless, that function check_bugs() needs cleaning up as it has
+collected a lot more stuff than just checking the bugs nasty.
 
-  37c9284f6932 kfence: maximize allocation wait timeout duration
-  8fd0e995cc7b kfence: use TASK_IDLE when awaiting allocation
+> +void pkru_propagate_default(void)
+>  {
+> -	u32 init_pkru_value_snapshot = READ_ONCE(init_pkru_value);
+> +	struct pkru_state *pk;
+> +
+> +	if (!boot_cpu_has(X86_FEATURE_OSPKE))
 
-Many thanks,
--- Marco
+cpu_feature_enabled()
 
----------- Forwarded message ---------
-From: Marco Elver <elver@google.com>
-Date: Fri, 21 May 2021 at 10:32
-Subject: [PATCH] kfence: use TASK_IDLE when awaiting allocation
-To: <elver@google.com>, <akpm@linux-foundation.org>
-Cc: <glider@google.com>, <dvyukov@google.com>,
-<linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
-<kasan-dev@googlegroups.com>, Mel Gorman <mgorman@suse.de>,
-<stable@vger.kernel.org>
+> +		return;
+>  	/*
+> -	 * Override the PKRU state that came from 'init_fpstate'
+> -	 * with the baseline from the process.
+> +	 * Force XFEATURE_PKRU to be set in the header otherwise
+> +	 * get_xsave_addr() does not work and it needs to be set
+> +	 * to make XRSTOR(S) load it.
+>  	 */
+> -	write_pkru(init_pkru_value_snapshot);
+> +	init_fpstate.xsave.header.xfeatures |= XFEATURE_MASK_PKRU;
+> +	pk = get_xsave_addr(&init_fpstate.xsave, XFEATURE_PKRU);
+> +	pk->pkru = READ_ONCE(init_pkru_value);
+>  }
 
+-- 
+Regards/Gruss,
+    Boris.
 
-Since wait_event() uses TASK_UNINTERRUPTIBLE by default, waiting for an
-allocation counts towards load. However, for KFENCE, this does not make
-any sense, since there is no busy work we're awaiting.
-
-Instead, use TASK_IDLE via wait_event_idle() to not count towards load.
-
-BugLink: https://bugzilla.suse.com/show_bug.cgi?id=1185565
-Fixes: 407f1d8c1b5f ("kfence: await for allocation using wait_event")
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: <stable@vger.kernel.org> # v5.12+
----
- mm/kfence/core.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+https://people.kernel.org/tglx/notes-about-netiquette
