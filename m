@@ -2,36 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A9A6839E2A7
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:17:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2216039E2A8
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:17:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232866AbhFGQSm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:18:42 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48600 "EHLO mail.kernel.org"
+        id S231773AbhFGQSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:18:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:47564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232435AbhFGQQi (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S231803AbhFGQQi (ORCPT <rfc822;stable@vger.kernel.org>);
         Mon, 7 Jun 2021 12:16:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B6FE761418;
-        Mon,  7 Jun 2021 16:13:58 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 13ED0613F3;
+        Mon,  7 Jun 2021 16:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082439;
-        bh=fA/354/L+S/ZajiGO7SQs/tFxlMSF58jI9v+vBeDN9c=;
+        s=k20201202; t=1623082441;
+        bh=d2ZN03nQKfadh+LSeiMEoiYz2/mAdXM3bE/ciLZ2Ndw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SCSjfzbQvfVZbSphQmp47h3eG7r1nM9IkZqcoiGxunH9SQcrOd2EsTBfVapaYPcWY
-         EHvzmX5C9NwjZ+6tgU6zIdQ7LlLdQtgLRkOeD0myaLPTFA1eF/iTcDEMadT8+MZ1Ek
-         ODF+vTkxBheCA5KhxqH/QLlH4FHx9OJgH1Vxzbkus2gfES2PFmWC5oe9OcM9by8mHy
-         vLRweDTGL46rdV2JjBAgRkfHNPE/jBI3Vd+duTf4li70tOghDhKLHnLJ8yuRRwG2rG
-         lGhl/MeTe16Cbp2fIGKkPwJAKHy1NDUXglnA4otimLkOF9nT7L+EarEP7dUxqLgoc4
-         JvXJP6QaZJx4g==
+        b=EhYyIBsNF3S+pxxldkXxJsJMQz1SM4fgYQCbMJssMC5idc5hHqaC2XuzrjTvljZiA
+         6SQ8THcrMZkxGwWgKXB+JbgQ+FwLtURG1irad+/L7H3W3ISZ6dq5RId6ovWr7JLEfQ
+         4oueMyO4CDK4VVDGotP2FjtBqCrm36CwIcVnFuejuJiw+5a/Vu4L1R1R+9OivXqFHD
+         XJ02kpeRfuOnlcg7IhSW5+DJ3pq3ZNKAqHGONjHLJEjBldShW2C+HMZ4r6N2Gm6j8B
+         mc4WV4EKVl8Tl9LcjJNKrFgHnhC1xT4sR9GKd5/ciailsXLJmeCoo1sHyxU0TH3k8Y
+         SZc656HhkRyhA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiansong Chen <Jiansong.Chen@amd.com>, Jack Gui <Jack.Gui@amd.com>,
+Cc:     Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        "Tianci . Yin" <tianci.yin@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Nicholas Choi <nicholas.choi@amd.com>,
+        Bhawanpreet Lakha <bhawanpreet.lakha@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Mark Yacoub <markyacoub@google.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 5.10 32/39] drm/amdgpu: refine amdgpu_fru_get_product_info
-Date:   Mon,  7 Jun 2021 12:13:11 -0400
-Message-Id: <20210607161318.3583636-32-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 33/39] drm/amd/display: Fix overlay validation by considering cursors
+Date:   Mon,  7 Jun 2021 12:13:12 -0400
+Message-Id: <20210607161318.3583636-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
 References: <20210607161318.3583636-1-sashal@kernel.org>
@@ -43,135 +50,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiansong Chen <Jiansong.Chen@amd.com>
+From: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 
-[ Upstream commit 5cfc912582e13b05d71fb7acc4ec69ddfa9af320 ]
+[ Upstream commit 33f409e60eb0c59a4d0d06a62ab4642a988e17f7 ]
 
-1. eliminate potential array index out of bounds.
-2. return meaningful value for failure.
+A few weeks ago, we saw a two cursor issue in a ChromeOS system. We
+fixed it in the commit:
 
-Signed-off-by: Jiansong Chen <Jiansong.Chen@amd.com>
-Reviewed-by: Jack Gui <Jack.Gui@amd.com>
+ drm/amd/display: Fix two cursor duplication when using overlay
+ (read the commit message for more details)
+
+After this change, we noticed that some IGT subtests related to
+kms_plane and kms_plane_scaling started to fail. After investigating
+this issue, we noticed that all subtests that fail have a primary plane
+covering the overlay plane, which is currently rejected by amdgpu dm.
+Fail those IGT tests highlight that our verification was too broad and
+compromises the overlay usage in our drive. This patch fixes this issue
+by ensuring that we only reject commits where the primary plane is not
+fully covered by the overlay when the cursor hardware is enabled. With
+this fix, all IGT tests start to pass again, which means our overlay
+support works as expected.
+
+Cc: Tianci.Yin <tianci.yin@amd.com>
+Cc: Harry Wentland <harry.wentland@amd.com>
+Cc: Nicholas Choi <nicholas.choi@amd.com>
+Cc: Bhawanpreet Lakha <bhawanpreet.lakha@amd.com>
+Cc: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Cc: Mark Yacoub <markyacoub@google.com>
+Cc: Daniel Wheeler <daniel.wheeler@amd.com>
+
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c    | 42 ++++++++++---------
- 1 file changed, 23 insertions(+), 19 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-index 8f4a8f8d8146..39b6c6bfab45 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_fru_eeprom.c
-@@ -101,7 +101,8 @@ static int amdgpu_fru_read_eeprom(struct amdgpu_device *adev, uint32_t addrptr,
- int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- {
- 	unsigned char buff[34];
--	int addrptr = 0, size = 0;
-+	int addrptr, size;
-+	int len;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index fbbb1bde6b06..4792228ed481 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -8616,7 +8616,7 @@ static int validate_overlay(struct drm_atomic_state *state)
+ 	int i;
+ 	struct drm_plane *plane;
+ 	struct drm_plane_state *old_plane_state, *new_plane_state;
+-	struct drm_plane_state *primary_state, *overlay_state = NULL;
++	struct drm_plane_state *primary_state, *cursor_state, *overlay_state = NULL;
  
- 	if (!is_fru_eeprom_supported(adev))
+ 	/* Check if primary plane is contained inside overlay */
+ 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
+@@ -8646,6 +8646,14 @@ static int validate_overlay(struct drm_atomic_state *state)
+ 	if (!primary_state->crtc)
  		return 0;
-@@ -109,7 +110,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 	/* If algo exists, it means that the i2c_adapter's initialized */
- 	if (!adev->pm.smu_i2c.algo) {
- 		DRM_WARN("Cannot access FRU, EEPROM accessor not initialized");
--		return 0;
-+		return -ENODEV;
- 	}
  
- 	/* There's a lot of repetition here. This is due to the FRU having
-@@ -128,7 +129,7 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
- 	if (size < 1) {
- 		DRM_ERROR("Failed to read FRU Manufacturer, ret:%d", size);
--		return size;
-+		return -EINVAL;
- 	}
- 
- 	/* Increment the addrptr by the size of the field, and 1 due to the
-@@ -138,43 +139,45 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
- 	if (size < 1) {
- 		DRM_ERROR("Failed to read FRU product name, ret:%d", size);
--		return size;
-+		return -EINVAL;
- 	}
- 
-+	len = size;
- 	/* Product name should only be 32 characters. Any more,
- 	 * and something could be wrong. Cap it at 32 to be safe
- 	 */
--	if (size > 32) {
-+	if (len >= sizeof(adev->product_name)) {
- 		DRM_WARN("FRU Product Number is larger than 32 characters. This is likely a mistake");
--		size = 32;
-+		len = sizeof(adev->product_name) - 1;
- 	}
- 	/* Start at 2 due to buff using fields 0 and 1 for the address */
--	memcpy(adev->product_name, &buff[2], size);
--	adev->product_name[size] = '\0';
-+	memcpy(adev->product_name, &buff[2], len);
-+	adev->product_name[len] = '\0';
- 
- 	addrptr += size + 1;
- 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
- 	if (size < 1) {
- 		DRM_ERROR("Failed to read FRU product number, ret:%d", size);
--		return size;
-+		return -EINVAL;
- 	}
- 
-+	len = size;
- 	/* Product number should only be 16 characters. Any more,
- 	 * and something could be wrong. Cap it at 16 to be safe
- 	 */
--	if (size > 16) {
-+	if (len >= sizeof(adev->product_number)) {
- 		DRM_WARN("FRU Product Number is larger than 16 characters. This is likely a mistake");
--		size = 16;
-+		len = sizeof(adev->product_number) - 1;
- 	}
--	memcpy(adev->product_number, &buff[2], size);
--	adev->product_number[size] = '\0';
-+	memcpy(adev->product_number, &buff[2], len);
-+	adev->product_number[len] = '\0';
- 
- 	addrptr += size + 1;
- 	size = amdgpu_fru_read_eeprom(adev, addrptr, buff);
- 
- 	if (size < 1) {
- 		DRM_ERROR("Failed to read FRU product version, ret:%d", size);
--		return size;
-+		return -EINVAL;
- 	}
- 
- 	addrptr += size + 1;
-@@ -182,18 +185,19 @@ int amdgpu_fru_get_product_info(struct amdgpu_device *adev)
- 
- 	if (size < 1) {
- 		DRM_ERROR("Failed to read FRU serial number, ret:%d", size);
--		return size;
-+		return -EINVAL;
- 	}
- 
-+	len = size;
- 	/* Serial number should only be 16 characters. Any more,
- 	 * and something could be wrong. Cap it at 16 to be safe
- 	 */
--	if (size > 16) {
-+	if (len >= sizeof(adev->serial)) {
- 		DRM_WARN("FRU Serial Number is larger than 16 characters. This is likely a mistake");
--		size = 16;
-+		len = sizeof(adev->serial) - 1;
- 	}
--	memcpy(adev->serial, &buff[2], size);
--	adev->serial[size] = '\0';
-+	memcpy(adev->serial, &buff[2], len);
-+	adev->serial[len] = '\0';
- 
- 	return 0;
- }
++	/* check if cursor plane is enabled */
++	cursor_state = drm_atomic_get_plane_state(state, overlay_state->crtc->cursor);
++	if (IS_ERR(cursor_state))
++		return PTR_ERR(cursor_state);
++
++	if (drm_atomic_plane_disabling(plane->state, cursor_state))
++		return 0;
++
+ 	/* Perform the bounds check to ensure the overlay plane covers the primary */
+ 	if (primary_state->crtc_x < overlay_state->crtc_x ||
+ 	    primary_state->crtc_y < overlay_state->crtc_y ||
 -- 
 2.30.2
 
