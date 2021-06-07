@@ -2,34 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2413939E38A
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C836039E38E
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232611AbhFGQ1C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:27:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60286 "EHLO mail.kernel.org"
+        id S233294AbhFGQ1D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:27:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60366 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231931AbhFGQWj (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:22:39 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7EC356191E;
-        Mon,  7 Jun 2021 16:15:21 +0000 (UTC)
+        id S232468AbhFGQWq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:22:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ADD59613D5;
+        Mon,  7 Jun 2021 16:15:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082522;
-        bh=F3FKcxUS0Hhd5UVimsvK+206F0Fylqh+F03odRcT37k=;
+        s=k20201202; t=1623082523;
+        bh=udkCOC6Hz1MXtaCm4KFABL+LowYHouaHndMAfGaCQBo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=txnQUOrW8sN0O24SRmmYKsEydh/RBC/53Z9Zud3se0aLVKdSJj5UszAkxszZU5SZc
-         DOsCe8v5J7IKGqoX5PlMn1gaG6kNGqinwxfWHSilBRAsDGwV4q6eddUZzvQ7CNJqVV
-         4Wm1xYs21F1pSBuwIU2ps8BLjLjulasUuZr8CPCnOGuEeA6asP2BH0JfooMNljTIuw
-         yBzMU/8FynJ+LkZrn0jeOL7ntTBcWKkY1pCiIEG71mVQ1a2MoC++Q0+y/qMwq+sf5F
-         6/EobtVEJzM2o8B2aioQuijVJMFPKo2TJyjBsJzO2vQGk3FYMBRcOIyEIP6Gj2TbWD
-         bc/MuBNkbwwzw==
+        b=lm7LR2ia65hgwyU/3gqEhoa6ltwAG7nbBoAS7ptgld1aEoq/dLK3Z4xSVblVIODA5
+         9vol8QMUyBOcFeYdbKXl+u+gFz4aSWUfqNTBN0sb5TyeYJc26pYmzO+NsWxjP/twj1
+         9R6aN6rnEU7Z0SJzhaHTbDoScdDizPDaJsgkeGOueO4seBQirYIPTbl4smH9aPpQNj
+         Mi7r9mRcfa1+sQ3akeOL7xf5SzJ3LIoyayZ/YRhThhkid48N6bcoKMK876fAwJZuwV
+         VaNQOUs/IlsT0bTQ5bmPQD2K3hWQZb9uievZWeCF4ASmtx5YQ/Qs8qVz6K1cJc4C/4
+         txRmmCIvWdsZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Bolhuis <mark@bolhuis.dev>, Jiri Kosina <jkosina@suse.cz>,
-        Sasha Levin <sashal@kernel.org>, linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/18] HID: Add BUS_VIRTUAL to hid_connect logging
-Date:   Mon,  7 Jun 2021 12:15:01 -0400
-Message-Id: <20210607161517.3584577-3-sashal@kernel.org>
+Cc:     Anirudh Rayabharam <mail@anirudhrb.com>,
+        syzbot+7c2bb71996f95a82524c@syzkaller.appspotmail.com,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        linux-usb@vger.kernel.org, linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 04/18] HID: usbhid: fix info leak in hid_submit_ctrl
+Date:   Mon,  7 Jun 2021 12:15:02 -0400
+Message-Id: <20210607161517.3584577-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161517.3584577-1-sashal@kernel.org>
 References: <20210607161517.3584577-1-sashal@kernel.org>
@@ -41,34 +44,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Bolhuis <mark@bolhuis.dev>
+From: Anirudh Rayabharam <mail@anirudhrb.com>
 
-[ Upstream commit 48e33befe61a7d407753c53d1a06fc8d6b5dab80 ]
+[ Upstream commit 6be388f4a35d2ce5ef7dbf635a8964a5da7f799f ]
 
-Add BUS_VIRTUAL to hid_connect logging since it's a valid hid bus type and it
-should not print <UNKNOWN>
+In hid_submit_ctrl(), the way of calculating the report length doesn't
+take into account that report->size can be zero. When running the
+syzkaller reproducer, a report of size 0 causes hid_submit_ctrl) to
+calculate transfer_buffer_length as 16384. When this urb is passed to
+the usb core layer, KMSAN reports an info leak of 16384 bytes.
 
-Signed-off-by: Mark Bolhuis <mark@bolhuis.dev>
+To fix this, first modify hid_report_len() to account for the zero
+report size case by using DIV_ROUND_UP for the division. Then, call it
+from hid_submit_ctrl().
+
+Reported-by: syzbot+7c2bb71996f95a82524c@syzkaller.appspotmail.com
+Signed-off-by: Anirudh Rayabharam <mail@anirudhrb.com>
+Acked-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-core.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/hid/usbhid/hid-core.c | 2 +-
+ include/linux/hid.h           | 3 +--
+ 2 files changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
-index 71ee1267d2ef..381ab96c1e38 100644
---- a/drivers/hid/hid-core.c
-+++ b/drivers/hid/hid-core.c
-@@ -1824,6 +1824,9 @@ int hid_connect(struct hid_device *hdev, unsigned int connect_mask)
- 	case BUS_I2C:
- 		bus = "I2C";
- 		break;
-+	case BUS_VIRTUAL:
-+		bus = "VIRTUAL";
-+		break;
- 	default:
- 		bus = "<UNKNOWN>";
- 	}
+diff --git a/drivers/hid/usbhid/hid-core.c b/drivers/hid/usbhid/hid-core.c
+index 98916fb4191a..46b8f4c353de 100644
+--- a/drivers/hid/usbhid/hid-core.c
++++ b/drivers/hid/usbhid/hid-core.c
+@@ -373,7 +373,7 @@ static int hid_submit_ctrl(struct hid_device *hid)
+ 	raw_report = usbhid->ctrl[usbhid->ctrltail].raw_report;
+ 	dir = usbhid->ctrl[usbhid->ctrltail].dir;
+ 
+-	len = ((report->size - 1) >> 3) + 1 + (report->id > 0);
++	len = hid_report_len(report);
+ 	if (dir == USB_DIR_OUT) {
+ 		usbhid->urbctrl->pipe = usb_sndctrlpipe(hid_to_usb_dev(hid), 0);
+ 		usbhid->urbctrl->transfer_buffer_length = len;
+diff --git a/include/linux/hid.h b/include/linux/hid.h
+index d07fe33a9045..5a2c55ed33fa 100644
+--- a/include/linux/hid.h
++++ b/include/linux/hid.h
+@@ -1114,8 +1114,7 @@ static inline void hid_hw_wait(struct hid_device *hdev)
+  */
+ static inline u32 hid_report_len(struct hid_report *report)
+ {
+-	/* equivalent to DIV_ROUND_UP(report->size, 8) + !!(report->id > 0) */
+-	return ((report->size - 1) >> 3) + 1 + (report->id > 0);
++	return DIV_ROUND_UP(report->size, 8) + (report->id > 0);
+ }
+ 
+ int hid_report_raw_event(struct hid_device *hid, int type, u8 *data, u32 size,
 -- 
 2.30.2
 
