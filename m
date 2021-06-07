@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3455139E256
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:17:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C54339E24D
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:16:58 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232043AbhFGQQU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 12:16:20 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50068 "EHLO mail.kernel.org"
+        id S231671AbhFGQQO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 12:16:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48884 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S231630AbhFGQPT (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:15:19 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8AFDD61416;
-        Mon,  7 Jun 2021 16:13:25 +0000 (UTC)
+        id S232047AbhFGQPU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:15:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DACF3613DF;
+        Mon,  7 Jun 2021 16:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082406;
-        bh=gWJ1yRLZGxnhleLBM3oUql+Jg14/ZcrDxag8D74fKKA=;
+        s=k20201202; t=1623082407;
+        bh=UnZuJm9qqbNZ5OTIdoWed+QVcMew7NlDPKrQoYmLKzc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oaLUrKNgIy1lw/Tx2+4/KuTlNaiy7Qm2jSB/e+RGbEdjQtBf9ZOqBdWTXa6OL4sgZ
-         /qCVwCMbHCcG+9rWPp9jlt/xu7562OdTkme1P/VZbZiH6Z0xE0d4lLq8z7P+hQx8qj
-         Y/CcixWey7HhCaJuZrFOxgbc25Kza2uiPWCYU9ZiSAZxp3xKC31jV6WuEC5I30o75y
-         Pb6DzlcRpULXycbOtJMWSzPXy3CcnGsJsxvNXHCclsDl0qzhoDa/Xw0rJFiLjAdD7m
-         n5Zv2UcsZ1OE6wE9Azm3ZqvPZKZZxDqkegn8Kr2RBw2trtYaISRMV9JdwHEG31dw7u
-         q5l6E4YcKWZlQ==
+        b=b02AJzoIy9EmY4mWSrNI3SCAw29m5/xLq0Bd58RPrTYAhDg5rzz+GKEZ47JYpPkgZ
+         mq+4bz95TMW5XpN5wTgLDPtS3C1SOMgnuAl/jwixDEnuo4qZLMGI7dkOw07JFRO4Ip
+         FPWYIumOXXdIuNkHMctBxjykCRh1aml0b3P1mAdywg4Y8gzWtw08tM4Mq7ZsTxWltr
+         UBABeCkSlgBu9rAk5ouOI0YuJT6Gdm0jikucrJtXb759jgUmkM4JE79pB26sTS9uMd
+         XG/iCsoUxpQqE7sUnqSReymoUrbUVzPvJq02/4V3BXtv4yOvUCSu4nkonQlOFAf96T
+         ri+nRkDNhcQlw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+Cc:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>,
         Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org, linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/39] HID: hid-sensor-hub: Return error for hid_set_field() failure
-Date:   Mon,  7 Jun 2021 12:12:44 -0400
-Message-Id: <20210607161318.3583636-5-sashal@kernel.org>
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 06/39] HID: quirks: Add quirk for Lenovo optical mouse
+Date:   Mon,  7 Jun 2021 12:12:45 -0400
+Message-Id: <20210607161318.3583636-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161318.3583636-1-sashal@kernel.org>
 References: <20210607161318.3583636-1-sashal@kernel.org>
@@ -43,51 +42,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+From: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
 
-[ Upstream commit edb032033da0dc850f6e7740fa1023c73195bc89 ]
+[ Upstream commit 3b2520076822f15621509a6da3bc4a8636cd33b4 ]
 
-In the function sensor_hub_set_feature(), return error when hid_set_field()
-fails.
+The Lenovo optical mouse with vendor id of 0x17ef and product id of
+0x600e experiences disconnecting issues every 55 seconds:
 
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Acked-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[38565.706242] usb 1-1.4: Product: Lenovo Optical Mouse
+[38565.728603] input: Lenovo Optical Mouse as /devices/platform/scb/fd500000.pcie/pci0000:00/0000:00:00.0/0000:01:00.0/usb1/1-1/1-1.4/1-1.4:1.0/0003:17EF:600E.029A/input/input665
+[38565.755949] hid-generic 0003:17EF:600E.029A: input,hidraw1: USB HID v1.11 Mouse [Lenovo Optical Mouse] on usb-0000:01:00.0-1.4/input0
+[38619.360692] usb 1-1.4: USB disconnect, device number 48
+[38620.864990] usb 1-1.4: new low-speed USB device number 49 using xhci_hcd
+[38620.984011] usb 1-1.4: New USB device found, idVendor=17ef,idProduct=600e, bcdDevice= 1.00
+[38620.998117] usb 1-1.4: New USB device strings: Mfr=0, Product=2,SerialNumber=0
+
+This adds HID_QUIRK_ALWAYS_POLL for this device in order to work properly.
+
+Signed-off-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
 Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-sensor-hub.c | 13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/hid/hid-ids.h    | 1 +
+ drivers/hid/hid-quirks.c | 1 +
+ 2 files changed, 2 insertions(+)
 
-diff --git a/drivers/hid/hid-sensor-hub.c b/drivers/hid/hid-sensor-hub.c
-index 3dd7d3246737..f9983145d4e7 100644
---- a/drivers/hid/hid-sensor-hub.c
-+++ b/drivers/hid/hid-sensor-hub.c
-@@ -210,16 +210,21 @@ int sensor_hub_set_feature(struct hid_sensor_hub_device *hsdev, u32 report_id,
- 	buffer_size = buffer_size / sizeof(__s32);
- 	if (buffer_size) {
- 		for (i = 0; i < buffer_size; ++i) {
--			hid_set_field(report->field[field_index], i,
--				      (__force __s32)cpu_to_le32(*buf32));
-+			ret = hid_set_field(report->field[field_index], i,
-+					    (__force __s32)cpu_to_le32(*buf32));
-+			if (ret)
-+				goto done_proc;
-+
- 			++buf32;
- 		}
- 	}
- 	if (remaining_bytes) {
- 		value = 0;
- 		memcpy(&value, (u8 *)buf32, remaining_bytes);
--		hid_set_field(report->field[field_index], i,
--			      (__force __s32)cpu_to_le32(value));
-+		ret = hid_set_field(report->field[field_index], i,
-+				    (__force __s32)cpu_to_le32(value));
-+		if (ret)
-+			goto done_proc;
- 	}
- 	hid_hw_request(hsdev->hdev, report, HID_REQ_SET_REPORT);
- 	hid_hw_wait(hsdev->hdev);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 951d0637cfb9..136b58a91c04 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -742,6 +742,7 @@
+ #define USB_DEVICE_ID_LENOVO_X1_COVER	0x6085
+ #define USB_DEVICE_ID_LENOVO_X1_TAB	0x60a3
+ #define USB_DEVICE_ID_LENOVO_X1_TAB3	0x60b5
++#define USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E	0x600e
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D	0x608d
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019	0x6019
+ #define USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E	0x602e
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index 9acfa075d4f3..be53c723c729 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -110,6 +110,7 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_PENSKETCH_M912), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_KYE_EASYPEN_M406XE), HID_QUIRK_MULTI_INPUT },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_KYE, USB_DEVICE_ID_PIXART_USB_OPTICAL_MOUSE_ID2), HID_QUIRK_ALWAYS_POLL },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_OPTICAL_USB_MOUSE_600E), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_608D), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_6019), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_LENOVO, USB_DEVICE_ID_LENOVO_PIXART_USB_MOUSE_602E), HID_QUIRK_ALWAYS_POLL },
 -- 
 2.30.2
 
