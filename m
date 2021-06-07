@@ -2,151 +2,205 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DD28039E81D
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 22:11:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 55EB139E847
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 22:20:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231224AbhFGUNB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 16:13:01 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44514 "EHLO
+        id S231713AbhFGUWH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 16:22:07 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231504AbhFGUNA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 16:13:00 -0400
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F079C061574
-        for <stable@vger.kernel.org>; Mon,  7 Jun 2021 13:11:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        References:In-Reply-To:Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:
-        Content-Type:Content-ID:Content-Description;
-        bh=E3qCx7yNSXPElqXf2jrMqchRIpAkhuiLb3Dnk5MxaSo=; b=A98C7XrAHjEv5vQK3E8ArK+RB8
-        BPX50RuGt+zNJHC9ujfmkGhz+xwD3mtAy7FRLG2w2xeXNAazH9HcGEKhybkmzoa/G0upSFOe3AoVm
-        yhIm6JmFdKKEdHdM9u6x604KbakxdQxAaEoUgS2yXW20V/mDBKcuqYzhNV2+hnuWGzAl0e3XKRJW6
-        u5yVGydufW8uClvhgweXT0NvWxg+nuX1oW6kfS7jrxrUOQ6DMNfbMwJ9JuVB9Imda7f1Krq9cZUy2
-        imJqA6XyyJvtS8ZQNINYlntBrdHoTLSPfhbnupEQvCTZEoUjzZiY8DWi1GCSdkU3SMeShGeCueTSP
-        S+5BYuTQ==;
-Received: from willy by casper.infradead.org with local (Exim 4.94 #2 (Red Hat Linux))
-        id 1lqLZb-00GCOy-4q; Mon, 07 Jun 2021 20:10:23 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     stable@vger.kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Song Liu <songliubraving@fb.com>,
-        "Kirill A . Shutemov" <kirill@shutemov.name>,
-        Qian Cai <cai@lca.pw>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4/4] mm/filemap: fix storing to a THP shadow entry
-Date:   Mon,  7 Jun 2021 21:08:45 +0100
-Message-Id: <20210607200845.3860579-5-willy@infradead.org>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20210607200845.3860579-1-willy@infradead.org>
-References: <20210607200845.3860579-1-willy@infradead.org>
+        with ESMTP id S231721AbhFGUWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 16:22:03 -0400
+Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF52C061574
+        for <stable@vger.kernel.org>; Mon,  7 Jun 2021 13:20:00 -0700 (PDT)
+Received: by mail-wm1-x332.google.com with SMTP id 3-20020a05600c0243b029019f2f9b2b8aso425850wmj.2
+        for <stable@vger.kernel.org>; Mon, 07 Jun 2021 13:19:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20161025;
+        h=date:from:to:cc:subject:message-id:references:mime-version
+         :content-disposition:in-reply-to;
+        bh=L99ghj7DK9xZAikBkJVJyskjTAZPRrFsp+Viav8tQH0=;
+        b=oT5GGcOLY827sm3JAbvucl3yWs8fhRUr3IHTVACtDuOn7b135Qqhi3NhVpBh2VzOYg
+         j7oh/GqObrdjn7QcxrbBnLd3B05r3v2kV752KO9QnpfZy94FRo94WCtzKDyWMifJ8K/6
+         Efq1H9cMvMGI1ydfLNPknyC81ZN88zRXQWdQ2MGZOUmrR3wwyij2bWPcvz1yCgAbRulL
+         tIuelE06w+Ykbq9DCEaUA9gpu2tcqcB8FqDeQBIPrd7tjb0RZYUSASpzpZ7cILMD5ZpT
+         c1GJ81SHjeyL9PqQ7nWKMF6529EfyQu+IIHek0W2b1Sr+IcSdDKVyJ1G+VvSeJJlClG6
+         xbOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:date:from:to:cc:subject:message-id:references
+         :mime-version:content-disposition:in-reply-to;
+        bh=L99ghj7DK9xZAikBkJVJyskjTAZPRrFsp+Viav8tQH0=;
+        b=W4Ayx1QY22MZCiQW0LCKfXEeasdaIVuZ39uYWO5omcFJewYfqKYyXSd3Il4ftXY/xl
+         sPLNpBCAqeRvadWI3uDnOFfkMj1Ui+wbcHXQjIYt4bxhAC/coa7Ca4iRvG29tHqutdI0
+         bPb5hRlJjbWRJXUZzCdKrzPd5u9tvgi2h98Uqptn0fw8rbr3J/o8+YFLvaEdLAPKp9Vh
+         rrWrNotX+wbPJz7AkSLSy5eAoiK+/zBdssynnd0+rgsoaarDoOAGqfdbf3yXExeApzhL
+         kATQtFkwTidnmp8S4tHYuZiZyZF8YcPVZPXYliJcQcRezQM14Awfq2hOjMUL6qlg7WN8
+         4QBQ==
+X-Gm-Message-State: AOAM533YuwmwlrCXKPWrvufW3Wp2eLslGM8CHiRKNB3tX7jI794BmcoO
+        2w4deTaEN78pDONt0wHVc6Uwu7G6QUj1hA==
+X-Google-Smtp-Source: ABdhPJwOZfFit+AT0l6e1qbWQgvEIM8ODEaYRf1WiH346J1dOE4byCMS5JgXaTTKHUOsffTyxuaCWA==
+X-Received: by 2002:a05:600c:290:: with SMTP id 16mr18808133wmk.162.1623097198544;
+        Mon, 07 Jun 2021 13:19:58 -0700 (PDT)
+Received: from debian (host-2-98-62-17.as13285.net. [2.98.62.17])
+        by smtp.gmail.com with ESMTPSA id l13sm16577916wrv.57.2021.06.07.13.19.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 07 Jun 2021 13:19:57 -0700 (PDT)
+Date:   Mon, 7 Jun 2021 21:19:55 +0100
+From:   Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+To:     gregkh@linuxfoundation.org
+Cc:     anand.jain@oracle.com, dsterba@suse.com, fdmanana@suse.com,
+        lists@colorremedies.com, stable@vger.kernel.org
+Subject: Re: FAILED: patch "[PATCH] btrfs: fix unmountable seed device after
+ fstrim" failed to apply to 5.10-stable tree
+Message-ID: <YL5/a+ngsCX28uPz@debian>
+References: <1620999891925@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/mixed; boundary="C+wYWoRybnAwGCq0"
+Content-Disposition: inline
+In-Reply-To: <1620999891925@kroah.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-commit 198b62f83eef1d605d70eca32759c92cdcc14175 upstream
 
-When a THP is removed from the page cache by reclaim, we replace it with a
-shadow entry that occupies all slots of the XArray previously occupied by
-the THP.  If the user then accesses that page again, we only allocate a
-single page, but storing it into the shadow entry replaces all entries
-with that one page.  That leads to bugs like
+--C+wYWoRybnAwGCq0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-page dumped because: VM_BUG_ON_PAGE(page_to_pgoff(page) != offset)
-------------[ cut here ]------------
-kernel BUG at mm/filemap.c:2529!
+Hi Greg,
 
-https://bugzilla.kernel.org/show_bug.cgi?id=206569
+On Fri, May 14, 2021 at 03:44:51PM +0200, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 5.10-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-This is hard to reproduce with mainline, but happens regularly with the
-THP patchset (as so many more THPs are created).  This solution is take
-from the THP patchset.  It splits the shadow entry into order-0 pieces at
-the time that we bring a new page into cache.
+Here is the backported patch, will also apply to all branches till 4.19-stable.
 
-Fixes: 99cb0dbd47a1 ("mm,thp: add read-only THP support for (non-shmem) FS")
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Cc: Song Liu <songliubraving@fb.com>
-Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
-Cc: Qian Cai <cai@lca.pw>
-Link: https://lkml.kernel.org/r/20200903183029.14930-4-willy@infradead.org
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+--
+Regards
+Sudip
+
+--C+wYWoRybnAwGCq0
+Content-Type: text/x-diff; charset=us-ascii
+Content-Disposition: attachment;
+	filename="0001-btrfs-fix-unmountable-seed-device-after-fstrim.patch"
+
+From d63881edde43fe93d7e5adb36dac46e1075eb386 Mon Sep 17 00:00:00 2001
+From: Anand Jain <anand.jain@oracle.com>
+Date: Fri, 30 Apr 2021 19:59:51 +0800
+Subject: [PATCH] btrfs: fix unmountable seed device after fstrim
+
+commit 5e753a817b2d5991dfe8a801b7b1e8e79a1c5a20 upstream.
+
+The following test case reproduces an issue of wrongly freeing in-use
+blocks on the readonly seed device when fstrim is called on the rw sprout
+device. As shown below.
+
+Create a seed device and add a sprout device to it:
+
+  $ mkfs.btrfs -fq -dsingle -msingle /dev/loop0
+  $ btrfstune -S 1 /dev/loop0
+  $ mount /dev/loop0 /btrfs
+  $ btrfs dev add -f /dev/loop1 /btrfs
+  BTRFS info (device loop0): relocating block group 290455552 flags system
+  BTRFS info (device loop0): relocating block group 1048576 flags system
+  BTRFS info (device loop0): disk added /dev/loop1
+  $ umount /btrfs
+
+Mount the sprout device and run fstrim:
+
+  $ mount /dev/loop1 /btrfs
+  $ fstrim /btrfs
+  $ umount /btrfs
+
+Now try to mount the seed device, and it fails:
+
+  $ mount /dev/loop0 /btrfs
+  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.
+
+Block 5292032 is missing on the readonly seed device:
+
+ $ dmesg -kt | tail
+ <snip>
+ BTRFS error (device loop0): bad tree block start, want 5292032 have 0
+ BTRFS warning (device loop0): couldn't read-tree root
+ BTRFS error (device loop0): open_ctree failed
+
+From the dump-tree of the seed device (taken before the fstrim). Block
+5292032 belonged to the block group starting at 5242880:
+
+  $ btrfs inspect dump-tree -e /dev/loop0 | grep -A1 BLOCK_GROUP
+  <snip>
+  item 3 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16169 itemsize 24
+  	block group used 114688 chunk_objectid 256 flags METADATA
+  <snip>
+
+From the dump-tree of the sprout device (taken before the fstrim).
+fstrim used block-group 5242880 to find the related free space to free:
+
+  $ btrfs inspect dump-tree -e /dev/loop1 | grep -A1 BLOCK_GROUP
+  <snip>
+  item 1 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16226 itemsize 24
+  	block group used 32768 chunk_objectid 256 flags METADATA
+  <snip>
+
+BPF kernel tracing the fstrim command finds the missing block 5292032
+within the range of the discarded blocks as below:
+
+  kprobe:btrfs_discard_extent {
+  	printf("freeing start %llu end %llu num_bytes %llu:\n",
+  		arg1, arg1+arg2, arg2);
+  }
+
+  freeing start 5259264 end 5406720 num_bytes 147456
+  <snip>
+
+Fix this by avoiding the discard command to the readonly seed device.
+
+Reported-by: Chris Murphy <lists@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 ---
- mm/filemap.c | 37 ++++++++++++++++++++++++++++---------
- 1 file changed, 28 insertions(+), 9 deletions(-)
+ fs/btrfs/extent-tree.c | 10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index db542b494883..c10e237cc2c6 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -856,7 +856,6 @@ noinline int __add_to_page_cache_locked(struct page *page,
- 	int huge = PageHuge(page);
- 	struct mem_cgroup *memcg;
- 	int error;
--	void *old;
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 51c18da4792e..8d6134f220e8 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -1297,16 +1297,20 @@ int btrfs_discard_extent(struct btrfs_fs_info *fs_info, u64 bytenr,
+ 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
+ 			u64 bytes;
+ 			struct request_queue *req_q;
++			struct btrfs_device *device = stripe->dev;
  
- 	VM_BUG_ON_PAGE(!PageLocked(page), page);
- 	VM_BUG_ON_PAGE(PageSwapBacked(page), page);
-@@ -872,21 +871,41 @@ noinline int __add_to_page_cache_locked(struct page *page,
- 	get_page(page);
- 	page->mapping = mapping;
- 	page->index = offset;
-+	gfp_mask &= GFP_RECLAIM_MASK;
+-			if (!stripe->dev->bdev) {
++			if (!device->bdev) {
+ 				ASSERT(btrfs_test_opt(fs_info, DEGRADED));
+ 				continue;
+ 			}
+-			req_q = bdev_get_queue(stripe->dev->bdev);
++			req_q = bdev_get_queue(device->bdev);
+ 			if (!blk_queue_discard(req_q))
+ 				continue;
  
- 	do {
-+		unsigned int order = xa_get_order(xas.xa, xas.xa_index);
-+		void *entry, *old = NULL;
+-			ret = btrfs_issue_discard(stripe->dev->bdev,
++			if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
++				continue;
 +
-+		if (order > thp_order(page))
-+			xas_split_alloc(&xas, xa_load(xas.xa, xas.xa_index),
-+					order, gfp_mask);
- 		xas_lock_irq(&xas);
--		old = xas_load(&xas);
--		if (old && !xa_is_value(old))
--			xas_set_err(&xas, -EEXIST);
-+		xas_for_each_conflict(&xas, entry) {
-+			old = entry;
-+			if (!xa_is_value(entry)) {
-+				xas_set_err(&xas, -EEXIST);
-+				goto unlock;
-+			}
-+		}
-+
-+		if (old) {
-+			if (shadowp)
-+				*shadowp = old;
-+			/* entry may have been split before we acquired lock */
-+			order = xa_get_order(xas.xa, xas.xa_index);
-+			if (order > thp_order(page)) {
-+				xas_split(&xas, old, order);
-+				xas_reset(&xas);
-+			}
-+		}
-+
- 		xas_store(&xas, page);
- 		if (xas_error(&xas))
- 			goto unlock;
- 
--		if (xa_is_value(old)) {
-+		if (old)
- 			mapping->nrexceptional--;
--			if (shadowp)
--				*shadowp = old;
--		}
- 		mapping->nrpages++;
- 
- 		/* hugetlb pages do not participate in page cache accounting */
-@@ -894,7 +913,7 @@ noinline int __add_to_page_cache_locked(struct page *page,
- 			__inc_node_page_state(page, NR_FILE_PAGES);
- unlock:
- 		xas_unlock_irq(&xas);
--	} while (xas_nomem(&xas, gfp_mask & GFP_RECLAIM_MASK));
-+	} while (xas_nomem(&xas, gfp_mask));
- 
- 	if (xas_error(&xas))
- 		goto error;
++			ret = btrfs_issue_discard(device->bdev,
+ 						  stripe->physical,
+ 						  stripe->length,
+ 						  &bytes);
 -- 
 2.30.2
 
+
+--C+wYWoRybnAwGCq0--
