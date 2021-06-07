@@ -2,35 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FCC39E38F
+	by mail.lfdr.de (Postfix) with ESMTP id 8CCAA39E390
 	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 18:39:56 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233301AbhFGQ1E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232910AbhFGQ1E (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 7 Jun 2021 12:27:04 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60478 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:60486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232773AbhFGQWs (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 12:22:48 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 99E6061930;
-        Mon,  7 Jun 2021 16:15:25 +0000 (UTC)
+        id S232799AbhFGQWt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 12:22:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0485A61931;
+        Mon,  7 Jun 2021 16:15:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623082526;
-        bh=iX2oTkmqyn78O4KlibLV5yCnz9KKb3Q9Wkez32DsvKE=;
+        s=k20201202; t=1623082527;
+        bh=d7nE31LJFpcfz49ymhPQllVtbPahLzAtfQD5AovH9jM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gqCGn3xPG2Gxd8KpowKexxNgMg8c0oFjkU7XCk/qv9+f60IjukDEZeSOjBncWgEDu
-         cdCXfrnn8T0436llGu6KVO4Wt3tlbjgNiBW8g6d+5ZZKwpiKo5eBCNOvLWkVjBa0YW
-         TW4XXbz2bix41tKm7FrEh4vEK0iHJ8bAMImUn4OEK63SbDCZofBWByZCHW0hrAjOW9
-         pv21Ax7mZTXn7zbE1PUKlEsKIyn76unlgGvS4EuOU23gJTd/0GLZ6XNKxFIQ7En/sR
-         73feLI8hLDWO84sAxIfnlaXdZzvj7raxPSkiFawHWmHMAkVU/H0QJNE5frfGNsEz/7
-         GrgwpKPQqBdbw==
+        b=vC72K7PTvEqpOtpfu5BRCqCigOG3K1nHJxeCTrJ/XO2Zq5ro4vzlqjksc4/BeH3vp
+         uiLnBNyYJnS+gOxgdaHYuaTbLDm2lSNzVOAbfnQq8qYufxUpmGzecFhrxS4z/dm1kQ
+         Lvo+IQvV+FQhZGJcYvuOw4/m424J1vYlOeF+3MHO8YRaWjjSIlJgnph1xEEjWfFcrC
+         nXexUY2N7YjRpz5ZQqSFWHFLDSR3PKmLNxXzJ1N3ge3Pp+swkunimiyQIHohblbBBA
+         1NfHRsj7kWp5hCvAY5rVmr+W0gMIdiXunq1J2rUNiPa211jnpCz+WQ6rIeh5+zj2g8
+         uaRJ1b2suEqnw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Bixuan Cui <cuibixuan@huawei.com>, Hulk Robot <hulkci@huawei.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 06/18] HID: gt683r: add missing MODULE_DEVICE_TABLE
-Date:   Mon,  7 Jun 2021 12:15:04 -0400
-Message-Id: <20210607161517.3584577-6-sashal@kernel.org>
+Cc:     Hillf Danton <hdanton@sina.com>,
+        syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>,
+        Andreas Gruenbacher <agruenba@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 4.14 07/18] gfs2: Fix use-after-free in gfs2_glock_shrink_scan
+Date:   Mon,  7 Jun 2021 12:15:05 -0400
+Message-Id: <20210607161517.3584577-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20210607161517.3584577-1-sashal@kernel.org>
 References: <20210607161517.3584577-1-sashal@kernel.org>
@@ -42,34 +43,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bixuan Cui <cuibixuan@huawei.com>
+From: Hillf Danton <hdanton@sina.com>
 
-[ Upstream commit a4b494099ad657f1cb85436d333cf38870ee95bc ]
+[ Upstream commit 1ab19c5de4c537ec0d9b21020395a5b5a6c059b2 ]
 
-This patch adds missing MODULE_DEVICE_TABLE definition which generates
-correct modalias for automatic loading of this driver when it is built
-as an external module.
+The GLF_LRU flag is checked under lru_lock in gfs2_glock_remove_from_lru() to
+remove the glock from the lru list in __gfs2_glock_put().
 
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Bixuan Cui <cuibixuan@huawei.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+On the shrink scan path, the same flag is cleared under lru_lock but because
+of cond_resched_lock(&lru_lock) in gfs2_dispose_glock_lru(), progress on the
+put side can be made without deleting the glock from the lru list.
+
+Keep GLF_LRU across the race window opened by cond_resched_lock(&lru_lock) to
+ensure correct behavior on both sides - clear GLF_LRU after list_del under
+lru_lock.
+
+Reported-by: syzbot <syzbot+34ba7ddbf3021981a228@syzkaller.appspotmail.com>
+Signed-off-by: Hillf Danton <hdanton@sina.com>
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-gt683r.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/gfs2/glock.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-gt683r.c b/drivers/hid/hid-gt683r.c
-index a298fbd8db6b..8ca4c1baeda8 100644
---- a/drivers/hid/hid-gt683r.c
-+++ b/drivers/hid/hid-gt683r.c
-@@ -64,6 +64,7 @@ static const struct hid_device_id gt683r_led_id[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_MSI, USB_DEVICE_ID_MSI_GT683R_LED_PANEL) },
- 	{ }
- };
-+MODULE_DEVICE_TABLE(hid, gt683r_led_id);
- 
- static void gt683r_brightness_set(struct led_classdev *led_cdev,
- 				enum led_brightness brightness)
+diff --git a/fs/gfs2/glock.c b/fs/gfs2/glock.c
+index 0a0dd3178483..be969f24ccf0 100644
+--- a/fs/gfs2/glock.c
++++ b/fs/gfs2/glock.c
+@@ -1456,6 +1456,7 @@ __acquires(&lru_lock)
+ 	while(!list_empty(list)) {
+ 		gl = list_entry(list->next, struct gfs2_glock, gl_lru);
+ 		list_del_init(&gl->gl_lru);
++		clear_bit(GLF_LRU, &gl->gl_flags);
+ 		if (!spin_trylock(&gl->gl_lockref.lock)) {
+ add_back_to_lru:
+ 			list_add(&gl->gl_lru, &lru_list);
+@@ -1501,7 +1502,6 @@ static long gfs2_scan_glock_lru(int nr)
+ 		if (!test_bit(GLF_LOCK, &gl->gl_flags)) {
+ 			list_move(&gl->gl_lru, &dispose);
+ 			atomic_dec(&lru_count);
+-			clear_bit(GLF_LRU, &gl->gl_flags);
+ 			freed++;
+ 			continue;
+ 		}
 -- 
 2.30.2
 
