@@ -2,137 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D66C239D6A8
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 10:01:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AF439D6CA
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 10:09:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230214AbhFGID3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 04:03:29 -0400
-Received: from out30-132.freemail.mail.aliyun.com ([115.124.30.132]:47352 "EHLO
-        out30-132.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S230169AbhFGID2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 04:03:28 -0400
-X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=11;SR=0;TI=SMTPD_---0UbYj7Qh_1623052896;
-Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UbYj7Qh_1623052896)
-          by smtp.aliyun-inc.com(127.0.0.1);
-          Mon, 07 Jun 2021 16:01:36 +0800
-From:   Wen Yang <wenyang@linux.alibaba.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Cc:     stable <stable@vger.kernel.org>, Song Liu <songliubraving@fb.com>,
-        Peter Zijlstra <peterz@infradead.org>, kernel-team@fb.com,
+        id S229545AbhFGILf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 04:11:35 -0400
+Received: from mail.kernel.org ([198.145.29.99]:60668 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S230097AbhFGILe (ORCPT <rfc822;stable@vger.kernel.org>);
+        Mon, 7 Jun 2021 04:11:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2A78C611C0;
+        Mon,  7 Jun 2021 08:09:43 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623053383;
+        bh=IYKAx2B81okjOY0O0QA82BXe1awSC5hEZnI521mFVPo=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Na3e0o88/eteAdkCW+MGWBX7soUcuWNtX6sCbcKA3M2Bbz0pvWpJMSWYfaR1NqKU9
+         Wz3eG7K+lKo1zC/83Mmn1pAqtXB/QV1n94Jxvl95WjRchAfPc7lgo8XQ2yRxNNHXPL
+         JNZkTx18zErptV1nQ1QsCDIqwSgDuycqAOfuyO0o=
+Date:   Mon, 7 Jun 2021 10:09:40 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Wen Yang <wenyang@linux.alibaba.com>
+Cc:     Sasha Levin <sashal@kernel.org>, stable <stable@vger.kernel.org>,
+        Ian Rogers <irogers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
         Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
         Linus Torvalds <torvalds@linux-foundation.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 5.2 2/2] perf/core: Fix corner case in perf_rotate_context()
-Date:   Mon,  7 Jun 2021 16:01:31 +0800
-Message-Id: <20210607080131.9043-2-wenyang@linux.alibaba.com>
-X-Mailer: git-send-email 2.23.0
-In-Reply-To: <20210607080131.9043-1-wenyang@linux.alibaba.com>
-References: <20210607080131.9043-1-wenyang@linux.alibaba.com>
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>
+Subject: Re: [PATCH 4.20 1/2] perf/cgroups: Don't rotate events for cgroups
+ unnecessarily
+Message-ID: <YL3URDqVmdIP9647@kroah.com>
+References: <20210607080017.8894-1-wenyang@linux.alibaba.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20210607080017.8894-1-wenyang@linux.alibaba.com>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+On Mon, Jun 07, 2021 at 04:00:16PM +0800, Wen Yang wrote:
+> From: Ian Rogers <irogers@google.com>
+> 
+> [ Upstream commit fd7d55172d1e2e501e6da0a5c1de25f06612dc2e ]
 
-[ Upstream commit 7fa343b7fdc4f351de4e3f28d5c285937dd1f42f ]
+<snip>
 
-In perf_rotate_context(), when the first cpu flexible event fail to
-schedule, cpu_rotate is 1, while cpu_event is NULL. Since cpu_event is
-NULL, perf_rotate_context will _NOT_ call cpu_ctx_sched_out(), thus
-cpuctx->ctx.is_active will have EVENT_FLEXIBLE set. Then, the next
-perf_event_sched_in() will skip all cpu flexible events because of the
-EVENT_FLEXIBLE bit.
+If you look at the releases page of kernel.org, you will see the active
+kernels (also the front page of kernel.org shows this).
 
-In the next call of perf_rotate_context(), cpu_rotate stays 1, and
-cpu_event stays NULL, so this process repeats. The end result is, flexible
-events on this cpu will not be scheduled (until another event being added
-to the cpuctx).
+So why are you sending patches for kernels that are long long
+end-of-life?  Who is going to use these patches, and for what trees?
 
-Here is an easy repro of this issue. On Intel CPUs, where ref-cycles
-could only use one counter, run one pinned event for ref-cycles, one
-flexible event for ref-cycles, and one flexible event for cycles. The
-flexible ref-cycles is never scheduled, which is expected. However,
-because of this issue, the cycles event is never scheduled either.
+thanks,
 
- $ perf stat -e ref-cycles:D,ref-cycles,cycles -C 5 -I 1000
-
-           time             counts unit events
-    1.000152973         15,412,480      ref-cycles:D
-    1.000152973      <not counted>      ref-cycles     (0.00%)
-    1.000152973      <not counted>      cycles         (0.00%)
-    2.000486957         18,263,120      ref-cycles:D
-    2.000486957      <not counted>      ref-cycles     (0.00%)
-    2.000486957      <not counted>      cycles         (0.00%)
-
-To fix this, when the flexible_active list is empty, try rotate the
-first event in the flexible_groups. Also, rename ctx_first_active() to
-ctx_event_to_rotate(), which is more accurate.
-
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <kernel-team@fb.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 8d5bce0c37fa ("perf/core: Optimize perf_rotate_context() event scheduling")
-Link: https://lkml.kernel.org/r/20191008165949.920548-1-songliubraving@fb.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Cc: stable@vger.kernel.org # 4.19+
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
----
- kernel/events/core.c | 22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
-
-diff --git a/kernel/events/core.c b/kernel/events/core.c
-index 190772d..335fbde 100644
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3694,11 +3694,23 @@ static void rotate_ctx(struct perf_event_context *ctx, struct perf_event *event)
- 	perf_event_groups_insert(&ctx->flexible_groups, event);
- }
- 
-+/* pick an event from the flexible_groups to rotate */
- static inline struct perf_event *
--ctx_first_active(struct perf_event_context *ctx)
-+ctx_event_to_rotate(struct perf_event_context *ctx)
- {
--	return list_first_entry_or_null(&ctx->flexible_active,
--					struct perf_event, active_list);
-+	struct perf_event *event;
-+
-+	/* pick the first active flexible event */
-+	event = list_first_entry_or_null(&ctx->flexible_active,
-+					 struct perf_event, active_list);
-+
-+	/* if no active flexible event, pick the first event */
-+	if (!event) {
-+		event = rb_entry_safe(rb_first(&ctx->flexible_groups.tree),
-+				      typeof(*event), group_node);
-+	}
-+
-+	return event;
- }
- 
- static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
-@@ -3723,9 +3735,9 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
- 	perf_pmu_disable(cpuctx->ctx.pmu);
- 
- 	if (task_rotate)
--		task_event = ctx_first_active(task_ctx);
-+		task_event = ctx_event_to_rotate(task_ctx);
- 	if (cpu_rotate)
--		cpu_event = ctx_first_active(&cpuctx->ctx);
-+		cpu_event = ctx_event_to_rotate(&cpuctx->ctx);
- 
- 	/*
- 	 * As per the order given at ctx_resched() first 'pop' task flexible
--- 
-1.8.3.1
-
+greg k-h
