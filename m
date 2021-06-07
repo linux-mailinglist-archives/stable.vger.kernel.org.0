@@ -2,101 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 08F5039D624
-	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 09:35:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4491539D695
+	for <lists+stable@lfdr.de>; Mon,  7 Jun 2021 10:00:14 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229436AbhFGHgd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 7 Jun 2021 03:36:33 -0400
-Received: from mail.kernel.org ([198.145.29.99]:49798 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S230289AbhFGHgb (ORCPT <rfc822;stable@vger.kernel.org>);
-        Mon, 7 Jun 2021 03:36:31 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5B9CF60720;
-        Mon,  7 Jun 2021 07:34:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1623051280;
-        bh=KSBak37M4ZNaKQDb2ZGdFQVWV6/LUhEK3kiybd0AK+g=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uIusRuzdLnAN62qHAprxQB3QfW16uJ5EUCoJmzHb3n80mFnPKoED8ieIuWVNIJrkK
-         bFjjG1QCVX7abQ0wmxOjn7Vby8Wip4xjRbm30Sad8X1Q+TdQBOMdQU0SttI5GhqgPw
-         PUB4wP9rzkuP0hUdXyeB8NGrMmmWxI1W53VT9VVSdkvoZ5+jI10iy5/TkJeRA5x24F
-         KGRq7xmcQwHxzf7apBA6XmQmzLV3O+CnLBIOMaceA/micH5srwyJQPLiNASTjbZIBl
-         O4FmnYhY/9L7s0qIHjesoyXV/rmasaHSEoXkoBcpWwGppaQWvtWKkUCk1jnJ3o2WgP
-         Sxt4uophlVbuQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan@kernel.org>)
-        id 1lq9mK-0004AW-J9; Mon, 07 Jun 2021 09:34:33 +0200
-Date:   Mon, 7 Jun 2021 09:34:32 +0200
-From:   Johan Hovold <johan@kernel.org>
-To:     Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc:     Hans Verkuil <hverkuil@xs4all.nl>, linux-media@vger.kernel.org,
-        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org,
-        syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, Antti Palosaari <crope@iki.fi>
-Subject: Re: [PATCH 3/3] media: rtl28xxu: fix zero-length control request
-Message-ID: <YL3MCGY5wTsW2kEF@hovoldconsulting.com>
-References: <20210524110920.24599-1-johan@kernel.org>
- <20210524110920.24599-4-johan@kernel.org>
- <YLSWeyy1skooTmqD@hovoldconsulting.com>
+        id S230381AbhFGIBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 7 Jun 2021 04:01:36 -0400
+Received: from out30-57.freemail.mail.aliyun.com ([115.124.30.57]:50962 "EHLO
+        out30-57.freemail.mail.aliyun.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S230356AbhFGIBe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 7 Jun 2021 04:01:34 -0400
+X-Alimail-AntiSpam: AC=PASS;BC=-1|-1;BR=01201311R151e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=alimailimapcm10staff010182156082;MF=wenyang@linux.alibaba.com;NM=1;PH=DS;RN=18;SR=0;TI=SMTPD_---0UbZhXVb_1623052780;
+Received: from localhost(mailfrom:wenyang@linux.alibaba.com fp:SMTPD_---0UbZhXVb_1623052780)
+          by smtp.aliyun-inc.com(127.0.0.1);
+          Mon, 07 Jun 2021 15:59:40 +0800
+From:   Wen Yang <wenyang@linux.alibaba.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Cc:     stable <stable@vger.kernel.org>, Ian Rogers <irogers@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Arnaldo Carvalho de Melo <acme@kernel.org>,
+        Arnaldo Carvalho de Melo <acme@redhat.com>,
+        Borislav Petkov <bp@alien8.de>, Jiri Olsa <jolsa@redhat.com>,
+        Kan Liang <kan.liang@linux.intel.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Namhyung Kim <namhyung@kernel.org>,
+        Stephane Eranian <eranian@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Vince Weaver <vincent.weaver@maine.edu>,
+        Ingo Molnar <mingo@kernel.org>,
+        Wen Yang <wenyang@linux.alibaba.com>
+Subject: [PATCH 4.19 1/2] perf/cgroups: Don't rotate events for cgroups unnecessarily
+Date:   Mon,  7 Jun 2021 15:59:37 +0800
+Message-Id: <20210607075938.8840-1-wenyang@linux.alibaba.com>
+X-Mailer: git-send-email 2.23.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <YLSWeyy1skooTmqD@hovoldconsulting.com>
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, May 31, 2021 at 09:55:39AM +0200, Johan Hovold wrote:
-> On Mon, May 24, 2021 at 01:09:20PM +0200, Johan Hovold wrote:
-> > The direction of the pipe argument must match the request-type direction
-> > bit or control requests may fail depending on the host-controller-driver
-> > implementation.
-> > 
-> > Control transfers without a data stage are treated as OUT requests by
-> > the USB stack and should be using usb_sndctrlpipe(). Failing to do so
-> > will now trigger a warning.
-> > 
-> > Fix the zero-length i2c-read request used for type detection by
-> > attempting to read a single byte instead.
-> > 
-> > Reported-by: syzbot+faf11bbadc5a372564da@syzkaller.appspotmail.com
-> > Fixes: d0f232e823af ("[media] rtl28xxu: add heuristic to detect chip type")
-> > Cc: stable@vger.kernel.org      # 4.0
-> > Cc: Antti Palosaari <crope@iki.fi>
-> > Signed-off-by: Johan Hovold <johan@kernel.org>
-> > ---
-> >  drivers/media/usb/dvb-usb-v2/rtl28xxu.c | 3 ++-
-> >  1 file changed, 2 insertions(+), 1 deletion(-)
-> > 
-> > diff --git a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-> > index 97ed17a141bb..2c04ed8af0e4 100644
-> > --- a/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-> > +++ b/drivers/media/usb/dvb-usb-v2/rtl28xxu.c
-> > @@ -612,8 +612,9 @@ static int rtl28xxu_read_config(struct dvb_usb_device *d)
-> >  static int rtl28xxu_identify_state(struct dvb_usb_device *d, const char **name)
-> >  {
-> >  	struct rtl28xxu_dev *dev = d_to_priv(d);
-> > +	u8 buf[1];
-> >  	int ret;
-> > -	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 0, NULL};
-> > +	struct rtl28xxu_req req_demod_i2c = {0x0020, CMD_I2C_DA_RD, 1, buf};
-> >  
-> >  	dev_dbg(&d->intf->dev, "\n");
-> 
-> As reported here
-> 
-> 	https://lore.kernel.org/r/YLSVsrhMZ2oOL1vM@hovoldconsulting.com
-> 
-> this patch is causing the chip type to no longer be detected correctly,
-> so please drop this one for now until this has been resolved.
+From: Ian Rogers <irogers@google.com>
 
-Looks like this one was applied to the media tree a couple of days after
-I sent this nonetheless.
+[ Upstream commit fd7d55172d1e2e501e6da0a5c1de25f06612dc2e ]
 
-Can you drop this one in favour of the v2 posted here:
+Currently perf_rotate_context assumes that if the context's nr_events !=
+nr_active a rotation is necessary for perf event multiplexing. With
+cgroups, nr_events is the total count of events for all cgroups and
+nr_active will not include events in a cgroup other than the current
+task's. This makes rotation appear necessary for cgroups when it is not.
 
-	 https://lore.kernel.org/r/20210531094434.12651-4-johan@kernel.org
+Add a perf_event_context flag that is set when rotation is necessary.
+Clear the flag during sched_out and set it when a flexible sched_in
+fails due to resources.
 
-or do you want me to send an incremental fix instead?
+Signed-off-by: Ian Rogers <irogers@google.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
+Cc: Arnaldo Carvalho de Melo <acme@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Jiri Olsa <jolsa@redhat.com>
+Cc: Kan Liang <kan.liang@linux.intel.com>
+Cc: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Namhyung Kim <namhyung@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Vince Weaver <vincent.weaver@maine.edu>
+Link: https://lkml.kernel.org/r/20190601082722.44543-1-irogers@google.com
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: stable@vger.kernel.org # 4.19+
+Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+---
+ include/linux/perf_event.h |  5 +++++
+ kernel/events/core.c       | 42 ++++++++++++++++++++++--------------------
+ 2 files changed, 27 insertions(+), 20 deletions(-)
 
-Johan
+diff --git a/include/linux/perf_event.h b/include/linux/perf_event.h
+index d8b4d31..efe30b9 100644
+--- a/include/linux/perf_event.h
++++ b/include/linux/perf_event.h
+@@ -747,6 +747,11 @@ struct perf_event_context {
+ 	int				nr_stat;
+ 	int				nr_freq;
+ 	int				rotate_disable;
++	/*
++	 * Set when nr_events != nr_active, except tolerant to events not
++	 * necessary to be active due to scheduling constraints, such as cgroups.
++	 */
++	int				rotate_necessary;
+ 	atomic_t			refcount;
+ 	struct task_struct		*task;
+ 
+diff --git a/kernel/events/core.c b/kernel/events/core.c
+index b8b74a4..56e3789 100644
+--- a/kernel/events/core.c
++++ b/kernel/events/core.c
+@@ -2952,6 +2952,12 @@ static void ctx_sched_out(struct perf_event_context *ctx,
+ 	if (!ctx->nr_active || !(is_active & EVENT_ALL))
+ 		return;
+ 
++	/*
++	 * If we had been multiplexing, no rotations are necessary, now no events
++	 * are active.
++	 */
++	ctx->rotate_necessary = 0;
++
+ 	perf_pmu_disable(ctx->pmu);
+ 	if (is_active & EVENT_PINNED) {
+ 		list_for_each_entry_safe(event, tmp, &ctx->pinned_active, active_list)
+@@ -3319,10 +3325,13 @@ static int flexible_sched_in(struct perf_event *event, void *data)
+ 		return 0;
+ 
+ 	if (group_can_go_on(event, sid->cpuctx, sid->can_add_hw)) {
+-		if (!group_sched_in(event, sid->cpuctx, sid->ctx))
+-			list_add_tail(&event->active_list, &sid->ctx->flexible_active);
+-		else
++		int ret = group_sched_in(event, sid->cpuctx, sid->ctx);
++		if (ret) {
+ 			sid->can_add_hw = 0;
++			sid->ctx->rotate_necessary = 1;
++			return 0;
++		}
++		list_add_tail(&event->active_list, &sid->ctx->flexible_active);
+ 	}
+ 
+ 	return 0;
+@@ -3690,24 +3699,17 @@ static void rotate_ctx(struct perf_event_context *ctx, struct perf_event *event)
+ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
+ {
+ 	struct perf_event *cpu_event = NULL, *task_event = NULL;
+-	bool cpu_rotate = false, task_rotate = false;
+-	struct perf_event_context *ctx = NULL;
++	struct perf_event_context *task_ctx = NULL;
++	int cpu_rotate, task_rotate;
+ 
+ 	/*
+ 	 * Since we run this from IRQ context, nobody can install new
+ 	 * events, thus the event count values are stable.
+ 	 */
+ 
+-	if (cpuctx->ctx.nr_events) {
+-		if (cpuctx->ctx.nr_events != cpuctx->ctx.nr_active)
+-			cpu_rotate = true;
+-	}
+-
+-	ctx = cpuctx->task_ctx;
+-	if (ctx && ctx->nr_events) {
+-		if (ctx->nr_events != ctx->nr_active)
+-			task_rotate = true;
+-	}
++	cpu_rotate = cpuctx->ctx.rotate_necessary;
++	task_ctx = cpuctx->task_ctx;
++	task_rotate = task_ctx ? task_ctx->rotate_necessary : 0;
+ 
+ 	if (!(cpu_rotate || task_rotate))
+ 		return false;
+@@ -3716,7 +3718,7 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
+ 	perf_pmu_disable(cpuctx->ctx.pmu);
+ 
+ 	if (task_rotate)
+-		task_event = ctx_first_active(ctx);
++		task_event = ctx_first_active(task_ctx);
+ 	if (cpu_rotate)
+ 		cpu_event = ctx_first_active(&cpuctx->ctx);
+ 
+@@ -3724,17 +3726,17 @@ static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
+ 	 * As per the order given at ctx_resched() first 'pop' task flexible
+ 	 * and then, if needed CPU flexible.
+ 	 */
+-	if (task_event || (ctx && cpu_event))
+-		ctx_sched_out(ctx, cpuctx, EVENT_FLEXIBLE);
++	if (task_event || (task_ctx && cpu_event))
++		ctx_sched_out(task_ctx, cpuctx, EVENT_FLEXIBLE);
+ 	if (cpu_event)
+ 		cpu_ctx_sched_out(cpuctx, EVENT_FLEXIBLE);
+ 
+ 	if (task_event)
+-		rotate_ctx(ctx, task_event);
++		rotate_ctx(task_ctx, task_event);
+ 	if (cpu_event)
+ 		rotate_ctx(&cpuctx->ctx, cpu_event);
+ 
+-	perf_event_sched_in(cpuctx, ctx, current);
++	perf_event_sched_in(cpuctx, task_ctx, current);
+ 
+ 	perf_pmu_enable(cpuctx->ctx.pmu);
+ 	perf_ctx_unlock(cpuctx, cpuctx->task_ctx);
+-- 
+1.8.3.1
+
