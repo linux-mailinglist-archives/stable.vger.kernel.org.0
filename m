@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5539D3A01ED
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 846AA3A030A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235808AbhFHS6I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:58:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:52436 "EHLO mail.kernel.org"
+        id S237059AbhFHTMA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:12:00 -0400
+Received: from mail.kernel.org ([198.145.29.99]:59566 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236966AbhFHS4G (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:06 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B2FB561613;
-        Tue,  8 Jun 2021 18:41:50 +0000 (UTC)
+        id S237519AbhFHTJy (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:09:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5623861941;
+        Tue,  8 Jun 2021 18:48:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177711;
-        bh=wVUBn/slFIkh572Gg8YlnApQMtz+ZmZ8/aLbSH9pDB4=;
+        s=korg; t=1623178115;
+        bh=mpooxyqvfrAzMhHxntMDVhFerXLYMjxumW4cPBYV+RU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q2OcLOaRxGuM/fYr5VvlfZu9iGO5WC+a9FlumqneAwT2+70cBWXMYkyse9fong2Eg
-         OFWlZAgHiAwlFMQkMKIBqC9TO26bbyzh9HfQyDy2EyjmC/GoYp235927d4tKsKoqUi
-         MAO7fElfQUjF16zZlsR6IgaUyfTqP4FS9xqi9JSA=
+        b=hMniwmm1p+CN91QyU3nSojwXR07nw7LIA7WfcgN4FyG26ruCIMlkfRUA5Qyx8MzsV
+         /vUM6r1qE8gbYMRSmRkfUTZuhEp+9dBbvk1s6pOelmK9Au2gCRRd3Bz1k07NSldO9K
+         lUyowDpaTJvuIpDAVd+g/TnhzWZW50mISk+SibuU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
+        stable@vger.kernel.org, Alexandre TORGUE <alexandre.torgue@st.com>,
+        Gerald Baeza <gerald.baeza@st.com>,
+        Valentin Caron <valentin.caron@foss.st.com>,
+        Johan Hovold <johan@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 070/137] tipc: fix unique bearer names sanity check
-Date:   Tue,  8 Jun 2021 20:26:50 +0200
-Message-Id: <20210608175944.728135053@linuxfoundation.org>
+Subject: [PATCH 5.12 081/161] serial: stm32: fix threaded interrupt handling
+Date:   Tue,  8 Jun 2021 20:26:51 +0200
+Message-Id: <20210608175948.180271741@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,97 +42,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Johan Hovold <johan@kernel.org>
 
-[ Upstream commit f20a46c3044c3f75232b3d0e2d09af9b25efaf45 ]
+[ Upstream commit e359b4411c2836cf87c8776682d1b594635570de ]
 
-When enabling a bearer by name, we don't sanity check its name with
-higher slot in bearer list. This may have the effect that the name
-of an already enabled bearer bypasses the check.
+When DMA is enabled the receive handler runs in a threaded handler, but
+the primary handler up until very recently neither disabled interrupts
+in the device or used IRQF_ONESHOT. This would lead to a deadlock if an
+interrupt comes in while the threaded receive handler is running under
+the port lock.
 
-To fix the above issue, we just perform an extra checking with all
-existing bearers.
+Commit ad7676812437 ("serial: stm32: fix a deadlock condition with
+wakeup event") claimed to fix an unrelated deadlock, but unfortunately
+also disabled interrupts in the threaded handler. While this prevents
+the deadlock mentioned in the previous paragraph it also defeats the
+purpose of using a threaded handler in the first place.
 
-Fixes: cb30a63384bc9 ("tipc: refactor function tipc_enable_bearer()")
-Cc: stable@vger.kernel.org
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fix this by making the interrupt one-shot and not disabling interrupts
+in the threaded handler.
+
+Note that (receive) DMA must not be used for a console port as the
+threaded handler could be interrupted while holding the port lock,
+something which could lead to a deadlock in case an interrupt handler
+ends up calling printk.
+
+Fixes: ad7676812437 ("serial: stm32: fix a deadlock condition with wakeup event")
+Fixes: 3489187204eb ("serial: stm32: adding dma support")
+Cc: stable@vger.kernel.org      # 4.9
+Cc: Alexandre TORGUE <alexandre.torgue@st.com>
+Cc: Gerald Baeza <gerald.baeza@st.com>
+Reviewed-by: Valentin Caron<valentin.caron@foss.st.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20210416140557.25177-3-johan@kernel.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/tipc/bearer.c | 46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ drivers/tty/serial/stm32-usart.c | 22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 4d0e11623e5c..12e535b43d88 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -246,6 +246,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 	int bearer_id = 0;
- 	int res = -EINVAL;
- 	char *errstr = "";
-+	u32 i;
+diff --git a/drivers/tty/serial/stm32-usart.c b/drivers/tty/serial/stm32-usart.c
+index 99dfa884cbef..68c6535bbf7f 100644
+--- a/drivers/tty/serial/stm32-usart.c
++++ b/drivers/tty/serial/stm32-usart.c
+@@ -214,14 +214,11 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 	struct tty_port *tport = &port->state->port;
+ 	struct stm32_port *stm32_port = to_stm32_port(port);
+ 	const struct stm32_usart_offsets *ofs = &stm32_port->info->ofs;
+-	unsigned long c, flags;
++	unsigned long c;
+ 	u32 sr;
+ 	char flag;
  
- 	if (!bearer_name_validate(name, &b_names)) {
- 		errstr = "illegal name";
-@@ -270,31 +271,38 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 		prio = m->priority;
+-	if (threaded)
+-		spin_lock_irqsave(&port->lock, flags);
+-	else
+-		spin_lock(&port->lock);
++	spin_lock(&port->lock);
  
- 	/* Check new bearer vs existing ones and find free bearer id if any */
--	while (bearer_id < MAX_BEARERS) {
--		b = rtnl_dereference(tn->bearer_list[bearer_id]);
--		if (!b)
--			break;
-+	bearer_id = MAX_BEARERS;
-+	i = MAX_BEARERS;
-+	while (i-- != 0) {
-+		b = rtnl_dereference(tn->bearer_list[i]);
-+		if (!b) {
-+			bearer_id = i;
-+			continue;
-+		}
- 		if (!strcmp(name, b->name)) {
- 			errstr = "already enabled";
- 			NL_SET_ERR_MSG(extack, "Already enabled");
- 			goto rejected;
- 		}
--		bearer_id++;
--		if (b->priority != prio)
--			continue;
--		if (++with_this_prio <= 2)
--			continue;
--		pr_warn("Bearer <%s>: already 2 bearers with priority %u\n",
--			name, prio);
--		if (prio == TIPC_MIN_LINK_PRI) {
--			errstr = "cannot adjust to lower";
--			NL_SET_ERR_MSG(extack, "Cannot adjust to lower");
--			goto rejected;
-+
-+		if (b->priority == prio &&
-+		    (++with_this_prio > 2)) {
-+			pr_warn("Bearer <%s>: already 2 bearers with priority %u\n",
-+				name, prio);
-+
-+			if (prio == TIPC_MIN_LINK_PRI) {
-+				errstr = "cannot adjust to lower";
-+				NL_SET_ERR_MSG(extack, "Cannot adjust to lower");
-+				goto rejected;
-+			}
-+
-+			pr_warn("Bearer <%s>: trying with adjusted priority\n",
-+				name);
-+			prio--;
-+			bearer_id = MAX_BEARERS;
-+			i = MAX_BEARERS;
-+			with_this_prio = 1;
- 		}
--		pr_warn("Bearer <%s>: trying with adjusted priority\n", name);
--		prio--;
--		bearer_id = 0;
--		with_this_prio = 1;
+ 	while (stm32_usart_pending_rx(port, &sr, &stm32_port->last_res,
+ 				      threaded)) {
+@@ -278,10 +275,7 @@ static void stm32_usart_receive_chars(struct uart_port *port, bool threaded)
+ 		uart_insert_char(port, sr, USART_SR_ORE, c, flag);
  	}
  
- 	if (bearer_id >= MAX_BEARERS) {
+-	if (threaded)
+-		spin_unlock_irqrestore(&port->lock, flags);
+-	else
+-		spin_unlock(&port->lock);
++	spin_unlock(&port->lock);
+ 
+ 	tty_flip_buffer_push(tport);
+ }
+@@ -654,7 +648,8 @@ static int stm32_usart_startup(struct uart_port *port)
+ 
+ 	ret = request_threaded_irq(port->irq, stm32_usart_interrupt,
+ 				   stm32_usart_threaded_interrupt,
+-				   IRQF_NO_SUSPEND, name, port);
++				   IRQF_ONESHOT | IRQF_NO_SUSPEND,
++				   name, port);
+ 	if (ret)
+ 		return ret;
+ 
+@@ -1136,6 +1131,13 @@ static int stm32_usart_of_dma_rx_probe(struct stm32_port *stm32port,
+ 	struct dma_async_tx_descriptor *desc = NULL;
+ 	int ret;
+ 
++	/*
++	 * Using DMA and threaded handler for the console could lead to
++	 * deadlocks.
++	 */
++	if (uart_console(port))
++		return -ENODEV;
++
+ 	/* Request DMA RX channel */
+ 	stm32port->rx_ch = dma_request_slave_channel(dev, "rx");
+ 	if (!stm32port->rx_ch) {
 -- 
 2.30.2
 
