@@ -2,34 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 42EAB3A0200
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 46D463A01F2
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233922AbhFHS7A (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:59:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S235715AbhFHS6S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34016 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234957AbhFHS4X (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E9C58613CB;
-        Tue,  8 Jun 2021 18:41:58 +0000 (UTC)
+        id S237011AbhFHS4Q (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 64695613FF;
+        Tue,  8 Jun 2021 18:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177719;
-        bh=sYxK+/vy8Vr8G9MP6hr0q7cht+k6XJ3CPzCBSsjZd9A=;
+        s=korg; t=1623177722;
+        bh=kUMjmIv4kodkdy3zONmPQpYjVM8v4O4P2r/aNZfFh/0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xWSVrD3BDewlKbPMs+cDmfBG2mR7hQtloxXmh7RzxCjMf3XshEXylIiqaw5A7LmQY
-         SgyzHBh6IL2BZ5KxUnagVtOlS6gmjfVX9PQA/9e2XC9eyKBulqQFGythkLh3fLakrt
-         OKbFqvRW0mfeHFqe2eTJ/9qUr46WxbwCwkqkPGuo=
+        b=wqvkaMusMhHeOdgSDvQ1ItTtDUr6s4yFXtV+Ebf/My8AbOGIWvGTU8pTynCnh6maw
+         /kjNkGtIiuitn59SPwlHbYEM/3SucT89CaJUjxOdPv0DrCH6wnarovxd7rndabNDTI
+         MXVpsTOv+RzcOouSNeCV8ofBhCIU2itDWLMO2S4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com,
-        Pavel Begunkov <asml.silence@gmail.com>,
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 073/137] io_uring: fix link timeout refs
-Date:   Tue,  8 Jun 2021 20:26:53 +0200
-Message-Id: <20210608175944.829057777@linuxfoundation.org>
+Subject: [PATCH 5.10 074/137] io_uring: use better types for cflags
+Date:   Tue,  8 Jun 2021 20:26:54 +0200
+Message-Id: <20210608175944.858059739@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -43,50 +41,42 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit a298232ee6b9a1d5d732aa497ff8be0d45b5bd82 ]
+[ Upstream commit 8c3f9cd1603d0e4af6c50ebc6d974ab7bdd03cf4 ]
 
-WARNING: CPU: 0 PID: 10242 at lib/refcount.c:28 refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-RIP: 0010:refcount_warn_saturate+0x15b/0x1a0 lib/refcount.c:28
-Call Trace:
- __refcount_sub_and_test include/linux/refcount.h:283 [inline]
- __refcount_dec_and_test include/linux/refcount.h:315 [inline]
- refcount_dec_and_test include/linux/refcount.h:333 [inline]
- io_put_req fs/io_uring.c:2140 [inline]
- io_queue_linked_timeout fs/io_uring.c:6300 [inline]
- __io_queue_sqe+0xbef/0xec0 fs/io_uring.c:6354
- io_submit_sqe fs/io_uring.c:6534 [inline]
- io_submit_sqes+0x2bbd/0x7c50 fs/io_uring.c:6660
- __do_sys_io_uring_enter fs/io_uring.c:9240 [inline]
- __se_sys_io_uring_enter+0x256/0x1d60 fs/io_uring.c:9182
+__io_cqring_fill_event() takes cflags as long to squeeze it into u32 in
+an CQE, awhile all users pass int or unsigned. Replace it with unsigned
+int and store it as u32 in struct io_completion to match CQE.
 
-io_link_timeout_fn() should put only one reference of the linked timeout
-request, however in case of racing with the master request's completion
-first io_req_complete() puts one and then io_put_req_deferred() is
-called.
-
-Cc: stable@vger.kernel.org # 5.12+
-Fixes: 9ae1f8dd372e0 ("io_uring: fix inconsistent lock state")
-Reported-by: syzbot+a2910119328ce8e7996f@syzkaller.appspotmail.com
 Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/ff51018ff29de5ffa76f09273ef48cb24c720368.1620417627.git.asml.silence@gmail.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/io_uring.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/io_uring.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/fs/io_uring.c b/fs/io_uring.c
-index 369ec81033d6..958c463c11eb 100644
+index 958c463c11eb..fdbaaf579cc6 100644
 --- a/fs/io_uring.c
 +++ b/fs/io_uring.c
-@@ -6266,6 +6266,7 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	if (prev) {
- 		io_async_find_and_cancel(ctx, req, prev->user_data, -ETIME);
- 		io_put_req_deferred(prev, 1);
-+		io_put_req_deferred(req, 1);
- 	} else {
- 		io_cqring_add_event(req, -ETIME, 0);
- 		io_put_req_deferred(req, 1);
+@@ -545,7 +545,7 @@ struct io_statx {
+ struct io_completion {
+ 	struct file			*file;
+ 	struct list_head		list;
+-	int				cflags;
++	u32				cflags;
+ };
+ 
+ struct io_async_connect {
+@@ -1711,7 +1711,8 @@ static void io_cqring_overflow_flush(struct io_ring_ctx *ctx, bool force,
+ 	}
+ }
+ 
+-static void __io_cqring_fill_event(struct io_kiocb *req, long res, long cflags)
++static void __io_cqring_fill_event(struct io_kiocb *req, long res,
++				   unsigned int cflags)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 	struct io_uring_cqe *cqe;
 -- 
 2.30.2
 
