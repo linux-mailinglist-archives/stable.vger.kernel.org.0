@@ -2,41 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 66CCA3A0036
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D0873A00C6
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:36 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234791AbhFHSkw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37964 "EHLO mail.kernel.org"
+        id S235541AbhFHSrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:47:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44348 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234772AbhFHSjB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id DD0F361416;
-        Tue,  8 Jun 2021 18:33:43 +0000 (UTC)
+        id S235829AbhFHSpM (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:45:12 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 18AA9613EF;
+        Tue,  8 Jun 2021 18:36:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177224;
-        bh=Ew1Knobs1H/oN+ChSOTUBmttnfCXX80iNLO3lfS1ChM=;
+        s=korg; t=1623177418;
+        bh=slXEvorXgnkERiCypSz2a2OJZYDxd1ky0BIT90n/41U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WeN7XyaQFveSQqNYZlv0nGRGI/9vyuuar9PVmCfKm6pURz7tHN/s43+dmJxX0E0v1
-         HZLUTQmvYjUpK94O5eQZKePPTg9viPTb1w61mEXxYbgX/9BxdZR3wkm5rT0x7E/P2B
-         K3REUGbsF/XsTHjFoqMw+s2VcQZI9ViroeRYkiYM=
+        b=ruyni5EGDZmIyB/2YAB5YaGuKbfL5T4B+iZNHtJ6S7OMSEGomAAC/Gm+FYpxwYxLz
+         SPxuCE8kIVQsX+4p9EjrdGt5pBlLG9zWLjGaBeo5qy6nLxO2ubu57g5du5F5eFLeBs
+         p2+zY9NTQ/JeuvlH2sQMk7SomUzvPRRcVno0bSwk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Jan Kara <jack@suse.cz>, Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 32/58] ocfs2: fix data corruption by fallocate
-Date:   Tue,  8 Jun 2021 20:27:13 +0200
-Message-Id: <20210608175933.340671479@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+ee6f6e2e68886ca256a8@syzkaller.appspotmail.com,
+        Claudio Mettler <claudio@ponyfleisch.ch>,
+        Marek Wyborski <marek.wyborski@emwesoft.com>,
+        Sean OBrien <seobrien@chromium.org>,
+        Johan Hovold <johan@kernel.org>, Jiri Kosina <jkosina@suse.cz>
+Subject: [PATCH 5.4 45/78] HID: magicmouse: fix NULL-deref on disconnect
+Date:   Tue,  8 Jun 2021 20:27:14 +0200
+Message-Id: <20210608175936.788029092@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,148 +43,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Johan Hovold <johan@kernel.org>
 
-commit 6bba4471f0cc1296fe3c2089b9e52442d3074b2e upstream.
+commit 4b4f6cecca446abcb686c6e6c451d4f1ec1a7497 upstream.
 
-When fallocate punches holes out of inode size, if original isize is in
-the middle of last cluster, then the part from isize to the end of the
-cluster will be zeroed with buffer write, at that time isize is not yet
-updated to match the new size, if writeback is kicked in, it will invoke
-ocfs2_writepage()->block_write_full_page() where the pages out of inode
-size will be dropped.  That will cause file corruption.  Fix this by
-zero out eof blocks when extending the inode size.
+Commit 9d7b18668956 ("HID: magicmouse: add support for Apple Magic
+Trackpad 2") added a sanity check for an Apple trackpad but returned
+success instead of -ENODEV when the check failed. This means that the
+remove callback will dereference the never-initialised driver data
+pointer when the driver is later unbound (e.g. on USB disconnect).
 
-Running the following command with qemu-image 4.2.1 can get a corrupted
-coverted image file easily.
-
-    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
-             -O qcow2 -o compat=1.1 $qcow_image.conv
-
-The usage of fallocate in qemu is like this, it first punches holes out
-of inode size, then extend the inode size.
-
-    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
-    fallocate(11, 0, 2276196352, 65536) = 0
-
-v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
-v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
-
-Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: syzbot+ee6f6e2e68886ca256a8@syzkaller.appspotmail.com
+Fixes: 9d7b18668956 ("HID: magicmouse: add support for Apple Magic Trackpad 2")
+Cc: stable@vger.kernel.org      # 4.20
+Cc: Claudio Mettler <claudio@ponyfleisch.ch>
+Cc: Marek Wyborski <marek.wyborski@emwesoft.com>
+Cc: Sean O'Brien <seobrien@chromium.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 5 deletions(-)
+ drivers/hid/hid-magicmouse.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1864,6 +1864,45 @@ out:
- }
+--- a/drivers/hid/hid-magicmouse.c
++++ b/drivers/hid/hid-magicmouse.c
+@@ -597,7 +597,7 @@ static int magicmouse_probe(struct hid_d
+ 	if (id->vendor == USB_VENDOR_ID_APPLE &&
+ 	    id->product == USB_DEVICE_ID_APPLE_MAGICTRACKPAD2 &&
+ 	    hdev->type != HID_TYPE_USBMOUSE)
+-		return 0;
++		return -ENODEV;
  
- /*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
-+/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
-@@ -1873,7 +1912,7 @@ static int __ocfs2_change_file_space(str
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1904,6 +1943,7 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1911,7 +1951,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1965,6 +2005,14 @@ static int __ocfs2_change_file_space(str
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1981,9 +2029,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
+ 	msc = devm_kzalloc(&hdev->dev, sizeof(*msc), GFP_KERNEL);
+ 	if (msc == NULL) {
 
 
