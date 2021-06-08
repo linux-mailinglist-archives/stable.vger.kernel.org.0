@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D28A63A0043
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E627E39FF65
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235054AbhFHSlP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:41:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34990 "EHLO mail.kernel.org"
+        id S234333AbhFHScz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:32:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235362AbhFHSjv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 118C161434;
-        Tue,  8 Jun 2021 18:34:22 +0000 (UTC)
+        id S234332AbhFHScH (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:07 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7E1C7613C3;
+        Tue,  8 Jun 2021 18:30:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177263;
-        bh=YPG47taUkBXMmvO5CD6jXL0RfrS/D6hlBbzIUwi9O3Q=;
+        s=korg; t=1623177013;
+        bh=B/Gs+pCslajavBfIyGu+Uc4kJDxnpnewLxxNa9+NQ8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBMJ8PI2mtUS19hASc0wbtAYW9DKq9xam4TMhGrmbiO5pPCZntwNtQ5YPtgTkL3x1
-         kUIg4pHat8yGv7IdQxlpHz3yAMcHlm+o08TWV3k8h61bI/2kLF6Wsv1RKrKT3Ek/jK
-         EO+5qYoNwl2Irzj9mLaEMoQoHghB4BmNR+Lii1AE=
+        b=0fR5L8Qosk3JBUscKN3Hwh59jyzdOPPH5RrQ8v98PJEzwo1K2FZzT4T7CpW6fTJQE
+         PQXr7K93t6vBqETQ07LrIjyL73YIbcDEtOFZTXCEzcGqMaxhIgjfdrMFt9nvTHMHv4
+         sEEQXIFAWgaurXThkd2PcV4S0PkfnIbf9u/yFnNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Daniel Borkmann <daniel@iogearbox.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>
-Subject: [PATCH 4.19 40/58] bpf: fix test suite to enable all unpriv program types
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.9 27/29] KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
 Date:   Tue,  8 Jun 2021 20:27:21 +0200
-Message-Id: <20210608175933.595508385@linuxfoundation.org>
+Message-Id: <20210608175928.700196575@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,60 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 36641ad61db5ce9befd5eb0071abb36eaff16cfc upstream
+commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
 
-Given BPF_PROG_TYPE_CGROUP_SKB program types are also valid in an
-unprivileged setting, lets not omit these tests and potentially
-have issues fall through the cracks. Make this more obvious by
-adding a small test_as_unpriv() helper.
+Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
+in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
+CRs:
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+  In 64-bit mode, the operand size is fixed at 64 bits without the need
+  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
+  bits and the upper 32 bits of the destination are forced to 0.
+
+Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
+Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210422022128.3464144-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sudip: manual backport to old file]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ arch/x86/kvm/svm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -4798,6 +4798,7 @@ static struct bpf_test tests[] = {
- 		.fixup_cgroup_storage = { 1 },
- 		.result = REJECT,
- 		.errstr = "get_local_storage() doesn't support non-zero flags",
-+		.errstr_unpriv = "R2 leaks addr into helper function",
- 		.prog_type = BPF_PROG_TYPE_CGROUP_SKB,
- 	},
- 	{
-@@ -12963,6 +12964,13 @@ static void get_unpriv_disabled()
- 	fclose(fd);
- }
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -3412,7 +3412,7 @@ static int cr_interception(struct vcpu_s
+ 	err = 0;
+ 	if (cr >= 16) { /* mov to cr */
+ 		cr -= 16;
+-		val = kvm_register_read(&svm->vcpu, reg);
++		val = kvm_register_readl(&svm->vcpu, reg);
+ 		switch (cr) {
+ 		case 0:
+ 			if (!check_selective_cr0_intercepted(svm, val))
+@@ -3457,7 +3457,7 @@ static int cr_interception(struct vcpu_s
+ 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
+ 			return 1;
+ 		}
+-		kvm_register_write(&svm->vcpu, reg, val);
++		kvm_register_writel(&svm->vcpu, reg, val);
+ 	}
+ 	kvm_complete_insn_gp(&svm->vcpu, err);
  
-+static bool test_as_unpriv(struct bpf_test *test)
-+{
-+	return !test->prog_type ||
-+	       test->prog_type == BPF_PROG_TYPE_SOCKET_FILTER ||
-+	       test->prog_type == BPF_PROG_TYPE_CGROUP_SKB;
-+}
-+
- static int do_test(bool unpriv, unsigned int from, unsigned int to)
- {
- 	int i, passes = 0, errors = 0, skips = 0;
-@@ -12973,10 +12981,10 @@ static int do_test(bool unpriv, unsigned
- 		/* Program types that are not supported by non-root we
- 		 * skip right away.
- 		 */
--		if (!test->prog_type && unpriv_disabled) {
-+		if (test_as_unpriv(test) && unpriv_disabled) {
- 			printf("#%d/u %s SKIP\n", i, test->descr);
- 			skips++;
--		} else if (!test->prog_type) {
-+		} else if (test_as_unpriv(test)) {
- 			if (!unpriv)
- 				set_admin(false);
- 			printf("#%d/u %s ", i, test->descr);
+@@ -3489,13 +3489,13 @@ static int dr_interception(struct vcpu_s
+ 	if (dr >= 16) { /* mov to DRn */
+ 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
+ 			return 1;
+-		val = kvm_register_read(&svm->vcpu, reg);
++		val = kvm_register_readl(&svm->vcpu, reg);
+ 		kvm_set_dr(&svm->vcpu, dr - 16, val);
+ 	} else {
+ 		if (!kvm_require_dr(&svm->vcpu, dr))
+ 			return 1;
+ 		kvm_get_dr(&svm->vcpu, dr, &val);
+-		kvm_register_write(&svm->vcpu, reg, val);
++		kvm_register_writel(&svm->vcpu, reg, val);
+ 	}
+ 
+ 	skip_emulated_instruction(&svm->vcpu);
 
 
