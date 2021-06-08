@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C1AB03A01AF
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:53 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 9840A3A02E0
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235962AbhFHSzq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:55:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
+        id S236223AbhFHTLF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234084AbhFHSwY (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:52:24 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 844EB61351;
-        Tue,  8 Jun 2021 18:40:24 +0000 (UTC)
+        id S237264AbhFHTH1 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:07:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B18B6145A;
+        Tue,  8 Jun 2021 18:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177625;
-        bh=FxkRkH0E9G2XWpm2+AFFrGDy/r8ng+80Ved7jl4n/NY=;
+        s=korg; t=1623178030;
+        bh=Y+x07ts2834sKo/W/TEPkYGXiOK6fWJ6EvOPwwmPx4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzo2VatruiG3nG17JDIbXv6CrEvOifUcaanuy9l8JzCHFCXekvx1UVnb9QjiFt3Hs
-         lcz1uk8NwJMFgCCF/aJFu4bVkVyJiwJx9mqNeg/WFoPa5gFwzK3p9TJ5o63hoTTKiB
-         5laOjJEILS6Q8Xn7FhgM69FTHGKqoKqpTHd6cxqw=
+        b=ExqjIKp/n83+glHerHCI9q5k44ODnS842PDBtGkkQruhQikeQ448LLTH3HGrhvgbU
+         yssr5bgrjNlrxICMlfSteEFzXUFsgx29g2LtU67Kzbg3FfSWsZXOCNHahjBI2Q8xcA
+         MWV8Tv/yqO8ocS481swyU/EaowMC/IlHZfExfTe0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Heiner Kallweit <hkallweit1@gmail.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 007/137] efi: Allow EFI_MEMORY_XP and EFI_MEMORY_RO both to be cleared
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.12 017/161] HID: pidff: fix error return code in hid_pidff_init()
 Date:   Tue,  8 Jun 2021 20:25:47 +0200
-Message-Id: <20210608175942.635782102@linuxfoundation.org>
+Message-Id: <20210608175946.040861867@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,39 +40,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-[ Upstream commit 45add3cc99feaaf57d4b6f01d52d532c16a1caee ]
+[ Upstream commit 3dd653c077efda8152f4dd395359617d577a54cd ]
 
-UEFI spec 2.9, p.108, table 4-1 lists the scenario that both attributes
-are cleared with the description "No memory access protection is
-possible for Entry". So we can have valid entries where both attributes
-are cleared, so remove the check.
+Fix to return a negative error code from the error handling
+case instead of 0, as done elsewhere in this function.
 
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Fixes: 10f0d2f577053 ("efi: Implement generic support for the Memory Attributes table")
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: 224ee88fe395 ("Input: add force feedback driver for PID devices")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/memattr.c | 5 -----
- 1 file changed, 5 deletions(-)
+ drivers/hid/usbhid/hid-pidff.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/efi/memattr.c b/drivers/firmware/efi/memattr.c
-index 5737cb0fcd44..0a9aba5f9cef 100644
---- a/drivers/firmware/efi/memattr.c
-+++ b/drivers/firmware/efi/memattr.c
-@@ -67,11 +67,6 @@ static bool entry_is_valid(const efi_memory_desc_t *in, efi_memory_desc_t *out)
- 		return false;
- 	}
+diff --git a/drivers/hid/usbhid/hid-pidff.c b/drivers/hid/usbhid/hid-pidff.c
+index fddac7c72f64..07a9fe97d2e0 100644
+--- a/drivers/hid/usbhid/hid-pidff.c
++++ b/drivers/hid/usbhid/hid-pidff.c
+@@ -1292,6 +1292,7 @@ int hid_pidff_init(struct hid_device *hid)
  
--	if (!(in->attribute & (EFI_MEMORY_RO | EFI_MEMORY_XP))) {
--		pr_warn("Entry attributes invalid: RO and XP bits both cleared\n");
--		return false;
--	}
--
- 	if (PAGE_SIZE > EFI_PAGE_SIZE &&
- 	    (!PAGE_ALIGNED(in->phys_addr) ||
- 	     !PAGE_ALIGNED(in->num_pages << EFI_PAGE_SHIFT))) {
+ 	if (pidff->pool[PID_DEVICE_MANAGED_POOL].value &&
+ 	    pidff->pool[PID_DEVICE_MANAGED_POOL].value[0] == 0) {
++		error = -EPERM;
+ 		hid_notice(hid,
+ 			   "device does not support device managed pool\n");
+ 		goto fail;
 -- 
 2.30.2
 
