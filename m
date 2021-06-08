@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 72F1C3A03E5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C47003A03DD
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:26 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237392AbhFHTWi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40970 "EHLO mail.kernel.org"
+        id S236479AbhFHTWQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:16 -0400
+Received: from mail.kernel.org ([198.145.29.99]:38996 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238799AbhFHTUF (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:20:05 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0B41D61477;
-        Tue,  8 Jun 2021 18:52:27 +0000 (UTC)
+        id S236719AbhFHTTN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:19:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A13F16197E;
+        Tue,  8 Jun 2021 18:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178348;
-        bh=aEDxG6h29ivDTypq5aoukTCRXsGpyc6ZjU+N2yJn6Wk=;
+        s=korg; t=1623178332;
+        bh=bjayC/n86ZXi4aIJto0xq4nLfZ8YEKcpop3tqEa+Coo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sRZh3X13O175tBWps/jDGyeZgsgswnrSh6QR6LB4AMadXRdq6rbo1uiONywe0MjI8
-         OmS05qcJ9JCSYQYJW9u+i6XKyDqqQAGgvXPgnLxIxUiboUGU3SoMmK+O3nFVq+qtF1
-         D7wQGcv7bVTfZVZaLO94bROhSNFiWfNDs9Gkg9d8=
+        b=crIv1icAsceKXFmjiIt2YigAYd6+zKNPflfa5TWlM3dupUd69er3JIiOBJNI8OcPo
+         Rz0cLST/PUSpMu1FJBXjTT00JU0M3/LINNqLixy3BeewomtL++Xpk2K5hxIqq0v5jh
+         81C5YnLAV5KfqgLFkxHzuZDeC/hT2IPPVyctJHJo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Zenghui Yu <yuzenghui@huawei.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.12 155/161] KVM: arm64: Resolve all pending PC updates before immediate exit
-Date:   Tue,  8 Jun 2021 20:28:05 +0200
-Message-Id: <20210608175950.700983250@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Maciej Falkowski <maciej.falkowski9@gmail.com>,
+        Tony Lindgren <tony@atomide.com>
+Subject: [PATCH 5.12 156/161] ARM: OMAP1: isp1301-omap: Add missing gpiod_add_lookup_table function
+Date:   Tue,  8 Jun 2021 20:28:06 +0200
+Message-Id: <20210608175950.733646511@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -39,61 +40,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zenghui Yu <yuzenghui@huawei.com>
+From: Maciej Falkowski <maciej.falkowski9@gmail.com>
 
-commit e3e880bb1518eb10a4b4bb4344ed614d6856f190 upstream.
+commit 7c302314f37b44595f180198fca5ca646bce4a5f upstream.
 
-Commit 26778aaa134a ("KVM: arm64: Commit pending PC adjustemnts before
-returning to userspace") fixed the PC updating issue by forcing an explicit
-synchronisation of the exception state on vcpu exit to userspace.
+The gpiod table was added without any usage making it unused
+as reported by Clang compilation from omap1_defconfig on linux-next:
 
-However, we forgot to take into account the case where immediate_exit is
-set by userspace and KVM_RUN will exit immediately. Fix it by resolving all
-pending PC updates before returning to userspace.
+arch/arm/mach-omap1/board-h2.c:347:34: warning: unused variable
+'isp1301_gpiod_table' [-Wunused-variable]
+static struct gpiod_lookup_table isp1301_gpiod_table = {
+                                 ^
+1 warning generated.
 
-Since __kvm_adjust_pc() relies on a loaded vcpu context, I moved the
-immediate_exit checking right after vcpu_load(). We will get some overhead
-if immediate_exit is true (which should hopefully be rare).
+The patch adds the missing gpiod_add_lookup_table() function.
 
-Fixes: 26778aaa134a ("KVM: arm64: Commit pending PC adjustemnts before returning to userspace")
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20210526141831.1662-1-yuzenghui@huawei.com
-Cc: stable@vger.kernel.org # 5.11
-[yuz: stable-5.12.y backport]
-Signed-off-by: Zenghui Yu <yuzenghui@huawei.com>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
+Signed-off-by: Maciej Falkowski <maciej.falkowski9@gmail.com>
+Fixes: f3ef38160e3d ("usb: isp1301-omap: Convert to use GPIO descriptors")
+Link: https://github.com/ClangBuiltLinux/linux/issues/1325
+Signed-off-by: Tony Lindgren <tony@atomide.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/kvm/arm.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/arm/mach-omap1/board-h2.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/kvm/arm.c
-+++ b/arch/arm64/kvm/arm.c
-@@ -715,11 +715,13 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
- 			return ret;
- 	}
- 
--	if (run->immediate_exit)
--		return -EINTR;
--
- 	vcpu_load(vcpu);
- 
-+	if (run->immediate_exit) {
-+		ret = -EINTR;
-+		goto out;
-+	}
+--- a/arch/arm/mach-omap1/board-h2.c
++++ b/arch/arm/mach-omap1/board-h2.c
+@@ -320,7 +320,7 @@ static int tps_setup(struct i2c_client *
+ {
+ 	if (!IS_BUILTIN(CONFIG_TPS65010))
+ 		return -ENOSYS;
+-	
 +
- 	kvm_sigset_activate(vcpu);
+ 	tps65010_config_vregs1(TPS_LDO2_ENABLE | TPS_VLDO2_3_0V |
+ 				TPS_LDO1_ENABLE | TPS_VLDO1_3_0V);
  
- 	ret = 1;
-@@ -892,6 +894,7 @@ int kvm_arch_vcpu_ioctl_run(struct kvm_v
+@@ -394,6 +394,8 @@ static void __init h2_init(void)
+ 	BUG_ON(gpio_request(H2_NAND_RB_GPIO_PIN, "NAND ready") < 0);
+ 	gpio_direction_input(H2_NAND_RB_GPIO_PIN);
  
- 	kvm_sigset_deactivate(vcpu);
++	gpiod_add_lookup_table(&isp1301_gpiod_table);
++
+ 	omap_cfg_reg(L3_1610_FLASH_CS2B_OE);
+ 	omap_cfg_reg(M8_1610_FLASH_CS2B_WE);
  
-+out:
- 	/*
- 	 * In the unlikely event that we are returning to userspace
- 	 * with pending exceptions or PC adjustment, commit these
 
 
