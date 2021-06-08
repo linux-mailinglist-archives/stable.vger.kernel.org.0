@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DC953A0380
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:40 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BA833A0157
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237333AbhFHTRz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:17:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39606 "EHLO mail.kernel.org"
+        id S235024AbhFHSu7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:50:59 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237393AbhFHTPz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:15:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E155261956;
-        Tue,  8 Jun 2021 18:50:41 +0000 (UTC)
+        id S234623AbhFHStC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:49:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9B8466145B;
+        Tue,  8 Jun 2021 18:38:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178242;
-        bh=LwTHuX16VNIRtURTvMRMFfQDbhVPW6qbLg89uv/pMak=;
+        s=korg; t=1623177515;
+        bh=SgEDQZahBXLmRlM+Ro6zNahyJ908klVeumAifoNCmiA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cgMYp6nUxUB7wYrTc6P4guyRrswVqAcjSZ+tZby71cSUnmhu69iM7SL3VT7WVxPzW
-         ZWSTf3ORc6F3KfxRpPfvm/yK66X8ZrKVayLnCpBN2VKqMPLPodQCZ0XvZtOhl0GSpx
-         jV0G47+lJPjqB5xYRvpQFR3uFrSIbwYi6ppLxVrY=
+        b=iYyZmoLdgWrcmcY80IqCAoXCcdffVmcV3wMovtjp5M/znisvPR0He+54PwuD36U9P
+         9wTme/L12mjH6UqKhppKZ25nCuDa/iBFeyYZi58Hmc+WhjbBL1WN8KlZybPR95NTJP
+         E49el9gnJx2vPf5UvNbnqtABo0BqRQcQtynYbT8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>, Andy Lutomirski <luto@kernel.org>
-Subject: [PATCH 5.12 130/161] x86/cpufeatures: Force disable X86_FEATURE_ENQCMD and remove update_pasid()
-Date:   Tue,  8 Jun 2021 20:27:40 +0200
-Message-Id: <20210608175949.844410525@linuxfoundation.org>
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.4 72/78] x86/kvm: Teardown PV features on boot CPU as well
+Date:   Tue,  8 Jun 2021 20:27:41 +0200
+Message-Id: <20210608175937.696836901@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,178 +41,136 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit 9bfecd05833918526cc7357d55e393393440c5fa upstream.
+commit 8b79feffeca28c5459458fe78676b081e87c93a4 upstream.
 
-While digesting the XSAVE-related horrors which got introduced with
-the supervisor/user split, the recent addition of ENQCMD-related
-functionality got on the radar and turned out to be similarly broken.
+Various PV features (Async PF, PV EOI, steal time) work through memory
+shared with hypervisor and when we restore from hibernation we must
+properly teardown all these features to make sure hypervisor doesn't
+write to stale locations after we jump to the previously hibernated kernel
+(which can try to place anything there). For secondary CPUs the job is
+already done by kvm_cpu_down_prepare(), register syscore ops to do
+the same for boot CPU.
 
-update_pasid(), which is only required when X86_FEATURE_ENQCMD is
-available, is invoked from two places:
+Krzysztof:
+This fixes memory corruption visible after second resume from
+hibernation:
 
- 1) From switch_to() for the incoming task
+  BUG: Bad page state in process dbus-daemon  pfn:18b01
+  page:ffffea000062c040 refcount:0 mapcount:0 mapping:0000000000000000 index:0x1 compound_mapcount: -30591
+  flags: 0xfffffc0078141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
+  raw: 000fffffc0078141 dead0000000002d0 dead000000000100 0000000000000000
+  raw: 0000000000000001 0000000000000000 00000000ffffffff 0000000000000000
+  page dumped because: PAGE_FLAGS_CHECK_AT_PREP flag set
+  bad because of flags: 0x78141(locked|error|workingset|writeback|head|mappedtodisk|reclaim)
 
- 2) Via a SMP function call from the IOMMU/SMV code
-
-#1 is half-ways correct as it hacks around the brokenness of get_xsave_addr()
-   by enforcing the state to be 'present', but all the conditionals in that
-   code are completely pointless for that.
-
-   Also the invocation is just useless overhead because at that point
-   it's guaranteed that TIF_NEED_FPU_LOAD is set on the incoming task
-   and all of this can be handled at return to user space.
-
-#2 is broken beyond repair. The comment in the code claims that it is safe
-   to invoke this in an IPI, but that's just wishful thinking.
-
-   FPU state of a running task is protected by fregs_lock() which is
-   nothing else than a local_bh_disable(). As BH-disabled regions run
-   usually with interrupts enabled the IPI can hit a code section which
-   modifies FPU state and there is absolutely no guarantee that any of the
-   assumptions which are made for the IPI case is true.
-
-   Also the IPI is sent to all CPUs in mm_cpumask(mm), but the IPI is
-   invoked with a NULL pointer argument, so it can hit a completely
-   unrelated task and unconditionally force an update for nothing.
-   Worse, it can hit a kernel thread which operates on a user space
-   address space and set a random PASID for it.
-
-The offending commit does not cleanly revert, but it's sufficient to
-force disable X86_FEATURE_ENQCMD and to remove the broken update_pasid()
-code to make this dysfunctional all over the place. Anything more
-complex would require more surgery and none of the related functions
-outside of the x86 core code are blatantly wrong, so removing those
-would be overkill.
-
-As nothing enables the PASID bit in the IA32_XSS MSR yet, which is
-required to make this actually work, this cannot result in a regression
-except for related out of tree train-wrecks, but they are broken already
-today.
-
-Fixes: 20f0afd1fb3d ("x86/mmu: Allocate/free a PASID")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Acked-by: Andy Lutomirski <luto@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/87mtsd6gr9.ffs@nanos.tec.linutronix.de
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-3-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+[krzysztof: Extend the commit message]
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/disabled-features.h |    7 +--
- arch/x86/include/asm/fpu/api.h           |    6 ---
- arch/x86/include/asm/fpu/internal.h      |    7 ---
- arch/x86/kernel/fpu/xstate.c             |   57 -------------------------------
- 4 files changed, 3 insertions(+), 74 deletions(-)
+ arch/x86/kernel/kvm.c |   57 +++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 41 insertions(+), 16 deletions(-)
 
---- a/arch/x86/include/asm/disabled-features.h
-+++ b/arch/x86/include/asm/disabled-features.h
-@@ -56,11 +56,8 @@
- # define DISABLE_PTI		(1 << (X86_FEATURE_PTI & 31))
- #endif
- 
--#ifdef CONFIG_IOMMU_SUPPORT
--# define DISABLE_ENQCMD	0
--#else
--# define DISABLE_ENQCMD (1 << (X86_FEATURE_ENQCMD & 31))
--#endif
-+/* Force disable because it's broken beyond repair */
-+#define DISABLE_ENQCMD		(1 << (X86_FEATURE_ENQCMD & 31))
- 
- #ifdef CONFIG_X86_SGX
- # define DISABLE_SGX	0
---- a/arch/x86/include/asm/fpu/api.h
-+++ b/arch/x86/include/asm/fpu/api.h
-@@ -106,10 +106,6 @@ extern int cpu_has_xfeatures(u64 xfeatur
-  */
- #define PASID_DISABLED	0
- 
--#ifdef CONFIG_IOMMU_SUPPORT
--/* Update current's PASID MSR/state by mm's PASID. */
--void update_pasid(void);
--#else
- static inline void update_pasid(void) { }
--#endif
-+
- #endif /* _ASM_X86_FPU_API_H */
---- a/arch/x86/include/asm/fpu/internal.h
-+++ b/arch/x86/include/asm/fpu/internal.h
-@@ -584,13 +584,6 @@ static inline void switch_fpu_finish(str
- 			pkru_val = pk->pkru;
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -24,6 +24,7 @@
+ #include <linux/debugfs.h>
+ #include <linux/nmi.h>
+ #include <linux/swait.h>
++#include <linux/syscore_ops.h>
+ #include <asm/timer.h>
+ #include <asm/cpu.h>
+ #include <asm/traps.h>
+@@ -428,6 +429,25 @@ static void __init sev_map_percpu_data(v
  	}
- 	__write_pkru(pkru_val);
--
--	/*
--	 * Expensive PASID MSR write will be avoided in update_pasid() because
--	 * TIF_NEED_FPU_LOAD was set. And the PASID state won't be updated
--	 * unless it's different from mm->pasid to reduce overhead.
--	 */
--	update_pasid();
  }
  
- #endif /* _ASM_X86_FPU_INTERNAL_H */
---- a/arch/x86/kernel/fpu/xstate.c
-+++ b/arch/x86/kernel/fpu/xstate.c
-@@ -1402,60 +1402,3 @@ int proc_pid_arch_status(struct seq_file
++static void kvm_guest_cpu_offline(void)
++{
++	kvm_disable_steal_time();
++	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
++		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
++	kvm_pv_disable_apf();
++	apf_task_wake_all();
++}
++
++static int kvm_cpu_online(unsigned int cpu)
++{
++	unsigned long flags;
++
++	local_irq_save(flags);
++	kvm_guest_cpu_init();
++	local_irq_restore(flags);
++	return 0;
++}
++
+ #ifdef CONFIG_SMP
+ #define KVM_IPI_CLUSTER_SIZE	(2 * BITS_PER_LONG)
+ 
+@@ -547,31 +567,34 @@ static void __init kvm_smp_prepare_boot_
+ 	kvm_spinlock_init();
+ }
+ 
+-static void kvm_guest_cpu_offline(void)
++static int kvm_cpu_down_prepare(unsigned int cpu)
+ {
+-	kvm_disable_steal_time();
+-	if (kvm_para_has_feature(KVM_FEATURE_PV_EOI))
+-		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+-	kvm_pv_disable_apf();
+-	apf_task_wake_all();
+-}
++	unsigned long flags;
+ 
+-static int kvm_cpu_online(unsigned int cpu)
+-{
+-	local_irq_disable();
+-	kvm_guest_cpu_init();
+-	local_irq_enable();
++	local_irq_save(flags);
++	kvm_guest_cpu_offline();
++	local_irq_restore(flags);
  	return 0;
  }
- #endif /* CONFIG_PROC_PID_ARCH_STATUS */
--
--#ifdef CONFIG_IOMMU_SUPPORT
--void update_pasid(void)
--{
--	u64 pasid_state;
--	u32 pasid;
--
--	if (!cpu_feature_enabled(X86_FEATURE_ENQCMD))
--		return;
--
--	if (!current->mm)
--		return;
--
--	pasid = READ_ONCE(current->mm->pasid);
--	/* Set the valid bit in the PASID MSR/state only for valid pasid. */
--	pasid_state = pasid == PASID_DISABLED ?
--		      pasid : pasid | MSR_IA32_PASID_VALID;
--
--	/*
--	 * No need to hold fregs_lock() since the task's fpstate won't
--	 * be changed by others (e.g. ptrace) while the task is being
--	 * switched to or is in IPI.
--	 */
--	if (!test_thread_flag(TIF_NEED_FPU_LOAD)) {
--		/* The MSR is active and can be directly updated. */
--		wrmsrl(MSR_IA32_PASID, pasid_state);
--	} else {
--		struct fpu *fpu = &current->thread.fpu;
--		struct ia32_pasid_state *ppasid_state;
--		struct xregs_state *xsave;
--
--		/*
--		 * The CPU's xstate registers are not currently active. Just
--		 * update the PASID state in the memory buffer here. The
--		 * PASID MSR will be loaded when returning to user mode.
--		 */
--		xsave = &fpu->state.xsave;
--		xsave->header.xfeatures |= XFEATURE_MASK_PASID;
--		ppasid_state = get_xsave_addr(xsave, XFEATURE_PASID);
--		/*
--		 * Since XFEATURE_MASK_PASID is set in xfeatures, ppasid_state
--		 * won't be NULL and no need to check its value.
--		 *
--		 * Only update the task's PASID state when it's different
--		 * from the mm's pasid.
--		 */
--		if (ppasid_state->pasid != pasid_state) {
--			/*
--			 * Invalid fpregs so that state restoring will pick up
--			 * the PASID state.
--			 */
--			__fpu_invalidate_fpregs_state(fpu);
--			ppasid_state->pasid = pasid_state;
--		}
--	}
--}
--#endif /* CONFIG_IOMMU_SUPPORT */
+ 
+-static int kvm_cpu_down_prepare(unsigned int cpu)
++#endif
++
++static int kvm_suspend(void)
+ {
+-	local_irq_disable();
+ 	kvm_guest_cpu_offline();
+-	local_irq_enable();
++
+ 	return 0;
+ }
+-#endif
++
++static void kvm_resume(void)
++{
++	kvm_cpu_online(raw_smp_processor_id());
++}
++
++static struct syscore_ops kvm_syscore_ops = {
++	.suspend	= kvm_suspend,
++	.resume		= kvm_resume,
++};
+ 
+ static void __init kvm_apf_trap_init(void)
+ {
+@@ -649,6 +672,8 @@ static void __init kvm_guest_init(void)
+ 	kvm_guest_cpu_init();
+ #endif
+ 
++	register_syscore_ops(&kvm_syscore_ops);
++
+ 	/*
+ 	 * Hard lockup detection is enabled by default. Disable it, as guests
+ 	 * can get false positives too easily, for example if the host is
 
 
