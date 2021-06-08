@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3BEE93A0066
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:56 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0909D39FFD7
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234916AbhFHSnB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:43:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36164 "EHLO mail.kernel.org"
+        id S234450AbhFHShL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:37:11 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234934AbhFHSky (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:40:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 397E06144A;
-        Tue,  8 Jun 2021 18:35:00 +0000 (UTC)
+        id S234639AbhFHSfP (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:35:15 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4B3E2613CB;
+        Tue,  8 Jun 2021 18:32:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177300;
-        bh=UEsv5ddVqA4g+fv6DYkiOABsopuhGzjQhwUUAVWFk/A=;
+        s=korg; t=1623177128;
+        bh=DinYSjk+XniPqbHEC1wDQ/sUB7X9GxsBfF6ozuUjLbk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gVzDo3O3Ds5K5baK3G3NY9XSrcKz3QG9MQ3fK3OczW1DfPHi8/qXvGZ0fA4NRSrQV
-         zp4RkNONruCXs549SSBNvx+8124YWAQkbN9/p96je0qOD40nRgmqsKOq5B3FVr6XZj
-         K/K8GbtoJBdGiqTQ5zATuTdvw1O00dRiQNkZ1CM0=
+        b=Xw3W+8ajaSTAdX8yxSlO4K963y4eZlM3bpZYZoFzXpEnlXwMhtKgbHU2ctPL038zC
+         wMuP+HRpVgLXSn52E+Jd8imlrPYL+uHL+kgCOsoJD7t8ofVfLiSfvhBtbps43szIZS
+         tlIJX3XJm4NlHZfCkLmyhOyJ5r+mWDilX5iCmlz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>
-Subject: [PATCH 4.19 44/58] bpf: Adjust F_NEEDS_EFFICIENT_UNALIGNED_ACCESS handling in test_verifier.c
+        Piotr Krysiuk <piotras@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 4.14 42/47] bpf: Fix mask direction swap upon off reg sign change
 Date:   Tue,  8 Jun 2021 20:27:25 +0200
-Message-Id: <20210608175933.725742779@linuxfoundation.org>
+Message-Id: <20210608175931.863713046@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,119 +40,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "David S. Miller" <davem@davemloft.net>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit c7665702d3208b77b8e00f0699b6b88241b04360 upstream
+commit bb01a1bba579b4b1c5566af24d95f1767859771e upstream.
 
-Make it set the flag argument to bpf_verify_program() which will relax
-the alignment restrictions.
+Masking direction as indicated via mask_to_left is considered to be
+calculated once and then used to derive pointer limits. Thus, this
+needs to be placed into bpf_sanitize_info instead so we can pass it
+to sanitize_ptr_alu() call after the pointer move. Piotr noticed a
+corner case where the off reg causes masking direction change which
+then results in an incorrect final aux->alu_limit.
 
-Now all such test cases will go properly through the verifier even on
-inefficient unaligned access architectures.
-
-On inefficient unaligned access architectures do not try to run such
-programs, instead mark the test case as passing but annotate the
-result similarly to how it is done now in the presence of this flag.
-
-So, we get complete full coverage for all REJECT test cases, and at
-least verifier level coverage for ACCEPT test cases.
-
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
+Fixes: 7fedb63a8307 ("bpf: Tighten speculative pointer arithmetic mask")
+Reported-by: Piotr Krysiuk <piotras@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/bpf/test_verifier.c |   42 ++++++++++++++++------------
- 1 file changed, 24 insertions(+), 18 deletions(-)
+ kernel/bpf/verifier.c |   22 ++++++++++++----------
+ 1 file changed, 12 insertions(+), 10 deletions(-)
 
---- a/tools/testing/selftests/bpf/test_verifier.c
-+++ b/tools/testing/selftests/bpf/test_verifier.c
-@@ -12844,13 +12844,14 @@ out:
- static void do_test_single(struct bpf_test *test, bool unpriv,
- 			   int *passes, int *errors)
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2033,18 +2033,10 @@ enum {
+ };
+ 
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+-			      const struct bpf_reg_state *off_reg,
+-			      u32 *alu_limit, u8 opcode)
++			      u32 *alu_limit, bool mask_to_left)
  {
--	int fd_prog, expected_ret, reject_from_alignment;
-+	int fd_prog, expected_ret, alignment_prevented_execution;
- 	int prog_len, prog_type = test->prog_type;
- 	struct bpf_insn *prog = test->insns;
- 	int map_fds[MAX_NR_MAPS];
- 	const char *expected_err;
- 	uint32_t expected_val;
- 	uint32_t retval;
-+	__u32 pflags;
- 	int i, err;
+-	bool off_is_neg = off_reg->smin_value < 0;
+-	bool mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
+-			    (opcode == BPF_SUB && !off_is_neg);
+ 	u32 max = 0, ptr_limit = 0;
  
- 	for (i = 0; i < MAX_NR_MAPS; i++)
-@@ -12861,9 +12862,12 @@ static void do_test_single(struct bpf_te
- 	do_test_fixup(test, prog_type, prog, map_fds);
- 	prog_len = probe_filter_length(prog);
+-	if (!tnum_is_const(off_reg->var_off) &&
+-	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
+-		return REASON_BOUNDS;
+-
+ 	switch (ptr_reg->type) {
+ 	case PTR_TO_STACK:
+ 		/* Offset 0 is out-of-bounds, but acceptable start for the
+@@ -2112,6 +2104,7 @@ static bool sanitize_needed(u8 opcode)
  
--	fd_prog = bpf_verify_program(prog_type, prog, prog_len,
--				     test->flags & F_LOAD_WITH_STRICT_ALIGNMENT ?
--				     BPF_F_STRICT_ALIGNMENT : 0,
-+	pflags = 0;
-+	if (test->flags & F_LOAD_WITH_STRICT_ALIGNMENT)
-+		pflags |= BPF_F_STRICT_ALIGNMENT;
-+	if (test->flags & F_NEEDS_EFFICIENT_UNALIGNED_ACCESS)
-+		pflags |= BPF_F_ANY_ALIGNMENT;
-+	fd_prog = bpf_verify_program(prog_type, prog, prog_len, pflags,
- 				     "GPL", 0, bpf_vlog, sizeof(bpf_vlog), 1);
+ struct bpf_sanitize_info {
+ 	struct bpf_insn_aux_data aux;
++	bool mask_to_left;
+ };
  
- 	expected_ret = unpriv && test->result_unpriv != UNDEF ?
-@@ -12873,28 +12877,27 @@ static void do_test_single(struct bpf_te
- 	expected_val = unpriv && test->retval_unpriv ?
- 		       test->retval_unpriv : test->retval;
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+@@ -2143,7 +2136,16 @@ static int sanitize_ptr_alu(struct bpf_v
+ 	if (vstate->speculative)
+ 		goto do_sim;
  
--	reject_from_alignment = fd_prog < 0 &&
--				(test->flags & F_NEEDS_EFFICIENT_UNALIGNED_ACCESS) &&
--				strstr(bpf_vlog, "misaligned");
--#ifdef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
--	if (reject_from_alignment) {
--		printf("FAIL\nFailed due to alignment despite having efficient unaligned access: '%s'!\n",
--		       strerror(errno));
--		goto fail_log;
--	}
--#endif
-+	alignment_prevented_execution = 0;
+-	err = retrieve_ptr_limit(ptr_reg, off_reg, &alu_limit, opcode);
++	if (!commit_window) {
++		if (!tnum_is_const(off_reg->var_off) &&
++		    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
++			return REASON_BOUNDS;
 +
- 	if (expected_ret == ACCEPT) {
--		if (fd_prog < 0 && !reject_from_alignment) {
-+		if (fd_prog < 0) {
- 			printf("FAIL\nFailed to load prog '%s'!\n",
- 			       strerror(errno));
- 			goto fail_log;
- 		}
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+		if (fd_prog >= 0 &&
-+		    (test->flags & F_NEEDS_EFFICIENT_UNALIGNED_ACCESS)) {
-+			alignment_prevented_execution = 1;
-+			goto test_ok;
-+		}
-+#endif
- 	} else {
- 		if (fd_prog >= 0) {
- 			printf("FAIL\nUnexpected success to load!\n");
- 			goto fail_log;
- 		}
--		if (!strstr(bpf_vlog, expected_err) && !reject_from_alignment) {
-+		if (!strstr(bpf_vlog, expected_err)) {
- 			printf("FAIL\nUnexpected error message!\n\tEXP: %s\n\tRES: %s\n",
- 			      expected_err, bpf_vlog);
- 			goto fail_log;
-@@ -12922,9 +12925,12 @@ static void do_test_single(struct bpf_te
- 			goto fail_log;
- 		}
- 	}
-+#ifndef CONFIG_HAVE_EFFICIENT_UNALIGNED_ACCESS
-+test_ok:
-+#endif
- 	(*passes)++;
--	printf("OK%s\n", reject_from_alignment ?
--	       " (NOTE: reject due to unknown alignment)" : "");
-+	printf("OK%s\n", alignment_prevented_execution ?
-+	       " (NOTE: not executed due to unknown alignment)" : "");
- close_fds:
- 	close(fd_prog);
- 	for (i = 0; i < MAX_NR_MAPS; i++)
++		info->mask_to_left = (opcode == BPF_ADD &&  off_is_neg) ||
++				     (opcode == BPF_SUB && !off_is_neg);
++	}
++
++	err = retrieve_ptr_limit(ptr_reg, &alu_limit, info->mask_to_left);
+ 	if (err < 0)
+ 		return err;
+ 
 
 
