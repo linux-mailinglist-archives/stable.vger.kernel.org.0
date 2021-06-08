@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7404A3A003A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:35 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5955D39FFBE
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234982AbhFHSkz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38032 "EHLO mail.kernel.org"
+        id S234182AbhFHSfr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:35:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235224AbhFHSjX (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:23 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBA9961073;
-        Tue,  8 Jun 2021 18:33:54 +0000 (UTC)
+        id S234702AbhFHSd7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3295E61073;
+        Tue,  8 Jun 2021 18:31:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177235;
-        bh=lO3mVJln+IxH/bAsYlmlKebgQtj7tEKiC9rSVb3jzVo=;
+        s=korg; t=1623177102;
+        bh=+/X7+aU5pDIrJ6eKlKtAahFvbdbU0mYDHX8vRv/MVxA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pKyCtZjtVoBzumd7B1ytXpgRo6/V2zIUFpIBuZ7etQDt3BaHXKNbtuLYMHKKYRSif
-         /fTTU3iUYxJrosOlSRetXkjmGA/X3X9WxF4U/i5Tz6EZgKpa8tXG6+wYJJkJyc5fJ7
-         CDRGMKTvtjT2poscKwpcl/YximRGeW0zF50r6Xus=
+        b=JCXeGfqMH/0u831tmvckiHC6vsiXOuro+eb/LUKwyxCm1x5Oo5Xz8IB3lbOquwjq4
+         bXQBcfy7Iz15a6IMODNwjCnH3Unumow7CENE9PWNaJO6S9czTXyeG3KBmKsh2vkQGz
+         cjvB5zZ70erWkR26UYfPIoHaT0ioZfhcr6FF+Eww=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.19 35/58] btrfs: mark ordered extent and inode with error if we fail to finish
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.14 33/47] bpf: Move sanitize_val_alu out of op switch
 Date:   Tue,  8 Jun 2021 20:27:16 +0200
-Message-Id: <20210608175933.432227186@linuxfoundation.org>
+Message-Id: <20210608175931.561848968@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,57 +41,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit d61bec08b904cf171835db98168f82bc338e92e4 upstream.
+commit f528819334881fd622fdadeddb3f7edaed8b7c9b upstream.
 
-While doing error injection testing I saw that sometimes we'd get an
-abort that wouldn't stop the current transaction commit from completing.
-This abort was coming from finish ordered IO, but at this point in the
-transaction commit we should have gotten an error and stopped.
+Add a small sanitize_needed() helper function and move sanitize_val_alu()
+out of the main opcode switch. In upcoming work, we'll move sanitize_ptr_alu()
+as well out of its opcode switch so this helps to streamline both.
 
-It turns out the abort came from finish ordered io while trying to write
-out the free space cache.  It occurred to me that any failure inside of
-finish_ordered_io isn't actually raised to the person doing the writing,
-so we could have any number of failures in this path and think the
-ordered extent completed successfully and the inode was fine.
-
-Fix this by marking the ordered extent with BTRFS_ORDERED_IOERR, and
-marking the mapping of the inode with mapping_set_error, so any callers
-that simply call fdatawait will also get the error.
-
-With this we're seeing the IO error on the free space inode when we fail
-to do the finish_ordered_io.
-
-CC: stable@vger.kernel.org # 4.19+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[fllinden@amazon.com: backported to 4.14]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/inode.c |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ kernel/bpf/verifier.c |   15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
 
---- a/fs/btrfs/inode.c
-+++ b/fs/btrfs/inode.c
-@@ -3162,6 +3162,18 @@ out:
- 	if (ret || truncated) {
- 		u64 start, end;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2110,6 +2110,11 @@ static int sanitize_val_alu(struct bpf_v
+ 	return update_alu_sanitation_state(aux, BPF_ALU_NON_POINTER, 0);
+ }
  
-+		/*
-+		 * If we failed to finish this ordered extent for any reason we
-+		 * need to make sure BTRFS_ORDERED_IOERR is set on the ordered
-+		 * extent, and mark the inode with the error if it wasn't
-+		 * already set.  Any error during writeback would have already
-+		 * set the mapping error, so we need to set it if we're the ones
-+		 * marking this ordered extent as failed.
-+		 */
-+		if (ret && !test_and_set_bit(BTRFS_ORDERED_IOERR,
-+					     &ordered_extent->flags))
-+			mapping_set_error(ordered_extent->inode->i_mapping, -EIO);
++static bool sanitize_needed(u8 opcode)
++{
++	return opcode == BPF_ADD || opcode == BPF_SUB;
++}
 +
- 		if (truncated)
- 			start = ordered_extent->file_offset + logical_len;
- 		else
+ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
+ 			    struct bpf_insn *insn,
+ 			    const struct bpf_reg_state *ptr_reg,
+@@ -2510,11 +2515,14 @@ static int adjust_scalar_min_max_vals(st
+ 		return 0;
+ 	}
+ 
+-	switch (opcode) {
+-	case BPF_ADD:
++	if (sanitize_needed(opcode)) {
+ 		ret = sanitize_val_alu(env, insn);
+ 		if (ret < 0)
+ 			return sanitize_err(env, insn, ret, NULL, NULL);
++	}
++
++	switch (opcode) {
++	case BPF_ADD:
+ 		if (signed_add_overflows(dst_reg->smin_value, smin_val) ||
+ 		    signed_add_overflows(dst_reg->smax_value, smax_val)) {
+ 			dst_reg->smin_value = S64_MIN;
+@@ -2534,9 +2542,6 @@ static int adjust_scalar_min_max_vals(st
+ 		dst_reg->var_off = tnum_add(dst_reg->var_off, src_reg.var_off);
+ 		break;
+ 	case BPF_SUB:
+-		ret = sanitize_val_alu(env, insn);
+-		if (ret < 0)
+-			return sanitize_err(env, insn, ret, NULL, NULL);
+ 		if (signed_sub_overflows(dst_reg->smin_value, smax_val) ||
+ 		    signed_sub_overflows(dst_reg->smax_value, smin_val)) {
+ 			/* Overflow possible, we know nothing */
 
 
