@@ -2,37 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 486F43A009D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DD04F39FF9E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234172AbhFHSp4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:45:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42132 "EHLO mail.kernel.org"
+        id S234158AbhFHSen (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:34:43 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57090 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235312AbhFHSmy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:42:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 695E0613D3;
-        Tue,  8 Jun 2021 18:35:52 +0000 (UTC)
+        id S234585AbhFHSdS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 57ED5613DF;
+        Tue,  8 Jun 2021 18:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177353;
-        bh=oy1FAr+NNpZ5MJWeJjxdg+OMHrQSZwNpVeFG4CAO12c=;
+        s=korg; t=1623177058;
+        bh=96935AXBckRQlkVJI61JLSmiGRU/LKKm5oKrC2K+6Jw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C+R6eG8r34DAnWIi+1mQx1Sxx9n32dicYIE+BHq+vzEbJJc1Lz0fLIZB0+7dAthmP
-         LC4Ua1KNgMvgcqOP68jsW4MqB7HR5wZpkZXUxuAoUTtHD8SuIMaCmhEJy2Ai3SIruC
-         qTt/avG5ZOSvbrn1n28T9ou7VhuHZgXBeUn5EHI4=
+        b=yYcVCjgMsVrTF03ZP0ksiJZgAG5SvQTryfe7VxnqYuc/wRZDF3oqoYKqA4sCWYPHJ
+         6MqZH5V8xzeU78XCNJicCKRT3FrfnitSD6rDVnwiYxTrXkuaNK/YnQ523NI7/aUdFm
+         oFAIYc6Th8HItYzc1771cegZKIWrt9gv6xzB6xro=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Wei Yongjun <weiyongjun1@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 21/78] ieee802154: fix error return code in ieee802154_llsec_getparams()
+        stable@vger.kernel.org, Julian Anastasov <ja@ssi.bg>,
+        Simon Horman <horms@verge.net.au>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>,
+        syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 07/47] ipvs: ignore IP_VS_SVC_F_HASHED flag when adding service
 Date:   Tue,  8 Jun 2021 20:26:50 +0200
-Message-Id: <20210608175935.980593923@linuxfoundation.org>
+Message-Id: <20210608175930.721327763@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +42,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Wei Yongjun <weiyongjun1@huawei.com>
+From: Julian Anastasov <ja@ssi.bg>
 
-[ Upstream commit 373e864cf52403b0974c2f23ca8faf9104234555 ]
+[ Upstream commit 56e4ee82e850026d71223262c07df7d6af3bd872 ]
 
-Fix to return negative error code -ENOBUFS from the error handling
-case instead of 0, as done elsewhere in this function.
+syzbot reported memory leak [1] when adding service with
+HASHED flag. We should ignore this flag both from sockopt
+and netlink provided data, otherwise the service is not
+hashed and not visible while releasing resources.
 
-Fixes: 3e9c156e2c21 ("ieee802154: add netlink interfaces for llsec")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
-Link: https://lore.kernel.org/r/20210519141614.3040055-1-weiyongjun1@huawei.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+[1]
+BUG: memory leak
+unreferenced object 0xffff888115227800 (size 512):
+  comm "syz-executor263", pid 8658, jiffies 4294951882 (age 12.560s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<ffffffff83977188>] kmalloc include/linux/slab.h:556 [inline]
+    [<ffffffff83977188>] kzalloc include/linux/slab.h:686 [inline]
+    [<ffffffff83977188>] ip_vs_add_service+0x598/0x7c0 net/netfilter/ipvs/ip_vs_ctl.c:1343
+    [<ffffffff8397d770>] do_ip_vs_set_ctl+0x810/0xa40 net/netfilter/ipvs/ip_vs_ctl.c:2570
+    [<ffffffff838449a8>] nf_setsockopt+0x68/0xa0 net/netfilter/nf_sockopt.c:101
+    [<ffffffff839ae4e9>] ip_setsockopt+0x259/0x1ff0 net/ipv4/ip_sockglue.c:1435
+    [<ffffffff839fa03c>] raw_setsockopt+0x18c/0x1b0 net/ipv4/raw.c:857
+    [<ffffffff83691f20>] __sys_setsockopt+0x1b0/0x360 net/socket.c:2117
+    [<ffffffff836920f2>] __do_sys_setsockopt net/socket.c:2128 [inline]
+    [<ffffffff836920f2>] __se_sys_setsockopt net/socket.c:2125 [inline]
+    [<ffffffff836920f2>] __x64_sys_setsockopt+0x22/0x30 net/socket.c:2125
+    [<ffffffff84350efa>] do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
+    [<ffffffff84400068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+Reported-and-tested-by: syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Julian Anastasov <ja@ssi.bg>
+Reviewed-by: Simon Horman <horms@verge.net.au>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl-mac.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/ipvs/ip_vs_ctl.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
-index d19c40c684e8..71be75112321 100644
---- a/net/ieee802154/nl-mac.c
-+++ b/net/ieee802154/nl-mac.c
-@@ -680,8 +680,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
- 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
- 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
- 			be32_to_cpu(params.frame_counter)) ||
--	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
-+	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
-+		rc = -ENOBUFS;
- 		goto out_free;
-+	}
- 
- 	dev_put(dev);
- 
+diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
+index c1672ff00963..eea0144aada7 100644
+--- a/net/netfilter/ipvs/ip_vs_ctl.c
++++ b/net/netfilter/ipvs/ip_vs_ctl.c
+@@ -1262,7 +1262,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
+ 	ip_vs_addr_copy(svc->af, &svc->addr, &u->addr);
+ 	svc->port = u->port;
+ 	svc->fwmark = u->fwmark;
+-	svc->flags = u->flags;
++	svc->flags = u->flags & ~IP_VS_SVC_F_HASHED;
+ 	svc->timeout = u->timeout * HZ;
+ 	svc->netmask = u->netmask;
+ 	svc->ipvs = ipvs;
 -- 
 2.30.2
 
