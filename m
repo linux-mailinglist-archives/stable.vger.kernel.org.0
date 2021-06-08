@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9413239FF5A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A691C39FFBA
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232905AbhFHSc0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56878 "EHLO mail.kernel.org"
+        id S234473AbhFHSfo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:35:44 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57386 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234124AbhFHSbt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B74F61352;
-        Tue,  8 Jun 2021 18:29:55 +0000 (UTC)
+        id S234693AbhFHSd6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9EAA8610A2;
+        Tue,  8 Jun 2021 18:31:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176995;
-        bh=VflrBC4eeexjlERvv1bC2/3Ncwtj0N2AwS8rE4uQ2ek=;
+        s=korg; t=1623177098;
+        bh=lovJ9qsAkOMqOiv2dIXZioanqUztSLwo8K6UliWUbyk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jisRT0cPAmyr/dbq8VU/EpPK1ohRj++JK/rHF+YnF2eSeBQTGAbinQa0uc+K1K6lK
-         +dOi60v/13lfaLuLND6yjByO9Gtmbe8qzg3LzYSu/7H2/PnwkUnq7kKPo7vAOqKrbN
-         Xro5J9rQwEFWTf8PVJkuF1SjCB5WYZ5UeV9Fk56k=
+        b=W+atR9gcXcb9K6KQFWNkJdaXi8gdlziD9Dko3NLD2TpBdH0YEfm2kY3y+6HqYQkXb
+         4ysJy5dP6RuqLnZjqhcstPD+kc3iAg7cnzPZ1sEWtELjW8wcBhNDwbVk3aSGYamTHG
+         oD0MNidPCwp+PCsQnBqA07W1kzHtouwpaY4kf/v4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.9 20/29] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
+        Daniel Borkmann <daniel@iogearbox.net>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Frank van der Linden <fllinden@amazon.com>
+Subject: [PATCH 4.14 31/47] bpf: Improve verifier error messages for users
 Date:   Tue,  8 Jun 2021 20:27:14 +0200
-Message-Id: <20210608175928.473651477@linuxfoundation.org>
+Message-Id: <20210608175931.498244783@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,112 +41,181 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Daniel Borkmann <daniel@iogearbox.net>
 
-commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
+commit a6aaece00a57fa6f22575364b3903dfbccf5345d upstream.
 
-We got follow bug_on when run fsstress with injecting IO fault:
-[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
-[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[130747.334329] Call trace:
-[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
-[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
-[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
-[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
-[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
-[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
-[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
-[130747.337359]  generic_file_buffered_read+0x410/0xae8
-[130747.337767]  generic_file_read_iter+0x114/0x190
-[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
-[130747.338556]  __vfs_read+0x11c/0x188
-[130747.338851]  vfs_read+0x94/0x150
-[130747.339110]  ksys_read+0x74/0xf0
+Consolidate all error handling and provide more user-friendly error messages
+from sanitize_ptr_alu() and sanitize_val_alu().
 
-This patch's modification is according to Jan Kara's suggestion in:
-https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
-"I see. Now I understand your patch. Honestly, seeing how fragile is trying
-to fix extent tree after split has failed in the middle, I would probably
-go even further and make sure we fix the tree properly in case of ENOSPC
-and EDQUOT (those are easily user triggerable).  Anything else indicates a
-HW problem or fs corruption so I'd rather leave the extent tree as is and
-don't try to fix it (which also means we will not create overlapping
-extents)."
-
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: John Fastabend <john.fastabend@gmail.com>
+Acked-by: Alexei Starovoitov <ast@kernel.org>
+[fllinden@amazon.com: backport to 4.14]
+Signed-off-by: Frank van der Linden <fllinden@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 20 deletions(-)
+ kernel/bpf/verifier.c |   84 ++++++++++++++++++++++++++++++++++++--------------
+ 1 file changed, 62 insertions(+), 22 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3274,7 +3274,10 @@ static int ext4_split_extent_at(handle_t
- 		ext4_ext_mark_unwritten(ex2);
- 
- 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
--	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
-+	if (err != -ENOSPC && err != -EDQUOT)
-+		goto out;
-+
-+	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
- 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
- 			if (split_flag & EXT4_EXT_DATA_VALID1) {
- 				err = ext4_ext_zeroout(inode, ex2);
-@@ -3300,30 +3303,30 @@ static int ext4_split_extent_at(handle_t
- 					      ext4_ext_pblock(&orig_ex));
- 		}
- 
--		if (err)
--			goto fix_extent_len;
--		/* update the extent length and mark as initialized */
--		ex->ee_len = cpu_to_le16(ee_len);
--		ext4_ext_try_to_merge(handle, inode, path, ex);
--		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
--		if (err)
--			goto fix_extent_len;
--
--		/* update extent status tree */
--		err = ext4_zeroout_es(inode, &zero_ex);
--
--		goto out;
--	} else if (err)
--		goto fix_extent_len;
--
--out:
--	ext4_ext_show_leaf(inode, path);
--	return err;
-+		if (!err) {
-+			/* update the extent length and mark as initialized */
-+			ex->ee_len = cpu_to_le16(ee_len);
-+			ext4_ext_try_to_merge(handle, inode, path, ex);
-+			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
-+			if (!err)
-+				/* update extent status tree */
-+				err = ext4_zeroout_es(inode, &zero_ex);
-+			/* If we failed at this point, we don't know in which
-+			 * state the extent tree exactly is so don't try to fix
-+			 * length of the original extent as it may do even more
-+			 * damage.
-+			 */
-+			goto out;
-+		}
-+	}
- 
- fix_extent_len:
- 	ex->ee_len = orig_ex.ee_len;
- 	ext4_ext_dirty(handle, inode, path + path->p_depth);
- 	return err;
-+out:
-+	ext4_ext_show_leaf(inode, path);
-+	return err;
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2024,6 +2024,14 @@ static struct bpf_insn_aux_data *cur_aux
+ 	return &env->insn_aux_data[env->insn_idx];
  }
  
- /*
++enum {
++	REASON_BOUNDS	= -1,
++	REASON_TYPE	= -2,
++	REASON_PATHS	= -3,
++	REASON_LIMIT	= -4,
++	REASON_STACK	= -5,
++};
++
+ static int retrieve_ptr_limit(const struct bpf_reg_state *ptr_reg,
+ 			      const struct bpf_reg_state *off_reg,
+ 			      u32 *alu_limit, u8 opcode)
+@@ -2035,7 +2043,7 @@ static int retrieve_ptr_limit(const stru
+ 
+ 	if (!tnum_is_const(off_reg->var_off) &&
+ 	    (off_reg->smin_value < 0) != (off_reg->smax_value < 0))
+-		return -EACCES;
++		return REASON_BOUNDS;
+ 
+ 	switch (ptr_reg->type) {
+ 	case PTR_TO_STACK:
+@@ -2059,11 +2067,11 @@ static int retrieve_ptr_limit(const stru
+ 		}
+ 		break;
+ 	default:
+-		return -EINVAL;
++		return REASON_TYPE;
+ 	}
+ 
+ 	if (ptr_limit >= max)
+-		return -ERANGE;
++		return REASON_LIMIT;
+ 	*alu_limit = ptr_limit;
+ 	return 0;
+ }
+@@ -2083,7 +2091,7 @@ static int update_alu_sanitation_state(s
+ 	if (aux->alu_state &&
+ 	    (aux->alu_state != alu_state ||
+ 	     aux->alu_limit != alu_limit))
+-		return -EACCES;
++		return REASON_PATHS;
+ 
+ 	/* Corresponding fixup done in fixup_bpf_calls(). */
+ 	aux->alu_state = alu_state;
+@@ -2156,7 +2164,46 @@ do_sim:
+ 	ret = push_stack(env, env->insn_idx + 1, env->insn_idx, true);
+ 	if (!ptr_is_dst_reg && ret)
+ 		*dst_reg = tmp;
+-	return !ret ? -EFAULT : 0;
++	return !ret ? REASON_STACK : 0;
++}
++
++static int sanitize_err(struct bpf_verifier_env *env,
++			const struct bpf_insn *insn, int reason,
++			const struct bpf_reg_state *off_reg,
++			const struct bpf_reg_state *dst_reg)
++{
++	static const char *err = "pointer arithmetic with it prohibited for !root";
++	const char *op = BPF_OP(insn->code) == BPF_ADD ? "add" : "sub";
++	u32 dst = insn->dst_reg, src = insn->src_reg;
++
++	switch (reason) {
++	case REASON_BOUNDS:
++		verbose("R%d has unknown scalar with mixed signed bounds, %s\n",
++			off_reg == dst_reg ? dst : src, err);
++		break;
++	case REASON_TYPE:
++		verbose("R%d has pointer with unsupported alu operation, %s\n",
++			off_reg == dst_reg ? src : dst, err);
++		break;
++	case REASON_PATHS:
++		verbose("R%d tried to %s from different maps, paths or scalars, %s\n",
++			dst, op, err);
++		break;
++	case REASON_LIMIT:
++		verbose("R%d tried to %s beyond pointer bounds, %s\n",
++			dst, op, err);
++		break;
++	case REASON_STACK:
++		verbose("R%d could not be pushed for speculative verification, %s\n",
++			dst, err);
++		break;
++	default:
++		verbose("verifier internal error: unknown reason (%d)\n",
++			reason);
++		break;
++	}
++
++	return -EACCES;
+ }
+ 
+ /* Handles arithmetic on a pointer and a scalar: computes new min/max and var_off.
+@@ -2230,10 +2277,9 @@ static int adjust_ptr_min_max_vals(struc
+ 	switch (opcode) {
+ 	case BPF_ADD:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
+-		if (ret < 0) {
+-			verbose("R%d tried to add from different maps, paths, or prohibited types\n", dst);
+-			return ret;
+-		}
++		if (ret < 0)
++			return sanitize_err(env, insn, ret, off_reg, dst_reg);
++
+ 		/* We can take a fixed offset as long as it doesn't overflow
+ 		 * the s32 'off' field
+ 		 */
+@@ -2285,10 +2331,9 @@ static int adjust_ptr_min_max_vals(struc
+ 		break;
+ 	case BPF_SUB:
+ 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg);
+-		if (ret < 0) {
+-			verbose("R%d tried to sub from different maps, paths, or prohibited types\n", dst);
+-			return ret;
+-		}
++		if (ret < 0)
++			return sanitize_err(env, insn, ret, off_reg, dst_reg);
++
+ 		if (dst_reg == off_reg) {
+ 			/* scalar -= pointer.  Creates an unknown scalar */
+ 			if (!env->allow_ptr_leaks)
+@@ -2412,7 +2457,6 @@ static int adjust_scalar_min_max_vals(st
+ 	s64 smin_val, smax_val;
+ 	u64 umin_val, umax_val;
+ 	u64 insn_bitness = (BPF_CLASS(insn->code) == BPF_ALU64) ? 64 : 32;
+-	u32 dst = insn->dst_reg;
+ 	int ret;
+ 
+ 	if (insn_bitness == 32) {
+@@ -2449,10 +2493,8 @@ static int adjust_scalar_min_max_vals(st
+ 	switch (opcode) {
+ 	case BPF_ADD:
+ 		ret = sanitize_val_alu(env, insn);
+-		if (ret < 0) {
+-			verbose("R%d tried to add from different pointers or scalars\n", dst);
+-			return ret;
+-		}
++		if (ret < 0)
++			return sanitize_err(env, insn, ret, NULL, NULL);
+ 		if (signed_add_overflows(dst_reg->smin_value, smin_val) ||
+ 		    signed_add_overflows(dst_reg->smax_value, smax_val)) {
+ 			dst_reg->smin_value = S64_MIN;
+@@ -2473,10 +2515,8 @@ static int adjust_scalar_min_max_vals(st
+ 		break;
+ 	case BPF_SUB:
+ 		ret = sanitize_val_alu(env, insn);
+-		if (ret < 0) {
+-			verbose("R%d tried to sub from different pointers or scalars\n", dst);
+-			return ret;
+-		}
++		if (ret < 0)
++			return sanitize_err(env, insn, ret, NULL, NULL);
+ 		if (signed_sub_overflows(dst_reg->smin_value, smax_val) ||
+ 		    signed_sub_overflows(dst_reg->smax_value, smin_val)) {
+ 			/* Overflow possible, we know nothing */
 
 
