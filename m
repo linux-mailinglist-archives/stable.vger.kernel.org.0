@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2213A003F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:37 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B645D39FF98
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:55 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234785AbhFHSk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:40:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36728 "EHLO mail.kernel.org"
+        id S234153AbhFHSeO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:34:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235302AbhFHSjo (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:44 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E91C161426;
-        Tue,  8 Jun 2021 18:34:17 +0000 (UTC)
+        id S234528AbhFHSdE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 12902613BD;
+        Tue,  8 Jun 2021 18:30:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177258;
-        bh=fyg7ZKUv2H0Xz88VFwy5HpYHQlPU/7I+rqcSvy2gNsU=;
+        s=korg; t=1623177044;
+        bh=tQ9kHScR3ogbXaCbektO0+MM6Xy89oN+oaYgnQF3ox8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sqGGw9N4oogV4K7S8jI8aJDnU8SUc00icsWrxlQ2uoQHvpqaYng+UdmvTTuGw/4pD
-         RBHfaW03Oauo0nhzixblteHbguMiu+jXn3+dX4CW707Zn/kYDu0d8c0ky8SQD2FKes
-         bSdWIsuytoR9llKO1DpAg8MMP7GAp8y7uGmWpnlw=
+        b=JU9agzM6Fa97DrJ0VjdItiY8OyYL3uKarTNvyLi5dK1J+mMx9yNzXljDAHD4yyEla
+         CCiyPy3OF3HVB84Q0cIFcnaHFfW1bBVnK1Gmnci4P4AFrCH567OiVsZzcIoAl+3aP9
+         H2HDJJnEHiG+rsOsZbV+fk2UqsM9B/JYgjib0pKo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 12/58] HID: i2c-hid: fix format string mismatch
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 10/47] netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
 Date:   Tue,  8 Jun 2021 20:26:53 +0200
-Message-Id: <20210608175932.685137830@linuxfoundation.org>
+Message-Id: <20210608175930.816190281@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,45 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
+[ Upstream commit 8971ee8b087750a23f3cd4dc55bff2d0303fd267 ]
 
-clang doesn't like printing a 32-bit integer using %hX format string:
+The private helper data size cannot be updated. However, updates that
+contain NFCTH_PRIV_DATA_LEN might bogusly hit EBUSY even if the size is
+the same.
 
-drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                               ^~~~~~~~~~~
-drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                                            ^~~~~~~~~~~~
-
-Use an explicit cast to truncate it to the low 16 bits instead.
-
-Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nfnetlink_cthelper.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 1f8d403d3db4..19f4b807a5d1 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -1160,8 +1160,8 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
- 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
+index dfe4e6787219..2ebeb615db15 100644
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -370,10 +370,14 @@ static int
+ nfnl_cthelper_update(const struct nlattr * const tb[],
+ 		     struct nf_conntrack_helper *helper)
+ {
++	u32 size;
+ 	int ret;
  
--	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
--		 client->name, hid->vendor, hid->product);
-+	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
-+		 client->name, (u16)hid->vendor, (u16)hid->product);
- 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+-	if (tb[NFCTH_PRIV_DATA_LEN])
+-		return -EBUSY;
++	if (tb[NFCTH_PRIV_DATA_LEN]) {
++		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
++		if (size != helper->data_len)
++			return -EBUSY;
++	}
  
- 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
+ 	if (tb[NFCTH_POLICY]) {
+ 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
 -- 
 2.30.2
 
