@@ -2,39 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B8943A00D2
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:41 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C4FF39FF6E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235212AbhFHSrs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:47:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44684 "EHLO mail.kernel.org"
+        id S234020AbhFHSdF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236001AbhFHSpq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:45:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7DFAB613E1;
-        Tue,  8 Jun 2021 18:37:11 +0000 (UTC)
+        id S234355AbhFHScN (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:13 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 26940613C5;
+        Tue,  8 Jun 2021 18:30:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177432;
-        bh=+v/674eEeEEQcGmxyGBEiloz5HtnWTJqqyG3yhAx/l4=;
+        s=korg; t=1623177010;
+        bh=bNPUCVGmymxx+AMhaYS0kFv0psUZ7hmT5CTAZCJz0jU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VlJzXHFt2W4AX/d34T45q/USJGpe36xkFf+qekRdunH6J2qDPLq9k4MT7MAxJ/REV
-         YOakGiGS4kythEBiQgkg+MlhLjZqubqsq6Gv3HeD3FRDguQHwArZMu1o2mZ08DFBzR
-         mZQzk6mcljee9cnyJRKIFvdmSmT35kDCCajsyTek=
+        b=RPNpgSFRspIJLosJlnJpG01v29dEG5AXOsiD99CveszhgnSoeV4WCMkxHgfrMJM7W
+         OdgPtNCchhrdiv8FWyIN0Rmze5Lp2dTJGxPqCX6Yb93yMBzmg57lBwYEhac/dKfylN
+         jb74N4zMiQ6ngJBFK2glLnLyxEX+A/hbAvCXU3Fw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Fabio Estevam <festevam@gmail.com>,
-        Marek Vasut <marex@denx.de>,
-        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
-        Ludwig Zenz <lzenz@dh-electronics.com>,
-        NXP Linux Team <linux-imx@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 5.4 50/78] ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
-Date:   Tue,  8 Jun 2021 20:27:19 +0200
-Message-Id: <20210608175936.969862987@linuxfoundation.org>
+        stable@vger.kernel.org, Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 4.9 26/29] bnxt_en: Remove the setting of dev_port.
+Date:   Tue,  8 Jun 2021 20:27:20 +0200
+Message-Id: <20210608175928.669082541@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -43,54 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Michael Chan <michael.chan@broadcom.com>
 
-commit 8967b27a6c1c19251989c7ab33c058d16e4a5f53 upstream.
+commit 1d86859fdf31a0d50cc82b5d0d6bfb5fe98f6c00 upstream.
 
-Per schematic, both PU and SOC regulator are supplied from LTC3676 SW1
-via VDDSOC_IN rail, add the PU input. Both VDD1P1, VDD2P5 are supplied
-from LTC3676 SW2 via VDDHIGH_IN rail, add both inputs.
+The dev_port is meant to distinguish the network ports belonging to
+the same PCI function.  Our devices only have one network port
+associated with each PCI function and so we should not set it for
+correctness.
 
-While no instability or problems are currently observed, the regulators
-should be fully described in DT and that description should fully match
-the hardware, else this might lead to unforseen issues later. Fix this.
-
-Fixes: 52c7a088badd ("ARM: dts: imx6q: Add support for the DHCOM iMX6 SoM and PDK2")
-Reviewed-by: Fabio Estevam <festevam@gmail.com>
-Signed-off-by: Marek Vasut <marex@denx.de>
-Cc: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Cc: Fabio Estevam <festevam@gmail.com>
-Cc: Ludwig Zenz <lzenz@dh-electronics.com>
-Cc: NXP Linux Team <linux-imx@nxp.com>
-Cc: Shawn Guo <shawnguo@kernel.org>
-Cc: stable@vger.kernel.org
-Reviewed-by: Christoph Niedermaier <cniedermaier@dh-electronics.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx6q-dhcom-som.dtsi |   12 ++++++++++++
- 1 file changed, 12 insertions(+)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-+++ b/arch/arm/boot/dts/imx6q-dhcom-som.dtsi
-@@ -408,6 +408,18 @@
- 	vin-supply = <&sw1_reg>;
- };
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -4262,7 +4262,6 @@ int bnxt_hwrm_func_qcaps(struct bnxt *bp
  
-+&reg_pu {
-+	vin-supply = <&sw1_reg>;
-+};
-+
-+&reg_vdd1p1 {
-+	vin-supply = <&sw2_reg>;
-+};
-+
-+&reg_vdd2p5 {
-+	vin-supply = <&sw2_reg>;
-+};
-+
- &uart1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart1>;
+ 		pf->fw_fid = le16_to_cpu(resp->fid);
+ 		pf->port_id = le16_to_cpu(resp->port_id);
+-		bp->dev->dev_port = pf->port_id;
+ 		memcpy(pf->mac_addr, resp->mac_address, ETH_ALEN);
+ 		memcpy(bp->dev->dev_addr, pf->mac_addr, ETH_ALEN);
+ 		pf->max_rsscos_ctxs = le16_to_cpu(resp->max_rsscos_ctx);
 
 
