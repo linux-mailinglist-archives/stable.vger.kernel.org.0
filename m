@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id BE5D13A02B2
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:02 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AB773A02B4
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236012AbhFHTHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:07:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45022 "EHLO mail.kernel.org"
+        id S236642AbhFHTHy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:07:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:45766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237855AbhFHTFv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:05:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CE2A26192D;
-        Tue,  8 Jun 2021 18:46:47 +0000 (UTC)
+        id S237884AbhFHTGF (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:06:05 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A99CE613E3;
+        Tue,  8 Jun 2021 18:46:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178008;
-        bh=a1DxeHdXLDzWLVlbWtPNEM0iSuxeAm+XNWswjX3EQGI=;
+        s=korg; t=1623178011;
+        bh=b52sEY+tkE+gRi8XHbjW662W7eLb5zPRI+YYfrH0Bos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZ1TagK0JCIQq/jYqDaHS1vzUqv+TyqOdbx2XB5W0Li+dvk/0jGVyCdkJlWR6VEyq
-         uBnhEAoBg4K/tMfZP77/k+g9PN1hb1K5A8D4J8Fw0OdWIHsxGwAhbKncflgezDnrVf
-         4HGR54meCu7rouhgVYRuRGPoruU9Kfs67d9SwaI8=
+        b=VG5BqfETgmf3j0YFhjrnTL4ct+oPO0bSOxpswcQqVQP9+y70bdor8/Vflj9GzCmPn
+         I3nY6pfP9fJ2iN0moa2wFd7FFKT4XWn0eHdP/uLuuDVtcL0mpn4qoRZnOllXGzjF4h
+         sc2PkNJmMUtq30SRokiSes+IRGTmLr3NPoQdAPJ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhihao Cheng <chengzhihao1@huawei.com>,
+        Tvrtko Ursulin <tvrtko.ursulin@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 041/161] netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
-Date:   Tue,  8 Jun 2021 20:26:11 +0200
-Message-Id: <20210608175946.848534605@linuxfoundation.org>
+Subject: [PATCH 5.12 042/161] drm/i915/selftests: Fix return value check in live_breadcrumbs_smoketest()
+Date:   Tue,  8 Jun 2021 20:26:12 +0200
+Message-Id: <20210608175946.889579331@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -39,42 +42,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Zhihao Cheng <chengzhihao1@huawei.com>
 
-[ Upstream commit 8971ee8b087750a23f3cd4dc55bff2d0303fd267 ]
+[ Upstream commit 10c1f0cbcea93beec5d3bdc02b1a3b577b4985e7 ]
 
-The private helper data size cannot be updated. However, updates that
-contain NFCTH_PRIV_DATA_LEN might bogusly hit EBUSY even if the size is
-the same.
+In case of error, the function live_context() returns ERR_PTR() and never
+returns NULL. The NULL test in the return value check should be replaced
+with IS_ERR().
 
-Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Fixes: 52c0fdb25c7c ("drm/i915: Replace global breadcrumbs with per-context interrupt tracking")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhihao Cheng <chengzhihao1@huawei.com>
+Reviewed-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/33c46ef24cd547d0ad21dc106441491a@intel.com
+[tursulin: Wrap commit text, fix Fixes: tag.]
+Signed-off-by: Tvrtko Ursulin <tvrtko.ursulin@intel.com>
+(cherry picked from commit 8f4caef8d5401b42c6367d46c23da5e0e8111516)
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nfnetlink_cthelper.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/i915/selftests/i915_request.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
-index 0f94fce1d3ed..04a12a264cf7 100644
---- a/net/netfilter/nfnetlink_cthelper.c
-+++ b/net/netfilter/nfnetlink_cthelper.c
-@@ -380,10 +380,14 @@ static int
- nfnl_cthelper_update(const struct nlattr * const tb[],
- 		     struct nf_conntrack_helper *helper)
- {
-+	u32 size;
- 	int ret;
+diff --git a/drivers/gpu/drm/i915/selftests/i915_request.c b/drivers/gpu/drm/i915/selftests/i915_request.c
+index d2a678a2497e..411494005f0e 100644
+--- a/drivers/gpu/drm/i915/selftests/i915_request.c
++++ b/drivers/gpu/drm/i915/selftests/i915_request.c
+@@ -1392,8 +1392,8 @@ static int live_breadcrumbs_smoketest(void *arg)
  
--	if (tb[NFCTH_PRIV_DATA_LEN])
--		return -EBUSY;
-+	if (tb[NFCTH_PRIV_DATA_LEN]) {
-+		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
-+		if (size != helper->data_len)
-+			return -EBUSY;
-+	}
- 
- 	if (tb[NFCTH_POLICY]) {
- 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
+ 	for (n = 0; n < smoke[0].ncontexts; n++) {
+ 		smoke[0].contexts[n] = live_context(i915, file);
+-		if (!smoke[0].contexts[n]) {
+-			ret = -ENOMEM;
++		if (IS_ERR(smoke[0].contexts[n])) {
++			ret = PTR_ERR(smoke[0].contexts[n]);
+ 			goto out_contexts;
+ 		}
+ 	}
 -- 
 2.30.2
 
