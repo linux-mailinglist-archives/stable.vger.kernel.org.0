@@ -2,1388 +2,475 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9969639F868
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 16:04:18 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C461E39F937
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 16:32:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232810AbhFHOGK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 10:06:10 -0400
-Received: from mail-pl1-f179.google.com ([209.85.214.179]:44922 "EHLO
-        mail-pl1-f179.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232341AbhFHOGJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 10:06:09 -0400
-Received: by mail-pl1-f179.google.com with SMTP id b12so4703015plg.11
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 07:04:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=MMjr2JA5jZW+p4fThf5ipS73oDaFvPN97nUEp441luY=;
-        b=govYPqet9/ykWh0sAWJ/pRoWBiajXo70glwxTlNtWcIKiht6IRZYk/8LRVRzUqIHy5
-         AWekEorewhOo6D8XJM71x9aaLicE+Ud/dBd9g/3A0a+B0mmQ9xghn1Fd5/JyTVgRjvpJ
-         oESfRhcUdiyVxO/MEWBuj2XWlckO2vVskjijx3B3UPXe1JwrNt6odLDLkGICYEpBTxPx
-         mpNw57QyVfiF1WNCCuxorfnC78uAvh6YbP1FGPwAPs8RAWkf/r0IKlGfQWNclCREipAc
-         xeFC7F48Q51nQkFERCq8dNNtCuejZzToP0jvBUcmnH30fKV53DRFzHF/a+NXBzCdr9IR
-         H9jQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=MMjr2JA5jZW+p4fThf5ipS73oDaFvPN97nUEp441luY=;
-        b=CNIjNXzyVfKn/ifZKMJdHnl7uPsOSyW4oA9EFc8BezTqa9j3GZx950tFEIynssZGNe
-         uHAIoenkvg4VmoEWZCYBOp4oudUIqv+0M8Y7LbIy936vlyACTMdGI0a2ECcdFAmBL2ps
-         6OAB62sLc20sBZtAEViO5DDEDJgzoa/QYub+rRUk+euh0eI5zXV6Lcc+HLj/gkLPW2Ew
-         NnXl3/myk5KIrpTBtTw+cvJ+YKwTZ1J6qtBFuvYz6arJu4a5hg2GKKE3QpbK2zo0gfz6
-         DWzF57rIYtC3LY+FBD1SAWAYe6MsnAD3BdZedJN9FPMF/wrOBFvObKdu+bGbmAFHCwgJ
-         jjIg==
-X-Gm-Message-State: AOAM531XFVqdr9LhHrej0ff0UZSpNvTZyyCLZpC4T1t+oJdkLivN6I6m
-        65H4x6kfVn2uGmfMIE/hdYuteVASF9RCPgbc
-X-Google-Smtp-Source: ABdhPJxGbMfUkwBQHmRAPeMb0pJIxU/UzYCewoYLKuWNy7AOPsVPULAqOwxtQ6KYNVNOcXdnZzQ3ZA==
-X-Received: by 2002:a17:90b:ecd:: with SMTP id gz13mr5069270pjb.107.1623160995633;
-        Tue, 08 Jun 2021 07:03:15 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id i74sm2533540pgc.85.2021.06.08.07.03.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 07:03:15 -0700 (PDT)
-Message-ID: <60bf78a3.1c69fb81.bd2fe.7770@mx.google.com>
-Date:   Tue, 08 Jun 2021 07:03:15 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S233454AbhFHOeD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 10:34:03 -0400
+Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:59101 "EHLO
+        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S233403AbhFHOdl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 10:33:41 -0400
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailforward.west.internal (Postfix) with ESMTP id 1FA8B1963;
+        Tue,  8 Jun 2021 10:31:48 -0400 (EDT)
+Received: from mailfrontend1 ([10.202.2.162])
+  by compute5.internal (MEProxy); Tue, 08 Jun 2021 10:31:48 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:content-transfer-encoding:content-type
+        :date:from:message-id:mime-version:subject:to:x-me-proxy
+        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=G3B0ZM
+        oiYmSLXbCuvMYMm+SqE5DBFvV4BJI48bO8QFI=; b=KafRYlYMNnSvSPdgrk2RjA
+        cKsysGa1iBsDhTR4zDaHAw7d09mr8a+yIxO4jvskGxTEuEGcsvCReNzKMFBZoml8
+        rtey4NHbLZRfpAxFke6eBArifAhFFJPIQwJSu3WPWfE6MLwngttOXktFOWJlEg+u
+        LmJwNL0Hct0LUHH0mLi3Plj+xUCUTeo4ZKRoEmhkeRx3o4HvrJWZ2iV/NE2wkVlJ
+        lOFvsk9bt0WjZIXOBepPGbbpssn4hC2+echoh+NzrjyrNemqUyDa0BQObqNWvkoI
+        8sCtjdxPYkRt73lWFeyVSBp1e9lzeA6ApmRHjGcDD1f5lcbIp1BaqWo4fH/STCwg
+        ==
+X-ME-Sender: <xms:Un-_YASRySmyqPo9eCNIfzWbIptwgcYVUbLpu0ogkQ-7yfiDQxYDag>
+    <xme:Un-_YNxywlJ2_kRTQXPBjQ1yvMVlu474ygnLpu4hYTaK3js_JoV0eO-7txJXLSbJW
+    wDCZqMb9tNkZg>
+X-ME-Received: <xmr:Un-_YN3nLJK3OOGL2ORqggzhr7ruqIqficVmBHYYDidDo-rVYg3JCTawB46pHLZ6nppikHBI2Y6_LWx7b7-AdamdifpeLO7n>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgieduucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
+    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
+    gheqnecuggftrfgrthhtvghrnhepieduveeutdeugefgveetiedtudehleekgfeljeffge
+    fhgfejfedvudegleevuddtnecuffhomhgrihhnpehqvghmuhdrohhrghdpkhgvrhhnvghl
+    rdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
+    epghhrvghgsehkrhhorghhrdgtohhm
+X-ME-Proxy: <xmx:Un-_YECzDkBbuANOhj0R7IE0XYs2P1V2uuuGMzVmLEcCAOsw8o5aRw>
+    <xmx:Un-_YJiWkXZju3Ev0Xx2bizdnFwh7LCZBTKE0LdFmrA7FdkadK7kBg>
+    <xmx:Un-_YApLUG60iaPZom9zDjf7woJiOrUomtPj0BCiYVSKeh7El4TGPQ>
+    <xmx:Un-_YOtHDwvBp1nKiJJO_C2vvFlICQrPK21h2lLepxxYKZr9JC8ogT69m9I>
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 8 Jun 2021 10:31:45 -0400 (EDT)
+Subject: FAILED: patch "[PATCH] btrfs: fix fsync failure and transaction abort after writes" failed to apply to 5.4-stable tree
+To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
+        fent@in.tum.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Tue, 08 Jun 2021 16:31:43 +0200
+Message-ID: <162316270323519@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v4.19.193-31-gaf2147b1b6b5
-X-Kernelci-Report-Type: build
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/4.19
-Subject: stable-rc/queue/4.19 build: 192 builds: 2 failed, 190 passed,
- 63 warnings (v4.19.193-31-gaf2147b1b6b5)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 192 builds: 2 failed, 190 passed, 63 warnings (=
-v4.19.193-31-gaf2147b1b6b5)
 
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.193-31-gaf2147b1b6b5/
+The patch below does not apply to the 5.4-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From ea7036de0d36c4e6c9508f68789e9567d514333a Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 24 May 2021 11:35:53 +0100
+Subject: [PATCH] btrfs: fix fsync failure and transaction abort after writes
+ to prealloc extents
+
+When doing a series of partial writes to different ranges of preallocated
+extents with transaction commits and fsyncs in between, we can end up with
+a checksum items in a log tree. This causes an fsync to fail with -EIO and
+abort the transaction, turning the filesystem to RO mode, when syncing the
+log.
+
+For this to happen, we need to have a full fsync of a file following one
+or more fast fsyncs.
+
+The following example reproduces the problem and explains how it happens:
+
+  $ mkfs.btrfs -f /dev/sdc
+  $ mount /dev/sdc /mnt
+
+  # Create our test file with 2 preallocated extents. Leave a 1M hole
+  # between them to ensure that we get two file extent items that will
+  # never be merged into a single one. The extents are contiguous on disk,
+  # which will later result in the checksums for their data to be merged
+  # into a single checksum item in the csums btree.
+  #
+  $ xfs_io -f \
+           -c "falloc 0 1M" \
+           -c "falloc 3M 3M" \
+           /mnt/foobar
+
+  # Now write to the second extent and leave only 1M of it as unwritten,
+  # which corresponds to the file range [4M, 5M[.
+  #
+  # Then fsync the file to flush delalloc and to clear full sync flag from
+  # the inode, so that a future fsync will use the fast code path.
+  #
+  # After the writeback triggered by the fsync we have 3 file extent items
+  # that point to the second extent we previously allocated:
+  #
+  # 1) One file extent item of type BTRFS_FILE_EXTENT_REG that covers the
+  #    file range [3M, 4M[
+  #
+  # 2) One file extent item of type BTRFS_FILE_EXTENT_PREALLOC that covers
+  #    the file range [4M, 5M[
+  #
+  # 3) One file extent item of type BTRFS_FILE_EXTENT_REG that covers the
+  #    file range [5M, 6M[
+  #
+  # All these file extent items have a generation of 6, which is the ID of
+  # the transaction where they were created. The split of the original file
+  # extent item is done at btrfs_mark_extent_written() when ordered extents
+  # complete for the file ranges [3M, 4M[ and [5M, 6M[.
+  #
+  $ xfs_io -c "pwrite -S 0xab 3M 1M" \
+           -c "pwrite -S 0xef 5M 1M" \
+           -c "fsync" \
+           /mnt/foobar
+
+  # Commit the current transaction. This wipes out the log tree created by
+  # the previous fsync.
+  sync
+
+  # Now write to the unwritten range of the second extent we allocated,
+  # corresponding to the file range [4M, 5M[, and fsync the file, which
+  # triggers the fast fsync code path.
+  #
+  # The fast fsync code path sees that there is a new extent map covering
+  # the file range [4M, 5M[ and therefore it will log a checksum item
+  # covering the range [1M, 2M[ of the second extent we allocated.
+  #
+  # Also, after the fsync finishes we no longer have the 3 file extent
+  # items that pointed to 3 sections of the second extent we allocated.
+  # Instead we end up with a single file extent item pointing to the whole
+  # extent, with a type of BTRFS_FILE_EXTENT_REG and a generation of 7 (the
+  # current transaction ID). This is due to the file extent item merging we
+  # do when completing ordered extents into ranges that point to unwritten
+  # (preallocated) extents. This merging is done at
+  # btrfs_mark_extent_written().
+  #
+  $ xfs_io -c "pwrite -S 0xcd 4M 1M" \
+           -c "fsync" \
+           /mnt/foobar
+
+  # Now do some write to our file outside the range of the second extent
+  # that we allocated with fallocate() and truncate the file size from 6M
+  # down to 5M.
+  #
+  # The truncate operation sets the full sync runtime flag on the inode,
+  # forcing the next fsync to use the slow code path. It also changes the
+  # length of the second file extent item so that it represents the file
+  # range [3M, 5M[ and not the range [3M, 6M[ anymore.
+  #
+  # Finally fsync the file. Since this is a fsync that triggers the slow
+  # code path, it will remove all items associated to the inode from the
+  # log tree and then it will scan for file extent items in the
+  # fs/subvolume tree that have a generation matching the current
+  # transaction ID, which is 7. This means it will log 2 file extent
+  # items:
+  #
+  # 1) One for the first extent we allocated, covering the file range
+  #    [0, 1M[
+  #
+  # 2) Another for the first 2M of the second extent we allocated,
+  #    covering the file range [3M, 5M[
+  #
+  # When logging the first file extent item we log a single checksum item
+  # that has all the checksums for the entire extent.
+  #
+  # When logging the second file extent item, we also lookup for the
+  # checksums that are associated with the range [0, 2M[ of the second
+  # extent we allocated (file range [3M, 5M[), and then we log them with
+  # btrfs_csum_file_blocks(). However that results in ending up with a log
+  # that has two checksum items with ranges that overlap:
+  #
+  # 1) One for the range [1M, 2M[ of the second extent we allocated,
+  #    corresponding to the file range [4M, 5M[, which we logged in the
+  #    previous fsync that used the fast code path;
+  #
+  # 2) One for the ranges [0, 1M[ and [0, 2M[ of the first and second
+  #    extents, respectively, corresponding to the files ranges [0, 1M[
+  #    and [3M, 5M[. This one was added during this last fsync that uses
+  #    the slow code path and overlaps with the previous one logged by
+  #    the previous fast fsync.
+  #
+  # This happens because when logging the checksums for the second
+  # extent, we notice they start at an offset that matches the end of the
+  # checksums item that we logged for the first extent, and because both
+  # extents are contiguous on disk, btrfs_csum_file_blocks() decides to
+  # extend that existing checksums item and append the checksums for the
+  # second extent to this item. The end result is we end up with two
+  # checksum items in the log tree that have overlapping ranges, as
+  # listed before, resulting in the fsync to fail with -EIO and aborting
+  # the transaction, turning the filesystem into RO mode.
+  #
+  $ xfs_io -c "pwrite -S 0xff 0 1M" \
+           -c "truncate 5M" \
+           -c "fsync" \
+           /mnt/foobar
+  fsync: Input/output error
+
+After running the example, dmesg/syslog shows the tree checker complained
+about the checksum items with overlapping ranges and we aborted the
+transaction:
+
+  $ dmesg
+  (...)
+  [756289.557487] BTRFS critical (device sdc): corrupt leaf: root=18446744073709551610 block=30720000 slot=5, csum end range (16777216) goes beyond the start range (15728640) of the next csum item
+  [756289.560583] BTRFS info (device sdc): leaf 30720000 gen 7 total ptrs 7 free space 11677 owner 18446744073709551610
+  [756289.562435] BTRFS info (device sdc): refs 2 lock_owner 0 current 2303929
+  [756289.563654] 	item 0 key (257 1 0) itemoff 16123 itemsize 160
+  [756289.564649] 		inode generation 6 size 5242880 mode 100600
+  [756289.565636] 	item 1 key (257 12 256) itemoff 16107 itemsize 16
+  [756289.566694] 	item 2 key (257 108 0) itemoff 16054 itemsize 53
+  [756289.567725] 		extent data disk bytenr 13631488 nr 1048576
+  [756289.568697] 		extent data offset 0 nr 1048576 ram 1048576
+  [756289.569689] 	item 3 key (257 108 1048576) itemoff 16001 itemsize 53
+  [756289.570682] 		extent data disk bytenr 0 nr 0
+  [756289.571363] 		extent data offset 0 nr 2097152 ram 2097152
+  [756289.572213] 	item 4 key (257 108 3145728) itemoff 15948 itemsize 53
+  [756289.573246] 		extent data disk bytenr 14680064 nr 3145728
+  [756289.574121] 		extent data offset 0 nr 2097152 ram 3145728
+  [756289.574993] 	item 5 key (18446744073709551606 128 13631488) itemoff 12876 itemsize 3072
+  [756289.576113] 	item 6 key (18446744073709551606 128 15728640) itemoff 11852 itemsize 1024
+  [756289.577286] BTRFS error (device sdc): block=30720000 write time tree block corruption detected
+  [756289.578644] ------------[ cut here ]------------
+  [756289.579376] WARNING: CPU: 0 PID: 2303929 at fs/btrfs/disk-io.c:465 csum_one_extent_buffer+0xed/0x100 [btrfs]
+  [756289.580857] Modules linked in: btrfs dm_zero dm_dust loop dm_snapshot (...)
+  [756289.591534] CPU: 0 PID: 2303929 Comm: xfs_io Tainted: G        W         5.12.0-rc8-btrfs-next-87 #1
+  [756289.592580] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
+  [756289.594161] RIP: 0010:csum_one_extent_buffer+0xed/0x100 [btrfs]
+  [756289.595122] Code: 5d c3 e8 76 60 (...)
+  [756289.597509] RSP: 0018:ffffb51b416cb898 EFLAGS: 00010282
+  [756289.598142] RAX: 0000000000000000 RBX: fffff02b8a365bc0 RCX: 0000000000000000
+  [756289.598970] RDX: 0000000000000000 RSI: ffffffffa9112421 RDI: 00000000ffffffff
+  [756289.599798] RBP: ffffa06500880000 R08: 0000000000000000 R09: 0000000000000000
+  [756289.600619] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
+  [756289.601456] R13: ffffa0652b1d8980 R14: ffffa06500880000 R15: 0000000000000000
+  [756289.602278] FS:  00007f08b23c9800(0000) GS:ffffa0682be00000(0000) knlGS:0000000000000000
+  [756289.603217] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+  [756289.603892] CR2: 00005652f32d0138 CR3: 000000025d616003 CR4: 0000000000370ef0
+  [756289.604725] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+  [756289.605563] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+  [756289.606400] Call Trace:
+  [756289.606704]  btree_csum_one_bio+0x244/0x2b0 [btrfs]
+  [756289.607313]  btrfs_submit_metadata_bio+0xb7/0x100 [btrfs]
+  [756289.608040]  submit_one_bio+0x61/0x70 [btrfs]
+  [756289.608587]  btree_write_cache_pages+0x587/0x610 [btrfs]
+  [756289.609258]  ? free_debug_processing+0x1d5/0x240
+  [756289.609812]  ? __module_address+0x28/0xf0
+  [756289.610298]  ? lock_acquire+0x1a0/0x3e0
+  [756289.610754]  ? lock_acquired+0x19f/0x430
+  [756289.611220]  ? lock_acquire+0x1a0/0x3e0
+  [756289.611675]  do_writepages+0x43/0xf0
+  [756289.612101]  ? __filemap_fdatawrite_range+0xa4/0x100
+  [756289.612800]  __filemap_fdatawrite_range+0xc5/0x100
+  [756289.613393]  btrfs_write_marked_extents+0x68/0x160 [btrfs]
+  [756289.614085]  btrfs_sync_log+0x21c/0xf20 [btrfs]
+  [756289.614661]  ? finish_wait+0x90/0x90
+  [756289.615096]  ? __mutex_unlock_slowpath+0x45/0x2a0
+  [756289.615661]  ? btrfs_log_inode_parent+0x3c9/0xdc0 [btrfs]
+  [756289.616338]  ? lock_acquire+0x1a0/0x3e0
+  [756289.616801]  ? lock_acquired+0x19f/0x430
+  [756289.617284]  ? lock_acquire+0x1a0/0x3e0
+  [756289.617750]  ? lock_release+0x214/0x470
+  [756289.618221]  ? lock_acquired+0x19f/0x430
+  [756289.618704]  ? dput+0x20/0x4a0
+  [756289.619079]  ? dput+0x20/0x4a0
+  [756289.619452]  ? lockref_put_or_lock+0x9/0x30
+  [756289.619969]  ? lock_release+0x214/0x470
+  [756289.620445]  ? lock_release+0x214/0x470
+  [756289.620924]  ? lock_release+0x214/0x470
+  [756289.621415]  btrfs_sync_file+0x46a/0x5b0 [btrfs]
+  [756289.621982]  do_fsync+0x38/0x70
+  [756289.622395]  __x64_sys_fsync+0x10/0x20
+  [756289.622907]  do_syscall_64+0x33/0x80
+  [756289.623438]  entry_SYSCALL_64_after_hwframe+0x44/0xae
+  [756289.624063] RIP: 0033:0x7f08b27fbb7b
+  [756289.624588] Code: 0f 05 48 3d 00 (...)
+  [756289.626760] RSP: 002b:00007ffe2583f940 EFLAGS: 00000293 ORIG_RAX: 000000000000004a
+  [756289.627639] RAX: ffffffffffffffda RBX: 00005652f32cd0f0 RCX: 00007f08b27fbb7b
+  [756289.628464] RDX: 00005652f32cbca0 RSI: 00005652f32cd110 RDI: 0000000000000003
+  [756289.629323] RBP: 00005652f32cd110 R08: 0000000000000000 R09: 00007f08b28c4be0
+  [756289.630172] R10: fffffffffffff39a R11: 0000000000000293 R12: 0000000000000001
+  [756289.631007] R13: 00005652f32cd0f0 R14: 0000000000000001 R15: 00005652f32cc480
+  [756289.631819] irq event stamp: 0
+  [756289.632188] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
+  [756289.632911] hardirqs last disabled at (0): [<ffffffffa7e97c29>] copy_process+0x879/0x1cc0
+  [756289.633893] softirqs last  enabled at (0): [<ffffffffa7e97c29>] copy_process+0x879/0x1cc0
+  [756289.634871] softirqs last disabled at (0): [<0000000000000000>] 0x0
+  [756289.635606] ---[ end trace 0a039fdc16ff3fef ]---
+  [756289.636179] BTRFS: error (device sdc) in btrfs_sync_log:3136: errno=-5 IO failure
+  [756289.637082] BTRFS info (device sdc): forced readonly
+
+Having checksum items covering ranges that overlap is dangerous as in some
+cases it can lead to having extent ranges for which we miss checksums
+after log replay or getting the wrong checksum item. There were some fixes
+in the past for bugs that resulted in this problem, and were explained and
+fixed by the following commits:
+
+  27b9a8122ff71a ("Btrfs: fix csum tree corruption, duplicate and outdated checksums")
+  b84b8390d6009c ("Btrfs: fix file read corruption after extent cloning and fsync")
+  40e046acbd2f36 ("Btrfs: fix missing data checksums after replaying a log tree")
+  e289f03ea79bbc ("btrfs: fix corrupt log due to concurrent fsync of inodes with shared extents")
+
+Fix the issue by making btrfs_csum_file_blocks() taking into account the
+start offset of the next checksum item when it decides to extend an
+existing checksum item, so that it never extends the checksum to end at a
+range that goes beyond the start range of the next checksum item.
+
+When we can not access the next checksum item without releasing the path,
+simply drop the optimization of extending the previous checksum item and
+fallback to inserting a new checksum item - this happens rarely and the
+optimization is not significant enough for a log tree in order to justify
+the extra complexity, as it would only save a few bytes (the size of a
+struct btrfs_item) of leaf space.
+
+This behaviour is only needed when inserting into a log tree because
+for the regular checksums tree we never have a case where we try to
+insert a range of checksums that overlap with a range that was previously
+inserted.
+
+A test case for fstests will follow soon.
+
+Reported-by: Philipp Fent <fent@in.tum.de>
+Link: https://lore.kernel.org/linux-btrfs/93c4600e-5263-5cba-adf0-6f47526e7561@in.tum.de/
+CC: stable@vger.kernel.org # 5.4+
+Tested-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
+index a5a8dac334e8..441cee7fbb62 100644
+--- a/fs/btrfs/file-item.c
++++ b/fs/btrfs/file-item.c
+@@ -923,6 +923,37 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
+ 	return ret;
+ }
+ 
++static int find_next_csum_offset(struct btrfs_root *root,
++				 struct btrfs_path *path,
++				 u64 *next_offset)
++{
++	const u32 nritems = btrfs_header_nritems(path->nodes[0]);
++	struct btrfs_key found_key;
++	int slot = path->slots[0] + 1;
++	int ret;
++
++	if (nritems == 0 || slot >= nritems) {
++		ret = btrfs_next_leaf(root, path);
++		if (ret < 0) {
++			return ret;
++		} else if (ret > 0) {
++			*next_offset = (u64)-1;
++			return 0;
++		}
++		slot = path->slots[0];
++	}
++
++	btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
++
++	if (found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
++	    found_key.type != BTRFS_EXTENT_CSUM_KEY)
++		*next_offset = (u64)-1;
++	else
++		*next_offset = found_key.offset;
++
++	return 0;
++}
++
+ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 			   struct btrfs_root *root,
+ 			   struct btrfs_ordered_sum *sums)
+@@ -938,7 +969,6 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 	u64 total_bytes = 0;
+ 	u64 csum_offset;
+ 	u64 bytenr;
+-	u32 nritems;
+ 	u32 ins_size;
+ 	int index = 0;
+ 	int found_next;
+@@ -981,26 +1011,10 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 			goto insert;
+ 		}
+ 	} else {
+-		int slot = path->slots[0] + 1;
+-		/* we didn't find a csum item, insert one */
+-		nritems = btrfs_header_nritems(path->nodes[0]);
+-		if (!nritems || (path->slots[0] >= nritems - 1)) {
+-			ret = btrfs_next_leaf(root, path);
+-			if (ret < 0) {
+-				goto out;
+-			} else if (ret > 0) {
+-				found_next = 1;
+-				goto insert;
+-			}
+-			slot = path->slots[0];
+-		}
+-		btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
+-		if (found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
+-		    found_key.type != BTRFS_EXTENT_CSUM_KEY) {
+-			found_next = 1;
+-			goto insert;
+-		}
+-		next_offset = found_key.offset;
++		/* We didn't find a csum item, insert one. */
++		ret = find_next_csum_offset(root, path, &next_offset);
++		if (ret < 0)
++			goto out;
+ 		found_next = 1;
+ 		goto insert;
+ 	}
+@@ -1056,8 +1070,48 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
+ 		tmp = sums->len - total_bytes;
+ 		tmp >>= fs_info->sectorsize_bits;
+ 		WARN_ON(tmp < 1);
++		extend_nr = max_t(int, 1, tmp);
++
++		/*
++		 * A log tree can already have checksum items with a subset of
++		 * the checksums we are trying to log. This can happen after
++		 * doing a sequence of partial writes into prealloc extents and
++		 * fsyncs in between, with a full fsync logging a larger subrange
++		 * of an extent for which a previous fast fsync logged a smaller
++		 * subrange. And this happens in particular due to merging file
++		 * extent items when we complete an ordered extent for a range
++		 * covered by a prealloc extent - this is done at
++		 * btrfs_mark_extent_written().
++		 *
++		 * So if we try to extend the previous checksum item, which has
++		 * a range that ends at the start of the range we want to insert,
++		 * make sure we don't extend beyond the start offset of the next
++		 * checksum item. If we are at the last item in the leaf, then
++		 * forget the optimization of extending and add a new checksum
++		 * item - it is not worth the complexity of releasing the path,
++		 * getting the first key for the next leaf, repeat the btree
++		 * search, etc, because log trees are temporary anyway and it
++		 * would only save a few bytes of leaf space.
++		 */
++		if (root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID) {
++			if (path->slots[0] + 1 >=
++			    btrfs_header_nritems(path->nodes[0])) {
++				ret = find_next_csum_offset(root, path, &next_offset);
++				if (ret < 0)
++					goto out;
++				found_next = 1;
++				goto insert;
++			}
++
++			ret = find_next_csum_offset(root, path, &next_offset);
++			if (ret < 0)
++				goto out;
++
++			tmp = (next_offset - bytenr) >> fs_info->sectorsize_bits;
++			if (tmp <= INT_MAX)
++				extend_nr = min_t(int, extend_nr, tmp);
++		}
+ 
+-		extend_nr = max_t(int, 1, (int)tmp);
+ 		diff = (csum_offset + extend_nr) * csum_size;
+ 		diff = min(diff,
+ 			   MAX_CSUM_ITEMS(fs_info, csum_size) * csum_size);
 
-Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.193-31-gaf2147b1b6b5
-Git Commit: af2147b1b6b59acb37d0fc676ed0a1406d4e6bb4
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 6 unique architectures
-
-Build Failures Detected:
-
-arm:
-    imx_v6_v7_defconfig: (gcc-8) FAIL
-    multi_v7_defconfig: (gcc-8) FAIL
-
-Warnings Detected:
-
-arc:
-    allnoconfig (gcc-8): 1 warning
-    axs103_defconfig (gcc-8): 1 warning
-    axs103_smp_defconfig (gcc-8): 1 warning
-    haps_hs_defconfig (gcc-8): 1 warning
-    haps_hs_smp_defconfig (gcc-8): 1 warning
-    hsdk_defconfig (gcc-8): 1 warning
-    nsim_hs_defconfig (gcc-8): 1 warning
-    nsim_hs_smp_defconfig (gcc-8): 1 warning
-    nsimosci_hs_defconfig (gcc-8): 1 warning
-    nsimosci_hs_smp_defconfig (gcc-8): 1 warning
-    tinyconfig (gcc-8): 1 warning
-    vdk_hs38_defconfig (gcc-8): 1 warning
-    vdk_hs38_smp_defconfig (gcc-8): 1 warning
-
-arm64:
-
-arm:
-    am200epdkit_defconfig (gcc-8): 1 warning
-    cm_x2xx_defconfig (gcc-8): 1 warning
-    colibri_pxa300_defconfig (gcc-8): 1 warning
-    corgi_defconfig (gcc-8): 1 warning
-    efm32_defconfig (gcc-8): 1 warning
-    eseries_pxa_defconfig (gcc-8): 1 warning
-    h5000_defconfig (gcc-8): 1 warning
-    integrator_defconfig (gcc-8): 1 warning
-    lpc32xx_defconfig (gcc-8): 1 warning
-    lpd270_defconfig (gcc-8): 1 warning
-    lubbock_defconfig (gcc-8): 1 warning
-    magician_defconfig (gcc-8): 1 warning
-    mainstone_defconfig (gcc-8): 1 warning
-    multi_v4t_defconfig (gcc-8): 1 warning
-    palmz72_defconfig (gcc-8): 1 warning
-    pcm027_defconfig (gcc-8): 1 warning
-    prima2_defconfig (gcc-8): 1 warning
-    pxa168_defconfig (gcc-8): 1 warning
-    pxa255-idp_defconfig (gcc-8): 1 warning
-    pxa3xx_defconfig (gcc-8): 1 warning
-    pxa910_defconfig (gcc-8): 1 warning
-    raumfeld_defconfig (gcc-8): 1 warning
-    s3c2410_defconfig (gcc-8): 1 warning
-    s3c6400_defconfig (gcc-8): 1 warning
-    s5pv210_defconfig (gcc-8): 1 warning
-    spitz_defconfig (gcc-8): 1 warning
-    stm32_defconfig (gcc-8): 1 warning
-    tango4_defconfig (gcc-8): 1 warning
-    tct_hammer_defconfig (gcc-8): 1 warning
-    vf610m4_defconfig (gcc-8): 1 warning
-    viper_defconfig (gcc-8): 1 warning
-    vt8500_v6_v7_defconfig (gcc-8): 1 warning
-    xcep_defconfig (gcc-8): 1 warning
-    zeus_defconfig (gcc-8): 1 warning
-
-i386:
-
-mips:
-    db1xxx_defconfig (gcc-8): 1 warning
-    gcw0_defconfig (gcc-8): 1 warning
-    jmr3927_defconfig (gcc-8): 1 warning
-    lemote2f_defconfig (gcc-8): 1 warning
-    loongson3_defconfig (gcc-8): 1 warning
-    malta_defconfig (gcc-8): 1 warning
-    malta_kvm_guest_defconfig (gcc-8): 1 warning
-    malta_qemu_32r6_defconfig (gcc-8): 2 warnings
-    maltaaprp_defconfig (gcc-8): 1 warning
-    maltasmvp_defconfig (gcc-8): 1 warning
-    maltasmvp_eva_defconfig (gcc-8): 1 warning
-    maltaup_defconfig (gcc-8): 1 warning
-    maltaup_xpa_defconfig (gcc-8): 1 warning
-    nlm_xlp_defconfig (gcc-8): 1 warning
-    pic32mzda_defconfig (gcc-8): 1 warning
-
-x86_64:
-
-
-Warnings summary:
-
-    59   drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 de=
-fined but not used [-Wunused-variable]
-    3    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:131: Warning: macro instruction expanded into mul=
-tiple instructions
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mis=
-matches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning=
-, 0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 2 warning=
-s, 0 section mismatches
-
-Warnings:
-    {standard input}:131: Warning: macro instruction expanded into multiple=
- instructions
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, =
-0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-8) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3191:1: warning: the frame size of 1312 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning,=
- 0 section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-rpc_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section mism=
-atches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 sect=
-ion mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 secti=
-on mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section=
- mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 =
-section mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-8) =E2=80=94 PASS, 0 errors, 0=
- warnings, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 1 warning, 0 section =
-mismatches
-
-Warnings:
-    drivers/clk/clk.c:49:27: warning: =E2=80=98orphan_list=E2=80=99 defined=
- but not used [-Wunused-variable]
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-8) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----
-For more info write to <info@kernelci.org>
