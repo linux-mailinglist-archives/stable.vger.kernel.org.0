@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DBD233A009F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:19 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F2213A003F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:37 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235051AbhFHSp5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:45:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42390 "EHLO mail.kernel.org"
+        id S234785AbhFHSk5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36728 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235365AbhFHSnI (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:43:08 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8644B61442;
-        Tue,  8 Jun 2021 18:36:00 +0000 (UTC)
+        id S235302AbhFHSjo (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:39:44 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E91C161426;
+        Tue,  8 Jun 2021 18:34:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177361;
-        bh=pd5R80x10t4iMd9B2/849rrCx8yDnlMSlwOZF+OL50w=;
+        s=korg; t=1623177258;
+        bh=fyg7ZKUv2H0Xz88VFwy5HpYHQlPU/7I+rqcSvy2gNsU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1tplSIxI5c4QFAgiGhVvYaroEb3327GEMNg//7bWu6bkjWaAS1phKgOtL+VBqZwhH
-         veslqV6F021ZwjQbfFMkak+D75T9Qihss/aizQKiuuRV+QLIqDO65Xkdob30rD31DH
-         NjifgPGYkte7bxmHj9VWpRBedMqTf8QDa4hg9eIg=
+        b=sqGGw9N4oogV4K7S8jI8aJDnU8SUc00icsWrxlQ2uoQHvpqaYng+UdmvTTuGw/4pD
+         RBHfaW03Oauo0nhzixblteHbguMiu+jXn3+dX4CW707Zn/kYDu0d8c0ky8SQD2FKes
+         bSdWIsuytoR9llKO1DpAg8MMP7GAp8y7uGmWpnlw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Mitch Williams <mitch.a.williams@intel.com>,
-        Andrew Bowers <andrewx.bowers@intel.com>,
-        Jeff Kirsher <jeffrey.t.kirsher@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 24/78] ice: write register with correct offset
+        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 12/58] HID: i2c-hid: fix format string mismatch
 Date:   Tue,  8 Jun 2021 20:26:53 +0200
-Message-Id: <20210608175936.078963999@linuxfoundation.org>
+Message-Id: <20210608175932.685137830@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,36 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mitch Williams <mitch.a.williams@intel.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 395594563b29fbcd8d9a4f0a642484e5d3bb6db1 ]
+[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
 
-The VF_MBX_ARQLEN register array is per-PF, not global, so we should not
-use the absolute VF ID as an index. Instead, use the per-PF VF ID.
+clang doesn't like printing a 32-bit integer using %hX format string:
 
-This fixes an issue with VFs on PFs other than 0 not seeing reset.
+drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                               ^~~~~~~~~~~
+drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
+                 client->name, hid->vendor, hid->product);
+                                            ^~~~~~~~~~~~
 
-Signed-off-by: Mitch Williams <mitch.a.williams@intel.com>
-Tested-by: Andrew Bowers <andrewx.bowers@intel.com>
-Signed-off-by: Jeff Kirsher <jeffrey.t.kirsher@intel.com>
+Use an explicit cast to truncate it to the low 16 bits instead.
+
+Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-index e92a00a61755..360c0f7e0384 100644
---- a/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-+++ b/drivers/net/ethernet/intel/ice/ice_virtchnl_pf.c
-@@ -390,7 +390,7 @@ static void ice_trigger_vf_reset(struct ice_vf *vf, bool is_vflr, bool is_pfr)
- 	 * by the time we get here.
- 	 */
- 	if (!is_pfr)
--		wr32(hw, VF_MBX_ARQLEN(vf_abs_id), 0);
-+		wr32(hw, VF_MBX_ARQLEN(vf->vf_id), 0);
+diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
+index 1f8d403d3db4..19f4b807a5d1 100644
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -1160,8 +1160,8 @@ static int i2c_hid_probe(struct i2c_client *client,
+ 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
+ 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
  
- 	/* In the case of a VFLR, the HW has already reset the VF and we
- 	 * just need to clean up, so don't hit the VFRTRIG register.
+-	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
+-		 client->name, hid->vendor, hid->product);
++	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
++		 client->name, (u16)hid->vendor, (u16)hid->product);
+ 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 
+ 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
 -- 
 2.30.2
 
