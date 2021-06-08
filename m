@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D1EE43A0225
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BCF63A036E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236375AbhFHTBa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:30 -0400
-Received: from mail.kernel.org ([198.145.29.99]:59262 "EHLO mail.kernel.org"
+        id S235674AbhFHTQs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36962 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236543AbhFHS6U (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:58:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6B13E613D3;
-        Tue,  8 Jun 2021 18:42:52 +0000 (UTC)
+        id S238343AbhFHTOq (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:14:46 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ECEEF61434;
+        Tue,  8 Jun 2021 18:50:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177772;
-        bh=N/Q7qpvofv60Kcwj7hWP43zcgZwD1NLN/R6XmzBwqLE=;
+        s=korg; t=1623178223;
+        bh=Q3LK4c37Lcc4PeoLN/dLINCVDg5mSVxY0TkKAzM5HDE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kyArbFHSuA5OeWKqocElcndaoESvm9SFJsvPPMeoCEe/9HEf8JKixzlNJ1GZ1uK55
-         7oi2gfOC/uScGgoG4erjA0pZ+Q3Qc7b/5ubrpNnODwAdj3h2/A2uVoUfXozJgKawHQ
-         cvVBMmxz7s6CEMo616wBTYDVEkWeg3Mo2msXvuqQ=
+        b=PBPM0B3ZBX0+RyeQJjlSe8eCtoH87FPmnkDU0kTW9SW3jtltQ7tHZlZKzsKd1omvb
+         2MpVNbpNrfScbwoPM1paYxuNXjL3T3BL3/nnU8xNZBVCF0u6NUJoyRKeJ6uF30HnZG
+         rb+KOWE4IIg4Uq/jqTIdxESLKXM2XMAHqAIBgDU0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, James Zhu <James.Zhu@amd.com>,
-        Leo Liu <leo.liu@amd.com>,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 077/137] drm/amdgpu/jpeg3: add cancel_delayed_work_sync before power gate
-Date:   Tue,  8 Jun 2021 20:26:57 +0200
-Message-Id: <20210608175944.960742287@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        syzbot+5a864149dd970b546223@syzkaller.appspotmail.com
+Subject: [PATCH 5.12 088/161] io_uring: fix ltout double free on completion race
+Date:   Tue,  8 Jun 2021 20:26:58 +0200
+Message-Id: <20210608175948.412603388@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,39 +40,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Zhu <James.Zhu@amd.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 20ebbfd22f8115a1e4f60d3d289f66be4d47f1ec ]
+[ Upstream commit 447c19f3b5074409c794b350b10306e1da1ef4ba ]
 
-Add cancel_delayed_work_sync before set power gating state
-to avoid race condition issue when power gating.
+Always remove linked timeout on io_link_timeout_fn() from the master
+request link list, otherwise we may get use-after-free when first
+io_link_timeout_fn() puts linked timeout in the fail path, and then
+will be found and put on master's free.
 
-Signed-off-by: James Zhu <James.Zhu@amd.com>
-Reviewed-by: Leo Liu <leo.liu@amd.com>
-Acked-by: Christian König <christian.koenig@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: stable@vger.kernel.org # 5.10+
+Fixes: 90cd7e424969d ("io_uring: track link timeout's master explicitly")
+Reported-and-tested-by: syzbot+5a864149dd970b546223@syzkaller.appspotmail.com
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/69c46bf6ce37fec4fdcd98f0882e18eb07ce693a.1620990121.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/io_uring.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-index 9259e35f0f55..e00c88abeaed 100644
---- a/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-+++ b/drivers/gpu/drm/amd/amdgpu/jpeg_v3_0.c
-@@ -159,9 +159,9 @@ static int jpeg_v3_0_hw_init(void *handle)
- static int jpeg_v3_0_hw_fini(void *handle)
- {
- 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
--	struct amdgpu_ring *ring;
+diff --git a/fs/io_uring.c b/fs/io_uring.c
+index dd8b3fac877c..359d1abb089c 100644
+--- a/fs/io_uring.c
++++ b/fs/io_uring.c
+@@ -6289,10 +6289,11 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
+ 	 * We don't expect the list to be empty, that will only happen if we
+ 	 * race with the completion of the linked work.
+ 	 */
+-	if (prev && req_ref_inc_not_zero(prev))
++	if (prev) {
+ 		io_remove_next_linked(prev);
+-	else
+-		prev = NULL;
++		if (!req_ref_inc_not_zero(prev))
++			prev = NULL;
++	}
+ 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
  
--	ring = &adev->jpeg.inst->ring_dec;
-+	cancel_delayed_work_sync(&adev->vcn.idle_work);
-+
- 	if (adev->jpeg.cur_state != AMD_PG_STATE_GATE &&
- 	      RREG32_SOC15(JPEG, 0, mmUVD_JRBC_STATUS))
- 		jpeg_v3_0_set_powergating_state(adev, AMD_PG_STATE_GATE);
+ 	if (prev) {
 -- 
 2.30.2
 
