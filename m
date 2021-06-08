@@ -2,35 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 326D03A00BC
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:32 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 982743A007A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234918AbhFHSqt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:46:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:42126 "EHLO mail.kernel.org"
+        id S235475AbhFHSnx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:43:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235742AbhFHSoz (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:44:55 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 961EF61359;
-        Tue,  8 Jun 2021 18:36:41 +0000 (UTC)
+        id S232640AbhFHSly (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:41:54 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 67464613FF;
+        Tue,  8 Jun 2021 18:35:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177402;
-        bh=M+zKhaIuEUGO4xa6uK+sG9Nn7z4s6Psx9iEw9U7UOps=;
+        s=korg; t=1623177319;
+        bh=7dn+YmoNYsIfFsYwgBhxUoZFQvV/6OMZdEEDuMU8WJA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WzfdggDG4LIpk4J8Fk1U5XXBZnCQiKQYuLgVroQptzkHtqcUvEQZKzJQ/j3VZsyYa
-         Qx8L96SdKYy/D4EtyPRaH3Tg6alntN4ZXWUbtaynUsPTlRFkEwo7OcWvTl1Qdmge4v
-         4kwmYrau2Bmsf8LoxMVSYLvJH6wF+6hFyUqcSWUY=
+        b=sfKFkY6vEsmLM4FxHKF/wrlJ9jNrCfc5lOVAqDuliyrT4vCzTKgdQ4pNl701iB3U7
+         NaAc3diN2gFqUxE58NUK/pQ8497TmhctNabrIbvT7UAjd5dgC+yGrux0Ice6MpeSEW
+         tWoHBG4PwEtnT3lE0BQ9DvHHxayfrx2OT0LyPPNc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
+        kernel test robot <lkp@intel.com>,
         Alex Williamson <alex.williamson@redhat.com>,
+        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
+        Jason Gunthorpe <jgg@nvidia.com>,
+        Eric Auger <eric.auger@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 09/78] vfio/pci: Fix error return code in vfio_ecap_init()
-Date:   Tue,  8 Jun 2021 20:26:38 +0200
-Message-Id: <20210608175935.583353021@linuxfoundation.org>
+Subject: [PATCH 5.4 10/78] vfio/pci: zap_vma_ptes() needs MMU
+Date:   Tue,  8 Jun 2021 20:26:39 +0200
+Message-Id: <20210608175935.625130370@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
 References: <20210608175935.254388043@linuxfoundation.org>
@@ -42,37 +44,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit d1ce2c79156d3baf0830990ab06d296477b93c26 ]
+[ Upstream commit 2a55ca37350171d9b43d561528f23d4130097255 ]
 
-The error code returned from vfio_ext_cap_len() is stored in 'len', not
-in 'ret'.
+zap_vma_ptes() is only available when CONFIG_MMU is set/enabled.
+Without CONFIG_MMU, vfio_pci.o has build errors, so make
+VFIO_PCI depend on MMU.
 
-Fixes: 89e1f7d4c66d ("vfio: Add PCI device driver")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
-Message-Id: <20210515020458.6771-1-thunder.leizhen@huawei.com>
+riscv64-linux-ld: drivers/vfio/pci/vfio_pci.o: in function `vfio_pci_mmap_open':
+vfio_pci.c:(.text+0x1ec): undefined reference to `zap_vma_ptes'
+riscv64-linux-ld: drivers/vfio/pci/vfio_pci.o: in function `.L0 ':
+vfio_pci.c:(.text+0x165c): undefined reference to `zap_vma_ptes'
+
+Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Cc: Alex Williamson <alex.williamson@redhat.com>
+Cc: Cornelia Huck <cohuck@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Eric Auger <eric.auger@redhat.com>
+Message-Id: <20210515190856.2130-1-rdunlap@infradead.org>
 Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/vfio_pci_config.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/vfio/pci/Kconfig | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
-index bf32997c557f..50cd17fcf754 100644
---- a/drivers/vfio/pci/vfio_pci_config.c
-+++ b/drivers/vfio/pci/vfio_pci_config.c
-@@ -1576,7 +1576,7 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
- 			if (len == 0xFF) {
- 				len = vfio_ext_cap_len(vdev, ecap, epos);
- 				if (len < 0)
--					return ret;
-+					return len;
- 			}
- 		}
- 
+diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
+index 4abddbebd4b2..c691127bc805 100644
+--- a/drivers/vfio/pci/Kconfig
++++ b/drivers/vfio/pci/Kconfig
+@@ -2,6 +2,7 @@
+ config VFIO_PCI
+ 	tristate "VFIO support for PCI devices"
+ 	depends on VFIO && PCI && EVENTFD
++	depends on MMU
+ 	select VFIO_VIRQFD
+ 	select IRQ_BYPASS_MANAGER
+ 	help
 -- 
 2.30.2
 
