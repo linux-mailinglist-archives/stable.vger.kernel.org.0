@@ -2,42 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EBB73A03D5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 43B7F3A015C
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237086AbhFHTWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:08 -0400
-Received: from mail.kernel.org ([198.145.29.99]:40046 "EHLO mail.kernel.org"
+        id S235289AbhFHSvB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:51:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43310 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236506AbhFHTSi (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:18:38 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1FE5261979;
-        Tue,  8 Jun 2021 18:51:59 +0000 (UTC)
+        id S235362AbhFHSr6 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:47:58 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 24C1F61407;
+        Tue,  8 Jun 2021 18:38:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178319;
-        bh=hcIGdGpA5P6zDoQuzknyt5oN/yMd9UMTksMR66Bu7+Y=;
+        s=korg; t=1623177484;
+        bh=1Jc/KsaCm8fXjlm3dEzZVRMaDxG65IroDlSUlk7D1N4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u4MDf8VwCwfy/6f/COW15DB/KAwY2bUud63IEaf1kfFaV1AFAyUy8kgGTSaOShySB
-         wqbJ4J0m3A69pU4YUUpPVlC/yXBz9Fls1Le7OpycaIiP9EOmTelDwftYkfgUt9UkaH
-         J5EAL3uEIm4L3TXdcv82PCgyoc+OH8xFnUxX6dN4=
+        b=BxPQgRl0iGxaFS8+9pXWHw0BCKtnDsaU+y5ncaurxHjG1RBZSGpdhUZL4js1vaBJ5
+         /mmwPkvqW44BOXxw1DcWLfdOwiREe/E0IifGgkKs/TSPHyXHbIiSDbnKolZGdk9YBc
+         gU4Va8qqrTl1TQiJMbQSY07ENIkCHCWPSlLScTRg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Cedric Le Goater <clg@fr.ibm.com>,
-        Christian Brauner <christian@brauner.io>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
         Andrew Morton <akpm@linux-foundation.org>,
+        "Kirill A . Shutemov" <kirill@shutemov.name>,
+        Qian Cai <cai@lca.pw>, Song Liu <songliubraving@fb.com>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 125/161] pid: take a reference when initializing `cad_pid`
-Date:   Tue,  8 Jun 2021 20:27:35 +0200
-Message-Id: <20210608175949.671691409@linuxfoundation.org>
+Subject: [PATCH 5.4 67/78] XArray: add xas_split
+Date:   Tue,  8 Jun 2021 20:27:36 +0200
+Message-Id: <20210608175937.533580811@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -46,138 +42,368 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
 
-commit 0711f0d7050b9e07c44bc159bbc64ac0a1022c7f upstream.
+commit 8fc75643c5e14574c8be59b69182452ece28315a upstream
 
-During boot, kernel_init_freeable() initializes `cad_pid` to the init
-task's struct pid.  Later on, we may change `cad_pid` via a sysctl, and
-when this happens proc_do_cad_pid() will increment the refcount on the
-new pid via get_pid(), and will decrement the refcount on the old pid
-via put_pid().  As we never called get_pid() when we initialized
-`cad_pid`, we decrement a reference we never incremented, can therefore
-free the init task's struct pid early.  As there can be dangling
-references to the struct pid, we can later encounter a use-after-free
-(e.g.  when delivering signals).
+In order to use multi-index entries for huge pages in the page cache, we
+need to be able to split a multi-index entry (eg if a file is truncated in
+the middle of a huge page entry).  This version does not support splitting
+more than one level of the tree at a time.  This is an acceptable
+limitation for the page cache as we do not expect to support order-12
+pages in the near future.
 
-This was spotted when fuzzing v5.13-rc3 with Syzkaller, but seems to
-have been around since the conversion of `cad_pid` to struct pid in
-commit 9ec52099e4b8 ("[PATCH] replace cad_pid by a struct pid") from the
-pre-KASAN stone age of v2.6.19.
+[akpm@linux-foundation.org: export xas_split_alloc() to modules]
+[willy@infradead.org: fix xarray split]
+  Link: https://lkml.kernel.org/r/20200910175450.GV6583@casper.infradead.org
+[willy@infradead.org: fix xarray]
+  Link: https://lkml.kernel.org/r/20201001233943.GW20115@casper.infradead.org
 
-Fix this by getting a reference to the init task's struct pid when we
-assign it to `cad_pid`.
-
-Full KASAN splat below.
-
-   ==================================================================
-   BUG: KASAN: use-after-free in ns_of_pid include/linux/pid.h:153 [inline]
-   BUG: KASAN: use-after-free in task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-   Read of size 4 at addr ffff23794dda0004 by task syz-executor.0/273
-
-   CPU: 1 PID: 273 Comm: syz-executor.0 Not tainted 5.12.0-00001-g9aef892b2d15 #1
-   Hardware name: linux,dummy-virt (DT)
-   Call trace:
-    ns_of_pid include/linux/pid.h:153 [inline]
-    task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-    do_notify_parent+0x308/0xe60 kernel/signal.c:1950
-    exit_notify kernel/exit.c:682 [inline]
-    do_exit+0x2334/0x2bd0 kernel/exit.c:845
-    do_group_exit+0x108/0x2c8 kernel/exit.c:922
-    get_signal+0x4e4/0x2a88 kernel/signal.c:2781
-    do_signal arch/arm64/kernel/signal.c:882 [inline]
-    do_notify_resume+0x300/0x970 arch/arm64/kernel/signal.c:936
-    work_pending+0xc/0x2dc
-
-   Allocated by task 0:
-    slab_post_alloc_hook+0x50/0x5c0 mm/slab.h:516
-    slab_alloc_node mm/slub.c:2907 [inline]
-    slab_alloc mm/slub.c:2915 [inline]
-    kmem_cache_alloc+0x1f4/0x4c0 mm/slub.c:2920
-    alloc_pid+0xdc/0xc00 kernel/pid.c:180
-    copy_process+0x2794/0x5e18 kernel/fork.c:2129
-    kernel_clone+0x194/0x13c8 kernel/fork.c:2500
-    kernel_thread+0xd4/0x110 kernel/fork.c:2552
-    rest_init+0x44/0x4a0 init/main.c:687
-    arch_call_rest_init+0x1c/0x28
-    start_kernel+0x520/0x554 init/main.c:1064
-    0x0
-
-   Freed by task 270:
-    slab_free_hook mm/slub.c:1562 [inline]
-    slab_free_freelist_hook+0x98/0x260 mm/slub.c:1600
-    slab_free mm/slub.c:3161 [inline]
-    kmem_cache_free+0x224/0x8e0 mm/slub.c:3177
-    put_pid.part.4+0xe0/0x1a8 kernel/pid.c:114
-    put_pid+0x30/0x48 kernel/pid.c:109
-    proc_do_cad_pid+0x190/0x1b0 kernel/sysctl.c:1401
-    proc_sys_call_handler+0x338/0x4b0 fs/proc/proc_sysctl.c:591
-    proc_sys_write+0x34/0x48 fs/proc/proc_sysctl.c:617
-    call_write_iter include/linux/fs.h:1977 [inline]
-    new_sync_write+0x3ac/0x510 fs/read_write.c:518
-    vfs_write fs/read_write.c:605 [inline]
-    vfs_write+0x9c4/0x1018 fs/read_write.c:585
-    ksys_write+0x124/0x240 fs/read_write.c:658
-    __do_sys_write fs/read_write.c:670 [inline]
-    __se_sys_write fs/read_write.c:667 [inline]
-    __arm64_sys_write+0x78/0xb0 fs/read_write.c:667
-    __invoke_syscall arch/arm64/kernel/syscall.c:37 [inline]
-    invoke_syscall arch/arm64/kernel/syscall.c:49 [inline]
-    el0_svc_common.constprop.1+0x16c/0x388 arch/arm64/kernel/syscall.c:129
-    do_el0_svc+0xf8/0x150 arch/arm64/kernel/syscall.c:168
-    el0_svc+0x28/0x38 arch/arm64/kernel/entry-common.c:416
-    el0_sync_handler+0x134/0x180 arch/arm64/kernel/entry-common.c:432
-    el0_sync+0x154/0x180 arch/arm64/kernel/entry.S:701
-
-   The buggy address belongs to the object at ffff23794dda0000
-    which belongs to the cache pid of size 224
-   The buggy address is located 4 bytes inside of
-    224-byte region [ffff23794dda0000, ffff23794dda00e0)
-   The buggy address belongs to the page:
-   page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x4dda0
-   head:(____ptrval____) order:1 compound_mapcount:0
-   flags: 0x3fffc0000010200(slab|head)
-   raw: 03fffc0000010200 dead000000000100 dead000000000122 ffff23794d40d080
-   raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
-   page dumped because: kasan: bad access detected
-
-   Memory state around the buggy address:
-    ffff23794dd9ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-    ffff23794dd9ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-   >ffff23794dda0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
-    ffff23794dda0080: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-    ffff23794dda0100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-   ==================================================================
-
-Link: https://lkml.kernel.org/r/20210524172230.38715-1-mark.rutland@arm.com
-Fixes: 9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Kees Cook <keescook@chromium.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: <stable@vger.kernel.org>
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: "Kirill A . Shutemov" <kirill@shutemov.name>
+Cc: Qian Cai <cai@lca.pw>
+Cc: Song Liu <songliubraving@fb.com>
+Link: https://lkml.kernel.org/r/20200903183029.14930-3-willy@infradead.org
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/core-api/xarray.rst |   14 +--
+ include/linux/xarray.h            |   13 ++
+ lib/test_xarray.c                 |   44 +++++++++
+ lib/xarray.c                      |  168 +++++++++++++++++++++++++++++++++++---
+ 4 files changed, 224 insertions(+), 15 deletions(-)
 
---- a/init/main.c
-+++ b/init/main.c
-@@ -1514,7 +1514,7 @@ static noinline void __init kernel_init_
- 	 */
- 	set_mems_allowed(node_states[N_MEMORY]);
+--- a/Documentation/core-api/xarray.rst
++++ b/Documentation/core-api/xarray.rst
+@@ -461,13 +461,15 @@ or iterations will move the index to the
+ Each entry will only be returned once, no matter how many indices it
+ occupies.
  
--	cad_pid = task_pid(current);
-+	cad_pid = get_pid(task_pid(current));
+-Using xas_next() or xas_prev() with a multi-index xa_state
+-is not supported.  Using either of these functions on a multi-index entry
+-will reveal sibling entries; these should be skipped over by the caller.
++Using xas_next() or xas_prev() with a multi-index xa_state is not
++supported.  Using either of these functions on a multi-index entry will
++reveal sibling entries; these should be skipped over by the caller.
  
- 	smp_prepare_cpus(setup_max_cpus);
+-Storing ``NULL`` into any index of a multi-index entry will set the entry
+-at every index to ``NULL`` and dissolve the tie.  Splitting a multi-index
+-entry into entries occupying smaller ranges is not yet supported.
++Storing ``NULL`` into any index of a multi-index entry will set the
++entry at every index to ``NULL`` and dissolve the tie.  A multi-index
++entry can be split into entries occupying smaller ranges by calling
++xas_split_alloc() without the xa_lock held, followed by taking the lock
++and calling xas_split().
  
+ Functions and structures
+ ========================
+--- a/include/linux/xarray.h
++++ b/include/linux/xarray.h
+@@ -1472,11 +1472,24 @@ void xas_create_range(struct xa_state *)
+ 
+ #ifdef CONFIG_XARRAY_MULTI
+ int xa_get_order(struct xarray *, unsigned long index);
++void xas_split(struct xa_state *, void *entry, unsigned int order);
++void xas_split_alloc(struct xa_state *, void *entry, unsigned int order, gfp_t);
+ #else
+ static inline int xa_get_order(struct xarray *xa, unsigned long index)
+ {
+ 	return 0;
+ }
++
++static inline void xas_split(struct xa_state *xas, void *entry,
++		unsigned int order)
++{
++	xas_store(xas, entry);
++}
++
++static inline void xas_split_alloc(struct xa_state *xas, void *entry,
++		unsigned int order, gfp_t gfp)
++{
++}
+ #endif
+ 
+ /**
+--- a/lib/test_xarray.c
++++ b/lib/test_xarray.c
+@@ -1503,6 +1503,49 @@ static noinline void check_store_range(s
+ 	}
+ }
+ 
++#ifdef CONFIG_XARRAY_MULTI
++static void check_split_1(struct xarray *xa, unsigned long index,
++							unsigned int order)
++{
++	XA_STATE(xas, xa, index);
++	void *entry;
++	unsigned int i = 0;
++
++	xa_store_order(xa, index, order, xa, GFP_KERNEL);
++
++	xas_split_alloc(&xas, xa, order, GFP_KERNEL);
++	xas_lock(&xas);
++	xas_split(&xas, xa, order);
++	xas_unlock(&xas);
++
++	xa_for_each(xa, index, entry) {
++		XA_BUG_ON(xa, entry != xa);
++		i++;
++	}
++	XA_BUG_ON(xa, i != 1 << order);
++
++	xa_set_mark(xa, index, XA_MARK_0);
++	XA_BUG_ON(xa, !xa_get_mark(xa, index, XA_MARK_0));
++
++	xa_destroy(xa);
++}
++
++static noinline void check_split(struct xarray *xa)
++{
++	unsigned int order;
++
++	XA_BUG_ON(xa, !xa_empty(xa));
++
++	for (order = 1; order < 2 * XA_CHUNK_SHIFT; order++) {
++		check_split_1(xa, 0, order);
++		check_split_1(xa, 1UL << order, order);
++		check_split_1(xa, 3UL << order, order);
++	}
++}
++#else
++static void check_split(struct xarray *xa) { }
++#endif
++
+ static void check_align_1(struct xarray *xa, char *name)
+ {
+ 	int i;
+@@ -1729,6 +1772,7 @@ static int xarray_checks(void)
+ 	check_store_range(&array);
+ 	check_store_iter(&array);
+ 	check_align(&xa0);
++	check_split(&array);
+ 
+ 	check_workingset(&array, 0);
+ 	check_workingset(&array, 64);
+--- a/lib/xarray.c
++++ b/lib/xarray.c
+@@ -266,13 +266,14 @@ static void xa_node_free(struct xa_node
+  */
+ static void xas_destroy(struct xa_state *xas)
+ {
+-	struct xa_node *node = xas->xa_alloc;
++	struct xa_node *next, *node = xas->xa_alloc;
+ 
+-	if (!node)
+-		return;
+-	XA_NODE_BUG_ON(node, !list_empty(&node->private_list));
+-	kmem_cache_free(radix_tree_node_cachep, node);
+-	xas->xa_alloc = NULL;
++	while (node) {
++		XA_NODE_BUG_ON(node, !list_empty(&node->private_list));
++		next = rcu_dereference_raw(node->parent);
++		radix_tree_node_rcu_free(&node->rcu_head);
++		xas->xa_alloc = node = next;
++	}
+ }
+ 
+ /**
+@@ -304,6 +305,7 @@ bool xas_nomem(struct xa_state *xas, gfp
+ 	xas->xa_alloc = kmem_cache_alloc(radix_tree_node_cachep, gfp);
+ 	if (!xas->xa_alloc)
+ 		return false;
++	xas->xa_alloc->parent = NULL;
+ 	XA_NODE_BUG_ON(xas->xa_alloc, !list_empty(&xas->xa_alloc->private_list));
+ 	xas->xa_node = XAS_RESTART;
+ 	return true;
+@@ -339,6 +341,7 @@ static bool __xas_nomem(struct xa_state
+ 	}
+ 	if (!xas->xa_alloc)
+ 		return false;
++	xas->xa_alloc->parent = NULL;
+ 	XA_NODE_BUG_ON(xas->xa_alloc, !list_empty(&xas->xa_alloc->private_list));
+ 	xas->xa_node = XAS_RESTART;
+ 	return true;
+@@ -403,7 +406,7 @@ static unsigned long xas_size(const stru
+ /*
+  * Use this to calculate the maximum index that will need to be created
+  * in order to add the entry described by @xas.  Because we cannot store a
+- * multiple-index entry at index 0, the calculation is a little more complex
++ * multi-index entry at index 0, the calculation is a little more complex
+  * than you might expect.
+  */
+ static unsigned long xas_max(struct xa_state *xas)
+@@ -946,6 +949,153 @@ void xas_init_marks(const struct xa_stat
+ }
+ EXPORT_SYMBOL_GPL(xas_init_marks);
+ 
++#ifdef CONFIG_XARRAY_MULTI
++static unsigned int node_get_marks(struct xa_node *node, unsigned int offset)
++{
++	unsigned int marks = 0;
++	xa_mark_t mark = XA_MARK_0;
++
++	for (;;) {
++		if (node_get_mark(node, offset, mark))
++			marks |= 1 << (__force unsigned int)mark;
++		if (mark == XA_MARK_MAX)
++			break;
++		mark_inc(mark);
++	}
++
++	return marks;
++}
++
++static void node_set_marks(struct xa_node *node, unsigned int offset,
++			struct xa_node *child, unsigned int marks)
++{
++	xa_mark_t mark = XA_MARK_0;
++
++	for (;;) {
++		if (marks & (1 << (__force unsigned int)mark)) {
++			node_set_mark(node, offset, mark);
++			if (child)
++				node_mark_all(child, mark);
++		}
++		if (mark == XA_MARK_MAX)
++			break;
++		mark_inc(mark);
++	}
++}
++
++/**
++ * xas_split_alloc() - Allocate memory for splitting an entry.
++ * @xas: XArray operation state.
++ * @entry: New entry which will be stored in the array.
++ * @order: New entry order.
++ * @gfp: Memory allocation flags.
++ *
++ * This function should be called before calling xas_split().
++ * If necessary, it will allocate new nodes (and fill them with @entry)
++ * to prepare for the upcoming split of an entry of @order size into
++ * entries of the order stored in the @xas.
++ *
++ * Context: May sleep if @gfp flags permit.
++ */
++void xas_split_alloc(struct xa_state *xas, void *entry, unsigned int order,
++		gfp_t gfp)
++{
++	unsigned int sibs = (1 << (order % XA_CHUNK_SHIFT)) - 1;
++	unsigned int mask = xas->xa_sibs;
++
++	/* XXX: no support for splitting really large entries yet */
++	if (WARN_ON(xas->xa_shift + 2 * XA_CHUNK_SHIFT < order))
++		goto nomem;
++	if (xas->xa_shift + XA_CHUNK_SHIFT > order)
++		return;
++
++	do {
++		unsigned int i;
++		void *sibling;
++		struct xa_node *node;
++
++		node = kmem_cache_alloc(radix_tree_node_cachep, gfp);
++		if (!node)
++			goto nomem;
++		node->array = xas->xa;
++		for (i = 0; i < XA_CHUNK_SIZE; i++) {
++			if ((i & mask) == 0) {
++				RCU_INIT_POINTER(node->slots[i], entry);
++				sibling = xa_mk_sibling(0);
++			} else {
++				RCU_INIT_POINTER(node->slots[i], sibling);
++			}
++		}
++		RCU_INIT_POINTER(node->parent, xas->xa_alloc);
++		xas->xa_alloc = node;
++	} while (sibs-- > 0);
++
++	return;
++nomem:
++	xas_destroy(xas);
++	xas_set_err(xas, -ENOMEM);
++}
++EXPORT_SYMBOL_GPL(xas_split_alloc);
++
++/**
++ * xas_split() - Split a multi-index entry into smaller entries.
++ * @xas: XArray operation state.
++ * @entry: New entry to store in the array.
++ * @order: New entry order.
++ *
++ * The value in the entry is copied to all the replacement entries.
++ *
++ * Context: Any context.  The caller should hold the xa_lock.
++ */
++void xas_split(struct xa_state *xas, void *entry, unsigned int order)
++{
++	unsigned int sibs = (1 << (order % XA_CHUNK_SHIFT)) - 1;
++	unsigned int offset, marks;
++	struct xa_node *node;
++	void *curr = xas_load(xas);
++	int values = 0;
++
++	node = xas->xa_node;
++	if (xas_top(node))
++		return;
++
++	marks = node_get_marks(node, xas->xa_offset);
++
++	offset = xas->xa_offset + sibs;
++	do {
++		if (xas->xa_shift < node->shift) {
++			struct xa_node *child = xas->xa_alloc;
++
++			xas->xa_alloc = rcu_dereference_raw(child->parent);
++			child->shift = node->shift - XA_CHUNK_SHIFT;
++			child->offset = offset;
++			child->count = XA_CHUNK_SIZE;
++			child->nr_values = xa_is_value(entry) ?
++					XA_CHUNK_SIZE : 0;
++			RCU_INIT_POINTER(child->parent, node);
++			node_set_marks(node, offset, child, marks);
++			rcu_assign_pointer(node->slots[offset],
++					xa_mk_node(child));
++			if (xa_is_value(curr))
++				values--;
++		} else {
++			unsigned int canon = offset - xas->xa_sibs;
++
++			node_set_marks(node, canon, NULL, marks);
++			rcu_assign_pointer(node->slots[canon], entry);
++			while (offset > canon)
++				rcu_assign_pointer(node->slots[offset--],
++						xa_mk_sibling(canon));
++			values += (xa_is_value(entry) - xa_is_value(curr)) *
++					(xas->xa_sibs + 1);
++		}
++	} while (offset-- > xas->xa_offset);
++
++	node->nr_values += values;
++}
++EXPORT_SYMBOL_GPL(xas_split);
++#endif
++
+ /**
+  * xas_pause() - Pause a walk to drop a lock.
+  * @xas: XArray operation state.
+@@ -1407,7 +1557,7 @@ EXPORT_SYMBOL(__xa_store);
+  * @gfp: Memory allocation flags.
+  *
+  * After this function returns, loads from this index will return @entry.
+- * Storing into an existing multislot entry updates the entry of every index.
++ * Storing into an existing multi-index entry updates the entry of every index.
+  * The marks associated with @index are unaffected unless @entry is %NULL.
+  *
+  * Context: Any context.  Takes and releases the xa_lock.
+@@ -1549,7 +1699,7 @@ static void xas_set_range(struct xa_stat
+  *
+  * After this function returns, loads from any index between @first and @last,
+  * inclusive will return @entry.
+- * Storing into an existing multislot entry updates the entry of every index.
++ * Storing into an existing multi-index entry updates the entry of every index.
+  * The marks associated with @index are unaffected unless @entry is %NULL.
+  *
+  * Context: Process context.  Takes and releases the xa_lock.  May sleep
 
 
