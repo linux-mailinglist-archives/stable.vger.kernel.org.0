@@ -2,101 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AC673A0594
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 23:13:16 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5AF083A0597
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 23:14:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230251AbhFHVPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 17:15:08 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36352 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229845AbhFHVPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 17:15:08 -0400
-Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6985CC061787
-        for <stable@vger.kernel.org>; Tue,  8 Jun 2021 14:13:00 -0700 (PDT)
-Received: by mail-pg1-x52a.google.com with SMTP id y11so9445527pgp.11
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 14:13:00 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20150623.gappssmtp.com; s=20150623;
-        h=subject:to:cc:references:from:message-id:date:user-agent
-         :mime-version:in-reply-to:content-language:content-transfer-encoding;
-        bh=kavbhkV/CORp2/ogdB7Rtj7eAxktrXq37FhU19x+nUk=;
-        b=KBB/iKjh3n+I7dWpm/bbRMzFGylRHvlUJnpGGDzQn9hQPT/1v7BuDyRtaCFGDKsSZ/
-         SRRD+GY8TuRx1wgYJ3SRVc5v1Ag1KqgrPh1waNhykvt68RxtIsq/robvfeAPC3r7Oq6L
-         WEvRA8PBW42xemmkJkwsvPK9rKm7VDGZeeS+gjiBUXfGDtsK2CKptCOPrlakKqK/Fl9K
-         +17fXokO4vcrugo4LOrIh5ot/kmLgVjs0fhf+ZCwRxaB2RfiugsyFgiFPIB7xR+rtWCk
-         HL3lFxRDtXGzjXg3c0sP4rFGJ3baV4MU2YQ5PpkQIzdlC6U8NtT6KpfvPwlfairR12AA
-         k2ew==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-language
-         :content-transfer-encoding;
-        bh=kavbhkV/CORp2/ogdB7Rtj7eAxktrXq37FhU19x+nUk=;
-        b=sVUb7oNlyY463Rvc1PMr5n87iiZoLciK9845VJ0CjHjcTJ2GXxk1plJsdV81k6PGgD
-         Q59ZYsaWPjsCikQXFelPQvLC0zboov8bt931e+s1WoUSsNSNJBJx3HWE2PL/UxSiT3rJ
-         9J++q7OquMYCNgNAqE4zKw6QDnyImpgZIlGY3OFDs5IMztBEjm2tcJBKy6YR0GLAcrBl
-         zZfHHscKI7S82+HJz+IOJhPHkhQfRAKRMRMugLWm92ET07VH9SRe0+YTfUnnJXDvoQlt
-         Mohxt0afUQT4KInBBeTf5/VoNQ+bmCKDvUz+S4ZwWBTvY1IXx0Zn6clHKrfGoYB+tviA
-         Ghzg==
-X-Gm-Message-State: AOAM531VY13QsIxK0atauDir8QOUcbJpwemm0EzBVlIndjib+MUiUGEe
-        PHq6EMCEsHEAe8e3nlrNvKP4ywuWXmzSCg==
-X-Google-Smtp-Source: ABdhPJztTQV6zqfvIRBqvDAZKkQMbx3QWBPtGYGL9c7JROWyN/H0l4/bHq1BZ7/QpT4C3oZu1RTidQ==
-X-Received: by 2002:a62:3344:0:b029:28c:6f0f:cb90 with SMTP id z65-20020a6233440000b029028c6f0fcb90mr1727257pfz.58.1623186779130;
-        Tue, 08 Jun 2021 14:12:59 -0700 (PDT)
-Received: from [192.168.4.41] (cpe-72-132-29-68.dc.res.rr.com. [72.132.29.68])
-        by smtp.gmail.com with ESMTPSA id c20sm3036209pjr.35.2021.06.08.14.12.56
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Jun 2021 14:12:58 -0700 (PDT)
-Subject: Re: [PATCH] rq-qos: fix missed wake-ups in rq_qos_throttle try two
-To:     Jan Kara <jack@suse.cz>
-Cc:     Josef Bacik <josef@toxicpanda.com>,
-        Oleg Nesterov <oleg@redhat.com>, linux-block@vger.kernel.org,
-        stable@vger.kernel.org
-References: <20210607112613.25344-1-jack@suse.cz>
-From:   Jens Axboe <axboe@kernel.dk>
-Message-ID: <e14aeaa7-45a3-b2f0-7738-3613189ae1d4@kernel.dk>
-Date:   Tue, 8 Jun 2021 15:13:16 -0600
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:68.0) Gecko/20100101
- Thunderbird/68.10.0
-MIME-Version: 1.0
-In-Reply-To: <20210607112613.25344-1-jack@suse.cz>
-Content-Type: text/plain; charset=utf-8
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
+        id S233989AbhFHVQM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 17:16:12 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36816 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229526AbhFHVQL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 17:16:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id DF1E96139A;
+        Tue,  8 Jun 2021 21:14:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1623186858;
+        bh=5ENbWZzoJaZh+uraKcpFyBD+U1tY8idYFliuLEEi4ik=;
+        h=Date:From:To:Subject:From;
+        b=JIAK38A9z86GOyvnmitcrn18gkROIU0QjdEauQQjSfbxVQSDH6cVIxl6FGnmgO68T
+         OqtT0+zP5phziOKG/vaknj1aakeejViW+ZETxN/WYd56l7wnvo6LmQ9KkTW+7AIUb6
+         ExHdbX0Fl6Ny/VzOPJMLRD0ugxh4FABrCrsnaITY=
+Date:   Tue, 08 Jun 2021 14:14:17 -0700
+From:   akpm@linux-foundation.org
+To:     anderson@redhat.com, benh@kernel.crashing.org, bhe@redhat.com,
+        bhupesh.sharma@linaro.org, bp@alien8.de, catalin.marinas@arm.com,
+        dyoung@redhat.com, james.morse@arm.com, k-hagio@ab.jp.nec.com,
+        kernelfans@gmail.com, mark.rutland@arm.com, mingo@kernel.org,
+        mm-commits@vger.kernel.org, mpe@ellerman.id.au, paulus@samba.org,
+        stable@vger.kernel.org, tglx@linutronix.de, will@kernel.org
+Subject:  +
+ crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo.patch added to
+ -mm tree
+Message-ID: <20210608211417.XF2pYHaX0%akpm@linux-foundation.org>
+User-Agent: s-nail v14.8.16
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 6/7/21 5:26 AM, Jan Kara wrote:
-> Commit 545fbd0775ba ("rq-qos: fix missed wake-ups in rq_qos_throttle")
-> tried to fix a problem that a process could be sleeping in rq_qos_wait()
-> without anyone to wake it up. However the fix is not complete and the
-> following can still happen:
-> 
-> CPU1 (waiter1)		CPU2 (waiter2)		CPU3 (waker)
-> rq_qos_wait()		rq_qos_wait()
->   acquire_inflight_cb() -> fails
-> 			  acquire_inflight_cb() -> fails
-> 
-> 						completes IOs, inflight
-> 						  decreased
->   prepare_to_wait_exclusive()
-> 			  prepare_to_wait_exclusive()
->   has_sleeper = !wq_has_single_sleeper() -> true as there are two sleepers
-> 			  has_sleeper = !wq_has_single_sleeper() -> true
->   io_schedule()		  io_schedule()
-> 
-> Deadlock as now there's nobody to wakeup the two waiters. The logic
-> automatically blocking when there are already sleepers is really subtle
-> and the only way to make it work reliably is that we check whether there
-> are some waiters in the queue when adding ourselves there. That way, we
-> are guaranteed that at least the first process to enter the wait queue
-> will recheck the waiting condition before going to sleep and thus
-> guarantee forward progress.
 
-Applied, thanks.
+The patch titled
+     Subject: crash_core, vmcoreinfo: append 'SECTION_SIZE_BITS' to vmcoreinfo
+has been added to the -mm tree.  Its filename is
+     crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo.patch
 
--- 
-Jens Axboe
+This patch should soon appear at
+    https://ozlabs.org/~akpm/mmots/broken-out/crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo.patch
+and later at
+    https://ozlabs.org/~akpm/mmotm/broken-out/crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo.patch
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next and is updated
+there every 3-4 working days
+
+------------------------------------------------------
+From: Pingfan Liu <kernelfans@gmail.com>
+Subject: crash_core, vmcoreinfo: append 'SECTION_SIZE_BITS' to vmcoreinfo
+
+As mentioned in kernel commit 1d50e5d0c505 ("crash_core, vmcoreinfo:
+Append 'MAX_PHYSMEM_BITS' to vmcoreinfo"), SECTION_SIZE_BITS in the
+formula:
+
+    #define SECTIONS_SHIFT    (MAX_PHYSMEM_BITS - SECTION_SIZE_BITS)
+
+Besides SECTIONS_SHIFT, SECTION_SIZE_BITS is also used to calculate
+PAGES_PER_SECTION in makedumpfile just like kernel.
+
+Unfortunately, this arch-dependent macro SECTION_SIZE_BITS changes, e.g. 
+recently in kernel commit f0b13ee23241 ("arm64/sparsemem: reduce
+SECTION_SIZE_BITS").  But user space wants a stable interface to get this
+info.  Such info is impossible to be deduced from a crashdump vmcore. 
+Hence append SECTION_SIZE_BITS to vmcoreinfo.
+
+Link: https://lkml.kernel.org/r/20210608103359.84907-1-kernelfans@gmail.com
+Link: http://lists.infradead.org/pipermail/kexec/2021-June/022676.html
+Signed-off-by: Pingfan Liu <kernelfans@gmail.com>
+Acked-by: Baoquan He <bhe@redhat.com>
+Cc: Bhupesh Sharma <bhupesh.sharma@linaro.org>
+Cc: Kazuhito Hagio <k-hagio@ab.jp.nec.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Boris Petkov <bp@alien8.de>
+Cc: Ingo Molnar <mingo@kernel.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: James Morse <james.morse@arm.com>
+Cc: Mark Rutland <mark.rutland@arm.com>
+Cc: Will Deacon <will@kernel.org>
+Cc: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Michael Ellerman <mpe@ellerman.id.au>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Dave Anderson <anderson@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ kernel/crash_core.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/kernel/crash_core.c~crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo
++++ a/kernel/crash_core.c
+@@ -464,6 +464,7 @@ static int __init crash_save_vmcoreinfo_
+ 	VMCOREINFO_LENGTH(mem_section, NR_SECTION_ROOTS);
+ 	VMCOREINFO_STRUCT_SIZE(mem_section);
+ 	VMCOREINFO_OFFSET(mem_section, section_mem_map);
++	VMCOREINFO_NUMBER(SECTION_SIZE_BITS);
+ 	VMCOREINFO_NUMBER(MAX_PHYSMEM_BITS);
+ #endif
+ 	VMCOREINFO_STRUCT_SIZE(page);
+_
+
+Patches currently in -mm which might be from kernelfans@gmail.com are
+
+crash_core-vmcoreinfo-append-section_size_bits-to-vmcoreinfo.patch
 
