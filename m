@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3DDDF3A01F0
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:10 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8A33A3A031E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:54 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235636AbhFHS6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:58:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53124 "EHLO mail.kernel.org"
+        id S237890AbhFHTNB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:13:01 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236999AbhFHS4O (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 532B86140B;
-        Tue,  8 Jun 2021 18:41:45 +0000 (UTC)
+        id S235719AbhFHTK7 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:10:59 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C18C361945;
+        Tue,  8 Jun 2021 18:48:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177705;
-        bh=gp297IjzCTHFcLfCnYPZDm+VbNrdnDBZcQ0gU7rYKEk=;
+        s=korg; t=1623178126;
+        bh=Nvbkz79TVyPfAZNkdOWb7B2fo5lHk9TB4pvBvXrSSVo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GnnCDoksziW7J/QV7VsNXtrYzTy/3uO2JdddNWFFVirU9mCE8kVbEwkWTFFjvOOrO
-         5bvDTjTn/ahPIkoRTTrhVbzObGcBzBzM+s2SsLOlqs3D1FsoMtUpZ1MwnjNLRk9MIF
-         3G7Qc7OPcsfT+N5MDPrVQcs5Y9PlBYTfLdw5MgNI=
+        b=2WR+guWJ68qCvf4m2XrY6ceYWTGtdOXQ+b5qeQOMyXKa7GQRxqNcLSJrshNYgmj3U
+         jA1nia4aRLjv8eaNZxy+tcOtEE55HVb4ZKDzpmPIAb5gkfdYqIS/WdOhSojEkrHnuO
+         jBcUKU3Xnm6phyoj3vselLbQ4STeNI6bnoGHSGjU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Vishakha Jambekar <vishakha.jambekar@intel.com>,
+        stable@vger.kernel.org, Brett Creeley <brett.creeley@intel.com>,
+        Konrad Jankowski <konrad0.jankowski@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 042/137] ixgbevf: add correct exception tracing for XDP
+Subject: [PATCH 5.12 052/161] ice: Fix allowing VF to request more/less queues via virtchnl
 Date:   Tue,  8 Jun 2021 20:26:22 +0200
-Message-Id: <20210608175943.838333493@linuxfoundation.org>
+Message-Id: <20210608175947.231553864@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,44 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit faae81420d162551b6ef2d804aafc00f4cd68e0e ]
+[ Upstream commit f0457690af56673cb0c47af6e25430389a149225 ]
 
-Add missing exception tracing to XDP when a number of different
-errors can occur. The support was only partial. Several errors
-where not logged which would confuse the user quite a lot not
-knowing where and why the packets disappeared.
+Commit 12bb018c538c ("ice: Refactor VF reset") caused a regression
+that removes the ability for a VF to request a different amount of
+queues via VIRTCHNL_OP_REQUEST_QUEUES. This prevents VF drivers to
+either increase or decrease the number of queue pairs they are
+allocated. Fix this by using the variable vf->num_req_qs when
+determining the vf->num_vf_qs during VF VSI creation.
 
-Fixes: 21092e9ce8b1 ("ixgbevf: Add support for XDP_TX action")
-Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Tested-by: Vishakha Jambekar <vishakha.jambekar@intel.com>
+Fixes: 12bb018c538c ("ice: Refactor VF reset")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Tested-by: Konrad Jankowski <konrad0.jankowski@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_lib.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-index 82fce27f682b..a7d0a459969a 100644
---- a/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-+++ b/drivers/net/ethernet/intel/ixgbevf/ixgbevf_main.c
-@@ -1072,11 +1072,14 @@ static struct sk_buff *ixgbevf_run_xdp(struct ixgbevf_adapter *adapter,
- 	case XDP_TX:
- 		xdp_ring = adapter->xdp_ring[rx_ring->queue_index];
- 		result = ixgbevf_xmit_xdp_ring(xdp_ring, xdp);
-+		if (result == IXGBEVF_XDP_CONSUMED)
-+			goto out_failure;
+diff --git a/drivers/net/ethernet/intel/ice/ice_lib.c b/drivers/net/ethernet/intel/ice/ice_lib.c
+index 9b38b2768884..27e439853c3b 100644
+--- a/drivers/net/ethernet/intel/ice/ice_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_lib.c
+@@ -198,6 +198,8 @@ static void ice_vsi_set_num_qs(struct ice_vsi *vsi, u16 vf_id)
  		break;
- 	default:
- 		bpf_warn_invalid_xdp_action(act);
- 		fallthrough;
- 	case XDP_ABORTED:
-+out_failure:
- 		trace_xdp_exception(rx_ring->netdev, xdp_prog, act);
- 		fallthrough; /* handle aborts by dropping packet */
- 	case XDP_DROP:
+ 	case ICE_VSI_VF:
+ 		vf = &pf->vf[vsi->vf_id];
++		if (vf->num_req_qs)
++			vf->num_vf_qs = vf->num_req_qs;
+ 		vsi->alloc_txq = vf->num_vf_qs;
+ 		vsi->alloc_rxq = vf->num_vf_qs;
+ 		/* pf->num_msix_per_vf includes (VF miscellaneous vector +
 -- 
 2.30.2
 
