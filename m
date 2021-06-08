@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A23E83A01F1
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 681193A037B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235675AbhFHS6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:58:17 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34008 "EHLO mail.kernel.org"
+        id S237240AbhFHTRv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:17:51 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237003AbhFHS4P (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:56:15 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2EAEC6161C;
-        Tue,  8 Jun 2021 18:41:55 +0000 (UTC)
+        id S237237AbhFHTPt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:15:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 16F9F61953;
+        Tue,  8 Jun 2021 18:50:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177716;
+        s=korg; t=1623178234;
         bh=+wQ8+LE8IG7lh9L8LyganhbGoLUbeFd4VZGjTbTX/E8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y4JOOiMy7KyfQC1IMxSQF4C/Z7JOaRjfcJQnfvqvcDmh30Dxu8Se8nBMwdE9MIZbQ
-         jKYAmZgmbz3N1bD56yiM4cvEB8+HDJMK1UwYz7lL6ilAvEIp+javYVBDHb8rpUICpI
-         mCWvI4pfjXb4WhvopuI4I00LWDbHVf4LsvV6D8ew=
+        b=DiszrmjOzRVA2COPLjyGZ/dZVK3JyhR1auKghbovu640qANpQv0Ms+OS+oYdiaYiL
+         aYJ27u1jQTMJHAlkZXs7c26d7RK41IAF87BW3Z3USQp636yUPSUObRx+pFBLftxEW9
+         b4VZ3+WTwnEc33u8OAj1gCU8f4xrVAF35RbIxGAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, Jisheng Zhang <jszhang@kernel.org>,
         Palmer Dabbelt <palmerdabbelt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 072/137] riscv: vdso: fix and clean-up Makefile
+Subject: [PATCH 5.12 082/161] riscv: vdso: fix and clean-up Makefile
 Date:   Tue,  8 Jun 2021 20:26:52 +0200
-Message-Id: <20210608175944.796905532@linuxfoundation.org>
+Message-Id: <20210608175948.212710173@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
