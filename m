@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D333E3A0336
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:07 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CCDF73A015D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236284AbhFHTNy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:13:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35428 "EHLO mail.kernel.org"
+        id S235407AbhFHSvD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:51:03 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236611AbhFHTLx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:11:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8DF396194F;
-        Tue,  8 Jun 2021 18:49:19 +0000 (UTC)
+        id S234515AbhFHSsL (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:48:11 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 48B91613EA;
+        Tue,  8 Jun 2021 18:38:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178160;
-        bh=UrxJzZz+t8dPbcpDiJPkOVZ0usfHKxZQpXtQyEeU8NY=;
+        s=korg; t=1623177504;
+        bh=qtTnW+v7jY2Jj4qb9HwZrqDw+PKfDSH74KUJ0a4TFIs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GRd8Lvj0oqqJmicF/SCUGS9SGnIE/D0MphWFo3q/ZwsbKYG9S8mKQkMhI2Oo1tipY
-         qgNnwK8+3XNu1mFkdg1v6Rdtuv/aPHf4T6V5DIIR8mrOYykLj7qqTXOO5zm0AwNbvW
-         dXvERfcxq+WNAbq9Jvanh8G03yzfNrVNTUavdvJA=
+        b=k/9N2/gt0sE4fe2SAZwyvoPVIwNrgxQigfbBa2zRuHrgwVIMUHSq8n6lvE2K19BpM
+         ZnvuhG3DhmqME/AOyDcaLLPOZwAKo3D5Bcc4iMNzHFFQYMW7VZ6hQ5jIl8LkSRgW7Y
+         YW+mJ6Q/PL0K3nuWvb8XPqjprIYzCU6pLvtLvyF0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 100/161] wireguard: allowedips: remove nodes in O(1)
+Subject: [PATCH 5.4 41/78] net: caif: add proper error handling
 Date:   Tue,  8 Jun 2021 20:27:10 +0200
-Message-Id: <20210608175948.843193545@linuxfoundation.org>
+Message-Id: <20210608175936.646526509@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,239 +39,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit f634f418c227c912e7ea95a3299efdc9b10e4022 upstream.
+commit a2805dca5107d5603f4bbc027e81e20d93476e96 upstream.
 
-Previously, deleting peers would require traversing the entire trie in
-order to rebalance nodes and safely free them. This meant that removing
-1000 peers from a trie with a half million nodes would take an extremely
-long time, during which we're holding the rtnl lock. Large-scale users
-were reporting 200ms latencies added to the networking stack as a whole
-every time their userspace software would queue up significant removals.
-That's a serious situation.
+caif_enroll_dev() can fail in some cases. Ingnoring
+these cases can lead to memory leak due to not assigning
+link_support pointer to anywhere.
 
-This commit fixes that by maintaining a double pointer to the parent's
-bit pointer for each node, and then using the already existing node list
-belonging to each peer to go directly to the node, fix up its pointers,
-and free it with RCU. This means removal is O(1) instead of O(n), and we
-don't use gobs of stack.
-
-The removal algorithm has the same downside as the code that it fixes:
-it won't collapse needlessly long runs of fillers.  We can enhance that
-in the future if it ever becomes a problem. This commit documents that
-limitation with a TODO comment in code, a small but meaningful
-improvement over the prior situation.
-
-Currently the biggest flaw, which the next commit addresses, is that
-because this increases the node size on 64-bit machines from 60 bytes to
-68 bytes. 60 rounds up to 64, but 68 rounds up to 128. So we wind up
-using twice as much memory per node, because of power-of-two
-allocations, which is a big bummer. We'll need to figure something out
-there.
-
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
+Fixes: 7c18d2205ea7 ("caif: Restructure how link caif link layer enroll")
 Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/allowedips.c |  130 +++++++++++++++----------------------
- drivers/net/wireguard/allowedips.h |    9 --
- 2 files changed, 56 insertions(+), 83 deletions(-)
+ include/net/caif/caif_dev.h |    2 +-
+ include/net/caif/cfcnfg.h   |    2 +-
+ net/caif/caif_dev.c         |    8 +++++---
+ net/caif/cfcnfg.c           |   16 +++++++++++-----
+ 4 files changed, 18 insertions(+), 10 deletions(-)
 
---- a/drivers/net/wireguard/allowedips.c
-+++ b/drivers/net/wireguard/allowedips.c
-@@ -66,60 +66,6 @@ static void root_remove_peer_lists(struc
- 	}
+--- a/include/net/caif/caif_dev.h
++++ b/include/net/caif/caif_dev.h
+@@ -119,7 +119,7 @@ void caif_free_client(struct cflayer *ad
+  * The link_support layer is used to add any Link Layer specific
+  * framing.
+  */
+-void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
++int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
+ 			struct cflayer *link_support, int head_room,
+ 			struct cflayer **layer, int (**rcv_func)(
+ 				struct sk_buff *, struct net_device *,
+--- a/include/net/caif/cfcnfg.h
++++ b/include/net/caif/cfcnfg.h
+@@ -62,7 +62,7 @@ void cfcnfg_remove(struct cfcnfg *cfg);
+  * @fcs:	Specify if checksum is used in CAIF Framing Layer.
+  * @head_room:	Head space needed by link specific protocol.
+  */
+-void
++int
+ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
+ 		     struct net_device *dev, struct cflayer *phy_layer,
+ 		     enum cfcnfg_phy_preference pref,
+--- a/net/caif/caif_dev.c
++++ b/net/caif/caif_dev.c
+@@ -307,7 +307,7 @@ static void dev_flowctrl(struct net_devi
+ 	caifd_put(caifd);
  }
  
--static void walk_remove_by_peer(struct allowedips_node __rcu **top,
--				struct wg_peer *peer, struct mutex *lock)
--{
--#define REF(p) rcu_access_pointer(p)
--#define DEREF(p) rcu_dereference_protected(*(p), lockdep_is_held(lock))
--#define PUSH(p) ({                                                             \
--		WARN_ON(IS_ENABLED(DEBUG) && len >= 128);                      \
--		stack[len++] = p;                                              \
--	})
--
--	struct allowedips_node __rcu **stack[128], **nptr;
--	struct allowedips_node *node, *prev;
--	unsigned int len;
--
--	if (unlikely(!peer || !REF(*top)))
+-void caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
++int caif_enroll_dev(struct net_device *dev, struct caif_dev_common *caifdev,
+ 		     struct cflayer *link_support, int head_room,
+ 		     struct cflayer **layer,
+ 		     int (**rcv_func)(struct sk_buff *, struct net_device *,
+@@ -318,11 +318,12 @@ void caif_enroll_dev(struct net_device *
+ 	enum cfcnfg_phy_preference pref;
+ 	struct cfcnfg *cfg = get_cfcnfg(dev_net(dev));
+ 	struct caif_device_entry_list *caifdevs;
++	int res;
+ 
+ 	caifdevs = caif_device_list(dev_net(dev));
+ 	caifd = caif_device_alloc(dev);
+ 	if (!caifd)
 -		return;
--
--	for (prev = NULL, len = 0, PUSH(top); len > 0; prev = node) {
--		nptr = stack[len - 1];
--		node = DEREF(nptr);
--		if (!node) {
--			--len;
--			continue;
--		}
--		if (!prev || REF(prev->bit[0]) == node ||
--		    REF(prev->bit[1]) == node) {
--			if (REF(node->bit[0]))
--				PUSH(&node->bit[0]);
--			else if (REF(node->bit[1]))
--				PUSH(&node->bit[1]);
--		} else if (REF(node->bit[0]) == prev) {
--			if (REF(node->bit[1]))
--				PUSH(&node->bit[1]);
--		} else {
--			if (rcu_dereference_protected(node->peer,
--				lockdep_is_held(lock)) == peer) {
--				RCU_INIT_POINTER(node->peer, NULL);
--				list_del_init(&node->peer_list);
--				if (!node->bit[0] || !node->bit[1]) {
--					rcu_assign_pointer(*nptr, DEREF(
--					       &node->bit[!REF(node->bit[0])]));
--					kfree_rcu(node, rcu);
--					node = DEREF(nptr);
--				}
--			}
--			--len;
--		}
--	}
--
--#undef REF
--#undef DEREF
--#undef PUSH
--}
--
- static unsigned int fls128(u64 a, u64 b)
- {
- 	return a ? fls64(a) + 64U : fls64(b);
-@@ -224,6 +170,7 @@ static int add(struct allowedips_node __
- 		RCU_INIT_POINTER(node->peer, peer);
- 		list_add_tail(&node->peer_list, &peer->allowedips_list);
- 		copy_and_assign_cidr(node, key, cidr, bits);
-+		rcu_assign_pointer(node->parent_bit, trie);
- 		rcu_assign_pointer(*trie, node);
- 		return 0;
- 	}
-@@ -243,9 +190,9 @@ static int add(struct allowedips_node __
- 	if (!node) {
- 		down = rcu_dereference_protected(*trie, lockdep_is_held(lock));
- 	} else {
--		down = rcu_dereference_protected(CHOOSE_NODE(node, key),
--						 lockdep_is_held(lock));
-+		down = rcu_dereference_protected(CHOOSE_NODE(node, key), lockdep_is_held(lock));
- 		if (!down) {
-+			rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(node, key));
- 			rcu_assign_pointer(CHOOSE_NODE(node, key), newnode);
- 			return 0;
- 		}
-@@ -254,29 +201,37 @@ static int add(struct allowedips_node __
- 	parent = node;
- 
- 	if (newnode->cidr == cidr) {
-+		rcu_assign_pointer(down->parent_bit, &CHOOSE_NODE(newnode, down->bits));
- 		rcu_assign_pointer(CHOOSE_NODE(newnode, down->bits), down);
--		if (!parent)
-+		if (!parent) {
-+			rcu_assign_pointer(newnode->parent_bit, trie);
- 			rcu_assign_pointer(*trie, newnode);
--		else
--			rcu_assign_pointer(CHOOSE_NODE(parent, newnode->bits),
--					   newnode);
--	} else {
--		node = kzalloc(sizeof(*node), GFP_KERNEL);
--		if (unlikely(!node)) {
--			list_del(&newnode->peer_list);
--			kfree(newnode);
--			return -ENOMEM;
-+		} else {
-+			rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(parent, newnode->bits));
-+			rcu_assign_pointer(CHOOSE_NODE(parent, newnode->bits), newnode);
- 		}
--		INIT_LIST_HEAD(&node->peer_list);
--		copy_and_assign_cidr(node, newnode->bits, cidr, bits);
-+		return 0;
-+	}
-+
-+	node = kzalloc(sizeof(*node), GFP_KERNEL);
-+	if (unlikely(!node)) {
-+		list_del(&newnode->peer_list);
-+		kfree(newnode);
 +		return -ENOMEM;
-+	}
-+	INIT_LIST_HEAD(&node->peer_list);
-+	copy_and_assign_cidr(node, newnode->bits, cidr, bits);
+ 	*layer = &caifd->layer;
+ 	spin_lock_init(&caifd->flow_lock);
  
--		rcu_assign_pointer(CHOOSE_NODE(node, down->bits), down);
--		rcu_assign_pointer(CHOOSE_NODE(node, newnode->bits), newnode);
--		if (!parent)
--			rcu_assign_pointer(*trie, node);
--		else
--			rcu_assign_pointer(CHOOSE_NODE(parent, node->bits),
--					   node);
-+	rcu_assign_pointer(down->parent_bit, &CHOOSE_NODE(node, down->bits));
-+	rcu_assign_pointer(CHOOSE_NODE(node, down->bits), down);
-+	rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(node, newnode->bits));
-+	rcu_assign_pointer(CHOOSE_NODE(node, newnode->bits), newnode);
-+	if (!parent) {
-+		rcu_assign_pointer(node->parent_bit, trie);
-+		rcu_assign_pointer(*trie, node);
-+	} else {
-+		rcu_assign_pointer(node->parent_bit, &CHOOSE_NODE(parent, node->bits));
-+		rcu_assign_pointer(CHOOSE_NODE(parent, node->bits), node);
- 	}
- 	return 0;
+@@ -343,7 +344,7 @@ void caif_enroll_dev(struct net_device *
+ 	strlcpy(caifd->layer.name, dev->name,
+ 		sizeof(caifd->layer.name));
+ 	caifd->layer.transmit = transmit;
+-	cfcnfg_add_phy_layer(cfg,
++	res = cfcnfg_add_phy_layer(cfg,
+ 				dev,
+ 				&caifd->layer,
+ 				pref,
+@@ -353,6 +354,7 @@ void caif_enroll_dev(struct net_device *
+ 	mutex_unlock(&caifdevs->lock);
+ 	if (rcv_func)
+ 		*rcv_func = receive;
++	return res;
  }
-@@ -335,9 +290,30 @@ int wg_allowedips_insert_v6(struct allow
- void wg_allowedips_remove_by_peer(struct allowedips *table,
- 				  struct wg_peer *peer, struct mutex *lock)
+ EXPORT_SYMBOL(caif_enroll_dev);
+ 
+--- a/net/caif/cfcnfg.c
++++ b/net/caif/cfcnfg.c
+@@ -450,7 +450,7 @@ unlock:
+ 	rcu_read_unlock();
+ }
+ 
+-void
++int
+ cfcnfg_add_phy_layer(struct cfcnfg *cnfg,
+ 		     struct net_device *dev, struct cflayer *phy_layer,
+ 		     enum cfcnfg_phy_preference pref,
+@@ -459,7 +459,7 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
  {
-+	struct allowedips_node *node, *child, *tmp;
-+
-+	if (list_empty(&peer->allowedips_list))
-+		return;
- 	++table->seq;
--	walk_remove_by_peer(&table->root4, peer, lock);
--	walk_remove_by_peer(&table->root6, peer, lock);
-+	list_for_each_entry_safe(node, tmp, &peer->allowedips_list, peer_list) {
-+		list_del_init(&node->peer_list);
-+		RCU_INIT_POINTER(node->peer, NULL);
-+		if (node->bit[0] && node->bit[1])
-+			continue;
-+		child = rcu_dereference_protected(
-+				node->bit[!rcu_access_pointer(node->bit[0])],
-+				lockdep_is_held(lock));
-+		if (child)
-+			child->parent_bit = node->parent_bit;
-+		*rcu_dereference_protected(node->parent_bit, lockdep_is_held(lock)) = child;
-+		kfree_rcu(node, rcu);
-+
-+		/* TODO: Note that we currently don't walk up and down in order to
-+		 * free any potential filler nodes. This means that this function
-+		 * doesn't free up as much as it could, which could be revisited
-+		 * at some point.
-+		 */
+ 	struct cflayer *frml;
+ 	struct cfcnfg_phyinfo *phyinfo = NULL;
+-	int i;
++	int i, res = 0;
+ 	u8 phyid;
+ 
+ 	mutex_lock(&cnfg->lock);
+@@ -473,12 +473,15 @@ cfcnfg_add_phy_layer(struct cfcnfg *cnfg
+ 			goto got_phyid;
+ 	}
+ 	pr_warn("Too many CAIF Link Layers (max 6)\n");
++	res = -EEXIST;
+ 	goto out;
+ 
+ got_phyid:
+ 	phyinfo = kzalloc(sizeof(struct cfcnfg_phyinfo), GFP_ATOMIC);
+-	if (!phyinfo)
++	if (!phyinfo) {
++		res = -ENOMEM;
+ 		goto out_err;
 +	}
+ 
+ 	phy_layer->id = phyid;
+ 	phyinfo->pref = pref;
+@@ -492,8 +495,10 @@ got_phyid:
+ 
+ 	frml = cffrml_create(phyid, fcs);
+ 
+-	if (!frml)
++	if (!frml) {
++		res = -ENOMEM;
+ 		goto out_err;
++	}
+ 	phyinfo->frm_layer = frml;
+ 	layer_set_up(frml, cnfg->mux);
+ 
+@@ -511,11 +516,12 @@ got_phyid:
+ 	list_add_rcu(&phyinfo->node, &cnfg->phys);
+ out:
+ 	mutex_unlock(&cnfg->lock);
+-	return;
++	return res;
+ 
+ out_err:
+ 	kfree(phyinfo);
+ 	mutex_unlock(&cnfg->lock);
++	return res;
  }
+ EXPORT_SYMBOL(cfcnfg_add_phy_layer);
  
- int wg_allowedips_read_node(struct allowedips_node *node, u8 ip[16], u8 *cidr)
---- a/drivers/net/wireguard/allowedips.h
-+++ b/drivers/net/wireguard/allowedips.h
-@@ -15,14 +15,11 @@ struct wg_peer;
- struct allowedips_node {
- 	struct wg_peer __rcu *peer;
- 	struct allowedips_node __rcu *bit[2];
--	/* While it may seem scandalous that we waste space for v4,
--	 * we're alloc'ing to the nearest power of 2 anyway, so this
--	 * doesn't actually make a difference.
--	 */
--	u8 bits[16] __aligned(__alignof(u64));
- 	u8 cidr, bit_at_a, bit_at_b, bitlen;
-+	u8 bits[16] __aligned(__alignof(u64));
- 
--	/* Keep rarely used list at bottom to be beyond cache line. */
-+	/* Keep rarely used members at bottom to be beyond cache line. */
-+	struct allowedips_node *__rcu *parent_bit; /* XXX: this puts us at 68->128 bytes instead of 60->64 bytes!! */
- 	union {
- 		struct list_head peer_list;
- 		struct rcu_head rcu;
 
 
