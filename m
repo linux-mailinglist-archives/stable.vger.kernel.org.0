@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A42439FF49
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2105539FF30
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:13 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234308AbhFHScA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56494 "EHLO mail.kernel.org"
+        id S234152AbhFHSbN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:13 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234180AbhFHSbc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B8F05613CC;
-        Tue,  8 Jun 2021 18:29:38 +0000 (UTC)
+        id S234073AbhFHSbD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7398461352;
+        Tue,  8 Jun 2021 18:29:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176979;
-        bh=eaaYOqm4v2bgpowWPDk4ooz33NiH3VUpJWKI+0n3iLg=;
+        s=korg; t=1623176949;
+        bh=x7LfzFnqzNmc4if07anFqfnShHWM0T/wNz8qDWSCL9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=czdEhxAyjWV0ZK5EXqfTZdTx1BYl7lKxxOsqTDTMMhZhPDt+w15zMmYVRxWx6aZrc
-         BM9Co6mirxy461/aAK4xrXNDJUIN5p6wOKXwjwH0ge5hWwu7EaZ0OQnGPfoi9PzmBQ
-         BGIg5MYVw1sGO1+3Qm1ndFKIqg/dmecntzHCpMmU=
+        b=I3B6S8aGjH8yLIxZ6tGIu2jX4ZHWUKPJ5XVNNFj6N9eiYWn4ly2zLUmDCVQtDyKS1
+         7w726r7oIouT6HMAFb7naDIQ4frko/Hugcwiv51H/A0wBbS8Gp5O6kInuBnsUZHgl2
+         kPTjsmdPUXKPx5J9PafYiWgHQL0Ex+3OUcqYJC9o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Randy Dunlap <rdunlap@infradead.org>,
-        kernel test robot <lkp@intel.com>,
-        Alex Williamson <alex.williamson@redhat.com>,
-        Cornelia Huck <cohuck@redhat.com>, kvm@vger.kernel.org,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Eric Auger <eric.auger@redhat.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 05/29] vfio/pci: zap_vma_ptes() needs MMU
-Date:   Tue,  8 Jun 2021 20:26:59 +0200
-Message-Id: <20210608175927.993080466@linuxfoundation.org>
+Subject: [PATCH 4.4 08/23] ieee802154: fix error return code in ieee802154_llsec_getparams()
+Date:   Tue,  8 Jun 2021 20:27:00 +0200
+Message-Id: <20210608175926.812165445@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
+References: <20210608175926.524658689@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,46 +41,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-[ Upstream commit 2a55ca37350171d9b43d561528f23d4130097255 ]
+[ Upstream commit 373e864cf52403b0974c2f23ca8faf9104234555 ]
 
-zap_vma_ptes() is only available when CONFIG_MMU is set/enabled.
-Without CONFIG_MMU, vfio_pci.o has build errors, so make
-VFIO_PCI depend on MMU.
+Fix to return negative error code -ENOBUFS from the error handling
+case instead of 0, as done elsewhere in this function.
 
-riscv64-linux-ld: drivers/vfio/pci/vfio_pci.o: in function `vfio_pci_mmap_open':
-vfio_pci.c:(.text+0x1ec): undefined reference to `zap_vma_ptes'
-riscv64-linux-ld: drivers/vfio/pci/vfio_pci.o: in function `.L0 ':
-vfio_pci.c:(.text+0x165c): undefined reference to `zap_vma_ptes'
-
-Fixes: 11c4cd07ba11 ("vfio-pci: Fault mmaps to enable vma tracking")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Reported-by: kernel test robot <lkp@intel.com>
-Cc: Alex Williamson <alex.williamson@redhat.com>
-Cc: Cornelia Huck <cohuck@redhat.com>
-Cc: kvm@vger.kernel.org
-Cc: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Eric Auger <eric.auger@redhat.com>
-Message-Id: <20210515190856.2130-1-rdunlap@infradead.org>
-Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
+Fixes: 3e9c156e2c21 ("ieee802154: add netlink interfaces for llsec")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210519141614.3040055-1-weiyongjun1@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/vfio/pci/Kconfig | 1 +
- 1 file changed, 1 insertion(+)
+ net/ieee802154/nl-mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/vfio/pci/Kconfig b/drivers/vfio/pci/Kconfig
-index 24ee2605b9f0..0da884bfc7a8 100644
---- a/drivers/vfio/pci/Kconfig
-+++ b/drivers/vfio/pci/Kconfig
-@@ -1,6 +1,7 @@
- config VFIO_PCI
- 	tristate "VFIO support for PCI devices"
- 	depends on VFIO && PCI && EVENTFD
-+	depends on MMU
- 	select VFIO_VIRQFD
- 	select IRQ_BYPASS_MANAGER
- 	help
+diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
+index 76691a07a2e0..fe31df8dc804 100644
+--- a/net/ieee802154/nl-mac.c
++++ b/net/ieee802154/nl-mac.c
+@@ -685,8 +685,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
+ 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
+ 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
+ 			be32_to_cpu(params.frame_counter)) ||
+-	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
++	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
++		rc = -ENOBUFS;
+ 		goto out_free;
++	}
+ 
+ 	dev_put(dev);
+ 
 -- 
 2.30.2
 
