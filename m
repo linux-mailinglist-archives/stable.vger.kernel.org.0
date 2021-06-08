@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A6FAA39FF7F
+	by mail.lfdr.de (Postfix) with ESMTP id F009939FF80
 	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233682AbhFHSdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:37 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
+        id S234268AbhFHSdk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:33:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57666 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234309AbhFHSch (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S234447AbhFHSch (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Jun 2021 14:32:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 4DE7D613B9;
-        Tue,  8 Jun 2021 18:30:27 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 96381613BF;
+        Tue,  8 Jun 2021 18:30:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177027;
-        bh=EHZJLvG/aunoeWaZiHpji8erF1KoKgD/dmIWqn/lG2c=;
+        s=korg; t=1623177030;
+        bh=rsED8s3r44/lFHHL2PzzG5LOJomieDVl4CR1CyvZD0c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bD6Wim8vEYWpYuqPxPiVenG0QrQJ9swPHMmMAjxhRspKGdXsbwcwyHStQO+cCb5eM
-         I1DAMLyBWE++fQjd5ucCM+lzUG0ODDiMGrHpSK90TaJPUe4Q0qhD04yeJ78mg1ghgx
-         jUF1RO6RDSr9h92x0pYPfnYi9KADKTsU3xywNphg=
+        b=BT+ZhVSHlfYcHTq2tbg5jeAnPZ557mbV7qY7CGHicOXL4gyTUcELiY5S7TxznlOgN
+         SQWThB1EyWPQpQDO8Hrudrb9CiR3bN0BbtPJkHwvIVri/dTbYD1GSQYp4t9oUyqRG9
+         iyltkdu/AdbWa07z72dG4s+zEGONiqLEd1oyqHyk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Lin Ma <linma@zju.edu.cn>,
-        Marcel Holtmann <marcel@holtmann.org>
-Subject: [PATCH 4.9 14/29] Bluetooth: use correct lock to prevent UAF of hdev object
-Date:   Tue,  8 Jun 2021 20:27:08 +0200
-Message-Id: <20210608175928.284131791@linuxfoundation.org>
+        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 4.9 15/29] net: caif: added cfserl_release function
+Date:   Tue,  8 Jun 2021 20:27:09 +0200
+Message-Id: <20210608175928.313977485@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
 References: <20210608175927.821075974@linuxfoundation.org>
@@ -39,43 +39,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Pavel Skripkin <paskripkin@gmail.com>
 
-commit e305509e678b3a4af2b3cfd410f409f7cdaabb52 upstream.
+commit bce130e7f392ddde8cfcb09927808ebd5f9c8669 upstream.
 
-The hci_sock_dev_event() function will cleanup the hdev object for
-sockets even if this object may still be in used within the
-hci_sock_bound_ioctl() function, result in UAF vulnerability.
+Added cfserl_release() function.
 
-This patch replace the BH context lock to serialize these affairs
-and prevent the race condition.
-
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_sock.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ include/net/caif/cfserl.h |    1 +
+ net/caif/cfserl.c         |    5 +++++
+ 2 files changed, 6 insertions(+)
 
---- a/net/bluetooth/hci_sock.c
-+++ b/net/bluetooth/hci_sock.c
-@@ -750,7 +750,7 @@ void hci_sock_dev_event(struct hci_dev *
- 		/* Detach sockets from device */
- 		read_lock(&hci_sk_list.lock);
- 		sk_for_each(sk, &hci_sk_list.head) {
--			bh_lock_sock_nested(sk);
-+			lock_sock(sk);
- 			if (hci_pi(sk)->hdev == hdev) {
- 				hci_pi(sk)->hdev = NULL;
- 				sk->sk_err = EPIPE;
-@@ -759,7 +759,7 @@ void hci_sock_dev_event(struct hci_dev *
+--- a/include/net/caif/cfserl.h
++++ b/include/net/caif/cfserl.h
+@@ -9,4 +9,5 @@
+ #include <net/caif/caif_layer.h>
  
- 				hci_dev_put(hdev);
- 			}
--			bh_unlock_sock(sk);
-+			release_sock(sk);
- 		}
- 		read_unlock(&hci_sk_list.lock);
- 	}
+ struct cflayer *cfserl_create(int instance, bool use_stx);
++void cfserl_release(struct cflayer *layer);
+ #endif
+--- a/net/caif/cfserl.c
++++ b/net/caif/cfserl.c
+@@ -31,6 +31,11 @@ static int cfserl_transmit(struct cflaye
+ static void cfserl_ctrlcmd(struct cflayer *layr, enum caif_ctrlcmd ctrl,
+ 			   int phyid);
+ 
++void cfserl_release(struct cflayer *layer)
++{
++	kfree(layer);
++}
++
+ struct cflayer *cfserl_create(int instance, bool use_stx)
+ {
+ 	struct cfserl *this = kzalloc(sizeof(struct cfserl), GFP_ATOMIC);
 
 
