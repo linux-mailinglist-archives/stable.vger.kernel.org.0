@@ -2,120 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 55E0E3A0062
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:54 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5E3E63A009B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:18 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234546AbhFHSm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:42:56 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36504 "EHLO mail.kernel.org"
-        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234445AbhFHSkn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:40:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 7A59B613D2;
-        Tue,  8 Jun 2021 18:34:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177290;
-        bh=iu8iH5BljOLDJvmRbikySsVS7kvTFPstiA2Va6sYKng=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pA5Z9jxT+FOxhY2g8iDTRQhLzgJ6UVi3r2AL5I4u3OpUnHv1Ywxe4o1Qhl0eDfbRP
-         POVaEVlehrlGFH4Z6za4xS5Lvmb1s2TcruqQVuOpTZmbX0F3j2miRUvgwIzChBCo3n
-         4yOrd4Jr60yWqp0wKeKPA0WalfmKg0lhTQcAfLq4=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 4.19 58/58] xen-pciback: redo VF placement in the virtual topology
-Date:   Tue,  8 Jun 2021 20:27:39 +0200
-Message-Id: <20210608175934.188638088@linuxfoundation.org>
-X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
-References: <20210608175932.263480586@linuxfoundation.org>
-User-Agent: quilt/0.66
+        id S234878AbhFHSpx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:45:53 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58160 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S235315AbhFHSmz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 14:42:55 -0400
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34014C0611BE
+        for <stable@vger.kernel.org>; Tue,  8 Jun 2021 11:40:00 -0700 (PDT)
+Received: by mail-pl1-x630.google.com with SMTP id c13so11188135plz.0
+        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 11:40:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=from:to:cc:subject:date:message-id:in-reply-to:references
+         :mime-version:content-transfer-encoding;
+        bh=WlWwfWm11ZwbBadKiVuyPJC6XajjDuI6+AslLyW5z08=;
+        b=QbVPX1GwRQCu14OD+ZSs2LvfKRFfPgURgMXB+3uhrM/YY9d5aFspnwPaBDccVOrIo3
+         M/ZaPHnxbHRRFmowOSMtUgWnXm5nZFjOXby4MFQMPrwDLtFIuAZtOBAm93mdLHCsqb/Q
+         8okr0y42mrVxXiHgVb+CdogkSVVsRGOhRyTxE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20161025;
+        h=x-gm-message-state:from:to:cc:subject:date:message-id:in-reply-to
+         :references:mime-version:content-transfer-encoding;
+        bh=WlWwfWm11ZwbBadKiVuyPJC6XajjDuI6+AslLyW5z08=;
+        b=Aj+u2ilCmsl0Av8CnQNgMs7xPJyUKzpImPM9l6cI5HERCKpEZ9fyz8GmxhuMduaus0
+         ROhCmOucGgGKhTHSOBw7a9Cg5zQQaMoBlUcDhVmFyrptHrVHkmHLZsDnYVtiRT8Czb1K
+         2dyHn37qJ5j+SrNviufrlmnoKt68JkqAunYISYkkA9hoTXjofoT2ElXzrKVqw7MhG/RV
+         o+uBjS9I0ZX+2EbwuDZWqgPoCnWMDzSGYZfyOVTlo1yEjbi5kzepoWsYZ8ps5SrnF2NR
+         HNYRqNLAGeTUVc+bMP+jQ7Y5uQF3+Is9XY5lWbr2a4dpa5jiUVKIQJ97mqKZBr0Y4uLR
+         PkrA==
+X-Gm-Message-State: AOAM530YFgrpy7c0LcGO8EeovKcSH8eJVcHdaQ80w3RmnKrqlVkwKrvE
+        MAwS7OPma8vIExcLALb6BErKtQ==
+X-Google-Smtp-Source: ABdhPJzqy4n4WdYTLIGeM6Q8LDAjzOhL4aPsd5U04TX5u6JdmHUAEsG/77ua5jo+MiWEvpvtD6yw4A==
+X-Received: by 2002:a17:902:c1d2:b029:101:656b:8c06 with SMTP id c18-20020a170902c1d2b0290101656b8c06mr1015590plc.77.1623177598937;
+        Tue, 08 Jun 2021 11:39:58 -0700 (PDT)
+Received: from www.outflux.net (smtp.outflux.net. [198.145.64.163])
+        by smtp.gmail.com with ESMTPSA id c5sm9354668pfn.144.2021.06.08.11.39.57
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 08 Jun 2021 11:39:58 -0700 (PDT)
+From:   Kees Cook <keescook@chromium.org>
+To:     Andrew Morton <akpm@linux-foundation.org>
+Cc:     Kees Cook <keescook@chromium.org>, stable@vger.kernel.org,
+        Vlastimil Babka <vbabka@suse.cz>,
+        Marco Elver <elver@google.com>,
+        Christoph Lameter <cl@linux.com>,
+        "Lin, Zhenpeng" <zplin@psu.edu>, Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Roman Gushchin <guro@fb.com>, linux-kernel@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-mm@kvack.org
+Subject: [PATCH v4 2/3] mm/slub: Fix redzoning for small allocations
+Date:   Tue,  8 Jun 2021 11:39:54 -0700
+Message-Id: <20210608183955.280836-3-keescook@chromium.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20210608183955.280836-1-keescook@chromium.org>
+References: <20210608183955.280836-1-keescook@chromium.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+X-Patch-Hashes: v=1; h=sha256; g=4d07ab25d78303866d0d97043ac7d3b3c89a188b; i=/4wP7Z7hf8NRJqx5cO57ZcO310lU091PUfj+vstIw5Q=; m=ZkE5m/qyaah1o2CK6u/oGOeYjX1Qohn3GAXR8LvKXFY=; p=QHACCNDXDPZn3tQzC59FK9Xid+U/e7qsN2m1YshAXh8=
+X-Patch-Sig: m=pgp; i=keescook@chromium.org; s=0x0x8972F4DFDC6DC026; b=iQIzBAABCgAdFiEEpcP2jyKd1g9yPm4TiXL039xtwCYFAmC/uXsACgkQiXL039xtwCZiyRAAlgt u28QImlU8Sk7zOkeBTH8PG+BF6ltMWSFMOWluk38QI6ysgrJyZuz8nPqyhlY4LbKmPZlM5dDzLrEl WFazxogGESoFjztYt2+fvWgirR7F4Ovi7zR3GOPg/U8Z74iwOWWjlL4Ps59MVV/4MtPihc+t6rtLS el+ck+DdHro3yhcPxc55bj2WQEoz5L+fXpqDzijkcDiSYKu8oYfRKNAXM4zjUPbuEebemG7C5W8ir gm5za0N1wQMZW6NnS4/7IQGfMkxVlrNsRHE8G34iWXP669r75O7EMGkfAoBmCh1SitVfGLkOhYWj3 YHDRwVy0ymZEpifJNKrxfokXFfNXSN9hrKi/vjSLA1alN8WFHkduOBu/daDHCsOmC9cbcYWuX7sEd nrQGxfzVvX3SYAOwTkbpxstr3E1QBwCMr+YzUYWNZr9ttwA1YAiWsZYMBnI6V1OY6mTmWJWPMy9fs bUSkP5OxEMCDR+DlHXFB7l6Q8RokenOAtQZlloq/rO0YAjDOJ+qe51052Iq5bbPB0ISUcIANpyruz R8xovxgPxcIKTYwaISm3YbbyxU44O9ZjZoTK53DHKQiCGXtOSTKXs3bO9Xvl3U6KuSuu++JONo0xY q9NXQPUYRi7+o754GbK2a5C5BAJQwms6BS5Q2uVWSOe3ji3RCxhTfQRuUkxHE5pY=
 Content-Transfer-Encoding: 8bit
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+The redzone area for SLUB exists between s->object_size and s->inuse
+(which is at least the word-aligned object_size). If a cache were created
+with an object_size smaller than sizeof(void *), the in-object stored
+freelist pointer would overwrite the redzone (e.g. with boot param
+"slub_debug=ZF"):
 
-The commit referenced below was incomplete: It merely affected what
-would get written to the vdev-<N> xenstore node. The guest would still
-find the function at the original function number as long as
-__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
-__xen_pcibk_get_pcifront_dev().
+BUG test (Tainted: G    B            ): Right Redzone overwritten
+-----------------------------------------------------------------------------
 
-Undo overriding the function to zero and instead make sure that VFs at
-function zero remain alone in their slot. This has the added benefit of
-improving overall capacity, considering that there's only a total of 32
-slots available right now (PCI segment and bus can both only ever be
-zero at present).
+INFO: 0xffff957ead1c05de-0xffff957ead1c05df @offset=1502. First byte 0x1a instead of 0xbb
+INFO: Slab 0xffffef3950b47000 objects=170 used=170 fp=0x0000000000000000 flags=0x8000000000000200
+INFO: Object 0xffff957ead1c05d8 @offset=1496 fp=0xffff957ead1c0620
 
-This is upstream commit 4ba50e7c423c29639878c00573288869aa627068.
+Redzone  (____ptrval____): bb bb bb bb bb bb bb bb    ........
+Object   (____ptrval____): f6 f4 a5 40 1d e8          ...@..
+Redzone  (____ptrval____): 1a aa                      ..
+Padding  (____ptrval____): 00 00 00 00 00 00 00 00    ........
 
-Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to 
-separate virtual slots")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Store the freelist pointer out of line when object_size is smaller than
+sizeof(void *) and redzoning is enabled.
+
+Additionally remove the "smaller than sizeof(void *)" check under
+CONFIG_DEBUG_VM in kmem_cache_sanity_check() as it is now redundant:
+SLAB and SLOB both handle small sizes.
+
+(Note that no caches within this size range are known to exist in the
+kernel currently.)
+
+Fixes: 81819f0fc828 ("SLUB core")
+Cc: stable@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
 ---
- drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ mm/slab_common.c | 3 +--
+ mm/slub.c        | 8 +++++---
+ 2 files changed, 6 insertions(+), 5 deletions(-)
 
---- a/drivers/xen/xen-pciback/vpci.c
-+++ b/drivers/xen/xen-pciback/vpci.c
-@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struc
- 				   struct pci_dev *dev, int devid,
- 				   publish_pci_dev_cb publish_cb)
+diff --git a/mm/slab_common.c b/mm/slab_common.c
+index a4a571428c51..7cab77655f11 100644
+--- a/mm/slab_common.c
++++ b/mm/slab_common.c
+@@ -97,8 +97,7 @@ EXPORT_SYMBOL(kmem_cache_size);
+ #ifdef CONFIG_DEBUG_VM
+ static int kmem_cache_sanity_check(const char *name, unsigned int size)
  {
--	int err = 0, slot, func = -1;
-+	int err = 0, slot, func = PCI_FUNC(dev->devfn);
- 	struct pci_dev_entry *t, *dev_entry;
- 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
- 
-@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struc
- 
- 	/*
- 	 * Keep multi-function devices together on the virtual PCI bus, except
--	 * virtual functions.
-+	 * that we want to keep virtual functions at func 0 on their own. They
-+	 * aren't multi-function devices and hence their presence at func 0
-+	 * may cause guests to not scan the other functions.
- 	 */
--	if (!dev->is_virtfn) {
-+	if (!dev->is_virtfn || func) {
- 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
- 			if (list_empty(&vpci_dev->dev_list[slot]))
- 				continue;
- 
- 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
- 				       struct pci_dev_entry, list);
-+			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
-+				continue;
- 
- 			if (match_slot(dev, t->dev)) {
- 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
- 					pci_name(dev), slot,
--					PCI_FUNC(dev->devfn));
-+					func);
- 				list_add_tail(&dev_entry->list,
- 					      &vpci_dev->dev_list[slot]);
--				func = PCI_FUNC(dev->devfn);
- 				goto unlock;
- 			}
- 		}
-@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
- 				pci_name(dev), slot);
- 			list_add_tail(&dev_entry->list,
- 				      &vpci_dev->dev_list[slot]);
--			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
- 			goto unlock;
- 		}
+-	if (!name || in_interrupt() || size < sizeof(void *) ||
+-		size > KMALLOC_MAX_SIZE) {
++	if (!name || in_interrupt() || size > KMALLOC_MAX_SIZE) {
+ 		pr_err("kmem_cache_create(%s) integrity check failed\n", name);
+ 		return -EINVAL;
  	}
-
+diff --git a/mm/slub.c b/mm/slub.c
+index f91d9fe7d0d8..f58cfd456548 100644
+--- a/mm/slub.c
++++ b/mm/slub.c
+@@ -3734,15 +3734,17 @@ static int calculate_sizes(struct kmem_cache *s, int forced_order)
+ 	 */
+ 	s->inuse = size;
+ 
+-	if (((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
+-		s->ctor)) {
++	if ((flags & (SLAB_TYPESAFE_BY_RCU | SLAB_POISON)) ||
++	    ((flags & SLAB_RED_ZONE) && s->object_size < sizeof(void *)) ||
++	    s->ctor) {
+ 		/*
+ 		 * Relocate free pointer after the object if it is not
+ 		 * permitted to overwrite the first word of the object on
+ 		 * kmem_cache_free.
+ 		 *
+ 		 * This is the case if we do RCU, have a constructor or
+-		 * destructor or are poisoning the objects.
++		 * destructor, are poisoning the objects, or are
++		 * redzoning an object smaller than sizeof(void *).
+ 		 *
+ 		 * The assumption that s->offset >= s->inuse means free
+ 		 * pointer is outside of the object is used in the
+-- 
+2.25.1
 
