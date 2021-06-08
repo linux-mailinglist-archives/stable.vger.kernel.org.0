@@ -2,32 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C63639FF4B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2974A39FF41
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:20 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234313AbhFHScB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:32:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56318 "EHLO mail.kernel.org"
+        id S234225AbhFHSbs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:48 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56134 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234155AbhFHSbe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C5924613C5;
-        Tue,  8 Jun 2021 18:29:26 +0000 (UTC)
+        id S234131AbhFHSb0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5C4BD61352;
+        Tue,  8 Jun 2021 18:29:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176967;
-        bh=uP5csr2qifp5imC+lku80earoP3BQ3lVsLP9LVzkjw8=;
+        s=korg; t=1623176960;
+        bh=Dqzs51n09CBzyeBLLoDNn/q8ALuPLbQcOST6ertR6kQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yQXrtd97Jvi/c5ClUA9qcEvbv0TzVx4SuV9ef1QPFZlL1a4SuBeXAiWwahQYN8Whl
-         1gAHuMaAun/Zk2w6RLmRbiXnIeMf2bO9MTgggDe2Otn+RJhZzsxkvcoX+6cBfr6pSn
-         ACVk52NafUWwTtv6MX3G5oxl/52Wdv5t+i/4z5u8=
+        b=vT866J9fe9VqdtkBtyJGwliPQYKPUWbsf1FEUco/AsICDyr37wFT59UDrPOc+ihhc
+         eE0tgo5DVrRtOYUspPOluC5uoStHIg4E1tdYN8uogPWeAPF/YirCD+Va+lSBPgZJuo
+         3tQS1dOvAKPFaOH9peEnfXuk8SjvrJl3E/jiXYco=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.4 20/23] btrfs: fixup error handling in fixup_inode_link_counts
-Date:   Tue,  8 Jun 2021 20:27:12 +0200
-Message-Id: <20210608175927.187390732@linuxfoundation.org>
+        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.4 21/23] KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
+Date:   Tue,  8 Jun 2021 20:27:13 +0200
+Message-Id: <20210608175927.219476997@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
 References: <20210608175926.524658689@linuxfoundation.org>
@@ -39,85 +40,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Sean Christopherson <seanjc@google.com>
 
-commit 011b28acf940eb61c000059dd9e2cfcbf52ed96b upstream.
+commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
 
-This function has the following pattern
+Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
+in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
+CRs:
 
-	while (1) {
-		ret = whatever();
-		if (ret)
-			goto out;
-	}
-	ret = 0
-out:
-	return ret;
+  In 64-bit mode, the operand size is fixed at 64 bits without the need
+  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
+  bits and the upper 32 bits of the destination are forced to 0.
 
-However several places in this while loop we simply break; when there's
-a problem, thus clearing the return value, and in one case we do a
-return -EIO, and leak the memory for the path.
-
-Fix this by re-arranging the loop to deal with ret == 1 coming from
-btrfs_search_slot, and then simply delete the
-
-	ret = 0;
-out:
-
-bit so everybody can break if there is an error, which will allow for
-proper error handling to occur.
-
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
+Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
+Cc: stable@vger.kernel.org
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Message-Id: <20210422022128.3464144-4-seanjc@google.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+[sudip: manual backport to old file]
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/tree-log.c |   13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ arch/x86/kvm/svm.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -1511,6 +1511,7 @@ static noinline int fixup_inode_link_cou
- 			break;
- 
- 		if (ret == 1) {
-+			ret = 0;
- 			if (path->slots[0] == 0)
- 				break;
- 			path->slots[0]--;
-@@ -1523,17 +1524,19 @@ static noinline int fixup_inode_link_cou
- 
- 		ret = btrfs_del_item(trans, root, path);
- 		if (ret)
--			goto out;
-+			break;
- 
- 		btrfs_release_path(path);
- 		inode = read_one_inode(root, key.offset);
--		if (!inode)
--			return -EIO;
-+		if (!inode) {
-+			ret = -EIO;
-+			break;
-+		}
- 
- 		ret = fixup_inode_link_count(trans, root, inode);
- 		iput(inode);
- 		if (ret)
--			goto out;
-+			break;
- 
- 		/*
- 		 * fixup on a directory may create new entries,
-@@ -1542,8 +1545,6 @@ static noinline int fixup_inode_link_cou
- 		 */
- 		key.offset = (u64)-1;
+--- a/arch/x86/kvm/svm.c
++++ b/arch/x86/kvm/svm.c
+@@ -2927,7 +2927,7 @@ static int cr_interception(struct vcpu_s
+ 	err = 0;
+ 	if (cr >= 16) { /* mov to cr */
+ 		cr -= 16;
+-		val = kvm_register_read(&svm->vcpu, reg);
++		val = kvm_register_readl(&svm->vcpu, reg);
+ 		switch (cr) {
+ 		case 0:
+ 			if (!check_selective_cr0_intercepted(svm, val))
+@@ -2972,7 +2972,7 @@ static int cr_interception(struct vcpu_s
+ 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
+ 			return 1;
+ 		}
+-		kvm_register_write(&svm->vcpu, reg, val);
++		kvm_register_writel(&svm->vcpu, reg, val);
  	}
--	ret = 0;
--out:
- 	btrfs_release_path(path);
- 	return ret;
- }
+ 	kvm_complete_insn_gp(&svm->vcpu, err);
+ 
+@@ -3004,13 +3004,13 @@ static int dr_interception(struct vcpu_s
+ 	if (dr >= 16) { /* mov to DRn */
+ 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
+ 			return 1;
+-		val = kvm_register_read(&svm->vcpu, reg);
++		val = kvm_register_readl(&svm->vcpu, reg);
+ 		kvm_set_dr(&svm->vcpu, dr - 16, val);
+ 	} else {
+ 		if (!kvm_require_dr(&svm->vcpu, dr))
+ 			return 1;
+ 		kvm_get_dr(&svm->vcpu, dr, &val);
+-		kvm_register_write(&svm->vcpu, reg, val);
++		kvm_register_writel(&svm->vcpu, reg, val);
+ 	}
+ 
+ 	skip_emulated_instruction(&svm->vcpu);
 
 
