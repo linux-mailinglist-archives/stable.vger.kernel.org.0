@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E43083A0058
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id AFC563A005C
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234440AbhFHSmB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:42:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38042 "EHLO mail.kernel.org"
+        id S235073AbhFHSmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:42:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36258 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234703AbhFHSkJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:40:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A44D61376;
-        Tue,  8 Jun 2021 18:34:44 +0000 (UTC)
+        id S234674AbhFHSkQ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:40:16 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D526261351;
+        Tue,  8 Jun 2021 18:34:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177284;
-        bh=40UckIG/hTA33cHCVkjJr9xGKhAF0c6vkKl9E1HvmuM=;
+        s=korg; t=1623177287;
+        bh=pIIGlN9EPcfE33lJxRnT5yrbrIVU1+ivFW8PN9HZ+A8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CTdK7ro0CLBCVupcaZB7IHjLT9iXzAfxPGt11eaMnqpg9e3bv3XcZmhXsPHri3QNy
-         IVKUkiptqTsqIvoa5O/WkFzI9GTWGYBjYX8BzUY2agOhXJqBI3TjNtMb4k7+XomM18
-         8V88AMvWwcg26bA5Up0iXOS7shAyZfgH9VOCFMTE=
+        b=uCEfNaNte5AIT705vNBNyw/KDQyyawQhJL7fUyVgo6qaiJDgOC7DOiAbr/AMCOf0x
+         rPFwrw8Y068FaBnd2m158hslSHamz33Oyeq3VGoiUvAXcKqu7Y5MDYt7SJjBKgkUb9
+         ZD2CaqIqKoCpQVuLqxKSIpj+QNolj6kLsTlEPXBg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, step-ali <sunmooon15@gmail.com>,
-        Charles Stanhope <charles.stanhope@gmail.com>,
-        Paulo Nascimento <paulo.ulusu@googlemail.com>,
-        David Purton <dcpurton@marshwiggle.net>,
-        Adam Harvey <adam@adamharvey.name>,
-        Zhang Rui <rui.zhang@intel.com>,
-        Jean-Marc Lenoir <archlinux@jihemel.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        =?UTF-8?q?Lauren=C8=9Biu=20P=C4=83ncescu?= <lpancescu@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>
-Subject: [PATCH 4.19 56/58] ACPI: EC: Look for ECDT EC after calling acpi_load_tables()
-Date:   Tue,  8 Jun 2021 20:27:37 +0200
-Message-Id: <20210608175934.124213090@linuxfoundation.org>
+        stable@vger.kernel.org, Cheng Jian <cj.chengjian@huawei.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Valentin Schneider <valentin.schneider@arm.com>,
+        Yang Wei <yang.wei@linux.alibaba.com>
+Subject: [PATCH 4.19 57/58] sched/fair: Optimize select_idle_cpu
+Date:   Tue,  8 Jun 2021 20:27:38 +0200
+Message-Id: <20210608175934.158307657@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
 References: <20210608175932.263480586@linuxfoundation.org>
@@ -47,107 +43,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+From: Cheng Jian <cj.chengjian@huawei.com>
 
-commit b1c0330823fe842dbb34641f1410f0afa51c29d3 upstream.
+commit 60588bfa223ff675b95f866249f90616613fbe31 upstream.
 
-Some systems have had functional issues since commit 5a8361f7ecce
-(ACPICA: Integrate package handling with module-level code) that,
-among other things, changed the initial values of the
-acpi_gbl_group_module_level_code and acpi_gbl_parse_table_as_term_list
-global flags in ACPICA which implicitly caused acpi_ec_ecdt_probe() to
-be called before acpi_load_tables() on the vast majority of platforms.
+select_idle_cpu() will scan the LLC domain for idle CPUs,
+it's always expensive. so the next commit :
 
-Namely, before commit 5a8361f7ecce, acpi_load_tables() was called from
-acpi_early_init() if acpi_gbl_parse_table_as_term_list was FALSE and
-acpi_gbl_group_module_level_code was TRUE, which almost always was
-the case as FALSE and TRUE were their initial values, respectively.
-The acpi_gbl_parse_table_as_term_list value would be changed to TRUE
-for a couple of platforms in acpi_quirks_dmi_table[], but it remained
-FALSE in the vast majority of cases.
+	1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
 
-After commit 5a8361f7ecce, the initial values of the two flags have
-been reversed, so in effect acpi_load_tables() has not been called
-from acpi_early_init() any more.  That, in turn, affects
-acpi_ec_ecdt_probe() which is invoked before acpi_load_tables() now
-and it is not possible to evaluate the _REG method for the EC address
-space handler installed by it.  That effectively causes the EC address
-space to be inaccessible to AML on platforms with an ECDT matching the
-EC device definition in the DSDT and functional problems ensue in
-there.
+introduces a way to limit how many CPUs we scan.
 
-Because the default behavior before commit 5a8361f7ecce was to call
-acpi_ec_ecdt_probe() after acpi_load_tables(), it should be safe to
-do that again.  Moreover, the EC address space handler installed by
-acpi_ec_ecdt_probe() is only needed for AML to be able to access the
-EC address space and the only AML that can run during acpi_load_tables()
-is module-level code which only is allowed to access address spaces
-with default handlers (memory, I/O and PCI config space).
+But it consume some CPUs out of 'nr' that are not allowed
+for the task and thus waste our attempts. The function
+always return nr_cpumask_bits, and we can't find a CPU
+which our task is allowed to run.
 
-For this reason, move the acpi_ec_ecdt_probe() invocation back to
-acpi_bus_init(), from where it was taken away by commit d737f333b211
-(ACPI: probe ECDT before loading AML tables regardless of module-level
-code flag), and put it after the invocation of acpi_load_tables() to
-restore the original code ordering from before commit 5a8361f7ecce.
+Cpumask may be too big, similar to select_idle_core(), use
+per_cpu_ptr 'select_idle_mask' to prevent stack overflow.
 
-Fixes: 5a8361f7ecce ("ACPICA: Integrate package handling with module-level code")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=199981
-Reported-by: step-ali <sunmooon15@gmail.com>
-Reported-by: Charles Stanhope <charles.stanhope@gmail.com>
-Tested-by: Charles Stanhope <charles.stanhope@gmail.com>
-Reported-by: Paulo Nascimento <paulo.ulusu@googlemail.com>
-Reported-by: David Purton <dcpurton@marshwiggle.net>
-Reported-by: Adam Harvey <adam@adamharvey.name>
-Reported-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Zhang Rui <rui.zhang@intel.com>
-Tested-by: Jean-Marc Lenoir <archlinux@jihemel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Laurențiu Păncescu <lpancescu@gmail.com>
-Cc: Salvatore Bonaccorso <carnil@debian.org>
+Fixes: 1ad3aaf3fcd2 ("sched/core: Implement new approach to scale select_idle_cpu()")
+Signed-off-by: Cheng Jian <cj.chengjian@huawei.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Reviewed-by: Valentin Schneider <valentin.schneider@arm.com>
+Link: https://lkml.kernel.org/r/20191213024530.28052-1-cj.chengjian@huawei.com
+Signed-off-by: Yang Wei <yang.wei@linux.alibaba.com>
+Tested-by: Yang Wei <yang.wei@linux.alibaba.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/acpi/bus.c |   24 ++++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ kernel/sched/fair.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/acpi/bus.c
-+++ b/drivers/acpi/bus.c
-@@ -1054,18 +1054,6 @@ void __init acpi_early_init(void)
- 		goto error0;
- 	}
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -6154,6 +6154,7 @@ static inline int select_idle_smt(struct
+  */
+ static int select_idle_cpu(struct task_struct *p, struct sched_domain *sd, int target)
+ {
++	struct cpumask *cpus = this_cpu_cpumask_var_ptr(select_idle_mask);
+ 	struct sched_domain *this_sd;
+ 	u64 avg_cost, avg_idle;
+ 	u64 time, cost;
+@@ -6184,11 +6185,11 @@ static int select_idle_cpu(struct task_s
  
--	/*
--	 * ACPI 2.0 requires the EC driver to be loaded and work before
--	 * the EC device is found in the namespace (i.e. before
--	 * acpi_load_tables() is called).
--	 *
--	 * This is accomplished by looking for the ECDT table, and getting
--	 * the EC parameters out of that.
--	 *
--	 * Ignore the result. Not having an ECDT is not fatal.
--	 */
--	status = acpi_ec_ecdt_probe();
--
- #ifdef CONFIG_X86
- 	if (!acpi_ioapic) {
- 		/* compatible (0) means level (3) */
-@@ -1142,6 +1130,18 @@ static int __init acpi_bus_init(void)
- 		goto error1;
- 	}
+ 	time = local_clock();
  
-+	/*
-+	 * ACPI 2.0 requires the EC driver to be loaded and work before the EC
-+	 * device is found in the namespace.
-+	 *
-+	 * This is accomplished by looking for the ECDT table and getting the EC
-+	 * parameters out of that.
-+	 *
-+	 * Do that before calling acpi_initialize_objects() which may trigger EC
-+	 * address space accesses.
-+	 */
-+	acpi_ec_ecdt_probe();
+-	for_each_cpu_wrap(cpu, sched_domain_span(sd), target) {
++	cpumask_and(cpus, sched_domain_span(sd), &p->cpus_allowed);
 +
- 	status = acpi_enable_subsystem(ACPI_NO_ACPI_ENABLE);
- 	if (ACPI_FAILURE(status)) {
- 		printk(KERN_ERR PREFIX
++	for_each_cpu_wrap(cpu, cpus, target) {
+ 		if (!--nr)
+ 			return -1;
+-		if (!cpumask_test_cpu(cpu, &p->cpus_allowed))
+-			continue;
+ 		if (available_idle_cpu(cpu))
+ 			break;
+ 	}
 
 
