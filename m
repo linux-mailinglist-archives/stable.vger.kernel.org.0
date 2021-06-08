@@ -2,42 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 998B33A0162
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C04BA3A029F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235243AbhFHSvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:51:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48990 "EHLO mail.kernel.org"
+        id S236192AbhFHTHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:07:07 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43872 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235889AbhFHSt3 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:49:29 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 10CFE61465;
-        Tue,  8 Jun 2021 18:38:55 +0000 (UTC)
+        id S237612AbhFHTFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:05:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50A67613B6;
+        Tue,  8 Jun 2021 18:46:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177536;
-        bh=PK/gH9mxgzJ5E6JSk09mtqXMEqNscMTe5NAqxnRVaTI=;
+        s=korg; t=1623177969;
+        bh=JpwGp5xVlNaThGQCPQZqU7d9ztVREPqcBFJxpsspVJQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VBnv7IJf6dEXHIyfhiVjQsORZTHFhmV50Z/IKHVg8oPkCNrQUMDLvjNj61DlqEDvt
-         uLTkDKzUAXhl7pxnDsc37L8YygjZ2NSQDIggUDK59yESC+vQ21FX1qeo7AzwzrxyI0
-         3rezObfWLB/xMZPLFsCbQ81xSxUeVZszov6pz+eo=
+        b=E+Ztm3f8Nvd+ZIbpASwDxqlLOrDlKtgFVC/agg/32ph+PEm8C6agwLYqlZKU+eDre
+         4vWh5nXF7qR8kCcJ9fvvcLiwxmb27Jd3GkmKr4LzJ2EHfBLrbsWnF+F+e/1nBInVNx
+         ebL46uHTBWOVJGF7En4aHrCgF7zdF60ZjhjV0Ho4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        =?UTF-8?q?Tuomas=20L=C3=A4hdekorpi?= <tuomas.lahdekorpi@gmail.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>,
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Zhen Lei <thunder.leizhen@huawei.com>,
+        Max Gurtovoy <mgurtovoy@nvidia.com>,
+        Alex Williamson <alex.williamson@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 001/137] btrfs: tree-checker: do not error out if extent ref hash doesnt match
+Subject: [PATCH 5.12 011/161] vfio/pci: Fix error return code in vfio_ecap_init()
 Date:   Tue,  8 Jun 2021 20:25:41 +0200
-Message-Id: <20210608175942.429608302@linuxfoundation.org>
+Message-Id: <20210608175945.850810674@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -45,91 +42,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Zhen Lei <thunder.leizhen@huawei.com>
 
-commit 1119a72e223f3073a604f8fccb3a470ccd8a4416 upstream.
+[ Upstream commit d1ce2c79156d3baf0830990ab06d296477b93c26 ]
 
-The tree checker checks the extent ref hash at read and write time to
-make sure we do not corrupt the file system.  Generally extent
-references go inline, but if we have enough of them we need to make an
-item, which looks like
+The error code returned from vfio_ext_cap_len() is stored in 'len', not
+in 'ret'.
 
-key.objectid	= <bytenr>
-key.type	= <BTRFS_EXTENT_DATA_REF_KEY|BTRFS_TREE_BLOCK_REF_KEY>
-key.offset	= hash(tree, owner, offset)
-
-However if key.offset collide with an unrelated extent reference we'll
-simply key.offset++ until we get something that doesn't collide.
-Obviously this doesn't match at tree checker time, and thus we error
-while writing out the transaction.  This is relatively easy to
-reproduce, simply do something like the following
-
-  xfs_io -f -c "pwrite 0 1M" file
-  offset=2
-
-  for i in {0..10000}
-  do
-	  xfs_io -c "reflink file 0 ${offset}M 1M" file
-	  offset=$(( offset + 2 ))
-  done
-
-  xfs_io -c "reflink file 0 17999258914816 1M" file
-  xfs_io -c "reflink file 0 35998517829632 1M" file
-  xfs_io -c "reflink file 0 53752752058368 1M" file
-
-  btrfs filesystem sync
-
-And the sync will error out because we'll abort the transaction.  The
-magic values above are used because they generate hash collisions with
-the first file in the main subvol.
-
-The fix for this is to remove the hash value check from tree checker, as
-we have no idea which offset ours should belong to.
-
-Reported-by: Tuomas Lähdekorpi <tuomas.lahdekorpi@gmail.com>
-Fixes: 0785a9aacf9d ("btrfs: tree-checker: Add EXTENT_DATA_REF check")
-CC: stable@vger.kernel.org # 5.4+
-Reviewed-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ add comment]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: 89e1f7d4c66d ("vfio: Add PCI device driver")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
+Reviewed-by: Max Gurtovoy <mgurtovoy@nvidia.com>
+Message-Id: <20210515020458.6771-1-thunder.leizhen@huawei.com>
+Signed-off-by: Alex Williamson <alex.williamson@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/tree-checker.c | 16 ++++------------
- 1 file changed, 4 insertions(+), 12 deletions(-)
+ drivers/vfio/pci/vfio_pci_config.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/tree-checker.c b/fs/btrfs/tree-checker.c
-index 40845428b739..d4a3a56726aa 100644
---- a/fs/btrfs/tree-checker.c
-+++ b/fs/btrfs/tree-checker.c
-@@ -1440,22 +1440,14 @@ static int check_extent_data_ref(struct extent_buffer *leaf,
- 		return -EUCLEAN;
- 	}
- 	for (; ptr < end; ptr += sizeof(*dref)) {
--		u64 root_objectid;
--		u64 owner;
- 		u64 offset;
--		u64 hash;
+diff --git a/drivers/vfio/pci/vfio_pci_config.c b/drivers/vfio/pci/vfio_pci_config.c
+index a402adee8a21..47f21a6ca7fe 100644
+--- a/drivers/vfio/pci/vfio_pci_config.c
++++ b/drivers/vfio/pci/vfio_pci_config.c
+@@ -1581,7 +1581,7 @@ static int vfio_ecap_init(struct vfio_pci_device *vdev)
+ 			if (len == 0xFF) {
+ 				len = vfio_ext_cap_len(vdev, ecap, epos);
+ 				if (len < 0)
+-					return ret;
++					return len;
+ 			}
+ 		}
  
-+		/*
-+		 * We cannot check the extent_data_ref hash due to possible
-+		 * overflow from the leaf due to hash collisions.
-+		 */
- 		dref = (struct btrfs_extent_data_ref *)ptr;
--		root_objectid = btrfs_extent_data_ref_root(leaf, dref);
--		owner = btrfs_extent_data_ref_objectid(leaf, dref);
- 		offset = btrfs_extent_data_ref_offset(leaf, dref);
--		hash = hash_extent_data_ref(root_objectid, owner, offset);
--		if (hash != key->offset) {
--			extent_err(leaf, slot,
--	"invalid extent data ref hash, item has 0x%016llx key has 0x%016llx",
--				   hash, key->offset);
--			return -EUCLEAN;
--		}
- 		if (!IS_ALIGNED(offset, leaf->fs_info->sectorsize)) {
- 			extent_err(leaf, slot,
- 	"invalid extent data backref offset, have %llu expect aligned to %u",
 -- 
 2.30.2
 
