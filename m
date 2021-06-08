@@ -2,35 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id F009939FF80
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 033B439FFAA
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234268AbhFHSdk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:40 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57666 "EHLO mail.kernel.org"
+        id S234809AbhFHSfG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:35:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57600 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234447AbhFHSch (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 96381613BF;
-        Tue,  8 Jun 2021 18:30:29 +0000 (UTC)
+        id S233360AbhFHSdg (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:33:36 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A7C1E613DD;
+        Tue,  8 Jun 2021 18:31:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177030;
-        bh=rsED8s3r44/lFHHL2PzzG5LOJomieDVl4CR1CyvZD0c=;
+        s=korg; t=1623177083;
+        bh=AV02ipyOdh3kjpYE7YbxqgoBr8BU02OKe5XbkPla8F4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BT+ZhVSHlfYcHTq2tbg5jeAnPZ557mbV7qY7CGHicOXL4gyTUcELiY5S7TxznlOgN
-         SQWThB1EyWPQpQDO8Hrudrb9CiR3bN0BbtPJkHwvIVri/dTbYD1GSQYp4t9oUyqRG9
-         iyltkdu/AdbWa07z72dG4s+zEGONiqLEd1oyqHyk=
+        b=eFZkt/Q/z0o7DFKPBsbzI18ednjJ/7SHwZ7mjRP2mXhsXqFScEsOdxDQt/kXKY3EC
+         OhukBYcY6oAL12s2+KBHW20ymAtZ0f/IcH7Ofc0v3cHE3GTZXdbBJGukJdVcmhkwQO
+         Oxd/iXHWINSLpgHQvkL2NC0LQn0MOyBcqAez3HjI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 4.9 15/29] net: caif: added cfserl_release function
+        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 26/47] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
 Date:   Tue,  8 Jun 2021 20:27:09 +0200
-Message-Id: <20210608175928.313977485@linuxfoundation.org>
+Message-Id: <20210608175931.337829867@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -39,42 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Mina Almasry <almasrymina@google.com>
 
-commit bce130e7f392ddde8cfcb09927808ebd5f9c8669 upstream.
+[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
 
-Added cfserl_release() function.
+The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
+happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
+an index for which we already have a page in the cache.  When this
+happens, we allocate a second page, double consuming the reservation,
+and then fail to insert the page into the cache and return -EEXIST.
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To fix this, we first check if there is a page in the cache which
+already consumed the reservation, and return -EEXIST immediately if so.
+
+There is still a rare condition where we fail to copy the page contents
+AND race with a call for hugetlb_no_page() for this index and again we
+will underflow resv_huge_pages.  That is fixed in a more complicated
+patch not targeted for -stable.
+
+Test:
+
+  Hacked the code locally such that resv_huge_pages underflows produce a
+  warning, then:
+
+  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+
+Both tests succeed and produce no warnings.  After the test runs number
+of free/resv hugepages is correct.
+
+[mike.kravetz@oracle.com: changelog fixes]
+
+Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
+Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/caif/cfserl.h |    1 +
- net/caif/cfserl.c         |    5 +++++
- 2 files changed, 6 insertions(+)
+ mm/hugetlb.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/include/net/caif/cfserl.h
-+++ b/include/net/caif/cfserl.h
-@@ -9,4 +9,5 @@
- #include <net/caif/caif_layer.h>
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index e59e0f7ed562..0dc181290d1f 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4099,10 +4099,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	struct page *page;
  
- struct cflayer *cfserl_create(int instance, bool use_stx);
-+void cfserl_release(struct cflayer *layer);
- #endif
---- a/net/caif/cfserl.c
-+++ b/net/caif/cfserl.c
-@@ -31,6 +31,11 @@ static int cfserl_transmit(struct cflaye
- static void cfserl_ctrlcmd(struct cflayer *layr, enum caif_ctrlcmd ctrl,
- 			   int phyid);
- 
-+void cfserl_release(struct cflayer *layer)
-+{
-+	kfree(layer);
-+}
+ 	if (!*pagep) {
+-		ret = -ENOMEM;
++		/* If a page already exists, then it's UFFDIO_COPY for
++		 * a non-missing case. Return -EEXIST.
++		 */
++		if (vm_shared &&
++		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
++			ret = -EEXIST;
++			goto out;
++		}
 +
- struct cflayer *cfserl_create(int instance, bool use_stx)
- {
- 	struct cfserl *this = kzalloc(sizeof(struct cfserl), GFP_ATOMIC);
+ 		page = alloc_huge_page(dst_vma, dst_addr, 0);
+-		if (IS_ERR(page))
++		if (IS_ERR(page)) {
++			ret = -ENOMEM;
+ 			goto out;
++		}
+ 
+ 		ret = copy_huge_page_from_user(page,
+ 						(const void __user *) src_addr,
+-- 
+2.30.2
+
 
 
