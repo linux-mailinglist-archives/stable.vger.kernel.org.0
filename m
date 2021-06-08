@@ -2,72 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7779339F0E4
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 10:26:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DA3D39F0F9
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 10:32:07 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231588AbhFHI2i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 04:28:38 -0400
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35520 "EHLO
-        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231570AbhFHI2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 04:28:36 -0400
-Received: from mail-yb1-xb2a.google.com (mail-yb1-xb2a.google.com [IPv6:2607:f8b0:4864:20::b2a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15529C061574
-        for <stable@vger.kernel.org>; Tue,  8 Jun 2021 01:26:44 -0700 (PDT)
-Received: by mail-yb1-xb2a.google.com with SMTP id m9so22555617ybo.5
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 01:26:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20161025;
-        h=mime-version:reply-to:from:date:message-id:subject:to;
-        bh=uKF0s1AOqw4pwfE1HZnuFTQgAqI0KYR2qJ5+UXdlvpE=;
-        b=Ox23iFKRWQkdjMGLV3vkPUHWb0EP8W3Yx29dCNIrnfZD+ga2Tukup9oi6JIIWRMEYB
-         2937b5wcnb/812JUWii47+viPQPOVjBgpNO2/cij5nrCcMxKyoDg6RyHmmwemPSW5Wci
-         +XfOd5Cp2rGrPlTfFu1aFtca5OKUtG8B2II5KqrRzSJK/Vg+pmUEEQ+Mq4TK3sva2Lrp
-         8Ol7g6GLPwPFvXjKyBtDmVrRnr0G+2wSuAXc0G6hT8tQId581rSckBk2i0Vw8iT3KpQj
-         6yQRxvPXYZFsCSjqvE2r1vmgmD9SZ58RWDHsqjjGCSbwwkUKFXdagq+lI1Ob1PPl7nYL
-         m1bQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:mime-version:reply-to:from:date:message-id
-         :subject:to;
-        bh=uKF0s1AOqw4pwfE1HZnuFTQgAqI0KYR2qJ5+UXdlvpE=;
-        b=TyhzG8tdf5TKco1fpMirALizqg9S3ZV5fAUbuelVQFugefz7GXlvuZGkzEpP4RqRpT
-         yMt9z4PKZBKpIWXCWif9vztwOI0S5/ukqw1JN8J0b8KVSH+VvUqmA/XPeLNBeZNEWlGB
-         AQYgpENIR1rSLTmglhHSM7WfrwyaPQy4QUPAc7VllKMsKAM6kKPppeOYiDQzlJV5SKa3
-         ckZvuC+LpzuKBq+MEiIDRsrPil7ma758lYWY/QSQVGR2dfrNtnfQ3Abt3H/fMyo78NCz
-         XDTNifs3qGPhEIdXNwLPXsnUDT59lnDsaAxQlVII3XnWcs7Nou2rMk+rxpfjZEj2/OmH
-         bZVA==
-X-Gm-Message-State: AOAM5310rWKBjbPKRJYasCFdYagTKJoTgo8+XcgsIp/BfSSwgDWOjxsq
-        siLxilOAbwfi3dDV+G5U1ScyEqSHfwiJyDWowvc=
-X-Google-Smtp-Source: ABdhPJyPeN/VTP8Jx/gCmE7oPHXvsR2KSrhJyIXLHX9ppkprQhyGqGNyZaHB8JlZ0OC9WcsXcEcPqM5oFX/gB55rYNY=
-X-Received: by 2002:a25:f202:: with SMTP id i2mr28260861ybe.21.1623140803278;
- Tue, 08 Jun 2021 01:26:43 -0700 (PDT)
+        id S230287AbhFHId5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 04:33:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52794 "EHLO mail.kernel.org"
+        rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
+        id S229507AbhFHId5 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 04:33:57 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 299D06124B;
+        Tue,  8 Jun 2021 08:32:04 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1623141125;
+        bh=bWFAmKd3DNZ+NkTU8ZsF5ftLYqiBVXsIWH5ZAF+xP4U=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=hFI58qU597v46ZY746x3xrEZgo6uu+TuqBXM9QpZ2/baCj6ZTtmHTrfO6RkDw4yfm
+         Lnjwl1iQCvCdFRAScDBLAMqVYI1Fv88Jue3ktj71s3EobuX3WQBNRDxKxZLL9bva7L
+         sUapmD98BOr6hBnhyvo0pponS2gGC1rSy6lwLlrs=
+Date:   Tue, 8 Jun 2021 10:32:02 +0200
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        linma <linma@zju.edu.cn>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth <linux-bluetooth@vger.kernel.org>,
+        "open list:NETWORKING [GENERAL]" <netdev@vger.kernel.org>,
+        open list <linux-kernel@vger.kernel.org>,
+        Hao Xiong <mart1n@zju.edu.cn>, stable <stable@vger.kernel.org>
+Subject: Re: [PATCH v2] Bluetooth: fix the erroneous flush_work() order
+Message-ID: <YL8rAlo56DT9Ok0B@kroah.com>
+References: <20210525123902.189012-1-gregkh@linuxfoundation.org>
+ <BF0493D4-AB96-44D3-8229-9EA6D084D260@holtmann.org>
+ <YL73vTBtgWkaup+A@eldamar.lan>
 MIME-Version: 1.0
-Received: by 2002:a81:a395:0:0:0:0:0 with HTTP; Tue, 8 Jun 2021 01:26:42 -0700 (PDT)
-Reply-To: janetakhnam1956@gmail.com
-From:   Mrs Janet Akhnam <drnoel.noel4@gmail.com>
-Date:   Tue, 8 Jun 2021 10:26:42 +0200
-Message-ID: <CAOu8qmXS3WJc4rA1fgU7D+++8ED6f_wD90T2T7PV0rYYfzEd3Q@mail.gmail.com>
-Subject: My Sincere Request.
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <YL73vTBtgWkaup+A@eldamar.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Tue, Jun 08, 2021 at 06:53:17AM +0200, Salvatore Bonaccorso wrote:
+> Hi Greg,
+> 
+> On Thu, May 27, 2021 at 10:14:59PM +0200, Marcel Holtmann wrote:
+> > Hi Greg,
+> > 
+> > > In the cleanup routine for failed initialization of HCI device,
+> > > the flush_work(&hdev->rx_work) need to be finished before the
+> > > flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+> > > possibly invoke new cmd_work and cause a bug, like double free,
+> > > in late processings.
+> > > 
+> > > This was assigned CVE-2021-3564.
+> > > 
+> > > This patch reorder the flush_work() to fix this bug.
+> > > 
+> > > Cc: Marcel Holtmann <marcel@holtmann.org>
+> > > Cc: Johan Hedberg <johan.hedberg@gmail.com>
+> > > Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+> > > Cc: "David S. Miller" <davem@davemloft.net>
+> > > Cc: Jakub Kicinski <kuba@kernel.org>
+> > > Cc: linux-bluetooth@vger.kernel.org
+> > > Cc: netdev@vger.kernel.org
+> > > Cc: linux-kernel@vger.kernel.org
+> > > Signed-off-by: Lin Ma <linma@zju.edu.cn>
+> > > Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+> > > Cc: stable <stable@vger.kernel.org>
+> > > Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> > > ---
+> > > net/bluetooth/hci_core.c | 7 ++++++-
+> > > 1 file changed, 6 insertions(+), 1 deletion(-)
+> > 
+> > patch has been applied to bluetooth-stable tree.
+> 
+> Can you queue this one as well for the stable series? It is
+> 6a137caec23aeb9e036cdfd8a46dd8a366460e5d commit upstream and in
+> 5.13-rc5.
 
-It is my pleasure to communicate with you, I know that this message
-will be a surprise to you my name is Mrs. Janet Gay Markham, I am
-diagnosed with ovarian cancer which my doctor have confirmed that I
-have only some weeks to live so I have decided you handover the sum of
-($4.5 Million Dollar)  I decided to handover the money in my account
-to you for help of the orphanage homes and the needy once
+It's now queued up, thanks.
 
-Please   kindly reply me here as soon as possible to enable me give
-you more information but before handing over my details to you please
-assure me that you will only take 30%  of the money and share the rest
-to the poor orphanage home and the needy once, thank you am waiting to
-hear from you
-
-Mrs Janet Gay Markham
+greg k-h
