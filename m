@@ -2,34 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 846C93A028B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:46 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA2753A0287
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236071AbhFHTGo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:06:44 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44294 "EHLO mail.kernel.org"
+        id S235632AbhFHTGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:06:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44564 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236823AbhFHTDZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:03:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8999561456;
-        Tue,  8 Jun 2021 18:45:22 +0000 (UTC)
+        id S236740AbhFHTDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:03:20 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 605A26186A;
+        Tue,  8 Jun 2021 18:45:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177923;
-        bh=nUB/Ap4eZ/hR5xEvf/2VZdkW/1M2N1RdoizMM+wCb1E=;
+        s=korg; t=1623177925;
+        bh=SiAnxwCzqUrojtkSFW7yYJ/Igf6dSNxXRc2jFffHSRo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AQx0LiSVEo9ctbd2J3iJhTHcOuVhVvqLMYBuZ/hOzh9AoM7AGwCCMbA3MS6GPl7yA
-         qNyP5XtwqKm+PK3s2okBnAYSoqucgs41Fmboj+JgJKKRu2/Q2/UWrHimzpgbpsjefA
-         xvLQIqyi9acGULUJP5HsJ0NstqfyAWTrXAX7lWrM=
+        b=H+xZM9SKtDXZsDVVvOsRTCSYni+PTWB2/Yd0Yjhan2qvZq2TDnZPRmgRMxBNaNW6a
+         E3RKm4doN+Szkeq4VFMZInyEmLk4CJ6miwXlc7W13nhb7nFn4NJBQvq35tyCMPfyoh
+         NYByeF0R3PoFkSIguDVZHFreSamkLv/WSgW3nEKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Armin Wolf <W_Armin@gmx.de>,
-        =?UTF-8?q?Pali=20Roh=C3=A1r?= <pali@kernel.org>,
+        stable@vger.kernel.org, Grant Peltier <grantpeltier93@gmail.com>,
         Guenter Roeck <linux@roeck-us.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 004/161] hwmon: (dell-smm-hwmon) Fix index values
-Date:   Tue,  8 Jun 2021 20:25:34 +0200
-Message-Id: <20210608175945.625209507@linuxfoundation.org>
+Subject: [PATCH 5.12 005/161] hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_3 for RAA228228
+Date:   Tue,  8 Jun 2021 20:25:35 +0200
+Message-Id: <20210608175945.656492449@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -41,42 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Grant Peltier <grantpeltier93@gmail.com>
 
-[ Upstream commit 35d470b5fbc9f82feb77b56bb0d5d0b5cd73e9da ]
+[ Upstream commit 2a29db088c7ae7121801a0d7a60740ed2d18c4f3 ]
 
-When support for up to 10 temp sensors and for disabling automatic BIOS
-fan control was added, noone updated the index values used for
-disallowing fan support and fan type calls.
-Fix those values.
+The initial version of the RAA228228 datasheet claimed that the device
+supported READ_TEMPERATURE_3 but not READ_TEMPERATURE_1. It has since been
+discovered that the datasheet was incorrect. The RAA228228 does support
+READ_TEMPERATURE_1 but does not support READ_TEMPERATURE_3.
 
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Reviewed-by: Pali Rohár <pali@kernel.org>
-Link: https://lore.kernel.org/r/20210513154546.12430-1-W_Armin@gmx.de
-Fixes: 1bb46a20e73b ("hwmon: (dell-smm) Support up to 10 temp sensors")
+Signed-off-by: Grant Peltier <grantpeltier93@gmail.com>
+Fixes: 51fb91ed5a6f ("hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_1 telemetry for RAA228228")
+Link: https://lore.kernel.org/r/20210514211954.GA24646@raspberrypi
 Signed-off-by: Guenter Roeck <linux@roeck-us.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/dell-smm-hwmon.c | 4 ++--
+ drivers/hwmon/pmbus/isl68137.c | 4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/hwmon/dell-smm-hwmon.c b/drivers/hwmon/dell-smm-hwmon.c
-index 73b9db9e3aab..63b74e781c5d 100644
---- a/drivers/hwmon/dell-smm-hwmon.c
-+++ b/drivers/hwmon/dell-smm-hwmon.c
-@@ -838,10 +838,10 @@ static struct attribute *i8k_attrs[] = {
- static umode_t i8k_is_visible(struct kobject *kobj, struct attribute *attr,
- 			      int index)
- {
--	if (disallow_fan_support && index >= 8)
-+	if (disallow_fan_support && index >= 20)
- 		return 0;
- 	if (disallow_fan_type_call &&
--	    (index == 9 || index == 12 || index == 15))
-+	    (index == 21 || index == 25 || index == 28))
- 		return 0;
- 	if (index >= 0 && index <= 1 &&
- 	    !(i8k_hwmon_flags & I8K_HWMON_HAVE_TEMP1))
+diff --git a/drivers/hwmon/pmbus/isl68137.c b/drivers/hwmon/pmbus/isl68137.c
+index 2bee930d3900..789242ed72e5 100644
+--- a/drivers/hwmon/pmbus/isl68137.c
++++ b/drivers/hwmon/pmbus/isl68137.c
+@@ -244,8 +244,8 @@ static int isl68137_probe(struct i2c_client *client)
+ 		info->read_word_data = raa_dmpvr2_read_word_data;
+ 		break;
+ 	case raa_dmpvr2_2rail_nontc:
+-		info->func[0] &= ~PMBUS_HAVE_TEMP;
+-		info->func[1] &= ~PMBUS_HAVE_TEMP;
++		info->func[0] &= ~PMBUS_HAVE_TEMP3;
++		info->func[1] &= ~PMBUS_HAVE_TEMP3;
+ 		fallthrough;
+ 	case raa_dmpvr2_2rail:
+ 		info->pages = 2;
 -- 
 2.30.2
 
