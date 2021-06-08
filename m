@@ -2,36 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id B228939FFD6
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:22 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DA7173A00DA
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:47:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234790AbhFHShJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:37:09 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
+        id S235420AbhFHSsE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:48:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43672 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234816AbhFHSfJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:35:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 84C91613FF;
-        Tue,  8 Jun 2021 18:32:05 +0000 (UTC)
+        id S235424AbhFHSqC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:46:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 78E22613C5;
+        Tue,  8 Jun 2021 18:37:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177126;
-        bh=1FgAsruzabu/OxP8X7lY9HM05qgsQsUoG4g9wC6mS5w=;
+        s=korg; t=1623177447;
+        bh=XP8RtZB5I8hcyEmuu0P6ZC+uh588io2AMGX5lGpuJJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6SzbQssC5MuhlgV3S/g+Tgw2n7/itBQb7F7+TtNZZkMQIsEd0ZgLN++jrer7wIgm
-         NzFHCzycKDBP/2KB7kpG5ah4ixAcGeywWsVfl524029hb1mVRXdr9uCW4qeo4d1nUF
-         al37Hf78W8CHqjllRbSrpuT7uTcIslazswBpAybs=
+        b=EJEDXWxfX0gSeX+MXUngSObe3bojVmOarFKwvME5zpVMtpADRUGmo7Y+0JBPiBEpa
+         kzsUjt6eQfjmzduBe2Drw6PSmYWeVnica/6ZX0X/NJso+zxNKs7VAEEJdYQtscBCMl
+         CUjFh3WCtMRh+k97+yaBrDXoxzkkJ/ehfj0T3SNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
+To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Piotr Krysiuk <piotras@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 4.14 41/47] bpf: Wrap aux data inside bpf_sanitize_info container
+        stable@vger.kernel.org,
+        syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com,
+        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 55/78] nfc: fix NULL ptr dereference in llcp_sock_getname() after failed connect
 Date:   Tue,  8 Jun 2021 20:27:24 +0200
-Message-Id: <20210608175931.826626946@linuxfoundation.org>
+Message-Id: <20210608175937.138251732@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,84 +42,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 
-commit 3d0220f6861d713213b015b582e9f21e5b28d2e0 upstream.
+commit 4ac06a1e013cf5fdd963317ffd3b968560f33bba upstream.
 
-Add a container structure struct bpf_sanitize_info which holds
-the current aux info, and update call-sites to sanitize_ptr_alu()
-to pass it in. This is needed for passing in additional state
-later on.
+It's possible to trigger NULL pointer dereference by local unprivileged
+user, when calling getsockname() after failed bind() (e.g. the bind
+fails because LLCP_SAP_MAX used as SAP):
 
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Piotr Krysiuk <piotras@gmail.com>
-Acked-by: Alexei Starovoitov <ast@kernel.org>
+  BUG: kernel NULL pointer dereference, address: 0000000000000000
+  CPU: 1 PID: 426 Comm: llcp_sock_getna Not tainted 5.13.0-rc2-next-20210521+ #9
+  Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-1 04/01/2014
+  Call Trace:
+   llcp_sock_getname+0xb1/0xe0
+   __sys_getpeername+0x95/0xc0
+   ? lockdep_hardirqs_on_prepare+0xd5/0x180
+   ? syscall_enter_from_user_mode+0x1c/0x40
+   __x64_sys_getpeername+0x11/0x20
+   do_syscall_64+0x36/0x70
+   entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+This can be reproduced with Syzkaller C repro (bind followed by
+getpeername):
+https://syzkaller.appspot.com/x/repro.c?x=14def446e00000
+
+Cc: <stable@vger.kernel.org>
+Fixes: d646960f7986 ("NFC: Initial LLCP support")
+Reported-by: syzbot+80fb126e7f7d8b1a5914@syzkaller.appspotmail.com
+Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Link: https://lore.kernel.org/r/20210531072138.5219-1-krzysztof.kozlowski@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |   18 +++++++++++-------
- 1 file changed, 11 insertions(+), 7 deletions(-)
+ net/nfc/llcp_sock.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2110,15 +2110,19 @@ static bool sanitize_needed(u8 opcode)
- 	return opcode == BPF_ADD || opcode == BPF_SUB;
- }
- 
-+struct bpf_sanitize_info {
-+	struct bpf_insn_aux_data aux;
-+};
-+
- static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 			    struct bpf_insn *insn,
- 			    const struct bpf_reg_state *ptr_reg,
- 			    const struct bpf_reg_state *off_reg,
- 			    struct bpf_reg_state *dst_reg,
--			    struct bpf_insn_aux_data *tmp_aux,
-+			    struct bpf_sanitize_info *info,
- 			    const bool commit_window)
- {
--	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : tmp_aux;
-+	struct bpf_insn_aux_data *aux = commit_window ? cur_aux(env) : &info->aux;
- 	struct bpf_verifier_state *vstate = env->cur_state;
- 	bool off_is_imm = tnum_is_const(off_reg->var_off);
- 	bool off_is_neg = off_reg->smin_value < 0;
-@@ -2147,8 +2151,8 @@ static int sanitize_ptr_alu(struct bpf_v
- 		/* In commit phase we narrow the masking window based on
- 		 * the observed pointer move after the simulated operation.
- 		 */
--		alu_state = tmp_aux->alu_state;
--		alu_limit = abs(tmp_aux->alu_limit - alu_limit);
-+		alu_state = info->aux.alu_state;
-+		alu_limit = abs(info->aux.alu_limit - alu_limit);
- 	} else {
- 		alu_state  = off_is_neg ? BPF_ALU_NEG_VALUE : 0;
- 		alu_state |= off_is_imm ? BPF_ALU_IMMEDIATE : 0;
-@@ -2276,7 +2280,7 @@ static int adjust_ptr_min_max_vals(struc
- 	    smin_ptr = ptr_reg->smin_value, smax_ptr = ptr_reg->smax_value;
- 	u64 umin_val = off_reg->umin_value, umax_val = off_reg->umax_value,
- 	    umin_ptr = ptr_reg->umin_value, umax_ptr = ptr_reg->umax_value;
--	struct bpf_insn_aux_data tmp_aux = {};
-+	struct bpf_sanitize_info info = {};
- 	u8 opcode = BPF_OP(insn->code);
- 	u32 dst = insn->dst_reg;
- 	int ret;
-@@ -2327,7 +2331,7 @@ static int adjust_ptr_min_max_vals(struc
- 
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, ptr_reg, off_reg, dst_reg,
--				       &tmp_aux, false);
-+				       &info, false);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
+--- a/net/nfc/llcp_sock.c
++++ b/net/nfc/llcp_sock.c
+@@ -110,6 +110,7 @@ static int llcp_sock_bind(struct socket
+ 	if (!llcp_sock->service_name) {
+ 		nfc_llcp_local_put(llcp_sock->local);
+ 		llcp_sock->local = NULL;
++		llcp_sock->dev = NULL;
+ 		ret = -ENOMEM;
+ 		goto put_dev;
  	}
-@@ -2468,7 +2472,7 @@ static int adjust_ptr_min_max_vals(struc
- 		return -EACCES;
- 	if (sanitize_needed(opcode)) {
- 		ret = sanitize_ptr_alu(env, insn, dst_reg, off_reg, dst_reg,
--				       &tmp_aux, true);
-+				       &info, true);
- 		if (ret < 0)
- 			return sanitize_err(env, insn, ret, off_reg, dst_reg);
+@@ -119,6 +120,7 @@ static int llcp_sock_bind(struct socket
+ 		llcp_sock->local = NULL;
+ 		kfree(llcp_sock->service_name);
+ 		llcp_sock->service_name = NULL;
++		llcp_sock->dev = NULL;
+ 		ret = -EADDRINUSE;
+ 		goto put_dev;
  	}
 
 
