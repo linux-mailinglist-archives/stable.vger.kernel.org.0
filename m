@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CB983A01C5
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:18:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F10773A02F9
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:31 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbhFHS4Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:56:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:53762 "EHLO mail.kernel.org"
+        id S236712AbhFHTLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58010 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236445AbhFHSyN (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:54:13 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2DCD461435;
-        Tue,  8 Jun 2021 18:41:08 +0000 (UTC)
+        id S236348AbhFHTJE (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:09:04 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 50659613AE;
+        Tue,  8 Jun 2021 18:47:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177669;
-        bh=Xy7V8RpSkFJ/vI1m5rvzWUgGYbx7g9nPvDbYVd+oj9E=;
+        s=korg; t=1623178075;
+        bh=UUA0sIrWV84XDjQBHcEMWfg5LqT3cmmURY1VZbnnmZ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RTGSnJibD4IU1NOSIBXSh8ul0c/7YLxlLcvmOs0Pz+0/yEyxCjCCdLrXZaB906Imk
-         VAGlWXzmXk430niSe35nm54YnfYcrGko1FwQXJ5T5tb9XL4CRW/Rv7MpnAcv8MgpSk
-         zcVSMy5CyrR/6Xcg604bv8R2tFv8cq9HzWap8jUg=
+        b=L6sJQMTqPF9YWvIRy1wDvdfz03V4QHMVHb/COuWLz+FAr+Z4oVT3G6x2IobZF6l2Z
+         xtBZnkqSryNrVaE3OJpplsXXP58mva72cnyX8U7Dff6FjFSm8mJ8ejuezYjWppXtOF
+         MJkAYvAmfyTxgpy+fXr/OQDJQzWSaLOgk49d+gHA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Vishakha Jambekar <vishakha.jambekar@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jens Wiklander <jens.wiklander@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 057/137] ixgbe: optimize for XDP_REDIRECT in xsk path
+Subject: [PATCH 5.12 067/161] optee: use export_uuid() to copy client UUID
 Date:   Tue,  8 Jun 2021 20:26:37 +0200
-Message-Id: <20210608175944.315559266@linuxfoundation.org>
+Message-Id: <20210608175947.728559222@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,53 +41,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Jens Wiklander <jens.wiklander@linaro.org>
 
-[ Upstream commit 7d52fe2eaddfa3d7255d43c3e89ebf2748b7ea7a ]
+[ Upstream commit 673c7aa2436bfc857b92417f3e590a297c586dde ]
 
-Optimize ixgbe_run_xdp_zc() for the XDP program verdict being
-XDP_REDIRECT in the xsk zero-copy path. This path is only used when
-having AF_XDP zero-copy on and in that case most packets will be
-directed to user space. This provides a little under 100k extra
-packets in throughput on my server when running l2fwd in xdpsock.
+Prior to this patch optee_open_session() was making assumptions about
+the internal format of uuid_t by casting a memory location in a
+parameter struct to uuid_t *. Fix this using export_uuid() to get a well
+defined binary representation and also add an octets field in struct
+optee_msg_param in order to avoid casting.
 
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Tested-by: Vishakha Jambekar <vishakha.jambekar@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: c5b4312bea5d ("tee: optee: Add support for session login client UUID generation")
+Suggested-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Jens Wiklander <jens.wiklander@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c | 11 +++++++----
- 1 file changed, 7 insertions(+), 4 deletions(-)
+ drivers/tee/optee/call.c      | 6 ++++--
+ drivers/tee/optee/optee_msg.h | 6 ++++--
+ 2 files changed, 8 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-index 3771857cf887..91ad5b902673 100644
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_xsk.c
-@@ -104,6 +104,13 @@ static int ixgbe_run_xdp_zc(struct ixgbe_adapter *adapter,
- 	xdp_prog = READ_ONCE(rx_ring->xdp_prog);
- 	act = bpf_prog_run_xdp(xdp_prog, xdp);
+diff --git a/drivers/tee/optee/call.c b/drivers/tee/optee/call.c
+index 7a77e375b503..6b52f0c526ba 100644
+--- a/drivers/tee/optee/call.c
++++ b/drivers/tee/optee/call.c
+@@ -216,6 +216,7 @@ int optee_open_session(struct tee_context *ctx,
+ 	struct optee_msg_arg *msg_arg;
+ 	phys_addr_t msg_parg;
+ 	struct optee_session *sess = NULL;
++	uuid_t client_uuid;
  
-+	if (likely(act == XDP_REDIRECT)) {
-+		err = xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog);
-+		result = !err ? IXGBE_XDP_REDIR : IXGBE_XDP_CONSUMED;
-+		rcu_read_unlock();
-+		return result;
-+	}
-+
- 	switch (act) {
- 	case XDP_PASS:
- 		break;
-@@ -115,10 +122,6 @@ static int ixgbe_run_xdp_zc(struct ixgbe_adapter *adapter,
- 		}
- 		result = ixgbe_xmit_xdp_ring(adapter, xdpf);
- 		break;
--	case XDP_REDIRECT:
--		err = xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog);
--		result = !err ? IXGBE_XDP_REDIR : IXGBE_XDP_CONSUMED;
--		break;
- 	default:
- 		bpf_warn_invalid_xdp_action(act);
- 		fallthrough;
+ 	/* +2 for the meta parameters added below */
+ 	shm = get_msg_arg(ctx, arg->num_params + 2, &msg_arg, &msg_parg);
+@@ -236,10 +237,11 @@ int optee_open_session(struct tee_context *ctx,
+ 	memcpy(&msg_arg->params[0].u.value, arg->uuid, sizeof(arg->uuid));
+ 	msg_arg->params[1].u.value.c = arg->clnt_login;
+ 
+-	rc = tee_session_calc_client_uuid((uuid_t *)&msg_arg->params[1].u.value,
+-					  arg->clnt_login, arg->clnt_uuid);
++	rc = tee_session_calc_client_uuid(&client_uuid, arg->clnt_login,
++					  arg->clnt_uuid);
+ 	if (rc)
+ 		goto out;
++	export_uuid(msg_arg->params[1].u.octets, &client_uuid);
+ 
+ 	rc = optee_to_msg_param(msg_arg->params + 2, arg->num_params, param);
+ 	if (rc)
+diff --git a/drivers/tee/optee/optee_msg.h b/drivers/tee/optee/optee_msg.h
+index 81ff593ac4ec..e3d72d09c484 100644
+--- a/drivers/tee/optee/optee_msg.h
++++ b/drivers/tee/optee/optee_msg.h
+@@ -9,7 +9,7 @@
+ #include <linux/types.h>
+ 
+ /*
+- * This file defines the OP-TEE message protocol used to communicate
++ * This file defines the OP-TEE message protocol (ABI) used to communicate
+  * with an instance of OP-TEE running in secure world.
+  *
+  * This file is divided into two sections.
+@@ -144,9 +144,10 @@ struct optee_msg_param_value {
+  * @tmem:	parameter by temporary memory reference
+  * @rmem:	parameter by registered memory reference
+  * @value:	parameter by opaque value
++ * @octets:	parameter by octet string
+  *
+  * @attr & OPTEE_MSG_ATTR_TYPE_MASK indicates if tmem, rmem or value is used in
+- * the union. OPTEE_MSG_ATTR_TYPE_VALUE_* indicates value,
++ * the union. OPTEE_MSG_ATTR_TYPE_VALUE_* indicates value or octets,
+  * OPTEE_MSG_ATTR_TYPE_TMEM_* indicates @tmem and
+  * OPTEE_MSG_ATTR_TYPE_RMEM_* indicates @rmem,
+  * OPTEE_MSG_ATTR_TYPE_NONE indicates that none of the members are used.
+@@ -157,6 +158,7 @@ struct optee_msg_param {
+ 		struct optee_msg_param_tmem tmem;
+ 		struct optee_msg_param_rmem rmem;
+ 		struct optee_msg_param_value value;
++		u8 octets[24];
+ 	} u;
+ };
+ 
 -- 
 2.30.2
 
