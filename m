@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E5F43A0394
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:49 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 63D403A0263
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbhFHTSs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:18:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38720 "EHLO mail.kernel.org"
+        id S236850AbhFHTD1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:03:27 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35352 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235513AbhFHTQq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:16:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id EB4C561976;
-        Tue,  8 Jun 2021 18:51:13 +0000 (UTC)
+        id S236150AbhFHTBX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:01:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A09DE6187E;
+        Tue,  8 Jun 2021 18:44:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178274;
-        bh=twcGeTYzNJlBKwZxhVdTINqIPiMEIB8QqXYKoc+MPHw=;
+        s=korg; t=1623177871;
+        bh=pD4+7XR9K5BX//u2/JyNUWCaAkhoTUGQF0zxJd00LDQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y3J5o1DzA7WLk8M4CFuDI0tOIYDrvvtLFTtBgZLvZAKvGfT5B6wPYEhCKXSLtrPrc
-         A5Ja30F9hAKdFH6RJZ3AliYmyiOD0mm7hhilvtGOaeG/yXMVR7Zo5HdI7qEOludclk
-         lHAgwN5UX09X2q5INRW2T23tuv+ga4bv8weXRp1g=
+        b=f4C3pzRIowxiGBzCwgLN6IyerUiwaJunDNMGzEaiyjVvBI4jN9jaE9mCkRqMvrttl
+         y2VcwzlJbma+249PfpVjDmTLldURkXc9IMSCcJYlmyw0z/9G6ozcsir1dxhZerMZaJ
+         bYILtOsd14/FZN/H59TsJ+UHNJsz17tsFnFTQM+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     linux-kernel@vger.kernel.org
+To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Qu Wenruo <wqu@suse.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 5.12 141/161] btrfs: fix error handling in btrfs_del_csums
+        Vitaly Kuznetsov <vkuznets@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Andrea Righi <andrea.righi@canonical.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
+Subject: [PATCH 5.10 131/137] x86/kvm: Disable kvmclock on all CPUs on shutdown
 Date:   Tue,  8 Jun 2021 20:27:51 +0200
-Message-Id: <20210608175950.219304466@linuxfoundation.org>
+Message-Id: <20210608175946.812601634@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,93 +41,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Vitaly Kuznetsov <vkuznets@redhat.com>
 
-commit b86652be7c83f70bf406bed18ecf55adb9bfb91b upstream.
+commit c02027b5742b5aa804ef08a4a9db433295533046 upstream.
 
-Error injection stress would sometimes fail with checksums on disk that
-did not have a corresponding extent.  This occurred because the pattern
-in btrfs_del_csums was
+Currenly, we disable kvmclock from machine_shutdown() hook and this
+only happens for boot CPU. We need to disable it for all CPUs to
+guard against memory corruption e.g. on restore from hibernate.
 
-	while (1) {
-		ret = btrfs_search_slot();
-		if (ret < 0)
-			break;
-	}
-	ret = 0;
-out:
-	btrfs_free_path(path);
-	return ret;
+Note, writing '0' to kvmclock MSR doesn't clear memory location, it
+just prevents hypervisor from updating the location so for the short
+while after write and while CPU is still alive, the clock remains usable
+and correct so we don't need to switch to some other clocksource.
 
-If we got an error from btrfs_search_slot we'd clear the error because
-we were breaking instead of goto out.  Instead of using goto out, simply
-handle the cases where we may leave a random value in ret, and get rid
-of the
-
-	ret = 0;
-out:
-
-pattern and simply allow break to have the proper error reporting.  With
-this fix we properly abort the transaction and do not commit thinking we
-successfully deleted the csum.
-
-Reviewed-by: Qu Wenruo <wqu@suse.com>
-CC: stable@vger.kernel.org # 4.4+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Vitaly Kuznetsov <vkuznets@redhat.com>
+Message-Id: <20210414123544.1060604-4-vkuznets@redhat.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Andrea Righi <andrea.righi@canonical.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@canonical.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/btrfs/file-item.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ arch/x86/include/asm/kvm_para.h |    4 ++--
+ arch/x86/kernel/kvm.c           |    1 +
+ arch/x86/kernel/kvmclock.c      |    5 +----
+ 3 files changed, 4 insertions(+), 6 deletions(-)
 
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -787,7 +787,7 @@ int btrfs_del_csums(struct btrfs_trans_h
- 	u64 end_byte = bytenr + len;
- 	u64 csum_end;
- 	struct extent_buffer *leaf;
--	int ret;
-+	int ret = 0;
- 	const u32 csum_size = fs_info->csum_size;
- 	u32 blocksize_bits = fs_info->sectorsize_bits;
+--- a/arch/x86/include/asm/kvm_para.h
++++ b/arch/x86/include/asm/kvm_para.h
+@@ -7,8 +7,6 @@
+ #include <linux/interrupt.h>
+ #include <uapi/asm/kvm_para.h>
  
-@@ -805,6 +805,7 @@ int btrfs_del_csums(struct btrfs_trans_h
- 
- 		ret = btrfs_search_slot(trans, root, &key, path, -1, 1);
- 		if (ret > 0) {
-+			ret = 0;
- 			if (path->slots[0] == 0)
- 				break;
- 			path->slots[0]--;
-@@ -861,7 +862,7 @@ int btrfs_del_csums(struct btrfs_trans_h
- 			ret = btrfs_del_items(trans, root, path,
- 					      path->slots[0], del_nr);
- 			if (ret)
--				goto out;
-+				break;
- 			if (key.offset == bytenr)
- 				break;
- 		} else if (key.offset < bytenr && csum_end > end_byte) {
-@@ -905,8 +906,9 @@ int btrfs_del_csums(struct btrfs_trans_h
- 			ret = btrfs_split_item(trans, root, path, &key, offset);
- 			if (ret && ret != -EAGAIN) {
- 				btrfs_abort_transaction(trans, ret);
--				goto out;
-+				break;
- 			}
-+			ret = 0;
- 
- 			key.offset = end_byte - 1;
- 		} else {
-@@ -916,8 +918,6 @@ int btrfs_del_csums(struct btrfs_trans_h
- 		}
- 		btrfs_release_path(path);
- 	}
--	ret = 0;
--out:
- 	btrfs_free_path(path);
- 	return ret;
+-extern void kvmclock_init(void);
+-
+ #ifdef CONFIG_KVM_GUEST
+ bool kvm_check_and_clear_guest_paused(void);
+ #else
+@@ -86,6 +84,8 @@ static inline long kvm_hypercall4(unsign
  }
+ 
+ #ifdef CONFIG_KVM_GUEST
++void kvmclock_init(void);
++void kvmclock_disable(void);
+ bool kvm_para_available(void);
+ unsigned int kvm_arch_para_features(void);
+ unsigned int kvm_arch_para_hints(void);
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -468,6 +468,7 @@ static void kvm_guest_cpu_offline(void)
+ 		wrmsrl(MSR_KVM_PV_EOI_EN, 0);
+ 	kvm_pv_disable_apf();
+ 	apf_task_wake_all();
++	kvmclock_disable();
+ }
+ 
+ static int kvm_cpu_online(unsigned int cpu)
+--- a/arch/x86/kernel/kvmclock.c
++++ b/arch/x86/kernel/kvmclock.c
+@@ -221,11 +221,9 @@ static void kvm_crash_shutdown(struct pt
+ }
+ #endif
+ 
+-static void kvm_shutdown(void)
++void kvmclock_disable(void)
+ {
+ 	native_write_msr(msr_kvm_system_time, 0, 0);
+-	kvm_disable_steal_time();
+-	native_machine_shutdown();
+ }
+ 
+ static void __init kvmclock_init_mem(void)
+@@ -352,7 +350,6 @@ void __init kvmclock_init(void)
+ #endif
+ 	x86_platform.save_sched_clock_state = kvm_save_sched_clock_state;
+ 	x86_platform.restore_sched_clock_state = kvm_restore_sched_clock_state;
+-	machine_ops.shutdown  = kvm_shutdown;
+ #ifdef CONFIG_KEXEC_CORE
+ 	machine_ops.crash_shutdown  = kvm_crash_shutdown;
+ #endif
 
 
