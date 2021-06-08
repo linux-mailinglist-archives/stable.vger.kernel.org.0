@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BCF63A036E
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:31 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D99033A0238
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235674AbhFHTQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:16:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36962 "EHLO mail.kernel.org"
+        id S235560AbhFHTCJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:09 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238343AbhFHTOq (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:14:46 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ECEEF61434;
-        Tue,  8 Jun 2021 18:50:22 +0000 (UTC)
+        id S236769AbhFHS7e (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:59:34 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C996461442;
+        Tue,  8 Jun 2021 18:43:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178223;
-        bh=Q3LK4c37Lcc4PeoLN/dLINCVDg5mSVxY0TkKAzM5HDE=;
+        s=korg; t=1623177803;
+        bh=8inqZlLFAoPV/eTd2CWwAlxCN2FGHO0YFkuEPuXML6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PBPM0B3ZBX0+RyeQJjlSe8eCtoH87FPmnkDU0kTW9SW3jtltQ7tHZlZKzsKd1omvb
-         2MpVNbpNrfScbwoPM1paYxuNXjL3T3BL3/nnU8xNZBVCF0u6NUJoyRKeJ6uF30HnZG
-         rb+KOWE4IIg4Uq/jqTIdxESLKXM2XMAHqAIBgDU0=
+        b=DqCdiyjacsLE7CgDp3soQpHfTMs9mdGYShr3O8dLuIbvczCGq+61aMf+4emQkQU6h
+         QbdqJ01iPqye6eMK+KBKgZRn6Edp719xnpweDCgLgA/hBW1xDHz+2xjAnnp6X8LRqw
+         QYmlu3/q22ow/GVev7L9jvukadhTJaBVNKNa0w6I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
-        syzbot+5a864149dd970b546223@syzkaller.appspotmail.com
-Subject: [PATCH 5.12 088/161] io_uring: fix ltout double free on completion race
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
+Subject: [PATCH 5.10 078/137] Bluetooth: fix the erroneous flush_work() order
 Date:   Tue,  8 Jun 2021 20:26:58 +0200
-Message-Id: <20210608175948.412603388@linuxfoundation.org>
+Message-Id: <20210608175944.992647333@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-[ Upstream commit 447c19f3b5074409c794b350b10306e1da1ef4ba ]
+commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
 
-Always remove linked timeout on io_link_timeout_fn() from the master
-request link list, otherwise we may get use-after-free when first
-io_link_timeout_fn() puts linked timeout in the fail path, and then
-will be found and put on master's free.
+In the cleanup routine for failed initialization of HCI device,
+the flush_work(&hdev->rx_work) need to be finished before the
+flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+possibly invoke new cmd_work and cause a bug, like double free,
+in late processings.
 
-Cc: stable@vger.kernel.org # 5.10+
-Fixes: 90cd7e424969d ("io_uring: track link timeout's master explicitly")
-Reported-and-tested-by: syzbot+5a864149dd970b546223@syzkaller.appspotmail.com
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/69c46bf6ce37fec4fdcd98f0882e18eb07ce693a.1620990121.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This was assigned CVE-2021-3564.
+
+This patch reorder the flush_work() to fix this bug.
+
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-bluetooth@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/io_uring.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ net/bluetooth/hci_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/fs/io_uring.c b/fs/io_uring.c
-index dd8b3fac877c..359d1abb089c 100644
---- a/fs/io_uring.c
-+++ b/fs/io_uring.c
-@@ -6289,10 +6289,11 @@ static enum hrtimer_restart io_link_timeout_fn(struct hrtimer *timer)
- 	 * We don't expect the list to be empty, that will only happen if we
- 	 * race with the completion of the linked work.
- 	 */
--	if (prev && req_ref_inc_not_zero(prev))
-+	if (prev) {
- 		io_remove_next_linked(prev);
--	else
--		prev = NULL;
-+		if (!req_ref_inc_not_zero(prev))
-+			prev = NULL;
-+	}
- 	spin_unlock_irqrestore(&ctx->completion_lock, flags);
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1602,8 +1602,13 @@ setup_failed:
+ 	} else {
+ 		/* Init failed, cleanup */
+ 		flush_work(&hdev->tx_work);
+-		flush_work(&hdev->cmd_work);
++
++		/* Since hci_rx_work() is possible to awake new cmd_work
++		 * it should be flushed first to avoid unexpected call of
++		 * hci_cmd_work()
++		 */
+ 		flush_work(&hdev->rx_work);
++		flush_work(&hdev->cmd_work);
  
- 	if (prev) {
--- 
-2.30.2
-
+ 		skb_queue_purge(&hdev->cmd_q);
+ 		skb_queue_purge(&hdev->rx_q);
 
 
