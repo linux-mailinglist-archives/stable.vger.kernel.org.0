@@ -2,124 +2,99 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 14CAB3A073D
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 00:41:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A91943A073E
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 00:42:00 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234281AbhFHWnD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 18:43:03 -0400
-Received: from mail-pg1-f182.google.com ([209.85.215.182]:34802 "EHLO
-        mail-pg1-f182.google.com" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229548AbhFHWnD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 18:43:03 -0400
-Received: by mail-pg1-f182.google.com with SMTP id l1so17778333pgm.1
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 15:40:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20150623.gappssmtp.com; s=20150623;
-        h=message-id:date:mime-version:content-transfer-encoding:subject:to
-         :from;
-        bh=gAojpiS+bXiP0yNtuzxgf4kZqTfeg9TwyvFLcN1wY5s=;
-        b=OstONpdFuKUc1BxTgJZTFe0cQqXDwoNJYVYzxekDvWZhm7Lp0/3LMLAa2opQ9Z7ztD
-         X241NqvGVmaOCEIaGaq3atmgvPXR2BP4fz/lwQ0XGoqcUomSfbEkrhcn4Okg+naeAnQT
-         TtlRPMALZw5hJemH7RTHPziUECGLNwzx3rDmjk1+H4CBK/RWJmeydWCD3pKRw8LXxPVe
-         uMMoDDrRkQz7VJXkb6kHbFjMdVZ33XyEDyJhJxXuCYFomPQrnFFwxRvurElGQawVoynO
-         YXyqgVuVpIjSEIp24EQ11giXT3xGYgrw2EP1aguzvAk+4Ei6+1hZsfF0nQmTE8DxarDF
-         PR+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:message-id:date:mime-version
-         :content-transfer-encoding:subject:to:from;
-        bh=gAojpiS+bXiP0yNtuzxgf4kZqTfeg9TwyvFLcN1wY5s=;
-        b=C4d/Non9h9jdtCcS9Ohv/ChsYjrM9Sq0zYTR6u88azSXmVnbejoZ8gm1rKBc3+edqY
-         0UnIA7geQW4xwLdx8t/TJQHPmMVZtHAKtjnQKY6zhP52g7fUyCusqNdXY8TLvHToFpNM
-         dGy1P/AJzBY6IU7AuRQTrrrrn3wV3Lq0ISplWEiizMNKL9cJ2oeowDXX2XINdBdKMD0N
-         Fxt5cTXJVDcw7Jr1yXiTcgw9MloitBBZC72XPOLyryyqxpYGdRmTzD41elRrvnrlOfyh
-         4xbzd4l6VK4c9dQtid+H73lvSLU5bwIJkx1fZfnHiVwTgfwr9lXtIAdTvkTKxsy1pmDL
-         1ZEA==
-X-Gm-Message-State: AOAM533SAL/qL/63xLTJgWMX8Li2HWy/jYqDFCFtqFccTunlh6Q3p5Ke
-        hG7WDfBLakNaKVB69dsgaZG20CvGg+6nHvtr
-X-Google-Smtp-Source: ABdhPJxAPJi23g6Rs3iR1OueZz5M/kMJD3sEn2nXVdB4s+0ljuuJ4O+3qYxXL+3i2FiQzlhYm96ZLw==
-X-Received: by 2002:a63:af46:: with SMTP id s6mr529423pgo.446.1623191995602;
-        Tue, 08 Jun 2021 15:39:55 -0700 (PDT)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id c130sm11410343pfc.51.2021.06.08.15.39.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 08 Jun 2021 15:39:54 -0700 (PDT)
-Message-ID: <60bff1ba.1c69fb81.6cbe2.3f5d@mx.google.com>
-Date:   Tue, 08 Jun 2021 15:39:54 -0700 (PDT)
-Content-Type: text/plain; charset="utf-8"
+        id S234092AbhFHWnw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 18:43:52 -0400
+Received: from jabberwock.ucw.cz ([46.255.230.98]:56166 "EHLO
+        jabberwock.ucw.cz" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S229548AbhFHWnw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 18:43:52 -0400
+Received: by jabberwock.ucw.cz (Postfix, from userid 1017)
+        id 4297F1C0B77; Wed,  9 Jun 2021 00:41:57 +0200 (CEST)
+Date:   Wed, 9 Jun 2021 00:41:55 +0200
+From:   Pavel Machek <pavel@denx.de>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Marek Vasut <marex@denx.de>,
+        open list <linux-kernel@vger.kernel.org>,
+        Shuah Khan <shuah@kernel.org>,
+        Florian Fainelli <f.fainelli@gmail.com>, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, Jon Hunter <jonathanh@nvidia.com>,
+        linux-stable <stable@vger.kernel.org>,
+        Pavel Machek <pavel@denx.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Guenter Roeck <linux@roeck-us.net>,
+        Fabio Estevam <festevam@gmail.com>,
+        Christoph Niedermaier <cniedermaier@dh-electronics.com>,
+        Ludwig Zenz <lzenz@dh-electronics.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        Shawn Guo <shawnguo@kernel.org>
+Subject: Re: [PATCH 4.19 00/58] 4.19.194-rc1 review
+Message-ID: <20210608224155.GA31308@amd>
+References: <20210608175932.263480586@linuxfoundation.org>
+ <CA+G9fYu3URCR6_ZL+KPYFEOVL4f=8TjjyFncmvoLuYrR_YR3=A@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Kernel: v5.10.42-137-gecb190051c9a
-X-Kernelci-Report-Type: test
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.10
-Subject: stable-rc/queue/5.10 baseline: 163 runs,
- 1 regressions (v5.10.42-137-gecb190051c9a)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
+Content-Type: multipart/signed; micalg=pgp-sha1;
+        protocol="application/pgp-signature"; boundary="tThc/1wpZn/ma/RB"
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYu3URCR6_ZL+KPYFEOVL4f=8TjjyFncmvoLuYrR_YR3=A@mail.gmail.com>
+User-Agent: Mutt/1.5.23 (2014-03-12)
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 163 runs, 1 regressions (v5.10.42-137-gecb19=
-0051c9a)
 
-Regressions Summary
--------------------
+--tThc/1wpZn/ma/RB
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-platform         | arch | lab           | compiler | defconfig           | =
-regressions
------------------+------+---------------+----------+---------------------+-=
------------
-beaglebone-black | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
+Hi!
 
+> > This is the start of the stable review cycle for the 4.19.194 release.
+> > There are 58 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+=2E..
+> > Marek Vasut <marex@denx.de>
+> >     ARM: dts: imx6q-dhcom: Add PU,VDD1P1,VDD2P5 regulators
+>=20
+> make --silent --keep-going --jobs=3D8
+> O=3D/home/tuxbuild/.cache/tuxmake/builds/current ARCH=3Darm
+> CROSS_COMPILE=3Darm-linux-gnueabihf- 'CC=3Dsccache
+> arm-linux-gnueabihf-gcc' 'HOSTCC=3Dsccache gcc'
+> Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:414.1-12
+> Label or path reg_vdd1p1 not found
+> Error: /builds/linux/arch/arm/boot/dts/imx6q-dhcom-som.dtsi:418.1-12
+> Label or path reg_vdd2p5 not found
+> FATAL ERROR: Syntax error parsing input tree
+> make[2]: *** [scripts/Makefile.lib:294:
+> arch/arm/boot/dts/imx6q-dhcom-pdk2.dtb] Error 1
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.42-137-gecb190051c9a/plan/baseline/
+For the record, we see same build error in our testing:
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.42-137-gecb190051c9a
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ecb190051c9ae77a90f4a9f89ac23cbb7a8266f7 =
+https://gitlab.com/cip-project/cip-testing/linux-stable-rc-ci/-/jobs/132886=
+9295
 
+Best regards,
+									Pavel
+--=20
+DENX Software Engineering GmbH,      Managing Director: Wolfgang Denk
+HRB 165235 Munich, Office: Kirchenstr.5, D-82194 Groebenzell, Germany
 
+--tThc/1wpZn/ma/RB
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
 
-Test Regressions
----------------- =
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1
 
+iEYEARECAAYFAmC/8jMACgkQMOfwapXb+vKX1gCfffpNSycUCSUhvbKVxTiIExRe
+iUIAn1WS6Zp8ntIiNubnNjoRwzZesA37
+=U0Me
+-----END PGP SIGNATURE-----
 
-
-platform         | arch | lab           | compiler | defconfig           | =
-regressions
------------------+------+---------------+----------+---------------------+-=
------------
-beaglebone-black | arm  | lab-collabora | gcc-8    | omap2plus_defconfig | =
-1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/60bfebdeaed5d4baa80c0e0e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: omap2plus_defconfig
-  Compiler:    gcc-8 (arm-linux-gnueabihf-gcc (Debian 8.3.0-2) 8.3.0)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
-137-gecb190051c9a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-beag=
-lebone-black.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.42-=
-137-gecb190051c9a/arm/omap2plus_defconfig/gcc-8/lab-collabora/baseline-beag=
-lebone-black.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/kci-2020=
-.05-5-g2f114cc7102b/armel/baseline/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/60bfebdeaed5d4baa80c0=
-e0f
-        new failure (last pass: v5.10.42-126-gf4185f0d2d83) =
-
- =20
+--tThc/1wpZn/ma/RB--
