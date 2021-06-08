@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E5C893A0247
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3ED573A0329
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:59 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236211AbhFHTCf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:02:35 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39704 "EHLO mail.kernel.org"
+        id S235136AbhFHTNj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:13:39 -0400
+Received: from mail.kernel.org ([198.145.29.99]:54970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237401AbhFHTAc (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:00:32 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B07CA6144C;
-        Tue,  8 Jun 2021 18:43:49 +0000 (UTC)
+        id S236241AbhFHTLf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:11:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AA6BD61463;
+        Tue,  8 Jun 2021 18:48:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177830;
-        bh=OiJ8InZe1zfbwKimXOsHeqZpnG2u2FCzoVBR8jR4wEs=;
+        s=korg; t=1623178139;
+        bh=pn13S/AjcrIJW3Mi34pVkbRx7C5aq8EKpZpstVbRLD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f12HVXdDA3PWSqGsFfXNqDF15uYEeXQzDGQvY/HDL6eiQWixU0x1NkN5HMg8+l7Oi
-         Rlj/1b64nKpZ1IhDbCBEeBDOR3hTIaWsls/LPjioTJDB7PXaC6RclN3LfYx5ScQOVD
-         K/Wgc5o8egmLvvF8w/ZLiIBHj6g5Yvs90841ygTk=
+        b=RNmcn+I1DU8F4MSDBFQ5JfW8A21EzjciSJ9wri1CDnnX1HanG7gZNz6X71UvUGvtG
+         38ZtQ86B14aio4oiQ1X8OQoZuHd8tcmP1Klq2xINPjHWwsFkH6GTTPnPvgv6vvDcbo
+         66iEMyxoMNx2VIZdJO74lE87NfdcK8dMN8QNEk18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 081/137] wireguard: peer: allocate in kmem_cache
-Date:   Tue,  8 Jun 2021 20:27:01 +0200
-Message-Id: <20210608175945.104045105@linuxfoundation.org>
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
+Subject: [PATCH 5.12 092/161] Bluetooth: fix the erroneous flush_work() order
+Date:   Tue,  8 Jun 2021 20:27:02 +0200
+Message-Id: <20210608175948.557042246@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,127 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit a4e9f8e3287c9eb6bf70df982870980dd3341863 upstream.
+commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
 
-With deployments having upwards of 600k peers now, this somewhat heavy
-structure could benefit from more fine-grained allocations.
-Specifically, instead of using a 2048-byte slab for a 1544-byte object,
-we can now use 1544-byte objects directly, thus saving almost 25%
-per-peer, or with 600k peers, that's a savings of 303 MiB. This also
-makes wireguard's memory usage more transparent in tools like slabtop
-and /proc/slabinfo.
+In the cleanup routine for failed initialization of HCI device,
+the flush_work(&hdev->rx_work) need to be finished before the
+flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+possibly invoke new cmd_work and cause a bug, like double free,
+in late processings.
 
-Fixes: 8b5553ace83c ("wireguard: queueing: get rid of per-peer ring buffers")
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was assigned CVE-2021-3564.
+
+This patch reorder the flush_work() to fix this bug.
+
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-bluetooth@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/main.c |    7 +++++++
- drivers/net/wireguard/peer.c |   21 +++++++++++++++++----
- drivers/net/wireguard/peer.h |    3 +++
- 3 files changed, 27 insertions(+), 4 deletions(-)
+ net/bluetooth/hci_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireguard/main.c
-+++ b/drivers/net/wireguard/main.c
-@@ -28,6 +28,10 @@ static int __init mod_init(void)
- #endif
- 	wg_noise_init();
- 
-+	ret = wg_peer_init();
-+	if (ret < 0)
-+		goto err_peer;
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1608,8 +1608,13 @@ setup_failed:
+ 	} else {
+ 		/* Init failed, cleanup */
+ 		flush_work(&hdev->tx_work);
+-		flush_work(&hdev->cmd_work);
 +
- 	ret = wg_device_init();
- 	if (ret < 0)
- 		goto err_device;
-@@ -44,6 +48,8 @@ static int __init mod_init(void)
- err_netlink:
- 	wg_device_uninit();
- err_device:
-+	wg_peer_uninit();
-+err_peer:
- 	return ret;
- }
++		/* Since hci_rx_work() is possible to awake new cmd_work
++		 * it should be flushed first to avoid unexpected call of
++		 * hci_cmd_work()
++		 */
+ 		flush_work(&hdev->rx_work);
++		flush_work(&hdev->cmd_work);
  
-@@ -51,6 +57,7 @@ static void __exit mod_exit(void)
- {
- 	wg_genetlink_uninit();
- 	wg_device_uninit();
-+	wg_peer_uninit();
- }
- 
- module_init(mod_init);
---- a/drivers/net/wireguard/peer.c
-+++ b/drivers/net/wireguard/peer.c
-@@ -15,6 +15,7 @@
- #include <linux/rcupdate.h>
- #include <linux/list.h>
- 
-+static struct kmem_cache *peer_cache;
- static atomic64_t peer_counter = ATOMIC64_INIT(0);
- 
- struct wg_peer *wg_peer_create(struct wg_device *wg,
-@@ -29,10 +30,10 @@ struct wg_peer *wg_peer_create(struct wg
- 	if (wg->num_peers >= MAX_PEERS_PER_DEVICE)
- 		return ERR_PTR(ret);
- 
--	peer = kzalloc(sizeof(*peer), GFP_KERNEL);
-+	peer = kmem_cache_zalloc(peer_cache, GFP_KERNEL);
- 	if (unlikely(!peer))
- 		return ERR_PTR(ret);
--	if (dst_cache_init(&peer->endpoint_cache, GFP_KERNEL))
-+	if (unlikely(dst_cache_init(&peer->endpoint_cache, GFP_KERNEL)))
- 		goto err;
- 
- 	peer->device = wg;
-@@ -64,7 +65,7 @@ struct wg_peer *wg_peer_create(struct wg
- 	return peer;
- 
- err:
--	kfree(peer);
-+	kmem_cache_free(peer_cache, peer);
- 	return ERR_PTR(ret);
- }
- 
-@@ -193,7 +194,8 @@ static void rcu_release(struct rcu_head
- 	/* The final zeroing takes care of clearing any remaining handshake key
- 	 * material and other potentially sensitive information.
- 	 */
--	kfree_sensitive(peer);
-+	memzero_explicit(peer, sizeof(*peer));
-+	kmem_cache_free(peer_cache, peer);
- }
- 
- static void kref_release(struct kref *refcount)
-@@ -225,3 +227,14 @@ void wg_peer_put(struct wg_peer *peer)
- 		return;
- 	kref_put(&peer->refcount, kref_release);
- }
-+
-+int __init wg_peer_init(void)
-+{
-+	peer_cache = KMEM_CACHE(wg_peer, 0);
-+	return peer_cache ? 0 : -ENOMEM;
-+}
-+
-+void wg_peer_uninit(void)
-+{
-+	kmem_cache_destroy(peer_cache);
-+}
---- a/drivers/net/wireguard/peer.h
-+++ b/drivers/net/wireguard/peer.h
-@@ -80,4 +80,7 @@ void wg_peer_put(struct wg_peer *peer);
- void wg_peer_remove(struct wg_peer *peer);
- void wg_peer_remove_all(struct wg_device *wg);
- 
-+int wg_peer_init(void);
-+void wg_peer_uninit(void);
-+
- #endif /* _WG_PEER_H */
+ 		skb_queue_purge(&hdev->cmd_q);
+ 		skb_queue_purge(&hdev->rx_q);
 
 
