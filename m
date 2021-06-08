@@ -2,40 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C8BB239FFB0
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:35:05 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E8533A0012
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:16 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233256AbhFHSf0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:35:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:56768 "EHLO mail.kernel.org"
+        id S235487AbhFHSkF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:40:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234649AbhFHSdr (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:33:47 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6A407613AE;
-        Tue,  8 Jun 2021 18:31:35 +0000 (UTC)
+        id S234507AbhFHShI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:37:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 9E3F361352;
+        Tue,  8 Jun 2021 18:32:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177095;
-        bh=OyIcUR2R8BanA9DlHP9/ePstJ4qAecFtfjXxNMb7Gz4=;
+        s=korg; t=1623177179;
+        bh=/Kk5XFC71RKixZ0KeWmKO2J/s1lNjqmgXRxjBCww5eM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vk1h6wddbpayADBeeLecja2C8jPpYjhtFZRGivG6ItwnFyQUnWoJOykmvqGLPpEU7
-         B1KQHvcFXnek1T2PFbfgew2uM6lRZpEO7jMA7o3JkZ5x2TQ4/lfzA1Hc+PanydCg0z
-         ZEBn+uf0L/vhPq9ku+7TSKsbpX0dBs6CuJJfFPtk=
+        b=IXpdJl4scheyFt0vA1iFYKSon7+kF6UxxuLub0QaI5AJB7LDsb0ek38PFFQ5fVzJM
+         dA2MQXJadfz8buvOJqp+MGRsCyvMEMH4csHpTELKbvYSWRkzWxCBJW/d436LovmawG
+         KXjc15/qKbdY7mPS6D13OAvBeRuUisqZEzNwdP4I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
-        Johan Hedberg <johan.hedberg@gmail.com>,
-        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
-        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
-Subject: [PATCH 4.14 13/47] Bluetooth: fix the erroneous flush_work() order
+        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
+        Wei Yongjun <weiyongjun1@huawei.com>,
+        Stefan Schmidt <stefan@datenfreihafen.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 15/58] ieee802154: fix error return code in ieee802154_llsec_getparams()
 Date:   Tue,  8 Jun 2021 20:26:56 +0200
-Message-Id: <20210608175930.918559811@linuxfoundation.org>
+Message-Id: <20210608175932.789923710@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
+References: <20210608175932.263480586@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,53 +41,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lin Ma <linma@zju.edu.cn>
+From: Wei Yongjun <weiyongjun1@huawei.com>
 
-commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
+[ Upstream commit 373e864cf52403b0974c2f23ca8faf9104234555 ]
 
-In the cleanup routine for failed initialization of HCI device,
-the flush_work(&hdev->rx_work) need to be finished before the
-flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
-possibly invoke new cmd_work and cause a bug, like double free,
-in late processings.
+Fix to return negative error code -ENOBUFS from the error handling
+case instead of 0, as done elsewhere in this function.
 
-This was assigned CVE-2021-3564.
-
-This patch reorder the flush_work() to fix this bug.
-
-Cc: Marcel Holtmann <marcel@holtmann.org>
-Cc: Johan Hedberg <johan.hedberg@gmail.com>
-Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: Jakub Kicinski <kuba@kernel.org>
-Cc: linux-bluetooth@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Lin Ma <linma@zju.edu.cn>
-Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
-Cc: stable <stable@vger.kernel.org>
-Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 3e9c156e2c21 ("ieee802154: add netlink interfaces for llsec")
+Reported-by: Hulk Robot <hulkci@huawei.com>
+Signed-off-by: Wei Yongjun <weiyongjun1@huawei.com>
+Link: https://lore.kernel.org/r/20210519141614.3040055-1-weiyongjun1@huawei.com
+Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/ieee802154/nl-mac.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1458,8 +1458,13 @@ static int hci_dev_do_open(struct hci_de
- 	} else {
- 		/* Init failed, cleanup */
- 		flush_work(&hdev->tx_work);
--		flush_work(&hdev->cmd_work);
-+
-+		/* Since hci_rx_work() is possible to awake new cmd_work
-+		 * it should be flushed first to avoid unexpected call of
-+		 * hci_cmd_work()
-+		 */
- 		flush_work(&hdev->rx_work);
-+		flush_work(&hdev->cmd_work);
+diff --git a/net/ieee802154/nl-mac.c b/net/ieee802154/nl-mac.c
+index c0930b9fe848..7531cb1665d2 100644
+--- a/net/ieee802154/nl-mac.c
++++ b/net/ieee802154/nl-mac.c
+@@ -688,8 +688,10 @@ int ieee802154_llsec_getparams(struct sk_buff *skb, struct genl_info *info)
+ 	    nla_put_u8(msg, IEEE802154_ATTR_LLSEC_SECLEVEL, params.out_level) ||
+ 	    nla_put_u32(msg, IEEE802154_ATTR_LLSEC_FRAME_COUNTER,
+ 			be32_to_cpu(params.frame_counter)) ||
+-	    ieee802154_llsec_fill_key_id(msg, &params.out_key))
++	    ieee802154_llsec_fill_key_id(msg, &params.out_key)) {
++		rc = -ENOBUFS;
+ 		goto out_free;
++	}
  
- 		skb_queue_purge(&hdev->cmd_q);
- 		skb_queue_purge(&hdev->rx_q);
+ 	dev_put(dev);
+ 
+-- 
+2.30.2
+
 
 
