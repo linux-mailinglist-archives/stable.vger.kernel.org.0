@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D6B2E3A02F6
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id D035B3A01AA
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:51 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236898AbhFHTLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:32 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55364 "EHLO mail.kernel.org"
+        id S234128AbhFHSzi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:55:38 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49558 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236840AbhFHTHy (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:07:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 15F3661939;
-        Tue,  8 Jun 2021 18:47:45 +0000 (UTC)
+        id S235505AbhFHSwO (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:52:14 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 674F86147F;
+        Tue,  8 Jun 2021 18:40:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178066;
-        bh=aneciQ/Tzt58pQG/qtpsZg7PqKR7PYhRRz7SN4bEsq0=;
+        s=korg; t=1623177619;
+        bh=Sl3LgPsHXAwzziHw42C4BhP3eSx1q5+MQHXdHP1UgMM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JdC9ks8TK51ToH+q5QKiGPxva2L8pNYN9oTLULJ2cLKLZrtJK/KfOtnuwOFqEmWjH
-         3t4+RX9THKwjmnb/YjeMnHHmEkP+/Uv/CbKHSHJgkDd1n2YJ31bv/VCWoNiHeFBSuC
-         ENl4MkRLI67o7xyzaUFIKL2dMimJ7/IA7oMCxbLY=
+        b=RbBmY5Fpyj9jrIhJzZkTytNi+urH5+V8eNiEqjpDt7i2deK/OM2dYc41nLATzaosa
+         /3N+fj9dKax4LeZ0+hBfaIMJIN5mSSgFY6CphjHM2qRbuhS0bNI1BkN46hCwSxBXOD
+         q+G8WZRaWUUueWX9c8fmtEha0CmiZ1w/iGB7zQpM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jesper Dangaard Brouer <brouer@redhat.com>,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        Vishakha Jambekar <vishakha.jambekar@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Tobias Klauser <tklauser@distanz.ch>,
+        Daniel Borkmann <daniel@iogearbox.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 047/161] igb: add correct exception tracing for XDP
+Subject: [PATCH 5.10 037/137] bpf: Simplify cases in bpf_base_func_proto
 Date:   Tue,  8 Jun 2021 20:26:17 +0200
-Message-Id: <20210608175947.066026365@linuxfoundation.org>
+Message-Id: <20210608175943.669860800@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,54 +40,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Tobias Klauser <tklauser@distanz.ch>
 
-[ Upstream commit 74431c40b9c5fa673fff83ec157a76a69efd5c72 ]
+[ Upstream commit 61ca36c8c4eb3bae35a285b1ae18c514cde65439 ]
 
-Add missing exception tracing to XDP when a number of different
-errors can occur. The support was only partial. Several errors
-where not logged which would confuse the user quite a lot not
-knowing where and why the packets disappeared.
+!perfmon_capable() is checked before the last switch(func_id) in
+bpf_base_func_proto. Thus, the cases BPF_FUNC_trace_printk and
+BPF_FUNC_snprintf_btf can be moved to that last switch(func_id) to omit
+the inline !perfmon_capable() checks.
 
-Fixes: 9cbc948b5a20 ("igb: add XDP support")
-Reported-by: Jesper Dangaard Brouer <brouer@redhat.com>
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Tested-by: Vishakha Jambekar <vishakha.jambekar@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Tobias Klauser <tklauser@distanz.ch>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20210127174615.3038-1-tklauser@distanz.ch
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ kernel/bpf/helpers.c | 12 ++++--------
+ 1 file changed, 4 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index a41b85f1fc94..caa8929289ae 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -8395,18 +8395,20 @@ static struct sk_buff *igb_run_xdp(struct igb_adapter *adapter,
- 		break;
- 	case XDP_TX:
- 		result = igb_xdp_xmit_back(adapter, xdp);
-+		if (result == IGB_XDP_CONSUMED)
-+			goto out_failure;
- 		break;
- 	case XDP_REDIRECT:
- 		err = xdp_do_redirect(adapter->netdev, xdp, xdp_prog);
--		if (!err)
--			result = IGB_XDP_REDIR;
--		else
--			result = IGB_XDP_CONSUMED;
-+		if (err)
-+			goto out_failure;
-+		result = IGB_XDP_REDIR;
- 		break;
+diff --git a/kernel/bpf/helpers.c b/kernel/bpf/helpers.c
+index c489430cac78..d0fc091d2ab4 100644
+--- a/kernel/bpf/helpers.c
++++ b/kernel/bpf/helpers.c
+@@ -707,14 +707,6 @@ bpf_base_func_proto(enum bpf_func_id func_id)
+ 		return &bpf_spin_lock_proto;
+ 	case BPF_FUNC_spin_unlock:
+ 		return &bpf_spin_unlock_proto;
+-	case BPF_FUNC_trace_printk:
+-		if (!perfmon_capable())
+-			return NULL;
+-		return bpf_get_trace_printk_proto();
+-	case BPF_FUNC_snprintf_btf:
+-		if (!perfmon_capable())
+-			return NULL;
+-		return &bpf_snprintf_btf_proto;
+ 	case BPF_FUNC_jiffies64:
+ 		return &bpf_jiffies64_proto;
+ 	case BPF_FUNC_per_cpu_ptr:
+@@ -729,6 +721,8 @@ bpf_base_func_proto(enum bpf_func_id func_id)
+ 		return NULL;
+ 
+ 	switch (func_id) {
++	case BPF_FUNC_trace_printk:
++		return bpf_get_trace_printk_proto();
+ 	case BPF_FUNC_get_current_task:
+ 		return &bpf_get_current_task_proto;
+ 	case BPF_FUNC_probe_read_user:
+@@ -739,6 +733,8 @@ bpf_base_func_proto(enum bpf_func_id func_id)
+ 		return &bpf_probe_read_user_str_proto;
+ 	case BPF_FUNC_probe_read_kernel_str:
+ 		return &bpf_probe_read_kernel_str_proto;
++	case BPF_FUNC_snprintf_btf:
++		return &bpf_snprintf_btf_proto;
  	default:
- 		bpf_warn_invalid_xdp_action(act);
- 		fallthrough;
- 	case XDP_ABORTED:
-+out_failure:
- 		trace_xdp_exception(rx_ring->netdev, xdp_prog, act);
- 		fallthrough;
- 	case XDP_DROP:
+ 		return NULL;
+ 	}
 -- 
 2.30.2
 
