@@ -2,37 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C3CDE3A021A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FCED3A02E7
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:24 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236203AbhFHTBY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:24 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
+        id S236593AbhFHTLI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55034 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237112AbhFHS5J (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:57:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E44561621;
-        Tue,  8 Jun 2021 18:42:17 +0000 (UTC)
+        id S234617AbhFHTHf (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:07:35 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id EB28B613C3;
+        Tue,  8 Jun 2021 18:47:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177738;
-        bh=ZhFjx3yTDlZkk6lomqsw1I9ndBbpPob8PcylU2A10g8=;
+        s=korg; t=1623178048;
+        bh=qRgtV29vkt8l+bN+ZbQtiyJWZXFD63rBV8gf154Nykc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=d0Ga6I1Ke73G3AQt2YCnPiUcM9+BNcOHehST5J2ApFrqeTbyRblxczTfFNGs4BH7k
-         vNHUZtYvFPTNxLEDUZQklNGxtfxQlxrNn4TRNOU/MNauW8NmpFT9cmxkD8PvsQPCF8
-         RbNFtRqyVs5iayo8cu3aiceqnZkCdJ6pUujlmt1o=
+        b=wNQj6cSik5DeNA1FHoZVjsiVzyiBLha7N728DRYw8gZxwOXkjEc2Su3nucV5ywrPe
+         rKQTRljAiUKtbtFIf2GnAaNwJsZAuuwYhoJNFIJqIGvoZATDNagfFh+xM9nLmiaNPf
+         dXyKuj8JlQ77MfqtPMTHXpeZL/zq0IkKSfb/inho=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
-        Tony Brelinski <tonyx.brelinski@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        stable@vger.kernel.org, Yunjian Wang <wangyunjian@huawei.com>,
+        Maxim Mikityanskiy <maximmi@nvidia.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 048/137] ice: report supported and advertised autoneg using PHY capabilities
+Subject: [PATCH 5.12 058/161] sch_htb: fix refcount leak in htb_parent_to_leaf_offload
 Date:   Tue,  8 Jun 2021 20:26:28 +0200
-Message-Id: <20210608175944.030503188@linuxfoundation.org>
+Message-Id: <20210608175947.434459023@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,110 +41,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Greenwalt <paul.greenwalt@intel.com>
+From: Yunjian Wang <wangyunjian@huawei.com>
 
-[ Upstream commit 5cd349c349d6ec52862e550d3576893d35ab8ac2 ]
+[ Upstream commit 944d671d5faa0d78980a3da5c0f04960ef1ad893 ]
 
-Ethtool incorrectly reported supported and advertised auto-negotiation
-settings for a backplane PHY image which did not support auto-negotiation.
-This can occur when using media or PHY type for reporting ethtool
-supported and advertised auto-negotiation settings.
+The commit ae81feb7338c ("sch_htb: fix null pointer dereference
+on a null new_q") fixes a NULL pointer dereference bug, but it
+is not correct.
 
-Remove setting supported and advertised auto-negotiation settings based
-on PHY type in ice_phy_type_to_ethtool(), and MAC type in
-ice_get_link_ksettings().
+Because htb_graft_helper properly handles the case when new_q
+is NULL, and after the previous patch by skipping this call
+which creates an inconsistency : dev_queue->qdisc will still
+point to the old qdisc, but cl->parent->leaf.q will point to
+the new one (which will be noop_qdisc, because new_q was NULL).
+The code is based on an assumption that these two pointers are
+the same, so it can lead to refcount leaks.
 
-Ethtool supported and advertised auto-negotiation settings should be
-based on the PHY image using the AQ command get PHY capabilities with
-media. Add setting supported and advertised auto-negotiation settings
-based get PHY capabilities with media in ice_get_link_ksettings().
+The correct fix is to add a NULL pointer check to protect
+qdisc_refcount_inc inside htb_parent_to_leaf_offload.
 
-Fixes: 48cb27f2fd18 ("ice: Implement handlers for ethtool PHY/link operations")
-Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
-Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Fixes: ae81feb7338c ("sch_htb: fix null pointer dereference on a null new_q")
+Signed-off-by: Yunjian Wang <wangyunjian@huawei.com>
+Suggested-by: Maxim Mikityanskiy <maximmi@nvidia.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ethtool.c | 51 +++-----------------
- 1 file changed, 6 insertions(+), 45 deletions(-)
+ net/sched/sch_htb.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-index d70573f5072c..a7975afecf70 100644
---- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
-@@ -1797,49 +1797,6 @@ ice_phy_type_to_ethtool(struct net_device *netdev,
- 		ice_ethtool_advertise_link_mode(ICE_AQ_LINK_SPEED_100GB,
- 						100000baseKR4_Full);
- 	}
--
--	/* Autoneg PHY types */
--	if (phy_types_low & ICE_PHY_TYPE_LOW_100BASE_TX ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_T ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_KX ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_T ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_KX ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_T ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_KR ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_T ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_KR_CR1 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_T ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR_S ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR1 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR_S ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR1 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_CR4 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_KR4) {
--		ethtool_link_ksettings_add_link_mode(ks, supported,
--						     Autoneg);
--		ethtool_link_ksettings_add_link_mode(ks, advertising,
--						     Autoneg);
--	}
--	if (phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CR2 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR2 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CP ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR_PAM4) {
--		ethtool_link_ksettings_add_link_mode(ks, supported,
--						     Autoneg);
--		ethtool_link_ksettings_add_link_mode(ks, advertising,
--						     Autoneg);
--	}
--	if (phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CR4 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR4 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR_PAM4 ||
--	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CP2) {
--		ethtool_link_ksettings_add_link_mode(ks, supported,
--						     Autoneg);
--		ethtool_link_ksettings_add_link_mode(ks, advertising,
--						     Autoneg);
--	}
+diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
+index 081c11d5717c..8827987ba903 100644
+--- a/net/sched/sch_htb.c
++++ b/net/sched/sch_htb.c
+@@ -1488,7 +1488,8 @@ static void htb_parent_to_leaf_offload(struct Qdisc *sch,
+ 	struct Qdisc *old_q;
+ 
+ 	/* One ref for cl->leaf.q, the other for dev_queue->qdisc. */
+-	qdisc_refcount_inc(new_q);
++	if (new_q)
++		qdisc_refcount_inc(new_q);
+ 	old_q = htb_graft_helper(dev_queue, new_q);
+ 	WARN_ON(!(old_q->flags & TCQ_F_BUILTIN));
  }
+@@ -1675,10 +1676,9 @@ static int htb_delete(struct Qdisc *sch, unsigned long arg,
+ 					  cl->parent->common.classid,
+ 					  NULL);
+ 		if (q->offload) {
+-			if (new_q) {
++			if (new_q)
+ 				htb_set_lockdep_class_child(new_q);
+-				htb_parent_to_leaf_offload(sch, dev_queue, new_q);
+-			}
++			htb_parent_to_leaf_offload(sch, dev_queue, new_q);
+ 		}
+ 	}
  
- #define TEST_SET_BITS_TIMEOUT	50
-@@ -1996,9 +1953,7 @@ ice_get_link_ksettings(struct net_device *netdev,
- 		ks->base.port = PORT_TP;
- 		break;
- 	case ICE_MEDIA_BACKPLANE:
--		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
- 		ethtool_link_ksettings_add_link_mode(ks, supported, Backplane);
--		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
- 		ethtool_link_ksettings_add_link_mode(ks, advertising,
- 						     Backplane);
- 		ks->base.port = PORT_NONE;
-@@ -2073,6 +2028,12 @@ ice_get_link_ksettings(struct net_device *netdev,
- 	if (caps->link_fec_options & ICE_AQC_PHY_FEC_25G_RS_CLAUSE91_EN)
- 		ethtool_link_ksettings_add_link_mode(ks, supported, FEC_RS);
- 
-+	/* Set supported and advertised autoneg */
-+	if (ice_is_phy_caps_an_enabled(caps)) {
-+		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
-+		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
-+	}
-+
- done:
- 	kfree(caps);
- 	return err;
 -- 
 2.30.2
 
