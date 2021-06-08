@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 304A63A032D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id B33423A021E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:46 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235256AbhFHTNr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:13:47 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
+        id S236201AbhFHTB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:01:26 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33118 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236904AbhFHTLn (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:11:43 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 22DAF61461;
-        Tue,  8 Jun 2021 18:49:08 +0000 (UTC)
+        id S237137AbhFHS51 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:57:27 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B6F7E6143E;
+        Tue,  8 Jun 2021 18:42:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178149;
-        bh=Xd8sKBW52rGJ+PBUBAVrXHiFQyeJpduTKPcd2uOIiJs=;
+        s=korg; t=1623177749;
+        bh=UrxJzZz+t8dPbcpDiJPkOVZ0usfHKxZQpXtQyEeU8NY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pAJOU7iSjknaCjlqvXIUxBUQ3XWY5xiPnaRzLIwG6+HPsNcYbDmvrYHKogJq4iggB
-         sDQC/kTahG01i5EVHF79Tso+Fxd4HquB0AezoP9tjWRbyXQHgy+NBEkBq72wcQXBnx
-         tV1mY77tgyL9KZz7W74CuqsLW7P0fwF7UPdxcnoQ=
+        b=pm2cDfDPZZcGuO++n0Q6Wwgm/23ekDYTd5io3i0NkYB/cSBxOzQnosfZPmLTzM1B3
+         7BNPJFx44J3sTMmepnLfwJdF1RSe5r8+BB/sZ0DTNNSBHLnaTfFhtooB8OSEYKe/gt
+         1PImQr3nFCkB87/jeWzQT7qOteR2N1dJry/+lwYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 096/161] wireguard: use synchronize_net rather than synchronize_rcu
+Subject: [PATCH 5.10 086/137] wireguard: allowedips: remove nodes in O(1)
 Date:   Tue,  8 Jun 2021 20:27:06 +0200
-Message-Id: <20210608175948.698136203@linuxfoundation.org>
+Message-Id: <20210608175945.282328332@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,16 +41,34 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 24b70eeeb4f46c09487f8155239ebfb1f875774a upstream.
+commit f634f418c227c912e7ea95a3299efdc9b10e4022 upstream.
 
-Many of the synchronization points are sometimes called under the rtnl
-lock, which means we should use synchronize_net rather than
-synchronize_rcu. Under the hood, this expands to using the expedited
-flavor of function in the event that rtnl is held, in order to not stall
-other concurrent changes.
+Previously, deleting peers would require traversing the entire trie in
+order to rebalance nodes and safely free them. This meant that removing
+1000 peers from a trie with a half million nodes would take an extremely
+long time, during which we're holding the rtnl lock. Large-scale users
+were reporting 200ms latencies added to the networking stack as a whole
+every time their userspace software would queue up significant removals.
+That's a serious situation.
 
-This fixes some very, very long delays when removing multiple peers at
-once, which would cause some operations to take several minutes.
+This commit fixes that by maintaining a double pointer to the parent's
+bit pointer for each node, and then using the already existing node list
+belonging to each peer to go directly to the node, fix up its pointers,
+and free it with RCU. This means removal is O(1) instead of O(n), and we
+don't use gobs of stack.
+
+The removal algorithm has the same downside as the code that it fixes:
+it won't collapse needlessly long runs of fillers.  We can enhance that
+in the future if it ever becomes a problem. This commit documents that
+limitation with a TODO comment in code, a small but meaningful
+improvement over the prior situation.
+
+Currently the biggest flaw, which the next commit addresses, is that
+because this increases the node size on 64-bit machines from 60 bytes to
+68 bytes. 60 rounds up to 64, but 68 rounds up to 128. So we wind up
+using twice as much memory per node, because of power-of-two
+allocations, which is a big bummer. We'll need to figure something out
+there.
 
 Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
 Cc: stable@vger.kernel.org
@@ -58,49 +76,202 @@ Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/peer.c   |    6 +++---
- drivers/net/wireguard/socket.c |    2 +-
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/wireguard/allowedips.c |  130 +++++++++++++++----------------------
+ drivers/net/wireguard/allowedips.h |    9 --
+ 2 files changed, 56 insertions(+), 83 deletions(-)
 
---- a/drivers/net/wireguard/peer.c
-+++ b/drivers/net/wireguard/peer.c
-@@ -89,7 +89,7 @@ static void peer_make_dead(struct wg_pee
- 	/* Mark as dead, so that we don't allow jumping contexts after. */
- 	WRITE_ONCE(peer->is_dead, true);
- 
--	/* The caller must now synchronize_rcu() for this to take effect. */
-+	/* The caller must now synchronize_net() for this to take effect. */
- }
- 
- static void peer_remove_after_dead(struct wg_peer *peer)
-@@ -161,7 +161,7 @@ void wg_peer_remove(struct wg_peer *peer
- 	lockdep_assert_held(&peer->device->device_update_lock);
- 
- 	peer_make_dead(peer);
--	synchronize_rcu();
-+	synchronize_net();
- 	peer_remove_after_dead(peer);
- }
- 
-@@ -179,7 +179,7 @@ void wg_peer_remove_all(struct wg_device
- 		peer_make_dead(peer);
- 		list_add_tail(&peer->peer_list, &dead_peers);
+--- a/drivers/net/wireguard/allowedips.c
++++ b/drivers/net/wireguard/allowedips.c
+@@ -66,60 +66,6 @@ static void root_remove_peer_lists(struc
  	}
--	synchronize_rcu();
-+	synchronize_net();
- 	list_for_each_entry_safe(peer, temp, &dead_peers, peer_list)
- 		peer_remove_after_dead(peer);
  }
---- a/drivers/net/wireguard/socket.c
-+++ b/drivers/net/wireguard/socket.c
-@@ -430,7 +430,7 @@ void wg_socket_reinit(struct wg_device *
- 	if (new4)
- 		wg->incoming_port = ntohs(inet_sk(new4)->inet_sport);
- 	mutex_unlock(&wg->socket_update_lock);
--	synchronize_rcu();
-+	synchronize_net();
- 	sock_free(old4);
- 	sock_free(old6);
+ 
+-static void walk_remove_by_peer(struct allowedips_node __rcu **top,
+-				struct wg_peer *peer, struct mutex *lock)
+-{
+-#define REF(p) rcu_access_pointer(p)
+-#define DEREF(p) rcu_dereference_protected(*(p), lockdep_is_held(lock))
+-#define PUSH(p) ({                                                             \
+-		WARN_ON(IS_ENABLED(DEBUG) && len >= 128);                      \
+-		stack[len++] = p;                                              \
+-	})
+-
+-	struct allowedips_node __rcu **stack[128], **nptr;
+-	struct allowedips_node *node, *prev;
+-	unsigned int len;
+-
+-	if (unlikely(!peer || !REF(*top)))
+-		return;
+-
+-	for (prev = NULL, len = 0, PUSH(top); len > 0; prev = node) {
+-		nptr = stack[len - 1];
+-		node = DEREF(nptr);
+-		if (!node) {
+-			--len;
+-			continue;
+-		}
+-		if (!prev || REF(prev->bit[0]) == node ||
+-		    REF(prev->bit[1]) == node) {
+-			if (REF(node->bit[0]))
+-				PUSH(&node->bit[0]);
+-			else if (REF(node->bit[1]))
+-				PUSH(&node->bit[1]);
+-		} else if (REF(node->bit[0]) == prev) {
+-			if (REF(node->bit[1]))
+-				PUSH(&node->bit[1]);
+-		} else {
+-			if (rcu_dereference_protected(node->peer,
+-				lockdep_is_held(lock)) == peer) {
+-				RCU_INIT_POINTER(node->peer, NULL);
+-				list_del_init(&node->peer_list);
+-				if (!node->bit[0] || !node->bit[1]) {
+-					rcu_assign_pointer(*nptr, DEREF(
+-					       &node->bit[!REF(node->bit[0])]));
+-					kfree_rcu(node, rcu);
+-					node = DEREF(nptr);
+-				}
+-			}
+-			--len;
+-		}
+-	}
+-
+-#undef REF
+-#undef DEREF
+-#undef PUSH
+-}
+-
+ static unsigned int fls128(u64 a, u64 b)
+ {
+ 	return a ? fls64(a) + 64U : fls64(b);
+@@ -224,6 +170,7 @@ static int add(struct allowedips_node __
+ 		RCU_INIT_POINTER(node->peer, peer);
+ 		list_add_tail(&node->peer_list, &peer->allowedips_list);
+ 		copy_and_assign_cidr(node, key, cidr, bits);
++		rcu_assign_pointer(node->parent_bit, trie);
+ 		rcu_assign_pointer(*trie, node);
+ 		return 0;
+ 	}
+@@ -243,9 +190,9 @@ static int add(struct allowedips_node __
+ 	if (!node) {
+ 		down = rcu_dereference_protected(*trie, lockdep_is_held(lock));
+ 	} else {
+-		down = rcu_dereference_protected(CHOOSE_NODE(node, key),
+-						 lockdep_is_held(lock));
++		down = rcu_dereference_protected(CHOOSE_NODE(node, key), lockdep_is_held(lock));
+ 		if (!down) {
++			rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(node, key));
+ 			rcu_assign_pointer(CHOOSE_NODE(node, key), newnode);
+ 			return 0;
+ 		}
+@@ -254,29 +201,37 @@ static int add(struct allowedips_node __
+ 	parent = node;
+ 
+ 	if (newnode->cidr == cidr) {
++		rcu_assign_pointer(down->parent_bit, &CHOOSE_NODE(newnode, down->bits));
+ 		rcu_assign_pointer(CHOOSE_NODE(newnode, down->bits), down);
+-		if (!parent)
++		if (!parent) {
++			rcu_assign_pointer(newnode->parent_bit, trie);
+ 			rcu_assign_pointer(*trie, newnode);
+-		else
+-			rcu_assign_pointer(CHOOSE_NODE(parent, newnode->bits),
+-					   newnode);
+-	} else {
+-		node = kzalloc(sizeof(*node), GFP_KERNEL);
+-		if (unlikely(!node)) {
+-			list_del(&newnode->peer_list);
+-			kfree(newnode);
+-			return -ENOMEM;
++		} else {
++			rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(parent, newnode->bits));
++			rcu_assign_pointer(CHOOSE_NODE(parent, newnode->bits), newnode);
+ 		}
+-		INIT_LIST_HEAD(&node->peer_list);
+-		copy_and_assign_cidr(node, newnode->bits, cidr, bits);
++		return 0;
++	}
++
++	node = kzalloc(sizeof(*node), GFP_KERNEL);
++	if (unlikely(!node)) {
++		list_del(&newnode->peer_list);
++		kfree(newnode);
++		return -ENOMEM;
++	}
++	INIT_LIST_HEAD(&node->peer_list);
++	copy_and_assign_cidr(node, newnode->bits, cidr, bits);
+ 
+-		rcu_assign_pointer(CHOOSE_NODE(node, down->bits), down);
+-		rcu_assign_pointer(CHOOSE_NODE(node, newnode->bits), newnode);
+-		if (!parent)
+-			rcu_assign_pointer(*trie, node);
+-		else
+-			rcu_assign_pointer(CHOOSE_NODE(parent, node->bits),
+-					   node);
++	rcu_assign_pointer(down->parent_bit, &CHOOSE_NODE(node, down->bits));
++	rcu_assign_pointer(CHOOSE_NODE(node, down->bits), down);
++	rcu_assign_pointer(newnode->parent_bit, &CHOOSE_NODE(node, newnode->bits));
++	rcu_assign_pointer(CHOOSE_NODE(node, newnode->bits), newnode);
++	if (!parent) {
++		rcu_assign_pointer(node->parent_bit, trie);
++		rcu_assign_pointer(*trie, node);
++	} else {
++		rcu_assign_pointer(node->parent_bit, &CHOOSE_NODE(parent, node->bits));
++		rcu_assign_pointer(CHOOSE_NODE(parent, node->bits), node);
+ 	}
+ 	return 0;
  }
+@@ -335,9 +290,30 @@ int wg_allowedips_insert_v6(struct allow
+ void wg_allowedips_remove_by_peer(struct allowedips *table,
+ 				  struct wg_peer *peer, struct mutex *lock)
+ {
++	struct allowedips_node *node, *child, *tmp;
++
++	if (list_empty(&peer->allowedips_list))
++		return;
+ 	++table->seq;
+-	walk_remove_by_peer(&table->root4, peer, lock);
+-	walk_remove_by_peer(&table->root6, peer, lock);
++	list_for_each_entry_safe(node, tmp, &peer->allowedips_list, peer_list) {
++		list_del_init(&node->peer_list);
++		RCU_INIT_POINTER(node->peer, NULL);
++		if (node->bit[0] && node->bit[1])
++			continue;
++		child = rcu_dereference_protected(
++				node->bit[!rcu_access_pointer(node->bit[0])],
++				lockdep_is_held(lock));
++		if (child)
++			child->parent_bit = node->parent_bit;
++		*rcu_dereference_protected(node->parent_bit, lockdep_is_held(lock)) = child;
++		kfree_rcu(node, rcu);
++
++		/* TODO: Note that we currently don't walk up and down in order to
++		 * free any potential filler nodes. This means that this function
++		 * doesn't free up as much as it could, which could be revisited
++		 * at some point.
++		 */
++	}
+ }
+ 
+ int wg_allowedips_read_node(struct allowedips_node *node, u8 ip[16], u8 *cidr)
+--- a/drivers/net/wireguard/allowedips.h
++++ b/drivers/net/wireguard/allowedips.h
+@@ -15,14 +15,11 @@ struct wg_peer;
+ struct allowedips_node {
+ 	struct wg_peer __rcu *peer;
+ 	struct allowedips_node __rcu *bit[2];
+-	/* While it may seem scandalous that we waste space for v4,
+-	 * we're alloc'ing to the nearest power of 2 anyway, so this
+-	 * doesn't actually make a difference.
+-	 */
+-	u8 bits[16] __aligned(__alignof(u64));
+ 	u8 cidr, bit_at_a, bit_at_b, bitlen;
++	u8 bits[16] __aligned(__alignof(u64));
+ 
+-	/* Keep rarely used list at bottom to be beyond cache line. */
++	/* Keep rarely used members at bottom to be beyond cache line. */
++	struct allowedips_node *__rcu *parent_bit; /* XXX: this puts us at 68->128 bytes instead of 60->64 bytes!! */
+ 	union {
+ 		struct list_head peer_list;
+ 		struct rcu_head rcu;
 
 
