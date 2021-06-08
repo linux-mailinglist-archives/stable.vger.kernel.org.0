@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C80E3A032E
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 03A853A033A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235976AbhFHTNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:13:48 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35180 "EHLO mail.kernel.org"
+        id S237006AbhFHTOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:14:05 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235521AbhFHTLp (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:11:45 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 262BC6195D;
-        Tue,  8 Jun 2021 18:49:14 +0000 (UTC)
+        id S235925AbhFHTMB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:12:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E3AB06194A;
+        Tue,  8 Jun 2021 18:49:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178154;
-        bh=1mgWPPmzluYStBBTbqzbxfqddWKznr5Zz86gLYSijOI=;
+        s=korg; t=1623178157;
+        bh=CAnlmVg2OB/1ByO4Wsm94f5zmagty4A3TeD/u65t30k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvtbb50HMQRTs3BJjUvtBN8ZkeuaKBU7LBUFz9Re04JiqUIbSItBsAusXDS78Che5
-         w1xUctQWS9VaRdoZ6REemzmFIN2xXvrjbo3yB01JFz6tjRbHM2dAfN8W78nFPSIjtH
-         AtSU/uRU4anyyk8AoDKKCLM/GeyWbWeeQ2Jwkgrc=
+        b=JfxGsNcA0Yx/5iFUu0noBiaalewnb6Y3ehEKq4lqN1lw+B4g61kNjn/vIugj0hCxg
+         wlVlwToWI8gh6mY5CTv7yArxpoxrJWp8QMtr1Cp+qAZmlwkkGsH7Gj8ujY36fxAT8+
+         t/ys5qJvwvgh0plasweVWwUxGcwzXcZj+ftJzzNM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hangbin Liu <liuhangbin@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.12 098/161] wireguard: selftests: make sure rp_filter is disabled on vethc
-Date:   Tue,  8 Jun 2021 20:27:08 +0200
-Message-Id: <20210608175948.774383956@linuxfoundation.org>
+Subject: [PATCH 5.12 099/161] wireguard: allowedips: initialize list head in selftest
+Date:   Tue,  8 Jun 2021 20:27:09 +0200
+Message-Id: <20210608175948.806991696@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -42,30 +41,43 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit f8873d11d4121aad35024f9379e431e0c83abead upstream.
+commit 46cfe8eee285cde465b420637507884551f5d7ca upstream.
 
-Some distros may enable strict rp_filter by default, which will prevent
-vethc from receiving the packets with an unrouteable reverse path address.
+The randomized trie tests weren't initializing the dummy peer list head,
+resulting in a NULL pointer dereference when used. Fix this by
+initializing it in the randomized trie test, just like we do for the
+static unit test.
 
-Reported-by: Hangbin Liu <liuhangbin@gmail.com>
+While we're at it, all of the other strings like this have the word
+"self-test", so add it to the missing place here.
+
 Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
 Cc: stable@vger.kernel.org
 Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/wireguard/netns.sh |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireguard/selftest/allowedips.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/wireguard/netns.sh
-+++ b/tools/testing/selftests/wireguard/netns.sh
-@@ -363,6 +363,7 @@ ip1 -6 rule add table main suppress_pref
- ip1 -4 route add default dev wg0 table 51820
- ip1 -4 rule add not fwmark 51820 table 51820
- ip1 -4 rule add table main suppress_prefixlength 0
-+n1 bash -c 'printf 0 > /proc/sys/net/ipv4/conf/vethc/rp_filter'
- # Flood the pings instead of sending just one, to trigger routing table reference counting bugs.
- n1 ping -W 1 -c 100 -f 192.168.99.7
- n1 ping -W 1 -c 100 -f abab::1111
+--- a/drivers/net/wireguard/selftest/allowedips.c
++++ b/drivers/net/wireguard/selftest/allowedips.c
+@@ -296,6 +296,7 @@ static __init bool randomized_test(void)
+ 			goto free;
+ 		}
+ 		kref_init(&peers[i]->refcount);
++		INIT_LIST_HEAD(&peers[i]->allowedips_list);
+ 	}
+ 
+ 	mutex_lock(&mutex);
+@@ -333,7 +334,7 @@ static __init bool randomized_test(void)
+ 			if (wg_allowedips_insert_v4(&t,
+ 						    (struct in_addr *)mutated,
+ 						    cidr, peer, &mutex) < 0) {
+-				pr_err("allowedips random malloc: FAIL\n");
++				pr_err("allowedips random self-test malloc: FAIL\n");
+ 				goto free_locked;
+ 			}
+ 			if (horrible_allowedips_insert_v4(&h,
 
 
