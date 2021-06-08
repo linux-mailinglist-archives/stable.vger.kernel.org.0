@@ -2,38 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A66713A023F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:03 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3BC3A0242
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbhFHTCS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:02:18 -0400
-Received: from mail.kernel.org ([198.145.29.99]:33690 "EHLO mail.kernel.org"
+        id S235329AbhFHTCW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:22 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35478 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237340AbhFHTAS (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:00:18 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 77AE661443;
-        Tue,  8 Jun 2021 18:43:38 +0000 (UTC)
+        id S237355AbhFHTA0 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:26 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 5732B616EC;
+        Tue,  8 Jun 2021 18:43:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177819;
-        bh=Fb9d/2feoqFWeaeXMZHa35j9HPjekHgnoNpjzgJTVos=;
+        s=korg; t=1623177821;
+        bh=iM5ZmtoZdBCNsWVHnKOBVR/qRxBynWGEmhlaGLNsyLo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=koCluqm8vhuyuBQxxW2ivChPaBOkBFzdZjz3tW0LMbrMEvz7zs31r5YiwXRZpGMG6
-         OlAbW3qSbDJym0m7llnRA87pl2vdlfhA01EvVWWJGeuiU099nmy/ddyx2w28nw04kN
-         NpgI15FGn/02zmKXzNg1ZvLSqQxakuPFh92gpi00=
+        b=QwsHljg2LbhdXJjKtkLf6cQIv2UQDgFWKXtNTDoHnkiZKdTroInHqQ8zwCv3pfj0b
+         END7y5+RriHEuqOoO9+koc0h0YjKoVFdOxkNgu1EgD+ppHh/bO8kGo51+pFAmSaQzg
+         k1AAqEIfo8YIl4665sA4s3Yp8Bl8Uh5tr2yA2560=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org,
-        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
-        Anshuman Khandual <anshuman.khandual@arm.com>,
-        Vineet Gupta <vgupta@synopsys.com>,
-        Palmer Dabbelt <palmer@dabbelt.com>,
-        Paul Walmsley <paul.walmsley@sifive.com>,
+        stable@vger.kernel.org, Ding Hui <dinghui@sangfor.com.cn>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Oscar Salvador <osalvador@suse.de>,
+        David Hildenbrand <david@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 110/137] mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
-Date:   Tue,  8 Jun 2021 20:27:30 +0200
-Message-Id: <20210608175946.103539340@linuxfoundation.org>
+Subject: [PATCH 5.10 111/137] mm/page_alloc: fix counting of free pages after take off from buddy
+Date:   Tue,  8 Jun 2021 20:27:31 +0200
+Message-Id: <20210608175946.141394283@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -45,64 +43,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+From: Ding Hui <dinghui@sangfor.com.cn>
 
-commit 04f7ce3f07ce39b1a3ca03a56b238a53acc52cfd upstream.
+commit bac9c6fa1f929213bbd0ac9cdf21e8e2f0916828 upstream.
 
-In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
-entry, and so it does not match the given pmdp/pudp and (aligned down)
-pfn any more.
+Recently we found that there is a lot MemFree left in /proc/meminfo
+after do a lot of pages soft offline, it's not quite correct.
 
-For s390, this results in memory corruption, because the IDTE
-instruction used e.g.  in xxx_get_and_clear() will take the vaddr for
-some calculations, in combination with the given pmdp.  It will then end
-up with a wrong table origin, ending on ...ff8, and some of those
-wrongly set low-order bits will also select a wrong pagetable level for
-the index addition.  IDTE could therefore invalidate (or 0x20) something
-outside of the page tables, depending on the wrongly picked index, which
-in turn depends on the random vaddr.
+Before Oscar's rework of soft offline for free pages [1], if we soft
+offline free pages, these pages are left in buddy with HWPoison flag,
+and NR_FREE_PAGES is not updated immediately.  So the difference between
+NR_FREE_PAGES and real number of available free pages is also even big
+at the beginning.
 
-As result, we sometimes see "BUG task_struct (Not tainted): Padding
-overwritten" on s390, where one 0x5a padding value got overwritten with
-0x7a.
+However, with the workload running, when we catch HWPoison page in any
+alloc functions subsequently, we will remove it from buddy, meanwhile
+update the NR_FREE_PAGES and try again, so the NR_FREE_PAGES will get
+more and more closer to the real number of available free pages.
+(regardless of unpoison_memory())
 
-Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
-calculated.
+Now, for offline free pages, after a successful call
+take_page_off_buddy(), the page is no longer belong to buddy allocator,
+and will not be used any more, but we missed accounting NR_FREE_PAGES in
+this situation, and there is no chance to be updated later.
 
-Link: https://lkml.kernel.org/r/20210525130043.186290-2-gerald.schaefer@linux.ibm.com
-Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
-Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
-Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
-Cc: Vineet Gupta <vgupta@synopsys.com>
-Cc: Palmer Dabbelt <palmer@dabbelt.com>
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: <stable@vger.kernel.org>	[5.9+]
+Do update in take_page_off_buddy() like rmqueue() does, but avoid double
+counting if some one already set_migratetype_isolate() on the page.
+
+[1]: commit 06be6ff3d2ec ("mm,hwpoison: rework soft offline for free pages")
+
+Link: https://lkml.kernel.org/r/20210526075247.11130-1-dinghui@sangfor.com.cn
+Fixes: 06be6ff3d2ec ("mm,hwpoison: rework soft offline for free pages")
+Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
+Suggested-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Reviewed-by: Oscar Salvador <osalvador@suse.de>
+Acked-by: David Hildenbrand <david@redhat.com>
+Acked-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/debug_vm_pgtable.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ mm/page_alloc.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/mm/debug_vm_pgtable.c
-+++ b/mm/debug_vm_pgtable.c
-@@ -163,7 +163,7 @@ static void __init pmd_advanced_tests(st
- 
- 	pr_debug("Validating PMD advanced\n");
- 	/* Align the address wrt HPAGE_PMD_SIZE */
--	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
-+	vaddr &= HPAGE_PMD_MASK;
- 
- 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
- 
-@@ -285,7 +285,7 @@ static void __init pud_advanced_tests(st
- 
- 	pr_debug("Validating PUD advanced\n");
- 	/* Align the address wrt HPAGE_PUD_SIZE */
--	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
-+	vaddr &= HPAGE_PUD_MASK;
- 
- 	set_pud_at(mm, vaddr, pudp, pud);
- 	pudp_set_wrprotect(mm, vaddr, pudp);
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -8870,6 +8870,8 @@ bool take_page_off_buddy(struct page *pa
+ 			del_page_from_free_list(page_head, zone, page_order);
+ 			break_down_buddy_pages(zone, page_head, page, 0,
+ 						page_order, migratetype);
++			if (!is_migrate_isolate(migratetype))
++				__mod_zone_freepage_state(zone, -1, migratetype);
+ 			ret = true;
+ 			break;
+ 		}
 
 
