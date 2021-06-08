@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id EA2753A0287
+	by mail.lfdr.de (Postfix) with ESMTP id 7EAD53A0286
 	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235632AbhFHTGi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S235568AbhFHTGi (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 8 Jun 2021 15:06:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:44564 "EHLO mail.kernel.org"
+Received: from mail.kernel.org ([198.145.29.99]:40168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236740AbhFHTDU (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236333AbhFHTDU (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Jun 2021 15:03:20 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 605A26186A;
-        Tue,  8 Jun 2021 18:45:25 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3FD4D61879;
+        Tue,  8 Jun 2021 18:45:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177925;
-        bh=SiAnxwCzqUrojtkSFW7yYJ/Igf6dSNxXRc2jFffHSRo=;
+        s=korg; t=1623177928;
+        bh=SR7TwnqRT9aOFTBruccWbgoF5gRaRBe/+emlZzBKv+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H+xZM9SKtDXZsDVVvOsRTCSYni+PTWB2/Yd0Yjhan2qvZq2TDnZPRmgRMxBNaNW6a
-         E3RKm4doN+Szkeq4VFMZInyEmLk4CJ6miwXlc7W13nhb7nFn4NJBQvq35tyCMPfyoh
-         NYByeF0R3PoFkSIguDVZHFreSamkLv/WSgW3nEKg=
+        b=by9Jzj6EQhPPkis77AoRLc13/cOqmJRgPmqqug/YOE9WHaEW+zs8zs5TAQpTwb5Pp
+         lX80zIJZVVnAhNLLuaIqQ53fKpV9cATgr4wg1prvMUG4ryaHMTiUWjx6N+ucddRlU2
+         kx6N3KdsrsHXs2Q84swQYkjXuXMwEBXFbVo8uK1k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Grant Peltier <grantpeltier93@gmail.com>,
-        Guenter Roeck <linux@roeck-us.net>,
+        stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 005/161] hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_3 for RAA228228
-Date:   Tue,  8 Jun 2021 20:25:35 +0200
-Message-Id: <20210608175945.656492449@linuxfoundation.org>
+Subject: [PATCH 5.12 006/161] netfilter: conntrack: unregister ipv4 sockopts on error unwind
+Date:   Tue,  8 Jun 2021 20:25:36 +0200
+Message-Id: <20210608175945.692084164@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,39 +40,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Grant Peltier <grantpeltier93@gmail.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit 2a29db088c7ae7121801a0d7a60740ed2d18c4f3 ]
+[ Upstream commit 22cbdbcfb61acc78d5fc21ebb13ccc0d7e29f793 ]
 
-The initial version of the RAA228228 datasheet claimed that the device
-supported READ_TEMPERATURE_3 but not READ_TEMPERATURE_1. It has since been
-discovered that the datasheet was incorrect. The RAA228228 does support
-READ_TEMPERATURE_1 but does not support READ_TEMPERATURE_3.
+When ipv6 sockopt register fails, the ipv4 one needs to be removed.
 
-Signed-off-by: Grant Peltier <grantpeltier93@gmail.com>
-Fixes: 51fb91ed5a6f ("hwmon: (pmbus/isl68137) remove READ_TEMPERATURE_1 telemetry for RAA228228")
-Link: https://lore.kernel.org/r/20210514211954.GA24646@raspberrypi
-Signed-off-by: Guenter Roeck <linux@roeck-us.net>
+Fixes: a0ae2562c6c ("netfilter: conntrack: remove l3proto abstraction")
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hwmon/pmbus/isl68137.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/netfilter/nf_conntrack_proto.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hwmon/pmbus/isl68137.c b/drivers/hwmon/pmbus/isl68137.c
-index 2bee930d3900..789242ed72e5 100644
---- a/drivers/hwmon/pmbus/isl68137.c
-+++ b/drivers/hwmon/pmbus/isl68137.c
-@@ -244,8 +244,8 @@ static int isl68137_probe(struct i2c_client *client)
- 		info->read_word_data = raa_dmpvr2_read_word_data;
- 		break;
- 	case raa_dmpvr2_2rail_nontc:
--		info->func[0] &= ~PMBUS_HAVE_TEMP;
--		info->func[1] &= ~PMBUS_HAVE_TEMP;
-+		info->func[0] &= ~PMBUS_HAVE_TEMP3;
-+		info->func[1] &= ~PMBUS_HAVE_TEMP3;
- 		fallthrough;
- 	case raa_dmpvr2_2rail:
- 		info->pages = 2;
+diff --git a/net/netfilter/nf_conntrack_proto.c b/net/netfilter/nf_conntrack_proto.c
+index 47e9319d2cf3..71892822bbf5 100644
+--- a/net/netfilter/nf_conntrack_proto.c
++++ b/net/netfilter/nf_conntrack_proto.c
+@@ -660,7 +660,7 @@ int nf_conntrack_proto_init(void)
+ 
+ #if IS_ENABLED(CONFIG_IPV6)
+ cleanup_sockopt:
+-	nf_unregister_sockopt(&so_getorigdst6);
++	nf_unregister_sockopt(&so_getorigdst);
+ #endif
+ 	return ret;
+ }
 -- 
 2.30.2
 
