@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 589AE3A035A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id CD45B3A0368
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234149AbhFHTQG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:16:06 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38008 "EHLO mail.kernel.org"
+        id S236578AbhFHTQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:16:40 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236102AbhFHTNx (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:13:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8471A61973;
-        Tue,  8 Jun 2021 18:49:49 +0000 (UTC)
+        id S235789AbhFHTNz (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:13:55 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0631361975;
+        Tue,  8 Jun 2021 18:49:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178190;
-        bh=vAGZtliyhq6tXfRgZjN/CmPnhW4j1CneJYnU3iRYzB0=;
+        s=korg; t=1623178192;
+        bh=UJxCPsrIFylTfCwOd8W5nGWDbWrTnO+6FpPRoAQXl10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RbPI4jbzQ2OIcwGcQ1qKsDQOmWahj5YZOydxXnckUkS6w1ID8riDbsQLq7QBfj5cc
-         the2pU8YkZS/nLBOl13ZOms+nsIfxgS3Yqj2+EcfZKZKtODrP5Kh+fv+vIFpFRyn9Z
-         CloyIOPLisWWelfuoKY1IFZr27RS05O/4Tuof7gc=
+        b=dLGIuuAqKcjq4M9OKCN7x6yHgEWfJ/YrMoqeX8MeI5c1PUw0ZFeAywibVlNC9nfa+
+         BKxac/kYcIHNMR+AG7wLgdsjNWtSJpcT3AmZzS+p9vyuN9SxOuspxrEBS/Kka7N7xM
+         A0vfykrOV/nqszMsZz17omOjoYJBzrfkYJimUlto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Alexander Aring <aahringo@redhat.com>,
-        Bob Peterson <rpeterso@redhat.com>,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.12 110/161] gfs2: fix scheduling while atomic bug in glocks
-Date:   Tue,  8 Jun 2021 20:27:20 +0200
-Message-Id: <20210608175949.182484972@linuxfoundation.org>
+        stable@vger.kernel.org,
+        syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com,
+        Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.12 111/161] ALSA: timer: Fix master timer notification
+Date:   Tue,  8 Jun 2021 20:27:21 +0200
+Message-Id: <20210608175949.216425890@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -40,40 +40,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bob Peterson <rpeterso@redhat.com>
+From: Takashi Iwai <tiwai@suse.de>
 
-commit 20265d9a67e40eafd39a8884658ca2e36f05985d upstream.
+commit 9c1fe96bded935369f8340c2ac2e9e189f697d5d upstream.
 
-Before this patch, in the unlikely event that gfs2_glock_dq encountered
-a withdraw, it would do a wait_on_bit to wait for its journal to be
-recovered, but it never released the glock's spin_lock, which caused a
-scheduling-while-atomic error.
+snd_timer_notify1() calls the notification to each slave for a master
+event, but it passes a wrong event number.  It should be +10 offset,
+corresponding to SNDRV_TIMER_EVENT_MXXX, but it's incorrectly with
++100 offset.  Casually this was spotted by UBSAN check via syzkaller.
 
-This patch unlocks the lockref spin_lock before waiting for recovery.
-
-Fixes: 601ef0d52e96 ("gfs2: Force withdraw to replay journals and wait for it to finish")
-Cc: stable@vger.kernel.org # v5.7+
-Reported-by: Alexander Aring <aahringo@redhat.com>
-Signed-off-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+Reported-by: syzbot+d102fa5b35335a7e544e@syzkaller.appspotmail.com
+Reviewed-by: Jaroslav Kysela <perex@perex.cz>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/000000000000e5560e05c3bd1d63@google.com
+Link: https://lore.kernel.org/r/20210602113823.23777-1-tiwai@suse.de
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/glock.c |    2 ++
- 1 file changed, 2 insertions(+)
+ sound/core/timer.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/gfs2/glock.c
-+++ b/fs/gfs2/glock.c
-@@ -1465,9 +1465,11 @@ void gfs2_glock_dq(struct gfs2_holder *g
- 	    glock_blocked_by_withdraw(gl) &&
- 	    gh->gh_gl != sdp->sd_jinode_gl) {
- 		sdp->sd_glock_dqs_held++;
-+		spin_unlock(&gl->gl_lockref.lock);
- 		might_sleep();
- 		wait_on_bit(&sdp->sd_flags, SDF_WITHDRAW_RECOVERY,
- 			    TASK_UNINTERRUPTIBLE);
-+		spin_lock(&gl->gl_lockref.lock);
- 	}
- 	if (gh->gh_flags & GL_NOCACHE)
- 		handle_callback(gl, LM_ST_UNLOCKED, 0, false);
+--- a/sound/core/timer.c
++++ b/sound/core/timer.c
+@@ -520,9 +520,10 @@ static void snd_timer_notify1(struct snd
+ 		return;
+ 	if (timer->hw.flags & SNDRV_TIMER_HW_SLAVE)
+ 		return;
++	event += 10; /* convert to SNDRV_TIMER_EVENT_MXXX */
+ 	list_for_each_entry(ts, &ti->slave_active_head, active_list)
+ 		if (ts->ccallback)
+-			ts->ccallback(ts, event + 100, &tstamp, resolution);
++			ts->ccallback(ts, event, &tstamp, resolution);
+ }
+ 
+ /* start/continue a master timer */
 
 
