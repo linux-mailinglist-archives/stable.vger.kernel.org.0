@@ -2,37 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id D351D3A037C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:38 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A66713A023F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:03 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235379AbhFHTRw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:17:52 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39586 "EHLO mail.kernel.org"
+        id S235175AbhFHTCS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:18 -0400
+Received: from mail.kernel.org ([198.145.29.99]:33690 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237269AbhFHTPu (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:15:50 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 9A07461468;
-        Tue,  8 Jun 2021 18:50:36 +0000 (UTC)
+        id S237340AbhFHTAS (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:18 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 77AE661443;
+        Tue,  8 Jun 2021 18:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178237;
-        bh=wIPv2GZY4Cpx/p3MX5n+ZRapTROsVz1th+wUTzZ2C6U=;
+        s=korg; t=1623177819;
+        bh=Fb9d/2feoqFWeaeXMZHa35j9HPjekHgnoNpjzgJTVos=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tL34VpGvLFwMmp+eUOQTay03899VEmkQwx70xHHEX5pZ3zYqEc+mK+pjhgG9ggjmJ
-         p6U4eQOw0xy0C/ILl1CZZCxK7S74nmP0SJHDyvgGPpqnfBQ0nF+QqV6oKx3LU7vwBh
-         SaYEvrSQ9M3l1A+d7JGpECOwFCKkq3u/iZiSliRE=
+        b=koCluqm8vhuyuBQxxW2ivChPaBOkBFzdZjz3tW0LMbrMEvz7zs31r5YiwXRZpGMG6
+         OlAbW3qSbDJym0m7llnRA87pl2vdlfhA01EvVWWJGeuiU099nmy/ddyx2w28nw04kN
+         NpgI15FGn/02zmKXzNg1ZvLSqQxakuPFh92gpi00=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ritesh Harjani <riteshh@linux.ibm.com>,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 120/161] ext4: fix accessing uninit percpu counter variable with fast_commit
+        stable@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 110/137] mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
 Date:   Tue,  8 Jun 2021 20:27:30 +0200
-Message-Id: <20210608175949.502316763@linuxfoundation.org>
+Message-Id: <20210608175946.103539340@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,75 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ritesh Harjani <riteshh@linux.ibm.com>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit b45f189a19b38e01676628db79cd3eeb1333516e upstream.
+commit 04f7ce3f07ce39b1a3ca03a56b238a53acc52cfd upstream.
 
-When running generic/527 with fast_commit configuration, the following
-issue is seen on Power.  With fast_commit, during ext4_fc_replay()
-(which can be called from ext4_fill_super()), if inode eviction
-happens then it can access an uninitialized percpu counter variable.
+In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
+entry, and so it does not match the given pmdp/pudp and (aligned down)
+pfn any more.
 
-This patch adds the check before accessing the counters in
-ext4_free_inode() path.
+For s390, this results in memory corruption, because the IDTE
+instruction used e.g.  in xxx_get_and_clear() will take the vaddr for
+some calculations, in combination with the given pmdp.  It will then end
+up with a wrong table origin, ending on ...ff8, and some of those
+wrongly set low-order bits will also select a wrong pagetable level for
+the index addition.  IDTE could therefore invalidate (or 0x20) something
+outside of the page tables, depending on the wrongly picked index, which
+in turn depends on the random vaddr.
 
-[  321.165371] run fstests generic/527 at 2021-04-29 08:38:43
-[  323.027786] EXT4-fs (dm-0): mounted filesystem with ordered data mode. Opts: block_validity. Quota mode: none.
-[  323.618772] BUG: Unable to handle kernel data access on read at 0x1fbd80000
-[  323.619767] Faulting instruction address: 0xc000000000bae78c
-cpu 0x1: Vector: 300 (Data Access) at [c000000010706ef0]
-    pc: c000000000bae78c: percpu_counter_add_batch+0x3c/0x100
-    lr: c0000000006d0bb0: ext4_free_inode+0x780/0xb90
-    pid   = 5593, comm = mount
-	ext4_free_inode+0x780/0xb90
-	ext4_evict_inode+0xa8c/0xc60
-	evict+0xfc/0x1e0
-	ext4_fc_replay+0xc50/0x20f0
-	do_one_pass+0xfe0/0x1350
-	jbd2_journal_recover+0x184/0x2e0
-	jbd2_journal_load+0x1c0/0x4a0
-	ext4_fill_super+0x2458/0x4200
-	mount_bdev+0x1dc/0x290
-	ext4_mount+0x28/0x40
-	legacy_get_tree+0x4c/0xa0
-	vfs_get_tree+0x4c/0x120
-	path_mount+0xcf8/0xd70
-	do_mount+0x80/0xd0
-	sys_mount+0x3fc/0x490
-	system_call_exception+0x384/0x3d0
-	system_call_common+0xec/0x278
+As result, we sometimes see "BUG task_struct (Not tainted): Padding
+overwritten" on s390, where one 0x5a padding value got overwritten with
+0x7a.
 
-Cc: stable@kernel.org
-Fixes: 8016e29f4362 ("ext4: fast commit recovery path")
-Signed-off-by: Ritesh Harjani <riteshh@linux.ibm.com>
-Reviewed-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/6cceb9a75c54bef8fa9696c1b08c8df5ff6169e2.1619692410.git.riteshh@linux.ibm.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
+calculated.
+
+Link: https://lkml.kernel.org/r/20210525130043.186290-2-gerald.schaefer@linux.ibm.com
+Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ialloc.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ mm/debug_vm_pgtable.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/ialloc.c
-+++ b/fs/ext4/ialloc.c
-@@ -322,14 +322,16 @@ void ext4_free_inode(handle_t *handle, s
- 	if (is_directory) {
- 		count = ext4_used_dirs_count(sb, gdp) - 1;
- 		ext4_used_dirs_set(sb, gdp, count);
--		percpu_counter_dec(&sbi->s_dirs_counter);
-+		if (percpu_counter_initialized(&sbi->s_dirs_counter))
-+			percpu_counter_dec(&sbi->s_dirs_counter);
- 	}
- 	ext4_inode_bitmap_csum_set(sb, block_group, gdp, bitmap_bh,
- 				   EXT4_INODES_PER_GROUP(sb) / 8);
- 	ext4_group_desc_csum_set(sb, block_group, gdp);
- 	ext4_unlock_group(sb, block_group);
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -163,7 +163,7 @@ static void __init pmd_advanced_tests(st
  
--	percpu_counter_inc(&sbi->s_freeinodes_counter);
-+	if (percpu_counter_initialized(&sbi->s_freeinodes_counter))
-+		percpu_counter_inc(&sbi->s_freeinodes_counter);
- 	if (sbi->s_log_groups_per_flex) {
- 		struct flex_groups *fg;
+ 	pr_debug("Validating PMD advanced\n");
+ 	/* Align the address wrt HPAGE_PMD_SIZE */
+-	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
++	vaddr &= HPAGE_PMD_MASK;
  
+ 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
+ 
+@@ -285,7 +285,7 @@ static void __init pud_advanced_tests(st
+ 
+ 	pr_debug("Validating PUD advanced\n");
+ 	/* Align the address wrt HPAGE_PUD_SIZE */
+-	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
++	vaddr &= HPAGE_PUD_MASK;
+ 
+ 	set_pud_at(mm, vaddr, pudp, pud);
+ 	pudp_set_wrprotect(mm, vaddr, pudp);
 
 
