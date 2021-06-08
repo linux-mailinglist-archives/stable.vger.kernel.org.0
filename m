@@ -2,36 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id A099F39FFFA
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:06 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 445C639FF63
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:35 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234893AbhFHSiC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:38:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
+        id S233837AbhFHScx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:32:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56768 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234726AbhFHSgB (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:36:01 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id ACED4613D4;
-        Tue,  8 Jun 2021 18:32:34 +0000 (UTC)
+        id S233653AbhFHScA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:32:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B342B613AC;
+        Tue,  8 Jun 2021 18:29:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177155;
-        bh=kStUlvoaJKdK8XyGUxfXviqKaB3AK4x2BK3g1+M9wig=;
+        s=korg; t=1623176991;
+        bh=wtStW2NSvFCE9dbD5KI9A/NpOyQmvPopXx6VPXcXqUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=beNAy+J28a4hkEQ/3RRw5Nz2aui5JVaJrKQ53K0Ind5D+EcpWywrn8VJ7r6y9GOp7
-         /cao6Z92rKJ2ruL6c212d76vieiYh33W1mjpEuFWLZeHPxXzHaHhWILQivccj6+pZ6
-         lmHXbiQPSjjdQSPW8rUqMFwVyC1TA2lTW68cq8VU=
+        b=i7IxpWxFs6NyRtENQRD5674jE9I6oNzHSNJ7RyHenvrCk9dMON3nOag2Ofle50srp
+         bkZWsOpEMnXPPkwDocAYUapRuxw2UzGWJAejhiefagzbZ+nqeYKED9MhiCHysxQDdO
+         82BebJ7lkBPOrKk1u8XcU7tGID45LqQcpBfvDlcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.14 20/47] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
-Date:   Tue,  8 Jun 2021 20:27:03 +0200
-Message-Id: <20210608175931.141825468@linuxfoundation.org>
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 10/29] netfilter: nfnetlink_cthelper: hit EBUSY on updates if size mismatches
+Date:   Tue,  8 Jun 2021 20:27:04 +0200
+Message-Id: <20210608175928.152758687@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
-References: <20210608175930.477274100@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,112 +39,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
+[ Upstream commit 8971ee8b087750a23f3cd4dc55bff2d0303fd267 ]
 
-We got follow bug_on when run fsstress with injecting IO fault:
-[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
-[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[130747.334329] Call trace:
-[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
-[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
-[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
-[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
-[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
-[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
-[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
-[130747.337359]  generic_file_buffered_read+0x410/0xae8
-[130747.337767]  generic_file_read_iter+0x114/0x190
-[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
-[130747.338556]  __vfs_read+0x11c/0x188
-[130747.338851]  vfs_read+0x94/0x150
-[130747.339110]  ksys_read+0x74/0xf0
+The private helper data size cannot be updated. However, updates that
+contain NFCTH_PRIV_DATA_LEN might bogusly hit EBUSY even if the size is
+the same.
 
-This patch's modification is according to Jan Kara's suggestion in:
-https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
-"I see. Now I understand your patch. Honestly, seeing how fragile is trying
-to fix extent tree after split has failed in the middle, I would probably
-go even further and make sure we fix the tree properly in case of ENOSPC
-and EDQUOT (those are easily user triggerable).  Anything else indicates a
-HW problem or fs corruption so I'd rather leave the extent tree as is and
-don't try to fix it (which also means we will not create overlapping
-extents)."
-
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 12f7a505331e ("netfilter: add user-space connection tracking helper infrastructure")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 20 deletions(-)
+ net/netfilter/nfnetlink_cthelper.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3275,7 +3275,10 @@ static int ext4_split_extent_at(handle_t
- 		ext4_ext_mark_unwritten(ex2);
+diff --git a/net/netfilter/nfnetlink_cthelper.c b/net/netfilter/nfnetlink_cthelper.c
+index 8396dc8ee247..babe42ff3eec 100644
+--- a/net/netfilter/nfnetlink_cthelper.c
++++ b/net/netfilter/nfnetlink_cthelper.c
+@@ -355,10 +355,14 @@ static int
+ nfnl_cthelper_update(const struct nlattr * const tb[],
+ 		     struct nf_conntrack_helper *helper)
+ {
++	u32 size;
+ 	int ret;
  
- 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
--	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
-+	if (err != -ENOSPC && err != -EDQUOT)
-+		goto out;
-+
-+	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
- 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
- 			if (split_flag & EXT4_EXT_DATA_VALID1) {
- 				err = ext4_ext_zeroout(inode, ex2);
-@@ -3301,30 +3304,30 @@ static int ext4_split_extent_at(handle_t
- 					      ext4_ext_pblock(&orig_ex));
- 		}
- 
--		if (err)
--			goto fix_extent_len;
--		/* update the extent length and mark as initialized */
--		ex->ee_len = cpu_to_le16(ee_len);
--		ext4_ext_try_to_merge(handle, inode, path, ex);
--		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
--		if (err)
--			goto fix_extent_len;
--
--		/* update extent status tree */
--		err = ext4_zeroout_es(inode, &zero_ex);
--
--		goto out;
--	} else if (err)
--		goto fix_extent_len;
--
--out:
--	ext4_ext_show_leaf(inode, path);
--	return err;
-+		if (!err) {
-+			/* update the extent length and mark as initialized */
-+			ex->ee_len = cpu_to_le16(ee_len);
-+			ext4_ext_try_to_merge(handle, inode, path, ex);
-+			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
-+			if (!err)
-+				/* update extent status tree */
-+				err = ext4_zeroout_es(inode, &zero_ex);
-+			/* If we failed at this point, we don't know in which
-+			 * state the extent tree exactly is so don't try to fix
-+			 * length of the original extent as it may do even more
-+			 * damage.
-+			 */
-+			goto out;
-+		}
+-	if (tb[NFCTH_PRIV_DATA_LEN])
+-		return -EBUSY;
++	if (tb[NFCTH_PRIV_DATA_LEN]) {
++		size = ntohl(nla_get_be32(tb[NFCTH_PRIV_DATA_LEN]));
++		if (size != helper->data_len)
++			return -EBUSY;
 +	}
  
- fix_extent_len:
- 	ex->ee_len = orig_ex.ee_len;
- 	ext4_ext_dirty(handle, inode, path + path->p_depth);
- 	return err;
-+out:
-+	ext4_ext_show_leaf(inode, path);
-+	return err;
- }
- 
- /*
+ 	if (tb[NFCTH_POLICY]) {
+ 		ret = nfnl_cthelper_update_policy(helper, tb[NFCTH_POLICY]);
+-- 
+2.30.2
+
 
 
