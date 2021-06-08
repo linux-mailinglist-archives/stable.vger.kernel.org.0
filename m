@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A1F03A01E1
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:00 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 342AC3A0306
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236680AbhFHS5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:57:23 -0400
-Received: from mail.kernel.org ([198.145.29.99]:60728 "EHLO mail.kernel.org"
+        id S236338AbhFHTLz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:55 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48210 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236697AbhFHSzC (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:55:02 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 0302961436;
-        Tue,  8 Jun 2021 18:41:22 +0000 (UTC)
+        id S237481AbhFHTJp (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:09:45 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3B87B611BD;
+        Tue,  8 Jun 2021 18:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177683;
-        bh=//IrU6M+VLjlcXWURWYd6KoAxj8kvGQYriyz0Da2Xg4=;
+        s=korg; t=1623178085;
+        bh=t4tBaxTIFbQEaxziS77VohU3GsaRZ2nqKjm3A5gAIy8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lyP5r3IOArnNJbvghi3Qy6yxdLruYoMFM19tvmJawnnN2G5cbsymEAIf0qoqdLtLN
-         4eEnvEUNKpTlG9PZ1X/ZBmWhpXUrr7S4a02k+WEQhEv93gMv0M1DTaBkvwGfHm56r1
-         sSbdTLjn2Cqx2QFrEAdHGND9Otovblyyt2cqsZYM=
+        b=YAwxSclIV8CLgGyso4CDXvJWCir4BKooLtAmsD/Ug6kCO1ESUAkDjOQ5eKiMJ+WLP
+         j/YNW19ARbWHPqjjEPy06FqLaAiwGSyBSMvbtf+XNztd9F856mqXpEU9H/dHVS0GX6
+         sJeSl+jeJdexdu0HdJJEjMy5eHyBG1TeRcr++OdQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Dave Gerlach <d-gerlach@ti.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Lucas Stach <l.stach@pengutronix.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 061/137] bus: ti-sysc: Fix am335x resume hang for usb otg module
+Subject: [PATCH 5.12 071/161] arm64: dts: zii-ultra: fix 12V_MAIN voltage
 Date:   Tue,  8 Jun 2021 20:26:41 +0200
-Message-Id: <20210608175944.442527549@linuxfoundation.org>
+Message-Id: <20210608175947.853800240@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,150 +40,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 4d7b324e231366ea772ab10df46be31273ca39af ]
+[ Upstream commit ac0cbf9d13dccfd09bebc2f8f5697b6d3ffe27c4 ]
 
-On am335x, suspend and resume only works once, and the system hangs if
-suspend is attempted again. However, turns out suspend and resume works
-fine multiple times if the USB OTG driver for musb controller is loaded.
+As this is a fixed regulator on the board there was no harm in the wrong
+voltage being specified, apart from a confusing reporting to userspace.
 
-The issue is caused my the interconnect target module losing context
-during suspend, and it needs a restore on resume to be reconfigure again
-as debugged earlier by Dave Gerlach <d-gerlach@ti.com>.
-
-There are also other modules that need a restore on resume, like gpmc as
-noted by Dave. So let's add a common way to restore an interconnect
-target module based on a quirk flag. For now, let's enable the quirk for
-am335x otg only to fix the suspend and resume issue.
-
-As gpmc is not causing hangs based on tests with BeagleBone, let's patch
-gpmc separately. For gpmc, we also need a hardware reset done before
-restore according to Dave.
-
-To reinit the modules, we decouple system suspend from PM runtime. We
-replace calls to pm_runtime_force_suspend() and pm_runtime_force_resume()
-with direct calls to internal functions and rely on the driver internal
-state. There no point trying to handle complex system suspend and resume
-quirks via PM runtime.
-
-This is issue should have already been noticed with commit 1819ef2e2d12
-("bus: ti-sysc: Use swsup quirks also for am335x musb") when quirk
-handling was added for am335x otg for swsup. But the issue went unnoticed
-as having musb driver loaded hides the issue, and suspend and resume works
-once without the driver loaded.
-
-Fixes: 1819ef2e2d12 ("bus: ti-sysc: Use swsup quirks also for am335x musb")
-Suggested-by: Dave Gerlach <d-gerlach@ti.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: 4a13b3bec3b4 ("arm64: dts: imx: add Zii Ultra board support")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c                 | 53 +++++++++++++++++++++++++--
- include/linux/platform_data/ti-sysc.h |  1 +
- 2 files changed, 51 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index 9afbe4992a1d..b7f8c6074a15 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1330,6 +1330,34 @@ static int __maybe_unused sysc_runtime_resume(struct device *dev)
- 	return error;
- }
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+index 1e5d34e81ab7..a08a568c31d9 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mq-zii-ultra.dtsi
+@@ -45,8 +45,8 @@
+ 	reg_12p0_main: regulator-12p0-main {
+ 		compatible = "regulator-fixed";
+ 		regulator-name = "12V_MAIN";
+-		regulator-min-microvolt = <5000000>;
+-		regulator-max-microvolt = <5000000>;
++		regulator-min-microvolt = <12000000>;
++		regulator-max-microvolt = <12000000>;
+ 		regulator-always-on;
+ 	};
  
-+static int sysc_reinit_module(struct sysc *ddata, bool leave_enabled)
-+{
-+	struct device *dev = ddata->dev;
-+	int error;
-+
-+	/* Disable target module if it is enabled */
-+	if (ddata->enabled) {
-+		error = sysc_runtime_suspend(dev);
-+		if (error)
-+			dev_warn(dev, "reinit suspend failed: %i\n", error);
-+	}
-+
-+	/* Enable target module */
-+	error = sysc_runtime_resume(dev);
-+	if (error)
-+		dev_warn(dev, "reinit resume failed: %i\n", error);
-+
-+	if (leave_enabled)
-+		return error;
-+
-+	/* Disable target module if no leave_enabled was set */
-+	error = sysc_runtime_suspend(dev);
-+	if (error)
-+		dev_warn(dev, "reinit suspend failed: %i\n", error);
-+
-+	return error;
-+}
-+
- static int __maybe_unused sysc_noirq_suspend(struct device *dev)
- {
- 	struct sysc *ddata;
-@@ -1340,12 +1368,18 @@ static int __maybe_unused sysc_noirq_suspend(struct device *dev)
- 	    (SYSC_QUIRK_LEGACY_IDLE | SYSC_QUIRK_NO_IDLE))
- 		return 0;
- 
--	return pm_runtime_force_suspend(dev);
-+	if (!ddata->enabled)
-+		return 0;
-+
-+	ddata->needs_resume = 1;
-+
-+	return sysc_runtime_suspend(dev);
- }
- 
- static int __maybe_unused sysc_noirq_resume(struct device *dev)
- {
- 	struct sysc *ddata;
-+	int error = 0;
- 
- 	ddata = dev_get_drvdata(dev);
- 
-@@ -1353,7 +1387,19 @@ static int __maybe_unused sysc_noirq_resume(struct device *dev)
- 	    (SYSC_QUIRK_LEGACY_IDLE | SYSC_QUIRK_NO_IDLE))
- 		return 0;
- 
--	return pm_runtime_force_resume(dev);
-+	if (ddata->cfg.quirks & SYSC_QUIRK_REINIT_ON_RESUME) {
-+		error = sysc_reinit_module(ddata, ddata->needs_resume);
-+		if (error)
-+			dev_warn(dev, "noirq_resume failed: %i\n", error);
-+	} else if (ddata->needs_resume) {
-+		error = sysc_runtime_resume(dev);
-+		if (error)
-+			dev_warn(dev, "noirq_resume failed: %i\n", error);
-+	}
-+
-+	ddata->needs_resume = 0;
-+
-+	return error;
- }
- 
- static const struct dev_pm_ops sysc_pm_ops = {
-@@ -1462,7 +1508,8 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 	SYSC_QUIRK("usb_otg_hs", 0, 0x400, 0x404, 0x408, 0x00000050,
- 		   0xffffffff, SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
- 	SYSC_QUIRK("usb_otg_hs", 0, 0, 0x10, -ENODEV, 0x4ea2080d, 0xffffffff,
--		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY),
-+		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_SWSUP_MSTANDBY |
-+		   SYSC_QUIRK_REINIT_ON_RESUME),
- 	SYSC_QUIRK("wdt", 0, 0, 0x10, 0x14, 0x502a0500, 0xfffff0f0,
- 		   SYSC_MODULE_QUIRK_WDT),
- 	/* PRUSS on am3, am4 and am5 */
-diff --git a/include/linux/platform_data/ti-sysc.h b/include/linux/platform_data/ti-sysc.h
-index fafc1beea504..9837fb011f2f 100644
---- a/include/linux/platform_data/ti-sysc.h
-+++ b/include/linux/platform_data/ti-sysc.h
-@@ -50,6 +50,7 @@ struct sysc_regbits {
- 	s8 emufree_shift;
- };
- 
-+#define SYSC_QUIRK_REINIT_ON_RESUME	BIT(27)
- #define SYSC_QUIRK_GPMC_DEBUG		BIT(26)
- #define SYSC_MODULE_QUIRK_ENA_RESETDONE	BIT(25)
- #define SYSC_MODULE_QUIRK_PRUSS		BIT(24)
 -- 
 2.30.2
 
