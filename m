@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 136BC3A024E
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:09 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C53373A0385
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233235AbhFHTCl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:02:41 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
+        id S236460AbhFHTSE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:18:04 -0400
+Received: from mail.kernel.org ([198.145.29.99]:35256 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237537AbhFHTAt (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:00:49 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C74FE616E8;
-        Tue,  8 Jun 2021 18:44:13 +0000 (UTC)
+        id S236161AbhFHTQD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:16:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id BDB0561965;
+        Tue,  8 Jun 2021 18:50:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177854;
-        bh=kA1vp52oFlJnWEScUtPAC8g/DcCwPfp9z3fFrlRIlFE=;
+        s=korg; t=1623178258;
+        bh=pqfPMXEdK6pB7+aNnGLJQshxp1gmNXlYrCRLSv3/iTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAUgJxgcTZcclC9HWYhV+ufRAV2K6tZkP73tQiA4bmL/PGPl1OU3OT03VYrDaiTUB
-         Zt1ErOZj2bJJnt0Ba0KYXt5ZmiGOf1MzXs8hJqD02k6ucC0rVSP/6MUCtlvOaqs0WZ
-         L8Z/VuFkesQs/DB1Fs802SfipREmV3v2bWEVp8Do=
+        b=j03/WNPnurr64zdjjSECpF8YV/r6vrwQRFc125jM1N6Y6yjnmPiPbA63TTCrhvs8h
+         +RniaI49kvHEa9yonCKmWy7SzQg73EpUOG67qP6nMpRvSq+uIyPrGpssL6q4dvyJuK
+         1y+p18xw00UnwcsSxKNxAeFlWpuQl/JmYWoTCeFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 125/137] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
-Date:   Tue,  8 Jun 2021 20:27:45 +0200
-Message-Id: <20210608175946.605390074@linuxfoundation.org>
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.12 136/161] drm/amdgpu: make sure we unpin the UVD BO
+Date:   Tue,  8 Jun 2021 20:27:46 +0200
+Message-Id: <20210608175950.043654417@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,82 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mina Almasry <almasrymina@google.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
+commit 07438603a07e52f1c6aa731842bd298d2725b7be upstream.
 
-The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
-happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
-an index for which we already have a page in the cache.  When this
-happens, we allocate a second page, double consuming the reservation,
-and then fail to insert the page into the cache and return -EEXIST.
+Releasing pinned BOs is illegal now. UVD 6 was missing from:
+commit 2f40801dc553 ("drm/amdgpu: make sure we unpin the UVD BO")
 
-To fix this, we first check if there is a page in the cache which
-already consumed the reservation, and return -EEXIST immediately if so.
-
-There is still a rare condition where we fail to copy the page contents
-AND race with a call for hugetlb_no_page() for this index and again we
-will underflow resv_huge_pages.  That is fixed in a more complicated
-patch not targeted for -stable.
-
-Test:
-
-  Hacked the code locally such that resv_huge_pages underflows produce a
-  warning, then:
-
-  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
-	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
-
-Both tests succeed and produce no warnings.  After the test runs number
-of free/resv hugepages is correct.
-
-[mike.kravetz@oracle.com: changelog fixes]
-
-Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
-Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
-Signed-off-by: Mina Almasry <almasrymina@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 2f40801dc553 ("drm/amdgpu: make sure we unpin the UVD BO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c | 14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index 900851a4f914..bc1006a32733 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -4708,10 +4708,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
- 	struct page *page;
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
+@@ -357,6 +357,7 @@ static int uvd_v6_0_enc_ring_test_ib(str
  
- 	if (!*pagep) {
--		ret = -ENOMEM;
-+		/* If a page already exists, then it's UFFDIO_COPY for
-+		 * a non-missing case. Return -EEXIST.
-+		 */
-+		if (vm_shared &&
-+		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
-+			ret = -EEXIST;
-+			goto out;
-+		}
-+
- 		page = alloc_huge_page(dst_vma, dst_addr, 0);
--		if (IS_ERR(page))
-+		if (IS_ERR(page)) {
-+			ret = -ENOMEM;
- 			goto out;
-+		}
- 
- 		ret = copy_huge_page_from_user(page,
- 						(const void __user *) src_addr,
--- 
-2.30.2
-
+ error:
+ 	dma_fence_put(fence);
++	amdgpu_bo_unpin(bo);
+ 	amdgpu_bo_unreserve(bo);
+ 	amdgpu_bo_unref(&bo);
+ 	return r;
 
 
