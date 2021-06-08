@@ -2,33 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EB7839FF1A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:28:51 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C36039FF2C
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:11 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233570AbhFHSan (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:30:43 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55316 "EHLO mail.kernel.org"
+        id S234069AbhFHSbC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233401AbhFHSam (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:30:42 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A6210613B9;
-        Tue,  8 Jun 2021 18:28:48 +0000 (UTC)
+        id S234043AbhFHSbA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C6168613BD;
+        Tue,  8 Jun 2021 18:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176929;
-        bh=Im+tgIBQb4d+XfJ3CKyIfesWZruWc9MkSsKkJ8tJOw0=;
+        s=korg; t=1623176931;
+        bh=hv6Cx92D1GhxtqEGoD/jG1K/qYa0/KEHnH+Wp3T4aHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj82g7T9BwE4to7arbJt0js/2tsrf8YcOGLtDtNArEAklDBVSSaEiH1CUVuc8v4ho
-         k0wFHfwqOU5RA2GV4PUh39SWO8q1wpbRH9ZsOnf2yOBRj1FbC8eqjTGsvPFMBIlP/B
-         HmUNv6oFEDknc3o6GTcHtBqpBBCGUp7wLblyNMjo=
+        b=w1Gd6+tuCk/YQkkGwJubxh1knH/beaRQmeaTV0fTGSFiGp3dr4mGF4hTmG/EjqmvN
+         1ex562SpfhmmRoFgg/LiViA3WhMRg3Qlcyf4wrjxYLgz/8bNHUTS6UBH3wDfuiWBD8
+         DJLUOQfXu9+NiAirJF36uZRGZ6/mt3Sy+TAr7WYs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 4.4 16/23] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
-Date:   Tue,  8 Jun 2021 20:27:08 +0200
-Message-Id: <20210608175927.062615220@linuxfoundation.org>
+        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
+        Christian Brauner <christian.brauner@ubuntu.com>,
+        Cedric Le Goater <clg@fr.ibm.com>,
+        Christian Brauner <christian@brauner.io>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Martin Schwidefsky <schwidefsky@de.ibm.com>,
+        Paul Mackerras <paulus@samba.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.4 17/23] pid: take a reference when initializing `cad_pid`
+Date:   Tue,  8 Jun 2021 20:27:09 +0200
+Message-Id: <20210608175927.095013842@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
 References: <20210608175926.524658689@linuxfoundation.org>
@@ -40,112 +46,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ye Bin <yebin10@huawei.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
+commit 0711f0d7050b9e07c44bc159bbc64ac0a1022c7f upstream.
 
-We got follow bug_on when run fsstress with injecting IO fault:
-[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
-[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
-......
-[130747.334329] Call trace:
-[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
-[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
-[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
-[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
-[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
-[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
-[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
-[130747.337359]  generic_file_buffered_read+0x410/0xae8
-[130747.337767]  generic_file_read_iter+0x114/0x190
-[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
-[130747.338556]  __vfs_read+0x11c/0x188
-[130747.338851]  vfs_read+0x94/0x150
-[130747.339110]  ksys_read+0x74/0xf0
+During boot, kernel_init_freeable() initializes `cad_pid` to the init
+task's struct pid.  Later on, we may change `cad_pid` via a sysctl, and
+when this happens proc_do_cad_pid() will increment the refcount on the
+new pid via get_pid(), and will decrement the refcount on the old pid
+via put_pid().  As we never called get_pid() when we initialized
+`cad_pid`, we decrement a reference we never incremented, can therefore
+free the init task's struct pid early.  As there can be dangling
+references to the struct pid, we can later encounter a use-after-free
+(e.g.  when delivering signals).
 
-This patch's modification is according to Jan Kara's suggestion in:
-https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
-"I see. Now I understand your patch. Honestly, seeing how fragile is trying
-to fix extent tree after split has failed in the middle, I would probably
-go even further and make sure we fix the tree properly in case of ENOSPC
-and EDQUOT (those are easily user triggerable).  Anything else indicates a
-HW problem or fs corruption so I'd rather leave the extent tree as is and
-don't try to fix it (which also means we will not create overlapping
-extents)."
+This was spotted when fuzzing v5.13-rc3 with Syzkaller, but seems to
+have been around since the conversion of `cad_pid` to struct pid in
+commit 9ec52099e4b8 ("[PATCH] replace cad_pid by a struct pid") from the
+pre-KASAN stone age of v2.6.19.
 
-Cc: stable@kernel.org
-Signed-off-by: Ye Bin <yebin10@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Fix this by getting a reference to the init task's struct pid when we
+assign it to `cad_pid`.
+
+Full KASAN splat below.
+
+   ==================================================================
+   BUG: KASAN: use-after-free in ns_of_pid include/linux/pid.h:153 [inline]
+   BUG: KASAN: use-after-free in task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
+   Read of size 4 at addr ffff23794dda0004 by task syz-executor.0/273
+
+   CPU: 1 PID: 273 Comm: syz-executor.0 Not tainted 5.12.0-00001-g9aef892b2d15 #1
+   Hardware name: linux,dummy-virt (DT)
+   Call trace:
+    ns_of_pid include/linux/pid.h:153 [inline]
+    task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
+    do_notify_parent+0x308/0xe60 kernel/signal.c:1950
+    exit_notify kernel/exit.c:682 [inline]
+    do_exit+0x2334/0x2bd0 kernel/exit.c:845
+    do_group_exit+0x108/0x2c8 kernel/exit.c:922
+    get_signal+0x4e4/0x2a88 kernel/signal.c:2781
+    do_signal arch/arm64/kernel/signal.c:882 [inline]
+    do_notify_resume+0x300/0x970 arch/arm64/kernel/signal.c:936
+    work_pending+0xc/0x2dc
+
+   Allocated by task 0:
+    slab_post_alloc_hook+0x50/0x5c0 mm/slab.h:516
+    slab_alloc_node mm/slub.c:2907 [inline]
+    slab_alloc mm/slub.c:2915 [inline]
+    kmem_cache_alloc+0x1f4/0x4c0 mm/slub.c:2920
+    alloc_pid+0xdc/0xc00 kernel/pid.c:180
+    copy_process+0x2794/0x5e18 kernel/fork.c:2129
+    kernel_clone+0x194/0x13c8 kernel/fork.c:2500
+    kernel_thread+0xd4/0x110 kernel/fork.c:2552
+    rest_init+0x44/0x4a0 init/main.c:687
+    arch_call_rest_init+0x1c/0x28
+    start_kernel+0x520/0x554 init/main.c:1064
+    0x0
+
+   Freed by task 270:
+    slab_free_hook mm/slub.c:1562 [inline]
+    slab_free_freelist_hook+0x98/0x260 mm/slub.c:1600
+    slab_free mm/slub.c:3161 [inline]
+    kmem_cache_free+0x224/0x8e0 mm/slub.c:3177
+    put_pid.part.4+0xe0/0x1a8 kernel/pid.c:114
+    put_pid+0x30/0x48 kernel/pid.c:109
+    proc_do_cad_pid+0x190/0x1b0 kernel/sysctl.c:1401
+    proc_sys_call_handler+0x338/0x4b0 fs/proc/proc_sysctl.c:591
+    proc_sys_write+0x34/0x48 fs/proc/proc_sysctl.c:617
+    call_write_iter include/linux/fs.h:1977 [inline]
+    new_sync_write+0x3ac/0x510 fs/read_write.c:518
+    vfs_write fs/read_write.c:605 [inline]
+    vfs_write+0x9c4/0x1018 fs/read_write.c:585
+    ksys_write+0x124/0x240 fs/read_write.c:658
+    __do_sys_write fs/read_write.c:670 [inline]
+    __se_sys_write fs/read_write.c:667 [inline]
+    __arm64_sys_write+0x78/0xb0 fs/read_write.c:667
+    __invoke_syscall arch/arm64/kernel/syscall.c:37 [inline]
+    invoke_syscall arch/arm64/kernel/syscall.c:49 [inline]
+    el0_svc_common.constprop.1+0x16c/0x388 arch/arm64/kernel/syscall.c:129
+    do_el0_svc+0xf8/0x150 arch/arm64/kernel/syscall.c:168
+    el0_svc+0x28/0x38 arch/arm64/kernel/entry-common.c:416
+    el0_sync_handler+0x134/0x180 arch/arm64/kernel/entry-common.c:432
+    el0_sync+0x154/0x180 arch/arm64/kernel/entry.S:701
+
+   The buggy address belongs to the object at ffff23794dda0000
+    which belongs to the cache pid of size 224
+   The buggy address is located 4 bytes inside of
+    224-byte region [ffff23794dda0000, ffff23794dda00e0)
+   The buggy address belongs to the page:
+   page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x4dda0
+   head:(____ptrval____) order:1 compound_mapcount:0
+   flags: 0x3fffc0000010200(slab|head)
+   raw: 03fffc0000010200 dead000000000100 dead000000000122 ffff23794d40d080
+   raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
+   page dumped because: kasan: bad access detected
+
+   Memory state around the buggy address:
+    ffff23794dd9ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+    ffff23794dd9ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+   >ffff23794dda0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                      ^
+    ffff23794dda0080: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
+    ffff23794dda0100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
+   ==================================================================
+
+Link: https://lkml.kernel.org/r/20210524172230.38715-1-mark.rutland@arm.com
+Fixes: 9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
+Cc: Cedric Le Goater <clg@fr.ibm.com>
+Cc: Christian Brauner <christian@brauner.io>
+Cc: Eric W. Biederman <ebiederm@xmission.com>
+Cc: Kees Cook <keescook@chromium.org
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Paul Mackerras <paulus@samba.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
- 1 file changed, 23 insertions(+), 20 deletions(-)
+ init/main.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/ext4/extents.c
-+++ b/fs/ext4/extents.c
-@@ -3268,7 +3268,10 @@ static int ext4_split_extent_at(handle_t
- 		ext4_ext_mark_unwritten(ex2);
+--- a/init/main.c
++++ b/init/main.c
+@@ -997,7 +997,7 @@ static noinline void __init kernel_init_
+ 	 */
+ 	set_cpus_allowed_ptr(current, cpu_all_mask);
  
- 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
--	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
-+	if (err != -ENOSPC && err != -EDQUOT)
-+		goto out;
-+
-+	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
- 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
- 			if (split_flag & EXT4_EXT_DATA_VALID1) {
- 				err = ext4_ext_zeroout(inode, ex2);
-@@ -3294,30 +3297,30 @@ static int ext4_split_extent_at(handle_t
- 					      ext4_ext_pblock(&orig_ex));
- 		}
+-	cad_pid = task_pid(current);
++	cad_pid = get_pid(task_pid(current));
  
--		if (err)
--			goto fix_extent_len;
--		/* update the extent length and mark as initialized */
--		ex->ee_len = cpu_to_le16(ee_len);
--		ext4_ext_try_to_merge(handle, inode, path, ex);
--		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
--		if (err)
--			goto fix_extent_len;
--
--		/* update extent status tree */
--		err = ext4_zeroout_es(inode, &zero_ex);
--
--		goto out;
--	} else if (err)
--		goto fix_extent_len;
--
--out:
--	ext4_ext_show_leaf(inode, path);
--	return err;
-+		if (!err) {
-+			/* update the extent length and mark as initialized */
-+			ex->ee_len = cpu_to_le16(ee_len);
-+			ext4_ext_try_to_merge(handle, inode, path, ex);
-+			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
-+			if (!err)
-+				/* update extent status tree */
-+				err = ext4_zeroout_es(inode, &zero_ex);
-+			/* If we failed at this point, we don't know in which
-+			 * state the extent tree exactly is so don't try to fix
-+			 * length of the original extent as it may do even more
-+			 * damage.
-+			 */
-+			goto out;
-+		}
-+	}
+ 	smp_prepare_cpus(setup_max_cpus);
  
- fix_extent_len:
- 	ex->ee_len = orig_ex.ee_len;
- 	ext4_ext_dirty(handle, inode, path + path->p_depth);
- 	return err;
-+out:
-+	ext4_ext_show_leaf(inode, path);
-+	return err;
- }
- 
- /*
 
 
