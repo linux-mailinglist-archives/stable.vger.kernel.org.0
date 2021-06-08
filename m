@@ -2,46 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 94D193A0178
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:26 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id E45BA3A02A6
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:57 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236070AbhFHSwZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:52:25 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48486 "EHLO mail.kernel.org"
+        id S236053AbhFHTHd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:07:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44698 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236295AbhFHSuZ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:50:25 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C8F6461474;
-        Tue,  8 Jun 2021 18:39:40 +0000 (UTC)
+        id S237788AbhFHTFX (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:05:23 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 7ABFF6140C;
+        Tue,  8 Jun 2021 18:46:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177581;
-        bh=mzyeLp53DBljEincEO/8suCesDDZgLfd8JolE+Xm6ks=;
+        s=korg; t=1623177986;
+        bh=QaLUAtuxmVFO9vJ0BgRvVSPB5wiO7/9HXh2m2uaxkZE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rQBd6AKGg84/chmrPSfe+DsjX56UCmHYW1JrVmKVrkTdoH3pBVfpUPTA9lulD+QEH
-         OUSn+Mbv0pjYhsokk19QscycDdtoRuuS79T1jGgu2DKldSyd2W3n7sMD/lLQ5W451X
-         kZq+J/6Vc4XKelxXCduYpiiLf3Y3zfDEP90dQVQ8=
+        b=o6UcdroIJq2Bj1k/xT/26jYkhSTdUBjYXC8M0cazaYok9C+EYwv4ASXgQgN/+4NZV
+         omRh+4iejcBKMFFN06ZAeyiUw+XFnyPi2oJ/a40D6qQvpa5AIp2J25KcZVzw5r0T0W
+         8u9W6c1pkqsaaRjj7TKm0BQWzRJPWthNR7e5a5wY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Li Huafei <lihuafei1@huawei.com>,
-        Arnaldo Carvalho de Melo <acme@redhat.com>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        "Frank Ch. Eigler" <fche@redhat.com>,
-        Jianlin Lv <jianlin.lv@arm.com>, Jiri Olsa <jolsa@redhat.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Namhyung Kim <namhyung@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Srikar Dronamraju <srikar@linux.vnet.ibm.com>,
-        Yang Jihong <yangjihong1@huawei.com>,
-        Zhang Jinhao <zhangjinhao2@huawei.com>,
+        stable@vger.kernel.org, Aya Levin <ayal@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/137] perf probe: Fix NULL pointer dereference in convert_variable_location()
+Subject: [PATCH 5.12 034/161] net/mlx5e: Fix incompatible casting
 Date:   Tue,  8 Jun 2021 20:26:04 +0200
-Message-Id: <20210608175943.237301450@linuxfoundation.org>
+Message-Id: <20210608175946.611181253@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -50,127 +41,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Huafei <lihuafei1@huawei.com>
+From: Aya Levin <ayal@nvidia.com>
 
-[ Upstream commit 3cb17cce1e76ccc5499915a4d7e095a1ad6bf7ff ]
+[ Upstream commit d8ec92005f806dfa7524e9171eca707c0bb1267e ]
 
-If we just check whether the variable can be converted, 'tvar' should be
-a null pointer. However, the null pointer check is missing in the
-'Constant value' execution path.
+Device supports setting of a single fec mode at a time, enforce this
+by bitmap_weight == 1. Input from fec command is in u32, avoid cast to
+unsigned long and use bitmap_from_arr32 to populate bitmap safely.
 
-The following cases can trigger this problem:
-
-	$ cat test.c
-	#include <stdio.h>
-
-	void main(void)
-	{
-	        int a;
-	        const int b = 1;
-
-	        asm volatile("mov %1, %0" : "=r"(a): "i"(b));
-	        printf("a: %d\n", a);
-	}
-
-	$ gcc test.c -o test -O -g
-	$ sudo ./perf probe -x ./test -L "main"
-	<main@/home/lhf/test.c:0>
-	      0  void main(void)
-	         {
-	      2          int a;
-	                 const int b = 1;
-
-	                 asm volatile("mov %1, %0" : "=r"(a): "i"(b));
-	      6          printf("a: %d\n", a);
-	         }
-
-	$ sudo ./perf probe -x ./test -V "main:6"
-	Segmentation fault
-
-The check on 'tvar' is added. If 'tavr' is a null pointer, we return 0
-to indicate that the variable can be converted. Now, we can successfully
-show the variables that can be accessed.
-
-	$ sudo ./perf probe -x ./test -V "main:6"
-	Available variables at main:6
-	        @<main+13>
-	                char*   __fmt
-	                int     a
-	                int     b
-
-However, the variable 'b' cannot be tracked.
-
-	$ sudo ./perf probe -x ./test -D "main:6 b"
-	Failed to find the location of the 'b' variable at this address.
-	 Perhaps it has been optimized out.
-	 Use -V with the --range option to show 'b' location range.
-	  Error: Failed to add events.
-
-This is because __die_find_variable_cb() did not successfully match
-variable 'b', which has the DW_AT_const_value attribute instead of
-DW_AT_location. We added support for DW_AT_const_value in
-__die_find_variable_cb(). With this modification, we can successfully
-track the variable 'b'.
-
-	$ sudo ./perf probe -x ./test -D "main:6 b"
-	p:probe_test/main_L6 /home/lhf/test:0x1156 b=\1:s32
-
-Fixes: 66f69b219716 ("perf probe: Support DW_AT_const_value constant value")
-Signed-off-by: Li Huafei <lihuafei1@huawei.com>
-Tested-by: Arnaldo Carvalho de Melo <acme@redhat.com>
-Cc: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc: Frank Ch. Eigler <fche@redhat.com>
-Cc: Jianlin Lv <jianlin.lv@arm.com>
-Cc: Jiri Olsa <jolsa@redhat.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Namhyung Kim <namhyung@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Srikar Dronamraju <srikar@linux.vnet.ibm.com>
-Cc: Yang Jihong <yangjihong1@huawei.com>
-Cc: Zhang Jinhao <zhangjinhao2@huawei.com>
-http://lore.kernel.org/lkml/20210601092750.169601-1-lihuafei1@huawei.com
-Signed-off-by: Arnaldo Carvalho de Melo <acme@redhat.com>
+Fixes: 4bd9d5070b92 ("net/mlx5e: Enforce setting of a single FEC mode")
+Signed-off-by: Aya Levin <ayal@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/perf/util/dwarf-aux.c    | 8 ++++++--
- tools/perf/util/probe-finder.c | 3 +++
- 2 files changed, 9 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/tools/perf/util/dwarf-aux.c b/tools/perf/util/dwarf-aux.c
-index 7b2d471a6419..4343356f3cf9 100644
---- a/tools/perf/util/dwarf-aux.c
-+++ b/tools/perf/util/dwarf-aux.c
-@@ -975,9 +975,13 @@ static int __die_find_variable_cb(Dwarf_Die *die_mem, void *data)
- 	if ((tag == DW_TAG_formal_parameter ||
- 	     tag == DW_TAG_variable) &&
- 	    die_compare_name(die_mem, fvp->name) &&
--	/* Does the DIE have location information or external instance? */
-+	/*
-+	 * Does the DIE have location information or const value
-+	 * or external instance?
-+	 */
- 	    (dwarf_attr(die_mem, DW_AT_external, &attr) ||
--	     dwarf_attr(die_mem, DW_AT_location, &attr)))
-+	     dwarf_attr(die_mem, DW_AT_location, &attr) ||
-+	     dwarf_attr(die_mem, DW_AT_const_value, &attr)))
- 		return DIE_FIND_CB_END;
- 	if (dwarf_haspc(die_mem, fvp->addr))
- 		return DIE_FIND_CB_CONTINUE;
-diff --git a/tools/perf/util/probe-finder.c b/tools/perf/util/probe-finder.c
-index 76dd349aa48d..fdafbfcef687 100644
---- a/tools/perf/util/probe-finder.c
-+++ b/tools/perf/util/probe-finder.c
-@@ -190,6 +190,9 @@ static int convert_variable_location(Dwarf_Die *vr_die, Dwarf_Addr addr,
- 	    immediate_value_is_supported()) {
- 		Dwarf_Sword snum;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+index 53802e18af90..04b49cb3adb3 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_ethtool.c
+@@ -1632,12 +1632,13 @@ static int mlx5e_set_fecparam(struct net_device *netdev,
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5_core_dev *mdev = priv->mdev;
++	unsigned long fec_bitmap;
+ 	u16 fec_policy = 0;
+ 	int mode;
+ 	int err;
  
-+		if (!tvar)
-+			return 0;
-+
- 		dwarf_formsdata(&attr, &snum);
- 		ret = asprintf(&tvar->value, "\\%ld", (long)snum);
+-	if (bitmap_weight((unsigned long *)&fecparam->fec,
+-			  ETHTOOL_FEC_LLRS_BIT + 1) > 1)
++	bitmap_from_arr32(&fec_bitmap, &fecparam->fec, sizeof(fecparam->fec) * BITS_PER_BYTE);
++	if (bitmap_weight(&fec_bitmap, ETHTOOL_FEC_LLRS_BIT + 1) > 1)
+ 		return -EOPNOTSUPP;
  
+ 	for (mode = 0; mode < ARRAY_SIZE(pplm_fec_2_ethtool); mode++) {
 -- 
 2.30.2
 
