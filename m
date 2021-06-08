@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E9E93A0312
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:23:50 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5539D3A01ED
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235272AbhFHTM2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:12:28 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55066 "EHLO mail.kernel.org"
+        id S235808AbhFHS6I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:58:08 -0400
+Received: from mail.kernel.org ([198.145.29.99]:52436 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237627AbhFHTKK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:10:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 8FC2A6145C;
-        Tue,  8 Jun 2021 18:48:32 +0000 (UTC)
+        id S236966AbhFHS4G (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:56:06 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B2FB561613;
+        Tue,  8 Jun 2021 18:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178113;
-        bh=fOTntlodeGdHuMj2Xfi62mHPZ9bAqwVHi0QYCJLI8SE=;
+        s=korg; t=1623177711;
+        bh=wVUBn/slFIkh572Gg8YlnApQMtz+ZmZ8/aLbSH9pDB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gMUhqWs3DZOvSXWRKj9QMmJqvD4i6mhUL0gHgQKBYYvjhOenOTFkW7wNtNbxQLRY
-         SMGN18bd0Q8H404ZY3/IE9LOU1ZFKI2bsjTK6R1ROE/ve+IJDvBwn7VoRr7VJ8Ppc2
-         SnJ8CdEAiLFoOmMzQDpOBbnyilMACTteJwa89VNc=
+        b=q2OcLOaRxGuM/fYr5VvlfZu9iGO5WC+a9FlumqneAwT2+70cBWXMYkyse9fong2Eg
+         OFWlZAgHiAwlFMQkMKIBqC9TO26bbyzh9HfQyDy2EyjmC/GoYp235927d4tKsKoqUi
+         MAO7fElfQUjF16zZlsR6IgaUyfTqP4FS9xqi9JSA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -27,12 +27,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Hoang Le <hoang.h.le@dektech.com.au>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 080/161] tipc: fix unique bearer names sanity check
+Subject: [PATCH 5.10 070/137] tipc: fix unique bearer names sanity check
 Date:   Tue,  8 Jun 2021 20:26:50 +0200
-Message-Id: <20210608175948.147832149@linuxfoundation.org>
+Message-Id: <20210608175944.728135053@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,10 +63,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 27 insertions(+), 19 deletions(-)
 
 diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 1090f21fcfac..0c8882052ba0 100644
+index 4d0e11623e5c..12e535b43d88 100644
 --- a/net/tipc/bearer.c
 +++ b/net/tipc/bearer.c
-@@ -255,6 +255,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -246,6 +246,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  	int bearer_id = 0;
  	int res = -EINVAL;
  	char *errstr = "";
@@ -74,7 +74,7 @@ index 1090f21fcfac..0c8882052ba0 100644
  
  	if (!bearer_name_validate(name, &b_names)) {
  		errstr = "illegal name";
-@@ -279,31 +280,38 @@ static int tipc_enable_bearer(struct net *net, const char *name,
+@@ -270,31 +271,38 @@ static int tipc_enable_bearer(struct net *net, const char *name,
  		prio = m->priority;
  
  	/* Check new bearer vs existing ones and find free bearer id if any */
