@@ -2,24 +2,24 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id DA7CD3A0C4A
-	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 08:19:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 611103A0C48
+	for <lists+stable@lfdr.de>; Wed,  9 Jun 2021 08:19:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236695AbhFIGVA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 9 Jun 2021 02:21:00 -0400
-Received: from mail.kernel.org ([198.145.29.99]:36520 "EHLO mail.kernel.org"
+        id S234230AbhFIGU5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 9 Jun 2021 02:20:57 -0400
+Received: from mail.kernel.org ([198.145.29.99]:36460 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S232973AbhFIGU7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Wed, 9 Jun 2021 02:20:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id CBEE9610C7;
-        Wed,  9 Jun 2021 06:19:04 +0000 (UTC)
+        id S232973AbhFIGU4 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Wed, 9 Jun 2021 02:20:56 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 29F6E6101A;
+        Wed,  9 Jun 2021 06:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623219545;
-        bh=BtpQ+LmJO30BzvGWTTeyrsGGUhf+CXypkPzZR4pKLNk=;
+        s=korg; t=1623219542;
+        bh=ts8xmqJk/pwHSYmRZhFquxYo/UmYjLxgRf8jkeUmvFo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/GzMKVF+X8VNkjUSqADeZ0PQBVfdlu1cMlf4ziOpoJmonW2jC1VrCM76bvCgW/at
-         Ji61c+Dmp3+7L3oci5yn5bVpM/DhN57IKoeQaBcHC4cQlfDhsButg3BopE0nhegzMY
-         cDgBcg5aoDBIF/vwrTUgUeod3VN0ZIhVdYrEL5Yk=
+        b=juW1uIzphE/HLsxUx9qIJJvde/kBAY4i7huz33wahz0qL5OcEsvprb3hmJmze6Cjw
+         vJ1npLy5jxEIOX4HGwgkM68BRfnZThpJQ0xEi/jsMlWpPOJHfGQgiiFA3EYkV0k80H
+         aXkYrMGjYOXlpbx4qzFUAFhF1C30ABAhOR4XFSPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -28,12 +28,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Sagi Grimberg <sagi@grimberg.me>,
         Max Gurtovoy <mgurtovoy@nvidia.com>,
         Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 027/161] nvme-rdma: fix in-casule data send for chained sgls
-Date:   Tue,  8 Jun 2021 20:25:57 +0200
-Message-Id: <20210608175946.366483095@linuxfoundation.org>
+Subject: [PATCH 5.10 022/137] nvme-rdma: fix in-casule data send for chained sgls
+Date:   Tue,  8 Jun 2021 20:26:02 +0200
+Message-Id: <20210608175943.167114424@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -65,10 +65,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index be905d4fdb47..ce8b3ce7582b 100644
+index 8b326508a480..e6d58402b829 100644
 --- a/drivers/nvme/host/rdma.c
 +++ b/drivers/nvme/host/rdma.c
-@@ -1319,16 +1319,17 @@ static int nvme_rdma_map_sg_inline(struct nvme_rdma_queue *queue,
+@@ -1327,16 +1327,17 @@ static int nvme_rdma_map_sg_inline(struct nvme_rdma_queue *queue,
  		int count)
  {
  	struct nvme_sgl_desc *sg = &c->common.dptr.sgl;
