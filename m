@@ -2,475 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0631539F93A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 16:32:14 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 22C2539F946
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 16:35:39 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbhFHOeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 10:34:04 -0400
-Received: from wforward3-smtp.messagingengine.com ([64.147.123.22]:42119 "EHLO
-        wforward3-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233435AbhFHOdv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 10:33:51 -0400
+        id S233129AbhFHOha (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 10:37:30 -0400
+Received: from wout5-smtp.messagingengine.com ([64.147.123.21]:50319 "EHLO
+        wout5-smtp.messagingengine.com" rhost-flags-OK-OK-OK-OK)
+        by vger.kernel.org with ESMTP id S232911AbhFHOh1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 10:37:27 -0400
 Received: from compute4.internal (compute4.nyi.internal [10.202.2.44])
-        by mailforward.west.internal (Postfix) with ESMTP id 8044A1ACC;
-        Tue,  8 Jun 2021 10:31:56 -0400 (EDT)
+        by mailout.west.internal (Postfix) with ESMTP id AC4C81B4E;
+        Tue,  8 Jun 2021 10:35:32 -0400 (EDT)
 Received: from mailfrontend2 ([10.202.2.163])
-  by compute4.internal (MEProxy); Tue, 08 Jun 2021 10:31:56 -0400
+  by compute4.internal (MEProxy); Tue, 08 Jun 2021 10:35:33 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=
+        date:from:to:cc:subject:message-id:references:mime-version
+        :content-type:content-transfer-encoding:in-reply-to; s=fm1; bh=Z
+        BJEHdSWntFaR1di2cSYSVQKl/fJ/upIcuZ2McqMt3g=; b=Vs/gpuN0XDSjEVmTZ
+        s+k72E87oIbJdsjp5jXxFvTwf/5nl5azsb8mNBFhMrrAWoZjKiVa+FR0AqU66ENY
+        gQSOgkKCuUs5EKhHf8aqCp6cZx4tmz2x6/S352Xsf7ViQ0eQ+027IRA37tVx3U0x
+        dXa7SmczRo0jaUA2nb5nD9Da6fRantnSYPAmoovy5eYu+0keS29ASuVdNzH2C3Ne
+        g34IkgS8JGol3AS0xZdjQD8avM0ifiCt6bsygULVf6UhPLHm7+UUrHd92oeiYQOy
+        b2es+H+UrQ5HDHN0dBBgE2E36PaHSbq6uXptn5rVBQv0usc6s4lXzfIXR/ChGAtG
+        5CXyA==
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
         messagingengine.com; h=cc:content-transfer-encoding:content-type
-        :date:from:message-id:mime-version:subject:to:x-me-proxy
-        :x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; bh=k4bRdF
-        lffeyt4nT5qF9uR24spdCowuGqOJhpTA1UHjE=; b=otoId3xQ+W4Bex13Seop4G
-        cvki5b14rfce1icFfssO4///tiW0Nl0W0UCPtmrtjUqahzdA8C0QVuwC5do1/2DY
-        SqaCCo1CH0xClyeRuUMz9jpHyPZIy3kEPbcwmsZVSe+QeDD/ldDez6lm4HMybvx7
-        d1bWS2TrOjMC21vB+F5GrPg5QESPLQOLalC8oktvxHHZgO/bKxucpf74+IsZW+xX
-        QXNzawlK3kttOxFQdpUeAtAM+gTryFX3EElmu67wzxTFSjBY07V8sckxlZys6fCV
-        +lrRCmkZBssgRoYDE9yMIpwjXszU4awdRED2KjZzTNj3D5FyaFBiC/PCZB2iwiBw
-        ==
-X-ME-Sender: <xms:WX-_YEF5Kl0LBBjqDyGa1mTiOh2ZPGeymDmxhD6JccmLzJ-NHVnsuQ>
-    <xme:WX-_YNUi6EHLutM63BxDf_cROuXIkn5hvzSO8qYCset72mTjMNn2X8DAm35nNqbqh
-    Zq5axU-ypwjsw>
-X-ME-Received: <xmr:WX-_YOKK3miD5Sig_WkKvlQ34tjUF5Jbzd_uN0c6-Ocone0OBKDYbw6CPrIpYzNsEV9qtmXKUkO4FkvHJVXVar5x20BU1Zcq>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgiedvucetufdoteggodetrfdotf
+        :date:from:in-reply-to:message-id:mime-version:references
+        :subject:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; bh=ZBJEHdSWntFaR1di2cSYSVQKl/fJ/upIcuZ2McqMt
+        3g=; b=R9A8/zV2lR1tYxZVdW09dhtrB2QCcG0OeZz/0WO4MzgfZS5rYW4wvtVFk
+        ngOQ/KYVGSWfbNlsIdkPlqax6PIN6tXI5Wywxack9CpYOiEWSr9qvxjCGqSBFsmx
+        Q+D/qx0zXD/nHSYHeb+Wim8M7pqrVyjr+EPHMYUUL8p5ecOZvk4DdxD30p85Z6WK
+        CINy8KSL5SyrDW4v1jbJP1w2GJZK6f7Vx4TaVUY+PMIV1lH3v8rJ3l4ukO41OTi6
+        WGekZpjg9z55WPZwFZls/wb0iN07g1QIQ7DPVepJOGyBWr0dD4x8JaygvbG5UUWW
+        /0thip0HFtAFYEHO8onBOJ7ZmniuA==
+X-ME-Sender: <xms:NIC_YEX4TTGeJlFBXEuvjN6UL7Pm8a9oGcHYsLH3hbgS3p_A3mEFCg>
+    <xme:NIC_YInP0gizG2_pcQo03cRpUOGOje16rXstCIWnSe9Z7Nz2nQr9WkmaMCP3Suqr9
+    1hQIrWodnGHuw>
+X-ME-Received: <xmr:NIC_YIbL4z83uK_ODFzVnyvsgvQ1Z8GToxnWmGOFbEE0JY9M2YyCBMEV9WZcR-Iwns3Tb-1BG5dj1HKI0EZgNBZzkkessLZ2>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeduledrfedtledgieefucetufdoteggodetrfdotf
     fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpefuvffhfffkgggtgfesthekredttd
-    dtlfenucfhrhhomhepoehgrhgvghhkhheslhhinhhugihfohhunhgurghtihhonhdrohhr
-    gheqnecuggftrfgrthhtvghrnhepieduveeutdeugefgveetiedtudehleekgfeljeffge
-    fhgfejfedvudegleevuddtnecuffhomhgrihhnpehqvghmuhdrohhrghdpkhgvrhhnvghl
-    rdhorhhgnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomh
-    epghhrvghgsehkrhhorghhrdgtohhm
-X-ME-Proxy: <xmx:WX-_YGGaw-BxcOfZUTd99rjf2P4Qz6i_JZNz_ONq2R0crBPI6qi91w>
-    <xmx:WX-_YKWlqxugWGIQccsBrEDujixP0MQGNkGRfoGo0t0-jfEQSEZR8Q>
-    <xmx:WX-_YJNh6kloXJu4OgFLXb9kY4kTZFNodQQAtRsJDj0mHAGZNyWbcA>
-    <xmx:W3-_YJRGuGauCqPOrQQgbH-HYmzFGXK8CH5OvwuwcuUyYz15NXz2j69KNgM>
+    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
+    cujfgurhepfffhvffukfhfgggtugfgjgesthekredttddtjeenucfhrhhomhepifhrvghg
+    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepgeeije
+    euvdffuedvffdtteefuefhkeehgfeuffejveettdelgfeuudffffetfedtnecuffhomhgr
+    ihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmh
+    epmhgrihhlfhhrohhmpehgrhgvgheskhhrohgrhhdrtghomh
+X-ME-Proxy: <xmx:NIC_YDV4Q_V_BW82WnQQk5JD2UFYtspmAyLtP10BjUGgz-MhNgveeQ>
+    <xmx:NIC_YOmQ2Q78PP7mIZHTngzP-EdwFFwmBDVC4R29DmxX8NgYvEYSpg>
+    <xmx:NIC_YIelhvD32bMx3XWTs-Wv3sH-ixdkSUbNUpioRQQKrif7zEmkOA>
+    <xmx:NIC_YMb4bSs_ip0kAqJDK6Q1RsfkaG4_iurF7Nl7ytP_TkoCEZNz1w>
 Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 8 Jun 2021 10:31:53 -0400 (EDT)
-Subject: FAILED: patch "[PATCH] btrfs: fix fsync failure and transaction abort after writes" failed to apply to 5.10-stable tree
-To:     fdmanana@suse.com, anand.jain@oracle.com, dsterba@suse.com,
-        fent@in.tum.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 08 Jun 2021 16:31:50 +0200
-Message-ID: <162316271071228@kroah.com>
+ 8 Jun 2021 10:35:31 -0400 (EDT)
+Date:   Tue, 8 Jun 2021 16:35:30 +0200
+From:   Greg KH <greg@kroah.com>
+To:     Salvatore Bonaccorso <carnil@debian.org>
+Cc:     =?utf-8?Q?Lauren=C8=9Biu_P=C4=83ncescu?= <lpancescu@gmail.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: Backporting fix for #199981 to 4.19.y?
+Message-ID: <YL+AMiD7falsvZOf@kroah.com>
+References: <c75fcd12-e661-bc03-e077-077799ef1c44@gmail.com>
+ <YLiNrCFFGEmltssD@kroah.com>
+ <5399984e-0860-170e-377e-1f4bf3ccb3a0@gmail.com>
+ <YLiel5ZEcq+mlshL@kroah.com>
+ <addc193a-5b19-f7f3-5f26-cdce643cd436@gmail.com>
+ <YLpJyhTNF+MLPHCi@kroah.com>
+ <YLzAw27CQpdEshBl@eldamar.lan>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <YLzAw27CQpdEshBl@eldamar.lan>
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sun, Jun 06, 2021 at 02:34:11PM +0200, Salvatore Bonaccorso wrote:
+> Hi Laurențiu, Greg,
+> 
+> On Fri, Jun 04, 2021 at 05:42:02PM +0200, Greg KH wrote:
+> > On Fri, Jun 04, 2021 at 04:50:19PM +0200, Laurențiu Păncescu wrote:
+> > > Hi Greg,
+> > > 
+> > > On 6/3/21 11:19 AM, Greg KH wrote:
+> > > > That commit does not apply cleanly and I need a backported version.  Can
+> > > > you do that and test it to verify it works and then send it to us to be
+> > > > applied?
+> > > 
+> > > I now have a patch against linux-4.19.y, tested on my EeePC just now: the
+> > > battery status and discharge rate are shown correctly.
+> > > 
+> > > I've never submitted a patch before, should I put "commit <short-hash>
+> > > upstream." as the first line of my commit message, followed by another line
+> > > stating which branch I would like this to be merged to? Should I also
+> > > include the original commit message of the backported commit? And then use
+> > > git format-patch? I just read through [1] and [2], but they don't say
+> > > anything specific about commit messages for backported patches.
+> > 
+> > Yes, what you describe here should be great.  Look at the stable mailing
+> > list archives on lore.kernel.org for other examples of this happening,
+> > https://lore.kernel.org/r/20210603162852.1814513-1-zsm@chromium.org is
+> > one example.
+> 
+> Instead of doing a specific backport, maybe it is enough to pick
+> a46393c02c76 ("ACPI: probe ECDT before loading AML tables regardless
+> of module-level code flag") frst on 4.19.y and then the mentioned fix
+> b1c0330823fe ("ACPI: EC: Look for ECDT EC after calling
+> acpi_load_tables()").
 
-The patch below does not apply to the 5.10-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+I do not see a commit a46393c02c76 in Linus's tree :(
+
+Are you sure these ids are correct?
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From ea7036de0d36c4e6c9508f68789e9567d514333a Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 24 May 2021 11:35:53 +0100
-Subject: [PATCH] btrfs: fix fsync failure and transaction abort after writes
- to prealloc extents
-
-When doing a series of partial writes to different ranges of preallocated
-extents with transaction commits and fsyncs in between, we can end up with
-a checksum items in a log tree. This causes an fsync to fail with -EIO and
-abort the transaction, turning the filesystem to RO mode, when syncing the
-log.
-
-For this to happen, we need to have a full fsync of a file following one
-or more fast fsyncs.
-
-The following example reproduces the problem and explains how it happens:
-
-  $ mkfs.btrfs -f /dev/sdc
-  $ mount /dev/sdc /mnt
-
-  # Create our test file with 2 preallocated extents. Leave a 1M hole
-  # between them to ensure that we get two file extent items that will
-  # never be merged into a single one. The extents are contiguous on disk,
-  # which will later result in the checksums for their data to be merged
-  # into a single checksum item in the csums btree.
-  #
-  $ xfs_io -f \
-           -c "falloc 0 1M" \
-           -c "falloc 3M 3M" \
-           /mnt/foobar
-
-  # Now write to the second extent and leave only 1M of it as unwritten,
-  # which corresponds to the file range [4M, 5M[.
-  #
-  # Then fsync the file to flush delalloc and to clear full sync flag from
-  # the inode, so that a future fsync will use the fast code path.
-  #
-  # After the writeback triggered by the fsync we have 3 file extent items
-  # that point to the second extent we previously allocated:
-  #
-  # 1) One file extent item of type BTRFS_FILE_EXTENT_REG that covers the
-  #    file range [3M, 4M[
-  #
-  # 2) One file extent item of type BTRFS_FILE_EXTENT_PREALLOC that covers
-  #    the file range [4M, 5M[
-  #
-  # 3) One file extent item of type BTRFS_FILE_EXTENT_REG that covers the
-  #    file range [5M, 6M[
-  #
-  # All these file extent items have a generation of 6, which is the ID of
-  # the transaction where they were created. The split of the original file
-  # extent item is done at btrfs_mark_extent_written() when ordered extents
-  # complete for the file ranges [3M, 4M[ and [5M, 6M[.
-  #
-  $ xfs_io -c "pwrite -S 0xab 3M 1M" \
-           -c "pwrite -S 0xef 5M 1M" \
-           -c "fsync" \
-           /mnt/foobar
-
-  # Commit the current transaction. This wipes out the log tree created by
-  # the previous fsync.
-  sync
-
-  # Now write to the unwritten range of the second extent we allocated,
-  # corresponding to the file range [4M, 5M[, and fsync the file, which
-  # triggers the fast fsync code path.
-  #
-  # The fast fsync code path sees that there is a new extent map covering
-  # the file range [4M, 5M[ and therefore it will log a checksum item
-  # covering the range [1M, 2M[ of the second extent we allocated.
-  #
-  # Also, after the fsync finishes we no longer have the 3 file extent
-  # items that pointed to 3 sections of the second extent we allocated.
-  # Instead we end up with a single file extent item pointing to the whole
-  # extent, with a type of BTRFS_FILE_EXTENT_REG and a generation of 7 (the
-  # current transaction ID). This is due to the file extent item merging we
-  # do when completing ordered extents into ranges that point to unwritten
-  # (preallocated) extents. This merging is done at
-  # btrfs_mark_extent_written().
-  #
-  $ xfs_io -c "pwrite -S 0xcd 4M 1M" \
-           -c "fsync" \
-           /mnt/foobar
-
-  # Now do some write to our file outside the range of the second extent
-  # that we allocated with fallocate() and truncate the file size from 6M
-  # down to 5M.
-  #
-  # The truncate operation sets the full sync runtime flag on the inode,
-  # forcing the next fsync to use the slow code path. It also changes the
-  # length of the second file extent item so that it represents the file
-  # range [3M, 5M[ and not the range [3M, 6M[ anymore.
-  #
-  # Finally fsync the file. Since this is a fsync that triggers the slow
-  # code path, it will remove all items associated to the inode from the
-  # log tree and then it will scan for file extent items in the
-  # fs/subvolume tree that have a generation matching the current
-  # transaction ID, which is 7. This means it will log 2 file extent
-  # items:
-  #
-  # 1) One for the first extent we allocated, covering the file range
-  #    [0, 1M[
-  #
-  # 2) Another for the first 2M of the second extent we allocated,
-  #    covering the file range [3M, 5M[
-  #
-  # When logging the first file extent item we log a single checksum item
-  # that has all the checksums for the entire extent.
-  #
-  # When logging the second file extent item, we also lookup for the
-  # checksums that are associated with the range [0, 2M[ of the second
-  # extent we allocated (file range [3M, 5M[), and then we log them with
-  # btrfs_csum_file_blocks(). However that results in ending up with a log
-  # that has two checksum items with ranges that overlap:
-  #
-  # 1) One for the range [1M, 2M[ of the second extent we allocated,
-  #    corresponding to the file range [4M, 5M[, which we logged in the
-  #    previous fsync that used the fast code path;
-  #
-  # 2) One for the ranges [0, 1M[ and [0, 2M[ of the first and second
-  #    extents, respectively, corresponding to the files ranges [0, 1M[
-  #    and [3M, 5M[. This one was added during this last fsync that uses
-  #    the slow code path and overlaps with the previous one logged by
-  #    the previous fast fsync.
-  #
-  # This happens because when logging the checksums for the second
-  # extent, we notice they start at an offset that matches the end of the
-  # checksums item that we logged for the first extent, and because both
-  # extents are contiguous on disk, btrfs_csum_file_blocks() decides to
-  # extend that existing checksums item and append the checksums for the
-  # second extent to this item. The end result is we end up with two
-  # checksum items in the log tree that have overlapping ranges, as
-  # listed before, resulting in the fsync to fail with -EIO and aborting
-  # the transaction, turning the filesystem into RO mode.
-  #
-  $ xfs_io -c "pwrite -S 0xff 0 1M" \
-           -c "truncate 5M" \
-           -c "fsync" \
-           /mnt/foobar
-  fsync: Input/output error
-
-After running the example, dmesg/syslog shows the tree checker complained
-about the checksum items with overlapping ranges and we aborted the
-transaction:
-
-  $ dmesg
-  (...)
-  [756289.557487] BTRFS critical (device sdc): corrupt leaf: root=18446744073709551610 block=30720000 slot=5, csum end range (16777216) goes beyond the start range (15728640) of the next csum item
-  [756289.560583] BTRFS info (device sdc): leaf 30720000 gen 7 total ptrs 7 free space 11677 owner 18446744073709551610
-  [756289.562435] BTRFS info (device sdc): refs 2 lock_owner 0 current 2303929
-  [756289.563654] 	item 0 key (257 1 0) itemoff 16123 itemsize 160
-  [756289.564649] 		inode generation 6 size 5242880 mode 100600
-  [756289.565636] 	item 1 key (257 12 256) itemoff 16107 itemsize 16
-  [756289.566694] 	item 2 key (257 108 0) itemoff 16054 itemsize 53
-  [756289.567725] 		extent data disk bytenr 13631488 nr 1048576
-  [756289.568697] 		extent data offset 0 nr 1048576 ram 1048576
-  [756289.569689] 	item 3 key (257 108 1048576) itemoff 16001 itemsize 53
-  [756289.570682] 		extent data disk bytenr 0 nr 0
-  [756289.571363] 		extent data offset 0 nr 2097152 ram 2097152
-  [756289.572213] 	item 4 key (257 108 3145728) itemoff 15948 itemsize 53
-  [756289.573246] 		extent data disk bytenr 14680064 nr 3145728
-  [756289.574121] 		extent data offset 0 nr 2097152 ram 3145728
-  [756289.574993] 	item 5 key (18446744073709551606 128 13631488) itemoff 12876 itemsize 3072
-  [756289.576113] 	item 6 key (18446744073709551606 128 15728640) itemoff 11852 itemsize 1024
-  [756289.577286] BTRFS error (device sdc): block=30720000 write time tree block corruption detected
-  [756289.578644] ------------[ cut here ]------------
-  [756289.579376] WARNING: CPU: 0 PID: 2303929 at fs/btrfs/disk-io.c:465 csum_one_extent_buffer+0xed/0x100 [btrfs]
-  [756289.580857] Modules linked in: btrfs dm_zero dm_dust loop dm_snapshot (...)
-  [756289.591534] CPU: 0 PID: 2303929 Comm: xfs_io Tainted: G        W         5.12.0-rc8-btrfs-next-87 #1
-  [756289.592580] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a1990b-prebuilt.qemu.org 04/01/2014
-  [756289.594161] RIP: 0010:csum_one_extent_buffer+0xed/0x100 [btrfs]
-  [756289.595122] Code: 5d c3 e8 76 60 (...)
-  [756289.597509] RSP: 0018:ffffb51b416cb898 EFLAGS: 00010282
-  [756289.598142] RAX: 0000000000000000 RBX: fffff02b8a365bc0 RCX: 0000000000000000
-  [756289.598970] RDX: 0000000000000000 RSI: ffffffffa9112421 RDI: 00000000ffffffff
-  [756289.599798] RBP: ffffa06500880000 R08: 0000000000000000 R09: 0000000000000000
-  [756289.600619] R10: 0000000000000000 R11: 0000000000000001 R12: 0000000000000000
-  [756289.601456] R13: ffffa0652b1d8980 R14: ffffa06500880000 R15: 0000000000000000
-  [756289.602278] FS:  00007f08b23c9800(0000) GS:ffffa0682be00000(0000) knlGS:0000000000000000
-  [756289.603217] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-  [756289.603892] CR2: 00005652f32d0138 CR3: 000000025d616003 CR4: 0000000000370ef0
-  [756289.604725] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-  [756289.605563] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-  [756289.606400] Call Trace:
-  [756289.606704]  btree_csum_one_bio+0x244/0x2b0 [btrfs]
-  [756289.607313]  btrfs_submit_metadata_bio+0xb7/0x100 [btrfs]
-  [756289.608040]  submit_one_bio+0x61/0x70 [btrfs]
-  [756289.608587]  btree_write_cache_pages+0x587/0x610 [btrfs]
-  [756289.609258]  ? free_debug_processing+0x1d5/0x240
-  [756289.609812]  ? __module_address+0x28/0xf0
-  [756289.610298]  ? lock_acquire+0x1a0/0x3e0
-  [756289.610754]  ? lock_acquired+0x19f/0x430
-  [756289.611220]  ? lock_acquire+0x1a0/0x3e0
-  [756289.611675]  do_writepages+0x43/0xf0
-  [756289.612101]  ? __filemap_fdatawrite_range+0xa4/0x100
-  [756289.612800]  __filemap_fdatawrite_range+0xc5/0x100
-  [756289.613393]  btrfs_write_marked_extents+0x68/0x160 [btrfs]
-  [756289.614085]  btrfs_sync_log+0x21c/0xf20 [btrfs]
-  [756289.614661]  ? finish_wait+0x90/0x90
-  [756289.615096]  ? __mutex_unlock_slowpath+0x45/0x2a0
-  [756289.615661]  ? btrfs_log_inode_parent+0x3c9/0xdc0 [btrfs]
-  [756289.616338]  ? lock_acquire+0x1a0/0x3e0
-  [756289.616801]  ? lock_acquired+0x19f/0x430
-  [756289.617284]  ? lock_acquire+0x1a0/0x3e0
-  [756289.617750]  ? lock_release+0x214/0x470
-  [756289.618221]  ? lock_acquired+0x19f/0x430
-  [756289.618704]  ? dput+0x20/0x4a0
-  [756289.619079]  ? dput+0x20/0x4a0
-  [756289.619452]  ? lockref_put_or_lock+0x9/0x30
-  [756289.619969]  ? lock_release+0x214/0x470
-  [756289.620445]  ? lock_release+0x214/0x470
-  [756289.620924]  ? lock_release+0x214/0x470
-  [756289.621415]  btrfs_sync_file+0x46a/0x5b0 [btrfs]
-  [756289.621982]  do_fsync+0x38/0x70
-  [756289.622395]  __x64_sys_fsync+0x10/0x20
-  [756289.622907]  do_syscall_64+0x33/0x80
-  [756289.623438]  entry_SYSCALL_64_after_hwframe+0x44/0xae
-  [756289.624063] RIP: 0033:0x7f08b27fbb7b
-  [756289.624588] Code: 0f 05 48 3d 00 (...)
-  [756289.626760] RSP: 002b:00007ffe2583f940 EFLAGS: 00000293 ORIG_RAX: 000000000000004a
-  [756289.627639] RAX: ffffffffffffffda RBX: 00005652f32cd0f0 RCX: 00007f08b27fbb7b
-  [756289.628464] RDX: 00005652f32cbca0 RSI: 00005652f32cd110 RDI: 0000000000000003
-  [756289.629323] RBP: 00005652f32cd110 R08: 0000000000000000 R09: 00007f08b28c4be0
-  [756289.630172] R10: fffffffffffff39a R11: 0000000000000293 R12: 0000000000000001
-  [756289.631007] R13: 00005652f32cd0f0 R14: 0000000000000001 R15: 00005652f32cc480
-  [756289.631819] irq event stamp: 0
-  [756289.632188] hardirqs last  enabled at (0): [<0000000000000000>] 0x0
-  [756289.632911] hardirqs last disabled at (0): [<ffffffffa7e97c29>] copy_process+0x879/0x1cc0
-  [756289.633893] softirqs last  enabled at (0): [<ffffffffa7e97c29>] copy_process+0x879/0x1cc0
-  [756289.634871] softirqs last disabled at (0): [<0000000000000000>] 0x0
-  [756289.635606] ---[ end trace 0a039fdc16ff3fef ]---
-  [756289.636179] BTRFS: error (device sdc) in btrfs_sync_log:3136: errno=-5 IO failure
-  [756289.637082] BTRFS info (device sdc): forced readonly
-
-Having checksum items covering ranges that overlap is dangerous as in some
-cases it can lead to having extent ranges for which we miss checksums
-after log replay or getting the wrong checksum item. There were some fixes
-in the past for bugs that resulted in this problem, and were explained and
-fixed by the following commits:
-
-  27b9a8122ff71a ("Btrfs: fix csum tree corruption, duplicate and outdated checksums")
-  b84b8390d6009c ("Btrfs: fix file read corruption after extent cloning and fsync")
-  40e046acbd2f36 ("Btrfs: fix missing data checksums after replaying a log tree")
-  e289f03ea79bbc ("btrfs: fix corrupt log due to concurrent fsync of inodes with shared extents")
-
-Fix the issue by making btrfs_csum_file_blocks() taking into account the
-start offset of the next checksum item when it decides to extend an
-existing checksum item, so that it never extends the checksum to end at a
-range that goes beyond the start range of the next checksum item.
-
-When we can not access the next checksum item without releasing the path,
-simply drop the optimization of extending the previous checksum item and
-fallback to inserting a new checksum item - this happens rarely and the
-optimization is not significant enough for a log tree in order to justify
-the extra complexity, as it would only save a few bytes (the size of a
-struct btrfs_item) of leaf space.
-
-This behaviour is only needed when inserting into a log tree because
-for the regular checksums tree we never have a case where we try to
-insert a range of checksums that overlap with a range that was previously
-inserted.
-
-A test case for fstests will follow soon.
-
-Reported-by: Philipp Fent <fent@in.tum.de>
-Link: https://lore.kernel.org/linux-btrfs/93c4600e-5263-5cba-adf0-6f47526e7561@in.tum.de/
-CC: stable@vger.kernel.org # 5.4+
-Tested-by: Anand Jain <anand.jain@oracle.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-
-diff --git a/fs/btrfs/file-item.c b/fs/btrfs/file-item.c
-index a5a8dac334e8..441cee7fbb62 100644
---- a/fs/btrfs/file-item.c
-+++ b/fs/btrfs/file-item.c
-@@ -923,6 +923,37 @@ int btrfs_del_csums(struct btrfs_trans_handle *trans,
- 	return ret;
- }
- 
-+static int find_next_csum_offset(struct btrfs_root *root,
-+				 struct btrfs_path *path,
-+				 u64 *next_offset)
-+{
-+	const u32 nritems = btrfs_header_nritems(path->nodes[0]);
-+	struct btrfs_key found_key;
-+	int slot = path->slots[0] + 1;
-+	int ret;
-+
-+	if (nritems == 0 || slot >= nritems) {
-+		ret = btrfs_next_leaf(root, path);
-+		if (ret < 0) {
-+			return ret;
-+		} else if (ret > 0) {
-+			*next_offset = (u64)-1;
-+			return 0;
-+		}
-+		slot = path->slots[0];
-+	}
-+
-+	btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
-+
-+	if (found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
-+	    found_key.type != BTRFS_EXTENT_CSUM_KEY)
-+		*next_offset = (u64)-1;
-+	else
-+		*next_offset = found_key.offset;
-+
-+	return 0;
-+}
-+
- int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 			   struct btrfs_root *root,
- 			   struct btrfs_ordered_sum *sums)
-@@ -938,7 +969,6 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 	u64 total_bytes = 0;
- 	u64 csum_offset;
- 	u64 bytenr;
--	u32 nritems;
- 	u32 ins_size;
- 	int index = 0;
- 	int found_next;
-@@ -981,26 +1011,10 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 			goto insert;
- 		}
- 	} else {
--		int slot = path->slots[0] + 1;
--		/* we didn't find a csum item, insert one */
--		nritems = btrfs_header_nritems(path->nodes[0]);
--		if (!nritems || (path->slots[0] >= nritems - 1)) {
--			ret = btrfs_next_leaf(root, path);
--			if (ret < 0) {
--				goto out;
--			} else if (ret > 0) {
--				found_next = 1;
--				goto insert;
--			}
--			slot = path->slots[0];
--		}
--		btrfs_item_key_to_cpu(path->nodes[0], &found_key, slot);
--		if (found_key.objectid != BTRFS_EXTENT_CSUM_OBJECTID ||
--		    found_key.type != BTRFS_EXTENT_CSUM_KEY) {
--			found_next = 1;
--			goto insert;
--		}
--		next_offset = found_key.offset;
-+		/* We didn't find a csum item, insert one. */
-+		ret = find_next_csum_offset(root, path, &next_offset);
-+		if (ret < 0)
-+			goto out;
- 		found_next = 1;
- 		goto insert;
- 	}
-@@ -1056,8 +1070,48 @@ int btrfs_csum_file_blocks(struct btrfs_trans_handle *trans,
- 		tmp = sums->len - total_bytes;
- 		tmp >>= fs_info->sectorsize_bits;
- 		WARN_ON(tmp < 1);
-+		extend_nr = max_t(int, 1, tmp);
-+
-+		/*
-+		 * A log tree can already have checksum items with a subset of
-+		 * the checksums we are trying to log. This can happen after
-+		 * doing a sequence of partial writes into prealloc extents and
-+		 * fsyncs in between, with a full fsync logging a larger subrange
-+		 * of an extent for which a previous fast fsync logged a smaller
-+		 * subrange. And this happens in particular due to merging file
-+		 * extent items when we complete an ordered extent for a range
-+		 * covered by a prealloc extent - this is done at
-+		 * btrfs_mark_extent_written().
-+		 *
-+		 * So if we try to extend the previous checksum item, which has
-+		 * a range that ends at the start of the range we want to insert,
-+		 * make sure we don't extend beyond the start offset of the next
-+		 * checksum item. If we are at the last item in the leaf, then
-+		 * forget the optimization of extending and add a new checksum
-+		 * item - it is not worth the complexity of releasing the path,
-+		 * getting the first key for the next leaf, repeat the btree
-+		 * search, etc, because log trees are temporary anyway and it
-+		 * would only save a few bytes of leaf space.
-+		 */
-+		if (root->root_key.objectid == BTRFS_TREE_LOG_OBJECTID) {
-+			if (path->slots[0] + 1 >=
-+			    btrfs_header_nritems(path->nodes[0])) {
-+				ret = find_next_csum_offset(root, path, &next_offset);
-+				if (ret < 0)
-+					goto out;
-+				found_next = 1;
-+				goto insert;
-+			}
-+
-+			ret = find_next_csum_offset(root, path, &next_offset);
-+			if (ret < 0)
-+				goto out;
-+
-+			tmp = (next_offset - bytenr) >> fs_info->sectorsize_bits;
-+			if (tmp <= INT_MAX)
-+				extend_nr = min_t(int, extend_nr, tmp);
-+		}
- 
--		extend_nr = max_t(int, 1, (int)tmp);
- 		diff = (csum_offset + extend_nr) * csum_size;
- 		diff = min(diff,
- 			   MAX_CSUM_ITEMS(fs_info, csum_size) * csum_size);
-
