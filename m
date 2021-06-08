@@ -2,37 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E9B23A0220
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:48 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 5A9FA3A014B
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:01 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236184AbhFHTB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:27 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58616 "EHLO mail.kernel.org"
+        id S235241AbhFHSux (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:50:53 -0400
+Received: from mail.kernel.org ([198.145.29.99]:43250 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236158AbhFHS56 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:57:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 1A21E61624;
-        Tue,  8 Jun 2021 18:42:30 +0000 (UTC)
+        id S235211AbhFHSsI (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:48:08 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id B5ACF61410;
+        Tue,  8 Jun 2021 18:38:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177751;
-        bh=0hXEeibGul9nJre4TcFiqpF9IJB0HprDogCDkcaYm0I=;
+        s=korg; t=1623177495;
+        bh=l2cEH5Bj5wuVRTFmKyahQA9mQ7wLXXDEffvEB2gHcwg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QGW4mYxN3pIPVo6qOOiRKPpC7NgyAcXD1dC9bArDlKoOASe6QymPoZJy62/Z/zpVf
-         nR7iEJnGUioHmXlxa7nvYzBSVFf6f/vL3qtd2CHF48/fXe6Q5XzHx7dMm+NeUkJUBm
-         1FMF+KWwWOLlcBqSlyx70BE/4M+ptePo8iP4uzlg=
+        b=C5VS7pzVReDvn+eQoMIATwhcKXvJkCf+GgVwyw4kEmgICeKrR//dClZLUPFXcZte2
+         eOwsR0G7bESEd+TPxG4UoG+fa8jDUIRbxGpgPB8DhzOsw4hMhK0AROAlDxXeS3DmmM
+         l4fnZMZw4HqNk4v6C+nuH5qT7ZBM89XL0+tjq01E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Matthew Wilcox <willy@infradead.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 087/137] wireguard: allowedips: allocate nodes in kmem_cache
+        stable@vger.kernel.org, Marcel Holtmann <marcel@holtmann.org>,
+        Johan Hedberg <johan.hedberg@gmail.com>,
+        Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Jakub Kicinski <kuba@kernel.org>,
+        linux-bluetooth@vger.kernel.org, netdev@vger.kernel.org,
+        Lin Ma <linma@zju.edu.cn>, Hao Xiong <mart1n@zju.edu.cn>
+Subject: [PATCH 5.4 38/78] Bluetooth: fix the erroneous flush_work() order
 Date:   Tue,  8 Jun 2021 20:27:07 +0200
-Message-Id: <20210608175945.313103569@linuxfoundation.org>
+Message-Id: <20210608175936.544923591@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
+References: <20210608175935.254388043@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,175 +44,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Lin Ma <linma@zju.edu.cn>
 
-commit dc680de28ca849dfe589dc15ac56d22505f0ef11 upstream.
+commit 6a137caec23aeb9e036cdfd8a46dd8a366460e5d upstream.
 
-The previous commit moved from O(n) to O(1) for removal, but in the
-process introduced an additional pointer member to a struct that
-increased the size from 60 to 68 bytes, putting nodes in the 128-byte
-slab. With deployed systems having as many as 2 million nodes, this
-represents a significant doubling in memory usage (128 MiB -> 256 MiB).
-Fix this by using our own kmem_cache, that's sized exactly right. This
-also makes wireguard's memory usage more transparent in tools like
-slabtop and /proc/slabinfo.
+In the cleanup routine for failed initialization of HCI device,
+the flush_work(&hdev->rx_work) need to be finished before the
+flush_work(&hdev->cmd_work). Otherwise, the hci_rx_work() can
+possibly invoke new cmd_work and cause a bug, like double free,
+in late processings.
 
-Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
-Suggested-by: Arnd Bergmann <arnd@arndb.de>
-Suggested-by: Matthew Wilcox <willy@infradead.org>
-Cc: stable@vger.kernel.org
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+This was assigned CVE-2021-3564.
+
+This patch reorder the flush_work() to fix this bug.
+
+Cc: Marcel Holtmann <marcel@holtmann.org>
+Cc: Johan Hedberg <johan.hedberg@gmail.com>
+Cc: Luiz Augusto von Dentz <luiz.dentz@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: linux-bluetooth@vger.kernel.org
+Cc: netdev@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Signed-off-by: Lin Ma <linma@zju.edu.cn>
+Signed-off-by: Hao Xiong <mart1n@zju.edu.cn>
+Cc: stable <stable@vger.kernel.org>
+Signed-off-by: Marcel Holtmann <marcel@holtmann.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireguard/allowedips.c |   31 +++++++++++++++++++++++++------
- drivers/net/wireguard/allowedips.h |    5 ++++-
- drivers/net/wireguard/main.c       |   10 +++++++++-
- 3 files changed, 38 insertions(+), 8 deletions(-)
+ net/bluetooth/hci_core.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireguard/allowedips.c
-+++ b/drivers/net/wireguard/allowedips.c
-@@ -6,6 +6,8 @@
- #include "allowedips.h"
- #include "peer.h"
- 
-+static struct kmem_cache *node_cache;
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1561,8 +1561,13 @@ setup_failed:
+ 	} else {
+ 		/* Init failed, cleanup */
+ 		flush_work(&hdev->tx_work);
+-		flush_work(&hdev->cmd_work);
 +
- static void swap_endian(u8 *dst, const u8 *src, u8 bits)
- {
- 	if (bits == 32) {
-@@ -40,6 +42,11 @@ static void push_rcu(struct allowedips_n
- 	}
- }
++		/* Since hci_rx_work() is possible to awake new cmd_work
++		 * it should be flushed first to avoid unexpected call of
++		 * hci_cmd_work()
++		 */
+ 		flush_work(&hdev->rx_work);
++		flush_work(&hdev->cmd_work);
  
-+static void node_free_rcu(struct rcu_head *rcu)
-+{
-+	kmem_cache_free(node_cache, container_of(rcu, struct allowedips_node, rcu));
-+}
-+
- static void root_free_rcu(struct rcu_head *rcu)
- {
- 	struct allowedips_node *node, *stack[128] = {
-@@ -49,7 +56,7 @@ static void root_free_rcu(struct rcu_hea
- 	while (len > 0 && (node = stack[--len])) {
- 		push_rcu(stack, node->bit[0], &len);
- 		push_rcu(stack, node->bit[1], &len);
--		kfree(node);
-+		kmem_cache_free(node_cache, node);
- 	}
- }
- 
-@@ -164,7 +171,7 @@ static int add(struct allowedips_node __
- 		return -EINVAL;
- 
- 	if (!rcu_access_pointer(*trie)) {
--		node = kzalloc(sizeof(*node), GFP_KERNEL);
-+		node = kmem_cache_zalloc(node_cache, GFP_KERNEL);
- 		if (unlikely(!node))
- 			return -ENOMEM;
- 		RCU_INIT_POINTER(node->peer, peer);
-@@ -180,7 +187,7 @@ static int add(struct allowedips_node __
- 		return 0;
- 	}
- 
--	newnode = kzalloc(sizeof(*newnode), GFP_KERNEL);
-+	newnode = kmem_cache_zalloc(node_cache, GFP_KERNEL);
- 	if (unlikely(!newnode))
- 		return -ENOMEM;
- 	RCU_INIT_POINTER(newnode->peer, peer);
-@@ -213,10 +220,10 @@ static int add(struct allowedips_node __
- 		return 0;
- 	}
- 
--	node = kzalloc(sizeof(*node), GFP_KERNEL);
-+	node = kmem_cache_zalloc(node_cache, GFP_KERNEL);
- 	if (unlikely(!node)) {
- 		list_del(&newnode->peer_list);
--		kfree(newnode);
-+		kmem_cache_free(node_cache, newnode);
- 		return -ENOMEM;
- 	}
- 	INIT_LIST_HEAD(&node->peer_list);
-@@ -306,7 +313,7 @@ void wg_allowedips_remove_by_peer(struct
- 		if (child)
- 			child->parent_bit = node->parent_bit;
- 		*rcu_dereference_protected(node->parent_bit, lockdep_is_held(lock)) = child;
--		kfree_rcu(node, rcu);
-+		call_rcu(&node->rcu, node_free_rcu);
- 
- 		/* TODO: Note that we currently don't walk up and down in order to
- 		 * free any potential filler nodes. This means that this function
-@@ -350,4 +357,16 @@ struct wg_peer *wg_allowedips_lookup_src
- 	return NULL;
- }
- 
-+int __init wg_allowedips_slab_init(void)
-+{
-+	node_cache = KMEM_CACHE(allowedips_node, 0);
-+	return node_cache ? 0 : -ENOMEM;
-+}
-+
-+void wg_allowedips_slab_uninit(void)
-+{
-+	rcu_barrier();
-+	kmem_cache_destroy(node_cache);
-+}
-+
- #include "selftest/allowedips.c"
---- a/drivers/net/wireguard/allowedips.h
-+++ b/drivers/net/wireguard/allowedips.h
-@@ -19,7 +19,7 @@ struct allowedips_node {
- 	u8 bits[16] __aligned(__alignof(u64));
- 
- 	/* Keep rarely used members at bottom to be beyond cache line. */
--	struct allowedips_node *__rcu *parent_bit; /* XXX: this puts us at 68->128 bytes instead of 60->64 bytes!! */
-+	struct allowedips_node *__rcu *parent_bit;
- 	union {
- 		struct list_head peer_list;
- 		struct rcu_head rcu;
-@@ -53,4 +53,7 @@ struct wg_peer *wg_allowedips_lookup_src
- bool wg_allowedips_selftest(void);
- #endif
- 
-+int wg_allowedips_slab_init(void);
-+void wg_allowedips_slab_uninit(void);
-+
- #endif /* _WG_ALLOWEDIPS_H */
---- a/drivers/net/wireguard/main.c
-+++ b/drivers/net/wireguard/main.c
-@@ -21,10 +21,15 @@ static int __init mod_init(void)
- {
- 	int ret;
- 
-+	ret = wg_allowedips_slab_init();
-+	if (ret < 0)
-+		goto err_allowedips;
-+
- #ifdef DEBUG
-+	ret = -ENOTRECOVERABLE;
- 	if (!wg_allowedips_selftest() || !wg_packet_counter_selftest() ||
- 	    !wg_ratelimiter_selftest())
--		return -ENOTRECOVERABLE;
-+		goto err_peer;
- #endif
- 	wg_noise_init();
- 
-@@ -50,6 +55,8 @@ err_netlink:
- err_device:
- 	wg_peer_uninit();
- err_peer:
-+	wg_allowedips_slab_uninit();
-+err_allowedips:
- 	return ret;
- }
- 
-@@ -58,6 +65,7 @@ static void __exit mod_exit(void)
- 	wg_genetlink_uninit();
- 	wg_device_uninit();
- 	wg_peer_uninit();
-+	wg_allowedips_slab_uninit();
- }
- 
- module_init(mod_init);
+ 		skb_queue_purge(&hdev->cmd_q);
+ 		skb_queue_purge(&hdev->rx_q);
 
 
