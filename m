@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C830F3A026F
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:33 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id EA9C53A03D6
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:23 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237039AbhFHTDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:49 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
+        id S236372AbhFHTWK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:22:10 -0400
+Received: from mail.kernel.org ([198.145.29.99]:41278 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235936AbhFHTBv (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:51 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 89C7D613AC;
-        Tue,  8 Jun 2021 18:44:58 +0000 (UTC)
+        id S237540AbhFHTSr (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 63EAA61968;
+        Tue,  8 Jun 2021 18:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177899;
-        bh=39A2uQEpIiL/5KNrWwkx8HpFsbkJYfNFtlg3TjxyYQQ=;
+        s=korg; t=1623178325;
+        bh=vf4g9+7pLkPtd5fZZBgWPVzXF/IPo59BxxDUlb+KKNM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lfXO4FufzSJGtt32O+Yg1pg7Rgy65V8suW6slZxeNXMSurgfd5e+a3N59NjTZbGQx
-         Mu86hkzdnCdQz5bxgyWjL7a3jpS/CXdeVZhIHu1pCV8in2c5mxDf+YPbmQGkidPilX
-         tFYUxwlkyLJQkvOMPsr19giwqJlRMZBF3ynNTwJI=
+        b=qkccb+kwCPYGSyv30VqEi1crbJihAQTqs3R5R8n/5IDG/R5mCfQjyE3qjJxD2x+s9
+         7KSPqVsJvT2XgGLeYN4Ov1j+NptxodwMTBWjLiz2+vpqKezzdZc/hDCjy6EV7g+4OG
+         QOV96IQ0j8MZjeBuNfqBOociWA5mJ4GG1eVAAk6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Imran Khan <imran.f.khan@oracle.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Borislav Petkov <bp@suse.de>
-Subject: [PATCH 5.10 117/137] x86/apic: Mark _all_ legacy interrupts when IO/APIC is missing
+        stable@vger.kernel.org,
+        Gerald Schaefer <gerald.schaefer@linux.ibm.com>,
+        Anshuman Khandual <anshuman.khandual@arm.com>,
+        Vineet Gupta <vgupta@synopsys.com>,
+        Palmer Dabbelt <palmer@dabbelt.com>,
+        Paul Walmsley <paul.walmsley@sifive.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.12 127/161] mm/debug_vm_pgtable: fix alignment for pmd/pud_advanced_tests()
 Date:   Tue,  8 Jun 2021 20:27:37 +0200
-Message-Id: <20210608175946.333626657@linuxfoundation.org>
+Message-Id: <20210608175949.738173938@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,95 +45,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
 
-commit 7d65f9e80646c595e8c853640a9d0768a33e204c upstream.
+commit 04f7ce3f07ce39b1a3ca03a56b238a53acc52cfd upstream.
 
-PIC interrupts do not support affinity setting and they can end up on
-any online CPU. Therefore, it's required to mark the associated vectors
-as system-wide reserved. Otherwise, the corresponding irq descriptors
-are copied to the secondary CPUs but the vectors are not marked as
-assigned or reserved. This works correctly for the IO/APIC case.
+In pmd/pud_advanced_tests(), the vaddr is aligned up to the next pmd/pud
+entry, and so it does not match the given pmdp/pudp and (aligned down)
+pfn any more.
 
-When the IO/APIC is disabled via config, kernel command line or lack of
-enumeration then all legacy interrupts are routed through the PIC, but
-nothing marks them as system-wide reserved vectors.
+For s390, this results in memory corruption, because the IDTE
+instruction used e.g.  in xxx_get_and_clear() will take the vaddr for
+some calculations, in combination with the given pmdp.  It will then end
+up with a wrong table origin, ending on ...ff8, and some of those
+wrongly set low-order bits will also select a wrong pagetable level for
+the index addition.  IDTE could therefore invalidate (or 0x20) something
+outside of the page tables, depending on the wrongly picked index, which
+in turn depends on the random vaddr.
 
-As a consequence, a subsequent allocation on a secondary CPU can result in
-allocating one of these vectors, which triggers the BUG() in
-apic_update_vector() because the interrupt descriptor slot is not empty.
+As result, we sometimes see "BUG task_struct (Not tainted): Padding
+overwritten" on s390, where one 0x5a padding value got overwritten with
+0x7a.
 
-Imran tried to work around that by marking those interrupts as allocated
-when a CPU comes online. But that's wrong in case that the IO/APIC is
-available and one of the legacy interrupts, e.g. IRQ0, has been switched to
-PIC mode because then marking them as allocated will fail as they are
-already marked as system vectors.
+Fix this by aligning down, similar to how the pmd/pud_aligned pfns are
+calculated.
 
-Stay consistent and update the legacy vectors after attempting IO/APIC
-initialization and mark them as system vectors in case that no IO/APIC is
-available.
-
-Fixes: 69cde0004a4b ("x86/vector: Use matrix allocator for vector assignment")
-Reported-by: Imran Khan <imran.f.khan@oracle.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Cc: stable@vger.kernel.org
-Link: https://lkml.kernel.org/r/20210519233928.2157496-1-imran.f.khan@oracle.com
+Link: https://lkml.kernel.org/r/20210525130043.186290-2-gerald.schaefer@linux.ibm.com
+Fixes: a5c3b9ffb0f40 ("mm/debug_vm_pgtable: add tests validating advanced arch page table helpers")
+Signed-off-by: Gerald Schaefer <gerald.schaefer@linux.ibm.com>
+Reviewed-by: Anshuman Khandual <anshuman.khandual@arm.com>
+Cc: Vineet Gupta <vgupta@synopsys.com>
+Cc: Palmer Dabbelt <palmer@dabbelt.com>
+Cc: Paul Walmsley <paul.walmsley@sifive.com>
+Cc: <stable@vger.kernel.org>	[5.9+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/apic.h   |    1 +
- arch/x86/kernel/apic/apic.c   |    1 +
- arch/x86/kernel/apic/vector.c |   20 ++++++++++++++++++++
- 3 files changed, 22 insertions(+)
+ mm/debug_vm_pgtable.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/arch/x86/include/asm/apic.h
-+++ b/arch/x86/include/asm/apic.h
-@@ -174,6 +174,7 @@ static inline int apic_is_clustered_box(
- extern int setup_APIC_eilvt(u8 lvt_off, u8 vector, u8 msg_type, u8 mask);
- extern void lapic_assign_system_vectors(void);
- extern void lapic_assign_legacy_vector(unsigned int isairq, bool replace);
-+extern void lapic_update_legacy_vectors(void);
- extern void lapic_online(void);
- extern void lapic_offline(void);
- extern bool apic_needs_pit(void);
---- a/arch/x86/kernel/apic/apic.c
-+++ b/arch/x86/kernel/apic/apic.c
-@@ -2539,6 +2539,7 @@ static void __init apic_bsp_setup(bool u
- 	end_local_APIC_setup();
- 	irq_remap_enable_fault_handling();
- 	setup_IO_APIC();
-+	lapic_update_legacy_vectors();
- }
+--- a/mm/debug_vm_pgtable.c
++++ b/mm/debug_vm_pgtable.c
+@@ -192,7 +192,7 @@ static void __init pmd_advanced_tests(st
  
- #ifdef CONFIG_UP_LATE_INIT
---- a/arch/x86/kernel/apic/vector.c
-+++ b/arch/x86/kernel/apic/vector.c
-@@ -687,6 +687,26 @@ void lapic_assign_legacy_vector(unsigned
- 	irq_matrix_assign_system(vector_matrix, ISA_IRQ_VECTOR(irq), replace);
- }
+ 	pr_debug("Validating PMD advanced\n");
+ 	/* Align the address wrt HPAGE_PMD_SIZE */
+-	vaddr = (vaddr & HPAGE_PMD_MASK) + HPAGE_PMD_SIZE;
++	vaddr &= HPAGE_PMD_MASK;
  
-+void __init lapic_update_legacy_vectors(void)
-+{
-+	unsigned int i;
-+
-+	if (IS_ENABLED(CONFIG_X86_IO_APIC) && nr_ioapics > 0)
-+		return;
-+
-+	/*
-+	 * If the IO/APIC is disabled via config, kernel command line or
-+	 * lack of enumeration then all legacy interrupts are routed
-+	 * through the PIC. Make sure that they are marked as legacy
-+	 * vectors. PIC_CASCADE_IRQ has already been marked in
-+	 * lapic_assign_system_vectors().
-+	 */
-+	for (i = 0; i < nr_legacy_irqs(); i++) {
-+		if (i != PIC_CASCADE_IR)
-+			lapic_assign_legacy_vector(i, true);
-+	}
-+}
-+
- void __init lapic_assign_system_vectors(void)
- {
- 	unsigned int i, vector = 0;
+ 	pgtable_trans_huge_deposit(mm, pmdp, pgtable);
+ 
+@@ -330,7 +330,7 @@ static void __init pud_advanced_tests(st
+ 
+ 	pr_debug("Validating PUD advanced\n");
+ 	/* Align the address wrt HPAGE_PUD_SIZE */
+-	vaddr = (vaddr & HPAGE_PUD_MASK) + HPAGE_PUD_SIZE;
++	vaddr &= HPAGE_PUD_MASK;
+ 
+ 	set_pud_at(mm, vaddr, pudp, pud);
+ 	pudp_set_wrprotect(mm, vaddr, pudp);
 
 
