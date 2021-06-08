@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 5262A3A014E
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 304A63A032D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:04 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235296AbhFHSuz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:50:55 -0400
-Received: from mail.kernel.org ([198.145.29.99]:47360 "EHLO mail.kernel.org"
+        id S235256AbhFHTNr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:13:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:58766 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234036AbhFHSsJ (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:48:09 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 3A5F26145D;
-        Tue,  8 Jun 2021 18:38:12 +0000 (UTC)
+        id S236904AbhFHTLn (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:11:43 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 22DAF61461;
+        Tue,  8 Jun 2021 18:49:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177492;
-        bh=C1gEFeTRKQbm9RMBtjmkF4x50MUnzmfOAp+V72z9Iyo=;
+        s=korg; t=1623178149;
+        bh=Xd8sKBW52rGJ+PBUBAVrXHiFQyeJpduTKPcd2uOIiJs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GNktrnDkaQ2mydjUgN70L0MemcrUSyxk0lQ/WpTj/PI29ipKCgP6H9RH+8uRGB6ou
-         9/oi+A8arNUzBIK+ZshTSMQNQRbWt1iL5MIiPoC3nM6rqOmidYQxvWmG7rFhEZeY/8
-         +tKOeqn1xUsnH08NWrOhqv3O9VogAFZHqguAISSg=
+        b=pAJOU7iSjknaCjlqvXIUxBUQ3XWY5xiPnaRzLIwG6+HPsNcYbDmvrYHKogJq4iggB
+         sDQC/kTahG01i5EVHF79Tso+Fxd4HquB0AezoP9tjWRbyXQHgy+NBEkBq72wcQXBnx
+         tV1mY77tgyL9KZz7W74CuqsLW7P0fwF7UPdxcnoQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jon Maloy <jmaloy@redhat.com>,
-        Hoang Le <hoang.h.le@dektech.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 37/78] tipc: fix unique bearer names sanity check
+        stable@vger.kernel.org, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.12 096/161] wireguard: use synchronize_net rather than synchronize_rcu
 Date:   Tue,  8 Jun 2021 20:27:06 +0200
-Message-Id: <20210608175936.513145213@linuxfoundation.org>
+Message-Id: <20210608175948.698136203@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,99 +39,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hoang Le <hoang.h.le@dektech.com.au>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit f20a46c3044c3f75232b3d0e2d09af9b25efaf45 ]
+commit 24b70eeeb4f46c09487f8155239ebfb1f875774a upstream.
 
-When enabling a bearer by name, we don't sanity check its name with
-higher slot in bearer list. This may have the effect that the name
-of an already enabled bearer bypasses the check.
+Many of the synchronization points are sometimes called under the rtnl
+lock, which means we should use synchronize_net rather than
+synchronize_rcu. Under the hood, this expands to using the expedited
+flavor of function in the event that rtnl is held, in order to not stall
+other concurrent changes.
 
-To fix the above issue, we just perform an extra checking with all
-existing bearers.
+This fixes some very, very long delays when removing multiple peers at
+once, which would cause some operations to take several minutes.
 
-Fixes: cb30a63384bc9 ("tipc: refactor function tipc_enable_bearer()")
+Fixes: e7096c131e51 ("net: WireGuard secure network tunnel")
 Cc: stable@vger.kernel.org
-Acked-by: Jon Maloy <jmaloy@redhat.com>
-Signed-off-by: Hoang Le <hoang.h.le@dektech.com.au>
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/tipc/bearer.c | 46 +++++++++++++++++++++++++++-------------------
- 1 file changed, 27 insertions(+), 19 deletions(-)
+ drivers/net/wireguard/peer.c   |    6 +++---
+ drivers/net/wireguard/socket.c |    2 +-
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/tipc/bearer.c b/net/tipc/bearer.c
-index 0e0161597749..8bd2454cc89d 100644
---- a/net/tipc/bearer.c
-+++ b/net/tipc/bearer.c
-@@ -245,6 +245,7 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 	int bearer_id = 0;
- 	int res = -EINVAL;
- 	char *errstr = "";
-+	u32 i;
+--- a/drivers/net/wireguard/peer.c
++++ b/drivers/net/wireguard/peer.c
+@@ -89,7 +89,7 @@ static void peer_make_dead(struct wg_pee
+ 	/* Mark as dead, so that we don't allow jumping contexts after. */
+ 	WRITE_ONCE(peer->is_dead, true);
  
- 	if (!bearer_name_validate(name, &b_names)) {
- 		errstr = "illegal name";
-@@ -269,31 +270,38 @@ static int tipc_enable_bearer(struct net *net, const char *name,
- 		prio = m->priority;
+-	/* The caller must now synchronize_rcu() for this to take effect. */
++	/* The caller must now synchronize_net() for this to take effect. */
+ }
  
- 	/* Check new bearer vs existing ones and find free bearer id if any */
--	while (bearer_id < MAX_BEARERS) {
--		b = rtnl_dereference(tn->bearer_list[bearer_id]);
--		if (!b)
--			break;
-+	bearer_id = MAX_BEARERS;
-+	i = MAX_BEARERS;
-+	while (i-- != 0) {
-+		b = rtnl_dereference(tn->bearer_list[i]);
-+		if (!b) {
-+			bearer_id = i;
-+			continue;
-+		}
- 		if (!strcmp(name, b->name)) {
- 			errstr = "already enabled";
- 			NL_SET_ERR_MSG(extack, "Already enabled");
- 			goto rejected;
- 		}
--		bearer_id++;
--		if (b->priority != prio)
--			continue;
--		if (++with_this_prio <= 2)
--			continue;
--		pr_warn("Bearer <%s>: already 2 bearers with priority %u\n",
--			name, prio);
--		if (prio == TIPC_MIN_LINK_PRI) {
--			errstr = "cannot adjust to lower";
--			NL_SET_ERR_MSG(extack, "Cannot adjust to lower");
--			goto rejected;
-+
-+		if (b->priority == prio &&
-+		    (++with_this_prio > 2)) {
-+			pr_warn("Bearer <%s>: already 2 bearers with priority %u\n",
-+				name, prio);
-+
-+			if (prio == TIPC_MIN_LINK_PRI) {
-+				errstr = "cannot adjust to lower";
-+				NL_SET_ERR_MSG(extack, "Cannot adjust to lower");
-+				goto rejected;
-+			}
-+
-+			pr_warn("Bearer <%s>: trying with adjusted priority\n",
-+				name);
-+			prio--;
-+			bearer_id = MAX_BEARERS;
-+			i = MAX_BEARERS;
-+			with_this_prio = 1;
- 		}
--		pr_warn("Bearer <%s>: trying with adjusted priority\n", name);
--		prio--;
--		bearer_id = 0;
--		with_this_prio = 1;
+ static void peer_remove_after_dead(struct wg_peer *peer)
+@@ -161,7 +161,7 @@ void wg_peer_remove(struct wg_peer *peer
+ 	lockdep_assert_held(&peer->device->device_update_lock);
+ 
+ 	peer_make_dead(peer);
+-	synchronize_rcu();
++	synchronize_net();
+ 	peer_remove_after_dead(peer);
+ }
+ 
+@@ -179,7 +179,7 @@ void wg_peer_remove_all(struct wg_device
+ 		peer_make_dead(peer);
+ 		list_add_tail(&peer->peer_list, &dead_peers);
  	}
- 
- 	if (bearer_id >= MAX_BEARERS) {
--- 
-2.30.2
-
+-	synchronize_rcu();
++	synchronize_net();
+ 	list_for_each_entry_safe(peer, temp, &dead_peers, peer_list)
+ 		peer_remove_after_dead(peer);
+ }
+--- a/drivers/net/wireguard/socket.c
++++ b/drivers/net/wireguard/socket.c
+@@ -430,7 +430,7 @@ void wg_socket_reinit(struct wg_device *
+ 	if (new4)
+ 		wg->incoming_port = ntohs(inet_sk(new4)->inet_sport);
+ 	mutex_unlock(&wg->socket_update_lock);
+-	synchronize_rcu();
++	synchronize_net();
+ 	sock_free(old4);
+ 	sock_free(old6);
+ }
 
 
