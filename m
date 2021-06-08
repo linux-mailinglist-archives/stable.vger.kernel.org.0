@@ -2,36 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id E08283A0174
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:24 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D48A3A029D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:53 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235514AbhFHSwP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:52:15 -0400
-Received: from mail.kernel.org ([198.145.29.99]:45272 "EHLO mail.kernel.org"
+        id S237003AbhFHTHG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:07:06 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39988 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236274AbhFHSuO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:50:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2748E6145E;
-        Tue,  8 Jun 2021 18:39:21 +0000 (UTC)
+        id S237590AbhFHTFD (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:05:03 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 88337613BE;
+        Tue,  8 Jun 2021 18:46:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177562;
-        bh=tetxd/RZLmn66Og0bFywcMxcgiqFfvJVJwi7tEvv/MI=;
+        s=korg; t=1623177967;
+        bh=6/dQ3e1N39nc6+g6u0y4oMaO1BVCa32BZXODgh/fbZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yDpMtpeThslYjTc5a9UAuBc7JwlM96LqeaBcRTW8RabCgMIrKactqWlNO/xwTPdGL
-         lBKY5LTtXSy/yLX3dIK/yc8jT60E4oxngpHoKCztJcPHlDVJ1YPKaK2/XC4F8Ha6bl
-         HVxeP5a2vcpZ4vjHAVwQrCt//w4070vtQrvWtsDQ=
+        b=OeOcP6g420/vdtGF/bvHwTxCK0rBk4cknS6/rBDZF0OgHpesp0QuBsqH6+Nm9rDCh
+         O+uzMSlslF+9aNZ5ovqRVTJ8GUvmF5LWo7+xFdvnbc5uefGhip0qXIDeaexKjEPo7F
+         4fyic6l43oONaSSqtr0sALK2bUdQymo/2nmt+WEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Parav Pandit <parav@nvidia.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+        stable@vger.kernel.org, John Garry <john.garry@huawei.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        Erik Kaneda <erik.kaneda@intel.com>,
+        Bob Moore <robert.moore@intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 018/137] devlink: Correct VIRTUAL port to not have phys_port attributes
+Subject: [PATCH 5.12 028/161] ACPICA: Clean up context mutex during object deletion
 Date:   Tue,  8 Jun 2021 20:25:58 +0200
-Message-Id: <20210608175943.020843822@linuxfoundation.org>
+Message-Id: <20210608175946.399982667@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,78 +43,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Erik Kaneda <erik.kaneda@intel.com>
 
-[ Upstream commit b28d8f0c25a9b0355116cace5f53ea52bd4020c8 ]
+[ Upstream commit e4dfe108371214500ee10c2cf19268f53acaa803 ]
 
-Physical port name, port number attributes do not belong to virtual port
-flavour. When VF or SF virtual ports are registered they incorrectly
-append "np0" string in the netdevice name of the VF/SF.
+ACPICA commit bc43c878fd4ff27ba75b1d111b97ee90d4a82707
 
-Before this fix, VF netdevice name were ens2f0np0v0, ens2f0np0v1 for VF
-0 and 1 respectively.
-
-After the fix, they are ens2f0v0, ens2f0v1.
-
-With this fix, reading /sys/class/net/ens2f0v0/phys_port_name returns
--EOPNOTSUPP.
-
-Also devlink port show example for 2 VFs on one PF to ensure that any
-physical port attributes are not exposed.
-
-$ devlink port show
-pci/0000:06:00.0/65535: type eth netdev ens2f0np0 flavour physical port 0 splittable false
-pci/0000:06:00.3/196608: type eth netdev ens2f0v0 flavour virtual splittable false
-pci/0000:06:00.4/262144: type eth netdev ens2f0v1 flavour virtual splittable false
-
-This change introduces a netdevice name change on systemd/udev
-version 245 and higher which honors phys_port_name sysfs file for
-generation of netdevice name.
-
-This also aligns to phys_port_name usage which is limited to switchdev
-ports as described in [1].
-
-[1] https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net-next.git/tree/Documentation/networking/switchdev.rst
-
-Fixes: acf1ee44ca5d ("devlink: Introduce devlink port flavour virtual")
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20210526200027.14008-1-parav@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: c27f3d011b08 ("Fix race in GenericSerialBus (I2C) and GPIO OpRegion parameter handling")
+Link: https://github.com/acpica/acpica/commit/bc43c878
+Reported-by: John Garry <john.garry@huawei.com>
+Reported-by: Xiang Chen <chenxiang66@hisilicon.com>
+Tested-by: Xiang Chen <chenxiang66@hisilicon.com>
+Signed-off-by: Erik Kaneda <erik.kaneda@intel.com>
+Signed-off-by: Bob Moore <robert.moore@intel.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/devlink.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/acpi/acpica/utdelete.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 5d397838bceb..90badb6f7227 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -693,7 +693,6 @@ static int devlink_nl_port_attrs_put(struct sk_buff *msg,
- 	case DEVLINK_PORT_FLAVOUR_PHYSICAL:
- 	case DEVLINK_PORT_FLAVOUR_CPU:
- 	case DEVLINK_PORT_FLAVOUR_DSA:
--	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
- 		if (nla_put_u32(msg, DEVLINK_ATTR_PORT_NUMBER,
- 				attrs->phys.port_number))
- 			return -EMSGSIZE;
-@@ -8376,7 +8375,6 @@ static int __devlink_port_phys_port_name_get(struct devlink_port *devlink_port,
- 
- 	switch (attrs->flavour) {
- 	case DEVLINK_PORT_FLAVOUR_PHYSICAL:
--	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
- 		if (!attrs->split)
- 			n = snprintf(name, len, "p%u", attrs->phys.port_number);
- 		else
-@@ -8413,6 +8411,8 @@ static int __devlink_port_phys_port_name_get(struct devlink_port *devlink_port,
- 		n = snprintf(name, len, "pf%uvf%u",
- 			     attrs->pci_vf.pf, attrs->pci_vf.vf);
+diff --git a/drivers/acpi/acpica/utdelete.c b/drivers/acpi/acpica/utdelete.c
+index 624a26794d55..e5ba9795ec69 100644
+--- a/drivers/acpi/acpica/utdelete.c
++++ b/drivers/acpi/acpica/utdelete.c
+@@ -285,6 +285,14 @@ static void acpi_ut_delete_internal_obj(union acpi_operand_object *object)
+ 		}
  		break;
-+	case DEVLINK_PORT_FLAVOUR_VIRTUAL:
-+		return -EOPNOTSUPP;
- 	}
  
- 	if (n >= len)
++	case ACPI_TYPE_LOCAL_ADDRESS_HANDLER:
++
++		ACPI_DEBUG_PRINT((ACPI_DB_ALLOCATIONS,
++				  "***** Address handler %p\n", object));
++
++		acpi_os_delete_mutex(object->address_space.context_mutex);
++		break;
++
+ 	default:
+ 
+ 		break;
 -- 
 2.30.2
 
