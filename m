@@ -2,32 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A5163A0228
+	by mail.lfdr.de (Postfix) with ESMTP id DD9E93A022A
 	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:52 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236418AbhFHTBe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:34 -0400
-Received: from mail.kernel.org ([198.145.29.99]:35576 "EHLO mail.kernel.org"
+        id S236424AbhFHTBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:01:36 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34008 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236562AbhFHS60 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:58:26 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 727EA61626;
-        Tue,  8 Jun 2021 18:42:44 +0000 (UTC)
+        id S236589AbhFHS62 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:58:28 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4A2126143D;
+        Tue,  8 Jun 2021 18:42:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177765;
-        bh=Yl7IPL85YzCd2CUddMcgindgnXZi0j50a/KS615JKeo=;
+        s=korg; t=1623177767;
+        bh=yf8V0MTKK7IQNrSf43lS0vqAt04bU5R2ofl1yl8wnlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C7js6YI+7IIJpXZ+ruUP0dof1v+9gwOpPkefGnKMaogPA6UyZ6lp1amtZWKCRkX3a
-         4zj5tFzZHJlcvarnIKnub3GuHxKtCVznCsTLmK1BawvlFyvss/AtksoRlYjWkep76E
-         TAtRg0Mg9TK0q3lCjD6h2g5ibRMMBn/DjIV9UEtA=
+        b=RB5ZAf0oOc54pztQ68mk7mgCsOiBXmSYpgdb8gPO2x1GR8TUx6lfSvH+x+HvQ/+OP
+         4a1lonyJITOLd4Oxo8WO91PxwLuNWMF2N5VrSliSLBPbmhPaVZva4UShkmJFOvVldB
+         Gbhui0wNH5pRSkf2gSW0gDWVBwsyEJ3dgRFoCy/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 092/137] net: caif: fix memory leak in cfusbl_device_notify
-Date:   Tue,  8 Jun 2021 20:27:12 +0200
-Message-Id: <20210608175945.490812280@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Johnny Chuang <johnny.chuang.emc@gmail.com>,
+        Harry Cutts <hcutts@chromium.org>,
+        Douglas Anderson <dianders@chromium.org>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>
+Subject: [PATCH 5.10 093/137] HID: i2c-hid: Skip ELAN power-on command after reset
+Date:   Tue,  8 Jun 2021 20:27:13 +0200
+Message-Id: <20210608175945.525853210@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
 References: <20210608175942.377073879@linuxfoundation.org>
@@ -39,68 +42,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+From: Johnny Chuang <johnny.chuang.emc@gmail.com>
 
-commit 7f5d86669fa4d485523ddb1d212e0a2d90bd62bb upstream.
+commit ca66a6770bd9d6d99e469debd1c7363ac455daf9 upstream.
 
-In case of caif_enroll_dev() fail, allocated
-link_support won't be assigned to the corresponding
-structure. So simply free allocated pointer in case
-of error.
+For ELAN touchscreen, we found our boot code of IC was not flexible enough
+to receive and handle this command.
+Once the FW main code of our controller is crashed for some reason,
+the controller could not be enumerated successfully to be recognized
+by the system host. therefore, it lost touch functionality.
 
-Fixes: 7ad65bf68d70 ("caif: Add support for CAIF over CDC NCM USB interface")
+Add quirk for skip send power-on command after reset.
+It will impact to ELAN touchscreen and touchpad on HID over I2C projects.
+
+Fixes: 43b7029f475e ("HID: i2c-hid: Send power-on command after reset").
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Johnny Chuang <johnny.chuang.emc@gmail.com>
+Reviewed-by: Harry Cutts <hcutts@chromium.org>
+Reviewed-by: Douglas Anderson <dianders@chromium.org>
+Tested-by: Douglas Anderson <dianders@chromium.org>
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/caif/caif_usb.c |   14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+ drivers/hid/i2c-hid/i2c-hid-core.c |    9 ++++++++-
+ 1 file changed, 8 insertions(+), 1 deletion(-)
 
---- a/net/caif/caif_usb.c
-+++ b/net/caif/caif_usb.c
-@@ -115,6 +115,11 @@ static struct cflayer *cfusbl_create(int
- 	return (struct cflayer *) this;
- }
+--- a/drivers/hid/i2c-hid/i2c-hid-core.c
++++ b/drivers/hid/i2c-hid/i2c-hid-core.c
+@@ -50,6 +50,7 @@
+ #define I2C_HID_QUIRK_BOGUS_IRQ			BIT(4)
+ #define I2C_HID_QUIRK_RESET_ON_RESUME		BIT(5)
+ #define I2C_HID_QUIRK_BAD_INPUT_SIZE		BIT(6)
++#define I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET	BIT(7)
  
-+static void cfusbl_release(struct cflayer *layer)
-+{
-+	kfree(layer);
-+}
-+
- static struct packet_type caif_usb_type __read_mostly = {
- 	.type = cpu_to_be16(ETH_P_802_EX1),
+ 
+ /* flags */
+@@ -183,6 +184,11 @@ static const struct i2c_hid_quirks {
+ 		 I2C_HID_QUIRK_RESET_ON_RESUME },
+ 	{ USB_VENDOR_ID_ITE, I2C_DEVICE_ID_ITE_LENOVO_LEGION_Y720,
+ 		I2C_HID_QUIRK_BAD_INPUT_SIZE },
++	/*
++	 * Sending the wakeup after reset actually break ELAN touchscreen controller
++	 */
++	{ USB_VENDOR_ID_ELAN, HID_ANY_ID,
++		 I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET },
+ 	{ 0, 0 }
  };
-@@ -127,6 +132,7 @@ static int cfusbl_device_notify(struct n
- 	struct cflayer *layer, *link_support;
- 	struct usbnet *usbnet;
- 	struct usb_device *usbdev;
-+	int res;
  
- 	/* Check whether we have a NCM device, and find its VID/PID. */
- 	if (!(dev->dev.parent && dev->dev.parent->driver &&
-@@ -169,8 +175,11 @@ static int cfusbl_device_notify(struct n
- 	if (dev->num_tx_queues > 1)
- 		pr_warn("USB device uses more than one tx queue\n");
+@@ -466,7 +472,8 @@ static int i2c_hid_hwreset(struct i2c_cl
+ 	}
  
--	caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
-+	res = caif_enroll_dev(dev, &common, link_support, CFUSB_MAX_HEADLEN,
- 			&layer, &caif_usb_type.func);
-+	if (res)
-+		goto err;
-+
- 	if (!pack_added)
- 		dev_add_pack(&caif_usb_type);
- 	pack_added = true;
-@@ -178,6 +187,9 @@ static int cfusbl_device_notify(struct n
- 	strlcpy(layer->name, dev->name, sizeof(layer->name));
+ 	/* At least some SIS devices need this after reset */
+-	ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
++	if (!(ihid->quirks & I2C_HID_QUIRK_NO_WAKEUP_AFTER_RESET))
++		ret = i2c_hid_set_power(client, I2C_HID_PWR_ON);
  
- 	return 0;
-+err:
-+	cfusbl_release(link_support);
-+	return res;
- }
- 
- static struct notifier_block caif_device_notifier = {
+ out_unlock:
+ 	mutex_unlock(&ihid->reset_lock);
 
 
