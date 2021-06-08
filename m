@@ -2,38 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 7738D3A004B
+	by mail.lfdr.de (Postfix) with ESMTP id C0FF63A004C
 	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:43 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234368AbhFHSlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:41:45 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37622 "EHLO mail.kernel.org"
+        id S231517AbhFHSlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:41:46 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37678 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235412AbhFHSj7 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:39:59 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id E982A6142E;
-        Tue,  8 Jun 2021 18:34:30 +0000 (UTC)
+        id S235428AbhFHSkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:40:00 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id AF9A1613D5;
+        Tue,  8 Jun 2021 18:34:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177271;
-        bh=S5Lvb9Jtz5bJk8DeDi8o5UOleN1TWdRYK/kxcb+dxtc=;
+        s=korg; t=1623177274;
+        bh=HB1lNmivXwhuP+zSIuHj6iToppIwfpg1Ly30iQGw96s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u+m3WsZ8IvmuYcR02n6cEzV0ye6Glvs/Yfl4qyOzh4N9/Zp1TaKkFAdY0sng5n1z3
-         a0LgzkgULs4gKsS6M8lE9kBj52AUl1vRsWSDo+mWCa/3zI4xoXf4+WfNxCF5KaQi8x
-         S41MRIvOqCk46FSWLOzZtBe5Qm3Bc9YsOJgKOCag=
+        b=ZsW/Pzs/66psNUxJJ7Io3gZq/MRILCF/AksgUy56gUcMojrvw1Lz++TjduQFSAsY2
+         DLy90KnI9cLMRTHSAZVVM0CU93bBlNACkRxrdqQPbCsaK5FSx5I2J8BEOq08+7ZvII
+         DRk/lBW8/8E+MKUQJEyuyH7ZqdMDHLed2iWGsp68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Song Liu <songliubraving@fb.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        kernel-team@fb.com, Arnaldo Carvalho de Melo <acme@kernel.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@kernel.org>,
-        Wen Yang <wenyang@linux.alibaba.com>
-Subject: [PATCH 4.19 51/58] perf/core: Fix corner case in perf_rotate_context()
-Date:   Tue,  8 Jun 2021 20:27:32 +0200
-Message-Id: <20210608175933.959017327@linuxfoundation.org>
+        stable@vger.kernel.org, Chris Murphy <lists@colorremedies.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        Anand Jain <anand.jain@oracle.com>,
+        David Sterba <dsterba@suse.com>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Subject: [PATCH 4.19 52/58] btrfs: fix unmountable seed device after fstrim
+Date:   Tue,  8 Jun 2021 20:27:33 +0200
+Message-Id: <20210608175933.989380308@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
 References: <20210608175932.263480586@linuxfoundation.org>
@@ -45,99 +42,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Song Liu <songliubraving@fb.com>
+From: Anand Jain <anand.jain@oracle.com>
 
-commit 7fa343b7fdc4f351de4e3f28d5c285937dd1f42f upstream.
+commit 5e753a817b2d5991dfe8a801b7b1e8e79a1c5a20 upstream.
 
-In perf_rotate_context(), when the first cpu flexible event fail to
-schedule, cpu_rotate is 1, while cpu_event is NULL. Since cpu_event is
-NULL, perf_rotate_context will _NOT_ call cpu_ctx_sched_out(), thus
-cpuctx->ctx.is_active will have EVENT_FLEXIBLE set. Then, the next
-perf_event_sched_in() will skip all cpu flexible events because of the
-EVENT_FLEXIBLE bit.
+The following test case reproduces an issue of wrongly freeing in-use
+blocks on the readonly seed device when fstrim is called on the rw sprout
+device. As shown below.
 
-In the next call of perf_rotate_context(), cpu_rotate stays 1, and
-cpu_event stays NULL, so this process repeats. The end result is, flexible
-events on this cpu will not be scheduled (until another event being added
-to the cpuctx).
+Create a seed device and add a sprout device to it:
 
-Here is an easy repro of this issue. On Intel CPUs, where ref-cycles
-could only use one counter, run one pinned event for ref-cycles, one
-flexible event for ref-cycles, and one flexible event for cycles. The
-flexible ref-cycles is never scheduled, which is expected. However,
-because of this issue, the cycles event is never scheduled either.
+  $ mkfs.btrfs -fq -dsingle -msingle /dev/loop0
+  $ btrfstune -S 1 /dev/loop0
+  $ mount /dev/loop0 /btrfs
+  $ btrfs dev add -f /dev/loop1 /btrfs
+  BTRFS info (device loop0): relocating block group 290455552 flags system
+  BTRFS info (device loop0): relocating block group 1048576 flags system
+  BTRFS info (device loop0): disk added /dev/loop1
+  $ umount /btrfs
 
- $ perf stat -e ref-cycles:D,ref-cycles,cycles -C 5 -I 1000
+Mount the sprout device and run fstrim:
 
-           time             counts unit events
-    1.000152973         15,412,480      ref-cycles:D
-    1.000152973      <not counted>      ref-cycles     (0.00%)
-    1.000152973      <not counted>      cycles         (0.00%)
-    2.000486957         18,263,120      ref-cycles:D
-    2.000486957      <not counted>      ref-cycles     (0.00%)
-    2.000486957      <not counted>      cycles         (0.00%)
+  $ mount /dev/loop1 /btrfs
+  $ fstrim /btrfs
+  $ umount /btrfs
 
-To fix this, when the flexible_active list is empty, try rotate the
-first event in the flexible_groups. Also, rename ctx_first_active() to
-ctx_event_to_rotate(), which is more accurate.
+Now try to mount the seed device, and it fails:
 
-Signed-off-by: Song Liu <songliubraving@fb.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Cc: <kernel-team@fb.com>
-Cc: Arnaldo Carvalho de Melo <acme@kernel.org>
-Cc: Linus Torvalds <torvalds@linux-foundation.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Fixes: 8d5bce0c37fa ("perf/core: Optimize perf_rotate_context() event scheduling")
-Link: https://lkml.kernel.org/r/20191008165949.920548-1-songliubraving@fb.com
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Signed-off-by: Wen Yang <wenyang@linux.alibaba.com>
+  $ mount /dev/loop0 /btrfs
+  mount: /btrfs: wrong fs type, bad option, bad superblock on /dev/loop0, missing codepage or helper program, or other error.
+
+Block 5292032 is missing on the readonly seed device:
+
+ $ dmesg -kt | tail
+ <snip>
+ BTRFS error (device loop0): bad tree block start, want 5292032 have 0
+ BTRFS warning (device loop0): couldn't read-tree root
+ BTRFS error (device loop0): open_ctree failed
+
+>From the dump-tree of the seed device (taken before the fstrim). Block
+5292032 belonged to the block group starting at 5242880:
+
+  $ btrfs inspect dump-tree -e /dev/loop0 | grep -A1 BLOCK_GROUP
+  <snip>
+  item 3 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16169 itemsize 24
+  	block group used 114688 chunk_objectid 256 flags METADATA
+  <snip>
+
+>From the dump-tree of the sprout device (taken before the fstrim).
+fstrim used block-group 5242880 to find the related free space to free:
+
+  $ btrfs inspect dump-tree -e /dev/loop1 | grep -A1 BLOCK_GROUP
+  <snip>
+  item 1 key (5242880 BLOCK_GROUP_ITEM 8388608) itemoff 16226 itemsize 24
+  	block group used 32768 chunk_objectid 256 flags METADATA
+  <snip>
+
+BPF kernel tracing the fstrim command finds the missing block 5292032
+within the range of the discarded blocks as below:
+
+  kprobe:btrfs_discard_extent {
+  	printf("freeing start %llu end %llu num_bytes %llu:\n",
+  		arg1, arg1+arg2, arg2);
+  }
+
+  freeing start 5259264 end 5406720 num_bytes 147456
+  <snip>
+
+Fix this by avoiding the discard command to the readonly seed device.
+
+Reported-by: Chris Murphy <lists@colorremedies.com>
+CC: stable@vger.kernel.org # 4.4+
+Reviewed-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/events/core.c |   22 +++++++++++++++++-----
- 1 file changed, 17 insertions(+), 5 deletions(-)
+ fs/btrfs/extent-tree.c |   10 +++++++---
+ 1 file changed, 7 insertions(+), 3 deletions(-)
 
---- a/kernel/events/core.c
-+++ b/kernel/events/core.c
-@@ -3689,11 +3689,23 @@ static void rotate_ctx(struct perf_event
- 	perf_event_groups_insert(&ctx->flexible_groups, event);
- }
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -1984,16 +1984,20 @@ int btrfs_discard_extent(struct btrfs_fs
+ 		for (i = 0; i < bbio->num_stripes; i++, stripe++) {
+ 			u64 bytes;
+ 			struct request_queue *req_q;
++			struct btrfs_device *device = stripe->dev;
  
-+/* pick an event from the flexible_groups to rotate */
- static inline struct perf_event *
--ctx_first_active(struct perf_event_context *ctx)
-+ctx_event_to_rotate(struct perf_event_context *ctx)
- {
--	return list_first_entry_or_null(&ctx->flexible_active,
--					struct perf_event, active_list);
-+	struct perf_event *event;
+-			if (!stripe->dev->bdev) {
++			if (!device->bdev) {
+ 				ASSERT(btrfs_test_opt(fs_info, DEGRADED));
+ 				continue;
+ 			}
+-			req_q = bdev_get_queue(stripe->dev->bdev);
++			req_q = bdev_get_queue(device->bdev);
+ 			if (!blk_queue_discard(req_q))
+ 				continue;
+ 
+-			ret = btrfs_issue_discard(stripe->dev->bdev,
++			if (!test_bit(BTRFS_DEV_STATE_WRITEABLE, &device->dev_state))
++				continue;
 +
-+	/* pick the first active flexible event */
-+	event = list_first_entry_or_null(&ctx->flexible_active,
-+					 struct perf_event, active_list);
-+
-+	/* if no active flexible event, pick the first event */
-+	if (!event) {
-+		event = rb_entry_safe(rb_first(&ctx->flexible_groups.tree),
-+				      typeof(*event), group_node);
-+	}
-+
-+	return event;
- }
- 
- static bool perf_rotate_context(struct perf_cpu_context *cpuctx)
-@@ -3718,9 +3730,9 @@ static bool perf_rotate_context(struct p
- 	perf_pmu_disable(cpuctx->ctx.pmu);
- 
- 	if (task_rotate)
--		task_event = ctx_first_active(task_ctx);
-+		task_event = ctx_event_to_rotate(task_ctx);
- 	if (cpu_rotate)
--		cpu_event = ctx_first_active(&cpuctx->ctx);
-+		cpu_event = ctx_event_to_rotate(&cpuctx->ctx);
- 
- 	/*
- 	 * As per the order given at ctx_resched() first 'pop' task flexible
++			ret = btrfs_issue_discard(device->bdev,
+ 						  stripe->physical,
+ 						  stripe->length,
+ 						  &bytes);
 
 
