@@ -2,102 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 10B3A39FA12
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 17:12:36 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 8991139FA9F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 17:27:08 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233744AbhFHPO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 11:14:27 -0400
-Received: from us-smtp-delivery-124.mimecast.com ([170.10.133.124]:50584 "EHLO
-        us-smtp-delivery-124.mimecast.com" rhost-flags-OK-OK-OK-OK)
-        by vger.kernel.org with ESMTP id S233807AbhFHPOP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 11:14:15 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1623165141;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+        id S230458AbhFHP25 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 11:28:57 -0400
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44070 "EHLO
+        lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
+        with ESMTP id S231192AbhFHP25 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 8 Jun 2021 11:28:57 -0400
+Received: from galois.linutronix.de (Galois.linutronix.de [IPv6:2a0a:51c0:0:12e:550::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC8E6C061574;
+        Tue,  8 Jun 2021 08:27:03 -0700 (PDT)
+Date:   Tue, 08 Jun 2021 15:26:59 -0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1623166020;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
          content-transfer-encoding:content-transfer-encoding:
          in-reply-to:in-reply-to:references:references;
-        bh=Ma+Y7/rVHYJ+wDRQx2MNgyshZEcsANdp8Rhdd7Nu3l0=;
-        b=c9vvJGVkqkcS/SBPlm3VXRNaRtFd3X9NsXD6rS5ZX8KrB6zcrbWIrfrm6cP76rRZJmnWhw
-        JdJmT7t1WDz17jfrmy8Wb/l3RHuM66sg9TryrqCH225Sk3PSnAqSuUJZDywQinIilL3TBp
-        wTdlpHoI2k15vn8qCkMA5SZQxh+Lp6Q=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) (Using TLS) by relay.mimecast.com with ESMTP id
- us-mta-78-7L5z4_JvN1WKvYCJTaLPFQ-1; Tue, 08 Jun 2021 11:12:18 -0400
-X-MC-Unique: 7L5z4_JvN1WKvYCJTaLPFQ-1
-Received: by mail-wm1-f71.google.com with SMTP id m23-20020a05600c3b17b02901b3e8a9db8eso497521wms.6
-        for <stable@vger.kernel.org>; Tue, 08 Jun 2021 08:12:18 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20161025;
-        h=x-gm-message-state:subject:to:cc:references:from:message-id:date
-         :user-agent:mime-version:in-reply-to:content-transfer-encoding
-         :content-language;
-        bh=Ma+Y7/rVHYJ+wDRQx2MNgyshZEcsANdp8Rhdd7Nu3l0=;
-        b=FBNXB95o9SXDyQ/1TE1xrANEQR0SnTWs1RYUTxV/qf8rHzGqbYWZG/sgnBbCSB5gpt
-         mGl6w/kLEX2qhhm0isih7gSw8k6i1ylMCGbsvpIOH3sy5ENqj1YPmtgUvXSTX2GbRniJ
-         CruJphEKRogNzxfeTzk1OZajvG5HxXtQp6cEMefNEER0gCzKT1KE54oLaNIosVH2xHsL
-         g/95qSEZQAGsosFsbn5Pjg+lA8IAkOvAh47oBtIlwhPxVBHlE9xna9pwMn7SQkLCpI5O
-         epDUUuOnJXCtZzim6X51wMKoSxssBkFmoH8gt4fZh4WsjE8tW8nrLj3twTphbBxRfvU5
-         L7Ow==
-X-Gm-Message-State: AOAM5318TdXGQMzBTTW90tDiC8M42oNWvh37LPRdFi1Mq26fB7dhw0K5
-        XaDmFoHpLOkYMDEsQCAJisCdxB1Zg5mBaoxKXSfvqm+iXy1XjMzo/+kwQbNj55aAHzXD8I+iMjX
-        +rwRX0cDrxJLBfJKnHpspdnAVaG/WXkPBmggyPAgCUOkYhxMiFYUghdLVzeJW9lrAIA==
-X-Received: by 2002:adf:f28b:: with SMTP id k11mr22343322wro.89.1623165136986;
-        Tue, 08 Jun 2021 08:12:16 -0700 (PDT)
-X-Google-Smtp-Source: ABdhPJwAPeOeqX15noJQRyOaa2NEx/vRR2eMPJsfDOGcNDSbualMJ4uzJxyHFbfEx0XnIoGz8rW2pA==
-X-Received: by 2002:adf:f28b:: with SMTP id k11mr22343295wro.89.1623165136814;
-        Tue, 08 Jun 2021 08:12:16 -0700 (PDT)
-Received: from dresden.str.redhat.com ([2a02:908:1e46:160:b272:8083:d5:bc7d])
-        by smtp.gmail.com with ESMTPSA id f14sm19791658wry.40.2021.06.08.08.12.16
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 08 Jun 2021 08:12:16 -0700 (PDT)
-Subject: Re: [PATCH v2 3/7] fuse: Fix infinite loop in sget_fc()
-To:     Greg Kurz <groug@kaod.org>, Miklos Szeredi <miklos@szeredi.hu>
-Cc:     linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        virtio-fs@redhat.com, Vivek Goyal <vgoyal@redhat.com>,
-        stable@vger.kernel.org
-References: <20210604161156.408496-1-groug@kaod.org>
- <20210604161156.408496-4-groug@kaod.org>
-From:   Max Reitz <mreitz@redhat.com>
-Message-ID: <1fc488d8-91b8-9613-8127-a8b34ddb4744@redhat.com>
-Date:   Tue, 8 Jun 2021 17:12:15 +0200
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:78.0) Gecko/20100101
- Thunderbird/78.8.1
+        bh=WD6WzbVvKHAouB0+n4t355RPUO7++TOwM69JL7NosEM=;
+        b=n59MJXQyc+HMUmDhCmB8JlDa+8QluRo7+SEYh/DOZv/AB0V8fsBU68CG9UKV3xOQWbEDKe
+        ZpOcRrjOeTYla5P+79pwVBp/DB9NtMehr7FrFYmMljSh+xrJr3SrVhTgl7vYg/lHdVwi9o
+        2opdo1bGkf3j4jxtseD8VdfCKhdkyOLPblEw6HACr0vV5LHt7KxtYjQJZrGq6VjlUgKnZP
+        2mQ7n/0aD+3+KpPdWppt7Z97aE+hxlymjDLA2+OZlU28aQRM6FNqxtSISc6+oruzHtXd+F
+        FTxFOeiHNz0LVrDkSbmccntnNhymtZcG9I1seiZYZ6GnpUUOsv2sq3MGIh9Jmg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1623166020;
+        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
+         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
+         content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=WD6WzbVvKHAouB0+n4t355RPUO7++TOwM69JL7NosEM=;
+        b=H/n0abvCYuMyfVy6WhhJMdu0F5D5EN98XuASvrQ8VhpmnHW0LM6prtXmGBqIzwkT7U3A4/
+        9pjmsVdAMDy2lpAA==
+From:   "tip-bot2 for Tom Lendacky" <tip-bot2@linutronix.de>
+Sender: tip-bot2@linutronix.de
+Reply-to: linux-kernel@vger.kernel.org
+To:     linux-tip-commits@vger.kernel.org
+Subject: [tip: x86/urgent] x86/ioremap: Map EFI-reserved memory as encrypted for SEV
+Cc:     Joerg Roedel <jroedel@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>,
+        Borislav Petkov <bp@suse.de>, <stable@vger.kernel.org>,
+        x86@kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20210608095439.12668-2-joro@8bytes.org>
+References: <20210608095439.12668-2-joro@8bytes.org>
 MIME-Version: 1.0
-In-Reply-To: <20210604161156.408496-4-groug@kaod.org>
-Content-Type: text/plain; charset=utf-8; format=flowed
+Message-ID: <162316601954.29796.2695101519177924974.tip-bot2@tip-bot2>
+Robot-ID: <tip-bot2@linutronix.de>
+Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Content-Language: en-US
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 04.06.21 18:11, Greg Kurz wrote:
-> We don't set the SB_BORN flag on submounts. This is wrong as these
-> superblocks are then considered as partially constructed or dying
-> in the rest of the code and can break some assumptions.
->
-> One such case is when you have a virtiofs filesystem with submounts
-> and you try to mount it again : virtio_fs_get_tree() tries to obtain
-> a superblock with sget_fc(). The logic in sget_fc() is to loop until
-> it has either found an existing matching superblock with SB_BORN set
-> or to create a brand new one. It is assumed that a superblock without
-> SB_BORN is transient and the loop is restarted. Forgetting to set
-> SB_BORN on submounts hence causes sget_fc() to retry forever.
->
-> Setting SB_BORN requires special care, i.e. a write barrier for
-> super_cache_count() which can check SB_BORN without taking any lock.
-> We should call vfs_get_tree() to deal with that but this requires
-> to have a proper ->get_tree() implementation for submounts, which
-> is a bigger piece of work. Go for a simple bug fix in the meatime.
->
-> Fixes: bf109c64040f ("fuse: implement crossmounts")
-> Cc: mreitz@redhat.com
-> Cc: stable@vger.kernel.org # v5.10+
-> Signed-off-by: Greg Kurz <groug@kaod.org>
-> ---
->   fs/fuse/dir.c | 11 +++++++++++
->   1 file changed, 11 insertions(+)
+The following commit has been merged into the x86/urgent branch of tip:
 
-Reviewed-by: Max Reitz <mreitz@redhat.com>
+Commit-ID:     8d651ee9c71bb12fc0c8eb2786b66cbe5aa3e43b
+Gitweb:        https://git.kernel.org/tip/8d651ee9c71bb12fc0c8eb2786b66cbe5aa3e43b
+Author:        Tom Lendacky <thomas.lendacky@amd.com>
+AuthorDate:    Tue, 08 Jun 2021 11:54:33 +02:00
+Committer:     Borislav Petkov <bp@suse.de>
+CommitterDate: Tue, 08 Jun 2021 16:26:55 +02:00
 
+x86/ioremap: Map EFI-reserved memory as encrypted for SEV
+
+Some drivers require memory that is marked as EFI boot services
+data. In order for this memory to not be re-used by the kernel
+after ExitBootServices(), efi_mem_reserve() is used to preserve it
+by inserting a new EFI memory descriptor and marking it with the
+EFI_MEMORY_RUNTIME attribute.
+
+Under SEV, memory marked with the EFI_MEMORY_RUNTIME attribute needs to
+be mapped encrypted by Linux, otherwise the kernel might crash at boot
+like below:
+
+  EFI Variables Facility v0.08 2004-May-17
+  general protection fault, probably for non-canonical address 0x3597688770a868b2: 0000 [#1] SMP NOPTI
+  CPU: 13 PID: 1 Comm: swapper/0 Not tainted 5.12.4-2-default #1 openSUSE Tumbleweed
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:efi_mokvar_entry_next
+  [...]
+  Call Trace:
+   efi_mokvar_sysfs_init
+   ? efi_mokvar_table_init
+   do_one_initcall
+   ? __kmalloc
+   kernel_init_freeable
+   ? rest_init
+   kernel_init
+   ret_from_fork
+
+Expand the __ioremap_check_other() function to additionally check for
+this other type of boot data reserved at runtime and indicate that it
+should be mapped encrypted for an SEV guest.
+
+ [ bp: Massage commit message. ]
+
+Fixes: 58c909022a5a ("efi: Support for MOK variable config table")
+Reported-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Tested-by: Joerg Roedel <jroedel@suse.de>
+Cc: <stable@vger.kernel.org> # 5.10+
+Link: https://lkml.kernel.org/r/20210608095439.12668-2-joro@8bytes.org
+---
+ arch/x86/mm/ioremap.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/arch/x86/mm/ioremap.c b/arch/x86/mm/ioremap.c
+index 12c686c..60ade7d 100644
+--- a/arch/x86/mm/ioremap.c
++++ b/arch/x86/mm/ioremap.c
+@@ -118,7 +118,9 @@ static void __ioremap_check_other(resource_size_t addr, struct ioremap_desc *des
+ 	if (!IS_ENABLED(CONFIG_EFI))
+ 		return;
+ 
+-	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA)
++	if (efi_mem_type(addr) == EFI_RUNTIME_SERVICES_DATA ||
++	    (efi_mem_type(addr) == EFI_BOOT_SERVICES_DATA &&
++	     efi_mem_attributes(addr) & EFI_MEMORY_RUNTIME))
+ 		desc->flags |= IORES_MAP_ENCRYPTED;
+ }
+ 
