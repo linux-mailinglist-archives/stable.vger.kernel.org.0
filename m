@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2087D3A02F4
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:30 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 3DBE93A02F2
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:29 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236689AbhFHTL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:26 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55066 "EHLO mail.kernel.org"
+        id S236684AbhFHTLU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:44800 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236587AbhFHTHx (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S236335AbhFHTHx (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Jun 2021 15:07:53 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 56E0261936;
-        Tue,  8 Jun 2021 18:47:30 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id D7DA661933;
+        Tue,  8 Jun 2021 18:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178050;
-        bh=8PJQ36XYeX7phTM+gqsIOFqb+x2uLV62kLU0PZKccTY=;
+        s=korg; t=1623178053;
+        bh=H0iMdHPlErJ3Mc8EOGRcHCEsbDEnujsmZvnC+JHTfqY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y7KedI61gOmlvD7WciT+VXVkWQARfWayxKw6HODZr8tkjRpI/XP6zOOidMozLxFm3
-         Y1zaZe2wH7VYeQ3WmsiM8pXsWWSK//+9LZk63CJk86EU8gtxXLUQh2ZAjKe1hCAPMQ
-         HvqxFjV6AH1qVItvE1nyjKR5utQGzAHJBb3eDIJE=
+        b=fi5NJ/dBEzHQJe0l+/vgaCxUS4yEps2WTx8z+rud4rgjf6IDBo7dG4VKrV8p/hpaO
+         rmAh4QDkbj98WNeqvJwssfIr2mDgCdl2F+Xi5/XNOUPPhyD6Yy7XG3VxEFxkQnVQ8n
+         9qfZGJr1+cQRroqmoDAoZTONKBwkKuzGgUIjQ2ws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org,
-        Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        George Kuruvinakunnel <george.kuruvinakunnel@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 059/161] cxgb4: avoid link re-train during TC-MQPRIO configuration
-Date:   Tue,  8 Jun 2021 20:26:29 +0200
-Message-Id: <20210608175947.463909161@linuxfoundation.org>
+Subject: [PATCH 5.12 060/161] i40e: optimize for XDP_REDIRECT in xsk path
+Date:   Tue,  8 Jun 2021 20:26:30 +0200
+Message-Id: <20210608175947.495088494@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
 References: <20210608175945.476074951@linuxfoundation.org>
@@ -41,143 +42,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-[ Upstream commit 3822d0670c9d4342794d73e0d0e615322b40438e ]
+[ Upstream commit 346497c78d15cdd5bdc3b642a895009359e5457f ]
 
-When configuring TC-MQPRIO offload, only turn off netdev carrier and
-don't bring physical link down in hardware. Otherwise, when the
-physical link is brought up again after configuration, it gets
-re-trained and stalls ongoing traffic.
+Optimize i40e_run_xdp_zc() for the XDP program verdict being
+XDP_REDIRECT in the xsk zero-copy path. This path is only used when
+having AF_XDP zero-copy on and in that case most packets will be
+directed to user space. This provides a little over 100k extra packets
+in throughput on my server when running l2fwd in xdpsock.
 
-Also, when firmware is no longer accessible or crashed, avoid sending
-FLOWC and waiting for reply that will never come.
-
-Fix following hung_task_timeout_secs trace seen in these cases.
-
-INFO: task tc:20807 blocked for more than 122 seconds.
-      Tainted: G S                5.13.0-rc3+ #122
-"echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-task:tc   state:D stack:14768 pid:20807 ppid: 19366 flags:0x00000000
-Call Trace:
- __schedule+0x27b/0x6a0
- schedule+0x37/0xa0
- schedule_preempt_disabled+0x5/0x10
- __mutex_lock.isra.14+0x2a0/0x4a0
- ? netlink_lookup+0x120/0x1a0
- ? rtnl_fill_ifinfo+0x10f0/0x10f0
- __netlink_dump_start+0x70/0x250
- rtnetlink_rcv_msg+0x28b/0x380
- ? rtnl_fill_ifinfo+0x10f0/0x10f0
- ? rtnl_calcit.isra.42+0x120/0x120
- netlink_rcv_skb+0x4b/0xf0
- netlink_unicast+0x1a0/0x280
- netlink_sendmsg+0x216/0x440
- sock_sendmsg+0x56/0x60
- __sys_sendto+0xe9/0x150
- ? handle_mm_fault+0x6d/0x1b0
- ? do_user_addr_fault+0x1c5/0x620
- __x64_sys_sendto+0x1f/0x30
- do_syscall_64+0x3c/0x80
- entry_SYSCALL_64_after_hwframe+0x44/0xae
-RIP: 0033:0x7f7f73218321
-RSP: 002b:00007ffd19626208 EFLAGS: 00000246 ORIG_RAX: 000000000000002c
-RAX: ffffffffffffffda RBX: 000055b7c0a8b240 RCX: 00007f7f73218321
-RDX: 0000000000000028 RSI: 00007ffd19626210 RDI: 0000000000000003
-RBP: 000055b7c08680ff R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 000055b7c085f5f6
-R13: 000055b7c085f60a R14: 00007ffd19636470 R15: 00007ffd196262a0
-
-Fixes: b1396c2bd675 ("cxgb4: parse and configure TC-MQPRIO offload")
-Signed-off-by: Rahul Lakkireddy <rahul.lakkireddy@chelsio.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Tested-by: George Kuruvinakunnel <george.kuruvinakunnel@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/chelsio/cxgb4/cxgb4.h           | 2 --
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c      | 4 ++--
- drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c | 9 ++++++---
- drivers/net/ethernet/chelsio/cxgb4/sge.c             | 6 ++++++
- 4 files changed, 14 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_xsk.c | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h b/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
-index 314f8d806723..9058f09f921e 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4.h
-@@ -2177,8 +2177,6 @@ int cxgb4_update_mac_filt(struct port_info *pi, unsigned int viid,
- 			  bool persistent, u8 *smt_idx);
- int cxgb4_get_msix_idx_from_bmap(struct adapter *adap);
- void cxgb4_free_msix_idx_in_bmap(struct adapter *adap, u32 msix_idx);
--int cxgb_open(struct net_device *dev);
--int cxgb_close(struct net_device *dev);
- void cxgb4_enable_rx(struct adapter *adap, struct sge_rspq *q);
- void cxgb4_quiesce_rx(struct sge_rspq *q);
- int cxgb4_port_mirror_alloc(struct net_device *dev);
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-index 421bd9b88028..1f601de02e70 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_main.c
-@@ -2834,7 +2834,7 @@ static void cxgb_down(struct adapter *adapter)
- /*
-  * net_device operations
-  */
--int cxgb_open(struct net_device *dev)
-+static int cxgb_open(struct net_device *dev)
- {
- 	struct port_info *pi = netdev_priv(dev);
- 	struct adapter *adapter = pi->adapter;
-@@ -2882,7 +2882,7 @@ out_unlock:
- 	return err;
- }
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_xsk.c b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+index 12ca84113587..3af72dc08539 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_xsk.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_xsk.c
+@@ -160,6 +160,13 @@ static int i40e_run_xdp_zc(struct i40e_ring *rx_ring, struct xdp_buff *xdp)
+ 	xdp_prog = READ_ONCE(rx_ring->xdp_prog);
+ 	act = bpf_prog_run_xdp(xdp_prog, xdp);
  
--int cxgb_close(struct net_device *dev)
-+static int cxgb_close(struct net_device *dev)
- {
- 	struct port_info *pi = netdev_priv(dev);
- 	struct adapter *adapter = pi->adapter;
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
-index 6c259de96f96..338b04f339b3 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/cxgb4_tc_mqprio.c
-@@ -589,7 +589,8 @@ int cxgb4_setup_tc_mqprio(struct net_device *dev,
- 	 * down before configuring tc params.
- 	 */
- 	if (netif_running(dev)) {
--		cxgb_close(dev);
-+		netif_tx_stop_all_queues(dev);
-+		netif_carrier_off(dev);
- 		needs_bring_up = true;
- 	}
- 
-@@ -615,8 +616,10 @@ int cxgb4_setup_tc_mqprio(struct net_device *dev,
- 	}
- 
- out:
--	if (needs_bring_up)
--		cxgb_open(dev);
-+	if (needs_bring_up) {
-+		netif_tx_start_all_queues(dev);
-+		netif_carrier_on(dev);
-+	}
- 
- 	mutex_unlock(&adap->tc_mqprio->mqprio_mutex);
- 	return ret;
-diff --git a/drivers/net/ethernet/chelsio/cxgb4/sge.c b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-index 1e5f2edb70cf..6a099cb34b12 100644
---- a/drivers/net/ethernet/chelsio/cxgb4/sge.c
-+++ b/drivers/net/ethernet/chelsio/cxgb4/sge.c
-@@ -2556,6 +2556,12 @@ int cxgb4_ethofld_send_flowc(struct net_device *dev, u32 eotid, u32 tc)
- 	if (!eosw_txq)
- 		return -ENOMEM;
- 
-+	if (!(adap->flags & CXGB4_FW_OK)) {
-+		/* Don't stall caller when access to FW is lost */
-+		complete(&eosw_txq->completion);
-+		return -EIO;
++	if (likely(act == XDP_REDIRECT)) {
++		err = xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog);
++		result = !err ? I40E_XDP_REDIR : I40E_XDP_CONSUMED;
++		rcu_read_unlock();
++		return result;
 +	}
 +
- 	skb = alloc_skb(len, GFP_KERNEL);
- 	if (!skb)
- 		return -ENOMEM;
+ 	switch (act) {
+ 	case XDP_PASS:
+ 		break;
+@@ -167,10 +174,6 @@ static int i40e_run_xdp_zc(struct i40e_ring *rx_ring, struct xdp_buff *xdp)
+ 		xdp_ring = rx_ring->vsi->xdp_rings[rx_ring->queue_index];
+ 		result = i40e_xmit_xdp_tx_ring(xdp, xdp_ring);
+ 		break;
+-	case XDP_REDIRECT:
+-		err = xdp_do_redirect(rx_ring->netdev, xdp, xdp_prog);
+-		result = !err ? I40E_XDP_REDIR : I40E_XDP_CONSUMED;
+-		break;
+ 	default:
+ 		bpf_warn_invalid_xdp_action(act);
+ 		fallthrough;
 -- 
 2.30.2
 
