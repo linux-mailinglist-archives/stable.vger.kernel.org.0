@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8C36039FF2C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A9E5D39FF20
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234069AbhFHSbC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:31:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55402 "EHLO mail.kernel.org"
+        id S233355AbhFHSar (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:30:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:55444 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234043AbhFHSbA (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:31:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id C6168613BD;
-        Tue,  8 Jun 2021 18:28:50 +0000 (UTC)
+        id S233642AbhFHSar (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:30:47 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 0D78961380;
+        Tue,  8 Jun 2021 18:28:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176931;
-        bh=hv6Cx92D1GhxtqEGoD/jG1K/qYa0/KEHnH+Wp3T4aHA=;
+        s=korg; t=1623176933;
+        bh=Baws95ltPI1dAH6Mq25BiK4aXjq113FeFOTIO0ZzuyM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1Gd6+tuCk/YQkkGwJubxh1knH/beaRQmeaTV0fTGSFiGp3dr4mGF4hTmG/EjqmvN
-         1ex562SpfhmmRoFgg/LiViA3WhMRg3Qlcyf4wrjxYLgz/8bNHUTS6UBH3wDfuiWBD8
-         DJLUOQfXu9+NiAirJF36uZRGZ6/mt3Sy+TAr7WYs=
+        b=v5Kgs89DrdhzpG3s4+dHIQq5K+anJymhmIILEMmH8MLpUVGB4YJAFhj0jzU0XpEdZ
+         GHFa3TDTrldX0N42ycGU/aFj8kDqowNRzl3XmNLjiRviiD/jtN62mRjfFX5TiPYdAF
+         ET7kfV6UpVSTxblH8svvFGrtoBnTmyjpNEIBOh34=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Mark Rutland <mark.rutland@arm.com>,
-        Christian Brauner <christian.brauner@ubuntu.com>,
-        Cedric Le Goater <clg@fr.ibm.com>,
-        Christian Brauner <christian@brauner.io>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Martin Schwidefsky <schwidefsky@de.ibm.com>,
-        Paul Mackerras <paulus@samba.org>,
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Jan Kara <jack@suse.cz>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.4 17/23] pid: take a reference when initializing `cad_pid`
-Date:   Tue,  8 Jun 2021 20:27:09 +0200
-Message-Id: <20210608175927.095013842@linuxfoundation.org>
+Subject: [PATCH 4.4 18/23] ocfs2: fix data corruption by fallocate
+Date:   Tue,  8 Jun 2021 20:27:10 +0200
+Message-Id: <20210608175927.125657530@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
 References: <20210608175926.524658689@linuxfoundation.org>
@@ -46,138 +45,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit 0711f0d7050b9e07c44bc159bbc64ac0a1022c7f upstream.
+commit 6bba4471f0cc1296fe3c2089b9e52442d3074b2e upstream.
 
-During boot, kernel_init_freeable() initializes `cad_pid` to the init
-task's struct pid.  Later on, we may change `cad_pid` via a sysctl, and
-when this happens proc_do_cad_pid() will increment the refcount on the
-new pid via get_pid(), and will decrement the refcount on the old pid
-via put_pid().  As we never called get_pid() when we initialized
-`cad_pid`, we decrement a reference we never incremented, can therefore
-free the init task's struct pid early.  As there can be dangling
-references to the struct pid, we can later encounter a use-after-free
-(e.g.  when delivering signals).
+When fallocate punches holes out of inode size, if original isize is in
+the middle of last cluster, then the part from isize to the end of the
+cluster will be zeroed with buffer write, at that time isize is not yet
+updated to match the new size, if writeback is kicked in, it will invoke
+ocfs2_writepage()->block_write_full_page() where the pages out of inode
+size will be dropped.  That will cause file corruption.  Fix this by
+zero out eof blocks when extending the inode size.
 
-This was spotted when fuzzing v5.13-rc3 with Syzkaller, but seems to
-have been around since the conversion of `cad_pid` to struct pid in
-commit 9ec52099e4b8 ("[PATCH] replace cad_pid by a struct pid") from the
-pre-KASAN stone age of v2.6.19.
+Running the following command with qemu-image 4.2.1 can get a corrupted
+coverted image file easily.
 
-Fix this by getting a reference to the init task's struct pid when we
-assign it to `cad_pid`.
+    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
+             -O qcow2 -o compat=1.1 $qcow_image.conv
 
-Full KASAN splat below.
+The usage of fallocate in qemu is like this, it first punches holes out
+of inode size, then extend the inode size.
 
-   ==================================================================
-   BUG: KASAN: use-after-free in ns_of_pid include/linux/pid.h:153 [inline]
-   BUG: KASAN: use-after-free in task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-   Read of size 4 at addr ffff23794dda0004 by task syz-executor.0/273
+    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
+    fallocate(11, 0, 2276196352, 65536) = 0
 
-   CPU: 1 PID: 273 Comm: syz-executor.0 Not tainted 5.12.0-00001-g9aef892b2d15 #1
-   Hardware name: linux,dummy-virt (DT)
-   Call trace:
-    ns_of_pid include/linux/pid.h:153 [inline]
-    task_active_pid_ns+0xc0/0xc8 kernel/pid.c:509
-    do_notify_parent+0x308/0xe60 kernel/signal.c:1950
-    exit_notify kernel/exit.c:682 [inline]
-    do_exit+0x2334/0x2bd0 kernel/exit.c:845
-    do_group_exit+0x108/0x2c8 kernel/exit.c:922
-    get_signal+0x4e4/0x2a88 kernel/signal.c:2781
-    do_signal arch/arm64/kernel/signal.c:882 [inline]
-    do_notify_resume+0x300/0x970 arch/arm64/kernel/signal.c:936
-    work_pending+0xc/0x2dc
+v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
+v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
 
-   Allocated by task 0:
-    slab_post_alloc_hook+0x50/0x5c0 mm/slab.h:516
-    slab_alloc_node mm/slub.c:2907 [inline]
-    slab_alloc mm/slub.c:2915 [inline]
-    kmem_cache_alloc+0x1f4/0x4c0 mm/slub.c:2920
-    alloc_pid+0xdc/0xc00 kernel/pid.c:180
-    copy_process+0x2794/0x5e18 kernel/fork.c:2129
-    kernel_clone+0x194/0x13c8 kernel/fork.c:2500
-    kernel_thread+0xd4/0x110 kernel/fork.c:2552
-    rest_init+0x44/0x4a0 init/main.c:687
-    arch_call_rest_init+0x1c/0x28
-    start_kernel+0x520/0x554 init/main.c:1064
-    0x0
-
-   Freed by task 270:
-    slab_free_hook mm/slub.c:1562 [inline]
-    slab_free_freelist_hook+0x98/0x260 mm/slub.c:1600
-    slab_free mm/slub.c:3161 [inline]
-    kmem_cache_free+0x224/0x8e0 mm/slub.c:3177
-    put_pid.part.4+0xe0/0x1a8 kernel/pid.c:114
-    put_pid+0x30/0x48 kernel/pid.c:109
-    proc_do_cad_pid+0x190/0x1b0 kernel/sysctl.c:1401
-    proc_sys_call_handler+0x338/0x4b0 fs/proc/proc_sysctl.c:591
-    proc_sys_write+0x34/0x48 fs/proc/proc_sysctl.c:617
-    call_write_iter include/linux/fs.h:1977 [inline]
-    new_sync_write+0x3ac/0x510 fs/read_write.c:518
-    vfs_write fs/read_write.c:605 [inline]
-    vfs_write+0x9c4/0x1018 fs/read_write.c:585
-    ksys_write+0x124/0x240 fs/read_write.c:658
-    __do_sys_write fs/read_write.c:670 [inline]
-    __se_sys_write fs/read_write.c:667 [inline]
-    __arm64_sys_write+0x78/0xb0 fs/read_write.c:667
-    __invoke_syscall arch/arm64/kernel/syscall.c:37 [inline]
-    invoke_syscall arch/arm64/kernel/syscall.c:49 [inline]
-    el0_svc_common.constprop.1+0x16c/0x388 arch/arm64/kernel/syscall.c:129
-    do_el0_svc+0xf8/0x150 arch/arm64/kernel/syscall.c:168
-    el0_svc+0x28/0x38 arch/arm64/kernel/entry-common.c:416
-    el0_sync_handler+0x134/0x180 arch/arm64/kernel/entry-common.c:432
-    el0_sync+0x154/0x180 arch/arm64/kernel/entry.S:701
-
-   The buggy address belongs to the object at ffff23794dda0000
-    which belongs to the cache pid of size 224
-   The buggy address is located 4 bytes inside of
-    224-byte region [ffff23794dda0000, ffff23794dda00e0)
-   The buggy address belongs to the page:
-   page:(____ptrval____) refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x4dda0
-   head:(____ptrval____) order:1 compound_mapcount:0
-   flags: 0x3fffc0000010200(slab|head)
-   raw: 03fffc0000010200 dead000000000100 dead000000000122 ffff23794d40d080
-   raw: 0000000000000000 0000000000190019 00000001ffffffff 0000000000000000
-   page dumped because: kasan: bad access detected
-
-   Memory state around the buggy address:
-    ffff23794dd9ff00: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-    ffff23794dd9ff80: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
-   >ffff23794dda0000: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
-                      ^
-    ffff23794dda0080: fb fb fb fb fb fb fb fb fb fb fb fb fc fc fc fc
-    ffff23794dda0100: fc fc fc fc fc fc fc fc 00 00 00 00 00 00 00 00
-   ==================================================================
-
-Link: https://lkml.kernel.org/r/20210524172230.38715-1-mark.rutland@arm.com
-Fixes: 9ec52099e4b8678a ("[PATCH] replace cad_pid by a struct pid")
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Christian Brauner <christian.brauner@ubuntu.com>
-Cc: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Christian Brauner <christian@brauner.io>
-Cc: Eric W. Biederman <ebiederm@xmission.com>
-Cc: Kees Cook <keescook@chromium.org
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Paul Mackerras <paulus@samba.org>
+Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- init/main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/ocfs2/file.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 50 insertions(+), 5 deletions(-)
 
---- a/init/main.c
-+++ b/init/main.c
-@@ -997,7 +997,7 @@ static noinline void __init kernel_init_
- 	 */
- 	set_cpus_allowed_ptr(current, cpu_all_mask);
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1860,6 +1860,45 @@ out:
+ }
  
--	cad_pid = task_pid(current);
-+	cad_pid = get_pid(task_pid(current));
+ /*
++ * zero out partial blocks of one cluster.
++ *
++ * start: file offset where zero starts, will be made upper block aligned.
++ * len: it will be trimmed to the end of current cluster if "start + len"
++ *      is bigger than it.
++ */
++static int ocfs2_zeroout_partial_cluster(struct inode *inode,
++					u64 start, u64 len)
++{
++	int ret;
++	u64 start_block, end_block, nr_blocks;
++	u64 p_block, offset;
++	u32 cluster, p_cluster, nr_clusters;
++	struct super_block *sb = inode->i_sb;
++	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
++
++	if (start + len < end)
++		end = start + len;
++
++	start_block = ocfs2_blocks_for_bytes(sb, start);
++	end_block = ocfs2_blocks_for_bytes(sb, end);
++	nr_blocks = end_block - start_block;
++	if (!nr_blocks)
++		return 0;
++
++	cluster = ocfs2_bytes_to_clusters(sb, start);
++	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
++				&nr_clusters, NULL);
++	if (ret)
++		return ret;
++	if (!p_cluster)
++		return 0;
++
++	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
++	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
++	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
++}
++
++/*
+  * Parts of this function taken from xfs_change_file_space()
+  */
+ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
+@@ -1869,7 +1908,7 @@ static int __ocfs2_change_file_space(str
+ {
+ 	int ret;
+ 	s64 llen;
+-	loff_t size;
++	loff_t size, orig_isize;
+ 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+ 	struct buffer_head *di_bh = NULL;
+ 	handle_t *handle;
+@@ -1900,6 +1939,7 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
+ 	}
  
- 	smp_prepare_cpus(setup_max_cpus);
++	orig_isize = i_size_read(inode);
+ 	switch (sr->l_whence) {
+ 	case 0: /*SEEK_SET*/
+ 		break;
+@@ -1907,7 +1947,7 @@ static int __ocfs2_change_file_space(str
+ 		sr->l_start += f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		sr->l_start += i_size_read(inode);
++		sr->l_start += orig_isize;
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -1961,6 +2001,14 @@ static int __ocfs2_change_file_space(str
+ 	default:
+ 		ret = -EINVAL;
+ 	}
++
++	/* zeroout eof blocks in the cluster. */
++	if (!ret && change_size && orig_isize < size) {
++		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
++					size - orig_isize);
++		if (!ret)
++			i_size_write(inode, size);
++	}
+ 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
+ 	if (ret) {
+ 		mlog_errno(ret);
+@@ -1977,9 +2025,6 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
+ 	}
  
+-	if (change_size && i_size_read(inode) < size)
+-		i_size_write(inode, size);
+-
+ 	inode->i_ctime = inode->i_mtime = CURRENT_TIME;
+ 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
+ 	if (ret < 0)
 
 
