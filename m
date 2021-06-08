@@ -2,36 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 61CDA3A0367
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:24:29 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F3AD23A023D
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:02 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236633AbhFHTQi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:16:38 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38704 "EHLO mail.kernel.org"
+        id S234416AbhFHTCO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:14 -0400
+Received: from mail.kernel.org ([198.145.29.99]:39404 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S238303AbhFHTOh (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:14:37 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id A47206142F;
-        Tue,  8 Jun 2021 18:50:14 +0000 (UTC)
+        id S237335AbhFHTAR (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:17 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id A094D616EA;
+        Tue,  8 Jun 2021 18:43:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178215;
-        bh=Eed/U8DmyzBVZwD+d+5trDzBPZJW3qpDqiLz3j0286s=;
+        s=korg; t=1623177816;
+        bh=xpoj0fyd6Ba+qXhkJrd3w89Pb8mWMc8DqB5qmlawlM8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLkip/J4wOIJmqHZKlrQ5+GblcWrBAv8QJiP4Ht6z/jbGn/Z10T8a6ft9/P94QIoh
-         aqZ2vT/rjBAxYo0wPfcwUtojyIEHF7n3XbOuokl5kzUcrlEIDPej2QzVdpSaNTzdQN
-         T2NxPad6MSLZ4kUjHSMtVk/IfKPaXiHgT+S6AQ50=
+        b=eBpV2SiHLYRPlir/4udH10Ct+suj0NKTqP3TAll1H1xZbA10QInpM7CGu6RAGJCjL
+         YCh4lV7T2b07XrU3prYblB+gtXIgicgaB81uVfmlK8FWWCmDw3RdMzdPbe+2tJKge+
+         E31BTZaNPrQC72bXMnj2Ol+CQebvh74RQD3kODcw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, stable@kernel.org,
-        Harshad Shirwadkar <harshadshirwadkar@gmail.com>,
-        Theodore Tso <tytso@mit.edu>
-Subject: [PATCH 5.12 118/161] ext4: fix fast commit alignment issues
-Date:   Tue,  8 Jun 2021 20:27:28 +0200
-Message-Id: <20210608175949.441909939@linuxfoundation.org>
+        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Jan Kara <jack@suse.cz>, Mark Fasheh <mark@fasheh.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
+        Jun Piao <piaojun@huawei.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 5.10 109/137] ocfs2: fix data corruption by fallocate
+Date:   Tue,  8 Jun 2021 20:27:29 +0200
+Message-Id: <20210608175946.070928720@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,439 +45,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
+From: Junxiao Bi <junxiao.bi@oracle.com>
 
-commit a7ba36bc94f20b6c77f16364b9a23f582ea8faac upstream.
+commit 6bba4471f0cc1296fe3c2089b9e52442d3074b2e upstream.
 
-Fast commit recovery data on disk may not be aligned. So, when the
-recovery code reads it, this patch makes sure that fast commit info
-found on-disk is first memcpy-ed into an aligned variable before
-accessing it. As a consequence of it, we also remove some macros that
-could resulted in unaligned accesses.
+When fallocate punches holes out of inode size, if original isize is in
+the middle of last cluster, then the part from isize to the end of the
+cluster will be zeroed with buffer write, at that time isize is not yet
+updated to match the new size, if writeback is kicked in, it will invoke
+ocfs2_writepage()->block_write_full_page() where the pages out of inode
+size will be dropped.  That will cause file corruption.  Fix this by
+zero out eof blocks when extending the inode size.
 
-Cc: stable@kernel.org
-Fixes: 8016e29f4362 ("ext4: fast commit recovery path")
-Signed-off-by: Harshad Shirwadkar <harshadshirwadkar@gmail.com>
-Link: https://lore.kernel.org/r/20210519215920.2037527-1-harshads@google.com
-Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Running the following command with qemu-image 4.2.1 can get a corrupted
+coverted image file easily.
+
+    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
+             -O qcow2 -o compat=1.1 $qcow_image.conv
+
+The usage of fallocate in qemu is like this, it first punches holes out
+of inode size, then extend the inode size.
+
+    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
+    fallocate(11, 0, 2276196352, 65536) = 0
+
+v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
+v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
+
+Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
+Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/fast_commit.c |  170 ++++++++++++++++++++++++++------------------------
- fs/ext4/fast_commit.h |   19 -----
- 2 files changed, 90 insertions(+), 99 deletions(-)
+ fs/ocfs2/file.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
+ 1 file changed, 50 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/fast_commit.c
-+++ b/fs/ext4/fast_commit.c
-@@ -1288,28 +1288,29 @@ struct dentry_info_args {
- };
- 
- static inline void tl_to_darg(struct dentry_info_args *darg,
--				struct  ext4_fc_tl *tl)
-+			      struct  ext4_fc_tl *tl, u8 *val)
- {
--	struct ext4_fc_dentry_info *fcd;
-+	struct ext4_fc_dentry_info fcd;
- 
--	fcd = (struct ext4_fc_dentry_info *)ext4_fc_tag_val(tl);
-+	memcpy(&fcd, val, sizeof(fcd));
- 
--	darg->parent_ino = le32_to_cpu(fcd->fc_parent_ino);
--	darg->ino = le32_to_cpu(fcd->fc_ino);
--	darg->dname = fcd->fc_dname;
--	darg->dname_len = ext4_fc_tag_len(tl) -
--			sizeof(struct ext4_fc_dentry_info);
-+	darg->parent_ino = le32_to_cpu(fcd.fc_parent_ino);
-+	darg->ino = le32_to_cpu(fcd.fc_ino);
-+	darg->dname = val + offsetof(struct ext4_fc_dentry_info, fc_dname);
-+	darg->dname_len = le16_to_cpu(tl->fc_len) -
-+		sizeof(struct ext4_fc_dentry_info);
+--- a/fs/ocfs2/file.c
++++ b/fs/ocfs2/file.c
+@@ -1856,6 +1856,45 @@ out:
  }
  
- /* Unlink replay function */
--static int ext4_fc_replay_unlink(struct super_block *sb, struct ext4_fc_tl *tl)
-+static int ext4_fc_replay_unlink(struct super_block *sb, struct ext4_fc_tl *tl,
-+				 u8 *val)
- {
- 	struct inode *inode, *old_parent;
- 	struct qstr entry;
- 	struct dentry_info_args darg;
- 	int ret = 0;
- 
--	tl_to_darg(&darg, tl);
-+	tl_to_darg(&darg, tl, val);
- 
- 	trace_ext4_fc_replay(sb, EXT4_FC_TAG_UNLINK, darg.ino,
- 			darg.parent_ino, darg.dname_len);
-@@ -1399,13 +1400,14 @@ out:
- }
- 
- /* Link replay function */
--static int ext4_fc_replay_link(struct super_block *sb, struct ext4_fc_tl *tl)
-+static int ext4_fc_replay_link(struct super_block *sb, struct ext4_fc_tl *tl,
-+			       u8 *val)
- {
- 	struct inode *inode;
- 	struct dentry_info_args darg;
- 	int ret = 0;
- 
--	tl_to_darg(&darg, tl);
-+	tl_to_darg(&darg, tl, val);
- 	trace_ext4_fc_replay(sb, EXT4_FC_TAG_LINK, darg.ino,
- 			darg.parent_ino, darg.dname_len);
- 
-@@ -1450,9 +1452,10 @@ static int ext4_fc_record_modified_inode
  /*
-  * Inode replay function
-  */
--static int ext4_fc_replay_inode(struct super_block *sb, struct ext4_fc_tl *tl)
-+static int ext4_fc_replay_inode(struct super_block *sb, struct ext4_fc_tl *tl,
-+				u8 *val)
- {
--	struct ext4_fc_inode *fc_inode;
-+	struct ext4_fc_inode fc_inode;
- 	struct ext4_inode *raw_inode;
- 	struct ext4_inode *raw_fc_inode;
- 	struct inode *inode = NULL;
-@@ -1460,9 +1463,9 @@ static int ext4_fc_replay_inode(struct s
- 	int inode_len, ino, ret, tag = le16_to_cpu(tl->fc_tag);
- 	struct ext4_extent_header *eh;
- 
--	fc_inode = (struct ext4_fc_inode *)ext4_fc_tag_val(tl);
-+	memcpy(&fc_inode, val, sizeof(fc_inode));
- 
--	ino = le32_to_cpu(fc_inode->fc_ino);
-+	ino = le32_to_cpu(fc_inode.fc_ino);
- 	trace_ext4_fc_replay(sb, tag, ino, 0, 0);
- 
- 	inode = ext4_iget(sb, ino, EXT4_IGET_NORMAL);
-@@ -1474,12 +1477,13 @@ static int ext4_fc_replay_inode(struct s
- 
- 	ext4_fc_record_modified_inode(sb, ino);
- 
--	raw_fc_inode = (struct ext4_inode *)fc_inode->fc_raw_inode;
-+	raw_fc_inode = (struct ext4_inode *)
-+		(val + offsetof(struct ext4_fc_inode, fc_raw_inode));
- 	ret = ext4_get_fc_inode_loc(sb, ino, &iloc);
- 	if (ret)
- 		goto out;
- 
--	inode_len = ext4_fc_tag_len(tl) - sizeof(struct ext4_fc_inode);
-+	inode_len = le16_to_cpu(tl->fc_len) - sizeof(struct ext4_fc_inode);
- 	raw_inode = ext4_raw_inode(&iloc);
- 
- 	memcpy(raw_inode, raw_fc_inode, offsetof(struct ext4_inode, i_block));
-@@ -1547,14 +1551,15 @@ out:
-  * inode for which we are trying to create a dentry here, should already have
-  * been replayed before we start here.
-  */
--static int ext4_fc_replay_create(struct super_block *sb, struct ext4_fc_tl *tl)
-+static int ext4_fc_replay_create(struct super_block *sb, struct ext4_fc_tl *tl,
-+				 u8 *val)
- {
- 	int ret = 0;
- 	struct inode *inode = NULL;
- 	struct inode *dir = NULL;
- 	struct dentry_info_args darg;
- 
--	tl_to_darg(&darg, tl);
-+	tl_to_darg(&darg, tl, val);
- 
- 	trace_ext4_fc_replay(sb, EXT4_FC_TAG_CREAT, darg.ino,
- 			darg.parent_ino, darg.dname_len);
-@@ -1633,9 +1638,9 @@ static int ext4_fc_record_regions(struct
- 
- /* Replay add range tag */
- static int ext4_fc_replay_add_range(struct super_block *sb,
--				struct ext4_fc_tl *tl)
-+				    struct ext4_fc_tl *tl, u8 *val)
- {
--	struct ext4_fc_add_range *fc_add_ex;
-+	struct ext4_fc_add_range fc_add_ex;
- 	struct ext4_extent newex, *ex;
- 	struct inode *inode;
- 	ext4_lblk_t start, cur;
-@@ -1645,15 +1650,14 @@ static int ext4_fc_replay_add_range(stru
- 	struct ext4_ext_path *path = NULL;
- 	int ret;
- 
--	fc_add_ex = (struct ext4_fc_add_range *)ext4_fc_tag_val(tl);
--	ex = (struct ext4_extent *)&fc_add_ex->fc_ex;
-+	memcpy(&fc_add_ex, val, sizeof(fc_add_ex));
-+	ex = (struct ext4_extent *)&fc_add_ex.fc_ex;
- 
- 	trace_ext4_fc_replay(sb, EXT4_FC_TAG_ADD_RANGE,
--		le32_to_cpu(fc_add_ex->fc_ino), le32_to_cpu(ex->ee_block),
-+		le32_to_cpu(fc_add_ex.fc_ino), le32_to_cpu(ex->ee_block),
- 		ext4_ext_get_actual_len(ex));
- 
--	inode = ext4_iget(sb, le32_to_cpu(fc_add_ex->fc_ino),
--				EXT4_IGET_NORMAL);
-+	inode = ext4_iget(sb, le32_to_cpu(fc_add_ex.fc_ino), EXT4_IGET_NORMAL);
- 	if (IS_ERR(inode)) {
- 		jbd_debug(1, "Inode not found.");
- 		return 0;
-@@ -1762,32 +1766,33 @@ next:
- 
- /* Replay DEL_RANGE tag */
- static int
--ext4_fc_replay_del_range(struct super_block *sb, struct ext4_fc_tl *tl)
-+ext4_fc_replay_del_range(struct super_block *sb, struct ext4_fc_tl *tl,
-+			 u8 *val)
- {
- 	struct inode *inode;
--	struct ext4_fc_del_range *lrange;
-+	struct ext4_fc_del_range lrange;
- 	struct ext4_map_blocks map;
- 	ext4_lblk_t cur, remaining;
- 	int ret;
- 
--	lrange = (struct ext4_fc_del_range *)ext4_fc_tag_val(tl);
--	cur = le32_to_cpu(lrange->fc_lblk);
--	remaining = le32_to_cpu(lrange->fc_len);
-+	memcpy(&lrange, val, sizeof(lrange));
-+	cur = le32_to_cpu(lrange.fc_lblk);
-+	remaining = le32_to_cpu(lrange.fc_len);
- 
- 	trace_ext4_fc_replay(sb, EXT4_FC_TAG_DEL_RANGE,
--		le32_to_cpu(lrange->fc_ino), cur, remaining);
-+		le32_to_cpu(lrange.fc_ino), cur, remaining);
- 
--	inode = ext4_iget(sb, le32_to_cpu(lrange->fc_ino), EXT4_IGET_NORMAL);
-+	inode = ext4_iget(sb, le32_to_cpu(lrange.fc_ino), EXT4_IGET_NORMAL);
- 	if (IS_ERR(inode)) {
--		jbd_debug(1, "Inode %d not found", le32_to_cpu(lrange->fc_ino));
-+		jbd_debug(1, "Inode %d not found", le32_to_cpu(lrange.fc_ino));
- 		return 0;
- 	}
- 
- 	ret = ext4_fc_record_modified_inode(sb, inode->i_ino);
- 
- 	jbd_debug(1, "DEL_RANGE, inode %ld, lblk %d, len %d\n",
--			inode->i_ino, le32_to_cpu(lrange->fc_lblk),
--			le32_to_cpu(lrange->fc_len));
-+			inode->i_ino, le32_to_cpu(lrange.fc_lblk),
-+			le32_to_cpu(lrange.fc_len));
- 	while (remaining > 0) {
- 		map.m_lblk = cur;
- 		map.m_len = remaining;
-@@ -1808,8 +1813,8 @@ ext4_fc_replay_del_range(struct super_bl
- 	}
- 
- 	ret = ext4_punch_hole(inode,
--		le32_to_cpu(lrange->fc_lblk) << sb->s_blocksize_bits,
--		le32_to_cpu(lrange->fc_len) <<  sb->s_blocksize_bits);
-+		le32_to_cpu(lrange.fc_lblk) << sb->s_blocksize_bits,
-+		le32_to_cpu(lrange.fc_len) <<  sb->s_blocksize_bits);
- 	if (ret)
- 		jbd_debug(1, "ext4_punch_hole returned %d", ret);
- 	ext4_ext_replay_shrink_inode(inode,
-@@ -1925,11 +1930,11 @@ static int ext4_fc_replay_scan(journal_t
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
- 	struct ext4_fc_replay_state *state;
- 	int ret = JBD2_FC_REPLAY_CONTINUE;
--	struct ext4_fc_add_range *ext;
--	struct ext4_fc_tl *tl;
--	struct ext4_fc_tail *tail;
--	__u8 *start, *end;
--	struct ext4_fc_head *head;
-+	struct ext4_fc_add_range ext;
-+	struct ext4_fc_tl tl;
-+	struct ext4_fc_tail tail;
-+	__u8 *start, *end, *cur, *val;
-+	struct ext4_fc_head head;
- 	struct ext4_extent *ex;
- 
- 	state = &sbi->s_fc_replay_state;
-@@ -1956,15 +1961,17 @@ static int ext4_fc_replay_scan(journal_t
- 	}
- 
- 	state->fc_replay_expected_off++;
--	fc_for_each_tl(start, end, tl) {
-+	for (cur = start; cur < end; cur = cur + sizeof(tl) + le16_to_cpu(tl.fc_len)) {
-+		memcpy(&tl, cur, sizeof(tl));
-+		val = cur + sizeof(tl);
- 		jbd_debug(3, "Scan phase, tag:%s, blk %lld\n",
--			  tag2str(le16_to_cpu(tl->fc_tag)), bh->b_blocknr);
--		switch (le16_to_cpu(tl->fc_tag)) {
-+			  tag2str(le16_to_cpu(tl.fc_tag)), bh->b_blocknr);
-+		switch (le16_to_cpu(tl.fc_tag)) {
- 		case EXT4_FC_TAG_ADD_RANGE:
--			ext = (struct ext4_fc_add_range *)ext4_fc_tag_val(tl);
--			ex = (struct ext4_extent *)&ext->fc_ex;
-+			memcpy(&ext, val, sizeof(ext));
-+			ex = (struct ext4_extent *)&ext.fc_ex;
- 			ret = ext4_fc_record_regions(sb,
--				le32_to_cpu(ext->fc_ino),
-+				le32_to_cpu(ext.fc_ino),
- 				le32_to_cpu(ex->ee_block), ext4_ext_pblock(ex),
- 				ext4_ext_get_actual_len(ex));
- 			if (ret < 0)
-@@ -1978,18 +1985,18 @@ static int ext4_fc_replay_scan(journal_t
- 		case EXT4_FC_TAG_INODE:
- 		case EXT4_FC_TAG_PAD:
- 			state->fc_cur_tag++;
--			state->fc_crc = ext4_chksum(sbi, state->fc_crc, tl,
--					sizeof(*tl) + ext4_fc_tag_len(tl));
-+			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
-+					sizeof(tl) + le16_to_cpu(tl.fc_len));
- 			break;
- 		case EXT4_FC_TAG_TAIL:
- 			state->fc_cur_tag++;
--			tail = (struct ext4_fc_tail *)ext4_fc_tag_val(tl);
--			state->fc_crc = ext4_chksum(sbi, state->fc_crc, tl,
--						sizeof(*tl) +
-+			memcpy(&tail, val, sizeof(tail));
-+			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
-+						sizeof(tl) +
- 						offsetof(struct ext4_fc_tail,
- 						fc_crc));
--			if (le32_to_cpu(tail->fc_tid) == expected_tid &&
--				le32_to_cpu(tail->fc_crc) == state->fc_crc) {
-+			if (le32_to_cpu(tail.fc_tid) == expected_tid &&
-+				le32_to_cpu(tail.fc_crc) == state->fc_crc) {
- 				state->fc_replay_num_tags = state->fc_cur_tag;
- 				state->fc_regions_valid =
- 					state->fc_regions_used;
-@@ -2000,19 +2007,19 @@ static int ext4_fc_replay_scan(journal_t
- 			state->fc_crc = 0;
- 			break;
- 		case EXT4_FC_TAG_HEAD:
--			head = (struct ext4_fc_head *)ext4_fc_tag_val(tl);
--			if (le32_to_cpu(head->fc_features) &
-+			memcpy(&head, val, sizeof(head));
-+			if (le32_to_cpu(head.fc_features) &
- 				~EXT4_FC_SUPPORTED_FEATURES) {
- 				ret = -EOPNOTSUPP;
- 				break;
- 			}
--			if (le32_to_cpu(head->fc_tid) != expected_tid) {
-+			if (le32_to_cpu(head.fc_tid) != expected_tid) {
- 				ret = JBD2_FC_REPLAY_STOP;
- 				break;
- 			}
- 			state->fc_cur_tag++;
--			state->fc_crc = ext4_chksum(sbi, state->fc_crc, tl,
--					sizeof(*tl) + ext4_fc_tag_len(tl));
-+			state->fc_crc = ext4_chksum(sbi, state->fc_crc, cur,
-+					    sizeof(tl) + le16_to_cpu(tl.fc_len));
- 			break;
- 		default:
- 			ret = state->fc_replay_num_tags ?
-@@ -2036,11 +2043,11 @@ static int ext4_fc_replay(journal_t *jou
- {
- 	struct super_block *sb = journal->j_private;
- 	struct ext4_sb_info *sbi = EXT4_SB(sb);
--	struct ext4_fc_tl *tl;
--	__u8 *start, *end;
-+	struct ext4_fc_tl tl;
-+	__u8 *start, *end, *cur, *val;
- 	int ret = JBD2_FC_REPLAY_CONTINUE;
- 	struct ext4_fc_replay_state *state = &sbi->s_fc_replay_state;
--	struct ext4_fc_tail *tail;
-+	struct ext4_fc_tail tail;
- 
- 	if (pass == PASS_SCAN) {
- 		state->fc_current_pass = PASS_SCAN;
-@@ -2067,49 +2074,52 @@ static int ext4_fc_replay(journal_t *jou
- 	start = (u8 *)bh->b_data;
- 	end = (__u8 *)bh->b_data + journal->j_blocksize - 1;
- 
--	fc_for_each_tl(start, end, tl) {
-+	for (cur = start; cur < end; cur = cur + sizeof(tl) + le16_to_cpu(tl.fc_len)) {
-+		memcpy(&tl, cur, sizeof(tl));
-+		val = cur + sizeof(tl);
++ * zero out partial blocks of one cluster.
++ *
++ * start: file offset where zero starts, will be made upper block aligned.
++ * len: it will be trimmed to the end of current cluster if "start + len"
++ *      is bigger than it.
++ */
++static int ocfs2_zeroout_partial_cluster(struct inode *inode,
++					u64 start, u64 len)
++{
++	int ret;
++	u64 start_block, end_block, nr_blocks;
++	u64 p_block, offset;
++	u32 cluster, p_cluster, nr_clusters;
++	struct super_block *sb = inode->i_sb;
++	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
 +
- 		if (state->fc_replay_num_tags == 0) {
- 			ret = JBD2_FC_REPLAY_STOP;
- 			ext4_fc_set_bitmaps_and_counters(sb);
- 			break;
- 		}
- 		jbd_debug(3, "Replay phase, tag:%s\n",
--				tag2str(le16_to_cpu(tl->fc_tag)));
-+				tag2str(le16_to_cpu(tl.fc_tag)));
- 		state->fc_replay_num_tags--;
--		switch (le16_to_cpu(tl->fc_tag)) {
-+		switch (le16_to_cpu(tl.fc_tag)) {
- 		case EXT4_FC_TAG_LINK:
--			ret = ext4_fc_replay_link(sb, tl);
-+			ret = ext4_fc_replay_link(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_UNLINK:
--			ret = ext4_fc_replay_unlink(sb, tl);
-+			ret = ext4_fc_replay_unlink(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_ADD_RANGE:
--			ret = ext4_fc_replay_add_range(sb, tl);
-+			ret = ext4_fc_replay_add_range(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_CREAT:
--			ret = ext4_fc_replay_create(sb, tl);
-+			ret = ext4_fc_replay_create(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_DEL_RANGE:
--			ret = ext4_fc_replay_del_range(sb, tl);
-+			ret = ext4_fc_replay_del_range(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_INODE:
--			ret = ext4_fc_replay_inode(sb, tl);
-+			ret = ext4_fc_replay_inode(sb, &tl, val);
- 			break;
- 		case EXT4_FC_TAG_PAD:
- 			trace_ext4_fc_replay(sb, EXT4_FC_TAG_PAD, 0,
--				ext4_fc_tag_len(tl), 0);
-+					     le16_to_cpu(tl.fc_len), 0);
- 			break;
- 		case EXT4_FC_TAG_TAIL:
- 			trace_ext4_fc_replay(sb, EXT4_FC_TAG_TAIL, 0,
--				ext4_fc_tag_len(tl), 0);
--			tail = (struct ext4_fc_tail *)ext4_fc_tag_val(tl);
--			WARN_ON(le32_to_cpu(tail->fc_tid) != expected_tid);
-+					     le16_to_cpu(tl.fc_len), 0);
-+			memcpy(&tail, val, sizeof(tail));
-+			WARN_ON(le32_to_cpu(tail.fc_tid) != expected_tid);
- 			break;
- 		case EXT4_FC_TAG_HEAD:
- 			break;
- 		default:
--			trace_ext4_fc_replay(sb, le16_to_cpu(tl->fc_tag), 0,
--				ext4_fc_tag_len(tl), 0);
-+			trace_ext4_fc_replay(sb, le16_to_cpu(tl.fc_tag), 0,
-+					     le16_to_cpu(tl.fc_len), 0);
- 			ret = -ECANCELED;
- 			break;
- 		}
---- a/fs/ext4/fast_commit.h
-+++ b/fs/ext4/fast_commit.h
-@@ -153,13 +153,6 @@ struct ext4_fc_replay_state {
- #define region_last(__region) (((__region)->lblk) + ((__region)->len) - 1)
- #endif
- 
--#define fc_for_each_tl(__start, __end, __tl)				\
--	for (tl = (struct ext4_fc_tl *)(__start);			\
--	     (__u8 *)tl < (__u8 *)(__end);				\
--		tl = (struct ext4_fc_tl *)((__u8 *)tl +			\
--					sizeof(struct ext4_fc_tl) +	\
--					+ le16_to_cpu(tl->fc_len)))
--
- static inline const char *tag2str(__u16 tag)
++	if (start + len < end)
++		end = start + len;
++
++	start_block = ocfs2_blocks_for_bytes(sb, start);
++	end_block = ocfs2_blocks_for_bytes(sb, end);
++	nr_blocks = end_block - start_block;
++	if (!nr_blocks)
++		return 0;
++
++	cluster = ocfs2_bytes_to_clusters(sb, start);
++	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
++				&nr_clusters, NULL);
++	if (ret)
++		return ret;
++	if (!p_cluster)
++		return 0;
++
++	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
++	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
++	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
++}
++
++/*
+  * Parts of this function taken from xfs_change_file_space()
+  */
+ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
+@@ -1865,7 +1904,7 @@ static int __ocfs2_change_file_space(str
  {
- 	switch (tag) {
-@@ -186,16 +179,4 @@ static inline const char *tag2str(__u16
+ 	int ret;
+ 	s64 llen;
+-	loff_t size;
++	loff_t size, orig_isize;
+ 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
+ 	struct buffer_head *di_bh = NULL;
+ 	handle_t *handle;
+@@ -1896,6 +1935,7 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
  	}
- }
  
--/* Get length of a particular tlv */
--static inline int ext4_fc_tag_len(struct ext4_fc_tl *tl)
--{
--	return le16_to_cpu(tl->fc_len);
--}
++	orig_isize = i_size_read(inode);
+ 	switch (sr->l_whence) {
+ 	case 0: /*SEEK_SET*/
+ 		break;
+@@ -1903,7 +1943,7 @@ static int __ocfs2_change_file_space(str
+ 		sr->l_start += f_pos;
+ 		break;
+ 	case 2: /*SEEK_END*/
+-		sr->l_start += i_size_read(inode);
++		sr->l_start += orig_isize;
+ 		break;
+ 	default:
+ 		ret = -EINVAL;
+@@ -1957,6 +1997,14 @@ static int __ocfs2_change_file_space(str
+ 	default:
+ 		ret = -EINVAL;
+ 	}
++
++	/* zeroout eof blocks in the cluster. */
++	if (!ret && change_size && orig_isize < size) {
++		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
++					size - orig_isize);
++		if (!ret)
++			i_size_write(inode, size);
++	}
+ 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
+ 	if (ret) {
+ 		mlog_errno(ret);
+@@ -1973,9 +2021,6 @@ static int __ocfs2_change_file_space(str
+ 		goto out_inode_unlock;
+ 	}
+ 
+-	if (change_size && i_size_read(inode) < size)
+-		i_size_write(inode, size);
 -
--/* Get a pointer to "value" of a tlv */
--static inline __u8 *ext4_fc_tag_val(struct ext4_fc_tl *tl)
--{
--	return (__u8 *)tl + sizeof(*tl);
--}
--
- #endif /* __FAST_COMMIT_H__ */
+ 	inode->i_ctime = inode->i_mtime = current_time(inode);
+ 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
+ 	if (ret < 0)
 
 
