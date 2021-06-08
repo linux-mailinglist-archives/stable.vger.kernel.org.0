@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 18AC63A0219
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C2813A0307
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:38 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235432AbhFHTBW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:01:22 -0400
-Received: from mail.kernel.org ([198.145.29.99]:58616 "EHLO mail.kernel.org"
+        id S237021AbhFHTL6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:11:58 -0400
+Received: from mail.kernel.org ([198.145.29.99]:48942 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236938AbhFHSz6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:55:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 5A17861601;
-        Tue,  8 Jun 2021 18:41:42 +0000 (UTC)
+        id S237509AbhFHTJx (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:09:53 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 4CDC96193F;
+        Tue,  8 Jun 2021 18:48:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177703;
-        bh=9NQozDjJSV1GtS0eT4b9tx6hsIju39Wh3x6/1o36T5o=;
+        s=korg; t=1623178107;
+        bh=oKRClzfT+aPJN3X7FtX27mfa3Ijpv5UwwuHcNQqHXqs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tATWs/CQB0Zg3/Lyf69Tc2AeYVj/XU/+Ns4/8j4jnH4tGuEoZo7yRTPcJpp654kyU
-         dSrdEdmpi9nmAMjXzefJiPp0p4PMm0BRaQR8ljvUg3PUMdIp6RP8GUs70xZ3nx+Z/q
-         7/IGGxHKBHhoYADyNUKa6YFZdNvoOoCNGNu5yTuM=
+        b=aYlFWXBshN5swgFhalZpB8imH57KBvLbvfl9/E7mbwdqQM6BFq7wtmPl9CjLCi7Bv
+         mt+mO4r4w8KePcGuEdOMYfOXzBs++t71kI5YHP1AGSPQ8CHAABy+JBh3DVM/EHnBVC
+         66U0Bt/JaZcIbBxHpetjRqR0VIGrLq0QvRS0XZHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Carl Philipp Klemm <philipp@uvos.xyz>,
-        Ivan Jelincic <parazyd@dyne.org>,
-        Merlijn Wajer <merlijn@wizzup.org>,
-        Pavel Machek <pavel@ucw.cz>,
-        Sebastian Reichel <sre@kernel.org>,
-        "Sicelo A. Mhlongo" <absicsz@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
+        stable@vger.kernel.org, Neil Armstrong <narmstrong@baylibre.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Kevin Hilman <khilman@baylibre.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/137] bus: ti-sysc: Fix flakey idling of uarts and stop using swsup_sidle_act
+Subject: [PATCH 5.12 078/161] arm64: meson: select COMMON_CLK
 Date:   Tue,  8 Jun 2021 20:26:48 +0200
-Message-Id: <20210608175944.665105743@linuxfoundation.org>
+Message-Id: <20210608175948.084004845@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,55 +42,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tony Lindgren <tony@atomide.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit c8692ad416dcc420ce1b403596a425c8f4c2720b ]
+[ Upstream commit 4cce442ffe5448ef572adc8b3abe7001b398e709 ]
 
-Looks like the swsup_sidle_act quirk handling is unreliable for serial
-ports. The serial ports just eventually stop idling until woken up and
-re-idled again. As the serial port not idling blocks any deeper SoC idle
-states, it's adds an annoying random flakeyness for power management.
+This fix the recent removal of clock drivers selection.
+While it is not necessary to select the clock drivers themselves, we need
+to select a proper implementation of the clock API, which for the meson, is
+CCF
 
-Let's just switch to swsup_sidle quirk instead like we already do for
-omap3 uarts. This means we manually idle the port instead of trying to
-use the hardware autoidle features when not in use.
-
-For more details on why the serial ports have been using swsup_idle_act,
-see commit 66dde54e978a ("ARM: OMAP2+: hwmod-data: UART IP needs software
-control to manage sidle modes"). It seems that the swsup_idle_act quirk
-handling is not enough though, and for example the TI Android kernel
-changed to using swsup_sidle with commit 77c34c84e1e0 ("OMAP4: HWMOD:
-UART1: disable smart-idle.").
-
-Fixes: b4a9a7a38917 ("bus: ti-sysc: Handle swsup idle mode quirks")
-Cc: Carl Philipp Klemm <philipp@uvos.xyz>
-Cc: Ivan Jelincic <parazyd@dyne.org>
-Cc: Merlijn Wajer <merlijn@wizzup.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Sicelo A. Mhlongo <absicsz@gmail.com>
-Signed-off-by: Tony Lindgren <tony@atomide.com>
+Fixes: ba66a25536dd ("arm64: meson: ship only the necessary clock controllers")
+Reviewed-by: Neil Armstrong <narmstrong@baylibre.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Signed-off-by: Kevin Hilman <khilman@baylibre.com>
+Signed-off-by: Neil Armstrong <narmstrong@baylibre.com>
+Link: https://lore.kernel.org/r/20210429083823.59546-1-jbrunet@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/ti-sysc.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm64/Kconfig.platforms | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/bus/ti-sysc.c b/drivers/bus/ti-sysc.c
-index b7f8c6074a15..818dc7f54f03 100644
---- a/drivers/bus/ti-sysc.c
-+++ b/drivers/bus/ti-sysc.c
-@@ -1450,9 +1450,9 @@ static const struct sysc_revision_quirk sysc_revision_quirks[] = {
- 		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_LEGACY_IDLE),
- 	/* Uarts on omap4 and later */
- 	SYSC_QUIRK("uart", 0, 0x50, 0x54, 0x58, 0x50411e03, 0xffff00ff,
--		   SYSC_QUIRK_SWSUP_SIDLE_ACT | SYSC_QUIRK_LEGACY_IDLE),
-+		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_LEGACY_IDLE),
- 	SYSC_QUIRK("uart", 0, 0x50, 0x54, 0x58, 0x47422e03, 0xffffffff,
--		   SYSC_QUIRK_SWSUP_SIDLE_ACT | SYSC_QUIRK_LEGACY_IDLE),
-+		   SYSC_QUIRK_SWSUP_SIDLE | SYSC_QUIRK_LEGACY_IDLE),
+diff --git a/arch/arm64/Kconfig.platforms b/arch/arm64/Kconfig.platforms
+index cdfd5fed457f..a3fdffcd1ce8 100644
+--- a/arch/arm64/Kconfig.platforms
++++ b/arch/arm64/Kconfig.platforms
+@@ -168,6 +168,7 @@ config ARCH_MEDIATEK
  
- 	/* Quirks that need to be set based on the module address */
- 	SYSC_QUIRK("mcpdm", 0x40132000, 0, 0x10, -ENODEV, 0x50000800, 0xffffffff,
+ config ARCH_MESON
+ 	bool "Amlogic Platforms"
++	select COMMON_CLK
+ 	select MESON_IRQ_GPIO
+ 	help
+ 	  This enables support for the arm64 based Amlogic SoCs
 -- 
 2.30.2
 
