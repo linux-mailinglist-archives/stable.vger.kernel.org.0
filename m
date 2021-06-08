@@ -2,36 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BBE439FF7A
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:34:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A099F39FFFA
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:06 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234444AbhFHSdb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:33:31 -0400
-Received: from mail.kernel.org ([198.145.29.99]:57970 "EHLO mail.kernel.org"
+        id S234893AbhFHSiC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:38:02 -0400
+Received: from mail.kernel.org ([198.145.29.99]:57434 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S234440AbhFHScd (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:32:33 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 58E8A61380;
-        Tue,  8 Jun 2021 18:30:39 +0000 (UTC)
+        id S234726AbhFHSgB (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:36:01 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id ACED4613D4;
+        Tue,  8 Jun 2021 18:32:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177039;
-        bh=RGpMOJ16txcZmIJsuu42MGUiZJmBuqBIh/pHaydqCmU=;
+        s=korg; t=1623177155;
+        bh=kStUlvoaJKdK8XyGUxfXviqKaB3AK4x2BK3g1+M9wig=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cyBB/yQ6Wp/VsVDMO0N9oL1DWapC9C74uMi3qSsMe5FFN8Ms/7fd/XXh6+j3zlVbO
-         K0CW3hrVpEOxobtdGGIQ8gJKaToZJHGDpsPYdouMTx6pPqnyhywFZVOHYjAqyBF+Zf
-         H+cT08XspUcKZEblT7bZm3zENv/LU3Lg8GO2rXB8=
+        b=beNAy+J28a4hkEQ/3RRw5Nz2aui5JVaJrKQ53K0Ind5D+EcpWywrn8VJ7r6y9GOp7
+         /cao6Z92rKJ2ruL6c212d76vieiYh33W1mjpEuFWLZeHPxXzHaHhWILQivccj6+pZ6
+         lmHXbiQPSjjdQSPW8rUqMFwVyC1TA2lTW68cq8VU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.9 09/29] HID: i2c-hid: fix format string mismatch
+        stable@vger.kernel.org, stable@kernel.org,
+        Ye Bin <yebin10@huawei.com>, Jan Kara <jack@suse.cz>,
+        Theodore Tso <tytso@mit.edu>
+Subject: [PATCH 4.14 20/47] ext4: fix bug on in ext4_es_cache_extent as ext4_split_extent_at failed
 Date:   Tue,  8 Jun 2021 20:27:03 +0200
-Message-Id: <20210608175928.120985240@linuxfoundation.org>
+Message-Id: <20210608175931.141825468@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
-References: <20210608175927.821075974@linuxfoundation.org>
+In-Reply-To: <20210608175930.477274100@linuxfoundation.org>
+References: <20210608175930.477274100@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,47 +40,112 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Ye Bin <yebin10@huawei.com>
 
-[ Upstream commit dc5f9f55502e13ba05731d5046a14620aa2ff456 ]
+commit 082cd4ec240b8734a82a89ffb890216ac98fec68 upstream.
 
-clang doesn't like printing a 32-bit integer using %hX format string:
+We got follow bug_on when run fsstress with injecting IO fault:
+[130747.323114] kernel BUG at fs/ext4/extents_status.c:762!
+[130747.323117] Internal error: Oops - BUG: 0 [#1] SMP
+......
+[130747.334329] Call trace:
+[130747.334553]  ext4_es_cache_extent+0x150/0x168 [ext4]
+[130747.334975]  ext4_cache_extents+0x64/0xe8 [ext4]
+[130747.335368]  ext4_find_extent+0x300/0x330 [ext4]
+[130747.335759]  ext4_ext_map_blocks+0x74/0x1178 [ext4]
+[130747.336179]  ext4_map_blocks+0x2f4/0x5f0 [ext4]
+[130747.336567]  ext4_mpage_readpages+0x4a8/0x7a8 [ext4]
+[130747.336995]  ext4_readpage+0x54/0x100 [ext4]
+[130747.337359]  generic_file_buffered_read+0x410/0xae8
+[130747.337767]  generic_file_read_iter+0x114/0x190
+[130747.338152]  ext4_file_read_iter+0x5c/0x140 [ext4]
+[130747.338556]  __vfs_read+0x11c/0x188
+[130747.338851]  vfs_read+0x94/0x150
+[130747.339110]  ksys_read+0x74/0xf0
 
-drivers/hid/i2c-hid/i2c-hid-core.c:994:18: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                               ^~~~~~~~~~~
-drivers/hid/i2c-hid/i2c-hid-core.c:994:31: error: format specifies type 'unsigned short' but the argument has type '__u32' (aka 'unsigned int') [-Werror,-Wformat]
-                 client->name, hid->vendor, hid->product);
-                                            ^~~~~~~~~~~~
+This patch's modification is according to Jan Kara's suggestion in:
+https://patchwork.ozlabs.org/project/linux-ext4/patch/20210428085158.3728201-1-yebin10@huawei.com/
+"I see. Now I understand your patch. Honestly, seeing how fragile is trying
+to fix extent tree after split has failed in the middle, I would probably
+go even further and make sure we fix the tree properly in case of ENOSPC
+and EDQUOT (those are easily user triggerable).  Anything else indicates a
+HW problem or fs corruption so I'd rather leave the extent tree as is and
+don't try to fix it (which also means we will not create overlapping
+extents)."
 
-Use an explicit cast to truncate it to the low 16 bits instead.
-
-Fixes: 9ee3e06610fd ("HID: i2c-hid: override HID descriptors for certain devices")
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@kernel.org
+Signed-off-by: Ye Bin <yebin10@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20210506141042.3298679-1-yebin10@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/i2c-hid/i2c-hid-core.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/ext4/extents.c |   43 +++++++++++++++++++++++--------------------
+ 1 file changed, 23 insertions(+), 20 deletions(-)
 
-diff --git a/drivers/hid/i2c-hid/i2c-hid-core.c b/drivers/hid/i2c-hid/i2c-hid-core.c
-index 606fd875740c..800c477dd076 100644
---- a/drivers/hid/i2c-hid/i2c-hid-core.c
-+++ b/drivers/hid/i2c-hid/i2c-hid-core.c
-@@ -1157,8 +1157,8 @@ static int i2c_hid_probe(struct i2c_client *client,
- 	hid->vendor = le16_to_cpu(ihid->hdesc.wVendorID);
- 	hid->product = le16_to_cpu(ihid->hdesc.wProductID);
+--- a/fs/ext4/extents.c
++++ b/fs/ext4/extents.c
+@@ -3275,7 +3275,10 @@ static int ext4_split_extent_at(handle_t
+ 		ext4_ext_mark_unwritten(ex2);
  
--	snprintf(hid->name, sizeof(hid->name), "%s %04hX:%04hX",
--		 client->name, hid->vendor, hid->product);
-+	snprintf(hid->name, sizeof(hid->name), "%s %04X:%04X",
-+		 client->name, (u16)hid->vendor, (u16)hid->product);
- 	strlcpy(hid->phys, dev_name(&client->dev), sizeof(hid->phys));
+ 	err = ext4_ext_insert_extent(handle, inode, ppath, &newex, flags);
+-	if (err == -ENOSPC && (EXT4_EXT_MAY_ZEROOUT & split_flag)) {
++	if (err != -ENOSPC && err != -EDQUOT)
++		goto out;
++
++	if (EXT4_EXT_MAY_ZEROOUT & split_flag) {
+ 		if (split_flag & (EXT4_EXT_DATA_VALID1|EXT4_EXT_DATA_VALID2)) {
+ 			if (split_flag & EXT4_EXT_DATA_VALID1) {
+ 				err = ext4_ext_zeroout(inode, ex2);
+@@ -3301,30 +3304,30 @@ static int ext4_split_extent_at(handle_t
+ 					      ext4_ext_pblock(&orig_ex));
+ 		}
  
- 	ihid->quirks = i2c_hid_lookup_quirk(hid->vendor, hid->product);
--- 
-2.30.2
-
+-		if (err)
+-			goto fix_extent_len;
+-		/* update the extent length and mark as initialized */
+-		ex->ee_len = cpu_to_le16(ee_len);
+-		ext4_ext_try_to_merge(handle, inode, path, ex);
+-		err = ext4_ext_dirty(handle, inode, path + path->p_depth);
+-		if (err)
+-			goto fix_extent_len;
+-
+-		/* update extent status tree */
+-		err = ext4_zeroout_es(inode, &zero_ex);
+-
+-		goto out;
+-	} else if (err)
+-		goto fix_extent_len;
+-
+-out:
+-	ext4_ext_show_leaf(inode, path);
+-	return err;
++		if (!err) {
++			/* update the extent length and mark as initialized */
++			ex->ee_len = cpu_to_le16(ee_len);
++			ext4_ext_try_to_merge(handle, inode, path, ex);
++			err = ext4_ext_dirty(handle, inode, path + path->p_depth);
++			if (!err)
++				/* update extent status tree */
++				err = ext4_zeroout_es(inode, &zero_ex);
++			/* If we failed at this point, we don't know in which
++			 * state the extent tree exactly is so don't try to fix
++			 * length of the original extent as it may do even more
++			 * damage.
++			 */
++			goto out;
++		}
++	}
+ 
+ fix_extent_len:
+ 	ex->ee_len = orig_ex.ee_len;
+ 	ext4_ext_dirty(handle, inode, path + path->p_depth);
+ 	return err;
++out:
++	ext4_ext_show_leaf(inode, path);
++	return err;
+ }
+ 
+ /*
 
 
