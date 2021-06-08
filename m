@@ -2,37 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EB73A02B7
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:04 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id A46A13A01A7
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:50 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236189AbhFHTH5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:07:57 -0400
-Received: from mail.kernel.org ([198.145.29.99]:50488 "EHLO mail.kernel.org"
+        id S236906AbhFHSzd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:55:33 -0400
+Received: from mail.kernel.org ([198.145.29.99]:49572 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235151AbhFHTG1 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:06:27 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id B5AC36192E;
-        Tue,  8 Jun 2021 18:46:55 +0000 (UTC)
+        id S236356AbhFHSwJ (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:52:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 3868C61432;
+        Tue,  8 Jun 2021 18:40:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178016;
-        bh=iq+OnzuHjjjIKLdJUOmHU1txjGZ6gPhhdHnQeA8Ec8M=;
+        s=korg; t=1623177611;
+        bh=ZZ/7M4Jf4qTjZHlkvSCNJEhhJ75h516yewIVZPSvmx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qg7rdq9HxHzb40Sua/7rJuE38nPa5mCrd8v+pFhyWkiSNXZDVnlrCmkoOZaDruAVD
-         XO89yvJ9Q2ipuMmuOVvZUaRgEYsiUrnAE8HC/W/SF/5sSXNt/kkmxeXWyZro2/2R7a
-         C1RtzUYbGk8gZ8YKq5q2aUMWJx168/AjxHcymauU=
+        b=BW964WVOKeedS/btfEnydTK6I9q4abyjVybCgNPxl6ycA7RembEQsWNCuGIUQ7ALL
+         hOSUFEt06Q2G07bSjEq8EHKCiQrzDC6im38wErvi1vkWQHTKYNK1J/QU46mr3X3eK+
+         DpXvu1CGYZy1FuXhbVOKtrb4foyAEg+vfuq/a84Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Hulk Robot <hulkci@huawei.com>,
-        Zhen Lei <thunder.leizhen@huawei.com>,
-        Stefan Schmidt <stefan@datenfreihafen.org>,
+        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 044/161] ieee802154: fix error return code in ieee802154_add_iface()
+Subject: [PATCH 5.10 034/137] netfilter: nft_ct: skip expectations for confirmed conntrack
 Date:   Tue,  8 Jun 2021 20:26:14 +0200
-Message-Id: <20210608175946.957393109@linuxfoundation.org>
+Message-Id: <20210608175943.562222816@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -41,39 +39,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhen Lei <thunder.leizhen@huawei.com>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit 79c6b8ed30e54b401c873dbad2511f2a1c525fd5 ]
+[ Upstream commit 1710eb913bdcda3917f44d383c32de6bdabfc836 ]
 
-Fix to return a negative error code from the error handling
-case instead of 0, as done elsewhere in this function.
+nft_ct_expect_obj_eval() calls nf_ct_ext_add() for a confirmed
+conntrack entry. However, nf_ct_ext_add() can only be called for
+!nf_ct_is_confirmed().
 
-Fixes: be51da0f3e34 ("ieee802154: Stop using NLA_PUT*().")
-Reported-by: Hulk Robot <hulkci@huawei.com>
-Signed-off-by: Zhen Lei <thunder.leizhen@huawei.com>
-Link: https://lore.kernel.org/r/20210508062517.2574-1-thunder.leizhen@huawei.com
-Signed-off-by: Stefan Schmidt <stefan@datenfreihafen.org>
+[ 1825.349056] WARNING: CPU: 0 PID: 1279 at net/netfilter/nf_conntrack_extend.c:48 nf_ct_xt_add+0x18e/0x1a0 [nf_conntrack]
+[ 1825.351391] RIP: 0010:nf_ct_ext_add+0x18e/0x1a0 [nf_conntrack]
+[ 1825.351493] Code: 41 5c 41 5d 41 5e 41 5f c3 41 bc 0a 00 00 00 e9 15 ff ff ff ba 09 00 00 00 31 f6 4c 89 ff e8 69 6c 3d e9 eb 96 45 31 ed eb cd <0f> 0b e9 b1 fe ff ff e8 86 79 14 e9 eb bf 0f 1f 40 00 0f 1f 44 00
+[ 1825.351721] RSP: 0018:ffffc90002e1f1e8 EFLAGS: 00010202
+[ 1825.351790] RAX: 000000000000000e RBX: ffff88814f5783c0 RCX: ffffffffc0e4f887
+[ 1825.351881] RDX: dffffc0000000000 RSI: 0000000000000008 RDI: ffff88814f578440
+[ 1825.351971] RBP: 0000000000000000 R08: 0000000000000000 R09: ffff88814f578447
+[ 1825.352060] R10: ffffed1029eaf088 R11: 0000000000000001 R12: ffff88814f578440
+[ 1825.352150] R13: ffff8882053f3a00 R14: 0000000000000000 R15: 0000000000000a20
+[ 1825.352240] FS:  00007f992261c900(0000) GS:ffff889faec00000(0000) knlGS:0000000000000000
+[ 1825.352343] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[ 1825.352417] CR2: 000056070a4d1158 CR3: 000000015efe0000 CR4: 0000000000350ee0
+[ 1825.352508] Call Trace:
+[ 1825.352544]  nf_ct_helper_ext_add+0x10/0x60 [nf_conntrack]
+[ 1825.352641]  nft_ct_expect_obj_eval+0x1b8/0x1e0 [nft_ct]
+[ 1825.352716]  nft_do_chain+0x232/0x850 [nf_tables]
+
+Add the ct helper extension only for unconfirmed conntrack. Skip rule
+evaluation if the ct helper extension does not exist. Thus, you can
+only create expectations from the first packet.
+
+It should be possible to remove this limitation by adding a new action
+to attach a generic ct helper to the first packet. Then, use this ct
+helper extension from follow up packets to create the ct expectation.
+
+While at it, add a missing check to skip the template conntrack too
+and remove check for IPCT_UNTRACK which is implicit to !ct.
+
+Fixes: 857b46027d6f ("netfilter: nft_ct: add ct expectations support")
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ieee802154/nl-phy.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nft_ct.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ieee802154/nl-phy.c b/net/ieee802154/nl-phy.c
-index 2cdc7e63fe17..88215b5c93aa 100644
---- a/net/ieee802154/nl-phy.c
-+++ b/net/ieee802154/nl-phy.c
-@@ -241,8 +241,10 @@ int ieee802154_add_iface(struct sk_buff *skb, struct genl_info *info)
+diff --git a/net/netfilter/nft_ct.c b/net/netfilter/nft_ct.c
+index a1b0aac46e9e..70d46e0bbf06 100644
+--- a/net/netfilter/nft_ct.c
++++ b/net/netfilter/nft_ct.c
+@@ -1218,7 +1218,7 @@ static void nft_ct_expect_obj_eval(struct nft_object *obj,
+ 	struct nf_conn *ct;
+ 
+ 	ct = nf_ct_get(pkt->skb, &ctinfo);
+-	if (!ct || ctinfo == IP_CT_UNTRACKED) {
++	if (!ct || nf_ct_is_confirmed(ct) || nf_ct_is_template(ct)) {
+ 		regs->verdict.code = NFT_BREAK;
+ 		return;
  	}
- 
- 	if (nla_put_string(msg, IEEE802154_ATTR_PHY_NAME, wpan_phy_name(phy)) ||
--	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name))
-+	    nla_put_string(msg, IEEE802154_ATTR_DEV_NAME, dev->name)) {
-+		rc = -EMSGSIZE;
- 		goto nla_put_failure;
-+	}
- 	dev_put(dev);
- 
- 	wpan_phy_put(phy);
 -- 
 2.30.2
 
