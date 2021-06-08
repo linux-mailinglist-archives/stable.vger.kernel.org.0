@@ -2,33 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E94D3A004D
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:44 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 7FA413A004F
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:46:45 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234220AbhFHSlq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:41:46 -0400
-Received: from mail.kernel.org ([198.145.29.99]:37970 "EHLO mail.kernel.org"
+        id S235149AbhFHSlr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:41:47 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37964 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235434AbhFHSkA (ORCPT <rfc822;stable@vger.kernel.org>);
+        id S235433AbhFHSkA (ORCPT <rfc822;stable@vger.kernel.org>);
         Tue, 8 Jun 2021 14:40:00 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 75A7F61182;
-        Tue,  8 Jun 2021 18:34:36 +0000 (UTC)
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 54E3A61430;
+        Tue,  8 Jun 2021 18:34:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177277;
-        bh=Lzbfoe41A73A475pfELLh+brZ2AIB9WonoTb/dX0WGc=;
+        s=korg; t=1623177279;
+        bh=ATPf7tFlhfCJ1Qfzzr2ACHGvl/bKWnRzbqDzavCRM70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wy2hLNt+86xzGqtn9wkaC8/3dy/nUPi5+Jh0XHa0vksQmr9eC6+fKV8wq/gxyPcLE
-         K8dz24WKCZ4g3CVGXigHE/E/KdWn0Pph4XRQG6Fsy9kAoOrAKs3MMNSTWczQbrfe9r
-         LaVYfwn58mLARL8q4sHRK2mwYA0xhe0XxotnoSv0=
+        b=r/4vZkruWBlZS2sH89AK3YuETi4PqHenM7ywE4Lt549Fs3MqVJzpXZ8fazEWMEeZR
+         iMqRFXlJ358Vdkw85PSjGjOUHlBO1TWpxUfTgfKbiBWFhnr0uB8fhPSwmD7++cON2Z
+         8+4eNGtjUwUCEEFvGwFq59skIZuBKkKdcaIxOts8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Subject: [PATCH 4.19 53/58] KVM: SVM: Truncate GPR value for DR and CR accesses in !64-bit mode
-Date:   Tue,  8 Jun 2021 20:27:34 +0200
-Message-Id: <20210608175934.022559383@linuxfoundation.org>
+        stable@vger.kernel.org, Ricardo Koller <ricarkol@google.com>,
+        Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 4.19 54/58] KVM: arm64: Fix debug register indexing
+Date:   Tue,  8 Jun 2021 20:27:35 +0200
+Message-Id: <20210608175934.054225351@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
 In-Reply-To: <20210608175932.263480586@linuxfoundation.org>
 References: <20210608175932.263480586@linuxfoundation.org>
@@ -40,66 +39,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marc Zyngier <maz@kernel.org>
 
-commit 0884335a2e653b8a045083aa1d57ce74269ac81d upstream.
+commit cb853ded1d25e5b026ce115dbcde69e3d7e2e831 upstream.
 
-Drop bits 63:32 on loads/stores to/from DRs and CRs when the vCPU is not
-in 64-bit mode.  The APM states bits 63:32 are dropped for both DRs and
-CRs:
+Commit 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on
+reset") flipped the register number to 0 for all the debug registers
+in the sysreg table, hereby indicating that these registers live
+in a separate shadow structure.
 
-  In 64-bit mode, the operand size is fixed at 64 bits without the need
-  for a REX prefix. In non-64-bit mode, the operand size is fixed at 32
-  bits and the upper 32 bits of the destination are forced to 0.
+However, the author of this patch failed to realise that all the
+accessors are using that particular index instead of the register
+encoding, resulting in all the registers hitting index 0. Not quite
+a valid implementation of the architecture...
 
-Fixes: 7ff76d58a9dc ("KVM: SVM: enhance MOV CR intercept handler")
-Fixes: cae3797a4639 ("KVM: SVM: enhance mov DR intercept handler")
+Address the issue by fixing all the accessors to use the CRm field
+of the encoding, which contains the debug register index.
+
+Fixes: 03fdfb2690099 ("KVM: arm64: Don't write junk to sysregs on reset")
+Reported-by: Ricardo Koller <ricarkol@google.com>
+Signed-off-by: Marc Zyngier <maz@kernel.org>
 Cc: stable@vger.kernel.org
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20210422022128.3464144-4-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-[sudip: manual backport to old file]
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/svm.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ arch/arm64/kvm/sys_regs.c |   42 +++++++++++++++++++++---------------------
+ 1 file changed, 21 insertions(+), 21 deletions(-)
 
---- a/arch/x86/kvm/svm.c
-+++ b/arch/x86/kvm/svm.c
-@@ -4033,7 +4033,7 @@ static int cr_interception(struct vcpu_s
- 	err = 0;
- 	if (cr >= 16) { /* mov to cr */
- 		cr -= 16;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		switch (cr) {
- 		case 0:
- 			if (!check_selective_cr0_intercepted(svm, val))
-@@ -4078,7 +4078,7 @@ static int cr_interception(struct vcpu_s
- 			kvm_queue_exception(&svm->vcpu, UD_VECTOR);
- 			return 1;
- 		}
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
- 	return kvm_complete_insn_gp(&svm->vcpu, err);
- }
-@@ -4108,13 +4108,13 @@ static int dr_interception(struct vcpu_s
- 	if (dr >= 16) { /* mov to DRn */
- 		if (!kvm_require_dr(&svm->vcpu, dr - 16))
- 			return 1;
--		val = kvm_register_read(&svm->vcpu, reg);
-+		val = kvm_register_readl(&svm->vcpu, reg);
- 		kvm_set_dr(&svm->vcpu, dr - 16, val);
- 	} else {
- 		if (!kvm_require_dr(&svm->vcpu, dr))
- 			return 1;
- 		kvm_get_dr(&svm->vcpu, dr, &val);
--		kvm_register_write(&svm->vcpu, reg, val);
-+		kvm_register_writel(&svm->vcpu, reg, val);
- 	}
+--- a/arch/arm64/kvm/sys_regs.c
++++ b/arch/arm64/kvm/sys_regs.c
+@@ -426,14 +426,14 @@ static bool trap_bvr(struct kvm_vcpu *vc
+ 		     struct sys_reg_params *p,
+ 		     const struct sys_reg_desc *rd)
+ {
+-	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
++	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
  
- 	return kvm_skip_emulated_instruction(&svm->vcpu);
+ 	if (p->is_write)
+ 		reg_to_dbg(vcpu, p, dbg_reg);
+ 	else
+ 		dbg_to_reg(vcpu, p, dbg_reg);
+ 
+-	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
++	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
+ 
+ 	return true;
+ }
+@@ -441,7 +441,7 @@ static bool trap_bvr(struct kvm_vcpu *vc
+ static int set_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 		const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
+ 
+ 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -451,7 +451,7 @@ static int set_bvr(struct kvm_vcpu *vcpu
+ static int get_bvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 	const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm];
+ 
+ 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -461,21 +461,21 @@ static int get_bvr(struct kvm_vcpu *vcpu
+ static void reset_bvr(struct kvm_vcpu *vcpu,
+ 		      const struct sys_reg_desc *rd)
+ {
+-	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->reg] = rd->val;
++	vcpu->arch.vcpu_debug_state.dbg_bvr[rd->CRm] = rd->val;
+ }
+ 
+ static bool trap_bcr(struct kvm_vcpu *vcpu,
+ 		     struct sys_reg_params *p,
+ 		     const struct sys_reg_desc *rd)
+ {
+-	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
++	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
+ 
+ 	if (p->is_write)
+ 		reg_to_dbg(vcpu, p, dbg_reg);
+ 	else
+ 		dbg_to_reg(vcpu, p, dbg_reg);
+ 
+-	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
++	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
+ 
+ 	return true;
+ }
+@@ -483,7 +483,7 @@ static bool trap_bcr(struct kvm_vcpu *vc
+ static int set_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 		const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
+ 
+ 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -494,7 +494,7 @@ static int set_bcr(struct kvm_vcpu *vcpu
+ static int get_bcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 	const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm];
+ 
+ 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -504,22 +504,22 @@ static int get_bcr(struct kvm_vcpu *vcpu
+ static void reset_bcr(struct kvm_vcpu *vcpu,
+ 		      const struct sys_reg_desc *rd)
+ {
+-	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->reg] = rd->val;
++	vcpu->arch.vcpu_debug_state.dbg_bcr[rd->CRm] = rd->val;
+ }
+ 
+ static bool trap_wvr(struct kvm_vcpu *vcpu,
+ 		     struct sys_reg_params *p,
+ 		     const struct sys_reg_desc *rd)
+ {
+-	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
++	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
+ 
+ 	if (p->is_write)
+ 		reg_to_dbg(vcpu, p, dbg_reg);
+ 	else
+ 		dbg_to_reg(vcpu, p, dbg_reg);
+ 
+-	trace_trap_reg(__func__, rd->reg, p->is_write,
+-		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg]);
++	trace_trap_reg(__func__, rd->CRm, p->is_write,
++		vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm]);
+ 
+ 	return true;
+ }
+@@ -527,7 +527,7 @@ static bool trap_wvr(struct kvm_vcpu *vc
+ static int set_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 		const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
+ 
+ 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -537,7 +537,7 @@ static int set_wvr(struct kvm_vcpu *vcpu
+ static int get_wvr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 	const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm];
+ 
+ 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -547,21 +547,21 @@ static int get_wvr(struct kvm_vcpu *vcpu
+ static void reset_wvr(struct kvm_vcpu *vcpu,
+ 		      const struct sys_reg_desc *rd)
+ {
+-	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->reg] = rd->val;
++	vcpu->arch.vcpu_debug_state.dbg_wvr[rd->CRm] = rd->val;
+ }
+ 
+ static bool trap_wcr(struct kvm_vcpu *vcpu,
+ 		     struct sys_reg_params *p,
+ 		     const struct sys_reg_desc *rd)
+ {
+-	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
++	u64 *dbg_reg = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
+ 
+ 	if (p->is_write)
+ 		reg_to_dbg(vcpu, p, dbg_reg);
+ 	else
+ 		dbg_to_reg(vcpu, p, dbg_reg);
+ 
+-	trace_trap_reg(__func__, rd->reg, p->is_write, *dbg_reg);
++	trace_trap_reg(__func__, rd->CRm, p->is_write, *dbg_reg);
+ 
+ 	return true;
+ }
+@@ -569,7 +569,7 @@ static bool trap_wcr(struct kvm_vcpu *vc
+ static int set_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 		const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
+ 
+ 	if (copy_from_user(r, uaddr, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -579,7 +579,7 @@ static int set_wcr(struct kvm_vcpu *vcpu
+ static int get_wcr(struct kvm_vcpu *vcpu, const struct sys_reg_desc *rd,
+ 	const struct kvm_one_reg *reg, void __user *uaddr)
+ {
+-	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg];
++	__u64 *r = &vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm];
+ 
+ 	if (copy_to_user(uaddr, r, KVM_REG_SIZE(reg->id)) != 0)
+ 		return -EFAULT;
+@@ -589,7 +589,7 @@ static int get_wcr(struct kvm_vcpu *vcpu
+ static void reset_wcr(struct kvm_vcpu *vcpu,
+ 		      const struct sys_reg_desc *rd)
+ {
+-	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->reg] = rd->val;
++	vcpu->arch.vcpu_debug_state.dbg_wcr[rd->CRm] = rd->val;
+ }
+ 
+ static void reset_amair_el1(struct kvm_vcpu *vcpu, const struct sys_reg_desc *r)
 
 
