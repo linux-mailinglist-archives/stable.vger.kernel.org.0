@@ -2,36 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C3693A015B
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:17:11 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 136BC3A024E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:09 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235438AbhFHSvB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:51:01 -0400
-Received: from mail.kernel.org ([198.145.29.99]:48738 "EHLO mail.kernel.org"
+        id S233235AbhFHTCl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:41 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34780 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S235791AbhFHStO (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:49:14 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 33A7E61461;
-        Tue,  8 Jun 2021 18:38:45 +0000 (UTC)
+        id S237537AbhFHTAt (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:49 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id C74FE616E8;
+        Tue,  8 Jun 2021 18:44:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177525;
-        bh=iu8iH5BljOLDJvmRbikySsVS7kvTFPstiA2Va6sYKng=;
+        s=korg; t=1623177854;
+        bh=kA1vp52oFlJnWEScUtPAC8g/DcCwPfp9z3fFrlRIlFE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=03BWQ8XX2AHakXmh8l0+Oj1J05O17g7/lX0iFn/KRtBlXd39OIBR2TgWEW0Oc7ujT
-         0QCFS4hMaiasxC3Wyneu4VgCBKH5ErnIl7ZWErj0Eg/UPUtJd5hixJkTA2Sc7ieOyW
-         mSjYSZ4KjjGrMT+7hCFKX7Rd44AxFwI13IKScZWk=
+        b=JAUgJxgcTZcclC9HWYhV+ufRAV2K6tZkP73tQiA4bmL/PGPl1OU3OT03VYrDaiTUB
+         Zt1ErOZj2bJJnt0Ba0KYXt5ZmiGOf1MzXs8hJqD02k6ucC0rVSP/6MUCtlvOaqs0WZ
+         L8Z/VuFkesQs/DB1Fs802SfipREmV3v2bWEVp8Do=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Jan Beulich <jbeulich@suse.com>,
-        Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-        Juergen Gross <jgross@suse.com>
-Subject: [PATCH 5.4 76/78] xen-pciback: redo VF placement in the virtual topology
+        stable@vger.kernel.org, Mina Almasry <almasrymina@google.com>,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Axel Rasmussen <axelrasmussen@google.com>,
+        Peter Xu <peterx@redhat.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 125/137] mm, hugetlb: fix simple resv_huge_pages underflow on UFFDIO_COPY
 Date:   Tue,  8 Jun 2021 20:27:45 +0200
-Message-Id: <20210608175937.829569842@linuxfoundation.org>
+Message-Id: <20210608175946.605390074@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175935.254388043@linuxfoundation.org>
-References: <20210608175935.254388043@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,82 +44,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Beulich <jbeulich@suse.com>
+From: Mina Almasry <almasrymina@google.com>
 
-The commit referenced below was incomplete: It merely affected what
-would get written to the vdev-<N> xenstore node. The guest would still
-find the function at the original function number as long as
-__xen_pcibk_get_pci_dev() wouldn't be in sync. The same goes for AER wrt
-__xen_pcibk_get_pcifront_dev().
+[ Upstream commit d84cf06e3dd8c5c5b547b5d8931015fc536678e5 ]
 
-Undo overriding the function to zero and instead make sure that VFs at
-function zero remain alone in their slot. This has the added benefit of
-improving overall capacity, considering that there's only a total of 32
-slots available right now (PCI segment and bus can both only ever be
-zero at present).
+The userfaultfd hugetlb tests cause a resv_huge_pages underflow.  This
+happens when hugetlb_mcopy_atomic_pte() is called with !is_continue on
+an index for which we already have a page in the cache.  When this
+happens, we allocate a second page, double consuming the reservation,
+and then fail to insert the page into the cache and return -EEXIST.
 
-This is upstream commit 4ba50e7c423c29639878c00573288869aa627068.
+To fix this, we first check if there is a page in the cache which
+already consumed the reservation, and return -EEXIST immediately if so.
 
-Fixes: 8a5248fe10b1 ("xen PV passthru: assign SR-IOV virtual functions to 
-separate virtual slots")
-Signed-off-by: Jan Beulich <jbeulich@suse.com>
-Reviewed-by: Boris Ostrovsky <boris.ostrovsky@oracle.com>
-Link: https://lore.kernel.org/r/8def783b-404c-3452-196d-3f3fd4d72c9e@suse.com
-Signed-off-by: Juergen Gross <jgross@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is still a rare condition where we fail to copy the page contents
+AND race with a call for hugetlb_no_page() for this index and again we
+will underflow resv_huge_pages.  That is fixed in a more complicated
+patch not targeted for -stable.
+
+Test:
+
+  Hacked the code locally such that resv_huge_pages underflows produce a
+  warning, then:
+
+  ./tools/testing/selftests/vm/userfaultfd hugetlb_shared 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+  ./tools/testing/selftests/vm/userfaultfd hugetlb 10
+	2 /tmp/kokonut_test/huge/userfaultfd_test && echo test success
+
+Both tests succeed and produce no warnings.  After the test runs number
+of free/resv hugepages is correct.
+
+[mike.kravetz@oracle.com: changelog fixes]
+
+Link: https://lkml.kernel.org/r/20210528004649.85298-1-almasrymina@google.com
+Fixes: 8fb5debc5fcd ("userfaultfd: hugetlbfs: add hugetlb_mcopy_atomic_pte for userfaultfd support")
+Signed-off-by: Mina Almasry <almasrymina@google.com>
+Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
+Cc: Axel Rasmussen <axelrasmussen@google.com>
+Cc: Peter Xu <peterx@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/xen/xen-pciback/vpci.c |   14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
+ mm/hugetlb.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
---- a/drivers/xen/xen-pciback/vpci.c
-+++ b/drivers/xen/xen-pciback/vpci.c
-@@ -69,7 +69,7 @@ static int __xen_pcibk_add_pci_dev(struc
- 				   struct pci_dev *dev, int devid,
- 				   publish_pci_dev_cb publish_cb)
- {
--	int err = 0, slot, func = -1;
-+	int err = 0, slot, func = PCI_FUNC(dev->devfn);
- 	struct pci_dev_entry *t, *dev_entry;
- 	struct vpci_dev_data *vpci_dev = pdev->pci_dev_data;
+diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+index 900851a4f914..bc1006a32733 100644
+--- a/mm/hugetlb.c
++++ b/mm/hugetlb.c
+@@ -4708,10 +4708,20 @@ int hugetlb_mcopy_atomic_pte(struct mm_struct *dst_mm,
+ 	struct page *page;
  
-@@ -94,23 +94,26 @@ static int __xen_pcibk_add_pci_dev(struc
+ 	if (!*pagep) {
+-		ret = -ENOMEM;
++		/* If a page already exists, then it's UFFDIO_COPY for
++		 * a non-missing case. Return -EEXIST.
++		 */
++		if (vm_shared &&
++		    hugetlbfs_pagecache_present(h, dst_vma, dst_addr)) {
++			ret = -EEXIST;
++			goto out;
++		}
++
+ 		page = alloc_huge_page(dst_vma, dst_addr, 0);
+-		if (IS_ERR(page))
++		if (IS_ERR(page)) {
++			ret = -ENOMEM;
+ 			goto out;
++		}
  
- 	/*
- 	 * Keep multi-function devices together on the virtual PCI bus, except
--	 * virtual functions.
-+	 * that we want to keep virtual functions at func 0 on their own. They
-+	 * aren't multi-function devices and hence their presence at func 0
-+	 * may cause guests to not scan the other functions.
- 	 */
--	if (!dev->is_virtfn) {
-+	if (!dev->is_virtfn || func) {
- 		for (slot = 0; slot < PCI_SLOT_MAX; slot++) {
- 			if (list_empty(&vpci_dev->dev_list[slot]))
- 				continue;
- 
- 			t = list_entry(list_first(&vpci_dev->dev_list[slot]),
- 				       struct pci_dev_entry, list);
-+			if (t->dev->is_virtfn && !PCI_FUNC(t->dev->devfn))
-+				continue;
- 
- 			if (match_slot(dev, t->dev)) {
- 				pr_info("vpci: %s: assign to virtual slot %d func %d\n",
- 					pci_name(dev), slot,
--					PCI_FUNC(dev->devfn));
-+					func);
- 				list_add_tail(&dev_entry->list,
- 					      &vpci_dev->dev_list[slot]);
--				func = PCI_FUNC(dev->devfn);
- 				goto unlock;
- 			}
- 		}
-@@ -123,7 +126,6 @@ static int __xen_pcibk_add_pci_dev(struc
- 				pci_name(dev), slot);
- 			list_add_tail(&dev_entry->list,
- 				      &vpci_dev->dev_list[slot]);
--			func = dev->is_virtfn ? 0 : PCI_FUNC(dev->devfn);
- 			goto unlock;
- 		}
- 	}
+ 		ret = copy_huge_page_from_user(page,
+ 						(const void __user *) src_addr,
+-- 
+2.30.2
+
 
 
