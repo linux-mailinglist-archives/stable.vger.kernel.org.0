@@ -2,34 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id C66E03A025C
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:15 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C8183A03C4
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:12 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236647AbhFHTDQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:03:16 -0400
-Received: from mail.kernel.org ([198.145.29.99]:34178 "EHLO mail.kernel.org"
+        id S235934AbhFHTVy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:21:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:37984 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237698AbhFHTBM (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:01:12 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 022566191F;
-        Tue,  8 Jun 2021 18:44:43 +0000 (UTC)
+        id S237394AbhFHTSC (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:18:02 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 1B56761977;
+        Tue,  8 Jun 2021 18:51:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623177884;
-        bh=rLlInfPeeEe9cY3zBXq42wFZc4XI1ewRkI8Jpy+8Xr4=;
+        s=korg; t=1623178287;
+        bh=/zppk98WdwQocVwLh1eYbYTfhVTbwIBa2pMVSuX3L1U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZaEakzOEPA1htk47fXk9Dcl9NikB5/ojprQn6A4RuVzwIvu36N5TZOUgc+2e4kHL5
-         hpmvGO8ZcWuXqjTfnkDNlATB2HyE29E/lNx8AHQLGmPXj7hT8PonKfVucCfVRVM0ih
-         kLlIMmY/VDio0dNrFgbK9ucjSV9gs1fhXwUUuO9w=
+        b=FPi24uCrfwUBT0fYC8VZg4RC2NIajlvAwTM9q8chMhOMT3dU3aolOJD+/8erbc6AP
+         5OuIBhsHJ36z9bR4nAzl7G1fTL9ErlrYwnOxHzOhvAChg6EKA3gqU241TCu8otmmk7
+         8N++1N7ci59JjJSY+Srqs/tTeJixL+db5ZNcUVNI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Pablo Neira Ayuso <pablo@netfilter.org>
-Subject: [PATCH 5.10 135/137] netfilter: nf_tables: missing error reporting for not selected expressions
-Date:   Tue,  8 Jun 2021 20:27:55 +0200
-Message-Id: <20210608175946.943525991@linuxfoundation.org>
+        stable@vger.kernel.org, Josef Bacik <josef@toxicpanda.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.12 146/161] btrfs: abort in rename_exchange if we fail to insert the second ref
+Date:   Tue,  8 Jun 2021 20:27:56 +0200
+Message-Id: <20210608175950.383075102@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
-References: <20210608175942.377073879@linuxfoundation.org>
+In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
+References: <20210608175945.476074951@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -38,46 +39,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Josef Bacik <josef@toxicpanda.com>
 
-commit c781471d67a56d7d4c113669a11ede0463b5c719 upstream.
+commit dc09ef3562726cd520c8338c1640872a60187af5 upstream.
 
-Sometimes users forget to turn on nftables extensions from Kconfig that
-they need. In such case, the error reporting from userspace is
-misleading:
+Error injection stress uncovered a problem where we'd leave a dangling
+inode ref if we failed during a rename_exchange.  This happens because
+we insert the inode ref for one side of the rename, and then for the
+other side.  If this second inode ref insert fails we'll leave the first
+one dangling and leave a corrupt file system behind.  Fix this by
+aborting if we did the insert for the first inode ref.
 
- $ sudo nft add rule x y counter
- Error: Could not process rule: No such file or directory
- add rule x y counter
- ^^^^^^^^^^^^^^^^^^^^
-
-Add missing NL_SET_BAD_ATTR() to provide a hint:
-
- $ nft add rule x y counter
- Error: Could not process rule: No such file or directory
- add rule x y counter
-              ^^^^^^^
-
-Fixes: 83d9dcba06c5 ("netfilter: nf_tables: extended netlink error reporting for expressions")
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+CC: stable@vger.kernel.org # 4.9+
+Signed-off-by: Josef Bacik <josef@toxicpanda.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nf_tables_api.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/btrfs/inode.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/net/netfilter/nf_tables_api.c
-+++ b/net/netfilter/nf_tables_api.c
-@@ -3263,8 +3263,10 @@ static int nf_tables_newrule(struct net
- 			if (n == NFT_RULE_MAXEXPRS)
- 				goto err1;
- 			err = nf_tables_expr_parse(&ctx, tmp, &info[n]);
--			if (err < 0)
-+			if (err < 0) {
-+				NL_SET_BAD_ATTR(extack, tmp);
- 				goto err1;
-+			}
- 			size += info[n].ops->size;
- 			n++;
- 		}
+--- a/fs/btrfs/inode.c
++++ b/fs/btrfs/inode.c
+@@ -9088,6 +9088,7 @@ static int btrfs_rename_exchange(struct
+ 	int ret2;
+ 	bool root_log_pinned = false;
+ 	bool dest_log_pinned = false;
++	bool need_abort = false;
+ 
+ 	/* we only allow rename subvolume link between subvolumes */
+ 	if (old_ino != BTRFS_FIRST_FREE_OBJECTID && root != dest)
+@@ -9144,6 +9145,7 @@ static int btrfs_rename_exchange(struct
+ 					     old_idx);
+ 		if (ret)
+ 			goto out_fail;
++		need_abort = true;
+ 	}
+ 
+ 	/* And now for the dest. */
+@@ -9159,8 +9161,11 @@ static int btrfs_rename_exchange(struct
+ 					     new_ino,
+ 					     btrfs_ino(BTRFS_I(old_dir)),
+ 					     new_idx);
+-		if (ret)
++		if (ret) {
++			if (need_abort)
++				btrfs_abort_transaction(trans, ret);
+ 			goto out_fail;
++		}
+ 	}
+ 
+ 	/* Update inode version and ctime/mtime. */
 
 
