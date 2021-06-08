@@ -2,36 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 220393A02E4
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:22:23 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id C3CDE3A021A
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:20:44 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236530AbhFHTLH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:11:07 -0400
-Received: from mail.kernel.org ([198.145.29.99]:54970 "EHLO mail.kernel.org"
+        id S236203AbhFHTBY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:01:24 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34610 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236883AbhFHTHe (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:07:34 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 870AB613DD;
-        Tue,  8 Jun 2021 18:47:25 +0000 (UTC)
+        id S237112AbhFHS5J (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:57:09 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 6E44561621;
+        Tue,  8 Jun 2021 18:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178046;
-        bh=HknkZSdCF5cb0LuMUeofYonfHPm0HaaahJeapgMFrys=;
+        s=korg; t=1623177738;
+        bh=ZhFjx3yTDlZkk6lomqsw1I9ndBbpPob8PcylU2A10g8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpJ0s6/UV2BgGcIlSlIQ/9GLbxKjPSnBqkCVMGHqfTmmL2A+6VvlUaOp8FEV8jPBV
-         oWVa0EnBsJ5WIPoWtG5Lm5+taRmviBi2GCRSRsb7hyUP/D10mYXlaLl/G0cR5XaEmv
-         LdGOnBhdBdbXRIcFjjVikniHFkJqxfqDr5wZ9+FE=
+        b=d0Ga6I1Ke73G3AQt2YCnPiUcM9+BNcOHehST5J2ApFrqeTbyRblxczTfFNGs4BH7k
+         vNHUZtYvFPTNxLEDUZQklNGxtfxQlxrNn4TRNOU/MNauW8NmpFT9cmxkD8PvsQPCF8
+         RbNFtRqyVs5iayo8cu3aiceqnZkCdJ6pUujlmt1o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Roja Rani Yarubandi <rojay@codeaurora.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.12 057/161] i2c: qcom-geni: Add shutdown callback for i2c
-Date:   Tue,  8 Jun 2021 20:26:27 +0200
-Message-Id: <20210608175947.394182460@linuxfoundation.org>
+        stable@vger.kernel.org, Paul Greenwalt <paul.greenwalt@intel.com>,
+        Tony Brelinski <tonyx.brelinski@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 048/137] ice: report supported and advertised autoneg using PHY capabilities
+Date:   Tue,  8 Jun 2021 20:26:28 +0200
+Message-Id: <20210608175944.030503188@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -40,55 +41,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roja Rani Yarubandi <rojay@codeaurora.org>
+From: Paul Greenwalt <paul.greenwalt@intel.com>
 
-[ Upstream commit 9f78c607600ce4f2a952560de26534715236f612 ]
+[ Upstream commit 5cd349c349d6ec52862e550d3576893d35ab8ac2 ]
 
-If the hardware is still accessing memory after SMMU translation
-is disabled (as part of smmu shutdown callback), then the
-IOVAs (I/O virtual address) which it was using will go on the bus
-as the physical addresses which will result in unknown crashes
-like NoC/interconnect errors.
+Ethtool incorrectly reported supported and advertised auto-negotiation
+settings for a backplane PHY image which did not support auto-negotiation.
+This can occur when using media or PHY type for reporting ethtool
+supported and advertised auto-negotiation settings.
 
-So, implement shutdown callback for i2c driver to suspend the bus
-during system "reboot" or "shutdown".
+Remove setting supported and advertised auto-negotiation settings based
+on PHY type in ice_phy_type_to_ethtool(), and MAC type in
+ice_get_link_ksettings().
 
-Fixes: 37692de5d523 ("i2c: i2c-qcom-geni: Add bus driver for the Qualcomm GENI I2C controller")
-Signed-off-by: Roja Rani Yarubandi <rojay@codeaurora.org>
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Ethtool supported and advertised auto-negotiation settings should be
+based on the PHY image using the AQ command get PHY capabilities with
+media. Add setting supported and advertised auto-negotiation settings
+based get PHY capabilities with media in ice_get_link_ksettings().
+
+Fixes: 48cb27f2fd18 ("ice: Implement handlers for ethtool PHY/link operations")
+Signed-off-by: Paul Greenwalt <paul.greenwalt@intel.com>
+Tested-by: Tony Brelinski <tonyx.brelinski@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/i2c/busses/i2c-qcom-geni.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 51 +++-----------------
+ 1 file changed, 6 insertions(+), 45 deletions(-)
 
-diff --git a/drivers/i2c/busses/i2c-qcom-geni.c b/drivers/i2c/busses/i2c-qcom-geni.c
-index 214b4c913a13..c3ae66ba6345 100644
---- a/drivers/i2c/busses/i2c-qcom-geni.c
-+++ b/drivers/i2c/busses/i2c-qcom-geni.c
-@@ -650,6 +650,14 @@ static int geni_i2c_remove(struct platform_device *pdev)
- 	return 0;
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index d70573f5072c..a7975afecf70 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -1797,49 +1797,6 @@ ice_phy_type_to_ethtool(struct net_device *netdev,
+ 		ice_ethtool_advertise_link_mode(ICE_AQ_LINK_SPEED_100GB,
+ 						100000baseKR4_Full);
+ 	}
+-
+-	/* Autoneg PHY types */
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_100BASE_TX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_1000BASE_KX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_2500BASE_KX ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_5GBASE_KR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_10GBASE_KR_CR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_T ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR_S ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_CR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR_S ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_25GBASE_KR1 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_CR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_40GBASE_KR4) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CR2 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR2 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_CP ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_50GBASE_KR_PAM4) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
+-	if (phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_KR_PAM4 ||
+-	    phy_types_low & ICE_PHY_TYPE_LOW_100GBASE_CP2) {
+-		ethtool_link_ksettings_add_link_mode(ks, supported,
+-						     Autoneg);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising,
+-						     Autoneg);
+-	}
  }
  
-+static void geni_i2c_shutdown(struct platform_device *pdev)
-+{
-+	struct geni_i2c_dev *gi2c = platform_get_drvdata(pdev);
+ #define TEST_SET_BITS_TIMEOUT	50
+@@ -1996,9 +1953,7 @@ ice_get_link_ksettings(struct net_device *netdev,
+ 		ks->base.port = PORT_TP;
+ 		break;
+ 	case ICE_MEDIA_BACKPLANE:
+-		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
+ 		ethtool_link_ksettings_add_link_mode(ks, supported, Backplane);
+-		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
+ 		ethtool_link_ksettings_add_link_mode(ks, advertising,
+ 						     Backplane);
+ 		ks->base.port = PORT_NONE;
+@@ -2073,6 +2028,12 @@ ice_get_link_ksettings(struct net_device *netdev,
+ 	if (caps->link_fec_options & ICE_AQC_PHY_FEC_25G_RS_CLAUSE91_EN)
+ 		ethtool_link_ksettings_add_link_mode(ks, supported, FEC_RS);
+ 
++	/* Set supported and advertised autoneg */
++	if (ice_is_phy_caps_an_enabled(caps)) {
++		ethtool_link_ksettings_add_link_mode(ks, supported, Autoneg);
++		ethtool_link_ksettings_add_link_mode(ks, advertising, Autoneg);
++	}
 +
-+	/* Make client i2c transfers start failing */
-+	i2c_mark_adapter_suspended(&gi2c->adap);
-+}
-+
- static int __maybe_unused geni_i2c_runtime_suspend(struct device *dev)
- {
- 	int ret;
-@@ -714,6 +722,7 @@ MODULE_DEVICE_TABLE(of, geni_i2c_dt_match);
- static struct platform_driver geni_i2c_driver = {
- 	.probe  = geni_i2c_probe,
- 	.remove = geni_i2c_remove,
-+	.shutdown = geni_i2c_shutdown,
- 	.driver = {
- 		.name = "geni_i2c",
- 		.pm = &geni_i2c_pm_ops,
+ done:
+ 	kfree(caps);
+ 	return err;
 -- 
 2.30.2
 
