@@ -2,41 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 22F513A03D9
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:25 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 296CF3A025E
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:17 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237206AbhFHTWO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:14 -0400
-Received: from mail.kernel.org ([198.145.29.99]:38720 "EHLO mail.kernel.org"
+        id S236754AbhFHTDU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:03:20 -0400
+Received: from mail.kernel.org ([198.145.29.99]:40168 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S236031AbhFHTS6 (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:18:58 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 906B86145F;
-        Tue,  8 Jun 2021 18:52:01 +0000 (UTC)
+        id S234600AbhFHTBT (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:01:19 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id E89056192A;
+        Tue,  8 Jun 2021 18:44:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178322;
-        bh=lkOFaeMoGReht2BXUFvkJN856wVPOGIji5Bk1K6DNBg=;
+        s=korg; t=1623177896;
+        bh=r+rbTcLirITT1wDj6tlCrQZOE9N4Ib9j0AL91eL46IM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BUJ8LnLzwLeybDE98iFLS5dOVh91/YV8A5LueMpCYQtKxOiqDqnSNqmqlQ3qIEmk/
-         X+1ia5RbVOdObSmAbH+Eq5g0UOv1w9X4zTS2tOkjvIWORWBUYXP2i+Y0nIFpOADgNE
-         TK90V07+W1dZwzMjXn7GM6CV02ki/Hre0H7DaKpE=
+        b=0qHpk5Mjiyh9TfC9vAst9MW6kfe78HXMPdEVYx+JgJDf7y/9sQMz3DlzFtTOi4/pQ
+         2OceEG1SLVGqphf2FYcl/iQNBvs26n5W5pq/OFSBaFgtYOw6NMM4FJWD9nVRA0p2HW
+         bLcvFvHt9kwWZAyJrH2zzzi5pfP78ZcGXPmBCSdE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Junxiao Bi <junxiao.bi@oracle.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Jan Kara <jack@suse.cz>, Mark Fasheh <mark@fasheh.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Changwei Ge <gechangwei@live.cn>, Gang He <ghe@suse.com>,
-        Jun Piao <piaojun@huawei.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 126/161] ocfs2: fix data corruption by fallocate
+        stable@vger.kernel.org, Nirmoy Das <nirmoy.das@amd.com>,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.10 116/137] drm/amdgpu: make sure we unpin the UVD BO
 Date:   Tue,  8 Jun 2021 20:27:36 +0200
-Message-Id: <20210608175949.704980613@linuxfoundation.org>
+Message-Id: <20210608175946.301154026@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -45,148 +40,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Junxiao Bi <junxiao.bi@oracle.com>
+From: Nirmoy Das <nirmoy.das@amd.com>
 
-commit 6bba4471f0cc1296fe3c2089b9e52442d3074b2e upstream.
+commit 07438603a07e52f1c6aa731842bd298d2725b7be upstream.
 
-When fallocate punches holes out of inode size, if original isize is in
-the middle of last cluster, then the part from isize to the end of the
-cluster will be zeroed with buffer write, at that time isize is not yet
-updated to match the new size, if writeback is kicked in, it will invoke
-ocfs2_writepage()->block_write_full_page() where the pages out of inode
-size will be dropped.  That will cause file corruption.  Fix this by
-zero out eof blocks when extending the inode size.
+Releasing pinned BOs is illegal now. UVD 6 was missing from:
+commit 2f40801dc553 ("drm/amdgpu: make sure we unpin the UVD BO")
 
-Running the following command with qemu-image 4.2.1 can get a corrupted
-coverted image file easily.
-
-    qemu-img convert -p -t none -T none -f qcow2 $qcow_image \
-             -O qcow2 -o compat=1.1 $qcow_image.conv
-
-The usage of fallocate in qemu is like this, it first punches holes out
-of inode size, then extend the inode size.
-
-    fallocate(11, FALLOC_FL_KEEP_SIZE|FALLOC_FL_PUNCH_HOLE, 2276196352, 65536) = 0
-    fallocate(11, 0, 2276196352, 65536) = 0
-
-v1: https://www.spinics.net/lists/linux-fsdevel/msg193999.html
-v2: https://lore.kernel.org/linux-fsdevel/20210525093034.GB4112@quack2.suse.cz/T/
-
-Link: https://lkml.kernel.org/r/20210528210648.9124-1-junxiao.bi@oracle.com
-Signed-off-by: Junxiao Bi <junxiao.bi@oracle.com>
-Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Changwei Ge <gechangwei@live.cn>
-Cc: Gang He <ghe@suse.com>
-Cc: Jun Piao <piaojun@huawei.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 2f40801dc553 ("drm/amdgpu: make sure we unpin the UVD BO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Nirmoy Das <nirmoy.das@amd.com>
+Reviewed-by: Christian König <christian.koenig@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ocfs2/file.c |   55 ++++++++++++++++++++++++++++++++++++++++++++++++++-----
- 1 file changed, 50 insertions(+), 5 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1858,6 +1858,45 @@ out:
- }
+--- a/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/uvd_v6_0.c
+@@ -356,6 +356,7 @@ static int uvd_v6_0_enc_ring_test_ib(str
  
- /*
-+ * zero out partial blocks of one cluster.
-+ *
-+ * start: file offset where zero starts, will be made upper block aligned.
-+ * len: it will be trimmed to the end of current cluster if "start + len"
-+ *      is bigger than it.
-+ */
-+static int ocfs2_zeroout_partial_cluster(struct inode *inode,
-+					u64 start, u64 len)
-+{
-+	int ret;
-+	u64 start_block, end_block, nr_blocks;
-+	u64 p_block, offset;
-+	u32 cluster, p_cluster, nr_clusters;
-+	struct super_block *sb = inode->i_sb;
-+	u64 end = ocfs2_align_bytes_to_clusters(sb, start);
-+
-+	if (start + len < end)
-+		end = start + len;
-+
-+	start_block = ocfs2_blocks_for_bytes(sb, start);
-+	end_block = ocfs2_blocks_for_bytes(sb, end);
-+	nr_blocks = end_block - start_block;
-+	if (!nr_blocks)
-+		return 0;
-+
-+	cluster = ocfs2_bytes_to_clusters(sb, start);
-+	ret = ocfs2_get_clusters(inode, cluster, &p_cluster,
-+				&nr_clusters, NULL);
-+	if (ret)
-+		return ret;
-+	if (!p_cluster)
-+		return 0;
-+
-+	offset = start_block - ocfs2_clusters_to_blocks(sb, cluster);
-+	p_block = ocfs2_clusters_to_blocks(sb, p_cluster) + offset;
-+	return sb_issue_zeroout(sb, p_block, nr_blocks, GFP_NOFS);
-+}
-+
-+/*
-  * Parts of this function taken from xfs_change_file_space()
-  */
- static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
-@@ -1867,7 +1906,7 @@ static int __ocfs2_change_file_space(str
- {
- 	int ret;
- 	s64 llen;
--	loff_t size;
-+	loff_t size, orig_isize;
- 	struct ocfs2_super *osb = OCFS2_SB(inode->i_sb);
- 	struct buffer_head *di_bh = NULL;
- 	handle_t *handle;
-@@ -1898,6 +1937,7 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
-+	orig_isize = i_size_read(inode);
- 	switch (sr->l_whence) {
- 	case 0: /*SEEK_SET*/
- 		break;
-@@ -1905,7 +1945,7 @@ static int __ocfs2_change_file_space(str
- 		sr->l_start += f_pos;
- 		break;
- 	case 2: /*SEEK_END*/
--		sr->l_start += i_size_read(inode);
-+		sr->l_start += orig_isize;
- 		break;
- 	default:
- 		ret = -EINVAL;
-@@ -1959,6 +1999,14 @@ static int __ocfs2_change_file_space(str
- 	default:
- 		ret = -EINVAL;
- 	}
-+
-+	/* zeroout eof blocks in the cluster. */
-+	if (!ret && change_size && orig_isize < size) {
-+		ret = ocfs2_zeroout_partial_cluster(inode, orig_isize,
-+					size - orig_isize);
-+		if (!ret)
-+			i_size_write(inode, size);
-+	}
- 	up_write(&OCFS2_I(inode)->ip_alloc_sem);
- 	if (ret) {
- 		mlog_errno(ret);
-@@ -1975,9 +2023,6 @@ static int __ocfs2_change_file_space(str
- 		goto out_inode_unlock;
- 	}
- 
--	if (change_size && i_size_read(inode) < size)
--		i_size_write(inode, size);
--
- 	inode->i_ctime = inode->i_mtime = current_time(inode);
- 	ret = ocfs2_mark_inode_dirty(handle, inode, di_bh);
- 	if (ret < 0)
+ error:
+ 	dma_fence_put(fence);
++	amdgpu_bo_unpin(bo);
+ 	amdgpu_bo_unreserve(bo);
+ 	amdgpu_bo_unref(&bo);
+ 	return r;
 
 
