@@ -2,38 +2,37 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id CBD4F39FF26
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:08 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id F35ED39FF46
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 20:30:21 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233966AbhFHSay (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 14:30:54 -0400
-Received: from mail.kernel.org ([198.145.29.99]:55612 "EHLO mail.kernel.org"
+        id S234145AbhFHSby (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 14:31:54 -0400
+Received: from mail.kernel.org ([198.145.29.99]:56452 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S233935AbhFHSay (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 14:30:54 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 6FD4C61352;
-        Tue,  8 Jun 2021 18:29:00 +0000 (UTC)
+        id S234130AbhFHSb3 (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 14:31:29 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 2107B613C1;
+        Tue,  8 Jun 2021 18:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623176941;
-        bh=paxo7YgeC40g60lJVnEgmyjUda1w8zrswA5EkUy2Um0=;
+        s=korg; t=1623176974;
+        bh=wd+BPha1Nb5yGMu5F8sdBCuibHKWsfyuWB9Y2bemk3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v8P7wZcE5xwkhihikz8C9k1tw6SVtP+0S3om9DefIAjCPMID9v8F498Q+TVU/12rM
-         Jle+bGXbLE1bQhaLUBesfFCgPDaOInonwai7WAiR+293Pn6QgDesFCUGv+YedeQgOC
-         Ue2usgoGtNRMzDrEhkVl/oyxyU0szS3zB+/eeD6k=
+        b=QJ05sO7wn36X+H2rWAmQbbR6Lm8TUMOHOJj64ZJ52nAEl2+vyt2BPXe6m1tV/VFtW
+         2NqQXOwa4Ov1ULgdxABA8OToO9e37wsGUT3RbHYRu/yF+JP/bxPj5mv4y1kFFPNusk
+         sKEf8DCTvt4QSfTft31Ky4ldn3v8Fg/W1LlSRe8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Julian Anastasov <ja@ssi.bg>,
-        Simon Horman <horms@verge.net.au>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
-Subject: [PATCH 4.4 04/23] ipvs: ignore IP_VS_SVC_F_HASHED flag when adding service
-Date:   Tue,  8 Jun 2021 20:26:56 +0200
-Message-Id: <20210608175926.688787741@linuxfoundation.org>
+        stable@vger.kernel.org,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.9 03/29] efi: cper: fix snprintf() use in cper_dimm_err_location()
+Date:   Tue,  8 Jun 2021 20:26:57 +0200
+Message-Id: <20210608175927.932302866@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175926.524658689@linuxfoundation.org>
-References: <20210608175926.524658689@linuxfoundation.org>
+In-Reply-To: <20210608175927.821075974@linuxfoundation.org>
+References: <20210608175927.821075974@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -42,60 +41,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
 
-[ Upstream commit 56e4ee82e850026d71223262c07df7d6af3bd872 ]
+[ Upstream commit 942859d969de7f6f7f2659a79237a758b42782da ]
 
-syzbot reported memory leak [1] when adding service with
-HASHED flag. We should ignore this flag both from sockopt
-and netlink provided data, otherwise the service is not
-hashed and not visible while releasing resources.
+snprintf() should be given the full buffer size, not one less. And it
+guarantees nul-termination, so doing it manually afterwards is
+pointless.
 
-[1]
-BUG: memory leak
-unreferenced object 0xffff888115227800 (size 512):
-  comm "syz-executor263", pid 8658, jiffies 4294951882 (age 12.560s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<ffffffff83977188>] kmalloc include/linux/slab.h:556 [inline]
-    [<ffffffff83977188>] kzalloc include/linux/slab.h:686 [inline]
-    [<ffffffff83977188>] ip_vs_add_service+0x598/0x7c0 net/netfilter/ipvs/ip_vs_ctl.c:1343
-    [<ffffffff8397d770>] do_ip_vs_set_ctl+0x810/0xa40 net/netfilter/ipvs/ip_vs_ctl.c:2570
-    [<ffffffff838449a8>] nf_setsockopt+0x68/0xa0 net/netfilter/nf_sockopt.c:101
-    [<ffffffff839ae4e9>] ip_setsockopt+0x259/0x1ff0 net/ipv4/ip_sockglue.c:1435
-    [<ffffffff839fa03c>] raw_setsockopt+0x18c/0x1b0 net/ipv4/raw.c:857
-    [<ffffffff83691f20>] __sys_setsockopt+0x1b0/0x360 net/socket.c:2117
-    [<ffffffff836920f2>] __do_sys_setsockopt net/socket.c:2128 [inline]
-    [<ffffffff836920f2>] __se_sys_setsockopt net/socket.c:2125 [inline]
-    [<ffffffff836920f2>] __x64_sys_setsockopt+0x22/0x30 net/socket.c:2125
-    [<ffffffff84350efa>] do_syscall_64+0x3a/0xb0 arch/x86/entry/common.c:47
-    [<ffffffff84400068>] entry_SYSCALL_64_after_hwframe+0x44/0xae
+It's even potentially harmful (though probably not in practice because
+CPER_REC_LEN is 256), due to the "return how much would have been
+written had the buffer been big enough" semantics. I.e., if the bank
+and/or device strings are long enough that the "DIMM location ..."
+output gets truncated, writing to msg[n] is a buffer overflow.
 
-Reported-and-tested-by: syzbot+e562383183e4b1766930@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Reviewed-by: Simon Horman <horms@verge.net.au>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+Fixes: 3760cd20402d4 ("CPER: Adjust code flow of some functions")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/ipvs/ip_vs_ctl.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/cper.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/net/netfilter/ipvs/ip_vs_ctl.c b/net/netfilter/ipvs/ip_vs_ctl.c
-index c7ee962a547b..1adbcdda2158 100644
---- a/net/netfilter/ipvs/ip_vs_ctl.c
-+++ b/net/netfilter/ipvs/ip_vs_ctl.c
-@@ -1226,7 +1226,7 @@ ip_vs_add_service(struct netns_ipvs *ipvs, struct ip_vs_service_user_kern *u,
- 	ip_vs_addr_copy(svc->af, &svc->addr, &u->addr);
- 	svc->port = u->port;
- 	svc->fwmark = u->fwmark;
--	svc->flags = u->flags;
-+	svc->flags = u->flags & ~IP_VS_SVC_F_HASHED;
- 	svc->timeout = u->timeout * HZ;
- 	svc->netmask = u->netmask;
- 	svc->ipvs = ipvs;
+diff --git a/drivers/firmware/efi/cper.c b/drivers/firmware/efi/cper.c
+index c0e54396f250..dc8d2603612e 100644
+--- a/drivers/firmware/efi/cper.c
++++ b/drivers/firmware/efi/cper.c
+@@ -257,8 +257,7 @@ static int cper_dimm_err_location(struct cper_mem_err_compact *mem, char *msg)
+ 	if (!msg || !(mem->validation_bits & CPER_MEM_VALID_MODULE_HANDLE))
+ 		return 0;
+ 
+-	n = 0;
+-	len = CPER_REC_LEN - 1;
++	len = CPER_REC_LEN;
+ 	dmi_memdev_name(mem->mem_dev_handle, &bank, &device);
+ 	if (bank && device)
+ 		n = snprintf(msg, len, "DIMM location: %s %s ", bank, device);
+@@ -267,7 +266,6 @@ static int cper_dimm_err_location(struct cper_mem_err_compact *mem, char *msg)
+ 			     "DIMM location: not present. DMI handle: 0x%.4x ",
+ 			     mem->mem_dev_handle);
+ 
+-	msg[n] = '\0';
+ 	return n;
+ }
+ 
 -- 
 2.30.2
 
