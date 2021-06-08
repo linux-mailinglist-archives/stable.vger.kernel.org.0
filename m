@@ -2,40 +2,36 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from vger.kernel.org (vger.kernel.org [23.128.96.18])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F15B3A03CE
-	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:25:17 +0200 (CEST)
+	by mail.lfdr.de (Postfix) with ESMTP id 048473A0251
+	for <lists+stable@lfdr.de>; Tue,  8 Jun 2021 21:21:10 +0200 (CEST)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236840AbhFHTWC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 8 Jun 2021 15:22:02 -0400
-Received: from mail.kernel.org ([198.145.29.99]:39612 "EHLO mail.kernel.org"
+        id S235898AbhFHTCm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 8 Jun 2021 15:02:42 -0400
+Received: from mail.kernel.org ([198.145.29.99]:34092 "EHLO mail.kernel.org"
         rhost-flags-OK-OK-OK-OK) by vger.kernel.org with ESMTP
-        id S237956AbhFHTSK (ORCPT <rfc822;stable@vger.kernel.org>);
-        Tue, 8 Jun 2021 15:18:10 -0400
-Received: by mail.kernel.org (Postfix) with ESMTPSA id 2422B6140F;
-        Tue,  8 Jun 2021 18:51:54 +0000 (UTC)
+        id S237552AbhFHTAv (ORCPT <rfc822;stable@vger.kernel.org>);
+        Tue, 8 Jun 2021 15:00:51 -0400
+Received: by mail.kernel.org (Postfix) with ESMTPSA id 302DD61864;
+        Tue,  8 Jun 2021 18:44:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1623178314;
-        bh=WBaDR/3bp+5KoI+MO9Nv5iU1JRrzhFLaNPv4RszXNUc=;
+        s=korg; t=1623177843;
+        bh=IWzbsvazQ/Rv68RMwi2/R6ZolNNYvus/0NQQowmYP0o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1GJy3x2cFrNgYsC8eYs6uW7asCLJSIJbUIACTqsztP3eRIW0bZnt2wDjIMzqBy+3m
-         YvaVpt88XJmahkY/7Fp8ABVSwqw2+cksqm98AGwzLn3Kjjj1kcRyZMZckuE8b9Bis0
-         daRW3RZN+A4VkWU98EgDDz5PM8HTce6MwJq1ffVU=
+        b=zmUGyUW+PM92v6GS6Q/lU839q3zdz5fZzw5+u990u5IsjNIvooh/DG53n3qjUqpgH
+         OYXBtCjHlzzk+KZ5kwmVZcVsbipssdlzCeDWjNGJZZbXPgCiYADr77z/83iTyKe+Tm
+         RO5+wjEVEW+2rMVKCIlE0/KxXj6MDPJjpKzLfvoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, Marco Elver <elver@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Hillf Danton <hdanton@sina.com>, Jann Horn <jannh@google.com>,
-        Mark Rutland <mark.rutland@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.12 123/161] kfence: maximize allocation wait timeout duration
+        stable@vger.kernel.org, Pu Wen <puwen@hygon.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Tom Lendacky <thomas.lendacky@amd.com>
+Subject: [PATCH 5.10 113/137] x86/sev: Check SME/SEV support in CPUID first
 Date:   Tue,  8 Jun 2021 20:27:33 +0200
-Message-Id: <20210608175949.600600450@linuxfoundation.org>
+Message-Id: <20210608175946.204461984@linuxfoundation.org>
 X-Mailer: git-send-email 2.32.0
-In-Reply-To: <20210608175945.476074951@linuxfoundation.org>
-References: <20210608175945.476074951@linuxfoundation.org>
+In-Reply-To: <20210608175942.377073879@linuxfoundation.org>
+References: <20210608175942.377073879@linuxfoundation.org>
 User-Agent: quilt/0.66
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -44,61 +40,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marco Elver <elver@google.com>
+From: Pu Wen <puwen@hygon.cn>
 
-commit 37c9284f6932b915043717703d6496dfd59c85f5 upstream.
+commit 009767dbf42ac0dbe3cf48c1ee224f6b778aa85a upstream.
 
-The allocation wait timeout was initially added because of warnings due to
-CONFIG_DETECT_HUNG_TASK=y [1].  While the 1 sec timeout is sufficient to
-resolve the warnings (given the hung task timeout must be 1 sec or larger)
-it may cause unnecessary wake-ups if the system is idle:
+The first two bits of the CPUID leaf 0x8000001F EAX indicate whether SEV
+or SME is supported, respectively. It's better to check whether SEV or
+SME is actually supported before accessing the MSR_AMD64_SEV to check
+whether SEV or SME is enabled.
 
-  https://lkml.kernel.org/r/CADYN=9J0DQhizAGB0-jz4HOBBh+05kMBXb4c0cXMS7Qi5NAJiw@mail.gmail.com
+This is both a bare-metal issue and a guest/VM issue. Since the first
+generation Hygon Dhyana CPU doesn't support the MSR_AMD64_SEV, reading that
+MSR results in a #GP - either directly from hardware in the bare-metal
+case or via the hypervisor (because the RDMSR is actually intercepted)
+in the guest/VM case, resulting in a failed boot. And since this is very
+early in the boot phase, rdmsrl_safe()/native_read_msr_safe() can't be
+used.
 
-Fix it by computing the timeout duration in terms of the current
-sysctl_hung_task_timeout_secs value.
+So check the CPUID bits first, before accessing the MSR.
 
-Link: https://lkml.kernel.org/r/20210421105132.3965998-3-elver@google.com
-Signed-off-by: Marco Elver <elver@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Hillf Danton <hdanton@sina.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Mark Rutland <mark.rutland@arm.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+ [ tlendacky: Expand and improve commit message. ]
+ [ bp: Massage commit message. ]
+
+Fixes: eab696d8e8b9 ("x86/sev: Do not require Hypervisor CPUID bit for SEV guests")
+Signed-off-by: Pu Wen <puwen@hygon.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Acked-by: Tom Lendacky <thomas.lendacky@amd.com>
+Cc: <stable@vger.kernel.org> # v5.10+
+Link: https://lkml.kernel.org/r/20210602070207.2480-1-puwen@hygon.cn
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/kfence/core.c |   12 +++++++++++-
- 1 file changed, 11 insertions(+), 1 deletion(-)
+ arch/x86/mm/mem_encrypt_identity.c |   11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
---- a/mm/kfence/core.c
-+++ b/mm/kfence/core.c
-@@ -20,6 +20,7 @@
- #include <linux/moduleparam.h>
- #include <linux/random.h>
- #include <linux/rcupdate.h>
-+#include <linux/sched/sysctl.h>
- #include <linux/seq_file.h>
- #include <linux/slab.h>
- #include <linux/spinlock.h>
-@@ -620,7 +621,16 @@ static void toggle_allocation_gate(struc
- 	/* Enable static key, and await allocation to happen. */
- 	static_branch_enable(&kfence_allocation_key);
+--- a/arch/x86/mm/mem_encrypt_identity.c
++++ b/arch/x86/mm/mem_encrypt_identity.c
+@@ -504,10 +504,6 @@ void __init sme_enable(struct boot_param
+ #define AMD_SME_BIT	BIT(0)
+ #define AMD_SEV_BIT	BIT(1)
  
--	wait_event_timeout(allocation_wait, atomic_read(&kfence_allocation_gate), HZ);
-+	if (sysctl_hung_task_timeout_secs) {
-+		/*
-+		 * During low activity with no allocations we might wait a
-+		 * while; let's avoid the hung task warning.
-+		 */
-+		wait_event_timeout(allocation_wait, atomic_read(&kfence_allocation_gate),
-+				   sysctl_hung_task_timeout_secs * HZ / 2);
-+	} else {
-+		wait_event(allocation_wait, atomic_read(&kfence_allocation_gate));
-+	}
+-	/* Check the SEV MSR whether SEV or SME is enabled */
+-	sev_status   = __rdmsr(MSR_AMD64_SEV);
+-	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
+-
+ 	/*
+ 	 * Check for the SME/SEV feature:
+ 	 *   CPUID Fn8000_001F[EAX]
+@@ -519,11 +515,16 @@ void __init sme_enable(struct boot_param
+ 	eax = 0x8000001f;
+ 	ecx = 0;
+ 	native_cpuid(&eax, &ebx, &ecx, &edx);
+-	if (!(eax & feature_mask))
++	/* Check whether SEV or SME is supported */
++	if (!(eax & (AMD_SEV_BIT | AMD_SME_BIT)))
+ 		return;
  
- 	/* Disable static key and reset timer. */
- 	static_branch_disable(&kfence_allocation_key);
+ 	me_mask = 1UL << (ebx & 0x3f);
+ 
++	/* Check the SEV MSR whether SEV or SME is enabled */
++	sev_status   = __rdmsr(MSR_AMD64_SEV);
++	feature_mask = (sev_status & MSR_AMD64_SEV_ENABLED) ? AMD_SEV_BIT : AMD_SME_BIT;
++
+ 	/* Check if memory encryption is enabled */
+ 	if (feature_mask == AMD_SME_BIT) {
+ 		/*
 
 
